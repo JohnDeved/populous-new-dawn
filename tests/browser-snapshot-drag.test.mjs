@@ -7,6 +7,234 @@ import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-perfor
 import { installSnapshotDragObserver } from '../scripts/browser-performance/snapshot-drag-observer.mjs'
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
+const renderCpuProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+// Literal inverse of the reviewed PR #789 RenderView delta. This reconstructs
+// historical fixture reads only; production admission never normalizes source.
+const renderCpuDeltas = [
+  [`  private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryPickDepth = 0
+  private pickOperationDepth = 0
+  private ordinaryPickDisposed = false
+  groundPickCache = new WeakMap<
+`, `  private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryPickDepth = 0
+  private ordinaryPickDisposed = false
+  groundPickCache = new WeakMap<
+`],
+  [`  // for equivalent submissions even when an external producer rewrites the index.
+  pickSubmissionKey(objects: THREE.Object3D[]) {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickSubmissionKey(objects)
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
+  private collectPickSubmissionKey(objects: THREE.Object3D[]) {
+    const submissions = this.pickSubmissions,
+      keys: string[] = []
+    for (const root of objects)
+      root.traverseVisible(object => {
+`, `  // for equivalent submissions even when an external producer rewrites the index.
+  pickSubmissionKey(objects: THREE.Object3D[]) {
+    const keys: string[] = []
+    for (const root of objects)
+      root.traverseVisible(object => {
+`],
+  [`            object instanceof THREE.InstancedMesh ? object.instanceMatrix.version : -1,
+          matrix = object.matrixWorld.elements.join(',')
+        const cached = submissions.get(object)
+        let same =
+          !!cached &&
+`, `            object instanceof THREE.InstancedMesh ? object.instanceMatrix.version : -1,
+          matrix = object.matrixWorld.elements.join(',')
+        const cached = this.pickSubmissions.get(object)
+        let same =
+          !!cached &&
+`],
+  [`        }
+        const revision = same ? cached!.revision : (cached?.revision ?? 0) + 1
+        if (!this.ordinaryPickDisposed)
+          submissions.set(object, {
+            revision,
+            position,
+            positionVersion,
+            index,
+            indexVersion: index?.version ?? -1,
+            drawStart,
+            drawCount,
+            instances,
+            instanceVersion,
+            matrix,
+            cells,
+          })
+        keys.push(\`\${object.id}:\${revision}\`)
+      })
+`, `        }
+        const revision = same ? cached!.revision : (cached?.revision ?? 0) + 1
+        this.pickSubmissions.set(object, {
+          revision,
+          position,
+          positionVersion,
+          index,
+          indexVersion: index?.version ?? -1,
+          drawStart,
+          drawCount,
+          instances,
+          instanceVersion,
+          matrix,
+          cells,
+        })
+        keys.push(\`\${object.id}:\${revision}\`)
+      })
+`],
+  [`    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`, `    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`],
+  [`    owned = false
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`, `    owned = false
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`],
+  [`            if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+          }
+          if (nativeEdges && !reuse && !this.ordinaryPickDisposed) {
+            let entries = this.groundPickCache.get(object)
+            if (!entries) this.groundPickCache.set(object, (entries = new Map()))
+`, `            if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+          }
+          if (nativeEdges && !reuse) {
+            let entries = this.groundPickCache.get(object)
+            if (!entries) this.groundPickCache.set(object, (entries = new Map()))
+`],
+  [`    if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
+      return this.pick(mouse, [terrain], camera, false, metrics)
+    this.beginPickOperation()
+    try {
+      return this.pickOwnedTerrainQuery(mouse, terrain, camera, metrics)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private pickOwnedTerrainQuery(
+    mouse: THREE.Vector2,
+    terrain: THREE.Object3D,
+    camera: THREE.Camera,
+    metrics?: OrdinaryTerrainMetrics
+  ) {
+    const candidates = this.pickCandidateQuery(
+      mouse,
+`, `    if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
+      return this.pick(mouse, [terrain], camera, false, metrics)
+    const candidates = this.pickCandidateQuery(
+      mouse,
+`],
+  [`  }
+
+  private beginPickOperation() {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.pickOperationDepth++
+    this.painter.beginCpuLease()
+  }
+
+  private endPickOperation() {
+    this.pickOperationDepth--
+    this.painter.endCpuLease()
+  }
+
+  resolvePickCandidates(candidates: ViewPickCandidate[]) {
+    this.beginPickOperation()
+    try {
+      return this.resolveCandidates(candidates)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private resolveCandidates(candidates: ViewPickCandidate[]) {
+    let best: ViewPickCandidate | null = null
+    for (const candidate of candidates) {
+`, `  }
+
+  resolvePickCandidates(candidates: ViewPickCandidate[]) {
+    let best: ViewPickCandidate | null = null
+    for (const candidate of candidates) {
+`],
+  [`    camera: THREE.Camera,
+    nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+    this.beginPickOperation()
+    try {
+      return this.pickQuery(mouse, objects, camera, nativeEdges, ordinaryMetrics)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private pickQuery(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+`, `    camera: THREE.Camera,
+    nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+`],
+  [`    // Drop ownership without mutating any buffers an active reentrant call holds.
+    this.ordinaryPickScratch = null
+    this.groundPickCache = new WeakMap()
+    this.pickSubmissions = new WeakMap()
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
+    this.boundsTexture.dispose()
+    this.painter.dispose()
+  }
+}
+`, `    // Drop ownership without mutating any buffers an active reentrant call holds.
+    this.ordinaryPickScratch = null
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
+    this.boundsTexture.dispose()
+    this.painter.texture.dispose()
+  }
+}
+`],
+]
+function preRenderCpuRead(path) {
+  let source = readFileSync(resolve(root, path), 'utf8')
+  if (path === 'app/render-view.ts') for (const [current, previous] of renderCpuDeltas) {
+    assert.equal(source.split(current).length, 2, 'exact reviewed RenderView inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
 
 test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
   const read = path => readFileSync(resolve(root, path), 'utf8')
@@ -14,7 +242,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === renderCpuProfileId ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -67,7 +295,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', renderCpuProfileId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -80,7 +308,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
 
 
 test('pick-path and recording-epoch admission preserve exact historical source contracts', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = preRenderCpuRead
   const oldId = 'owned-numeric-terrain-neutral-cursor-v1'
   const newId = 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'
   const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
@@ -88,7 +316,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, renderCpuProfileId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -111,7 +339,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
       assert.deepEqual({ ...next, sha256: previous.sha256 }, previous, 'all epoch boundaries remain exact')
     }
   }
-  const current = inspectDragSource(root)
+  const current = inspectDragSource(root, read)
   assert.equal(current.profile, epochId)
   assert.equal(current.profiles.filter(profile => profile.status === 'admitted').length, 1)
   // Undo exactly the reviewed recording argument to recover PR640's full route.
@@ -159,6 +387,60 @@ test('pick-path and recording-epoch admission preserve exact historical source c
     const rejected = inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name))
     assert.equal(rejected.status, 'unsupported-source-contract')
     assert.equal(rejected.profile, null)
+  }
+})
+
+
+test('RenderView CPU lease admission is additive, atomic and binds the new helper', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const current = inspectDragSource(root), previous = inspectDragSource(root, preRenderCpuRead)
+  assert.equal(current.profile, renderCpuProfileId)
+  assert.equal(previous.profile, 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1')
+  for (const result of [current, previous]) {
+    assert.equal(result.status, 'admitted')
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  const oldProfile = dragSourceProfiles.find(profile => profile.id === previous.profile)
+  const next = dragSourceProfiles.find(profile => profile.id === current.profile)
+  const changed = ['submission-key', 'query-entry', 'owned-terrain-entry']
+  assert.equal(oldProfile.slices.length, 17)
+  assert.equal(next.slices.length, 18)
+  for (const [i, oldSlice] of oldProfile.slices.entries()) {
+    assert.deepEqual({ ...next.slices[i], sha256: oldSlice.sha256 }, oldSlice)
+    assert.equal(next.slices[i].sha256 !== oldSlice.sha256, changed.includes(oldSlice.id), oldSlice.id)
+  }
+  const historicalHashes = {
+    'submission-key': '5e18c8d895f34b4b0f161c08993932ab41be6a4f53fe585d77641921e5c9c67a',
+    'query-entry': '5344885e512cc204ccbd721fb5210977eb9b16efa7dc55de39ee72b235cb1bb8',
+    'owned-terrain-entry': 'c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86',
+  }
+  for (const [id, hash] of Object.entries(historicalHashes))
+    assert.equal(oldProfile.slices.find(slice => slice.id === id).sha256, hash)
+  const helper = next.slices.at(-1)
+  assert.equal(helper.id, 'pick-operation-leases')
+  const sliceText = (source, spec) => source.slice(source.indexOf(spec.start), source.indexOf(spec.end))
+  const path = 'app/render-view.ts', source = read(path), historical = preRenderCpuRead(path)
+  // Every nonempty proper mixture of the three old/new call sites is unreviewed.
+  for (let mask = 1; mask < 7; mask++) {
+    let mixed = source
+    for (let i = 0; i < changed.length; i++) if (mask & (1 << i)) {
+      const spec = next.slices.find(slice => slice.id === changed[i])
+      mixed = mixed.replace(sliceText(source, spec), sliceText(historical, spec))
+    }
+    const result = inspectDragSource(root, name => name === path ? mixed : read(name))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.equal(result.profile, null)
+  }
+  for (const [before, after] of [
+    ['    this.pickOperationDepth++', '    this.pickOperationDepth += 2'],
+    ['    this.painter.beginCpuLease()', '    /* missing painter lease */'],
+    ['    this.painter.endCpuLease()', '    /* missing painter release */'],
+    ['      return this.resolveCandidates(candidates)', '      return null'],
+  ]) {
+    assert.equal(source.split(before).length, 2)
+    const result = inspectDragSource(root, name => name === path ? source.replace(before, after) : read(name))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.ok(result.profiles.find(profile => profile.id === renderCpuProfileId).slices.find(slice => slice.id === helper.id).reason)
   }
 })
 
