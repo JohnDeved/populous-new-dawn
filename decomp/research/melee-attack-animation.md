@@ -2,6 +2,8 @@
 
 Related to broad sprite-cadence issue #214; this is not an absolute original FPS
 calibration or a complete melee, recoil, renderer or animation-family claim.
+The later [recoil entry and push handoff](melee-recoil-animation.md) note covers
+that separate, source-owned slice without extending this attack-only evidence.
 
 ## Ordinary defect and retained original contract
 
