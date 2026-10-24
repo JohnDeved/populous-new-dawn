@@ -84,6 +84,8 @@ export function runAcceptance(output) {
     'scripts/acceptance/m6/plan.json',
     'scripts/acceptance/m6/output-path.mjs',
     'scripts/orchestration/command-receipt.mjs',
+    'scripts/orchestration/command-receipt-v1.mjs',
+    'scripts/orchestration/receipt-streams.mjs',
     'tests/support/profile-storage.mjs',
     'tests/support/bloodlust-scene.mjs',
     'package-lock.json',
@@ -100,6 +102,7 @@ export function runAcceptance(output) {
     console.log(`Mission 6: ${stage.name}`)
     const receipt = runCommandReceipt(ROOT, {
       output: receiptPath,
+      streamVersion: stage.name === 'fresh-release' ? 2 : 1,
       command: [process.execPath, script],
       inputs: [...sharedPaths, ...stage.inputs.map(name => `${checkpoints}/${name}`)],
       env: { ...process.env, PND_M6_OUTPUT: resolve(ROOT, checkpoints) },
