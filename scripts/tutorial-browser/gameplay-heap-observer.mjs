@@ -16,9 +16,9 @@ export const gameplayHeapPolicy = Object.freeze({ version: 1,
   fields: ['usedSize', 'totalSize', 'embedderHeapUsedSize', 'backingStorageSize'],
 })
 const finite = value => assert.ok(Number.isFinite(value) && value >= 0)
-export function assertGameplayHeapSample(sample) {
+function assertHeapSample(sample, policy) {
   assert.equal(sample.status, 'passed'); assert.equal(sample.failure, undefined)
-  assert.ok(gameplayHeapPolicy.boundaries.includes(sample.boundary))
+  assert.ok(policy.boundaries.includes(sample.boundary))
   assert.equal(sample.scope, gameplayHeapPolicy.scope)
   assert.equal(sample.gc.method, 'HeapProfiler.collectGarbage'); assert.equal(sample.gc.calls, 1)
   assert.equal(sample.gc.completed, true); assert.equal(sample.f8Hidden, true)
@@ -42,9 +42,9 @@ export function assertGameplayHeapSample(sample) {
 
 // All returned values are data. No remote object handles or Scene references.
 // send failures propagate; unsupported commands/fields never become zero bytes.
-export async function captureGameplayHeapSample({ session, boundary, observe, assertF8Hidden,
-  now = () => performance.now(), onSample = () => {} }) {
-  assert.ok(gameplayHeapPolicy.boundaries.includes(boundary))
+async function captureHeapSample({ session, boundary, observe, assertF8Hidden,
+  now = () => performance.now(), onSample = () => {} }, policy) {
+  assert.ok(policy.boundaries.includes(boundary))
   const sample = { status: 'running', boundary, scope: gameplayHeapPolicy.scope,
     gc: { method: 'HeapProfiler.collectGarbage', calls: 0, completed: false },
     timing: { startedMs: now() } }
@@ -65,7 +65,7 @@ export async function captureGameplayHeapSample({ session, boundary, observe, as
     sample.after = await observe()
     await assertF8Hidden()
     sample.timing.endedMs = now(); sample.status = 'passed'
-    assertGameplayHeapSample(sample)
+    assertHeapSample(sample, policy)
     return sample
   } catch (error) {
     sample.status = 'failed'; sample.failure = String(error)
@@ -94,4 +94,63 @@ export function validateGameplayHeapProbe(probe, resources) {
   assert.ok(second.timing.startedMs >= first.timing.endedMs)
   return { capabilityVerified: true, sampleCount: 2, scope: gameplayHeapPolicy.scope,
     interpretation: 'different-workload-history-capability-only-not-retention-comparison' }
+}
+
+// Separate entry points preserve historical v1 capability semantics. Callers cannot
+// weaken either policy with a feature flag or substitute their own boundary list.
+export const assertGameplayHeapSample = sample => assertHeapSample(sample, gameplayHeapPolicy)
+export const captureGameplayHeapSample = options => captureHeapSample(options, gameplayHeapPolicy)
+export const gameplayMatchedHeapPolicy = Object.freeze({ ...gameplayHeapPolicy, version: 2,
+  boundaries: ['after-cycle-1-workload', 'after-cycle-2-workload'] })
+export const gameplayMatchedProtocol = Object.freeze({ version: 1, cycles: 2, publicRestarts: 1,
+  setup: 'authored-mission-2-startup-ready-public-skip-normal-speed', pointerReset: { x: 900, y: 400 },
+  restartPreconditioning: 'additional-live-settling-interval-before-second-cycle-pointer-reset-and-warmup',
+  workload: 'complete-five-phase-plan-per-cycle', sampleEndpoint: 'after-final-screenshot-and-live-resource-observation',
+  equivalence: 'same-input-recipe-not-identical-observed-work', interpretation: 'two-cycle-descriptive-isolate-byte-change-only' })
+export const gameplayMatchedHeapLimits = Object.freeze([
+  'Two complete same-input-recipe workloads are not identical observed work: turns, frames, target, camera and query differences are retained.',
+  'Two post-workload samples describe finite isolate-byte change across one public restart, not a plateau, leak, memory reduction or bound.',
+  'The replacement Scene has an additional recorded live settling interval before its repeated pointer reset and warmup; preconditioning histories are not identical.',
+  'First-use caches, instrumentation retention and cumulative session history may differ. No matched baseline/candidate improvement is established.',
+  ...gameplayHeapLimits.slice(1),
+])
+export const captureGameplayMatchedHeapSample = options => captureHeapSample(options, gameplayMatchedHeapPolicy)
+export function summarizeGameplayMatchedWorkload(cycles) {
+  assert.equal(cycles.length, 2)
+  return cycles[0].phases.map((first, index) => {
+    const second = cycles[1].phases[index]
+    assert.equal(first.name, second.name)
+    const observed = record => ({ point: record.point, before: record.before, after: record.after,
+      turnsAdvanced: record.turnsAdvanced, frameCount: record.frameCount, work: record.work })
+    return { phase: first.name, first: observed(first), second: observed(second),
+      secondMinusFirst: { turnsAdvanced: second.turnsAdvanced - first.turnsAdvanced,
+        frameCount: second.frameCount - first.frameCount,
+        work: Object.fromEntries(Object.keys(first.work).map(key => [key, second.work[key] - first.work[key]])) } }
+  })
+}
+export function validateGameplayMatchedHeapProbe(probe, resources, cycles) {
+  assert.equal(probe.version, 2); assert.equal(probe.status, 'passed-two-cycle-descriptive-observations')
+  assert.deepEqual(probe.policy, gameplayMatchedHeapPolicy); assert.deepEqual(probe.limits, gameplayMatchedHeapLimits)
+  assert.equal(probe.sessionDetached, true)
+  assert.deepEqual(probe.samples.map(sample => sample.boundary), gameplayMatchedHeapPolicy.boundaries)
+  assert.equal(cycles.length, 2)
+  for (const [index, sample] of probe.samples.entries()) {
+    assertHeapSample(sample, gameplayMatchedHeapPolicy)
+    const endpoint = cycles[index].resources.afterWorkload
+    assert.equal(sample.before.sceneUuid, endpoint.sceneUuid)
+    assert.equal(sample.before.timeOriginUnixMs, endpoint.timeOriginUnixMs)
+    assert.ok(sample.before.timestampMs >= endpoint.timestampMs && sample.before.turn >= endpoint.turn)
+  }
+  const [first, second] = probe.samples
+  assert.equal(first.isolateBefore, second.isolateBefore)
+  assert.equal(first.before.timeOriginUnixMs, second.before.timeOriginUnixMs)
+  assert.notEqual(first.before.sceneUuid, second.before.sceneUuid)
+  assert.equal(second.before.sceneUuid, resources.restart.settled.sceneUuid)
+  assert.ok(first.after.timestampMs < resources.restart.after.timestampMs)
+  assert.ok(cycles[1].resources.beforeWarmup.timestampMs >= resources.restart.settled.timestampMs)
+  assert.ok(cycles[1].resources.beforeWarmup.turn >= resources.restart.settled.turn)
+  assert.ok(second.timing.startedMs >= first.timing.endedMs)
+  return { capabilityVerified: true, matchedProtocolVerified: true, sampleCount: 2, scope: gameplayHeapPolicy.scope,
+    interpretation: gameplayMatchedProtocol.interpretation,
+    secondMinusFirstBytes: Object.fromEntries(gameplayHeapPolicy.fields.map(key => [key, second.bytes[key] - first.bytes[key]])) }
 }

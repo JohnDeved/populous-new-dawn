@@ -53,6 +53,8 @@ test('resource acceptance requires artifact verification and the matching curren
   validatePassedGate(o,GAMEPLAY_RESOURCE_BROWSER_GATE,latest)
   assert.throws(()=>validatePassedGate(o,GAMEPLAY_HEAP_BROWSER_GATE,latest))
   validatePassedGate(o,GAMEPLAY_HEAP_BROWSER_GATE,{...latest,gameplayHeapVerified:true})
+  assert.throws(()=>validatePassedGate(o,GAMEPLAY_MATCHED_BROWSER_GATE,{...latest,gameplayHeapVerified:true}))
+  validatePassedGate(o,GAMEPLAY_MATCHED_BROWSER_GATE,{...latest,gameplayHeapVerified:true,gameplayMatchedCyclesVerified:true})
   for(const key of ['pauseRecoveryVerified','profileRecoveryVerified','mission10Verified','gameplayResourcesVerified']) assert.throws(()=>validatePassedGate(o,GAMEPLAY_RESOURCE_BROWSER_GATE,{...latest,[key]:false}))
   for(const mutate of [checks=>checks.splice(7,1),checks=>{checks[7].head=oid(9)},checks=>{checks[7].appId=0},checks=>{checks[7].conclusion='failure'},checks=>checks.push({...checks[7],id:999,startedAt:'2026-10-24T01:00:00Z'})]) {
     const bad=structuredClone(o);mutate(bad.currentChecks);assert.throws(()=>validatePassedGate(bad,GAMEPLAY_RESOURCE_BROWSER_GATE,latest))
@@ -126,4 +128,26 @@ test('v2 selects byte-required gate and cannot accept v1-only completion',()=>{
 test('adapter cannot upgrade historical artifact to byte-qualified v2',()=>{
  const a=resourceAdapter();a.args[0].browserPolicy=GAMEPLAY_HEAP_POLICY
  assert.throws(()=>a.reader.verifyGameplayResourceRun(...a.args));assert.equal(a.args[5].gameplayHeapVerified,undefined)
+})
+
+import { GAMEPLAY_MATCHED_BROWSER_GATE } from '../scripts/integration-queue/policy.mjs'
+import { GAMEPLAY_MATCHED_POLICY } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+test('v3 requires the matched-cycle gate and bound ten-phase archive, never historical completion',()=>{
+ const e={...entry(),browserPolicy:GAMEPLAY_MATCHED_POLICY};validateEntry(e)
+ assert.equal(gatesFor(e)[1],GAMEPLAY_MATCHED_BROWSER_GATE)
+ assert.equal(GAMEPLAY_MATCHED_BROWSER_GATE.gameplayMatchedCyclesRequired,true)
+ const good=resourceAdapter(GAMEPLAY_MATCHED_POLICY)
+ assert.equal(good.reader.verifyGameplayResourceRun(...good.args),true)
+ assert.equal(good.args[5].gameplayMatchedCyclesVerified,true)
+ assert.equal(good.args[5].gameplayHeapVerified,true)
+ for(const mutate of [
+  v=>{delete v.f.files['cycle-2-gameplay-frame-hud.json'];v.rebuild()},
+  v=>{v.f.report.resources.heap.samples[1].boundary='after-restart-settled';v.rebuild()},
+  v=>{v.f.raw.source.files={...v.f.raw.source.files,'scripts/tutorial-browser/gameplay-heap-observer.mjs':'f'.repeat(64)};v.rebuild()},
+  v=>{v.args[0].browserPolicy=GAMEPLAY_HEAP_POLICY},
+ ]) {const bad=resourceAdapter(GAMEPLAY_MATCHED_POLICY);mutate(bad);assert.throws(()=>bad.reader.verifyGameplayResourceRun(...bad.args));assert.equal(bad.args[5].gameplayMatchedCyclesVerified,undefined)}
+ for(const policy of [GAMEPLAY_RESOURCE_POLICY,GAMEPLAY_HEAP_POLICY]) {
+  const old=resourceAdapter(policy);old.args[0].browserPolicy=GAMEPLAY_MATCHED_POLICY
+  assert.throws(()=>old.reader.verifyGameplayResourceRun(...old.args));assert.equal(old.args[5].gameplayMatchedCyclesVerified,undefined)
+ }
 })

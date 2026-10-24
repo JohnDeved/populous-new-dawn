@@ -52,3 +52,18 @@ test('changed isolate, changed scene, paused state and visible F8 fail', async (
     f => { f.options.assertF8Hidden = async () => { throw Error('F8 visible') } },
   ]) { const f = fixture(); mutate(f); await assert.rejects(captureGameplayHeapSample(f.options)); assert.equal(f.records[0].status, 'failed') }
 })
+
+import { captureGameplayMatchedHeapSample, gameplayMatchedHeapPolicy } from '../scripts/tutorial-browser/gameplay-heap-observer.mjs'
+test('matched protocol uses exactly one GC at each explicit post-workload boundary without changing historical labels', async () => {
+  for (const boundary of gameplayMatchedHeapPolicy.boundaries) {
+    const f = fixture(); f.options.boundary = boundary
+    const sample = await captureGameplayMatchedHeapSample(f.options)
+    assert.equal(sample.boundary, boundary); assert.equal(sample.gc.calls, 1)
+    assert.equal(f.calls.filter(method => method === 'HeapProfiler.collectGarbage').length, 1)
+    assert.throws(() => assertGameplayHeapSample(sample))
+    await assert.rejects(captureGameplayHeapSample(f.options))
+  }
+  const historical = fixture()
+  await assert.rejects(captureGameplayMatchedHeapSample(historical.options))
+  assert.equal(historical.calls.length, 0)
+})

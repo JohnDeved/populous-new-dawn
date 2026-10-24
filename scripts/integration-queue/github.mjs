@@ -1,4 +1,4 @@
-import { GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, GAMEPLAY_HEAP_INPUTS, gameplayResourceArchiveLimit,
+import { GAMEPLAY_MATCHED_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, GAMEPLAY_HEAP_INPUTS, gameplayResourceArchiveLimit,
   validateGameplayResourceBrowserJobs, gameplayResourceArtifactUpload, validateGameplayResourceArtifactMetadata,
   resolveGameplayResourceArtifact } from './gameplay-resources-policy.mjs'
 import { COMPOSED_SOURCE_INPUTS, composedContract } from './composed-profile-artifact.mjs'
@@ -480,9 +480,13 @@ export class GitHubReader {
     const evidence = resolveGameplayResourceArtifact(this.gameplayResourceArchive(upload.id), upload, expected)
     ensure(evidence && typeof evidence.then !== 'function' && evidence.lifecycleVerified === true,
       'Unresolved gameplay resources artifact evidence')
-    if (entry.browserPolicy === GAMEPLAY_HEAP_POLICY) {
+    if ([GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY].includes(entry.browserPolicy)) {
       ensure(evidence.heapCapabilityVerified === true, 'Missing mandatory isolate byte capability proof')
       row.gameplayHeapVerified = true
+    }
+    if (entry.browserPolicy === GAMEPLAY_MATCHED_POLICY) {
+      ensure(evidence.matchedCyclesVerified === true, 'Missing mandatory matched two-cycle proof')
+      row.gameplayMatchedCyclesVerified = true
     }
     row.gameplayResourcesVerified = true
     row.gameplayResourcesCheckId = check.id
