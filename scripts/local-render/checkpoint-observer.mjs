@@ -1,6 +1,6 @@
 // Page-serializable, read-only observer shared by committed IDB and an already
 // captured store-replacement snapshot. No database creation or storage export.
-export async function checkpointObservation({ observationName } = {}) {
+export async function checkpointObservation({ observationName, trainingTargetId } = {}) {
   const canonical = value => {
     const seen = new Map()
     let nodes = 0
@@ -65,6 +65,10 @@ export async function checkpointObservation({ observationName } = {}) {
     return {
       version: record.version, level: w.outcome.level, turn: w.turn, time: w.time,
       checkpointSha256: await digest(record),
+      ...(trainingTargetId === undefined ? {} : { trainingSha256: await digest({
+        camp: w.buildings.find(b => b.id === trainingTargetId), units: w.units,
+        orders: w.buildingOrders, manaTribes: w.manaTribes, stats: w.stats,
+      }) }),
       actorsSha256: await digest(w.units.map(u => [u.id, u.team, u.kind, u.hp, u.x, u.z])),
       terrainSha256: await digest(w.terrain),
       stockSha256: await digest({ mana: w.mana, wood: w.wood, shots: w.shots, giftCounts: w.giftCounts }),
@@ -72,6 +76,6 @@ export async function checkpointObservation({ observationName } = {}) {
   } finally { db?.close() }
 }
 
-export async function readCommittedCheckpoint(page) {
-  return page.evaluate(checkpointObservation)
+export async function readCommittedCheckpoint(page, options) {
+  return page.evaluate(checkpointObservation, options)
 }
