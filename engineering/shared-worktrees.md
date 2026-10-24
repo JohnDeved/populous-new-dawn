@@ -158,6 +158,14 @@ positive caller-declared allocation and remaining-reserve budgets. Known Linux
 tmpfs/ramfs destinations are refused; an unknown mount type is reported, not treated
 as proof of persistent storage.
 
+Admission also reads Git's registered worktree inventory and rejects shared roots
+equal to, inside, or containing any registered worktree, including sibling editing
+views. Missing or symlinked registered roots fail closed without pruning or repair;
+resolve their ownership separately. The inventory is checked again before returning.
+This is a read-only snapshot, not a lock against later worktree changes, a canonical
+shared-root registry, or discovery of unrelated clones. Continue choosing the same
+external root explicitly: two different external stores are not automatically deduplicated.
+
 Serialize the install after admission; the plan is a capacity snapshot, not a disk
 reservation, quota or process memory cap. It cannot limit a later package manager's
 allocation. Retain separate exact-source/toolchain/raw command receipts and resource
