@@ -11,6 +11,7 @@ import unittest
 from unittest import mock
 
 HELPER = Path(__file__).resolve().parents[1] / 'scripts/orchestration/shared_runtime.py'
+sys.path.insert(0, str(HELPER.parent))
 spec = importlib.util.spec_from_file_location('shared_runtime', HELPER)
 storage = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(storage)
@@ -538,6 +539,8 @@ globalThis.sharedAssetResult = { runtime, provenance };
         self.prepare()
         result = storage.execute(self.source, self.revision, self.pool, self.runtime, self.root / 'receipt.json', [sys.executable, '-c', "print('executed')"])
         self.assertEqual(result['status'], 'passed')
+        self.assertEqual(result['dependenciesBefore']['kind'], 'none')
+        self.assertEqual(result['dependenciesBefore']['entries'], 0)
         self.assertEqual(result['sourceBefore']['revision'], self.revision)
         self.assertEqual((self.root / 'receipt.json.stdout').read_text(), 'executed\n')
         self.assertEqual(result['logs']['stdout']['sha256'], storage.digest(b'executed\n'))
@@ -673,6 +676,101 @@ for suffix in ('', '.stdout', '.stderr'):
                                         [sys.executable, '-c', "raise AssertionError('must not launch')"])
                     self.assertEqual(source.read_bytes(), original_source)
                     self.assertEqual(target.read_bytes(), b'existing evidence' if kind == 'regular' else original_source)
+
+    def ready_fixture(self, *, package=True):
+        self.prepare()
+        store = self.root / 'pnpm-store/v11'
+        (store / 'files').mkdir(parents=True)
+        modules = self.runtime / 'node_modules'
+        virtual = modules / '.pnpm'
+        virtual.mkdir(parents=True)
+        lock = b"lockfileVersion: '9.0'\nimporters:\n  .: {}\n"
+        (self.runtime / 'pnpm-lock.yaml').write_bytes(lock)
+        (virtual / 'lock.yaml').write_bytes(lock)
+        (modules / '.modules.yaml').write_text(json.dumps({
+            'packageManager': 'pnpm@11.25.0', 'nodeLinker': 'isolated',
+            'storeDir': str(store), 'virtualStoreDir': '.pnpm',
+        }))
+        if package:
+            target = virtual / 'example@1/node_modules/example'
+            target.mkdir(parents=True)
+            (target / 'index.js').write_text('export const fixture = true;\n')
+            (modules / 'example').symlink_to('.pnpm/example@1/node_modules/example')
+        return store
+
+    def ready(self, store):
+        return storage.verify_ready(self.source, self.revision, self.pool, self.runtime, store)
+
+    def test_readiness_rejects_absent_dependencies_without_creating_them(self):
+        self.prepare()
+        store = self.root / 'store'
+        (store / 'files').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'Missing physical path'):
+            self.ready(store)
+        self.assertFalse((self.runtime / 'node_modules').exists())
+
+    def test_readiness_rejects_missing_virtual_store_even_with_modules(self):
+        self.prepare()
+        (self.runtime / 'node_modules').mkdir()
+        store = self.root / 'store'
+        (store / 'files').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'Missing physical path.*[.]pnpm'):
+            self.ready(store)
+        self.assertFalse((self.runtime / 'node_modules/.pnpm').exists())
+
+    def test_readiness_rejects_broken_package_link(self):
+        store = self.ready_fixture()
+        link = self.runtime / 'node_modules/missing'
+        link.symlink_to('.pnpm/absent/node_modules/absent')
+        with self.assertRaises(FileNotFoundError):
+            self.ready(store)
+        self.assertTrue(link.is_symlink())
+
+    def test_readiness_rejects_metadata_only_empty_dependencies(self):
+        store = self.ready_fixture(package=False)
+        with self.assertRaisesRegex(ValueError, 'No installed package files'):
+            self.ready(store)
+
+    def test_readiness_requires_explicit_store(self):
+        self.prepare()
+        with self.assertRaisesRegex(ValueError, 'explicit --dependency-store'):
+            self.ready(None)
+
+    def test_readiness_qualified_valid_layout_is_not_build_or_sharing_proof(self):
+        store = self.ready_fixture()
+        result = self.ready(store)
+        self.assertEqual(result['kind'], 'shared-runtime-readiness')
+        self.assertEqual(result['status'], 'verified')
+        self.assertEqual(result['source']['revision'], self.revision)
+        self.assertEqual(result['installation']['dependencyIdentity']['kind'], 'pnpm')
+        self.assertEqual(result['installation']['packageFiles'], 1)
+        self.assertEqual(result['installation']['sharedFiles'], 0)
+        self.assertIn('not dependency compatibility', result['scope'])
+        self.assertIn('RAM acceptance', result['scope'])
+        self.assertFalse((self.runtime / 'work').exists())
+
+    def test_readiness_rechecks_source_assets_after_installation_audit(self):
+        store = self.ready_fixture()
+        original = storage.verify
+        calls = 0
+        def verify(*args):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                (self.runtime / 'app/main.js').write_text('changed during audit')
+            return original(*args)
+        with mock.patch.object(storage, 'verify', side_effect=verify):
+            with self.assertRaises(ValueError):
+                self.ready(store)
+        self.assertEqual(calls, 2)
+
+    def test_readiness_cli_requires_store_before_emitting_success(self):
+        self.prepare()
+        args = [str(HELPER), 'ready', '--source', str(self.source),
+                '--revision', self.revision, '--pool', str(self.pool), '--runtime', str(self.runtime)]
+        with mock.patch.object(sys, 'argv', args):
+            with self.assertRaisesRegex(ValueError, 'explicit --dependency-store'):
+                storage.main()
 
     def test_pnpm_directory_links_inside_private_virtual_store_supported(self):
         self.prepare()
