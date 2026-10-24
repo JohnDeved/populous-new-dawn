@@ -1,5 +1,6 @@
-// Bounded parent-memory capture. Complete raw files still consume unbounded disk;
-// workload admission and storage ownership remain the caller's responsibility.
+// Bounded parent-memory and raw-byte capture. A verifier attempt shares one
+// allowance; standalone captures get their own. Other artifacts and historical
+// attempts still require workload admission and storage ownership.
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -7,7 +8,38 @@ import fs from 'node:fs'
 import { dirname, join, parse, resolve } from 'node:path'
 import { StringDecoder } from 'node:string_decoder'
 
+export const DEFAULT_MAX_RAW_BYTES = 64 * 1024 * 1024
 const CHUNK_BYTES = 64 * 1024
+const FAILED_DRAIN_MS = 2_000
+
+// Charge successful physical writes, not decoded characters or requested writes.
+// Exhaustion is sticky and notifies only owners subscribed to this attempt.
+export function createRawLogBudget(maxBytes = DEFAULT_MAX_RAW_BYTES) {
+  assert(Number.isSafeInteger(maxBytes) && maxBytes >= 0, 'Raw log byte allowance must be a nonnegative safe integer')
+  let usedBytes = 0, error = null
+  const owners = new Set()
+  return Object.freeze({
+    get remainingBytes() { return maxBytes - usedBytes },
+    get error() { return error },
+    snapshot: () => ({ maxBytes, usedBytes, exceeded: error !== null }),
+    charge(count) { usedBytes += count },
+    exhaust() {
+      if (!error) {
+        error = new Error(`Raw log byte allowance exceeded (${maxBytes} bytes); captured output is incomplete`)
+        error.code = 'ERR_RAW_LOG_LIMIT'
+        const failures = []
+        for (const stop of owners) try { stop(error) } catch (failure) { failures.push(failure) }
+        if (failures.length) error.cause = new AggregateError(failures, 'Owned producer cleanup failed')
+      }
+      return error
+    },
+    subscribe(stop) {
+      if (error) throw error
+      owners.add(stop)
+      return () => owners.delete(stop)
+    },
+  })
+}
 const sameNode = (a, b) => a.dev === b.dev && a.ino === b.ino && a.mode === b.mode
 const sameContent = (a, b) => sameNode(a, b) && a.size === b.size && a.mtimeNs === b.mtimeNs && a.ctimeNs === b.ctimeNs
 const names = ['stdout', 'stderr']
@@ -50,10 +82,14 @@ function regular(file, closed = false) {
   return named
 }
 
-function write(file, bytes) {
+function write(file, bytes, budget = null) {
   for (let offset = 0; offset < bytes.length;) {
-    const count = fs.writeSync(file.fd, bytes, offset, Math.min(CHUNK_BYTES, bytes.length - offset))
-    assert(count > 0, 'Command log write made no progress')
+    if (budget?.error) throw budget.error
+    if (budget?.remainingBytes === 0) throw budget.exhaust()
+    const length = Math.min(CHUNK_BYTES, bytes.length - offset, budget?.remainingBytes ?? Infinity)
+    const count = fs.writeSync(file.fd, bytes, offset, length)
+    assert(count > 0 && count <= length, 'Command log write made no progress or exceeded its request')
+    budget?.charge(count)
     if (file.observed) { file.observed.hash.update(bytes.subarray(offset, offset + count)); file.observed.bytes += count }
     offset += count
   }
@@ -92,7 +128,8 @@ function requireAbsent(path) {
 
 // The injected-executor adapter retains the historical name on its first run,
 // but never truncates an earlier attempt (including a symlink).
-export function writeLegacyLog(directory, name, text) {
+export function writeLegacyLog(directory, name, text, { rawLogBudget = createRawLogBudget() } = {}) {
+  if (rawLogBudget.error) throw rawLogBudget.error
   const pins = pinDirectories(directory)
   let file, failure
   try {
@@ -105,7 +142,7 @@ export function writeLegacyLog(directory, name, text) {
     }
     file = { path, fd }
     file.before = fs.fstatSync(fd, { bigint: true })
-    write(file, Buffer.from(text))
+    write(file, Buffer.from(text), rawLogBudget)
     file.captured = regular(file)
     validateDirectories(pins)
   } catch (error) { failure = error }
@@ -116,15 +153,17 @@ export function writeLegacyLog(directory, name, text) {
   return file.path
 }
 
-export async function captureCommand(command, { cwd, env, timeoutMs, directory, diagnosticMode = 'eager-v1' }) {
+export async function captureCommand(command, { cwd, env, timeoutMs, directory, diagnosticMode = 'eager-v1',
+  maxRawBytes = DEFAULT_MAX_RAW_BYTES, rawLogBudget = createRawLogBudget(maxRawBytes) }) {
   assert(Array.isArray(command) && command.length && command.every(arg => typeof arg === 'string'), 'Command arguments are required')
   assert(command[0].length, 'Command executable is required')
   assert(Number.isSafeInteger(timeoutMs) && timeoutMs > 0, 'Command timeout must be positive')
   assert(['eager-v1', 'raw-only-v2'].includes(diagnosticMode), 'Unsupported command diagnostic mode')
+  if (rawLogBudget.error) throw rawLogBudget.error
   const lazy = diagnosticMode === 'raw-only-v2'
   const target = resolve(directory), pins = pinDirectories(dirname(target)), files = new Map()
   const runId = randomUUID(), descriptor = join(target, 'capture.json')
-  let child, outcome, operationError, renamed = false, closing, timer, diagnostic, descriptorHash
+  let child, outcome, operationError, renamed = false, closing, resolveClosing, timer, drainTimer, unsubscribe, diagnostic, descriptorHash, stopAttempted = false
   const validate = (closed = false) => {
     validateDirectories(pins, closed)
     for (const [name, file] of files) if (!(renamed && name === 'capture.json')) regular(file, closed)
@@ -144,24 +183,40 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
     }
     const pending = { version: lazy ? 2 : 1, kind: 'pnd-verification-command-log', publication: 'guard-v1', runId, status: 'pending',
       command, cwd: resolve(cwd), streams: Object.fromEntries(names.map(name => [name, { path: join(target, name + '.log') }])),
-      ...(!lazy ? { log: join(target, 'combined.log') } : {}), limits: ['Bounded parent-memory capture only; complete raw disk growth is not bounded'] }
+      ...(!lazy ? { log: join(target, 'combined.log') } : {}), rawBudget: rawLogBudget.snapshot(),
+      limits: ['Raw stdout/stderr share a byte allowance; derivatives and historical attempts are separate',
+        'Only direct owned children are signaled; descendant cleanup is not claimed'] }
     write(files.get('capture.json'), Buffer.from(JSON.stringify(pending, null, 2) + '\n'))
     files.get('capture.json').captured = regular(files.get('capture.json'))
     let captureError, spawnError
     const failed = error => {
-      captureError ??= error
+      if (captureError) return
+      captureError = error
       // This exact spawned child is the only process owned by this helper.
       if (child?.pid && child.exitCode === null && child.signalCode === null) {
-        try { child.kill('SIGKILL') } catch (failure) { captureError = new AggregateError([captureError, failure], 'Owned child cleanup failed') }
+        stopAttempted = true
+        try { assert(child.kill('SIGKILL'), 'Owned child could not be signaled') } catch (failure) { captureError = new AggregateError([captureError, failure], 'Owned child cleanup failed') }
       }
+      // A descendant may retain inherited pipes. Release only our read handles
+      // after the failure drain deadline, never signal an unrelated process.
+      drainTimer ??= setTimeout(() => {
+        child?.stdin.destroy(); child?.stdout.destroy(); child?.stderr.destroy()
+        child?.unref()
+        // A failed signal must not make the capture wait forever for process
+        // exit. Report observed state only; do not claim this producer stopped.
+        resolveClosing?.({ exitCode: child?.exitCode ?? null, timedOut: false,
+          drainIncomplete: true, ownedChildPid: child?.pid, ownedChildExited: child?.exitCode !== null || child?.signalCode !== null })
+      }, FAILED_DRAIN_MS)
     }
+    unsubscribe = rawLogBudget.subscribe(failed)
     child = spawn(command[0], command.slice(1), { cwd, env, shell: false })
     closing = new Promise(resolveOutcome => {
+      resolveClosing = resolveOutcome
       child.once('error', error => { spawnError = error })
       // close follows process exit and closure of its stdio, unlike exit alone.
       child.once('close', code => {
-        clearTimeout(timer)
-        resolveOutcome({ exitCode: spawnError ? 1 : code ?? 1, timedOut: spawnError ? false : code === null })
+        clearTimeout(timer); clearTimeout(drainTimer)
+        resolveOutcome({ exitCode: spawnError ? 1 : code ?? 1, timedOut: spawnError || rawLogBudget.error ? false : code === null })
       })
     })
     for (const name of names) {
@@ -169,13 +224,13 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
         if (captureError) return // Partial evidence remains guarded; never promote it.
         // Synchronous bounded writes exert pipe backpressure without a retained
         // JS promise/chunk queue. A slow disk can delay event-loop timers.
-        try { write(files.get(name + '.log'), chunk) } catch (error) { failed(error) }
+        try { write(files.get(name + '.log'), chunk, rawLogBudget) } catch (error) { failed(error) }
       })
       child[name].on('error', failed)
     }
     timer = setTimeout(() => { try { child.kill('SIGKILL') } catch (error) { failed(error) } }, timeoutMs)
     outcome = await closing
-    if (captureError) throw captureError
+    if (captureError && !rawLogBudget.error) throw captureError
     validate()
     const combined = files.get('combined.log'), streams = {}, decodedHash = createHash('sha256')
     let decodedBytes = 0
@@ -184,12 +239,15 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
       assert(Number.isSafeInteger(decodedBytes), 'Diagnostic size is not representable')
       if (combined) write(combined, bytes)
     }
-    for (const name of names) streams[name] = hashAndDecode(files.get(name + '.log'), emit)
-    if (spawnError) emit(Buffer.from(spawnError.message))
+    for (const name of names) streams[name] = hashAndDecode(files.get(name + '.log'), emit, !rawLogBudget.error)
+    if (spawnError && !rawLogBudget.error) emit(Buffer.from(spawnError.message))
     diagnostic = { version: 1, kind: 'utf8-stdout-then-stderr', bytes: decodedBytes, sha256: decodedHash.digest('hex') }
-    const terminal = { ...pending, status: 'complete', ...outcome, streams,
-      ...(lazy ? { diagnostic } : { log: hashAndDecode(combined, null, false) }),
-      ...(spawnError ? { error: { code: spawnError.code, message: spawnError.message } } : {}) }
+    const terminal = { ...pending, status: rawLogBudget.error ? 'incomplete' : 'complete', ...outcome, streams,
+      rawBudget: rawLogBudget.snapshot(),
+      ...(!rawLogBudget.error ? (lazy ? { diagnostic } : { log: hashAndDecode(combined, null, false) }) : {}),
+      ...(rawLogBudget.error ? { error: { code: rawLogBudget.error.code, message: rawLogBudget.error.message,
+        ...(captureError && captureError !== rawLogBudget.error ? { cleanupError: captureError.message } : {}) } } :
+        spawnError ? { error: { code: spawnError.code, message: spawnError.message } } : {}) }
     write(files.get('terminal.json.tmp'), Buffer.from(JSON.stringify(terminal, null, 2) + '\n'))
     validate()
     requireAbsent(join(target, 'publication.complete'))
@@ -199,14 +257,16 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
     renamed = true
     validate()
     descriptorHash = hashAndDecode(terminalFile, null, false).sha256
+    if (rawLogBudget.error) throw captureError ?? rawLogBudget.error
   } catch (error) {
     operationError = error
-    if (child?.pid && child.exitCode === null && child.signalCode === null) {
+    if (!stopAttempted && child?.pid && child.exitCode === null && child.signalCode === null) {
       try { child.kill('SIGKILL') } catch (failure) { operationError = new AggregateError([error, failure], 'Owned child cleanup failed') }
     }
     if (closing) await closing
-    clearTimeout(timer)
+    clearTimeout(timer); clearTimeout(drainTimer)
   }
+  unsubscribe?.()
   const errors = operationError ? [operationError] : []
   for (const file of [...files.values(), ...pins]) try { fs.closeSync(file.fd) } catch (error) { errors.push(error) }
   if (errors.length) throw new AggregateError(errors, 'Command log capture incomplete')
@@ -342,7 +402,9 @@ export function materializeCommandDiagnostic(reference, { directory, maxBytes } 
 
 // Server output historically concatenates raw chunks in observed event order.
 // Keep one payload, not the command capture's decoded/per-stream representation.
-export function createServerLog(logPath) {
+export function createServerLog(logPath, { maxRawBytes = DEFAULT_MAX_RAW_BYTES,
+  rawLogBudget = createRawLogBudget(maxRawBytes) } = {}) {
+  if (rawLogBudget.error) throw rawLogBudget.error
   const pins = pinDirectories(dirname(logPath)), files = []
   let failure, finished
   const open = path => {
@@ -368,26 +430,31 @@ export function createServerLog(logPath) {
     terminal.observed = { hash: createHash('sha256'), bytes: 0 }
     guard = open(guardPath)
     write(pending, Buffer.from(JSON.stringify({ version: 1, kind: 'pnd-server-log', runId,
-      status: 'pending', log: logPath }) + '\n'))
+      status: 'pending', log: logPath, rawBudget: rawLogBudget.snapshot() }) + '\n'))
   } catch (error) {
     throw new AggregateError([error, ...close()], 'Server log setup incomplete')
   }
   return {
     reference: { version: 1, path, runId, log: logPath, complete: false },
+    subscribe: stop => rawLogBudget.subscribe(stop),
     write(bytes) {
       assert(!finished, 'Server capture already finalized')
       if (failure) throw failure
-      try { write(raw, bytes) } catch (error) { failure = error; throw error }
+      try { write(raw, bytes, rawLogBudget) } catch (error) { failure = error; throw error }
     },
-    finish(error = null) {
+    finish(error = null, { drainIncomplete, ownedChildExited, ownedChildPid } = {}) {
       if (finished) return finished()
       let result, finalError
       try {
-        if (error || failure) throw error ?? failure
+        if ((error || failure) && !rawLogBudget.error) throw error ?? failure
         validateDirectories(pins)
         const log = hashAndDecode(raw, null, false)
         write(terminal, Buffer.from(JSON.stringify({ version: 1, kind: 'pnd-server-log', runId,
-          status: 'complete', log, limits: ['Raw disk growth is not bounded; direct child ownership only'] }) + '\n'))
+          status: rawLogBudget.error ? 'incomplete' : 'complete', log, rawBudget: rawLogBudget.snapshot(),
+          ...(drainIncomplete !== undefined ? { drainIncomplete, ownedChildExited, ownedChildPid } : {}),
+          ...(rawLogBudget.error ? { error: { code: rawLogBudget.error.code, message: rawLogBudget.error.message,
+            ...(error && error !== rawLogBudget.error ? { cleanupError: error.message } : {}) } } : {}),
+          limits: ['Raw stdout/stderr share a byte allowance; historical attempts are separate; direct child ownership only'] }) + '\n'))
         for (const file of files) regular(file)
         fs.renameSync(terminal.path, path)
         terminal.path = path
@@ -395,6 +462,7 @@ export function createServerLog(logPath) {
         files.splice(files.indexOf(pending), 1)
         try { fs.closeSync(pending.fd) } catch (error) { throw error }
         hashAndDecode(terminal, null, false)
+        if (rawLogBudget.error) throw error ?? failure ?? rawLogBudget.error
       } catch (error) { finalError = error }
       const errors = [...(finalError ? [finalError] : []), ...close()]
       try {

@@ -197,6 +197,43 @@ identity, close, or publication failure leaves nonpassing guarded evidence and t
 active contract blocked. Only the exact spawned child is terminated on capture
 failure. This does not add process-group ownership or change owned-server cleanup.
 
+### Per-attempt raw byte allowance
+
+Each `verifyContract` invocation shares one 64 MiB (67,108,864 byte) raw-output
+allowance across every check's stdout/stderr and every owned server segment.
+Set `POPULOUS_VERIFY_MAX_RAW_BYTES` to a nonnegative safe-integer byte count to
+change it; invalid configuration fails before execution. Zero allows empty output.
+Exact equality is allowed; the first additional byte exhausts the attempt.
+Standalone `captureCommand` and `createServerLog` calls each default to the same
+finite allowance, configurable with `maxRawBytes`. Advanced callers may share a
+`createRawLogBudget(maxBytes)` instance through `rawLogBudget` instead. Legacy
+injected-executor strings are charged when their adapter persists their UTF-8 bytes;
+this does not certify the injected executor's original raw output or own its processes.
+
+Successful physical writes are charged, including short writes. A crossing chunk
+retains only the prefix fitting the remaining allowance; no existing bytes or old
+attempts are deleted, rewritten or truncated. Exhaustion is sticky: it initiates
+bounded stop attempts for all currently subscribed direct producers owned by this
+verifier attempt, prevents
+later check launches, and fails the attempt with an explicit byte-limit reason.
+Active check/owned-segment rows remain `blocked`, not successful; no unknown check
+exit code is fabricated. Earlier fully finalized independent receipts remain intact.
+Incomplete capture descriptors include the error and a cumulative `rawBudget`
+snapshot; their pending guards remain and they cannot be materialized as complete
+logs. Other integrity/finalization faults may leave the original pending descriptor.
+
+Failed command capture has a two-second drain deadline. If signaling fails or
+inherited pipes stay open, only the verifier's stream handles are released; incomplete
+evidence reports the known PID and observed direct-child exit state without claiming
+it or descendants were stopped. Server cleanup retains its TERM/KILL/drain bounds
+and likewise releases only its own handles if the producer cannot be stopped.
+
+The allowance covers bytes written by these capture helpers, not other artifacts,
+metadata, optional decoded diagnostics, eager-v1 combined logs, repeated attempts,
+or unrelated processes. It is not a whole-machine disk, RSS or hard wall-time limit.
+Historical retention, workload admission and optional derivative allowances remain
+separate responsibilities.
+
 ### On-demand command diagnostics
 
 `materializeCommandDiagnostic(capture, { directory, maxBytes })`, exported by
@@ -231,10 +268,10 @@ Synchronous writes of at most 64 KiB apply pipe backpressure without an unbounde
 JavaScript queue; slow storage can delay event-loop timers. Streaming decoding has
 bounded chunk memory, not a hard RSS or wall-time guarantee. Raw-only capture removes
 the automatically duplicated decoded payload from new production verification
-attempts, not raw disk growth or already-retained files. Optional derivatives still
-consume their allowed bytes. Workload admission, raw disk limits and storage
-retention remain separate work; this is not a permanent global resource-pressure
-fix. Preserve original artifacts; review derivatives never authorize retirement.
+attempts, not already-retained files. Raw output now uses the per-attempt allowance
+above; optional derivatives still consume their separate allowed bytes. Workload
+admission and storage retention remain separate work; this is not a permanent
+global resource-pressure fix. Preserve original artifacts; review derivatives never authorize retirement.
 
 ### Owned game-server logs
 
@@ -255,9 +292,9 @@ result; that compatibility path does not supply production capture evidence.
 Only the exact spawned direct child receives TERM, then KILL if still live.
 Descendant-held pipes reach an explicit incomplete drain deadline rather than
 claiming descendant cleanup. Synchronous bounded writes can delay those timers;
-readiness fetches still have no hard per-request deadline. Raw disk growth is
-unbounded. This removes the output-proportional retained server buffer, not these
-lifecycle, disk, or wall-time limits.
+readiness fetches still have no hard per-request deadline. Raw output shares the
+per-attempt byte allowance above. This removes the output-proportional retained
+server buffer and bounds new capture writes, not these lifecycle or wall-time limits.
 
 The dedicated command-log suite uses real subprocesses and copied verification
 code in synthetic repositories. It establishes transport/lifecycle mechanics, not
