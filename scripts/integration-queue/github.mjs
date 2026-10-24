@@ -1,4 +1,4 @@
-import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_RESOURCE_JOB, GAMEPLAY_RESOURCE_INPUTS, gameplayResourceArchiveLimit,
+import { GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, GAMEPLAY_HEAP_INPUTS, gameplayResourceArchiveLimit,
   validateGameplayResourceBrowserJobs, gameplayResourceArtifactUpload, validateGameplayResourceArtifactMetadata,
   resolveGameplayResourceArtifact } from './gameplay-resources-policy.mjs'
 import { COMPOSED_SOURCE_INPUTS, composedContract } from './composed-profile-artifact.mjs'
@@ -104,7 +104,7 @@ export class GitHubReader {
     return this.immutableBlob(commit, path)
   }
   immutableBlob(commit, path) {
-    ensure(sha(commit) && (SPELL_VISUAL_INPUTS.includes(path) || COMPOSED_SOURCE_INPUTS.includes(path) || GAMEPLAY_RESOURCE_INPUTS.includes(path)), 'Unreviewed immutable source input')
+    ensure(sha(commit) && (SPELL_VISUAL_INPUTS.includes(path) || COMPOSED_SOURCE_INPUTS.includes(path) || GAMEPLAY_HEAP_INPUTS.includes(path)), 'Unreviewed immutable source input')
     ensure(typeof this.executeBinary === 'function', 'Binary Git transport must be explicitly injected')
     const prefix = ['--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
       '-c', 'core.fsmonitor=false', '-c', 'core.attributesFile=/dev/null']
@@ -388,9 +388,9 @@ export class GitHubReader {
       ensure(entry.browserCheckpointVersion === 4, 'Nine-job policy requires explicit current-v4 contract')
       ensure(validateSpellVisualBrowserJobs(jobs, exact, { policy: SPELL_VISUAL_POLICY, headSha: pr.head.sha }) === true,
         'Unresolved nine-job inventory')
-    } else if (entry.browserPolicy === GAMEPLAY_RESOURCE_POLICY) {
+    } else if (GAMEPLAY_RESOURCE_POLICIES.includes(entry.browserPolicy)) {
       ensure(entry.browserCheckpointVersion === 3, 'Resource policy requires explicit v3 contract')
-      ensure(validateGameplayResourceBrowserJobs(jobs, exact, { policy: GAMEPLAY_RESOURCE_POLICY, headSha: pr.head.sha }) === true,
+      ensure(validateGameplayResourceBrowserJobs(jobs, exact, { policy: entry.browserPolicy, headSha: pr.head.sha }) === true,
         'Unresolved resource nine-job inventory')
     } else validateSplitBrowserJobs(jobs, exact)
   }
@@ -443,7 +443,7 @@ export class GitHubReader {
     return true
   }
   verifyGameplayResourceRun(entry, pr, synthetic, exact, jobs, row) {
-    ensure(entry.browserPolicy === GAMEPLAY_RESOURCE_POLICY && entry.browserCheckpointVersion === 3,
+    ensure(GAMEPLAY_RESOURCE_POLICIES.includes(entry.browserPolicy) && entry.browserCheckpointVersion === 3,
       'Gameplay resources requires explicit nine-job/current-v3 contract')
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha &&
@@ -464,8 +464,8 @@ export class GitHubReader {
       'Gameplay resources worker tested a different candidate')
     ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
       'Gameplay resources workflow source differs')
-    const inputs = Object.fromEntries(GAMEPLAY_RESOURCE_INPUTS.map(path => [path, this.immutableBlob(synthetic.sha, path)]))
-    const expected = { policy: GAMEPLAY_RESOURCE_POLICY,
+    const inputs = Object.fromEntries(gameplayResourceInputs(entry.browserPolicy).map(path => [path, this.immutableBlob(synthetic.sha, path)]))
+    const expected = { policy: entry.browserPolicy,
       identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
         workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
         mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
@@ -480,6 +480,10 @@ export class GitHubReader {
     const evidence = resolveGameplayResourceArtifact(this.gameplayResourceArchive(upload.id), upload, expected)
     ensure(evidence && typeof evidence.then !== 'function' && evidence.lifecycleVerified === true,
       'Unresolved gameplay resources artifact evidence')
+    if (entry.browserPolicy === GAMEPLAY_HEAP_POLICY) {
+      ensure(evidence.heapCapabilityVerified === true, 'Missing mandatory isolate byte capability proof')
+      row.gameplayHeapVerified = true
+    }
     row.gameplayResourcesVerified = true
     row.gameplayResourcesCheckId = check.id
     row.gameplayResourcesLogSha256 = sha256(rawLog)
@@ -491,9 +495,9 @@ export class GitHubReader {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Recovery workflow is not the successful current PR run')
-    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY, GAMEPLAY_RESOURCE_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Pause recovery requires explicit trusted policy and current synthetic source')
-    const nine = [SPELL_VISUAL_POLICY, GAMEPLAY_RESOURCE_POLICY].includes(entry.browserPolicy)
+    const nine = [SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy)
     const split = entry.browserPolicy === 'profile-split-v1' || nine
     if (split) this.validateBrowserJobs(entry, pr, exact, jobs)
     const expectedJobs = nine ? 9 : split ? 8 : entry.browserPolicy === 'profile-recovery-v1' ? 3 : 2
@@ -565,9 +569,9 @@ export class GitHubReader {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Profile recovery workflow is not the successful current PR run')
-    ensure(['profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY, GAMEPLAY_RESOURCE_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Profile recovery requires explicit trusted policy and current synthetic source')
-    const nine = [SPELL_VISUAL_POLICY, GAMEPLAY_RESOURCE_POLICY].includes(entry.browserPolicy)
+    const nine = [SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy)
     const split = entry.browserPolicy === 'profile-split-v1' || nine
     if (split) this.validateBrowserJobs(entry, pr, exact, jobs)
     const expectedJobs = nine ? 9 : split ? 8 : 3
@@ -638,10 +642,10 @@ export class GitHubReader {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Mission 10 workflow is not the successful current PR run')
-    ensure(['profile-split-v1', SPELL_VISUAL_POLICY, GAMEPLAY_RESOURCE_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-split-v1', SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Mission 10 requires explicit trusted policy and current synthetic source')
     this.validateBrowserJobs(entry, pr, exact, jobs)
-    const expectedJobs = [SPELL_VISUAL_POLICY, GAMEPLAY_RESOURCE_POLICY].includes(entry.browserPolicy) ? 9 : 8
+    const expectedJobs = [SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) ? 9 : 8
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       jobs.filter(j => j.name === RECOVERY_JOB).length === 1 &&
       jobs.filter(j => j.name === PROFILE_JOB).length === 1 &&

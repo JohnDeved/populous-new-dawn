@@ -5,7 +5,8 @@ import { createPointerFrameMetrics } from '../../app/pointer-frame-metrics.ts'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from '../../scripts/tutorial-browser/gameplay-frame-evidence.mjs'
 import { gameplayResourceLimits, summarizeResourceRestart } from '../../scripts/tutorial-browser/gameplay-resource-observer.mjs'
 import { gameplayResourceSplitBudget } from '../../scripts/tutorial-browser/scenario-policy.mjs'
-import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_RESOURCE_INPUTS } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
 const revision = 'a'.repeat(40), hash = bytes => createHash('sha256').update(bytes).digest('hex')
 function frameFixture(route = 'world') {
   const ring = new FramePerformance()
@@ -35,14 +36,24 @@ const live = (turn, timestampMs, sceneUuid = 'old') => ({ level: 2, turn, timest
  connectedBattlefieldCanvases: 1, contextLost: false, rendererGeometries: 4, rendererTextures: 3, rendererPrograms: 2,
  reachableGeometryIds: ['shared'], reachableTextureIds: ['shared'], reachableMaterialIds: ['material'] })
 const encode = value => Buffer.from(JSON.stringify(value))
-export function makeResourceFixture() {
- const expected = { policy: GAMEPLAY_RESOURCE_POLICY, identity: { headSha: 'b'.repeat(40), baseSha: 'c'.repeat(40), mergeSha: revision, runId: '12', runAttempt: '2' },
-  inputs: Object.fromEntries(GAMEPLAY_RESOURCE_INPUTS.map(name => [name, hash(name)])) }
+export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { includeArchive = true } = {}) {
+ const expected = { policy, identity: { headSha: 'b'.repeat(40), baseSha: 'c'.repeat(40), mergeSha: revision, runId: '12', runAttempt: '2' },
+  inputs: Object.fromEntries(gameplayResourceInputs(policy).map(name => [name, hash(name)])) }
  const resources = { version: 1, status: 'passed-scoped-lifecycle-observations', limits: gameplayResourceLimits,
   beforeWarmup: live(1, 0), afterWorkload: live(200, 14000), restart: { retired: { disposed: true, aborted: true,
    canvasConnected: false, contextLost: true, ownedSoundCount: 0, buildingPanelCount: 0, fpsGraphReleased: true },
    after: live(1, 15000, 'new'), settled: live(25, 17000, 'new') } }
  Object.assign(resources.restart, summarizeResourceRestart(resources.afterWorkload, resources.restart.retired, resources.restart.after, resources.restart.settled))
+ if (policy === GAMEPLAY_HEAP_POLICY) {
+  resources.version = 2; resources.status = 'passed-scoped-lifecycle-and-heap-capability'; resources.limits = gameplayHeapResourceLimits
+  const sample = (boundary, at, scene, turn, clock) => ({ status: 'passed', boundary, scope: gameplayHeapPolicy.scope,
+   gc: { method: 'HeapProfiler.collectGarbage', calls: 1, completed: true }, f8Hidden: true, isolateBefore: 'isolate', isolateAfter: 'isolate',
+   bytes: { usedSize: 100, totalSize: 200, embedderHeapUsedSize: 50, backingStorageSize: 300 },
+   timing: { startedMs: clock, gcStartedMs: clock+1, gcCompletedMs: clock+2, heapReadCompletedMs: clock+3, endedMs: clock+4 },
+   before: live(turn, at, scene), after: live(turn, at+1, scene) })
+  resources.heap = { version: 1, status: 'passed-capability-only', policy: gameplayHeapPolicy, limits: gameplayHeapLimits, sessionDetached: true,
+   samples: [sample('after-workload',14001,'old',200,1), sample('after-restart-settled',17001,'new',25,6)] }
+ }
  const report = { schema: 'populous-new-dawn/gameplay-frame-recording', schemaVersion: 1, status: 'passed', expectedRevision: revision,
   plan, limits: gameplayFrameLimits, measuredPhases: plan.phases.map(p => p.name), phases: [], resources,
   warmupBefore: { ...frameFixture().before, turn: 1, timestampMs: 0 }, warmupAfter: { ...frameFixture().before, turn: 25, timestampMs: 2000 }, menuBefore: { ...frameFixture().before, paused: true, timestampMs: 10000 }, menuAfter: { ...frameFixture().before, timestampMs: 10200 }, after: { ...frameFixture().after, timestampMs: 13900 } }
@@ -64,9 +75,12 @@ export function makeResourceFixture() {
   github: { head: expected.identity.headSha, base: expected.identity.baseSha, merge: revision, runId: '12', runAttempt: '2' },
   build: { exitCode: 0, signal: null, timedOut: false, capMs: 120000 }, browserCapMs: 180000, browserTimedOut: false,
   sourceAfter: 'identical', cleanupVerified: true, errors: [], dependencyChanges: [], dependenciesBeforeSha256: 'e'.repeat(64), dependenciesAfterSha256: 'e'.repeat(64),
+  browserSha256: 'd'.repeat(64), browserBinaryVersion: 'Google Chrome synthetic fixture', buildPackageVersions: { 'playwright-core': '1.63.0-fixture' },
   browserPath: '/opt/google/chrome/chrome', launch: { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless','--remote-debugging-pipe'], timeout: 30000 },
   gameplayResourceSplitBudget, gameplayResources: report }
  const save = () => { files['receipt.json'] = encode(raw); files['gameplay-frames.json'] = encode(report) }; save()
+ // Direct-validator mutation fixtures need exact file buffers, not an unused ZIP copy.
+ if (!includeArchive) return { expected, files, raw, report, save }
  const archive = artifactZip(files), upload = { id: 42, name: `gameplay-resource-lifecycle-browser-${revision}`, bytes: archive.length, sha256: hash(archive) }
  const url = 'https://api.github.com/repos/JohnDeved/populous-new-dawn/actions/artifacts/42'
  const metadata = { id: upload.id, name: upload.name, expired: false, size_in_bytes: upload.bytes, digest: `sha256:${upload.sha256}`, url, archive_download_url: `${url}/zip`, workflow_run: { id: 12, head_sha: expected.identity.headSha } }

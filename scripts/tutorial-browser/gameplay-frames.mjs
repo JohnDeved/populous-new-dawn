@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict'
+import { captureGameplayHeapSample, gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits, validateGameplayHeapProbe } from './gameplay-heap-observer.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
 import { m2NativePointerTarget } from './frame-export.mjs'
 import { m2HudPoint, m2RouteReady, m2StartupReady } from './m2-pointer-f8.mjs'
-import { observeGameplayResources, captureRetiredGameplayScene, assertResourceLive, summarizeResourceRestart, gameplayResourceLimits, assertResourceScenario } from './gameplay-resource-observer.mjs'
+import { observeGameplayResources, captureRetiredGameplayScene, assertResourceLive, summarizeResourceRestart, assertResourceScenario } from './gameplay-resource-observer.mjs'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from './gameplay-frame-evidence.mjs'
 
-// Read-only observer. No clocks, simulation state, renderer or picker calls are replaced.
+// Read-only phase observer. No clocks, simulation state, renderer or picker calls are replaced.
+// The dedicated resource scenario separately requests GC after all F8 windows.
 export function observeGameplayFramePhase() {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   return { timestampMs: performance.now(), timeOriginUnixMs: performance.timeOrigin,
@@ -32,6 +34,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
   const save = () => writeFileSync(resolve(output, 'gameplay-frames.json'), JSON.stringify(report, null, 2) + '\n')
   const observe = () => page.evaluate(observeGameplayFramePhase)
   const graph = page.locator('.fps-graph')
+  let heapSession
   save()
   try {
     await page.setViewportSize(plan.viewport)
@@ -48,7 +51,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
     await page.mouse.move(900, 400)
     if (resourceLifecycle) {
-      report.resources = { version: 1, status: 'observing', limits: gameplayResourceLimits, beforeWarmup: await page.evaluate(observeGameplayResources) }
+      report.resources = { version: 2, status: 'observing', limits: gameplayHeapResourceLimits, beforeWarmup: await page.evaluate(observeGameplayResources) }
       assertResourceLive(report.resources.beforeWarmup)
     }
     report.warmupBefore = await observe()
@@ -141,6 +144,14 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       assert.equal(report.resources.afterWorkload.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
       assert.ok(report.resources.afterWorkload.timestampMs > report.resources.beforeWarmup.timestampMs)
       assert.ok(report.resources.afterWorkload.turn > report.resources.beforeWarmup.turn)
+      // Capability-only interventions start after all original F8 windows.
+      report.resources.heap = { version: 1, status: 'running', policy: gameplayHeapPolicy, limits: gameplayHeapLimits, samples: [], sessionDetached: false }; save()
+      heapSession = await page.context().newCDPSession(page)
+      const heapSample = boundary => captureGameplayHeapSample({ session: heapSession, boundary,
+        onSample: sample => { report.resources.heap.samples.push(sample); save() },
+        observe: () => page.evaluate(observeGameplayResources),
+        assertF8Hidden: async () => assert.equal(await graph.isVisible(), false, 'Heap probe must remain outside F8 windows') })
+      await heapSample('after-workload'); save()
       // Dedicated scenario: complete original workload, then one lifecycle episode.
       report.resources.restart = { status: 'running' }; save()
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
@@ -167,7 +178,13 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       report.resources.restart.settled = await page.evaluate(observeGameplayResources)
       Object.assign(report.resources.restart, summarizeResourceRestart(report.resources.afterWorkload,
         report.resources.restart.retired, report.resources.restart.after, report.resources.restart.settled))
-      report.resources.status = 'passed-scoped-lifecycle-observations'
+      await heapSample('after-restart-settled'); save()
+      const closingHeapSession = heapSession; heapSession = undefined
+      await closingHeapSession.detach()
+      report.resources.heap.sessionDetached = true
+      report.resources.heap.status = 'passed-capability-only'
+      validateGameplayHeapProbe(report.resources.heap, report.resources)
+      report.resources.status = 'passed-scoped-lifecycle-and-heap-capability'
     }
 
     report.status = 'passed'
@@ -184,6 +201,13 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     } catch (cleanupError) {
       report.status = 'failed'; report.resourceObserverCleanupFailure = String(cleanupError)
       throw cleanupError
-    } finally { save() }
+    } finally {
+      try {
+        if (heapSession) await heapSession.detach()
+      } catch (cleanupError) {
+        report.status = 'failed'; report.heapObserverCleanupFailure = String(cleanupError)
+        throw cleanupError
+      } finally { save() }
+    }
   }
 }

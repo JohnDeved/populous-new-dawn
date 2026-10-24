@@ -1,9 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { GATES, GAMEPLAY_RESOURCE_BROWSER_GATE, SPLIT_PROFILE_BROWSER_GATE, SPELL_VISUAL_BROWSER_GATE,
+import { GATES, GAMEPLAY_HEAP_BROWSER_GATE, GAMEPLAY_RESOURCE_BROWSER_GATE, SPLIT_PROFILE_BROWSER_GATE, SPELL_VISUAL_BROWSER_GATE,
   gatesFor, validateEntry, reviewedWorkflows, validatePassedGate } from '../scripts/integration-queue/policy.mjs'
 import { GitHubReader } from '../scripts/integration-queue/github.mjs'
-import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_RESOURCE_BROWSER_JOBS } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_BROWSER_JOBS } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
 import { SPLIT_BROWSER_JOBS } from '../scripts/integration-queue/browser-jobs.mjs'
 import { SPELL_VISUAL_POLICY, SPELL_VISUAL_BROWSER_JOBS } from '../scripts/integration-queue/spell-visuals-policy.mjs'
 const oid = n => String(n).repeat(40), h = 'a'.repeat(64)
@@ -51,6 +51,8 @@ test('resource acceptance requires artifact verification and the matching curren
     gameplayResourcesVerified:true,gameplayResourcesCheckId:307,checkId:300,steps:GATES[1].steps.map(name=>({name,conclusion:'success'}))}
   const o={head:oid(2),base:oid(3),synthetic:{sha:oid(1)},currentChecks:jobs().map((j,i)=>({name:j.name,id:300+i,appId:15368,head:oid(2),status:'completed',conclusion:'success',startedAt:'2026-10-24T00:00:00Z'}))}
   validatePassedGate(o,GAMEPLAY_RESOURCE_BROWSER_GATE,latest)
+  assert.throws(()=>validatePassedGate(o,GAMEPLAY_HEAP_BROWSER_GATE,latest))
+  validatePassedGate(o,GAMEPLAY_HEAP_BROWSER_GATE,{...latest,gameplayHeapVerified:true})
   for(const key of ['pauseRecoveryVerified','profileRecoveryVerified','mission10Verified','gameplayResourcesVerified']) assert.throws(()=>validatePassedGate(o,GAMEPLAY_RESOURCE_BROWSER_GATE,{...latest,[key]:false}))
   for(const mutate of [checks=>checks.splice(7,1),checks=>{checks[7].head=oid(9)},checks=>{checks[7].appId=0},checks=>{checks[7].conclusion='failure'},checks=>checks.push({...checks[7],id:999,startedAt:'2026-10-24T01:00:00Z'})]) {
     const bad=structuredClone(o);mutate(bad.currentChecks);assert.throws(()=>validatePassedGate(bad,GAMEPLAY_RESOURCE_BROWSER_GATE,latest))
@@ -61,10 +63,11 @@ import { makeResourceFixture } from './support/gameplay-resource-artifact.mjs'
 import { artifactZip } from './support/artifact-zip.mjs'
 import { createHash } from 'node:crypto'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
-function resourceAdapter() {
-  const f=makeResourceFixture(), identity=f.expected.identity, e=entry(), reader=new GitHubReader()
+function resourceAdapter(policy = GAMEPLAY_RESOURCE_POLICY) {
+  const f=makeResourceFixture(policy), identity=f.expected.identity, e=entry(), reader=new GitHubReader()
   const j=jobs().map(job=>({...job,head_sha:identity.headSha,run_id:12})), exact={...run(),id:12,head_sha:identity.headSha}
   const pr={head:{sha:identity.headSha},base:{sha:identity.baseSha}}, synthetic={sha:identity.mergeSha}, row={merge:identity.mergeSha}
+  e.browserPolicy=policy
   e.sourceHead=identity.headSha;e.reviewBase=identity.baseSha
   const check={id:307,name:'Gameplay resource lifecycle browser',check_suite:{id:500},head_sha:identity.headSha,
     app:{id:15368,slug:'github-actions'},status:'completed',conclusion:'success'}
@@ -102,4 +105,25 @@ test('real resource reader requires bound raw artifact before setting verified a
     a=>{a.f.report.resources.restart.retired.disposed=false;a.rebuild()},
   ]
   for(const mutate of mutations){const a=resourceAdapter();mutate(a);assert.throws(()=>a.reader.verifyGameplayResourceRun(...a.args));assert.equal(a.args[5].gameplayResourcesVerified,undefined)}
+})
+
+test('v2 selects byte-required gate and cannot accept v1-only completion',()=>{
+  const e={...entry(),browserPolicy:GAMEPLAY_HEAP_POLICY};validateEntry(e)
+  assert.equal(gatesFor(e)[1],GAMEPLAY_HEAP_BROWSER_GATE)
+  assert.equal(gatesFor(entry())[1],GAMEPLAY_RESOURCE_BROWSER_GATE)
+  const a=resourceAdapter(GAMEPLAY_HEAP_POLICY);assert.equal(a.reader.verifyGameplayResourceRun(...a.args),true)
+  assert.equal(a.args[5].gameplayHeapVerified,true);assert.equal(a.args[5].gameplayResourcesVerified,true)
+  for(const mutate of [
+    v=>{delete v.f.report.resources.heap;v.rebuild()},
+    v=>{v.f.raw.source.files={...v.f.raw.source.files, 'scripts/tutorial-browser/gameplay-heap-observer.mjs':'f'.repeat(64)};v.rebuild()},
+    v=>{v.f.raw.source.files={...v.f.raw.source.files};delete v.f.raw.source.files['scripts/tutorial-browser/gameplay-heap-observer.mjs'];v.rebuild()},
+    v=>{v.f.report.resources.version=1;v.rebuild()},
+    v=>{v.f.report.resources.heap.samples[0].gc.completed=false;v.rebuild()},
+    v=>{v.args[0].browserPolicy=GAMEPLAY_RESOURCE_POLICY},
+  ]) {const bad=resourceAdapter(GAMEPLAY_HEAP_POLICY);mutate(bad);assert.throws(()=>bad.reader.verifyGameplayResourceRun(...bad.args));assert.equal(bad.args[5].gameplayHeapVerified,undefined)}
+})
+
+test('adapter cannot upgrade historical artifact to byte-qualified v2',()=>{
+ const a=resourceAdapter();a.args[0].browserPolicy=GAMEPLAY_HEAP_POLICY
+ assert.throws(()=>a.reader.verifyGameplayResourceRun(...a.args));assert.equal(a.args[5].gameplayHeapVerified,undefined)
 })
