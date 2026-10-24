@@ -97,6 +97,19 @@ def filesystem_type(path):
     return max(choices)[1] if choices else 'unknown'
 
 
+def registered_worktrees(source):
+    """Read every registered root, including locked/prunable entries; never prune."""
+    output = run_git(source, 'worktree', 'list', '--porcelain', '-z')
+    roots = []
+    for field in output.split(b'\0'):
+        if field.startswith(b'worktree '):
+            path = Path(os.fsdecode(field[len(b'worktree '):]))
+            require(path.is_absolute(), 'Registered worktree root must be absolute')
+            roots.append(physical(path))
+    require(source in roots, 'Source is absent from registered worktree inventory')
+    return tuple(roots)
+
+
 def storage_plan(source, shared_root, reserve_bytes, allocation_bytes, *, post_install=False):
     source = physical(source)
     require(shared_root and Path(shared_root).is_absolute(),
@@ -107,6 +120,9 @@ def storage_plan(source, shared_root, reserve_bytes, allocation_bytes, *, post_i
     shared = Path(os.path.abspath(shared_root))
     require(not within(source, shared) and not within(shared, source),
             'Source and shared root must be separate, nonnested directories')
+    worktrees = registered_worktrees(source)
+    require(all(not within(root, shared) and not within(shared, root) for root in worktrees),
+            'Shared root must be separate from every registered Git worktree')
     require(reserve_bytes > 0 and (allocation_bytes == 0 if post_install else allocation_bytes > 0),
             'A positive reserve and positive plan allocation (zero for postcheck) are required')
     store = shared / 'pnpm-store' / 'v11'
@@ -122,6 +138,8 @@ def storage_plan(source, shared_root, reserve_bytes, allocation_bytes, *, post_i
     available = min(s.f_bavail * s.f_frsize for s in spaces)
     require(available >= allocation_bytes + reserve_bytes,
             'Insufficient capacity for allocation budget plus unchanged reserve')
+    require(worktrees == registered_worktrees(source),
+            'Registered worktree inventory changed during storage admission')
     return {'source': str(source), 'sharedRoot': str(shared), 'store': str(store),
             'cache': str(cache), 'device': device, 'filesystemType': kind,
             'availableBytes': available, 'allocationBudgetBytes': allocation_bytes,

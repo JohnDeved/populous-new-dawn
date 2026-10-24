@@ -289,6 +289,81 @@ class SharedSetupTests(unittest.TestCase):
             with self.subTest(shared=str(shared)):
                 self.assert_unchanged(lambda: self.plan(shared=shared), ValueError)
 
+    def linked_worktrees(self):
+        roots = (self.root / 'linked source one', self.root / 'linked\nsource two')
+        for root in roots:
+            self.git('worktree', 'add', '--quiet', '--detach', str(root), self.revision)
+        return roots
+
+    def test_linked_worktrees_share_store_but_keep_private_layouts(self):
+        first, second = self.linked_worktrees()
+        blob = self.install_fixture()
+        for source in (first, second):
+            modules = source / 'node_modules'
+            package = modules / '.pnpm/fixture@1.0.0/node_modules/fixture/index.js'
+            package.parent.mkdir(parents=True)
+            os.link(blob, package)
+            (modules / '.modules.yaml').write_bytes((self.modules / '.modules.yaml').read_bytes())
+            (modules / '.pnpm/lock.yaml').write_bytes(LOCK)
+            (modules / 'fixture').symlink_to('.pnpm/fixture@1.0.0/node_modules/fixture')
+            (modules / '.cache').mkdir()
+            (modules / '.cache/private').write_text(source.name)
+        for source in (self.source, first, second):
+            plan = self.assert_unchanged(lambda: setup.storage_plan(
+                source, self.shared, RESERVE, ALLOCATION))
+            self.assertEqual(plan['store'], str(self.store))
+            result = self.assert_unchanged(lambda: setup.verify_install(source, self.store))
+            self.assertEqual(result['sharedFiles'], 1)
+            self.assertEqual(result['nonSharedFiles'], 0)
+            self.assertEqual(result['uniqueSharedBytes'], len(CONTENT))
+        for relative in ('node_modules/.modules.yaml', 'node_modules/.pnpm/lock.yaml',
+                         'node_modules/.cache/private'):
+            a, b = (source / relative for source in (first, second))
+            self.assertNotEqual((a.stat().st_dev, a.stat().st_ino),
+                                (b.stat().st_dev, b.stat().st_ino))
+            self.assertEqual(a.stat().st_nlink, 1)
+            self.assertEqual(b.stat().st_nlink, 1)
+
+    def test_every_registered_worktree_is_excluded_from_shared_storage(self):
+        first, second = self.linked_worktrees()
+        for source in (self.source, first, second):
+            for protected in (self.source, first, second):
+                for shared in (protected, protected / 'packages'):
+                    with self.subTest(source=source, shared=shared):
+                        self.assert_unchanged(lambda: setup.storage_plan(
+                            source, shared, RESERVE, ALLOCATION), ValueError)
+        # An ancestor of a sibling also conflicts even when source is outside it.
+        parent = self.root / 'worktree-group'
+        nested = parent / 'nested'
+        parent.mkdir()
+        self.git('worktree', 'add', '--quiet', '--detach', str(nested), self.revision)
+        self.assert_unchanged(lambda: self.plan(shared=parent), ValueError)
+
+    def test_missing_or_symlinked_registered_worktree_fails_without_repair(self):
+        first, _ = self.linked_worktrees()
+        held = self.root / 'held-linked-source'
+        first.rename(held)
+        self.assert_unchanged(self.plan, (ValueError, OSError))
+        first.symlink_to(held, target_is_directory=True)
+        self.assert_unchanged(self.plan, ValueError)
+
+    def test_registered_worktree_inventory_drift_refuses_admission(self):
+        self.linked_worktrees()
+        original = setup.run_git
+        calls = 0
+
+        def changed_inventory(source, *args):
+            nonlocal calls
+            result = original(source, *args)
+            if args == ('worktree', 'list', '--porcelain', '-z'):
+                calls += 1
+                if calls == 2:
+                    return result + b'worktree ' + os.fsencode(self.root) + b'\0\0'
+            return result
+
+        with mock.patch.object(setup, 'run_git', side_effect=changed_inventory):
+            self.assert_unchanged(self.plan, ValueError)
+
     def test_symlinked_or_dangling_shared_ancestor_is_rejected(self):
         real = self.root / 'physical'
         real.mkdir()
