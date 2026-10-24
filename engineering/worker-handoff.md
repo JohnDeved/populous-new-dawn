@@ -253,3 +253,34 @@ with bounded physical reads. They check transport integrity, not execution succe
 or the existence of original bytes at review time. These derivatives cannot be
 passed to raw receipt readers or used for parity/measurement credit. A reviewer
 requiring execution evidence still needs the independently accessible originals.
+
+### Mission 6 first-stage bounded-receipt pilot
+
+The earned-victory runner opts only `fresh-release` into stream version 2. The
+remaining 18 stages and the command writer's default remain version 1. Shared
+input hashes include the concrete v1 writer and v2 stream implementation, so a
+mixed-version run retains the same source and producer-checkpoint checks. Stage
+order, outputs, final summary assertions, and exclusive run-directory ownership
+are unchanged. A finalization error can leave an incomplete `running` manifest;
+neither that manifest nor an unpublished terminal JSON is a passed acceptance.
+
+For a real run, retain the first-stage receipt and its complete raw artifact
+directory. Pin the SHA-256 of the actual `fresh-release.json` bytes, then export
+that one receipt using `--v2-review-receipt` above when logs contain source/home
+paths. Independently hand off the returned descriptor hash and existing source
+identities to both verifiers using `--expected-review`. This derivative is review
+context only: it does not replace raw evidence or provide measurement/parity
+credit. The existing 2 MiB per-input and 8 MiB total bundle limits are unchanged.
+
+`tests/mission6-bounded-receipt.test.mjs` copies the real runner, plan and receipt
+implementations into private Git fixtures, replacing game stages with explicitly
+synthetic subprocesses. It checks mixed-version producer/consumer hashes, bounded
+inline output, complete raw bytes, review export and both verifiers, non-ingestion,
+child failure, source/checkpoint drift, failed finalization and no-overwrite.
+These fixtures run no game simulation and do not establish the 29,504-turn win,
+rendered browser behavior, native equivalence, or host-memory performance.
+
+Rollback is local to the runner: set its per-stage `streamVersion` option to `1`.
+Keep existing raw artifacts, source bindings and failed attempts intact; use a
+new run ID for any retry. Do not change global defaults, remove source inputs,
+raise byte limits, or relabel synthetic fixture output as gameplay evidence.
