@@ -5,8 +5,9 @@ import fs from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
-import { captureCommand } from '../scripts/orchestration/command-log.mjs'
-import { verifyContract } from '../scripts/orchestration/verify.mjs'
+import { captureCommand, createServerLog } from '../scripts/orchestration/command-log.mjs'
+import { startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
+import { browserSourceFingerprint, captureMeasurement, discoverReceipts, evaluateCheck } from '../scripts/parity-measure.mjs'
 import { fingerprintPaths, repositoryCheckCoverage, validateContract } from '../scripts/orchestration/cli.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
@@ -328,4 +329,267 @@ test('empty successful capture is complete and raw path substitutions are reject
     assert(fs.existsSync(join(root, 'capture/publication.pending')))
     assert.equal(fs.existsSync(join(root, 'capture/publication.complete')), false)
   }
+})
+
+function browserFixture(t, kinds = ['browser', 'browser']) {
+  const f = fixture(t, { count: kinds.length })
+  const manifest = json(join(f.repo, 'engineering/checks.json'))
+  manifest.checks.forEach((check, i) => { check.kind = kinds[i]; check.args = ['fixture.mjs', String(i)] })
+  put(f.repo, 'engineering/checks.json', manifest)
+  put(f.repo, 'package-lock.json', {})
+  put(f.repo, 'public/original/fixture.txt', 'synthetic only')
+  put(f.repo, 'parity-history.json', [])
+  put(f.repo, 'engineering/parity-capabilities.json', { version: 1, capabilities: [
+    { id: 'synthetic', title: 'Synthetic', scope: 'scenario', parityId: 'group.item',
+      browserCheckIds: manifest.checks.filter(check => check.kind === 'browser').map(check => check.id),
+      originalCheckIds: [], limits: 'Transport only' },
+  ] })
+  f.git('add', '.'); f.git('commit', '-qm', 'browser transport fixture')
+  return { ...f, checks: manifest.checks }
+}
+
+function assertUnverified(f, id = 'portable0') {
+  const row = f.saved().verification.results.find(row => row.checkId === id)
+  assert.equal(row.status, 'blocked')
+  assert.deepEqual(row.coveredCheckIds, [])
+  assert(row.parityMeasurements.length > 0)
+  assert(row.parityMeasurements.every(item => item.status === 'blocked'))
+  validateContract(f.repo, f.saved())
+  const check = f.checks.find(check => check.id === id)
+  const current = captureMeasurement(f.repo, [check.executable, ...check.args])[0]
+  const discovered = discoverReceipts(f.repo)
+  assert.equal(evaluateCheck(check, discovered.receipts, current).status, 'blocked')
+  return row
+}
+
+test('owned browser segments remain unverified until stop, then promote original measurement identities', async t => {
+  const f = browserFixture(t, ['browser', 'browser', 'portable', 'browser'])
+  const events = [], pending = new Map()
+  let starts = 0
+  const result = await verifyContract(f.repo, f.contractPath, { env: {},
+    startServer: async (_repo, _env, log) => {
+      starts++
+      const initiating = f.saved().verification.results.find(row => row.serverCapture?.log === log.slice(f.repo.length + 1))
+      assert.equal(initiating.status, 'blocked')
+      events.push('start')
+      return { url: 'http://fixture.invalid', sourceFingerprint: browserSourceFingerprint(f.repo),
+        stop: async () => {
+          for (const row of f.saved().verification.results.filter(row => row.reason === 'Owned game server capture is pending finalization')) {
+            pending.set(row.checkId, assertUnverified(f, row.checkId))
+          }
+          // Legacy adapters may return a number rather than capture metadata.
+          return events.push('stop')
+        } }
+    },
+    execute: async command => {
+      const index = Number(command.at(-1))
+      events.push(index)
+      if (index === 1) assertUnverified(f)
+      if (index === 2) assert.equal(f.saved().verification.results[0].status, 'passed')
+      return { exitCode: 0, stdout: '', stderr: '', timedOut: false }
+    },
+  })
+  assert.equal(result.status, 'passed'); assert.equal(starts, 2)
+  assert.deepEqual(events, ['start', 0, 1, 'stop', 2, 'start', 3, 'stop'])
+  for (const [id, before] of pending) {
+    const after = result.results.find(row => row.checkId === id)
+    assert.equal(after.testedFingerprint, before.testedFingerprint)
+    assert.equal(after.durationMs, before.durationMs)
+    assert.deepEqual(after.parityMeasurements, before.parityMeasurements.map(item => ({ ...item, status: 'passed' })))
+  }
+})
+
+test('injected stop failure blocks all owned candidates and external URL is never stopped or owned-gated', async t => {
+  const f = browserFixture(t)
+  let stops = 0
+  await assert.rejects(verifyContract(f.repo, f.contractPath, { env: {},
+    startServer: async () => ({ url: 'http://fixture.invalid', stop: async () => { stops++; throw new Error('cleanup failed') } }),
+    execute: async () => ({ exitCode: 0, stdout: '', stderr: '', timedOut: false }),
+  }), /cleanup failed/)
+  assert.equal(stops, 1); assertUnverified(f); assertUnverified(f, 'portable1')
+  const supplied = browserFixture(t)
+  const result = await verifyContract(supplied.repo, supplied.contractPath, { env: { POPULOUS_URL: 'http://external.invalid' },
+    startServer: async () => ({ url: 'http://external.invalid', stop: async () => assert.fail('external stop must not run') }),
+    execute: async command => {
+      if (command.at(-1) === '1') assert.equal(supplied.saved().verification.results[0].status, 'passed')
+      return { exitCode: 0, stdout: '', stderr: '', timedOut: false }
+    },
+  })
+  assert.equal(result.status, 'passed')
+})
+
+test('server raw sink preserves observed byte order without decoding, uses bounded short writes, and retains prior attempts', t => {
+  const root = temporary(t), path = join(root, 'server.log'), sink = createServerLog(path)
+  const write = fs.writeSync
+  let maxWrite = 0, writes = 0
+  fs.writeSync = (fd, buffer, offset, length, ...args) => {
+    maxWrite = Math.max(maxWrite, length); writes++
+    return write(fd, buffer, offset, Math.min(length, 4096), ...args)
+  }
+  const expected = createHash('sha256'), chunks = [Buffer.from([0xef, 0xbb, 0xbf, 0xff, 0]), Buffer.from([0xe2]), Buffer.from([0x82, 0xac])]
+  try {
+    for (const bytes of chunks) { sink.write(bytes); expected.update(bytes) }
+    const chunk = Buffer.alloc(65536, 120)
+    for (let i = 0; i < 192; i++) { sink.write(chunk); expected.update(chunk) }
+    const result = sink.finish()
+    assert.equal(result.complete, true); assert.equal(sink.finish(), result)
+    const metadata = json(result.path)
+    assert.equal(metadata.log.sha256, expected.digest('hex'))
+    assert.equal(metadata.log.bytes, 192 * 65536 + 8)
+    assert.deepEqual(fs.readFileSync(path).subarray(0, 8), Buffer.concat(chunks))
+    assert(maxWrite <= 65536); assert(writes > 192)
+    assert.equal(Object.hasOwn(metadata, 'streams'), false)
+    assert.equal(fs.readdirSync(root).filter(name => name.endsWith('.log')).length, 1)
+    assert.throws(() => createServerLog(path), /setup incomplete/)
+    assert.equal(json(result.path).log.sha256, metadata.log.sha256)
+  } finally { fs.writeSync = write }
+})
+
+test('server raw write, read, close, descriptor mutation and publication faults stay incomplete', t => {
+  for (const fault of ['write', 'read', 'close', 'terminal', 'rename', 'guard']) {
+    const root = temporary(t), path = join(root, 'server.log'), sink = createServerLog(path)
+    const originals = { writeSync: fs.writeSync, readSync: fs.readSync, closeSync: fs.closeSync, renameSync: fs.renameSync }
+    let injected = false
+    const raw = fd => fs.fstatSync(fd).ino === fs.statSync(path).ino
+    if (fault === 'write') fs.writeSync = (fd, ...args) => {
+      if (raw(fd)) { injected = true; throw new Error('fixture write') } return originals.writeSync(fd, ...args)
+    }
+    if (fault === 'read' || fault === 'terminal') fs.readSync = (fd, ...args) => {
+      if (!injected && (fault === 'read' ? raw(fd) : fs.fstatSync(fd).ino === fs.statSync(path + '.capture.json').ino)) {
+        injected = true
+        if (fault === 'read') throw new Error('fixture read')
+        const bytes = fs.readFileSync(path + '.capture.json')
+        bytes[0] = 32; fs.writeFileSync(path + '.capture.json', bytes)
+      }
+      return originals.readSync(fd, ...args)
+    }
+    if (fault === 'close') fs.closeSync = fd => {
+      const target = raw(fd); const result = originals.closeSync(fd)
+      if (target) { injected = true; throw new Error('fixture close') } return result
+    }
+    if (fault === 'rename' || fault === 'guard') fs.renameSync = (from, ...args) => {
+      if (String(from).endsWith(fault === 'rename' ? '.capture.json.tmp' : '.publication.pending')) {
+        injected = true; throw new Error('fixture publication')
+      }
+      return originals.renameSync(from, ...args)
+    }
+    try {
+      if (fault === 'write') assert.throws(() => sink.write(Buffer.from('raw')), /fixture write/)
+      else sink.write(Buffer.from('raw'))
+      assert.throws(() => sink.finish())
+      assert.throws(() => sink.finish())
+      assert(injected)
+      assert(fs.existsSync(path + '.publication.pending'))
+      assert(!fs.existsSync(path + '.publication.complete'))
+    } finally { Object.assign(fs, originals) }
+  }
+})
+
+// Only the dev-server command is substituted by a tiny owned Node child. The
+// copied production verifier/capture and real OS pipes are exercised unchanged.
+// Readiness is synthetic: no application modules, package manager or network.
+function serverPreload(f, script, extra = '') {
+  put(f.repo, 'work/server-child.cjs', script)
+  put(f.repo, 'work/preload.mjs', [
+    "import fs from 'node:fs'; import cp from 'node:child_process'; import { syncBuiltinESMExports } from 'node:module';",
+    "const spawn=cp.spawn; let started=false;",
+    "globalThis.fetch=async()=>{if(!started)throw new Error('fixture port empty');return {ok:fs.existsSync('work/server-ready')}};",
+    "cp.spawn=(command,args,options)=>{if(command!=='npm')return spawn(command,args,options);",
+    " const rows=JSON.parse(fs.readFileSync('work/orchestration/task.json')).verification.results;",
+    " const row=rows.find(row=>row.serverCapture);if(row.status!=='blocked'||!fs.existsSync(row.serverCapture.path))throw new Error('server guard missing before spawn');",
+    " started=true;const child=spawn(process.execPath,['work/server-child.cjs'],options);",
+    " for(const stream of [child.stdout,child.stderr])stream.on('data',bytes=>fs.appendFileSync('work/observed.bin',bytes));return child};",
+    "syncBuiltinESMExports();",
+    extra,
+    "syncBuiltinESMExports();",
+  ].join('\n'))
+}
+const ordinaryServer = "const fs=require('node:fs'); process.stdout.write(Buffer.from([0xef,0xbb,0xbf,0xff])); setTimeout(()=>{process.stderr.write(Buffer.from([0,0xe2]));setTimeout(()=>{process.stdout.write(Buffer.from([0x82,0xac]));fs.writeFileSync('work/server-ready','ready')},20)},20);setInterval(()=>{},1000);"
+
+test('copied production CLI drains owned raw server pipes and preserves repeated attempt evidence', t => {
+  const f = browserFixture(t, ['browser'])
+  serverPreload(f, ordinaryServer)
+  const first = f.run('preload')
+  assert.equal(first.status, 0, first.stderr)
+  const row = f.saved().verification.results[0], capture = row.serverCapture
+  assert.equal(row.status, 'passed'); assert.equal(capture.complete, true)
+  const bytes = fs.readFileSync(join(f.repo, capture.log))
+  assert.deepEqual(bytes, fs.readFileSync(join(f.repo, 'work/observed.bin')))
+  assert.equal(bytes.length, 8)
+  assert.equal(json(join(f.repo, capture.path)).log.sha256, sha(bytes))
+  assert(fs.existsSync(join(f.repo, capture.log + '.publication.complete')))
+  fs.unlinkSync(join(f.repo, 'work/server-ready')); fs.unlinkSync(join(f.repo, 'work/observed.bin'))
+  const second = f.run('preload')
+  assert.equal(second.status, 0, second.stderr)
+  assert.notEqual(f.saved().verification.results[0].serverCapture.log, capture.log)
+  assert.deepEqual(fs.readFileSync(join(f.repo, capture.log)), bytes)
+})
+
+test('owned production cleanup escalates only its child and capture failure blocks browser evidence', t => {
+  for (const mode of ['term', 'read', 'guard', 'publish-contract']) {
+    const f = browserFixture(t, ['browser'])
+    let extra = ''
+    if (mode === 'read') extra = "const paths=new Map(),open=fs.openSync,read=fs.readSync;fs.openSync=(path,...args)=>{const fd=open(path,...args);paths.set(fd,String(path));return fd};fs.readSync=(fd,...args)=>{if(paths.get(fd)?.match(/game-server\\.[^/]+\\.log$/))throw new Error('server read fault');return read(fd,...args)};"
+    if (mode === 'guard') extra = "const rename=fs.renameSync;fs.renameSync=(from,...args)=>{if(String(from).endsWith('.log.publication.pending'))throw new Error('server guard fault');return rename(from,...args)};"
+    if (mode === 'publish-contract') extra = "const rename=fs.renameSync;fs.renameSync=(from,to,...args)=>{if(String(to).endsWith('/task.json')&&JSON.parse(fs.readFileSync(from)).verification.results.some(row=>row.status==='passed'))throw new Error('contract promotion fault');return rename(from,to,...args)};"
+    serverPreload(f, (mode === 'term' ? "process.on('SIGTERM',()=>{});" : '') + ordinaryServer, extra)
+    const result = f.run('preload')
+    if (mode === 'term') assert.equal(result.status, 0, result.stderr)
+    else {
+      assert.equal(result.status, 1, result.stderr)
+      assertUnverified(f)
+      const row = f.saved().verification.results[0]
+      const log = join(f.repo, row.serverCapture.log)
+      if (mode !== 'publish-contract') assert(fs.existsSync(log + '.publication.pending'))
+      else assert(fs.existsSync(log + '.publication.complete'))
+    }
+  }
+})
+
+test('owned startup error remains blocked with a predeclared capture reference', t => {
+  const f = browserFixture(t, ['browser'])
+  serverPreload(f, "process.stderr.write('startup failed');process.exitCode=7")
+  const result = f.run('preload')
+  assert.equal(result.status, 2, result.stderr)
+  const row = f.saved().verification.results[0]
+  assert.equal(row.status, 'blocked'); assert(row.serverCapture.path)
+  assert(fs.existsSync(join(f.repo, row.serverCapture.path)))
+  assert(fs.existsSync(join(f.repo, row.serverCapture.log + '.publication.pending')))
+})
+
+test('descendant-held stdio expires as incomplete without process-group signaling', async t => {
+  const f = browserFixture(t, ['browser'])
+  // The descendant has its own finite self-exit and a done marker. The helper
+  // never signals it; the test waits for that terminal marker before cleanup.
+  const descendant = "const fs=require('node:fs');setTimeout(()=>{fs.writeFileSync('work/descendant-done','done')},5500)"
+  serverPreload(f, "const fs=require('node:fs'),cp=require('node:child_process');cp.spawn(process.execPath,['-e'," + JSON.stringify(descendant) + "],{stdio:['ignore',1,2]});fs.writeFileSync('work/server-ready','ready');setInterval(()=>{},1000)")
+  const result = f.run('preload')
+  assert.equal(result.status, 1, result.stderr)
+  assertUnverified(f)
+  const deadline = Date.now() + 10000
+  while (!fs.existsSync(join(f.repo, 'work/descendant-done')) && Date.now() < deadline)
+    await new Promise(resolve => setTimeout(resolve, 50))
+  assert(fs.existsSync(join(f.repo, 'work/descendant-done')))
+  assert.match(result.stderr, /Server capture incomplete/)
+})
+
+test('interruption after owned server close but before capture publication cannot preserve a pass', async t => {
+  const f = browserFixture(t, ['browser'])
+  serverPreload(f, ordinaryServer,
+    "const paths=new Map(),open=fs.openSync,read=fs.readSync;fs.openSync=(path,...args)=>{const fd=open(path,...args);paths.set(fd,String(path));return fd};fs.readSync=(fd,...args)=>{if(paths.get(fd)?.match(/game-server\\.[^/]+\\.log$/)){fs.writeFileSync('work/server-closed','closed');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,10000)}return read(fd,...args)};")
+  const child = spawn(process.execPath, ['--import', join(f.repo, 'work/preload.mjs'),
+    join(f.repo, 'scripts/orchestration/verify.mjs'), '--contract', f.contractPath],
+    { cwd: f.repo, env: process.env, stdio: 'ignore' })
+  const closed = new Promise(resolve => child.once('close', resolve))
+  try {
+    const deadline = Date.now() + 10000
+    while (!fs.existsSync(join(f.repo, 'work/server-closed')) && Date.now() < deadline)
+      await new Promise(resolve => setTimeout(resolve, 20))
+    assert(fs.existsSync(join(f.repo, 'work/server-closed')))
+    assertUnverified(f)
+    child.kill('SIGKILL'); await closed
+    const row = assertUnverified(f)
+    assert(fs.existsSync(join(f.repo, row.serverCapture.log + '.publication.pending')))
+    assert(!fs.existsSync(join(f.repo, row.serverCapture.log + '.publication.complete')))
+  } finally { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); await closed }
 })

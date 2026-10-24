@@ -197,11 +197,35 @@ not asynchronous filesystem I/O, a hard RSS limit, or a wall-time guarantee.
 Raw and diagnostic files still grow with complete output, and malformed UTF-8 can
 expand the diagnostic representation. Continue resource admission and preserve
 original artifacts; review derivatives never authorize original retirement.
-Owned-server buffering, a justified disk cap, and storage retention remain open.
+A justified disk cap and storage retention remain open.
+
+### Owned game-server logs
+
+Owned dev-server output uses a separate capture format: one fresh raw payload
+combines stdout and stderr bytes in observed event order, without UTF-8 decoding,
+per-stream files, or an automatic diagnostic copy. Earlier attempts are retained.
+The startup blocked result names the pending server capture before spawning.
+
+For each owned browser segment, completed check receipts and parity measurements
+remain durably blocked until that exact server's stdio closes and its capture
+passes identity/hash checks, writer close, and guarded publication. Only then are
+the original result timestamps, source identities, and fingerprints promoted
+together by atomic contract persistence. Capture, cleanup, or promotion failure
+cannot leave these results passed. Caller-supplied `POPULOUS_URL` is not owned
+and is never signaled. Legacy injected servers may still return a numeric stop
+result; that compatibility path does not supply production capture evidence.
+
+Only the exact spawned direct child receives TERM, then KILL if still live.
+Descendant-held pipes reach an explicit incomplete drain deadline rather than
+claiming descendant cleanup. Synchronous bounded writes can delay those timers;
+readiness fetches still have no hard per-request deadline. Raw disk growth is
+unbounded. This removes the output-proportional retained server buffer, not these
+lifecycle, disk, or wall-time limits.
 
 The dedicated command-log suite uses real subprocesses and copied verification
 code in synthetic repositories. It establishes transport/lifecycle mechanics, not
 gameplay, browser, native equivalence, or application performance. Standard full
-check/build and other routed checks remain separate gates. Rollback reverts this
-command-only integration/helper, its exact test registrations, and these notes;
+check/build and other routed checks remain separate gates. Rollback must distinguish
+the command and owned-server integrations and their shared helper, reverting
+dependent tests/registrations and notes consistently;
 it must not delete prior raw evidence or alter command receipt v1/v2 defaults.
