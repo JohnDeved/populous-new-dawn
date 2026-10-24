@@ -1,7 +1,7 @@
 // Explicit current resource inventory. Historical eight-job and spell-nine policies remain unchanged.
 import assert from 'node:assert/strict'
 import { isDeepStrictEqual } from 'node:util'
-import { validateGameplayHeapProbe, gameplayHeapResourceLimits } from '../tutorial-browser/gameplay-heap-observer.mjs'
+import { validateGameplayHeapProbe, gameplayHeapResourceLimits, gameplayMatchedProtocol, validateGameplayMatchedHeapProbe, summarizeGameplayMatchedWorkload } from '../tutorial-browser/gameplay-heap-observer.mjs'
 import { createHash } from 'node:crypto'
 import { readArtifactZip } from '../artifact-zip.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from './browser-jobs.mjs'
@@ -10,7 +10,8 @@ import { gameplayResourceLimits, assertResourceLive, summarizeResourceRestart } 
 import { gameplayResourceSplitBudget } from '../tutorial-browser/scenario-policy.mjs'
 export const GAMEPLAY_RESOURCE_POLICY = 'gameplay-resources-nine-v1'
 export const GAMEPLAY_HEAP_POLICY = 'gameplay-resources-nine-v2'
-export const GAMEPLAY_RESOURCE_POLICIES = Object.freeze([GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY])
+export const GAMEPLAY_MATCHED_POLICY = 'gameplay-resources-nine-v3'
+export const GAMEPLAY_RESOURCE_POLICIES = Object.freeze([GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY])
 export const GAMEPLAY_RESOURCE_JOB = Object.freeze(['gameplay-resources', 'Gameplay resource lifecycle browser',
   'gameplay-resource-lifecycle-browser', 'Observe full live Mission 2 workload and one same-document resource restart', 15])
 export const GAMEPLAY_RESOURCE_BROWSER_JOBS = Object.freeze([...SPLIT_BROWSER_JOBS.slice(0, -1), GAMEPLAY_RESOURCE_JOB, SPLIT_BROWSER_JOBS.at(-1)])
@@ -24,7 +25,7 @@ export const GAMEPLAY_RESOURCE_INPUTS = Object.freeze([
 export const GAMEPLAY_HEAP_INPUTS = Object.freeze([...GAMEPLAY_RESOURCE_INPUTS, 'scripts/tutorial-browser/gameplay-heap-observer.mjs'])
 export function gameplayResourceInputs(policy) {
   assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(policy), 'Explicit supported resource policy required')
-  return policy === GAMEPLAY_HEAP_POLICY ? GAMEPLAY_HEAP_INPUTS : GAMEPLAY_RESOURCE_INPUTS
+  return policy === GAMEPLAY_RESOURCE_POLICY ? GAMEPLAY_RESOURCE_INPUTS : GAMEPLAY_HEAP_INPUTS
 }
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const positive = value => assert.ok(Number.isSafeInteger(value) && value > 0)
@@ -77,13 +78,55 @@ export function validateGameplayResourceArtifactMetadata(metadata, upload, ident
 }
 const filesRequired = ['receipt.json', 'gameplay-frames.json', 'gameplay-frames-final.png',
   ...plan.phases.flatMap(phase => [`gameplay-frame-${phase.name}.json`, `gameplay-summary-${phase.name}.json`])]
+const matchedFilesRequired = ['receipt.json', 'gameplay-frames.json', ...['cycle-1-', 'cycle-2-'].flatMap(prefix =>
+  filesRequired.filter(name => name !== 'receipt.json' && name !== 'gameplay-frames.json').map(name => prefix + name))]
+const requiredFiles = policy => policy === GAMEPLAY_MATCHED_POLICY ? matchedFilesRequired : filesRequired
+function validateCycle(report, read, json, expected, prefix = '') {
+  assert.deepEqual(report.phases.map(phase => phase.name), plan.phases.map(phase => phase.name))
+  for (const [state, paused] of [[report.warmupBefore, false], [report.warmupAfter, false], [report.menuBefore, true], [report.menuAfter, false], [report.after, false]]) {
+    assert.equal(state.level, 2); assert.equal(state.sameScene, true); assert.equal(state.paused, paused)
+    assert.equal(state.inputMask, 0); assert.equal(state.speed, 1); assert.equal(state.visibility, 'visible')
+    assert.deepEqual(state.viewport, plan.viewport)
+    assert.ok(Number.isFinite(state.timestampMs) && state.timestampMs >= 0)
+    assert.ok(Number.isFinite(state.timeOriginUnixMs) && state.timeOriginUnixMs >= 0)
+    assert.equal(state.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
+    assert.ok(Number.isSafeInteger(state.turn) && state.turn >= 0)
+  }
+  assert.ok(report.warmupAfter.timestampMs - report.warmupBefore.timestampMs >= plan.warmupMs)
+  assert.ok(report.menuAfter.timestampMs > report.menuBefore.timestampMs)
+  assert.ok(report.after.timestampMs >= report.phases.at(-1).after.timestampMs)
+  assert.ok(report.warmupAfter.turn > report.warmupBefore.turn)
+  assert.equal(report.menuBefore.paused, true); assert.equal(report.menuAfter.paused, false)
+  for (const [index, phase] of plan.phases.entries()) {
+    const record = report.phases[index]; assert.equal(record.status, 'passed')
+    if (prefix && phase.nativeWork) assert.ok(Number.isSafeInteger(record.point.id) && record.point.id >= 0, 'Authored target identity required')
+    assert.equal(record.before.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
+    assert.ok(record.before.timestampMs >= (index ? report.phases[index - 1].after.timestampMs : report.warmupAfter.timestampMs))
+    const commands = phase.moving ? plan.pointerOffsets.map(([dx, dy], i) => ({ offsetMs: i * plan.pointerIntervalMs, action: 'move', x: record.point.x + dx, y: record.point.y + dy })) : phase.camera ? plan.cameraInputs : []
+    assert.deepEqual(record.inputs.map(({ observedTimestampMs, ...command }) => command), commands)
+    for (const input of record.inputs) assert.ok(Number.isFinite(input.observedTimestampMs) && input.observedTimestampMs >= record.before.timestampMs && input.observedTimestampMs <= record.after.timestampMs)
+    assert.equal(record.rawFile, `${prefix}gameplay-frame-${phase.name}.json`); assert.equal(record.summaryFile, `${prefix}gameplay-summary-${phase.name}.json`)
+    const summary = summarizeGameplayPhase(read(record.rawFile).toString('utf8'), phase, record.before, record.after, expected.identity.mergeSha)
+    // Keep exact deep-strict equality without formatting an unbounded object diff.
+    // Original artifact bytes remain available for independent inspection.
+    assert.ok(isDeepStrictEqual(json(record.summaryFile), summary), 'Stored gameplay phase summary differs from recomputed raw evidence')
+    for (const key of ['rawSha256', 'turnsAdvanced', 'work']) assert.deepEqual(record[key], summary[key])
+    assert.equal(record.frameCount, summary.analysis.sampleCount)
+  }
+  const resources = report.resources
+  for (const sample of [resources.beforeWarmup, resources.afterWorkload]) assertResourceLive(sample)
+  assert.ok(resources.beforeWarmup.timestampMs <= report.warmupBefore.timestampMs && resources.afterWorkload.timestampMs >= report.phases.at(-1).after.timestampMs)
+  assert.equal(resources.beforeWarmup.sceneUuid, resources.afterWorkload.sceneUuid)
+  assert.equal(resources.beforeWarmup.timeOriginUnixMs, resources.afterWorkload.timeOriginUnixMs)
+  assert.ok(resources.afterWorkload.timestampMs > resources.beforeWarmup.timestampMs && resources.afterWorkload.turn > resources.beforeWarmup.turn)
+}
 export function validateGameplayResourceArtifact(files, expected) {
   assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(expected?.policy))
   for (const key of ['headSha', 'baseSha', 'mergeSha']) assert.match(expected.identity[key], /^[a-f0-9]{40}$/)
   for (const key of ['runId', 'runAttempt']) assert.match(String(expected.identity[key]), /^[1-9][0-9]*$/)
   assert.deepEqual(Object.keys(expected.inputs), gameplayResourceInputs(expected.policy))
   for (const digest of Object.values(expected.inputs)) assert.match(digest, /^[a-f0-9]{64}$/)
-  assert.deepEqual(Object.keys(files).filter(name => name !== 'build.log').sort(), [...filesRequired].sort())
+  assert.deepEqual(Object.keys(files).filter(name => name !== 'build.log').sort(), [...requiredFiles(expected.policy)].sort())
   assert.ok(Object.values(files).every(Buffer.isBuffer))
   assert.ok(Object.values(files).reduce((sum, bytes) => sum + bytes.length, 0) <= 96 * 1024 * 1024)
   const read = name => { const bytes = files[name]; assert.ok(bytes?.length > 0 && bytes.length <= 32 * 1024 * 1024); return bytes }
@@ -102,72 +145,66 @@ export function validateGameplayResourceArtifact(files, expected) {
   assert.equal(raw.browserPath, '/opt/google/chrome/chrome')
   assert.deepEqual(raw.launch, { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
   assert.deepEqual(raw.gameplayResourceSplitBudget, gameplayResourceSplitBudget)
-  assert.deepEqual(raw.gameplayResources, report)
-  assert.equal(report.schema, 'populous-new-dawn/gameplay-frame-recording'); assert.equal(report.schemaVersion, 1)
+  assert.ok(isDeepStrictEqual(raw.gameplayResources, report), 'Receipt gameplay resources differ from retained report')
+  const matched = expected.policy === GAMEPLAY_MATCHED_POLICY
+  assert.equal(report.schema, 'populous-new-dawn/gameplay-frame-recording'); assert.equal(report.schemaVersion, matched ? 2 : 1)
   assert.equal(report.status, 'passed'); assert.equal(report.expectedRevision, expected.identity.mergeSha)
   assert.ok(!report.failure && !report.resourceObserverCleanupFailure && !report.heapObserverCleanupFailure)
   assert.deepEqual(report.plan, plan); assert.deepEqual(report.limits, gameplayFrameLimits)
   assert.deepEqual(report.measuredPhases, plan.phases.map(phase => phase.name))
-  assert.deepEqual(report.phases.map(phase => phase.name), report.measuredPhases)
-  for (const [state, paused] of [[report.warmupBefore, false], [report.warmupAfter, false], [report.menuBefore, true], [report.menuAfter, false], [report.after, false]]) {
-    assert.equal(state.level, 2); assert.equal(state.sameScene, true); assert.equal(state.paused, paused)
-    assert.equal(state.inputMask, 0); assert.equal(state.speed, 1); assert.equal(state.visibility, 'visible')
-    assert.deepEqual(state.viewport, plan.viewport)
-    assert.ok(Number.isFinite(state.timestampMs) && state.timestampMs >= 0)
-    assert.ok(Number.isFinite(state.timeOriginUnixMs) && state.timeOriginUnixMs >= 0)
-    assert.equal(state.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
-    assert.ok(Number.isSafeInteger(state.turn) && state.turn >= 0)
-  }
-  assert.ok(report.warmupAfter.timestampMs - report.warmupBefore.timestampMs >= plan.warmupMs)
-  assert.ok(report.menuAfter.timestampMs > report.menuBefore.timestampMs)
-  assert.ok(report.after.timestampMs >= report.phases.at(-1).after.timestampMs)
-  assert.ok(report.warmupAfter.turn > report.warmupBefore.turn)
-  assert.equal(report.menuBefore.paused, true); assert.equal(report.menuAfter.paused, false)
-  for (const [index, phase] of plan.phases.entries()) {
-    const record = report.phases[index]; assert.equal(record.status, 'passed')
-    assert.equal(record.before.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
-    assert.ok(record.before.timestampMs >= (index ? report.phases[index - 1].after.timestampMs : report.warmupAfter.timestampMs))
-    const commands = phase.moving ? plan.pointerOffsets.map(([dx, dy], i) => ({ offsetMs: i * plan.pointerIntervalMs, action: 'move', x: record.point.x + dx, y: record.point.y + dy })) : phase.camera ? plan.cameraInputs : []
-    assert.deepEqual(record.inputs.map(({ observedTimestampMs, ...command }) => command), commands)
-    for (const input of record.inputs) assert.ok(Number.isFinite(input.observedTimestampMs) && input.observedTimestampMs >= record.before.timestampMs && input.observedTimestampMs <= record.after.timestampMs)
-    assert.equal(record.rawFile, `gameplay-frame-${phase.name}.json`); assert.equal(record.summaryFile, `gameplay-summary-${phase.name}.json`)
-    const summary = summarizeGameplayPhase(read(record.rawFile).toString('utf8'), phase, record.before, record.after, expected.identity.mergeSha)
-    // Keep exact deep-strict equality without formatting an unbounded object diff.
-    // Original artifact bytes remain available for independent inspection.
-    assert.ok(isDeepStrictEqual(json(record.summaryFile), summary), 'Stored gameplay phase summary differs from recomputed raw evidence')
-    for (const key of ['rawSha256', 'turnsAdvanced', 'work']) assert.deepEqual(record[key], summary[key])
-    assert.equal(record.frameCount, summary.analysis.sampleCount)
+  if (matched) {
+    assert.deepEqual(report.protocol, gameplayMatchedProtocol)
+    assert.equal(report.phases, undefined)
+    assert.deepEqual(report.cycles.map(cycle => cycle.id), ['cycle-1', 'cycle-2'])
+    for (const cycle of report.cycles) {
+      validateCycle(cycle, read, json, expected, `${cycle.id}-`)
+      assert.deepEqual({ x: cycle.pointerReset.x, y: cycle.pointerReset.y }, gameplayMatchedProtocol.pointerReset)
+      assert.ok(Number.isFinite(cycle.pointerReset.observedTimestampMs) && cycle.pointerReset.observedTimestampMs >= 0 &&
+        cycle.pointerReset.observedTimestampMs <= cycle.resources.beforeWarmup.timestampMs)
+      assert.equal(cycle.startup.level, 2)
+      assert.ok(['skip', 'ready'].includes(cycle.startup.action))
+      assert.ok(cycle.resources.afterWorkload.timestampMs >= cycle.after.timestampMs)
+      assert.ok(cycle.resources.beforeWarmup.turn <= cycle.warmupBefore.turn)
+      assert.ok(cycle.resources.afterWorkload.turn >= cycle.after.turn && cycle.after.turn >= cycle.phases.at(-1).after.turn)
+      assert.equal(cycle.resources.beforeWarmup.timeOriginUnixMs, report.cycles[0].resources.beforeWarmup.timeOriginUnixMs)
+      assert.equal(cycle.screenshotFile, `${cycle.id}-gameplay-frames-final.png`)
+      assert.deepEqual(read(cycle.screenshotFile).subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+    }
+    assert.ok(isDeepStrictEqual(report.observedWorkloadComparison, summarizeGameplayMatchedWorkload(report.cycles)),
+      'Observed cycle workload comparison differs from validated phase evidence')
+  } else {
+    assert.equal(report.cycles, undefined); assert.equal(report.protocol, undefined)
+    validateCycle(report, read, json, expected)
   }
   const resources = report.resources
-  const heapRequired = expected.policy === GAMEPLAY_HEAP_POLICY
-  assert.equal(resources.version, heapRequired ? 2 : 1)
-  assert.equal(resources.status, heapRequired ? 'passed-scoped-lifecycle-and-heap-capability' : 'passed-scoped-lifecycle-observations')
+  const heapRequired = expected.policy !== GAMEPLAY_RESOURCE_POLICY
+  assert.equal(resources.version, matched ? 3 : heapRequired ? 2 : 1)
+  assert.equal(resources.status, matched ? 'passed-two-cycle-matched-protocol' : heapRequired ? 'passed-scoped-lifecycle-and-heap-capability' : 'passed-scoped-lifecycle-observations')
   assert.deepEqual(resources.limits, heapRequired ? gameplayHeapResourceLimits : gameplayResourceLimits)
   if (!heapRequired) assert.equal(resources.heap, undefined, 'Historical v1 cannot carry unvalidated byte proof')
-  for (const sample of [resources.beforeWarmup, resources.afterWorkload]) assertResourceLive(sample)
-  assert.ok(resources.beforeWarmup.timestampMs <= report.warmupBefore.timestampMs && resources.afterWorkload.timestampMs >= report.phases.at(-1).after.timestampMs)
-  assert.equal(resources.beforeWarmup.sceneUuid, resources.afterWorkload.sceneUuid)
-  assert.equal(resources.beforeWarmup.timeOriginUnixMs, resources.afterWorkload.timeOriginUnixMs)
-  assert.ok(resources.afterWorkload.timestampMs > resources.beforeWarmup.timestampMs && resources.afterWorkload.turn > resources.beforeWarmup.turn)
   const restart = resources.restart
-  const recomputed = summarizeResourceRestart(resources.afterWorkload, restart.retired, restart.after, restart.settled)
+  if (matched) {
+    assert.ok(restart.settled.timestampMs - restart.after.timestampMs >= plan.warmupMs)
+    assert.ok(report.cycles[1].pointerReset.observedTimestampMs >= restart.settled.timestampMs)
+  }
+  const recomputed = summarizeResourceRestart(matched ? report.cycles[0].resources.afterWorkload : resources.afterWorkload, restart.retired, restart.after, restart.settled)
   for (const [key, value] of Object.entries(recomputed)) assert.deepEqual(restart[key], value)
   if (heapRequired) {
     assert.match(raw.browserSha256, /^[a-f0-9]{64}$/)
     assert.ok(typeof raw.browserBinaryVersion === 'string' && raw.browserBinaryVersion.length > 0)
     assert.ok(typeof raw.buildPackageVersions?.['playwright-core'] === 'string' && raw.buildPackageVersions['playwright-core'].length > 0)
   }
-  const heap = heapRequired ? validateGameplayHeapProbe(resources.heap, resources) : undefined
-  assert.deepEqual(read('gameplay-frames-final.png').subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-  return { ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
-    phaseCount: 5, lifecycle: recomputed, scope: heapRequired ? 'one-cycle-lifecycle-and-isolate-byte-capability-not-retention-comparison' : 'one-cycle-cleanup-and-counts-not-ram-or-plateau', visualReview: 'required' }
+  const heap = matched ? validateGameplayMatchedHeapProbe(resources.heap, resources, report.cycles) : heapRequired ? validateGameplayHeapProbe(resources.heap, resources) : undefined
+  if (!matched) assert.deepEqual(read('gameplay-frames-final.png').subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+  return { ...(matched ? { matchedCyclesVerified: true, cycleCount: 2 } : {}), ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
+    phaseCount: matched ? 10 : 5, lifecycle: recomputed, scope: matched ? gameplayMatchedProtocol.interpretation : heapRequired ? 'one-cycle-lifecycle-and-isolate-byte-capability-not-retention-comparison' : 'one-cycle-cleanup-and-counts-not-ram-or-plateau', visualReview: 'required' }
 }
 // Caller first binds upload to the exact current job log and API metadata; never follow candidate URLs.
 export function resolveGameplayResourceArtifact(archive, upload, expected) {
   positive(upload.id); assert.equal(upload.name, `gameplay-resource-lifecycle-browser-${expected.identity.mergeSha}`)
   assert.equal(archive.length, upload.bytes); assert.ok(archive.length <= gameplayResourceArchiveLimit)
   assert.equal(hash(archive), upload.sha256)
-  const allowed = new Set([...filesRequired, 'build.log'])
+  const allowed = new Set([...requiredFiles(expected.policy), 'build.log'])
   const files = Object.fromEntries(readArtifactZip(archive, { maxArchiveBytes: gameplayResourceArchiveLimit,
     maxFileBytes: 32 * 1024 * 1024, maxTotalBytes: 96 * 1024 * 1024, maxEntries: allowed.size, allowName: name => allowed.has(name) }))
   return validateGameplayResourceArtifact(files, expected)

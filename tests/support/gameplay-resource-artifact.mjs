@@ -5,8 +5,8 @@ import { createPointerFrameMetrics } from '../../app/pointer-frame-metrics.ts'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from '../../scripts/tutorial-browser/gameplay-frame-evidence.mjs'
 import { gameplayResourceLimits, summarizeResourceRestart } from '../../scripts/tutorial-browser/gameplay-resource-observer.mjs'
 import { gameplayResourceSplitBudget } from '../../scripts/tutorial-browser/scenario-policy.mjs'
-import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
-import { gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
+import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits, gameplayMatchedHeapPolicy, gameplayMatchedHeapLimits, gameplayMatchedProtocol, summarizeGameplayMatchedWorkload } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
 const revision = 'a'.repeat(40), hash = bytes => createHash('sha256').update(bytes).digest('hex')
 function frameFixture(route = 'world') {
   const ring = new FramePerformance()
@@ -44,7 +44,7 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
    canvasConnected: false, contextLost: true, ownedSoundCount: 0, buildingPanelCount: 0, fpsGraphReleased: true },
    after: live(1, 15000, 'new'), settled: live(25, 17000, 'new') } }
  Object.assign(resources.restart, summarizeResourceRestart(resources.afterWorkload, resources.restart.retired, resources.restart.after, resources.restart.settled))
- if (policy === GAMEPLAY_HEAP_POLICY) {
+ if (policy !== GAMEPLAY_RESOURCE_POLICY) {
   resources.version = 2; resources.status = 'passed-scoped-lifecycle-and-heap-capability'; resources.limits = gameplayHeapResourceLimits
   const sample = (boundary, at, scene, turn, clock) => ({ status: 'passed', boundary, scope: gameplayHeapPolicy.scope,
    gc: { method: 'HeapProfiler.collectGarbage', calls: 1, completed: true }, f8Hidden: true, isolateBefore: 'isolate', isolateAfter: 'isolate',
@@ -71,6 +71,7 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
    inputs: commands.map(command => ({ ...command, observedTimestampMs: before.timestampMs + command.offsetMs })),
    rawSha256: summary.rawSha256, turnsAdvanced: summary.turnsAdvanced, work: summary.work, frameCount: summary.analysis.sampleCount })
  }
+ if (policy === GAMEPLAY_MATCHED_POLICY) makeMatchedCycles(report, files)
  const raw = { status: 'passed', selectedScenario: 'gameplay-resources', source: { commit: revision, files: expected.inputs }, buildRevision: revision,
   github: { head: expected.identity.headSha, base: expected.identity.baseSha, merge: revision, runId: '12', runAttempt: '2' },
   build: { exitCode: 0, signal: null, timedOut: false, capMs: 120000 }, browserCapMs: 180000, browserTimedOut: false,
@@ -99,4 +100,56 @@ export function artifactZip(files) {
  }
  const directory=Buffer.concat(centrals),end=Buffer.alloc(22);end.writeUInt32LE(0x06054b50);end.writeUInt16LE(Object.keys(files).length,8);end.writeUInt16LE(Object.keys(files).length,10);end.writeUInt32LE(directory.length,12);end.writeUInt32LE(offset,16)
  return Buffer.concat([...locals,directory,end])
+}
+
+function makeMatchedCycles(report, files) {
+ const first = { id: 'cycle-1', startup: { level: 2, action: 'skip' }, phases: report.phases,
+  resources: { beforeWarmup: report.resources.beforeWarmup, afterWorkload: report.resources.afterWorkload } }
+ for (const key of ['warmupBefore', 'warmupAfter', 'menuBefore', 'menuAfter', 'after']) {
+  first[key] = report[key]; delete report[key]
+ }
+ first.pointerReset = { x: 900, y: 400, observedTimestampMs: 0 }
+ const second = structuredClone(first); second.id = 'cycle-2'
+ second.pointerReset.observedTimestampMs = 18000
+ for (const key of ['warmupBefore', 'warmupAfter', 'menuBefore', 'menuAfter', 'after']) {
+  second[key].timestampMs += 18000; second[key].turn += 25
+ }
+ second.resources = { beforeWarmup: live(25, 18000, 'new'), afterWorkload: live(225, 32000, 'new') }
+ for (const [index, phase] of plan.phases.entries()) {
+  const original = first.phases[index], next = second.phases[index]
+  const bytes = files[original.rawFile], raw = JSON.parse(bytes)
+  if (phase.nativeWork) { original.point.id = 5; next.point.id = 6 }
+  for (const frame of raw.frames) {
+   frame.timestampMs += 18000
+   frame.pointerBreakdown.nativeOcclusion.submittedTriangles += 1
+  }
+  for (const key of ['startTimestampMs', 'endTimestampMs']) raw.timing[key] += 18000
+  next.before.timestampMs += 18000; next.after.timestampMs += 18000
+  next.before.turn += 3; next.after.turn += 7 // Deliberately different observed turns, same recipe.
+  for (const command of next.inputs) command.observedTimestampMs += 18000
+  next.rawFile = `cycle-2-${original.rawFile}`; next.summaryFile = `cycle-2-${original.summaryFile}`
+  files[next.rawFile] = encode(raw)
+  const summary = summarizeGameplayPhase(files[next.rawFile].toString(), phase, next.before, next.after, revision)
+  files[next.summaryFile] = encode(summary)
+  Object.assign(next, { rawSha256: summary.rawSha256, turnsAdvanced: summary.turnsAdvanced,
+   frameCount: summary.analysis.sampleCount, work: summary.work })
+  for (const key of ['rawFile', 'summaryFile']) {
+   files[`cycle-1-${original[key]}`] = files[original[key]]; delete files[original[key]]
+   original[key] = `cycle-1-${original[key]}`
+  }
+ }
+ for (const cycle of [first, second]) {
+  cycle.screenshotFile = `${cycle.id}-gameplay-frames-final.png`
+  files[cycle.screenshotFile] = files['gameplay-frames-final.png']
+ }
+ delete files['gameplay-frames-final.png']; delete report.phases
+ report.schemaVersion = 2; report.protocol = gameplayMatchedProtocol; report.cycles = [first, second]
+ report.observedWorkloadComparison = summarizeGameplayMatchedWorkload(report.cycles)
+ report.resources.version = 3; report.resources.status = 'passed-two-cycle-matched-protocol'
+ delete report.resources.beforeWarmup; delete report.resources.afterWorkload
+ Object.assign(report.resources.heap, { version: 2, status: 'passed-two-cycle-descriptive-observations',
+  policy: gameplayMatchedHeapPolicy, limits: gameplayMatchedHeapLimits })
+ report.resources.heap.samples.forEach((sample, index) => { sample.boundary = gameplayMatchedHeapPolicy.boundaries[index] })
+ Object.assign(report.resources.heap.samples[1], { before: live(225, 32001, 'new'), after: live(225, 32002, 'new'),
+  bytes: { usedSize: 137, totalSize: 200, embedderHeapUsedSize: 40, backingStorageSize: 300 } })
 }

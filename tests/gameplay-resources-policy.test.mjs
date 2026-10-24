@@ -105,3 +105,63 @@ test('v2 rejects missing, unsupported, inconsistent, unbound or incomplete byte 
   v=>{v.raw.source.files={...v.raw.source.files, 'scripts/tutorial-browser/gameplay-heap-observer.mjs':'f'.repeat(64)}},
  ]) { const v=directFixture(GAMEPLAY_HEAP_POLICY); mutate(v);v.save();assert.throws(()=>validateGameplayResourceArtifact(v.files,v.expected)) }
 })
+
+import { GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+test('v3 recomputes all ten cycle-prefixed raw phases and reports differences without claiming a plateau', () => {
+ const v=artifactFixture(GAMEPLAY_MATCHED_POLICY), result=validateGameplayResourceArtifact(v.files,v.expected)
+ assert.equal(result.matchedCyclesVerified,true); assert.equal(result.phaseCount,10); assert.equal(result.cycleCount,2)
+ assert.equal(result.heap.sampleCount,2); assert.equal(result.heap.secondMinusFirstBytes.usedSize,37)
+ assert.equal(result.heap.secondMinusFirstBytes.embedderHeapUsedSize,-10)
+ assert.equal(result.lifecycle.memoryBytes,'not-measured')
+ assert.equal(result.scope,'two-cycle-descriptive-isolate-byte-change-only')
+ assert.equal(v.report.observedWorkloadComparison[0].secondMinusFirst.turnsAdvanced,4)
+ assert.equal(v.report.observedWorkloadComparison[0].secondMinusFirst.work.nativeTriangles,16)
+ assert.equal(v.report.observedWorkloadComparison[0].first.point.id,5)
+ assert.equal(v.report.observedWorkloadComparison[0].second.point.id,6)
+ assert.deepEqual(gameplayResourceInputs(GAMEPLAY_MATCHED_POLICY),GAMEPLAY_HEAP_INPUTS)
+ assert.deepEqual(resolveGameplayResourceArtifact(v.archive,v.upload,v.expected),result)
+ for (const policy of [GAMEPLAY_RESOURCE_POLICY,GAMEPLAY_HEAP_POLICY]) {
+  const old=directFixture(policy); old.expected.policy=GAMEPLAY_MATCHED_POLICY
+  assert.throws(()=>validateGameplayResourceArtifact(old.files,old.expected))
+  assert.throws(()=>validateGameplayResourceArtifact(v.files,{...v.expected,policy}))
+ }
+})
+test('v3 rejects incomplete cycles, cross-cycle raw substitution, unmeasured claims and third or early GC samples', () => {
+ const mutations=[
+  v=>{v.report.cycles.pop()}, v=>{v.report.cycles.reverse()}, v=>{v.report.cycles[1].phases.pop()},
+  v=>{delete v.files['cycle-2-gameplay-frame-hud.json']},
+  v=>{v.files['cycle-2-gameplay-frame-hud.json']=v.files['cycle-1-gameplay-frame-hud.json']},
+  v=>{v.report.cycles[1].phases[0].rawFile='cycle-1-gameplay-frame-world-hover.json'},
+  v=>{v.files['cycle-2-gameplay-summary-hud.json']=encode({status:'passed'})},
+  v=>{v.files['gameplay-frame-hud.json']=v.files['cycle-1-gameplay-frame-hud.json']},
+  v=>{delete v.files['cycle-2-gameplay-frames-final.png']},
+  v=>{v.report.cycles[1].phases[0].inputs=[]},
+  v=>{delete v.report.cycles[1].phases[0].point.id},
+  v=>{v.report.cycles[1].pointerReset.x=901},
+  v=>{v.report.cycles[1].pointerReset.observedTimestampMs=16000},
+  v=>{const raw=JSON.parse(v.files['cycle-2-gameplay-frame-world-hover.json']);raw.frames.forEach(frame=>{frame.sceneDrawCalls=0});v.files['cycle-2-gameplay-frame-world-hover.json']=encode(raw)},
+  v=>{v.report.cycles[1].warmupAfter.turn=v.report.cycles[1].warmupBefore.turn},
+  v=>{v.report.cycles[1].resources.beforeWarmup.timeOriginUnixMs++},
+  v=>{v.report.cycles[1].resources.beforeWarmup.turn=1},
+  v=>{v.report.cycles[1].resources.afterWorkload.turn=64},
+  v=>{v.report.cycles[1].resources.afterWorkload.sceneUuid='old'},
+  v=>{v.report.resources.heap.samples.push(v.report.resources.heap.samples[1])},
+  v=>{v.report.resources.heap.samples[1].boundary='after-restart-settled'},
+  v=>{v.report.resources.heap.samples[1].before.timestampMs=17001},
+  v=>{v.report.resources.heap.samples[1].gc.calls=2},
+  v=>{v.report.resources.heap.samples[1].bytes.usedSize=null},
+  v=>{v.report.resources.heap.samples[1].isolateBefore='other'},
+  v=>{v.report.resources.heap.sessionDetached=false},
+  v=>{v.report.protocol={...v.report.protocol,cycles:3}},
+  v=>{v.report.observedWorkloadComparison[0].secondMinusFirst.turnsAdvanced=0},
+  v=>{v.raw.browserCapMs=360000}, v=>{v.raw.cleanupVerified=false},
+  v=>{v.report.resources.restart.retired.disposed=false},
+ ]
+ for(const mutate of mutations){const v=directFixture(GAMEPLAY_MATCHED_POLICY);mutate(v);v.save();assert.throws(()=>validateGameplayResourceArtifact(v.files,v.expected))}
+ const divergent=directFixture(GAMEPLAY_MATCHED_POLICY)
+ divergent.raw.gameplayResources=structuredClone(divergent.report)
+ divergent.raw.gameplayResources.cycles[1].phases[0].frameCount++
+ divergent.save()
+ assert.throws(()=>validateGameplayResourceArtifact(divergent.files,divergent.expected),
+  {message:'Receipt gameplay resources differ from retained report'})
+})
