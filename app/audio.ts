@@ -293,6 +293,8 @@ export class Soundscape {
     void music.loading.catch(() => {})
     try {
       await ctx.resume()
+      // Mute or disposal can cancel startup while the context is resuming.
+      if (this.disposed || generation !== this.generation) return false
       if (!this.loading) {
         const samples = new Set(
           AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
