@@ -744,3 +744,39 @@ test('historical v2 protocol cannot publish a summary or mutate comments through
     assert.equal(mock.state.calls.filter(call => call.method).length, 0)
   }
 })
+
+
+test('trusted snapshot reader evidence admits RenderView CPU leases and rejects mixed or stale profiles', async () => {
+  const reports = readerReports()
+  const previousId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const currentId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+  for (const report of reports) for (const run of report.runs) {
+    const id = run.side === 'base' ? previousId : currentId
+    const profile = dragSourceProfiles.find(profile => profile.id === id)
+    assert.ok(profile)
+    run.readers.source = { profile: id, importSha256: readerImportSha256,
+      slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  const historical = dragSourceProfiles.find(profile => profile.id === previousId)
+  for (const mutate of [
+    run => { run.readers.source.profile = 'unknown-render-cpu-leases' },
+    run => { run.readers.source.slices = run.readers.source.slices.filter(slice => slice.id !== 'pick-operation-leases') },
+    ...['submission-key', 'query-entry', 'owned-terrain-entry'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+    run => { const slice = run.readers.source.slices.find(slice => slice.id === 'pick-operation-leases'); slice.expectedSha256 = slice.actualSha256 = '0'.repeat(64) },
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed)
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+  // Registry changes have a new trusted protocol identity, not retrospective
+  // authority to compare or publish reports captured under an older protocol.
+  const stale = structuredClone(reports); stale[0].protocolSha256 = '0'.repeat(64)
+  const mock = readerMock(stale)
+  await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+})
