@@ -744,3 +744,35 @@ test('historical v2 protocol cannot publish a summary or mutate comments through
     assert.equal(mock.state.calls.filter(call => call.method).length, 0)
   }
 })
+
+test('trusted snapshot reader evidence admits the reviewed CPU route and rejects mixed or unknown routes', async () => {
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) {
+    const id = run.side === 'base' ? 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+      : 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
+    const profile = dragSourceProfiles.find(profile => profile.id === id)
+    assert.ok(profile)
+    run.readers.source = { profile: id, importSha256: readerImportSha256,
+      slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  const historical = dragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1')
+  for (const mutate of [
+    run => { run.readers.source.profile = 'unknown-disposed-cpu' },
+    ...['frame-order', 'terrain-producers'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed)
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+  // Newly registered source profiles change the trusted protocol identity;
+  // an older or arbitrary protocol cannot be relabelled as current evidence.
+  const stale = structuredClone(reports); stale[0].protocolSha256 = '0'.repeat(64)
+  const mock = readerMock(stale)
+  await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+})
