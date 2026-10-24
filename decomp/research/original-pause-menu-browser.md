@@ -175,3 +175,32 @@ scenario rechecks unlocked input before activation, awaits a public click bounde
 to 2.5 seconds, and accepts a click failure only when input is already unlocked.
 It never leaves a click running in the background; still-locked failures preserve
 the original error and the final unlocked-input assertion remains mandatory.
+
+### Native-style browser checkpoint panels
+
+The Save/Load continuation from `be44bc76f21429c472978c3dcb8893e565b6a4fb`
+removes the dark bordered, system-font card. Titles, warnings/status and actions use
+this same source-bound F00T9 atlas and `MenuText`/`MenuRow` rendering. The inspected
+atlas SHA-256 is `3a23ab67013c9f371fe7424e67e0144be8feb8b4c477d2d02f104b9d4672cf91`;
+its imported PSFB/palette identities above are unchanged. Rows retain normal
+170/255 versus highlighted 255/255 opacity, dimmed disabled controls, and the
+existing HTML focus/keyboard adaptation.
+
+This is explicitly a browser single-checkpoint adaptation, not recovery of native
+Save/Load screen composition, file slots or native-file compatibility. The panel
+starts at y69 with 30-pixel text/action lines and 15-pixel inter-item gaps. Prose
+wraps at 600 original pixels using the actual glyph advances; this layout and all
+checkpoint wording are browser adaptations. The unsupported Unicode ellipsis in
+the existing accessible `Saving…` name is displayed as three original period glyphs.
+All current copy stays within the imported character range. Unexpected unsupported
+characters in a supplied checkpoint notice use the readable text fallback rather
+than indexing outside the atlas. Decode failure also retains that fallback; no new font, gold theme, frame or artwork is introduced.
+
+One checkpoint, explicit overwrite, incompatible-save rejection and unsaved-load
+warnings remain visible. Storage result wording distinguishes saved-in-browser
+from saved-for-session-only without inferring persistence from read status. Load
+lookup, single-flight Save, one-shot Load, Back, repeated activation and old-world
+ownership are unchanged. The companion component tests execute those handlers and
+native/fallback render branches, but do not establish real browser focus, layout,
+fullscreen or pixel parity. Source-bound rendered before/after and full aggregate
+checks remain required before the patch is ready for acceptance.
