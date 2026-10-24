@@ -210,3 +210,74 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory }
     log: files.get('combined.log').path } }
 }
 
+
+// Server output historically concatenates raw chunks in observed event order.
+// Keep one payload, not the command capture's decoded/per-stream representation.
+export function createServerLog(logPath) {
+  const pins = pinDirectories(dirname(logPath)), files = []
+  let failure, finished
+  const open = path => {
+    const fd = fs.openSync(path, fs.constants.O_RDWR | fs.constants.O_CREAT | fs.constants.O_EXCL | fs.constants.O_NOFOLLOW, 0o600)
+    const file = { path, fd }
+    files.push(file)
+    file.before = fs.fstatSync(fd, { bigint: true })
+    return file
+  }
+  const close = () => {
+    const errors = []
+    for (const file of [...files, ...pins]) try { fs.closeSync(file.fd) } catch (error) { errors.push(error) }
+    return errors
+  }
+  const path = logPath + '.capture.json', guardPath = logPath + '.publication.pending'
+  const runId = randomUUID()
+  let raw, pending, terminal, guard
+  try {
+    raw = open(logPath)
+    raw.observed = { hash: createHash('sha256'), bytes: 0 }
+    pending = open(path)
+    terminal = open(path + '.tmp')
+    terminal.observed = { hash: createHash('sha256'), bytes: 0 }
+    guard = open(guardPath)
+    write(pending, Buffer.from(JSON.stringify({ version: 1, kind: 'pnd-server-log', runId,
+      status: 'pending', log: logPath }) + '\n'))
+  } catch (error) {
+    throw new AggregateError([error, ...close()], 'Server log setup incomplete')
+  }
+  return {
+    reference: { version: 1, path, runId, log: logPath, complete: false },
+    write(bytes) {
+      assert(!finished, 'Server capture already finalized')
+      if (failure) throw failure
+      try { write(raw, bytes) } catch (error) { failure = error; throw error }
+    },
+    finish(error = null) {
+      if (finished) return finished()
+      let result, finalError
+      try {
+        if (error || failure) throw error ?? failure
+        validateDirectories(pins)
+        const log = hashAndDecode(raw, null, false)
+        write(terminal, Buffer.from(JSON.stringify({ version: 1, kind: 'pnd-server-log', runId,
+          status: 'complete', log, limits: ['Raw disk growth is not bounded; direct child ownership only'] }) + '\n'))
+        for (const file of files) regular(file)
+        fs.renameSync(terminal.path, path)
+        terminal.path = path
+        // The old pending descriptor was intentionally replaced, not mutated.
+        files.splice(files.indexOf(pending), 1)
+        try { fs.closeSync(pending.fd) } catch (error) { throw error }
+        hashAndDecode(terminal, null, false)
+      } catch (error) { finalError = error }
+      const errors = [...(finalError ? [finalError] : []), ...close()]
+      try {
+        if (errors.length) throw new AggregateError(errors, 'Server capture incomplete')
+        validateDirectories(pins, true)
+        for (const file of files) regular(file, true)
+        requireAbsent(logPath + '.publication.complete')
+        fs.renameSync(guard.path, logPath + '.publication.complete')
+        result = { version: 1, path, runId, log: logPath, complete: true }
+      } catch (error) { finalError = error }
+      finished = () => { if (finalError) throw finalError; return result }
+      return finished()
+    },
+  }
+}
