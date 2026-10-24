@@ -8,6 +8,7 @@ import { checkpointCodec } from './checkpoint-codec.mjs'
 import { m2LoadReady } from './m2-pointer-f8.mjs'
 import { createSpySourceFixture } from './spy-source-fixture.mjs'
 import { withSpySourceBrowser } from './spy-source-budget.mjs'
+import { installSpyCapture } from './spy-source-capture.mjs'
 import { installSpySourceObserver, readSpySourceHold } from './spy-source-observer.mjs'
 import { validateSpySourceObservation } from './spy-source-evidence.mjs'
 import { awaitSpySourceReadiness } from './spy-source-readiness.mjs'
@@ -85,18 +86,18 @@ export async function retainSpyCommandFailure(page, report, fixture, deadlineAt,
 // complete existing M10 episode, never as a substitute for either of its phases.
 export default async function spySource(options) {
   const { output, url, source } = options
-  const report = { status: 'running', errors: [], actions: [], sourceCommit: source.commit,
+  const report = { status: 'running', evidenceVersion: 2, errors: [], actions: [], sourceCommit: source.commit,
     sources: Object.fromEntries(['spy-source.mjs', 'spy-source-fixture.mjs', 'spy-source-budget.mjs',
-      'spy-source-observer.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
+      'spy-source-observer.mjs', 'spy-source-capture.mjs', 'spy-source-evidence.mjs', 'spy-source-readiness.mjs', 'checkpoint-codec.mjs']
       .map(file => [file, hash(readFileSync(new URL(file, import.meta.url)))])),
-    inputs: Object.fromEntries(['app/follower-appearance.ts', 'app/scene-entities.ts',
+    inputs: Object.fromEntries(['scripts/controlled-scene-frames.mjs', 'app/scene.ts', 'app/game-clock.ts', 'app/world-turn.ts', 'app/follower-appearance.ts', 'app/scene-entities.ts',
       'app/live-building-combat.ts', 'app/original-units.json', 'app/checkpoint-format.ts',
       'tests/fixtures/follower-source-witness.json', 'tests/fixtures/follower-source-artwork.json']
       .map(file => [file, hash(readFileSync(new URL(`../../${file}`, import.meta.url)))])),
     limits: [
       'Supplied current-format checkpoint with flat terrain, school, Brave, training funding and hostile hut; real training controller, not natural Mission12/campaign acquisition.',
-      'Public Load Game, Skip introduction when the restored flyby owns input, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; ordinary live clocks and actual production Home renderer.',
-      'Read-only RAF samples and immutable same-frame canvas crops perturb rendering. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
+      'Public Load Game, Skip introduction when the restored flyby owns input, Select spy, right-click focus, disguise, canvas sabotage command, Pause and Resume; public input and actual production Home renderer; the sabotage capture uses controlled elapsed full Scene frames.',
+      'Transparent afterTurn logical ledger and controlled 1000/24ms complete Scene frames with immutable actual frame0/1 crops. Not natural wall-clock timing or performance. No hardware performance, original-game execution, all-sprite sweep or pixel-perfect native raster claim.',
       'Exact entry must be observed. A missed frame, short budget or absent crop is failure, not a skip or substituted later sample.',
     ] }
   const save = () => writeFileSync(resolve(output, 'spy-source.json'), JSON.stringify(report, null, 2) + '\n')
@@ -183,7 +184,9 @@ export default async function spySource(options) {
         await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
         await action('Pause before sabotage', () => button('Pause game').click())
         await page.waitForFunction(() => window.testStore.getWorld().paused)
-        await page.evaluate(installSpySourceObserver, { spyId: fixture.spyId, targetId: fixture.targetId })
+        report.capture = await page.evaluate(installSpyCapture, { deadlineAt: budget.deadlineAt })
+        const observationStart = await page.evaluate(installSpySourceObserver, { spyId: fixture.spyId, targetId: fixture.targetId, controlled: true })
+        assert.equal(observationStart.error, null, 'Logical observer must own its hook before public sabotage')
         await resumeSpySourceInput(page, action, 'Canvas sabotage command', async () => {
           const target = await page.evaluate(readSpySabotageTarget, fixture.targetId)
           report.commandPick = target; save()
@@ -194,13 +197,17 @@ export default async function spySource(options) {
           return { target: spy.target, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
         }, fixture.spyId)
         assert.equal(report.order.target, fixture.targetId)
-        await page.waitForFunction(() => {
-          const result = window.__pndSpySourceObservation.result
-          if (result.error) throw Error(result.error)
-          return result.done
-        }, null, { timeout: Math.max(1, Math.min(16000, budget.deadlineAt - Date.now())) })
+        report.capture = await page.evaluate(async () => {
+          const { runSceneFrames } = await import('/scripts/controlled-scene-frames.mjs')
+          const observer = window.__pndSpySourceObservation
+          return window.__pndSpyCapture.drive(runSceneFrames, observer.sample, () => {
+            if (observer.result.error) throw Error(observer.result.error)
+            return observer.result.done
+          })
+        })
         await action('Pause real source136', () => button('Pause game').click())
         await page.waitForFunction(() => window.testStore.getWorld().paused)
+        report.capture = await page.evaluate(() => window.__pndSpyCapture.release())
         report.holdBefore = await page.evaluate(readSpySourceHold, fixture.spyId)
         assert.equal(report.holdBefore.spy.native.object, 136)
         await page.waitForTimeout(180)
@@ -222,13 +229,32 @@ export default async function spySource(options) {
         assert.deepEqual(report.errors, [])
       } catch (error) {
         await retainSpyCommandFailure(page, report, fixture, budget.deadlineAt)
+        if (!page.isClosed()) report.capture = await page.evaluate(() => window.__pndSpyCapture?.result).catch(() => report.capture)
         save()
         throw error
       } finally {
+        if (!page.isClosed()) {
+          try {
+            const final = await page.evaluate(() => {
+              const errors = [], observer = window.__pndSpySourceObservation, capture = window.__pndSpyCapture
+              try { observer?.stop() } catch (error) { errors.push(String(error)) }
+              try { capture?.abandon() } catch (error) { errors.push(String(error)) }
+              return { capture: capture?.result, hook: observer?.result.hook, errors }
+            })
+            if (final.capture) report.capture = final.capture
+            report.captureCleanup = { completed: true, hook: final.hook, errors: final.errors }
+            if (final.errors.length || final.capture?.error ||
+              (final.capture?.installed && !final.capture.released) ||
+              (final.hook?.installed && (!final.hook.restored || final.hook.foreign)))
+              report.captureCleanupFailure = 'Final capture ownership cleanup failed'
+          } catch (error) { report.captureCleanupFailure = String(error) }
+          save() // Preserve post-abandon outcomes even when the original episode failed.
+        } else report.captureCleanupFailure = 'Page closed before capture ownership cleanup'
         // Browser ownership wrapper also closes any context if this fails.
         await context.close()
       }
     })
+    assert.equal(report.captureCleanupFailure, undefined, 'Capture ownership cleanup must succeed')
     report.status = 'passed'
   } catch (error) {
     report.status = 'failed'; report.failure = String(error); throw error

@@ -5,12 +5,11 @@ import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
 import { validateEntry,validatePassedGate,gatesFor } from '../scripts/integration-queue/policy.mjs'
 import { resolveProfileCasesArtifact,resolveMission10Artifact,profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
 const checkView=f=>({head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion}))})
-test('real composed eight/v3 pipeline requires both proofs for all eleven finite Spy inventories',()=>{
-  for(let secondFrame=1;secondFrame<=11;secondFrame++){
-    const f=composedBrowserFixture({secondFrame});validateEntry(f.entry);const row=f.run()
-    assert.equal(row.tornadoVerified,true);assert.equal(row.spySourceVerified,true)
-    assert.equal(row.spellVisualsVerified,undefined);validatePassedGate(checkView(f),gatesFor(f.entry)[1],row)
-  }
+test('composed pipeline requires version2 Spy frame0/1 without accepting later second frames',()=>{
+  const f=composedBrowserFixture();validateEntry(f.entry);const row=f.run()
+  assert.equal(row.tornadoVerified,true);assert.equal(row.spySourceVerified,true)
+  assert.equal(row.spellVisualsVerified,undefined);validatePassedGate(checkView(f),gatesFor(f.entry)[1],row)
+  for(let secondFrame=2;secondFrame<=11;secondFrame++)assert.throws(()=>composedBrowserFixture({secondFrame}).run())
 })
 test('legacy eight/v3 and nine/v4 paths remain strict and do not infer composition',()=>{
   for(const nine of [false,true]){const f=passiveBrowserFixture({nine});assert.equal(f.run().identityVerified,true)}
