@@ -144,7 +144,7 @@ export async function prepare({ api, download, runId, mode, destination }) {
   await exactFile(api, buildPath, run.head_sha)
   const gate = pr ? null : await productionGate(api, download, run)
   const zip = await oneArtifact(api, download, run, `cloudflare-dist-${run.id}-${run.run_attempt}`, maxArchiveBytes)
-  materializeBuild(zip, destination)
+  materializeBuild(zip, destination, run.head_sha)
   return { version: 1, source: run.id, sourceAttempt: run.run_attempt, sha: run.head_sha,
     pr: pr?.number ?? null, alias: pr ? branchAlias(pr.head.ref) : null, gate, status: 'prepared' }
 }
