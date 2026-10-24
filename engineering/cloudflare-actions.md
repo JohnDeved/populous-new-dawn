@@ -44,6 +44,11 @@ are part of this source migration.
   receipt's tested Git tree must equal the production commit tree. Upload produces
   a version first; a second current-main/gate check precedes 100% promotion through
   the existing Worker's deployments API. Direct pushes are not a bypass.
+  GitHub can clear a gate run's `pull_requests` array after merge. An empty array
+  is accepted only with the authoritative merged-PR lookup, exact source head and
+  repository/branch, trusted workflow, jobs, digest and tested-tree checks above.
+  Missing/malformed association metadata or any explicit conflicting association
+  is rejected in both the run inventory and refetched run; preview routing is unchanged.
 - The existing ready-PR `Full check` contract remains mandatory and unchanged.
   Preview success is neither review approval nor a substitute for that gate.
 
