@@ -9,7 +9,9 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  rmdirSync,
   symlinkSync,
+  truncateSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
@@ -18,6 +20,7 @@ import test from 'node:test'
 import { buildReviewBundle, verifyReviewBundle } from '../scripts/orchestration/review-bundle.mjs'
 import { runCommandReceipt } from '../scripts/orchestration/command-receipt.mjs'
 import { readReceiptStreams } from '../scripts/orchestration/receipt-streams.mjs'
+import { discoverReceipts } from '../scripts/parity-measure.mjs'
 
 
 const sha = value => createHash('sha256').update(value).digest('hex')
@@ -820,7 +823,7 @@ function v2ExportIdentity(repo, base, path = 'work/orchestration/task/receipt.js
 function standaloneVerification(bundle, expected) {
   const args = [join(bundle, 'verify.mjs'), '--expected-head', expected.expectedHead,
     '--expected-diff-sha256', expected.expectedDiffSha256]
-  for (const [flag, entries] of [['--expected-source', expected.expectedSources], ['--expected-receipt', expected.expectedReceipts]])
+  for (const [flag, entries] of [['--expected-source', expected.expectedSources], ['--expected-receipt', expected.expectedReceipts], ['--expected-review', expected.expectedReviews ?? []]])
     for (const { path, sha256 } of entries) args.push(flag, `${path}=${sha256}`)
   return spawnSync(process.execPath, args, { encoding: 'utf8' })
 }
@@ -1046,5 +1049,268 @@ test('review-bundle CLI selects exactly one original-hash-bound v2 receipt', () 
     const mismatchArgs = [...args]; mismatchArgs[mismatchArgs.length - 1] = `${path}=${'0'.repeat(64)}`
     const mismatch = spawnSync(process.execPath, mismatchArgs, { encoding: 'utf8' })
     assert.notEqual(mismatch.status, 0); assert.match(mismatch.stderr, /Original v2 receipt hash mismatch/)
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+
+function reviewExpected(repo, base, result) {
+  // The creation result is handed to the reviewer independently of the bundle.
+  return { ...expectedIdentity(repo, base), expectedReceipts: [],
+    expectedReviews: result.manifest.reviewDerivatives.map(entry =>
+      ({ path: entry.sourcePath, sha256: entry.bundleSha256 })) }
+}
+
+function assertReviewExportRefused(repo, base, bundle, binding = originalV2Binding(repo), options = {}) {
+  const target = join(repo, binding.path)
+  const paths = [target, `${target}.artifacts/stdout.log`, `${target}.artifacts/stderr.log`].filter(existsSync)
+  const before = paths.map(path => readFileSync(path)), entries = readdirSync(join(bundle, '..'))
+  let error
+  try { buildReviewBundle(repo, { taskId: 'review-refusal', base, output: bundle, v2ReviewReceipt: binding, ...options }) } catch (caught) { error = caught }
+  assert(error, 'review export must fail closed')
+  assert.doesNotMatch(error.message, /fixture-sensitive-value/)
+  assert.equal(existsSync(bundle), false)
+  assert.deepEqual(readdirSync(join(bundle, '..')), entries)
+  assertV2OriginalsUnchanged(paths, before)
+}
+
+test('sanitized v2 review exports real complete path-bearing output without execution evidence', () => {
+  const { root, repo, base, bundle } = fixture()
+  try {
+    const path = 'work/orchestration/task/actual-review.json'
+    const receipt = runCommandReceipt(repo, { output: path, streamVersion: 2,
+      command: [process.execPath, '-e', `process.stdout.write(process.cwd()+'\\n'+'x'.repeat(40000)); process.stderr.write(require('node:os').homedir()); process.exitCode=7`] })
+    assert.equal(receipt.status, 'failed')
+    assert.equal(receipt.streams.stdout.inline, 'omitted')
+    const paths = [join(repo, path), receipt.artifacts.stdout, receipt.artifacts.stderr]
+    const originals = paths.map(file => readFileSync(file)), binding = originalV2Binding(repo, path)
+    const result = buildReviewBundle(repo, { taskId: 'review-real', base, output: bundle, v2ReviewReceipt: binding })
+    assert.deepEqual(result.manifest.receipts, [])
+    const expected = reviewExpected(repo, base, result), entry = result.manifest.reviewDerivatives[0]
+    const bytes = readFileSync(join(bundle, entry.bundlePath)), document = JSON.parse(bytes)
+    assert.equal(sha(bytes), expected.expectedReviews[0].sha256)
+    assert.equal(document.kind, 'pnd-command-review')
+    assert.equal(document.reviewOnly, true)
+    assert.deepEqual(document.original, { sha256: sha(originals[0]), bytes: originals[0].length })
+    assert.equal(document.metadata.status, 'failed'); assert.equal(document.metadata.exitCode, 7)
+    assert.equal(document.metadata.cwd, '<SOURCE_ROOT>')
+    assert.equal(Object.hasOwn(document, 'status'), false)
+    assert.equal(Object.hasOwn(document.metadata, 'artifacts'), false)
+    for (const [index, name] of ['stdout', 'stderr'].entries()) {
+      const stream = document.streams[name], data = readFileSync(join(bundle, stream.bundlePath))
+      const wanted = originals[index + 1].toString('utf8').replaceAll(repo, '<SOURCE_ROOT>').replaceAll(homedir(), '<HOME>')
+      assert.equal(data.toString('utf8'), wanted)
+      assert.equal(stream.sha256, sha(data)); assert.equal(stream.bytes, data.length)
+      assert.deepEqual(stream.original, { sha256: sha(originals[index + 1]), bytes: originals[index + 1].length })
+      assert.notEqual(stream.sha256, stream.original.sha256)
+    }
+    assert.throws(() => readReceiptStreams(repo, path, document), /Unknown raw stream format/)
+    writeFileSync(join(repo, 'work/orchestration/review-copy.json'), bytes)
+    assert.equal(discoverReceipts(repo).receipts.some(item => item.path.endsWith('/review-copy.json')), false)
+    assert.equal(verifyReviewBundle(bundle, expected).status, 'passed')
+    const standalone = standaloneVerification(bundle, expected)
+    assert.equal(standalone.status, 0, standalone.stderr)
+    assertV2OriginalsUnchanged(paths, originals)
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('review-only v2 preserves BOM and nonpassing context while sanitizing decoded metadata and streams', () => {
+  const { root, repo, base } = fixture()
+  try {
+    for (const status of ['passed', 'failed', 'unknown', 'invalidated']) {
+      const stdout = Buffer.from('\uFEFF' + JSON.stringify({ path: repo }).replaceAll('/', '\\u002f'))
+      const { path, target, receipt } = v2ExportFixture(repo, { stdout, status })
+      receipt.command = ['node', `${repo}/script.mjs`, jsonWrap({ path: homedir() }, 2)]
+      receipt.phase = 'prepared'; receipt.signal = 'SIGTERM'; receipt.error = { message: `at ${repo}` }
+      writeFileSync(target, JSON.stringify(receipt))
+      const bundle = join(root, `review-${status}`)
+      const result = buildReviewBundle(repo, { taskId: 'review-context', base, output: bundle, v2ReviewReceipt: originalV2Binding(repo) })
+      const document = JSON.parse(readFileSync(join(bundle, result.manifest.reviewDerivatives[0].bundlePath)))
+      const output = readFileSync(join(bundle, document.streams.stdout.bundlePath), 'utf8')
+      assert(output.startsWith('\uFEFF')); assert.equal(JSON.parse(output.slice(1)).path, '<SOURCE_ROOT>')
+      assert.equal(document.metadata.status, status); assert.equal(document.metadata.phase, 'prepared')
+      assert.equal(document.metadata.signal, 'SIGTERM'); assert.equal(document.metadata.error.message, 'at <SOURCE_ROOT>')
+      assert.equal(document.metadata.command[1], '<SOURCE_ROOT>/script.mjs')
+      assert(!JSON.stringify(document).includes(repo)); assert(!JSON.stringify(document).includes(homedir()))
+      assert.equal(document.streams.stderr.bytes, 0)
+      assert.equal(verifyReviewBundle(bundle, reviewExpected(repo, base, result)).status, 'passed')
+      assert.throws(() => readReceiptStreams(repo, path, document), /Unknown raw stream format/)
+    }
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('sanitized v2 export retains secret, binary, identity, publication, and alias refusals', () => {
+  const { root, repo, base, bundle } = fixture()
+  try {
+    const nested = { kind: 'pnd-command-receipt', version: 2 }
+    for (const bytes of [Buffer.from([255, 128]), Buffer.from([120, 0]),
+      Buffer.from('password=fixture-sensitive-value'),
+      Buffer.from('\uFEFF' + '{"\\u0070assword":"fixture-sensitive-value"}'),
+      Buffer.from('\uFEFF\uFEFF' + '{"\\u0070assword":"fixture-sensitive-value"}'),
+      Buffer.from(jsonWrap('\uFEFF' + '{"\\u0070assword":"fixture-sensitive-value"}', 2)),
+      Buffer.from(jsonWrap({ password: 'fixture-sensitive-value' }, 3)),
+      Buffer.from(jsonWrap(nested, 2)), Buffer.from(jsonWrap('bounded', DECODE_DEPTH_LIMIT + 2))]) {
+      for (const name of ['stdout', 'stderr']) {
+        v2ExportFixture(repo, { [name]: bytes }); assertReviewExportRefused(repo, base, bundle)
+      }
+    }
+    for (const mutation of [
+      receipt => { receipt.password = 'fixture-sensitive-value' },
+      receipt => { receipt.nested = nested },
+      receipt => { receipt.artifacts.stdout = receipt.artifacts.stderr },
+      receipt => { receipt.streams.stdout.sha256 = '0'.repeat(64) },
+      receipt => { receipt.stdout = 'forged inline' },
+      receipt => { receipt.publication = 'unknown-format' },
+      receipt => { receipt.publication = 'guard-v1' },
+    ]) {
+      const { target, receipt } = v2ExportFixture(repo)
+      mutation(receipt); writeFileSync(target, JSON.stringify(receipt)); assertReviewExportRefused(repo, base, bundle)
+    }
+    let data = v2ExportFixture(repo)
+    assertReviewExportRefused(repo, base, bundle, { path: data.path, sha256: '0'.repeat(64) })
+    writeFileSync(`${data.target}.artifacts/publication.pending`, '')
+    assertReviewExportRefused(repo, base, bundle)
+    rmSync(`${data.target}.artifacts/publication.pending`)
+    rmSync(data.receipt.artifacts.stderr); assertReviewExportRefused(repo, base, bundle)
+    data = v2ExportFixture(repo)
+    linkSync(data.receipt.artifacts.stdout, join(root, 'held-raw.log')); assertReviewExportRefused(repo, base, bundle)
+    rmSync(join(root, 'held-raw.log'))
+    linkSync(data.target, join(root, 'held-receipt.json')); assertReviewExportRefused(repo, base, bundle)
+    rmSync(join(root, 'held-receipt.json'))
+    rmSync(data.receipt.artifacts.stdout); symlinkSync(data.receipt.artifacts.stderr, data.receipt.artifacts.stdout)
+    assertReviewExportRefused(repo, base, bundle)
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('sanitized v2 export keeps per-input, total-source, and copy expansion limits', () => {
+  const { root, repo, base, bundle } = fixture()
+  try {
+    const limit = 2 * 1024 * 1024
+    for (const name of ['stdout', 'stderr']) {
+      v2ExportFixture(repo, { [name]: Buffer.alloc(limit + 1, 120) })
+      assertReviewExportRefused(repo, base, bundle)
+    }
+    const { target } = v2ExportFixture(repo)
+    writeFileSync(target, Buffer.alloc(limit + 1, 120)); assertReviewExportRefused(repo, base, bundle)
+    v2ExportFixture(repo, { stdout: Buffer.alloc(limit, 120), stderr: Buffer.alloc(limit, 121) })
+    const receipts = ['work/orchestration/task/extra-a.log', 'work/orchestration/task/extra-b.log']
+    for (const path of receipts) writeFileSync(join(repo, path), Buffer.alloc(limit, 122))
+    assertReviewExportRefused(repo, base, bundle, originalV2Binding(repo), { receipts })
+    // A short temporary HOME makes replacement growth deterministic; restore it.
+    const priorHome = process.env.HOME
+    try {
+      process.env.HOME = '/x'
+      v2ExportFixture(repo, { stdout: Buffer.from('/x'.repeat(limit / 2)) })
+      assertReviewExportRefused(repo, base, bundle)
+    } finally {
+      if (priorHome === undefined) delete process.env.HOME
+      else process.env.HOME = priorHome
+    }
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('both review verifiers reject missing, extra, altered, aliased and wrongly trusted derivatives', () => {
+  const { root, repo, base, bundle } = fixture()
+  try {
+    const { path } = v2ExportFixture(repo, { stdout: Buffer.from(repo) })
+    const result = buildReviewBundle(repo, { taskId: 'review-verification', base, output: bundle, v2ReviewReceipt: originalV2Binding(repo) })
+    const expected = reviewExpected(repo, base, result), entry = result.manifest.reviewDerivatives[0]
+    const manifestPath = join(bundle, 'manifest.json'), descriptorPath = join(bundle, entry.bundlePath)
+    const manifestBytes = readFileSync(manifestPath), descriptorBytes = readFileSync(descriptorPath)
+    const originalManifest = JSON.parse(manifestBytes), document = JSON.parse(descriptorBytes)
+    const reject = (identity = expected, pattern) => {
+      assert.throws(() => verifyReviewBundle(bundle, identity), pattern)
+      const result = standaloneVerification(bundle, identity)
+      assert.notEqual(result.status, 0)
+      if (pattern) assert.match(result.stderr, pattern)
+    }
+    reject({ ...expected, expectedReviews: [] })
+    reject({ ...expected, expectedReviews: [], expectedReceipts: expected.expectedReviews })
+    reject({ ...expected, expectedReviews: [...expected.expectedReviews, ...expected.expectedReviews] })
+    for (const mutation of [manifest => { delete manifest.reviewDerivatives },
+      manifest => { manifest.reviewDerivatives.push(entry) },
+      manifest => { manifest.reviewDerivatives[0].bundlePath = `receipts/${path}` },
+      manifest => { manifest.reviewDerivatives[0].bundleSha256 = '0'.repeat(64) }]) {
+      const manifest = structuredClone(originalManifest); mutation(manifest)
+      writeFileSync(manifestPath, JSON.stringify(manifest)); reject()
+    }
+    writeFileSync(manifestPath, manifestBytes)
+    for (const name of ['stdout', 'stderr']) {
+      const file = join(bundle, document.streams[name].bundlePath), bytes = readFileSync(file)
+      rmSync(file); reject(); writeFileSync(file, bytes)
+      writeFileSync(file, 'forged stream'); reject(); writeFileSync(file, bytes)
+      const held = join(root, `held-${name}.txt`); writeFileSync(held, bytes)
+      rmSync(file); symlinkSync(held, file); reject(); rmSync(file); writeFileSync(file, bytes)
+      linkSync(file, `${held}.alias`); reject(); rmSync(`${held}.alias`)
+    }
+    const extra = join(bundle, 'reviews/extra.json'); writeFileSync(extra, '{}'); reject(); rmSync(extra)
+    for (const mutate of [value => { value.original.sha256 = '0'.repeat(64) },
+      value => { value.streams.stdout.original.bytes++ }, value => { delete value.streams.stderr },
+      value => { value.streams.stdout.bundlePath = '../../outside' },
+      value => { value.kind = 'pnd-command-receipt' }, value => { value.status = 'passed' }]) {
+      const changed = structuredClone(document); mutate(changed)
+      const bytes = Buffer.from(JSON.stringify(changed)), forged = structuredClone(originalManifest)
+      writeFileSync(descriptorPath, bytes)
+      forged.reviewDerivatives[0].bundleSha256 = sha(bytes); forged.reviewDerivatives[0].bundleBytes = bytes.length
+      writeFileSync(manifestPath, JSON.stringify(forged)); reject()
+    }
+    writeFileSync(descriptorPath, descriptorBytes); writeFileSync(manifestPath, manifestBytes)
+    for (const fields of [{ status: 'passed' }, { parityMeasurements: [] },
+      { identity: {}, verification: { results: [{ status: 'passed', parityMeasurements: [] }] } }]) {
+      const forged = Buffer.from(JSON.stringify({ ...document, ...fields })), manifest = structuredClone(originalManifest)
+      manifest.reviewDerivatives[0].bundleSha256 = sha(forged); manifest.reviewDerivatives[0].bundleBytes = forged.length
+      writeFileSync(descriptorPath, forged); writeFileSync(manifestPath, JSON.stringify(manifest))
+      // Even a newly trusted hash cannot make a promotion-shaped object valid.
+      reject({ ...expected, expectedReviews: [{ path, sha256: sha(forged) }] })
+    }
+    writeFileSync(descriptorPath, descriptorBytes); writeFileSync(manifestPath, manifestBytes)
+    for (const file of [descriptorPath, join(bundle, document.streams.stdout.bundlePath)]) {
+      const bytes = readFileSync(file); truncateSync(file, 3 * 1024 * 1024); reject(expected, /Review file size differs from bounded descriptor/); writeFileSync(file, bytes)
+    }
+    const ladder = Array.from({ length: 130 }, (_, depth) =>
+      join(bundle, 'reviews/empty', ...Array(depth).fill('d')))
+    mkdirSync(ladder.at(-1), { recursive: true })
+    try { reject(expected, /Review path is too deep/) } finally {
+      // Remove only our known empty ladder, leaf first, without recursive FDs.
+      for (const directory of ladder.reverse()) rmdirSync(directory)
+    }
+    for (let index = 0; index < 1025; index++) mkdirSync(join(bundle, `reviews/empty-${index}`))
+    reject(expected, /Review namespace exceeds entry limit/)
+    for (let index = 0; index < 1025; index++) rmSync(join(bundle, `reviews/empty-${index}`), { recursive: true })
+    assert.equal(verifyReviewBundle(bundle, expected).status, 'passed')
+    assert.equal(standaloneVerification(bundle, expected).status, 0)
+  } finally { rmSync(root, { recursive: true, force: true }) }
+})
+
+test('review-bundle CLI requires separate explicit original and derivative trust selectors', () => {
+  const { root, repo, base, bundle } = fixture()
+  try {
+    const directory = join(repo, 'scripts/orchestration')
+    mkdirSync(directory, { recursive: true })
+    for (const name of ['review-bundle.mjs', 'receipt-streams.mjs'])
+      writeFileSync(join(directory, name), readFileSync(new URL(`../scripts/orchestration/${name}`, import.meta.url)))
+    run(repo, 'git', 'add', 'scripts'); run(repo, 'git', 'commit', '-qm', 'review CLI fixture')
+    const { path } = v2ExportFixture(repo, { stdout: Buffer.from(repo) }), binding = originalV2Binding(repo)
+    const args = [join(directory, 'review-bundle.mjs'), 'create', '--task-id', 'review-cli', '--base', base,
+      '--output', bundle, '--v2-review-receipt', `${path}=${binding.sha256}`]
+    for (const extra of [['--v2-review-receipt', `${path}=${binding.sha256}`], ['--v2-receipt', `${path}=${binding.sha256}`]]) {
+      const result = spawnSync(process.execPath, [...args, ...extra], { encoding: 'utf8' })
+      assert.notEqual(result.status, 0); assert.equal(existsSync(bundle), false)
+    }
+    assertReviewExportRefused(repo, base, bundle, binding, { receipts: [path] })
+    assertReviewExportRefused(repo, base, bundle, binding, { receipts: [`${path}.artifacts/stdout.log`] })
+    const created = spawnSync(process.execPath, args, { encoding: 'utf8' })
+    assert.equal(created.status, 0, created.stderr)
+    const result = JSON.parse(created.stdout), expected = reviewExpected(repo, base, result)
+    // This CLI fixture has an extra committed helper source, independently hashed.
+    for (const name of ['review-bundle.mjs', 'receipt-streams.mjs'])
+      expected.expectedSources.push({ path: `scripts/orchestration/${name}`, sha256: sha(readFileSync(join(directory, name))) })
+    const verifyArgs = [join(directory, 'review-bundle.mjs'), 'verify', '--bundle', bundle,
+      '--expected-head', expected.expectedHead, '--expected-diff-sha256', expected.expectedDiffSha256]
+    for (const [flag, entries] of [['--expected-source', expected.expectedSources], ['--expected-review', expected.expectedReviews]])
+      for (const value of entries) verifyArgs.push(flag, `${value.path}=${value.sha256}`)
+    const verified = spawnSync(process.execPath, verifyArgs, { encoding: 'utf8' })
+    assert.equal(verified.status, 0, verified.stderr)
+    const standalone = standaloneVerification(bundle, expected)
+    assert.equal(standalone.status, 0, standalone.stderr)
   } finally { rmSync(root, { recursive: true, force: true }) }
 })

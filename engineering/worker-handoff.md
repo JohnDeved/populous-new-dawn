@@ -213,3 +213,43 @@ The opt-in mode bounds receipt log materialization, not compiler/browser memory 
 retention on disk. It neither establishes effective host capacity nor identifies
 unseen host-memory owners. Normal source checks, application build and applicable
 runtime acceptance remain separate gates.
+
+
+### Sanitized v2 review-only derivatives
+
+If complete v2 stdout/stderr contain source-root or home-directory paths, use the
+separate explicit review-only export mode instead of weakening raw export:
+
+```sh
+pnpm run orchestration:review-bundle -- create \
+  --task-id review-only --base origin/main --output /absolute/review-bundle \
+  --v2-review-receipt work/orchestration/task/check.json="$ORIGINAL_RECEIPT_SHA"
+```
+
+This mode is mutually exclusive with `--v2-receipt`. It verifies the caller-pinned
+original JSON and complete physical raw streams before scanning or sanitizing them.
+Secret, invalid-UTF-8/NUL, byte-limit, alias, path, and publication-guard refusals
+remain in force. Original receipt and log files are never modified. Do not also
+name those same inputs with `--receipt`; unrelated bounded receipts may be included.
+The command-receipt default remains v1; this does not qualify global v2 rollout.
+
+`manifest.reviewDerivatives` lists a separate `reviews/<sourcePath>` descriptor
+and its independent `bundleSha256`. The descriptor has kind `pnd-command-review`,
+version 2, `streamFormat: sanitized-review-v1`, and `reviewOnly: true`. It records
+original receipt/stream byte counts and SHA-256 only as provenance. Original raw
+bytes are not included. Sanitized metadata, argv, and recorded outcomes are nested
+review context, never top-level command/pass evidence. Both complete sanitized
+text streams have their own paths, byte counts, and SHA-256. Source/home path
+redaction also handles decoded JSON wrappers; JSON text may be normalized, while
+stream UTF-8 BOMs are preserved. A source label requiring redaction is refused.
+
+Obtain the descriptor hash from the trusted creation handoff, not from the bundle
+being checked. Supply `--expected-review sourcePath=descriptorSha256` to either
+verifier, alongside all existing HEAD/diff/source/deletion/receipt expectations.
+The independent descriptor hash binds its original provenance and both derivative
+hashes; raw `--expected-receipt` cannot substitute for this separate trust namespace.
+Both verifiers reject missing/extra/aliased review files and mismatched associations,
+with bounded physical reads. They check transport integrity, not execution success
+or the existence of original bytes at review time. These derivatives cannot be
+passed to raw receipt readers or used for parity/measurement credit. A reviewer
+requiring execution evidence still needs the independently accessible originals.
