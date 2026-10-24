@@ -503,6 +503,22 @@ def dependency_identity(runtime):
 
 
 
+def verify_ready(source, revision, pool, runtime, dependency_store):
+    """Explicit source/assets and installed-layout admission, not a build gate."""
+    require(dependency_store, 'Readiness requires an explicit --dependency-store')
+    # Keep dependency-free diagnostics and their existing receipts unchanged.
+    # Reuse the pinned pnpm audit rather than treating an inventory as readiness.
+    from shared_setup import verify_install
+    before = verify(source, revision, pool, runtime)
+    installation = verify_install(Path(before['runtime']), dependency_store)
+    require(verify(source, revision, pool, runtime) == before,
+            'Source/assets changed during readiness check')
+    return {'status': 'verified', 'kind': 'shared-runtime-readiness',
+            'source': before, 'installation': installation,
+            'scope': 'Source/assets and installed pnpm layout only; not dependency compatibility, '
+                     'native smoke, check/build, browser, disk savings or RAM acceptance'}
+
+
 def hash_file(path):
     h = hashlib.sha256()
     with Path(path).open('rb') as stream:
@@ -827,7 +843,7 @@ def execute(source, revision, pool, runtime, receipt, command, max_raw_bytes=Non
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['prepare', 'verify', 'run', 'revision'])
+    parser.add_argument('action', choices=['prepare', 'verify', 'ready', 'run', 'revision'])
     parser.add_argument('--source', required=True)
     parser.add_argument('--revision', required=True)
     parser.add_argument('--pool', required=True)
@@ -835,12 +851,18 @@ def main():
     parser.add_argument('--reserve-bytes', type=int, default=0)
     parser.add_argument('--scope', choices=['build', 'full'], default='build')
     parser.add_argument('--receipt')
+    parser.add_argument('--dependency-store', help='Declared active pnpm store; required only for ready')
     args, command = parser.parse_known_args()
+    require(args.action == 'ready' or args.dependency_store is None,
+            '--dependency-store is only supported by ready')
     if command and command[0] == '--':
         command = command[1:]
     if args.action == 'prepare':
         require(not command, 'Unexpected prepare arguments')
         result = prepare(args.source, args.revision, args.pool, args.runtime, args.reserve_bytes, args.scope)
+    elif args.action == 'ready':
+        require(not command, 'Unexpected readiness arguments')
+        result = verify_ready(args.source, args.revision, args.pool, args.runtime, args.dependency_store)
     elif args.action == 'run':
         require(args.receipt, 'A new receipt path is required')
         result = execute(args.source, args.revision, args.pool, args.runtime, args.receipt, command)
