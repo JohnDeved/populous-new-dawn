@@ -80,8 +80,9 @@ node scripts/orchestration/command-receipt.mjs \
 
 Include every ignored/untracked helper, configuration and external input read by
 the command using repeatable `--input` arguments (or the `inputs` array in
-`runCommandReceipt`). If the candidate lacks the repaired helper, use a frozen
-copy as an explicit input and call `runCommandReceipt(candidateRoot, options)`;
+`runCommandReceipt`). The programmatic writer returns a Promise; await it before
+reading the receipt or advancing to the next command. If the candidate lacks the
+repaired helper, use a frozen copy as an explicit input and call `runCommandReceipt(candidateRoot, options)`;
 do not edit the candidate under verification. HEAD, tracked diff, and explicit
 input hashes are captured before and after execution. A changed input produces
 `invalidated`, even when the command exits zero. Accept `status: passed`, not just
