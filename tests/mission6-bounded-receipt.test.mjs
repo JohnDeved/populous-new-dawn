@@ -29,7 +29,7 @@ const checkpoint = name => name.endsWith('.json') ? JSON.stringify(summary) : `s
 const stdout = repo => `synthetic stage, no simulation\n${repo}\n${'x'.repeat(40000)}\n`
 const stderr = () => `synthetic home: ${homedir()}\n`
 
-function fixture(t, { firstAction = '', preload = '' } = {}) {
+function fixture(t, { firstAction = '', earlyAction = '', preload = '', boundedEarlyCamp = false } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'pnd-m6-receipt-')), repo = join(root, 'repo')
   t.after(() => rmSync(root, { recursive: true, force: true }))
   const put = (path, bytes) => {
@@ -53,7 +53,7 @@ const stage = ${JSON.stringify(stage)}
 const output = process.env.PND_M6_OUTPUT
 // Consume each real producer file, without running a simulation or replay.
 for (const name of stage.inputs) readFileSync(join(output, name))
-${index === 0 ? `process.stdout.write(${JSON.stringify(stdout(repo))}); process.stderr.write('synthetic home: '+homedir()+'\\n')\n${firstAction}` : "process.stdout.write('synthetic stage: '+stage.name+'\\n')"}
+${index <= 1 ? `process.stdout.write(${JSON.stringify(stdout(repo))}); process.stderr.write('synthetic home: '+homedir()+'\\n')\n${index === 0 ? firstAction : earlyAction}` : "process.stdout.write('synthetic stage: '+stage.name+'\\n')"}
 for (const name of stage.outputs) writeFileSync(join(output, name),
   name.endsWith('.json') ? ${JSON.stringify(JSON.stringify(summary))} : 'synthetic checkpoint: '+name+'\\n')
 `)
@@ -66,7 +66,7 @@ for (const name of stage.outputs) writeFileSync(join(output, name),
   git('add', 'fixture-change.txt'); git('commit', '-qm', 'fixture review change')
   if (preload) put('work/fixture-preload.mjs', preload)
   const run = () => spawnSync(process.execPath,
-    [...(preload ? ['--import', join(repo, 'work/fixture-preload.mjs')] : []), runner, output],
+    [...(preload ? ['--import', join(repo, 'work/fixture-preload.mjs')] : []), runner, output, ...(boundedEarlyCamp ? ['--bounded-early-camp'] : [])],
     { cwd: repo, encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 30000 })
   const json = path => JSON.parse(readFileSync(join(repo, path), 'utf8'))
   return { root, repo, base, git, put, run, json }
@@ -90,17 +90,19 @@ function assertStopped(f, status, count = 1) {
   return manifest
 }
 
-test('actual M6 runner pilots one v2 producer, preserves 18 v1 consumers, and exports review-only evidence', t => {
-  const f = fixture(t), result = f.run()
+for (const boundedEarlyCamp of [false, true])
+test(`actual M6 runner preserves ${boundedEarlyCamp ? '2 v2 / 17 v1 opt-in' : '1 v2 / 18 v1 default'} transport and review-only evidence`, t => {
+  const f = fixture(t, { boundedEarlyCamp }), result = f.run()
   assert.equal(result.status, 0, result.stderr)
   const manifest = f.json(`${output}/manifest.json`)
   assert.equal(manifest.status, 'passed'); assert.deepEqual(manifest.result, summary)
   assert.deepEqual(manifest.stages.map(stage => stage.name), plan.stages.map(stage => stage.name))
+  assert.deepEqual(manifest.boundedReceiptStages, ['fresh-release', ...(boundedEarlyCamp ? ['early-camp'] : [])])
   const produced = new Map()
   for (const [index, stage] of plan.stages.entries()) {
     const row = manifest.stages[index], path = `${output}/${stage.name}.json`
     const bytes = readFileSync(join(f.repo, path)), receipt = JSON.parse(bytes)
-    assert.equal(receipt.version, index === 0 ? 2 : 1)
+    assert.equal(receipt.version, index === 0 || (boundedEarlyCamp && index === 1) ? 2 : 1)
     assert.equal(row.status, 'passed'); assert.equal(row.receipt, path); assert.equal(row.receiptSha256, sha(bytes))
     assert.deepEqual(row.source, receipt.source); assert.deepEqual(receipt.sourceAfter, receipt.source)
     assert.deepEqual(receipt.command, [process.execPath, `scripts/acceptance/m6/${stage.name}.mjs`])
@@ -120,7 +122,8 @@ test('actual M6 runner pilots one v2 producer, preserves 18 v1 consumers, and ex
     command: [process.execPath, '-e', "process.stdout.write('default remains v1')"] })
   assert.equal(fallback.version, 1); assert.equal(fallback.stdout, 'default remains v1')
 
-  const receipt = f.json(firstPath), rawPaths = [join(f.repo, firstPath), receipt.artifacts.stdout, receipt.artifacts.stderr]
+  const reviewPath = boundedEarlyCamp ? `${output}/early-camp.json` : firstPath
+  const receipt = f.json(reviewPath), rawPaths = [join(f.repo, reviewPath), receipt.artifacts.stdout, receipt.artifacts.stderr]
   const originals = rawPaths.map(path => readFileSync(path))
   assert(originals[1].length > RECEIPT_INLINE_BYTES)
   assert.equal(Object.hasOwn(receipt, 'stdout'), false); assert.equal(receipt.streams.stdout.inline, 'omitted')
@@ -128,9 +131,9 @@ test('actual M6 runner pilots one v2 producer, preserves 18 v1 consumers, and ex
     assert.equal(receipt.streams[name].sha256, sha(originals[index + 1]))
     assert.equal(receipt.streams[name].bytes, originals[index + 1].length)
   }
-  const streams = readReceiptStreams(f.repo, firstPath, receipt)
+  const streams = readReceiptStreams(f.repo, reviewPath, receipt)
   assert.equal(streams.stdout, stdout(f.repo)); assert.equal(streams.stderr, stderr())
-  const binding = { path: firstPath, sha256: sha(originals[0]) }, bundle = join(f.root, 'review-bundle')
+  const binding = { path: reviewPath, sha256: sha(originals[0]) }, bundle = join(f.root, 'review-bundle')
   assert.throws(() => buildReviewBundle(f.repo, { taskId: 'm6-raw-refusal', base: f.base,
     output: bundle, v2Receipt: binding }), /requires sanitization/)
   assert.equal(existsSync(bundle), false)
@@ -139,7 +142,7 @@ test('actual M6 runner pilots one v2 producer, preserves 18 v1 consumers, and ex
   assert.deepEqual(exported.manifest.receipts, []); assert.equal(exported.manifest.reviewDerivatives.length, 1)
   const entry = exported.manifest.reviewDerivatives[0], bytes = readFileSync(join(bundle, entry.bundlePath))
   const review = JSON.parse(bytes)
-  assert.equal(entry.sourcePath, firstPath); assert.equal(entry.bundleSha256, sha(bytes))
+  assert.equal(entry.sourcePath, reviewPath); assert.equal(entry.bundleSha256, sha(bytes))
   assert.equal(review.kind, 'pnd-command-review'); assert.equal(review.reviewOnly, true)
   assert.deepEqual(review.original, { sha256: binding.sha256, bytes: originals[0].length })
   assert.equal(review.metadata.status, 'passed'); assert.equal(Object.hasOwn(review, 'status'), false)
@@ -152,15 +155,15 @@ test('actual M6 runner pilots one v2 producer, preserves 18 v1 consumers, and ex
   const head = f.git('rev-parse', 'HEAD'), expected = {
     expectedHead: head, expectedDiffSha256: sha(execFileSync('git', ['diff', '--binary', `${f.base}..${head}`, '--'], { cwd: f.repo })),
     expectedSources: [{ path: 'fixture-change.txt', sha256: sha(readFileSync(join(f.repo, 'fixture-change.txt'))) }],
-    expectedReceipts: [], expectedReviews: [{ path: firstPath, sha256: entry.bundleSha256 }],
+    expectedReceipts: [], expectedReviews: [{ path: reviewPath, sha256: entry.bundleSha256 }],
   }
   assert.equal(verifyReviewBundle(bundle, expected).status, 'passed')
   const verified = spawnSync(process.execPath, [join(bundle, 'verify.mjs'), '--expected-head', head,
     '--expected-diff-sha256', expected.expectedDiffSha256, '--expected-source', `fixture-change.txt=${expected.expectedSources[0].sha256}`,
-    '--expected-review', `${firstPath}=${entry.bundleSha256}`], { encoding: 'utf8' })
+    '--expected-review', `${reviewPath}=${entry.bundleSha256}`], { encoding: 'utf8' })
   assert.equal(verified.status, 0, verified.stderr)
   assert.equal(JSON.parse(verified.stdout).status, 'passed')
-  assert.throws(() => readReceiptStreams(f.repo, firstPath, review), /Unknown raw stream format/)
+  assert.throws(() => readReceiptStreams(f.repo, reviewPath, review), /Unknown raw stream format/)
   f.put('work/orchestration/review-copy.json', bytes)
   assert.equal(discoverReceipts(f.repo).receipts.some(item => item.path.endsWith('/review-copy.json')), false)
   rawPaths.forEach((path, index) => assert.deepEqual(readFileSync(path), originals[index]))
@@ -262,4 +265,119 @@ fs.closeSync = fd => {
     output: join(f.root, 'review-bundle'), v2ReviewReceipt: { path: firstPath, sha256: sha(readFileSync(join(f.repo, firstPath))) } }),
   /publication is pending or failed/)
   assertNoOverwrite(f)
+})
+
+// This expands only transport coverage. No original game inputs or simulation run.
+test('opted-in early-camp preserves failed-child diagnostics without downstream promotion', t => {
+  const f = fixture(t, { boundedEarlyCamp: true, earlyAction: 'process.exit(7)' }), result = f.run()
+  assert.notEqual(result.status, 0); assert.match(result.stderr, /early-camp: failed/)
+  const manifest = assertStopped(f, 'failed', 2), path = `${output}/early-camp.json`, receipt = f.json(path)
+  assert.equal(receipt.version, 2); assert.equal(receipt.exitCode, 7)
+  assert.deepEqual(manifest.stages[1].outputs, {})
+  assert.equal(readReceiptStreams(f.repo, path, receipt).stdout, stdout(f.repo))
+  assert.equal(readReceiptStreams(f.repo, path, receipt).stderr, stderr())
+  assertNoOverwrite(f)
+})
+
+test('opted-in early-camp rejects intra-stage source changes', t => {
+  for (const helper of helpers) {
+    const f = fixture(t, { boundedEarlyCamp: true,
+      earlyAction: `appendFileSync(${JSON.stringify(helper)}, '\\n// fixture source drift\\n')` })
+    const result = f.run()
+    assert.notEqual(result.status, 0); assert.match(result.stderr, /early-camp: invalidated/)
+    const manifest = assertStopped(f, 'failed', 2), path = `${output}/early-camp.json`, receipt = f.json(path)
+    assert.equal(manifest.stages[1].status, 'invalidated'); assert.equal(receipt.version, 2)
+    assert.notEqual(receipt.source.inputs[helper], receipt.sourceAfter.inputs[helper])
+    assert.equal(readReceiptStreams(f.repo, path, receipt).stdout, stdout(f.repo))
+  }
+})
+
+for (const producerIndex of [0, 1]) {
+  const producer = plan.stages[producerIndex], consumer = plan.stages[producerIndex + 1]
+  test(`opt-in rejects source drift from ${producer.name} to ${consumer.name}`, t => {
+    const helper = helpers[0], f = fixture(t, { boundedEarlyCamp: true, preload: `
+import fs from 'node:fs'
+const rename = fs.renameSync
+fs.renameSync = (from, to) => {
+  const result = rename(from, to)
+  if (String(to).endsWith('/${producer.name}.json.artifacts/publication.complete'))
+    fs.appendFileSync(${JSON.stringify(helper)}, '\\n// inter-stage fixture source drift\\n')
+  return result
+}
+` })
+    const result = f.run()
+    assert.notEqual(result.status, 0); assert.match(result.stderr, /Source changed between acceptance stages/)
+    const manifest = assertStopped(f, 'invalidated', producerIndex + 2)
+    const first = f.json(`${output}/${producer.name}.json`), second = f.json(`${output}/${consumer.name}.json`)
+    assert.equal(first.version, 2); assert.equal(second.version, producerIndex === 0 ? 2 : 1)
+    assert.equal(first.status, 'passed'); assert.equal(second.status, 'passed')
+    assert.equal(manifest.stages[producerIndex + 1].status, 'invalidated')
+    assert.notEqual(first.source.inputs[helper], second.source.inputs[helper])
+  })
+
+  test(`opt-in rejects changed ${producer.name} checkpoint before ${consumer.name} promotion`, t => {
+    const name = consumer.inputs[0], f = fixture(t, { boundedEarlyCamp: true, preload: `
+import fs from 'node:fs'
+import { syncBuiltinESMExports } from 'node:module'
+const read = fs.readFileSync
+let changed = false
+fs.readFileSync = (path, ...args) => {
+  const bytes = read(path, ...args)
+  if (!changed && String(path).endsWith('/checkpoints/${name}')) {
+    changed = true
+    fs.appendFileSync(path, 'fixture changed producer bytes\\n')
+  }
+  return bytes
+}
+syncBuiltinESMExports()
+` })
+    const result = f.run()
+    assert.notEqual(result.status, 0); assert.match(result.stderr, /Checkpoint changed since its producer/)
+    const manifest = assertStopped(f, 'invalidated', producerIndex + 2), receipt = f.json(`${output}/${consumer.name}.json`)
+    assert.equal(receipt.status, 'passed'); assert.equal(receipt.version, producerIndex === 0 ? 2 : 1)
+    assert.equal(manifest.stages[producerIndex].outputs[name], sha(checkpoint(name)))
+    assert.notEqual(receipt.source.inputs[`${output}/checkpoints/${name}`], manifest.stages[producerIndex].outputs[name])
+  })
+}
+
+test('opted-in early-camp finalization failure retains raw diagnostics but cannot promote', t => {
+  const path = `${output}/early-camp.json`, f = fixture(t, { boundedEarlyCamp: true, preload: `
+import fs from 'node:fs'
+const open = fs.openSync, close = fs.closeSync, paths = new Map()
+fs.openSync = (path, ...args) => { const fd = open(path, ...args); paths.set(fd, String(path)); return fd }
+let failed = false
+fs.closeSync = fd => {
+  const path = paths.get(fd); paths.delete(fd)
+  const result = close(fd)
+  if (!failed && path?.endsWith('/early-camp.json.artifacts/stdout.log')) {
+    failed = true
+    throw new Error('fixture finalization close failure')
+  }
+  return result
+}
+` }), result = f.run()
+  assert.notEqual(result.status, 0); assert.match(result.stderr, /Receipt descriptor cleanup failed/)
+  const manifest = f.json(`${output}/manifest.json`), receipt = f.json(path)
+  assert.equal(manifest.status, 'running'); assert.equal(manifest.stages.length, 1)
+  assert.equal(Object.hasOwn(manifest, 'result'), false)
+  assert.equal(existsSync(join(f.repo, output, 'army-approach.json')), false)
+  assert.equal(receipt.status, 'passed'); assert.equal(receipt.version, 2) // Unpublished JSON is ineligible.
+  assert.equal(existsSync(join(f.repo, `${path}.artifacts/publication.pending`)), true)
+  assert.equal(existsSync(join(f.repo, `${path}.artifacts/publication.complete`)), false)
+  assert.equal(readFileSync(receipt.artifacts.stdout, 'utf8'), stdout(f.repo))
+  assert.equal(readFileSync(receipt.artifacts.stderr, 'utf8'), stderr())
+  assert.throws(() => readReceiptStreams(f.repo, path, receipt), /publication is pending or failed/)
+  assert.throws(() => buildReviewBundle(f.repo, { taskId: 'early-failed-finalization', base: f.base,
+    output: join(f.root, 'review-bundle'), v2ReviewReceipt: { path, sha256: sha(readFileSync(join(f.repo, path))) } }),
+  /publication is pending or failed/)
+  assertNoOverwrite(f)
+})
+
+test('M6 CLI rejects unknown or duplicate opt-ins before creating output', t => {
+  const f = fixture(t)
+  for (const args of [['--bounded-all'], ['--bounded-early-camp', '--bounded-early-camp'], ['extra-output']]) {
+    const result = spawnSync(process.execPath, [runner, output, ...args], { cwd: f.repo, encoding: 'utf8' })
+    assert.notEqual(result.status, 0); assert.match(result.stderr, /Usage:/)
+    assert.equal(existsSync(join(f.repo, output)), false)
+  }
 })
