@@ -36,7 +36,7 @@
     "orchestration:audit": "node scripts/orchestration/cli.mjs audit",
     "orchestration:review-bundle": "node scripts/orchestration/review-bundle.mjs",
     "orchestration:receipt": "node scripts/orchestration/command-receipt.mjs",
-    "build:cloudflare": "node -e \"console.log('Cloudflare negative pilot: controlled failure after cancellation window'); setTimeout(() => process.exit(1), 120000)\"",
+    "build:cloudflare": "PND_CLOUDFLARE=1 pnpm run build",
     "deploy:cloudflare": "pnpm run build:cloudflare && wrangler deploy --config dist/server/wrangler.json",
     "preview:cloudflare": "pnpm run build:cloudflare && wrangler versions upload --config dist/server/wrangler.json",
     "parity:measure": "node scripts/parity-measure.mjs",
