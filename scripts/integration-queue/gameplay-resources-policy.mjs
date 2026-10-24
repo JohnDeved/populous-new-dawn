@@ -1,5 +1,7 @@
 // Explicit current resource inventory. Historical eight-job and spell-nine policies remain unchanged.
 import assert from 'node:assert/strict'
+import { isDeepStrictEqual } from 'node:util'
+import { validateGameplayHeapProbe, gameplayHeapResourceLimits } from '../tutorial-browser/gameplay-heap-observer.mjs'
 import { createHash } from 'node:crypto'
 import { readArtifactZip } from '../artifact-zip.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from './browser-jobs.mjs'
@@ -7,6 +9,8 @@ import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase 
 import { gameplayResourceLimits, assertResourceLive, summarizeResourceRestart } from '../tutorial-browser/gameplay-resource-observer.mjs'
 import { gameplayResourceSplitBudget } from '../tutorial-browser/scenario-policy.mjs'
 export const GAMEPLAY_RESOURCE_POLICY = 'gameplay-resources-nine-v1'
+export const GAMEPLAY_HEAP_POLICY = 'gameplay-resources-nine-v2'
+export const GAMEPLAY_RESOURCE_POLICIES = Object.freeze([GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY])
 export const GAMEPLAY_RESOURCE_JOB = Object.freeze(['gameplay-resources', 'Gameplay resource lifecycle browser',
   'gameplay-resource-lifecycle-browser', 'Observe full live Mission 2 workload and one same-document resource restart', 15])
 export const GAMEPLAY_RESOURCE_BROWSER_JOBS = Object.freeze([...SPLIT_BROWSER_JOBS.slice(0, -1), GAMEPLAY_RESOURCE_JOB, SPLIT_BROWSER_JOBS.at(-1)])
@@ -17,11 +21,16 @@ export const GAMEPLAY_RESOURCE_INPUTS = Object.freeze([
   ...['frame-export-analysis', 'frame-export-cohorts', 'frame-export-size', 'frame-performance', 'gpu-frame-timing', 'model-pick-work', 'native-occlusion-metrics', 'ordinary-terrain-metrics', 'pointer-frame-metrics', 'pointer-interaction-context', 'scene-update-metrics', 'water-update-reasons', 'scene', 'scene-assets'].map(name => `app/${name}.ts`),
   'app/original-pause-menu.tsx', 'package.json', 'package-lock.json',
 ])
+export const GAMEPLAY_HEAP_INPUTS = Object.freeze([...GAMEPLAY_RESOURCE_INPUTS, 'scripts/tutorial-browser/gameplay-heap-observer.mjs'])
+export function gameplayResourceInputs(policy) {
+  assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(policy), 'Explicit supported resource policy required')
+  return policy === GAMEPLAY_HEAP_POLICY ? GAMEPLAY_HEAP_INPUTS : GAMEPLAY_RESOURCE_INPUTS
+}
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const positive = value => assert.ok(Number.isSafeInteger(value) && value > 0)
 export const gameplayResourceArchiveLimit = 48 * 1024 * 1024
 export function validateGameplayResourceBrowserJobs(jobs, run, expected) {
-  assert.equal(expected?.policy, GAMEPLAY_RESOURCE_POLICY)
+  assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(expected?.policy))
   assert.match(expected.headSha, /^[a-f0-9]{40}$/)
   for (const value of [run.id, run.run_attempt, run.check_suite_id, ...jobs.map(job => job.id)]) positive(value)
   assert.equal(run.head_sha, expected.headSha); assert.equal(run.status, 'completed'); assert.equal(run.conclusion, 'success')
@@ -69,10 +78,10 @@ export function validateGameplayResourceArtifactMetadata(metadata, upload, ident
 const filesRequired = ['receipt.json', 'gameplay-frames.json', 'gameplay-frames-final.png',
   ...plan.phases.flatMap(phase => [`gameplay-frame-${phase.name}.json`, `gameplay-summary-${phase.name}.json`])]
 export function validateGameplayResourceArtifact(files, expected) {
-  assert.equal(expected?.policy, GAMEPLAY_RESOURCE_POLICY)
+  assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(expected?.policy))
   for (const key of ['headSha', 'baseSha', 'mergeSha']) assert.match(expected.identity[key], /^[a-f0-9]{40}$/)
   for (const key of ['runId', 'runAttempt']) assert.match(String(expected.identity[key]), /^[1-9][0-9]*$/)
-  assert.deepEqual(Object.keys(expected.inputs), GAMEPLAY_RESOURCE_INPUTS)
+  assert.deepEqual(Object.keys(expected.inputs), gameplayResourceInputs(expected.policy))
   for (const digest of Object.values(expected.inputs)) assert.match(digest, /^[a-f0-9]{64}$/)
   assert.deepEqual(Object.keys(files).filter(name => name !== 'build.log').sort(), [...filesRequired].sort())
   assert.ok(Object.values(files).every(Buffer.isBuffer))
@@ -96,7 +105,7 @@ export function validateGameplayResourceArtifact(files, expected) {
   assert.deepEqual(raw.gameplayResources, report)
   assert.equal(report.schema, 'populous-new-dawn/gameplay-frame-recording'); assert.equal(report.schemaVersion, 1)
   assert.equal(report.status, 'passed'); assert.equal(report.expectedRevision, expected.identity.mergeSha)
-  assert.ok(!report.failure && !report.resourceObserverCleanupFailure)
+  assert.ok(!report.failure && !report.resourceObserverCleanupFailure && !report.heapObserverCleanupFailure)
   assert.deepEqual(report.plan, plan); assert.deepEqual(report.limits, gameplayFrameLimits)
   assert.deepEqual(report.measuredPhases, plan.phases.map(phase => phase.name))
   assert.deepEqual(report.phases.map(phase => phase.name), report.measuredPhases)
@@ -123,13 +132,18 @@ export function validateGameplayResourceArtifact(files, expected) {
     for (const input of record.inputs) assert.ok(Number.isFinite(input.observedTimestampMs) && input.observedTimestampMs >= record.before.timestampMs && input.observedTimestampMs <= record.after.timestampMs)
     assert.equal(record.rawFile, `gameplay-frame-${phase.name}.json`); assert.equal(record.summaryFile, `gameplay-summary-${phase.name}.json`)
     const summary = summarizeGameplayPhase(read(record.rawFile).toString('utf8'), phase, record.before, record.after, expected.identity.mergeSha)
-    assert.deepEqual(json(record.summaryFile), summary)
+    // Keep exact deep-strict equality without formatting an unbounded object diff.
+    // Original artifact bytes remain available for independent inspection.
+    assert.ok(isDeepStrictEqual(json(record.summaryFile), summary), 'Stored gameplay phase summary differs from recomputed raw evidence')
     for (const key of ['rawSha256', 'turnsAdvanced', 'work']) assert.deepEqual(record[key], summary[key])
     assert.equal(record.frameCount, summary.analysis.sampleCount)
   }
   const resources = report.resources
-  assert.equal(resources.version, 1); assert.equal(resources.status, 'passed-scoped-lifecycle-observations')
-  assert.deepEqual(resources.limits, gameplayResourceLimits)
+  const heapRequired = expected.policy === GAMEPLAY_HEAP_POLICY
+  assert.equal(resources.version, heapRequired ? 2 : 1)
+  assert.equal(resources.status, heapRequired ? 'passed-scoped-lifecycle-and-heap-capability' : 'passed-scoped-lifecycle-observations')
+  assert.deepEqual(resources.limits, heapRequired ? gameplayHeapResourceLimits : gameplayResourceLimits)
+  if (!heapRequired) assert.equal(resources.heap, undefined, 'Historical v1 cannot carry unvalidated byte proof')
   for (const sample of [resources.beforeWarmup, resources.afterWorkload]) assertResourceLive(sample)
   assert.ok(resources.beforeWarmup.timestampMs <= report.warmupBefore.timestampMs && resources.afterWorkload.timestampMs >= report.phases.at(-1).after.timestampMs)
   assert.equal(resources.beforeWarmup.sceneUuid, resources.afterWorkload.sceneUuid)
@@ -138,9 +152,15 @@ export function validateGameplayResourceArtifact(files, expected) {
   const restart = resources.restart
   const recomputed = summarizeResourceRestart(resources.afterWorkload, restart.retired, restart.after, restart.settled)
   for (const [key, value] of Object.entries(recomputed)) assert.deepEqual(restart[key], value)
+  if (heapRequired) {
+    assert.match(raw.browserSha256, /^[a-f0-9]{64}$/)
+    assert.ok(typeof raw.browserBinaryVersion === 'string' && raw.browserBinaryVersion.length > 0)
+    assert.ok(typeof raw.buildPackageVersions?.['playwright-core'] === 'string' && raw.buildPackageVersions['playwright-core'].length > 0)
+  }
+  const heap = heapRequired ? validateGameplayHeapProbe(resources.heap, resources) : undefined
   assert.deepEqual(read('gameplay-frames-final.png').subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-  return { lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
-    phaseCount: 5, lifecycle: recomputed, scope: 'one-cycle-cleanup-and-counts-not-ram-or-plateau', visualReview: 'required' }
+  return { ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
+    phaseCount: 5, lifecycle: recomputed, scope: heapRequired ? 'one-cycle-lifecycle-and-isolate-byte-capability-not-retention-comparison' : 'one-cycle-cleanup-and-counts-not-ram-or-plateau', visualReview: 'required' }
 }
 // Caller first binds upload to the exact current job log and API metadata; never follow candidate URLs.
 export function resolveGameplayResourceArtifact(archive, upload, expected) {
