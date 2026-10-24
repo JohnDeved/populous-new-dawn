@@ -367,6 +367,7 @@
         "tests/parity-owned-checkpoint.test.mjs",
         "scripts/orchestration/command-receipt.mjs",
         "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/command-log.mjs",
         "scripts/orchestration/cli.mjs",
         "tests/parity-measure.test.mjs",
         "engineering/parity-capabilities.json",
@@ -1017,7 +1018,7 @@
       ],
       "executable": "node",
       "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs",
-        "tests/receipt-streams.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
+        "tests/receipt-streams.test.mjs", "tests/command-log.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
