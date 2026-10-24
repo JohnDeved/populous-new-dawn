@@ -164,3 +164,44 @@ blocks, and reviewers return finding lines plus receipt status and ACCEPT/REJECT
 Handoffs retain exact source/symbol evidence, unresolved questions, changed files,
 actual check results, and stop status—not chain-of-thought, repeated context, or copied
 terminal logs.
+
+## Verification command logs
+
+Production verification commands stream raw stdout and stderr into a fresh
+attempt-owned directory below the task's ignored checks directory. The active
+blocked result names its pending capture descriptor before spawning. The terminal
+result's log names the actual unique diagnostic file; never assume a fixed check
+filename. Historical files are retained, including when an injected executor uses
+the legacy string adapter (the original filename is used only if absent).
+
+The raw files are authoritative, with independently observed byte counts and
+SHA-256 hashes. The diagnostic log preserves the historical interpretation:
+stdout decoded with UTF-8 replacement, followed by independently decoded stderr,
+including BOMs and each stream's final incomplete sequence. It is not an
+interleaved transcript. Production outcomes contain bounded metadata, not complete
+raw strings. The public injected-executor string adapter remains supported.
+
+A capture descriptor is complete only with guard-v1 publication, terminal status,
+publication.complete present, and publication.pending absent. Child close, stream
+closure, held-file identity/hash checks, and writer close must all finish before
+completion. Failed child exit/timeout still retain complete output; write, read,
+identity, close, or publication failure leaves nonpassing guarded evidence and the
+active contract blocked. Only the exact spawned child is terminated on capture
+failure. This does not add process-group ownership or change owned-server cleanup.
+
+This slice removes output-proportional retained parent buffers, not disk growth.
+Synchronous writes of at most 64 KiB apply kernel pipe backpressure without an
+unbounded JavaScript queue; slow storage can delay event-loop timers. The later
+diagnostic pass also uses bounded reads and separate streaming decoders. This is
+not asynchronous filesystem I/O, a hard RSS limit, or a wall-time guarantee.
+Raw and diagnostic files still grow with complete output, and malformed UTF-8 can
+expand the diagnostic representation. Continue resource admission and preserve
+original artifacts; review derivatives never authorize original retirement.
+Owned-server buffering, a justified disk cap, and storage retention remain open.
+
+The dedicated command-log suite uses real subprocesses and copied verification
+code in synthetic repositories. It establishes transport/lifecycle mechanics, not
+gameplay, browser, native equivalence, or application performance. Standard full
+check/build and other routed checks remain separate gates. Rollback reverts this
+command-only integration/helper, its exact test registrations, and these notes;
+it must not delete prior raw evidence or alter command receipt v1/v2 defaults.
