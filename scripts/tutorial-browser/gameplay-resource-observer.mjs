@@ -94,3 +94,8 @@ export function summarizeResourceRestart(before, retired, after, settled) {
     // cache behavior. These observations cannot enumerate the private module maps.
     cacheAccounting: 'not-measured-private-module-caches', memoryBytes: 'not-measured' }
 }
+
+export function assertResourceScenario(enabled, measuredPhases, allPhases) {
+  assert.equal(typeof enabled, 'boolean', 'resource lifecycle mode must be explicit boolean')
+  if (enabled) assert.deepEqual(measuredPhases, allPhases, 'resource scenario requires all original phases in order')
+}
