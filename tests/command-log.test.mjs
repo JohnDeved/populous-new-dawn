@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
-import { captureCommand, createServerLog, materializeCommandDiagnostic } from '../scripts/orchestration/command-log.mjs'
+import { DEFAULT_MAX_RAW_BYTES, captureCommand, createRawLogBudget, createServerLog, materializeCommandDiagnostic } from '../scripts/orchestration/command-log.mjs'
 import { startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
 import { browserSourceFingerprint, captureMeasurement, discoverReceipts, evaluateCheck } from '../scripts/parity-measure.mjs'
 import { fingerprintPaths, repositoryCheckCoverage, validateContract } from '../scripts/orchestration/cli.mjs'
@@ -298,7 +298,7 @@ test('slow short-write sinks retain bounded chunks and metadata for increasing r
     "    return originalWrite(fd,buffer,offset,Math.min(length,4096),...args);",
     "  } return originalWrite(fd,buffer,offset,length,...args);",
     "};",
-    "const script=\"const fs=require('node:fs'), chunk=Buffer.alloc(65536,120); for(let n=0;n<\"+size+\";n+=chunk.length){fs.writeSync(1,chunk);fs.writeSync(2,chunk)}\";",
+    "const script=\"const chunk=Buffer.alloc(65536,120),emit=stream=>new Promise((resolve,reject)=>stream.write(chunk,error=>error?reject(error):resolve()));(async()=>{for(let n=0;n<\"+size+\";n+=chunk.length){await emit(process.stdout);await emit(process.stderr)}})().catch(error=>{console.error(error);process.exitCode=1})\";",
     "const outcome=await captureCommand([process.execPath,'-e',script], {cwd:process.cwd(),env:process.env,timeoutMs:10000,directory:'capture-'+size});",
     "const metadata=JSON.parse(fs.readFileSync(outcome.capture.path));",
     "console.log(JSON.stringify({size,baseline,peak,maxWrite,writes,outcome,metadata}));",
@@ -308,6 +308,7 @@ test('slow short-write sinks retain bounded chunks and metadata for increasing r
       { cwd: root, env: process.env, encoding: 'utf8', timeout: 20000, maxBuffer: 65536 })
     assert.equal(child.status, 0, child.stderr)
     const measurement = JSON.parse(child.stdout)
+    assert.equal(measurement.outcome.exitCode, 0)
     assert(measurement.maxWrite <= 64 * 1024); assert(measurement.writes > size / 4096)
     assert.equal(Object.hasOwn(measurement.outcome, 'stdout'), false)
     assert.equal(Object.hasOwn(measurement.outcome, 'stderr'), false)
@@ -797,7 +798,8 @@ test('raw-only finalization and rendering use bounded short writes with no eager
     return original(fd, buffer, offset, Math.min(length, 137), ...args)
   }
   try {
-    const result = await captureRaw(root, "const fs=require('node:fs'), b=Buffer.alloc(65536,255);for(let i=0;i<16;i++){fs.writeSync(1,b);fs.writeSync(2,b)}")
+    const result = await captureRaw(root, "const b=Buffer.alloc(65536,255),emit=stream=>new Promise((resolve,reject)=>stream.write(b,error=>error?reject(error):resolve()));(async()=>{for(let i=0;i<16;i++){await emit(process.stdout);await emit(process.stderr)}})().catch(error=>{console.error(error);process.exitCode=1})")
+    assert.equal(result.exitCode, 0)
     completed(result)
     assert.equal(result.capture.diagnostic.bytes, 6 * 1024 * 1024)
     const rendered = materialize(root, result)
@@ -823,4 +825,281 @@ test('renderer rejects a real FIFO raced between input lstat and open without bl
   finally { fs.openSync = original }
   assert(changed)
   assert.equal(fs.existsSync(join(root, 'rendered')), false)
+})
+
+// These budgets are tiny synthetic pipe fixtures, not application performance
+// measurements. Raw bytes are shared across streams and the verifier attempt.
+test('raw allowance validates before creation and accepts zero or an exact aggregate byte boundary', async t => {
+  assert.equal(DEFAULT_MAX_RAW_BYTES, 64 * 1024 * 1024)
+  const standard = completed(await captureRaw(temporary(t), ''))
+  assert.deepEqual(standard.rawBudget, { maxBytes: DEFAULT_MAX_RAW_BYTES, usedBytes: 0, exceeded: false })
+  for (const maxRawBytes of [-1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, '5']) {
+    const root = temporary(t)
+    await assert.rejects(captureRaw(root, "require('node:fs').writeFileSync('spawned','bad')", { maxRawBytes }), /allowance/)
+    assert(!fs.existsSync(join(root, 'capture'))); assert(!fs.existsSync(join(root, 'spawned')))
+    assert.throws(() => createServerLog(join(root, 'server.log'), { maxRawBytes }), /allowance/)
+    assert(!fs.existsSync(join(root, 'server.log')))
+  }
+  const empty = completed(await captureRaw(temporary(t), '', { maxRawBytes: 0 }))
+  assert.deepEqual(empty.rawBudget, { maxBytes: 0, usedBytes: 0, exceeded: false })
+  const exact = completed(await captureRaw(temporary(t),
+    "require('node:fs').writeSync(1,Buffer.from([255,0,1,2]));require('node:fs').writeSync(2,Buffer.from([3,4,5]))",
+    { maxRawBytes: 7 }))
+  assert.deepEqual(exact.rawBudget, { maxBytes: 7, usedBytes: 7, exceeded: false })
+  assert.equal(exact.streams.stdout.bytes + exact.streams.stderr.bytes, 7)
+  assert.equal(exact.diagnostic.bytes, 9) // Invalid UTF8 expansion is not raw disk.
+})
+
+test('raw command overflow preserves the bounded prefix and publishes only incomplete guarded evidence', async t => {
+  for (const maxRawBytes of [0, 7]) {
+    const root = temporary(t)
+    put(root, 'old.log', 'older evidence')
+    await assert.rejects(captureRaw(root,
+      "const fs=require('node:fs');fs.writeSync(1,'1234');fs.writeSync(2,'5678');setInterval(()=>{},1000)",
+      { maxRawBytes }), error => /byte allowance exceeded/.test(errorText(error)))
+    const metadata = json(join(root, 'capture/capture.json'))
+    assert.equal(metadata.status, 'incomplete'); assert.equal(metadata.error.code, 'ERR_RAW_LOG_LIMIT')
+    assert.equal(metadata.timedOut, false)
+    assert.deepEqual(metadata.rawBudget, { maxBytes: maxRawBytes, usedBytes: maxRawBytes, exceeded: true })
+    assert.equal(Object.values(metadata.streams).reduce((sum, stream) => sum + stream.bytes, 0), maxRawBytes)
+    for (const stream of Object.values(metadata.streams)) assert.equal(sha(fs.readFileSync(stream.path)), stream.sha256)
+    assert(!Object.hasOwn(metadata, 'diagnostic'))
+    assert(fs.existsSync(join(root, 'capture/publication.pending')))
+    assert(!fs.existsSync(join(root, 'capture/publication.complete')))
+    assert(!fs.existsSync(join(root, 'capture/combined.log')))
+    assert.equal(fs.readFileSync(join(root, 'old.log'), 'utf8'), 'older evidence')
+  }
+})
+
+test('shared raw allowance charges actual short writes and fans out despite a failed cleanup callback', t => {
+  const root = temporary(t), budget = createRawLogBudget(5), path = join(root, 'first.log')
+  const first = createServerLog(path, { rawLogBudget: budget }), original = fs.writeSync
+  let calls = 0
+  fs.writeSync = (fd, bytes, offset, length, ...rest) => {
+    if (fs.fstatSync(fd).ino === fs.statSync(path).ino) {
+      if (++calls === 2) throw new Error('short write failed')
+      return original(fd, bytes, offset, Math.min(length, 2), ...rest)
+    }
+    return original(fd, bytes, offset, length, ...rest)
+  }
+  try { assert.throws(() => first.write(Buffer.from('12345')), /short write failed/) }
+  finally { fs.writeSync = original }
+  assert.equal(budget.snapshot().usedBytes, 2)
+  assert.throws(() => first.finish(), /incomplete/)
+  const second = createServerLog(join(root, 'second.log'), { rawLogBudget: budget })
+  const notified = []
+  budget.subscribe(() => { notified.push('broken'); throw new Error('cleanup callback failed') })
+  budget.subscribe(() => notified.push('remaining owner'))
+  second.write(Buffer.from('345'))
+  assert.throws(() => second.write(Buffer.from('6')), /byte allowance exceeded/)
+  assert.deepEqual(notified, ['broken', 'remaining owner'])
+  assert.throws(() => second.finish(), /incomplete/)
+  assert.deepEqual(fs.readFileSync(path), Buffer.from('12'))
+  assert.deepEqual(fs.readFileSync(join(root, 'second.log')), Buffer.from('345'))
+  assert.equal(json(join(root, 'second.log.capture.json')).status, 'incomplete')
+  assert.equal(budget.snapshot().usedBytes, 5)
+  assert.throws(() => createServerLog(join(root, 'later.log'), { rawLogBudget: budget }), /byte allowance exceeded/)
+  assert(!fs.existsSync(join(root, 'later.log')))
+})
+
+test('shared exhaustion stops a quiet owned command and rejects later commands without spawning', async t => {
+  const root = temporary(t), budget = createRawLogBudget(1)
+  const active = captureRaw(root,
+    "require('node:fs').writeFileSync('started','yes');setInterval(()=>{},1000)", { rawLogBudget: budget })
+  const rejected = assert.rejects(active, error => /byte allowance exceeded/.test(errorText(error)))
+  const deadline = Date.now() + 5000
+  while (!fs.existsSync(join(root, 'started')) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 10))
+  assert(fs.existsSync(join(root, 'started')))
+  const other = createServerLog(join(root, 'server.log'), { rawLogBudget: budget })
+  assert.throws(() => other.write(Buffer.from('ab')), /byte allowance exceeded/)
+  assert.throws(() => other.finish(), /incomplete/)
+  await rejected
+  assert.equal(json(join(root, 'capture/capture.json')).status, 'incomplete')
+  await assert.rejects(captureRaw(root, "require('node:fs').writeFileSync('later-spawned','bad')",
+    { directory: join(root, 'later'), rawLogBudget: budget }), /byte allowance exceeded/)
+  assert(!fs.existsSync(join(root, 'later-spawned'))); assert(!fs.existsSync(join(root, 'later')))
+})
+
+test('command budget failure bounds descendant-held pipe drain without signaling the descendant', async t => {
+  const root = temporary(t)
+  const descendant = "const fs=require('node:fs');process.on('SIGTERM',()=>fs.writeFileSync('descendant-signaled','bad'));fs.writeSync(1,'overflow');setTimeout(()=>fs.writeFileSync('descendant-done','yes'),3000)"
+  const started = performance.now()
+  await assert.rejects(captureRaw(root,
+    "require('node:child_process').spawn(process.execPath,['-e'," + JSON.stringify(descendant) + "],{stdio:['ignore',1,2]});setInterval(()=>{},1000)",
+    { maxRawBytes: 0 }), error => /byte allowance exceeded/.test(errorText(error)))
+  assert(performance.now() - started < 2900, 'Failed capture must not wait for descendant exit')
+  const deadline = Date.now() + 5000
+  while (!fs.existsSync(join(root, 'descendant-done')) && Date.now() < deadline) await new Promise(resolve => setTimeout(resolve, 20))
+  assert(fs.existsSync(join(root, 'descendant-done'))); assert(!fs.existsSync(join(root, 'descendant-signaled')))
+  assert.equal(json(join(root, 'capture/capture.json')).status, 'incomplete')
+})
+
+test('actual verify CLI shares one byte allowance across checks and retains completed earlier receipts', t => {
+  const f = fixture(t, { action: "process.stdout.write('1234');process.stderr.write('56')", count: 3 })
+  put(f.repo, 'work/preload.mjs', "process.env.POPULOUS_VERIFY_MAX_RAW_BYTES='10'")
+  const result = f.run('preload')
+  assert.equal(result.status, 1, result.stderr); assert.match(result.stderr, /byte allowance exceeded \(10 bytes\)/)
+  const [first, active, later] = f.saved().verification.results
+  assert.equal(first.status, 'passed'); assert.equal(first.capture.complete, true)
+  assert.equal(active.status, 'blocked'); assert.equal(active.capture.complete, false)
+  assert.match(active.reason, /byte allowance exceeded/); assert.equal(later.status, 'not-run')
+  const complete = json(join(f.repo, first.capture.path)), incomplete = json(join(f.repo, active.capture.path))
+  assert.equal(complete.rawBudget.usedBytes, 6); assert.equal(incomplete.rawBudget.usedBytes, 10)
+  assert.equal(incomplete.status, 'incomplete')
+  assert.equal(Object.values(incomplete.streams).reduce((sum, stream) => sum + stream.bytes, 0), 4)
+  validateContract(f.repo, f.saved())
+})
+
+test('owned server and command share the attempt allowance and both stop when either exhausts it', t => {
+  for (const producer of ['server', 'command']) {
+    const f = browserFixture(t, ['browser', 'browser'])
+    put(f.repo, 'fixture.mjs', "import fs from 'node:fs';fs.writeFileSync('work/check-started','yes');" +
+      (producer === 'command' ? "process.stdout.write('123456');" : '') + "setInterval(()=>{},1000)")
+    f.git('add', '.'); f.git('commit', '-qm', 'budget fixture check')
+    const server = "const fs=require('node:fs');process.on('SIGTERM',()=>{fs.writeFileSync('work/server-stopped','yes');process.exit(0)});process.stdout.write('1234');fs.writeFileSync('work/server-ready','yes');" +
+      (producer === 'server' ? "const timer=setInterval(()=>{if(fs.existsSync('work/check-started')){clearInterval(timer);process.stderr.write('567890')}},5);" : '') + "setInterval(()=>{},1000)"
+    serverPreload(f, server, "process.env.POPULOUS_VERIFY_MAX_RAW_BYTES='8'")
+    const result = f.run('preload')
+    assert.equal(result.status, 1, result.stderr); assert.match(result.stderr, /byte allowance exceeded/)
+    assert(fs.existsSync(join(f.repo, 'work/server-stopped')))
+    const row = assertUnverified(f)
+    assert.match(row.reason, /byte allowance exceeded/)
+    const command = json(join(f.repo, row.capture.path)), serverMetadata = json(join(f.repo, row.serverCapture.path))
+    assert.equal(command.status, 'incomplete'); assert.equal(serverMetadata.status, 'incomplete')
+    const rawBytes = Object.values(command.streams).reduce((sum, stream) => sum + stream.bytes, 0) + serverMetadata.log.bytes
+    assert.equal(rawBytes, 8)
+    assert.equal(f.saved().verification.results[1].status, 'not-run')
+  }
+})
+
+test('owned server output during stop cannot promote a completed browser command after budget exhaustion', t => {
+  const f = browserFixture(t, ['browser'])
+  serverPreload(f, "const fs=require('node:fs');process.on('SIGTERM',()=>{process.stderr.write('excess');process.exit(0)});fs.writeFileSync('work/server-ready','yes');setInterval(()=>{},1000)",
+    "process.env.POPULOUS_VERIFY_MAX_RAW_BYTES='24'")
+  const result = f.run('preload')
+  assert.equal(result.status, 1, result.stderr); assert.match(result.stderr, /byte allowance exceeded/)
+  const row = assertUnverified(f)
+  assert.equal(row.capture.complete, true)
+  assert.match(row.reason, /byte allowance exceeded/)
+  assert.equal(json(join(f.repo, row.serverCapture.path)).status, 'incomplete')
+})
+
+test('verifier configuration fails before launch or evidence changes and legacy adapter output is bounded', async t => {
+  const f = fixture(t)
+  const before = fs.readFileSync(join(f.repo, f.contractPath))
+  for (const value of ['', '-1', '1.5', 'Infinity', '9007199254740992', ' 5 ', '1e6']) {
+    await assert.rejects(verifyContract(f.repo, f.contractPath, {
+      env: { POPULOUS_VERIFY_MAX_RAW_BYTES: value }, execute: () => assert.fail('must not execute'),
+    }), /safe integer/)
+    assert.deepEqual(fs.readFileSync(join(f.repo, f.contractPath)), before)
+  }
+  await assert.rejects(verifyContract(f.repo, f.contractPath, {
+    env: { POPULOUS_VERIFY_MAX_RAW_BYTES: '3' },
+    execute: async () => ({ exitCode: 0, stdout: 'ab', stderr: 'cd', timedOut: false }),
+  }), /byte allowance exceeded/)
+  assert.equal(fs.readFileSync(join(f.repo, 'work/orchestration/task/checks/portable0.log'), 'utf8'), 'abc')
+  assert.equal(f.saved().verification.results[0].status, 'blocked')
+  assert.match(f.saved().verification.results[0].reason, /byte allowance exceeded/)
+})
+
+test('external URL is never stopped on raw-budget exhaustion', async t => {
+  const f = browserFixture(t, ['browser'])
+  await assert.rejects(verifyContract(f.repo, f.contractPath, {
+    env: { ...process.env, POPULOUS_URL: 'http://external.invalid', POPULOUS_VERIFY_MAX_RAW_BYTES: '1' },
+    startServer: async () => ({ url: 'http://external.invalid', owned: false,
+      stop: async () => assert.fail('unowned server must never be stopped') }),
+  }), /byte allowance exceeded/)
+  const row = assertUnverified(f)
+  assert(!row.serverCapture)
+  assert.equal(json(join(f.repo, row.capture.path)).status, 'incomplete')
+})
+
+test('failed owned-child signals still bound rejection and disclose that the producer did not exit', async t => {
+  const cp = (await import('node:child_process')).default
+  const { syncBuiltinESMExports } = await import('node:module')
+  for (const mode of ['throw', 'false']) {
+    const root = temporary(t), original = cp.spawn
+    let child, realKill, closed
+    cp.spawn = (...args) => {
+      child = original(...args)
+      realKill = child.kill.bind(child)
+      closed = new Promise(resolve => child.once('close', resolve))
+      child.kill = () => {
+        if (mode === 'throw') throw Object.assign(new Error('fixture signal denied'), { code: 'EPERM' })
+        return false
+      }
+      return child
+    }
+    syncBuiltinESMExports()
+    const started = performance.now()
+    const active = captureRaw(root, "process.stdout.write('over');setInterval(()=>{},1000);setTimeout(()=>process.exit(0),15000)",
+      { maxRawBytes: 0 })
+    cp.spawn = original; syncBuiltinESMExports()
+    try {
+      await assert.rejects(active, error => /byte allowance exceeded/.test(errorText(error)))
+      assert(performance.now() - started < 5000, 'Capture rejection must not require child exit')
+      assert.equal(child.exitCode, null); assert.equal(child.signalCode, null)
+      const metadata = json(join(root, 'capture/capture.json'))
+      assert.equal(metadata.status, 'incomplete'); assert.equal(metadata.drainIncomplete, true)
+      assert.equal(metadata.ownedChildExited, false); assert.equal(metadata.exitCode, null)
+      assert.equal(metadata.ownedChildPid, child.pid)
+      assert.equal(metadata.error.cleanupError, 'Owned child cleanup failed')
+      assert(fs.existsSync(join(root, 'capture/publication.pending')))
+      assert(!fs.existsSync(join(root, 'capture/publication.complete')))
+    } finally {
+      // The fixture, not the capture helper, regains its original test-owned
+      // signal method and cleans up this exact child after proving the failure.
+      if (child?.exitCode === null && child.signalCode === null) realKill('SIGKILL')
+      await closed
+      cp.spawn = original; syncBuiltinESMExports()
+    }
+  }
+})
+
+test('owned-server failed signals release parent handles and report a live producer without promotion', async t => {
+  const cp = (await import('node:child_process')).default
+  const { syncBuiltinESMExports } = await import('node:module')
+  for (const mode of ['throw', 'false']) {
+    const f = browserFixture(t, ['browser']), budget = createRawLogBudget(1)
+    const original = cp.spawn, originalFetch = globalThis.fetch, signals = []
+    let child, realKill, closed, unrefs = 0
+    cp.spawn = (...args) => {
+      child = original(process.execPath, ['-e', 'setInterval(()=>{},1000);setTimeout(()=>process.exit(0),15000)'], args[2])
+      realKill = child.kill.bind(child)
+      const unref = child.unref.bind(child)
+      child.unref = () => { unrefs++; return unref() }
+      closed = new Promise(resolve => child.once('close', resolve))
+      child.kill = signal => {
+        signals.push(signal)
+        if (mode === 'throw') throw Object.assign(new Error('fixture server signal denied'), { code: 'EPERM' })
+        return false
+      }
+      return child
+    }
+    syncBuiltinESMExports()
+    globalThis.fetch = async () => { if (!child) throw new Error('fixture port empty'); return { ok: true } }
+    const log = join(f.repo, 'work/server.log')
+    try {
+      const server = await startGameServer(f.repo, process.env, log, { rawLogBudget: budget })
+      cp.spawn = original; syncBuiltinESMExports(); globalThis.fetch = originalFetch
+      const other = createServerLog(join(f.repo, 'work/trigger.log'), { rawLogBudget: budget })
+      const started = performance.now()
+      assert.throws(() => other.write(Buffer.from('ab')), /byte allowance exceeded/)
+      assert.throws(() => other.finish(), /incomplete/)
+      await assert.rejects(server.stop(), error => /byte allowance exceeded/.test(errorText(error)))
+      assert(performance.now() - started < 6500, 'Server stop must not require child exit')
+      assert.deepEqual(signals, ['SIGTERM', 'SIGKILL']); assert.equal(unrefs, 1)
+      assert(child.stdin.destroyed && child.stdout.destroyed && child.stderr.destroyed)
+      assert.equal(child.exitCode, null); assert.equal(child.signalCode, null)
+      const metadata = json(log + '.capture.json')
+      assert.equal(metadata.status, 'incomplete'); assert.equal(metadata.drainIncomplete, true)
+      assert.equal(metadata.ownedChildExited, false); assert.equal(metadata.ownedChildPid, child.pid)
+      assert.equal(metadata.error.cleanupError, 'Owned server cleanup failed')
+      assert(fs.existsSync(log + '.publication.pending')); assert(!fs.existsSync(log + '.publication.complete'))
+    } finally {
+      cp.spawn = original; syncBuiltinESMExports(); globalThis.fetch = originalFetch
+      if (child?.exitCode === null && child.signalCode === null) realKill('SIGKILL')
+      await closed
+    }
+  }
 })
