@@ -1,3 +1,5 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
+import { setWorldPaused } from '../browser-world-input.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -300,7 +302,7 @@ export function installMeleeFrameObserver(originalMapping) {
                 width: width / scaleX, height: height / scaleY }
               const owner = document.elementFromPoint(rect.left + bounds.x + bounds.width / 2,
                 rect.top + bounds.y + bounds.height / 2)
-              const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+              const overlays = [...document.querySelectorAll('.native-hud,[data-original-pause-status],.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
                 .filter(element => { const style = getComputedStyle(element)
                   return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
                 .map(element => { const r = element.getBoundingClientRect()
@@ -349,7 +351,7 @@ export function installMeleeFrameObserver(originalMapping) {
   raf = requestAnimationFrame(visit)
 }
 
-export default async function meleeAttack({ browser, url, output, expectedRevision }) {
+export default async function meleeAttack({ browser, url, output, expectedRevision, admission }) {
   const context = await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = await context.newPage()
   page.setDefaultTimeout(10000)
@@ -381,7 +383,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   page.on('pageerror', runtimeError)
   page.on('console', message => { if (message.type() === 'error') runtimeError(message.text()) })
   page.on('crash', () => runtimeError('Page crashed'))
-  const timer = setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, meleeAttackLimitMs)
+  const localStarted = performance.now()
+  const expireLocal = () => { report.timedOut = true; void context.close().catch(() => {}) }
+  const timer = setTimeout(expireLocal, meleeAttackLimitMs)
+  const checkLocal = () => {
+    report.localElapsedMs = performance.now() - localStarted
+    if (report.localElapsedMs >= meleeAttackLimitMs) expireLocal()
+    assert.equal(report.timedOut, undefined, 'Ordinary melee deadline exceeded')
+  }
   let failure
   const retainObservation = async () => {
     if (report.observation || page.isClosed()) return
@@ -407,6 +416,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   save()
   try {
+    admission?.setLocalCheck(checkLocal)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2')
@@ -414,12 +424,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     const startup = await page.waitForFunction(m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip') await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    if (report.startup.action === 'skip') await action('Skip introduction', () => skipIntroductionWithSpace(page, { timeout: 10000 }))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld()
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
-    await button('Pause game')
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: 10000 }))
+    assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true, 'Public Space must establish paused setup')
     await button('Select and focus shaman')
     const settle = () => page.waitForFunction(() => {
       const scene = window.testSceneRef.current
@@ -463,7 +474,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assertMeleeRouteReady(report.afterFocus)
     report.mapping = meleeAttackMapping(); save()
     await page.evaluate(installMeleeFrameObserver, report.mapping)
-    await button('Resume game')
+    await action('Resume with Space', () => setWorldPaused(page, false, { timeout: 10000 }))
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.afterResume = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterResume, false)
@@ -504,7 +515,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.done, true)
     report.acceptance = validateMeleeRunningObservation(report.observation, report.mapping)
-    await button('Pause game')
+    await action('Pause with Space', () => setWorldPaused(page, true, { timeout: 10000 }))
     await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()
@@ -520,6 +531,8 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   finally {
     clearTimeout(timer)
+    try { checkLocal() } catch (error) { failure ??= error; report.failure ??= { message: String(error), stack: error.stack } }
+    admission?.clearLocalCheck()
     try { await retainObservation() }
     catch (error) { report.errors.push(`Observer cleanup: ${error}`) }
     try { await context.close(); report.contextClosed = true }

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Mission12-specific, normal-input acceptance for #98. The later Spy combat
 // lifecycle belongs to #97. This checker never grants a spell or changes actors.
@@ -567,9 +568,7 @@ try {
   await stage('normal-opening', async () => {
     await until('authored opening', { kind: 'opening' }, 64)
     await holdRaf(false)
-    const skip = page.getByRole('button', { name: /Skip introduction/ })
-    await skip.waitFor()
-    await skip.click()
+    await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(
       () =>
         !(window.testStore.getWorld().inputMask & 64) &&

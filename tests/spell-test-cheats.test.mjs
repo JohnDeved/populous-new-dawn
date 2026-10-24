@@ -201,15 +201,17 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
   for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
     const calls = [], receipt = {}, page = { goto: async () => calls.push('goto') },
       context = { close: async () => calls.push('closeFrontendContext') },
-      browser = {}, bindings = {
+      browser = {}, m2Fixture = {}, browserDeadlineAt = 240000, abort = new AbortController(), bindings = {
         selectedScenario, receipt, page, context, browser, url: 'test-url', root: 'test-root',
-        out: 'test-output', dist: 'test-dist', m2Fixture: {},
+        out: 'test-output', dist: 'test-dist', m2Fixture, browserDeadlineAt, abort,
         ...Object.fromEntries(scenarios.map(name => [name, name])),
         pathToFileURL: value => ({ href: value }),
         importScenario: async name => ({ default: async input => {
           calls.push(name)
           assert.equal(input.output, 'test-output')
           if (name === 'spellTestScenario' || name === 'spellConversionScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
+          if (name === 'm2Scenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output',
+            fixture: m2Fixture, deadlineAt: browserDeadlineAt, signal: abort.signal })
           return { completed: name }
         } }),
       }

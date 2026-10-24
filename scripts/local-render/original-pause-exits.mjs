@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -14,10 +15,9 @@ export default async function({page,root,output}) {
  if(mode==='tutorial')await button('Tutorial').click()
  else{await openCampaignFromMainMenu(page);await button('Start Mission 1').click()}
  await bindGame(page)
- await page.getByRole('button',{name:'Continue anyway',exact:false}).click()
  if(mode!=='tutorial'){
   await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
-  await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
  }
  if(mode==='tutorial'){
@@ -34,7 +34,7 @@ export default async function({page,root,output}) {
   assert.equal(await page.locator('.world-viewport canvas').count(),0)
   return {checks:['Tutorial restricted rows','captured right-drag released at menu boundary; pointer movement/release cannot mutate frozen world/camera','Tutorial Quit Game returns main menu and disposes scene'],limits:['Software renderer; browser exit adaptation']}
  }
- await button('Game settings').click()
+ await button('Menu').click()
  if(mode==='level'){
   await button('Quit Level').click();await button('Yes').click()
   await page.getByRole('dialog',{name:'Start game',exact:true}).waitFor()

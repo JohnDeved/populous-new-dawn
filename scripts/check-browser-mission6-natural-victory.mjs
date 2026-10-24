@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
@@ -404,7 +405,7 @@ try {
   await page.waitForFunction(
     () => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask
   )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page, { timeout: 60000 })
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(
     () => window.testSceneRef.current?.world === window.testStore.getWorld()

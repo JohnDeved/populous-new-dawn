@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { writeFile } from 'node:fs/promises'
@@ -102,9 +103,7 @@ try {
     () => !!(globalThis.testScene.world.flyby.flags & 1) && !!globalThis.testStore.getWorld().inputMask,
     { timeout: 30_000 }
   )
-  const skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
-  if (await skip.isVisible().catch(() => false)) await skip.click()
-  else await page.keyboard.press('Escape')
+  await skipIntroductionWithSpace(page, { timeout: 10000 })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
 
   evidence.before = await page.evaluate(() => {

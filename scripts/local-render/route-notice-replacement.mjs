@@ -1,51 +1,61 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame } from '../browser-game.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { enterRouteLevel, captureRouteClock, advanceRouteClock, releaseRouteClock,
+  issueRouteAnchorCommand, publishRouteNotice, observeRouteNotice, assertRouteVisible } from './route-notice-modal.mjs'
 
-// Retain the actual React handler, then invoke it after a real public restart.
-// Notice publication and stale invocation are controlled presentation fixtures.
+// Controlled publications deliberately reuse serial77 across a real public
+// restart. Invoke the retained disposed Scene's actual RAF callback, not a removed
+// React/CSS completion handler. This is not an earned pathfinding-failure test.
 export default async function ({ page, output }) {
-  const expected = process.env.PND_ROUTE_NOTICE_EXPECT ?? 'preserved'
-  assert.ok(['preserved', 'expired'].includes(expected))
-  const button = name => page.getByRole('button', { name, exact: true })
+  const observations = [], button = name => page.getByRole('button', { name, exact: true }),
+    record = value => {
+      observations.push(value)
+      writeFileSync(resolve(output, 'route-notice-replacement.json'), JSON.stringify({
+        scope: 'public commands/restart; controlled publications and retained real Scene callback; fixture-owned frame clock',
+        referenceHz: 24, lifetimeEligibleVisits: 72, observations,
+      }, null, 2))
+    }
   await page.setViewportSize({ width: 960, height: 720 })
-  await openCampaignFromMainMenu(page)
-  await button('Start Mission 1').click(); await bindGame(page)
-  await page.locator('.skip-introduction').click()
-  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-  await page.evaluate(() => window.testStore.change(w => {
-    w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }
-  }))
-  await page.locator('.route-notice').waitFor({ state: 'visible' })
-  await page.evaluate(() => {
-    const node = document.querySelector('.route-notice')
-    const props = Object.keys(node).find(key => key.startsWith('__reactProps$'))
-    if (!props || typeof node[props].onAnimationEnd !== 'function') throw Error('Actual React completion handler unavailable')
-    window.staleRouteNoticeFixture = { world: window.testStore.getWorld(),
-      scene: window.testSceneRef.current, complete: node[props].onAnimationEnd }
-  })
-  await button('Game settings').click(); await button('Restart Level').click(); await button('Yes').click()
-  await page.waitForFunction(() => window.testStore.getWorld() !== window.staleRouteNoticeFixture.world)
-  await bindGame(page); await page.locator('.skip-introduction').click()
-  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-  await page.evaluate(() => window.testStore.change(w => {
-    w.routeNotice = { flags: 0x200000, message: 603, serial: 77 }
-  }))
-  await page.locator('.route-notice').waitFor({ state: 'visible' })
-  const result = await page.evaluate(() => {
-    const fixture = window.staleRouteNoticeFixture, world = window.testStore.getWorld()
-    const notice = world.routeNotice
-    fixture.complete()
-    return { replacedWorld: world !== fixture.world, replacedScene: window.testSceneRef.current !== fixture.scene,
-      sameSerial: notice.serial === 77, noticePreserved: world.routeNotice === notice }
-  })
-  writeFileSync(resolve(output, 'route-notice-replacement.json'), JSON.stringify({
-    scope: 'actual Home retained handler, public restart, controlled notice publication and stale invocation', expected, result,
-  }, null, 2))
-  assert.equal(result.replacedWorld, true); assert.equal(result.replacedScene, true)
-  assert.equal(result.sameSerial, true); assert.equal(result.noticePreserved, expected === 'preserved')
-  await page.screenshot({ path: resolve(output, 'route-notice-replacement.png') })
-  return { status: 'passed', result }
+  await openCampaignFromMainMenu(page); await button('Start Mission 1').click()
+  await enterRouteLevel(page); await page.evaluate(captureRouteClock)
+  try {
+    const oldCommand = await issueRouteAnchorCommand(page)
+    await page.evaluate(publishRouteNotice, 77)
+    await page.evaluate(advanceRouteClock, { count: 1 })
+    const old = await page.evaluate(observeRouteNotice)
+    record({ stage: 'old-publication', oldCommand, old }); assertRouteVisible(old, 71)
+    await page.evaluate(() => { window.staleRouteNoticeFixture = window.routeNoticeFixture })
+    await button('Menu').click(); await button('Restart Level').click(); await button('Yes').click()
+    await page.waitForFunction(() => window.testStore.getWorld() !== window.staleRouteNoticeFixture.world)
+    await enterRouteLevel(page); await page.evaluate(captureRouteClock)
+    const newCommand = await issueRouteAnchorCommand(page)
+    await page.evaluate(publishRouteNotice, 77)
+    await page.evaluate(advanceRouteClock, { count: 1 })
+    const before = await page.evaluate(observeRouteNotice)
+    record({ stage: 'replacement-publication', newCommand, before }); assertRouteVisible(before, 71)
+    const ownership = await page.evaluate(() => ({
+      replacedWorld: window.routeNoticeFixture.world !== window.staleRouteNoticeFixture.world,
+      replacedScene: window.routeNoticeFixture.scene !== window.staleRouteNoticeFixture.scene,
+      staleInactive: !window.staleRouteNoticeFixture.scene.isCurrent(),
+      sameSerial: window.routeNoticeFixture.notice.serial === window.staleRouteNoticeFixture.notice.serial,
+    }))
+    assert.ok(Object.values(ownership).every(Boolean))
+    const stale = await page.evaluate(advanceRouteClock, { count: 96, mode: 'frames', stale: true })
+    assert.equal(stale.visits, 0)
+    const after = await page.evaluate(observeRouteNotice)
+    record({ stage: 'stale-owner', ownership, stale, before, after })
+    assert.deepEqual(after, before, 'stale owner cannot advance or clear replacement presentation')
+    assert.equal(await page.evaluate(() => window.staleRouteNoticeFixture.scene.tooltip.remaining), old.remaining)
+    await page.evaluate(advanceRouteClock, { count: 70 }); assertRouteVisible(await page.evaluate(observeRouteNotice), 1)
+    await page.screenshot({ path: resolve(output, 'route-notice-replacement.png') })
+    await page.evaluate(advanceRouteClock, { count: 1 })
+    const expired = await page.evaluate(observeRouteNotice)
+    record({ stage: 'replacement-expiry', expired })
+    assert.equal(expired.remaining, 0); assert.equal(expired.visits, 72); assert.equal(expired.hidden, true)
+    assert.equal(await page.evaluate(() => window.testStore.getWorld().routeNotice), null)
+    const result = { oldCommand, newCommand, old, ownership, stale, before, after, expired }
+    return { status: 'passed', result }
+  } finally { await page.evaluate(releaseRouteClock) }
 }

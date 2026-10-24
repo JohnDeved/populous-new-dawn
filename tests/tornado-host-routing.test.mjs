@@ -11,8 +11,23 @@ test('Tornado reuses profile recovery lane and unchanged 180-second outer cap', 
   assert.match(host, /runTornado: async \(\{ signal, deadlineAt \}\)/)
   assert.match(host, /budgetMs: Math\.min\(90000, deadlineAt - Date\.now\(\)\)/)
   assert.match(host, /artifactDir: out, budgetMs:/)
+  assert.match(host, /budgetMs: Math\.min\(90000, deadlineAt - Date\.now\(\)\),\s*signal, deadlineAt/)
   assert.match(host, /receipt\.browserCapMs = browserCapMs\(selectedScenario\)/)
   assert.doesNotMatch(source('.github/workflows/tutorial-browser.yml'), /scenario: tornado/)
+})
+
+test('only two Tornado readiness sites opt in within original action, readiness and enclosing caps', () => {
+  const checker = source('scripts/check-browser-tornado-appearance.mjs')
+  assert.match(checker, /page.setDefaultTimeout\(8000\)/)
+  assert.match(checker, /setupTimeout: 8000, deadlineAt: inputDeadlineAt, signal: inputAbort.signal, trace/)
+  assert.match(checker, /inputDeadlineAt = Number.isFinite\(deadlineAt\) \? Math.min\(deadlineAt, Date.now\(\) \+ budgetMs\) : null/)
+  assert.match(checker, /inputDeadlineAt === null\) return recoverVisibleIntroduction\(page\)/)
+  for (const phase of ['initial', 'restart'])
+    assert.match(checker, new RegExp(`timeout: 12000,\\s*signal: inputAbort.signal,\\s*onBlocked: recoverIntroduction\\('${phase}'\\)`))
+  assert.equal((checker.match(/onBlocked: recoverIntroduction\(/g) ?? []).length, 2)
+  assert.match(checker, /expired = true\s*inputAbort.abort/)
+  assert.match(checker, /signal\?\.removeEventListener\('abort', outerAborted\)/)
+  assert.match(checker, /clearTimeout\(deadline\)/)
 })
 
 test('hosted checker never imports unserved source URLs and adapter is opt-in fixture only', () => {

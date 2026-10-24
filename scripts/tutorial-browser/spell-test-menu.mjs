@@ -1,3 +1,5 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -36,9 +38,28 @@ export function spellTestDiagnosticSnapshot() {
     sceneStarted: scene?.started, sceneDisposed: scene?.disposed,
     modalSuspended: scene?.modalSuspended, hidden: document.hidden,
     loading: !!document.querySelector('.loading-world'),
-    skipIntroduction: !!document.querySelector('.skip-introduction'),
+    introductionActive: !!(world?.flyby.flags & 1),
     dialogs: [...document.querySelectorAll('dialog[open]')].map(dialog => dialog.getAttribute('aria-label')),
   }
+}
+
+// The F9 modal suspends the world. Observe every exact spell control in one
+// bounded DOM poll instead of one browser round trip per immutable menu row.
+export function spellTestControlsReady(names) {
+  const menus = [...document.querySelectorAll('dialog[data-spell-test-menu][open]')]
+  if (menus.length !== 1 || !names.length || new Set(names).size !== names.length) return false
+  const buttons = [...menus[0].querySelectorAll('button')].filter(button => {
+    const style = getComputedStyle(button)
+    return !button.closest('[hidden], [inert], [aria-hidden="true"]') &&
+      style.display !== 'none' && style.visibility === 'visible' &&
+      [...button.getClientRects()].some(rect => rect.width > 0 && rect.height > 0)
+  })
+  const controls = names.map(name => {
+    const matches = buttons.filter(button => button.getAttribute('aria-label') === name)
+    return { name, count: matches.length, enabled: matches.length === 1 &&
+      !matches[0].matches(':disabled') && !matches[0].closest('[aria-disabled="true"]') }
+  })
+  return controls.every(control => control.count === 1 && control.enabled) ? controls : false
 }
 
 // Retain the latest read-only state while the page is alive. One in-flight read
@@ -120,9 +141,7 @@ export default async function spellTestMenu({ browser, url, output }) {
       diagnostics.stage(`${phase}: bind scene`)
       await bindGame(page)
       diagnostics.stage(`${phase}: await input or introduction`)
-      const state = await page.waitForFunction(() => !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction'))
-      if (await page.locator('.skip-introduction').isVisible()) await page.locator('.skip-introduction').click()
-      await state.dispose()
+      await skipIntroductionWithSpace(page, { timeout: 12000 })
       diagnostics.stage(`${phase}: await unlocked input`)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }
@@ -137,7 +156,8 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Start Mission 1').click()
     await waitReady('new game')
     diagnostics.stage('save ordinary checkpoint')
-    await button('Pause game').click()
+    await setWorldPaused(page, true, { timeout: Math.min(2500, spellTestLimitMs - (performance.now() - started)) })
+    assert.equal((await snapshot()).paused, true, 'Public Space pauses before saving and read-only F9 checks')
     await button('Menu').click()
     await button('Save Game').click()
     await button('Save checkpoint').click()
@@ -146,7 +166,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Continue Game').click()
     const saved = await storage(), beforeOpen = await snapshot()
     diagnostics.stage('read-only menu and keyboard controls')
-    await button('Resume game').focus()
+    await button('Menu').focus()
     await page.keyboard.down('F9')
     await menu.waitFor()
     assert.equal(await button('Close · F9').evaluate(element => element === document.activeElement), true)
@@ -163,7 +183,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await page.keyboard.down('Escape')
     await page.keyboard.up('Escape')
     assert.equal(await page.locator('[data-original-pause-menu]').count(), 0)
-    assert.equal(await button('Resume game').evaluate(element => element === document.activeElement), true)
+    assert.equal(await button('Menu').evaluate(element => element === document.activeElement), true)
     assert.deepEqual(await snapshot(), beforeOpen)
     await page.keyboard.press('Shift+F9')
     assert.equal(await menu.count(), 0)
@@ -173,7 +193,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     // Opening from live play must freeze turns without altering the user's pause
     // state, then resume the same world without catching up suspended wall time.
     diagnostics.stage('live hold and resume')
-    await button('Resume game').click()
+    await setWorldPaused(page, false, { timeout: Math.min(2500, spellTestLimitMs - (performance.now() - started)) })
     await page.waitForFunction(turn => window.testStore.getWorld().turn >= turn + 2, beforeOpen.turn)
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -185,11 +205,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, liveHold.turn)
     assert.equal((await snapshot()).paused, false)
-    await button('Pause game').click()
+    await setWorldPaused(page, true, { timeout: Math.min(2500, spellTestLimitMs - (performance.now() - started)) })
     report.unpausedHoldAndResume = true
 
     // Reuse this authored Scene before any testing grant. No extra context,
-    // injected spell, driven clock, or increase to this episode's 55s bound.
+    // injected spell, driven clock, or increase to this episode's 75s bound.
     diagnostics.stage('ordinary casting witness')
     report.ordinaryCasting = await beginOrdinaryCastingWitness(page)
 
@@ -200,8 +220,13 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.equal(unlocked.cheatsUsed, true)
     for (const spell of SPELLS) {
       assert.ok(unlocked.shots[spell.id] >= rules.spellCharging[spell.model].normalLimit)
-      assert.equal(await button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled(), true)
     }
+    const spellControls = await page.waitForFunction(spellTestControlsReady,
+      SPELLS.map(spell => `Test ${spell.name}, ${unlocked.shots[spell.id]} shots`),
+      { timeout: Math.min(12000, assertSpellTestDeadline(report, started)) })
+    try { report.unlockedControls = await spellControls.jsonValue() }
+    finally { await spellControls.dispose() }
+    assert.deepEqual(await snapshot(), unlocked, 'Read-only spell control observations preserve the suspended world')
     await button('Refill mana').click()
     assert.ok((await snapshot()).manaTribes[0].available >= 1_000_000)
     await page.screenshot({ path: resolve(output, 'f9-cheats-desktop.png') })
@@ -216,7 +241,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     assert.equal((await snapshot()).mode, 'blast')
     await page.evaluate(() => window.shamanCastingObserver.arm('subsequent'))
-    await button('Resume game').click()
+    await setWorldPaused(page, false, { timeout: Math.min(2500, spellTestLimitMs - (performance.now() - started)) })
     const target = await page.evaluate(() => {
       const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
         shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
@@ -262,8 +287,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Load Game').click()
     await button('Load checkpoint').click()
     await waitReady('checkpoint load')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const loaded = await snapshot()
+    assert.equal(loaded.cheatsUsed, false)
+    assert.equal(loaded.shots.teleport, 0)
     diagnostics.stage('grant and restart')
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -273,8 +299,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Restart Level').click()
     await button('Yes').click()
     await waitReady('restart')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const restarted = await snapshot()
+    assert.equal(restarted.cheatsUsed, false)
+    assert.equal(restarted.shots.teleport, 0)
     report.savePreservedAndLoadRestartReset = true
     assert.deepEqual(report.errors, [])
     diagnostics.stage('completed')

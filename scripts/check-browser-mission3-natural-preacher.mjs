@@ -30,7 +30,8 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   assert.equal(acquired.contextLost, false)
   assert.equal(acquired.speed, 1)
   await page.screenshot({ path: resolve(output, 'natural-blue-sermon.png') })
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   // Read back the persisted state: an in-session save alone does not prove a
   // fresh-page checkpoint. No storage writes outside the shipped save control.

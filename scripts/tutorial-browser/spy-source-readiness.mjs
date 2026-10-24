@@ -1,13 +1,11 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 // The supplied training fixture advances simulation, not the presentation-owned
-// introduction. Public Load resumes it; only the shipped Skip control may end it.
+// introduction. Public Load resumes it; only the native Space input may end it.
 export const spySourceReadinessMs = 8000
 
 export function readSpySourceReadiness(mode = 'snapshot') {
   const scene = window.testSceneRef?.current,
     world = window.testStore?.getWorld(),
-    button = document.querySelector('button.skip-introduction'),
-    skipVisible = !!button && button.getClientRects().length > 0 &&
-      getComputedStyle(button).visibility !== 'hidden' && !button.disabled,
     snapshot = {
       sceneStoreMatch: !!scene && scene.world === world,
       canvasConnected: !!scene?.renderer?.domElement?.isConnected,
@@ -19,13 +17,12 @@ export function readSpySourceReadiness(mode = 'snapshot') {
       flybyFlags: world?.flyby.flags ?? null,
       flybyFrame: world?.flyby.frame ?? null,
       flybyWarmup: world?.flyby.warmup ?? null,
-      skipVisible,
       action: 'wait',
     }
   if (snapshot.sceneStoreMatch && snapshot.canvasConnected && !snapshot.loading) {
     if (snapshot.inputMask === 0) snapshot.action = 'ready'
     // Active (1), interruptible (16), not already interrupted/completing (64).
-    else if (snapshot.inputMask === 64 && (snapshot.flybyFlags & 0x51) === 0x11 && skipVisible)
+    else if (snapshot.inputMask === 64 && (snapshot.flybyFlags & 0x51) === 0x11)
       snapshot.action = 'skip'
   }
   return mode === 'snapshot' || snapshot.action === 'ready' ||
@@ -95,9 +92,18 @@ export async function awaitSpySourceReadiness({ page, report, action, save, dead
     save()
     observation.actionable = await wait('actionable')
     save()
-    if (observation.actionable.action === 'skip')
-      await within(() => action('Public Skip introduction', () => within(() =>
-        page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: remaining() }))))
+    if (observation.actionable.action === 'skip') {
+      // The readiness handle can become stale during extraction/disposal. Read
+      // the current native gate inside the same absolute deadline before input.
+      observation.beforeSkip = await within(() => page.evaluate(readSpySourceReadiness))
+      if (observation.beforeSkip.action === 'skip') {
+        await within(() => action('Public Space skip', () => within(() =>
+          skipIntroductionWithSpace(page, { timeout: remaining() }))))
+        observation.afterSkip = await within(() => page.evaluate(readSpySourceReadiness))
+        if (observation.afterSkip.paused !== observation.beforeSkip.paused)
+          throw new Error('Spy Space changed pause state; retry the episode')
+      }
+    }
     observation.after = await wait('ready')
     remaining()
   } catch (error) {

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
@@ -48,8 +49,7 @@ export default async function ({ page, root, output, receipt, signal }) {
   const readyAfterOrdinaryIntroduction = async expectedLevel => {
     await bindGame(page)
     await page.waitForFunction(() => !!(window.testSceneRef.current.world.flyby.flags & 1) || !window.testSceneRef.current.world.inputMask)
-    const skip = page.locator('.skip-introduction')
-    if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(page, { timeout: 45000 })
     const readiness = await waitForShamanReadiness(page, { timeout: 60000 })
     assert.equal(readiness.after.level, expectedLevel)
     await page.keyboard.press('Escape')
@@ -79,10 +79,11 @@ export default async function ({ page, root, output, receipt, signal }) {
 
   let saved
   await stage('committed-ordinary-save', async () => {
-    await button('Game settings')
-    await page.locator('dialog.game-dialog').waitFor({ state: 'visible' })
+    await button('Menu')
+    await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
     saved = await snapshot()
     assert.equal(saved.paused, true)
+    await button('Save Game')
     await button('Save checkpoint')
     const committed = await waitForCheckpointReadback(() => page.evaluate(async expected => {
       const request = indexedDB.open('populous-new-dawn', 1)
@@ -129,9 +130,11 @@ export default async function ({ page, root, output, receipt, signal }) {
   await stage('same-document-scene-replacement', async () => {
     const previousScene = await page.evaluateHandle(() => window.testSceneRef.current)
     try {
-      await button('Game settings')
-      await page.locator('dialog.game-dialog').waitFor({ state: 'visible' })
-      await page.locator('dialog.game-dialog').getByRole('button', { name: 'Select Level', exact: true }).click()
+      await button('Menu')
+      await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
+      await button('Options')
+      await button('Browser compatibility and help')
+      await page.locator('dialog[data-original-pause-menu]').getByRole('button', { name: 'Select Level', exact: true }).click()
       await showAllMissions(page)
       await button('Mission 2')
       const evidence = await readyAfterOrdinaryIntroduction(2)
@@ -143,7 +146,7 @@ export default async function ({ page, root, output, receipt, signal }) {
       return { ...evidence, replaced, repeated }
     } finally { await previousScene.dispose() }
   })
-  await button('Pause game')
+  await page.locator('.world-viewport').press('Space')
   const final = await snapshot()
   assert.equal(final.paused, true)
   assert.equal(final.level, 2)

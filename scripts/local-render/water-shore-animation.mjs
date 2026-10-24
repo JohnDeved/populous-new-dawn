@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -36,13 +37,15 @@ export default async function waterShoreAnimation({ page, openMission, output, s
     writeFileSync(resolve(output, 'water-sequence.json'), JSON.stringify(report, null, 2))
   }
   const settings = async () => {
-    await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-    return page.locator('dialog.game-dialog')
+    await page.getByRole('button', { name: 'Menu', exact: true }).click()
+    return page.locator('dialog[data-original-pause-menu]')
   }
   const continueGame = async menu => menu.getByRole('button', { name: 'Continue Game', exact: false }).click()
   for (const mission of [1, 2, 3]) {
     if (mission > 1) {
       const menu = await settings()
+      await menu.getByRole('button', { name: 'Options', exact: true }).click()
+      await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
       await menu.getByRole('button', { name: 'Select Level', exact: true }).click()
     }
     await openMission(mission)
@@ -50,25 +53,31 @@ export default async function waterShoreAnimation({ page, openMission, output, s
     // Pan through the visible opening coastline with shipped keyboard input.
     await page.keyboard.down('s'); await page.waitForTimeout(350); await page.keyboard.up('s')
     await sequence(`m${mission}-speed1`)
-    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+    await page.locator('.world-viewport').press('Space')
     await sequence(`m${mission}-paused`)
-    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+    await page.locator('.world-viewport').press('Space')
     const menu = await settings()
+    await menu.getByRole('button', { name: 'Options', exact: true }).click()
+    await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
     await menu.getByRole('button', { name: '1× game speed', exact: true }).click()
+    await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
+    await menu.getByRole('button', { name: 'Back', exact: true }).click()
     await continueGame(menu)
     await sequence(`m${mission}-speed2`)
     const saveMenu = await settings()
+    await saveMenu.getByRole('button', { name: 'Save Game', exact: true }).click()
     await saveMenu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
     await page.waitForFunction(() => window.testStore.hasCheckpoint())
+    await saveMenu.getByRole('button', { name: 'Back', exact: true }).click()
+    await saveMenu.getByRole('button', { name: 'Load Game', exact: true }).click()
     await saveMenu.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
     await bindGame(page)
     await sequence(`m${mission}-loaded`)
     const restartMenu = await settings()
-    await restartMenu.getByRole('button', { name: 'Restart world', exact: true }).click()
+    await restartMenu.getByRole('button', { name: 'Restart Level', exact: true }).click()
+    await restartMenu.getByRole('button', { name: 'Yes', exact: true }).click()
     await bindGame(page)
-    const skip = page.locator('.skip-introduction')
-    await skip.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {})
-    if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await sequence(`m${mission}-restarted`)
   }

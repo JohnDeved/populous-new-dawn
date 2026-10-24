@@ -1,3 +1,5 @@
+import { changeHudSize } from './browser-native-options.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -689,9 +691,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   for (const viewport of [{ width: 1280, height: 720 }, { width: 1920, height: 1080 }, { width: 3440, height: 1440 }]) {
     await page.setViewportSize(viewport)
     for (const size of ['auto', '1', '2', '4']) {
-      await page.getByRole('button', { name: 'Menu', exact: true }).click()
-      await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(size)
-      await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+      await changeHudSize(page, size)
       const layout = await transportLayout(page)
       assertTransportLayout(layout, viewport)
       result.layouts.push({ viewport, size, ...layout })
@@ -709,7 +709,7 @@ export default async function followerTransports({ browser, page, url, openMissi
     await dp.goto(url, { waitUntil: 'domcontentloaded' }); await showAllMissions(dp)
     await dp.getByRole('button', { name: 'Mission 22', exact: true }).focus(); await dp.keyboard.press('Enter'); await bindGame(dp)
     await dp.waitForFunction(() => window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask)
-    const skip = dp.locator('.skip-introduction'); if (await skip.isVisible()) await skip.click()
+    await skipIntroductionWithSpace(dp, { timeout: 45000 })
     await dp.waitForFunction(() => !window.testSceneRef.current.world.inputMask); await freeze(dp); await clear(dp)
     const dprCraft = await dp.evaluate(async () => {
       const s = window.testSceneRef.current, w = s.world, { addUnit, browserPosition } = await import('/app/model.ts'),

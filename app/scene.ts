@@ -22,7 +22,7 @@ import {
 } from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
-import { advanceGame } from './game-clock.ts'
+import { advanceGame, observeGameTurns } from './game-clock.ts'
 import { FollowerNearbyMode } from './follower-nearby.ts'
 import { bindTrainingPanelRequests } from './training-panel-requests.ts'
 import {
@@ -333,6 +333,7 @@ export class GameScene {
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    if (suspended) this.tooltipElement.hidden = true
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
@@ -364,6 +365,9 @@ export class GameScene {
       this.worshipPresentation.visit()
     },
     presentationHidden: () => document.hidden,
+  }
+  observeGameTurns(visit: () => void, failed: (error: unknown) => void) {
+    return observeGameTurns(this.gameClock, visit, failed)
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding

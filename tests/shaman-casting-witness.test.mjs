@@ -1,3 +1,5 @@
+import { worldPauseState } from '../scripts/browser-world-input.mjs'
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { installShamanCastingObserver } from '../scripts/tutorial-browser/shaman-casting-observer.mjs'
@@ -442,7 +444,9 @@ test('actual game-clock callbacks are observed before logical animation, with no
 })
 
 test('ordinary cast driver uses only public controls/pointer and stops after its existing natural clock window', async () => {
+  let paused = true
   const actions = [], page = {
+    keyboard: { press: async key => { assert.equal(key, 'Space'); paused = !paused; actions.push(['key', key]) } },
     getByRole(role, { name }) {
       assert.equal(role, 'button')
       return { click: async () => actions.push(['button', String(name)]) }
@@ -453,6 +457,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
     },
     async evaluate(fn) {
       const source = fn.toString()
+      if (fn === worldPauseState) return { paused, inputMask: 0, turn: 100 }
       if (fn === installShamanCastingObserver) { actions.push(['install']); return }
       if (source.includes('hasUsedCheats()')) return false
       if (source.includes(".arm('ordinary')")) { actions.push(['arm']); return { stock: 4, cheatsUsed: false } }
@@ -464,12 +469,12 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
     mouse: { move: async (...point) => actions.push(['move', ...point]),
       click: async (...point) => actions.push(['pointer', ...point]) },
   }
-  const result = await beginOrdinaryCastingWitness(page)
+  const result = await beginOrdinaryCastingWitness(withoutCampaignPopup(page))
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
-    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select and focus shaman'],
+    ['key', 'Space'], ['key', 'Space'], ['button', 'Select and focus shaman'],
     ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
-    ['button', 'Resume game'], ['move', 500, 300], ['pointer', 500, 300], ['button', 'Pause game'],
+    ['key', 'Space'], ['move', 500, 300], ['pointer', 500, 300], ['key', 'Space'],
   ])
   assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
   assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
@@ -490,11 +495,12 @@ test('actual ordinary-readiness callback admits naturally resting Mission 1, not
     if (descriptor) Object.defineProperty(globalThis, 'window', descriptor)
     else delete globalThis.window
   })
-  await assert.rejects(beginOrdinaryCastingWitness({
+  await assert.rejects(beginOrdinaryCastingWitness(withoutCampaignPopup({
     getByRole: () => ({ click: async () => {} }),
-    evaluate: async callback => callback(),
+    keyboard: { press: async () => {} },
+    evaluate: async callback => callback === worldPauseState ? { paused: false, inputMask: 0, turn: authored.turn } : callback(),
     waitForFunction: async callback => { ready = callback; throw stop },
-  }), error => error === stop)
+  })), error => error === stop)
   const u = authored.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'), p = u.native,
     openingOrder = p.immediateCommand || p.commands[p.commandCursor]
   assert.equal(p.state, 10)
