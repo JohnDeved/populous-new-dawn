@@ -99,6 +99,35 @@ and `.cache`. `node_modules` itself must remain a real local directory. Standalo
 `verify`/`revision` checks these mutable caches, not the installed package inventory;
 `run` additionally binds package bytes and restricts dependency links to that directory.
 
+## Explicit installed-layout readiness
+
+After separately provisioning the private pinned pnpm installation, use the trusted
+source helper to check both source/assets and the installed layout:
+
+```sh
+python3 scripts/orchestration/shared_runtime.py ready \
+  --source "$source" --revision "$exact_commit" \
+  --pool "$disk_root/assets" --runtime "$disk_root/runtime-task" \
+  --dependency-store "$declared_active_pnpm_store"
+```
+
+`ready` requires the explicit actual store path (including its version directory),
+physical `node_modules/.pnpm`, pinned installation metadata, equal desired/installed
+locks, contained resolvable dependency links and nonempty package files. It reuses
+the read-only `shared_setup.py` installation audit and rechecks source/assets after
+that audit. Missing or incomplete setup fails rather than being provisioned or
+repaired. Run this in the serialized resource lane, not during an install.
+
+The qualified `shared-runtime-readiness` result proves only source/assets and
+installed pnpm layout. It does not prove package-to-lock integrity, usable imports,
+native dependencies, check/build/browser success, disk savings or a RAM solution.
+Sharing coverage remains measured, including zero for private copies. Subsequent
+mutations invalidate this point-in-time evidence; no reservation or lock is implied.
+
+`prepare`, `verify`, `revision`, and ordinary `run` retain their existing semantics.
+A dependency-free diagnostic may legitimately pass `run` with dependency kind
+`none` and zero inventory entries; that receipt is not installed-layout readiness.
+
 ## Execution and receipts
 
 Run from the trusted source helper with an exact revision and a fresh receipt path:
@@ -124,6 +153,37 @@ Hashes and receipt updates use those owned descriptors, never reopened output pa
 Receipt/log replacement, added hardlinks or parent substitution refuse finalization;
 retained original receipts remain `unknown`, not passed. This is evidence-integrity
 checking, not a sandbox for hostile commands or concurrently running descendants.
+
+New `run` attempts share one 64 MiB (67,108,864 byte) allowance across captured raw
+stdout and stderr. `PND_RUNTIME_MAX_RAW_BYTES` selects a nonnegative safe-integer
+byte limit; zero allows only empty output. A programmatic `max_raw_bytes` argument
+takes precedence. Invalid limits fail before execution or new evidence creation.
+The parent drains both pipes in chunks of at most 64 KiB and writes directly to
+the already-owned log descriptors, counting actual successful writes. It never
+buffers whole logs or passes writable log descriptors to the command.
+
+Exceeding the shared limit preserves the retained stream prefixes and makes the
+attempt nonpassing, even if the observed command exit is zero. Capture metadata
+records observed/stored/dropped bytes per stream, EOF, completion, the limit and
+failure reason. Observed counts cover only bytes actually read, not unknown output
+after capture stops; retained hashes cover only the stored bytes. Historical logs
+and receipts are never truncated or rewritten by the new allowance.
+
+On overflow or capture failure, cleanup targets only the owned direct child: TERM,
+then KILL after a one-second grace, with bounded drain/wait attempts. No general
+workload timeout is introduced. A direct-child exit with inherited pipes still
+open gets at most one second of further draining and is incomplete, not success;
+descendants are never signaled. If the direct child's exit cannot be observed,
+the receipt remains `unknown` and its runtime run lock is retained rather than
+claiming that caches are free. Do not steal that lock or infer cleanup from silence.
+Evidence path/link substitution still refuses terminal finalization. Existing
+source, asset and dependency drift checks remain unchanged; `run` is not an
+installer and dependency mutation still invalidates the attempt.
+
+This bounds only newly capture-written stdout/stderr for one runtime command, not
+arbitrary command-created files, metadata, accumulated attempts, dependency
+storage, process-tree memory, or synchronous filesystem delays. It is not a disk
+quota, whole-machine memory solution, or hard wall-time guarantee.
 
 The Vite config's opt-in runtime revision path independently invokes source, asset
 and mutable-cache verification before embedding the revision; an environment string

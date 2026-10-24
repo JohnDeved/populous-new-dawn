@@ -1,16 +1,19 @@
 import importlib.util
 import json
 import os
+import signal
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest import mock
 
 HELPER = Path(__file__).resolve().parents[1] / 'scripts/orchestration/shared_runtime.py'
+sys.path.insert(0, str(HELPER.parent))
 spec = importlib.util.spec_from_file_location('shared_runtime', HELPER)
 storage = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(storage)
@@ -538,11 +541,260 @@ globalThis.sharedAssetResult = { runtime, provenance };
         self.prepare()
         result = storage.execute(self.source, self.revision, self.pool, self.runtime, self.root / 'receipt.json', [sys.executable, '-c', "print('executed')"])
         self.assertEqual(result['status'], 'passed')
+        self.assertEqual(result['dependenciesBefore']['kind'], 'none')
+        self.assertEqual(result['dependenciesBefore']['entries'], 0)
         self.assertEqual(result['sourceBefore']['revision'], self.revision)
         self.assertEqual((self.root / 'receipt.json.stdout').read_text(), 'executed\n')
         self.assertEqual(result['logs']['stdout']['sha256'], storage.digest(b'executed\n'))
         self.assertEqual(result['logs']['stderr']['sha256'], storage.digest(b''))
         self.assertEqual(json.loads((self.root / 'receipt.json').read_text()), result)
+
+    def test_runtime_raw_log_budget_rejects_output_beyond_allowance(self):
+        self.prepare()
+        receipt = self.root / 'budget.json'
+        with mock.patch.dict(os.environ, {'PND_RUNTIME_MAX_RAW_BYTES': '4'}):
+            result = storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                     [sys.executable, '-c', "import os; os.write(1, b'12345')"])
+        self.assertNotEqual(result['status'], 'passed')
+        self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'1234')
+        self.assertEqual(Path(str(receipt) + '.stderr').read_bytes(), b'')
+        self.assertIn('raw output budget', result['capture']['error'])
+        self.assertFalse(result['capture']['complete'])
+        self.assertEqual(result['capture']['storedBytes'], 4)
+        self.assertEqual(result['capture']['streams']['stdout']['observedBytes'], 5)
+        self.assertEqual(json.loads(receipt.read_text()), result)
+
+    def test_runtime_raw_log_budget_invalid_value_fails_before_launch_or_evidence(self):
+        self.prepare()
+        receipt = self.root / 'invalid-budget.json'
+        with mock.patch.dict(os.environ, {'PND_RUNTIME_MAX_RAW_BYTES': '-1'}):
+            with self.assertRaisesRegex(ValueError, 'PND_RUNTIME_MAX_RAW_BYTES'):
+                storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                 [sys.executable, '-c', 'pass'])
+        self.assertFalse(receipt.exists())
+        self.assertFalse(Path(str(receipt) + '.stdout').exists())
+
+    def capture_fixture(self, code, budget, name='capture.json'):
+        receipt = self.root / name
+        with storage.OwnedEvidence(receipt) as evidence:
+            evidence.write_receipt({'status': 'unknown'})
+            capture = storage.capture_command([sys.executable, '-c', code], self.root,
+                                              dict(os.environ), evidence, budget)
+            logs = evidence.logs()
+        for stream in ('stdout', 'stderr'):
+            data = Path(str(receipt) + '.' + stream).read_bytes()
+            self.assertEqual(logs[stream]['bytes'], capture['streams'][stream]['storedBytes'])
+            self.assertEqual(logs[stream]['sha256'], storage.digest(data))
+        self.assertLessEqual(capture['storedBytes'], budget)
+        self.assertEqual(capture['storedBytes'], sum(x['storedBytes'] for x in capture['streams'].values()))
+        self.assertEqual(capture['observedBytes'], sum(x['observedBytes'] for x in capture['streams'].values()))
+        return capture, receipt
+
+    def test_runtime_raw_log_budget_configuration(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(storage.raw_output_limit(), 64 * 1024 * 1024)
+        with mock.patch.dict(os.environ, {'PND_RUNTIME_MAX_RAW_BYTES': '7'}):
+            self.assertEqual(storage.raw_output_limit(), 7)
+            self.assertEqual(storage.raw_output_limit(3), 3)
+        for invalid in ('', ' ', '-1', '+1', '1.5', '1e3', '１２', '9007199254740992',
+                        '1' * 100, -1, 0.5, True, False):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                storage.raw_output_limit(invalid)
+
+    def test_runtime_raw_log_budget_exact_combined_binary_bytes_and_plus_one(self):
+        code = "import os; os.write(1, b'\\xff\\x00a'); os.write(2, b'\\xfe\\x00b')"
+        exact, receipt = self.capture_fixture(code, 6, 'exact.json')
+        self.assertTrue(exact['complete'])
+        self.assertEqual(exact['exitCode'], 0)
+        self.assertEqual(exact['storedBytes'], 6)
+        self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'\xff\x00a')
+        self.assertEqual(Path(str(receipt) + '.stderr').read_bytes(), b'\xfe\x00b')
+        overflow, _ = self.capture_fixture(code, 5, 'overflow.json')
+        self.assertFalse(overflow['complete'])
+        self.assertEqual(overflow['storedBytes'], 5)
+        self.assertEqual(overflow['observedBytes'], 6)
+        self.assertEqual(sum(x['droppedBytes'] for x in overflow['streams'].values()), 1)
+        self.assertIn('raw output budget', overflow['error'])
+        self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'\xff\x00a')
+
+    def test_runtime_raw_log_budget_zero_allows_only_empty_output(self):
+        empty, _ = self.capture_fixture('pass', 0, 'empty.json')
+        self.assertTrue(empty['complete'])
+        nonempty, _ = self.capture_fixture("import os; os.write(2,b'x')", 0, 'nonempty.json')
+        self.assertFalse(nonempty['complete'])
+        self.assertEqual(nonempty['storedBytes'], 0)
+        self.assertEqual(nonempty['streams']['stderr']['droppedBytes'], 1)
+
+    def test_runtime_raw_log_capture_drains_both_flooding_streams_in_fixed_chunks(self):
+        original = os.read
+        reads = []
+        def read(fd, count):
+            reads.append(count)
+            return original(fd, count)
+        code = "import os\nfor i in range(32):\n os.write(1,b'o'*4096)\n os.write(2,b'e'*4096)"
+        with mock.patch.object(storage.os, 'read', side_effect=read):
+            result, receipt = self.capture_fixture(code, 256 * 1024)
+        self.assertTrue(result['complete'])
+        self.assertEqual(result['exitCode'], 0)
+        self.assertLessEqual(max(reads), 64 * 1024)
+        self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'o' * (128 * 1024))
+        self.assertEqual(Path(str(receipt) + '.stderr').read_bytes(), b'e' * (128 * 1024))
+
+    def test_runtime_raw_log_short_writes_count_actual_retained_bytes(self):
+        original = os.write
+        with mock.patch.object(storage.os, 'write', side_effect=lambda fd, data: original(fd, data[:3])):
+            result, receipt = self.capture_fixture("import os; os.write(1,b'abcdefghijkl')", 10)
+        self.assertEqual(result['storedBytes'], 10)
+        self.assertEqual(result['streams']['stdout']['droppedBytes'], 2)
+        self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'abcdefghij')
+        self.assertFalse(result['complete'])
+
+    def test_runtime_raw_log_sink_failure_preserves_prefix_and_reaps_owned_child(self):
+        original = os.write
+        writes = 0
+        def write(fd, data):
+            nonlocal writes
+            writes += 1
+            if writes > 1:
+                raise OSError('fixture disk write failure')
+            return original(fd, data[:3])
+        code = "import os,time; os.write(1,b'abcdefgh'); time.sleep(20)"
+        with mock.patch.object(storage.os, 'write', side_effect=write):
+            result, receipt = self.capture_fixture(code, 100)
+        self.assertFalse(result['complete'])
+        self.assertIn('persist raw stdout', result['error'])
+        self.assertTrue(result['cleanup']['exitObserved'])
+        self.assertEqual(result['exitCode'], -signal.SIGTERM)
+        self.assertEqual(result['storedBytes'], 3)
+        self.assertEqual(Path(str(receipt) + '.stdout').read_bytes(), b'abc')
+
+    def test_runtime_raw_log_read_failure_is_nonpassing_and_reaps_owned_child(self):
+        original = os.read
+        def read(fd, count):
+            if count == storage.RAW_READ_BYTES:
+                raise OSError('fixture pipe read failure')
+            return original(fd, count)
+        with mock.patch.object(storage.os, 'read', side_effect=read):
+            result, _ = self.capture_fixture("import os,time; os.write(1,b'x'); time.sleep(20)", 100)
+        self.assertFalse(result['complete'])
+        self.assertIn('read raw stdout', result['error'])
+        self.assertTrue(result['cleanup']['exitObserved'])
+
+    def test_runtime_raw_log_selector_failure_is_nonpassing_and_reaps_owned_child(self):
+        original = storage.selectors.DefaultSelector
+        def selector():
+            result = original()
+            result.select = mock.Mock(side_effect=OSError('fixture selector failure'))
+            return result
+        with mock.patch.object(storage.selectors, 'DefaultSelector', side_effect=selector):
+            result, _ = self.capture_fixture('import time; time.sleep(20)', 100)
+        self.assertFalse(result['complete'])
+        self.assertIn('drain raw output', result['error'])
+        self.assertTrue(result['cleanup']['exitObserved'])
+
+    def test_runtime_raw_log_denied_signals_leave_unknown_without_claiming_exit(self):
+        original = subprocess.Popen
+        owned = []
+        def launch(*args, **kwargs):
+            proc = original(*args, **kwargs)
+            owned.append((proc, proc.kill))
+            proc.terminate = mock.Mock(side_effect=PermissionError('fixture TERM denied'))
+            proc.kill = mock.Mock(side_effect=PermissionError('fixture KILL denied'))
+            return proc
+        started = time.monotonic()
+        try:
+            with mock.patch.object(storage.subprocess, 'Popen', side_effect=launch), \
+                    mock.patch.object(storage, 'RAW_CLEANUP_SECONDS', 0.05):
+                with self.assertRaisesRegex(storage.UnreapedRuntimeCommand, 'exit was not observed'):
+                    self.capture_fixture("import os,time; os.write(1,b'12345'); time.sleep(20)", 4)
+            self.assertLess(time.monotonic() - started, 3)
+            proc = owned[0][0]
+            self.assertIsNone(proc.poll())
+            proc.terminate.assert_called_once()
+            proc.kill.assert_called_once()
+            self.assertEqual(json.loads((self.root / 'capture.json').read_text())['status'], 'unknown')
+            self.assertEqual((self.root / 'capture.json.stdout').read_bytes(), b'1234')
+        finally:
+            # Only the test-created direct child is cleaned up, via its saved real handle.
+            for proc, kill in owned:
+                if proc.poll() is None:
+                    kill()
+                proc.wait(timeout=3)
+
+    def test_runtime_raw_log_unobserved_child_retains_runtime_run_lock(self):
+        self.prepare()
+        receipt = self.root / 'unreaped.json'
+        with mock.patch.object(storage, 'capture_command', side_effect=storage.UnreapedRuntimeCommand('fixture unreaped')):
+            with self.assertRaises(storage.UnreapedRuntimeCommand):
+                storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                 [sys.executable, '-c', 'pass'])
+        self.assertTrue((self.runtime / 'work/.shared-runtime-run-lock').is_dir())
+        self.assertEqual(json.loads(receipt.read_text())['status'], 'unknown')
+
+    def test_runtime_raw_log_cleanup_wait_error_closes_pipes_and_retains_run_lock(self):
+        self.prepare()
+        receipt = self.root / 'wait-error.json'
+        original = subprocess.Popen
+        owned = []
+        def launch(command, *args, **kwargs):
+            proc = original(command, *args, **kwargs)
+            if command[0] == sys.executable:
+                owned.append((proc, proc.kill, proc.wait))
+                proc.terminate = mock.Mock(side_effect=PermissionError('fixture TERM denied'))
+                proc.kill = mock.Mock(side_effect=PermissionError('fixture KILL denied'))
+                proc.wait = mock.Mock(side_effect=OSError('fixture wait failed'))
+            return proc
+        try:
+            with mock.patch.object(storage.subprocess, 'Popen', side_effect=launch), \
+                    mock.patch.object(storage, 'toolchain_identity', return_value={}), \
+                    mock.patch.object(storage, 'RAW_CLEANUP_SECONDS', 0.05):
+                with self.assertRaisesRegex(storage.UnreapedRuntimeCommand, 'exit was not observed'):
+                    storage.execute(self.source, self.revision, self.pool, self.runtime, receipt,
+                                    [sys.executable, '-c', "import os,time; os.write(1,b'12345'); time.sleep(20)"], 4)
+            proc = owned[0][0]
+            self.assertTrue(proc.stdout.closed)
+            self.assertTrue(proc.stderr.closed)
+            self.assertTrue((self.runtime / 'work/.shared-runtime-run-lock').is_dir())
+            self.assertEqual(json.loads(receipt.read_text())['status'], 'unknown')
+        finally:
+            for proc, kill, wait in owned:
+                if proc.poll() is None:
+                    kill()
+                wait(timeout=3)
+
+    def test_runtime_raw_log_overflow_escalates_ignored_term_only_for_owned_child(self):
+        code = "import os,signal,time; signal.signal(signal.SIGTERM,signal.SIG_IGN); os.write(1,b'12345'); time.sleep(20)"
+        with mock.patch.object(storage, 'RAW_CLEANUP_SECONDS', 0.1):
+            result, _ = self.capture_fixture(code, 4)
+        self.assertFalse(result['complete'])
+        self.assertEqual(result['exitCode'], -signal.SIGKILL)
+        self.assertTrue(result['cleanup']['terminateAttempted'])
+        self.assertTrue(result['cleanup']['killAttempted'])
+
+    def test_runtime_raw_log_held_descendant_pipe_is_incomplete_without_signaling_descendant(self):
+        # The descendant finishes itself promptly. It is never signaled by capture.
+        marker = self.root / 'descendant-finished'
+        child = f"import time; from pathlib import Path; time.sleep(0.5); Path({str(marker)!r}).write_text('finished')"
+        code = f"import subprocess,sys; subprocess.Popen([sys.executable,'-c',{child!r}])"
+        with mock.patch.object(storage, 'RAW_CLEANUP_SECONDS', 0.1):
+            result, _ = self.capture_fixture(code, 10)
+        self.assertFalse(result['complete'])
+        self.assertEqual(result['exitCode'], 0)
+        self.assertIn('pipes remained open', result['error'])
+        self.assertFalse(result['cleanup']['terminateAttempted'])
+        self.assertFalse(result['cleanup']['killAttempted'])
+        deadline = time.monotonic() + 3
+        while not marker.exists() and time.monotonic() < deadline:
+            time.sleep(0.02)
+        self.assertEqual(marker.read_text(), 'finished')
+
+    def test_runtime_raw_log_no_output_failure_and_signal_keep_observed_returncode(self):
+        failed, _ = self.capture_fixture('raise SystemExit(7)', 0, 'failed-empty.json')
+        self.assertTrue(failed['complete'])
+        self.assertEqual(failed['exitCode'], 7)
+        killed, _ = self.capture_fixture('import os,signal; os.kill(os.getpid(),signal.SIGTERM)', 0, 'signal.json')
+        self.assertTrue(killed['complete'])
+        self.assertEqual(killed['exitCode'], -signal.SIGTERM)
 
     def test_command_failure_keeps_trustworthy_receipt_and_logs(self):
         self.prepare()
@@ -673,6 +925,101 @@ for suffix in ('', '.stdout', '.stderr'):
                                         [sys.executable, '-c', "raise AssertionError('must not launch')"])
                     self.assertEqual(source.read_bytes(), original_source)
                     self.assertEqual(target.read_bytes(), b'existing evidence' if kind == 'regular' else original_source)
+
+    def ready_fixture(self, *, package=True):
+        self.prepare()
+        store = self.root / 'pnpm-store/v11'
+        (store / 'files').mkdir(parents=True)
+        modules = self.runtime / 'node_modules'
+        virtual = modules / '.pnpm'
+        virtual.mkdir(parents=True)
+        lock = b"lockfileVersion: '9.0'\nimporters:\n  .: {}\n"
+        (self.runtime / 'pnpm-lock.yaml').write_bytes(lock)
+        (virtual / 'lock.yaml').write_bytes(lock)
+        (modules / '.modules.yaml').write_text(json.dumps({
+            'packageManager': 'pnpm@11.25.0', 'nodeLinker': 'isolated',
+            'storeDir': str(store), 'virtualStoreDir': '.pnpm',
+        }))
+        if package:
+            target = virtual / 'example@1/node_modules/example'
+            target.mkdir(parents=True)
+            (target / 'index.js').write_text('export const fixture = true;\n')
+            (modules / 'example').symlink_to('.pnpm/example@1/node_modules/example')
+        return store
+
+    def ready(self, store):
+        return storage.verify_ready(self.source, self.revision, self.pool, self.runtime, store)
+
+    def test_readiness_rejects_absent_dependencies_without_creating_them(self):
+        self.prepare()
+        store = self.root / 'store'
+        (store / 'files').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'Missing physical path'):
+            self.ready(store)
+        self.assertFalse((self.runtime / 'node_modules').exists())
+
+    def test_readiness_rejects_missing_virtual_store_even_with_modules(self):
+        self.prepare()
+        (self.runtime / 'node_modules').mkdir()
+        store = self.root / 'store'
+        (store / 'files').mkdir(parents=True)
+        with self.assertRaisesRegex(ValueError, 'Missing physical path.*[.]pnpm'):
+            self.ready(store)
+        self.assertFalse((self.runtime / 'node_modules/.pnpm').exists())
+
+    def test_readiness_rejects_broken_package_link(self):
+        store = self.ready_fixture()
+        link = self.runtime / 'node_modules/missing'
+        link.symlink_to('.pnpm/absent/node_modules/absent')
+        with self.assertRaises(FileNotFoundError):
+            self.ready(store)
+        self.assertTrue(link.is_symlink())
+
+    def test_readiness_rejects_metadata_only_empty_dependencies(self):
+        store = self.ready_fixture(package=False)
+        with self.assertRaisesRegex(ValueError, 'No installed package files'):
+            self.ready(store)
+
+    def test_readiness_requires_explicit_store(self):
+        self.prepare()
+        with self.assertRaisesRegex(ValueError, 'explicit --dependency-store'):
+            self.ready(None)
+
+    def test_readiness_qualified_valid_layout_is_not_build_or_sharing_proof(self):
+        store = self.ready_fixture()
+        result = self.ready(store)
+        self.assertEqual(result['kind'], 'shared-runtime-readiness')
+        self.assertEqual(result['status'], 'verified')
+        self.assertEqual(result['source']['revision'], self.revision)
+        self.assertEqual(result['installation']['dependencyIdentity']['kind'], 'pnpm')
+        self.assertEqual(result['installation']['packageFiles'], 1)
+        self.assertEqual(result['installation']['sharedFiles'], 0)
+        self.assertIn('not dependency compatibility', result['scope'])
+        self.assertIn('RAM acceptance', result['scope'])
+        self.assertFalse((self.runtime / 'work').exists())
+
+    def test_readiness_rechecks_source_assets_after_installation_audit(self):
+        store = self.ready_fixture()
+        original = storage.verify
+        calls = 0
+        def verify(*args):
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                (self.runtime / 'app/main.js').write_text('changed during audit')
+            return original(*args)
+        with mock.patch.object(storage, 'verify', side_effect=verify):
+            with self.assertRaises(ValueError):
+                self.ready(store)
+        self.assertEqual(calls, 2)
+
+    def test_readiness_cli_requires_store_before_emitting_success(self):
+        self.prepare()
+        args = [str(HELPER), 'ready', '--source', str(self.source),
+                '--revision', self.revision, '--pool', str(self.pool), '--runtime', str(self.runtime)]
+        with mock.patch.object(sys, 'argv', args):
+            with self.assertRaisesRegex(ValueError, 'explicit --dependency-store'):
+                storage.main()
 
     def test_pnpm_directory_links_inside_private_virtual_store_supported(self):
         self.prepare()
