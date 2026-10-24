@@ -167,19 +167,27 @@ terminal logs.
 
 ## Verification command logs
 
-Production verification commands stream raw stdout and stderr into a fresh
-attempt-owned directory below the task's ignored checks directory. The active
-blocked result names its pending capture descriptor before spawning. The terminal
-result's log names the actual unique diagnostic file; never assume a fixed check
-filename. Historical files are retained, including when an injected executor uses
-the legacy string adapter (the original filename is used only if absent).
+Production verification explicitly selects `raw-only-v2` command capture. Raw stdout
+and stderr stream into a fresh attempt-owned directory below the task's ignored
+checks directory. The active blocked result names its pending v2 descriptor before
+spawning. A completed result has a typed `capture.diagnostic` reference (version,
+`utf8-stdout-then-stderr` kind, byte count and SHA-256), alongside capture identity
+and descriptor SHA-256. Neither the result nor its capture names a nonexistent
+`log`, and no `combined.log` is created in this mode.
 
-The raw files are authoritative, with independently observed byte counts and
-SHA-256 hashes. The diagnostic log preserves the historical interpretation:
-stdout decoded with UTF-8 replacement, followed by independently decoded stderr,
-including BOMs and each stream's final incomplete sequence. It is not an
-interleaved transcript. Production outcomes contain bounded metadata, not complete
-raw strings. The public injected-executor string adapter remains supported.
+Raw files remain authoritative, with independently observed byte counts and
+SHA-256 hashes. Finalization computes the exact historical diagnostic size and hash
+with bounded streaming decoding, but does not write that derivative: stdout decoded
+with UTF-8 replacement, then independently decoded stderr, preserving BOMs, NULs
+and each stream's final incomplete sequence, followed by any spawn-error message.
+It is not an interleaved transcript. This still incurs decoding/hash CPU and raw
+read I/O. Production outcomes contain bounded metadata, not complete raw strings.
+
+Direct `captureCommand` callers retain the default `eager-v1` API and its existing
+`combined.log`; opt in to raw-only capture explicitly. Historical descriptors/logs
+are neither converted nor deleted. Injected executors retain their legacy string
+adapter and first filename only if absent; later attempts never truncate it.
+This command-capture version is independent of command-receipt v1/v2 formats.
 
 A capture descriptor is complete only with guard-v1 publication, terminal status,
 publication.complete present, and publication.pending absent. Child close, stream
@@ -189,15 +197,44 @@ identity, close, or publication failure leaves nonpassing guarded evidence and t
 active contract blocked. Only the exact spawned child is terminated on capture
 failure. This does not add process-group ownership or change owned-server cleanup.
 
-This slice removes output-proportional retained parent buffers, not disk growth.
-Synchronous writes of at most 64 KiB apply kernel pipe backpressure without an
-unbounded JavaScript queue; slow storage can delay event-loop timers. The later
-diagnostic pass also uses bounded reads and separate streaming decoders. This is
-not asynchronous filesystem I/O, a hard RSS limit, or a wall-time guarantee.
-Raw and diagnostic files still grow with complete output, and malformed UTF-8 can
-expand the diagnostic representation. Continue resource admission and preserve
-original artifacts; review derivatives never authorize original retirement.
-A justified disk cap and storage retention remain open.
+### On-demand command diagnostics
+
+`materializeCommandDiagnostic(capture, { directory, maxBytes })`, exported by
+`scripts/orchestration/command-log.mjs`, accepts a complete v2 capture reference
+whose `path` is absolute. For a persisted verification result, resolve its relative
+`capture.path` against the original repository root first. Choose a fresh directory
+outside the capture directory and provide an explicit nonnegative byte allowance.
+The function returns a `pnd-materialized-command-diagnostic` file reference only
+when the complete decoded payload fits. It never silently truncates or substitutes
+partial output. Retain the returned materialization reference: its source binding is
+returned to the caller, not persisted as a derivative manifest. The allowance
+includes UTF-8 replacement expansion and spawn-error
+text; there is no implicit allowance and no automatic materialization in verify.
+
+The renderer bounds descriptor JSON at 1 MiB before decoding, checks the expected
+run/version/kind/descriptor hash, requires an empty physical complete guard and no
+pending guard, and validates exact canonical raw paths, sizes and SHA-256 hashes.
+All ancestors and files are pinned and revalidated; symlinks and multiply linked
+files are rejected. FIFO substitutions are opened nonblocking and rejected. Output
+is written to an exclusive, guarded staging directory with bounded chunks, then
+reread for its exact decoded hash. Source/output identity, content and close checks
+must finish before the staging guard is promoted. Failed staging is retained but
+never returned as a successful diagnostic. Sources, prior derivatives and contracts
+are never rewritten, truncated or deleted by rendering.
+
+Rendering is a diagnostic operation, not a check result or evidence promotion.
+It does not make a failed command pass, certify gameplay, redact output or retire
+raw evidence. Existing contract validation/audit and parity measurement do not
+independently certify capture integrity; the materializer validates its own inputs.
+
+Synchronous writes of at most 64 KiB apply pipe backpressure without an unbounded
+JavaScript queue; slow storage can delay event-loop timers. Streaming decoding has
+bounded chunk memory, not a hard RSS or wall-time guarantee. Raw-only capture removes
+the automatically duplicated decoded payload from new production verification
+attempts, not raw disk growth or already-retained files. Optional derivatives still
+consume their allowed bytes. Workload admission, raw disk limits and storage
+retention remain separate work; this is not a permanent global resource-pressure
+fix. Preserve original artifacts; review derivatives never authorize retirement.
 
 ### Owned game-server logs
 

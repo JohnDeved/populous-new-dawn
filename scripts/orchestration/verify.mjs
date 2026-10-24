@@ -57,7 +57,7 @@ export function checkAutomation(check) {
 }
 
 export function runCommand(command, { cwd, env, timeoutMs, captureDirectory }) {
-  return captureCommand(command, { cwd, env, timeoutMs, directory: captureDirectory })
+  return captureCommand(command, { cwd, env, timeoutMs, directory: captureDirectory, diagnosticMode: 'raw-only-v2' })
 }
 
 async function waitForServer(url, timeoutMs, child, failure = () => null) {
@@ -321,7 +321,7 @@ export async function verifyContract(
       const pending = blocked(check, fingerprint, concreteCommand,
         'Execution started; no completed result is available if this run is interrupted')
       if (execute === runCommand) pending.capture = {
-        version: 1, path: relative(repo, join(captureDirectory, 'capture.json')), complete: false,
+        version: 2, path: relative(repo, join(captureDirectory, 'capture.json')), complete: false,
       }
       if (serverSegment) pending.serverCapture = serverSegment.reference
       record(pending)
@@ -368,9 +368,10 @@ export async function verifyContract(
         artifacts,
         reason,
         durationMs,
-        log: relative(repo, log),
+        ...(log ? { log: relative(repo, log) } : {}),
         ...(outcome.capture ? { capture: { ...outcome.capture,
-          path: relative(repo, outcome.capture.path), log: relative(repo, outcome.capture.log) } } : {}),
+          path: relative(repo, outcome.capture.path),
+          ...(outcome.capture.log ? { log: relative(repo, outcome.capture.log) } : {}) } } : {}),
         parityMeasurements: finishMeasurement(measurementBefore, captureMeasurement(repo, concreteCommand, measurementContext), { status: reason ? 'failed' : 'passed', exitCode: outcome.exitCode, finishedAt: new Date().toISOString() }),
         coveredCheckIds: reason ? [] : coverage.filter(item => item.coveredBy === check.id)
           .map(item => item.checkId),

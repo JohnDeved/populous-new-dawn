@@ -1011,6 +1011,7 @@
         "Contract audit",
         "Portable review bundle integrity",
         "Source-bound raw command receipts",
+        "Raw-only verification capture and allowance-bounded on-demand diagnostics",
         "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [

@@ -5,7 +5,7 @@ import fs from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
-import { captureCommand, createServerLog } from '../scripts/orchestration/command-log.mjs'
+import { captureCommand, createServerLog, materializeCommandDiagnostic } from '../scripts/orchestration/command-log.mjs'
 import { startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
 import { browserSourceFingerprint, captureMeasurement, discoverReceipts, evaluateCheck } from '../scripts/parity-measure.mjs'
 import { fingerprintPaths, repositoryCheckCoverage, validateContract } from '../scripts/orchestration/cli.mjs'
@@ -30,9 +30,19 @@ function completed(outcome) {
   assert.equal(metadata.status, 'complete')
   assert.equal(fs.existsSync(join(dirname(path), 'publication.pending')), false)
   assert.equal(fs.existsSync(join(dirname(path), 'publication.complete')), true)
-  for (const stream of [...Object.values(metadata.streams), metadata.log]) {
+  for (const stream of [...Object.values(metadata.streams), ...(metadata.log ? [metadata.log] : [])]) {
     const bytes = fs.readFileSync(stream.path)
     assert.equal(bytes.length, stream.bytes); assert.equal(sha(bytes), stream.sha256)
+  }
+  if (metadata.version === 2) {
+    const expected = Buffer.from(fs.readFileSync(metadata.streams.stdout.path).toString('utf8') +
+      fs.readFileSync(metadata.streams.stderr.path).toString('utf8') + (metadata.error?.message ?? ''))
+    assert.equal(metadata.diagnostic.bytes, expected.length)
+    assert.equal(metadata.diagnostic.sha256, sha(expected))
+    assert.equal(outcome.capture.sha256, sha(fs.readFileSync(path)))
+    assert.equal(Object.hasOwn(metadata, 'log'), false)
+    assert.equal(Object.hasOwn(outcome.capture, 'log'), false)
+    assert.equal(fs.existsSync(join(dirname(path), 'combined.log')), false)
   }
   return metadata
 }
@@ -128,16 +138,20 @@ function fixture(t, { action = "process.stdout.write('check stdout'); process.st
 test('actual copied verify CLI records complete capture, preserves earlier attempts, and retains source identity', t => {
   const f = fixture(t), first = f.run()
   assert.equal(first.status, 0, first.stderr)
-  const old = f.saved().verification.results[0], oldBytes = fs.readFileSync(join(f.repo, old.log))
+  const old = f.saved().verification.results[0]
+  assert.equal(old.capture.version, 2); assert.equal(Object.hasOwn(old, 'log'), false)
+  const oldPath = join(f.repo, old.capture.path), oldBytes = fs.readFileSync(oldPath)
+  const reference = { ...old.capture, path: oldPath }
+  const rendered = materializeCommandDiagnostic(reference, { directory: join(f.repo, 'work/rendered'), maxBytes: 100 })
   assert.equal(old.status, 'passed'); assert.equal(old.capture.complete, true)
   assert.equal(old.testedFingerprint, fingerprintPaths(f.repo, old.inputPaths))
   completed({ capture: { ...old.capture, path: join(f.repo, old.capture.path) } })
   const second = f.run()
   assert.equal(second.status, 0, second.stderr)
   const fresh = f.saved().verification.results[0]
-  assert.notEqual(fresh.log, old.log); assert.notEqual(fresh.capture.path, old.capture.path)
-  assert.deepEqual(fs.readFileSync(join(f.repo, old.log)), oldBytes)
-  assert.equal(oldBytes.toString(), 'check stdoutcheck stderr')
+  assert.equal(Object.hasOwn(fresh, 'log'), false); assert.notEqual(fresh.capture.path, old.capture.path)
+  assert.deepEqual(fs.readFileSync(oldPath), oldBytes)
+  assert.equal(fs.readFileSync(rendered.path, 'utf8'), 'check stdoutcheck stderr')
   validateContract(f.repo, f.saved())
 })
 
@@ -166,7 +180,7 @@ test('actual copied verify CLI keeps failure and source drift nonpassing and lat
 })
 
 test('copied verify CLI persists pending capture before the child and preserves interrupted finalization', async t => {
-  const f = fixture(t, { action: "import { readFileSync } from 'node:fs'; const row=JSON.parse(readFileSync('work/orchestration/task.json')).verification.results[0]; const capture=JSON.parse(readFileSync(row.capture.path)); if(row.status!=='blocked'||row.capture.complete!==false||capture.status!=='pending') throw new Error('not pending before child'); process.stdout.write('partial')" , count: 2 })
+  const f = fixture(t, { action: "import { readFileSync } from 'node:fs'; const row=JSON.parse(readFileSync('work/orchestration/task.json')).verification.results[0]; const capture=JSON.parse(readFileSync(row.capture.path)); if(row.status!=='blocked'||row.capture.complete!==false||row.capture.version!==2||capture.status!=='pending'||capture.version!==2||'log' in capture) throw new Error('not pending before child'); process.stdout.write('partial')" , count: 2 })
   // Interrupt after child close, while the actual verifier starts hashing raw
   // output. No orphan child or process-group ownership is created by this test.
   put(f.repo, 'work/preload.mjs', [
@@ -592,4 +606,221 @@ test('interruption after owned server close but before capture publication canno
     assert(fs.existsSync(join(f.repo, row.serverCapture.log + '.publication.pending')))
     assert(!fs.existsSync(join(f.repo, row.serverCapture.log + '.publication.complete')))
   } finally { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); await closed }
+})
+
+const captureRaw = (root, script, options = {}) => capture(root, script, { diagnosticMode: 'raw-only-v2', ...options })
+const materialize = (root, result, options = {}) => materializeCommandDiagnostic(result.capture,
+  { directory: join(root, 'rendered'), maxBytes: result.capture.diagnostic.bytes, ...options })
+const errorText = error => String(error) + (error.errors ?? []).map(errorText).join('\n')
+const rejectsDiagnostic = (fn, pattern) => assert.throws(fn, error => pattern.test(errorText(error)))
+
+test('raw-only capture avoids the duplicate payload and lazily reconstructs historical decoding exactly', async t => {
+  const root = temporary(t)
+  const stdout = Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.alloc(65532, 120),
+    Buffer.from([0xe2, 0x82, 0xac, 0xff, 0, 0xe2, 0x82])])
+  const stderr = Buffer.from([0xac, 0xef, 0xbb, 0xbf, 0xf0, 0x9f, 0x92, 0xa9, 0xc0, 0x80, 0xe2])
+  put(root, 'out.bin', stdout); put(root, 'err.bin', stderr)
+  const result = await captureRaw(root, "const fs=require('node:fs');fs.writeSync(2,fs.readFileSync('err.bin'));fs.writeSync(1,fs.readFileSync('out.bin'))")
+  const metadata = completed(result), expected = Buffer.from(stdout.toString('utf8') + stderr.toString('utf8'))
+  const paths = fs.readdirSync(join(root, 'capture'))
+  const before = paths.map(path => [path, sha(fs.readFileSync(join(root, 'capture', path)))])
+  assert.equal(metadata.version, 2); assert.equal(result.capture.diagnostic.bytes, expected.length)
+  assert.equal(result.capture.diagnostic.sha256, sha(expected))
+  const rendered = materialize(root, result)
+  assert.deepEqual(fs.readFileSync(rendered.path), expected)
+  assert.equal(rendered.bytes, expected.length); assert.equal(rendered.sha256, sha(expected))
+  assert.equal(fs.existsSync(rendered.publication), true)
+  assert.equal(fs.existsSync(join(dirname(rendered.path), 'publication.pending')), false)
+  assert.deepEqual(fs.readdirSync(join(root, 'capture')), paths)
+  assert.deepEqual(paths.map(path => [path, sha(fs.readFileSync(join(root, 'capture', path)))]), before)
+  assert.equal(fs.readFileSync(rendered.path).length, expected.length)
+})
+
+test('raw-only empty output and spawn error suffix materialize at their exact byte allowances', async t => {
+  const emptyRoot = temporary(t), empty = await captureRaw(emptyRoot, '')
+  completed(empty)
+  assert.equal(materialize(emptyRoot, empty).bytes, 0)
+  const root = temporary(t), failed = await captureCommand([join(root, 'missing-executable')],
+    { cwd: root, env: process.env, timeoutMs: 1000, directory: join(root, 'capture'), diagnosticMode: 'raw-only-v2' })
+  const metadata = completed(failed)
+  assert.equal(failed.exitCode, 1); assert.equal(failed.timedOut, false)
+  assert.equal(fs.readFileSync(materialize(root, failed).path, 'utf8'), metadata.error.message)
+})
+
+test('diagnostic allowance is explicit, exact and counts invalid UTF8 expansion, with no truncation', async t => {
+  const root = temporary(t), result = await captureRaw(root, "process.stdout.write(Buffer.from([255,255,255]))")
+  assert.equal(result.capture.diagnostic.bytes, 9)
+  for (const maxBytes of [undefined, NaN, Infinity, -1, 0, 3, 8, 9.5]) {
+    rejectsDiagnostic(() => materialize(root, result, { maxBytes }), /allowance/)
+    assert.equal(fs.existsSync(join(root, 'rendered')), false)
+  }
+  assert.equal(materialize(root, result, { maxBytes: 9 }).bytes, 9)
+  rejectsDiagnostic(() => materialize(root, result), /incomplete/)
+  assert.equal(fs.readFileSync(join(root, 'rendered/diagnostic.log'), 'utf8'), '\ufffd\ufffd\ufffd')
+})
+
+test('renderer rejects malformed or legacy references before creating derivative paths', async t => {
+  const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out')")
+  for (const reference of [null, { ...result.capture, version: 1 }, { ...result.capture, complete: false },
+    { ...result.capture, path: 'capture/capture.json' }, { ...result.capture, runId: '' },
+    { ...result.capture, sha256: 'bad' }, { ...result.capture, diagnostic: { ...result.capture.diagnostic, kind: 'mixed' } },
+    { ...result.capture, diagnostic: { ...result.capture.diagnostic, bytes: -1 } }]) {
+    assert.throws(() => materializeCommandDiagnostic(reference, { directory: join(root, 'rendered'), maxBytes: 100 }))
+    assert.equal(fs.existsSync(join(root, 'rendered')), false)
+  }
+  for (const directory of [join(root, 'capture'), join(root, 'capture/derived')])
+    assert.throws(() => materialize(root, result, { directory }), /separate/)
+})
+
+test('renderer rejects descriptor tampering, unsupported metadata and external raw paths', async t => {
+  for (const change of [metadata => { metadata.runId = 'wrong' }, metadata => { metadata.version = 3 },
+    metadata => { metadata.publication = 'unknown' }, metadata => { metadata.status = 'pending' },
+    metadata => { metadata.log = 'absent.log' }, metadata => { metadata.diagnostic.kind = 'mixed' },
+    metadata => { metadata.streams.stdout.path = metadata.streams.stdout.path.replace('/capture/', '/') },
+    metadata => { metadata.streams.extra = metadata.streams.stdout }, metadata => { metadata.error = {} }]) {
+    const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out')")
+    const metadata = json(result.capture.path); change(metadata)
+    fs.writeFileSync(result.capture.path, JSON.stringify(metadata))
+    // A new caller-supplied descriptor hash cannot override semantic/path checks.
+    result.capture.sha256 = sha(fs.readFileSync(result.capture.path))
+    rejectsDiagnostic(() => materialize(root, result), /mismatch|Invalid|Exactly|Raw-only/)
+    assert.equal(fs.existsSync(join(root, 'rendered')), false)
+  }
+  const root = temporary(t), result = await captureRaw(root, '')
+  fs.appendFileSync(result.capture.path, ' ')
+  rejectsDiagnostic(() => materialize(root, result), /descriptor hash mismatch/)
+  fs.writeFileSync(result.capture.path, Buffer.alloc(1024 * 1024 + 1, 32))
+  rejectsDiagnostic(() => materialize(root, result), /metadata allowance/)
+})
+
+test('renderer fails closed for absent, aliased, nonempty or conflicting publication guards', async t => {
+  for (const kind of ['missing', 'pending', 'directory', 'symlink', 'hardlink', 'nonempty']) {
+    const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out')")
+    const path = join(root, 'capture/publication.complete')
+    if (kind === 'pending') fs.writeFileSync(join(root, 'capture/publication.pending'), '')
+    else if (kind === 'nonempty') fs.appendFileSync(path, 'bad')
+    else {
+      fs.unlinkSync(path)
+      if (kind === 'directory') fs.mkdirSync(path)
+      if (kind === 'symlink') fs.symlinkSync('stdout.log', path)
+      if (kind === 'hardlink') fs.linkSync(join(root, 'capture/stdout.log'), path)
+    }
+    rejectsDiagnostic(() => materialize(root, result), /incomplete/)
+    assert.equal(fs.existsSync(join(root, 'rendered')), false)
+  }
+})
+
+test('renderer rejects raw mutation, symlink, hardlink and ancestor substitution', async t => {
+  for (const kind of ['content', 'size', 'symlink', 'hardlink', 'ancestor']) {
+    const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out');process.stderr.write('err')")
+    const path = join(root, 'capture/stdout.log')
+    if (kind === 'content') fs.writeFileSync(path, 'bad')
+    if (kind === 'size') fs.appendFileSync(path, 'extra')
+    if (kind === 'symlink' || kind === 'hardlink') {
+      fs.unlinkSync(path)
+      if (kind === 'symlink') fs.symlinkSync('stderr.log', path)
+      else fs.linkSync(join(root, 'capture/stderr.log'), path)
+    }
+    if (kind === 'ancestor') { fs.renameSync(join(root, 'capture'), join(root, 'moved')); fs.symlinkSync('moved', join(root, 'capture')) }
+    rejectsDiagnostic(() => materialize(root, result), /incomplete/)
+    assert.equal(fs.existsSync(join(root, 'rendered/publication.complete')), false)
+  }
+})
+
+test('renderer rechecks previously hashed streams and completion guards before publication', async t => {
+  for (const kind of ['raw', 'pending', 'guard']) {
+    const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out');process.stderr.write('err')")
+    const original = fs.readSync, stderr = fs.statSync(join(root, 'capture/stderr.log')).ino
+    let changed = false
+    fs.readSync = (fd, ...args) => {
+      if (!changed && fs.fstatSync(fd).ino === stderr) {
+        changed = true
+        if (kind === 'raw') fs.writeFileSync(join(root, 'capture/stdout.log'), 'bad')
+        if (kind === 'pending') fs.writeFileSync(join(root, 'capture/publication.pending'), '')
+        if (kind === 'guard') fs.appendFileSync(join(root, 'capture/publication.complete'), 'bad')
+      }
+      return original(fd, ...args)
+    }
+    try { rejectsDiagnostic(() => materialize(root, result), /incomplete/) }
+    finally { fs.readSync = original }
+    assert(changed)
+    assert.equal(fs.existsSync(join(root, 'rendered/publication.complete')), false)
+  }
+})
+
+test('renderer bounds actual emitted bytes even when reference and descriptor collude about size', async t => {
+  const root = temporary(t), result = await captureRaw(root, "process.stdout.write(Buffer.from([255,255,255]))")
+  const metadata = json(result.capture.path)
+  metadata.diagnostic.bytes = 3
+  fs.writeFileSync(result.capture.path, JSON.stringify(metadata))
+  result.capture = { ...result.capture, sha256: sha(fs.readFileSync(result.capture.path)), diagnostic: metadata.diagnostic }
+  rejectsDiagnostic(() => materialize(root, result, { maxBytes: 3 }), /byte allowance/)
+  assert.equal(fs.statSync(join(root, 'rendered/diagnostic.log')).size, 0)
+  assert.equal(fs.existsSync(join(root, 'rendered/publication.complete')), false)
+})
+
+test('renderer leaves failed staging guarded after output write, read, close or publication faults', async t => {
+  for (const fault of ['write', 'read', 'close', 'rename', 'late-output']) {
+    const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out')")
+    const original = { openSync: fs.openSync, writeSync: fs.writeSync, readSync: fs.readSync, closeSync: fs.closeSync, renameSync: fs.renameSync }
+    const paths = new Map()
+    fs.openSync = (path, ...args) => { const fd = original.openSync(path, ...args); paths.set(fd, String(path)); return fd }
+    for (const operation of ['write', 'read']) fs[operation + 'Sync'] = (fd, ...args) => {
+      if (fault === operation && paths.get(fd)?.endsWith('/diagnostic.log')) throw new Error('fixture output ' + operation)
+      return original[operation + 'Sync'](fd, ...args)
+    }
+    fs.closeSync = fd => {
+      const path = paths.get(fd); paths.delete(fd); const value = original.closeSync(fd)
+      if (path?.endsWith('/diagnostic.log')) {
+        if (fault === 'close') throw new Error('fixture output close')
+        if (fault === 'late-output') fs.appendFileSync(path, 'tamper')
+      }
+      return value
+    }
+    fs.renameSync = (from, ...args) => {
+      if (fault === 'rename' && String(from).endsWith('/rendered/publication.pending')) throw new Error('fixture output publication')
+      return original.renameSync(from, ...args)
+    }
+    try { rejectsDiagnostic(() => materialize(root, result), /incomplete|fixture output|changed/) }
+    finally { Object.assign(fs, original) }
+    assert.equal(fs.existsSync(join(root, 'rendered/publication.complete')), false)
+    assert.equal(fs.existsSync(join(root, 'rendered/publication.pending')), true)
+    completed(result)
+  }
+})
+
+test('raw-only finalization and rendering use bounded short writes with no eager diagnostic file', async t => {
+  const root = temporary(t), original = fs.writeSync
+  let largest = 0
+  fs.writeSync = (fd, buffer, offset, length, ...args) => {
+    largest = Math.max(largest, length)
+    return original(fd, buffer, offset, Math.min(length, 137), ...args)
+  }
+  try {
+    const result = await captureRaw(root, "const fs=require('node:fs'), b=Buffer.alloc(65536,255);for(let i=0;i<16;i++){fs.writeSync(1,b);fs.writeSync(2,b)}")
+    completed(result)
+    assert.equal(result.capture.diagnostic.bytes, 6 * 1024 * 1024)
+    const rendered = materialize(root, result)
+    assert.equal(rendered.bytes, 6 * 1024 * 1024)
+    assert(largest <= 64 * 1024)
+  } finally { fs.writeSync = original }
+})
+
+test('renderer rejects a real FIFO raced between input lstat and open without blocking', async t => {
+  const root = temporary(t), result = await captureRaw(root, "process.stdout.write('out')")
+  const path = join(root, 'capture/stdout.log'), original = fs.openSync
+  let changed = false
+  fs.openSync = (name, flags, ...args) => {
+    if (!changed && name === path) {
+      changed = true
+      assert(flags & fs.constants.O_NONBLOCK)
+      fs.unlinkSync(path)
+      execFileSync('mkfifo', [path], { timeout: 2000 })
+    }
+    return original(name, flags, ...args)
+  }
+  try { rejectsDiagnostic(() => materialize(root, result), /incomplete/) }
+  finally { fs.openSync = original }
+  assert(changed)
+  assert.equal(fs.existsSync(join(root, 'rendered')), false)
 })
