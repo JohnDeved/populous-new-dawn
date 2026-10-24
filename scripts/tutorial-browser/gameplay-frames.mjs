@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import { bindGame, showAllMissions } from '../browser-game.mjs'
 import { m2NativePointerTarget } from './frame-export.mjs'
 import { m2HudPoint, m2RouteReady, m2StartupReady } from './m2-pointer-f8.mjs'
+import { observeGameplayResources, captureRetiredGameplayScene, assertResourceLive, summarizeResourceRestart, gameplayResourceLimits, assertResourceScenario } from './gameplay-resource-observer.mjs'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from './gameplay-frame-evidence.mjs'
 
 // Read-only observer. No clocks, simulation state, renderer or picker calls are replaced.
@@ -23,7 +24,8 @@ export function gameplayPhaseSchedule(measuredPhases) {
   return plan.phases.slice(0, lastPhase + 1).map(phase => ({ phase, measured: measuredPhases.includes(phase.name) }))
 }
 
-export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name) }) {
+export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name), resourceLifecycle = false }) {
+  assertResourceScenario(resourceLifecycle, measuredPhases, plan.phases.map(phase => phase.name))
   const schedule = gameplayPhaseSchedule(measuredPhases)
   const report = { schema: 'populous-new-dawn/gameplay-frame-recording', schemaVersion: 1,
     status: 'running', plan, measuredPhases, expectedRevision, phases: [], limits: gameplayFrameLimits }
@@ -45,6 +47,10 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
     await page.mouse.move(900, 400)
+    if (resourceLifecycle) {
+      report.resources = { version: 1, status: 'observing', limits: gameplayResourceLimits, beforeWarmup: await page.evaluate(observeGameplayResources) }
+      assertResourceLive(report.resources.beforeWarmup)
+    }
     report.warmupBefore = await observe()
     await page.waitForTimeout(plan.warmupMs)
     report.warmupAfter = await observe()
@@ -128,10 +134,56 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     }
     report.after = await observe()
     await page.screenshot({ path: resolve(output, 'gameplay-frames-final.png') })
+    if (resourceLifecycle) {
+      report.resources.afterWorkload = await page.evaluate(observeGameplayResources)
+      assertResourceLive(report.resources.afterWorkload)
+      assert.equal(report.resources.afterWorkload.sceneUuid, report.resources.beforeWarmup.sceneUuid)
+      assert.equal(report.resources.afterWorkload.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
+      assert.ok(report.resources.afterWorkload.timestampMs > report.resources.beforeWarmup.timestampMs)
+      assert.ok(report.resources.afterWorkload.turn > report.resources.beforeWarmup.turn)
+      // Dedicated scenario: complete original workload, then one lifecycle episode.
+      report.resources.restart = { status: 'running' }; save()
+      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+      const menu = page.locator('dialog[data-original-pause-menu]')
+      await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
+      await menu.getByRole('button', { name: 'Yes', exact: true }).click()
+      const disposed = await page.waitForFunction(() => window.testScene?.disposed === true)
+      await disposed.dispose()
+      report.resources.restart.retired = await page.evaluate(captureRetiredGameplayScene)
+      save()
+      await bindGame(page)
+      const restarted = await page.waitForFunction(m2StartupReady)
+      const ready = await restarted.jsonValue(); await restarted.dispose()
+      assert.equal(ready.level, 2)
+      if (ready.action === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
+      const rendered = await page.waitForFunction(() => {
+        const memory = window.testSceneRef?.current?.renderer.info.memory
+        return memory?.geometries > 0 && memory?.textures > 0
+      })
+      await rendered.dispose()
+      report.resources.restart.after = await page.evaluate(observeGameplayResources)
+      await page.waitForTimeout(plan.warmupMs)
+      report.resources.restart.settled = await page.evaluate(observeGameplayResources)
+      Object.assign(report.resources.restart, summarizeResourceRestart(report.resources.afterWorkload,
+        report.resources.restart.retired, report.resources.restart.after, report.resources.restart.settled))
+      report.resources.status = 'passed-scoped-lifecycle-observations'
+    }
+
     report.status = 'passed'
     return report
   } catch (error) {
     report.status = 'failed'; report.failure = { message: String(error), stack: error.stack }
     throw error
-  } finally { save() }
+  } finally {
+    // Do not leave test bindings retaining a Scene after success or failure.
+    try {
+      if (resourceLifecycle && !page.isClosed()) await page.evaluate(() => {
+        delete window.testScene; delete window.testSceneRef; delete window.testStore
+      })
+    } catch (cleanupError) {
+      report.status = 'failed'; report.resourceObserverCleanupFailure = String(cleanupError)
+      throw cleanupError
+    } finally { save() }
+  }
 }
