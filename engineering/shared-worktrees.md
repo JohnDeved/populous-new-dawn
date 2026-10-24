@@ -99,6 +99,35 @@ and `.cache`. `node_modules` itself must remain a real local directory. Standalo
 `verify`/`revision` checks these mutable caches, not the installed package inventory;
 `run` additionally binds package bytes and restricts dependency links to that directory.
 
+## Explicit installed-layout readiness
+
+After separately provisioning the private pinned pnpm installation, use the trusted
+source helper to check both source/assets and the installed layout:
+
+```sh
+python3 scripts/orchestration/shared_runtime.py ready \
+  --source "$source" --revision "$exact_commit" \
+  --pool "$disk_root/assets" --runtime "$disk_root/runtime-task" \
+  --dependency-store "$declared_active_pnpm_store"
+```
+
+`ready` requires the explicit actual store path (including its version directory),
+physical `node_modules/.pnpm`, pinned installation metadata, equal desired/installed
+locks, contained resolvable dependency links and nonempty package files. It reuses
+the read-only `shared_setup.py` installation audit and rechecks source/assets after
+that audit. Missing or incomplete setup fails rather than being provisioned or
+repaired. Run this in the serialized resource lane, not during an install.
+
+The qualified `shared-runtime-readiness` result proves only source/assets and
+installed pnpm layout. It does not prove package-to-lock integrity, usable imports,
+native dependencies, check/build/browser success, disk savings or a RAM solution.
+Sharing coverage remains measured, including zero for private copies. Subsequent
+mutations invalidate this point-in-time evidence; no reservation or lock is implied.
+
+`prepare`, `verify`, `revision`, and ordinary `run` retain their existing semantics.
+A dependency-free diagnostic may legitimately pass `run` with dependency kind
+`none` and zero inventory entries; that receipt is not installed-layout readiness.
+
 ## Execution and receipts
 
 Run from the trusted source helper with an exact revision and a fresh receipt path:
