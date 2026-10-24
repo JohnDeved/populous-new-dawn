@@ -215,6 +215,22 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
+  // Terminal CPU-owner guards preserve the active route and recorder epoch.
+  // Bind both the complete frame and terrain producer deltas atomically; keep
+  // every historical route exact. This admits source, not timing equivalence.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'pointer-callback'
+      ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+      : slice.id === 'query-inputs'
+        ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+        : slice.id === 'frame-order'
+          ? { ...slice, sha256: 'cb8253460282f1ca9605e4b7a4d43b6c6a2844816fd53b5e3b01ae2d7514cd08' }
+          : slice.id === 'terrain-producers'
+            ? { ...slice, sha256: '1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012' }
+            : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
