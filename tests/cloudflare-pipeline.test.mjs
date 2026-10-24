@@ -1,12 +1,12 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, readdirSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
-  currentPreview, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
+  currentPreview, buildIdentityPath, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
 import { report, prepare, route, currentSource, productionGate, oneArtifact } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -104,8 +104,9 @@ test('materializer treats output as bytes and discards executable configuration'
   const code = 'throw new Error("MUST NOT EXECUTE")'
   materializeBuild(archive([['server/index.js', code], ['server/wrangler.json', '{"build":{"command":"evil"}}'],
     ['server/package.json', '{"scripts":{"postinstall":"evil"}}'], ['server/.env', 'secret'],
-    ['server/chunks/child.mjs', code], ['client/index.html', '<html/>']]), directory)
+    ['server/chunks/child.mjs', code], ['client/index.html', '<html/>']]), directory, digest)
   assert.equal(readFileSync(join(directory, 'worker/index.js'), 'utf8'), code)
+  assert.equal(readFileSync(join(directory, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${digest}\n`)
   assert.deepEqual(readdirSync(join(directory, 'worker')).sort(), ['chunks', 'index.js'])
   assert.deepEqual(JSON.parse(readFileSync(join(directory, 'wrangler.json'))), fixedConfig())
 })
@@ -114,16 +115,69 @@ test('materializer rejects traversal, symlinks, duplicate paths and unrelated fi
   for (const entry of [['server/../../escape.js', 'x'], ['server/link.js', '/proc/self/environ', 0xa1ff],
     ['package.json', '{}'], ['server/index.js', 'duplicate'], ['server/~/../../escape.js', 'x'],
     ['server/%2e%2e/escape.js', 'x'], ['server/..\\escape.js', 'x'], ['server/chunk;evil.js', 'x']]) {
-    assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], entry]), join(directory, String(Math.random()))))
+    assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], entry]), join(directory, String(Math.random())), digest))
   }
 })
 test('materializer accepts real Vinext tilde chunk names without shell expansion', t => {
   const directory = mkdtempSync(join(tmpdir(), 'cloudflare-chunks-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
   const chunk = '_next/static/framework~index~layout~app-page-cache-Cwzzu7Ov.js'
   const code = 'throw new Error("MUST NOT EXECUTE")'
-  materializeBuild(archive([['server/index.js', `import "./${chunk}"`], [`server/${chunk}`, code], ['client/index.html', '<html/>']]), directory)
+  materializeBuild(archive([['server/index.js', `import "./${chunk}"`], [`server/${chunk}`, code], ['client/index.html', '<html/>']]), directory, digest)
   assert.equal(readFileSync(join(directory, 'worker', chunk), 'utf8'), code)
 })
+
+test('publisher identity preserves original binary bytes and exposes only schema and source SHA', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const bytes = Buffer.from([0, 255, 128, 13, 10])
+  materializeBuild(archive([['server/index.js', 'export default {}'], ['client/data.bin', bytes]]), directory, digest)
+  assert.deepEqual(readFileSync(join(directory, 'client/data.bin')), bytes)
+  assert.equal(readFileSync(join(directory, 'worker/index.js'), 'utf8'), 'export default {}')
+  assert.equal(readFileSync(join(directory, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${digest}\n`)
+  assert.deepEqual(JSON.parse(readFileSync(join(directory, 'wrangler.json'))), fixedConfig())
+})
+test('publisher identity rejects absent or malformed source SHA before any writes', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-invalid-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const zip = archive([['server/index.js', 'x'], ['client/index.html', 'x']])
+  for (const value of [undefined, null, '', 'a'.repeat(39), 'A'.repeat(40), `${digest}\n`, `${digest}\r\n`, `${digest}\nsecret=value`, {}, 1]) {
+    assert.throws(() => materializeBuild(zip, directory, value), /Invalid build identity source SHA/)
+    assert.deepEqual(readdirSync(directory), [])
+  }
+})
+test('reserved identity exact and descendant archive collisions fail before any writes', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-collision-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  for (const name of [`client/${buildIdentityPath}`, `client/${buildIdentityPath}/child.txt`]) {
+    assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x'], [name, 'untrusted']]), directory, digest), /reserved publisher identity/)
+    assert.deepEqual(readdirSync(directory), [])
+  }
+})
+test('publisher identity never overwrites an existing destination marker', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-existing-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  mkdirSync(join(directory, 'client'))
+  const target = join(directory, 'client', buildIdentityPath); writeFileSync(target, 'existing')
+  assert.throws(() => materializeBuild(archive([['server/index.js', 'x'], ['client/index.html', 'x']]), directory, digest), { code: 'EEXIST' })
+  assert.equal(readFileSync(target, 'utf8'), 'existing')
+})
+test('prepare attests API-validated source only after artifact digest validation', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-prepare-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const zip = archive([['server/index.js', 'x'], ['client/index.html', 'x']])
+  for (const badDigest of [true, false]) {
+    const f = fixture(), original = f.api, target = join(directory, String(badDigest))
+    mkdirSync(target)
+    f.api = async path => path === `${prefix}/actions/runs/100/artifacts?per_page=100`
+      ? { total_count: 1, artifacts: [{ id: 401, name: 'cloudflare-dist-100-1', expired: false,
+        size_in_bytes: zip.length, workflow_run: { id: 100 }, digest: `sha256:${badDigest ? '0'.repeat(64) : hash(zip)}` }] }
+      : original(path)
+    f.download = async id => { assert.equal(id, 401); return zip }
+    const prepared = prepare({ ...f, runId: 100, destination: target })
+    if (badDigest) {
+      await assert.rejects(prepared, /SHA-256 mismatch/); assert.deepEqual(readdirSync(target), [])
+    } else {
+      assert.equal((await prepared).sha, f.state.run.head_sha)
+      assert.equal(readFileSync(join(target, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${f.state.run.head_sha}\n`)
+    }
+  }
+})
+
 test('upload parsing requires both exact trusted URLs and an immutable matching version', () => {
   assert.deepEqual(uploadedVersion(upload, alias), { id: version, commitUrl: `https://01234567-${workerHost}`, branchUrl: `https://${alias}-${workerHost}` })
   for (const bad of [upload.replace(workerHost, 'evil.example'), upload.replace('01234567-populous', 'deadbeef-populous'),

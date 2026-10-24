@@ -242,6 +242,32 @@ reviewed fix with a fresh proof-B build, confirm the branch URL moves to B and
 immutable A remains A, and verify the same sticky comment updates truthfully.
 This source change alone is not successful preview or production/cutover proof.
 
+## Public publisher build identity
+
+After validating the GitHub source run, source workflow, current head and artifact
+SHA-256, the trusted publisher adds `/pnd-build-identity.txt` to the static assets.
+It contains exactly `schema=1` and `source_sha=<40 lowercase hex characters>`, one
+line each with a final newline. The SHA comes only from the API-validated source
+run, never artifact metadata, environment variables or application code. No run
+URLs, private configuration, credentials or other metadata are exposed.
+
+The publisher reserves that exact asset path and refuses an archive containing it
+or descendants before writing any files. Invalid source SHAs also fail before
+writes, and exclusive creation prevents overwriting an existing destination file.
+Accepted original asset/module bytes and the fixed ASSETS/IMAGES configuration
+remain unchanged; the marker is one additional publisher-owned plaintext asset.
+
+This is a publisher attestation of the source associated with the validated build
+artifact, not evidence that gameplay or WebGL executed, nor a Worker version ID.
+For served-build proof, read the marker normally on each returned immutable version
+URL and moving branch alias, and compare the exact SHA against the trusted GitHub
+run and publisher version receipt. Recheck the old immutable URL after the alias
+moves. A missing, malformed, unexpected or stale marker is not successful proof.
+The marker does not replace homepage/runtime checks, the Full check, review or the
+staged production/native-build cutover gates. Existing native builds and previously
+published versions do not gain this asset retroactively. Do not reroute blocked
+JavaScript through it or change browser security to obtain evidence.
+
 ## Source verification
 
 Focused offline command: `node --test tests/cloudflare-pipeline.test.mjs`.
