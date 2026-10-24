@@ -1,4 +1,5 @@
 import { packageScriptCommand } from './dependency-profile.mjs'
+import { captureCommand, writeLegacyLog } from './command-log.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -56,28 +57,8 @@ export function checkAutomation(check) {
   return null
 }
 
-export function runCommand(command, { cwd, env, timeoutMs }) {
-  return new Promise(resolve => {
-    const child = spawn(command[0], command.slice(1), { cwd, env, shell: false }),
-      stdout = [],
-      stderr = []
-    child.stdout.on('data', chunk => stdout.push(chunk))
-    child.stderr.on('data', chunk => stderr.push(chunk))
-    const timer = setTimeout(() => child.kill('SIGKILL'), timeoutMs)
-    child.on('error', error => {
-      clearTimeout(timer)
-      resolve({ exitCode: 1, stdout: '', stderr: error.message, timedOut: false })
-    })
-    child.on('close', code => {
-      clearTimeout(timer)
-      resolve({
-        exitCode: code ?? 1,
-        stdout: Buffer.concat(stdout).toString(),
-        stderr: Buffer.concat(stderr).toString(),
-        timedOut: code === null,
-      })
-    })
-  })
+export function runCommand(command, { cwd, env, timeoutMs, captureDirectory }) {
+  return captureCommand(command, { cwd, env, timeoutMs, directory: captureDirectory })
 }
 
 async function waitForServer(url, timeoutMs, child) {
@@ -259,8 +240,13 @@ export async function verifyContract(
         }
       }
       const concreteCommand = commandFor(check, runEnv)
-      record(blocked(check, fingerprint, concreteCommand,
-        'Execution started; no completed result is available if this run is interrupted'))
+      const captureDirectory = join(logDirectory, `${check.id}.${randomUUID()}`)
+      const pending = blocked(check, fingerprint, concreteCommand,
+        'Execution started; no completed result is available if this run is interrupted')
+      if (execute === runCommand) pending.capture = {
+        version: 1, path: relative(repo, join(captureDirectory, 'capture.json')), complete: false,
+      }
+      record(pending)
       const measurementContext = { cwd: safeRepoPath(repo, check.cwd), ownedServerFingerprint: gameServer?.sourceFingerprint ?? null }
       const measurementBefore = captureMeasurement(repo, concreteCommand, measurementContext)
       const started = performance.now(),
@@ -268,10 +254,13 @@ export async function verifyContract(
           cwd: safeRepoPath(repo, check.cwd),
           env: runEnv,
           timeoutMs: TIMEOUT_MS,
+          captureDirectory,
         }),
-        durationMs = Math.round(performance.now() - started),
-        log = join(logDirectory, `${check.id}.log`)
-      writeFileSync(log, `${outcome.stdout}${outcome.stderr}`)
+        durationMs = Math.round(performance.now() - started)
+      if (outcome.capture) assert(outcome.capture.complete === true, 'Command capture is incomplete')
+      const log = outcome.capture?.complete
+          ? outcome.capture.log
+          : writeLegacyLog(logDirectory, check.id, `${outcome.stdout}${outcome.stderr}`)
       const changedState = checkoutState(repo, contract.identity.baseCommit),
         changedFingerprint = fingerprintPaths(repo, check.inputs),
         artifacts = check.expected.artifacts.filter(path =>
@@ -302,6 +291,8 @@ export async function verifyContract(
         reason,
         durationMs,
         log: relative(repo, log),
+        ...(outcome.capture ? { capture: { ...outcome.capture,
+          path: relative(repo, outcome.capture.path), log: relative(repo, outcome.capture.log) } } : {}),
         parityMeasurements: finishMeasurement(measurementBefore, captureMeasurement(repo, concreteCommand, measurementContext), { status: reason ? 'failed' : 'passed', exitCode: outcome.exitCode, finishedAt: new Date().toISOString() }),
         coveredCheckIds: reason ? [] : coverage.filter(item => item.coveredBy === check.id)
           .map(item => item.checkId),
