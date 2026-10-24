@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
   currentPreview, buildIdentityPath, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
-import { report, prepare, route, currentSource, productionGate, oneArtifact } from '../scripts/cloudflare/control.mjs'
+import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const root = new URL('../', import.meta.url), prefix = `/repos/${repository}`
@@ -302,9 +302,12 @@ function productionFixture() {
   const api = async path => {
     if (path === `${prefix}/commits/${main}/pulls?per_page=100`) return state.associated
     if (path === `${prefix}/pulls/7`) return state.pr
-    if (path.startsWith(`${prefix}/actions/workflows/ready-pr-check.yml/runs?`)) return { total_count: 1, workflow_runs: [state.gate] }
+    if (path.startsWith(`${prefix}/actions/workflows/ready-pr-check.yml/runs?`)) {
+      assert.equal(path, `${prefix}/actions/workflows/ready-pr-check.yml/runs?event=pull_request&status=success&head_sha=${state.pr.head.sha}&per_page=100`)
+      const gates = state.listedGates ?? [state.gate]; return { total_count: gates.length, workflow_runs: gates }
+    }
     if (path === `${prefix}/actions/runs/500`) return state.gate
-    if (path === `${prefix}/actions/workflows/50`) return { path: gatePath }
+    if (path === `${prefix}/actions/workflows/50`) return { path: state.workflowPath ?? gatePath }
     if (path === `${prefix}/contents/${gatePath}?ref=${digest}`) return { type: 'file', encoding: 'base64', size: state.workflow.length, content: state.workflow.toString('base64') }
     if (path.startsWith(`${prefix}/actions/runs/500/attempts/`)) return { total_count: state.jobs.length, jobs: state.jobs }
     if (path === `${prefix}/actions/runs/500/artifacts?per_page=100`) return { total_count: 1, artifacts: [{
@@ -324,7 +327,12 @@ test('production rejects mismatched merged PR, workflow, gate and receipt proven
     s => { s.associated = [] }, s => { s.associated.push({ ...s.pr, number: 8 }) },
     s => { s.pr.merged = false }, s => { s.pr.base.ref = 'other' },
     s => { s.gate.head_sha = main }, s => { s.gate.path = '.github/workflows/evil.yml' },
-    s => { s.gate.conclusion = 'cancelled' }, s => { s.gate.pull_requests = [] },
+    s => { s.gate.conclusion = 'cancelled' }, s => { s.gate.pull_requests = [{ number: 8 }] },
+    s => { s.gate.event = 'workflow_dispatch' }, s => { s.gate.status = 'in_progress' },
+    s => { s.gate.repository.full_name = 'other/repo' }, s => { s.gate.head_repository.full_name = 'other/repo' },
+    s => { s.gate.head_branch = 'other' }, s => { s.pr.head.repo = null },
+    s => { s.pr.head.sha = 'invalid' }, s => { s.pr.base.repo.full_name = 'other/repo' },
+    s => { s.workflowPath = '.github/workflows/evil.yml' },
     s => { s.gate.run_attempt = 2 }, s => { s.workflow = Buffer.from('different workflow') },
     s => { s.jobs[0].conclusion = 'failure' }, s => { s.jobs.pop() },
     s => { s.jobs[1].name = 'Another check' }, s => { s.jobs.push({ ...s.jobs[0] }) },
@@ -334,9 +342,81 @@ test('production rejects mismatched merged PR, workflow, gate and receipt proven
     s => { s.receipt.identity.workflowSha256 = '0'.repeat(64) }, s => { s.receipt.identity.treeSha = main },
     s => { s.tree = main }, s => { s.badDigest = true },
   ]
-  for (const [index, mutation] of mutations.entries()) {
-    const f = productionFixture(); mutation(f.state)
-    await assert.rejects(productionGate(f.api, f.download, f.state.source), `Mutation ${index} must reject`)
+  for (const emptyAssociation of [false, true]) for (const [index, mutation] of mutations.entries()) {
+    const f = productionFixture()
+    if (emptyAssociation) f.state.gate.pull_requests = []
+    mutation(f.state)
+    await assert.rejects(productionGate(f.api, f.download, f.state.source), `Mutation ${index}, empty=${emptyAssociation} must reject`)
+  }
+})
+test('production accepts cleared post-merge associations in inventory and refetched runs', async () => {
+  for (const listed of [[], [{ number: 7 }]]) for (const refetched of [[], [{ number: 7 }]]) {
+    const f = productionFixture()
+    f.state.listedGates = [{ ...structuredClone(f.state.gate), pull_requests: listed }]
+    f.state.gate.pull_requests = refetched
+    assert.deepEqual(await productionGate(f.api, f.download, f.state.source), { pr: 7, gate: 500, tree: 'c'.repeat(40) })
+  }
+})
+test('production rejects absent, malformed and conflicting run associations at either snapshot', async () => {
+  for (const invalid of [undefined, null, {}, '7', [null], [{}], [{ number: '7' }], [{ number: 8 }],
+    [{ number: 7 }, { number: 8 }], [{ number: 7 }, { number: 7 }]]) {
+    for (const snapshot of ['inventory', 'refetched']) {
+      const f = productionFixture(); f.state.gate.pull_requests = []
+      f.state.listedGates = [structuredClone(f.state.gate)]
+      const target = snapshot === 'inventory' ? f.state.listedGates[0] : f.state.gate
+      if (invalid === undefined) delete target.pull_requests
+      else target.pull_requests = invalid
+      await assert.rejects(productionGate(f.api, f.download, f.state.source), /No successful trusted ready-PR gate|gate source does not match/)
+    }
+  }
+})
+test('empty metadata never admits an unrelated newer gate from the inventory', async () => {
+  const mutations = [gate => { gate.head_sha = main }, gate => { gate.head_branch = 'other' },
+    gate => { gate.repository.full_name = 'other/repo' }, gate => { gate.head_repository.full_name = 'other/fork' },
+    gate => { gate.path = '.github/workflows/evil.yml' }, gate => { gate.event = 'push' },
+    gate => { gate.conclusion = 'failure' }, gate => { gate.status = 'queued' }]
+  for (const mutation of mutations) {
+    const f = productionFixture(); f.state.gate.pull_requests = []
+    const unrelated = structuredClone(f.state.gate); unrelated.id = 999; mutation(unrelated)
+    f.state.listedGates = [unrelated, f.state.gate]
+    assert.equal((await productionGate(f.api, f.download, f.state.source)).gate, 500)
+    f.state.listedGates = [unrelated]
+    await assert.rejects(productionGate(f.api, f.download, f.state.source), /No successful trusted ready-PR gate/)
+  }
+})
+test('refetched gate identity drift is rejected even when inventory metadata was valid', async () => {
+  for (const mutate of [gate => { gate.head_sha = main }, gate => { gate.head_branch = 'other' },
+    gate => { gate.repository.full_name = 'other/repo' }, gate => { gate.head_repository.full_name = 'other/repo' },
+    gate => { gate.event = 'workflow_dispatch' }, gate => { gate.conclusion = 'failure' },
+    gate => { gate.path = '.github/workflows/evil.yml' }, gate => { gate.id = 501 },
+    gate => { gate.workflow_id = 0 }]) {
+    const f = productionFixture(); f.state.gate.pull_requests = []
+    f.state.listedGates = [structuredClone(f.state.gate)]; mutate(f.state.gate)
+    await assert.rejects(productionGate(f.api, f.download, f.state.source))
+  }
+})
+test('cleared gate associations do not bypass artifact ownership, expiry or digest checks', async () => {
+  for (const mutate of [item => { item.workflow_run.id = 999 }, item => { item.expired = true },
+    item => { item.name = 'full-check-999-1-quality' }, item => { delete item.digest },
+    item => { item.size_in_bytes = 0 }]) {
+    const f = productionFixture(); f.state.gate.pull_requests = []
+    const api = async path => {
+      const response = await f.api(path)
+      if (response.artifacts) mutate(response.artifacts[0])
+      return response
+    }
+    await assert.rejects(productionGate(api, f.download, f.state.source))
+  }
+})
+test('production current-main and source-attempt rechecks still reject stale publication', async () => {
+  for (const drift of ['main', 'attempt']) {
+    const f = fixture(); f.state.run.event = 'push'; f.state.run.head_branch = 'main'; f.state.run.head_sha = main
+    f.state.run.pull_requests = []
+    const state = { source: 100, sourceAttempt: 1, sha: main }
+    await ensureCurrent(f.api, state)
+    if (drift === 'attempt') f.state.run.run_attempt++
+    const api = path => path === `${prefix}/git/ref/heads/main` ? { object: { sha: digest } } : f.api(path)
+    await assert.rejects(ensureCurrent(drift === 'main' ? api : f.api, state))
   }
 })
 test('artifact download verifies SHA-256 before reading even valid ZIP bytes', async () => {
