@@ -284,7 +284,7 @@ async function entityPoint(page, collection, id) {
 async function selectShaman(page) {
   for (let i = 0; i < 2 && (await snapshot(page)).selected.length; i++)
     await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
   assert.ok(
     await page.evaluate(() => {
       const world = window.testStore.getWorld()
