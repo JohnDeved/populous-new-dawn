@@ -321,6 +321,74 @@ def private_runtime_check(binary, libcap, libdir, dependencies, dynamic):
     require(re.search(r'\(NEEDED\).*?\[libcap\.so\.2\]',dynamic), 'Expected libcap dependency missing')
 
 
+def dependency_identity(shared, path, declared):
+    """Read-only alias chain plus canonical bytes; never relax physical writes."""
+    path=Path(path); declared=set(map(str,declared))
+    hosted_entry.tool_root(shared,str(path),declared)
+
+    def trace():
+        pending=list(path.parts[1:]);current=Path('/');chain=[];links=0;steps=0
+        chain.append({'path':'/','kind':'directory','key':shared.inode_key(current.lstat())})
+        while pending:
+            steps+=1;require(steps<=128,'Dependency alias path complexity exceeded')
+            part=pending.pop(0)
+            if part in ('','.'):continue
+            if part=='..':current=current.parent;continue
+            current=current/part
+            require(not any(current==base or current.is_relative_to(base) for base in
+                    map(Path,('/proc','/sys','/dev','/run','/home','/root','/etc'))),
+                    'Dependency alias traverses unsafe root')
+            info=current.lstat();row={'path':str(current),'key':shared.inode_key(info)}
+            if stat.S_ISLNK(info.st_mode):
+                links+=1;require(links<=32,'Dependency alias cycle/depth exceeded')
+                target=os.readlink(current)
+                require(target and len(target)<=4096 and '\0' not in target,'Invalid dependency link target')
+                row.update(kind='link',target=target);chain.append(row)
+                require(shared.inode_key(current.lstat())==row['key'],'Dependency alias changed during read')
+                link=Path(target);pending=list(link.parts[1:] if link.is_absolute() else link.parts)+pending
+                current=Path('/') if link.is_absolute() else current.parent
+            else:
+                require(stat.S_ISDIR(info.st_mode) if pending else stat.S_ISREG(info.st_mode),
+                        'Dependency chain is not directories then a regular file')
+                row['kind']='directory' if pending else 'file';chain.append(row)
+        require(str(current) in declared and shared.safe_tool_root(current),
+                'Canonical dependency target not declared and safe')
+        policy.physical(current)
+        return current,chain
+
+    before,chain=trace()
+    target=shared.file_identity(before)
+    after,after_chain=trace()
+    require(before==after and chain==after_chain and chain[-1]['key']==target['key'],
+            'Dependency alias or canonical target changed during hashing')
+    return {'requestedPath':str(path),'canonicalPath':str(before),'chain':chain,'targetIdentity':target}
+
+
+def dependency_identities(shared, paths):
+    paths=sorted(map(Path,paths)); names=list(map(str,paths))
+    return {str(path):dependency_identity(shared,path,names) for path in paths}
+
+
+def readonly_host_smoke(shared, evidence):
+    """One trusted local ldd/read-only regression; no build or namespace route."""
+    require(sys.platform=='linux','UNSUPPORTED: actual loader regression requires Linux')
+    evidence=policy.physical(evidence)
+    require(evidence.is_dir() and evidence.stat().st_uid==os.getuid() and not any(evidence.iterdir()),
+            'Fresh owned smoke evidence required')
+    gcc=Path('/usr/bin/gcc').resolve(strict=True)
+    loader=Path('/usr/lib64/ld-linux-x86-64.so.2')
+    require(loader.is_symlink() and gcc.is_file(),'Required trusted Linux GCC/loader paths unavailable')
+    paths=setup.dependency_paths(gcc,evidence)
+    paths.update((gcc,Path('/usr/bin/gcc'),loader,loader.resolve(strict=True)))
+    before=dependency_identities(shared,paths)
+    require(before==dependency_identities(shared,paths),'Actual host alias identity changed')
+    require(any(row['kind']=='link' for row in before[str(loader)]['chain']),'Actual loader alias not exercised')
+    return {'kind':'readonly-local-host-dependency-alias-smoke','status':'passed','gcc':str(gcc),
+            'loader':str(loader),'identities':before,'applicationExecuted':False,'compilerExecuted':False,
+            'acquisitionExecuted':False,'namespaceExecuted':False,'browserExecuted':False,
+            'scope':'Local trusted ldd/read-only actual alias behavior only; not hosted build or containment'}
+
+
 def qualify_inputs(shared, root, evidence):
     binary=ordinary_binary(root/'bin/bwrap')
     build=json.loads((root/'records/build.json').read_bytes())
@@ -348,7 +416,7 @@ def qualify_inputs(shared, root, evidence):
     inventories={name:shared.inventory_hash(Path(name)) for name in names}
     setup.save(evidence/'private-runtime.json',{'binary':str(binary),'sha256':policy.sha256_file(binary),
                'libcap':str(libcap),'libcapSha256':policy.sha256_file(libcap),
-               'dependencies':{str(path):policy.sha256_file(path) for path in sorted(dependencies)}})
+               'dependencies':dependency_identities(shared,dependencies)})
     return tools,inventories
 
 
@@ -393,7 +461,7 @@ def run(env):
             for item in [*REQUIRED,str(Path(sys.executable).resolve())]:
                 path=ordinary_binary(item)
                 details['hostTools'][item]={'path':str(path),'sha256':policy.sha256_file(path),
-                    'dependencies':{str(item):policy.sha256_file(item) for item in setup.dependency_paths(path,evidence/'build')},
+                    'dependencies':dependency_identities(shared,setup.dependency_paths(path,evidence/'build')),
                     'version':inspected([str(path),'--version'],evidence/'build','version-'+str(len(details['hostTools'])))}
             # Hash compiler-selected program paths before any compiler feature test.
             for name in ('cc1','as','ld','collect2'):
@@ -403,7 +471,7 @@ def run(env):
                 require(selected is not None,'Missing selected compiler program')
                 selected=ordinary_binary(selected)
                 details['hostTools'][name]={'path':str(selected),'sha256':policy.sha256_file(selected),
-                    'dependencies':{str(item):policy.sha256_file(item) for item in setup.dependency_paths(selected,evidence/'build')}}
+                    'dependencies':dependency_identities(shared,setup.dependency_paths(selected,evidence/'build'))}
             try:
                 hosted_resources.install(shared,watch,evidence/'build',
                     [sys.executable,'-I','-B',str(Path(__file__).resolve()),'_producer',str(root)],
@@ -412,8 +480,8 @@ def run(env):
                 if (root/'records').exists(): shutil.copytree(root/'records',evidence/'build/producer-records')
             for value in details['hostTools'].values():
                 require(policy.sha256_file(value['path'])==value['sha256'],'Build tool changed')
-                require(all(policy.sha256_file(path)==pin for path,pin in value['dependencies'].items()),
-                        'Build tool dependency changed')
+                require(dependency_identities(shared,value['dependencies'])==value['dependencies'],
+                        'Build tool dependency alias/target changed')
             details['sourceInventory']=shared.tree_inventory(root/'source')
             details['privateDependencyInventory']=shared.tree_inventory(root/'sysroot')
             tools,inventories=qualify_inputs(shared,root,evidence/'build')
