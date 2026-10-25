@@ -26,6 +26,7 @@ import controller as policy
 import execution
 import hosted_entry
 import hosted_resources
+import host_metadata
 import prepare_inputs
 import qualification_review
 
@@ -331,6 +332,8 @@ def install(env):
         'npm_config_cache':str(tools_root/'npm-cache'),'npm_config_prefix':str(tools_root/'pnpm-prefix'),
         'PND_MATERIAL_TOOLS':str(tools_root),'PND_MATERIAL_EVIDENCE':str(evidence)}
     with hosted_resources.guard(shared,[workspace/'candidate',tools_root,evidence],evidence/'setup-install') as (watch,details):
+        details['hostMetadata']=host_metadata.collect(env)
+        save(evidence/'setup-install/host-metadata.json',details['hostMetadata'])
         for binary in host_binaries():
             policy.require(os.access(binary,os.X_OK),'Required hosted executable unavailable: '+str(binary))
             dependency_paths(binary,evidence/'setup-install')
