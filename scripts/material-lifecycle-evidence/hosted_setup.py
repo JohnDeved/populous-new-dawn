@@ -193,17 +193,27 @@ def checked_setup(env):
     return workspace,tools_root,evidence,shared
 
 
+def private_npm_configs(root):
+    """Distinct exclusive empty files: npm rejects loading one path twice."""
+    paths = [root/'npm-user.conf', root/'npm-global.conf']
+    for path in paths:
+        fd=os.open(path,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        os.close(fd)
+    return {'NPM_CONFIG_USERCONFIG':str(paths[0]),'NPM_CONFIG_GLOBALCONFIG':str(paths[1])}
+
+
 def install(env):
     workspace,tools_root,evidence,shared=checked_setup(env)
     for name in ('setup-home','setup-tmp','npm-cache','pnpm-prefix'):(tools_root/name).mkdir(mode=0o700)
     environment={'PATH':str(tools_root/'pnpm-prefix/bin')+':'+env['PATH'],'HOME':str(tools_root/'setup-home'),
         'TMPDIR':str(tools_root/'setup-tmp'),'CI':'1','LANG':'C.UTF-8','LC_ALL':'C.UTF-8',
-        'NODE_OPTIONS':'--max-old-space-size=768','NPM_CONFIG_USERCONFIG':'/dev/null','NPM_CONFIG_GLOBALCONFIG':'/dev/null',
+        'NODE_OPTIONS':'--max-old-space-size=768',**private_npm_configs(tools_root),
         'npm_config_cache':str(tools_root/'npm-cache'),'npm_config_prefix':str(tools_root/'pnpm-prefix'),
         'PND_MATERIAL_TOOLS':str(tools_root),'PND_MATERIAL_EVIDENCE':str(evidence)}
     with hosted_resources.guard(shared,[workspace/'candidate',tools_root,evidence],evidence/'setup-install') as (watch,details):
-        details['producer']=hosted_resources.install(shared,watch,evidence/'setup-install',
-            ['/usr/bin/bash',str(HERE/'hosted-install.sh')],workspace/'candidate',environment)
+        details['producer']={}
+        hosted_resources.install(shared,watch,evidence/'setup-install',
+            ['/usr/bin/bash',str(HERE/'hosted-install.sh')],workspace/'candidate',environment,receipt=details['producer'])
     with Path(env['GITHUB_PATH']).open('a') as stream:stream.write(str(tools_root/'pnpm-prefix/bin')+'\n')
     return 0
 
@@ -249,8 +259,9 @@ def acquire(env):
     command=['/usr/bin/curl','--fail','--silent','--show-error','--proto','=https','--tlsv1.2',
              '--max-time','120','--max-filesize',str(ARCHIVE_BYTES),url,'--output',str(root/'browser.zip')]
     with hosted_resources.guard(shared,[workspace/'candidate',root,evidence],evidence/'setup-browser',acquire=True) as (watch,details):
-        details['producer']=hosted_resources.install(shared,watch,evidence/'setup-browser',command,workspace,
-            {'PATH':'/usr/bin:/bin','HOME':str(root/'setup-home'),'LANG':'C.UTF-8','LC_ALL':'C.UTF-8'})
+        details['producer']={}
+        hosted_resources.install(shared,watch,evidence/'setup-browser',command,workspace,
+            {'PATH':'/usr/bin:/bin','HOME':str(root/'setup-home'),'LANG':'C.UTF-8','LC_ALL':'C.UTF-8'},receipt=details['producer'])
         browser=extract(root/'browser.zip',root/'browser')
         details['browser']={'version':policy.BROWSER_VERSION,'url':url,
              'archiveBytes':(root/'browser.zip').stat().st_size,'archiveSha256':policy.sha256_file(root/'browser.zip'),

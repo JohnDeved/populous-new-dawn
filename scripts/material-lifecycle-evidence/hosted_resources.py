@@ -59,18 +59,25 @@ def guard(shared,roots,evidence,*,prepare=False,acquire=False):
             raise
         finally:
             cleanup=time.monotonic()
+            cleanup_observation={'survivors':None,'survivorsObserved':False,'observerFinished':False,'withinDeadline':False}
             try:
                 watch.cleanup()
-                policy.require(not watch.survivors(),'Setup cleanup survivors')
+                cleanup_observation['survivors']=watch.survivors()
+                cleanup_observation['survivorsObserved']=True
+                policy.require(not cleanup_observation['survivors'],'Setup cleanup survivors')
             except BaseException as failure:
+                cleanup_observation['error']=type(failure).__name__+': '+str(failure)
                 error=(error or '')+'; cleanup: '+str(failure)
             try:
                 shared.finish_observer(watch)
+                cleanup_observation['observerFinished']=True
+                cleanup_observation['withinDeadline']=time.monotonic()-cleanup<=limits.cleanup_seconds
                 policy.require(time.monotonic()-cleanup<=limits.cleanup_seconds,'Setup cleanup deadline exceeded')
                 policy.require(watch.report()['sampleCount']>0,'No setup resource observations')
             except BaseException as failure:
+                cleanup_observation['observerError']=type(failure).__name__+': '+str(failure)
                 error=(error or '')+'; joined observer: '+str(failure)
-            terminal={'kind':'material-hosted-setup','error':error,'details':details,'resources':watch.report(),
+            terminal={'kind':'material-hosted-setup','cleanupObservation':cleanup_observation,'error':error,'details':details,'resources':watch.report(),
                 'rootPaths':list(map(str,roots)),'peakUnionAllocatedBytes':watch.setup_peak,
                 'minimumAvailableBytes':watch.minimum_available,'cleanupSeconds':time.monotonic()-cleanup,
                 'scope':'Trusted host setup only; not namespace qualification or browser proof'}
@@ -82,8 +89,10 @@ def guard(shared,roots,evidence,*,prepare=False,acquire=False):
             policy.require(error is None,error or 'Setup failed')
 
 
-def install(shared,watch,evidence,command,cwd,env):
+def install(shared,watch,evidence,command,cwd,env,*,receipt=None):
     """Existing outer gate + pidfds; tiny bounded pipe transport, no new ownership model."""
+    receipt={} if receipt is None else receipt
+    receipt.update(command=command,exitCode=None,waitCompleted=False,waitExitCode=None)
     outer=[str(Path(os.sys.executable).resolve()),'-I','-B',str(shared.__file__),'_outer','610',*command]
     process=subprocess.Popen(outer,cwd=cwd,env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,bufsize=0,start_new_session=True,close_fds=True)
@@ -112,15 +121,20 @@ def install(shared,watch,evidence,command,cwd,env):
                     stored,complete=shared.write_bounded_raw(streams[key.data],data,stored,1024**2)
                     policy.require(complete,'Setup outer raw cap exceeded')
         policy.require(process.returncode==0,'Standard setup command failed')
-        return {'command':command,'exitCode':process.returncode,'wallSeconds':time.monotonic()-started,
-                'observedRawBytes':observed,'storedRawBytes':stored,'directPid':process.pid}
+        return receipt
     finally:
         # The shared pidfd owner retains and cleans descendants even if this
         # direct process exits. No process-name scanning or process-group substitute.
         try:
             if process.poll() is None:watch.cleanup()
-            process.wait(timeout=5)
+            receipt['waitExitCode']=process.wait(timeout=5)
+            receipt['waitCompleted']=True
+        except BaseException as failure:
+            receipt['waitError']=type(failure).__name__+': '+str(failure)
+            raise
         finally:
+            receipt.update(exitCode=process.returncode,wallSeconds=time.monotonic()-started,
+                observedRawBytes=observed,storedRawBytes=stored,directPid=process.pid)
             for stream in streams.values():stream.close()
             for pipe in (process.stdin,process.stdout,process.stderr):
                 if not pipe.closed:pipe.close()
