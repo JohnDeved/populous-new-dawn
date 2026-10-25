@@ -944,6 +944,51 @@ class OwnerWatch:
                     'gateBinding': self.binding, 'history': history}
 
 
+def await_owned_cleanup(watch, limits, evidence, context, *, phase):
+    """Wait for asynchronous owned termination; never turn unknown/live into success."""
+    if 'deadline' not in context:
+        context['deadline'] = time.monotonic() + limits.cleanup_seconds
+    deadline = context['deadline']
+    observations = []
+    error = None
+    accepted = False
+    try:
+        while True:
+            observed_at = time.monotonic()
+            try:
+                before = watch.survivors()
+                before_error = None
+            except Exception as failure:
+                before = None
+                before_error = failure_record(failure)
+            try:
+                watch.cleanup()
+                survivors = watch.survivors()
+                observation_error = None
+            except Exception as failure:
+                survivors = None
+                observation_error = failure_record(failure)
+            finished = time.monotonic()
+            observations.append({'startedMonotonic': observed_at, 'finishedMonotonic': finished,
+                                 'before': before, 'beforeError': before_error,
+                                 'after': survivors, 'afterError': observation_error})
+            require(finished <= deadline, 'Owned cleanup deadline exhausted')
+            if survivors == []:
+                accepted = True
+                return
+            require(finished < deadline, 'Owned cleanup has live or unknown survivors')
+            time.sleep(min(0.03, deadline - finished))
+    except BaseException as failure:
+        error = failure_record(failure)
+        raise
+    finally:
+        save_new(evidence / ('cleanup-observations-' + phase + '.json'),
+                 {'kind': 'bounded-owned-cleanup-observations', 'phase': phase,
+                  'deadlineMonotonic': deadline, 'cleanupSeconds': limits.cleanup_seconds,
+                  'status': 'observed-zero-live-survivors' if accepted else 'failed-or-unknown',
+                  'observations': observations, 'error': error})
+
+
 def finish_observer(watch, *, expected_fault=False, result=None):
     """Shared joined-health gate for application and generated qualifier paths."""
     try:
@@ -1758,6 +1803,7 @@ def qualify_backend(reference, evidence, expected_adapter):
                 make_layout(attempt, stage='run')
                 watch = OwnerWatch(attempt, limits, started)
                 result = None
+                cleanup_context = {}
                 try:
                     mounts = [['rw', str(attempt / 'launch-root'), '/pnd-fixture'],
                               ['ro', str(protected), str(protected)], ['ro', str(HERE), str(HERE)]]
@@ -1790,8 +1836,8 @@ def qualify_backend(reference, evidence, expected_adapter):
                                          producer_receipt=attempt / 'control/producer-ready.json' if name == 'clock' else None)
                     if name == 'observer':
                         watch.snapshot = process_snapshot
-                        watch.cleanup()
                         require_qualifier_observer_failure(result)
+                        await_owned_cleanup(watch, limits, attempt, cleanup_context, phase='observer-recovery')
                         survivors = watch.survivors()
                         require(not survivors, 'Observer failure cleanup was not independently established')
                         save_new(attempt / 'independent-cleanup-proof.json',
@@ -1825,9 +1871,10 @@ def qualify_backend(reference, evidence, expected_adapter):
                     require(tree_inventory(protected) == before, 'Original sentinel or hardlink metadata changed')
                 finally:
                     watch.snapshot = process_snapshot
-                    watch.cleanup()
-                    require(not watch.survivors(), 'Qualification survivor')
-                    finish_observer(watch, expected_fault=name == 'observer', result=result)
+                    try:
+                        await_owned_cleanup(watch, limits, attempt, cleanup_context, phase='final')
+                    finally:
+                        finish_observer(watch, expected_fault=name == 'observer', result=result)
                     if name in results:
                         results[name]['resources'] = watch.report()
             require({str(path): inventory_hash(path) for path in tool_roots} == spec['toolRoots'], 'Qualifier tool input drift')
