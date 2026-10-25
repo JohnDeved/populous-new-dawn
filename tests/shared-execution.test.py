@@ -6,6 +6,7 @@ Live kernel qualification is a distinct explicitly released CLI stage.
 from contextlib import contextmanager
 from dataclasses import asdict, replace
 import copy
+import errno
 import importlib.util
 import io
 import json
@@ -1141,9 +1142,13 @@ class DescendantDiagnosticCase(unittest.TestCase):
                  patch.object(execution.os, 'set_blocking'), \
                  patch.object(execution.os, 'read', return_value=b''), \
                  patch.object(execution, 'ProducerClock', Clock):
-                result = execution.run_payload({'tools': {'python': '/generated/python'}}, {},
-                                               root, command, execution.Limits(), watch)
+                result = execution.run_payload(
+                    {'tools': {'python': '/generated/python', 'readonly': ['/generated/python']}},
+                    {'mounts': [['ro', '/generated/python', '/generated/python']]},
+                    root, command, execution.Limits(), watch)
             self.assertEqual(json.loads((root / 'payload-result.json').read_bytes()), result)
+            self.assertEqual(json.loads((root / 'mount-plan.json').read_bytes())['mounts'][-1],
+                             ['ro', '/generated/python', '/generated/python3'])
             if not observation_fault:
                 self.assertEqual(result['survivors'], [])
                 self.assertEqual(result['initialSurvivors'], first)
@@ -1286,6 +1291,115 @@ class OwnedCleanupWaitCase(unittest.TestCase):
         self.assertEqual(clock.now, 0)
         self.assertEqual(watch.cleanup_calls, 1)
 
+class PythonCommandAliasCase(unittest.TestCase):
+    def plan(self):
+        interpreter = '/qualified/bin/python3.12'
+        return ({'tools': {'python': interpreter, 'readonly': [interpreter]}},
+                {'mounts': [['ro', interpreter, interpreter]], 'unchanged': True})
+
+    def test_old_plan_cannot_resolve_bare_python3(self):
+        spec, plan = self.plan()
+        self.assertNotIn('/qualified/bin/python3', [row[2] for row in plan['mounts']])
+
+    def test_alias_is_exact_readonly_bind_without_mutating_plan(self):
+        spec, plan = self.plan()
+        original = copy.deepcopy(plan)
+        result = execution.with_python_command_alias(spec, plan)
+        self.assertEqual(result['mounts'][-1],
+                         ['ro', '/qualified/bin/python3.12', '/qualified/bin/python3'])
+        self.assertEqual(plan, original)
+        self.assertTrue(result['unchanged'])
+        self.assertEqual(result['pythonCommandAlias'], {
+            'source': '/qualified/bin/python3.12', 'destination': '/qualified/bin/python3',
+            'mode': 'readonly-bind', 'hostPathChanged': False})
+
+    def test_destination_collision_is_rejected(self):
+        spec, plan = self.plan()
+        plan['mounts'].append(['ro', '/other/python3', '/qualified/bin/python3'])
+        with self.assertRaisesRegex(ValueError, 'collision'):
+            execution.with_python_command_alias(spec, plan)
+
+    def test_unpinned_source_is_rejected(self):
+        spec, plan = self.plan()
+        spec['tools']['readonly'] = ['/qualified/bin']
+        with self.assertRaisesRegex(ValueError, 'exact pinned'):
+            execution.with_python_command_alias(spec, plan)
+
+    def test_writable_source_mount_is_rejected(self):
+        spec, plan = self.plan()
+        plan['mounts'][0][0] = 'rw'
+        with self.assertRaisesRegex(ValueError, 'readonly'):
+            execution.with_python_command_alias(spec, plan)
+
+    def test_missing_exact_source_mount_is_rejected(self):
+        spec, plan = self.plan()
+        plan['mounts'] = [['ro', '/qualified/bin', '/qualified/bin']]
+        with self.assertRaisesRegex(ValueError, 'readonly'):
+            execution.with_python_command_alias(spec, plan)
+
+    def test_already_named_python3_has_no_duplicate_mount(self):
+        interpreter = '/qualified/bin/python3'
+        spec = {'tools': {'python': interpreter, 'readonly': [interpreter]}}
+        plan = {'mounts': [['ro', interpreter, interpreter]]}
+        self.assertIs(execution.with_python_command_alias(spec, plan), plan)
+
+    def test_relative_interpreter_path_is_rejected(self):
+        spec, plan = self.plan()
+        spec['tools']['python'] = 'python3.12'
+        with self.assertRaisesRegex(ValueError, 'absolute path'):
+            execution.with_python_command_alias(spec, plan)
+
+
+class ReadonlyExecutableAliasCase(unittest.TestCase):
+    """Generated kernel responses; no real write-open, mount or process."""
+    def invoke(self, *, readonly=True, denial=errno.EACCES, before=(1, 2),
+               after=(1, 2), final_readonly=True):
+        states = [SimpleNamespace(st_dev=dev, st_ino=ino) for dev, ino in (before, after)]
+        flags = [SimpleNamespace(f_flag=os.ST_RDONLY if value else 0)
+                 for value in (readonly, final_readonly)]
+        with patch.object(execution.os, 'stat', side_effect=states), \
+             patch.object(execution.os, 'statvfs', side_effect=flags), \
+             patch.object(execution, 'inode_key', side_effect=lambda info: [info.st_dev, info.st_ino]), \
+             patch.object(execution.os, 'open', return_value=999,
+                          side_effect=OSError(denial, 'generated') if denial else None), \
+             patch.object(execution.os, 'close'):
+            return execution.verify_readonly_executable_alias('/generated/python3', [1, 2])
+
+    def test_permissions_denial_does_not_prove_readonly_mount(self):
+        with self.assertRaisesRegex(ValueError, 'mount is writable'):
+            self.invoke(readonly=False)
+
+    def test_readonly_permissions_denial_is_recorded(self):
+        result = self.invoke()
+        self.assertEqual(result['writeDeniedErrno'], errno.EACCES)
+        self.assertEqual(result['inode'], [1, 2])
+        self.assertTrue(result['readonly'])
+
+    def test_readonly_erofs_is_accepted(self):
+        self.assertEqual(self.invoke(denial=errno.EROFS)['writeDeniedErrno'], errno.EROFS)
+
+    def test_readonly_etxtbsy_is_accepted(self):
+        self.assertEqual(self.invoke(denial=errno.ETXTBSY)['writeDeniedErrno'], errno.ETXTBSY)
+
+    def test_successful_write_open_always_fails(self):
+        with self.assertRaisesRegex(ValueError, 'permits writable access'):
+            self.invoke(denial=None)
+
+    def test_unrelated_error_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'Unexpected'):
+            self.invoke(denial=errno.ENOENT)
+
+    def test_initial_inode_mismatch_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'inode changed'):
+            self.invoke(before=(1, 3))
+
+    def test_inode_drift_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'changed during check'):
+            self.invoke(after=(1, 3))
+
+    def test_mount_flag_drift_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'changed during check'):
+            self.invoke(final_readonly=False)
 
 
 if __name__ == '__main__':
