@@ -207,4 +207,84 @@ class CallerTests(unittest.TestCase):
             p.hosted_resources.owned_tasks(watch,rows)
 
 
+class DependencyAliasTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.shared=p.execution.load_shared({'path':str(HERE/'scripts/orchestration/shared_execution.py'),
+                                           'sha256':p.setup.ADAPTER_SHA})
+
+    def setUp(self):
+        temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup);self.root=Path(temporary.name)
+        self.target=self.root/'loader-real';self.target.write_bytes(b'fixed target')
+        self.link=self.root/'loader';self.link.symlink_to('loader-mid')
+        self.middle=self.root/'loader-mid';self.middle.symlink_to('loader-real')
+        self.paths={self.link,self.target}
+
+    def test_actual_alias_chain_retained_with_canonical_identity(self):
+        result=p.dependency_identities(self.shared,self.paths)
+        self.assertEqual(set(result),set(map(str,self.paths)))
+        row=result[str(self.link)]
+        self.assertEqual(row['canonicalPath'],str(self.target))
+        self.assertEqual(row['targetIdentity']['sha256'],hashlib.sha256(b'fixed target').hexdigest())
+        self.assertEqual([x['target'] for x in row['chain'] if x['kind']=='link'],['loader-mid','loader-real'])
+        self.assertEqual(result,p.dependency_identities(self.shared,self.paths))
+        # The write/physical-file hashing guard is deliberately not relaxed.
+        with self.assertRaisesRegex(ValueError,'Symlink path component'):p.policy.sha256_file(self.link)
+
+    def test_relative_parent_and_directory_alias_chain(self):
+        real=self.root/'lib';real.mkdir();target=real/'loader';target.write_bytes(b'library')
+        alias=self.root/'lib-alias';alias.symlink_to('lib',target_is_directory=True)
+        bin_dir=self.root/'bin';bin_dir.mkdir();link=bin_dir/'loader';link.symlink_to('../lib-alias/loader')
+        row=p.dependency_identity(self.shared,link,{str(link),str(target)})
+        self.assertEqual(row['canonicalPath'],str(target))
+        self.assertEqual(len([x for x in row['chain'] if x['kind']=='link']),2)
+
+    def test_alias_retarget_during_hash_is_rejected(self):
+        other=self.root/'other';other.write_bytes(b'other');real=self.shared.file_identity
+        def change(path,**kwargs):
+            value=real(path,**kwargs);self.middle.unlink();self.middle.symlink_to('other');return value
+        with patch.object(self.shared,'file_identity',side_effect=change),self.assertRaises(Exception):
+            p.dependency_identity(self.shared,self.link,{str(x) for x in [*self.paths,other]})
+
+    def test_target_mutation_during_hash_is_rejected(self):
+        real=self.shared.file_identity
+        def change(path,**kwargs):
+            value=real(path,**kwargs);self.target.write_bytes(b'changed');return value
+        with patch.object(self.shared,'file_identity',side_effect=change),self.assertRaises(Exception):
+            p.dependency_identity(self.shared,self.link,set(map(str,self.paths)))
+
+    def test_missing_undeclared_and_cycle_remain_fail_closed(self):
+        with self.assertRaises(Exception):p.dependency_identity(self.shared,self.link,{str(self.link)})
+        self.middle.unlink();self.middle.symlink_to('missing')
+        with self.assertRaises(Exception):p.dependency_identity(self.shared,self.link,set(map(str,self.paths)))
+        self.middle.unlink();self.middle.symlink_to('loader')
+        with self.assertRaises(Exception):p.dependency_identity(self.shared,self.link,set(map(str,self.paths)))
+
+    @unittest.skipUnless(sys.platform=='linux','UNSUPPORTED: actual Linux loader identity regression not exercised')
+    def test_actual_trusted_linux_loader_alias_without_build_or_namespace(self):
+        output=self.root/'actual-host';output.mkdir(mode=0o700)
+        with patch.multiple(p,acquire=Mock(side_effect=AssertionError('no acquisition')),
+                            producer=Mock(side_effect=AssertionError('no producer')),
+                            configure=Mock(side_effect=AssertionError('no configure')),
+                            command=Mock(side_effect=AssertionError('no build')),
+                            run=Mock(side_effect=AssertionError('no operation')),
+                            qualify=Mock(side_effect=AssertionError('no namespace'))), \
+             patch.object(self.shared,'qualify_backend',side_effect=AssertionError('no backend')):
+            report=p.readonly_host_smoke(self.shared,output)
+        self.assertEqual(report['status'],'passed')
+        self.assertFalse(report['compilerExecuted']);self.assertFalse(report['namespaceExecuted'])
+        self.assertFalse(report['acquisitionExecuted']);self.assertFalse(report['browserExecuted'])
+        command=json.loads((output/'dependency-0/command.json').read_bytes())
+        self.assertEqual(command['exitCode'],0);self.assertTrue(command['waitCompleted'])
+        self.assertLessEqual(sum(path.stat().st_size for path in output.rglob('*') if path.is_file()),8*1024**2)
+        print('ACTUAL_READONLY_LINUX_LOADER_IDENTITY: passed; no compiler/build/acquisition/namespace/browser')
+
+    def test_all_dependency_dictionary_callers_use_alias_identity(self):
+        import ast
+        tree=ast.parse((p.HERE/'bwrap_prerequisites.py').read_text())
+        calls=[n for n in ast.walk(tree) if isinstance(n,ast.Call) and isinstance(n.func,ast.Name)
+               and n.func.id=='dependency_identities']
+        self.assertEqual(len(calls),6) # private runtime, two compiler paths, post-build comparison
+
+
 if __name__=='__main__':unittest.main()

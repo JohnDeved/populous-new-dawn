@@ -2,8 +2,9 @@ import { spawnSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-test('material lifecycle evidence pure suites preserve fail-closed boundaries', () => {
-  // Sequential generated fixtures only: no live install, qualifier or browser.
+test('material lifecycle fixtures and read-only host regression preserve fail-closed boundaries', () => {
+  // Sequential fixtures plus bounded read-only Linux loader identity regression.
+  // No acquisition, compiler build, qualifier or browser.
   for (const suite of ['controller', 'execution', 'fresh-projection', 'hosted-entry', 'hosted-resources', 'hosted-workflow', 'bwrap-prerequisites']) {
     const result = spawnSync('python3', ['-I', '-B', `tests/material-${suite}.test.py`], {
       cwd: new URL('..', import.meta.url),
