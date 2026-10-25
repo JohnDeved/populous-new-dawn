@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import importlib.util
+import io
 import json
 import os
 from pathlib import Path
@@ -48,13 +49,33 @@ def clean(name):
 
 
 class InteropTests(unittest.TestCase):
-    def test_signal_handler_raises_into_owned_cleanup(self):
+    def test_signal_handler_and_public_stage_codes_are_bounded(self):
         with self.assertRaisesRegex(RuntimeError, '^supervisor-interrupted$'):
             run.interrupted(run.signal.SIGTERM, None)
+        output = io.StringIO()
+        with mock.patch.object(run.sys, 'stderr', output):
+            run.public_failure_stage('context')
+            run.public_failure_stage('/private/path-and-environment-value')
+        self.assertEqual(output.getvalue(),
+                         'PND_CMS_INTEROP_FAIL_STAGE=context\nPND_CMS_INTEROP_FAIL_STAGE=unknown\n')
 
     def test_context_requires_exact_bound_identity_and_default_configuration(self):
         env, snapshot = fixture_context(b'workflow')
         self.assertEqual(run.context(env, snapshot, b'workflow'), snapshot['identity'])
+        python_library = str(Path(run.sys.base_prefix).resolve() / 'lib')
+        self.assertEqual(run.context({**env, 'LD_LIBRARY_PATH': python_library}, snapshot, b'workflow'),
+                         snapshot['identity'])
+        # Exact setup-python environment observed in hosted Full433.
+        hosted_prefix = '/opt/hostedtoolcache/Python/3.12.14/x64'
+        with mock.patch.object(run.sys, 'base_prefix', hosted_prefix):
+            self.assertEqual(run.context({**env, 'LD_LIBRARY_PATH': hosted_prefix + '/lib'},
+                                         snapshot, b'workflow'), snapshot['identity'])
+            with self.assertRaises(ValueError):
+                run.context({**env, 'LD_LIBRARY_PATH': hosted_prefix + '/lib:/usr/lib'},
+                            snapshot, b'workflow')
+        for value in (python_library + ':', python_library + ':/unrelated', '/unrelated'):
+            with self.subTest(parent_loader=value), self.assertRaises(ValueError):
+                run.context({**env, 'LD_LIBRARY_PATH': value}, snapshot, b'workflow')
         for key in snapshot['identity']:
             changed = copy.deepcopy(snapshot)
             changed['identity'][key] = True

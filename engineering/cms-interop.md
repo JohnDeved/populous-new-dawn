@@ -7,6 +7,13 @@ external plaintext path, installation, provider override or new permission is us
 The associated key is publicly known: **this recipient must never protect real data**.
 This is not a production key-custody solution.
 
+The parent Python may retain only its own canonical runtime `lib` directory in
+`LD_LIBRARY_PATH`, as used by setup-python. That value is never forwarded to the
+OpenSSL child: its environment is exactly fixed PATH/LANG. Arbitrary/appended
+parent loader paths, LD_PRELOAD and OpenSSL configuration overrides are rejected.
+On failure, only a fixed allowlisted stage token is printed publicly; raw exception
+text, environment values, paths, child logs and payload bytes remain private.
+
 The separate `cms-interop-<run>-<attempt>-quality` artifact contains exactly
 `envelope.cms` and `summary.json`. It is published only after encryption settles
 successfully, strict DER checks confirm AuthEnvelopedData/AES-256-GCM with a

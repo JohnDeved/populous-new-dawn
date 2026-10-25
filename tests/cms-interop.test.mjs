@@ -36,4 +36,5 @@ test('CMS artifact is separate, exact and success-only without changing full-che
   assert.match(entry, /for signum in \(signal\.SIGTERM, signal\.SIGINT\)/)
   assert.match(entry, /signal\.signal\(signum, interrupted\)/)
   assert.doesNotMatch(read('scripts/cms-interop/bounded.py'), /OPENSSL_CONF/)
+  assert.match(read('scripts/cms-interop/bounded.py'), /env=\{'PATH': '\/usr\/bin:\/bin', 'LANG': 'C'\}/)
 })

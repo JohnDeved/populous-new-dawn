@@ -122,7 +122,11 @@ def context(env, snapshot, workflow_bytes):
     require(identity['workflowSha256'] == hashlib.sha256(workflow_bytes).hexdigest(), 'workflow-hash')
     # Refuse overrides rather than changing their meaning or bypassing host policy.
     require(not any(env.get(key) for key in ('OPENSSL_CONF', 'OPENSSL_CONF_INCLUDE',
-            'OPENSSL_MODULES', 'OPENSSL_ENGINES', 'LD_PRELOAD', 'LD_LIBRARY_PATH')), 'crypto-env-override')
+            'OPENSSL_MODULES', 'OPENSSL_ENGINES', 'LD_PRELOAD')), 'crypto-env-override')
+    # setup-python uses its own runtime library directory for the parent Python.
+    # This is not an OpenSSL child setting: bounded.py passes only PATH/LANG.
+    require(env.get('LD_LIBRARY_PATH', '') in ('', str(Path(sys.base_prefix).resolve() / 'lib')),
+            'parent-python-loader-path')
     return dict(identity)
 
 
@@ -163,6 +167,16 @@ def interrupted(signum, frame):
     raise RuntimeError('supervisor-interrupted')
 
 
+def public_failure_stage(stage):
+    if stage not in ('setup', 'context', 'admission', 'inputs', 'version',
+                     'encrypt', 'profile', 'publish'):
+        stage = 'unknown'
+    try:
+        print('PND_CMS_INTEROP_FAIL_STAGE=' + stage, file=sys.stderr, flush=True)
+    except BaseException:
+        pass
+
+
 def main():
     os.umask(0o077)
     start = time.monotonic()
@@ -170,6 +184,7 @@ def main():
     private = None
     bounded = None
     handlers = {}
+    failure_stage = 'setup'
     try:
         for signum in (signal.SIGTERM, signal.SIGINT):
             handlers[signum] = signal.signal(signum, interrupted)
@@ -178,9 +193,11 @@ def main():
         resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
         bounded = module('bounded')
         profile = module('profile')
+        failure_stage = 'context'
         require(Path(os.environ['GITHUB_WORKSPACE']).resolve(strict=True) == ROOT, 'workspace')
         identity = context(os.environ, json.loads(read(ROOT / 'work/ci/before.json'),
                            object_pairs_hook=pairs), read(ROOT / WORKFLOW))
+        failure_stage = 'admission'
         parent = Path(os.environ['RUNNER_TEMP']).resolve(strict=True)
         require(parent.is_dir(), 'runner-temp')
         name = 'pnd-cms-interop-' + identity['runId'] + '-' + identity['runAttempt'] + '-quality'
@@ -192,6 +209,7 @@ def main():
         require(fs.f_bavail * fs.f_frsize >= 2 * 1024**3 and fs.f_favail >= 4096 and
                 available >= 3 * 1024**3, 'host-admission')
         private.mkdir(mode=0o700)
+        failure_stage = 'inputs'
         sources = {path: hashlib.sha256(read(ROOT / path)).hexdigest() for path in SOURCE_PATHS}
         certificate = read(CERT)
         require(hashlib.sha256(certificate).hexdigest() == CERT_SHA256 and
@@ -212,13 +230,17 @@ def main():
                             '-noout'], FILE_CAP),
         }
         supervisor = bounded.Supervisor(deadline, private, commands)
+        failure_stage = 'version'
         terminal(supervisor, 'version', bounded)
         tool['observed_version'] = version_line(read(private / 'version.stdout', private=True))
         tool['version_a_sha256'] = hashlib.sha256(read(private / 'version.stdout', private=True)).hexdigest()
+        failure_stage = 'encrypt'
         terminal(supervisor, 'encrypt', bounded)
+        failure_stage = 'profile'
         cipher = read(private / 'envelope.cms', private=True)
         shape = profile.inspect_cms(cipher, recipient, RAW_BYTES)
         terminal(supervisor, 'cms-inspect', bounded)
+        failure_stage = 'publish'
         require(digest_file(OPENSSL, deadline) == {key: tool[key] for key in ('sha256', 'bytes')}, 'tool-mutated')
         require(all(hashlib.sha256(read(ROOT / path)).hexdigest() == digest
                     for path, digest in sources.items()), 'source-mutated')
@@ -247,7 +269,8 @@ def main():
                 bounded.write_json(private / 'failure.json', {'status': 'failed', 'error_type': type(exc).__name__})
             except BaseException:
                 pass
-        # No raw stderr, paths, exception payload or environment is printed.
+        # Only this allowlisted stage token is public; child raw logs stay private.
+        public_failure_stage(failure_stage)
         return 1
     finally:
         for signum, previous in handlers.items():
