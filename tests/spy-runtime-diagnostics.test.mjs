@@ -13,13 +13,13 @@ test('observer distinguishes living fight ownership from absent native and retai
       { id: 99, team: 'red', kind: 'brave', hp: 0, inside: null, x: 5.6, z: 23.1 }],
     buildings: [{ id: 1022, team: 'red', hp: 400, progress: 1 }],
     objectCells: { objects: new Map([[2170, person]]) }, buildingOrders: { records: { 13: { model: 15 } } } },
-    scene = { world, unitMeshes: new Map([[2170, {}]]), renderer: { domElement: {} } }
-  let callback
+    scene = { world, gameClock: { afterTurn() {} }, unitMeshes: new Map([[2170, {}]]), renderer: { domElement: {} } }
   const context = { structuredClone, window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
-    requestAnimationFrame: fn => { callback = fn; return 1 }, cancelAnimationFrame() {} }
+    requestAnimationFrame: () => { throw Error('Controlled diagnostics must not schedule RAF') }, cancelAnimationFrame() {} }
   const before = structuredClone(world)
-  runInNewContext(`(${installSpySourceObserver.toString()})({spyId:2170,targetId:1022})`, context)
-  callback()
+  runInNewContext(`(${installSpySourceObserver.toString()})({spyId:2170,targetId:1022,controlled:true})`, context)
+  assert.equal(context.window.__pndSpySourceObservation.result.error, null)
+  context.window.__pndSpySourceObservation.sample()
   const { result } = context.window.__pndSpySourceObservation, runtime = result.runtime[0]
   assert.equal(result.error, 'Error: Trained Spy or actual mesh missing', 'acceptance remains strict')
   assert.equal(runtime.unitExists, true); assert.equal(runtime.meshExists, true); assert.equal(runtime.hp, 30)
@@ -29,6 +29,8 @@ test('observer distinguishes living fight ownership from absent native and retai
   assert.deepEqual(Array.from(runtime.nearbyActors, u => u.id), [2178])
   assert.equal(runtime.target.team, 'red'); assert.equal(runtime.target.progress, 1)
   assert.deepEqual(world, before)
+  assert.equal(result.hook.restored, true, 'Diagnostic failure restores its owned clock hook')
   world.buildingOrders.records[13].model = 3
   assert.equal(runtime.owners.fight.orders[1].record.model, 15, 'retained historical order cannot change with the live queue')
 })
+
