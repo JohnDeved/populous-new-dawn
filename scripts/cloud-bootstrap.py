@@ -172,11 +172,16 @@ class Bootstrap:
                            'No old ignored evidence, saves, Ghidra projects, or credentials are reconstructed.',
                            'Version/readiness checks are not browser gameplay, Ghidra analysis, or hardware performance proof.']}
 
-    def run(self, argv, cwd=None, env=None, check=True):
+    def run(self, argv, cwd=None, env=None, check=True, stdout_fd=None):
         index = len(self.commands)
         prefix = self.receipt / f'{index:02d}'
         record = {'argv': [str(x) for x in argv], 'cwd': str(cwd) if cwd else None,
                   'status': 'unknown'}
+        if stdout_fd is not None:
+            output = os.fstat(stdout_fd)
+            record['stdoutSink'] = {'kind': 'held-archive-partial', 'device': output.st_dev,
+                                    'inode': output.st_ino, 'initialBytes': output.st_size}
+            record['stdoutCaptured'] = False  # Payload goes to the held file, not a log.
         self.commands.append(record)
         atomic_json(self.receipt / 'result.json', self.result)
         with prefix.with_suffix('.stdout').open('w') as out, prefix.with_suffix('.stderr').open('w') as err:
@@ -186,7 +191,8 @@ class Bootstrap:
                            GH_PROMPT_DISABLED='1', TMPDIR=str(temporary))
             # A surviving direct child retains ownership if this controller is interrupted.
             inherited = () if self.lock_fd is None else (self.lock_fd,)
-            completed = subprocess.run(record['argv'], cwd=cwd, env=run_env, stdout=out, stderr=err,
+            completed = subprocess.run(record['argv'], cwd=cwd, env=run_env,
+                                       stdout=out if stdout_fd is None else stdout_fd, stderr=err,
                                        timeout=1800, pass_fds=inherited)
         record.update(exitCode=completed.returncode, status='passed' if completed.returncode == 0 else 'failed',
                       stdoutSha256=digest(prefix.with_suffix('.stdout')),
@@ -197,26 +203,115 @@ class Bootstrap:
         return prefix.with_suffix('.stdout').read_text().strip()
 
     def archive(self, item):
-        target = self.cache / (item['sha256'] + '-' + item['archive'])
-        # An explicitly supplied cache is read-only. Do not duplicate multi-GB archives.
-        for candidate in [target, *(root / item['archive'] for root in self.args.cache),
-                          *(root / target.name for root in self.args.cache)]:
-            if candidate.exists():
-                verify(candidate, item['sha256'])
-                return candidate
+        """Resume only an owned single-link regular partial through a held writer.
+
+        The root lock and cache require cooperative ownership. Descriptor-relative
+        checks do not make the whole bootstrap safe against hostile concurrent
+        directory/name replacement or a same-user process altering open inodes.
+        """
+        name = item['sha256'] + '-' + item['archive']
+        if Path(name).name != name or '/' in name or '\\' in name or '\0' in name:
+            raise ValueError('Archive cache name must be a single path component')
+        target = self.cache / name
         self.cache.mkdir(parents=True, exist_ok=True)
-        partial = target.with_name(target.name + '.part')
-        if partial.exists() and digest(partial) == item['sha256']:
-            partial.rename(target)
-            return target
-        if self.args.offline:
-            raise ValueError(f'Offline cache miss: {item["archive"]}')
-        self.run(['curl', '--fail', '--location', '--proto', '=https', '--proto-redir', '=https',
-                  '--connect-timeout', '30', '--max-time', '1800', '--retry', '3',
-                  '--continue-at', '-', '--output', partial, item['url']])
-        verify(partial, item['sha256'])
-        partial.rename(target)
-        return target
+        directory = os.open(self.cache, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        try:
+            if os.fstat(directory).st_uid != os.geteuid():
+                raise ValueError('Archive cache directory is not owned by this user')
+
+            def entry(filename):
+                try:
+                    return os.stat(filename, dir_fd=directory, follow_symlinks=False)
+                except FileNotFoundError:
+                    return None
+
+            def regular(value, filename, links=1):
+                if (value is None or not stat.S_ISREG(value.st_mode)
+                        or value.st_uid != os.geteuid() or value.st_nlink != links):
+                    raise ValueError(f'Unsafe managed archive file preserved: {filename}')
+                return value.st_dev, value.st_ino
+
+            def pinned(fd, filename, links=1):
+                held = os.fstat(fd)
+                if regular(held, filename, links) != regular(entry(filename), filename, links):
+                    raise ValueError(f'Archive file identity changed; preserved: {filename}')
+                return held
+
+            def opened(filename, flags):
+                before = entry(filename)
+                regular(before, filename)
+                fd = os.open(filename, flags | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
+                try:
+                    if regular(before, filename) != regular(pinned(fd, filename), filename):
+                        raise ValueError(f'Archive file identity changed; preserved: {filename}')
+                    return fd
+                except BaseException:
+                    os.close(fd)
+                    raise
+
+            def fingerprint(fd, filename):
+                before = pinned(fd, filename)
+                h, offset = hashlib.sha256(), 0
+                while block := os.pread(fd, 1024 * 1024, offset):
+                    h.update(block)
+                    offset += len(block)
+                after = pinned(fd, filename)
+                if ((before.st_size, before.st_mtime_ns, before.st_ctime_ns)
+                        != (after.st_size, after.st_mtime_ns, after.st_ctime_ns)):
+                    raise ValueError(f'Archive changed while hashing; preserved: {filename}')
+                return h.hexdigest()
+
+            if entry(name) is not None:
+                fd = opened(name, os.O_RDONLY)
+                try:
+                    if fingerprint(fd, name) != item['sha256']:
+                        raise ValueError(f'SHA-256 mismatch or missing file: {target}')
+                    return target
+                finally:
+                    os.close(fd)
+            # Explicit external caches remain read-only; never download into them.
+            for candidate in [*(root / item['archive'] for root in self.args.cache),
+                              *(root / name for root in self.args.cache)]:
+                if candidate.exists():
+                    verify(candidate, item['sha256'])
+                    return candidate
+
+            partial = name + '.part'
+            if entry(partial) is None:
+                if self.args.offline:
+                    raise ValueError(f'Offline cache miss: {item["archive"]}')
+                fd = os.open(partial, os.O_RDWR | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o600, dir_fd=directory)
+            else:
+                fd = opened(partial, os.O_RDWR)
+            try:
+                if fingerprint(fd, partial) != item['sha256']:
+                    if self.args.offline:
+                        raise ValueError(f'Offline cache miss: {item["archive"]}')
+                    size = pinned(fd, partial).st_size
+                    os.lseek(fd, size, os.SEEK_SET)
+                    # Explicit offset: curl cannot infer the size of stdout. Its
+                    # stdout is dup'd from this held descriptor, never reopened by name.
+                    # Curl cannot rewind stdout on retry. Preserve an interrupted
+                    # partial for a later explicit invocation with a fresh offset.
+                    self.run(['curl', '--fail', '--location', '--proto', '=https', '--proto-redir', '=https',
+                              '--connect-timeout', '30', '--max-time', '1800', '--retry', '0',
+                              '--continue-at', str(size), '--output', '-', item['url']], stdout_fd=fd)
+                    if fingerprint(fd, partial) != item['sha256']:
+                        raise ValueError(f'SHA-256 mismatch or missing file: {self.cache / partial}')
+                pinned(fd, partial)
+                # link() is exclusive, unlike rename(): an appearing destination
+                # is preserved, together with the verified partial, on failure.
+                os.link(partial, name, src_dir_fd=directory, dst_dir_fd=directory, follow_symlinks=False)
+                pinned(fd, partial, links=2)
+                pinned(fd, name, links=2)
+                os.unlink(partial, dir_fd=directory)
+                pinned(fd, name)
+                return target
+            finally:
+                os.close(fd)
+        finally:
+            os.close(directory)
 
     def tool(self, name, python=None):
         item = self.manifest['artifacts'][name]

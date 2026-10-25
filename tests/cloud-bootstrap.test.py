@@ -12,6 +12,7 @@ import sys
 import tarfile
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 
 SOURCE = Path(__file__).resolve().parents[1]
@@ -166,9 +167,13 @@ class BootstrapTests(unittest.TestCase):
         def download(argv, **unused):
             calls.append(argv)
             self.assertEqual(partial.read_bytes(), b'arch')
-            self.assertIn('--continue-at', argv)
+            self.assertEqual(argv[argv.index('--continue-at') + 1], '4')
+            self.assertEqual(argv[argv.index('--retry') + 1], '0')
+            self.assertEqual(argv[argv.index('--output') + 1], '-')
             self.assertIn('=https', argv)
-            partial.write_bytes(b'archive')
+            fd = unused['stdout_fd']
+            self.assertEqual(os.fstat(fd).st_ino, partial.stat().st_ino)
+            os.write(fd, b'ive')
         runner.run = download
         self.assertEqual(runner.archive(item), target)
         self.assertEqual(target.read_bytes(), b'archive')
@@ -179,7 +184,7 @@ class BootstrapTests(unittest.TestCase):
     def test_wrong_download_retains_partial_without_publishing(self):
         runner, item = self.runner(), self.item()
         def download(argv, **unused):
-            Path(argv[argv.index('--output') + 1]).write_bytes(b'wrong')
+            os.write(unused['stdout_fd'], b'wrong')
         runner.run = download
         with self.assertRaisesRegex(ValueError, 'SHA-256 mismatch'):
             runner.archive(item)
@@ -192,6 +197,189 @@ class BootstrapTests(unittest.TestCase):
         target.with_name(target.name + '.part').write_bytes(b'archive')
         runner.run = lambda *a, **k: self.fail('network unexpectedly requested')
         self.assertEqual(runner.archive(item), target)
+
+    def unsafe_partial(self, kind):
+        runner, item = self.runner(), self.item()
+        target = runner.cache / (item['sha256'] + '-' + item['archive'])
+        partial = target.with_name(target.name + '.part')
+        outside = self.path / 'outside'
+        outside.write_bytes(b'archive')
+        receipt = runner.receipt / 'keep.json'
+        receipt.write_bytes(b'held evidence')
+        if kind == 'symlink':
+            partial.symlink_to(outside)
+        elif kind == 'dangling':
+            partial.symlink_to(self.path / 'absent')
+        elif kind == 'hardlink':
+            os.link(outside, partial)
+        elif kind == 'fifo':
+            os.mkfifo(partial)
+        else:
+            partial.write_bytes(b'arch')
+        before = partial.lstat()
+        calls = []
+        runner.run = lambda *a, **k: calls.append((a, k))
+        real_stat = os.stat
+        def reported_stat(path, *a, **k):
+            result = real_stat(path, *a, **k)
+            if kind == 'unowned' and (path == partial.name or path == partial):
+                values = list(result)
+                values[4] = os.geteuid() + 1  # Fixture-only foreign ownership, no chown.
+                return os.stat_result(values)
+            return result
+        try:
+            with mock.patch.object(b.os, 'stat', side_effect=reported_stat), \
+                    mock.patch.object(b, 'digest', side_effect=AssertionError('unsafe pathname read attempted')), \
+                    mock.patch.object(b.os, 'pread', side_effect=AssertionError('unsafe descriptor read attempted')):
+                with self.assertRaisesRegex(ValueError, 'Unsafe managed archive file'):
+                    runner.archive(item)
+        finally:
+            self.assertEqual(outside.read_bytes(), b'archive')
+            self.assertFalse((self.path / 'absent').exists())
+            self.assertEqual(receipt.read_bytes(), b'held evidence')
+            self.assertFalse(os.path.lexists(target))
+            after = partial.lstat()
+            self.assertEqual((before.st_dev, before.st_ino, before.st_mode, before.st_nlink),
+                             (after.st_dev, after.st_ino, after.st_mode, after.st_nlink))
+            print(json.dumps({'unsafePartialPreservationAssertionsPassed': kind}), flush=True)
+            self.assertEqual(calls, [], 'unsafe input must not invoke a downloader')
+
+    def test_archive_rejects_symlink_partial_before_read_or_download(self):
+        self.unsafe_partial('symlink')
+
+    def test_archive_rejects_dangling_partial_before_read_or_download(self):
+        self.unsafe_partial('dangling')
+
+    def test_archive_rejects_hardlink_partial_before_read_or_download(self):
+        self.unsafe_partial('hardlink')
+
+    def test_archive_rejects_special_partial_before_read_or_download(self):
+        self.unsafe_partial('fifo')
+
+    def test_archive_rejects_unowned_partial_before_read_or_download(self):
+        self.unsafe_partial('unowned')
+
+    def test_archive_new_partial_is_exclusive_private_and_descriptor_written(self):
+        runner, item = self.runner(), self.item()
+        target = runner.cache / (item['sha256'] + '-' + item['archive'])
+        partial = target.with_name(target.name + '.part')
+        def download(argv, **kwargs):
+            fd = kwargs['stdout_fd']
+            self.assertEqual(argv[argv.index('--continue-at') + 1], '0')
+            self.assertEqual(argv[argv.index('--output') + 1], '-')
+            self.assertEqual(partial.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(partial.stat().st_nlink, 1)
+            self.assertEqual(os.fstat(fd).st_ino, partial.stat().st_ino)
+            os.write(fd, b'archive')
+        runner.run = download
+        self.assertEqual(runner.archive(item), target)
+        self.assertEqual(target.read_bytes(), b'archive')
+        self.assertEqual(target.stat().st_nlink, 1)
+        self.assertFalse(partial.exists())
+
+    def test_archive_creation_race_preserves_appearing_symlink(self):
+        runner, item = self.runner(), self.item()
+        target = runner.cache / (item['sha256'] + '-' + item['archive'])
+        partial = target.with_name(target.name + '.part')
+        outside = self.path / 'outside'
+        outside.write_bytes(b'keep')
+        original = os.open
+        def appeared(path, flags, *a, **k):
+            if path == partial.name and flags & os.O_CREAT:
+                partial.symlink_to(outside)
+            return original(path, flags, *a, **k)
+        runner.run = lambda *a, **k: self.fail('download unexpectedly requested')
+        with mock.patch.object(b.os, 'open', side_effect=appeared):
+            with self.assertRaises(FileExistsError):
+                runner.archive(item)
+        self.assertTrue(partial.is_symlink())
+        self.assertEqual(outside.read_bytes(), b'keep')
+        self.assertFalse(target.exists())
+
+    def test_archive_replaced_partial_cannot_redirect_held_writer(self):
+        runner, item = self.runner(), self.item()
+        target = runner.cache / (item['sha256'] + '-' + item['archive'])
+        partial = target.with_name(target.name + '.part')
+        partial.write_bytes(b'arch')
+        outside = self.path / 'outside'
+        outside.write_bytes(b'keep')
+        held_copy = runner.cache / 'interrupted-original.part'
+        def download(argv, **kwargs):
+            fd = kwargs['stdout_fd']
+            self.assertEqual(os.fstat(fd).st_ino, partial.stat().st_ino)
+            partial.rename(held_copy)
+            partial.symlink_to(outside)
+            os.write(fd, b'ive')
+        runner.run = download
+        with self.assertRaisesRegex(ValueError, 'Unsafe managed archive file|identity changed'):
+            runner.archive(item)
+        self.assertEqual(outside.read_bytes(), b'keep')
+        self.assertEqual(held_copy.read_bytes(), b'archive')
+        self.assertTrue(partial.is_symlink())
+        self.assertFalse(target.exists())
+
+    def test_archive_publication_never_clobbers_appearing_target(self):
+        runner, item = self.runner(), self.item()
+        target = runner.cache / (item['sha256'] + '-' + item['archive'])
+        partial = target.with_name(target.name + '.part')
+        def download(argv, **kwargs):
+            os.write(kwargs['stdout_fd'], b'archive')
+            target.write_bytes(b'keep')
+        runner.run = download
+        with self.assertRaises(FileExistsError):
+            runner.archive(item)
+        self.assertEqual(target.read_bytes(), b'keep')
+        self.assertEqual(partial.read_bytes(), b'archive')
+        self.assertEqual(partial.stat().st_nlink, 1)
+
+    def test_archive_interrupted_transfer_requires_explicit_resume_with_fresh_offset(self):
+        runner, item = self.runner(), self.item()
+        target = runner.cache / (item['sha256'] + '-' + item['archive'])
+        partial = target.with_name(target.name + '.part')
+        partial.write_bytes(b'ar')
+        original_inode = partial.stat().st_ino
+        receipt = runner.receipt / 'keep.json'
+        receipt.write_bytes(b'held evidence')
+        offsets = []
+        def download(argv, **kwargs):
+            self.assertEqual(argv[argv.index('--retry') + 1], '0')
+            self.assertEqual(argv[argv.index('--output') + 1], '-')
+            offsets.append(int(argv[argv.index('--continue-at') + 1]))
+            if len(offsets) == 1:
+                os.write(kwargs['stdout_fd'], b'ch')
+                raise RuntimeError('mock download interrupted')
+            os.write(kwargs['stdout_fd'], b'ive')
+        runner.run = download
+        with self.assertRaisesRegex(RuntimeError, 'mock download interrupted'):
+            runner.archive(item)
+        self.assertEqual(offsets, [2])  # No implicit retry or replacement loop.
+        self.assertEqual(partial.read_bytes(), b'arch')
+        self.assertEqual(partial.stat().st_ino, original_inode)
+        self.assertEqual(partial.stat().st_nlink, 1)
+        self.assertEqual(receipt.read_bytes(), b'held evidence')
+        self.assertFalse(target.exists())
+        self.assertEqual(runner.archive(item), target)  # Separate explicit invocation.
+        self.assertEqual(offsets, [2, 4])
+        self.assertEqual(target.read_bytes(), b'archive')
+        self.assertEqual(target.stat().st_ino, original_inode)
+        self.assertEqual(target.stat().st_nlink, 1)
+        self.assertFalse(partial.exists())
+        self.assertEqual(receipt.read_bytes(), b'held evidence')
+
+    def test_archive_sink_is_passed_as_stdout_not_reopened_by_subprocess(self):
+        runner = self.runner()
+        partial = self.path / 'partial'
+        with partial.open('xb') as stream:
+            def child(argv, **kwargs):
+                self.assertEqual(kwargs['stdout'], stream.fileno())
+                os.write(kwargs['stdout'], b'archive')
+                return subprocess.CompletedProcess(argv, 0)
+            with mock.patch.object(b.subprocess, 'run', side_effect=child):
+                self.assertEqual(runner.run(['curl', '--output', '-'], stdout_fd=stream.fileno()), '')
+        self.assertEqual(partial.read_bytes(), b'archive')
+        self.assertFalse(runner.commands[0]['stdoutCaptured'])
+        self.assertEqual(runner.commands[0]['stdoutSink']['kind'], 'held-archive-partial')
+        self.assertEqual(runner.commands[0]['stdoutSha256'], hashlib.sha256(b'').hexdigest())
 
     def test_tool_is_staged_verified_and_reused_without_copy(self):
         source = self.path / 'source'
