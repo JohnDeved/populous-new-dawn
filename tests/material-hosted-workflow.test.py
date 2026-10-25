@@ -11,7 +11,6 @@ import types
 import unittest
 from unittest.mock import patch
 import zipfile
-import yaml
 sys.dont_write_bytecode=True
 ROOT=Path(__file__).resolve().parents[1]
 HERE=ROOT/'scripts/material-lifecycle-evidence'
@@ -143,7 +142,10 @@ class WorkflowTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.text=(ROOT/'.github/workflows/native-ui-evidence.yml').read_text()
-        cls.workflow=yaml.load(cls.text,Loader=yaml.BaseLoader)
+        parsed=subprocess.run(['node','--input-type=module','-e',
+            "import fs from 'node:fs'; import yaml from 'js-yaml'; process.stdout.write(JSON.stringify(yaml.load(fs.readFileSync(0,'utf8'), {schema: yaml.FAILSAFE_SCHEMA})));"],
+            input=cls.text,text=True,capture_output=True,cwd=ROOT,timeout=5,check=True)
+        cls.workflow=json.loads(parsed.stdout)
         cls.steps=cls.workflow['jobs']['evidence']['steps']
     def test_existing_workflow_manual_readonly_default_unchanged(self):
         self.assertEqual(set(self.workflow['on']),{'workflow_dispatch'})
