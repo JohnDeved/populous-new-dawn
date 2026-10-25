@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Plan or create a bound source-only workspace; explicitly recover native tools.
+"""Plan or create a bound source-only workspace; native recovery is disabled.
 
 Host prerequisites: Linux x86_64, Python 3.12 with venv, git, curl, Node >=22.13,
 for native recovery. Source-only mode needs Python and Git, not native tools.
@@ -504,7 +504,7 @@ def main():
     parser.add_argument('--mode', choices=('source', 'runtime', 'prerequisites'), default='source')
     action = parser.add_mutually_exclusive_group()
     action.add_argument('--plan', '--dry-run', action='store_true', help='Read-only planning (default)')
-    action.add_argument('--apply', action='store_true', help='Create source-only workspace or explicitly recover prerequisites')
+    action.add_argument('--apply', action='store_true', help='Create a source-only workspace (native recovery is disabled)')
     parser.add_argument('--binding', type=Path, help='Existing environment-owned storage binding')
     parser.add_argument('--binding-sha256', help='Explicit approved binding fingerprint')
     parser.add_argument('--source', type=Path, help='Existing clean local exact-source donor')
@@ -514,7 +514,7 @@ def main():
     parser.add_argument('--cache', type=Path, action='append', default=[], help='Read-only archive cache; repeatable')
     parser.add_argument('--reuse-prerequisites', type=Path, help='Explicitly trusted existing tools/venv, verified before reuse')
     parser.add_argument('--offline', action='store_true', help='No artifact downloads, pip downloads or git fetches')
-    parser.add_argument('--prerequisites-only', action='store_true', help='Recover tools/input without creating a checkout')
+    parser.add_argument('--prerequisites-only', action='store_true', help='Legacy native selector; fails closed pending bounded execution qualification')
     parser.add_argument('--ref', help='Exact 40-character commit SHA for warm provisioning')
     parser.add_argument('--worktree', help='Explicit stable worker name under the bound private workspace root')
     args = parser.parse_args()
@@ -523,6 +523,9 @@ def main():
             if args.mode != 'source':
                 raise ValueError('Use either --mode prerequisites or --prerequisites-only')
             args.mode = 'prerequisites'
+        if args.mode == 'prerequisites':
+            raise ValueError('Native prerequisite recovery is disabled: bounded native execution '
+                             'and extraction are not qualified; use source mode for warm workspace setup')
         if args.mode != 'prerequisites':
             if args.root or args.cache or args.reuse_prerequisites:
                 raise ValueError('Recovery roots/cache options are separate from warm storage bindings')
@@ -532,13 +535,6 @@ def main():
             sys.path.insert(0, str(SOURCE / 'scripts/orchestration'))
             from shared_workspace import execute
             print(json.dumps(execute(args), indent=2))
-        else:
-            if not args.root or not args.apply:
-                raise ValueError('Native recovery requires explicit --root and --apply; no implicit downloads')
-            if args.binding or args.source or args.worktree or args.ref:
-                raise ValueError('Native recovery does not provision workspaces; use a separate warm invocation')
-            args.prerequisites_only = True
-            Bootstrap(args, json.loads(MANIFEST.read_text())).execute()
     except (ValueError, RuntimeError, OSError, KeyError, subprocess.SubprocessError) as error:
         parser.exit(1, f'Bootstrap blocked: {error}\n')
 

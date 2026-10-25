@@ -7,8 +7,9 @@ hash-pinned download/extraction helpers remain separate from warm workspace setu
 
 **Current boundary:** the source-only implementation and nonexecuting runtime
 plan received scoped independent review with 24 retained and 36 new offline fixtures.
-Current-main integration and the historical native prerequisite recovery still need
-their own final acceptance; the old report of 24 fixtures does not establish it.
+Current-main integration still needs its own final acceptance. Native prerequisite
+recovery is disabled at the CLI before manifest reads or construction of its runner;
+the old report of 24 fixtures does not qualify bounded native execution.
 Runtime execution remains disabled pending a reviewed write-enforcing adapter,
 resource admission and real acceptance. This is not a completed permanent storage
 or RAM solution, a configured startup service, or a disk-persistence promise.
@@ -135,20 +136,19 @@ A maintained implementation still needs:
 
 ## Explicit native prerequisite recovery
 
-The historical pinned recovery components remain available only through explicit
-`--mode prerequisites --apply --root ...` (or the `--prerequisites-only` alias plus
-`--apply`). They recover tools/input, not workspaces or per-worker npm installations:
+The historical pinned recovery implementation and inputs are retained for review,
+not executable through this CLI. Both `--mode prerequisites` and the
+`--prerequisites-only` alias fail closed before manifest reads, runner construction,
+recovery directories, logs, subprocesses, downloads or extraction, with or without
+`--apply`, `--offline` or recovery-root options. This is an implementation/resource
+qualification boundary, not a request for additional ordinary user approval.
 
-```sh
-python3 scripts/cloud-bootstrap.py --mode prerequisites --apply \
-  --root "$owned_recovery_root" --reuse-prerequisites "$surviving_prerequisites" \
-  --cache "$surviving_archive_cache" --offline
-```
-
-Host prerequisites remain Linux x86_64, Python 3.12 with venv, Git, curl and Node
->=22.13.0. Non-offline recovery is an explicit separate operation, subject to the
-normal authorized sources, resource lane and verification requirements. The old
-full-worktree + per-worker `npm ci` path is retired, not a fallback.
+Re-enabling this lane requires reviewed and tested bounded subprocess output,
+process-tree cleanup, archive/extraction allocation admission and qualification of
+the actual native tool closure, followed by a serialized bounded recovery. Python-only
+or warm source-only fixtures do not establish those properties. Do not invoke the
+retained internal recovery helpers as a workaround. The old full-worktree + per-worker
+`npm ci` path remains retired, not a fallback.
 
 Unchanged recovery components retain exact game/archive/EXE and tool hashes,
 staged extraction, containment checks, resumable verified downloads, hash-locked

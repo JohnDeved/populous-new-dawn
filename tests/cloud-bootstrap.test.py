@@ -1,5 +1,7 @@
 """Small isolated recovery regressions; no production downloads or original EXE execution."""
 import argparse
+from contextlib import ExitStack
+import types
 import fcntl
 import hashlib
 import importlib.util
@@ -528,6 +530,56 @@ class BootstrapTests(unittest.TestCase):
             self.assertTrue(item['url'].startswith('https://'))
             self.assertGreater(item['files'], 0)
 
+
+
+class NativeCliGateTests(unittest.TestCase):
+    def test_native_selectors_fail_closed_before_side_effects(self):
+        for selector in (['--mode', 'prerequisites'], ['--prerequisites-only'],
+                         ['--mode', 'source', '--prerequisites-only']):
+            for options in ([], ['--plan'], ['--apply'],
+                            ['--apply', '--root', '/unused-native-root'],
+                            ['--apply', '--root', '/unused-native-root', '--offline'],
+                            ['--apply', '--root', '/unused-native-root', '--cache', '/unused-cache',
+                             '--reuse-prerequisites', '/unused-tools', '--source', '/unused-source']):
+                with self.subTest(selector=selector, options=options), ExitStack() as stack:
+                    stack.enter_context(mock.patch.object(sys, 'argv', ['bootstrap'] + selector + options))
+                    stderr = stack.enter_context(mock.patch.object(sys, 'stderr', new_callable=io.StringIO))
+                    guards = [stack.enter_context(mock.patch(target, side_effect=AssertionError(target)))
+                              for target in ('builtins.open', 'io.open', 'os.open', 'os.mkdir',
+                                             'subprocess.Popen', 'socket.socket.connect',
+                                             'tempfile.mkdtemp')]
+                    constructor = stack.enter_context(mock.patch.object(
+                        b, 'Bootstrap', side_effect=AssertionError('Native constructor reached')))
+                    with self.assertRaises(SystemExit) as raised:
+                        b.main()
+                    self.assertEqual(raised.exception.code, 1)
+                    self.assertIn('Native prerequisite recovery is disabled: bounded native execution '
+                                  'and extraction are not qualified', stderr.getvalue())
+                    constructor.assert_not_called()
+                    for guard in guards:
+                        guard.assert_not_called()
+
+    def test_warm_cli_dispatch_is_unchanged(self):
+        for mode in ([], ['--mode', 'source'], ['--mode', 'runtime']):
+            for action in ([], ['--plan'], ['--apply']):
+                with self.subTest(mode=mode, action=action):
+                    execute = mock.Mock(return_value={'status': 'fixture-dispatch-only'})
+                    module = types.ModuleType('shared_workspace')
+                    module.execute = execute
+                    argv = ['bootstrap', '--source', '/fixture-source', '--binding', '/fixture-binding']
+                    with mock.patch.object(sys, 'argv', argv + mode + action), \
+                         mock.patch.dict(sys.modules, {'shared_workspace': module}), \
+                         mock.patch.object(sys, 'path', list(sys.path)), \
+                         mock.patch.object(sys, 'dont_write_bytecode', True), \
+                         mock.patch.object(b, 'Bootstrap', side_effect=AssertionError('Native constructor reached')), \
+                         mock.patch('builtins.print'):
+                        b.main()
+                    execute.assert_called_once()
+                    args = execute.call_args.args[0]
+                    self.assertEqual(args.mode, mode[-1] if mode else 'source')
+                    self.assertEqual(args.apply, action == ['--apply'])
+                    self.assertEqual(args.source, Path('/fixture-source'))
+                    self.assertEqual(args.binding, Path('/fixture-binding'))
 
 if __name__ == '__main__':
     unittest.main()
