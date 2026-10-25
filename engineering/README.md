@@ -120,6 +120,9 @@ pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pn
 - Optional `prepare`, `verify`, `audit`, and specialist role packets are documented in
   [contracts](contracts.md). They check scope/fingerprints and execute allowlisted
   checks; they never grant recording authority. Their use is not an acceptance claim.
+  Production verification retains raw-only command capture; decoded diagnostics are
+  optional allowance-bounded derivatives, not automatic duplicate files. See
+  [command diagnostics](contracts.md#on-demand-command-diagnostics) for safe materialization.
 
 There is no mandatory Local Dev binding, source-release handshake, delivery-clock
 ledger, separate reviewer chat, or browser-driven worker watcher. Use the executor's

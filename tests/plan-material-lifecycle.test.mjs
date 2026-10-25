@@ -42,7 +42,9 @@ async function setup(t, count = 1) {
     globe: Object.assign(new THREE.Group(), { dispose: noop }),
     waterMap: new THREE.Texture(),
     terrainMap: new THREE.Texture(),
-    renderer: { dispose: noop, domElement: { remove: noop } },
+    terrainUpload: new THREE.DataTexture(),
+    minimap: { revision: undefined },
+    renderer: { dispose: noop, domElement: { remove: noop }, forceContextLoss: noop },
     cancelTooltipInspection: noop,
     tooltipElement: { remove: noop },
     pointerOutline: { remove: noop },
@@ -61,11 +63,14 @@ async function setup(t, count = 1) {
   }
   const dispose = () => GameScene.prototype.dispose.call(scene)
   t.after(() => {
-    dispose()
-    observations.forEach(remove => remove())
-    // Restore the pre-existing fixture's texture/DOM leaves. Its own cleanup
-    // is outside the observed application lifecycle and has no GPU resources.
-    fixture.close()
+    try {
+      dispose()
+    } finally {
+      observations.forEach(remove => remove())
+      // Restore the pre-existing fixture's texture/DOM leaves. Its own cleanup
+      // is outside the observed application lifecycle and has no GPU resources.
+      fixture.close()
+    }
   })
   return { ...fixture, world, add, watch, dispose, prepare: () => scene.view.prepare(scene.scene) }
 }

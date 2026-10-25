@@ -99,6 +99,35 @@ and `.cache`. `node_modules` itself must remain a real local directory. Standalo
 `verify`/`revision` checks these mutable caches, not the installed package inventory;
 `run` additionally binds package bytes and restricts dependency links to that directory.
 
+## Explicit installed-layout readiness
+
+After separately provisioning the private pinned pnpm installation, use the trusted
+source helper to check both source/assets and the installed layout:
+
+```sh
+python3 scripts/orchestration/shared_runtime.py ready \
+  --source "$source" --revision "$exact_commit" \
+  --pool "$disk_root/assets" --runtime "$disk_root/runtime-task" \
+  --dependency-store "$declared_active_pnpm_store"
+```
+
+`ready` requires the explicit actual store path (including its version directory),
+physical `node_modules/.pnpm`, pinned installation metadata, equal desired/installed
+locks, contained resolvable dependency links and nonempty package files. It reuses
+the read-only `shared_setup.py` installation audit and rechecks source/assets after
+that audit. Missing or incomplete setup fails rather than being provisioned or
+repaired. Run this in the serialized resource lane, not during an install.
+
+The qualified `shared-runtime-readiness` result proves only source/assets and
+installed pnpm layout. It does not prove package-to-lock integrity, usable imports,
+native dependencies, check/build/browser success, disk savings or a RAM solution.
+Sharing coverage remains measured, including zero for private copies. Subsequent
+mutations invalidate this point-in-time evidence; no reservation or lock is implied.
+
+`prepare`, `verify`, `revision`, and ordinary `run` retain their existing semantics.
+A dependency-free diagnostic may legitimately pass `run` with dependency kind
+`none` and zero inventory entries; that receipt is not installed-layout readiness.
+
 ## Execution and receipts
 
 Run from the trusted source helper with an exact revision and a fresh receipt path:
@@ -125,51 +154,120 @@ Receipt/log replacement, added hardlinks or parent substitution refuse finalizat
 retained original receipts remain `unknown`, not passed. This is evidence-integrity
 checking, not a sandbox for hostile commands or concurrently running descendants.
 
+New `run` attempts share one 64 MiB (67,108,864 byte) allowance across captured raw
+stdout and stderr. `PND_RUNTIME_MAX_RAW_BYTES` selects a nonnegative safe-integer
+byte limit; zero allows only empty output. A programmatic `max_raw_bytes` argument
+takes precedence. Invalid limits fail before execution or new evidence creation.
+The parent drains both pipes in chunks of at most 64 KiB and writes directly to
+the already-owned log descriptors, counting actual successful writes. It never
+buffers whole logs or passes writable log descriptors to the command.
+
+Exceeding the shared limit preserves the retained stream prefixes and makes the
+attempt nonpassing, even if the observed command exit is zero. Capture metadata
+records observed/stored/dropped bytes per stream, EOF, completion, the limit and
+failure reason. Observed counts cover only bytes actually read, not unknown output
+after capture stops; retained hashes cover only the stored bytes. Historical logs
+and receipts are never truncated or rewritten by the new allowance.
+
+On overflow or capture failure, cleanup targets only the owned direct child: TERM,
+then KILL after a one-second grace, with bounded drain/wait attempts. No general
+workload timeout is introduced. A direct-child exit with inherited pipes still
+open gets at most one second of further draining and is incomplete, not success;
+descendants are never signaled. If the direct child's exit cannot be observed,
+the receipt remains `unknown` and its runtime run lock is retained rather than
+claiming that caches are free. Do not steal that lock or infer cleanup from silence.
+Evidence path/link substitution still refuses terminal finalization. Existing
+source, asset and dependency drift checks remain unchanged; `run` is not an
+installer and dependency mutation still invalidates the attempt.
+
+This bounds only newly capture-written stdout/stderr for one runtime command, not
+arbitrary command-created files, metadata, accumulated attempts, dependency
+storage, process-tree memory, or synchronous filesystem delays. It is not a disk
+quota, whole-machine memory solution, or hard wall-time guarantee.
+
 The Vite config's opt-in runtime revision path independently invokes source, asset
 and mutable-cache verification before embedding the revision; an environment string
 alone cannot establish identity. Package inventory binding belongs to `run` above.
 Invalid runtime identity aborts the build. Ordinary Git checkout behavior is unchanged.
 
-## pnpm without a premature repository migration
+## Current pnpm shared storage setup
 
-Use a pinned, already available pnpm executable. Copy the exact `package.json` and
-`package-lock.json` into an isolated metadata directory and use `pnpm import`; retain
-the original npm lock unchanged. Bind the npm input hash, pnpm output hash, pnpm
-executable/bundle/version, Node/platform and local workspace configuration. Compare
-all resolved package name/version/integrity identities, including optional native
-packages and aliases, before installing. Lock conversion is not installed-byte or
-runtime equivalence, and does not authorize deleting npm's lock or changing CI.
+The repository has migrated to **pnpm 11.25.0**. Install the committed
+`pnpm-lock.yaml` frozen; do not regenerate it with `pnpm import`. The retained
+`package-lock.json` is an identity/provenance input, not the active install lock.
+The committed `pnpm-workspace.yaml` already selects isolated/private virtual stores,
+hardlink import, verified package content, disabled lifecycle scripts and side-effect
+caches, and the reviewed public hoists. Do not override that layout in machine config.
 
-Use a disk-backed shared store on the same filesystem and a private virtual store:
+Use the concrete [README setup](../README.md#run), always passing both store and cache
+paths. `PND_SHARED_ROOT` is an explicitly chosen absolute root, outside the source
+checkout, on the same persistent filesystem. Its `pnpm-store/v11` and `pnpm-cache`
+children are reproducible package storage only: never point them at source, saves,
+research, game-asset pools, held evidence or an unidentified old directory. Keep the
+existing asset pool under a separate sibling such as `$PND_SHARED_ROOT/assets` and
+use the unchanged `shared_runtime.py prepare/verify` workflow above when assets are
+needed. Source-only editing allocates neither dependencies nor asset views.
 
-```yaml
-packages: ['.']
-nodeLinker: isolated
-virtualStoreDir: node_modules/.pnpm
-enableGlobalVirtualStore: false
-packageImportMethod: hardlink
-verifyStoreIntegrity: true
-ignoreScripts: true
-sideEffectsCache: false
-```
+The read-only `shared_setup.py` defaults to `source`. It verifies the four committed
+dependency metadata files against the requested exact HEAD and reports dirty status
+without refreshing the Git index or lazily fetching missing Git objects. Unrelated
+edits are preserved, not certified as a clean source tree. No pnpm executable, asset
+scan or dependency installation is required. `plan` additionally checks physical,
+nonnested roots, actual/nearest existing filesystem devices, available bytes and
+positive caller-declared allocation and remaining-reserve budgets. Known Linux
+tmpfs/ramfs destinations are refused; an unknown mount type is reported, not treated
+as proof of persistent storage.
 
-Install only the imported frozen lock, with explicit disk-backed store/cache paths,
-low network concurrency and lifecycle scripts disabled. Do not run install commands
-through another view's `node_modules`. Package bytes are treated as immutable:
-sharing is only for installed content, not generated configuration caches or output.
-The wrapper hashes their bytes, executable modes and links before/after use; any
-package modification invalidates the run. A package requiring a mutable installed
-file needs a reviewed per-view copy of that file before use, never a shared write.
+Admission also reads Git's registered worktree inventory and rejects shared roots
+equal to, inside, or containing any registered worktree, including sibling editing
+views. Missing or symlinked registered roots fail closed without pruning or repair;
+resolve their ownership separately. The inventory is checked again before returning.
+This is a read-only snapshot, not a lock against later worktree changes, a canonical
+shared-root registry, or discovery of unrelated clones. Continue choosing the same
+external root explicitly: two different external stores are not automatically deduplicated.
 
-The dependency inventory supports pnpm directory links; it does not spoof npm's
-`node_modules/.package-lock.json` or reuse an old npm-only verification pass. Required
-native-package smoke checks, real imports, full checks, build and rendered browser
-acceptance remain distinct gates. Migrate repository package-manager/CI contracts only
-after those gates and independent review. No new workflow or dependency version change
-is part of this adapter.
+Serialize the install after admission; the plan is a capacity snapshot, not a disk
+reservation, quota or process memory cap. It cannot limit a later package manager's
+allocation. Retain separate exact-source/toolchain/raw command receipts and resource
+measurements. Re-run `plan` immediately before installation, use `--offline` with a
+populated store, and do not automatically retry offline failure online. The initial
+README command deliberately allows network to seed an empty store. No `prune`,
+deletion, existing-install migration or lifecycle-script command is part of setup.
+Pnpm itself can replace/remove corrupt reproducible package-cache files during
+integrity checking; this is not a zero-write or zero-deletion installer guarantee.
+Stop on unknown storage ownership or source/held-data overlap instead of adopting it.
 
-Official references: [pnpm import](https://pnpm.io/cli/import),
-[pnpm's symlinked layout](https://pnpm.io/symlinked-node-modules-structure).
+`check` checks only the unchanged remaining reserve, not the already-spent install
+allowance, plus a read-only installed-layout audit. It
+requires physical local `node_modules/.pnpm`, genuine pinned pnpm JSON metadata
+(despite its `.modules.yaml` filename), the declared active store, an equal installed
+lock, and contained package links. Existing alias-based or old YAML profiles are
+unsupported by this new guard, not modified or silently adopted. Source and
+dependency metadata/bytes/links are checked for drift during the audit; mutable
+Vite caches stay private under the existing runtime checks.
+
+For every installed regular package file, the audit streams SHA-512, derives its
+pinned pnpm content address including executable mode, and compares device/inode to
+that actual store file. It reports logical package bytes, shared and nonshared
+files/bytes, coverage, foreign hardlinks, and deduplicated shared inode bytes.
+Equal-byte copies, an arbitrary hardlink count, or a metadata store path earn no
+sharing credit. Some packages may legitimately be copied for build isolation; those
+bytes remain explicitly nonshared. Zero/partial sharing is a measured result, never
+an automatic savings pass. Metadata and `.bin` wrappers must remain private.
+
+This is present inode-sharing evidence, not an allocation-savings, package-to-lock
+integrity, crash-durability, dependency-compatibility or RAM-resolution claim. Overlay
+filesystems can add copy-up costs. Native-package smoke checks, real imports, full
+checks, build, rendered browser acceptance and actual resource measurement remain
+separate gates. Never write to hardlinked package content; make a reviewed private
+copy if mutation is required. No manager/version/CI change is introduced here.
+
+Pinned upstream implementation: [pnpm 11.25 store version](https://github.com/pnpm/pnpm/blob/6d90c71efdffbc909b499490b64c66badc720327/pnpm11/core/constants/src/index.ts),
+[content addressing](https://github.com/pnpm/pnpm/blob/6d90c71efdffbc909b499490b64c66badc720327/pnpm11/store/cafs/src/getFilePathInCafs.ts),
+[SHA-512 store](https://github.com/pnpm/pnpm/blob/6d90c71efdffbc909b499490b64c66badc720327/pnpm11/store/cafs/src/index.ts),
+[private build copies](https://github.com/pnpm/pnpm/blob/6d90c71efdffbc909b499490b64c66badc720327/pnpm11/store/create-cafs-store/src/index.ts),
+[integrity repair](https://github.com/pnpm/pnpm/blob/6d90c71efdffbc909b499490b64c66badc720327/pnpm11/store/cafs/src/checkPkgFilesIntegrity.ts),
+[installed metadata](https://github.com/pnpm/pnpm/blob/6d90c71efdffbc909b499490b64c66badc720327/pnpm11/installing/modules-yaml/src/index.ts).
 
 ## Ownership, invalidation and rollback
 
@@ -206,7 +304,7 @@ dependency bytes in the run evidence. Missing Vite fails the test, never skips i
 Use private disk-backed `TMPDIR` and the serialized lane even for this small check;
 the normal default resolves Vite from this checkout's `node_modules`.
 
-## Local dependency-profile migration
+## Retained local dependency profiles
 
 An ordinary Git source checkout may use a private dependency-only pnpm profile via
 its `node_modules` alias. Each active mutable source owns its own physical layout,
@@ -225,10 +323,11 @@ unchanged. A layout change invalidates prior resource eligibility, not test scop
 This fingerprint is scheduling evidence, not complete installed-package integrity
 or a substitute for source-bound check/build/browser receipts.
 
-For the current project lock, local compatibility profiles explicitly public-hoist
+For the current project lock, the committed workspace and local compatibility profiles public-hoist
 `playwright-core`, `js-yaml`, `sharp`, `oxfmt` and `oxlint`. These already-locked
 transitive packages support existing browser metadata paths, test/probe imports and
-quality CLIs. Record this `publicHoistPattern` in each private workspace profile,
+quality CLIs. Preserve this `publicHoistPattern` in each private workspace profile,
 use offline frozen-lock installation with scripts disabled, and verify the actual
-public exports and native commands before switching a consumer. This local
-adapter does not change repository dependency declarations or hosted CI installs.
+public exports and native commands before switching a consumer. These older alias
+profiles remain under their existing verification contract; the new read-only setup
+guard deliberately requires a physical local install and does not migrate them.

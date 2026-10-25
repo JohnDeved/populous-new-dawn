@@ -2,6 +2,55 @@
   "version": 1,
   "checks": [
     {
+      "id": "evidence-archive-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate archive-first native UI collection and bounded identity-owned selected cache lifetimes.",
+      "coveredBehavior": [
+        "API raw archive/source identity separation and complete member indexing without default extraction",
+        "Bounded ZIP parsing, exact selected restoration, persistent ownership journals and fail-closed cache release",
+        "Failed/interrupted evidence preservation without runtime or visual acceptance"
+      ],
+      "knownLimits": [
+        "Synthetic archives only; no original retirement authorization or claim of real archive drill completion.",
+        "Hosted runtime/visual acceptance and build/runtime archive formats remain separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/evidence-archive.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py",
+        "engineering/artifact-retention.md"
+      ],
+      "inputs": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Python 3.12 standard library on Linux"
+      ],
+      "sideEffects": [
+        "Runs two serial Python fixture processes, each capped at 30 seconds and 4 MiB captured output; two collector CLI fixtures each launch one additional Python child with a 5-second timeout. Creates/removes only owned synthetic temporary data; retains partial output on failure. No network, browser, installed-package writes or real archive use."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "native-ui-evidence-tests",
       "kind": "portable",
       "automation": "safe",
@@ -26,7 +75,8 @@
         "scripts/native-ui-evidence",
         "tests/native-ui-evidence.test.mjs",
         ".github/workflows/native-ui-evidence.yml",
-        "engineering/native-ui-evidence.md"
+        "engineering/native-ui-evidence.md",
+        "tests/native-ui-pause-acceptance.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -43,7 +93,8 @@
         "engineering/native-ui-evidence.md",
         "package.json",
         "pnpm-lock.yaml",
-        "pnpm-workspace.yaml"
+        "pnpm-workspace.yaml",
+        "tests/native-ui-pause-acceptance.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
@@ -125,6 +176,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-blast.mjs",
         "scripts/parity-owned-checkpoint.mjs",
@@ -171,6 +224,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-blast.mjs",
         "scripts/parity-owned-checkpoint.mjs",
@@ -209,6 +264,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-blast.mjs",
         "scripts/parity-owned-checkpoint.mjs",
@@ -301,6 +358,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-checkpoint.mjs",
         "scripts/parity-owned-blast.mjs",
@@ -308,6 +367,7 @@
         "tests/parity-owned-checkpoint.test.mjs",
         "scripts/orchestration/command-receipt.mjs",
         "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/command-log.mjs",
         "scripts/orchestration/cli.mjs",
         "tests/parity-measure.test.mjs",
         "engineering/parity-capabilities.json",
@@ -951,13 +1011,16 @@
         "Contract audit",
         "Portable review bundle integrity",
         "Source-bound raw command receipts",
+        "Raw-only verification capture and allowance-bounded on-demand diagnostics",
         "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs",
+        "tests/receipt-streams.test.mjs", "tests/receipt-raw-budget.test.mjs",
+        "tests/receipt-budget-failures.test.mjs", "tests/command-log.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -986,6 +1049,24 @@
       ],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "shared-setup-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check read-only shared pnpm setup admission and measured inode reuse.",
+      "coveredBehavior": ["Committed dependency metadata identity", "Source-only zero allocation", "Physical same-filesystem capacity admission", "Actual shared versus copied package-file accounting", "Drift rejection and private mutable caches"],
+      "knownLimits": ["Synthetic Git/filesystem fixtures only; no real pnpm install, dependency compatibility, allocation savings or RAM acceptance."],
+      "executable": "node",
+      "args": ["--test", "tests/shared-setup.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "engineering/shared-worktrees.md", "README.md", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+      "inputs": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "package.json", "package-lock.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"],
+      "prerequisites": ["Node.js >=22.13.0", "Python 3", "Git", "Filesystem supports symlinks and hardlinks"],
+      "sideEffects": ["Creates and removes owned tiny temporary fixtures; never invokes pnpm, network, browser or game assets."],
+      "resources": [],
+      "expected": {"exitCode": 0, "artifacts": []}
     },
     {
       "id": "orchestration-structural",

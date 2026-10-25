@@ -85,14 +85,14 @@ test('interruption cleans the owned command without converting exit zero to a pa
   assert.equal(terminal.resourcesReleased, true)
 })
 
-test('existing command receipt retains timed-out failure and complete logs', t => {
+test('existing command receipt retains timed-out failure and complete logs', async t => {
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'pnd-foreground-receipt-'))
   t.after(() => fs.rmSync(repo, { recursive: true, force: true }))
   fs.writeFileSync(path.join(repo, '.gitignore'), 'work/\n')
   const git = (...args) => execFileSync('git', args, { cwd: repo, stdio: 'pipe' })
   git('init', '-q'); git('add', '.')
   git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'fixture')
-  const receipt = runCommandReceipt(repo, {
+  const receipt = await runCommandReceipt(repo, {
     output: 'work/orchestration/timeout.json', inputs: [cli],
     command: [process.execPath, cli, 'foreground', '500', '--', process.execPath, '-e', "console.log('retained-out');console.error('retained-err');setInterval(()=>{},1000)"],
   })

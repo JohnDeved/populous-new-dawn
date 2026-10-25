@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { episodes, acceptSeries, boundedEpisode } from './policy.mjs'
 import { artifactInventory, ownBrowser } from './browser-owner.mjs'
+import { assertPauseResult } from './pause-acceptance.mjs'
+import { assertAudioResult } from './audio-acceptance.mjs'
 import { initialEpisodeReport } from './ledger.mjs'
 
 export async function runNativeUiEvidence({ browser, candidateRoot, infrastructureRoot, url, output, signal }) {
@@ -45,6 +47,14 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
           const module = await import(pathToFileURL(resolve(root, episode.path)).href)
           assert.equal(typeof module[episode.exportName ?? 'default'], 'function')
           const result = await module[episode.exportName ?? 'default'](args)
+          if (episode.pauseMode) {
+            assert.equal(episode.primary, false)
+            assertPauseResult(episode.pauseMode, result)
+          }
+          if (episode.audioMode) {
+            assert.equal(episode.primary, false)
+            assertAudioResult(episode.audioMode, result)
+          }
           return result
         }, { capMs: episode.capMs, signal, close: () => owner.closeContexts() })
         record.cleanupVerified = true

@@ -175,6 +175,7 @@ export class Soundscape {
   master: GainNode | null = null
   buffers = new Map<string, AudioBuffer>()
   loading: Promise<void> | null = null
+  private loadController = new AbortController()
   active = new Set<AudioBufferSourceNode>()
   enabled = false
   disposed = false
@@ -293,21 +294,30 @@ export class Soundscape {
     void music.loading.catch(() => {})
     try {
       await ctx.resume()
+      // Mute or disposal can cancel startup while the context is resuming.
+      if (this.disposed || generation !== this.generation) return false
       if (!this.loading) {
+        // Cue loads are shared across mute/re-enable and retries, until disposal.
+        const { signal } = this.loadController
         const samples = new Set(
           AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
         )
         this.loading = Promise.all(
           [...samples].map(async key => {
             if (this.buffers.has(key)) return
-            const response = await fetch(`/original/audio/${key}.wav`)
+            const response = await fetch(`/original/audio/${key}.wav`, { signal })
+            if (signal.aborted) return
             if (!response.ok) throw new Error(`Sound sample failed: ${key}`)
-            const buffer = await ctx.decodeAudioData(await response.arrayBuffer())
-            if (!this.disposed) this.buffers.set(key, buffer)
+            const bytes = await response.arrayBuffer()
+            if (signal.aborted) return
+            const buffer = await ctx.decodeAudioData(bytes)
+            if (!signal.aborted) this.buffers.set(key, buffer)
           })
         )
           .then(() => {})
           .catch(e => {
+            // Only disposal cancels this owner; live failures still reach enable().
+            if (signal.aborted) return
             this.loading = null
             throw e
           })
@@ -408,6 +418,8 @@ export class Soundscape {
   }
   dispose() {
     this.disposed = true
+    this.loadController.abort()
+    this.loading = null
     this.mute()
     this.music?.dispose()
     this.music = null
