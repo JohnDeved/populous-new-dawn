@@ -35,6 +35,8 @@ class QualificationTests(unittest.TestCase):
             denied+=['/proc/'+pid+'/root'+sentinel for pid in ('1','2')]
             if name=='frozen':denied+=['/pnd-fixture/node_modules/state.json']
             self.save(name,'control/result.json',{'preparationHostAliasAbsent':True,'allVisibleProcRootAliasesChecked':True,
+                'pythonCommandAlias':{'bareCommandExecuted':True,'readonly':True,'path':'/usr/bin/python3','inode':[27,123],
+                                      'readonlyMountFlags':q.os.ST_RDONLY,'writeDeniedErrno':q.errno.EACCES},
                 'deniedPaths':denied,'visiblePrivateProcesses':{pid:{'pid':int(pid),'pidNamespace':'pid:[77]','nspid':[int(pid)],'ppid':0 if pid=='1' else 1,'startTicks':99 if pid=='1' else 100} for pid in ('1','2')}})
         self.save('rename','control/result.json',{'fixtureOnlyNotPnpm':True,'state':{'sha256':'identity'}})
         cases['clock']['result'].update(producer={'clock':'CLOCK_BOOTTIME','durationUpperBoundSeconds':.5},wallSeconds=3)
@@ -56,7 +58,7 @@ class QualificationTests(unittest.TestCase):
                              result['survivors'] is None and result['stopReason'], 'Wrong injected fault')
         self.shared=types.SimpleNamespace(__file__='/tmp/helper/shared_execution.py',VERSION=1,CAPABILITIES=['qualified'],
             STATE='state.json',QUALIFIER_OBSERVER_FAULT='fault',verify_sealed_receipt=sealed,
-            file_identity=lambda *a,**k:{'sha256':'identity'},inventory_hash=lambda p:'inventory',
+            file_identity=lambda p,**k:({'sha256':'identity','key':[27,123]} if str(p)=='/usr/bin/python3' else {'sha256':'identity'}),inventory_hash=lambda p:'inventory',
             tree_inventory=lambda p:['unchanged'],Limits=lambda **k:k,require_qualifier_observer_failure=observer,
             save_new=lambda p,v:self.accepted.append(v),backend_qualification=lambda *a:None)
     def save(self,name,leaf,value):
@@ -111,6 +113,28 @@ class QualificationTests(unittest.TestCase):
     def test_missing_private_init_alias(self):
         path=self.root/'readonly/control/result.json';value=json.loads(path.read_bytes());del value['visiblePrivateProcesses']['1']
         path.write_text(json.dumps(value));self.rejects()
+    def alias(self,case='readonly'):
+        path=self.root/case/'control/result.json';return path,json.loads(path.read_bytes())
+    def test_python_alias_requires_each_exact_identity_field(self):
+        for key,value in [('bareCommandExecuted',False),('readonly',False),('path','/foreign/python3'),
+                          ('inode',[27,999]),('inode',[True,123]),('readonlyMountFlags',0),
+                          ('readonlyMountFlags',True),('writeDeniedErrno',1),('writeDeniedErrno',True)]:
+            with self.subTest(key=key,value=value):
+                path,proof=self.alias();original=path.read_text();proof['pythonCommandAlias'][key]=value
+                path.write_text(json.dumps(proof));self.rejects();path.write_text(original)
+    def test_python_alias_missing_proof_rejected_in_both_cases(self):
+        for case in ('readonly','frozen'):
+            path,proof=self.alias(case);original=path.read_text();del proof['pythonCommandAlias']
+            path.write_text(json.dumps(proof));self.rejects();path.write_text(original)
+    def test_python_alias_extra_unreviewed_fields_rejected(self):
+        path,proof=self.alias();proof['pythonCommandAlias']['skipped']=True
+        path.write_text(json.dumps(proof));self.rejects()
+    def test_python_alias_all_three_readonly_denial_errnos_accepted(self):
+        for error in (q.errno.EROFS,q.errno.EACCES,q.errno.ETXTBSY):
+            path,proof=self.alias();proof['pythonCommandAlias']['writeDeniedErrno']=error
+            path.write_text(json.dumps(proof));self.accepted.clear();self.review()
+            self.assertEqual(self.accepted[0]['status'],'accepted')
+
     def test_rename_identity_changed(self):self.save('rename','control/result.json',{'fixtureOnlyNotPnpm':True,'state':{}});self.rejects()
     def test_clock_not_separate(self):self.terminal['cases']['clock']['result']['wallSeconds']=.8;self.rejects()
     def test_no_escaped_session(self):self.terminal['cases']['escape']['resources']['history'].pop();self.rejects()

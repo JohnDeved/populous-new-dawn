@@ -4,7 +4,9 @@ Never accepts a runner label, producer status alone, copied old receipt, unknown
 cleanup, changed closure or unsealed result. The output derives from reverified
 actual sealed artifacts, not an input assertion that tests passed.
 """
+import errno
 import json
+import os
 from pathlib import Path
 import controller as policy
 
@@ -18,6 +20,24 @@ LIMITS = dict(owner_rss_bytes=512*1024**2, v8_mib=768, producer_seconds=10, enve
 def reference(shared, path):
     path = Path(path)
     return {'path': str(path), 'sha256': shared.file_identity(path, private=True)['sha256']}
+
+
+def verify_python_alias(shared, selected_tools, proof):
+    alias = proof['pythonCommandAlias']
+    interpreter = Path(selected_tools['python'])
+    identity = shared.file_identity(interpreter)['key'][:2]
+    policy.require(set(alias) == {'bareCommandExecuted','inode','path','readonly','readonlyMountFlags','writeDeniedErrno'},
+                   'Exact Python command alias proof required')
+    policy.require(alias['bareCommandExecuted'] is True and alias['readonly'] is True,
+                   'Python command alias not executed/read-only')
+    policy.require(alias['path'] == str(interpreter.with_name('python3')) and
+                   type(alias['inode']) is list and len(alias['inode']) == 2 and
+                   all(type(value) is int for value in alias['inode']) and alias['inode'] == identity,
+                   'Python command alias path/interpreter inode differs')
+    policy.require(type(alias['readonlyMountFlags']) is int and alias['readonlyMountFlags'] & os.ST_RDONLY and
+                   type(alias['writeDeniedErrno']) is int and
+                   alias['writeDeniedErrno'] in (errno.EROFS,errno.EACCES,errno.ETXTBSY),
+                   'Python command alias lacks readonly mount/write-denial proof')
 
 
 def review(shared, qualification, selected_tools, destination):
@@ -78,6 +98,7 @@ def review(shared, qualification, selected_tools, destination):
                                'Generated qualifier case failed: '+name)
         if name in ('readonly','frozen'):
             proof = json.loads((root/name/'control/result.json').read_bytes())
+            verify_python_alias(shared, selected_tools, proof)
             policy.require(proof['preparationHostAliasAbsent'] is True and
                            proof['allVisibleProcRootAliasesChecked'] is True and len(proof['deniedPaths']) >= 5,
                            'Missing actual read-only alias coverage')
