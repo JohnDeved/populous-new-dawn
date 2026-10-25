@@ -5,6 +5,7 @@ No package installation, policy modification, capabilities or setuid restoration
 The producer is only called under the existing owned setup gate.
 """
 import hashlib
+import io
 import json
 import os
 from pathlib import Path, PurePosixPath
@@ -33,6 +34,7 @@ import qualification_review
 
 WORKFLOW = '.github/workflows/bwrap-prerequisites.yml'
 MAX_EXPANDED = 64 * 1024**2
+MAX_ARCHIVE_BYTES = 64 * 1024**2
 MAX_ENTRIES = 8192
 BUILD_SECONDS = 180
 HOSTS = {'github.com', 'release-assets.githubusercontent.com', 'objects.githubusercontent.com',
@@ -93,9 +95,23 @@ def acquire(asset, destination):
     return {'url':asset['url'],'finalUrl':final_url,'bytes':total,'sha256':digest.hexdigest()}
 
 
+SOURCE_ARCHIVE_BYTES = 129472
+SOURCE_ARCHIVE_SHA = '0e85c8702248b8dd64144f594147553650cdd0e4c951690345faace79c217c4d'
+LICENSE_SHA = 'dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551'
+LICENSE_BYTES = 26530
+LICENSE_ALIASES = {'bubblewrap-0.13.1/COPYING.LIB', 'bubblewrap-0.13.1/LICENSE'}
+
+
+def diagnostic_text(value, limit=4096):
+    data=str(value).encode('utf-8',errors='replace')
+    return {'text':data[:limit].decode('utf-8',errors='replace'), 'bytes':len(data),
+            'truncated':len(data)>limit, 'sha256':hashlib.sha256(data).hexdigest()}
+
+
+
 class Extractor:
     def __init__(self):
-        self.bytes = 0; self.entries = 0; self.links = []
+        self.bytes = 0; self.entries = 0; self.links = []; self.license_copies = []; self.current_member = None
 
     def target(self, root, name):
         path = PurePosixPath(name)
@@ -130,10 +146,43 @@ class Extractor:
         os.chmod(target, 0o755 if mode & 0o111 else 0o644)
         # Never chown, restore xattrs/ACLs or execute archive metadata.
 
-    def tar(self, archive, root, *, libcap=False):
+    def tar(self, archive, root, *, libcap=False, source_licenses=False):
+        self.current_member = None
+        identity = None; archive_bytes = None
+        try:
+            require(not (libcap and source_licenses), 'Ambiguous archive policy')
+            archive_bytes=archive.stat().st_size
+            require(archive_bytes <= MAX_ARCHIVE_BYTES, 'Archive input cap')
+            identity = policy.sha256_file(archive)
+            if source_licenses:
+                require(archive.stat().st_size == SOURCE_ARCHIVE_BYTES and identity == SOURCE_ARCHIVE_SHA,
+                        'Source license-copy archive identity differs')
+            self._tar(archive,root,libcap=libcap,source_licenses=source_licenses)
+        except Exception as error:
+            # JSON escaping prevents archive-controlled terminal control sequences.
+            # Never mask the original policy error if diagnostics fail.
+            try:
+                record={'kind':'archive-member-rejection','archiveSha256':identity,
+                    'archiveName':diagnostic_text(archive.name,128),'archiveBytes':archive_bytes,
+                    'expectedSourceSha256':SOURCE_ARCHIVE_SHA if source_licenses else None,
+                    'reason':diagnostic_text(str(error),256),'member':self.current_member}
+                encoded=json.dumps(record,ensure_ascii=True,separators=(',',':'))
+                require(len(encoded.encode()) <= 16384,'Rejection diagnostic cap')
+                print(encoded,file=sys.stderr,flush=True)
+            except Exception:
+                try: print('archive rejection diagnostic unavailable',file=sys.stderr,flush=True)
+                except Exception: pass
+            raise
+
+    def _tar(self, archive, root, *, libcap=False, source_licenses=False):
         links=[]; names=set()
         with tarfile.open(archive, mode='r|*') as bundle:
-            for member in bundle:
+            for index,member in enumerate(bundle):
+                self.current_member={'index':index,'name':diagnostic_text(member.name,512),
+                    'linkTarget':diagnostic_text(member.linkname,512),'typeHex':member.type.hex(),
+                    'size':member.size,'mode':oct(member.mode),'uid':member.uid,'gid':member.gid,
+                    'paxKeys':[diagnostic_text(key,32) for key in sorted(member.pax_headers)[:16]],
+                    'paxKeyCount':len(member.pax_headers)}
                 require(member.name not in names, 'Duplicate archive member'); names.add(member.name)
                 require(not any('xattr' in key.lower() or 'acl' in key.lower() for key in member.pax_headers),
                         'Archive privilege metadata')
@@ -150,6 +199,24 @@ class Extractor:
                         self.entries+=1;self.bytes+=member.size
                         require(self.entries<=MAX_ENTRIES and self.bytes<=MAX_EXPANDED,'Skipped package payload cap')
                         continue
+                if member.issym() and source_licenses:
+                    require(member.name in LICENSE_ALIASES and member.linkname == 'COPYING'
+                            and member.size == 0 and member.mode == 0o777,
+                            'Unexpected source license alias')
+                    original=root/'bubblewrap-0.13.1/COPYING'
+                    require('bubblewrap-0.13.1/COPYING' in names and not original.is_symlink()
+                            and original.is_file() and original.stat().st_size == LICENSE_BYTES,
+                            'Source license canonical member missing or changed')
+                    before=policy.sha256_file(original)
+                    require(before == LICENSE_SHA,'Source license canonical identity differs')
+                    data=original.read_bytes()
+                    require(len(data)==LICENSE_BYTES and hashlib.sha256(data).hexdigest()==before
+                            and policy.sha256_file(original)==before,'Source license changed during copy')
+                    self.member(root,member.name,len(data),0o644,'file',io.BytesIO(data))
+                    self.license_copies.append({'archiveMember':self.current_member,
+                        'materializedKind':'regular-file','canonicalMember':'bubblewrap-0.13.1/COPYING',
+                        'bytes':len(data),'sha256':before})
+                    continue
                 if member.issym() and libcap:
                     self.entries += 1
                     require(self.entries <= MAX_ENTRIES and not member.mode & 0o6000, 'Archive link cap/mode')
@@ -186,13 +253,38 @@ class Extractor:
                                 'directory' if member.is_dir() else 'file',source)
 
 
+PINNED_PC_SHA = 'eedaf8a34d3b43cfae95bbbda77b455b784e95bb282c33f0676e41af1e074ebf'
+PINNED_LIBCAP_FILES = {
+    'usr/include/sys/capability.h': (8681,'2b9e8c8a6b50c2cf1458afa5f302d8236122016dfbf4940d7e55406aa5a29307'),
+    'usr/lib/x86_64-linux-gnu/libcap.so.2.66': (51536,'6ac6abc86ac891c6e13486470e26f1d939f47fda9e6b5d5508a7f5ec881adc84'),
+}
+
+
+def pinned_pc_libdir(original, private_root):
+    raw=original.encode()
+    require(len(raw)==211 and hashlib.sha256(raw).hexdigest()==PINNED_PC_SHA,
+            'Unknown /usr/lib64 pkg-config metadata')
+    for name,(size,digest) in PINNED_LIBCAP_FILES.items():
+        path=policy.physical(private_root/name)
+        require(path.is_file() and path.stat().st_size==size and policy.sha256_file(path)==digest,
+                'Pinned private libcap header/runtime differs')
+    directory=policy.physical(private_root/'usr/lib/x86_64-linux-gnu')
+    for name,target in [('libcap.so','libcap.so.2'),('libcap.so.2','libcap.so.2.66')]:
+        link=directory/name
+        require(link.is_symlink() and os.readlink(link)==target
+                and link.resolve(strict=True)==directory/'libcap.so.2.66','Pinned private libcap alias differs')
+    return str(directory)
+
+
 def rebase_pc(original, private_root):
     lines=original.splitlines(); output=[]; changed=set()
     for line in lines:
         if re.match(r'^(prefix|exec_prefix|libdir|includedir)=',line):
             key,value=line.split('=',1)
             require(key not in changed, 'Duplicate pkg-config path key'); changed.add(key)
-            if value.startswith('/'):
+            if key=='libdir' and value=='/usr/lib64':
+                value=pinned_pc_libdir(original,private_root)
+            elif value.startswith('/'):
                 require(value == '/usr' or value in ('/usr/include','/usr/lib/x86_64-linux-gnu',
                         '/lib/x86_64-linux-gnu'), 'Unknown libcap pkg-config absolute path')
                 value=str(private_root/value.lstrip('/'))
@@ -243,7 +335,9 @@ def producer(root):
                         str(Path(__file__).resolve()),'_acquire',str(index),str(archive),str(record)],
                        stdin=subprocess.DEVNULL,env=env,timeout=33,check=True)
         receipts[asset['name']]=json.loads(record.read_bytes())
-        if asset['name']=='bubblewrap': extraction.tar(archive,root/'source')
+        if asset['name']=='bubblewrap':
+            extraction.tar(archive,root/'source',source_licenses=True)
+            setup.save(root/'records/source-license-copies.json',extraction.license_copies)
         elif asset['name']=='meson': extraction.wheel(archive,root/'meson')
         else:
             unpacked=root/'downloads'/(asset['name']+'.tar')
