@@ -59,6 +59,23 @@ waive the existing cleanup and sealing gates.
 
 ## Qualification is executable, not an acceptance shortcut
 
+Projected commands expose the selected, exact pinned Python executable under the
+bare `python3` name in that executable's directory. This supports build consumers
+such as Vite's revision helper without requiring a host symlink or mounting a
+whole tool directory. The alias is an additional read-only bind, recorded in the
+persisted mount plan. The source must already be an exact pinned read-only tool
+mount; unpinned sources, writable mounts and destination collisions fail. A
+selected executable already named `python3` needs no additional bind.
+
+Generated read-only/frozen qualifier cases actually invoke bare `python3` with
+isolated imports and bytecode writes disabled, verify the selected interpreter
+inode, and require the kernel `ST_RDONLY` mount flag before and after the check.
+A writable open must also be denied, with its exact errno retained. `EACCES` or
+`ETXTBSY` may precede `EROFS`; denial alone never proves a read-only mount. Inode or
+mount-flag drift, writable access and unrelated errors fail. This changes the
+qualified tool projection, so previous backend acceptances do not qualify these
+new adapter bytes. It neither installs Python nor changes host paths/permissions.
+
 `qualify` runs generated sentinels through the actual maintained mount, PID owner,
 raw capture, clock, cleanup and final-seal backend. It uses a pinned Python/bwrap
 closure. Reviewed application tool roots can be mounted read-only, but the
