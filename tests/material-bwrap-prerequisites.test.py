@@ -73,6 +73,111 @@ class ArchiveTests(unittest.TestCase):
             with self.assertRaises(Exception):p.Extractor().tar(archive,out)
 
 
+class SourceLicenseTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary=tempfile.TemporaryDirectory();self.addCleanup(self.temporary.cleanup)
+        self.root=Path(self.temporary.name);self.archive=self.root/'source.tar';self.out=self.root/'out';self.out.mkdir()
+        self.license=b'fixture license\n';self.prefix='bubblewrap-0.13.1/'
+
+    def make(self, aliases=None, license_data=None):
+        aliases=aliases if aliases is not None else [('COPYING.LIB','COPYING'),('LICENSE','COPYING')]
+        with tarfile.open(self.archive,'w') as bundle:
+            data=self.license if license_data is None else license_data
+            m=tarfile.TarInfo(self.prefix+'COPYING');m.size=len(data);m.mode=0o644;bundle.addfile(m,io.BytesIO(data))
+            for name,target in aliases:
+                m=tarfile.TarInfo(self.prefix+name);m.type=tarfile.SYMTYPE;m.linkname=target;m.mode=0o777;bundle.addfile(m)
+
+    def extract(self, **limits):
+        contract={'SOURCE_ARCHIVE_BYTES':self.archive.stat().st_size,
+            'SOURCE_ARCHIVE_SHA':hashlib.sha256(self.archive.read_bytes()).hexdigest(),
+            'LICENSE_BYTES':len(self.license),'LICENSE_SHA':hashlib.sha256(self.license).hexdigest(),**limits}
+        extractor=p.Extractor()
+        with patch.multiple(p,**contract):extractor.tar(self.archive,self.out,source_licenses=True)
+        return extractor
+
+    def test_only_exact_aliases_become_regular_accounted_license_copies(self):
+        self.make();extractor=self.extract()
+        for name in ['COPYING','COPYING.LIB','LICENSE']:
+            target=self.out/self.prefix/name
+            self.assertFalse(target.is_symlink());self.assertEqual(target.read_bytes(),self.license)
+        self.assertEqual(extractor.bytes,3*len(self.license));self.assertEqual(extractor.entries,3)
+        self.assertEqual(len(extractor.license_copies),2)
+        self.assertEqual(extractor.license_copies[0]['archiveMember']['linkTarget']['text'],'COPYING')
+
+    def test_unknown_alias_or_target_rejected(self):
+        for name,target in [('OTHER','COPYING'),('LICENSE','../COPYING'),('LICENSE','/COPYING'),('LICENSE','missing')]:
+            with self.subTest(name=name,target=target),tempfile.TemporaryDirectory() as newout:
+                self.out=Path(newout);self.make([(name,target)])
+                with self.assertRaisesRegex(ValueError,'Unexpected source license alias'):self.extract()
+
+    def test_canonical_license_content_must_match(self):
+        self.make(license_data=b'x'*len(self.license))
+        with self.assertRaisesRegex(ValueError,'canonical identity differs'):self.extract()
+
+    def test_copy_is_included_in_original_byte_and_entry_caps(self):
+        self.make()
+        with self.assertRaisesRegex(ValueError,'expanded-size cap'):self.extract(MAX_EXPANDED=2*len(self.license),SOURCE_ARCHIVE_BYTES=self.archive.stat().st_size)
+
+    def test_source_archive_identity_gate_precedes_materialization(self):
+        self.make()
+        with self.assertRaisesRegex(ValueError,'archive identity differs'):
+            p.Extractor().tar(self.archive,self.out,source_licenses=True)
+        self.assertEqual(list(self.out.iterdir()),[])
+
+    def test_rejection_reports_escaped_member_and_preserves_original(self):
+        self.make([('BAD\x1b[31m','COPYING')]);output=io.StringIO()
+        with patch.object(p.sys,'stderr',output),self.assertRaisesRegex(ValueError,'Unexpected source license alias'):
+            self.extract()
+        line=output.getvalue();self.assertNotIn('\x1b',line);self.assertLessEqual(len(line.encode()),16385)
+        record=json.loads(line);self.assertEqual(record['member']['index'],1)
+        self.assertEqual(record['member']['typeHex'],'32');self.assertIn('BAD',record['member']['name']['text'])
+
+    def test_diagnostic_output_failure_does_not_mask_rejection(self):
+        self.make([('BAD','COPYING')])
+        with patch.object(p,'print',side_effect=OSError('diagnostic unavailable'),create=True),self.assertRaisesRegex(ValueError,'Unexpected source license alias'):
+            self.extract()
+
+    def test_diagnostic_text_bounds_are_explicit(self):
+        row=p.diagnostic_text('\x1b'+'é'*5000,512)
+        self.assertTrue(row['truncated']);self.assertEqual(row['bytes'],10001)
+        self.assertEqual(row['sha256'],hashlib.sha256(('\x1b'+'é'*5000).encode()).hexdigest())
+
+
+class PinnedPcTests(unittest.TestCase):
+    ORIGINAL='prefix=/usr\nexec_prefix=/usr\nlibdir=/usr/lib64\nincludedir=/usr/include\n\nName: libcap\nDescription: libcap - linux capabilities library\nVersion: 2.66\nLibs: -L${libdir} -lcap\nLibs.private: \nCflags: -I${includedir}\n'
+    def setUp(self):
+        self.temporary=tempfile.TemporaryDirectory();self.addCleanup(self.temporary.cleanup)
+        self.root=Path(self.temporary.name);self.directory=self.root/'usr/lib/x86_64-linux-gnu';self.directory.mkdir(parents=True)
+        self.pins={}
+        for name,data in [('usr/include/sys/capability.h',b'header'),('usr/lib/x86_64-linux-gnu/libcap.so.2.66',b'runtime')]:
+            path=self.root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+            self.pins[name]=(len(data),hashlib.sha256(data).hexdigest())
+        (self.directory/'libcap.so').symlink_to('libcap.so.2');(self.directory/'libcap.so.2').symlink_to('libcap.so.2.66')
+
+    def test_exact_original_metadata_maps_to_verified_private_payload(self):
+        self.assertEqual(hashlib.sha256(self.ORIGINAL.encode()).hexdigest(),p.PINNED_PC_SHA)
+        with patch.object(p,'PINNED_LIBCAP_FILES',self.pins):derived=p.rebase_pc(self.ORIGINAL,self.root)
+        self.assertIn('libdir='+str(self.directory)+'\n',derived)
+        self.assertNotIn('=/usr/lib64',derived)
+        self.assertIn('includedir='+str(self.root/'usr/include'),derived)
+
+    def test_unknown_lib64_metadata_remains_rejected(self):
+        with patch.object(p,'PINNED_LIBCAP_FILES',self.pins),self.assertRaisesRegex(ValueError,'Unknown /usr/lib64'):
+            p.rebase_pc(self.ORIGINAL+'# changed\n',self.root)
+
+    def test_missing_or_changed_header_runtime_rejected(self):
+        for name in self.pins:
+            path=self.root/name;original=path.read_bytes();path.write_bytes(b'changed')
+            with patch.object(p,'PINNED_LIBCAP_FILES',self.pins),self.assertRaisesRegex(ValueError,'header/runtime differs'):
+                p.rebase_pc(self.ORIGINAL,self.root)
+            path.write_bytes(original)
+
+    def test_unexpected_alias_never_falls_back_to_host(self):
+        link=self.directory/'libcap.so';link.unlink();link.symlink_to('/usr/lib/x86_64-linux-gnu/libcap.so.2')
+        with patch.object(p,'PINNED_LIBCAP_FILES',self.pins),self.assertRaisesRegex(ValueError,'alias differs'):
+            p.rebase_pc(self.ORIGINAL,self.root)
+
+
 class PolicyTests(unittest.TestCase):
     def test_official_asset_hashes_and_total(self):
         assets=json.loads((p.HERE/'bwrap-assets.json').read_bytes())
