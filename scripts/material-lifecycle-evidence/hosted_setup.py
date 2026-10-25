@@ -12,6 +12,9 @@ from pathlib import Path, PurePosixPath
 import re
 import shutil
 import stat
+import struct
+import selectors
+import time
 import subprocess
 import sys
 import sysconfig
@@ -155,7 +158,125 @@ def library_paths(output):
     return result
 
 
-def tool_manifest(shared, tools_root, browser):
+def elf_dependency_kind(path):
+    """Conservative ELF64/x86-64 proof; no ldd-error-based static inference."""
+    with Path(path).open('rb') as stream:
+        size=os.fstat(stream.fileno()).st_size
+        header=stream.read(64)
+        policy.require(len(header)==64 and header[:7]==b'\x7fELF\x02\x01\x01','Unsupported or malformed ELF identity')
+        fields=struct.unpack('<16sHHIQQQIHHHHHH',header)
+        _,kind,machine,version,entry,offset,_,_,ehsize,entsize,count,_,_,_=fields
+        policy.require(kind in (2,3) and machine==62 and version==1 and ehsize==64 and
+                       entsize==56 and 0<count<65535 and offset>=64 and offset+count*56<=size,
+                       'Malformed ELF program-header table')
+        stream.seek(offset);headers=stream.read(count*56)
+        interpreter=dynamic=False;executable=False;loads=0
+        for index in range(count):
+            typ,flags,off,address,_,filesz,memsz,align=struct.unpack_from('<IIQQQQQQ',headers,index*56)
+            policy.require(off<=size and filesz<=size-off and filesz<=memsz and
+                           (align in (0,1) or align & (align-1)==0),'Malformed ELF segment')
+            if typ==1:
+                loads+=1
+                policy.require(align in (0,1) or off%align==address%align,'Malformed ELF load alignment')
+                if flags & 1 and address<=entry<address+filesz:executable=True
+            if typ==3:
+                policy.require(filesz>=2 and filesz<=4096,'Malformed ELF interpreter')
+                stream.seek(off);value=stream.read(filesz)
+                policy.require(value.startswith(b'/') and value.endswith(b'\0') and b'\0' not in value[:-1],
+                               'Malformed ELF interpreter path')
+                interpreter=True
+            if typ==2:
+                policy.require(filesz>=16 and filesz%16==0 and filesz<=1024**2,'Malformed ELF dynamic table')
+                stream.seek(off);value=stream.read(filesz)
+                policy.require(any(struct.unpack_from('<qQ',value,n)[0]==0 for n in range(0,len(value),16)),
+                               'Unterminated ELF dynamic table')
+                dynamic=True
+        policy.require(loads>0,'ELF has no load segments')
+        # Deliberately narrow: dynamic-table-free ET_EXEC only. Static PIE or
+        # unusual metadata remains on the strict dynamic inspection path.
+        if kind==2 and not interpreter and not dynamic:
+            policy.require(executable,'Static ELF entry lacks executable file bytes')
+            return 'static-no-interpreter-no-dynamic-table'
+        policy.require(interpreter or dynamic,'Unsupported ELF dependency classification')
+        return 'dynamic-inspection-required'
+
+
+def bounded_inspection(command, directory):
+    """Five-second inspection, one-MiB combined raw cap, direct wait recorded."""
+    receipt={'command':command,'exitCode':None,'waitCompleted':False,'error':None}
+    process=None;started=time.monotonic();raw={};observed=0
+    try:
+        for name in ('stdout','stderr'):raw[name]=(directory/(name+'.raw')).open('xb')
+        process=subprocess.Popen(command,stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+            env={'PATH':'/usr/bin:/bin','LANG':'C','LC_ALL':'C'},close_fds=True)
+        with selectors.DefaultSelector() as selector:
+            for name in raw:
+                pipe=getattr(process,name);os.set_blocking(pipe.fileno(),False)
+                selector.register(pipe,selectors.EVENT_READ,name)
+            while selector.get_map() or process.poll() is None:
+                policy.require(time.monotonic()-started<5,'Dependency inspection timeout')
+                for key,_ in selector.select(.03):
+                    data=os.read(key.fd,65536)
+                    if not data:selector.unregister(key.fileobj);continue
+                    remaining=max(0,1024**2-observed);raw[key.data].write(data[:remaining]);observed+=len(data)
+                    policy.require(observed<=1024**2,'Dependency inspection raw cap exceeded')
+    except BaseException as failure:
+        receipt['error']=type(failure).__name__+': '+str(failure)
+    finally:
+        if process is not None:
+            try:
+                if process.poll() is None:process.kill()
+                receipt['exitCode']=process.wait(timeout=5);receipt['waitCompleted']=True
+            except BaseException as failure:receipt['waitError']=type(failure).__name__+': '+str(failure)
+            for pipe in (process.stdout,process.stderr):pipe.close()
+        for stream in raw.values():stream.close()
+        receipt.update(wallSeconds=time.monotonic()-started,observedRawBytes=observed)
+        save(directory/'command.json',receipt)
+    policy.require(receipt['error'] is None and receipt['waitCompleted'] and receipt['exitCode']==0,
+                   'Dependency inspection failed; retained '+str(directory/'command.json'))
+    return (directory/'stdout.raw').read_text()
+
+
+def dependency_paths(binary,evidence):
+    directory=evidence/('dependency-'+str(len(list(evidence.glob('dependency-*')))))
+    directory.mkdir(mode=0o700)
+    receipt={'requestedPath':str(binary),'identity':None,'classification':None,'error':None}
+    try:
+        path=Path(binary).resolve(strict=True)
+        before=path.stat()
+        policy.require(stat.S_ISREG(before.st_mode),'Dependency target must be regular ELF')
+        identity={'path':str(path),'device':before.st_dev,'inode':before.st_ino,'size':before.st_size,
+                  'mtimeNs':before.st_mtime_ns,'sha256':policy.sha256_file(path)}
+        receipt['identity']=identity
+        receipt['classification']=elf_dependency_kind(path)
+        if receipt['classification']=='static-no-interpreter-no-dynamic-table':result=set()
+        else:
+            tool=Path('/usr/bin/ldd').resolve(strict=True)
+            receipt['inspectionTool']={'path':str(tool),'sha256':policy.sha256_file(tool)}
+            output=bounded_inspection([str(tool),str(path)],directory)
+            policy.require('statically linked' not in output and 'not a dynamic executable' not in output,
+                           'Dynamic ELF cannot use a static ldd shortcut')
+            result=library_paths(output)
+            policy.require(bool(result),'Dynamic dependency closure is empty')
+        after=path.stat()
+        policy.require((before.st_dev,before.st_ino,before.st_size,before.st_mtime_ns)==
+                       (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns) and
+                       policy.sha256_file(path)==identity['sha256'],'Dependency target changed')
+        receipt['libraries']=sorted(map(str,result));return result
+    except BaseException as failure:
+        receipt['error']=type(failure).__name__+': '+str(failure);raise
+    finally:save(directory/'inspection.json',receipt)
+
+
+def host_binaries():
+    node=shutil.which('node')
+    policy.require(node is not None,'Required hosted node unavailable')
+    return [Path(sys.executable).resolve(strict=True),Path(node).resolve(strict=True),
+        *map(Path,('/usr/bin/bwrap','/usr/bin/git','/usr/bin/dash','/usr/bin/env',
+        '/usr/bin/dirname','/usr/bin/sed','/usr/bin/readlink','/usr/bin/uname'))]
+
+
+def tool_manifest(shared, tools_root, browser, evidence):
     python=Path(sys.executable).resolve(strict=True)
     node=Path(shutil.which('node')).resolve(strict=True)
     pnpm=Path(shutil.which('pnpm')).resolve(strict=True)
@@ -164,8 +285,7 @@ def tool_manifest(shared, tools_root, browser):
     package=pnpm.parent.parent
     policy.require(json.loads((package/'package.json').read_bytes())['name']=='pnpm' and
                    json.loads((package/'package.json').read_bytes())['version']=='11.25.0','Wrong actual pnpm package')
-    binaries=[python,node,*map(Path,('/usr/bin/bwrap','/usr/bin/git','/usr/bin/dash','/usr/bin/env',
-        '/usr/bin/dirname','/usr/bin/sed','/usr/bin/readlink','/usr/bin/uname'))]
+    binaries=host_binaries()
     stdlib=Path(sysconfig.get_path('stdlib')).resolve(strict=True)
     roots={*binaries,stdlib,package,tools_root/'orchestration',tools_root/'material',browser.parent,
            Path('/usr/share/fonts/truetype/dejavu')}
@@ -173,7 +293,7 @@ def tool_manifest(shared, tools_root, browser):
     # extensions, never downloaded application native addons or candidate ELFs.
     scanned=[*binaries,browser,*sorted(browser.parent.glob('*.so*')),*sorted(stdlib.glob('lib-dynload/*.so'))]
     for binary in scanned:
-        roots.update(library_paths(trusted_output(['/usr/bin/ldd',str(binary)])))
+        roots.update(dependency_paths(binary,evidence))
     roots={path for path in roots if not any(path!=other and path.is_relative_to(other) for other in roots)}
     names=sorted(map(str,roots))
     for path in names:hosted_entry.tool_root(shared,path,names)
@@ -211,6 +331,10 @@ def install(env):
         'npm_config_cache':str(tools_root/'npm-cache'),'npm_config_prefix':str(tools_root/'pnpm-prefix'),
         'PND_MATERIAL_TOOLS':str(tools_root),'PND_MATERIAL_EVIDENCE':str(evidence)}
     with hosted_resources.guard(shared,[workspace/'candidate',tools_root,evidence],evidence/'setup-install') as (watch,details):
+        for binary in host_binaries():
+            policy.require(os.access(binary,os.X_OK),'Required hosted executable unavailable: '+str(binary))
+            dependency_paths(binary,evidence/'setup-install')
+        policy.require(os.access('/usr/bin/curl',os.X_OK),'Required hosted curl unavailable')
         details['producer']={}
         hosted_resources.install(shared,watch,evidence/'setup-install',
             ['/usr/bin/bash',str(HERE/'hosted-install.sh')],workspace/'candidate',environment,receipt=details['producer'])
@@ -240,7 +364,7 @@ def finalize(env):
     save(evidence/'installation.json',receipt)
     browser=tools_root/'browser/chrome-headless-shell-linux64/chrome-headless-shell'
     with hosted_resources.guard(shared,[candidate,tools_root,evidence],evidence/'setup-prepare',prepare=True) as (_,details):
-        tools=tool_manifest(shared,tools_root,browser)
+        tools=tool_manifest(shared,tools_root,browser,evidence/'setup-prepare')
         save(evidence/'tools.json',tools)
         reference=prepare_inputs.prepare(shared,str(candidate),qualification_review.reference(shared,evidence/'installation.json'),
                                          tools,str(browser),str(evidence/'prepared-inputs.json'))

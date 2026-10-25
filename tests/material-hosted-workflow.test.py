@@ -67,10 +67,136 @@ class ProducerCallerTests(unittest.TestCase):
                 with patch.object(setup,'checked_setup',return_value=(root,root,root,shared)),\
                      patch.object(setup.hosted_resources,'guard',return_value=nullcontext((watch,details))),\
                      patch.object(setup.hosted_resources,'install',side_effect=producer),\
+                     patch.object(setup,'dependency_paths',return_value=set()),\
                      patch.object(setup,'extract') as extract:
                     with self.assertRaises(ProducerFailed):caller({'PATH':'/usr/bin:/bin'})
                     extract.assert_not_called()
                 self.assertEqual(details['producer'],{'exitCode':7,'waitCompleted':True,'waitExitCode':7})
+
+class DependencyTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+    def elf(self,dynamic=False,interp=False):
+        import struct
+        count=1+dynamic+interp;offset=64+56*count;size=offset+64
+        head=struct.pack('<16sHHIQQQIHHHHHH',b'\x7fELF\x02\x01\x01'+b'\0'*9,2,62,1,0x400000,64,0,0,64,56,count,0,0,0)
+        rows=[struct.pack('<IIQQQQQQ',1,5,0,0x400000,0,size,size,4096)]
+        if dynamic:rows.append(struct.pack('<IIQQQQQQ',2,4,offset,0,0,16,16,8))
+        if interp:rows.append(struct.pack('<IIQQQQQQ',3,4,offset+16,0,0,4,4,1))
+        data=bytearray(head+b''.join(rows)+b'\0'*64)
+        if interp:data[offset+16:offset+20]=b'/ld\0'
+        path=self.root/'binary';path.write_bytes(data);return path
+    def test_static_requires_positive_headers_and_never_calls_ldd(self):
+        with patch.object(setup,'bounded_inspection') as command:
+            self.assertEqual(setup.dependency_paths(self.elf(),self.root),set());command.assert_not_called()
+        self.assertEqual(json.loads((self.root/'dependency-0/inspection.json').read_text())['classification'],
+                         'static-no-interpreter-no-dynamic-table')
+    def test_dynamic_and_interpreter_require_inspection_and_reject_static_shortcut(self):
+        for dynamic,interp in ((True,False),(False,True),(True,True)):
+            with self.subTest(dynamic=dynamic,interp=interp),patch.object(setup,'bounded_inspection',return_value='statically linked\n') as command:
+                with self.assertRaisesRegex(ValueError,'shortcut'):setup.dependency_paths(self.elf(dynamic,interp),self.root)
+                command.assert_called_once()
+    def test_script_malformed_and_missing_retain_error_identity(self):
+        for data in (b'#!/bin/sh\n',b'\x7fELF'+b'\0'*70):
+            path=self.root/'binary';path.write_bytes(data)
+            with self.assertRaises(ValueError):setup.dependency_paths(path,self.root)
+        with self.assertRaises(FileNotFoundError):setup.dependency_paths(self.root/'missing',self.root)
+        receipts=[json.loads(p.read_text()) for p in self.root.glob('dependency-*/inspection.json')]
+        self.assertTrue(all(x['error'] for x in receipts));self.assertIsNone(next(x for x in receipts if x['requestedPath'].endswith('/missing'))['identity'])
+    def test_dynamic_missing_library_remains_fatal(self):
+        with patch.object(setup,'bounded_inspection',return_value='libmissing.so => not found\n'):
+            with self.assertRaisesRegex(ValueError,'Missing'):setup.dependency_paths(self.elf(True),self.root)
+    def test_unterminated_dynamic_table_rejected(self):
+        import struct
+        path=self.elf(True);data=bytearray(path.read_bytes());struct.pack_into('<qQ',data,64+56*2,1,123);path.write_bytes(data)
+        with self.assertRaisesRegex(ValueError,'Unterminated'):setup.dependency_paths(path,self.root)
+    def test_preflight_before_install_producer(self):
+        import ast
+        tree=ast.parse((HERE/'hosted_setup.py').read_text())
+        install=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='install')
+        calls=[x for x in ast.walk(install) if isinstance(x,ast.Call)]
+        preflight=next(x.lineno for x in calls if isinstance(x.func,ast.Name) and x.func.id=='dependency_paths')
+        producer=next(x.lineno for x in calls if isinstance(x.func,ast.Attribute) and x.func.attr=='install')
+        self.assertLess(preflight,producer)
+    def test_command_timeout_retains_error_and_direct_wait(self):
+        process=types.SimpleNamespace(stdout=io.BytesIO(),stderr=io.BytesIO(),poll=lambda:None,
+            kill=lambda:None,wait=lambda **kw:-9)
+        class Selector:
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def register(self,*args):pass
+            def get_map(self):return {'pending':True}
+        with patch.object(setup.subprocess,'Popen',return_value=process),patch.object(setup.selectors,'DefaultSelector',Selector),\
+             patch.object(setup.os,'set_blocking'),patch.object(setup.time,'monotonic',side_effect=[0,6,6]):
+            # Pipes with synthetic file descriptors avoid any real process.
+            process.stdout=types.SimpleNamespace(fileno=lambda:100,close=lambda:None)
+            process.stderr=types.SimpleNamespace(fileno=lambda:101,close=lambda:None)
+            with self.assertRaisesRegex(ValueError,'inspection failed'):setup.bounded_inspection(['/ldd'],self.root)
+        result=json.loads((self.root/'command.json').read_text())
+        self.assertIn('timeout',result['error']);self.assertEqual(result['exitCode'],-9);self.assertTrue(result['waitCompleted'])
+
+    def test_dynamic_empty_or_vdso_only_closure_rejected(self):
+        for output in ('','linux-vdso.so.1 (0x1234)\n'):
+            with self.subTest(output=output),patch.object(setup,'bounded_inspection',return_value=output):
+                with self.assertRaisesRegex(ValueError,'closure is empty'):setup.dependency_paths(self.elf(True),self.root)
+    def test_static_load_alignment_and_fileless_entry_rejected(self):
+        import struct
+        for offset,value,message in ((64+16,0x400001,'alignment'),(24,0x400000+256,'file bytes')):
+            path=self.elf();data=bytearray(path.read_bytes())
+            if message=='file bytes':struct.pack_into('<Q',data,64+40,4096)
+            struct.pack_into('<Q',data,offset,value);path.write_bytes(data)
+            with self.subTest(message=message),self.assertRaisesRegex(ValueError,message):setup.dependency_paths(path,self.root)
+    def test_missing_node_clear_diagnostic(self):
+        with patch.object(setup.shutil,'which',return_value=None):
+            with self.assertRaisesRegex(ValueError,'hosted node unavailable'):setup.host_binaries()
+    def test_known_host_requires_executable_access_before_dependency_scan(self):
+        from contextlib import nullcontext
+        binary=self.elf();binary.chmod(0o600)
+        with patch.object(setup,'checked_setup',return_value=(self.root,self.root,self.root,object())),\
+             patch.object(setup.hosted_resources,'guard',return_value=nullcontext((None,{}))),\
+             patch.object(setup,'host_binaries',return_value=[binary]),patch.object(setup,'dependency_paths') as scan:
+            with self.assertRaisesRegex(ValueError,'executable unavailable'):setup.install({'PATH':'/usr/bin:/bin'})
+            scan.assert_not_called()
+    def test_command_combined_overflow_retains_exact_cap_and_wait(self):
+        process=types.SimpleNamespace(stdout=types.SimpleNamespace(fileno=lambda:100,close=lambda:None),
+            stderr=types.SimpleNamespace(fileno=lambda:101,close=lambda:None),poll=lambda:None,kill=lambda:None,wait=lambda **kw:-9)
+        class Selector:
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def register(self,*args):pass
+            def get_map(self):return {'pending':True}
+            def select(self,wait):return [(types.SimpleNamespace(fd=100,data='stdout'),None),(types.SimpleNamespace(fd=101,data='stderr'),None)]
+        with patch.object(setup.subprocess,'Popen',return_value=process),patch.object(setup.selectors,'DefaultSelector',Selector),\
+             patch.object(setup.os,'set_blocking'),patch.object(setup.os,'read',return_value=b'x'*65536):
+            with self.assertRaisesRegex(ValueError,'inspection failed'):setup.bounded_inspection(['/ldd'],self.root)
+        self.assertEqual(sum((self.root/(name+'.raw')).stat().st_size for name in ('stdout','stderr')),1024**2)
+        receipt=json.loads((self.root/'command.json').read_text());self.assertIn('raw cap',receipt['error'])
+        self.assertEqual(receipt['exitCode'],-9);self.assertTrue(receipt['waitCompleted'])
+    def test_dynamic_parse_failure_keeps_inspection_error(self):
+        with patch.object(setup,'bounded_inspection',return_value='unrecognized-loader-output\n'):
+            with self.assertRaisesRegex(ValueError,'Unknown dynamic'):setup.dependency_paths(self.elf(True),self.root)
+        self.assertIn('Unknown dynamic',json.loads((self.root/'dependency-0/inspection.json').read_text())['error'])
+
+    def test_command_nonzero_retains_bounded_raw_and_exit(self):
+        class Pipe(io.BytesIO):
+            def fileno(self):return 100 if self is process.stdout else 101
+        process=types.SimpleNamespace(stdout=Pipe(),stderr=Pipe(),poll=lambda:1,wait=lambda **kw:1)
+        pending=[100,101]
+        class Selector:
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def register(self,*args):pass
+            def get_map(self):return pending
+            def select(self,wait):
+                return [(types.SimpleNamespace(fd=fd,data='stdout' if fd==100 else 'stderr',fileobj=fd),None) for fd in pending[:]]
+            def unregister(self,fd):pending.remove(fd)
+        chunks={100:[b'not a dynamic executable\n',b''],101:[b'loader error\n',b'']}
+        with patch.object(setup.subprocess,'Popen',return_value=process),patch.object(setup.selectors,'DefaultSelector',Selector),\
+             patch.object(setup.os,'set_blocking'),patch.object(setup.os,'read',side_effect=lambda fd,n:chunks[fd].pop(0)):
+            with self.assertRaisesRegex(ValueError,'inspection failed'):setup.bounded_inspection(['/usr/bin/ldd','/target'],self.root)
+        self.assertEqual((self.root/'stderr.raw').read_bytes(),b'loader error\n')
+        self.assertEqual((self.root/'stdout.raw').read_bytes(),b'not a dynamic executable\n')
+        result=json.loads((self.root/'command.json').read_text());self.assertEqual(result['exitCode'],1);self.assertTrue(result['waitCompleted'])
 
 class IdentityTests(unittest.TestCase):
     def setUp(self):
