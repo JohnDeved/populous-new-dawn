@@ -16,7 +16,7 @@ import { discoverReceipts } from '../scripts/parity-measure.mjs'
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 const output = 'work/orchestration/m6-earned-victory/fixture'
 const firstPath = `${output}/fresh-release.json`
-const helpers = ['scripts/orchestration/receipt-streams.mjs', 'scripts/orchestration/command-receipt-v1.mjs']
+const helpers = ['scripts/orchestration/command-log.mjs', 'scripts/orchestration/receipt-streams.mjs', 'scripts/orchestration/command-receipt-v1.mjs']
 const runner = 'scripts/check-mission6-earned-victory.mjs'
 const closure = [runner, 'scripts/acceptance/m6/plan.json', 'scripts/acceptance/m6/output-path.mjs',
   ...helpers, 'scripts/orchestration/command-receipt.mjs', 'scripts/orchestration/dependency-profile.mjs',
@@ -91,7 +91,7 @@ function assertStopped(f, status, count = 1) {
 }
 
 for (const boundedEarlyCamp of [false, true])
-test(`actual M6 runner preserves ${boundedEarlyCamp ? '2 v2 / 17 v1 opt-in' : '1 v2 / 18 v1 default'} transport and review-only evidence`, t => {
+test(`actual M6 runner preserves ${boundedEarlyCamp ? '2 v2 / 17 v1 opt-in' : '1 v2 / 18 v1 default'} transport and review-only evidence`, async t => {
   const f = fixture(t, { boundedEarlyCamp }), result = f.run()
   assert.equal(result.status, 0, result.stderr)
   const manifest = f.json(`${output}/manifest.json`)
@@ -118,7 +118,7 @@ test(`actual M6 runner preserves ${boundedEarlyCamp ? '2 v2 / 17 v1 opt-in' : '1
     }
   }
   assertNoOverwrite(f)
-  const fallback = runCommandReceipt(f.repo, { output: 'work/orchestration/default.json',
+  const fallback = await runCommandReceipt(f.repo, { output: 'work/orchestration/default.json',
     command: [process.execPath, '-e', "process.stdout.write('default remains v1')"] })
   assert.equal(fallback.version, 1); assert.equal(fallback.stdout, 'default remains v1')
 
@@ -379,5 +379,21 @@ test('M6 CLI rejects unknown or duplicate opt-ins before creating output', t => 
     const result = spawnSync(process.execPath, [runner, output, ...args], { cwd: f.repo, encoding: 'utf8' })
     assert.notEqual(result.status, 0); assert.match(result.stderr, /Usage:/)
     assert.equal(existsSync(join(f.repo, output)), false)
+  }
+})
+
+test('actual M6 runner stops after a bounded standalone receipt exhausts its raw allowance', t => {
+  const f = fixture(t)
+  {
+    const result = spawnSync(process.execPath, [runner, output], { cwd: f.repo,
+      env: { ...process.env, POPULOUS_RECEIPT_MAX_RAW_BYTES: '32' },
+      encoding: 'utf8', maxBuffer: 1024 * 1024, timeout: 30000 })
+    assert.notEqual(result.status, 0)
+    const manifest = assertStopped(f, 'failed'), receipt = f.json(firstPath)
+    assert.equal(manifest.stages[0].status, 'failed')
+    assert.equal(receipt.status, 'failed'); assert.equal(receipt.rawCapture.complete, false)
+    assert.equal(receipt.rawBudget.usedBytes, 32)
+    assert.equal(existsSync(join(f.repo, `${firstPath}.artifacts/publication.pending`)), true)
+    assert.equal(existsSync(join(f.repo, `${firstPath}.artifacts/publication.complete`)), false)
   }
 })

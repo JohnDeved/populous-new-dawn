@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict'
+import { captureReceiptOutput, receiptRawBudget } from './command-log.mjs'
 import { spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
-import { closeSync, mkdirSync, openSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { closeSync, mkdirSync, openSync, readFileSync, readSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, isAbsolute, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
+import { StringDecoder } from 'node:string_decoder'
 import { captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
@@ -41,7 +43,27 @@ function sourceSnapshot(repo, inputs) {
   }
 }
 
-export function runCommandReceipt(repo, { output, command, inputs = [], env = process.env, cwd = repo }) {
+// Hash and decode the same bounded read. Preserve legacy UTF-8 replacement/BOM
+// semantics without retaining full raw copies or reopening a changed pathname.
+function readLegacyOutput(path, expected) {
+  const fd = openSync(path, 'r'), buffer = Buffer.alloc(64 * 1024), hash = createHash('sha256')
+  const decoder = new StringDecoder('utf8')
+  let bytes = 0, text = ''
+  try {
+    for (let count; (count = readSync(fd, buffer, 0, buffer.length, null)) > 0;) {
+      bytes += count
+      assert(bytes <= expected.bytes, 'Raw receipt output differs from observed child bytes')
+      const chunk = buffer.subarray(0, count)
+      hash.update(chunk); text += decoder.write(chunk)
+    }
+  } finally { closeSync(fd) }
+  assert(bytes === expected.bytes && hash.digest('hex') === expected.sha256,
+    'Raw receipt output differs from observed child bytes')
+  return text + decoder.end()
+}
+
+export function runCommandReceipt(repo, { output, command, inputs = [], env = process.env, cwd = repo, maxRawBytes }) {
+  const rawLogBudget = receiptRawBudget(env, maxRawBytes)
   assert(Array.isArray(command) && command.length, 'receipt command is required')
   assert(
     command.every(value => typeof value === 'string' && value.length),
@@ -65,6 +87,7 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
       cwd: resolve(cwd),
       startedAt: new Date().toISOString(),
       artifacts: { stdout: stdoutPath, stderr: stderrPath },
+      rawBudget: rawLogBudget.snapshot(),
     }
   started.parityMeasurements = finishMeasurement(measurementBefore, measurementBefore, { status: 'unknown', exitCode: null, finishedAt: started.startedAt })
   mkdirSync(dirname(target), { recursive: true })
@@ -74,50 +97,53 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
   writeFileSync(target, `${JSON.stringify(started, null, 2)}\n`, { flag: 'wx' })
   const stdoutFd = openSync(stdoutPath, 'wx', 0o600),
     stderrFd = openSync(stderrPath, 'wx', 0o600)
-  let result
-  try {
-    // Keep one foreground process tree, with raw output on disk during execution.
-    // If this wrapper is killed, only the unknown prelaunch record remains.
-    result = spawnSync(command[0], command.slice(1), {
-      cwd,
-      env,
-      stdio: ['ignore', stdoutFd, stderrFd],
-    })
-  } finally {
-    closeSync(stdoutFd)
-    closeSync(stderrFd)
-  }
-  const stdout = readFileSync(stdoutPath, 'utf8'),
-    stderr = readFileSync(stderrPath, 'utf8'),
-    receipt = {
-      ...started,
-      phase: 'finished',
-      status: result.status === 0 && !result.error ? 'passed' : 'failed',
-      finishedAt: new Date().toISOString(),
-      exitCode: result.status,
-      signal: result.signal,
-      error: result.error ? { code: result.error.code, message: result.error.message } : undefined,
-      stdout,
-      stderr,
-      stdoutSha256: sha256(stdout),
-      stderrSha256: sha256(stderr),
+  return (async () => {
+    let result
+    try {
+      // Keep one foreground process tree, with raw output on disk during execution.
+      // If this wrapper is killed, only the unknown prelaunch record remains.
+      result = await captureReceiptOutput(command, { cwd, env, rawLogBudget,
+        fds: { stdout: stdoutFd, stderr: stderrFd } })
+    } finally {
+      closeSync(stdoutFd)
+      closeSync(stderrFd)
     }
-  try {
-    receipt.sourceAfter = sourceSnapshot(repo, inputs)
-    if (!isDeepStrictEqual(receipt.source, receipt.sourceAfter)) receipt.status = 'invalidated'
-  } catch (error) {
-    receipt.status = 'invalidated'
-    receipt.sourceError = error.message
-  }
-  let measurementAfter = []
-  try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
-    // Keep the empty after-state: finishMeasurement invalidates prior evidence.
-  }
-  receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
-  const temporary = `${target}.${randomUUID()}.tmp`
-  writeFileSync(temporary, `${JSON.stringify(receipt, null, 2)}\n`, { flag: 'wx' })
-  renameSync(temporary, target)
-  return receipt
+    const stdout = readLegacyOutput(stdoutPath, result.streams.stdout),
+      stderr = readLegacyOutput(stderrPath, result.streams.stderr),
+      failure = result.captureError ?? result.spawnError,
+      receipt = {
+        ...started,
+        phase: 'finished',
+        status: result.exitCode === 0 && !failure ? 'passed' : 'failed',
+        finishedAt: new Date().toISOString(),
+        exitCode: result.exitCode,
+        signal: result.signal,
+        error: failure ? { code: rawLogBudget.error?.code ?? failure.code, message: failure.message } : undefined,
+        rawBudget: rawLogBudget.snapshot(),
+        rawCapture: { complete: result.complete, streams: result.streams,
+          ...(result.drainIncomplete ? { drainIncomplete: true, ownedChildPid: result.ownedChildPid, ownedChildExited: result.ownedChildExited } : {}) },
+        stdout,
+        stderr,
+        stdoutSha256: sha256(stdout),
+        stderrSha256: sha256(stderr),
+      }
+    try {
+      receipt.sourceAfter = sourceSnapshot(repo, inputs)
+      if (!isDeepStrictEqual(receipt.source, receipt.sourceAfter)) receipt.status = 'invalidated'
+    } catch (error) {
+      receipt.status = 'invalidated'
+      receipt.sourceError = error.message
+    }
+    let measurementAfter = []
+    try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
+      // Keep the empty after-state: finishMeasurement invalidates prior evidence.
+    }
+    receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
+    const temporary = `${target}.${randomUUID()}.tmp`
+    writeFileSync(temporary, `${JSON.stringify(receipt, null, 2)}\n`, { flag: 'wx' })
+    renameSync(temporary, target)
+    return receipt
+  })()
 }
 
 function parseArgs(args) {
@@ -142,9 +168,9 @@ function parseArgs(args) {
   return { ...options, command }
 }
 
-function main() {
+async function main() {
   const options = parseArgs(process.argv.slice(2)),
-    receipt = runCommandReceipt(ROOT, options)
+    receipt = await runCommandReceipt(ROOT, options)
   console.log(
     JSON.stringify(
       {
@@ -163,4 +189,4 @@ function main() {
   process.exitCode = receipt.status === 'passed' ? 0 : (receipt.exitCode || 1)
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main()
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main()
