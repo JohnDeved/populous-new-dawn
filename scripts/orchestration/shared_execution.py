@@ -680,6 +680,44 @@ def validate_mounts(mounts, evidence, protected, target, *, stage):
     require(len(destinations) == len(set(destinations)), 'Duplicate mount destinations')
 
 
+def verify_readonly_executable_alias(alias, expected_identity):
+    """Kernel mount status is independent of permission-denial ordering."""
+    import errno
+    before = os.stat(alias)
+    require((before.st_dev, before.st_ino) == tuple(expected_identity), 'Python alias inode changed')
+    flags = os.statvfs(alias).f_flag
+    require(flags & os.ST_RDONLY, 'Python alias mount is writable')
+    try:
+        fd = os.open(alias, os.O_WRONLY)
+    except OSError as error:
+        require(error.errno in (errno.EROFS, errno.EACCES, errno.ETXTBSY),
+                'Unexpected Python alias write denial: ' + repr(error))
+        denied_errno = error.errno
+    else:
+        os.close(fd)
+        raise ValueError('Python alias permits writable access')
+    after = os.stat(alias)
+    require(inode_key(before) == inode_key(after) and os.statvfs(alias).f_flag & os.ST_RDONLY,
+            'Python alias inode or readonly mount changed during check')
+    return {'readonlyMountFlags': flags, 'writeDeniedErrno': denied_errno,
+            'inode': [after.st_dev, after.st_ino], 'readonly': True}
+
+
+def with_python_command_alias(spec, plan):
+    """Expose only the already-pinned interpreter as the expected bare python3 name."""
+    interpreter = exact_path(spec['tools']['python'])
+    alias = interpreter.with_name('python3')
+    require(str(interpreter) in spec['tools']['readonly'], 'Python alias source must be an exact pinned tool root')
+    require(['ro', str(interpreter), str(interpreter)] in plan['mounts'],
+            'Python alias source is not an exact readonly interpreter mount')
+    if alias == interpreter:
+        return plan
+    require(all(Path(row[2]) != alias for row in plan['mounts']), 'Python command alias destination collision')
+    return {**plan, 'mounts': [*plan['mounts'], ['ro', str(interpreter), str(alias)]],
+            'pythonCommandAlias': {'source': str(interpreter), 'destination': str(alias),
+                                   'mode': 'readonly-bind', 'hostPathChanged': False}}
+
+
 def bubblewrap_command(spec, plan, control, command):
     require(command and all(isinstance(arg, str) and '\0' not in arg for arg in command), 'Invalid command argv')
     args = [spec['tools']['bwrap'], '--die-with-parent', '--new-session', '--unshare-pid', '--cap-drop', 'ALL', '--dir', '/dev']
@@ -1024,6 +1062,7 @@ class ProducerClock:
 def run_payload(spec, plan, evidence, command, limits, watch, *, producer_mode='gate', expected_exe=None,
                 producer_receipt=None):
     """One bounded projected command. All failure paths retain evidence and kill owned tasks."""
+    plan = with_python_command_alias(spec, plan)
     args = bubblewrap_command(spec, plan, evidence / 'control', command)
     save_new(evidence / 'mount-plan.json', plan)
     save_new(evidence / 'command.json', command)
@@ -1708,8 +1747,21 @@ def qualification_fixture(args):
                 raise ValueError('Protected namespace root permits mutation')
         require(not os.path.lexists(private), 'Preparation host alias was exposed')
         require(private_proc_view(ready) == identities, 'Private PID visibility changed during alias coverage')
+        alias = Path(sys.executable).with_name('python3')
+        expected = os.stat(sys.executable)
+        alias_info = os.stat(alias)
+        require((alias_info.st_dev, alias_info.st_ino) == (expected.st_dev, expected.st_ino),
+                'Bare Python alias is not the exact selected interpreter inode')
+        completed = subprocess.run(['python3', '-I', '-B', '-c',
+                                    'import os,sys,json; s=os.stat(sys.executable); print(json.dumps([s.st_dev,s.st_ino]))'],
+                                   check=True, capture_output=True, timeout=2)
+        require(len(completed.stdout) <= 256 and json.loads(completed.stdout) == [expected.st_dev, expected.st_ino],
+                'Bare python3 did not execute the exact pinned interpreter')
+        alias_readonly = verify_readonly_executable_alias(alias, [expected.st_dev, expected.st_ino])
         save_new(output, {'deniedPaths': denied, 'preparationHostAliasAbsent': True,
-                          'visiblePrivateProcesses': identities, 'allVisibleProcRootAliasesChecked': True})
+                          'visiblePrivateProcesses': identities, 'allVisibleProcRootAliasesChecked': True,
+                          'pythonCommandAlias': {'path': str(alias), 'inode': [expected.st_dev, expected.st_ino],
+                                                 'bareCommandExecuted': True, **alias_readonly}})
     elif mode == 'rename':
         path = Path('/pnd-fixture/node_modules') / STATE
         old = path.read_bytes()
