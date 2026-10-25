@@ -153,6 +153,77 @@ export function writeLegacyLog(directory, name, text, { rawLogBudget = createRaw
   return file.path
 }
 
+// Shared owned-child pipe transport. Receipt callers do not acquire a new
+// workload deadline; verifier callers retain their explicit existing timeout.
+export async function captureOwnedCommand(command, { cwd, env, timeoutMs, rawLogBudget, writeChunk, stdin = 'pipe' }) {
+  if (rawLogBudget.error) throw rawLogBudget.error
+  let captureError, spawnError, child, resolveClosing, timer, drainTimer, unsubscribe
+  const failed = error => {
+    if (captureError) return
+    captureError = error
+    // This exact spawned child is the only process owned by this helper.
+    if (child?.pid && child.exitCode === null && child.signalCode === null) {
+      try { assert(child.kill('SIGKILL'), 'Owned child could not be signaled') } catch (failure) { captureError = new AggregateError([captureError, failure], 'Owned child cleanup failed') }
+    }
+    // A descendant may retain inherited pipes. Release only our read handles
+    // after the failure drain deadline, never signal an unrelated process.
+    drainTimer ??= setTimeout(() => {
+      child?.stdin?.destroy(); child?.stdout?.destroy(); child?.stderr?.destroy()
+      child?.unref()
+      // A failed signal must not make the capture wait forever for process
+      // exit. Report observed state only; do not claim this producer stopped.
+      resolveClosing?.({ exitCode: child?.exitCode ?? null, timedOut: false,
+        drainIncomplete: true, ownedChildPid: child?.pid, ownedChildExited: child?.exitCode !== null || child?.signalCode !== null })
+    }, FAILED_DRAIN_MS)
+  }
+  unsubscribe = rawLogBudget.subscribe(failed)
+  try { child = spawn(command[0], command.slice(1), { cwd, env, shell: false, stdio: [stdin, 'pipe', 'pipe'] }) }
+  catch (error) { unsubscribe(); throw error }
+  const closing = new Promise(resolveOutcome => {
+    resolveClosing = resolveOutcome
+    child.once('error', error => { spawnError = error })
+    // close follows process exit and closure of its stdio, unlike exit alone.
+    child.once('close', code => {
+      clearTimeout(timer); clearTimeout(drainTimer)
+      resolveOutcome({ exitCode: spawnError ? 1 : code ?? 1, timedOut: spawnError || rawLogBudget.error ? false : code === null })
+    })
+  })
+  for (const name of names) {
+    child[name].on('data', chunk => {
+      if (captureError) return // Partial evidence remains guarded; never promote it.
+      // Synchronous bounded writes exert pipe backpressure without a retained
+      // JS promise/chunk queue. A slow disk can delay event-loop timers.
+      try { writeChunk(name, chunk) } catch (error) { failed(error) }
+    })
+    child[name].on('error', failed)
+  }
+  if (timeoutMs !== undefined) timer = setTimeout(() => { try { child.kill('SIGKILL') } catch (error) { failed(error) } }, timeoutMs)
+  const outcome = await closing
+  clearTimeout(timer); clearTimeout(drainTimer); unsubscribe?.()
+  return { ...outcome, signal: child.signalCode, childExitCode: child.exitCode, spawnError, captureError }
+}
+
+// The receipt writer owns/pins the descriptors. Never hand writable evidence
+// handles to the child or allocate another copy of its raw output.
+export async function captureReceiptOutput(command, { cwd, env, fds, rawLogBudget }) {
+  const files = Object.fromEntries(names.map(name => [name, { fd: fds[name],
+    observed: { hash: createHash('sha256'), bytes: 0 } }]))
+  const outcome = await captureOwnedCommand(command, { cwd, env, rawLogBudget, stdin: 'ignore',
+    writeChunk: (name, bytes) => write(files[name], bytes, rawLogBudget) })
+  return { ...outcome, exitCode: outcome.spawnError ? null : outcome.childExitCode, complete: !outcome.captureError,
+    streams: Object.fromEntries(names.map(name => [name, {
+      bytes: files[name].observed.bytes, sha256: files[name].observed.hash.digest('hex'),
+    }])) }
+}
+
+export function receiptRawBudget(env, maxRawBytes) {
+  if (maxRawBytes !== undefined) return createRawLogBudget(maxRawBytes)
+  const value = env.POPULOUS_RECEIPT_MAX_RAW_BYTES
+  assert(value === undefined || /^(0|[1-9][0-9]*)$/.test(value),
+    'POPULOUS_RECEIPT_MAX_RAW_BYTES must be a nonnegative safe integer')
+  return createRawLogBudget(value === undefined ? undefined : Number(value))
+}
+
 export async function captureCommand(command, { cwd, env, timeoutMs, directory, diagnosticMode = 'eager-v1',
   maxRawBytes = DEFAULT_MAX_RAW_BYTES, rawLogBudget = createRawLogBudget(maxRawBytes) }) {
   assert(Array.isArray(command) && command.length && command.every(arg => typeof arg === 'string'), 'Command arguments are required')
@@ -163,7 +234,7 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
   const lazy = diagnosticMode === 'raw-only-v2'
   const target = resolve(directory), pins = pinDirectories(dirname(target)), files = new Map()
   const runId = randomUUID(), descriptor = join(target, 'capture.json')
-  let child, outcome, operationError, renamed = false, closing, resolveClosing, timer, drainTimer, unsubscribe, diagnostic, descriptorHash, stopAttempted = false
+  let outcome, operationError, renamed = false, diagnostic, descriptorHash
   const validate = (closed = false) => {
     validateDirectories(pins, closed)
     for (const [name, file] of files) if (!(renamed && name === 'capture.json')) regular(file, closed)
@@ -188,48 +259,11 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
         'Only direct owned children are signaled; descendant cleanup is not claimed'] }
     write(files.get('capture.json'), Buffer.from(JSON.stringify(pending, null, 2) + '\n'))
     files.get('capture.json').captured = regular(files.get('capture.json'))
-    let captureError, spawnError
-    const failed = error => {
-      if (captureError) return
-      captureError = error
-      // This exact spawned child is the only process owned by this helper.
-      if (child?.pid && child.exitCode === null && child.signalCode === null) {
-        stopAttempted = true
-        try { assert(child.kill('SIGKILL'), 'Owned child could not be signaled') } catch (failure) { captureError = new AggregateError([captureError, failure], 'Owned child cleanup failed') }
-      }
-      // A descendant may retain inherited pipes. Release only our read handles
-      // after the failure drain deadline, never signal an unrelated process.
-      drainTimer ??= setTimeout(() => {
-        child?.stdin.destroy(); child?.stdout.destroy(); child?.stderr.destroy()
-        child?.unref()
-        // A failed signal must not make the capture wait forever for process
-        // exit. Report observed state only; do not claim this producer stopped.
-        resolveClosing?.({ exitCode: child?.exitCode ?? null, timedOut: false,
-          drainIncomplete: true, ownedChildPid: child?.pid, ownedChildExited: child?.exitCode !== null || child?.signalCode !== null })
-      }, FAILED_DRAIN_MS)
-    }
-    unsubscribe = rawLogBudget.subscribe(failed)
-    child = spawn(command[0], command.slice(1), { cwd, env, shell: false })
-    closing = new Promise(resolveOutcome => {
-      resolveClosing = resolveOutcome
-      child.once('error', error => { spawnError = error })
-      // close follows process exit and closure of its stdio, unlike exit alone.
-      child.once('close', code => {
-        clearTimeout(timer); clearTimeout(drainTimer)
-        resolveOutcome({ exitCode: spawnError ? 1 : code ?? 1, timedOut: spawnError || rawLogBudget.error ? false : code === null })
-      })
+    const { captureError, spawnError, signal: _signal, childExitCode: _childExitCode, ...captured } = await captureOwnedCommand(command, {
+      cwd, env, timeoutMs, rawLogBudget,
+      writeChunk: (name, bytes) => write(files.get(name + '.log'), bytes, rawLogBudget),
     })
-    for (const name of names) {
-      child[name].on('data', chunk => {
-        if (captureError) return // Partial evidence remains guarded; never promote it.
-        // Synchronous bounded writes exert pipe backpressure without a retained
-        // JS promise/chunk queue. A slow disk can delay event-loop timers.
-        try { write(files.get(name + '.log'), chunk, rawLogBudget) } catch (error) { failed(error) }
-      })
-      child[name].on('error', failed)
-    }
-    timer = setTimeout(() => { try { child.kill('SIGKILL') } catch (error) { failed(error) } }, timeoutMs)
-    outcome = await closing
+    outcome = captured
     if (captureError && !rawLogBudget.error) throw captureError
     validate()
     const combined = files.get('combined.log'), streams = {}, decodedHash = createHash('sha256')
@@ -260,13 +294,7 @@ export async function captureCommand(command, { cwd, env, timeoutMs, directory, 
     if (rawLogBudget.error) throw captureError ?? rawLogBudget.error
   } catch (error) {
     operationError = error
-    if (!stopAttempted && child?.pid && child.exitCode === null && child.signalCode === null) {
-      try { child.kill('SIGKILL') } catch (failure) { operationError = new AggregateError([error, failure], 'Owned child cleanup failed') }
-    }
-    if (closing) await closing
-    clearTimeout(timer); clearTimeout(drainTimer)
   }
-  unsubscribe?.()
   const errors = operationError ? [operationError] : []
   for (const file of [...files.values(), ...pins]) try { fs.closeSync(file.fd) } catch (error) { errors.push(error) }
   if (errors.length) throw new AggregateError(errors, 'Command log capture incomplete')

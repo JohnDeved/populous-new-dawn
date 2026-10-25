@@ -265,11 +265,27 @@ test('aggregate accepts only the exact historical or current workflow argv', t =
     { id: 'orchestration-tests', executable: 'node', args },
     { id: 'orchestration-structural', executable: 'node', args: ['scripts/orchestration/cli.mjs', 'check'] },
   ].map(check => ({ ...check, cwd: '.', automation: 'safe', env: [], expected: { exitCode: 0, artifacts: [] } })) } })
-  assert.deepEqual(repositoryCheckCoverage(root, make(current)), ['orchestration-tests', 'orchestration-structural'])
-  assert.deepEqual(repositoryCheckCoverage(root, make(current.filter(path => path !== 'tests/command-log.test.mjs'))), ['orchestration-tests', 'orchestration-structural'])
-  for (const args of [current.slice(0, -1), [...current].reverse(), [...current, 'tests/extra.test.mjs'],
-    current.map(path => path === 'tests/command-log.test.mjs' ? 'tests/unknown.test.mjs' : path)])
-    assert.deepEqual(repositoryCheckCoverage(root, make(args)), ['orchestration-structural'])
+  // Freeze both historical versions independently: removing only command-log
+  // from today's registry would leave a never-approved hybrid with budget suites.
+  const historical = [
+    ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs',
+      'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'],
+    ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs',
+      'tests/command-log.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'],
+  ]
+  for (const accepted of [...historical, current]) {
+    assert.deepEqual(repositoryCheckCoverage(root, make(accepted)), ['orchestration-tests', 'orchestration-structural'])
+    for (const args of [accepted.slice(0, -1), [...accepted].reverse(), [...accepted, 'tests/extra.test.mjs'],
+      [...accepted, accepted.at(-1)],
+      accepted.map(path => path === 'tests/orchestration.test.mjs' ? 'tests/unknown.test.mjs' : path)])
+      assert.deepEqual(repositoryCheckCoverage(root, make(args)), ['orchestration-structural'])
+  }
+  for (const removed of current.slice(1))
+    assert.deepEqual(repositoryCheckCoverage(root, make(current.filter(path => path !== removed))), ['orchestration-structural'])
+  const swappedBudgets = current.map(path => path === 'tests/receipt-raw-budget.test.mjs'
+    ? 'tests/receipt-budget-failures.test.mjs' : path === 'tests/receipt-budget-failures.test.mjs'
+      ? 'tests/receipt-raw-budget.test.mjs' : path)
+  assert.deepEqual(repositoryCheckCoverage(root, make(swappedBudgets)), ['orchestration-structural'])
 })
 
 

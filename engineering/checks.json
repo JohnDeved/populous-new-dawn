@@ -1019,7 +1019,8 @@
       ],
       "executable": "node",
       "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs",
-        "tests/receipt-streams.test.mjs", "tests/command-log.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
+        "tests/receipt-streams.test.mjs", "tests/receipt-raw-budget.test.mjs",
+        "tests/receipt-budget-failures.test.mjs", "tests/command-log.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
