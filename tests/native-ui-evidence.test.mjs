@@ -588,7 +588,7 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(checkouts.length, 3); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
   const helper = checkouts[1]
   assert.equal(helper.if, "${{ inputs.evidence_kind == 'material-lifecycle' }}")
-  assert.equal(helper.with.ref, 'aa929130115be16ccccc028d07199c5f7d4d73a2')
+  assert.equal(helper.with.ref, '43a9b2988b8e7fdbaa89721b88422d3765a8c156')
   assert.equal(helper.with.repository, 'JohnDeved/populous-new-dawn')
   assert.equal(helper.with.path, 'material-helper-source')
   assert.deepEqual(checkouts.filter(step => !step.if), [checkouts[0], checkouts[2]])

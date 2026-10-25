@@ -36,10 +36,10 @@ ARCHIVE_BYTES = 120477194
 EXPANDED_BYTES = 273953147
 ARCHIVE_MEMBERS = 287
 RAW_BYTES = 16*1024**2
-ADAPTER_SHA = '78ff6594ce980eaad5ef024b16c49e8ad00cd71a15b14110968282d586f36447'
-HELPER_COMMIT = 'aa929130115be16ccccc028d07199c5f7d4d73a2'
+ADAPTER_SHA = '5403e4582162852704df0aa115ce1ab94b08ce4cf9fadf8d5e83aeb9af69ab00'
+HELPER_COMMIT = '43a9b2988b8e7fdbaa89721b88422d3765a8c156'
 HELPERS = ('shared_execution.py','shared_runtime.py','shared_setup.py','shared_workspace.py','state_serialization.py')
-HELPER_SHA256 = {'state_serialization.py': 'e363a34595ae6d9e159e2c0d43e10d801c6f97a48d079e66a0daa925e59b97ba', 'shared_workspace.py': '69436e7fa46b0e8307ff01fc52ffe57132eb76b748632c6d9d3444c466c3cf53', 'shared_execution.py': '78ff6594ce980eaad5ef024b16c49e8ad00cd71a15b14110968282d586f36447', 'shared_setup.py': 'ac28e0052dd9922a0f393e7ceb1b225025409fa9aa5d1ad24ea388211631fd43', 'shared_runtime.py': 'bfc20d91544167d9491f3246c0b651eba3345468e910bd8ed6eec7a55a421d65'}
+HELPER_SHA256 = {'state_serialization.py': 'e363a34595ae6d9e159e2c0d43e10d801c6f97a48d079e66a0daa925e59b97ba', 'shared_workspace.py': '69436e7fa46b0e8307ff01fc52ffe57132eb76b748632c6d9d3444c466c3cf53', 'shared_execution.py': '5403e4582162852704df0aa115ce1ab94b08ce4cf9fadf8d5e83aeb9af69ab00', 'shared_setup.py': 'ac28e0052dd9922a0f393e7ceb1b225025409fa9aa5d1ad24ea388211631fd43', 'shared_runtime.py': 'bfc20d91544167d9491f3246c0b651eba3345468e910bd8ed6eec7a55a421d65'}
 
 
 def save(path, value):
