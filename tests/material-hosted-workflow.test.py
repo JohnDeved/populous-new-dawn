@@ -67,6 +67,9 @@ class ProducerCallerTests(unittest.TestCase):
                 with patch.object(setup,'checked_setup',return_value=(root,root,root,shared)),\
                      patch.object(setup.hosted_resources,'guard',return_value=nullcontext((watch,details))),\
                      patch.object(setup.hosted_resources,'install',side_effect=producer),\
+                     patch.object(setup,'host_binaries',return_value=[root/'fixture-host-tool']),\
+                     patch.object(setup.os,'access',side_effect=lambda path,mode: mode==os.X_OK and
+                         str(path) in (str(root/'fixture-host-tool'),'/usr/bin/curl')),\
                      patch.object(setup,'dependency_paths',return_value=set()),\
                      patch.object(setup,'extract') as extract:
                     with self.assertRaises(ProducerFailed):caller({'PATH':'/usr/bin:/bin'})
