@@ -61,6 +61,16 @@ For narrow read-only research or a small docs fix, a compact issue/PR brief is e
 Do not create another contract just to delegate. An optional contract helps when scope,
 generated ownership, or multi-step verification needs mechanical checks.
 
+## Bound source-only workspace recovery
+
+Use the [cloud workspace bootstrap](cloud-bootstrap.md) for an explicit owned-storage
+binding and a read-only plan; source-only apply creates a sparse local source
+workspace without installing dependencies or materializing shared game assets.
+Runtime mode remains plan-only. The implementation has scoped source-only review,
+not acceptance of current-main integration, historical native recovery, runtime
+execution, startup adoption, permanent storage survival or RAM savings. Continue
+using [native setup](native-setup.md) separately when native prerequisites are needed.
+
 ## Visual evidence before review
 
 - Any UI or game visual change requires actual rendered screenshots attached or
