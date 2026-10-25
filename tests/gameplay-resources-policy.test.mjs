@@ -253,3 +253,57 @@ test('v4 rejects incomplete, reordered, stale, cross-document, aliased or cleanu
   assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected), `mutation ${index}`)
  }
 })
+
+import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS, validateGameplayOwnershipEvidence } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+test('weak-v1 source-bound artifact validates per-retirement observations, never an aggregate memory claim', () => {
+ const v=directFixture(GAMEPLAY_OWNERSHIP_POLICY), result=validateGameplayResourceArtifact(v.files,v.expected)
+ assert.equal(result.ownershipVerified,true);assert.equal(result.ownership.protocolVerified,true)
+ assert.equal(result.ownership.aggregation,'per-retirement-only-no-cross-record-byte-total')
+ assert.equal(result.ownership.coverageComplete,true);assert.equal(result.phaseCount,15)
+ assert.deepEqual(GAMEPLAY_OWNERSHIP_INPUTS,[...GAMEPLAY_THREE_CYCLE_INPUTS,'scripts/tutorial-browser/gameplay-ownership-observer.mjs','app/globe-renderer.ts','app/scene-terrain-runtime.ts'])
+ const first=v.report.resources.heap.samples[1].ownership.records[0]
+ for(const sample of v.report.resources.heap.samples.slice(1)) {
+  const r=sample.ownership.records[0];r.owners[1]={label:'globe',status:'missing',survival:'unavailable'};r.complete=false
+ }
+ v.report.resources.restarts[0].ownershipRegistration.registeredOwners=3;v.save()
+ assert.equal(validateGameplayResourceArtifact(v.files,v.expected).ownership.coverageComplete,false)
+ assert.equal(first.survivingRegisteredByteLengths,192)
+})
+test('historical v1-v4 reject every ownership marker, even empty/null markers', () => {
+ for(const policy of [GAMEPLAY_RESOURCE_POLICY,GAMEPLAY_HEAP_POLICY,GAMEPLAY_MATCHED_POLICY,GAMEPLAY_THREE_CYCLE_POLICY]) {
+  for(const mutate of [
+   v=>{v.raw.gameplayOwnershipProbe=null},v=>{v.raw.gameplayOwnershipSelection={}},v=>{v.report.ownershipProbe={}},v=>{v.raw.command=['node','run','--gameplay-ownership-probe=weak-v1']},
+   v=>{(v.report.resources.restarts?.[0]??v.report.resources.restart).ownershipRegistration={}},
+   ...(policy===GAMEPLAY_RESOURCE_POLICY?[]:[v=>{v.report.resources.heap.samples[0].ownership={}},v=>{v.report.resources.heap.samples[0].ownershipTiming={}}]),
+  ]) {const v=directFixture(policy);mutate(v);v.save();assert.throws(()=>validateGameplayResourceArtifact(v.files,v.expected))}
+ }
+})
+test('weak-v1 rejects altered selection, count/order, timing, bounds, sums, source and resurrection', () => {
+ const mutations=[
+  v=>{delete v.raw.gameplayOwnershipProbe},v=>{delete v.raw.gameplayOwnershipSelection},
+  v=>{v.raw.gameplayOwnershipSelection.headSha='d'.repeat(40)},v=>{v.raw.gameplayOwnershipSelection.label='weak-v1'},
+  v=>{v.raw.gameplayOwnershipSelection.action='labeled'},v=>{v.raw.command.pop()},
+  v=>{delete v.raw.source.files['scripts/tutorial-browser/gameplay-ownership-observer.mjs']},
+  v=>{v.raw.source.files['app/globe-renderer.ts']='f'.repeat(64)},v=>{v.raw.source.files['app/scene-terrain-runtime.ts']='f'.repeat(64)},
+  v=>{v.report.resources.heap.samples[2].ownership.records=[]},
+  v=>{v.report.resources.heap.samples[0].ownership.records=[v.report.resources.heap.samples[1].ownership.records[0]]},
+  v=>{v.report.resources.heap.samples[2].ownership.records.reverse()},
+  v=>{v.report.resources.heap.samples[1].ownershipTiming.startedMs=0},
+  v=>{v.report.resources.heap.samples[1].ownershipTiming.completedMs=99999},
+  v=>{delete v.report.resources.heap.samples[1].ownershipTiming},
+  v=>{v.report.resources.heap.samples[1].ownership.extra='unbounded'},
+  v=>{v.report.resources.heap.samples[1].ownership.limits='x'.repeat(65537)},
+  v=>{v.report.resources.restarts[0].ownershipRegistration.registeredBuffers=10},
+  v=>{v.report.resources.restarts[0].ownershipRegistration.slots.pop()},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].owners.pop()},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].survivingBufferCount++},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].survivingRegisteredByteLengths++},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].buffers[0].byteLengthChanged=true},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].buffers[0].registeredByteLength=-1},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].slots[0].bufferId=2},
+  v=>{v.report.resources.heap.samples[2].ownership.records[0].buffers[0].registeredByteLength++},
+  v=>{v.report.resources.heap.samples[1].ownership.records[0].owners[0].survival='collected'},
+  v=>{const r=v.report.resources.heap.samples[1].ownership.records[0];Object.assign(r.buffers[0],{survival:'collected',currentByteLength:null,byteLengthChanged:null});r.survivingBufferCount=1;r.survivingRegisteredByteLengths=128},
+ ]
+ for(const [index,mutate] of mutations.entries()) {const v=directFixture(GAMEPLAY_OWNERSHIP_POLICY);v.raw.source.files={...v.raw.source.files};const before=JSON.stringify(v.raw), trusted=JSON.stringify(v.expected);mutate(v);assert.notEqual(JSON.stringify(v.raw),before,`mutation ${index} must change evidence`);assert.equal(JSON.stringify(v.expected),trusted,`mutation ${index} must not change trusted expectation`);v.save();assert.throws(()=>validateGameplayResourceArtifact(v.files,v.expected),`mutation ${index}`)}
+})

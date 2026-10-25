@@ -42,6 +42,7 @@ export const GAMEPLAY_RESOURCE_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, g
 export const GAMEPLAY_HEAP_BROWSER_GATE = { ...GAMEPLAY_RESOURCE_BROWSER_GATE, gameplayHeapRequired: true }
 export const GAMEPLAY_MATCHED_BROWSER_GATE = { ...GAMEPLAY_HEAP_BROWSER_GATE, gameplayMatchedCyclesRequired: true }
 export const GAMEPLAY_THREE_CYCLE_BROWSER_GATE = { ...GAMEPLAY_HEAP_BROWSER_GATE, gameplayThreeCyclesRequired: true }
+export const GAMEPLAY_OWNERSHIP_BROWSER_GATE = { ...GAMEPLAY_THREE_CYCLE_BROWSER_GATE, gameplayOwnershipRequired: true }
 export const SPELL_VISUAL_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, spellVisualsRequired: true, spellVisualsJob: 'Spell visuals browser' }
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
@@ -61,6 +62,7 @@ export const SHARDED_FULL_GATE = {
 export const gatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
   entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY ? COMPOSED_PROFILE_BROWSER_GATE :
+  entry.browserPolicy === 'gameplay-resources-weak-v1' ? GAMEPLAY_OWNERSHIP_BROWSER_GATE :
   entry.browserPolicy === 'gameplay-resources-nine-v4' ? GAMEPLAY_THREE_CYCLE_BROWSER_GATE :
   entry.browserPolicy === 'gameplay-resources-nine-v3' ? GAMEPLAY_MATCHED_BROWSER_GATE :
   entry.browserPolicy === 'gameplay-resources-nine-v2' ? GAMEPLAY_HEAP_BROWSER_GATE :
@@ -137,11 +139,11 @@ export function validateEntry(entry) {
       Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
       'Diagnostic policy must pin one literal activation PR under sharded-v1')
   }
-  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2', 'gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4'].includes(entry.browserPolicy),
+  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2', 'gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy),
     'Unsupported browser evidence policy')
   requireThat(entry.browserPolicy === 'spell-visuals-nine-v2'
     ? entry.browserCheckpointVersion === 4
-    : ['gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4'].includes(entry.browserPolicy) ? entry.browserCheckpointVersion === 3
+    : ['gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy) ? entry.browserCheckpointVersion === 3
     : entry.browserCheckpointVersion === undefined || entry.browserCheckpointVersion === 3,
     'Spell visuals requires explicit v4; gameplay resources requires explicit v3; older policies remain v3')
   requireThat(entry.profileArtifactPolicy === undefined ||
@@ -152,7 +154,7 @@ export function validateEntry(entry) {
     requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
       t.sourceHead === entry.sourceHead && t.base === entry.reviewBase &&
       hash(t.baseSha256) && t.candidateSha256 === entry.workflowHashes[t.workflow] &&
-      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2', 'gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4'].includes(entry.browserPolicy) &&
+      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2', 'gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy) &&
       entry.allowMechanicalRefresh === false,
     'Browser workflow transition must pin reviewed base/head and both digests without refresh')
   }
@@ -653,6 +655,7 @@ export function validatePassedGate(o, gate, latest) {
       (!gate.gameplayHeapRequired || latest.gameplayHeapVerified === true) &&
       (!gate.gameplayMatchedCyclesRequired || latest.gameplayMatchedCyclesVerified === true) &&
       (!gate.gameplayThreeCyclesRequired || latest.gameplayThreeCyclesVerified === true) &&
+      (!gate.gameplayOwnershipRequired || latest.gameplayOwnershipVerified === true) &&
       (!gate.composedRequired || (latest.tornadoVerified === true && latest.spySourceVerified === true)) &&
       gate.steps.every(
         name =>

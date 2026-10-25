@@ -13,9 +13,14 @@ const assertBrowserDispatch = workflow => {
   assert.equal(steps.length, 1, 'Exactly one browser dispatch step')
   const [step] = steps
   assert.equal(step.name, "${{ matrix.scenario == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}")
+  assert.deepEqual(step.env, { POPULOUS_GAMEPLAY_OWNERSHIP: "${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}" })
   assert.equal(step.run, [
     'if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then',
-    '  node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1',
+    '  if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then',
+    '    node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1',
+    '  else',
+    '    node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1',
+    '  fi',
     'else',
     '  node scripts/tutorial-browser/run.mjs',
     'fi',
@@ -214,6 +219,9 @@ test('resource-only dispatch rejects widened selection, changed defaults, labels
   const original = yaml.load(read('tutorial-browser.yml'))
   const selected = original.jobs['tutorial-browser'].steps.findIndex(step => step.run?.includes('scripts/tutorial-browser/run.mjs'))
   const changes = [
+    step => { step.env.POPULOUS_GAMEPLAY_OWNERSHIP = 'weak-v1' },
+    step => { step.env.POPULOUS_GAMEPLAY_OWNERSHIP = step.env.POPULOUS_GAMEPLAY_OWNERSHIP.replace("format('weak-v1:{0}', github.event.pull_request.head.sha)", "'weak-v1'") },
+    step => { step.run = step.run.replace('--gameplay-ownership-probe=weak-v1', '--gameplay-ownership-probe=other') },
     step => { step.run = step.run.replace('= gameplay-resources', '!= tutorial') },
     step => { step.run = step.run.replace('three-cycle-v1', 'two-cycle-v1') },
     step => { step.run = step.run.replace('else\n  node scripts/tutorial-browser/run.mjs\n', 'else\n  node scripts/tutorial-browser/run.mjs --gameplay-resource-profile=three-cycle-v1\n') },

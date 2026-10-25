@@ -1,3 +1,4 @@
+import { registerRetiredGameplayOwnership, sampleRetiredGameplayOwnership, clearRetiredGameplayOwnership } from './gameplay-ownership-observer.mjs'
 import assert from 'node:assert/strict'
 import { gameplayThreeCycleProfile } from './gameplay-resource-profile.mjs'
 import { captureGameplayThreeCycleHeapSample, gameplayThreeCycleHeapPolicy, gameplayThreeCycleHeapLimits, gameplayThreeCycleProtocol, gameplayThreeCycleResourceLimits, validateGameplayThreeCycleHeapProbe, summarizeGameplayThreeCycleWorkload } from './gameplay-heap-observer.mjs'
@@ -28,10 +29,11 @@ export function gameplayPhaseSchedule(measuredPhases) {
   return plan.phases.slice(0, lastPhase + 1).map(phase => ({ phase, measured: measuredPhases.includes(phase.name) }))
 }
 
-export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name), resourceLifecycle = false, resourceProfile }) {
+export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name), resourceLifecycle = false, resourceProfile, ownershipProbe }) {
   assertResourceScenario(resourceLifecycle, measuredPhases, plan.phases.map(phase => phase.name))
   assert.ok(resourceProfile === undefined || (resourceLifecycle && resourceProfile === gameplayThreeCycleProfile), 'Unknown resource profile')
   const threeCycles = resourceProfile === gameplayThreeCycleProfile
+  assert.ok(ownershipProbe === undefined || (ownershipProbe === 'weak-v1' && threeCycles), 'Ownership diagnostic requires three-cycle-v1')
   const schedule = gameplayPhaseSchedule(measuredPhases)
   const report = { schema: 'populous-new-dawn/gameplay-frame-recording', schemaVersion: 1,
     status: 'running', plan, measuredPhases, expectedRevision, phases: [], limits: gameplayFrameLimits }
@@ -45,12 +47,14 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       report.resources = { version: 4, status: 'observing', limits: gameplayThreeCycleResourceLimits, restarts: [] }
     }
   }
+  if (ownershipProbe) report.ownershipProbe = { version: 1, scope: 'bounded-retired-wrapper-survival-only' }
   const save = () => writeFileSync(resolve(output, 'gameplay-frames.json'), JSON.stringify(report, null, 2) + '\n')
   const observe = () => page.evaluate(observeGameplayFramePhase)
   const graph = page.locator('.fps-graph')
   let heapSession
   save()
   try {
+    if (ownershipProbe) await page.evaluate(clearRetiredGameplayOwnership)
     await page.setViewportSize(plan.viewport)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await showAllMissions(page)
@@ -174,6 +178,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       heapSession = await page.context().newCDPSession(page)
       const heapSample = boundary => (threeCycles ? captureGameplayThreeCycleHeapSample : captureGameplayMatchedHeapSample)({ session: heapSession, boundary,
         onSample: sample => { report.resources.heap.samples.push(sample); save() },
+        ...(ownershipProbe ? { afterHeapRead: () => page.evaluate(sampleRetiredGameplayOwnership) } : {}),
         observe: () => page.evaluate(observeGameplayResources),
         assertF8Hidden: async () => assert.equal(await graph.isVisible(), false, 'Heap probe must remain outside F8 windows') })
       await heapSample('after-cycle-1-workload'); save()
@@ -191,7 +196,12 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         await menu.getByRole('button', { name: 'Yes', exact: true }).click()
         const disposed = await page.waitForFunction(() => window.testScene?.disposed === true)
         await disposed.dispose()
-        restart.retired = await page.evaluate(captureRetiredGameplayScene)
+        try {
+          if (ownershipProbe) restart.ownershipRegistration = await page.evaluate(registerRetiredGameplayOwnership)
+        } finally {
+          // Even unsupported/malformed diagnostics must release the old aliases.
+          restart.retired = await page.evaluate(captureRetiredGameplayScene)
+        }
         save()
         await bindGame(page)
         const restarted = await page.waitForFunction(m2StartupReady)
@@ -248,6 +258,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     try {
       if (resourceLifecycle && !page.isClosed()) await page.evaluate(() => {
         delete window.testScene; delete window.testSceneRef; delete window.testStore
+        delete window.__populousGameplayOwnershipV1
       })
     } catch (cleanupError) {
       report.status = 'failed'; report.resourceObserverCleanupFailure = String(cleanupError)

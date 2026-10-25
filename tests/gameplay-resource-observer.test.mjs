@@ -110,7 +110,7 @@ test('existing runner owns mandatory dedicated scenario and preserves complete o
   const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8')
   const runner = read('scripts/tutorial-browser/run.mjs'), frames = read('scripts/tutorial-browser/gameplay-frames.mjs')
   const dedicated = runner.split("} else if (selectedScenario === 'gameplay-resources') {")[1].split("} else if (selectedScenario === 'gameplay-frames') {")[0]
-  assert.match(dedicated, /receipt\.gameplayResources = .*default\(\{ page, url, output: out, expectedRevision: receipt\.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments\.profile \}\)/)
+  assert.match(dedicated, /receipt\.gameplayResources = .*default\(\{ page, url, output: out, expectedRevision: receipt\.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments\.profile, ownershipProbe: resourceArguments\.ownershipProbe \}\)/)
   assert.doesNotMatch(dedicated, /measuredPhases|meleeScenario|followerCorpseScenario/)
   const original = runner.split("} else if (selectedScenario === 'gameplay-frames') {")[1].split("} else if (['profile-recovery'")[0]
   assert.match(original, /receipt\.gameplayFrames = .*default\(\{ page, url, output: out, expectedRevision: receipt\.buildRevision \}\)/)
@@ -167,14 +167,20 @@ test('hosted opt-in changes only resource invocation and its accurate label, not
   const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
   const block = workflow.split('      - name: ${{ matrix.scenario')[1].split('      - name: Reject tracked input mutation')[0]
   assert.equal(block, ` == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}
+        env:
+          POPULOUS_GAMEPLAY_OWNERSHIP: \${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}
         run: |
           if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then
-            node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1
+            else
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            fi
           else
             node scripts/tutorial-browser/run.mjs
           fi
 `)
-  assert.equal((workflow.match(/--gameplay-resource-profile=/g) ?? []).length, 1)
+  assert.equal((workflow.match(/--gameplay-resource-profile=/g) ?? []).length, 2)
   assert.match(workflow, /buildStep: Observe full live Mission 2 workload and one same-document resource restart/)
   assert.match(workflow, /runs-on: ubuntu-24\.04/)
   assert.match(workflow, /permissions:\n  contents: read/)

@@ -43,8 +43,9 @@ function assertHeapSample(sample, policy) {
 // All returned values are data. No remote object handles or Scene references.
 // send failures propagate; unsupported commands/fields never become zero bytes.
 async function captureHeapSample({ session, boundary, observe, assertF8Hidden,
-  now = () => performance.now(), onSample = () => {} }, policy) {
+  now = () => performance.now(), onSample = () => {}, afterHeapRead }, policy) {
   assert.ok(policy.boundaries.includes(boundary))
+  assert.ok(afterHeapRead === undefined || (policy.version === 3 && typeof afterHeapRead === 'function'), 'Ownership reader requires three-cycle policy')
   const sample = { status: 'running', boundary, scope: gameplayHeapPolicy.scope,
     gc: { method: 'HeapProfiler.collectGarbage', calls: 0, completed: false },
     timing: { startedMs: now() } }
@@ -61,6 +62,19 @@ async function captureHeapSample({ session, boundary, observe, assertF8Hidden,
     const heap = await session.send('Runtime.getHeapUsage')
     sample.timing.heapReadCompletedMs = now()
     sample.bytes = Object.fromEntries(gameplayHeapPolicy.fields.map(key => [key, heap[key]]))
+    if (afterHeapRead) {
+      sample.ownershipTiming = { startedMs: now() }
+      sample.ownership = await afterHeapRead()
+      sample.ownershipTiming.completedMs = now()
+      // Fixed three-cycle boundaries require exactly 0/1/2 retirements. Missing
+      // page state after restart must not masquerade as a clean empty result.
+      assert.equal(sample.ownership?.version, 1, 'Ownership diagnostic version missing')
+      assert.ok(Array.isArray(sample.ownership.records), 'Ownership diagnostic records missing')
+      const expectedRetirements = policy.boundaries.indexOf(boundary)
+      assert.deepEqual(sample.ownership.records.map(record => record.retirement),
+        Array.from({ length: expectedRetirements }, (_, index) => index + 1),
+        'Ownership diagnostic retirement count/order does not match fixed boundary')
+    }
     sample.isolateAfter = (await session.send('Runtime.getIsolateId')).id
     sample.after = await observe()
     await assertF8Hidden()

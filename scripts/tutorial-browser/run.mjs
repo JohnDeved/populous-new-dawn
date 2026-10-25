@@ -6,7 +6,7 @@ import { resolve, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
-import { parseGameplayResourceArguments } from './gameplay-resource-profile.mjs'
+import { parseGameplayResourceArguments, gameplayOwnershipSelection } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
 import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
@@ -107,6 +107,15 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   environment: { TMPDIR: process.env.TMPDIR, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME },
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
 if (resourceArguments.profile) receipt.gameplayResourceProfile = resourceArguments.profile
+if (resourceArguments.ownershipProbe) {
+  receipt.gameplayOwnershipProbe = resourceArguments.ownershipProbe
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    receipt.gameplayOwnershipSelection = gameplayOwnershipSelection(
+      JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+      process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario)
+    assert.ok(receipt.gameplayOwnershipSelection, 'Weak ownership probe requires exact-head Ready event label')
+  }
+}
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
 let browser, context, page, server, timer, m2Fixture, browserDeadlineAt
@@ -171,7 +180,7 @@ try {
   } else if (selectedScenario === 'gameplay-resources') {
     // Separate job owns the complete five-phase workload and mandatory restart.
     // No melee/corpse work is moved or removed from the original gameplay job.
-    receipt.gameplayResources = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments.profile })
+    receipt.gameplayResources = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments.profile, ownershipProbe: resourceArguments.ownershipProbe })
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
