@@ -117,6 +117,20 @@ test('each reload observes the new logo and reacquires actual menu readiness', a
 
 // Execute the actual entry-driver statements with the real public helper. The
 // logo never finishes playback in this fixture: only its public Skip advances it.
+function deliveryFixture(events) {
+  return {
+    delivery: { async preflight() {
+      await Promise.resolve()
+      assert.deepEqual(events, [['navigation']], 'preflight must finish before saving or menu entry')
+      events.push(['preflight'])
+    } },
+    save() {
+      assert.deepEqual(events, [['navigation'], ['preflight']], 'save follows awaited preflight')
+      events.push(['save'])
+    },
+  }
+}
+
 for (const scenario of ['spy-source', 'spell-test-menu']) {
   const source = readFileSync(new URL(`../scripts/tutorial-browser/${scenario}.mjs`, import.meta.url), 'utf8'),
     spy = scenario === 'spy-source',
@@ -125,11 +139,12 @@ for (const scenario of ['spy-source', 'spell-test-menu']) {
     from = source.indexOf(start), to = source.indexOf(end, from)
   assert.ok(from >= 0 && to > from, 'actual driver entry boundaries exist')
   const drive = new (Object.getPrototypeOf(async function () {}).constructor)(
-    'page', 'waitForStartupMenu', 'm2LoadReady', 'button', 'url', source.slice(from, to + end.length))
+    'page', 'waitForStartupMenu', 'm2LoadReady', 'button', 'url', 'delivery', 'save', source.slice(from, to + end.length))
 
   for (const initial of ['Opening logo', 'Main menu']) {
     test(`${scenario} observes public startup readiness before its next action (${initial})`, async () => {
-      const f = fixture({ initial: 'loading', appears: initial }), ready = () => true
+      const f = fixture({ initial: 'loading', appears: initial }), ready = () => true,
+        { delivery, save } = deliveryFixture(f.events)
       f.page.reload = f.page.goto = async () => { f.events.push(['navigation']) }
       const downstream = () => {
         assert.deepEqual(f.events.at(-1), ['wait', ['Main menu']], 'destination readiness precedes load/new game')
@@ -137,8 +152,9 @@ for (const scenario of ['spy-source', 'spell-test-menu']) {
       }
       f.page.waitForFunction = async fn => { assert.equal(fn, ready); downstream() }
       const button = name => { assert.equal(name, 'New Game'); return { click: async () => downstream() } }
-      await drive(f.page, waitForStartupMenu, ready, button, 'http://fixture.invalid')
-      assert.equal(f.events[0][0], 'navigation')
+      await drive(f.page, waitForStartupMenu, ready, button, 'http://fixture.invalid', delivery, save)
+      assert.deepEqual(f.events.slice(0, spy ? 3 : 1), spy
+        ? [['navigation'], ['preflight'], ['save']] : [['navigation']])
       assert.equal(f.events.at(-1)[0], 'downstream')
       assert.equal(f.events.filter(e => e[0] === 'click').length, initial === 'Opening logo' ? 1 : 0)
     })
@@ -146,11 +162,33 @@ for (const scenario of ['spy-source', 'spell-test-menu']) {
 
   test(`${scenario} propagates failed logo Skip without starting load/new game`, async () => {
     const failure = Object.assign(new Error('Skip inaccessible'), { name: 'TimeoutError' }),
-      f = fixture({ clickError: failure })
-    f.page.reload = f.page.goto = async () => {}
+      f = fixture({ clickError: failure }), { delivery, save } = deliveryFixture(f.events)
+    f.page.reload = f.page.goto = async () => { f.events.push(['navigation']) }
     f.page.waitForFunction = async () => assert.fail('load readiness must not begin')
     await assert.rejects(drive(f.page, waitForStartupMenu, () => true,
-      () => assert.fail('New Game must not begin'), 'http://fixture.invalid'), error => error === failure)
+      () => assert.fail('New Game must not begin'), 'http://fixture.invalid', delivery, save), error => error === failure)
     assert.equal(f.events.filter(e => e[0] === 'click').length, 1)
   })
+
+  if (spy) for (const stage of ['preflight', 'save']) {
+    test(`${scenario} propagates failed ${stage} without entering the startup menu or load`, async () => {
+      const failure = new Error(`${stage} failed`), events = [],
+        page = {
+          reload: async () => { events.push('navigation') },
+          waitForFunction: async () => assert.fail('load readiness must not begin'),
+        },
+        delivery = { async preflight() {
+          events.push('preflight')
+          if (stage === 'preflight') throw failure
+        } },
+        save = () => {
+          events.push('save')
+          if (stage === 'save') throw failure
+        }
+      await assert.rejects(drive(page, () => assert.fail('startup menu must not begin'),
+        () => true, () => assert.fail('New Game must not begin'), 'http://fixture.invalid', delivery, save),
+      error => error === failure)
+      assert.deepEqual(events, stage === 'preflight' ? ['navigation', 'preflight'] : ['navigation', 'preflight', 'save'])
+    })
+  }
 }
