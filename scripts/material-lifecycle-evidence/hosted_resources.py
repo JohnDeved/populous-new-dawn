@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import os
 from pathlib import Path
 import selectors
+import select
 import subprocess
 import time
 import controller as policy
@@ -17,13 +18,34 @@ SETUP_LIMITS=dict(owner_rss_bytes=2*1024**3,v8_mib=768,producer_seconds=610,enve
     reserve_bytes=2*1024**3,available_memory_bytes=2*1024**3,free_inodes=32768,cleanup_seconds=5,sample_seconds=.1)
 
 
-def watch_type(shared):
+def owned_tasks(watch, rows):
+    total=0
+    for row in rows:
+        try:
+            with (Path('/proc')/str(row['pid'])/'stat').open() as stream: value=stream.read(8193)
+            policy.require(len(value)<=8192,'Owned task observation cap')
+            fields=value.rsplit(')',1)[1].split()
+            policy.require(int(fields[19])==row['startTicks'],'Owned task PID reused')
+            count=int(fields[17]);policy.require(count>0,'Invalid owned thread count')
+            total+=count
+        except (FileNotFoundError,ProcessLookupError):
+            fd=watch.pidfds.get((row['pid'],row['startTicks']))
+            policy.require(fd is not None and select.select([fd],[],[],0)[0],
+                           'Owned task vanished without retained exit proof')
+    return total
+
+
+def watch_type(shared, *, max_tasks=None):
     class SetupWatch(shared.OwnerWatch):
         def __init__(self,evidence,limits,started,roots):
-            self.setup_roots=roots;self.setup_peak=0;self.minimum_available=None
+            self.setup_roots=roots;self.setup_peak=0;self.minimum_available=None;self.peak_tasks=0
             super().__init__(evidence,limits,started)
         def observe(self):
             rows=super().observe()
+            if max_tasks is not None:
+                tasks=owned_tasks(self,rows)
+                self.peak_tasks=max(self.peak_tasks,tasks)
+                policy.require(tasks<=max_tasks,'Prerequisite owned-task cap exceeded')
             allocated=shared.union_allocation(self.setup_roots,sampled=True)
             available=min(shared.host_snapshot(root)['availableBytes'] for root in self.setup_roots)
             with self.lock:
@@ -36,9 +58,11 @@ def watch_type(shared):
 
 
 @contextmanager
-def guard(shared,roots,evidence,*,prepare=False,acquire=False):
-    policy.require(not (prepare and acquire),'One setup stage required')
+def guard(shared,roots,evidence,*,prepare=False,acquire=False,prerequisite=False):
+    policy.require(sum(map(bool,(prepare,acquire,prerequisite)))<=1,'One setup stage required')
     stage = {'producer_seconds':110,'envelope_seconds':120} if prepare else ({'producer_seconds':150,'envelope_seconds':180} if acquire else {})
+    if prerequisite: stage=dict(owner_rss_bytes=512*1024**2,producer_seconds=180,envelope_seconds=210,
+        raw_bytes=2*1024**2,evidence_bytes=16*1024**2,allocation_bytes=256*1024**2)
     limits=shared.Limits(**{**SETUP_LIMITS,**stage})
     started=time.monotonic()
     policy.require(not os.path.lexists(evidence),'Fresh setup evidence required')
@@ -48,7 +72,7 @@ def guard(shared,roots,evidence,*,prepare=False,acquire=False):
     evidence.mkdir(mode=0o700)
     details={};error=None
     with shared.envelope(limits.envelope_seconds) as deadline:
-        watch=watch_type(shared)(evidence,limits,started,roots)
+        watch=watch_type(shared,max_tasks=16 if prerequisite else None)(evidence,limits,started,roots)
         try:
             watch.observe();watch.check()
             yield watch,details
@@ -78,7 +102,7 @@ def guard(shared,roots,evidence,*,prepare=False,acquire=False):
                 cleanup_observation['observerError']=type(failure).__name__+': '+str(failure)
                 error=(error or '')+'; joined observer: '+str(failure)
             terminal={'kind':'material-hosted-setup','cleanupObservation':cleanup_observation,'error':error,'details':details,'resources':watch.report(),
-                'rootPaths':list(map(str,roots)),'peakUnionAllocatedBytes':watch.setup_peak,
+                'peakOwnedTasks':getattr(watch,'peak_tasks',None),'rootPaths':list(map(str,roots)),'peakUnionAllocatedBytes':watch.setup_peak,
                 'minimumAvailableBytes':watch.minimum_available,'cleanupSeconds':time.monotonic()-cleanup,
                 'scope':'Trusted host setup only; not namespace qualification or browser proof'}
             try:shared.seal_receipt(evidence,terminal,limits,deadline)
@@ -89,11 +113,11 @@ def guard(shared,roots,evidence,*,prepare=False,acquire=False):
             policy.require(error is None,error or 'Setup failed')
 
 
-def install(shared,watch,evidence,command,cwd,env,*,receipt=None):
+def install(shared,watch,evidence,command,cwd,env,*,receipt=None,seconds=610):
     """Existing outer gate + pidfds; tiny bounded pipe transport, no new ownership model."""
     receipt={} if receipt is None else receipt
     receipt.update(command=command,exitCode=None,waitCompleted=False,waitExitCode=None)
-    outer=[str(Path(os.sys.executable).resolve()),'-I','-B',str(shared.__file__),'_outer','610',*command]
+    outer=[str(Path(os.sys.executable).resolve()),'-I','-B',str(shared.__file__),'_outer',str(seconds),*command]
     process=subprocess.Popen(outer,cwd=cwd,env=env,stdin=subprocess.PIPE,stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,bufsize=0,start_new_session=True,close_fds=True)
     stored=observed=0;started=time.monotonic();exit_at=None
@@ -110,7 +134,7 @@ def install(shared,watch,evidence,command,cwd,env,*,receipt=None):
             while selector.get_map() or process.poll() is None:
                 watch.check()
                 now=time.monotonic()
-                policy.require(now-started<610,'Standard setup command deadline exceeded')
+                policy.require(now-started<seconds,'Standard setup command deadline exceeded')
                 if process.poll() is not None:
                     if exit_at is None:exit_at=now
                     policy.require(not selector.get_map() or now-exit_at<1,'Setup pipes outlived direct child')

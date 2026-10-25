@@ -4,7 +4,7 @@ import test from 'node:test';
 
 test('material lifecycle evidence pure suites preserve fail-closed boundaries', () => {
   // Sequential generated fixtures only: no live install, qualifier or browser.
-  for (const suite of ['controller', 'execution', 'fresh-projection', 'hosted-entry', 'hosted-resources', 'hosted-workflow']) {
+  for (const suite of ['controller', 'execution', 'fresh-projection', 'hosted-entry', 'hosted-resources', 'hosted-workflow', 'bwrap-prerequisites']) {
     const result = spawnSync('python3', ['-I', '-B', `tests/material-${suite}.test.py`], {
       cwd: new URL('..', import.meta.url),
       timeout: 20_000,
