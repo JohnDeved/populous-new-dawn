@@ -297,6 +297,8 @@ test('actual store migration and Scene disposal separate saved camps from transi
     globe: { dispose: nop },
     waterMap: { dispose: nop },
     terrainMap: { dispose: nop },
+    terrainUpload: {},
+    minimap: { revision: undefined },
     pointerOutline: { remove: nop },
     spellPointer: { remove: nop },
   })
