@@ -5,6 +5,7 @@ Live kernel qualification is a distinct explicitly released CLI stage.
 """
 from contextlib import contextmanager
 from dataclasses import asdict, replace
+import copy
 import importlib.util
 import io
 import json
@@ -16,6 +17,7 @@ import sys
 import tempfile
 import threading
 import time
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -27,6 +29,7 @@ GUARDS = [patch.object(subprocess, name, side_effect=AssertionError('Pure fixtur
 for guard in GUARDS:
     guard.start()
 import shared_execution as execution
+import state_serialization as serialization
 
 
 class PureCase(unittest.TestCase):
@@ -199,7 +202,8 @@ class PureCase(unittest.TestCase):
         self.reject(execution.validate_alias_transition, before, broken, aliases)
 
     def state_bytes(self, timestamp=100, extra=None):
-        return (json.dumps({'lastValidatedTimestamp': timestamp, 'settings': {'isolated': True}, **(extra or {})},
+        return (json.dumps({'lastValidatedTimestamp': timestamp, 'projects': {}, 'pnpmfiles': [],
+                           'settings': {'isolated': True}, 'filteredInstall': False, **(extra or {})},
                            indent=2) + '\n').encode()
 
     def test_actual_timestamp_only_transition(self):
@@ -692,7 +696,7 @@ class PureCase(unittest.TestCase):
         self.file('runtime/pnpm-lock.yaml', b'lock')
         self.file('runtime/node_modules/.pnpm/lock.yaml', b'lock')
         state = {'lastValidatedTimestamp': 1, 'projects': {str(root): {}}, 'pnpmfiles': [], 'settings': {}, 'filteredInstall': False}
-        self.file('runtime/node_modules/' + execution.STATE, execution.encoded(state))
+        self.file('runtime/node_modules/' + execution.STATE, (json.dumps(state, indent=2) + '\n').encode())
         floor = execution.state_profile(root)
         self.assertGreater(floor, 0)
         (root / 'pnpm-workspace.yaml').write_bytes(b'verifyDepsBeforeRun: false # verifyDepsBeforeRun: error\n')
@@ -850,6 +854,340 @@ class PureCase(unittest.TestCase):
         self.assertEqual(result['status'], 'failed-or-unknown')
         self.assertIn('late qualifier observer failure', seal.call_args.args[1]['error'])
         self.assertEqual(seal.call_args.args[1]['capabilities'], [])
+
+
+def generated_state(timestamp=100):
+    """Synthetic pnpm profile, independent of any installed workspace or receipt."""
+    return {
+        'lastValidatedTimestamp': timestamp,
+        'projects': {'/generated/workspace': {'name': 'generated-fixture', 'version': '1.0.0'}},
+        'pnpmfiles': [],
+        'settings': {
+            'enableGlobalVirtualStore': False, 'autoInstallPeers': True, 'catalogs': {},
+            'dedupeDirectDeps': False, 'dedupeInjectedDeps': True,
+            'dedupePeerDependents': True, 'dedupePeers': True, 'dev': True,
+            'excludeLinksFromLockfile': False, 'hoistPattern': ['*'],
+            'hoistWorkspacePackages': True, 'injectWorkspacePackages': False,
+            'linkWorkspacePackages': False, 'minimumReleaseAge': 1440,
+            'minimumReleaseAgeIgnoreMissingTime': False, 'nodeLinker': 'isolated',
+            'optional': True, 'peersSuffixMaxLength': 1000, 'preferWorkspacePackages': False,
+            'production': True, 'publicHoistPattern': [], 'workspacePackagePatterns': ['.'],
+        },
+        'filteredInstall': False,
+    }
+
+
+class StateSerializationCase(unittest.TestCase):
+    def setUp(self):
+        self.before = generated_state()
+        self.after = generated_state(201)
+        self.compact = serialization.compact(self.before)
+        self.pretty = serialization.pnpm_bytes(self.after)
+
+    def transition(self, before=None, after=None, **bounds):
+        return execution.validate_state_transition(
+            self.compact if before is None else before,
+            self.pretty if after is None else after,
+            bounds.get('start', 200), bounds.get('end', 210), bounds.get('floor', 199))
+
+    def reject(self, before=None, after=None, **bounds):
+        with self.assertRaises((ValueError, TypeError, OverflowError)):
+            self.transition(before, after, **bounds)
+
+    def test_compact_to_pnpm_pretty_preserves_exact_values(self):
+        receipt = self.transition()
+        self.assertEqual(receipt['serializationProfile'], 'sorted-compact-to-pnpm-v11')
+        self.assertEqual((receipt['before'], receipt['after']), (100, 201))
+        self.assertEqual(receipt['beforeSha256'], execution.sha_bytes(self.compact))
+        self.assertEqual(receipt['afterSha256'], execution.sha_bytes(self.pretty))
+        self.assertEqual(serialization.decode(self.pretty), self.after)
+
+    def test_legacy_pretty_timestamp_replacement_remains_supported(self):
+        old = serialization.pnpm_bytes(self.before)
+        self.assertEqual(self.transition(old)['serializationProfile'], 'exact-two-space-timestamp')
+
+    def test_compact_profile_requires_exact_top_and_settings_order_on_output(self):
+        state = serialization.decode(self.pretty)
+        self.assertEqual(tuple(state), serialization.TOP)
+        self.assertEqual(tuple(state['settings']), serialization.SETTINGS)
+        wrong = (json.dumps(self.after, sort_keys=True, indent=2) + '\n').encode()
+        self.assertNotEqual(wrong, self.pretty)
+        self.reject(after=wrong)
+
+    def test_compact_output_is_not_a_pnpm_transition(self):
+        self.reject(after=serialization.compact(self.after))
+
+    def test_expected_bytes_are_derived_from_old_not_new_values(self):
+        for key, value in (('autoInstallPeers', 1), ('minimumReleaseAge', 1440.0)):
+            with self.subTest(key=key):
+                changed = copy.deepcopy(self.after)
+                changed['settings'][key] = value
+                self.assertEqual(changed, self.after)  # Python equality is insufficient.
+                self.reject(after=serialization.pnpm_bytes(changed))
+
+    def test_legacy_pretty_rejects_boolean_integer_alias(self):
+        changed = copy.deepcopy(self.after)
+        changed['settings']['autoInstallPeers'] = 1
+        self.reject(serialization.pnpm_bytes(self.before), serialization.pnpm_bytes(changed))
+
+    def test_rejects_changed_non_timestamp_value(self):
+        changed = copy.deepcopy(self.after)
+        changed['settings']['minimumReleaseAge'] += 1
+        self.reject(after=serialization.pnpm_bytes(changed))
+
+    def test_rejects_boolean_or_float_timestamp(self):
+        for value in (True, 201.0):
+            changed = copy.deepcopy(self.after)
+            changed['lastValidatedTimestamp'] = value
+            with self.subTest(value=value):
+                self.reject(after=serialization.pnpm_bytes(changed))
+
+    def test_timestamp_must_advance_within_actual_interval_and_floor(self):
+        for value in (99, 100, 199, 211):
+            with self.subTest(value=value):
+                self.reject(after=serialization.pnpm_bytes(generated_state(value)))
+        self.reject(floor=201)
+        self.reject(start=202, end=201)
+
+    def test_rejects_duplicate_top_level_input_key(self):
+        duplicate = self.compact.replace(b'"filteredInstall":false',
+                                        b'"filteredInstall":false,"filteredInstall":false')
+        self.reject(before=duplicate)
+
+    def test_rejects_duplicate_nested_input_key(self):
+        duplicate = self.compact.replace(b'"autoInstallPeers":true',
+                                        b'"autoInstallPeers":true,"autoInstallPeers":true')
+        self.reject(before=duplicate)
+
+    def test_rejects_duplicate_output_key(self):
+        self.reject(after=self.pretty.replace(b'"autoInstallPeers": true',
+                    b'"autoInstallPeers": true, "autoInstallPeers": true'))
+
+    def test_rejects_nonfinite_tokens_and_numeric_overflow(self):
+        for token in (b'NaN', b'Infinity', b'-Infinity', b'1e400'):
+            with self.subTest(token=token):
+                self.reject(after=self.pretty.replace(b'"minimumReleaseAge": 1440',
+                                                      b'"minimumReleaseAge": ' + token))
+                with self.assertRaises((ValueError, OverflowError)):
+                    serialization.profile(self.compact.replace(b'"minimumReleaseAge":1440',
+                                                               b'"minimumReleaseAge":' + token))
+
+    def test_rejects_whitespace_and_newline_variants(self):
+        for body in (self.pretty.replace(b'\n', b'\r\n'), self.pretty + b' ',
+                     self.pretty.rstrip(), self.pretty.replace(b'  "projects"', b'   "projects"'),
+                     (json.dumps(self.after, indent=4) + '\n').encode()):
+            with self.subTest(body=body[:20]):
+                self.reject(after=body)
+
+    def test_rejects_equivalent_escaped_key_serialization(self):
+        self.reject(after=self.pretty.replace(b'"projects"', b'"\\u0070rojects"'))
+
+    def test_unicode_input_uses_exact_expected_pnpm_output(self):
+        old = generated_state()
+        old['projects']['/generated/workspace']['name'] = 'generated-\u00e9'
+        new = copy.deepcopy(old)
+        new['lastValidatedTimestamp'] = 201
+        before, after = serialization.compact(old), serialization.pnpm_bytes(new)
+        self.assertIn(b'\\u00e9', before)
+        self.assertIn('\u00e9'.encode(), after)
+        self.transition(before, after)
+        self.reject(before, after.replace('\u00e9'.encode(), b'\\u00e9'))
+
+    def test_unknown_or_missing_top_fields_are_rejected(self):
+        for mutation in ('add', 'remove'):
+            changed = copy.deepcopy(self.after)
+            if mutation == 'add':
+                changed['extra'] = 1
+            else:
+                del changed['filteredInstall']
+            with self.subTest(mutation=mutation):
+                self.reject(after=(json.dumps(changed, indent=2) + '\n').encode())
+
+    def test_compact_profile_rejects_unknown_settings(self):
+        changed = copy.deepcopy(self.before)
+        changed['settings']['unknown'] = 1
+        with self.assertRaises(ValueError):
+            serialization.profile(serialization.compact(changed))
+
+    def test_compact_profile_rejects_missing_settings(self):
+        changed = copy.deepcopy(self.before)
+        del changed['settings']['dev']
+        with self.assertRaises(ValueError):
+            serialization.profile(serialization.compact(changed))
+
+    def test_compact_profile_rejects_unknown_project_fields(self):
+        changed = copy.deepcopy(self.before)
+        changed['projects']['/generated/workspace']['extra'] = 1
+        with self.assertRaises(ValueError):
+            serialization.profile(serialization.compact(changed))
+
+    def test_compact_profile_rejects_multiple_projects_and_hooks(self):
+        for field, value in (('projects', {}), ('pnpmfiles', ['hook.cjs']), ('filteredInstall', 0)):
+            changed = copy.deepcopy(self.before)
+            changed[field] = value
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                serialization.profile(serialization.compact(changed))
+        changed = copy.deepcopy(self.before)
+        changed['projects']['/generated/other'] = {'name': 'other', 'version': '1.0.0'}
+        with self.assertRaises(ValueError):
+            serialization.profile(serialization.compact(changed))
+
+    def test_profile_rejects_unrecognized_compact_spacing(self):
+        for body in (self.compact + b' ', self.compact.replace(b':', b': ', 1)):
+            with self.subTest(body=body[:20]), self.assertRaises(ValueError):
+                serialization.profile(body)
+
+    def test_decoder_requires_bounded_bytes(self):
+        for body in (self.compact.decode(), bytearray(self.compact), b' ' * (1024 * 1024 + 1)):
+            with self.subTest(type=type(body)), self.assertRaises(ValueError):
+                serialization.decode(body)
+
+    def test_planning_checks_serialization_before_any_execution(self):
+        with tempfile.TemporaryDirectory(prefix='pnpm-profile-') as directory:
+            root = Path(directory)
+            (root / 'node_modules/.pnpm').mkdir(parents=True)
+            (root / 'package.json').write_text('{"packageManager":"pnpm@11.25.0"}')
+            (root / 'pnpm-workspace.yaml').write_bytes(execution.SUPPORTED_WORKSPACE)
+            for name in ('pnpm-lock.yaml', 'node_modules/.pnpm/lock.yaml'):
+                (root / name).write_bytes(b'generated lock')
+            state = generated_state()
+            state['projects'] = {str(root): {'name': 'generated-fixture', 'version': '1.0.0'}}
+            path = root / 'node_modules' / execution.STATE
+            path.write_bytes(serialization.compact(state))
+            before = execution.file_identity(path)
+            self.assertGreater(execution.state_profile(root), 0)
+            self.assertEqual(execution.file_identity(path), before)
+            for body in (serialization.compact(state) + b' ',
+                         serialization.compact({**state, 'settings': {}})):
+                path.write_bytes(body)
+                before = execution.file_identity(path)
+                with self.assertRaises(ValueError):
+                    execution.state_profile(root)
+                self.assertEqual(execution.file_identity(path), before)
+
+
+class DescendantDiagnosticCase(unittest.TestCase):
+    def payload(self, code=0, first=None, primary_fault=False, observation_fault=False):
+        """Exercise the actual finally block using in-memory processes, never a child."""
+        first = [] if first is None else first
+        with tempfile.TemporaryDirectory(prefix='descendant-pure-') as directory:
+            root = Path(directory)
+            (root / 'control').mkdir()
+            command = ['/generated/python', 'fixture']
+            ready = {'command': command,
+                     'security': {'NoNewPrivs': '1', 'Seccomp': '2',
+                                  **{name: '0' for name in execution.CAP_FIELDS}},
+                     'fds': {'0': '/dev/null', '1': 'pipe', '2': 'pipe'}}
+            (root / 'control/ready.json').write_text(json.dumps(ready))
+            row = {'pid': 44, 'startTicks': 50, 'executable': command[0], 'rss': 1,
+                   'state': 'R', 'ppid': 43, 'nspid': [44, 2], 'pidNamespace': 'pid:[123]'}
+            binding = {'hostPid': 44, 'startTicks': 50}
+
+            class Pipe(io.BytesIO):
+                def __init__(self, fd):
+                    super().__init__()
+                    self.number = fd
+
+                def fileno(self):
+                    return self.number
+
+            class Selector:
+                def __init__(self): self.items = {}
+                def __enter__(self): return self
+                def __exit__(self, *args): pass
+                def register(self, pipe, events, name):
+                    self.items[pipe] = SimpleNamespace(fd=pipe.fileno(), fileobj=pipe, data=name)
+                def unregister(self, pipe): self.items.pop(pipe)
+                def get_map(self): return self.items
+                def select(self, timeout): return [(key, 1) for key in list(self.items.values())]
+
+            class Process:
+                pid = 42
+                returncode = code
+                stdin, stdout, stderr = Pipe(9), Pipe(10), Pipe(11)
+                def poll(self): return self.returncode
+                def wait(self, timeout): return self.returncode
+                def kill(self): raise AssertionError('Exited direct process must not be killed')
+
+            class Watch:
+                calls = 0
+                cleaned = 0
+                def pin_direct(self, proc): pass
+                def observe(self): return [row]
+                def check(self):
+                    if primary_fault:
+                        raise ValueError('Expected generated primary fault')
+                def bind_gate(self, ready, proc): return binding
+                def survivors(self):
+                    self.calls += 1
+                    if observation_fault:
+                        raise ValueError('Expected generated observation fault')
+                    return first if self.calls == 1 else []
+                def cleanup(self): self.cleaned += 1
+
+            class Clock:
+                finished = 1
+                identity = {'hostPid': 44, 'startTicks': 50}
+                def __init__(self, row): pass
+                def sample(self, rows): return 0.2
+                def report(self): return {'generatedMock': True}
+
+            watch = Watch()
+            with patch.object(execution, 'bubblewrap_command', return_value=[]), \
+                 patch.object(execution, 'clean_environment', return_value={}), \
+                 patch.object(execution.subprocess, 'Popen', return_value=Process()), \
+                 patch.object(execution, 'process_member', return_value={'ppid': os.getpid(), 'rss': 1}), \
+                 patch.object(execution.selectors, 'DefaultSelector', Selector), \
+                 patch.object(execution.os, 'set_blocking'), \
+                 patch.object(execution.os, 'read', return_value=b''), \
+                 patch.object(execution, 'ProducerClock', Clock):
+                result = execution.run_payload({'tools': {'python': '/generated/python'}}, {},
+                                               root, command, execution.Limits(), watch)
+            self.assertEqual(json.loads((root / 'payload-result.json').read_bytes()), result)
+            if not observation_fault:
+                self.assertEqual(result['survivors'], [])
+                self.assertEqual(result['initialSurvivors'], first)
+                self.assertEqual(result['initialCleanupObservation']['directReturnCode'], code)
+                self.assertLessEqual(result['initialCleanupObservation']['startedMonotonic'],
+                                     result['initialCleanupObservation']['finishedMonotonic'])
+                self.assertIsNone(result['cleanupFailure'])
+            return result, watch.cleaned
+
+    def test_normal_exit_records_empty_initial_observation(self):
+        result, cleaned = self.payload()
+        self.assertEqual((result['exitCode'], result['stopReason'], result['failure'], cleaned),
+                         (0, None, None, 0))
+
+    def test_nonzero_exit_is_not_converted_to_cleanup_failure(self):
+        result, cleaned = self.payload(2)
+        self.assertEqual((result['exitCode'], result['stopReason'], result['failure'], cleaned),
+                         (2, None, None, 0))
+
+    def test_initial_survivor_still_fails_after_final_empty_observation(self):
+        result, cleaned = self.payload(2, [{'pid': 43, 'state': 'R', 'startTicks': 1}])
+        self.assertEqual(result['stopReason'], 'Owned descendants remained after direct exit')
+        self.assertGreater(cleaned, 0)
+        self.assertIsNone(result['failure'])
+
+    def test_initial_survivor_does_not_replace_primary_failure(self):
+        result, cleaned = self.payload(2, [{'pid': 43, 'state': 'R'}], primary_fault=True)
+        self.assertEqual(result['stopReason'], 'ValueError: Expected generated primary fault')
+        self.assertEqual(result['failure']['type'], 'ValueError')
+        self.assertGreater(cleaned, 0)
+
+    def test_failed_initial_observation_remains_unknown_and_failed(self):
+        result, cleaned = self.payload(observation_fault=True)
+        self.assertIsNone(result['initialSurvivors'])
+        self.assertIsNone(result['initialCleanupObservation'])
+        self.assertIsNone(result['survivors'])
+        self.assertIn('cleanup observation unknown', result['stopReason'])
+        self.assertEqual(result['cleanupFailure']['type'], 'ValueError')
+        self.assertGreater(cleaned, 0)
+
+    def test_survivor_filter_still_excludes_only_controller_and_zombies(self):
+        rows = [{'pid': 1, 'state': 'R'}, {'pid': 2, 'state': 'Z'}, {'pid': 3, 'state': 'R'}]
+        watch = SimpleNamespace(parent={'pid': 1}, observe=lambda: rows)
+        self.assertEqual(execution.OwnerWatch.survivors(watch), [rows[2]])
 
 
 if __name__ == '__main__':
