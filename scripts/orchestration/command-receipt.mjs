@@ -7,6 +7,7 @@ import { isAbsolute, normalize, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
 import { captureMeasurement, finishMeasurement, refreshMeasurement } from '../parity-measure.mjs'
+import { captureReceiptOutput, receiptRawBudget } from './command-log.mjs'
 import { createReceiptArtifacts } from './receipt-streams.mjs'
 import { runCommandReceipt as runLegacyCommandReceipt } from './command-receipt-v1.mjs'
 
@@ -43,10 +44,11 @@ function sourceSnapshot(repo, inputs) {
   }
 }
 
-export function runCommandReceipt(repo, { output, command, inputs = [], env = process.env, cwd = repo, streamVersion = 1 }) {
+export function runCommandReceipt(repo, { output, command, inputs = [], env = process.env, cwd = repo, streamVersion = 1, maxRawBytes }) {
   assert(streamVersion === 1 || streamVersion === 2, 'receipt stream version must be 1 or 2')
+  const rawLogBudget = receiptRawBudget(env, maxRawBytes)
   // Preserve the existing default workflow until raw-log bundle export is qualified.
-  if (streamVersion === 1) return runLegacyCommandReceipt(repo, { output, command, inputs, env, cwd })
+  if (streamVersion === 1) return runLegacyCommandReceipt(repo, { output, command, inputs, env, cwd, maxRawBytes: rawLogBudget.snapshot().maxBytes })
   assert(Array.isArray(command) && command.length, 'receipt command is required')
   assert(
     command.every(value => typeof value === 'string' && value.length),
@@ -71,47 +73,57 @@ export function runCommandReceipt(repo, { output, command, inputs = [], env = pr
       cwd: resolve(cwd),
       startedAt: new Date().toISOString(),
       artifacts: { stdout: stdoutPath, stderr: stderrPath },
+      rawBudget: rawLogBudget.snapshot(),
     }
   started.parityMeasurements = finishMeasurement(measurementBefore, measurementBefore, { status: 'unknown', exitCode: null, finishedAt: started.startedAt })
   // Fresh, pinned handles preserve raw bytes without reopening child-controlled
   // paths. An interrupted/uncapturable run never invents successful completion.
   const evidence = createReceiptArtifacts(target)
-  let operationError
-  try {
-    evidence.write(started)
-    const result = spawnSync(command[0], command.slice(1), {
-      cwd, env, stdio: ['ignore', evidence.fd('stdout'), evidence.fd('stderr')],
-    })
-    const receipt = {
-      ...started,
-      phase: 'finished',
-      status: result.status === 0 && !result.error ? 'passed' : 'failed',
-      finishedAt: new Date().toISOString(),
-      exitCode: result.status,
-      signal: result.signal,
-      error: result.error ? { code: result.error.code, message: result.error.message } : undefined,
-    }
-    try { Object.assign(receipt, evidence.capture()) } catch (error) {
-      receipt.status = 'invalidated'
-      receipt.captureError = error.message
-    }
+  return (async () => {
+    let operationError
     try {
-      receipt.sourceAfter = sourceSnapshot(repo, inputs)
-      if (!isDeepStrictEqual(receipt.source, receipt.sourceAfter)) receipt.status = 'invalidated'
-    } catch (error) {
-      receipt.status = 'invalidated'
-      receipt.sourceError = error.message
-    }
-    let measurementAfter = []
-    try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
-      // The empty after-state invalidates prior measurements, as for v1.
-    }
-    receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
-    // A replaced path prevents terminal writing. The original pinned evidence
-    // and prepared state remain retained, rather than writing through an alias.
-    return evidence.write(receipt, true)
-  } catch (error) { operationError = error; throw error }
-  finally { evidence.close(operationError) }
+      evidence.write(started)
+      const result = await captureReceiptOutput(command, { cwd, env, rawLogBudget,
+        fds: { stdout: evidence.fd('stdout'), stderr: evidence.fd('stderr') } })
+      const failure = result.captureError ?? result.spawnError
+      operationError = result.captureError
+      const receipt = {
+        ...started,
+        phase: 'finished',
+        status: result.exitCode === 0 && !failure ? 'passed' : 'failed',
+        finishedAt: new Date().toISOString(),
+        exitCode: result.exitCode,
+        signal: result.signal,
+        error: failure ? { code: rawLogBudget.error?.code ?? failure.code, message: failure.message } : undefined,
+        rawBudget: rawLogBudget.snapshot(),
+        rawCapture: { complete: result.complete, streams: result.streams,
+          ...(result.drainIncomplete ? { drainIncomplete: true, ownedChildPid: result.ownedChildPid, ownedChildExited: result.ownedChildExited } : {}) },
+      }
+      try {
+        Object.assign(receipt, evidence.capture())
+        for (const name of ['stdout', 'stderr']) assert.equal(receipt.streams[name].sha256, result.streams[name].sha256, 'Raw receipt output differs from observed child bytes')
+      } catch (error) {
+        receipt.status = 'invalidated'
+        receipt.captureError = error.message
+      }
+      try {
+        receipt.sourceAfter = sourceSnapshot(repo, inputs)
+        if (!isDeepStrictEqual(receipt.source, receipt.sourceAfter)) receipt.status = 'invalidated'
+      } catch (error) {
+        receipt.status = 'invalidated'
+        receipt.sourceError = error.message
+      }
+      let measurementAfter = []
+      try { measurementAfter = captureMeasurement(repo, command, { cwd }) } catch {
+        // The empty after-state invalidates prior measurements, as for v1.
+      }
+      receipt.parityMeasurements = finishMeasurement(measurementBefore, measurementAfter, receipt)
+      // A replaced path prevents terminal writing. The original pinned evidence
+      // and prepared state remain retained, rather than writing through an alias.
+      return evidence.write(receipt, true)
+    } catch (error) { operationError = error; throw error }
+    finally { evidence.close(operationError) }
+  })()
 
 }
 
@@ -141,9 +153,9 @@ function parseArgs(args) {
   return { ...options, command }
 }
 
-function main() {
+async function main() {
   const options = parseArgs(process.argv.slice(2)),
-    receipt = runCommandReceipt(ROOT, options)
+    receipt = await runCommandReceipt(ROOT, options)
   console.log(
     JSON.stringify(
       {
@@ -162,4 +174,4 @@ function main() {
   process.exitCode = receipt.status === 'passed' ? 0 : (receipt.exitCode || 1)
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) main()
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main()

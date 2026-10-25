@@ -95,9 +95,9 @@ test('actual input capture invalidates fixtures/dependencies/source, ignores unr
   }
 })
 
-test('real command receipt automatically gains binding, report and history; scope changes retain history', t => {
+test('real command receipt automatically gains binding, report and history; scope changes retain history', async t => {
   const { repo, put } = repository(t)
-  const result = runCommandReceipt(repo, { output: 'work/orchestration/run/pass.json', command: ['node', 'check.mjs'] })
+  const result = await runCommandReceipt(repo, { output: 'work/orchestration/run/pass.json', command: ['node', 'check.mjs'] })
   assert.equal(result.parityMeasurements[0].status, 'passed')
   const report = writeReport(repo)
   assert.equal(report.checks[0].status, 'unknown')
@@ -114,10 +114,10 @@ test('real command receipt automatically gains binding, report and history; scop
   assert.equal(history()[0].reportHash.length, 64)
 })
 
-test('receipt records source drift as invalidated and cannot credit changed behavior', t => {
+test('receipt records source drift as invalidated and cannot credit changed behavior', async t => {
   const { repo, put } = repository(t)
   put('check.mjs', "import{writeFileSync}from'node:fs';writeFileSync('app/game.ts','changed')")
-  const result = runCommandReceipt(repo, { output: 'work/orchestration/run/drift.json', command: ['node', 'check.mjs'] })
+  const result = await runCommandReceipt(repo, { output: 'work/orchestration/run/drift.json', command: ['node', 'check.mjs'] })
   assert.equal(result.status, 'invalidated')
   assert.equal(result.parityMeasurements[0].status, 'invalidated')
   assert.equal(writeReport(repo).checks[0].status, 'stale')
@@ -154,7 +154,7 @@ test('refresh failure invalidates an existing current pass without rewriting his
 })
 
 
-test('real v2 command finalization failure cannot earn measurement credit', t => {
+test('real v2 command finalization failure cannot earn measurement credit', async t => {
   const { repo, put } = repository(t), nativeCheck = { ...check, kind: 'native' }
   put('engineering/checks.json', { checks: [nativeCheck] })
   put('engineering/parity-capabilities.json', { version: 1, capabilities: [{ ...model.definitions.capabilities[0],
@@ -174,7 +174,7 @@ test('real v2 command finalization failure cannot earn measurement credit', t =>
     if (published) throw new Error('corrective I/O unavailable')
     return writeSync(...args)
   })
-  assert.throws(() => runCommandReceipt(repo, { output: path, command, streamVersion: 2 }), /Captured raw stream changed/)
+  await assert.rejects(runCommandReceipt(repo, { output: path, command, streamVersion: 2 }), /Captured raw stream changed/)
   rename.mock.restore(); writes.mock.restore()
   const persisted = JSON.parse(readFileSync(target))
   assert.equal(persisted.status, 'passed'); assert.equal(persisted.publication, 'guard-v1')
