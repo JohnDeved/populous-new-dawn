@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -111,6 +112,97 @@ class HostMetadataTests(unittest.TestCase):
         self.assertEqual(result['paths']['/usr/bin/bwrap']['stat']['error']['errno'],2)
         self.assertEqual(len(result['paths']),11)
         self.assertEqual(result['kernel']['error'],{'type':'PermissionError','errno':13})
+
+class CgroupServiceSelectorTests(unittest.TestCase):
+    membership='0::/system.slice/hosted-compute-agent.service\n'
+    mount='36 30 0:30 / /sys/fs/cgroup rw - cgroup2 cgroup rw,nsdelegate\n'
+    def fixture(self, *, membership=None, mount=None, changed=False, symlink=False, denied=False, replaced=False):
+        membership=self.membership if membership is None else membership
+        mount=self.mount if mount is None else mount
+        paths=[];reads=[];mapping_reads=0
+        directory=types.SimpleNamespace(st_mode=stat.S_IFDIR|0o755,st_uid=0,st_gid=0,st_dev=30,st_ino=1)
+        regular=types.SimpleNamespace(st_mode=(stat.S_IFLNK if symlink else stat.S_IFREG)|0o644,
+                                      st_uid=0,st_gid=0,st_dev=30,st_ino=2)
+        def reading(path,cap,*,dir_fd=None):
+            nonlocal mapping_reads
+            reads.append((path,dir_fd))
+            if path=='/proc/self/cgroup':
+                mapping_reads+=1
+                value=membership if not changed or mapping_reads==1 else '0::/different\n'
+            elif path=='/proc/self/mountinfo':value=mount
+            else:value='domain\n'
+            return {'text':value,'complete':True,'truncated':False,
+                    'observedBytesSha256':hashlib.sha256(value.encode()).hexdigest()}
+        def opening(path,flags,*,dir_fd=None):
+            paths.append((path,flags,dir_fd))
+            if denied:raise PermissionError(13,'fixture denied')
+            return len(paths)+100
+        def stated(name,**kwargs):
+            if name in ('/sys/fs/cgroup','system.slice','hosted-compute-agent.service'):
+                return types.SimpleNamespace(**{**vars(directory),'st_ino':999}) if replaced else directory
+            return regular
+        with patch.object(host_metadata,'complete_read',side_effect=reading), \
+             patch.object(host_metadata.os,'open',side_effect=opening), \
+             patch.object(host_metadata.os,'fstat',return_value=directory), \
+             patch.object(host_metadata.os,'stat',side_effect=stated), \
+             patch.object(host_metadata.os,'access',return_value=False), \
+             patch.object(host_metadata.os,'close') as close:
+            result=host_metadata.selected_cgroup_service({'text':self.membership,'truncated':False})
+        return result,paths,reads,close
+
+    def test_exact_mapping_fixed_nofollow_walk_never_claims_delegation(self):
+        result,paths,reads,close=self.fixture()
+        self.assertEqual(result['availability'],'stable-fixed-path-observation')
+        self.assertEqual(result['delegation'],'not-established')
+        self.assertEqual([x[0] for x in paths],['/sys/fs/cgroup','system.slice','hosted-compute-agent.service'])
+        self.assertEqual([x[2] for x in paths],[None,101,102])
+        for _,flags,_ in paths:
+            self.assertTrue(flags & os.O_DIRECTORY);self.assertTrue(flags & os.O_NOFOLLOW)
+            self.assertFalse(flags & (os.O_WRONLY|os.O_RDWR|os.O_CREAT))
+        self.assertFalse(any(name in ('cgroup.procs','cgroup.kill','cgroup.threads') for name,_ in reads))
+        self.assertEqual(close.call_args_list,[unittest.mock.call(103),unittest.mock.call(102),unittest.mock.call(101)])
+
+    def test_unsupported_and_ambiguous_mapping_never_opens_directory(self):
+        for membership,mount in (('0::/../outside\n',self.mount),
+                                 (self.membership,self.mount.replace(' / /sys',' /other /sys')),
+                                 (self.membership,self.mount*2),
+                                 (self.membership,'malformed\n')):
+            result,paths,_,_=self.fixture(membership=membership,mount=mount)
+            self.assertEqual(result['availability'],'unknown');self.assertEqual(paths,[])
+
+    def test_changed_mapping_denied_components_and_symlink_controls_are_unknown(self):
+        result,_,_,_=self.fixture(changed=True)
+        self.assertEqual(result['availability'],'unknown')
+        result,_,_,_=self.fixture(denied=True)
+        self.assertEqual(result['error']['errno'],13)
+        result,_,reads,_=self.fixture(symlink=True)
+        self.assertTrue(all(row['error']['type']=='SymlinkNotInspected'
+                            for controls in result['controls'].values() for row in controls.values()))
+        self.assertFalse(any(fd is not None for _,fd in reads))
+        self.assertEqual(result['delegation'],'not-established')
+
+    def test_complete_read_requires_positive_eof_and_has_byte_and_call_caps(self):
+        regular=types.SimpleNamespace(st_mode=stat.S_IFREG|0o444)
+        for chunks,complete,truncated in (([b'x',b''],True,False),([b'x']*8,False,False),([b'x'*1025],False,True)):
+            with patch.object(host_metadata.os,'open',return_value=123), \
+                 patch.object(host_metadata.os,'fstat',return_value=regular), \
+                 patch.object(host_metadata.os,'read',side_effect=chunks) as read, \
+                 patch.object(host_metadata.os,'close') as close:
+                result=host_metadata.complete_read('/fixed',1024)
+            self.assertEqual(result['complete'],complete);self.assertEqual(result['truncated'],truncated)
+            self.assertLessEqual(read.call_count,8);self.assertLessEqual(len(result['text']),1024)
+            close.assert_called_once_with(123)
+
+    def test_incomplete_mapping_or_changed_directory_fails_closed(self):
+        incomplete={'text':self.membership,'complete':False,'truncated':False}
+        with patch.object(host_metadata,'complete_read',return_value=incomplete), \
+             patch.object(host_metadata.os,'open') as opening:
+            result=host_metadata.selected_cgroup_service({'text':self.membership})
+        self.assertEqual(result['availability'],'unknown');opening.assert_not_called()
+        result,_,_,_=self.fixture(replaced=True)
+        self.assertEqual(result['availability'],'unknown')
+        self.assertEqual(result['reason'],'Mapped path replaced during read')
+
 
 class NpmConfigTests(unittest.TestCase):
     def test_distinct_exclusive_private_empty_configs(self):

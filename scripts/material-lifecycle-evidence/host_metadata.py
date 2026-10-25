@@ -6,6 +6,94 @@ import os
 import re
 import stat
 
+def complete_read(path, cap, *, dir_fd=None):
+    """Fixed small files only: explicit EOF, finite read count, no writes/following links."""
+    fd=None;data=b'';complete=False
+    try:
+        fd=os.open(path,os.O_RDONLY|os.O_NONBLOCK|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=dir_fd)
+        if not stat.S_ISREG(os.fstat(fd).st_mode):return {'error':{'type':'NotRegularFile'}}
+        for _ in range(8):
+            chunk=os.read(fd,min(4096,cap+1-len(data)))
+            if not chunk:complete=True;break
+            data+=chunk
+            if len(data)>cap:break
+        return {'text':data[:cap].decode('utf-8',errors='replace'),'complete':complete,
+                'truncated':len(data)>cap,'observedBytesSha256':hashlib.sha256(data[:cap]).hexdigest()}
+    except OSError as exc:return {'error':{'type':type(exc).__name__,'errno':exc.errno}}
+    finally:
+        if fd is not None:os.close(fd)
+
+
+def selected_cgroup_service(observed_membership):
+    """Inspect only the already observed exact runner-service path; never establish delegation."""
+    expected='0::/system.slice/hosted-compute-agent.service\n'
+    result={'availability':'unknown','delegation':'not-established','directories':{},'directoryWriteAccess':{},'controls':{}}
+    handles=[]
+    def require(value,reason):
+        if not value:raise ValueError(reason)
+    def identity(value):
+        return {key:getattr(value,field) for key,field in
+                (('device','st_dev'),('inode','st_ino'),('mode','st_mode'),('uid','st_uid'),('gid','st_gid'))}
+    def mapping():
+        membership=complete_read('/proc/self/cgroup',1024)
+        require(membership.get('complete') and membership.get('text')==expected,'Unsupported membership')
+        mount=complete_read('/proc/self/mountinfo',16384)
+        require(mount.get('complete') and not mount.get('truncated'),'Incomplete mount inventory')
+        matches=[]
+        for line in mount['text'].splitlines():
+            fields=line.split();require('-' in fields,'Malformed mount inventory')
+            split=fields.index('-');require(split>=6 and len(fields)>=split+4,'Malformed mount inventory')
+            if fields[split+1]=='cgroup2':
+                require(fields[3]=='/' and fields[4]=='/sys/fs/cgroup','Unsupported cgroup mount mapping')
+                require(all(len(fields[i])<=512 for i in (0,1,3,4,5,split+3)),'Mount field cap')
+                matches.append({'mountId':fields[0],'parentId':fields[1],'mountRoot':fields[3],
+                                'mountPoint':fields[4],'mountOptions':fields[5],
+                                'superOptions':fields[split+3]})
+        require(len(matches)==1,'Ambiguous or missing cgroup2 mount')
+        return {'membership':membership,'mount':matches[0],
+                'mountInventorySha256':mount['observedBytesSha256']}
+    try:
+        require(observed_membership.get('text')==expected and not observed_membership.get('truncated'),
+                'Observed membership not supported')
+        before=mapping();result['mappingBefore']=before
+        parent=None
+        for name in ('/sys/fs/cgroup','system.slice','hosted-compute-agent.service'):
+            fd=os.open(name,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW|os.O_CLOEXEC,dir_fd=parent)
+            handles.append((name,fd));info=os.fstat(fd)
+            require(stat.S_ISDIR(info.st_mode),'Mapped component not directory')
+            result['directories'][name]=identity(info)
+            result['directoryWriteAccess'][name]={'value':os.access('.',os.W_OK,dir_fd=fd,follow_symlinks=False)}
+            parent=fd
+        for label,fd in handles[1:]:
+            controls={};result['controls'][label]=controls
+            for name in ('cgroup.type','cgroup.controllers','cgroup.subtree_control',
+                         'cgroup.procs','cgroup.events','cgroup.kill'):
+                row={};controls[name]=row
+                try:
+                    info=os.stat(name,dir_fd=fd,follow_symlinks=False);row['lstat']=identity(info)
+                    if stat.S_ISLNK(info.st_mode):
+                        row['error']={'type':'SymlinkNotInspected'};continue
+                    row['writableAccess']={'value':os.access(name,os.W_OK,dir_fd=fd,follow_symlinks=False)}
+                    if name in ('cgroup.type','cgroup.controllers','cgroup.subtree_control','cgroup.events'):
+                        row['content']=complete_read(name,1024,dir_fd=fd)
+                except OSError as exc:row['error']={'type':type(exc).__name__,'errno':exc.errno}
+        after=mapping();result['mappingAfter']=after
+        require(after==before,'Cgroup mapping changed during read')
+        parent=None
+        for name,fd in handles:
+            require(identity(os.fstat(fd))==result['directories'][name],'Mapped directory changed during read')
+            require(identity(os.stat(name,dir_fd=parent,follow_symlinks=False))==result['directories'][name],
+                    'Mapped path replaced during read')
+            parent=fd
+        result['availability']='stable-fixed-path-observation'
+    except (OSError,ValueError) as exc:
+        result['error']={'type':type(exc).__name__,'errno':getattr(exc,'errno',None)}
+        if isinstance(exc,ValueError):result['reason']=str(exc)[:128]
+    finally:
+        for _,fd in reversed(handles):os.close(fd)
+    return result
+
+
 def collect(env):
     """Fixed, bounded read-only diagnostics; never a namespace admission result."""
     def error(exc):
@@ -53,9 +141,9 @@ def collect(env):
                 if split<6 or len(fields)<split+4:malformed+=1;continue
                 if fields[split+1] not in ('cgroup','cgroup2'):continue
                 if len(rows)>=16:return {'error':{'type':'MountRowCap'},'truncated':True}
-                field_truncated |= any(len(fields[i])>512 for i in (0,1,4,5,split+1,split+3))
+                field_truncated |= any(len(fields[i])>512 for i in (0,1,3,4,5,split+1,split+3))
                 rows.append({key:value[:512] for key,value in
-                    (('mountId',fields[0]),('parentId',fields[1]),('mountPoint',fields[4]),
+                    (('mountId',fields[0]),('parentId',fields[1]),('mountRoot',fields[3]),('mountPoint',fields[4]),
                      ('mountOptions',fields[5]),('filesystem',fields[split+1]),
                      ('superOptions',fields[split+3]))})
             return {'rows':rows,'malformedRows':malformed,'truncated':len(data)>16384 or field_truncated,
@@ -73,7 +161,8 @@ def collect(env):
         cgroup_paths[path]=row
     cgroups={'selfMembership':bounded_read('/proc/self/cgroup'),'mounts':cgroup_mounts(),
              'fixedPaths':cgroup_paths,'delegation':'not-established',
-             'limitations':'Access bits and mount options do not prove usable delegation; no subtree derived, PID list read, write or creation.'}
+             'limitations':'Access bits and mount options do not prove usable delegation; fixed observed service only, no PID list read, write or creation.'}
+    cgroups['selectedService']=selected_cgroup_service(cgroups['selfMembership'])
     files=('/proc/sys/kernel/apparmor_restrict_unprivileged_userns',
            '/proc/sys/kernel/apparmor_restrict_unprivileged_unconfined',
            '/proc/sys/kernel/unprivileged_userns_clone','/proc/sys/user/max_user_namespaces',
