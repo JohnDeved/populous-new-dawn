@@ -70,7 +70,7 @@ function receiptCli(repo) {
   const helper = join(repo, 'scripts/orchestration/command-receipt.mjs')
   mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
   writeFileSync(helper, readFileSync(new URL('../scripts/orchestration/command-receipt.mjs', import.meta.url)))
-  for (const path of ['scripts/parity-measure.mjs', 'scripts/parity-discovery.mjs', 'scripts/parity-json-metadata.mjs', 'scripts/parity-owned-checkpoint.mjs', 'scripts/parity-owned-blast.mjs', 'scripts/orchestration/cli.mjs', 'scripts/orchestration/dependency-profile.mjs', 'scripts/orchestration/receipt-streams.mjs', 'scripts/orchestration/command-receipt-v1.mjs', 'scripts/orchestration/research-evidence.mjs', 'scripts/orchestration/review-bundle.mjs'])
+  for (const path of ['scripts/parity-measure.mjs', 'scripts/parity-discovery.mjs', 'scripts/parity-json-metadata.mjs', 'scripts/parity-owned-checkpoint.mjs', 'scripts/parity-owned-blast.mjs', 'scripts/orchestration/cli.mjs', 'scripts/orchestration/dependency-profile.mjs', 'scripts/orchestration/receipt-streams.mjs', 'scripts/orchestration/command-receipt-v1.mjs', 'scripts/orchestration/command-log.mjs', 'scripts/orchestration/research-evidence.mjs', 'scripts/orchestration/review-bundle.mjs'])
     writeFileSync(join(repo, path), readFileSync(new URL(`../${path}`, import.meta.url)))
   return helper
 }
@@ -580,11 +580,11 @@ test('bundle verification is bound to caller-supplied identities and rejects tra
   }
 })
 
-test('raw command receipts retain source head and complete stdout/stderr', () => {
+test('raw command receipts retain source head and complete stdout/stderr', async () => {
   const { root, repo } = fixture()
   try {
     const output = 'work/orchestration/task/raw-command.json',
-      receipt = runCommandReceipt(repo, {
+      receipt = await runCommandReceipt(repo, {
         output,
         command: [process.execPath, '-e', "console.log('raw-stdout'); console.error('raw-stderr')"],
       }),
@@ -611,12 +611,12 @@ test('raw command receipts retain source head and complete stdout/stderr', () =>
   }
 })
 
-test('command receipts bind dirty source and explicit ignored inputs and invalidate drift', () => {
+test('command receipts bind dirty source and explicit ignored inputs and invalidate drift', async () => {
   const { root, repo } = fixture()
   try {
     writeFileSync(join(repo, 'source.txt'), 'dirty input\n')
     writeFileSync(join(repo, 'work/helper.txt'), 'helper input\n')
-    const receipt = runCommandReceipt(repo, {
+    const receipt = await runCommandReceipt(repo, {
       output: 'work/orchestration/task/drift.json',
       inputs: ['work/helper.txt'],
       command: [process.execPath, '-e', "require('node:fs').writeFileSync('work/helper.txt','changed')"],
@@ -678,7 +678,7 @@ test('a killed foreground wrapper retains unknown state and raw output, never a 
     helper = new URL('../scripts/orchestration/command-receipt.mjs', import.meta.url).href,
     childSource = "console.log('started'); setTimeout(() => console.log('finished'), 350)",
     wrapper = spawn(process.execPath, ['--input-type=module', '-e',
-      `import {runCommandReceipt} from ${JSON.stringify(helper)}; runCommandReceipt(${JSON.stringify(repo)}, ${JSON.stringify({output, command: [process.execPath, '-e', childSource]})})`,
+      `import {runCommandReceipt} from ${JSON.stringify(helper)}; await runCommandReceipt(${JSON.stringify(repo)}, ${JSON.stringify({output, command: [process.execPath, '-e', childSource]})})`,
     ], { stdio: 'ignore' }),
     exited = new Promise(resolve => wrapper.once('exit', resolve))
   try {
@@ -705,10 +705,10 @@ test('a killed foreground wrapper retains unknown state and raw output, never a 
 })
 
 
-test('v2 producer retains complete large raw output without embedding it', () => {
+test('v2 producer retains complete large raw output without embedding it', async () => {
   const { root, repo } = fixture()
   try {
-    const receipt = runCommandReceipt(repo, { streamVersion: 2, output: 'work/orchestration/task/large.json',
+    const receipt = await runCommandReceipt(repo, { streamVersion: 2, output: 'work/orchestration/task/large.json',
       command: [process.execPath, '-e', "process.stdout.write(Buffer.alloc(65536,120)); process.stderr.write('small')"] })
     assert.equal(receipt.version, 2); assert.equal(receipt.status, 'passed')
     assert.equal(receipt.publication, 'guard-v1')
@@ -722,10 +722,10 @@ test('v2 producer retains complete large raw output without embedding it', () =>
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
 
-test('v2 producer hashes invalid UTF-8 as complete original raw bytes', () => {
+test('v2 producer hashes invalid UTF-8 as complete original raw bytes', async () => {
   const { root, repo } = fixture()
   try {
-    const receipt = runCommandReceipt(repo, { streamVersion: 2, output: 'work/orchestration/task/binary.json',
+    const receipt = await runCommandReceipt(repo, { streamVersion: 2, output: 'work/orchestration/task/binary.json',
       command: [process.execPath, '-e', "process.stdout.write(Buffer.from([255,128,0]))"] })
     assert.equal(receipt.status, 'passed'); assert.equal(receipt.streams.stdout.reason, 'not-utf8')
     assert.equal(Object.hasOwn(receipt, 'stdout'), false)
@@ -758,15 +758,15 @@ test('receipt CLI explicitly selects v2 while v1 remains the default-compatible 
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
 
-test('v1 bundle export stays available; unselected and nested v2 export fail closed without modifying originals', () => {
+test('v1 bundle export stays available; unselected and nested v2 export fail closed without modifying originals', async () => {
   const { root, repo, base, bundle } = fixture()
   try {
     const first = 'work/orchestration/task/default.json', second = 'work/orchestration/task/opt-in.json'
-    const legacy = runCommandReceipt(repo, { output: first, command: [process.execPath, '-e', "console.log('legacy')"] })
+    const legacy = await runCommandReceipt(repo, { output: first, command: [process.execPath, '-e', "console.log('legacy')"] })
     assert.equal(legacy.version, 1)
     const exported = buildReviewBundle(repo, { taskId: 'default-v1', base, output: bundle, receipts: [first] })
     assert.equal(exported.manifest.receipts.length, 1)
-    const receipt = runCommandReceipt(repo, { output: second, streamVersion: 2,
+    const receipt = await runCommandReceipt(repo, { output: second, streamVersion: 2,
       command: [process.execPath, '-e', 'process.stdout.write(Buffer.alloc(65536,120))'] })
     const paths = [join(repo, 'source.txt'), join(repo, second), receipt.artifacts.stdout, receipt.artifacts.stderr]
     const before = paths.map(path => readFileSync(path))
@@ -876,11 +876,11 @@ test('explicit v2 export binds the portable metadata view and both complete byte
   } finally { rmSync(root, { recursive: true, force: true }) }
 })
 
-test('explicit v2 exports complete omitted output and preserves failed-command outcomes', () => {
+test('explicit v2 exports complete omitted output and preserves failed-command outcomes', async () => {
   const { root, repo, base, bundle } = fixture()
   try {
     const path = 'work/orchestration/task/omitted-failure.json'
-    const receipt = runCommandReceipt(repo, { output: path, streamVersion: 2,
+    const receipt = await runCommandReceipt(repo, { output: path, streamVersion: 2,
       command: [process.execPath, '-e', 'process.stdout.write(Buffer.alloc(65536,120)); process.exitCode=7'] })
     assert.equal(receipt.status, 'failed'); assert.equal(Object.hasOwn(receipt, 'stdout'), false)
     const result = buildReviewBundle(repo, { taskId: 'v2-complete-failure', base, output: bundle, v2Receipt: originalV2Binding(repo, path) })
@@ -1073,11 +1073,11 @@ function assertReviewExportRefused(repo, base, bundle, binding = originalV2Bindi
   assertV2OriginalsUnchanged(paths, before)
 }
 
-test('sanitized v2 review exports real complete path-bearing output without execution evidence', () => {
+test('sanitized v2 review exports real complete path-bearing output without execution evidence', async () => {
   const { root, repo, base, bundle } = fixture()
   try {
     const path = 'work/orchestration/task/actual-review.json'
-    const receipt = runCommandReceipt(repo, { output: path, streamVersion: 2,
+    const receipt = await runCommandReceipt(repo, { output: path, streamVersion: 2,
       command: [process.execPath, '-e', `process.stdout.write(process.cwd()+'\\n'+'x'.repeat(40000)); process.stderr.write(require('node:os').homedir()); process.exitCode=7`] })
     assert.equal(receipt.status, 'failed')
     assert.equal(receipt.streams.stdout.inline, 'omitted')
