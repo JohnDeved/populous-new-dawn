@@ -35,11 +35,24 @@ def owned_tasks(watch, rows):
     return total
 
 
+def cleanup_context(watch):
+    with watch.lock:
+        context=getattr(watch,'setup_cleanup_context',None)
+        if context is None:
+            started=time.monotonic()
+            context=watch.setup_cleanup_context={'started':started,'deadline':started+watch.limits.cleanup_seconds}
+        return context
+
+
 def watch_type(shared, *, max_tasks=None):
     class SetupWatch(shared.OwnerWatch):
         def __init__(self,evidence,limits,started,roots):
             self.setup_roots=roots;self.setup_peak=0;self.minimum_available=None;self.peak_tasks=0
+            self.setup_cleanup_context=None
             super().__init__(evidence,limits,started)
+        def cleanup(self):
+            cleanup_context(self)  # Earliest cleanup request starts the one shared cleanup budget.
+            return super().cleanup()
         def observe(self):
             rows=super().observe()
             if max_tasks is not None:
@@ -83,24 +96,39 @@ def guard(shared,roots,evidence,*,prepare=False,acquire=False,prerequisite=False
             raise
         finally:
             cleanup=time.monotonic()
-            cleanup_observation={'survivors':None,'survivorsObserved':False,'observerFinished':False,'withinDeadline':False}
+            context=cleanup_context(watch)
+            cleanup_observation={'survivors':None,'survivorsObserved':False,'observerFinished':False,
+                                 'observerJoined':None,'observerHealthy':None,'withinDeadline':None}
             try:
-                watch.cleanup()
-                cleanup_observation['survivors']=watch.survivors()
-                cleanup_observation['survivorsObserved']=True
-                policy.require(not cleanup_observation['survivors'],'Setup cleanup survivors')
+                # Stored observer health failure does not cancel owned termination attempts.
+                # Reuse the maintained finite loop, never a new cleanup deadline.
+                shared.await_owned_cleanup(watch,limits,evidence,context,phase='setup-final')
             except BaseException as failure:
                 cleanup_observation['error']=type(failure).__name__+': '+str(failure)
                 error=(error or '')+'; cleanup: '+str(failure)
+            last=context.get('lastObservation')
+            if last is not None:
+                cleanup_observation['survivors']=last['after']
+                cleanup_observation['survivorsObserved']=last['after'] is not None
+                cleanup_observation['lastObservationError']=last['afterError']
+            joined={}
             try:
-                shared.finish_observer(watch)
+                shared.finish_observer(watch,cleanup_deadline=context['deadline'],receipt=joined)
                 cleanup_observation['observerFinished']=True
-                cleanup_observation['withinDeadline']=time.monotonic()-cleanup<=limits.cleanup_seconds
-                policy.require(time.monotonic()-cleanup<=limits.cleanup_seconds,'Setup cleanup deadline exceeded')
                 policy.require(watch.report()['sampleCount']>0,'No setup resource observations')
             except BaseException as failure:
                 cleanup_observation['observerError']=type(failure).__name__+': '+str(failure)
                 error=(error or '')+'; joined observer: '+str(failure)
+            finally:
+                cleanup_observation['observerJoined']=joined.get('joined')
+                cleanup_observation['observerHealthy']=joined.get('healthy')
+                cleanup_observation['withinDeadline']=time.monotonic()<=context['deadline']
+                cleanup_observation['finishObservation']=joined
+                cleanup_observation['budgetStartedMonotonic']=context['started']
+                cleanup_observation['budgetDeadlineMonotonic']=context['deadline']
+                cleanup_observation['elapsedSinceCleanupStart']=time.monotonic()-context['started']
+                if not cleanup_observation['withinDeadline']:
+                    error=(error or '')+'; cleanup deadline exceeded'
             terminal={'kind':'material-hosted-setup','cleanupObservation':cleanup_observation,'error':error,'details':details,'resources':watch.report(),
                 'peakOwnedTasks':getattr(watch,'peak_tasks',None),'rootPaths':list(map(str,roots)),'peakUnionAllocatedBytes':watch.setup_peak,
                 'minimumAvailableBytes':watch.minimum_available,'cleanupSeconds':time.monotonic()-cleanup,
@@ -151,7 +179,9 @@ def install(shared,watch,evidence,command,cwd,env,*,receipt=None,seconds=610):
         # direct process exits. No process-name scanning or process-group substitute.
         try:
             if process.poll() is None:watch.cleanup()
-            receipt['waitExitCode']=process.wait(timeout=5)
+            context=getattr(watch,'setup_cleanup_context',None)
+            timeout=5 if context is None else max(0,context['deadline']-time.monotonic())
+            receipt['waitExitCode']=process.wait(timeout=timeout)
             receipt['waitCompleted']=True
         except BaseException as failure:
             receipt['waitError']=type(failure).__name__+': '+str(failure)

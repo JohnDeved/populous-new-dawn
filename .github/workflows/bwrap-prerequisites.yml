@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: JohnDeved/populous-new-dawn
-          ref: aa929130115be16ccccc028d07199c5f7d4d73a2
+          ref: 43a9b2988b8e7fdbaa89721b88422d3765a8c156
           path: material-helper-source
           persist-credentials: false
           sparse-checkout-cone-mode: false

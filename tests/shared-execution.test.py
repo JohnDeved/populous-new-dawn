@@ -1403,6 +1403,13 @@ class ReadonlyExecutableAliasCase(unittest.TestCase):
 
 
 class OwnerScopedProcfsTests(unittest.TestCase):
+    def setUp(self):
+        # Every process identity in this class is synthetic; no live procfs/pidfd.
+        for guard in [patch.object(execution.os,'pidfd_open',return_value=99),
+                      patch.object(execution.os,'close'),
+                      patch.object(execution,'process_ancestry',side_effect=lambda pid:execution.process_member(pid))]:
+            guard.start();self.addCleanup(guard.stop)
+
     def row(self, pid, ppid, namespace='pid:[10]', ticks=None):
         return dict(pid=pid, ppid=ppid, startTicks=ticks or pid*10, pgid=pid,
                     session=pid, state='S', rss=4096, nspid=[pid],
@@ -1604,6 +1611,80 @@ class OwnerScopedProcfsTests(unittest.TestCase):
         with patch.object(ctypes,'CDLL') as library:
             library.return_value.prctl.return_value=-1
             with self.assertRaisesRegex(ValueError,'subreaper unavailable'):execution.require_child_subreaper()
+
+
+class RetainedEarlyExitTests(unittest.TestCase):
+    setUp=OwnerScopedProcfsTests.setUp
+    row=OwnerScopedProcfsTests.row
+    watch=OwnerScopedProcfsTests.watch
+    def test_enrichment_exit_only_after_validated_fd_in_both_passes(self):
+        import select
+        for phase in ('first','second'):
+            parent={10:self.row(10,1)};owned={**parent,20:self.row(20,10)}
+            snapshots=[owned,parent] if phase=='first' else [parent,owned]
+            watch=self.watch(snapshots)
+            def member(pid):
+                if pid==20:raise FileNotFoundError(2,'generated exit')
+                return parent[pid]
+            with patch.object(execution,'process_ancestry',side_effect=lambda pid:owned[pid]), \
+                 patch.object(execution,'process_member',side_effect=member), \
+                 patch.object(select,'select',return_value=([99],[],[])):
+                self.assertEqual([r['pid'] for r in watch.observe()],[10])
+            self.assertEqual(watch.pidfds,{(20,200):99})
+            self.assertEqual(watch.exited_observations[0]['phase'],phase)
+            self.assertTrue(watch.exited_observations[0]['retainedIdentityValidated'])
+
+    def test_exit_before_pin_validation_cannot_be_inferred_from_fd_readability(self):
+        import select
+        rows={10:self.row(10,1),20:self.row(20,10)};watch=self.watch([rows,rows])
+        with patch.object(execution,'process_ancestry',side_effect=FileNotFoundError(2,'before validation')), \
+             patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]), \
+             patch.object(select,'select',return_value=([99],[],[])) as exited:
+            with self.assertRaises(FileNotFoundError):watch.observe()
+        self.assertEqual(watch.pidfds,{})
+        exited.assert_not_called()
+        self.assertEqual(watch.observation_failure['callsite'],'pin-ancestry')
+        self.assertEqual(watch.observation_failure['pid'],20)
+
+    def test_missing_enrichment_with_live_validated_fd_still_fails(self):
+        import select
+        rows={10:self.row(10,1),20:self.row(20,10)};watch=self.watch([rows,rows],pidfds={(20,200):99})
+        with patch.object(execution,'process_member',side_effect=lambda pid:rows[pid] if pid==10 else (_ for _ in ()).throw(FileNotFoundError(2,'missing'))), \
+             patch.object(select,'select',return_value=([],[],[])):
+            with self.assertRaises(FileNotFoundError):watch.observe()
+        self.assertEqual(watch.observation_failure['callsite'],'owned-enrichment')
+        self.assertEqual(watch.observation_failure['phase'],'first')
+
+    def test_reused_reparented_malformed_and_denied_pin_are_fatal(self):
+        rows={10:self.row(10,1),20:self.row(20,10)}
+        for value in ({**rows[20],'startTicks':999},{**rows[20],'ppid':1},{},PermissionError(13,'denied')):
+            watch=self.watch([rows,rows])
+            with patch.object(execution,'process_ancestry',side_effect=value if isinstance(value,Exception) else lambda pid:value), \
+                 patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]):
+                with self.assertRaises((ValueError,KeyError,PermissionError)):watch.observe()
+            self.assertEqual(watch.pidfds,{})
+
+    def test_unknown_pidfd_open_exit_remains_fatal(self):
+        rows={10:self.row(10,1),20:self.row(20,10)};watch=self.watch([rows,rows])
+        with patch.object(execution.os,'pidfd_open',side_effect=ProcessLookupError('unknown exit')), \
+             patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]):
+            with self.assertRaises(ProcessLookupError):watch.observe()
+        self.assertEqual(watch.pidfds,{})
+
+
+class FinishFactsTests(unittest.TestCase):
+    fake_finished_watch=PureCase.fake_finished_watch
+    def test_joined_and_unhealthy_are_separate_facts(self):
+        watch=self.fake_finished_watch('late health failure');receipt={}
+        with self.assertRaisesRegex(ValueError,'late health failure'):
+            execution.finish_observer(watch,cleanup_deadline=time.monotonic()+5,receipt=receipt)
+        self.assertTrue(receipt['joined']);self.assertFalse(receipt['healthy']);self.assertTrue(receipt['withinDeadline'])
+
+    def test_deadline_is_not_extended_for_join(self):
+        watch=self.fake_finished_watch();receipt={}
+        with patch.object(execution.time,'monotonic',return_value=6),self.assertRaisesRegex(ValueError,'shared cleanup deadline'):
+            execution.finish_observer(watch,cleanup_deadline=5,receipt=receipt)
+        self.assertTrue(receipt['joined']);self.assertTrue(receipt['healthy']);self.assertFalse(receipt['withinDeadline'])
 
 
 if __name__ == '__main__':
