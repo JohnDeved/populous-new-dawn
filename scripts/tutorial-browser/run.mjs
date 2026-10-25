@@ -6,6 +6,7 @@ import { resolve, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
+import { parseGameplayResourceArguments } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
 import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
@@ -16,7 +17,6 @@ import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
-const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
@@ -33,6 +33,8 @@ const mission10ProfileScenario = resolve(root, 'scripts/tutorial-browser/mission
 const spySourceScenario = resolve(root, 'scripts/tutorial-browser/spy-source.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
+const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
+const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
 const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames.mjs')
 const meleeScenario = resolve(root, 'scripts/tutorial-browser/melee-attack.mjs')
@@ -104,6 +106,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   browserChannel: browserConfig.launch.channel ?? null, browserBinaryVersion, browserSha256: hash(browserPath), node: process.version,
   environment: { TMPDIR: process.env.TMPDIR, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME },
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
+if (resourceArguments.profile) receipt.gameplayResourceProfile = resourceArguments.profile
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
 let browser, context, page, server, timer, m2Fixture, browserDeadlineAt
@@ -168,7 +171,7 @@ try {
   } else if (selectedScenario === 'gameplay-resources') {
     // Separate job owns the complete five-phase workload and mandatory restart.
     // No melee/corpse work is moved or removed from the original gameplay job.
-    receipt.gameplayResources = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision, resourceLifecycle: true })
+    receipt.gameplayResources = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments.profile })
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before

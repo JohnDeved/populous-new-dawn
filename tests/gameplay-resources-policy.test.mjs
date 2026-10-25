@@ -165,3 +165,91 @@ test('v3 rejects incomplete cycles, cross-cycle raw substitution, unmeasured cla
  assert.throws(()=>validateGameplayResourceArtifact(divergent.files,divergent.expected),
   {message:'Receipt gameplay resources differ from retained report'})
 })
+
+import { GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_INPUTS, GAMEPLAY_THREE_CYCLE_BROWSER_JOBS } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+test('v4 recomputes fifteen raw phases, three post-GC samples and both adjacent and endpoint deltas', () => {
+ const v = artifactFixture(GAMEPLAY_THREE_CYCLE_POLICY), result = validateGameplayResourceArtifact(v.files, v.expected)
+ assert.equal(result.threeCyclesVerified, true); assert.equal(result.matchedCyclesVerified, undefined)
+ assert.equal(result.cycleCount, 3); assert.equal(result.phaseCount, 15); assert.equal(result.heap.sampleCount, 3)
+ assert.deepEqual(result.heap.cycle2MinusCycle1Bytes, { usedSize: 37, totalSize: 0, embedderHeapUsedSize: -10, backingStorageSize: 0 })
+ assert.deepEqual(result.heap.cycle3MinusCycle2Bytes, { usedSize: 12, totalSize: 40, embedderHeapUsedSize: -5, backingStorageSize: 10 })
+ assert.deepEqual(result.heap.cycle3MinusCycle1Bytes, { usedSize: 49, totalSize: 40, embedderHeapUsedSize: -15, backingStorageSize: 10 })
+ assert.equal(result.lifecycle.length, 2); assert.ok(result.lifecycle.every(value => value.memoryBytes === 'not-measured'))
+ assert.equal(result.scope, 'three-cycle-descriptive-isolate-byte-change-only')
+ assert.equal(v.report.observedWorkloadComparison.cycle3MinusCycle2[0].secondMinusFirst.turnsAdvanced, 4)
+ assert.equal(v.report.observedWorkloadComparison.cycle3MinusCycle2[0].secondMinusFirst.work.nativeTriangles, 16)
+ assert.deepEqual(resolveGameplayResourceArtifact(v.archive, v.upload, v.expected), result)
+ assert.deepEqual(gameplayResourceInputs(GAMEPLAY_THREE_CYCLE_POLICY), GAMEPLAY_THREE_CYCLE_INPUTS)
+ assert.deepEqual(GAMEPLAY_THREE_CYCLE_INPUTS, [...GAMEPLAY_HEAP_INPUTS, 'scripts/tutorial-browser/gameplay-resource-profile.mjs', 'scripts/browser-new-game.mjs',
+  'scripts/integration-queue/policy.mjs', 'scripts/integration-queue/github.mjs'])
+ assert.equal(GAMEPLAY_RESOURCE_INPUTS.length, 32); assert.equal(GAMEPLAY_HEAP_INPUTS.length, 33)
+ for (const policy of [GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY]) {
+  const old = directFixture(policy)
+  assert.throws(() => validateGameplayResourceArtifact(old.files, {...old.expected, policy: GAMEPLAY_THREE_CYCLE_POLICY}))
+  assert.throws(() => validateGameplayResourceArtifact(v.files, {...v.expected, policy}))
+ }
+})
+test('v4 has an exact new build-step label, while historical job inventories remain unchanged', () => {
+ const v = jobFixture(); v.expected.policy = GAMEPLAY_THREE_CYCLE_POLICY
+ assert.throws(() => validateGameplayResourceBrowserJobs(v.jobs, v.run, v.expected))
+ v.jobs[7].steps.find(step => step.name === GAMEPLAY_RESOURCE_BROWSER_JOBS[7][3]).name = GAMEPLAY_THREE_CYCLE_BROWSER_JOBS[7][3]
+ assert.equal(validateGameplayResourceBrowserJobs(v.jobs, v.run, v.expected), true)
+ assert.throws(() => validateGameplayResourceBrowserJobs(v.jobs, v.run, {...v.expected, policy: GAMEPLAY_MATCHED_POLICY}))
+ assert.deepEqual(GAMEPLAY_THREE_CYCLE_BROWSER_JOBS.filter((_, i) => i !== 7), GAMEPLAY_RESOURCE_BROWSER_JOBS.filter((_, i) => i !== 7))
+})
+test('v4 rejects incomplete, reordered, stale, cross-document, aliased or cleanup-failed third-cycle data', () => {
+ const mutations = [
+  v => {delete v.raw.gameplayResourceProfile}, v => {v.report.resourceProfile = 'unknown'},
+  v => {v.raw.command.push('--cycles=4')}, v => {v.raw.command.pop()},
+  v => {v.report.schemaVersion = 2}, v => {v.report.resources.version = 3},
+  v => {v.report.protocol = {...v.report.protocol, cycles: 4}},
+  v => {v.report.cycles.pop()}, v => {v.report.cycles.reverse()}, v => {v.report.cycles.push(v.report.cycles[2])},
+  v => {v.report.cycles[2].id = 'cycle-2'}, v => {v.report.cycles[2].phases.pop()},
+  v => {delete v.files['cycle-3-gameplay-frame-hud.json']}, v => {delete v.files['cycle-3-gameplay-summary-hud.json']},
+  v => {delete v.files['cycle-3-gameplay-frames-final.png']},
+  v => {v.files['cycle-3-gameplay-frames-final.png'] = Buffer.from('not png')},
+  v => {v.files['cycle-3-gameplay-frame-hud.json'] = v.files['cycle-2-gameplay-frame-hud.json']},
+  v => {v.report.cycles[2].phases[0].rawFile = v.report.cycles[1].phases[0].rawFile},
+  v => {v.report.cycles[2].phases[0].inputs = []}, v => {v.report.cycles[2].pointerReset.observedTimestampMs = 0},
+  v => {v.report.cycles[2].resources.beforeWarmup.timeOriginUnixMs++},
+  v => {v.report.cycles[2].resources.afterWorkload.sceneUuid = 'new'},
+  v => {v.report.resources.restarts.pop()}, v => {v.report.resources.restarts.reverse()},
+  v => {v.report.resources.restarts.push(v.report.resources.restarts[1])},
+  v => {v.report.resources.restarts[1].fromCycle = 'cycle-1'},
+  v => {v.report.resources.restarts[1].retired.disposed = false},
+  v => {v.report.resources.restarts[1].retired.fpsGraphReleased = false},
+  v => {v.report.resources.restarts[1].settled.turn = 1},
+  v => {v.report.resources.restarts[1].after.sceneUuid = 'old'},
+  v => {v.report.resources.restarts[1].after.timeOriginUnixMs++},
+  v => {v.report.resources.restart = v.report.resources.restarts[0]},
+  v => {v.report.resources.heap.samples.pop()}, v => {v.report.resources.heap.samples.reverse()},
+  v => {v.report.resources.heap.samples.push(v.report.resources.heap.samples[2])},
+  v => {v.report.resources.heap.samples[2].gc.calls = 0}, v => {v.report.resources.heap.samples[2].gc.calls = 2},
+  v => {v.report.resources.heap.samples[2].gc.completed = false},
+  v => {v.report.resources.heap.samples[2].f8Hidden = false},
+  v => {v.report.resources.heap.samples[2].isolateBefore = 'other'; v.report.resources.heap.samples[2].isolateAfter = 'other'},
+  v => {v.report.resources.heap.samples[2].before.timeOriginUnixMs++},
+  v => {v.report.resources.heap.samples[2].before.timestampMs = 34000},
+  v => {v.report.resources.heap.samples[1].after.timestampMs = 34000},
+  v => {v.report.resources.heap.samples[2].timing.startedMs = 0},
+  v => {v.report.resources.heap.samples[2].bytes.backingStorageSize = null},
+  v => {v.report.resources.heap.sessionDetached = false},
+  v => {v.report.resources.heap.deltas.cycle3MinusCycle1Bytes.usedSize++},
+  v => {v.report.resources.limits = []}, v => {v.report.heapObserverCleanupFailure = 'failed'},
+  v => {v.report.resourceObserverCleanupFailure = 'failed'}, v => {v.raw.cleanupVerified = false},
+  v => {v.raw.browserCapMs = 360000}, v => {v.raw.build.capMs = 240000},
+  v => {v.raw.source.files = {...v.raw.source.files, 'scripts/tutorial-browser/gameplay-resource-profile.mjs': 'f'.repeat(64)}},
+  v => {v.raw.source.files = {...v.raw.source.files, 'scripts/browser-new-game.mjs': 'f'.repeat(64)}},
+  v => {v.raw.source.files = {...v.raw.source.files}; delete v.raw.source.files['scripts/browser-new-game.mjs']},
+  v => {v.report.observedWorkloadComparison.cycle3MinusCycle2[0].secondMinusFirst.work.nativeTriangles++},
+  // Coherently relabel every third Scene reference as the first: pairwise uniqueness still fails.
+  v => {
+   const c = v.report.cycles[2], r = v.report.resources.restarts[1], s = v.report.resources.heap.samples[2]
+   for (const value of [c.resources.beforeWarmup, c.resources.afterWorkload, r.after, r.settled, s.before, s.after]) value.sceneUuid = 'old'
+  },
+ ]
+ for (const [index, mutate] of mutations.entries()) {
+  const v = directFixture(GAMEPLAY_THREE_CYCLE_POLICY); mutate(v); v.save()
+  assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected), `mutation ${index}`)
+ }
+})
