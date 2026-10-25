@@ -18,6 +18,67 @@ sys.path.insert(0,str(HERE/'scripts/material-lifecycle-evidence'))
 import bwrap_prerequisites as p
 
 
+class CommandDiagnosticTests(unittest.TestCase):
+    def test_start_precedes_subprocess_and_failure_retains_bounded_outcome(self):
+        for failure in (None,FileNotFoundError(2,'fixture'),p.subprocess.CalledProcessError(7,['fixture'])):
+            with tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary);(root/'records').mkdir();tool=root/'tool';tool.write_bytes(b'fixture only')
+                argv=[str(tool),'--fixture']
+                def run(*args,**kwargs):
+                    record=json.loads((root/'records/fixture-start.json').read_bytes())
+                    self.assertEqual(record['argv'],argv)
+                    self.assertEqual(record['executable']['sha256'],hashlib.sha256(b'fixture only').hexdigest())
+                    self.assertNotIn('env',record)
+                    if failure:raise failure
+                    return types.SimpleNamespace(returncode=0)
+                with patch.object(p.subprocess,'run',side_effect=run) as mocked:
+                    if failure:
+                        with self.assertRaises(type(failure)):p.command(argv,root,{'SECRET':'never-record'},phase='fixture')
+                    else:p.command(argv,root,{'SECRET':'never-record'},phase='fixture')
+                mocked.assert_called_once()
+                finish=json.loads((root/'records/fixture-finish.json').read_bytes())
+                self.assertEqual(finish['error'] is None,failure is None)
+                self.assertNotIn('never-record',''.join(x.read_text() for x in (root/'records').iterdir()))
+
+    def test_exclusive_or_oversized_start_stops_before_launch(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);(root/'records').mkdir();tool=root/'tool';tool.write_bytes(b'fixture')
+            (root/'records/fixture-start.json').write_text('preserve')
+            with patch.object(p.subprocess,'run') as run:
+                with self.assertRaises(FileExistsError):p.command([str(tool)],root,{},phase='fixture')
+                with self.assertRaisesRegex(ValueError,'argv cap'):p.command([str(tool),'x'*2049],root,{},phase='oversized')
+            run.assert_not_called()
+            self.assertEqual((root/'records/fixture-start.json').read_text(),'preserve')
+
+    def test_finish_write_failure_never_masks_primary_or_passes_success(self):
+        for primary in (None,p.subprocess.CalledProcessError(7,['fixture'])):
+            with tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary);(root/'records').mkdir();tool=root/'tool';tool.write_bytes(b'fixture')
+                write=p.command_record
+                def record(path,value):
+                    if path.name.endswith('-finish.json'):raise OSError(28,'fixture disk full')
+                    return write(path,value)
+                with patch.object(p,'command_record',side_effect=record), \
+                     patch.object(p.subprocess,'run',return_value=types.SimpleNamespace(returncode=0),side_effect=primary):
+                    with self.assertRaises(type(primary) if primary else OSError) as caught:
+                        p.command([str(tool)],root,{},phase='fixture')
+                if primary:
+                    self.assertIs(caught.exception,primary)
+                    self.assertEqual(primary.__notes__,['Command finish record failed: OSError; errno=28'])
+                else:self.assertEqual(caught.exception.errno,28)
+                self.assertTrue((root/'records/fixture-start.json').exists())
+
+    def test_query_start_is_saved_before_bounded_inspection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);tool=root/'tool';tool.write_bytes(b'fixture')
+            def inspect(argv,directory):
+                self.assertTrue((directory/'inspection-start.json').exists())
+                raise ValueError('fixture inspection failure')
+            with patch.object(p.setup,'bounded_inspection',side_effect=inspect):
+                with self.assertRaisesRegex(ValueError,'fixture inspection failure'):
+                    p.inspected([str(tool),'--version'],root,'query')
+
+
 class ArchiveTests(unittest.TestCase):
     def archive(self, rows, **kwargs):
         with tempfile.TemporaryDirectory() as temporary:
@@ -258,6 +319,7 @@ class CallerTests(unittest.TestCase):
             with patch.object(p,'command') as command:
                 env=p.configure(root,p.clean_env(root),root/'lib',root/'launcher.py')
             argv,cwd,actual_env=command.call_args.args
+            self.assertEqual(command.call_args.kwargs,{'phase':'meson-configure'})
             self.assertEqual(actual_env['CC'],'/usr/bin/gcc')
             self.assertEqual(actual_env['PKG_CONFIG'],'/usr/bin/pkg-config')
             self.assertEqual(actual_env['NINJA'],'/usr/local/bin/ninja')

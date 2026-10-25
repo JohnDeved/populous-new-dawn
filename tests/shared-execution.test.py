@@ -1643,8 +1643,26 @@ class RetainedEarlyExitTests(unittest.TestCase):
             with self.assertRaises(FileNotFoundError):watch.observe()
         self.assertEqual(watch.pidfds,{})
         exited.assert_not_called()
-        self.assertEqual(watch.observation_failure['callsite'],'pin-ancestry')
+        self.assertEqual(watch.observation_failure['callsite'],'pin-identity-reread')
         self.assertEqual(watch.observation_failure['pid'],20)
+
+    def test_pin_subcall_diagnostics_preserve_unvalidated_failure(self):
+        rows={10:self.row(10,1),20:self.row(20,10)}
+        for phase in ('first','second'):
+            for callsite in ('pin-pidfd-open','pin-identity-reread','pin-identity-compare'):
+                snapshots=[rows,rows] if phase=='first' else [{10:rows[10]},rows]
+                watch=self.watch(snapshots)
+                opening=ProcessLookupError(3,'generated') if callsite=='pin-pidfd-open' else None
+                reread=ProcessLookupError(3,'generated') if callsite=='pin-identity-reread' else None
+                value={**rows[20],'startTicks':999} if callsite=='pin-identity-compare' else rows[20]
+                with patch.object(execution.os,'pidfd_open',return_value=99,side_effect=opening), \
+                     patch.object(execution,'process_ancestry',return_value=value,side_effect=reread), \
+                     patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]):
+                    with self.assertRaises((ProcessLookupError,ValueError)):watch.observe()
+                self.assertEqual(watch.pidfds,{})
+                self.assertEqual(watch.observation_failure['callsite'],callsite)
+                self.assertEqual(watch.observation_failure['phase'],phase)
+                self.assertEqual(watch.observation_failure['pid'],20)
 
     def test_missing_enrichment_with_live_validated_fd_still_fails(self):
         import select

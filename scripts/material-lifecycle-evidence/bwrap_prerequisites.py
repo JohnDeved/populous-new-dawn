@@ -300,8 +300,50 @@ def rebase_pc(original, private_root):
     return '\n'.join(output)+'\n'
 
 
-def command(argv, cwd, env):
-    subprocess.run(argv,cwd=cwd,env=env,stdin=subprocess.DEVNULL,check=True,timeout=BUILD_SECONDS)
+def command_record(path, value):
+    data=json.dumps(value,sort_keys=True,ensure_ascii=True).encode()+b'\n'
+    require(len(data)<=16384,'Trusted command record cap')
+    with path.open('xb') as stream:stream.write(data)
+
+
+def command_start(argv, directory, phase):
+    # Fixed reviewed callers only. No environment, output or arbitrary exception text.
+    require(re.fullmatch(r'[a-z][a-z0-9-]{0,63}',phase) is not None,'Invalid command phase')
+    require(isinstance(argv,list) and 0<len(argv)<=64 and
+            all(isinstance(arg,str) and len(arg.encode())<=2048 for arg in argv),
+            'Trusted command argv cap')
+    require(Path(argv[0]).is_absolute(),'Trusted command requires absolute executable')
+    tool=Path(argv[0]).resolve(strict=True)
+    record={'phase':phase,'argv':argv,'startedMonotonic':time.monotonic(),
+            'executable':{'requestedPath':argv[0],'resolvedPath':str(tool),
+                          'sha256':policy.sha256_file(tool)},
+            'scope':'command provenance only; not dependency or execution acceptance'}
+    command_record(directory/(phase+'-start.json'),record)
+
+
+def command(argv, cwd, env, *, phase):
+    directory=cwd/'records'
+    command_start(argv,directory,phase)
+    result=None;error=None;primary=None
+    try:
+        result=subprocess.run(argv,cwd=cwd,env=env,stdin=subprocess.DEVNULL,check=True,timeout=BUILD_SECONDS)
+    except BaseException as failure:
+        primary=failure
+        error={'type':type(failure).__name__,'errno':getattr(failure,'errno',None),
+               'returncode':getattr(failure,'returncode',None)}
+        raise
+    finally:
+        try:
+            command_record(directory/(phase+'-finish.json'),
+                {'phase':phase,'finishedMonotonic':time.monotonic(),
+                 'returncode':None if result is None else result.returncode,'error':error,
+                 'scope':'subprocess.run outcome; owned cleanup remains separate'})
+        except BaseException as record_failure:
+            if primary is None:raise  # A missing completion receipt never passes.
+            primary.add_note('Command finish record failed: '+type(record_failure).__name__[:128]+
+                             '; errno='+str(getattr(record_failure,'errno',None))[:32])
+            # Preserve the original producer failure; bounded secondary detail is
+            # emitted by Python's exception traceback, never converted to success.
 
 
 def configure(root, env, libdir, launcher):
@@ -309,7 +351,7 @@ def configure(root, env, libdir, launcher):
     command([str(Path(sys.executable).resolve()),'-I','-B',str(launcher),'setup',str(root/'build'),
              str(root/'source/bubblewrap-0.13.1'),'--wrap-mode=nodownload','--buildtype=release',
              '-Dman=disabled','-Dbash_completion=disabled','-Dzsh_completion=disabled',
-             '-Dpython='+str(Path(sys.executable).resolve()),'-Dtests=false','-Dselinux=auto','-Dc_args=-MD -v','-Dc_link_args=-v','-Dbuild_rpath='+str(libdir)],root,env)
+             '-Dpython='+str(Path(sys.executable).resolve()),'-Dtests=false','-Dselinux=auto','-Dc_args=-MD -v','-Dc_link_args=-v','-Dbuild_rpath='+str(libdir)],root,env,phase='meson-configure')
     metadata=json.loads((root/'build/meson-info/intro-compilers.json').read_bytes())
     for machine in ('host','build'):
         compiler=metadata[machine]['c']
@@ -372,7 +414,7 @@ def producer(root):
     env=configure(root,env,libdir,launcher)
     inspected(['/usr/local/bin/ninja','-C',str(root/'build'),'-t','commands','bwrap'],
               root/'records','compiler-link-commands')
-    command(['/usr/local/bin/ninja','-C',str(root/'build'),'-j1','-v','bwrap'],root,env)
+    command(['/usr/local/bin/ninja','-C',str(root/'build'),'-j1','-v','bwrap'],root,env,phase='ninja-build')
     dependency_text=inspected(['/usr/local/bin/ninja','-C',str(root/'build'),'-t','deps'],
                               root/'records','build-header-dependencies')
     headers={}
@@ -394,6 +436,7 @@ def producer(root):
 
 def inspected(command, evidence, name):
     directory=evidence/name; directory.mkdir(mode=0o700)
+    command_start(command,directory,'inspection')
     return setup.bounded_inspection(command,directory)
 
 

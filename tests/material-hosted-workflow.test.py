@@ -21,7 +21,7 @@ import projection
 import host_metadata
 
 class HostMetadataTests(unittest.TestCase):
-    def collect(self, payload=b'enforce\n', denied=False):
+    def collect(self, payload=b'enforce\n', denied=False, release='fixture'):
         import errno
         import stat
         opened=[]
@@ -31,7 +31,8 @@ class HostMetadataTests(unittest.TestCase):
             return 123
         info=types.SimpleNamespace(st_mode=stat.S_IFREG|0o644,st_uid=0,st_gid=0,
                                    st_size=7,st_dev=1,st_ino=2)
-        with patch.object(host_metadata.os,'stat',return_value=info),\
+        with patch.object(host_metadata.os,'uname',return_value=types.SimpleNamespace(sysname='Linux',release=release,version='fixture',machine='x86_64')),\
+             patch.object(host_metadata.os,'stat',return_value=info),\
              patch.object(host_metadata.os,'access',return_value=False),\
              patch.object(host_metadata.os,'open',side_effect=opening),\
              patch.object(host_metadata.os,'fstat',return_value=info),\
@@ -54,12 +55,41 @@ class HostMetadataTests(unittest.TestCase):
 
     def test_bounded_success_is_not_namespace_admission(self):
         result,read,close=self.collect()
-        self.assertEqual(read.call_count,10);self.assertEqual(close.call_count,10)
+        self.assertEqual(read.call_count,12);self.assertEqual(close.call_count,12)
+        self.assertEqual(result['kernel']['release'],{'value':'fixture','truncated':False})
+        self.assertNotIn('nodename',result['kernel'])
         self.assertEqual(read.call_args.args,(123,1025))
         self.assertIn('/opt/hostedtoolcache/pnd-material-tools-123-1/bwrap/bin/bwrap',result['paths'])
         self.assertFalse(result['paths']['/usr/bin/bwrap']['executableAccess']['value'])
         row=result['policyFiles']['/proc/self/attr/current']
         self.assertEqual(row['observedBytesSha256'],hashlib.sha256(b'enforce\n').hexdigest())
+    def test_kernel_release_bounded_without_hostname_or_semantics_claim(self):
+        result,_,_=self.collect(release='x'*300)
+        self.assertEqual(result['kernel']['release'],{'value':'x'*256,'truncated':True})
+        self.assertEqual(set(result['kernel']),{'sysname','release','version','machine'})
+        self.assertEqual(result['admission'],'not-established')
+    def test_cgroup_fixed_scope_filters_mounts_without_delegation_claim(self):
+        payload=(b'1 0 0:1 / / rw - ext4 /dev/fixture rw\n'
+                 b'2 1 0:2 / /sys/fs/cgroup ro,nosuid - cgroup2 cgroup ro\n')
+        result,read,close=self.collect(payload=payload)
+        group=result['cgroups'];self.assertEqual(group['delegation'],'not-established')
+        self.assertEqual(len(group['mounts']['rows']),1)
+        self.assertEqual(group['mounts']['rows'][0]['filesystem'],'cgroup2')
+        self.assertEqual(group['mounts']['rows'][0]['mountOptions'],'ro,nosuid')
+        self.assertNotIn('/dev/fixture',json.dumps(group['mounts']))
+        self.assertEqual(len(group['fixedPaths']),6)
+        self.assertFalse(group['fixedPaths']['/sys/fs/cgroup']['writableAccess']['value'])
+        self.assertIn(unittest.mock.call(123,16385),read.call_args_list)
+
+    def test_cgroup_malformed_truncated_denied_stay_unknown(self):
+        result,_,_=self.collect(payload=b'x'*16385)
+        self.assertTrue(result['cgroups']['mounts']['truncated'])
+        self.assertGreater(result['cgroups']['mounts']['malformedRows'],0)
+        result,_,_=self.collect(denied=True)
+        self.assertEqual(result['cgroups']['mounts']['error']['errno'],13)
+        self.assertEqual(result['cgroups']['selfMembership']['error']['errno'],13)
+        self.assertEqual(result['cgroups']['delegation'],'not-established')
+
     def test_denied_policy_is_explicit_unknown_and_not_ci_failure(self):
         result,read,close=self.collect(denied=True)
         self.assertEqual(result['policyFiles']['/proc/self/attr/current']['error']['errno'],13)
@@ -72,13 +102,15 @@ class HostMetadataTests(unittest.TestCase):
         self.assertIn('EOF and full-file digest not established',row['readSemantics'])
         self.assertLess(len(json.dumps(result).encode()),131072)
     def test_missing_path_and_invalid_run_id_do_not_expand_read_scope(self):
-        with patch.object(host_metadata.os,'stat',side_effect=FileNotFoundError(2,'missing')),\
+        with patch.object(host_metadata.os,'uname',side_effect=PermissionError(13,'fixture denied')),\
+             patch.object(host_metadata.os,'stat',side_effect=FileNotFoundError(2,'missing')),\
              patch.object(host_metadata.os,'access',return_value=False),\
              patch.object(host_metadata.os,'open',side_effect=FileNotFoundError(2,'missing')):
             result=host_metadata.collect({'GITHUB_RUN_ID':'../../outside','GITHUB_RUN_ATTEMPT':'1'})
         self.assertEqual(result['paths']['/usr/bin/bwrap']['lstat']['error']['errno'],2)
         self.assertEqual(result['paths']['/usr/bin/bwrap']['stat']['error']['errno'],2)
         self.assertEqual(len(result['paths']),11)
+        self.assertEqual(result['kernel']['error'],{'type':'PermissionError','errno':13})
 
 class NpmConfigTests(unittest.TestCase):
     def test_distinct_exclusive_private_empty_configs(self):
