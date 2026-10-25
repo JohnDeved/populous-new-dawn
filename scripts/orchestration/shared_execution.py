@@ -31,6 +31,12 @@ import shared_runtime as runtime
 import shared_setup as setup
 import shared_workspace as workspace
 
+from state_serialization import (
+    decode as decode_state,
+    profile as state_serialization_profile,
+    expected_after as expected_state_after,
+)
+
 VERSION = 1
 STATE = '.pnpm-workspace-state-v1.json'
 CACHES = ('.vite', '.vite-temp', '.cache')
@@ -297,7 +303,7 @@ def validate_alias_transition(before, after, aliases):
 
 
 def validate_state_transition(before, after, start_ms, end_ms, mtime_floor_ms):
-    old, new = json.loads(before), json.loads(after)
+    old, new = decode_state(before), decode_state(after)
     a, b = old.get('lastValidatedTimestamp'), new.get('lastValidatedTimestamp')
     require(type(a) is int and type(b) is int, 'Integer validation timestamps required')
     require(type(start_ms) is int and type(end_ms) is int and start_ms <= end_ms,
@@ -307,11 +313,9 @@ def validate_state_transition(before, after, start_ms, end_ms, mtime_floor_ms):
     expected = dict(old)
     expected['lastValidatedTimestamp'] = b
     require(new == expected, 'Unexpected state JSON transition')
-    marker = ('"lastValidatedTimestamp": ' + str(a)).encode()
-    require(before.count(marker) == 1, 'Unsupported/ambiguous state timestamp serialization')
-    require(after == before.replace(marker, ('"lastValidatedTimestamp": ' + str(b)).encode(), 1),
-            'Unexpected state byte/whitespace transition')
-    return {'field': 'lastValidatedTimestamp', 'before': a, 'after': b,
+    expected_bytes, serialization = expected_state_after(before, expected)
+    require(after == expected_bytes, 'Unexpected state byte/whitespace transition')
+    return {'field': 'lastValidatedTimestamp', 'before': a, 'after': b, 'serializationProfile': serialization,
             'commandRealtimeMs': [start_ms, end_ms], 'inputMtimeFloorMs': mtime_floor_ms,
             'beforeSha256': sha_bytes(before), 'afterSha256': sha_bytes(after)}
 
@@ -1065,9 +1069,19 @@ def run_payload(spec, plan, evidence, command, limits, watch, *, producer_mode='
         primary_failure = failure_record(error)
     finally:
         survivors = None
+        initial_survivors = None
+        initial_cleanup_observation = None
         try:
+            observation_started = time.monotonic()
             remaining = watch.survivors()
-            if process.poll() is None or remaining:
+            initial_survivors = remaining
+            direct_returncode = process.poll()
+            initial_cleanup_observation = {
+                'startedMonotonic': observation_started,
+                'finishedMonotonic': time.monotonic(),
+                'directReturnCode': direct_returncode,
+            }
+            if direct_returncode is None or remaining:
                 reason = reason or 'Owned descendants remained after direct exit'
                 watch.cleanup()
                 if process.poll() is None:
@@ -1099,7 +1113,8 @@ def run_payload(spec, plan, evidence, command, limits, watch, *, producer_mode='
         for stream in streams.values():
             stream.close()
     result = {'exitCode': process.returncode, 'stopReason': reason, 'failure': primary_failure,
-              'cleanupFailure': cleanup_failure, 'gateBinding': binding,
+              'cleanupFailure': cleanup_failure, 'initialSurvivors': initial_survivors,
+              'initialCleanupObservation': initial_cleanup_observation, 'gateBinding': binding,
               'observedRawBytes': observed, 'storedRawBytes': stored, 'survivors': survivors,
               'producer': clock.report() if clock else None, 'wallSeconds': time.monotonic() - started,
               'rawPaths': {name: str(evidence / ('transport.' + name)) for name in streams}}
@@ -1153,7 +1168,7 @@ def namespace_gate(args):
 
 def state_profile(target):
     package = json.loads((target / 'package.json').read_bytes())
-    state = json.loads((target / 'node_modules' / STATE).read_bytes())
+    _, state = state_serialization_profile((target / 'node_modules' / STATE).read_bytes())
     require(package.get('packageManager') == setup.MANAGER and not package.get('configDependencies') and
             not package.get('pnpm'), 'Unsupported pnpm package configuration')
     require(set(state) == {'lastValidatedTimestamp', 'projects', 'pnpmfiles', 'settings', 'filteredInstall'},

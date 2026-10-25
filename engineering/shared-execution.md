@@ -38,6 +38,25 @@ workspace settings, hooks, config dependencies, state fields, namespace path or
 pnpm version fail for explicit review. Dependency and asset materialization is a
 separate future operation; there is no installation fallback.
 
+### Exact state serialization and cleanup evidence
+
+Planning accepts only two byte formats: the exact two-space JSON form with a
+single timestamp replacement, or the sorted compact source form serialized by
+pinned pnpm 11.25.0 into its exact field-ordered, two-space output. The latter
+requires the known settings keys and a single name/version project. Both reject
+duplicate keys, unknown top-level fields, noninteger timestamps, and unexpected
+whitespace. Expected output is derived from the old values, changing only the
+observed timestamp; semantic JSON equality alone never accepts a transition.
+The timestamp must still advance inside the actual command interval and exceed
+the input mtime floor. No canonical state is rewritten by this validator.
+
+Payload results retain the initial observed survivors and the monotonic interval
+and direct return code of the first cleanup observation, separately from the
+final survivor list. An initial survivor still fails even if later cleanup
+succeeds. Failed observation remains unknown and failed, not an empty list.
+These fields aid diagnosis; they do not explain a historical cleanup warning or
+waive the existing cleanup and sealing gates.
+
 ## Qualification is executable, not an acceptance shortcut
 
 `qualify` runs generated sentinels through the actual maintained mount, PID owner,
