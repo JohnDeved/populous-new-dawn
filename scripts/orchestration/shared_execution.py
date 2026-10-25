@@ -781,6 +781,63 @@ def make_layout(evidence, *, stage):
     private_inventory(evidence)
 
 
+def process_ancestry(pid):
+    # Public ancestry only: unrelated host namespaces/executables are not ours.
+    fields = (Path('/proc') / str(pid) / 'stat').read_text().rsplit(')', 1)[1].split()
+    return {'pid': int(pid), 'startTicks': int(fields[19]), 'ppid': int(fields[1]),
+            'pgid': int(fields[2]), 'session': int(fields[3]), 'state': fields[0]}
+
+
+def ancestry_snapshot():
+    rows = {}
+    for path in Path('/proc').iterdir():
+        if path.name.isdigit():
+            try:
+                rows[int(path.name)] = process_ancestry(int(path.name))
+            except (FileNotFoundError, ProcessLookupError):
+                pass  # Only exit races, never inaccessible/unknown ancestry.
+    return rows
+
+
+def require_child_subreaper():
+    # Process-local orphan ownership, not privileges or host procfs policy.
+    # Established before any producer can pass its ownership gate. It remains
+    # set for this controller's lifetime so no later orphan loses its anchor.
+    import ctypes
+    library = ctypes.CDLL(None, use_errno=True)
+    require(library.prctl(36, 1, 0, 0, 0) == 0, 'Child subreaper unavailable')
+    value = ctypes.c_int()
+    require(library.prctl(37, ctypes.byref(value), 0, 0, 0) == 0 and value.value == 1,
+            'Child subreaper not verified')
+
+
+def owned_process_rows(census, parent, known, namespace_roots, enrich):
+    # Full enrichment is injected only after positive ancestry selection.
+    identity = census.get(parent['pid'])
+    require(identity and identity['startTicks'] == parent['startTicks'], 'Controller identity invisible')
+    owned = {parent['pid']}
+    for pid, row in census.items():
+        if (pid, row['startTicks']) in known:
+            owned.add(pid)
+    for namespace, root in namespace_roots.items():
+        row = census.get(root['pid'])
+        if row is not None:
+            require(row['startTicks'] == root['startTicks'], 'Namespace init PID reused')
+            owned.add(root['pid'])
+    while True:
+        more = {pid for pid, row in census.items() if row['ppid'] in owned} - owned
+        if not more:
+            break
+        owned.update(more)
+    result = []
+    for pid in sorted(owned):
+        row = enrich(pid)  # Owned read failures are never skipped.
+        require(all(row[key] == census[pid][key] for key in ('pid', 'startTicks', 'ppid')),
+                'Owned identity/ancestry changed during observation')
+        result.append(row)
+    return result
+
+
 def process_member(pid):
     root = Path('/proc') / str(pid)
     fields = (root / 'stat').read_text().rsplit(')', 1)[1].split()
@@ -810,8 +867,10 @@ def process_snapshot():
 
 class OwnerWatch:
     """Positive ancestry before namespace adoption; retained pidfds survive observer failure."""
-    def __init__(self, evidence, limits, started, *, snapshot=process_snapshot):
+    def __init__(self, evidence, limits, started, *, snapshot=ancestry_snapshot):
+        require_child_subreaper()
         self.evidence, self.limits, self.started = evidence, limits, started
+        self.namespace_roots = {}
         self.snapshot = snapshot
         self.parent = process_member(os.getpid())
         self.known, self.history, self.pidfds = {}, {}, {}
@@ -845,34 +904,50 @@ class OwnerWatch:
     def observe(self):
         with self.lock:
             all_rows = self.snapshot()
-            parent = all_rows.get(self.parent['pid'])
-            require(parent and parent['startTicks'] == self.parent['startTicks'], 'Controller identity invisible')
-            owned = {self.parent['pid']}
-            owned.update(pid for pid, row in all_rows.items() if
-                         (pid, row['startTicks']) in self.known or row['pidNamespace'] in self.namespaces)
-            while True:
-                more = {pid for pid, row in all_rows.items() if row['ppid'] in owned} - owned
-                if not more:
-                    break
-                owned.update(more)
-            rows = [all_rows[pid] for pid in sorted(owned)]
+            rows = owned_process_rows(all_rows, self.parent, self.known,
+                                      self.namespace_roots, process_member)
+            # Pin the first positive closure before taking the second census.
+            # Fork/setsid/reparent are ordinary owned transitions, not a reason
+            # to demand a globally frozen host process set. Two bounded passes
+            # retain additions while removals require kernel exit evidence.
+            self.retain_rows(rows)
+            after = self.snapshot()
+            for previous in rows:
+                replacement = after.get(previous['pid'])
+                require(replacement is None or replacement['startTicks'] == previous['startTicks'],
+                        'Owned PID reused between censuses')
+            second = owned_process_rows(after, self.parent, self.known,
+                                        self.namespace_roots, process_member)
+            first_by_pid = {row['pid']: row for row in rows}
+            second_pids = {row['pid'] for row in second}
+            for row in second:
+                previous = first_by_pid.get(row['pid'])
+                if previous is not None:
+                    require(previous['startTicks'] == row['startTicks'],
+                            'Owned PID reused between censuses')
+                    if row['pid'] != self.parent['pid'] and previous['ppid'] != row['ppid']:
+                        require(row['ppid'] in second_pids,
+                                'Owned reparent lacks positive parent anchor')
+            self.retain_rows(second)
+            rows = second
+            import select
+            for key, fd in self.pidfds.items():
+                current = after.get(key[0])
+                if current is None or current['startTicks'] != key[1]:
+                    require(select.select([fd], [], [], 0)[0],
+                            'Retained owned PID absent/reused without positive exit')
+            for namespace, root in self.namespace_roots.items():
+                if root['pid'] not in after:
+                    # Linux tears down namespace members when init exits, but
+                    # absence alone is not a cleanup receipt. Every retained
+                    # member must also have a positively exited pidfd.
+                    import select
+                    for key, member in self.known.items():
+                        if member['pidNamespace'] == namespace and key in self.pidfds:
+                            require(select.select([self.pidfds[key]], [], [], 0)[0],
+                                    'Namespace init absent with live retained member')
             for row in rows:
                 key = row['pid'], row['startTicks']
-                self.known[key] = row
-                if row['pid'] != self.parent['pid'] and key not in self.pidfds:
-                    fd = None
-                    try:
-                        fd = os.pidfd_open(row['pid'])
-                        require(process_member(row['pid'])['startTicks'] == row['startTicks'], 'PID reused during pin')
-                        self.pidfds[key] = fd
-                    except (FileNotFoundError, ProcessLookupError):
-                        if fd is not None:
-                            os.close(fd)
-                        continue
-                    except BaseException:
-                        if fd is not None:
-                            os.close(fd)
-                        raise
                 history = self.history.setdefault(key, {'parents': set(), 'namespaces': set(), 'nspids': set(),
                                                         'executables': set(), 'sessions': set(), 'positiveRss': False})
                 history['parents'].add(row['ppid'])
@@ -882,6 +957,28 @@ class OwnerWatch:
                 history['sessions'].add(row['session'])
                 history['positiveRss'] |= row['rss'] > 0
             return rows
+
+    def retain_rows(self, rows):
+        for row in rows:
+            key = row['pid'], row['startTicks']
+            if row['pid'] != self.parent['pid'] and key not in self.pidfds:
+                fd = None
+                try:
+                    fd = os.pidfd_open(row['pid'])
+                    require(process_member(row['pid'])['startTicks'] == row['startTicks'],
+                            'PID reused during pin')
+                    self.pidfds[key] = fd
+                except (FileNotFoundError, ProcessLookupError):
+                    if fd is not None:
+                        os.close(fd)
+                    # The observed process exited while pinning. Do not retain
+                    # an unpinned identity as evidence of successful cleanup.
+                    raise ValueError('Owned process exited before identity pin')
+                except BaseException:
+                    if fd is not None:
+                        os.close(fd)
+                    raise
+            self.known[key] = row
 
     def loop(self):
         while not self.closed.is_set():
@@ -934,6 +1031,10 @@ class OwnerWatch:
         with self.lock:
             self.namespace_fds.append(fd)
             self.namespaces.add(gate['pidNamespace'])
+            self.namespace_roots[gate['pidNamespace']] = {
+                'pid': init[0]['pid'], 'startTicks': init[0]['startTicks']}
+            require((init[0]['pid'], init[0]['startTicks']) in self.pidfds,
+                    'Namespace init lacks retained pidfd')
             self.binding = {'hostPid': gate['pid'], 'startTicks': gate['startTicks'], 'namespacePid': ready['pid'],
                             'pidNamespace': gate['pidNamespace'], 'nspid': gate['nspid'],
                             'initHostPid': init[0]['pid'], 'initStartTicks': init[0]['startTicks']}
@@ -1854,6 +1955,7 @@ def qualify_backend(reference, evidence, expected_adapter):
                 attempt = records / name
                 make_layout(attempt, stage='run')
                 watch = OwnerWatch(attempt, limits, started)
+                actual_snapshot = watch.snapshot
                 result = None
                 cleanup_context = {}
                 try:
@@ -1876,7 +1978,6 @@ def qualify_backend(reference, evidence, expected_adapter):
                     command = [tools['python'], '-I', '-B', str(HERE / 'shared_execution.py'), '_fixture', name,
                                str(protected), str(records / 'rename/modules-root'), str(attempt / 'control/result.json')]
                     if name == 'observer':
-                        actual_snapshot = watch.snapshot
                         def failed_snapshot():
                             if watch.binding is not None:
                                 raise QualificationObservationFault('Injected persistent qualification observation failure')
@@ -1887,7 +1988,7 @@ def qualify_backend(reference, evidence, expected_adapter):
                                          producer_mode='inner' if name == 'clock' else 'gate',
                                          producer_receipt=attempt / 'control/producer-ready.json' if name == 'clock' else None)
                     if name == 'observer':
-                        watch.snapshot = process_snapshot
+                        watch.snapshot = actual_snapshot
                         require_qualifier_observer_failure(result)
                         await_owned_cleanup(watch, limits, attempt, cleanup_context, phase='observer-recovery')
                         survivors = watch.survivors()
@@ -1922,7 +2023,7 @@ def qualify_backend(reference, evidence, expected_adapter):
                     results[name] = {'result': result}
                     require(tree_inventory(protected) == before, 'Original sentinel or hardlink metadata changed')
                 finally:
-                    watch.snapshot = process_snapshot
+                    watch.snapshot = actual_snapshot
                     try:
                         await_owned_cleanup(watch, limits, attempt, cleanup_context, phase='final')
                     finally:
@@ -1990,3 +2091,4 @@ if __name__ == '__main__':
     except (ValueError, OSError, KeyError, subprocess.CalledProcessError) as error:
         print('shared execution: ' + str(error), file=sys.stderr)
         raise SystemExit(2)
+
