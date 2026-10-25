@@ -5,6 +5,7 @@ import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
+import { waitForCheckpointReadback } from './checkpoint-readback.mjs'
 
 const projectRoot = process.cwd(),
   artifactDir = resolve(
@@ -569,21 +570,31 @@ async function attackMatak(page) {
 }
 
 async function waitForStoredMissionFour(page) {
-  await page.waitForFunction(async () => {
-    const database = await new Promise((resolve, reject) => {
-      const request = indexedDB.open('populous-new-dawn', 1)
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
-    if (!database.objectStoreNames.contains('checkpoints')) return false
-    const value = await new Promise((resolve, reject) => {
-      const transaction = database.transaction('checkpoints', 'readonly'),
-        request = transaction.objectStore('checkpoints').get('profile')
-      request.onsuccess = () => resolve(request.result)
-      request.onerror = () => reject(request.error)
-    })
-    return value?.version === 1 && Array.isArray(value.completed) && value.completed.includes(4)
-  })
+  const committed = await waitForCheckpointReadback(
+    () => page.evaluate(async () => {
+      const database = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('populous-new-dawn', 1)
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
+      try {
+        if (!database.objectStoreNames.contains('checkpoints')) return false
+        const value = await new Promise((resolve, reject) => {
+          const transaction = database.transaction('checkpoints', 'readonly'),
+            request = transaction.objectStore('checkpoints').get('profile')
+          request.onsuccess = () => resolve(request.result)
+          request.onerror = () => reject(request.error)
+        })
+        return value?.version === 1 && Array.isArray(value.completed) && value.completed.includes(4)
+      } finally {
+        database.close()
+      }
+    }),
+    // Retain the prior 30-second polling scope: 29.9s of pauses plus awaited read latency.
+    // This bounds attempts, not an in-flight page.evaluate or a hard wall-clock deadline.
+    { attempts: 300, pause: () => page.waitForTimeout(100) }
+  )
+  assert.equal(committed, true, 'Mission 4 profile completion must commit before continuing')
 }
 
 let browser

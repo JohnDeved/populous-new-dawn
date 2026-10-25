@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT one executed component result",
+  "sourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "resultManifestSha256": "4dad693936c368db05388d60337646199cb3755b4174f29ac4d37082cf3e3f68",
+  "files": {
+    "review.md": {
+      "sha256": "d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc",
+      "bytes": 4317
+    },
+    "verification.json": {
+      "sha256": "39977406c9175b066522acdfa668e067623e2f5fb0a5979b3cd7f2df4c0182fe",
+      "bytes": 1413
+    }
+  }
+}

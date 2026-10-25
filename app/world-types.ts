@@ -1,5 +1,6 @@
 import type { SecondaryEffects } from './secondary-effects.ts'
-import type { LevelStartSite } from './level-start.ts'
+import type { CapacityPolicy } from './capacity-policy.ts'
+import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
 import type { CombatMarch } from './combat-order-search.ts'
@@ -51,6 +52,9 @@ import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
 import type { Armageddon } from './armageddon.ts'
+import type { BuildingAcquisitionSource } from './building-acquisition-source.ts'
+import type { OrdinaryWorshipSource } from './worship-acquisition-source.ts'
+import type { WorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 
 export const TRIBE_TEAMS = ['blue', 'red', 'yellow', 'green'] as const
 export type TribeTeam = (typeof TRIBE_TEAMS)[number]
@@ -58,6 +62,9 @@ export type Team = TribeTeam | 'wild'
 export const teamForTribe = (tribe: number): Team =>
   tribe === -1 || tribe === 255 ? 'wild' : (TRIBE_TEAMS[tribe] ?? 'wild')
 export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
+// Native vehicle +0x2f; old checkpoints have only the real/count owner.
+export const vehicleApparentTribe = (vehicle: Pick<Vehicle, 'team' | 'apparentTribe'>) =>
+  vehicle.apparentTribe ?? tribeForTeam(vehicle.team)
 export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
   team === 'yellow' || team === 'green' ? 'red' : team
 export type BuildingKind =
@@ -100,10 +107,18 @@ export type Fight = {
   remaining?: number
   animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
   knockback?: boolean
+  // Only attacks entered with a native pose own it; legacy active saves keep fallback.
+  nativeAttackAnimation?: boolean
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
+  // Native allocation/visit byte. Missing in legacy checkpoints means unknown.
+  counter?: number
+  // Snapshot of the reward's immediate visit, not an ordinary vehicle controller.
+  rewardInitialization?: import('./vehicle-reward.ts').BoatRewardInitialization
+  // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
+  apparentTribe?: number
   id: number
   class: 4
   model: number
@@ -135,6 +150,12 @@ export type Projectile = {
   remaining: number
   turns: number
   visuals: Effect[]
+  // Optional for legacy/ground casts. Parent spell and shot clear identity independently.
+  blastTarget?: {
+    personId: number | null
+    shotPersonId: number | null
+    destination: NativePoint
+  }
   fireball?: boolean
 }
 export type AngelState = {
@@ -163,6 +184,7 @@ export type Unit = Point & {
   damageAttacker?: number
   supportHeight?: number
   entry?: BuildingEntry
+  resident?: { building: number; slot: number; person: LivePerson }
   native: LivePerson | null
   burnTrail?: number
   flight?: LivePerson
@@ -261,6 +283,7 @@ export type Shrine = Point &
       | 'balloonHut'
       | 'mana'
     rewards?: NonNullable<Shrine['reward']>[]
+    bridgeStart?: Point
     bridgeTarget?: Point
     effectTarget?: Point
     effectTargets?: Point[]
@@ -275,6 +298,7 @@ export type Shrine = Point &
     rewardModel?: number
     rewardDelay?: number
     rewardRecipient?: number
+    ordinarySpellReward?: OrdinaryWorshipSource
     // Completed local-player worship sample consumed by automatic panel presentation.
     panelActivity?: { turn: number; count: number }
     angelTarget?: Point
@@ -292,7 +316,10 @@ export type Shrine = Point &
     morph: ModelMorph | null
     // Undefined legacy saves lazily derive only an authored model45 family; null is unsupported.
     stoneHead?: StoneHeadAnimation | null
+    knowledgeGlow?: AnimatedUnit & { displayedFrame: number }
     angle: number
+    shake?: number
+    shakeOrigin?: number
   }
 export type Tree = Point & {
   id: number
@@ -344,12 +371,13 @@ export type Effect = Point & {
   sinking?: SinkingBuilding & { stage: number }
   wave?: BlastWave
   startConversionLink?: number
+  reincarnationWave?: StartWave & { tribe: number; mode: 2 }
   turnsRemaining?: number
   groundVersion?: number
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
-  corpse?: { remaining: number; phase: number; ground: number }
+  corpse?: { remaining: number; phase: number; ground: number; displayedFrame?: number }
   bridge?: LandBridge
   flatten?: Flatten
   erosion?: Erosion
@@ -369,6 +397,7 @@ export type Effect = Point & {
     target: number
     attacker: number
     remaining: number
+    point?: boolean
     tower?: boolean
     bloodlust?: boolean
     impact?: boolean
@@ -392,6 +421,8 @@ export type Gift = Effect & {
   amount?: number
   recipient?: number
   rewardModel?: number
+  buildingAcquisition?: BuildingAcquisitionSource & { completedTurn: number; serial: number }
+  ordinaryWorship?: OrdinaryWorshipSource & { completedTurn: number; serial: number }
   remaining: number
   phase: number
   frame: number
@@ -410,9 +441,12 @@ export type CampaignAI = ScriptState &
     includeIncompleteBuildings: boolean
     pendingCommands: { opcode: number; args: number[] }[]
     trainingSelections: number[][]
+    // Previous completed object turn's class-2 membership; retain object aliases.
+    constructionBuildings?: Building[]
   }
 
 export type World = {
+  capacityPolicy: CapacityPolicy
   objectCells: ObjectCells
   marching: LiveFormation[]
   combatMarches: CombatMarch[]
@@ -459,6 +493,8 @@ export type World = {
   terrain: number[]
   terrainVersion: number
   units: Unit[]
+  // Native class-4 allocation seed; legacy history cannot be inferred from IDs.
+  vehicleAllocationSeed?: number
   vehicles: Vehicle[]
   buildings: Building[]
   effects: Effect[]
@@ -470,6 +506,7 @@ export type World = {
   fights: Battle[]
   levelStart: LevelStartSite[]
   levelStartStoneSound: number
+  reincarnationSites: (StartPoint | null)[]
   sounds: SoundEvent[]
   soundSerial: number
   mana: number
@@ -491,6 +528,7 @@ export type World = {
   pendingTime: number
   randomState: number
   cosmeticRandom: { randomState: number }
+  worshipAcquisition: WorshipAcquisitionRuntime
   effectCounter: number
   secondaryEffects: SecondaryEffects
   nextId: number

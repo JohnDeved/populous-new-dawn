@@ -1,0 +1,60 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0045aed0 <.text+0x59ed0>:
+  45aed0:	ff d0                	call   eax
+  45aed2:	83 c4 04             	add    esp,0x4
+  45aed5:	8b 46 04             	mov    eax,DWORD PTR [esi+0x4]
+  45aed8:	43                   	inc    ebx
+  45aed9:	83 c5 28             	add    ebp,0x28
+  45aedc:	39 58 24             	cmp    DWORD PTR [eax+0x24],ebx
+  45aedf:	7f e7                	jg     0x45aec8
+  45aee1:	e9 90 00 00 00       	jmp    0x45af76
+  45aee6:	83 3d e4 9c 74 00 01 	cmp    DWORD PTR ds:0x749ce4,0x1
+  45aeed:	0f 85 83 00 00 00    	jne    0x45af76
+  45aef3:	f6 c3 10             	test   bl,0x10
+  45aef6:	74 7e                	je     0x45af76
+  45aef8:	f6 05 fc 9d 74 00 05 	test   BYTE PTR ds:0x749dfc,0x5
+  45aeff:	74 5e                	je     0x45af5f
+  45af01:	a1 d0 9d 74 00       	mov    eax,ds:0x749dd0
+  45af06:	0f bf 51 04          	movsx  edx,WORD PTR [ecx+0x4]
+  45af0a:	66 8b 68 0c          	mov    bp,WORD PTR [eax+0xc]
+  45af0e:	a1 f4 9d 74 00       	mov    eax,ds:0x749df4
+  45af13:	2b c2                	sub    eax,edx
+  45af15:	66 8b d5             	mov    dx,bp
+  45af18:	66 c1 ea 01          	shr    dx,0x1
+  45af1c:	0f b7 da             	movzx  ebx,dx
+  45af1f:	2b c3                	sub    eax,ebx
+  45af21:	8b 15 d0 9d 74 00    	mov    edx,DWORD PTR ds:0x749dd0
+  45af27:	c1 e0 10             	shl    eax,0x10
+  45af2a:	33 db                	xor    ebx,ebx
+  45af2c:	66 8b 5a 04          	mov    bx,WORD PTR [edx+0x4]
+  45af30:	0f b7 d5             	movzx  edx,bp
+  45af33:	2b da                	sub    ebx,edx
+  45af35:	99                   	cdq
+  45af36:	f7 fb                	idiv   ebx
+  45af38:	85 c0                	test   eax,eax
+  45af3a:	7d 02                	jge    0x45af3e
+  45af3c:	33 c0                	xor    eax,eax
+  45af3e:	3d 00 00 01 00       	cmp    eax,0x10000
+  45af43:	7e 05                	jle    0x45af4a
+  45af45:	b8 00 00 01 00       	mov    eax,0x10000
+  45af4a:	89 41 34             	mov    DWORD PTR [ecx+0x34],eax
+  45af4d:	8b 4e 04             	mov    ecx,DWORD PTR [esi+0x4]
+  45af50:	8b 41 30             	mov    eax,DWORD PTR [ecx+0x30]
+  45af53:	85 c0                	test   eax,eax
+  45af55:	74 1f                	je     0x45af76
+  45af57:	51                   	push   ecx
+  45af58:	ff d0                	call   eax
+  45af5a:	83 c4 04             	add    esp,0x4
+  45af5d:	eb 17                	jmp    0x45af76
+  45af5f:	c7 05 e4 9c 74 00 00 	mov    DWORD PTR ds:0x749ce4,0x0
+  45af66:	00 00 00 
+  45af69:	83 25 fc 9d 74 00 fa 	and    DWORD PTR ds:0x749dfc,0xfffffffa
+  45af70:	8b 46 04             	mov    eax,DWORD PTR [esi+0x4]
+  45af73:	83 20 ef             	and    DWORD PTR [eax],0xffffffef
+  45af76:	8b                   	.byte 0x8b
+  45af77:	4c                   	dec    esp

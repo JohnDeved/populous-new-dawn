@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d159793a-c0e7-45d9-b899-aae1b18f659a",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9c2cf2ef41163c7f73bc986ce0003dd667d2fcdd",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/angel-unload-complete.mjs": "f552c48c3442fd6b89950146c23d7de966c0ea6f6f04f81f24bff26bb05a3cd2",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m16-clock-route/convoy-continuity.mjs": "9360c1255387c203b4d3e3745eb83386e7bdc0f6ae54f975772c5c33c0b59774",
+      "work/m16-clock-route/angel-unload-settled-terminal.v8": "23364073ab9e898b8675094263ad2752cef019c5554c8c2480b34f040ad7863c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--experimental-transform-types",
+    "work/m16-clock-route/angel-unload-complete.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-clock-audit",
+  "startedAt": "2026-10-14T11:17:49.473Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-clock-audit/work/orchestration/m16-clock-route/angel-unload-complete.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-clock-audit/work/orchestration/m16-clock-route/angel-unload-complete.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T11:17:53.501Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"event\":\"actual public Balloon panel unload\",\"turn\":10186,\"before\":{\"boatId\":1368,\"boat\":{\"x\":29.19140625,\"z\":115.25},\"people\":[{\"id\":569,\"x\":29.19921875,\"z\":115.00390625,\"vehicle\":1368,\"flight\":false},{\"id\":113,\"x\":29.1796875,\"z\":115.5,\"vehicle\":1368,\"flight\":false}]},\"after\":{\"boatId\":1368,\"boat\":{\"x\":29.19140625,\"z\":115.25},\"people\":[{\"id\":569,\"x\":29.19921875,\"z\":115.00390625,\"vehicle\":0,\"flight\":true},{\"id\":113,\"x\":29.1796875,\"z\":115.5,\"vehicle\":0,\"flight\":true}]}}\n{\"event\":\"actual public Balloon panel unload\",\"turn\":10186,\"before\":{\"boatId\":1419,\"boat\":{\"x\":33.19140625,\"z\":115.25},\"people\":[{\"id\":673,\"x\":33.19921875,\"z\":115.00390625,\"vehicle\":1419,\"flight\":false},{\"id\":114,\"x\":33.1796875,\"z\":115.5,\"vehicle\":1419,\"flight\":false}]},\"after\":{\"boatId\":1419,\"boat\":{\"x\":33.19140625,\"z\":115.25},\"people\":[{\"id\":673,\"x\":33.19921875,\"z\":115.00390625,\"vehicle\":0,\"flight\":true},{\"id\":114,\"x\":33.1796875,\"z\":115.5,\"vehicle\":0,\"flight\":true}]}}\n",
+  "stderr": "(node:26) ExperimentalWarning: Transform Types is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Physical continuity for112: 114.61239964109144 at10187\n    at verifyPhysicalStep (file:///workspace/scratch/69fd8163d94e/populous-m16-clock-audit/work/m16-clock-route/convoy-continuity.mjs:9:81)\n    at step (file:///workspace/scratch/69fd8163d94e/populous-m16-clock-audit/work/m16-clock-route/angel-unload-complete.mjs:13:482)\n    at file:///workspace/scratch/69fd8163d94e/populous-m16-clock-audit/work/m16-clock-route/angel-unload-complete.mjs:16:24\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-clock-audit/tests/support/profile-storage.mjs:115:5)\n    at async file:///workspace/scratch/69fd8163d94e/populous-m16-clock-audit/work/m16-clock-route/angel-unload-complete.mjs:10:1 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "4af3c6c8b3d8fc189faecf63bc58b589d1ba9235eb65a6d0c9b552873087666e",
+  "stderrSha256": "3cfd6a392ea75418dd1b8a43c36b36be14300754d3d0e94720dd098f131ff6e8",
+  "sourceAfter": {
+    "headOid": "9c2cf2ef41163c7f73bc986ce0003dd667d2fcdd",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/angel-unload-complete.mjs": "f552c48c3442fd6b89950146c23d7de966c0ea6f6f04f81f24bff26bb05a3cd2",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m16-clock-route/convoy-continuity.mjs": "9360c1255387c203b4d3e3745eb83386e7bdc0f6ae54f975772c5c33c0b59774",
+      "work/m16-clock-route/angel-unload-settled-terminal.v8": "23364073ab9e898b8675094263ad2752cef019c5554c8c2480b34f040ad7863c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

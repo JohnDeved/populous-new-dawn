@@ -8,6 +8,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
 import { bindGame, openGame } from './browser-game.mjs'
+import { waitForHudTexture } from './hud-texture-readiness.mjs'
 import { superviseBrowserCheck } from './performance-queue.mjs'
 
 const output = resolve(process.env.PND_QUEUE_OUTPUT ?? 'work/orchestration/issue72/browser')
@@ -42,12 +43,8 @@ async function stage(name, action) {
   return result
 }
 
-async function waitHud(page) {
-  await page.waitForFunction(async () => {
-    const { texture } = await import('/app/scene-assets.ts'),
-      image = texture('hud').image
-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
-  })
+async function waitHud(page, timeout = 30000) {
+  await waitForHudTexture(page, { timeout })
 }
 
 async function waitNormalFollowerInput(page) {
@@ -688,7 +685,7 @@ async function acceptance() {
     const game = await openGame(browser, 1)
     page = game.page
     page.setDefaultTimeout(20_000)
-    await waitHud(page)
+    await waitHud(page, 20_000)
     await waitNormalFollowerInput(page)
     const id = await page.evaluate(
       () => window.testScene.world.shrines.find(h => h.kind === 'bridge')?.id

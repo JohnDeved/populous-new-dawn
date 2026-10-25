@@ -8,7 +8,7 @@ import {
 } from './painter-order.ts'
 import type { RenderView } from './render-view.ts'
 import { PainterVertices } from './painter-vertices.ts'
-import { cellObjectOrder, type ObjectCells } from './object-cells.ts'
+import { renderCellObjectOrder, type ObjectCells } from './object-cells.ts'
 import { TerrainAmbience } from './terrain-ambience.ts'
 import type { NativeTerrain } from './native-terrain.ts'
 import { soundListener, treeAmbienceAudible, type SoundEnvironment } from './ambient-sound.ts'
@@ -70,7 +70,55 @@ export class Painter {
     return cached.positions
   }
 
+  private cpuLeaseDepth = 0
+  private disposePending = false
+  private disposing = false
+
+  // Picking and drawing may call user hooks. Keep their frame data alive until
+  // the outer operation finishes, including nested renders and thrown callbacks.
+  beginCpuLease() {
+    this.cpuLeaseDepth++
+  }
+
+  endCpuLease() {
+    this.cpuLeaseDepth--
+    this.releaseDisposedCpuCaches()
+  }
+
+  dispose() {
+    if (this.disposing) return
+    this.disposePending = true
+    this.releaseDisposedCpuCaches()
+  }
+
+  private releaseDisposedCpuCaches() {
+    if (!this.disposePending || this.cpuLeaseDepth) return
+    this.disposePending = false
+    this.disposing = true
+    try {
+      this.restoreTransparentMeshes(0)
+      // Replace ownership, never clear buffers held by callers or source geometry.
+      this.vertices = new PainterVertices()
+      this.centers = new WeakMap()
+      this.ranges = new WeakMap()
+      this.commandsBySlot = []
+      this.texture.image = { data: new Float32Array(1024), width: 1024, height: 1 }
+      this.texture.dispose()
+    } finally {
+      this.disposing = false
+    }
+  }
+
   update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
+    this.beginCpuLease()
+    try {
+      this.updateScene(scene, renderer)
+    } finally {
+      this.endCpuLease()
+    }
+  }
+
+  private updateScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
     const sampleAmbience = this.pendingSoundEnvironment && this.land
     const listener = sampleAmbience && soundListener(this.view.center, this.view.angle)
     if (sampleAmbience) {
@@ -109,7 +157,7 @@ export class Painter {
     const commands: Command[] = [],
       view = this.view,
       basis = view.uniforms.nativeBasis.value
-    const cellOrder = this.cells ? cellObjectOrder(this.cells) : new Map<number, number>()
+    const cellOrder = this.cells ? renderCellObjectOrder(this.cells) : new Map<number, number>()
     const depth = (p: { x: number; y: number; z: number }) =>
       (Math.imul(p.x, basis[6]) + Math.imul(p.y, basis[7]) + Math.imul(p.z, basis[8])) >> 14
     const world = new THREE.Vector3(),
@@ -186,21 +234,24 @@ export class Painter {
           object.getMatrixAt(instance, local)
           transform.multiply(local)
         }
-        const origin = new THREE.Vector3().setFromMatrixPosition(transform)
-        const nativeOrigin = view.relative(origin, (origin.y * 128) / 45, unwrapped)
+        const origin =
+          sprite || scale ? new THREE.Vector3().setFromMatrixPosition(transform) : undefined
         // Every face of a native model uses the same anchor cell.
-        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin, unwrapped)) continue
+        if ((sprite || scale) && !view.visible(metadata.cellPosition ?? origin!, unwrapped))
+          continue
+        const nativeOrigin =
+          sprite || scale ? view.relative(origin!, (origin!.y * 128) / 45, unwrapped) : undefined
         if (listener && scale && !this.pendingSoundEnvironment!.trees) {
           const tree = metadata.point
           if (tree?.model > 0 && tree.model < 7)
             this.pendingSoundEnvironment!.trees = treeAmbienceAudible(
-              { x: Math.round((origin.x + 8) * 256), y: Math.round((-origin.z - 8) * 256) },
+              { x: Math.round((origin!.x + 8) * 256), y: Math.round((-origin!.z - 8) * 256) },
               listener
             )
         }
         for (let face = 0; face < submitted; face++) {
           const triangle = index ? index.getX(face * 3) / 3 : face
-          if (sprite || scale) anchor.copy(origin)
+          if (sprite || scale) anchor.copy(origin!)
           else {
             anchor.fromBufferAttribute(centers!, triangle).applyMatrix4(transform)
             if (!view.visible(metadata.cellPosition ?? anchor, unwrapped)) continue
@@ -213,7 +264,7 @@ export class Painter {
           if (!vertices)
             bucket =
               spriteBucket(
-                depth(nativeOrigin),
+                depth(nativeOrigin!),
                 object === metadata.shadow ? -192 : (metadata.depthBias ?? -300)
               ) - 1
           else {
@@ -232,7 +283,7 @@ export class Painter {
                     raw,
                     object.userData.nativeSize ?? scale,
                     rotation!,
-                    nativeOrigin
+                    nativeOrigin!
                   )
                   vertices.depth[vertex] = depth(point)
                   if (object.userData.stage === 4)
@@ -388,9 +439,34 @@ export class Painter {
     this.texture.needsUpdate = true
   }
 
+  private renderLeaseBases: number[] = []
+
+  // Own cleanup around the renderer, not user callbacks. Three does not invoke
+  // scene.onAfterRender when rendering throws. Nested renders restore only the
+  // edits they added; the normal callback and finally path are idempotent.
+  render(renderer: Pick<THREE.WebGLRenderer, 'render'>, scene: THREE.Scene, camera: THREE.Camera) {
+    const base = this.transparentMeshes.length
+    this.renderLeaseBases.push(base)
+    this.beginCpuLease()
+    try {
+      renderer.render(scene, camera)
+    } finally {
+      try {
+        this.restoreTransparentMeshes(base)
+      } finally {
+        this.renderLeaseBases.pop()
+        this.endCpuLease()
+      }
+    }
+  }
+
   afterRender() {
+    this.restoreTransparentMeshes(this.renderLeaseBases.at(-1) ?? 0)
+  }
+
+  private restoreTransparentMeshes(base: number) {
     // Keep scene material edits and geometry ownership unchanged between frames.
-    while (this.transparentMeshes.length) {
+    while (this.transparentMeshes.length > base) {
       const { mesh, material, groups } = this.transparentMeshes.pop()!
       mesh.material = material
       mesh.geometry.groups = groups
@@ -410,11 +486,10 @@ export class Painter {
       }
   }
   depth(object: THREE.Object3D, triangle: number, instance: number) {
-    const range = this.ranges.get(object)
+    const range = this.ranges.get(object),
+      pixels = this.texture.image.data!
     if (object instanceof THREE.Mesh && object.userData.selectionCommands && object.geometry.index)
       triangle = object.geometry.index.getX(triangle * 3) / 3
-    return range
-      ? this.texture.image.data![range[0] + range[1] * instance + triangle] * 2 - 1
-      : null
+    return range ? pixels[range[0] + range[1] * instance + triangle] * 2 - 1 : null
   }
 }

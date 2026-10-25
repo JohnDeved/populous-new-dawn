@@ -1,12 +1,15 @@
+import { departVehiclePerson } from './vehicle-unload.ts'
+import { populationCeiling } from './capacity-policy.ts'
 import { buildingPose } from './building-shapes.ts'
-import { releaseTasks } from './world-tasks.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
+import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
 import {
   buildingModel,
   browserPosition,
   nativePosition,
   addUnit,
   population,
-  supportsFollower,
+  sound,
   type World,
   type Unit,
 } from './model.ts'
@@ -14,29 +17,37 @@ import {
   createLivePerson,
   leaveLiveBuilding,
   changeLivePersonState,
+  publishLiveVehicleLaunch,
   registerLivePerson,
   setLivePersonAnimation,
   stepLivePhysics,
   type LivePerson,
 } from './live-people.ts'
-import { initializeBuildingPerson } from './live-building-entry.ts'
-import { stepLiveWorship } from './live-worship.ts'
+import { cancelBuildingEntry, initializeBuildingPerson } from './live-building-entry.ts'
+import { stepLiveWorship, worshipHeadPose } from './live-worship.ts'
+import { worshipApproach } from './worship.ts'
 import {
+  leaveLiveAttackVehicle,
   liveBuildingAttackTarget,
+  cancelLiveBuildingAttack,
   releaseLiveAttackReservation,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
 import { clearLivePath, stepLiveRoute, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import { buildingOutsidePoint } from './building-shapes.ts'
-import { objectsInCell, removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, objectsInCell, removeObjectFromCell } from './object-cells.ts'
 import { nativeAngle, random } from './native-math.ts'
 import {
   startPersonOrders,
   configurePersonOrder,
   type OrderStartEffects,
 } from './person-order-start.ts'
-import { stepPersonOrders, type OrderUpdateEffects } from './person-order-update.ts'
+import {
+  anchorPersonOrder,
+  stepPersonOrders,
+  type OrderUpdateEffects,
+} from './person-order-update.ts'
 import { stepConstructionOrder } from './construction-order.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import {
@@ -76,13 +87,18 @@ import { spyDisguisedFrom } from './computer-spells.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
 import {
   boardLiveVehicle,
-  leaveLiveVehicle,
-  liveVehicleCellObjects,
   liveVehicles,
   stepLiveVehicle,
   vehicleExitTarget,
+  vehicleExit,
 } from './live-vehicles.ts'
-import { vehicleCanDisembark, vehicleReady } from './vehicle-routing.ts'
+import { vehicleReady } from './vehicle-routing.ts'
+import { restingCellCollision } from './person-collision.ts'
+import {
+  boardingTargetLeftOrigin,
+  clearFollowingBoardingOrders,
+} from './vehicle-boarding-orders.ts'
+import { withinVehicleTransferRange } from './vehicle-transfer.ts'
 import {
   cancelConversionVictim,
   inPreachingRange,
@@ -98,11 +114,9 @@ const short = (n: number) => (n << 16) >> 16
 export type LiveFormation = MarchingFormation & { tribe: number }
 function outsideBuilding(w: World, point: { x: number; y: number }) {
   const cell = (point.y >> 9) * 128 + (point.x >> 9)
-  const building =
-    w.land.flags[cell] & 512
-      ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-      : undefined
-  return building ? buildingOutsidePoint(buildingPose(building)) : point
+  const shape =
+    w.land.flags[cell] & 512 ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023) : undefined
+  return shape ? buildingOutsidePoint(shape) : point
 }
 const personSource = (u: Unit) =>
   u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -153,12 +167,35 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     })),
   }
   const effects: OrderStartEffects = {
+    objectId: (id, model) => ([22, 27, 28, 30].includes(model) ? id : (id << 16) >> 16),
     setAnimation: (person, object) => setLivePersonAnimation(w, person as LivePerson, object),
     setDestination: (person, x, y) => {
       const unit = w.units.find(u => u.id === person.id)!
       replanLivePath(w, unit, person as LivePerson, { x, y })
     },
-    commandPosition: unsupported,
+    commandPosition: command => {
+      // 0x4389c0 resolves a command-27 stone head through 0x4a8e70.
+      if (command.model === 27) {
+        const head = w.shrines.find(candidate => candidate.id === command.a && candidate.active)
+        if (head) return worshipApproach(worshipHeadPose(w, head))
+        unsupported()
+      }
+      // 0x4389c0 gives command 19's packed-cell payload precedence over objects.
+      if (command.model === 19)
+        return {
+          x: (((command.a & 254) + 1) << 8) & 65535,
+          y: ((((command.a & 0xfefe) >>> 8) + 1) * 256) & 65535,
+        }
+      // 0x4389c0 uses the live person position for an explicit target.
+      if (command.model === 28) {
+        const target = w.units.find(candidate => candidate.id === command.a && candidate.hp > 0)
+        if (target) return nativePosition(w, target)
+        unsupported()
+      }
+      // Other encoded targets retain their existing unsupported boundary.
+      if (rules.personCommands[command.model].flags & (4 | 0x800 | 0x242)) unsupported()
+      return { x: command.a & 65535, y: command.b & 65535 }
+    },
     allowVehicleOrder: () => true,
     initializeCommand: () => {
       if (order!.model === 6 || order!.model === 7) return
@@ -219,6 +256,7 @@ export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: num
 
 // Keep the person and shared queue intact when a different live controller takes over.
 export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
+  delete u.resident
   const order = currentPersonOrder(w.buildingOrders, p)
   if (order?.model === 6 && u.builder) {
     u.builder.person = p
@@ -247,21 +285,85 @@ export function adoptLiveOrders(w: World, u: Unit, p: LivePerson) {
 
 // Player clicks append to the same eight-slot queues used by simulation.
 export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, replace: boolean) {
+  return issueLiveOrders(w, units, command, replace, false)
+}
+
+// 0x444f60's generic player-input tail restarts command28 as well. Direct
+// 0x43b670 attachment and existing computer callers retain their separate path.
+export function appendLivePlayerOrders(
+  w: World,
+  units: Unit[],
+  command: PersonOrder,
+  replace: boolean
+) {
+  return issueLiveOrders(w, units, command, replace, false, command.model === 28)
+}
+
+// Ordinary training input clears the entire selection before allocating once.
+// AI replacement and Ctrl queues retain their existing append semantics.
+export function replaceLiveTrainingOrders(w: World, units: Unit[], command: PersonOrder) {
+  return issueLiveOrders(w, units, command, false, true)
+}
+
+function issueLiveOrders(
+  w: World,
+  units: Unit[],
+  command: PersonOrder,
+  replace: boolean,
+  playerReplacement: boolean,
+  restartDirectTarget = false
+) {
   let count = 0
-  const preachers = replace
-    ? units.flatMap(u => {
-        const p = u.native ?? u.entry?.person ?? u.builder?.person
-        return p && [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)
-          ? [p]
-          : []
-      })
-    : []
+  const bindings = units.map(unit => {
+    const sources = [
+        unit.flight,
+        unit.fight?.motion,
+        unit.entry?.person,
+        unit.builder?.person,
+        unit.native,
+      ],
+      registered = w.objectCells.objects.get(unit.id),
+      person = playerReplacement
+        ? (sources.find(p => p && p === registered) ?? sources.find(Boolean))
+        : personSource(unit)
+    return {
+      unit,
+      person,
+      retained: playerReplacement
+        ? !!person && (person === unit.flight || person === unit.fight?.motion)
+        : !!(unit.flight || unit.fight?.motion),
+    }
+  })
+  const preachers =
+    replace || playerReplacement
+      ? bindings.flatMap(({ person: p }) => {
+          return p && [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0)
+            ? [p]
+            : []
+        })
+      : []
+  if (playerReplacement)
+    for (const binding of bindings) {
+      const { unit: u, retained } = binding
+      binding.person ??= createLivePerson(w, u)
+      const p = binding.person
+      delete u.resident
+      // Queue cancellation precedes command eligibility and allocation.
+      clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      delete p.guardInputPending
+      if (retained || u.entry?.person === p) u.native = null
+      else u.native = p
+      if (![25, 29].includes(p.state) && !(p.flags2 & 0x100000)) clearTaskBindings(w, u)
+    }
   const accepted = appendPersonOrders(
     w.buildingOrders,
     command,
-    units.map(u => {
-      const p = u.native ?? u.entry?.person ?? u.builder?.person ?? createLivePerson(w, u)
-      if (!u.entry) u.native = p
+    bindings.map(binding => {
+      const { unit: u, retained } = binding
+      binding.person ??= createLivePerson(w, u)
+      const p = binding.person
+      delete u.resident
+      if (!retained && !u.entry) u.native = p
       p.selectionFlags |= 128
       registerLivePerson(w, p)
       return p
@@ -289,6 +391,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
           model === 15 ||
           model === 16 ||
           model === 17 ||
+          model === 22 ||
           model === 27 ||
           model === 28 ||
           model === 30 ||
@@ -305,7 +408,7 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
         }
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, commandFlags, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       },
       acknowledge: (_, counts) => {
@@ -315,25 +418,35 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
     },
     replace
   )
-  for (const p of accepted ? preachers : [])
+  for (const p of accepted || playerReplacement ? preachers : [])
     if (![17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
       releasePreacherVictims(w, p, p.commandAux || 3)
-  for (const u of units) {
-    const p = (u.native ?? u.entry?.person ?? u.builder?.person)!
-    if (!accepted && preachers.includes(p)) continue
+  for (const { unit: u, person, retained } of bindings) {
+    const p = person!
+    if (!accepted && !playerReplacement && !restartDirectTarget && preachers.includes(p)) continue
     // 0x43b670 only replaces and attaches command 28; keep direct-target motion intact.
-    if (command.model === 28) {
-      adoptLiveOrders(w, u, p)
+    if (command.model === 28 && !restartDirectTarget) {
+      if (!retained) adoptLiveOrders(w, u, p)
       continue
     }
     if (p.state === 25 || p.state === 29) continue
     // Native player input restarts the active order even when appending a later one.
     resetPersonMotion(p)
-    p.previousState = p.state === 14 ? 14 : 0
+    if ((playerReplacement || restartDirectTarget) && p.flags2 & 0x100000) {
+      // No initializer may run for this person. A failed click still removes
+      // its browser entry adapter and physical queue link before the next turn.
+      if (playerReplacement && !accepted && u.entry?.person === p) {
+        cancelBuildingEntry(w, u)
+        u.native = p
+        u.work = null
+      }
+      continue
+    }
+    p.previousState = !playerReplacement && !restartDirectTarget && p.state === 14 ? 14 : 0
     p.state = defaultPersonState(p, w.manaWorld.gameFlags)
     if (u.entry) initializeBuildingPerson(w, p)
-    else changeLivePersonState(w, u)
-    adoptLiveOrders(w, u, p)
+    else changeLivePersonState(w, u, undefined, p)
+    if (!retained) adoptLiveOrders(w, u, p)
     if (accepted && command.model === 17) {
       releasePersonRoute(w.motionRoutes, p)
       clearLivePath(w, u)
@@ -372,7 +485,7 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
     prepare: (order, model, a, b, flags = 0) => {
       if (model === 3)
         prepareMovementOrder(order, { x: a, y: b }, flags, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       else if (model === 11) prepareCellOrder(order, { a, b }, flags, w.land.categories, model)
       else unsupported()
@@ -384,7 +497,7 @@ export function movementOrder(w: World, to: { x: number; y: number }) {
   const id = allocatePersonOrder(w.buildingOrders)
   if (id)
     prepareMovementOrder(w.buildingOrders.records[id], to, 0, w.land, buildingId =>
-      buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+      buildingOutsidePoint(liveBuildingShape(w, buildingId)!)
     )
   return id
 }
@@ -410,6 +523,7 @@ export function returnLivePerson(
 
 export function startLiveOrder(w: World, u: Unit, id: number) {
   const p = u.native ?? createLivePerson(w, u)
+  delete u.resident
   u.native = p
   attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w))
   registerLivePerson(w, p)
@@ -418,12 +532,22 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
+  if (p) delete p.guardInputPending
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
   if (!p || !model || ![3, 6, 7, 15, 16, 17, 22, 27, 28, 30, 31, 32, 33].includes(model)) return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)
   clearLivePath(w, u)
+}
+
+// Transport replacement retains the exact seated person while its old owner
+// releases the queue and any attack reservation before a new order is attached.
+export function cancelLiveTransportOrder(w: World, u: Unit) {
+  const p = u.native
+  if (p && currentPersonOrder(w.buildingOrders, p)?.model === 19)
+    cancelLiveBuildingAttack(w, u, true)
+  cancelLiveOrder(w, u)
 }
 
 const allied = (w: World, tribe: number, other: number) =>
@@ -446,11 +570,18 @@ function eligiblePreacherVictim(w: World, preacher: LivePerson, victim: LivePers
 function acquirePreacherVictims(w: World, preacher: LivePerson, radius: number) {
   let count = 0,
     first: LivePerson | undefined
-  // ponytail: the game caps tribes at 200 people; a direct scan avoids a second index.
+  // Preserve roster order. A spatial index remains separate scaling work.
   for (const u of w.units) {
     if (u.hp <= 0 || u.inside !== null || u.flight) continue
-    const victim = u.native ?? u.entry?.person ?? u.fight?.motion ?? createLivePerson(w, u)
-    if (!inPreachingRange(preacher, victim, radius)) continue
+    let victim = u.native ?? u.entry?.person ?? u.fight?.motion
+    if (victim) {
+      if (!inPreachingRange(preacher, victim, radius)) continue
+    } else {
+      // Keep nativePosition's terrain synchronization even for rejected candidates.
+      const pos = nativePosition(w, u)
+      if (!inPreachingRange(preacher, { x: pos.x & 65535, y: pos.y & 65535 }, radius)) continue
+      victim = createLivePerson(w, u, pos)
+    }
     if (victim.state !== 23) {
       if (!eligiblePreacherVictim(w, preacher, victim)) continue
       releaseTasks(w, u)
@@ -517,7 +648,7 @@ function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
   point.y = (point.y & 0xfe00) + 0x100
   releaseTasks(w, u)
   if (victim.flags2 & 0x20000) removeObjectFromCell(w.objectCells, victim)
-  w.objectCells.objects.delete(oldId)
+  deleteCellObject(w.objectCells, oldId)
   w.selected = w.selected.filter(id => id !== oldId)
   victim.class = 0
   u.hp = 0
@@ -549,8 +680,18 @@ export function stepLiveConversionVictim(w: World, u: Unit) {
   if (result === 'cancel')
     changeLivePersonState(w, u, cancelConversionVictim(victim, w.manaWorld.gameFlags))
   else if (result === 'convert') {
+    if (victim.flags4 & 0x800) {
+      // 004d83b0 bypasses replacement allocation for ghosts. Use the existing
+      // port ghost-removal epilogue; 004d4b50's full native cleanup is not retained.
+      releaseTasks(w, u)
+      victim.life = u.hp = 0
+      return
+    }
     const team = teamForTribe(preacher!.tribe)
-    if (population(w, team) <= 199 || w.manaTribes[victim.tribe].flags2 & 64)
+    if (
+      population(w, team) < populationCeiling(w.capacityPolicy) ||
+      w.manaTribes[victim.tribe].flags2 & 64
+    )
       replaceConvertedVictim(w, u, preacher!)
   } else u.heading = Math.PI - (victim.turnAngle * Math.PI) / 1024
 }
@@ -564,6 +705,8 @@ export function stepLivePreaching(w: World, u: Unit) {
   if ((order?.flags ?? 0) & 1) releasePreacherVictims(w, p, p.commandAux || 3)
   const state = {
     randomState: w.randomState,
+    poseRandom: w.cosmeticRandom,
+    playerTribe: w.manaWorld.playerTribe,
     loadFlags: w.manaWorld.loadFlags,
     orders: w.buildingOrders,
     tribeFlags: w.manaTribes.map(t => t.flags2),
@@ -574,6 +717,11 @@ export function stepLivePreaching(w: World, u: Unit) {
         animate: object => setLivePersonAnimation(w, p, object),
         animationDuration: () =>
           (rules.animationDescriptors[p.draw].step + 1) * sprites.frameCounts[p.object],
+        frameCount: () => sprites.frameCounts[p.object],
+        sound: cue => {
+          p.flags4 = (p.flags4 | 16) >>> 0
+          sound(w, cue, u, u.id)
+        },
         stop: () => {
           releasePersonRoute(w.motionRoutes, p)
           clearLivePath(w, u)
@@ -661,22 +809,42 @@ export function stepShamanGuard(
   if (p.counter & 3) return 0
   p.flags2 = (p.flags2 | 0x2000000) >>> 0
   p.assignment &= ~8
-  if (Math.abs(short(target.x - p.x)) < 824 && Math.abs(short(target.y - p.y)) < 824) {
+  if (
+    Math.abs(short(target.x) - short(p.x)) < 824 &&
+    Math.abs(short(target.y) - short(p.y)) < 824
+  ) {
     p.flags2 = (p.flags2 & ~0x2000000) >>> 0
     return 0
   }
   p.assignment |= 8
-  if (Math.abs(short(target.x - p.goalX)) > 439 || Math.abs(short(target.y - p.goalY)) > 439)
+  if (
+    Math.abs(short(target.x) - short(p.goalX)) >= 440 ||
+    Math.abs(short(target.y) - short(p.goalY)) >= 440
+  )
     effects.destination(target)
   if (!p.speed) effects.recover()
   return 0
 }
 
 function shamanGuardTarget(w: World, order: PersonOrder) {
-  const unit = w.units.find(u => u.id === order.a && u.hp > 0 && u.inside === null),
+  const unit = w.units.find(u => u.id === order.a && u.hp > 0),
     person = unit && personSource(unit)
-  if (!unit || (person && (!person.class || person.flags2 & 1))) return null
+  if (!unit || (person && (!person.class || person.flags2 & 1 || person.vehicle))) return null
   return outsideBuilding(w, person ?? nativePosition(w, unit))
+}
+
+export function anchorLiveShamanGuard(w: World, p: LivePerson, order: PersonOrder | undefined) {
+  anchorPersonOrder(p, order, {
+    // Cancellation's command-position lookup reads the saved target's position,
+    // even if that target has since died or entered a vehicle.
+    commandPosition: command => shamanGuardPosition(w, command, p),
+    outside: point => outsideBuilding(w, point),
+  })
+}
+
+function shamanGuardPosition(w: World, order: PersonOrder, fallback: LivePerson) {
+  const target = w.units.find(u => u.id === order.a)
+  return target ? (personSource(target) ?? nativePosition(w, target)) : fallback
 }
 
 function stepLiveConstructionOrder(w: World, u: Unit, p: LivePerson, order: PersonOrder) {
@@ -719,7 +887,7 @@ function stepLiveConstructionOrder(w: World, u: Unit, p: LivePerson, order: Pers
       prepare: (next, model, x, y, flags) => {
         if (model !== 3) unsupported()
         prepareMovementOrder(next, { x, y }, flags ?? 0, w.land, id =>
-          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!))
+          buildingOutsidePoint(liveBuildingShape(w, id)!)
         )
       },
       task: task => {
@@ -745,98 +913,92 @@ export function startLiveConstructionOrder(w: World, u: Unit) {
 
 export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
   const p = u.native!
+  // 0x4d32b0 prepares and visits physics before vehicle/order dispatch too.
+  // Seated physics is frozen by 0x4000, but its clock/reaction still advance.
+  stepLivePhysics(w, u, p)
+  const boarding = currentPersonOrder(w.buildingOrders, p)?.model === 22
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
-  if (!p.vehicle) stepLivePhysics(w, u, p)
   if (!p.vehicle || driver) stepLiveRoute(w, u)
-  else return
-  if (p.state !== 10) return
+  else if (!boarding && currentPersonOrder(w.buildingOrders, p)?.model !== 3) return
+  if (p.state !== 10 || (p.guardInputPending && p.flags2 & 16)) return
   const next = stepLiveOrderQueue(w, u, p, {
-    3: order => {
-      if (!p.vehicle)
-        return Number(
-          stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)
-        )
-      if (p.motionGroup) return 0
-      const vehicle = liveVehicles(w).get(p.vehicle),
-        // The route may coast-correct p.goal; command 3 retains the clicked land target.
-        to = { x: order.a, y: order.b },
-        vehicleWorld = {
-          flags: w.land.flags,
-          categories: w.land.categories,
-          cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
-        }
-      if (
-        vehicle &&
-        rules.vehicleRestFlags[vehicle.model] & 1 &&
-        Math.hypot(short(to.x - vehicle.x), short(to.y - vehicle.y)) >
-          rules.personSpeeds[vehicle.physics]
-      )
-        return 0
-      if (vehicle && vehicleCanDisembark(vehicleWorld, vehicle, to)) {
-        // ponytail: bounded shore scan; replace with native 004659d0 outward velocity when ported.
-        const airborne = !!(rules.vehicleRestFlags[vehicle.model] & 1),
-          radius = airborne ? 1024 : 512,
-          candidates = []
-        for (let y = -radius; y <= radius; y += 32)
-          for (let x = -radius; x <= radius; x += 32)
-            candidates.push({ x: short(to.x + x), y: short(to.y + y) })
-        candidates.sort(
-          (a, b) =>
-            (airborne
-              ? Math.abs(Math.hypot(short(a.x - to.x), short(a.y - to.y)) - 1024)
-              : Math.hypot(short(a.x - to.x), short(a.y - to.y))) -
-            (airborne
-              ? Math.abs(Math.hypot(short(b.x - to.x), short(b.y - to.y)) - 1024)
-              : Math.hypot(short(b.x - to.x), short(b.y - to.y)))
-        )
-        const exits: { x: number; y: number }[] = []
-        for (const candidate of candidates) {
-          if (
-            !supportsFollower(w, browserPosition(candidate)) ||
-            exits.some(
-              exit => Math.hypot(short(exit.x - candidate.x), short(exit.y - candidate.y)) < 96
-            )
-          )
-            continue
-          exits.push(candidate)
-          if (exits.length === vehicle.passengers.length) break
-        }
-        for (const [index, id] of [...vehicle.passengers].entries()) {
-          const passenger =
-            w.pathfinding.people.get(id) ?? w.units.find(unit => unit.id === id)?.native
-          if (passenger) leaveLiveVehicle(w, vehicle, passenger, exits[index] ?? to)
-        }
+    // 0x4336c0 arrival and 0x432590 per-person departure apply to both craft models.
+    3: order =>
+      Number(stepMovementOrder(p, order, w.land.categories, id => liveVehicles(w).get(id)!)),
+    22: order => {
+      const vehicle = w.vehicles.find(v => v.id === order.a && v.active)
+      const complete = () => {
+        p.speed = 0
         return 1
       }
-      return 0
-    },
-    22: order => {
-      if (p.motionGroup) return 0
-      const vehicle = w.vehicles.find(v => v.id === order.a && v.active)
-      if (!vehicle) return 1
-      const holdVehicle = () => {
-        p.goalX = p.destinationX = vehicle.x
-        p.goalY = p.destinationY = vehicle.y
+      if (!vehicle || boardingTargetLeftOrigin(order, vehicle)) return complete()
+      // 0x4666f0 resolves the persistent person object, not the active route cache.
+      // A settled state-30 driver need not remain in pathfinding.people.
+      const driverUnit = w.units.find(unit => unit.id === vehicle.passengers[0] && unit.hp > 0),
+        owner = driverUnit && personSource(driverUnit),
+        driverPerson =
+          owner &&
+          owner.id === vehicle.passengers[0] &&
+          owner.class === 1 &&
+          owner.vehicle === vehicle.id &&
+          w.objectCells.objects.get(owner.id) === owner
+            ? owner
+            : undefined
+      if (
+        vehicle.passengerCount >= rules.vehicleCapacity[vehicle.model] ||
+        !vehicleReady(w.land, vehicle) ||
+        (vehicle.passengerCount && driverPerson?.tribe !== p.tribe)
+      )
+        return complete()
+      if (p.vehicle === vehicle.id) return p.slowTurn ? 0 : complete()
+      if (p.flags2 & 0x40000000) {
+        p.flags2 = (p.flags2 & ~0x40000000) >>> 0
+        recoverPersonMovement(w, p, (person, object) =>
+          setLivePersonAnimation(w, person as LivePerson, object)
+        )
+        const target = { x: vehicle.x & 65535, y: vehicle.y & 65535 },
+          cell = (target.y >> 9) * 128 + (target.x >> 9),
+          direct =
+            p.vehicle &&
+            rules.vehicleRestFlags[vehicle.model] & 1 &&
+            !restingCellCollision(
+              { flags: w.land.flags[cell], category: w.land.categories[cell] },
+              w.land.walkMasks[w.pathfinding.state.walkMask],
+              target,
+              true
+            )
+        replanLivePath(w, u, p, direct ? target : vehicleExitTarget(w, vehicle))
       }
-      if (p.vehicle === vehicle.id) {
-        holdVehicle()
-        return 0
+      if (p.vehicle) {
+        if (withinVehicleTransferRange(p, vehicle)) {
+          // 0x435160 uses the same projected768/fallback/anchor departure shape
+          // as 0x435550 mode1 before boarding the distinct target vehicle.
+          leaveLiveAttackVehicle(w, p, vehicle)
+          if (boardLiveVehicle(w, p, vehicle))
+            clearFollowingBoardingOrders(
+              w.buildingOrders,
+              p,
+              w.manaTribes[p.tribe].playerType,
+              vehicle.model,
+              id => w.vehicles.find(v => v.id === id && v.active)?.model,
+              orderEffects(w).deleteObject
+            )
+        }
+        return p.vehicle === vehicle.id && !p.slowTurn ? complete() : 0
       }
+      // Existing settled boarding geometry is an explicit adapter boundary;
+      // native 0x435160's direct-airborne point/extent is separate work.
+      if (p.motionGroup || p.slowTurn) return 0
       const close = (point: { x: number; y: number }) =>
         Math.abs(short(point.x - p.x)) <= 576 && Math.abs(short(point.y - p.y)) <= 576
       if (
         (close(vehicle) || close(vehicleExitTarget(w, vehicle))) &&
-        vehicleReady(
-          {
-            flags: w.land.flags,
-            categories: w.land.categories,
-          },
-          vehicle
-        )
+        boardLiveVehicle(w, p, vehicle)
       ) {
-        if (boardLiveVehicle(w, p, vehicle)) holdVehicle()
+        p.goalX = p.destinationX = vehicle.x
+        p.goalY = p.destinationY = vehicle.y
       }
-      return 0
+      return p.vehicle === vehicle.id && !p.slowTurn ? complete() : 0
     },
     6: order => stepLiveConstructionOrder(w, u, p, order),
     27: () => Number(stepLiveWorship(w, u)),
@@ -855,6 +1017,7 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
     clearLivePath(w, u)
     changeLivePersonState(w, u, next)
   }
+  if (!(next && p.flags2 & 0x100000)) delete p.guardInputPending
   adoptLiveOrders(w, u, p)
 }
 
@@ -878,21 +1041,36 @@ export function stepLiveOrderQueue(
     p,
     {
       commands,
-      commandPosition: order =>
-        order.model === 30
-          ? (shamanGuardTarget(w, order) ?? { x: p.x, y: p.y })
-          : { x: order.a, y: order.b },
+      commandPosition: order => {
+        if (order.model === 30) return shamanGuardPosition(w, order, p)
+        // Area commands store a packed cell in a and search extents in b.
+        if (rules.personCommands[order.model].flags & 0x800)
+          return {
+            x: ((order.a & 254) + 1) * 256,
+            y: (((order.a >>> 8) & 254) + 1) * 256,
+          }
+        return { x: order.a, y: order.b }
+      },
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
       changeTribe: tribe => {
         p.disguise = ((tribe & 3) << 6) | constants.SPY_DISGUISE_DELAY
+        // Command16 publishes the target tribe immediately, independently of
+        // the person's disguise countdown and the vehicle's real count owner.
+        const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+        if (vehicle) vehicle.apparentTribe = p.disguise >>> 6
       },
       effectiveTribe: () => (p.disguise & 63 ? p.tribe : p.disguise >>> 6),
       cellObjects: unsupported,
       arrival: unsupported,
       leaveVehicle: () => {
-        if (p.vehicle) unsupported()
-        return false
+        const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+        if (!vehicle) return false
+        const exit = vehicleExit(w, vehicle)
+        if (!exit.found) return false
+        if (!departVehiclePerson(w, vehicle, p, exit.point)) return false
+        publishLiveVehicleLaunch(w, p)
+        return true
       },
       outside: to => outsideBuilding(w, to),
       destination: unsupported,
@@ -923,7 +1101,7 @@ export function stepLiveOrderQueue(
             if (building) prepareBuildingEntryOrder(next, building.id, 0, 0, false)
             else
               prepareMovementOrder(next, point, 0, w.land, buildingId =>
-                buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+                buildingOutsidePoint(liveBuildingShape(w, buildingId)!)
               )
             attachPersonOrder(w.buildingOrders, p, nextId, slot, orderEffects(w))
           },

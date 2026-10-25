@@ -278,37 +278,11 @@ class BootstrapTests(unittest.TestCase):
         self.assertFalse(Path(env['TMPDIR']).is_relative_to(SOURCE))
         self.assertTrue(Path(env['TMPDIR']).is_dir())
 
-    def test_real_tiny_repository_cold_reuse_and_dirty_protection(self):
-        # Actual git clone/worktree + npm ci on an empty dependency lock; no network.
-        origin = self.path / 'origin'
-        origin.mkdir()
-        def git(*args):
-            return subprocess.check_output(['git', '-C', str(origin), *args], stderr=subprocess.DEVNULL, text=True).strip()
-        git('init', '-b', 'main')
-        (origin / '.gitignore').write_text('/node_modules\n')
-        (origin / 'package.json').write_text('{"name":"bootstrap-fixture","version":"1.0.0"}')
-        (origin / 'package-lock.json').write_text('{"name":"bootstrap-fixture","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"bootstrap-fixture","version":"1.0.0"}}}')
-        git('add', '.')
-        git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'fixture')
-        self.manifest['repository'] = str(origin)
+    def test_per_worker_npm_bootstrap_is_retired(self):
         runner = self.runner()
-        worktree, commit = runner.repository()
-        self.assertEqual(commit, git('rev-parse', 'HEAD'))
-        self.args.offline = True
-        npm_count = sum(c['argv'][0] == 'npm' for c in runner.commands)
-        self.assertEqual(runner.repository(), (worktree, commit))
-        self.assertEqual(sum(c['argv'][0] == 'npm' for c in runner.commands), npm_count)
-        (worktree / 'node_modules/changed.js').write_text('unexpected change')
-        with self.assertRaisesRegex(ValueError, 'dependency contents changed'):
+        with self.assertRaisesRegex(ValueError, 'Per-worker npm bootstrap retired'):
             runner.repository()
-        (worktree / 'node_modules/changed.js').unlink()
-        (worktree / 'package.json').write_text('user changes')
-        with self.assertRaisesRegex(ValueError, 'has changes'):
-            runner.repository()
-        self.assertEqual((worktree / 'package.json').read_text(), 'user changes')
-        (runner.root / 'worktree-state' / (commit[:12] + '.json')).unlink()
-        with self.assertRaisesRegex(ValueError, 'Unowned worktree'):
-            runner.repository()
+        self.assertEqual(runner.commands, [])
 
     def test_relative_sibling_root_does_not_inherit_source_package(self):
         self.args.root = SOURCE / '..' / 'fixture-sibling'
@@ -369,3 +343,4 @@ class BootstrapTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

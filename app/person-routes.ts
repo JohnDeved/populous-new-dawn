@@ -24,14 +24,18 @@ export type RoutedPerson = Point & {
 }
 export interface MotionRoutes {
   records: Uint8Array
+  // Shipping scalable ownership. The first two payload bytes stay unused;
+  // absent only in explicit classic/native-reference worlds.
+  references?: Float64Array
   active: number
   last: number
   cursor: number
   failedSearches: Uint8Array
   pathResult: Uint8Array
 }
-export const createMotionRoutes = (): MotionRoutes => ({
+export const createMotionRoutes = (scalable = false): MotionRoutes => ({
   records: new Uint8Array(401 * 109),
+  ...(scalable ? { references: new Float64Array(401) } : {}),
   active: 0,
   last: 0,
   cursor: 0,
@@ -42,6 +46,118 @@ const short = (n: number) => (n << 16) >> 16
 const view = (w: MotionRoutes) =>
   new DataView(w.records.buffer, w.records.byteOffset, w.records.byteLength)
 const cell = (p: Point) => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
+
+// Preserve the native spare end record: allocation excludes it, reuse visits it.
+export const motionRouteCapacity = (w: MotionRoutes) => w.records.length / 109 - 2
+
+export function motionRouteReferences(w: MotionRoutes, id: number) {
+  if (!w.references) return view(w).getInt16(id * 109, true)
+  if (!Number.isSafeInteger(id) || id < 1 || id > motionRouteCapacity(w))
+    throw new RangeError('Invalid scalable motion-route handle')
+  const count = w.references[id]
+  if (!Number.isSafeInteger(count) || count < 0)
+    throw new RangeError('Invalid scalable motion-route reference count')
+  return count
+}
+
+function changedRouteCount(w: MotionRoutes, count: number, delta: number) {
+  if (!w.references) return delta ? short(count + delta) : count
+  if (
+    !Number.isSafeInteger(count) ||
+    count < 0 ||
+    !Number.isSafeInteger(count + delta) ||
+    count + delta < 0
+  )
+    throw new RangeError('Invalid scalable motion-route count')
+  return count + delta
+}
+
+function setRouteReferences(w: MotionRoutes, id: number, count: number) {
+  if (w.references) w.references[id] = count
+  else view(w).setInt16(id * 109, count, true)
+}
+
+// Demand growth, not a new gameplay ceiling. All allocations/copies complete
+// before publication, so a representability/allocation error leaves both arrays
+// and the cursor untouched. Actual engine/host memory limits can be much lower.
+function growMotionRoutes(w: MotionRoutes) {
+  const capacity = motionRouteCapacity(w),
+    length = capacity * 2 + 2,
+    bytes = length * 109
+  if (!Number.isSafeInteger(length) || !Number.isSafeInteger(bytes))
+    throw new RangeError('Scalable motion-route storage exceeds exact address range')
+  const records = new Uint8Array(bytes),
+    references = new Float64Array(length)
+  records.set(w.records)
+  references.set(w.references!)
+  w.records = records
+  w.references = references
+  return capacity + 1
+}
+
+// Current-format ownership only. Never reconstruct missing counts from people:
+// an omitted/damaged sidecar is an incompatible checkpoint, not an old-save path.
+export function validateScalableMotionRoutes(w: MotionRoutes, people: Iterable<unknown>) {
+  if (
+    !w ||
+    !(w.records instanceof Uint8Array) ||
+    w.records.length < 401 * 109 ||
+    w.records.length % 109 ||
+    !(w.references instanceof Float64Array) ||
+    w.references.length !== w.records.length / 109 ||
+    !(w.failedSearches instanceof Uint8Array) ||
+    w.failedSearches.length !== 80 ||
+    !(w.pathResult instanceof Uint8Array) ||
+    w.pathResult.length !== 1033 ||
+    !Number.isSafeInteger(w.active) ||
+    w.active < 0 ||
+    w.active > motionRouteCapacity(w) ||
+    !Number.isSafeInteger(w.cursor) ||
+    w.cursor < 0 ||
+    w.cursor > motionRouteCapacity(w) ||
+    !Number.isSafeInteger(w.last) ||
+    w.last < 0 ||
+    w.last > motionRouteCapacity(w)
+  )
+    throw new RangeError('Invalid scalable checkpoint motion-route pool')
+  if (
+    new Set([w.records.buffer, w.references.buffer, w.failedSearches.buffer, w.pathResult.buffer])
+      .size !== 4
+  )
+    throw new RangeError('Aliased scalable checkpoint motion-route storage')
+  const counts = new Map<number, number>()
+  for (const person of new Set(people)) {
+    if (!person || typeof person !== 'object' || !('commands' in person || 'motionGroup' in person))
+      continue
+    if (
+      !('motionGroup' in person) ||
+      typeof person.motionGroup !== 'number' ||
+      !Number.isSafeInteger(person.motionGroup) ||
+      person.motionGroup < 0 ||
+      person.motionGroup > motionRouteCapacity(w) ||
+      !('motionIndex' in person) ||
+      typeof person.motionIndex !== 'number' ||
+      !Number.isInteger(person.motionIndex) ||
+      person.motionIndex < 0 ||
+      person.motionIndex > 255 ||
+      (person.motionGroup && (person.motionIndex > 23 || !w.references[person.motionGroup]))
+    )
+      throw new RangeError('Invalid scalable checkpoint motion-route handle')
+    if (person.motionGroup)
+      counts.set(person.motionGroup, (counts.get(person.motionGroup) ?? 0) + 1)
+  }
+  let active = 0
+  for (let id = 0; id < w.references.length; id++) {
+    const count = w.references[id],
+      a = id * 109
+    if (!Number.isSafeInteger(count) || count < 0 || count !== (counts.get(id) ?? 0))
+      throw new RangeError('Invalid scalable checkpoint motion-route ownership count')
+    if (w.records[a] || w.records[a + 1] || w.records[a + 108] > 23 || w.records[a + 2] & ~7)
+      throw new RangeError('Invalid scalable checkpoint motion-route payload')
+    if (count) active++
+  }
+  if (active !== w.active) throw new RangeError('Invalid scalable checkpoint active-route count')
+}
 
 // 0x439850 refreshes pursuit when either target axis moves far enough from the
 // last destination. Signed coordinates are compared without wrapping the delta.
@@ -65,15 +181,16 @@ export function releasePersonRoute(
 ) {
   const id = p.motionGroup
   if (!id) return
+  const a = id * 109,
+    count = motionRouteReferences(w, id)
+  if (w.references && !count) throw new RangeError('Unowned scalable motion-route release')
+  const active = changedRouteCount(w, w.active, count === 1 ? -1 : 0)
   p.motionGroup = 0
   p.motionIndex = 0
-  const a = id * 109,
-    v = view(w),
-    count = v.getInt16(a, true)
   if (count > 0) {
-    v.setInt16(a, count - 1, true)
+    setRouteReferences(w, id, count - 1)
     if (count === 1) {
-      w.active = short(w.active - 1)
+      w.active = active
       if (!(w.records[a + 2] & 4)) w.records[a + 2] = 0
     }
   }
@@ -87,12 +204,24 @@ export function attachPersonRoute(
   id: number,
   reserved = false
 ) {
+  if (w.references && p.motionGroup)
+    throw new RangeError('Scalable motion-route attachment must release prior ownership')
+  // Boarding may adopt a driver's no-route sentinel. Native 0x4657d0 still
+  // calls 0x4ea3b0 for zero, creating a phantom raw count. Scalable ownership
+  // keeps the same last/index/person outcome without owning sentinel storage.
+  if (w.references && id === 0) {
+    w.last = 0
+    p.motionGroup = 0
+    p.motionIndex = 0
+    return
+  }
   const a = id * 109,
-    v = view(w),
-    count = v.getInt16(a, true)
+    count = motionRouteReferences(w, id),
+    references = changedRouteCount(w, count, 1),
+    active = changedRouteCount(w, w.active, count < 1 ? 1 : 0)
   w.last = id
-  if (count < 1) w.active = short(w.active + 1)
-  v.setInt16(a, count + 1, true)
+  w.active = active
+  setRouteReferences(w, id, references)
   p.motionGroup = id
   p.motionIndex = 0
   w.records[a + 2] = (w.records[a + 2] & ~4) | (reserved ? 4 : 0)
@@ -132,17 +261,23 @@ export function reusablePersonRoute(
   to: Point
 ) {
   if (p.motionGroup && w.records[p.motionGroup * 109 + 2] & 4) return p.motionGroup
-  const v = view(w)
+  const v = view(w),
+    end = w.references ? motionRouteCapacity(w) + 1 : 400
   let id = w.last
   const near = (a: number, b: number) => {
     const n = Math.abs(a - b)
     return Math.min(n, 256 - n) < 3
   }
   for (let left = w.active; left > 0; left--, id--) {
-    if (id < 1) id = 400
+    if (id < 1) id = end
     const a = id * 109,
       flags = w.records[a + 2]
-    if (!v.getInt16(a, true) || flags & 4 || id === p.motionGroup) continue
+    if (
+      !(w.references ? w.references[id] : v.getInt16(a, true)) ||
+      flags & 4 ||
+      id === p.motionGroup
+    )
+      continue
     if (w.records[a + 8] !== to.x || w.records[a + 9] !== to.y) continue
     if (w.records[a + 4] === from.x && w.records[a + 5] === from.y) return id
     if (
@@ -293,7 +428,11 @@ export function planPersonDestination(w: RouteWorld, p: RoutedPerson, to: Point,
       }
       const a = { x: from.x >> 8, y: from.y >> 8 },
         b = { x: target.x >> 8, y: target.y >> 8 }
-      const id = reusablePersonRoute(w.routes, p, a, b) || short(e.build(p, a, b))
+      let id = reusablePersonRoute(w.routes, p, a, b)
+      if (!id) {
+        const built = e.build(p, a, b)
+        id = w.routes.references ? built : short(built)
+      }
       p.recoveryCounter = 0
       if (adjusted) p.flags4 = (p.flags4 | 0x4000000) >>> 0
       if (id) {
@@ -400,18 +539,23 @@ export function buildPersonRoute(
     }
   // The compiled >= 0x960679 guard wraps before record 400. Keep the
   // original 400 probes over slots 1..399, distinct from reuse's wrap at 400.
-  const v = view(w)
+  const v = view(w),
+    capacity = w.references ? motionRouteCapacity(w) : 399
   let id = w.cursor + 1,
     found = false
-  for (let probes = 0; probes < 400; probes++, id++) {
-    if (id >= 400) id = 1
-    if (!v.getInt16(id * 109, true)) {
+  for (let probes = 0; probes < capacity + 1; probes++, id++) {
+    if (id > capacity) id = 1
+    if (!(w.references ? w.references[id] : v.getInt16(id * 109, true))) {
       w.cursor = id
       found = true
       break
     }
   }
-  if (!found) return 0
+  if (!found) {
+    if (!w.references) return 0
+    id = growMotionRoutes(w)
+    w.cursor = id
+  }
   w.pathResult[1032] = 0
   let success = false,
     viaVehicle = false

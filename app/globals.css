@@ -3,11 +3,32 @@
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#213a46}
 button,a,input,select{touch-action:manipulation}button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}button:disabled{cursor:default;opacity:.4}
 button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid white;outline-offset:1px}a{color:inherit}h1,h2,h3,p{margin:0}h1,h2,h3{font-family:Georgia,serif}kbd{font:10px Arial,sans-serif}
-.game-shell{--hud-scale:1;--side:calc(100px * var(--hud-scale));height:100dvh;position:relative;isolation:isolate;overflow:hidden}
+.game-shell{--hud-scale:1;--campaign-message-width:340px;--side:calc(100px * var(--hud-scale));height:100dvh;position:relative;isolation:isolate;overflow:hidden}
 .world-viewport{position:absolute;inset:0 0 0 var(--side);background:#82a4b4}.world-viewport>.battlefield{display:block;width:100%;height:100%;touch-action:none;outline:none}.world-vignette{display:none}
-.fps-graph{position:absolute;top:12px;right:12px;width:200px;max-width:calc(100% - 24px);padding:8px;z-index:5;pointer-events:none;user-select:none;background:#10201a26;font-family:inherit}
-.fps-reading{display:flex;align-items:flex-end;gap:5px;white-space:nowrap}.fps-graph .hud-sprite{font-size:0}.fps-reading strong,.fps-reading>span,.fps-reading small,.fps-caption>span{display:flex;filter:brightness(0) invert(1) sepia(.3) drop-shadow(1px 1px 1px #000)}.fps-reading strong{zoom:2}.fps-reading small{margin-left:auto}.fps-graph svg{display:block;width:100%;height:40px;margin:8px 0 5px}.fps-graph path{stroke:#e9dcbb26;stroke-width:1}.fps-graph polyline{stroke:#f4d475b3;stroke-width:1.5;stroke-linejoin:round;filter:drop-shadow(0 1px 1px #0008)}.fps-caption{display:flex;justify-content:space-between;gap:4px;opacity:.75}
+.fps-graph{position:absolute;top:12px;right:12px;width:272px;max-width:calc(100% - 24px);padding:12px 14px;z-index:5;pointer-events:none;user-select:none;background:rgba(15,20,25,.88);border:1px solid #ffffff24;border-radius:6px;box-shadow:0 4px 20px #0005;color:#f4f7f8;font:12px/1.4 Arial,sans-serif;font-variant-numeric:tabular-nums}
+.fps-graph header{display:flex;justify-content:space-between;align-items:center;font-weight:600;letter-spacing:.3px}.fps-graph kbd{padding:1px 5px;border:1px solid #ffffff40;border-radius:3px;color:#b8c5ca}.fps-reading{display:flex;align-items:baseline;gap:7px;margin:6px 0}.fps-reading strong{font-size:34px;line-height:1.1;color:#65e3ce;font-weight:600}.fps-reading>span{font-size:12px;color:#b8c5ca}.fps-reading small{margin-left:auto;font-size:10px;color:#b8c5ca;text-align:right}.fps-graph svg{display:block;width:100%;height:52px;margin:5px 0}.fps-grid{stroke:#ffffff15;stroke-width:1}.fps-budget{stroke:#c7d2d780;stroke-width:1;stroke-dasharray:4 4}.fps-graph polyline{stroke:#65e3ce;stroke-width:1.4;stroke-linejoin:round}.fps-caption{display:flex;justify-content:space-between;gap:4px;color:#b8c5ca;font-size:10px}.fps-graph dl{margin:10px 0 8px;border-top:1px solid #ffffff20;padding-top:7px}.fps-graph dl>div{display:flex;justify-content:space-between;gap:8px;padding:1px 0}.fps-graph dt{color:#b8c5ca}.fps-graph dd{margin:0}.fps-graph p{border-top:1px solid #ffffff20;padding-top:7px;font-size:9px;color:#a2b1b9}
+.fps-hardware{border-top:1px solid #ffffff20;padding-top:7px;color:#a2b1b9;font-size:10px}.fps-renderer{overflow-wrap:anywhere;max-height:56px;overflow:hidden}.fps-hardware dl{border:0;margin:4px 0 7px;padding:0}
+.fps-picking-toggle{pointer-events:auto;font:10px Arial,sans-serif;color:#b8c5ca;border:1px solid #ffffff40;border-radius:3px;padding:1px 5px}.fps-picking-toggle[aria-expanded=true]{color:#65e3ce;border-color:#65e3ce80}
+.fps-picking{margin-top:4px}.fps-picking[hidden]{display:none}.fps-picking dl{margin:4px 0;padding-top:4px}.fps-picking dl>div{padding:0}
+/* Optional detail can exceed either layout's height, especially just above the
+   800px breakpoint. Bound only the expanded panel and retain native scrolling. */
+.fps-graph:has(.fps-picking-toggle[aria-expanded=true]){max-height:calc(100dvh - 24px);overflow:auto;pointer-events:auto;overscroll-behavior:contain}
+.fps-graph:focus-visible{outline:2px solid #65e3ce;outline-offset:2px}
+/* Keep the tall desktop flow; short landscape windows use width instead of
+   hiding diagnostics. Collapsed readouts remain noninteractive. */
+.fps-primary,.fps-secondary{display:contents}
+@media (max-height:800px) and (min-width:560px){
+  .fps-graph{top:8px;right:8px;width:560px;max-width:calc(100% - 16px);padding:8px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+  .fps-primary,.fps-secondary{display:block;min-width:0}
+  /* Recover more than the pointer-tail row height without hiding any content. */
+  .fps-graph svg{height:28px;margin:3px 0}
+  .fps-graph dl{margin:6px 0;padding-top:4px}
+  .fps-hardware{padding-top:4px}
+  .fps-hardware dl{margin:4px 0;padding:0}
+  .fps-graph p{padding-top:4px}
+}
 .native-hud{position:absolute;left:0;top:0;width:100px;height:calc(100dvh / var(--hud-scale));transform:scale(var(--hud-scale));transform-origin:top left;background:url('/original/hud-panel.png');color:#634535;z-index:4;image-rendering:pixelated}
+.worship-acquisition-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;image-rendering:pixelated}
 .hud-sprite{display:inline-block;flex:none;background-image:url('/original/hud.png');background-repeat:no-repeat;image-rendering:pixelated;vertical-align:top;pointer-events:none}
 .training-panel canvas,.person-panel canvas{display:block}
 .training-panel button{position:absolute;top:var(--occupant-top);width:17px;height:24px;padding:0;border:0;background:transparent;pointer-events:auto;cursor:pointer}
@@ -25,7 +46,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .dock-tabs button{width:31px;height:27px;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-tab.png') 8 10 fill repeat;padding:0}
 .dock-tabs button.active{border-image-source:url('/original/hud-tab-active.png')}
 .shaman-controls{position:absolute;left:0;top:112px;width:100px;height:39px}
-.shaman-controls button{padding:0}.globe-button{position:absolute;left:5px;top:10px}
+.shaman-controls button{padding:0}.nearby-followers-button{position:absolute;left:6px;top:10px;width:24px;height:18px;display:grid;place-content:center}
 .portrait{position:absolute;left:33px;top:2px;width:30px;height:35px;background:url('/original/hud-portrait.png')}
 .portrait:hover,.portrait:active{background-image:url('/original/hud-portrait-hover.png')}
 .portrait canvas{position:absolute;left:-33px;top:-114px;width:100px;height:480px;pointer-events:none;image-rendering:pixelated}
@@ -53,17 +74,70 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .building-list{grid-template-columns:repeat(2,1fr)}.building-card{height:53px}
 .top-actions{position:absolute;left:4px;bottom:3px;display:flex;gap:4px}.top-actions button{height:14px;width:17px;border:1px outset #f5ce7a;font-size:10px;line-height:12px}
 .hud-description{position:absolute;left:calc(var(--side) + 8px);top:43%;max-width:260px;background:#bf6f17;color:#634535;border:4px solid transparent;border-image:url('/original/tooltip-border.png') 4 repeat;padding:6px;font:12px/1.4 Arial,sans-serif;pointer-events:none;z-index:7}
+.game-status{display:contents}
 .world-message{position:absolute;left:calc((100% + var(--side))/2);transform:translateX(-50%);bottom:12px;max-width:650px;padding:8px 15px;background:#1f281ccc;color:#efe7c8;font:12px/1.5 Arial,sans-serif;text-align:center;pointer-events:none;z-index:2}.world-message>span{margin-right:8px}
 .route-notice{animation:route-notice 3s linear forwards}@keyframes route-notice{0%,99%{opacity:1}100%{opacity:0}}
 .target-prompt{position:absolute;left:calc((100% + var(--side))/2);transform:translateX(-50%);top:12px;display:flex;gap:7px;align-items:center;background:#273021e6;border:1px solid #cead64;padding:8px;z-index:5}.target-prompt button{margin-left:10px}
 .paused-badge{position:absolute;left:calc((100% + var(--side))/2);top:45%;transform:translate(-50%,-50%);padding:14px 24px;background:#262d20ed;border:2px ridge #d2ae59;color:#f4dda5;z-index:5;font-size:16px}.paused-badge small{display:block;font-size:10px;margin-top:9px}
+/* Keep the public pause/resume control clear of the short-landscape F8 panel.
+   Taller narrow views have room below it; wider short views have room beside it. */
+@media (max-height:800px) and (min-width:560px) and (max-width:899px) and (min-height:420px){
+  .game-shell:has(.fps-graph) .paused-badge{left:auto;right:8px;top:auto;bottom:16px;transform:none;padding:6px 10px;font-size:12px}
+  .game-shell:has(.fps-graph) .paused-badge small{margin-top:4px}
+}
+@media (max-height:800px) and (min-width:900px){
+  .game-shell:has(.fps-graph) .paused-badge{left:calc(var(--side) + 8px);right:auto;top:45%;width:160px;transform:translateY(-50%);padding:6px 10px;font-size:12px}
+  .game-shell:has(.fps-graph) .paused-badge small{margin-top:4px}
+}
+
+/* Open campaign text owns its original HUD-adjacent column. In short wide
+   windows, fit diagnostics beside that column instead of painting over it.
+   The containing world viewport already excludes the scaled HUD width.
+   Narrower windows retain the existing vertical arrangement. */
+@media (min-width:900px) and (max-height:700px){
+  .game-shell:has(.campaign-messages details[open]) .fps-graph{max-width:calc(100% - var(--campaign-message-width) - 24px);padding:6px;gap:8px;font-size:11px}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph svg{height:28px;margin:3px 0}
+  .game-shell:has(.campaign-messages details[open]) .fps-reading{margin:4px 0}
+  .game-shell:has(.campaign-messages details[open]) .fps-reading strong{font-size:26px}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph dl{margin:4px 0;padding-top:3px}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph dl>div{padding:0;gap:4px}
+  .game-shell:has(.campaign-messages details[open]) .fps-renderer{max-height:none;overflow:visible}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]) .world-message{left:calc(var(--side) + 8px);top:8px;bottom:auto;width:calc(var(--campaign-message-width) - 8px);transform:none}
+}
+
+/* At the bounded 640x480 compact size, status text and Resume share the
+   remaining lower-right column. Grid uses their actual wrapped heights, not a
+   guessed pause-button height. Reclaim F8 whitespace, never font size or rows.
+   Outside diagnostic mode the original status/pause placement is unchanged. */
+@media (min-width:640px) and (max-width:899px) and (min-height:480px) and (max-height:700px){
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-graph{padding:6px}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-reading{margin:4px 0}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-graph dl{margin:4px 0}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-graph dl>div{padding:0}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .game-status{position:absolute;right:8px;bottom:8px;width:calc(100% - var(--side) - var(--campaign-message-width) - 16px);display:grid;gap:8px;pointer-events:none}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .game-status .world-message{position:static;transform:none;max-width:none}
+  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .game-status .paused-badge{position:static;transform:none;justify-self:end;pointer-events:auto}
+}
+
 .primary-button,.secondary-button{border:2px outset #f5ce7a;background:#dbaa38 url('/original/hud-commands.png')}
 .menu-objectives{margin:16px 0}.menu-utilities{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:12px}.menu-utilities button{border:1px solid #a89667;padding:5px}
-.loading-world,.end-screen{position:absolute;inset:0 0 0 var(--side);background:#202b25f5;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#e9dcb5;z-index:8;padding:30px}.loading-rune,.end-rune{font:85px Georgia,serif;color:#d4b468}.loading-world h2,.end-screen h2{font-size:34px;margin:20px 0}.loading-world p,.end-screen p{line-height:1.8}.loading-world details{margin:20px;max-width:600px}.end-stats{display:flex;gap:45px;margin:30px 0}.end-stats>span{font:26px Georgia,serif}.end-stats small{display:block;font:9px Arial,sans-serif;margin-top:8px}.primary-button,.secondary-button{padding:11px 16px;font-size:12px;color:#342914}.primary-button span{margin-left:25px}.game-dialog{margin:auto;background:#353526;color:#e9dcbb;border:3px ridge #dfbd6a;width:630px;max-width:95vw;max-height:90dvh;overflow:auto;padding:30px}.game-dialog::backdrop{background:#0b1719b8}.dialog-close{position:absolute;right:12px;top:7px;font-size:26px}.game-dialog h2{font-size:28px;margin:14px 0}.game-dialog>p{font-size:12px;line-height:1.7}.eyebrow{font-size:9px;letter-spacing:1px}.menu-actions{display:flex;gap:12px;margin:25px 0}.game-dialog h3{font-size:17px;margin:18px 0}.help-grid{display:grid;grid-template-columns:165px 1fr;gap:9px;font-size:11px}.help-grid strong{font-weight:400}.help-tip{margin:20px 0}.audio-settings{display:flex;flex-wrap:wrap;align-items:center;gap:20px}.audio-settings label{display:flex;align-items:center;gap:10px;font-size:11px}.audio-settings input{accent-color:#d9b454;width:130px}.reference-details{margin-top:20px;font-size:11px;line-height:1.7}.reference-details summary{cursor:pointer}.reference-details p{margin:10px 0}.reference-details a{display:block;color:#dcc984}.desktop-recommendation{display:none}
-.loading-world-original{inset:0;padding:0}.loading-world-original .loading-original-art{position:absolute;left:round(down,calc((100% - 130px)/2),1px);top:round(down,calc((100% - 161px)/2),1px);flex:none;width:130px;height:161px}.loading-original-art img{display:block;width:130px;height:161px;max-width:none;image-rendering:pixelated}.loading-original-label{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);white-space:nowrap}
+.primary-button,.secondary-button{padding:11px 16px;font-size:12px;color:#342914}.primary-button span{margin-left:25px}.game-dialog{margin:auto;background:#353526;color:#e9dcbb;border:3px ridge #dfbd6a;width:630px;max-width:95vw;max-height:90dvh;overflow:auto;padding:30px}.game-dialog::backdrop{background:#0b1719b8}.dialog-close{position:absolute;right:12px;top:7px;font-size:26px}.game-dialog h2{font-size:28px;margin:14px 0}.game-dialog>p{font-size:12px;line-height:1.7}.eyebrow{font-size:9px;letter-spacing:1px}.menu-actions{display:flex;gap:12px;margin:25px 0}.game-dialog h3{font-size:17px;margin:18px 0}.help-grid{display:grid;grid-template-columns:165px 1fr;gap:9px;font-size:11px}.help-grid strong{font-weight:400}.help-tip{margin:20px 0}.audio-settings{display:flex;flex-wrap:wrap;align-items:center;gap:20px}.audio-settings label{display:flex;align-items:center;gap:10px;font-size:11px}.audio-settings input{accent-color:#d9b454;width:130px}.reference-details{margin-top:20px;font-size:11px;line-height:1.7}.reference-details summary{cursor:pointer}.reference-details p{margin:10px 0}.reference-details a{display:block;color:#dcc984}.desktop-recommendation{display:none}
+/* The original clear uses current palette index 0. Opaque black is the browser
+   compatibility clear across startup/game palettes, not a native RGB claim. */
+.loading-browser-note{position:absolute;bottom:20px;left:16px;right:16px;font:13px/1.5 Arial,sans-serif;color:#ccc}
+.loading-world[data-loading-phase=failed]{display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:20px;padding:28px 20px;overflow:auto}
+.loading-world[data-loading-phase=failed] .loading-original-art{position:relative;left:auto;top:auto}
+.loading-recovery{width:min(100%,480px);flex:none;font:14px/1.5 Arial,sans-serif}
+.loading-recovery h2{font:20px/1.3 Arial,sans-serif;margin:0 0 12px}
+.loading-recovery details{margin:14px 0;overflow-wrap:anywhere}
+.loading-recovery summary{cursor:pointer;width:fit-content;max-width:100%;margin:auto}
+.loading-recovery details p{margin-top:8px;color:#ccc}
+.loading-recovery button{border:1px solid #aaa;background:#171717;color:#fff;min-height:44px;padding:10px 24px}
+.loading-recovery button:hover{background:#303030}
+.loading-recovery-note{color:#aaa;font-size:11px;margin-top:12px}
 
 @media(max-width:900px){.desktop-recommendation{position:absolute;inset:0;z-index:30;background:#202b25f5;color:#e9dcbb;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:35px;gap:24px}.loading-world{z-index:31}.desktop-recommendation p{max-width:360px;line-height:1.7}.desktop-recommendation .brand-rune{font-size:60px}.controls-footer>span{display:none}}
-.campaign-messages{position:absolute;left:var(--side);top:0;z-index:5;pointer-events:none}.campaign-messages details{pointer-events:auto;position:absolute;left:0;width:var(--message-width,32px)}.campaign-messages details[open]{width:340px}.campaign-messages summary{list-style:none;cursor:pointer;box-sizing:border-box;width:var(--message-width,32px);height:var(--message-height);display:grid;place-items:center;background:#d3ad47;border:2px ridge #b8a05c}.campaign-messages summary::-webkit-details-marker{display:none}.campaign-messages summary img{width:15px;height:22px;image-rendering:pixelated}.campaign-messages summary img[src$="message-type1.png"]{width:25px;height:18px}.campaign-messages details>div{position:absolute;left:0;top:100%;box-sizing:border-box;width:340px;padding:12px 30px 12px 12px;border:2px ridge #b8a05c;background:#24291eee;color:#f1e4c1;font:12px/1.5 Arial,sans-serif}.campaign-messages details[data-lower]>div{top:auto;bottom:100%}.campaign-messages button{position:absolute;right:8px;top:8px;font-size:20px}
+.campaign-messages{position:absolute;left:var(--side);top:0;z-index:5;pointer-events:none}.campaign-messages details{pointer-events:auto;position:absolute;left:0;width:var(--message-width,32px)}.campaign-messages details[open]{width:var(--campaign-message-width)}.campaign-messages summary{list-style:none;cursor:pointer;box-sizing:border-box;width:var(--message-width,32px);height:var(--message-height);display:grid;place-items:center;background:#d3ad47;border:2px ridge #b8a05c}.campaign-messages summary::-webkit-details-marker{display:none}.campaign-messages summary img{width:15px;height:22px;image-rendering:pixelated}.campaign-messages summary img[src$="message-type1.png"]{width:25px;height:18px}.campaign-messages details>div{position:absolute;left:0;top:100%;box-sizing:border-box;width:var(--campaign-message-width);padding:12px 30px 12px 12px;border:2px ridge #b8a05c;background:#24291eee;color:#f1e4c1;font:12px/1.5 Arial,sans-serif}.campaign-messages details[data-lower]>div{top:auto;bottom:100%}.campaign-messages button{position:absolute;right:8px;top:8px;font-size:20px}
 
 .skip-introduction { position: absolute; z-index: 30; bottom: 155px; left: 50%; transform: translateX(-50%); padding: 10px 16px; color: #efddb3; background: #242718e8; border: 1px solid #9c8655; cursor: pointer; }
 .skip-introduction kbd { margin-left: 12px; font-size: 10px; opacity: .7; }
@@ -72,3 +146,19 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .native-tooltip canvas { display: block; image-rendering: pixelated; }
 
 .hud-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.hud-settings select{font:inherit;color:#e9dcbb;background:#24291e;border:1px solid #a89667;padding:6px}.hud-settings span{font-size:11px}
+
+/* Lower task descriptors use34px frames and preserve opaque disabled silhouettes. */
+.followers-dock{height:277px;bottom:auto;padding:0;border:0;background:url('/original/follower-task-panel.png') no-repeat}
+.follower-tasks{position:relative;width:100px;height:277px}
+.follower-tasks button{position:absolute;width:15px;height:34px;padding:0;overflow:visible}
+.follower-tasks button:disabled{opacity:1}
+.follower-task-frame{position:absolute;inset:0;background:url('/original/follower-task-normal.png');pointer-events:none}
+.follower-tasks button:disabled .follower-task-frame{opacity:calc(85 / 255)}
+.follower-tasks button:enabled:is(:hover,:active) .follower-task-frame{background-image:url('/original/follower-task-pressed.png')}
+.follower-task-icon{position:absolute;background-image:url('/original/follower-tasks.png');background-repeat:no-repeat;pointer-events:none;image-rendering:pixelated}
+.follower-task-pressed{display:none}
+.follower-tasks button:enabled:is(:hover,:active) .follower-task-normal:has(+.follower-task-pressed){display:none}
+.follower-tasks button:enabled:is(:hover,:active) .follower-task-pressed{display:contents}
+.followers-dock .follower-list{margin:0 2px}
+
+.fps-export{pointer-events:auto;font:inherit;color:#f4f7f8;background:#24534d;border:1px solid #65e3ce80;border-radius:3px;padding:4px 8px;cursor:pointer}.fps-export:focus-visible{outline:2px solid #65e3ce;outline-offset:2px}

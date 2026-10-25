@@ -1,3 +1,4 @@
+import { buildingAcquisitionSource } from './building-acquisition-source.ts'
 import { registerSecondaryMarker } from './hut-smoke-runtime.ts'
 import {
   tribeForTeam,
@@ -18,6 +19,7 @@ import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
+import { short } from './native-math.ts'
 import { setAnimationObject } from './animation.ts'
 import { addTerrainLight, updateTerrainLights } from './terrain-light.ts'
 import { createSpellTrail } from './spell-trails.ts'
@@ -35,6 +37,13 @@ import { campaignPosition, campaignShamanTeams } from './campaign-runtime.ts'
 import { levelStartStoneExists, reincarnationStones } from './reincarnation.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import type { NativeModel } from './model-faces.ts'
+import {
+  createKnowledgeGlow,
+  vaultKnowledgeAppearance,
+  vaultKnowledgeGiftAppearance,
+  vaultKnowledgeSource,
+  vaultKnowledgePlacement,
+} from './vault-appearance.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 
@@ -86,6 +95,7 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
     kind === 'blast' ||
     kind === 'lightning' ||
     kind === 'splash' ||
+    kind === 'hypnotise' ||
     kind === 'birth' ||
     kind === 'orderMarker'
   ) {
@@ -93,8 +103,13 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
     // state 0x24 in 0x50a750 removes its object after nine simulation turns.
     // Lightning starts hidden: one pending turn, then eight turns of upper flash.
     const position = nativePosition(w, p)
+    if (kind === 'hypnotise') {
+      position.x = short((position.x & 0xfe00) + 0x100)
+      position.y = short((position.y & 0xfe00) + 0x100)
+      Object.assign(f, browserPosition(position))
+    }
     f.height = (terrainPointHeight(w.land, position) + (kind === 'lightning' ? 1024 : 0)) / 45
-    f.turnsRemaining = kind === 'splash' || kind === 'birth' ? 16 : 9
+    f.turnsRemaining = kind === 'splash' || kind === 'birth' || kind === 'hypnotise' ? 16 : 9
     f.duration = f.turnsRemaining / TURNS_PER_SECOND
     f.animation = {
       object: 0,
@@ -117,6 +132,10 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
       f.duration = 4 / TURNS_PER_SECOND
       f.sprite = { sequence: 'hit', frame: 0 }
       setAnimationObject(f.animation, 46, 1294)
+    } else if (kind === 'hypnotise') {
+      f.sprite = { sequence: 'hypnotise', frame: 0 }
+      setAnimationObject(f.animation, 44, 1264)
+      if (!silent) sound(w, 0x2a, f)
     } else if (kind === 'birth') {
       // 0x404c80 overrides effect 60's initial draw 44/HFX1288 with 41/HFX1441.
       setAnimationObject(f.animation, 44, 1288)
@@ -136,7 +155,13 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f
 }
-export function createGift(w: World, reward: Gift['reward'], p: Point, rewardModel = 0) {
+export function createGift(
+  w: World,
+  reward: Gift['reward'],
+  p: Point,
+  rewardModel = 0,
+  ordinary?: Omit<NonNullable<Gift['ordinaryWorship']>, 'completedTurn' | 'serial'>
+) {
   const gift = effect(w, 'gift', p) as Gift
   Object.assign(gift, {
     reward,
@@ -159,8 +184,34 @@ export function createGift(w: World, reward: Gift['reward'], p: Point, rewardMod
     height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
     duration: Infinity,
   })
+  if (ordinary) {
+    gift.ordinaryWorship = { ...ordinary, completedTurn: w.turn, serial: gift.id }
+    gift.recipient = w.manaWorld.playerTribe
+  }
+  const building = buildingAcquisitionSource(w, reward, p)
+  if (building) {
+    gift.buildingAcquisition = { ...building, completedTurn: w.turn, serial: gift.id }
+    gift.recipient = w.manaWorld.playerTribe
+  }
+  initializeVaultKnowledgeGift(w, gift)
   w.gifts.push(gift)
   return gift
+}
+
+// Creation/checkpoint migration changes presentation only, never reward timing or IDs.
+export function initializeVaultKnowledgeGift(w: World, gift: Gift) {
+  if (vaultKnowledgeGiftAppearance(w, gift)) return
+  const shrine = vaultKnowledgeSource(w, gift),
+    knowledge = shrine && vaultKnowledgeAppearance(shrine, w.outcome.level)
+  if (!shrine || !knowledge || gift.reward !== knowledge.reward) return
+  const placement = vaultKnowledgePlacement(shrine)
+  gift.x = placement.x
+  gift.z = placement.z
+  gift.frame = knowledge.body.source
+  gift.height =
+    (terrainPointHeight(w.land, nativePosition(w, placement)) + placement.heightOffset) / 45
+  gift.animation ??= createKnowledgeGlow(knowledge)
+  gift.sprite ??= { sequence: 'vault-knowledge-glow', frame: 0, fixed: true }
 }
 export function createAngel(w: World, team: Team, p: Point) {
   const angel = effect(w, 'angel', p)

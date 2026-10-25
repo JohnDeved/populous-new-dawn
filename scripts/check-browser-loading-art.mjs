@@ -4,9 +4,11 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { inflateSync } from 'node:zlib'
 import { chromium } from '@playwright/test'
+import { launchOptions } from './local-render/harness.mjs'
 import { bindGame } from './browser-game.mjs'
 
 const url = process.env.POPULOUS_URL ?? 'http://localhost:3000'
+const inlineArt = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
 const MASK_SHA256 = '73437a1d2e8ec54551489d2c39d0e293aa1f52072f3287fd2b9e58ece3fe190d'
 
 function sha256(data) {
@@ -96,6 +98,7 @@ async function loadingLayout(page) {
       natural: { width: img.naturalWidth, height: img.naturalHeight },
       source: img.getAttribute('src'),
       heading: overlay.querySelector('h2')?.textContent ?? null,
+      background: getComputedStyle(overlay).backgroundColor,
     }
   })
 }
@@ -103,12 +106,17 @@ async function loadingLayout(page) {
 function assertOriginalLayout(layout) {
   assert.ok(layout)
   assert.deepEqual(layout.natural, { width: 130, height: 161 })
-  assert.equal(layout.source, '/original/loading-mask.png')
+  assert.equal(layout.source, inlineArt.mask.src)
   assert.equal(layout.art.width, 130)
   assert.equal(layout.art.height, 161)
   assert.equal(layout.image.width, 130)
   assert.equal(layout.image.height, 161)
   assert.equal(layout.label.text, 'Loading...')
+  assert.equal(layout.label.width, 82)
+  assert.equal(layout.label.height, 20)
+  assert.equal(layout.label.x, Math.trunc((layout.viewport.width - 81) / 2))
+  assert.equal(layout.label.y, Math.trunc((layout.viewport.height - 161) / 2) - 26)
+  assert.equal(layout.background, 'rgb(0, 0, 0)', 'opaque browser compatibility clear')
   assert.equal(layout.heading, null)
   assert.equal(layout.shell.width, layout.viewport.width)
   assert.equal(layout.shell.height, layout.viewport.height)
@@ -125,7 +133,7 @@ function assertOriginalLayout(layout) {
 
 verifyMaskPng()
 
-const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+const browser = await chromium.launch({ ...launchOptions(process.env.POPULOUS_BROWSER), headless: !process.argv.includes('--headed') })
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage(),
@@ -171,23 +179,25 @@ try {
   })
 
   await page.goto(url, { waitUntil: 'networkidle' })
-  assert.equal(await page.locator('.loading-original-art').count(), 0, 'mission choice must remain modern/browser UI')
+  assert.equal(await page.locator('.loading-original-art').count(), 0, 'the loading surface must be absent from mission choice')
 
   let hold = beginHold()
   await selectMission(page, 1)
   await waitForCount(() => hold.count, 2)
-  await page.locator('.loading-original-art').waitFor()
+  await page.locator('[data-label-ready="true"] .loading-original-art').waitFor()
   assertOriginalLayout(await loadingLayout(page))
 
+  await page.setViewportSize({ width: 641, height: 481 })
+  assertOriginalLayout(await loadingLayout(page))
   await page.setViewportSize({ width: 1100, height: 700 })
   assertOriginalLayout(await loadingLayout(page))
   await page.setViewportSize({ width: 800, height: 700 })
   assertOriginalLayout(await loadingLayout(page))
 
-  // Native failure presentation is unresolved: retain the readable browser error/retry surface.
+  // Native failure presentation is unresolved: recovery keeps the native mask with explicit browser controls.
   hold.fail()
-  await page.getByRole('heading', { name: 'The world could not awaken' }).waitFor()
-  assert.equal(await page.locator('.loading-original-art').count(), 0)
+  await page.getByRole('heading', { name: 'Loading failed' }).waitFor()
+  assert.equal(await page.locator('.loading-original-art').count(), 1)
   const retry = page.getByRole('button', { name: 'Try again' })
   await retry.waitFor()
   const retryReachable = await retry.evaluate(button => {
@@ -201,7 +211,7 @@ try {
   await retry.focus()
   await page.keyboard.press('Enter')
   await waitForCount(() => hold.count, 2)
-  await page.locator('.loading-original-art').waitFor()
+  await page.locator('[data-label-ready="true"] .loading-original-art').waitFor()
   assertOriginalLayout(await loadingLayout(page))
   hold.release()
   await page.locator('.loading-world').waitFor({ state: 'detached' })

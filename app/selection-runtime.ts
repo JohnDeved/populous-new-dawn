@@ -1,4 +1,4 @@
-import { type Unit, type World } from './world-types.ts'
+import { type Building, type Shrine, type Unit, type World } from './world-types.ts'
 import { BuilderTask } from './building-workers.ts'
 import { SceneryPhase } from './building-clearing.ts'
 import { buildingModel } from './building-shapes.ts'
@@ -8,6 +8,8 @@ import { distance } from './world-coordinates.ts'
 import { nativePersonModel } from './live-combat.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { type HudSelectionMode, selectHudPeople } from './hud-selection.ts'
+import { hudPersonSource } from './hud-person-source.ts'
+import rules from './original-rules.json' with { type: 'json' }
 import { sound } from './world-effects.ts'
 import {
   markPersonSelected,
@@ -24,36 +26,16 @@ import {
   inDragSelection,
 } from './drag-selection.ts'
 import { currentPersonOrder, deselectPerson } from './person-orders.ts'
+import { builderActivity, unitAnimationSource } from './unit-animation-source.ts'
+export { builderActivity, unitAnimationSource } from './unit-animation-source.ts'
 
-export function builderActivity(u: Unit) {
-  const task = u.builder?.task
-  return (
-    task === BuilderTask.Approach ||
-    task === BuilderTask.Work ||
-    task === BuilderTask.Fetch ||
-    task === BuilderTask.Level ||
-    task === BuilderTask.ClearScenery ||
-    task === BuilderTask.ClearPeople ||
-    task === BuilderTask.Leave
-  )
-}
-export function unitAnimationSource(u: Unit) {
-  if (u.flight) return u.flight
-  if (u.fight?.action === 'encounter') return u.fight.motion!
-  if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
-  if (
-    u.native &&
-    (u.native.state !== 10 ||
-      [3, 6, 15, 16, 17, 18, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
-  )
-    return u.native
-  if (u.entry) return u.entry.person
-  return builderActivity(u) && !u.fight && !u.fighting && !u.casting && !u.lift
-    ? (u.builder?.person ?? null)
-    : null
-}
-
-export function unitAnimation(w: World, u: Unit) {
+export function unitAnimation(
+  w: World,
+  u: Unit,
+  selectedIds?: ReadonlySet<number>,
+  buildingsById?: ReadonlyMap<Unit['work'], Building>,
+  shrinesById?: ReadonlyMap<Unit['work'], readonly Shrine[]>
+) {
   if (u.lift > 0) return 'airborne'
   if (u.casting) return 'cast'
   if (u.fight?.animation) return u.fight.animation
@@ -81,15 +63,24 @@ export function unitAnimation(w: World, u: Unit) {
     if (u.builder.task === BuilderTask.Level && u.builder.phase === 28) return 'dance'
     if (u.builder.task === BuilderTask.ClearScenery && u.builder.phase === SceneryPhase.Harvest)
       return 'work'
-    if (u.builder.task === BuilderTask.Work && !w.buildings.find(b => b.id === u.work)?.preparation)
-      return 'work'
+    if (u.builder.task === BuilderTask.Work) {
+      let building: Building | undefined
+      if (buildingsById === undefined) building = w.buildings.find(b => b.id === u.work)
+      else if (!Number.isNaN(u.work)) building = buildingsById.get(u.work)
+      if (!building?.preparation) return 'work'
+    }
     return u.cargo ? 'carryIdle' : 'idle'
   }
   if (u.path.length) return u.cargo ? 'carry' : 'walk'
   if (u.cargo) return 'carryIdle'
   if (u.harvest) return 'work'
+  let shrines: readonly Shrine[] | undefined
+  if (shrinesById === undefined) {
+    const { shrines: liveShrines } = w
+    shrines = liveShrines
+  } else if (!Number.isNaN(u.work)) shrines = shrinesById.get(u.work)
   if (
-    w.shrines.some(
+    shrines?.some(
       s =>
         s.id === u.work &&
         s.active &&
@@ -98,7 +89,7 @@ export function unitAnimation(w: World, u: Unit) {
     )
   )
     return 'pray'
-  return w.selected.includes(u.id) ? 'selected' : 'idle'
+  return (selectedIds?.has(u.id) ?? w.selected.includes(u.id)) ? 'selected' : 'idle'
 }
 
 export function selectionBuilding(w: World, point: { x: number; y: number }) {
@@ -146,14 +137,15 @@ export function selectionPeople(w: World, units = w.units) {
 }
 
 // HUD queries read active positions without taking ownership of legacy simulation.
-export function hudPeople(w: World) {
+export function hudPeople(w: World, ownedOnly = true) {
   const selected = new Set(w.selected)
   return w.units
-    .filter(u => u.team === 'blue' && u.hp > 0)
+    .filter(u => (!ownedOnly || u.team === 'blue') && u.hp > 0)
     .map(u => {
-      const active = unitAnimationSource(u) ?? u.native ?? u.entry?.person
-      const source = active ?? u.builder?.person
-      const point = active ?? nativePosition(w, u)
+      const snapshot = hudPersonSource(w, u),
+        active = snapshot.active ?? u.native ?? u.entry?.person,
+        source = snapshot.source?.vehicle ? snapshot.source : (active ?? u.builder?.person),
+        point = source?.vehicle ? source : (active ?? nativePosition(w, u))
       return {
         id: u.id,
         model: nativePersonModel(u),
@@ -163,6 +155,7 @@ export function hudPeople(w: World) {
         flags3: source?.flags3 ?? 0,
         flags4: source?.flags4 ?? 0,
         selectionFlags: ((source?.selectionFlags ?? 0) & ~128) | (selected.has(u.id) ? 128 : 0),
+        vehicle: source?.vehicle ?? 0,
         source,
       }
     })
@@ -174,9 +167,33 @@ export function selectFollowers(
   point: { x: number; y: number },
   mode: HudSelectionMode
 ) {
-  const people = hudPeople(w)
-  const result = selectHudPeople(people, model, point, mode, !!(w.castingTribes[0].flags & 128))
-  for (const p of people)
+  const people = hudPeople(w, false),
+    byId = new Map(people.map(p => [p.id, p])),
+    owned = new Set(w.units.filter(u => u.team === 'blue').map(u => u.id)),
+    updated = new Set(people.filter(p => owned.has(p.id))),
+    vehicles = new Map(w.vehicles.filter(v => v.active && v.passengerCount).map(v => [v.id, v]))
+  const result = selectHudPeople(
+    people.filter(p => owned.has(p.id)),
+    model,
+    point,
+    mode,
+    !!(w.castingTribes[0].flags & 128),
+    (p, selected) => {
+      markPersonSelected(p, selected)
+      const vehicle = vehicles.get(byId.get(p.id)?.vehicle ?? 0)
+      if (!vehicle) return
+      // The person-command crew traversal does not reapply the class, tribe,
+      // range or reservation filter used to acquire the original passenger.
+      for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
+        const passenger = byId.get(id)
+        if (passenger && passenger !== p) {
+          markPersonSelected(passenger, selected)
+          updated.add(passenger)
+        }
+      }
+    }
+  )
+  for (const p of updated)
     if (p.source) {
       p.source.flags3 = p.flags3
       p.source.selectionFlags = p.selectionFlags

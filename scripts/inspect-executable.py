@@ -49,6 +49,10 @@ if len(sys.argv)>2:
     rules['groundFriction']=friction[0]
     rules['personStateFlags']=[value(0x5a6f79+i*5) for i in range(46)]
     rules['hudSelectionPriority']=list(read(0x59cd94,7))
+    # 0x4513e0: task classification uses state, current command and inside building.
+    rules['personTaskCategories']=[struct.unpack('<b',read(0x5a6f78+i*5,1))[0] for i in range(46)]
+    rules['commandTaskCategories']=[struct.unpack('<b',read(0x5a7db8+i*22,1))[0] for i in range(35)]
+    rules['buildingTaskCategories']=[struct.unpack('<b',read(0x5a725a+i*76,1))[0] for i in range(20)]
     rules['buildingSlopeLimit']=value(0x5aa458)
     rules['buildingSteepSlopeLimit']=value(0x5aa45c)
     rules['buildingFlags']=[value(0x5a7228+i*76+72) for i in range(20)]

@@ -1,8 +1,9 @@
+import type { PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import * as THREE from 'three'
 import type { GameScene } from './scene.ts'
 import type { Command } from './painter.ts'
 import { modelMatrix, modelPoint, projectPoint } from './projection.ts'
-import { modelFaceVisible, type NativeModel } from './model-faces.ts'
+import { modelFaceVisible } from './model-faces.ts'
 import { modelTriangleVisible, polygonBucket } from './painter-order.ts'
 import {
   inHitBounds,
@@ -12,7 +13,7 @@ import {
   modelHitBounds,
   type PickCommand,
 } from './world-picking.ts'
-import models from './original-models.json' with { type: 'json' }
+import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import frames from './original-units.json' with { type: 'json' }
 
 type ModelCommand = PickCommand & { bucket: number; face: number }
@@ -44,6 +45,7 @@ export class ScenePicking {
       position.version,
       ...mesh.matrixWorld.elements,
       shape.nativeModel,
+      shape.nativeResource?.bank,
       shape.stage,
       shape.nativeSize,
       meta.nativeHeading,
@@ -52,7 +54,10 @@ export class ScenePicking {
     ].join(',')
     const cached = this.models.get(mesh)
     if (cached?.key === key && cached.position === position) return cached.commands
-    const data = (models as Record<number, NativeModel>)[shape.nativeModel],
+    const resource =
+        (shape.nativeResource as NativeModelResource | undefined) ??
+        nativeModelResource(shape.nativeModel),
+      { data } = resource,
       { stage } = shape
     const origin = new THREE.Vector3().setFromMatrixPosition(mesh.matrixWorld)
     const nativeOrigin = s.view.relative(origin, (origin.y * 128) / 45)
@@ -143,7 +148,7 @@ export class ScenePicking {
     )
   }
 
-  pick(event: { clientX: number; clientY: number }) {
+  pick(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
     const s = this.scene,
       { view } = s,
       rect = s.renderer.domElement.getBoundingClientRect()
@@ -159,8 +164,12 @@ export class ScenePicking {
       ...Object.values(view.projection),
     ].join(',')
     const key = [s.frame, viewKey, point.x, point.y].join(',')
-    if (key === this.lastKey) return this.lastId
+    if (key === this.lastKey) {
+      if (metrics) metrics.objectCacheHits++
+      return this.lastId
+    }
     const hits: QueuedHit[] = []
+    let phaseStart = metrics ? performance.now() : 0
     for (const [id, g] of s.unitMeshes) {
       if (!g.visible || g.userData.pickable === false) continue
       const bounds = this.personBounds(id, rect)
@@ -180,6 +189,11 @@ export class ScenePicking {
           face: source.face,
         })
     }
+    if (metrics) {
+      const now = performance.now()
+      metrics.objectUnitsMs += now - phaseStart
+      phaseStart = now
+    }
     for (const root of [s.objects, s.decorations])
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return
@@ -192,35 +206,57 @@ export class ScenePicking {
           return
         const source = view.painter.source(object)
         if (!source) return
-        const commands = this.model(object, viewKey),
-          bounds = commands.at(-1)!
+        const work = metrics?.modelWork
+        const previousModel = work ? this.models.get(object) : undefined
+        const commands = this.model(object, viewKey)
+        if (work && this.models.get(object) !== previousModel) work[0]++
+        const bounds = commands.at(-1)!
         if (bounds.kind !== 'bounds' || !inHitBounds(point, bounds.bounds)) return
         hits.push({ ...bounds, source })
         for (const c of commands)
-          if (c.kind === 'model' && inHitTriangle(point, c.points)) hits.push({ ...c, source })
+          if (c.kind === 'model') {
+            if (metrics?.modelWork) metrics.modelWork[1]++
+            if (inHitTriangle(point, c.points)) {
+              if (metrics?.modelWork) metrics.modelWork[2]++
+              hits.push({ ...c, source })
+            }
+          }
       })
+    if (metrics) {
+      const now = performance.now()
+      metrics.objectModelsMs += now - phaseStart
+      phaseStart = now
+    }
     if (hits.some(h => h.kind !== 'bounds')) {
       // The terrain triangle depends on view/display/land geometry, not the current
       // person/model painter stream. Cache only that geometric hit; resolve its
       // painter command every visit so occupancy and animated object ordering stay live.
+      const nativeMetrics = metrics?.nativeOcclusion
+      const submissionStart = nativeMetrics ? performance.now() : 0
       const groundKey = [
         viewKey,
         rect.width,
         rect.height,
         view.pickSubmissionKey([s.terrain]),
       ].join(',')
+      if (nativeMetrics) nativeMetrics.submissionKeyMs += performance.now() - submissionStart
       if (groundKey !== this.groundKey) {
         this.groundKey = groundKey
         this.groundHits.clear()
       }
       const pixelKey = `${point.x},${point.y}`
       let candidates = this.groundHits.get(pixelKey)
+      if (nativeMetrics) {
+        if (candidates) nativeMetrics.pixelCacheHits++
+        else nativeMetrics.pixelCacheMisses++
+      }
       if (!candidates) {
         candidates = view.pickCandidates(
           new THREE.Vector2((point.x * 2) / rect.width - 1, 1 - (point.y * 2) / rect.height),
           [s.terrain],
           s.camera,
-          true
+          true,
+          nativeMetrics
         )
         // Pointer motion can visit many pixels; keep a small locality cache rather
         // than retaining an unbounded screen-sized map.
@@ -239,6 +275,7 @@ export class ScenePicking {
           face: source.face,
         })
     }
+    if (metrics) metrics.objectOcclusionMs += performance.now() - phaseStart
     hits.sort(
       (a, b) =>
         b.bucket - a.bucket ||
@@ -254,8 +291,8 @@ export class ScenePicking {
     return this.lastId
   }
 
-  pickPerson(event: { clientX: number; clientY: number }) {
-    const id = this.pick(event)
+  pickPerson(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics) {
+    const id = this.pick(event, metrics)
     return this.lastKind === 'person' ? id : null
   }
 }

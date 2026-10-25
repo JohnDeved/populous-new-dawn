@@ -94,7 +94,9 @@ test('Mission 15 timer expiry locks input and kills the captive with enemy Light
   assert.equal(restored.status, 'lost')
   assert.equal(restored.campaignTimer, 0)
   assert.equal(failed.prison.hp, 260)
-  assert.equal(failed.shaman.hp, 0)
+  assert.equal(failed.shaman, undefined)
+  assert.equal(shaman.native.state, 3)
+  assert.equal(shaman.native.damageAttacker, 2)
 })
 
 test('Mission 15 expiry stays latched if the Prison falls before Lightning lands', () => {

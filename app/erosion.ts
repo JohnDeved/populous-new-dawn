@@ -1,5 +1,6 @@
 import { random } from './native-math.ts'
 import type { NativeTerrain } from './native-terrain.ts'
+import { observeErosionStep, recordErosionCreation } from './erosion-observation.ts'
 
 type Position = { x: number; y: number; h: number }
 type Ground = Pick<NativeTerrain, 'heights'>
@@ -101,11 +102,25 @@ function erode(land: Ground, center: number, rng: { randomState: number }) {
 }
 
 export function createErosion(center: Position): Erosion {
-  return { center: { x: center.x & 65535, y: center.y & 65535, h: center.h }, remaining: 64 }
+  const erosion = {
+    center: { x: center.x & 65535, y: center.y & 65535, h: center.h },
+    remaining: 64,
+  }
+  recordErosionCreation(erosion)
+  return erosion
 }
 
 // 0x50ff30: effect model 23, spawned by spell model 10.
 export function stepErosion(
+  land: Ground,
+  erosion: Erosion,
+  game: { randomState: number },
+  effects: { sound: () => void; terrain: (cell: number) => void }
+) {
+  return observeErosionStep(land, erosion, game, effects, advanceErosion)
+}
+
+function advanceErosion(
   land: Ground,
   erosion: Erosion,
   game: { randomState: number },

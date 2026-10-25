@@ -1,7 +1,9 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
+import { waitForCheckpointReadback } from './checkpoint-readback.mjs'
 
 const missionTwoMessage =
   'Now we must face the Matak Tribe. I sense many Warriors ready to stand against us. In my vision we are aided by magic from a Stone Head. There must be a way to reach it...'
@@ -395,21 +397,31 @@ try {
     height: globalThis.testScene.world.land.heights[0],
     hp: globalThis.testScene.world.units[0].hp,
   }))
-  await page.waitForFunction(async () => {
-    const database = await new Promise((resolve, reject) => {
-      const request = indexedDB.open('populous-new-dawn', 1)
-      request.addEventListener('success', () => resolve(request.result))
-      request.addEventListener('error', () => reject(request.error))
-    })
-    const request = database.transaction('checkpoints').objectStore('checkpoints').get('latest')
-    return new Promise((resolve, reject) => {
-      request.addEventListener('success', () => resolve(request.result?.version === 1))
-      request.addEventListener('error', () => reject(request.error))
-    })
-  })
+  const committed = await waitForCheckpointReadback(
+    () => page.evaluate(async () => {
+      const database = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('populous-new-dawn', 1)
+        request.addEventListener('success', () => resolve(request.result))
+        request.addEventListener('error', () => reject(request.error))
+      })
+      try {
+        const request = database.transaction('checkpoints').objectStore('checkpoints').get('latest')
+        return await new Promise((resolve, reject) => {
+          request.addEventListener('success', () => resolve(request.result?.version === 3))
+          request.addEventListener('error', () => reject(request.error))
+        })
+      } finally {
+        database.close()
+      }
+    }),
+    { attempts: 300, pause: () => page.waitForTimeout(100) }
+  )
+  assert.equal(committed, true, 'Checkpoint must commit before reloading')
   await page.reload({ waitUntil: 'networkidle' })
-  const startup = page.getByRole('dialog', { name: 'Start game' })
+  const startup = page.getByRole('dialog', { name: 'Main menu' })
   await startup.waitFor()
+  assert.equal(await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement), true)
+  await openCampaignFromMainMenu(page)
   await page.getByRole('button', { name: 'Start Mission 2', exact: true }).waitFor()
   assert.match(
     await page.getByRole('button', { name: 'Select Mission 1', exact: true }).textContent(),
@@ -417,7 +429,7 @@ try {
   )
   assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'no hidden fresh scene')
   const missionFour = page.getByRole('button', { name: 'Mission 4', exact: true })
-  assert.equal(await startup.evaluate(dialog => dialog.matches(':modal')), true)
+  assert.equal(await page.getByRole('dialog', { name: 'Start game' }).evaluate(dialog => dialog.matches(':modal')), true)
   assert.equal(
     await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement),
     true
@@ -480,6 +492,7 @@ try {
   await assertMissionTwoMessage(page)
 
   await page.reload({ waitUntil: 'networkidle' })
+  await openCampaignFromMainMenu(page)
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
   await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
   await page.getByRole('button', { name: 'Replay Mission 1', exact: true }).click()

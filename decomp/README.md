@@ -1,8 +1,32 @@
 # Static decompilation workspace
 
+[Result statistic producers](research/result-statistics/README.md) traces all ten
+original result rows to bounded increment/reset owners, identifies the two
+knowledge deduplication masks, and records browser ownership and unresolved
+death/building/reward/final-snapshot leaves. Static research only; UI rows remain unavailable.
+
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/decomp), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
 
+## Building-completion feedback ownership
+
+[Bounded original completion-owner comparison](research/building-completion-feedback.md)
+separates completed geometry/audio/terrain/timer work from the removed generic
+status toast. Other reward/reincarnation decisions and original campaign feedback
+remain separate.
+
+## Hypnotise artwork
+
+[Hypnotise source artwork and cell-center origin](research/hypnotise-artwork.md)
+records model16, draw44/HFX1264–1279, callback/lifetime timing and the bounded
+nearest-target change from using its original snapped origin.
+
 ## Setup and reproduce
+
+On the Linux cloud executor, use [native environment setup](../engineering/native-setup.md).
+It restores the original archive and tools automatically from checksum-pinned sources.
+The `scripts/decomp.py setup` command below is macOS-only.
 
 On this project's macOS arm64 development machine, with Python 3, Git and Xcode Command Line Tools:
 
@@ -35,7 +59,26 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
+Recent reusable topic notes: [Original Game options and bounded keyboard preferences](research/game-options-static/findings.md),
+[Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
+[Automatic Preacher sermons and raid ownership](research/automatic-preacher-and-raid-ownership.md),
+[Shrine Erosion activation](research/erosion-activation.md),
+[Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+[Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
+[Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
+[Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
+[Native melee attack animation ownership](research/melee-attack-animation.md),
+[Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
+[Completed authored Vault prayer-panel socket anchor](research/vault-prayer-panel-anchor.md),
+[Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
+[Ordinary acquisition companion and native draw commands](research/worship-grant-presentation.md),
+[Second ordinary gift replacement and independent payout](research/worship-grant-replacement.md),
+[Composed ready-gift request order](research/worship-grant-request-order.md),
+[Authored head and completion-time clone order](research/worship-grant-source-order.md),
+[Original acquisition body raster and palette](research/worship-acquisition-body-raster.md),
+[Ordinary M1/M2 browser adapter](research/worship-acquisition-adapter.md),
+[Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
+[Rolling Demo control and stream framing](research/rolling-demo-control.md),
 [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
@@ -265,6 +308,9 @@ recorded in the [Mission 3 opening note](research/mission3-opening.md).
 The complete periodic three-Brave raid block and its natural recruitment/combat
 path are documented in [early mission AI](research/early-mission-ai.md); later
 Mission 3 command blocks and rendered acceptance remain separate.
+The subsequent [Mission3 raid allocator composition](research/mission3-raid-allocation-preflight.md)
+proves the original state/cap/free-slot gates before target RNG, with retained
+failure-first adapter witnesses and the bounded Mission3-only correction.
 The state-23 listener warning is documented separately in
 [Mission 3 anti-preaching notification](research/mission3-preaching-message.md),
 including the scoped original message-107 import and one-shot checkpoint path.
@@ -620,6 +666,17 @@ The Node ownership regression follows two followers through shared assignment,
 replacement and final-reference deletion. Full eight-slot queue overflow is
 explicitly rejected; the native out-of-bounds memory write is not represented.
 
+Balloon raw-payload startup is documented in
+[`research/balloon-command-position.md`](research/balloon-command-position.md).
+Its native probe executes the real configuration/position composition; packed
+cell and object position branches remain explicit live boundaries.
+
+Command-22 clicked-origin lifetime is documented in
+[`research/boarding-origin-lifetime.md`](research/boarding-origin-lifetime.md).
+Static original bytes establish the wrapped, unhalved distance cutoff; focused
+live controls cover completion and current checkpoint continuity without claiming an
+ordinary sailed trajectory or rendered campaign acceptance.
+
 ## Person initialization and training handoff
 
 ```sh
@@ -918,6 +975,9 @@ Browser person records/order, attack-group reserve input, early emergency paths,
 occupancy flags and complete global scheduling remain integration gaps.
 
 ## Complete general and emergency spell controller
+
+The live assignment adapter repair and failure-first producer-to-controller
+regression are documented in [active Preacher retaliation](research/preacher-spell-retaliation.md).
 
 ```sh
 .tools/decomp/oracle/bin/python scripts/check-native-emergency-spells.py /path/to/d3dpoptb.exe
@@ -1523,9 +1583,11 @@ Run `scripts/check-native-resting-slots.py EXE`: 16,384 sequential indexed-searc
 operations compare every record byte, startup checks compare every offset, and
 2,048 cases each compare cell eligibility, slot validity, search and compaction.
 Native search, terrain, command and linked-list routines execute; only the
-building outside-point consumer is supplied. Slot-validity fixtures use owned
-slots within their shape; invalid shape/slot combinations read unrelated native
-storage. Search pool exhaustion, stale bytes, marked objects and failed terrain
+building outside-point consumer is supplied. Slot-validity fixtures cover all six
+slot numbers independently of population: sparse native compaction can retain a
+number above its shape and read the following initialized ring. See
+[resting-slot layout](research/resting-slot-layout.md) for the M18 crash repair.
+Search pool exhaustion, stale bytes, marked objects and failed terrain
 eligibility are included. A gameplay regression composes actual linked cells,
 search, ownership, compaction and the resting controller's reposition request
 through follower arrival and departure. There are 612 raw exports and 57 gameplay
@@ -2300,8 +2362,8 @@ compares 82,780 coloured GPU pixels at 1:1 resolution (RGB rounding tolerance 1)
 Native-resolution comparison avoids driver-dependent nearest-sampling decisions
 at scaled texel boundaries; it does not certify bit-identical scaled rasterization.
 A deliberate wrong-atlas UV mutation was rejected by this check. Existing live
-selection and real Blast shadow/landing checks also pass. Broader animation-state
-ownership and all original tribes/classes are not certified by these fixtures.
+selection and real Blast shadow/landing checks also pass.
+Broader animation-state ownership and all original tribes/classes remain unverified by these fixtures.
 
 
 ## Focus commands preserve the current camera
@@ -4980,6 +5042,19 @@ ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timi
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
 
+[Support audit](research/shaman-death-support.md) and [burst reconciliation](research/reincarnation-final-burst.md) retain bounded static/supplied-state evidence, not runtime/parity proof.
+
+### 2026-10-05 — grounded Shaman spirit follows changing terrain
+
+[Bounded phase1 height evidence](research/shaman-death-vfx.md#phase1-ground)
+and `check-native-shaman-death-ground.py` compare original allocation/controller/
+terrain-height execution with the actual current world-turn caller. Phase1 samples
+current death-site ground each visit; phase2 retains the final sample and phase3
+rises from it. Four-owner comparisons cover raising/lowering and unchanged phase0/
+direct unsupported entry. Constants and mapped search bytes are guarded. Supplied
+post-death terrain fixtures, rendered shipped-spell acceptance and native raster
+remain distinct evidence boundaries; this does not complete issue #30.
+
 ## 2026-09-17 — Mission 17 Armageddon
 
 `check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
@@ -5119,6 +5194,11 @@ and names the remaining primary-stream, secondary-list and render-RNG boundaries
 visits and checkpoint slot reconstruction to the bounded runtime owner. Its
 primary-stream and current UI-adapter limits remain explicit.
 
+[Burning-state chimney root release](research/hut-smoke-state-exit.md) binds the
+original immediate state-exit cleanup to the Lightning and Spy ignition owners.
+The report links the accepted native composition, focused red/green comparison
+and ordinary Mission 1 rendered witness, with immutable raw evidence.
+
 ## Building construction-gauge consumer — 2026-10-03
 
 [Bounded native/current comparison](research/building-construction-gauge.md) identifies
@@ -5165,3 +5245,72 @@ missions. Native instruction probes retain their supplied-world/animation limits
 ordinary Temple/Preacher acquisition, intrusion, defender movement and checkpoint
 continuation provide separate live coverage. Full original AI timing and complete
 Mission1–3 parity remain open.
+
+## Native Followers lower task panel
+
+[Recovered task-panel evidence](research/follower-task-panel.md) binds the original
+36 descriptors, Selected/Idle/Housed/Busy and occupied-transport rows, eighteen HFX
+sprites, native count/classification owner, category-specific selection/deselection
+and right-click focus. It includes executed native draw-request reconstructions,
+not original-game screenshots. Executable probes include bounded transport interactions, full constructor/refresh
+transitions and disabled draw flags. Full UI painter-order/blend and live browser
+integration remain explicit boundaries.
+
+## Native vehicle passenger panels
+
+[Vehicle-panel evidence](research/vehicle-panel.md) binds kind9 geometry, original
+HFX60/61, passenger actions, forced unload readiness and voluntary ejection.
+Settled native seats and living-landing regressions are bound separately; final rendered acceptance remains explicit.
+## Resting transport passengers
+
+[State30 evidence](research/transport-idle-state.md) distinguishes the initializer's
+state index from the update dispatcher's state-minus-one index. Full native initializer
+comparisons and 180 real switch-body cases cover route release, zero speed and the
+detached return to orders. The live regression covers actual command boarding and
+Boat disguise completion/countdown/checkpoints; the earlier Balloon command-position
+boundary remains separate.
+
+## 2026-10-04 — Ordinary reincarnation site wave
+
+[Composed mode2 evidence](research/reincarnation-site-wave.md) executes the original
+model12 producer, real effect8 allocator/initializer, site wave, state26 initializer,
+and damage leaf. It proves next-turn first processing, continued lifetime at spawn,
+exact height quantization, exclusions, repeated protected-transition damage, busy
+duplicate cleanup and allocation failure without retry. Startup mode1 conversion
+remains separate. This evidence alone does not claim live browser completion.
+
+## Actual-input Erosion controller replay
+
+[Passive capture and replay](research/erosion-actual-capture.md) specifies exact
+per-call native height/RNG inputs, detached observation and strict source/runtime
+admission. Native sound ownership, reward activation timing and downstream terrain
+consumers remain explicit boundaries. Browser/native execution is not yet claimed.
+
+Mixed-raid target availability versus member-order refresh: see
+[the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
+
+- [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)
+
+## Original frontend Quit submenu
+
+[Menu1 source evidence](research/frontend-quit-menu/README.md) records the hash-locked
+Quit?/Yes/No/Back descriptors, font flags, native positions, shadows and navigation.
+The browser preserves that presentation with an explicitly unavailable Yes and
+conditional checkpoint guidance; this is not native exit-behavior parity.
+
+## Original Credits source and controller
+
+[Bounded Credits recovery](research/original-credits/README.md) links menu label445
+to state12, the supplied Credits text and language headings, and static scrolling,
+looping and exit-request boundaries. Hash-locked source windows and a reproducible
+data-only check are retained. Exact art/font/palette, full input delivery and focus
+return remain unresolved; the live Credits entry stays disabled. No original
+execution, runtime restoration, generated browser assets or parity credit.
+
+## Original boot logo
+
+[Boot-logo source and browser boundaries](research/startup-logo/README.md) bind
+the guarded startup call, fresh-down clip interruption, recovered BLOGO bytes,
+640×352 centered display geometry and full decoded-frame conversion equality.
+This bounded restoration does not establish the initial timed page, New Game
+intro, held-input native behavior, or complete startup parity.

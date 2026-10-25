@@ -12,7 +12,7 @@ export interface BuildingShapePose {
   anchorY: number
 }
 export type RegisteredBuilding = BuildingShapePose & { id: number; tribe: number }
-export type SceneryShapePose = Omit<BuildingShapePose, 'angle'>
+export type SceneryShapePose = Omit<BuildingShapePose, 'angle'> & { shapeIndex?: number }
 export interface BuildingCells {
   flags: Uint32Array
   buildingIds: Uint16Array
@@ -224,7 +224,7 @@ export function refreshSceneryShadow(
   shade: (index: number) => number,
   refresh: (cell: number, radius: number) => void
 ) {
-  const s = data.shapes[data.objects[p.object][0] || 1]
+  const s = data.shapes[(p.shapeIndex ?? data.objects[p.object][0]) || 1]
   for (const { index: i } of shapeCells(s, p.anchorX, p.anchorY)) {
     land.flags[i] |= 16
     land.shadows[i] = (land.shadows[i] & 240) | (Math.min(15, shade(i)) & 255)
@@ -308,6 +308,25 @@ export function buildingOutsidePoint(b: BuildingShapePose): Point {
     x: (b.anchorX - s.x * 256 + s.outside[0] * 64) & 65535,
     y: (b.anchorY - s.y * 256 + s.outside[1] * 64) & 65535,
   }
+}
+
+// 0x40a6b0: Spy approach uses a non-occupancy mask cell and its inside-facing edge.
+export function buildingSabotagePoint(b: BuildingShapePose): Point {
+  const marked = buildingShapeCells(b).find(cell => cell.mask & 0x20),
+    point = marked
+      ? { x: (marked.index & 127) * 512, y: (marked.index >> 7) * 512 }
+      : buildingOutsidePoint(b),
+    center = { x: (point.x & 0xfe00) + 256, y: (point.y & 0xfe00) + 256 },
+    inside = buildingInsidePoint(b),
+    angle = nativeAngle(short(inside.x - center.x), -short(inside.y - center.y)),
+    offsets = [
+      { x: 256, y: 480 },
+      { x: 480, y: 256 },
+      { x: 256, y: 32 },
+      { x: 32, y: 256 },
+    ],
+    offset = offsets[((angle + 256) & 1536) >> 9]
+  return { x: (center.x & 0xfe00) + offset.x, y: (center.y & 0xfe00) + offset.y }
 }
 
 export interface BuildingPlanPose {

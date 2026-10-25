@@ -115,6 +115,8 @@ test('exhausted trigger does not remove its independent enabled decorative model
   assert.ok(head.uses > 0 && w.shots.bridge > 0)
   const before = head.stoneHead.f1
   advanceGame(w, clock, 1 / 24)
+  assert.equal(head.stoneHead.f1, before, 'An extra presentation visit is not a logical body visit')
+  advanceGame(w, clock, 1 / 24)
   assert.notEqual(head.stoneHead.f1, before)
   assert.equal(head.stoneHead.enabled, true)
 })

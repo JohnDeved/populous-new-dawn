@@ -37,7 +37,7 @@ native target search, recruitment, pathfinding or combat integration.
 ## Natural simulation acceptance
 
 `tests/early-mission-ai.test.mjs` starts shipped Mission 3, waits for real births,
-builds three Huts and a Warrior Training Hut with selected Braves, grows Blue
+builds four Huts and a Warrior Training Hut with selected Braves, grows Blue
 past 30 people, and trains three Warriors through ordinary building admission.
 Chumara independently builds/grows past 25 people. The next authored script
 opportunity creates the correct raid, recruits three existing Braves, issues
@@ -47,9 +47,9 @@ victory. Raid checkpoint migration preserves task state and the next 100 turns'
 queue/RNG behavior without adding a duplicate request.
 
 These are Node executions of the shipped simulation and command path, not a
-rendered browser test. Rendered validation is still required and currently blocked
-by the available Linux browser runtime. No whole-mission parity or screenshot
-claim follows from these tests.
+rendered browser test. Rendered original/browser raid composition remains unproved.
+The subsequent nonvisual allocator correction uses this unchanged natural test
+and actual adapter/native comparisons; it makes no new pixel or whole-mission claim.
 
 ## Mission 2 production finding and remaining work
 
@@ -68,6 +68,19 @@ is CPSCR074 words `551..<577` calling 1095 with `2 - Warrior count`; it does not
 write producer preferences. Its native allocation and natural training evidence
 do not restore the old sustained-growth claim.
 
-Mission 3's later 1168/1074/1103 and 1030(OFF) branches remain outside this raid
-slice. The automatic training availability inversion in `computer-runtime.ts`
-also remains a separate necessary correction with its own live/native acceptance.
+The later1168 warning,1074/1103 marker-Preacher block and1030(OFF)/Convert Wild
+lifecycle are now covered by their separate newer research/runtime slices; see
+[preaching warning](mission3-preaching-message.md),
+[marker-Preacher task](mission3-person-task.md), and
+[Convert Wild task](mission3-convert-task.md). The automatic training capacity
+direction was separately corrected in
+[producer scheduling](early-mission-producer-schedule.md).
+
+Subsequent [raid allocation composition](mission3-raid-allocation-preflight.md)
+executes the real Mission3 allocator, gates, target selectors, position lookup and
+RNG. It proves that rejected requests must check state20, attribute25's raid cap
+and a free slot before target RNG. The bounded adapter repair and retained
+failure-first evidence are owned by
+[issue227](https://github.com/JohnDeved/populous-new-dawn/issues/227).
+Recruitment origin/list composition, path/combat and whole original-game parity
+remain separate; the earlier interpreter-only proof is not expanded retroactively.

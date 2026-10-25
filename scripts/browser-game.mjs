@@ -1,8 +1,18 @@
+import { openCampaignFromMainMenu, waitForStartupMenu } from './browser-new-game.mjs'
 // Explicit public-UI setup for checks that start an arbitrary mission.
-// Campaign progression acceptance must use Select Mission + Start instead.
+// Campaign progression acceptance uses native panel selection + Start instead.
+export async function showSelectorControls(page) {
+  const controls = page.getByRole('button', { name: 'Browser controls', exact: true })
+  if (await controls.getAttribute('aria-expanded') !== 'true') await controls.click()
+}
+
 export async function showAllMissions(page) {
+  await waitForStartupMenu(page, { allowSelector: true })
+  const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
+  if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
   const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
   await startup.waitFor({ state: 'visible' })
+  await showSelectorControls(page)
   const allMissions = startup.getByRole('button', { name: 'All missions', exact: true })
   if (await allMissions.getAttribute('aria-pressed') !== 'true') await allMissions.click()
 }
@@ -36,6 +46,43 @@ export async function bindGame(page) {
     }
     return false
   })
+}
+
+// Reload destroys installed observation aliases. Bind the current document for
+// every read and import the pure observer locally; no mission-specific global
+// function or captured pre-replacement world survives between observations.
+export async function readShamanReadiness(page) {
+  await bindGame(page)
+  return page.evaluate(async () => {
+    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+    const scene = window.testSceneRef?.current, store = window.testStore
+    if (
+      !scene?.renderer?.domElement?.isConnected ||
+      scene.world !== store?.getWorld() ||
+      document.querySelector('.loading-world')
+    ) return { ready: false, reason: 'Scene/store changed during readiness observation' }
+    return { ...campaignShamanReadiness(scene.world), level: scene.world.outcome.level }
+  })
+}
+
+// Await each asynchronous module/observation read outside Playwright polling.
+// Passing an async readiness predicate to waitForFunction can accept its Promise
+// as truthy before the actual native selection gate has cleared.
+export async function waitForShamanReadiness(page, { timeout = 30000, polling = 100 } = {}) {
+  if (!Number.isFinite(timeout) || timeout <= 0 || !Number.isFinite(polling) || polling <= 0)
+    throw new RangeError('Invalid readiness wait timeout or polling interval')
+  const deadline = performance.now() + timeout
+  let before, samples = 0
+  for (;;) {
+    const after = await readShamanReadiness(page)
+    before ??= after
+    samples++
+    const remaining = deadline - performance.now()
+    if (remaining <= 0)
+      throw new Error(`Shaman readiness timed out after ${samples} samples: ${JSON.stringify(after)}`)
+    if (after.ready === true) return { before, after, samples }
+    await page.waitForTimeout(Math.min(polling, remaining))
+  }
 }
 
 // Shared setup for desktop checks; keep test access out of the shipped game API.

@@ -3,7 +3,6 @@ import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
-import { createHash } from 'node:crypto'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
 import { modelMatrix, modelPoint, projectPoint } from '../app/projection.ts'
@@ -20,7 +19,7 @@ const output = resolve(process.argv[argument + 1]), url = process.env.POPULOUS_U
 assert.equal(new URL(url).port, '4318')
 mkdirSync(output, { recursive: false })
 const report = { startedAt: new Date().toISOString(), jobId: process.env.PND_QUEUE_JOB_ID, stages: [], frames: [], errors: [],
-  limits: ['Headless rendering is not display-refresh performance evidence.', 'Enemy-AI/Blue-only fixture reuses the existing worship regression; normal command/path/admission/reward handlers run.', 'Last-use exhaustion changes remaining-use count only, explicitly labelled; it does not force work or reward.', 'No nativeGPU/frame-rate/audio193 or other Stone Head-family acceptance.'] }
+  limits: ['Headless rendering is not display-refresh performance evidence.', 'Geometry phases use a controlled1x logical-turn driver; the obsolete speed0/presentation-only owner is not retained.', 'Enemy-AI/Blue-only fixture reuses the existing worship regression; normal command/path/admission/reward handlers run.', 'Last-use exhaustion changes remaining-use count only, explicitly labelled; it does not force work or reward.', 'No nativeGPU/frame-rate/audio193 or other Stone Head-family acceptance.'] }
 const save = () => writeFileSync(join(output, 'evidence.json'), JSON.stringify(report, null, 2) + '\n')
 const browser = await chromium.launch({ headless: true })
 const timer = setTimeout(() => { report.expired = true; void browser.close() }, Math.max(1, Math.min(300000, Date.parse(process.env.PND_QUEUE_DEADLINE) - Date.now() - 30000)))
@@ -46,14 +45,18 @@ try {
     const s = window.testScene, w = s.world
     const { advanceGame } = await import('/app/game-clock.ts')
     const { stoneHeadFrame } = await import('/app/stone-head-animation.ts')
-    w.paused = true; w.speed = 0; cancelAnimationFrame(s.frame)
+    w.paused = true; w.speed = 1; cancelAnimationFrame(s.frame)
     window.stoneHead = w.shrines.find(h => h.kind === 'bridge')
     if (!window.stoneHead?.stoneHead) throw Error('Authored model45 head was not initialized')
     s.focus(window.stoneHead) // game camera only; no OS window focus operation
     s.cameraBearing = 0; s.viewPreset = 0; s.viewZoom = 0; s.viewTransition = null
     s.updateView()
     window.renderStone = () => { s.animate(s.previous); cancelAnimationFrame(s.frame) }
-    window.stepStone = () => { w.paused = false; advanceGame(w, s.gameClock, 1 / 24); w.paused = true }
+    window.stepStone = () => {
+      const turn = w.turn
+      w.paused = false; advanceGame(w, s.gameClock, 1 / 12); w.paused = true
+      if (w.turn !== ((turn + 1) >>> 0)) throw Error('Geometry phase requires exactly one logical turn')
+    }
     for (let i = 0; stoneHeadFrame(window.stoneHead.stoneHead) !== 0 && i < 18; i++) window.stepStone()
     window.renderStone()
   })
@@ -192,14 +195,16 @@ try {
     // Explicit final-use edge fixture; do not force followers, work or gifts.
     head.remaining=1;w.paused=false;w.speed=1;let visits=0
     while(head.active&&visits++<2600)advanceGame(w,s.gameClock,1/24)
-    const a=stoneHeadFrame(head.stoneHead)
-    advanceGame(w,s.gameClock,1/24);w.paused=true;window.renderStone()
+    const a=stoneHeadFrame(head.stoneHead),turnBefore=w.turn
+    advanceGame(w,s.gameClock,1/12);w.paused=true;window.renderStone()
     return{active:head.active,remaining:head.remaining,uses:head.uses,priorUses,visits,
+      turnBefore,turnAfter:w.turn,
       visible:s.shrineMeshes.get(head.id).g.visible,phaseBefore:a,phaseAfter:stoneHeadFrame(head.stoneHead),
       fixture:'Onlyremaininguses=1; existing normal worship/target/reward handlers complete the next use.'}
   })
   assert.equal(report.exhaustion.active,false);assert.equal(report.exhaustion.remaining,0)
   assert.ok(report.exhaustion.uses>report.exhaustion.priorUses);assert.equal(report.exhaustion.visible,true)
+  assert.equal(report.exhaustion.turnAfter, (report.exhaustion.turnBefore + 1) >>> 0)
   assert.notEqual(report.exhaustion.phaseBefore,report.exhaustion.phaseAfter)
   await page.screenshot({path:join(output,'exhausted-trigger-retained-stone.png')})
   report.pause=await page.evaluate(async()=>{

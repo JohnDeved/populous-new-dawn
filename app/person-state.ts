@@ -45,6 +45,7 @@ export interface PersonStateEffects {
   fight?: () => void
   encounter?: () => void
   routeRecovery?: () => void
+  casting?: () => void
 }
 const short = (n: number) => (n << 16) >> 16
 
@@ -217,7 +218,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 31, 33, 36, 39, 41, 44].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 30, 31, 33, 36, 39, 41, 44].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -263,7 +264,10 @@ export function initializePersonState(
   p.flags4 = (p.flags4 & 0xfffefff8) >>> 0
   if (p.assignment & 1 && stateFlags & 4 && !(model.flags & 0x400)) {
     p.assignment &= ~1
-    if (p.state !== 10 || p.commands[p.commandCursor] & 255)
+    // Native low-byte truthiness is a compatibility quirk, not the scalable
+    // handle domain: a live index such as 1024 still owns a formation command.
+    const command = p.commands[p.commandCursor]
+    if (p.state !== 10 || (w.orders.scalable ? command : command & 255))
       effects.rebuildFormation(p.formationCell)
   }
   const oldSpeed = p.speed
@@ -301,14 +305,16 @@ export function initializePersonState(
     p.speed = 0
     effects.occupying()
   } else if (p.state === 22) {
-    // 0x4d2740: the browser has no adjacent vehicle, so use the ground-cast pose.
-    effects.releaseMotion(p)
-    effects.setAnimation(p, 0x6d)
-    p.timer = 10
+    if (!effects.casting) throw new Error('State 22 requires its casting initializer')
+    effects.casting()
   } else if (p.state === 25 || p.state === 29) {
     const enter = p.state === 25 ? effects.fight : effects.encounter
     if (!enter) throw new Error(`State ${p.state} requires its combat initializer`)
     enter()
+  } else if (p.state === 30) {
+    p.assignment |= 1
+    p.speed = 0
+    effects.releaseMotion(p)
   } else if (p.state === 26 || p.state === 31) {
     effects.setAnimation(p, rules.personAnimationObjects[25 * 9 + p.model])
     p.flags4 = (p.flags4 | 128) >>> 0
@@ -347,6 +353,15 @@ export function initializePersonState(
     if (tribe.flags & 64 && !(rules.personStateFlags[p.state] & 0x2000))
       tribe.flags = (tribe.flags | 1024) >>> 0
   }
+}
+
+// 0x4d32b0 switches on state - 1: case 29 is the resting passenger state30.
+// Aboard followers keep their state; detaching returns them to ordinary orders.
+export function stateAfterTransportRest(
+  p: Pick<StatefulPerson, 'model' | 'vehicle'>,
+  gameFlags: number
+) {
+  return p.vehicle ? 0 : defaultPersonState(p, gameFlags)
 }
 
 // 0x4d32b0 state 44: two visits before the shock pose, death on visit eighteen.

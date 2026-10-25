@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "name": "bullfrog",
+      "sourceFile": "Bullfrog-logo.svg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/en/b/be/Bullfrog-logo.svg",
+      "sourceSha256": "bfb3c43c6ec1eb5db0235837fba8ad6bdaf39a628dd61af1963a727250b813ec",
+      "pathCount": 5,
+      "output": "public/frontend-badges/bullfrog.svg",
+      "sanitizedSha256": "005ec03a8e967ed87cbcaf32c7dbbf76309d73fa497ea2dd90cb912133c43d4f",
+      "provenance": "5 SVG paths, no raster. English Wikipedia source page says German Wikipedia users cleaned a scanned Populous 2 PDF manual in Inkscape. A scan-derived vector, not official vector master. Wikipedia non-free logo rationale, not CC license.",
+      "background": "white"
+    },
+    {
+      "name": "qsound",
+      "sourceFile": "QSound_Labs_logo.svg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c1/QSound_Labs_logo.svg",
+      "sourceSha256": "d94efbf317e06e795b5a93ea08c0665fafe34fa04c1af1f538f99775f626209d",
+      "pathCount": 33,
+      "output": "public/frontend-badges/qsound.svg",
+      "sanitizedSha256": "ea65e40af6788aa03574b7da6dce3f00ca6f65d6f601ba980fbebf434cc27096",
+      "provenance": "33 SVG paths, no raster. Commons states official QSound brochure as source; independently confirmed brochure contains vector logo. Commons PD-textlogo assessment; trademark restrictions remain.",
+      "background": "black"
+    }
+  ]
+}

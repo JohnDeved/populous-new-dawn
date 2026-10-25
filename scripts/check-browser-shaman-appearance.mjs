@@ -220,8 +220,8 @@ try {
         for (let y = 0; y < draw.h; y++) for (let x = 0; x < draw.w; x++) {
           const px = origin.screenX + draw.x + x, py = origin.screenY + draw.y + y
           if (px < 0 || px >= 128 || py < 0 || py >= 128) continue
-          const ax = draw.piece % units.columns * units.cell + (draw.flags & 1 ? p.w - 1 - x : x)
-          const ay = Math.floor(draw.piece / units.columns) * units.cell + y
+          const ax = (p.atlasX ?? draw.piece % units.columns * units.cell) + (draw.flags & 1 ? p.w - 1 - x : x)
+          const ay = (p.atlasY ?? Math.floor(draw.piece / units.columns) * units.cell) + y
           const src = (ay * units.width + ax) * 4
           if (rgba[src + 3]) expected.set(rgba.subarray(src, src + 4), (py * 128 + px) * 4)
         }

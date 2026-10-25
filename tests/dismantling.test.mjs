@@ -38,8 +38,23 @@ test('dismantling reassigns residents and queued braves, recovers all timber and
     assert.ok(b.admission.activity&0x8000);assert.equal(b.admission.inside,0)
     assert.deepEqual(people.map(u=>[u.x,u.z]),before,'starting never teleports occupants')
     assert.ok(people.every(u=>isDismantling(w,u)))
-    assert.equal(w.buildingOrders.active,4)
-    assert.equal(currentPersonOrder(w.buildingOrders,people.find(u=>u.id===occupants[0]).entry.person).references,5)
+    const residentIds = new Set(occupants),
+      groups = [people.filter(u => residentIds.has(u.id)), people.filter(u => !residentIds.has(u.id))],
+      orderIds = groups.map(group => group[0].entry.person.commands[group[0].entry.person.commandCursor])
+    assert.equal(w.buildingOrders.active,2)
+    assert.notEqual(orderIds[0], orderIds[1])
+    for (const [index, group] of groups.entries()) {
+      assert.equal(group.length, index === 0 ? 5 : 3)
+      for (const u of group) {
+        assert.equal(w.objectCells.objects.get(u.id), u.entry.person)
+        assert.equal(u.entry.orders, w.buildingOrders)
+        assert.equal(u.entry.person.commands[u.entry.person.commandCursor], orderIds[index])
+        const order = currentPersonOrder(w.buildingOrders, u.entry.person)
+        assert.equal(order.model, 10)
+        assert.equal(order.a, b.id)
+        assert.equal(order.references, group.length)
+      }
+    }
     const stages=new Set([buildingStage(b)]),phases=new Set()
     until(w,()=>{
       stages.add(buildingStage(b));for(const u of people)if(u.entry)phases.add(u.entry.person.substate)

@@ -80,7 +80,7 @@ def snapshot(c):
     return dict(person=out,tribes=ts,randomState=struct.unpack('<I',cpu.mem_read(0x89d178,4))[0],actions=actions)
 
 cases=[];expected=[]
-for trial in range(8704):
+for trial in range(9216):
     u={key:rng.randrange(256 if fmt in ['B','b'] else 65536) for key,(_,fmt) in fields.items()}
     for key in ['flags2','flags3','flags4']:u[key]=rng.getrandbits(32)
     for key in ['speed','timer']:u[key]=rng.randrange(-128,256)
@@ -96,6 +96,7 @@ for trial in range(8704):
     if trial>=6656:u.update(state=25 if trial<7168 else 29,vehicle=0)
     if trial>=7680:u.update(state=44,vehicle=0)
     if trial>=8192:u.update(state=33,vehicle=0)
+    if trial>=8704:u.update(state=30,vehicle=rng.choice([0,100]),previousState=rng.choice([0,1,10,17,19,21,24,30,33,41]))
     c=dict(person=u,orders=[[i,dict(model=rng.choice([6,8,8]),flags=trial%2,a=rng.choice([100,101]))] for i in [1,2,256,257]],
         randomState=rng.getrandbits(32),facingFlags=trial%4*8,
         tribes=[dict(x=rng.randrange(65536),y=rng.randrange(65536),angle=rng.randrange(2048),selectedCount=rng.choice([0,1,7,-1]),flags=rng.getrandbits(32)) for _ in range(4)])
@@ -113,7 +114,30 @@ actual=browser(js,cases);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
     if a!=b:
         path=Path('/private/tmp/populous-state-failure.json');path.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(path)))
-print('PASS: 8704 native state-1/8/10/14/17/19/21/25/26/29/33/36/39/41/44 initializers, flags, RNG, selection counts and camera-relative facing; world effects supplied')
+print('PASS: 9216 native state-1/8/10/14/17/19/21/25/26/29/30/33/36/39/41/44 initializers, flags, RNG, selection counts and camera-relative facing; world effects supplied')
+# The dispatcher switches on state - 1, so state30 is index29, not case0x1e.
+# Execute only its real body through the common post-state join. No body leaves
+# are intercepted: defaultPersonState at 0x402e30 executes natively.
+from unicorn.x86_const import UC_X86_REG_ESI, UC_X86_REG_EBX
+entry=struct.unpack('<I',cpu.mem_read(0x4d3d18+29*4,4))[0]
+assert entry==0x4d38e4
+cases=[];expected=[]
+for model in range(9):
+    for vehicle in [0,1,100,65535]:
+        for game_flags in [0,1,2,3,0xffffffff]:
+            cpu.mem_write(p,bytes(512));write(p+0x2b,'<BB',model,30);write(p+0x9f,'<H',vehicle)
+            write(0x89d17c,'<I',game_flags);cpu.reg_write(UC_X86_REG_ESI,p)
+            cpu.reg_write(UC_X86_REG_ESP,stack);cpu.reg_write(UC_X86_REG_EBX,0x12345678)
+            before=bytes(cpu.mem_read(p,512));cpu.emu_start(entry,0x4d3ae1,count=1000)
+            assert cpu.reg_read(UC_X86_REG_EIP)==0x4d3ae1
+            assert bytes(cpu.mem_read(p,512))==before
+            cases.append(dict(person=dict(model=model,vehicle=vehicle),gameFlags=game_flags))
+            expected.append(cpu.reg_read(UC_X86_REG_EBX)&255)
+actual=browser("""import {stateAfterTransportRest} from './app/person-state.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(c=>stateAfterTransportRest(c.person,c.gameFlags))));""",cases)
+assert actual==expected
+write(0x89d17c,'<I',0)
+print('PASS: 180 native state30 dispatcher bodies; next state and no person-field mutations')
+
 for address in (0x4d3250,0x4d80e0,0x40a3f0):cpu.hook_del(hooks.pop(address))
 
 cases=[];expected=[]

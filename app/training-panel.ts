@@ -139,10 +139,15 @@ export function paintPanel(
   context.imageSmoothingEnabled = false
   for (const draw of layout.events) {
     if (draw[0] === 'sprite') {
-      const [, id, x, y, tint, faded] = draw,
-        r = rects[tint < 0 ? id : `panel-${id}-${faded ? 'empty' : 'shadow'}`]
-      // 0x4f95a0: the tail is submitted with inverse ghost alpha (flag 16).
-      context.globalAlpha = id === 52 ? 170 / 255 : 1
+      const [, id, x, y, tint, faded] = draw
+      let key: string | number = id
+      if (tint === 130) key = `vehicle-${id}-pressed`
+      else if (tint >= 0) key = `panel-${id}-${faded ? 'empty' : 'shadow'}`
+      const r = rects[key]
+      // Tail uses inverse ghost alpha; disabled raw controls retain their colors.
+      context.globalAlpha = 1
+      if (id === 52) context.globalAlpha = 170 / 255
+      else if (tint < 0 && faded) context.globalAlpha = 85 / 255
       context.drawImage(atlas, r.x, r.y, r.w, r.h, x, y, r.w, r.h)
       context.globalAlpha = 1
     } else {

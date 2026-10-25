@@ -1,13 +1,17 @@
 """Compare complete 0x4d0860 including emergency, preacher and general dispatch.
 Only final allocation is supplied; it records the cast and applies AI delay 12.
-Usage: python scripts/check-native-emergency-spells.py /path/to/d3dpoptb.exe
+Usage: python scripts/check-native-emergency-spells.py /path/to/d3dpoptb.exe [--failure-output path]
 """
-import json,random,struct,subprocess,sys
+import argparse,json,random,struct,subprocess
 from pathlib import Path
 from unicorn import UC_HOOK_CODE
 from unicorn.x86_const import UC_X86_REG_ESP,UC_X86_REG_EIP
 from decomp import native_cpu,configure_native_constants,load_native_shapes
-root=Path(__file__).resolve().parents[1];exe=Path(sys.argv[1]);rules=json.loads((root/'app/original-rules.json').read_text())
+root=Path(__file__).resolve().parents[1]
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('executable',type=Path)
+parser.add_argument('--failure-output',type=Path,default=root/'work/native-emergency-failure.json')
+args=parser.parse_args();exe=args.executable;rules=json.loads((root/'app/original-rules.json').read_text())
 cpu,_=native_cpu(exe);configure_native_constants(cpu,exe);cpu.mem_map(0x2000000,0x40000)
 base,stack,stop=0x2000000,0x203d000,0x203e000
 load_native_shapes(cpu,exe,base+0x30000,base+0x33000)
@@ -103,6 +107,6 @@ r=subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),
 actual=json.loads(r.stdout);assert len(actual)==len(expected)
 for i,(a,b) in enumerate(zip(expected,actual)):
     if a!=b:
-        p=Path('/private/tmp/populous-emergency-failure.json');p.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(p)))
+        p=args.failure_output;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(dict(case=cases[i],native=a,browser=b),indent=2));raise AssertionError((i,str(p)))
 assert all(coverage.values()),coverage
 print('PASS: 1,040 complete native emergency/general spell passes;',coverage)

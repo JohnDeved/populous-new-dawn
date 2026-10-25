@@ -1,3 +1,4 @@
+import { restoreHistoricalSecondaryEffects } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -6,7 +7,6 @@ import { createHutOccupancySmoke } from '../app/hut-occupancy-smoke.ts'
 import {
   stepSecondaryEffects,
   reconcileWorldHutSmoke,
-  restoreSecondaryEffects,
 } from '../app/hut-smoke-runtime.ts'
 import {
   allocateSecondaryEffect,
@@ -174,7 +174,13 @@ test('native free-list reuse and checkpoint reconstruction preserve physical slo
 
 test('panel and preview reservations are derived from live adapter owners', async () => {
   const { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts')
-  const world = { secondaryEffects: createSecondaryEffects() },
+  const world = {
+      secondaryEffects: createSecondaryEffects(),
+      buildings: [
+        { id: 20, kind: 'camp', team: 'blue', progress: 1, hp: 100 },
+        { id: 21, kind: 'tower', team: 'blue', progress: 1, hp: 100 },
+      ],
+    },
     scene = {
       world,
       objectPanels: {
@@ -203,7 +209,7 @@ test('panel and preview reservations are derived from live adapter owners', asyn
   assert.deepEqual(world.secondaryEffects.reservations, [])
 })
 
-test('legacy marker overflow cannot leave ownerless immortal effects after restore', () => {
+test('historical research marker overflow cannot leave ownerless immortal effects after restore', () => {
   const world = {
     turn: 0,
     effectCounter: 37,
@@ -216,7 +222,7 @@ test('legacy marker overflow cannot leave ownerless immortal effects after resto
       turnsRemaining: 4,
     })),
   }
-  restoreSecondaryEffects(world)
+  restoreHistoricalSecondaryEffects(world)
   assert.equal(world.effects.length, 160)
   assert.equal(world.secondaryEffects.order.length, 160)
   for (let turn = 1; turn <= 4; turn++) {

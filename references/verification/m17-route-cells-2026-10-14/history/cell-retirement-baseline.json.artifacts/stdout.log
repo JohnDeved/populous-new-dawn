@@ -1,0 +1,2 @@
+{"event":"plain replay matches observation-derived6052","turn":6052,"sha256":"6b3786dfaf300330f6abbbd361f58403406f638d35570e1d4edf58837d043b0a"}
+{"event":"baseline dangling head reproduced without observation hooks","turn":6055,"head":4088,"registered":false,"alive":23.5}

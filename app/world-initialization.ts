@@ -1,7 +1,15 @@
+import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
+import { createCapacityPolicy, type CapacityMode } from './capacity-policy.ts'
+import { createMotionRoutes } from './person-routes.ts'
+import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
-import type { Point, Shrine, World } from './world-types.ts'
+import type { Point, Shrine, Vehicle, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
-import { campaignPosition, withCampaignTribe } from './campaign-runtime.ts'
+import {
+  campaignPosition,
+  withCampaignTribe,
+  rebuildConstructionBuildings,
+} from './campaign-runtime.ts'
 import { campaignCommand } from './campaign-command-runtime.ts'
 import { nativePosition, syncLandscapeObjects } from './world-terrain-runtime.ts'
 import { distance } from './world-coordinates.ts'
@@ -11,12 +19,16 @@ import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { missionData, tutorialLevel } from './mission-data.ts'
 import { createWorship } from './worship.ts'
 import { worshipAppearanceModel } from './worship-appearance.ts'
+import { ordinaryWorshipSource } from './worship-acquisition-source.ts'
 import { initializeStoneHead } from './stone-head-animation.ts'
+import { initializeVaultKnowledge } from './vault-appearance.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
-export function createWorld(missionNumber = 1): World {
+// Direct callers default to the classic/native contract. The shipped store
+// explicitly selects scalable for new games; checkpoints carry their own mode.
+export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'classic'): World {
   const mission = missionData(missionNumber),
     level = mission.level
   const linkedObjects = (object: (typeof level.objects)[number]) =>
@@ -54,12 +66,17 @@ export function createWorld(missionNumber = 1): World {
                   ? 'balloonHut'
                   : undefined
   }
+  // Keep authored object IDs and initialization RNG identical to classic. The
+  // scalable general-ID reservation is installed before exposing the world.
   const w = createWorldState(missionNumber),
     linkedObjectIds = new Set(
       level.objects
         .filter(object => object.type === 6 && object.model === 6)
         .flatMap(object => linkedObjects(object).map(linked => linked.index + 1))
     )
+  // Select route storage before any authored command can acquire ownership.
+  // Keep classic initialization IDs/RNG; this is new-world setup, not save repair.
+  if (capacityMode === 'scalable') w.motionRoutes = createMotionRoutes(true)
   function missionTwentyShrine(object: (typeof level.objects)[number]): Shrine {
     const settings = object.settings!,
       links = linkedObjects(object),
@@ -147,7 +164,7 @@ export function createWorld(missionNumber = 1): World {
       addUnit(w, o.owner === 255 ? 'wild' : teamForTribe(o.owner), unitKindFromModel(o.model), o)
     if (o.type === 4) {
       const point = nativePosition(w, o)
-      w.vehicles.push({
+      const vehicle: Vehicle = {
         ...point,
         id: w.nextId++,
         class: 4,
@@ -165,7 +182,13 @@ export function createWorld(missionNumber = 1): World {
         active: !linkedObjectIds.has(o.index + 1),
         life: rules.vehicleLife[o.model],
         destructionState: 0,
-      })
+      }
+      assignVehicleAllocationCounter(w, vehicle)
+      if (o.model === 1 || o.model === 2) {
+        // Earlier authored footprints must exist before the shore predicate.
+        syncLandscapeObjects(w)
+        initializeAuthoredBoat(w, vehicle)
+      } else w.vehicles.push(vehicle)
     }
     if (o.type === 5 && o.model <= 6 && !(missionNumber === 20 && linkedObjectIds.has(o.index + 1)))
       w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
@@ -356,8 +379,11 @@ export function createWorld(missionNumber = 1): World {
         z: o.z,
         kind,
         reward: shrineReward,
+        ordinarySpellReward: ordinaryWorshipSource(missionNumber, o.index),
         ...(rewards.length > 1 ? { rewards } : {}),
-        ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
+        ...(kind === 'bridgeEffect'
+          ? { bridgeStart: { x: bridge!.x, z: bridge!.z }, bridgeTarget }
+          : {}),
         ...(kind === 'erosionEffect' ? { effectTarget, effectTargets } : {}),
         ...(kind === 'flattenEffect' ? { effectTarget } : {}),
         ...(kind === 'volcanoEffect' ? { effectTarget: { x: volcano!.x, z: volcano!.z } } : {}),
@@ -477,7 +503,19 @@ export function createWorld(missionNumber = 1): World {
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
   w.lightView = nativePosition(w, campaignPosition(w, 'blue'))
-  for (const shrine of w.shrines) initializeStoneHead(shrine, missionNumber)
+  for (const shrine of w.shrines) {
+    initializeStoneHead(shrine, missionNumber)
+    initializeVaultKnowledge(shrine, missionNumber)
+  }
   initializeLevelStart(w)
+  // 0x461d70 reset and 0x42b230's initial rebuild, for the authored early owners.
+  if ([1, 2, 3].includes(missionNumber))
+    for (const ai of w.campaignAIs) if (ai) ai.constructionRadius = 0
+  rebuildConstructionBuildings(w)
+  w.capacityPolicy = createCapacityPolicy(capacityMode)
+  if (capacityMode === 'scalable') {
+    w.nextId = Math.max(1024, w.nextId)
+    w.buildingOrders.scalable = true
+  }
   return w
 }

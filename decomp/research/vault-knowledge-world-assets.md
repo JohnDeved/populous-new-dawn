@@ -1,0 +1,188 @@
+# Early-mission knowledge world sprites
+
+Refs #23. This implements Mission 3's bank-p Temple and Mission 1's bank-c Warrior
+Training Hut world marker, collected body and independently owned glow. The
+Mission 1 evidence and source boundary are below. Building screen acquisition, other Vault
+rewards, side-fire recollections, global animation cadence and payout changes are
+outside this slice. No parity credit is requested.
+
+## Reused and new native evidence
+
+[Accepted research d749b15](https://github.com/JohnDeved/populous-new-dawn/blob/d749b15be097573201666064c1eae7b0f1dd3c93/decomp/research/vault-knowledge-presentation.md)
+established the authored record 91 → record 92 Temple payload, separate startup
+marker, actual clone/copy/dispatch order, HFX1079/HFX1417 resource identities and
+the consistent 82-visit payout. This branch's extended
+[probe](../../scripts/probe-native-vault-knowledge.py) preserves that chain and
+additionally executes:
+
+- `004ef180` source/marker deletion and `004edcf0` collected-glow removal. At
+  finite completion the original source, model 10 marker and its glow become
+  class 0; the new model 2 gift and its own model 8 glow remain class 6. Gift visit 6
+  hides its body and removes only its glow. Knowledge remains absent through
+  visit 81 and is set on visit 82.
+- `004ee770 → 004ee7b0` on the real allocated list. Draw 43 advances its signed
+  quarter-frame cursor by 4 and wraps at 56, selecting HFX1417–1430. Native pause
+  blocks advancement. Morph 1 is a sprite depth bias, not a geometry morph.
+- World primitive 1 instructions `004689a4..00468c2b`, including bottom-center
+  placement, `00516270` palette selection and actual `005162e0 → 0047dc50 →
+  004f95a0` queue initialization. The supplied screen anchor `(320,240)` produces
+  HFX1079 at `(310,217)`, render type 17, no alpha flag and ARGB `ffffffff`.
+  HFX1417 produces `(280,172)`, render type 18, queue alpha bit 2, vertex flag 8 and
+  ARGB `fff7ebc9`. Original dimensions are 21×23 and 81×68.
+
+The canonical EXE is SHA256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+Mission 3 header bank 25 selects palette suffix p, as already established by
+`check-native-early-mission-skies.py`. The probe pins header, level, PAL-p, AL-p,
+HFX, geometry/socket and constants inputs and guards their mapped bytes.
+
+The extended frozen probe SHA256 is
+`48ca690c78230073b0f1a69ee203d252ed768bb2efcc11ba44ff434b067b530d`.
+Its initial result SHA256 is
+`6f897f8a6260d52c9dd5f9debfe7f1dfd9eedd514e12606448b060b6ab1f8cc8`.
+Independent review replay matched all semantic output and all 254 guarded regions.
+Supplemental checks verified nonzero pause/resume and that cursor 24 chooses
+HFX1423 regardless of morph 0/1/7. The independent review accepted the bounded
+world-resource/lifecycle proof, not final pixels or absolute cadence.
+
+Supplied boundaries remain explicit in the result: trigger allocation/link
+resolution, finite free lists, occupied Vault fixture and terrain 200, forced
+command 33 completion, renderer viewport/anchor, sprite bank/cache handles, final
+device upload, cell/global-list/sunlight bookkeeping, audio, UI/geometry/companion
+leaves and campaign notification. Original removal decisions, sprite selector,
+palette/queue initialization, cursor and knowledge-bit write execute. Allocation
+failure coverage and original-game replay are not claimed.
+
+## Owned assets and live integration
+
+[import-vault-knowledge.py](../../scripts/import-vault-knowledge.py) owns only
+`app/original-vault-knowledge.json` and `public/original/vault-knowledge.png`, listed
+in `engineering/generated-files.json`. It reads the Temple body descriptor,
+draw 43 count/step and authored Mission 3 source from pinned inputs. It imports one
+ordinary-PAL body plus fourteen AL nibble-alpha glow frames into a dedicated atlas.
+The fixed palette 0 diffuse tint `[247,235,201]` is baked into encoded RGB; opacity
+comes only from the original nibble alpha. Original shared atlases are untouched.
+
+The existing PSFB/AL decode is reused from `import-original.py`; original palette
+slot and uploader behavior are documented in
+[the accepted sprite-bank/alpha note](worship-acquisition-body-raster.md).
+Metadata retains every source frame, dimensions, rectangle and complete RGBA hash.
+The importer is idempotent, refuses partial/differing installs and supports a
+read-only `--check`. The [asset checker](../../scripts/check-vault-knowledge-assets.py)
+independently reproduces the output, checks canonical pixels, tests failed-input
+preservation, and compares prior HUD/effects/person metadata and image bytes.
+
+Ordinary `createWorld(3)` gives the authored Shrine one saved glow cursor.
+`createGift` recognizes only that Mission 3 Temple source, including wrapped native
+coordinates, and uses existing gift position/height/frame/animation/sprite fields.
+Its placement uses the original occupied Vault socket 1 offset 1072 instead of the
+generic 800. The existing phase 6 hide and timer 82 payout owners remain unchanged.
+
+The renderer uses explicit HFX atlas rectangles, ordinary body opacity and the
+separate alpha glow. It retains bottom-center integer-half-width placement,
+existing scaled-sprite projection and native sprite depth biases. Mission 3 requires
+the dedicated texture before its first visible scene. It never indexes HFX IDs
+through compact VFRA person frames.
+
+New-world creation and checkpoint migration initialize absent marker cursors.
+New checkpoints retain nonzero cursors; legacy checkpoints start an absent cursor
+at 0 without guessing elapsed history or replaying rewards. A valid collected gift
+keeps its saved position/cursor; legacy gifts recover presentation only, retaining
+IDs, phase, timer and knowledge state. Deactivation stops marker advancement.
+
+## First displayed frame and clock boundary
+
+The original draws before `004ee770`; the existing browser clock updates before
+rendering. The local Shaman presentation adapter already handles this difference
+by latching before advancement. This slice follows that same pattern: the marker
+cursor retains `displayedFrame`, and the gift uses existing `Effect.sprite.frame`.
+Both are initialized to 0 and latched before their own cursor step. Rendering reads
+the latch. The first presentation visit latches frame 0 (HFX1417) and advances the
+cursor to 4; the second latches frame 1 (HFX1418) and advances the cursor to 8.
+Hidden gift glows stop both cursor and display-latch advancement.
+
+This corrects the earlier claim that the first browser render must show HFX1417.
+`advanceGame` can finish multiple presentation visits before `Scene.animate`
+renders once, including after a gift's birth in the same simulation turn. The
+first actual GPU frame therefore uses the latest latched frame. A rendered
+witness must retain the birth state, independently count intervening presentation
+visits using the same game clock, and compare the displayed body/glow with the
+draw-before-step recurrence while the gift is still in its six-visit visible
+window. The observed Mission 1 continuation showed birth cursor/latch 0 and
+first-render cursor 8/latch 1/HFX1418 in turn 1235; its original strict-HFX1417
+assertion failed. That retained metadata alone does not independently count the
+visits, and no birth PNG was saved by that failed checker.
+
+This reuses the current chronological 24 Hz adapter. It does not change that rate
+or settle issue 214's broad animation-speed report. The native per-visit sequence,
+browser frame-rate independence and absolute original wall-clock cadence remain
+different claims. The accepted native proof establishes the per-visit resource
+mapping and recurrence, not native global animation ownership or whole-frame
+scheduling parity.
+
+## Verification boundary
+
+Failure-first portable tests observed the old frame 1077, missing marker glow state
+and collected terrain+800 placement while timer 82/phase 6 already matched. A later
+first-frame test failed before the local draw latch was added. The first candidate
+also exposed wrapped-coordinate legacy migration; matching was corrected without
+resetting existing cursors or reward state. Raw failures remain retained.
+
+Focused tests cover ordinary command 33 acquisition, exact hide/payout visits,
+separate cursors, new/legacy/nonzero checkpoint state, pause/deactivation,
+first-visible-frame ordering and unrelated-family controls. TypeScript, formatting,
+canonical asset checks and final standard/rendered gates are recorded in the PR
+evidence; no passing browser or full-campaign result is implied by this note.
+
+## Mission 1 Warrior Training Hut extension
+
+The authored Mission 1 trigger record 1 at (-5,-3), mode4, links to record 2's
+class6/model2 payload [2,7,1,1]. Model18 Vault record35 at (-6,-2), angle512,
+provides socket1; imported shape arithmetic gives the same (-5,-3) point and
+height offset1072. Header bank12 selects c. The canonical EXE's descriptor word
+at `005a7446 = 005a7228 + 7*76 + 10` is little-endian `3504`, HFX1077.
+The retained `check-native-worship.py` model7 case and the building-family
+consumers above support this descriptor choice. No new original instructions ran.
+
+The ordinary-PAL HFX1077 body is 22×24, with 230 opaque pixels and complete RGBA
+SHA256 `4f728efea07ff160530c49531bb4c82adb017aaed05ae8b3c21fc2327ad261ad`.
+It was absent from the existing HUD atlas. The former compact-frame1077 consumer
+selected VFRA65, so changing a numeric ID alone could not correct it.
+Bank-c HFX1417–1430 are 81×68. Their alpha matches the Temple frames, but every
+frame differs visibly. AL-c[0x2f82] selects palette129 and tint[229,220,214]; the
+Temple tint[247,235,201] cannot be reused. Full frame hashes are retained in
+`app/original-vault-knowledge-camp.json` and independently pinned by the asset checker.
+
+Input hashes: `levl2001.dat`
+`97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c`;
+`levl2001.hdr`
+`4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6`;
+`pal0-c.dat`
+`6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53`;
+`al0-c.dat`
+`afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310`.
+The EXE and HFX identity remain those of the accepted Temple proof.
+
+The independently reviewed data-only packet reproduced the body and all fourteen
+glows, matched three known bank-c spell/HUD crops, and checked every original
+Temple PNG/frame hash. It used checked PE sections, PSFB decoding and PNG reads,
+not native execution or final original rasterization. The scoped importer now
+accepts `--mission 1` and owns only the new camp metadata/atlas; its default
+Mission3 preset remains separate. The asset checker verifies exact reviewed camp
+RGBA, idempotence, failed-input preservation and unchanged Temple/shared assets.
+
+The application resolves only this authored Mission1 source and the accepted
+Mission3 source. Both use the existing renderer, saved cursor, first-display
+latch, socket and migration owners. Collected placement changes to socket1072;
+IDs, RNG, phase6 hide and timer82 unlock are unchanged. The new atlas is required
+before the first Mission1 scene and uses the existing nearest-filtered sprite path.
+
+Focused caller tests prove initialization, independent marker/gift cursors,
+legacy/nonzero checkpoint behavior, first display and preserved hide/unlock visits.
+The ordinary acceptance route must first earn Land Bridge, cast from the dry
+shore, complete the crossing and handle the authored guard using normal input.
+It then covers genuine Vault acquisition, nonzero-cursor public Save/Load and
+home-island camp construction. A read-only real-render observer must capture the
+first actual visible HFX1077 body and exact glow derived from independently counted
+presentation visits, before the six-visit hide; a later screenshot cannot substitute.
+This note does not claim that the rendered episode or standard gates have passed.

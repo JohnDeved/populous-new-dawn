@@ -47,7 +47,7 @@ type AreaOrder = Pick<PersonOrder, 'model' | 'flags' | 'a' | 'b'>
 const allied = (w: CombatTargetWorld, tribe: number, other: number) =>
   tribe === -1 || other === -1 || tribe === other || !!(w.alliances[tribe] & (1 << other))
 
-function* areaCells(order: Pick<PersonOrder, 'a' | 'b'>) {
+export function* areaCells(order: Pick<PersonOrder, 'a' | 'b'>) {
   const rx = order.b & 255,
     ry = order.b >>> 8
   for (let row = 0; row <= ry; row++)
@@ -92,6 +92,65 @@ export function detectCombatThreat(
     } else if (flags & 512 && building.activity & 16) return 3
   }
   return 0
+}
+
+type OwnedWorkFlags = (person: CombatPerson) => number | undefined
+
+// The sermon fallback must not replace a native primary response. Water and
+// listening state are deliberately allowed here; unknown ownership vetoes it.
+export function hasPreacherPrimaryThreat(
+  w: CombatTargetWorld,
+  p: CombatPerson,
+  area: Pick<PersonOrder, 'a' | 'b'>,
+  workFlags: OwnedWorkFlags
+) {
+  for (const cell of areaCells(area))
+    for (const target of w.cellObjects(cell)) {
+      if (target.class !== 1 || target.id === p.id || (target.model !== 4 && target.model !== 7))
+        continue
+      const targetWorkFlags = workFlags(target)
+      if (targetWorkFlags === undefined) return true
+      if (
+        targetWorkFlags ||
+        target.flags2 & 0x810000 ||
+        target.life < 1 ||
+        target.vehicle ||
+        rules.personStateFlags[target.state] & 0x400 ||
+        target.flags4 & 0x1000 ||
+        allied(w, p.tribe, target.tribe) ||
+        spyDisguisedFrom(target, p.tribe) ||
+        spyDisguisedFrom(p, target.tribe)
+      )
+        continue
+      return true
+    }
+  return false
+}
+
+// A non-Preacher/non-Shaman enemy must be able to attack the source Preacher.
+// Candidate health, visibility and vehicle filters from ordinary attacks do not
+// belong to this reverse predicate. Its group word must be actually owned.
+export function hasPreacherResponseThreat(
+  w: CombatTargetWorld,
+  p: CombatPerson,
+  center: number,
+  workFlags: OwnedWorkFlags
+) {
+  if (p.model !== 4 || p.life < 1 || p.flags2 & 0x10000 || p.flags4 & 0x1000) return false
+  for (const cell of areaCells({ a: center, b: 0x0202 }))
+    for (const target of w.cellObjects(cell)) {
+      if (target.class !== 1 || target.model === 4 || target.model === 7) continue
+      if (
+        workFlags(target) !== 0 ||
+        target.state === 23 ||
+        allied(w, target.tribe, p.tribe) ||
+        spyDisguisedFrom(p, target.tribe) ||
+        spyDisguisedFrom(target, p.tribe)
+      )
+        continue
+      return true
+    }
+  return false
 }
 
 export function stepAttackReservation(reservation: AttackReservation, counter: number) {

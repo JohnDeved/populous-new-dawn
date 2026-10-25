@@ -1,0 +1,60 @@
+{
+  "measuredSource": "d5fd9b889dd6aa301d5e2b2d84362b843085259a",
+  "profiles": [
+    {
+      "profile": "serial",
+      "testRunnerWallSeconds": 2321.515251126,
+      "wholeCheckWallSeconds": 2335.0438566319644,
+      "childCpuSeconds": 3240.7432710000003,
+      "sampledAggregatePeakRssMiB": 1136.48828125,
+      "groupWallSeconds": [
+        2002.090164002,
+        319.411527366
+      ],
+      "observedProcessIdentities": 1395,
+      "counts": {
+        "tests": 2809,
+        "suites": 0,
+        "pass": 2809,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    },
+    {
+      "profile": "bounded",
+      "testRunnerWallSeconds": 1362.663349403,
+      "wholeCheckWallSeconds": 1371.5629176300135,
+      "childCpuSeconds": 3367.9404279999994,
+      "sampledAggregatePeakRssMiB": 1485.32421875,
+      "groupWallSeconds": [
+        1052.394486182,
+        310.262165118
+      ],
+      "observedProcessIdentities": 1343,
+      "counts": {
+        "tests": 2809,
+        "suites": 0,
+        "pass": 2809,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "todo": 0
+      }
+    }
+  ],
+  "observedTestPhaseSavingSeconds": 958.8519017229999,
+  "observedTestPhaseSavingPercent": 41.30284740786992,
+  "observedWholeCheckSavingSeconds": 963.4809390019509,
+  "observedWholeCheckSavingPercent": 41.26179199013687,
+  "measurementCommandWallSeconds": 3883.3888534619764,
+  "measurementCostBreakdownSeconds": {
+    "pilot": 151.8539280910045,
+    "supersededWarmup": 14.438804381992668,
+    "finalWarmup": 10.489346727001248,
+    "formalPair": 3706.606774261978
+  },
+  "conditionalBreakEvenComparableFutureRuns": 5,
+  "conditions": "One C1-then-C2 full pair. Dependency hash-warmed, typecheck prewarmed. Unknown host contention and CPU/memory quotas. Future savings conditional, not guaranteed."
+}

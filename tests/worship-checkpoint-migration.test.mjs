@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { createGameStore, migrateCheckpoint, migrateLegacyWorshipAppearance } from '../app/game-store.ts'
+import { createHistoricalFixtureHarness, normalizeHistoricalFixture, migrateLegacyWorshipAppearance } from './helpers/historical-checkpoint.ts'
 import { tutorialLevel } from '../app/mission-data.ts'
 import { addUnit, command, tick } from '../app/model.ts'
 import { createWorld } from '../app/world-initialization.ts'
@@ -99,8 +99,8 @@ test('authored worship lookup uses immutable source fields and agrees for Missio
   assert.equal(authoredWorshipMode(tutorialLevel, linked), 3)
 })
 
-test('shipped store load migrates legacy Mission22 before real command-27 Brave admission', async () => {
-  const store = createGameStore()
+test('historical research harness reconstructs legacy Mission22 before real command-27 Brave admission', async () => {
+  const store = createHistoricalFixtureHarness()
   store.startMission(22)
   const source = store.getWorld(),
     sourceHead = source.shrines.find(shrine => shrine.kind === 'inert'),

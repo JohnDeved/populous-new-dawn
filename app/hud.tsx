@@ -77,14 +77,24 @@ export function ManaMeter({ tribe, world }: { tribe: ManaTribe; world: ManaWorld
   )
 }
 
-export function FollowerNumber({ count, total = false }: { count: number; total?: boolean }) {
-  const label = followerNumber(count, total)
+export function FollowerNumber({
+  count,
+  total = false,
+  alternate = false,
+  y = 26,
+}: {
+  count: number
+  total?: boolean
+  alternate?: boolean
+  y?: number
+}) {
+  const label = followerNumber(count, total, alternate)
   return (
     <span
       className="follower-number"
       role="img"
       aria-label={String(count)}
-      style={{ left: label.x, top: label.y }}
+      style={{ left: label.x, top: y }}
     >
       {label.ids.map((id, i) => (
         <HudSprite key={i} id={id} />

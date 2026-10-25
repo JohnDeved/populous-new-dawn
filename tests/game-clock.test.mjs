@@ -4,6 +4,7 @@ import { createWorld, command, tick, cast, placeBuilding, addUnit } from '../app
 import { advanceGame } from '../app/game-clock.ts'
 import { UnitMotion } from '../app/unit-motion.ts'
 import { addMessage, messageTop, stepMessages } from '../app/messages.ts'
+import { startPendingWorshipAcquisitions, visitWorshipAcquisition } from '../app/worship-acquisition-runtime.ts'
 
 const schedules = [
   ...[5, 30, 60, 120, 144, 240].map(hz => [1 / hz]),
@@ -16,17 +17,34 @@ function advance(w, clock, seconds, schedule) {
     seconds -= dt
   }
 }
-test('render cadence cannot change gameplay, RNG or owned animation state', () => {
+test('render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state', () => {
   for (const scenario of ['movement', 'celebration', 'construction', 'blast', 'combat'])
     for (const speed of [0.25, 1, 2]) {
-      const results = schedules.map((schedule, index) => {
+      const results = [false, true].flatMap(worshipHooks => schedules.map((schedule, index) => {
         const w = createWorld(),
           clock = { animationTime: 0, animationFrame: 0 }
+        let worshipVisits = 0
         // The first schedule is the unchanged simulation; all others observe turns.
-        if (index) {
+        if (index || worshipHooks) {
           const motion = new UnitMotion()
           clock.beforeTurn = () => motion.beforeTurn(w)
           clock.afterTurn = () => motion.afterTurn(w)
+        }
+        if (worshipHooks) {
+          const afterTurn = clock.afterTurn
+          clock.afterTurn = () => {
+            afterTurn()
+            startPendingWorshipAcquisitions(w, {
+              cue: () => assert.fail('idle clock must not initialize a gift'),
+              geometry: () => assert.fail('idle clock must not request gift geometry'),
+              failed: () => assert.fail('idle clock must not report a handoff'),
+            })
+          }
+          clock.worshipVisit = () => {
+            worshipVisits++
+            visitWorshipAcquisition(w, () => assert.fail('idle clock must not arrive'))
+          }
+          clock.presentationHidden = () => false
         }
         w.speed = speed
         if (scenario === 'celebration') {
@@ -81,8 +99,13 @@ test('render cadence cannot change gameplay, RNG or owned animation state', () =
         assert.equal(clock.animationFrame, 96)
         assert.ok(clock.animationTime < 1e-9)
         assert.ok(w.pendingTime < 1e-9)
-        return { ...w, pendingTime: 0 }
-      })
+        assert.equal(worshipVisits > 0, worshipHooks, 'exercise the live optional-hook branch')
+        // Only the newly owned UI clock is allowed to differ. Keep controllers,
+        // requests, both RNG states and every other World field in the comparison.
+        const { clock: uiClock, ...acquisition } = w.worshipAcquisition
+        if (worshipHooks) assert.ok(Math.abs(uiClock.elapsed - 4000) < 1e-6)
+        return { ...w, pendingTime: 0, worshipAcquisition: acquisition }
+      }))
       for (const result of results)
         for (const key of Object.keys(result))
           assert.deepEqual(result[key], results[0][key], `${scenario}, speed=${speed}, ${key}`)
@@ -184,4 +207,33 @@ test('campaign pending auto-open waits for settled motion and consumes one oldes
   stepMessages(state)
   assert.equal(second.flags & 0x20000, 0)
   assert.equal(second.flags & 2, 2)
+})
+
+test('optional simulation step counter records advances, not tick attempts, animations or turn IDs', () => {
+  for (const [name, seconds, setup, expected] of [
+    ['zero interval', 0, () => {}, 0],
+    ['no fixed turn', 1 / 48, () => {}, 0],
+    ['one turn', 1 / 12, () => {}, 1],
+    ['catch up', 1 / 4, () => {}, 3],
+    ['paused', 1 / 4, w => { w.paused = true }, 0],
+    ['land paused', 1 / 4, w => { w.land.landFlags |= 2 }, 0],
+    ['wrap', 1 / 12, w => { w.turn = 0xffffffff }, 1],
+  ]) {
+    const a = createWorld(), b = createWorld(), metrics = { steps: 0 },
+      ca = { animationTime: 0, animationFrame: 0 }, cb = { ...ca }
+    setup(a); setup(b)
+    advanceGame(a, ca, seconds, metrics)
+    advanceGame(b, cb, seconds)
+    assert.equal(metrics.steps, expected, name)
+    assert.deepEqual(a, b, `${name}: instrumentation preserves entire world`)
+    assert.deepEqual(ca, cb)
+  }
+  const w = createWorld(), metrics = { steps: 0 },
+    clock = { animationTime: 0, animationFrame: 0, afterTurn() { w.turn = 0 } }
+  advanceGame(w, clock, 1 / 4, metrics)
+  assert.equal(metrics.steps, 3, 'observer/reset boundaries cannot become an unsigned turn delta')
+  const next = createWorld()
+  metrics.steps = 0
+  advanceGame(next, { animationTime: 0, animationFrame: 0 }, 1 / 48, metrics)
+  assert.equal(metrics.steps, 0, 'replacement world has no inherited count')
 })

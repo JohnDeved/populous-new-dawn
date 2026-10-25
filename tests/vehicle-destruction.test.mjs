@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
@@ -77,7 +78,7 @@ test('Blast reaches live vehicles and native destruction ejects passengers alive
   assert.equal(passenger.flight, passenger.native)
   assert.equal(passenger.lift, 1)
   assert.deepEqual([passenger.native.destinationX, passenger.native.destinationY], destination)
-  assert.deepEqual(passenger.native.velocity, { x: 160, y: 60, z: 0 })
+  assert.deepEqual(passenger.native.velocity, { x: 159, y: 60, z: -10 }, 'native seat offset changes the ejection angle toward the unchanged exit point')
   assert.equal(passenger.native.flags4 & 0x1000400, 0x1000400)
   assert.ok(passenger.native.speed >= rules.personSpeeds[passenger.native.physics])
 
@@ -135,7 +136,7 @@ test('vehicle life and destruction survive checkpoint migration and reload', asy
     legacyBoat = legacy.vehicles[0]
   delete legacyBoat.life
   delete legacyBoat.destructionState
-  migrateCheckpoint(legacy)
+  normalizeHistoricalFixture(legacy)
   assert.deepEqual([legacyBoat.life, legacyBoat.destructionState], [5000, 0])
 
   const store = createGameStore()

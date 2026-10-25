@@ -1,0 +1,128 @@
+{
+  "startedAt": "2026-10-14T09:44:02.260Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage",
+    "commit": "32ce6ab982a9011e8903ea8f45a74b23e59d2699",
+    "tree": "c04282be5271df8c4df85b91c89fa8c676964d50",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b1c6f5ae314769b9f304997dae7ae35d10cd8c9e248a89e912c3f23a21723855"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=/workspace/scratch/69fd8163d94e/populous-m10-browser-storage/work/local-render-profiles/m10-boat-02/browser",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [],
+  "status": "failed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage/scripts/local-render/mission10-boat-checkpoint.mjs",
+    "sha256": "51eb73cd9ac1b781aaec68da4b41cb0def5703c56d599cf9d90b5094e71eb69d"
+  },
+  "profile": {
+    "id": "7433a705-d141-43a0-816a-5d16493cfc40",
+    "path": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage/work/local-render-profiles/m10-boat-02",
+    "runId": "8093269c-e537-4348-a46f-f02d7aaf3d67",
+    "mode": "created",
+    "origin": "http://127.0.0.1:4391",
+    "inputs": {
+      "application": "79dc6615df34967ff9dc09e390e88983584520e5fed7012bd0c37d305a6a8af9",
+      "checker": "e2eb58fff20abd635891284006f6ebd706c2e09db21c3f57ef7d09a914651407"
+    },
+    "correspondence": null,
+    "previousRun": null,
+    "checkpoints": [],
+    "checkpointAtEnd": null,
+    "cleanupVerified": true,
+    "continuationVerified": true
+  },
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 7,
+    "first": {
+      "elapsedMs": 49924,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 60028,
+      "pending": false,
+      "error": {
+        "name": "Error",
+        "message": "Local server readiness exceeded 60000ms; see readiness facts and server.log",
+        "cause": ""
+      }
+    },
+    "elapsedMs": 60028,
+    "listening": true,
+    "ready": false,
+    "abortReason": "Local server readiness exceeded 60000ms; see readiness facts and server.log"
+  },
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "19212b8b57d8f1ec47583ec12a3b33152832c103b91a266aa4a774bf0043a021",
+      "owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage/scripts/local-render/mission10-boat-checkpoint.mjs",
+    "sha256": "51eb73cd9ac1b781aaec68da4b41cb0def5703c56d599cf9d90b5094e71eb69d"
+  },
+  "failure": "Error: Local server readiness exceeded 60000ms; see readiness facts and server.log",
+  "finishedAt": "2026-10-14T09:45:05.722Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage",
+    "commit": "32ce6ab982a9011e8903ea8f45a74b23e59d2699",
+    "tree": "c04282be5271df8c4df85b91c89fa8c676964d50",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b1c6f5ae314769b9f304997dae7ae35d10cd8c9e248a89e912c3f23a21723855"
+  }
+}

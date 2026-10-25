@@ -108,3 +108,81 @@ visits plus the spawn visit remain. An initial checker expectation of301 further
 visits failed despite correct rendering/cleanup and was corrected to300 without
 changing the game. Original clocks, rendering/sprite regressions and broad gameplay
 checks remain separate gates; this note makes no full death-animation parity claim.
+
+## Phase1 ground
+
+Accepted base `89c9629991489fd1ce6dc52e938d1cec346bfead` retained the height sampled
+when the Shaman died for the complete model12 lifetime. Original instructions
+`00502a60..00502a76` call `0044e940` and store the returned height on **every
+processed phase1 visit**, before the phase entry/timer branches. Phase2 retains
+the final phase1 sample; phase3 rises from it. The original spirit therefore
+follows a changing surface during phase1. Caching the death height can leave the
+browser spirit buried by raised terrain or floating above lowered terrain.
+
+`check-native-shaman-death-ground.py` executes the real death producer,
+`004ed8a0` allocator, model12 initializer, first/subsequent controller dispatch,
+object setter and original terrain interpolation. Across four owners, phase1
+follows terrain480→80→640; subsequent terrain960 leaves all three phase2 visits
+at640 and the first phase3 visit at680. Phase0 preserves the original height;
+direct unsupported initialization skips phase1 and preserves its rise anchor.
+The checker compares28 resulting rows with the actual browser world-turn caller
+after a normal Mission2 attack-command/combat death. Only post-death terrain
+corners are supplied for that comparison; it does not prove a player-cast spell.
+
+The input EXE/VSTART/VFRA hashes above remain unchanged. The complete mapped
+`mwsearch.dat` (SHA256 `0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0`)
+and all244 configured constant targets are guarded before/after each invocation
+and fixture setup. Registration, support predicates, audio, source bookkeeping
+and spawn leaves remain supplied. Non-model12 allocation requests return zero.
+No original game/OS or native raster is executed.
+
+The bounded runtime fix samples the effect's current death-point ground only
+when `stepReincarnation` reports processed phase1, storing it in the existing
+checkpoint field. The last phase1 visit still samples, even though its next
+remaining count belongs to phase2. Phase0, direct drowning/rise, site wave,
+respawn timing, animation cadence and owner-layer selection retain their existing
+owners. The focused regression fails on the old cached caller and covers raising,
+lowering, the phase boundary, checkpoint continuation and unchanged entry variants.
+
+Research also confirmed that the original producer allocates model12 without a
+surviving-follower gate, but `0041b8b0` explicitly removes Shaman model12 objects
+at tribe defeat. Allocation alone does not prove a full post-elimination death
+animation. No eligibility or outcome-cleanup change belongs to this height fix.
+
+```sh
+node --test tests/shaman-death-ground.test.mjs tests/shaman-death-cadence.test.mjs tests/shaman-death-vfx.test.mjs
+python scripts/check-native-shaman-death-ground.py "$POPULOUS_EXE"
+```
+
+Rendered ordinary-death plus shipped terrain-spell acceptance and standard
+implementation gates are tracked separately from the native/caller evidence.
+This bounded repair does not complete issue #30 or award additional parity credit.
+
+### Controlled-clock rendered acceptance plan
+
+`check-browser-shaman-death-ground.mjs` uses Mission1's authored Bridge gift and
+Warrior33. A source-level preflight starts the ordinary opening, worships head29
+for four gifts, makes two real Bridge crossings, and attacks the Warrior. At a
+surviving injured state (HP20..45), a third Bridge targets `(1,-29)`; the caster
+must remain alive until the real terrain controller appears, then ordinary
+combat produces the model12 body. In the shortened Node preflight, phase1
+death-point terrain/body height changed174→184. These observed turns/coordinates
+are not forced acceptance inputs.
+
+The prepared browser driver uses actual Mission/H selection and canvas/HUD
+clicks for worship, movement, attack and spells. It holds RAF and supplies normal
+fixed turns explicitly, keeping camera/input preparation between turns. This is
+**controlled-clock rendered integration, not a real-clock ordinary journey**.
+Manual `tick` also bypasses `advanceGame`'s presentation cadence and scene turn
+observers; this case does not replace their separate cadence regressions. Immediate
+post-click state must confirm the actual head order, movement order/marker or
+attack target, so a found screen hit or an ignored second attack is insufficient.
+It requires nonzero actual terrain deformation at the actual death point while
+phase1 remains active, living friendly followers, matching candidate body/mesh
+heights and real framebuffer contribution. No stock, mana, HP, actor position,
+terrain, AI, death effect or outcome is supplied. Native raster remains separate.
+
+Use the same verified driver on the before source with
+`PND_SHAMAN_GROUND_BASELINE=1` (cached-height mismatch expected) and the candidate
+without that flag (alignment required), through the canonical local harness.
+Browser execution remains a separately coordinated acceptance gate.

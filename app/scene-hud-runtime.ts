@@ -1,3 +1,4 @@
+import { publishTooltipStatus } from './scene-tooltip-runtime.ts'
 import type { GameScene } from './scene.ts'
 import { texture } from './scene-assets.ts'
 import { populationMeter } from './hud-population.ts'
@@ -38,6 +39,7 @@ function syncCampaignMessagePresentation(scene: GameScene) {
 }
 
 export function updateHudFrame(scene: GameScene, now: number, dt: number) {
+  publishTooltipStatus(scene)
   scene.drawPointer(now)
   scene.renderBuildingPanels()
   scene.objectPanels.update(texture('hud').image as HTMLImageElement)
@@ -72,7 +74,9 @@ export function updateHudFrame(scene: GameScene, now: number, dt: number) {
   scene.uiTimer += dt
   if (scene.uiTimer > 0.2) {
     scene.onChange()
+    if (scene.disposed) return
     scene.uiTimer = 0
   }
   scene.drawMinimap()
+  scene.worshipPresentation.draw()
 }

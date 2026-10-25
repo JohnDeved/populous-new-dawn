@@ -1,0 +1,50 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0045b9bb <.text+0x5a9bb>:
+  45b9bb:	ba 11 00 00 00       	mov    edx,0x11
+  45b9c0:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  45b9c4:	83 78 14 ff          	cmp    DWORD PTR [eax+0x14],0xffffffff
+  45b9c8:	75 0e                	jne    0x45b9d8
+  45b9ca:	8b 4c 24 18          	mov    ecx,DWORD PTR [esp+0x18]
+  45b9ce:	39 48 10             	cmp    DWORD PTR [eax+0x10],ecx
+  45b9d1:	75 05                	jne    0x45b9d8
+  45b9d3:	ba 31 00 00 00       	mov    edx,0x31
+  45b9d8:	8d 4f 10             	lea    ecx,[edi+0x10]
+  45b9db:	52                   	push   edx
+  45b9dc:	8b 47 20             	mov    eax,DWORD PTR [edi+0x20]
+  45b9df:	8b 57 24             	mov    edx,DWORD PTR [edi+0x24]
+  45b9e2:	50                   	push   eax
+  45b9e3:	8b 1c 95 a8 2b 97 00 	mov    ebx,DWORD PTR [edx*4+0x972ba8]
+  45b9ea:	53                   	push   ebx
+  45b9eb:	8b 47 1c             	mov    eax,DWORD PTR [edi+0x1c]
+  45b9ee:	50                   	push   eax
+  45b9ef:	8b 51 08             	mov    edx,DWORD PTR [ecx+0x8]
+  45b9f2:	52                   	push   edx
+  45b9f3:	8b 41 04             	mov    eax,DWORD PTR [ecx+0x4]
+  45b9f6:	50                   	push   eax
+  45b9f7:	8b 09                	mov    ecx,DWORD PTR [ecx]
+  45b9f9:	8d 94 24 b0 02 00 00 	lea    edx,[esp+0x2b0]
+  45ba00:	51                   	push   ecx
+  45ba01:	52                   	push   edx
+  45ba02:	e8 29 2d 0a 00       	call   0x4fe730
+  45ba07:	8d 94 24 88 02 00 00 	lea    edx,[esp+0x288]
+  45ba0e:	83 c4 20             	add    esp,0x20
+  45ba11:	8b 08                	mov    ecx,DWORD PTR [eax]
+  45ba13:	8b 58 04             	mov    ebx,DWORD PTR [eax+0x4]
+  45ba16:	8b 40 08             	mov    eax,DWORD PTR [eax+0x8]
+  45ba19:	83 c7 04             	add    edi,0x4
+  45ba1c:	89 0a                	mov    DWORD PTR [edx],ecx
+  45ba1e:	8b ca                	mov    ecx,edx
+  45ba20:	89 5a 04             	mov    DWORD PTR [edx+0x4],ebx
+  45ba23:	89 42 08             	mov    DWORD PTR [edx+0x8],eax
+  45ba26:	8b 01                	mov    eax,DWORD PTR [ecx]
+  45ba28:	8b 51 04             	mov    edx,DWORD PTR [ecx+0x4]
+  45ba2b:	89 07                	mov    DWORD PTR [edi],eax
+  45ba2d:	8b 49 08             	mov    ecx,DWORD PTR [ecx+0x8]
+  45ba30:	89 57 04             	mov    DWORD PTR [edi+0x4],edx
+  45ba33:	89 4f 08             	mov    DWORD PTR [edi+0x8],ecx
+  45ba36:	e9                   	.byte 0xe9

@@ -1,4 +1,8 @@
+import { cursorRosterSelected } from './neutral-cursor.ts'
+import { templeWorldMaterial } from './temple-art.ts'
+import { unitRenderAnimationSource } from './unit-animation-source.ts'
 import { hutSmokeState } from './hut-smoke-runtime.ts'
+import type { SecondaryEffect } from './secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import {
@@ -7,9 +11,6 @@ import {
   effectFrame,
   nativeModel,
   nativeModels,
-  material,
-  part,
-  box,
   updateModelLighting,
 } from './scene-assets.ts'
 import {
@@ -19,9 +20,7 @@ import {
   buildingStage,
   nativePosition,
   maxHp,
-  buildingHp,
   unitAnimation,
-  unitAnimationSource,
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
   canPickUnit,
@@ -49,7 +48,7 @@ import {
 } from './projection.ts'
 import { morphCoordinate } from './morph.ts'
 import { modelHighlight } from './model-lighting.ts'
-import { spriteLayers } from './sprite-layers.ts'
+import { spriteAtlasOrigin, spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
@@ -58,23 +57,61 @@ import { stoneHeadAngle } from './stone-head-orientation.ts'
 import { stoneHead149Model } from './stone-head-149.ts'
 import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
+import { followerNativeDirections, nativeSpriteHidden } from './follower-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
-import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
+import { animationTeam, teamForTribe, tribeForTeam, vehicleApparentTribe } from './world-types.ts'
 import {
+  vaultKnowledgeAppearance,
   vaultKnowledgeFrame,
   vaultKnowledgePlacement,
   vaultKnowledgeVisible,
 } from './vault-appearance.ts'
+import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
 
-const teamColor = {
-  blue: 0x303fc1,
-  red: 0xb92720,
-  yellow: 0xd1aa22,
-  green: 0x29864a,
-  wild: 0x9f9170,
+const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+  spriteAtlasOrigin(piece, index, nativeUnits)
+)
+
+type UnitDirections = { frames: number[]; flip: boolean; source?: number }[]
+type UnitAnimationTable = Record<string, UnitDirections>
+
+// Preserve a matching legacy source only when the native catalog has no entry.
+// Imported animation tables have no runtime writers; retain their first source match.
+const unitDirectionsBySource = new WeakMap<
+  UnitAnimationTable,
+  Map<number | undefined, UnitDirections>
+>()
+
+function legacyFollowerDirections(animations: UnitAnimationTable, source: number) {
+  if (Number.isNaN(source)) return undefined
+  let sources = unitDirectionsBySource.get(animations)
+  if (!sources) {
+    sources = new Map()
+    for (const directions of Object.values(animations))
+      if ('source' in directions[0] && !sources.has(directions[0].source))
+        sources.set(directions[0].source, directions)
+    unitDirectionsBySource.set(animations, sources)
+  }
+  return sources.get(source)
 }
+
+// Derived only for the current frame; weak ownership follows the Scene lifetime.
+const unitFrameIds = new WeakMap<GameScene, Set<number>>()
+const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
+const unitFrameBuildingsById = new WeakMap<GameScene, Map<Unit['work'], Building>>()
+const unitFrameShrinesById = new WeakMap<GameScene, Map<Unit['work'], Shrine[]>>()
+const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
+const vehicleFrameViews = new WeakMap<GameScene, Vehicle[]>()
+const planFrameIds = new WeakMap<GameScene, Set<number>>()
+const planFrameViews = new WeakMap<GameScene, Building[]>()
+const buildingFrameIds = new WeakMap<GameScene, Set<number>>()
+const shrineFrameIds = new WeakMap<GameScene, Set<number>>()
+const hutPuffFrames = new WeakMap<
+  GameScene,
+  { puffs: Extract<SecondaryEffect, { kind: 'hutPuff' }>[]; serials: Set<number> }
+>()
 
 function makeUnit(u: Unit) {
   const g = new THREE.Group()
@@ -155,28 +192,28 @@ function makeUnit(u: Unit) {
   return g
 }
 
-function makeBuilding(b: Building, stage: number) {
+function makeBuilding(scene: GameScene, b: Building, stage: number, temple = false) {
   const g = new THREE.Group(),
     id = buildingObject(b),
     base = rules.buildingObjects[buildingModel(b)],
     // Training huts require their actual tribe mesh. Preserve unrelated and
-    // neutral fallback behavior; Balloon Hut resource87 remains unimported.
+    // neutral fallback behavior; all four Balloon Hut meshes are imported.
     renderId =
       originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
-  const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
+  const model = nativeModel(
+    renderId,
+    b.kind === 'temple' ? 1.65 : 2,
+    stage,
+    temple,
+    scene.environment
+  )
   g.add(model)
-  const health = new THREE.Group(),
-    top = b.kind === 'tower' ? 6 : 4.8
-  part(health, box(2.5, 0.09, 0.05), material(0x201d16), 0, top)
-  const healthFill = part(health, box(2.5, 0.09, 0.06), material(teamColor[b.team]), 0, top, 0.01)
-  g.add(health)
   g.userData = {
     building: b.id,
     signature: `${id}-${stage}`,
-    health,
-    healthFill,
   }
+  if (temple) g.userData.signature += '-animated'
   return g
 }
 
@@ -241,16 +278,29 @@ function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: T
 }
 
 function updateHutSmokePuffs(scene: GameScene) {
-  const owner = scene.world.secondaryEffects,
-    puffs = owner.order.flatMap(slot => {
-      const entry = owner.slots[slot]
-      return entry?.kind === 'hutPuff' ? [entry] : []
-    })
+  const owner = scene.world.secondaryEffects
+  let snapshot = hutPuffFrames.get(scene)
+  if (!snapshot) {
+    snapshot = { puffs: [], serials: new Set() }
+    hutPuffFrames.set(scene, snapshot)
+  }
+  const { puffs, serials } = snapshot
+  serials.clear()
+  let count = 0
+  // Preserve the eager ordered record snapshot before cleanup and drawing.
+  owner.order.forEach(slot => {
+    const entry = owner.slots[slot]
+    if (entry?.kind === 'hutPuff') {
+      puffs[count++] = entry
+      serials.add(entry.serial)
+    }
+  })
+  puffs.length = count
   // Kept outside building groups: removing or replacing a root does not remove
   // its already-allocated children, whose own sixteen visits still apply.
   scene.hutSmokePuffs ??= new Map()
   for (const [id, group] of scene.hutSmokePuffs)
-    if (!puffs.some(puff => puff.serial === id)) {
+    if (Number.isNaN(id) || !serials.has(id)) {
       group.removeFromParent()
       scene.releaseGroup(group)
       scene.hutSmokePuffs.delete(id)
@@ -270,10 +320,10 @@ function updateHutSmokePuffs(scene: GameScene) {
   }
 }
 
-function makeVehicle(v: Vehicle) {
+function makeVehicle(scene: GameScene, v: Vehicle) {
   const g = new THREE.Group(),
     resource = originalVehicleMesh(v.model),
-    mesh = nativeModel(resource)
+    mesh = nativeModel(resource, 2, 4, false, scene.environment)
   if (!mesh) throw new Error(`Missing original vehicle mesh ${resource}`)
   // Reuse the original model UV/material, integer transform, lighting and
   // painter/picking consumers. The vehicle's gameplay position stays unchanged.
@@ -305,15 +355,27 @@ export function updateWaveShake(
 
 function makeShrine(scene: GameScene, shrine: Shrine) {
   const g = new THREE.Group()
-  g.add(nativeModel(stoneHead149Model(shrine, scene.world.outcome.level)))
+  g.add(
+    nativeModel(
+      stoneHead149Model(shrine, scene.world.outcome.level),
+      2,
+      4,
+      false,
+      scene.environment
+    )
+  )
   scene.locate(g, shrine)
   scene.orientModel(g, stoneHeadAngle(shrine, scene.world.outcome.level))
   scene.objects.add(g)
   g.userData.shrine = shrine.id
   if (shrine.kind === 'vault') {
-    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel)
+    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel, scene.world.outcome.level)
     if (frame !== null) {
-      const marker = makeVaultKnowledgeMarker(frame),
+      const knowledge = vaultKnowledgeAppearance(shrine, scene.world.outcome.level),
+        marker =
+          shrine.knowledgeGlow && knowledge
+            ? makeVaultWorldPresentation(knowledge, true)
+            : makeVaultKnowledgeMarker(frame),
         placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
@@ -335,7 +397,8 @@ export function animatePerson(
   directions: { frames: number[]; flip: boolean }[],
   age: number,
   once = false,
-  frameNumber?: number
+  frameNumber?: number,
+  selectedIds?: ReadonlySet<number>
 ) {
   const direction = spriteDirection(
     Math.round((scene.cameraBearing * 1024) / Math.PI),
@@ -344,8 +407,7 @@ export function animatePerson(
   const cycle = directions[direction],
     step = frameNumber ?? Math.floor(age * nativeUnits.fps),
     index =
-      cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length],
-    cell = nativeUnits.cell
+      cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length]
   const frame = nativeUnits.frames[index]
   g.userData.frame = index
   g.userData.frameFlip = cycle.flip
@@ -406,13 +468,14 @@ export function animatePerson(
     layer.userData.piece = draw.piece
     if (!layer.visible) continue
     const piece = nativeUnits.pieces[draw.piece],
+      origin = unitAtlasOrigins[draw.piece],
       uv = (layer.userData.atlasTransform ??= new THREE.Vector4()),
       flip = !!(draw.flags & 1)
     uv.set(
       (flip ? -piece.w : piece.w) / nativeUnits.width,
       piece.h / nativeUnits.height,
-      ((draw.piece % nativeUnits.columns) * cell + (flip ? piece.w : 0)) / nativeUnits.width,
-      1 - (Math.floor(draw.piece / nativeUnits.columns) * cell + piece.h) / nativeUnits.height
+      (origin.x + (flip ? piece.w : 0)) / nativeUnits.width,
+      1 - (origin.y + piece.h) / nativeUnits.height
     )
     layer.center.set(-draw.x / draw.w, 1 + draw.y / draw.h)
     layer.scale.set(draw.w, draw.h, 1)
@@ -431,7 +494,10 @@ export function animatePerson(
         owner: g.userData.owner,
         player: 0,
         type: 1,
-        selectionFlags: scene.world.selected.includes(g.userData.unit) ? 128 : 0,
+        selectionFlags:
+          (selectedIds?.has(g.userData.unit) ?? scene.world.selected.includes(g.userData.unit))
+            ? 128
+            : 0,
         x: 0,
         y: 0,
         frameHeight: size(frame.nativeHeight),
@@ -450,8 +516,51 @@ export function animatePerson(
 }
 
 export function updateUnitsFrame(scene: GameScene) {
+  let ids = unitFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    unitFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  scene.neutralCursorRosterSelected = false
+  for (const u of scene.world.units) {
+    ids.add(u.id)
+    if (!scene.neutralCursorRosterSelected && cursorRosterSelected(u))
+      scene.neutralCursorRosterSelected = true
+  }
+  let selectedIds = unitFrameSelectedIds.get(scene)
+  if (!selectedIds) {
+    selectedIds = new Set()
+    unitFrameSelectedIds.set(scene, selectedIds)
+  }
+  selectedIds.clear()
+  for (const id of scene.world.selected) selectedIds.add(id)
+  let buildingsById = unitFrameBuildingsById.get(scene)
+  if (!buildingsById) {
+    buildingsById = new Map()
+    unitFrameBuildingsById.set(scene, buildingsById)
+  }
+  buildingsById.clear()
+  for (const building of scene.world.buildings) {
+    const { id } = building
+    if (!buildingsById.has(id)) buildingsById.set(id, building)
+  }
+  let shrinesById = unitFrameShrinesById.get(scene)
+  if (!shrinesById) {
+    shrinesById = new Map()
+    unitFrameShrinesById.set(scene, shrinesById)
+  }
+  const shrineBuckets = shrinesById
+  shrineBuckets.clear()
+  scene.world.shrines.forEach(shrine => {
+    const { id } = shrine
+    const bucket = shrineBuckets.get(id)
+    if (bucket) bucket.push(shrine)
+    else shrineBuckets.set(id, [shrine])
+  })
+  // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
   for (const [id, g] of scene.unitMeshes)
-    if (!scene.world.units.some(u => u.id === id)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.unitMeshes.delete(id)
@@ -478,13 +587,20 @@ export function updateUnitsFrame(scene: GameScene) {
     g.quaternion.identity()
     g.userData.nativeHeading = 0
     g.userData.cellPosition = u
-    if (u.native?.vehicle) {
+    const animationSource = unitRenderAnimationSource(u)
+    g.userData.missingNativeSource = undefined
+    g.userData.nativeSpriteHidden = nativeSpriteHidden(
+      animationSource?.object,
+      animationSource?.renderFlags ?? 0
+    )
+    if (u.native?.vehicle || g.userData.nativeSpriteHidden) {
       g.visible = false
       continue
     }
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
       !unitInvisibleToPlayer(scene.world, u)
+    if (!g.visible) continue
     const shield = g.userData.shield as THREE.Mesh
     shield.visible = !!u.shield
     if (shield.visible) {
@@ -495,8 +611,7 @@ export function updateUnitsFrame(scene: GameScene) {
     const bloodlust = g.userData.bloodlust as THREE.Mesh
     bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
     if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
-    const animationSource = unitAnimationSource(u),
-      person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
+    const person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
       owner = tribeForTeam(u.team),
       disguise = u.kind === 'spy' ? (person?.disguise ?? owner << 6) : owner << 6,
       target = disguise >>> 6,
@@ -539,36 +654,40 @@ export function updateUnitsFrame(scene: GameScene) {
     g.userData.pickable = canPickUnit(scene.world, u)
     g.userData.drawFlags =
       (renderFlags & 0xa000 || u.lift > 0 ? 2 : 0) | (renderFlags & 0x4000 ? 4 : 0)
-    const animations = (
-      nativeUnits.animations as Record<
-        string,
-        Record<string, { frames: number[]; flip: boolean }[]>
-      >
-    )[
+    const animations = (nativeUnits.animations as Record<string, UnitAnimationTable>)[
       u.kind === 'shaman'
         ? shamanAppearance(u.team).signature
         : `${animationTeam(renderTeam)}-${u.kind}`
     ]
-    const state = unitAnimation(scene.world, u)
+    const state = unitAnimation(scene.world, u, selectedIds, buildingsById, shrineBuckets)
     if (g.userData.state !== state) {
       g.userData.state = state
       g.userData.since = scene.world.time
     }
     const source = animationSource?.object,
-      nativeDirections =
+      catalogDirections =
         source === undefined
           ? undefined
           : u.kind === 'shaman'
             ? shamanNativeDirections(u.team, source)
-            : Object.values(animations).find(d => 'source' in d[0] && d[0].source === source),
+            : followerNativeDirections(source),
+      nativeDirections =
+        catalogDirections ??
+        (source !== undefined && u.kind !== 'shaman'
+          ? legacyFollowerDirections(animations, source)
+          : undefined),
       directions = nativeDirections || animations[state] || animations.idle
+    // Presentation-only diagnostic: unknown native sources remain observable
+    // without logging/allocating per frame or hiding a still-live legacy unit.
+    if (source !== undefined && !catalogDirections) g.userData.missingNativeSource = source
     scene.animatePerson(
       g,
       u.heading,
       directions,
       nativeDirections ? 0 : scene.world.time - (u.fight ? u.fight.started / 12 : g.userData.since),
       !nativeDirections && !!u.fight && ['attack', 'strike', 'special', 'recoil'].includes(state),
-      nativeDirections ? animationSource!.f2 : undefined
+      nativeDirections ? animationSource!.f2 : undefined,
+      selectedIds
     )
     const gauge = unitHealthGauge({
       enabled: !!showHealth,
@@ -592,25 +711,45 @@ export function updateUnitsFrame(scene: GameScene) {
 }
 
 export function updateVehiclesFrame(scene: GameScene) {
+  let ids = vehicleFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    vehicleFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const v of scene.world.vehicles) if (v.active || v.destructionState) ids.add(v.id)
   for (const [id, g] of scene.vehicleMeshes)
-    if (!scene.world.vehicles.some(v => v.id === id && (v.active || v.destructionState))) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.vehicleMeshes.delete(id)
     }
-  for (const v of scene.world.vehicles.filter(v => v.active || v.destructionState)) {
+  let vehicles = vehicleFrameViews.get(scene)
+  if (!vehicles) {
+    vehicles = []
+    vehicleFrameViews.set(scene, vehicles)
+  }
+  const view = vehicles
+  let count = 0
+  // Preserve the eager eligibility snapshot at its original post-cleanup boundary.
+  scene.world.vehicles.forEach(v => {
+    if (v.active || v.destructionState) view[count++] = v
+  })
+  view.length = count
+  for (const v of view) {
     let g = scene.vehicleMeshes.get(v.id)
     if (!g) {
-      g = makeVehicle(v)
+      g = makeVehicle(scene, v)
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
     }
-    if (g.userData.vehicleTeam !== v.team) {
+    const appearanceTeam = teamForTribe(vehicleApparentTribe(v))
+    if (g.userData.vehicleTeam !== appearanceTeam) {
       const mesh = g.children[0] as THREE.Mesh<THREE.BufferGeometry>
       const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute
-      uv.copyArray(originalVehicleUV(v.model, v.team))
+      uv.copyArray(originalVehicleUV(v.model, appearanceTeam))
       uv.needsUpdate = true
-      g.userData.vehicleTeam = v.team
+      g.userData.vehicleTeam = appearanceTeam
     }
     scene.locate(g, browserPosition(v), v.h / 45)
     scene.orientModel(g, v.heading)
@@ -618,13 +757,32 @@ export function updateVehiclesFrame(scene: GameScene) {
 }
 
 export function updateBuildingsFrame(scene: GameScene) {
+  let ids = planFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    planFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const b of scene.world.buildings) if (b.preparation) ids.add(b.id)
   for (const [id, mesh] of scene.plans)
-    if (!scene.world.buildings.some(b => b.id === id && b.preparation)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       mesh.removeFromParent()
       mesh.geometry.dispose()
       scene.plans.delete(id)
     }
-  for (const b of scene.world.buildings.filter(b => b.preparation)) {
+  let buildings = planFrameViews.get(scene)
+  if (!buildings) {
+    buildings = []
+    planFrameViews.set(scene, buildings)
+  }
+  const view = buildings
+  let count = 0
+  // Preserve the eager preparation snapshot after cleanup and before drawing.
+  scene.world.buildings.forEach(b => {
+    if (b.preparation) view[count++] = b
+  })
+  view.length = count
+  for (const b of view) {
     let mesh = scene.plans.get(b.id)
     if (!mesh) {
       mesh = new THREE.Mesh(new THREE.BufferGeometry(), scene.cursor.material)
@@ -641,8 +799,15 @@ export function updateBuildingsFrame(scene: GameScene) {
       mesh.userData.signature = key
     }
   }
+  let buildingIds = buildingFrameIds.get(scene)
+  if (!buildingIds) {
+    buildingIds = new Set()
+    buildingFrameIds.set(scene, buildingIds)
+  }
+  buildingIds.clear()
+  for (const b of scene.world.buildings) if (!b.preparation) buildingIds.add(b.id)
   for (const [id, g] of scene.buildingMeshes)
-    if (!scene.world.buildings.some(b => b.id === id && !b.preparation)) {
+    if (Number.isNaN(id) || !buildingIds.has(id)) {
       releaseHutSmoke(scene, g)
       scene.objects.remove(g)
       scene.releaseGroup(g)
@@ -650,9 +815,17 @@ export function updateBuildingsFrame(scene: GameScene) {
     }
   for (const b of scene.world.buildings) {
     if (b.preparation) continue
-    const stage = buildingStage(b)
+    const stage = buildingStage(b),
+      temple = templeWorldMaterial(
+        scene.environment,
+        b,
+        buildingObject(b),
+        stage,
+        scene.templeResourceSnapshot
+      ),
+      signature = `${buildingObject(b)}-${stage}${temple ? '-animated' : ''}`
     let g = scene.buildingMeshes.get(b.id)
-    if (g && g.userData.signature !== `${buildingObject(b)}-${stage}`) {
+    if (g && g.userData.signature !== signature) {
       releaseHutSmoke(scene, g)
       scene.objects.remove(g)
       scene.releaseGroup(g)
@@ -660,7 +833,7 @@ export function updateBuildingsFrame(scene: GameScene) {
       g = undefined
     }
     if (!g) {
-      g = makeBuilding(b, stage)
+      g = makeBuilding(scene, b, stage, !!temple)
       scene.buildingMeshes.set(b.id, g)
       scene.objects.add(g)
       if (b.progress < 1) {
@@ -668,6 +841,11 @@ export function updateBuildingsFrame(scene: GameScene) {
         scene.decorations.clear()
         scene.makeDecorations()
       }
+    }
+    if (temple) {
+      const [model] = g.children
+      model.userData.templeTileOffset.value.set(...temple.offset)
+      model.userData.templeResourceEpoch = temple.epoch
     }
     scene.locate(g, b, b.foundation)
     scene.orientModel(g, b.angle)
@@ -681,20 +859,20 @@ export function updateBuildingsFrame(scene: GameScene) {
     )
     g.userData.nativeTilt = b.damageState?.tilt ?? 0
     g.userData.nativeRoll = b.damageState?.roll ?? 0
-    // Original staged models carry construction progress in their geometry;
-    // the always-on horizontal construction box was a browser placeholder.
-    g.userData.health.visible = b.progress >= 1 && b.hp < buildingHp(b.kind)
-    g.userData.health.quaternion.copy(
-      g.quaternion.clone().invert().multiply(scene.camera.quaternion)
-    )
-    g.userData.healthFill.scale.x = Math.max(0.001, b.hp / buildingHp(b.kind))
   }
   updateHutSmokePuffs(scene)
 }
 
 export function updateShrinesFrame(scene: GameScene) {
+  let ids = shrineFrameIds.get(scene)
+  if (!ids) {
+    ids = new Set()
+    shrineFrameIds.set(scene, ids)
+  }
+  ids.clear()
+  for (const shrine of scene.world.shrines) if (shrine.model) ids.add(shrine.id)
   for (const [id, entry] of scene.shrineMeshes)
-    if (!scene.world.shrines.some(s => s.id === id && s.model)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
       if (marker) {
         scene.objects.remove(marker)
@@ -710,13 +888,30 @@ export function updateShrinesFrame(scene: GameScene) {
     const entry = scene.shrineMeshes.get(shrine.id)
     if (!entry) continue
     scene.locate(entry.g, shrine)
+    if (shrine.kind === 'vault')
+      updateWaveShake(
+        entry.g,
+        shrine,
+        nativePosition(scene.world, shrine),
+        scene.gameClock.animationFrame,
+        scene.waveFrames
+      )
     scene.orientModel(entry.g, stoneHeadAngle(shrine, scene.world.outcome.level))
     const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
     if (marker) {
       const placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
-      animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
+      const knowledge = vaultKnowledgeAppearance(shrine, scene.world.outcome.level)
+      if (shrine.knowledgeGlow && knowledge)
+        drawVaultWorldPresentation(
+          scene,
+          marker,
+          knowledge,
+          shrine.knowledgeGlow.displayedFrame,
+          vaultKnowledgeVisible(shrine)
+        )
+      else animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
     }
     const model = stoneHead149Model(shrine, scene.world.outcome.level)
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
@@ -724,7 +919,7 @@ export function updateShrinesFrame(scene: GameScene) {
       entry.g.remove(mesh)
       mesh.geometry.dispose()
       mesh.material.dispose()
-      mesh = nativeModel(model)
+      mesh = nativeModel(model, 2, 4, false, scene.environment)
       entry.g.add(mesh)
     }
     const stone = initializeStoneHead(shrine, scene.world.outcome.level)
@@ -775,7 +970,10 @@ export function renderSceneFrame(
   scene.scene.traverse(object => {
     updateModelLighting(object)
     if (!object.userData.highlight) return
-    const id = object.parent?.userData.building ?? object.parent?.userData.shrine
+    const id =
+      object.parent?.userData.building ??
+      object.parent?.userData.shrine ??
+      object.parent?.userData.point?.id
     object.userData.highlight.value =
       hovered && id === hovered.id
         ? modelHighlight(
@@ -792,5 +990,6 @@ export function renderSceneFrame(
   scene.view.painter.land = scene.world.land
   scene.view.painter.cells = scene.world.objectCells
   scene.view.prepare(scene.scene)
-  scene.renderer.render(scene.scene, scene.camera)
+  scene.view.painter.render(scene.renderer, scene.scene, scene.camera)
+  scene.worshipPresentation.rememberBodies()
 }

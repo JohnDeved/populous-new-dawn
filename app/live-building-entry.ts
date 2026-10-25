@@ -38,6 +38,7 @@ import {
   type TrainingBuilding,
 } from './training.ts'
 import { stepTrainingConversion, type ConvertingBuilding } from './training-conversion.ts'
+import { requestTrainingPanel } from './training-panel-requests.ts'
 import { adoptLiveOrders, startLiveOrders, stepLiveOrderQueue } from './live-movement.ts'
 import {
   allocatePersonOrder,
@@ -51,6 +52,7 @@ import {
 import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import {
+  setCellObject,
   insertObjectIntoCell,
   removeObjectFromCell,
   moveObjectInCells,
@@ -62,6 +64,7 @@ import {
   initializePersonState,
   defaultPersonState,
   resetPersonMotion,
+  recoverPersonMovement,
 } from './person-state.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import {
@@ -81,6 +84,7 @@ import { startBuildingOccupantAnimation } from './animation.ts'
 import sprites from './original-units.json' with { type: 'json' }
 import rules from './original-rules.json' with { type: 'json' }
 import { nativePersonModel } from './live-combat.ts'
+import { residentPerson, retainHutResident } from './building-resident.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { stepTowerFirewarrior } from './firewarrior.ts'
 
@@ -94,13 +98,17 @@ export type BuildingAdmission = ConvertingBuilding & TrainingBuilding & { manaNe
 function unsupported(): never {
   throw new Error('Building entry reached an unported world consumer')
 }
-const orderEffects: OrderEffects = {
+const orderEffects = (w: World): OrderEffects => ({
   prepare: unsupported,
   stopWork: unsupported,
   releaseSpell: unsupported,
   deleteObject: unsupported,
-  releaseFight: unsupported,
-}
+  // 004364d0 -> 00501be0 clears assignment 0x20 before this recovery.
+  releaseFight: person =>
+    recoverPersonMovement(w, person as LivePerson, (current, object) =>
+      setLivePersonAnimation(w, current as LivePerson, object)
+    ),
+})
 const person = (w: World, u: Unit): EntryPerson =>
   Object.assign(createLivePerson(w, u), { savedVehicle: 0, orderDelay: 0 })
 
@@ -109,12 +117,13 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
     orders = w.buildingOrders,
     id = allocatePersonOrder(orders)
   if (!id) return
+  delete u.resident
   u.native = null
   Object.assign(orders.records[id], {
     model: b.admission?.activity && b.admission.activity & 0x8000 ? 10 : 8,
     a: b.id,
   })
-  attachPersonOrder(orders, p, id, 0, orderEffects)
+  attachPersonOrder(orders, p, id, 0, orderEffects(w))
   p.previousState = p.state
   p.state = defaultPersonState(p, w.manaWorld.gameFlags)
   initializeBuildingPerson(w, p)
@@ -184,7 +193,8 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
           object => setLivePersonAnimation(w, p, object),
           sprites.frameCounts
         )
-        setPersonOccupancy(context(w), p, 0, occupancyEffects(w))
+        const ctx = context(w)
+        setPersonOccupancy(ctx, p, 0, occupancyEffects(w, ctx.people))
         releasePersonRoute(w.motionRoutes, p)
         const u = w.units.find(unit => unit.id === p.id)
         if (u) clearLivePath(w, u)
@@ -204,8 +214,8 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
                 b: point.y & 65535,
               }),
             occupied: () => false,
-            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects),
-            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects),
+            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects(w)),
+            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w)),
             initialize,
           })
           if (u && currentPersonOrder(w.buildingOrders, p)?.model === 31) adoptLiveOrders(w, u, p)
@@ -284,7 +294,15 @@ function context(w: World) {
   for (const u of w.units) {
     const tribe = tribeForTeam(u.team)
     if (u.hp > 0 && tribe >= 0) tribes[tribe].personCounts[nativePersonModel(u)]++
-    if (u.entry || u.inside !== null) people.set(u.id, u.entry?.person ?? u.native ?? person(w, u))
+    if (u.entry || u.inside !== null) {
+      const resident = residentPerson(w, u)
+      if (resident) {
+        resident.life = (Math.round(u.hp * 20) << 16) >> 16
+        resident.selectionFlags =
+          (resident.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0)
+      }
+      people.set(u.id, u.entry?.person ?? u.native ?? resident ?? person(w, u))
+    }
   }
   const buildings = new Map<number, BuildingAdmission>()
   for (const b of w.buildings) {
@@ -294,6 +312,10 @@ function context(w: World) {
   return {
     randomState: w.randomState,
     people,
+    // Native pool indices are bounded. Browser person handles can exceed 0x7fff;
+    // preserve their full identity when comparing stored occupant references.
+    occupantId: (slot: number) => slot,
+    personId: (stored: number) => stored,
     buildings,
     tribes,
     orders: w.buildingOrders,
@@ -305,9 +327,9 @@ function context(w: World) {
   }
 }
 
-function occupancyEffects(w: World): OccupancyEffects {
+function occupancyEffects(w: World, people: Map<number, EntryPerson>): OccupancyEffects {
   return {
-    orders: orderEffects,
+    orders: orderEffects(w),
     leaveVehicle: p => {
       if ((p as EntryPerson).vehicle) unsupported()
     },
@@ -330,14 +352,14 @@ function occupancyEffects(w: World): OccupancyEffects {
       Object.assign(u, browserPosition(p))
     },
     insertCell: p => {
-      w.objectCells.objects.set(p.id, p as EntryPerson)
+      setCellObject(w.objectCells, p.id, p as EntryPerson)
       insertObjectIntoCell(w.objectCells, p as EntryPerson, p)
     },
     removeCell: p => removeObjectFromCell(w.objectCells, p as EntryPerson),
     planExitPoint: unsupported,
     updateIndicator: b => {
       for (const u of w.units) {
-        const p = u.entry?.person ?? u.native
+        const p = u.entry?.person ?? u.native ?? people.get(u.id)
         if (b.occupants.includes(u.id)) {
           u.inside = b.id
           if (p) p.building = b.id
@@ -345,6 +367,8 @@ function occupancyEffects(w: World): OccupancyEffects {
           u.inside = null
           if (p) p.building = null
         }
+        if (u.resident && u.resident.person === p && u.inside !== u.resident.building)
+          delete u.resident
       }
       // 00407150 / 00407490 reconcile the indicator in the same admission/removal call.
       const building = w.buildings.find(target => target.id === b.id)
@@ -361,7 +385,7 @@ export function leaveBuildingEntry(w: World, u: Unit) {
     ctx = context(w),
     p = u.entry?.person ?? u.native ?? ctx.people.get(u.id)
   if (!p || !b?.admission) return
-  const removed = removeBuildingOccupant(ctx, b.admission, p, occupancyEffects(w)) as
+  const removed = removeBuildingOccupant(ctx, b.admission, p, occupancyEffects(w, ctx.people)) as
     | EntryPerson
     | undefined
   if (!removed) return
@@ -406,8 +430,8 @@ export function dismantleBuilding(w: World, b: Building) {
         p = ctx.people.get(id)!
       u.entry ??= { person: p, orders: w.buildingOrders }
       leaveBuildingEntry(w, u)
-      clearPersonOrders(w.buildingOrders, p, orderEffects)
-      attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects)
+      clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects(w))
       resetPersonMotion(p)
       u.work = b.id
       if (!(p.flags2 & 0x100000)) {
@@ -430,11 +454,13 @@ export function dismantleBuilding(w: World, b: Building) {
   }
 }
 
-export function cancelBuildingEntry(w: World, u: Unit) {
+export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
   if (!u.entry) return
   const p = u.entry.person
-  clearPersonOrders(w.buildingOrders, p, orderEffects)
-  if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
+  if (!preserveOrders) {
+    clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+    if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
+  }
   releasePersonRoute(w.motionRoutes, p)
   u.supportHeight = p.supportHeight || undefined
   u.entry = undefined
@@ -459,7 +485,14 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
   }
   const state = b && buildingAdmission(w, b),
     ctx = context(w),
-    order = currentPersonOrder(w.buildingOrders, p)!
+    order = currentPersonOrder(w.buildingOrders, p)!,
+    residentReissue =
+      b &&
+      order.model === 8 &&
+      p.substate === 0 &&
+      u.inside === b.id &&
+      order.a === b.id &&
+      ['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(b.kind)
   syncLivePersonCells(w)
   p.counter = (p.counter + 1) & 255
   p.cargo = Math.round(u.cargo * 100)
@@ -497,6 +530,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
       },
       () => sound(w, 10, u)
     )
+  let admitted = false
   const next = stepLiveOrderQueue(w, u, p, {
     [order.model]: () => {
       let done = 1
@@ -574,7 +608,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
             },
             dropCargo,
             enterBuilding: () => {
-              enterBuilding(ctx, p, state, occupancyEffects(w))
+              admitted = !!enterBuilding(ctx, p, state, occupancyEffects(w, ctx.people))
             },
             workInside: () => (state.model === 13 || state.model === 15 ? 0 : unsupported()),
           })
@@ -598,7 +632,13 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
         p
       )
       initializeBuildingPerson(w, p)
-    } else cancelBuildingEntry(w, u)
+    } else {
+      cancelBuildingEntry(w, u)
+      // Reissuing to the same school completes immediately for its resident.
+      // Fresh admission keeps the existing browser adapter lifetime.
+      if (residentReissue) u.native = p
+      else if (admitted && order.model === 8 && b) retainHutResident(w, u, b, p)
+    }
     if (u.inside === null) u.work = null
   } else adoptLiveOrders(w, u, p)
 }
@@ -608,11 +648,11 @@ export function stepLiveTraining(w: World, b: Building) {
   const state = buildingAdmission(w, b),
     ctx = context(w),
     created: Unit[] = []
-  const effects = occupancyEffects(w)
+  const effects = occupancyEffects(w, ctx.people)
   stepTrainingConversion(ctx, state, {
     ...effects,
     orders: {
-      ...orderEffects,
+      ...orderEffects(w),
       prepare: (order, model, x, y, flags = 0) => {
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, flags, w.land, id =>
@@ -629,9 +669,7 @@ export function stepLiveTraining(w: World, b: Building) {
         cancelBuildingEntry(w, u)
       },
     },
-    // The renderer observes admission for panel art; native allocation/lifetime
-    // and remaining panel commands still need their original UI controller.
-    updateTrainingPanel: () => {},
+    updateTrainingPanel: training => requestTrainingPanel(w, training.id),
     addMana: (tribe, amount) => {
       w.manaTribes[tribe].available = (w.manaTribes[tribe].available + amount) | 0
     },

@@ -276,7 +276,8 @@
     "949": "One of %s's Boat Houses.",
     "950": "%s Balloon Hut.",
     "951": "One of %s's Balloon Huts.",
-    "967": "Prison: The Shaman has been incarcerated here."
+    "967": "Prison: The Shaman has been incarcerated here.",
+    "814": "Blast: {}select. |}toggle on/off."
   },
   "window": [
     591,

@@ -1,13 +1,28 @@
+import { vehicleOrdinaryVisitDeferred } from './vehicle-allocation.ts'
+import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
-import { teamForTribe, tribeForTeam, type Vehicle, type World } from './world-types.ts'
+import {
+  teamForTribe,
+  tribeForTeam,
+  vehicleApparentTribe,
+  type Vehicle,
+  type World,
+} from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
 import { randomPersonSpeed } from './person-state.ts'
 import { movePosition, nativeAngle } from './native-math.ts'
 import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
-import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
+import {
+  boardingVehicle,
+  findVehicleLanding,
+  vehicleCanDisembark,
+  vehicleCanApproach,
+  vehicleReady,
+} from './vehicle-routing.ts'
 import { moveObjectInCells } from './object-cells.ts'
+import { markPersonSelected } from './person-selection.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 const short = (n: number) => (n << 16) >> 16
@@ -17,6 +32,22 @@ function relocateLivePerson(w: World, p: LivePerson, to: { x: number; y: number;
   if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
     moveObjectInCells(w.objectCells, p, to)
   else Object.assign(p, to)
+}
+
+// The state initializer's deselection propagates through the active vehicle's
+// occupied slots. It changes selection only, preserving seats and attachment.
+export function deselectLiveVehiclePassengers(w: World, person: { id: number; vehicle: number }) {
+  const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active)
+  if (!vehicle?.passengerCount) return
+  const deselected = new Set<number>()
+  for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
+    if (!id || id === person.id) continue
+    const passenger = w.pathfinding.people.get(id) ?? w.units.find(u => u.id === id)?.native
+    if (!passenger?.class || passenger.flags2 & 1) continue
+    markPersonSelected(passenger, false)
+    deselected.add(id)
+  }
+  w.selected = w.selected.filter(id => !deselected.has(id))
 }
 
 export const liveVehicles = (w: World) =>
@@ -61,7 +92,8 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
     i => !v.passengers[i]
   )
   if (slot === undefined) return false
-  if (!v.passengerCount) v.team = teamForTribe(p.tribe)
+  v.team = teamForTribe(p.tribe)
+  v.apparentTribe = p.model === 5 ? p.disguise >>> 6 : p.tribe
   v.passengers[slot] = p.id
   v.passengerCount++
   p.vehicle = v.id
@@ -92,10 +124,13 @@ export function leaveLiveVehicle(
 ) {
   const slot = v.passengers.indexOf(p.id)
   if (slot < 0) return
+  v.apparentTribe ??= tribeForTeam(v.team)
+  v.team = teamForTribe(p.tribe)
   v.passengers.splice(slot, 1)
   v.passengerCount = v.passengers.filter(Boolean).length
   if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
+  p.flags2 = (p.flags2 & ~0x4000) >>> 0
   p.flags4 = (p.flags4 & ~0x2000000) >>> 0
   relocateLivePerson(w, p, { ...to, h: terrainPointHeight(w.land, to) })
   Object.assign(p, {
@@ -108,17 +143,23 @@ export function leaveLiveVehicle(
 }
 
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
-  for (const id of v.passengers) {
-    const p = w.pathfinding.people.get(id)
-    if (p) relocateLivePerson(w, p, { x: v.x, y: v.y, h: v.h })
-    const unit = w.units.find(u => u.id === id)
-    if (unit) Object.assign(unit, browserPosition(p ?? v))
+  for (const [slot, id] of v.passengers.entries()) {
+    const unit = w.units.find(u => u.id === id),
+      // Retiring a route removes its map entry, not the seated native owner.
+      p = w.pathfinding.people.get(id) ?? unit?.native
+    if (p) seatVehiclePassenger(p, v, slot, point => relocateLivePerson(w, p, point))
+    if (unit) {
+      Object.assign(unit, browserPosition(p ?? vehicleSeat(v, slot)))
+      if (p) unit.heading = Math.PI - (p.angle * Math.PI) / 1024
+    }
   }
 }
 
 export function removeMissingVehiclePassengers(w: World) {
   const people = new Set(w.units.map(unit => unit.id))
   for (const vehicle of w.vehicles) {
+    // Linked reward templates are detached from ordinary object processing.
+    if (!vehicle.active || vehicleOrdinaryVisitDeferred(w, vehicle)) continue
     vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
     vehicle.passengerCount = vehicle.passengers.length
     if (!vehicle.passengerCount) vehicle.speed = -1
@@ -126,12 +167,12 @@ export function removeMissingVehiclePassengers(w: World) {
 }
 
 export function damageLiveVehicle(w: World, v: Vehicle, attacker: number, amount: number) {
-  if (w.levelFlags2 & 0x04000000 || tribeForTeam(v.team) === attacker) return
+  if (w.levelFlags2 & 0x04000000 || vehicleApparentTribe(v) === attacker) return
   v.life = short(v.life - short(amount))
 }
 
 // 0x466190: one shared ejection target, including coastal and seven-direction fallback.
-export function vehicleExitTarget(w: World, v: Vehicle) {
+export function vehicleExit(w: World, v: Vehicle) {
   const index = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9),
     category = w.land.categories[index] & 15,
     airborne = !!(rules.vehicleRestFlags[v.model] & 1),
@@ -165,15 +206,17 @@ export function vehicleExitTarget(w: World, v: Vehicle) {
       true
     )
   }
-  if (!blocked(target)) return target
+  if (!blocked(target)) return { point: target, found: true }
   for (let attempt = 0; attempt < 7; attempt++) {
     angle = (angle + 256) & 2047
     const candidate = { x: v.x & 65535, y: v.y & 65535 }
     movePosition(candidate, angle, airborne ? 1024 : 768)
-    if (!blocked(candidate)) return candidate
+    if (!blocked(candidate)) return { point: candidate, found: true }
   }
-  return { x: v.x & 65535, y: v.y & 65535 }
+  return { point: { x: v.x & 65535, y: v.y & 65535 }, found: false }
 }
+
+export const vehicleExitTarget = (w: World, v: Vehicle) => vehicleExit(w, v).point
 
 function destroyLiveVehicle(w: World, v: Vehicle) {
   v.active = false
@@ -184,8 +227,10 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
     const u = w.units.find(unit => unit.id === id),
       p = w.pathfinding.people.get(id) ?? u?.native
     if (!p) continue
+    v.apparentTribe ??= tribeForTeam(v.team)
+    v.team = teamForTribe(p.tribe)
     p.vehicle = 0
-    p.flags2 = (p.flags2 | 0x80010) >>> 0
+    p.flags2 = ((p.flags2 & ~0x4000) | 0x80010) >>> 0
     p.flags4 = ((p.flags4 & ~0x2000000) | 0x1000400) >>> 0
     p.speed = randomPersonSpeed(w, p)
     const angle = nativeAngle(short(exit.x - p.x), -short(exit.y - p.y))
@@ -203,8 +248,133 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
   v.passengerCount = 0
 }
 
+// 0x466760/0x4668b0: retain physical slots, then promote the first person
+// with an eligible queued command. Person phases and order references are untouched.
+// The browser schedules this once before person visits; native object-list ordering
+// and the existing movement adapter remain separate composition boundaries.
+const vehicleMovementPass = new WeakMap<World, Set<number>>()
+
+// A browser world pass owns one supported craft decision, independently of how
+// many people become driver during its visits. Checkpoints occur between passes.
+export function beginLiveVehiclePass(w: World) {
+  vehicleMovementPass.set(w, new Set())
+  selectLiveVehicleDrivers(w)
+}
+
+export function selectLiveVehicleDrivers(w: World) {
+  for (const v of w.vehicles) {
+    if (!v.active || ![1, 3].includes(v.model) || !v.passengerCount) continue
+    const capacity = (rules.vehicleCapacity[v.model] << 24) >> 24
+    const person = (id: number) => {
+      const p = w.objectCells.objects.get(id) as LivePerson | undefined
+      // Live adapter: reject stale aliases instead of selecting a different owner.
+      const u = w.units.find(unit => unit.id === id)
+      return p?.class === 1 && p.id === id && u?.native === p && !(p.flags2 & 1) ? p : undefined
+    }
+    for (let slot = 0; slot < capacity; slot++) {
+      const id = v.passengers[slot]
+      if (!id) continue
+      const p = person(id)
+      if (!p) {
+        v.passengers[slot] = 0
+        v.passengerCount = (v.passengerCount - 1) & 255
+      } else if (p.slowTurn) v.navigationFlags |= 2
+    }
+    if (!v.passengers[0]) {
+      const slot = v.passengers.findIndex((id, i) => i > 0 && i < capacity && !!id)
+      if (slot !== -1) {
+        v.passengers[0] = v.passengers[slot]
+        v.passengers[slot] = 0
+      }
+    }
+    for (let slot = 0; slot < capacity; slot++) {
+      const p = person(v.passengers[slot])
+      if (!p) continue
+      if (
+        !(p.commands[p.commandCursor] && (p.commandStatus !== 22 || p.vehicle !== p.target)) &&
+        !(p.model === 7 && p.state === 38)
+      )
+        continue
+      if (slot) {
+        v.passengers[slot] = v.passengers[0]
+        v.passengers[0] = p.id
+        if (!p.motionGroup) p.flags2 = (p.flags2 | 0x80000000) >>> 0
+      }
+      break
+    }
+  }
+}
+
+// Bounded 0x463f20 Boat / 0x4641d0 Balloon zero-desired-speed tails.
+// Positive speed projects the browser moving state; initial speed -1 is not a move state.
+// Active movement still owns its retained fixed-vector/height/wait adapter.
+function stopUnvisitedVehicle(w: World, v: Vehicle) {
+  const visited = vehicleMovementPass.get(w)
+  if (!visited || visited.has(v.id) || ![1, 3].includes(v.model) || short(v.speed) <= 0) return
+  const candidate = w.units.find(u => u.id === v.passengers[0])?.native,
+    driver =
+      candidate?.class === 1 &&
+      candidate.id === v.passengers[0] &&
+      !(candidate.flags2 & 1) &&
+      w.objectCells.objects.get(candidate.id) === candidate
+        ? candidate
+        : undefined,
+    land = {
+      flags: w.land.flags,
+      categories: w.land.categories,
+      cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
+    }
+  const airborne = !!(rules.vehicleRestFlags[v.model] & 1)
+  // The fixed-heading coast remains a browser projection, not 0x4e7fb0 Boat steering.
+  // Ownerless moving/rest-state transitions remain in the existing adapter.
+  if (!driver || short(driver.speed)) return
+  visited.add(v.id)
+  if (short(v.speed) > 1) {
+    v.speed = short(Math.trunc((short(v.speed) * 22) / 32))
+    if (v.speed < 6) v.speed = 1
+    if (v.speed > 1) {
+      // Retained radians heading projects native travel heading; no new turn state.
+      const angle = (1024 - Math.round((v.heading * 1024) / Math.PI)) & 2047
+      movePosition(v, angle, v.speed)
+    }
+    v.h = terrainPointHeight(w.land, v) + (airborne ? 560 : 0)
+    return
+  }
+  const index = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
+  if (
+    (v.x & 511) === 256 &&
+    (v.y & 511) === 256 &&
+    (airborne
+      ? vehicleCanDisembark(land, v, v) &&
+        (v.passengerCount || rules.terrainCategoryFlags[w.land.categories[index] & 15] & 61)
+      : vehicleCanApproach(land, v, v))
+  ) {
+    v.speed = 0
+    // 0x463370 state1 -> 0x463750 raises Boats to terrain, preserving higher h.
+    v.h = airborne
+      ? terrainPointHeight(w.land, v) + 560
+      : Math.max(short(v.h), terrainPointHeight(w.land, v))
+    v.navigationFlags &= ~0x10000
+    return
+  }
+  // 0x466fc0 centers the returned point even when the bounded search fails.
+  const { point } = findVehicleLanding(land, w.indexedSearch, v, v),
+    target = { x: (point.x & 0xfe00) + 256, y: (point.y & 0xfe00) + 256 }
+  if ((v.x & 65535) === target.x && (v.y & 65535) === target.y) return
+  v.navigationFlags |= 0x8000
+  if (Math.abs(short(v.x) - short(target.x)) < 13 && Math.abs(short(v.y) - short(target.y)) < 13) {
+    v.x = target.x
+    v.y = target.y
+  } else movePosition(v, nativeAngle(short(target.x - v.x), -short(target.y - v.y)), 12)
+}
+
 export function stepLiveVehicles(w: World) {
   for (const v of w.vehicles) {
+    if (vehicleOrdinaryVisitDeferred(w, v)) continue
+    // 0x4ec8b3 increments before the ordinary object body; unknown legacy phase
+    // stays unknown. This does not restore the full native vehicle controller.
+    if ((v.active || v.destructionState) && v.counter !== undefined)
+      v.counter = (v.counter + 1) & 255
     if (v.destructionState === 5) {
       const cell = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9)
       if (terrainSupportsPerson(w.land.categories[cell], v)) {
@@ -220,12 +390,17 @@ export function stepLiveVehicles(w: World) {
       if (v.h > 1023) v.destructionState = 0
       continue
     }
+    if (v.active) stopUnvisitedVehicle(w, v)
     // 0x463cb0 deliberately leaves exact zero untouched and restores occupied positive life.
     if (!v.active || !v.life) continue
     v.life = short(v.life - 1)
     if (v.life < 1) destroyLiveVehicle(w, v)
     else if (v.speed > 0 || v.passengerCount) v.life = rules.vehicleLife[v.model]
   }
+  // The vehicle controller publishes seats after all person route/controller
+  // visits. A boarding route may otherwise overwrite its provisional placement.
+  for (const v of w.vehicles) if (v.active && v.passengerCount) syncLiveVehiclePassengers(w, v)
+  vehicleMovementPass.delete(w)
 }
 
 export function stepLiveVehicle(w: World, p: LivePerson) {
@@ -234,6 +409,14 @@ export function stepLiveVehicle(w: World, p: LivePerson) {
   if (v.passengers[0] !== p.id) {
     syncLiveVehiclePassengers(w, v)
     return false
+  }
+  if ([1, 3].includes(v.model)) {
+    const moved = vehicleMovementPass.get(w)
+    if (moved?.has(v.id)) {
+      syncLiveVehiclePassengers(w, v)
+      return true
+    }
+    moved?.add(v.id)
   }
   const vehicles = liveVehicles(w),
     vehicleWorld = {

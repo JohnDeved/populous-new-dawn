@@ -1,4 +1,6 @@
+import { createObjectCells } from './object-cells.ts'
 import { createSecondaryEffects } from './secondary-effects.ts'
+import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import {
   tribeForTeam,
   type World,
@@ -16,7 +18,8 @@ import rules from './original-rules.json' with { type: 'json' }
 import { createFlyby } from './flyby.ts'
 import { missionAI } from './campaign-runtime.ts'
 import { createMessages } from './messages.ts'
-import { emptyPersonOrder } from './person-orders.ts'
+import { createPersonOrderPool } from './person-orders.ts'
+import { createCapacityPolicy, populationCeiling, type CapacityMode } from './capacity-policy.ts'
 import { createMotionRoutes } from './person-routes.ts'
 import { createTimberSearches } from './timber-search.ts'
 import { makeTerrain } from './world-terrain-runtime.ts'
@@ -67,7 +70,7 @@ export function createLivePathfinding() {
   }
 }
 
-export function createWorldState(missionNumber = 1): World {
+export function createWorldState(missionNumber = 1, capacityMode: CapacityMode = 'classic'): World {
   const mission = missionData(missionNumber),
     land = createMissionLand(mission.level),
     objectTribes = new Set(
@@ -88,8 +91,15 @@ export function createWorldState(missionNumber = 1): World {
       targets: [0, 0, 0, 0],
     })),
     playerSpellMask =
-      missionSpellMask(missionNumber) & SPELLS.reduce((mask, spell) => mask | (1 << spell.model), 0)
+      missionSpellMask(missionNumber) &
+      // 0x42ca00 clears descriptor modes 0/2 after loading the campaign HDR.
+      SPELLS.reduce(
+        (mask, spell) =>
+          rules.spellCharging[spell.model].mode === 1 ? mask | (1 << spell.model) : mask,
+        0
+      )
   return {
+    capacityPolicy: createCapacityPolicy(capacityMode),
     flyby: createFlyby(),
     drawMode: missionNumber === tutorialLevel ? 2 : 0,
     inputMask: 0,
@@ -124,16 +134,12 @@ export function createWorldState(missionNumber = 1): World {
       teleport: 0,
       swarm: 0,
     },
-    objectCells: { heads: new Uint16Array(16384), objects: new Map() },
+    objectCells: createObjectCells(),
     marching: [],
     combatMarches: [],
     lastOrderTurn: 0,
-    buildingOrders: {
-      records: Array.from({ length: 800 }, emptyPersonOrder),
-      cursor: 1,
-      active: 0,
-    },
-    motionRoutes: createMotionRoutes(),
+    buildingOrders: createPersonOrderPool(capacityMode === 'scalable'),
+    motionRoutes: createMotionRoutes(capacityMode === 'scalable'),
     pathfinding: createLivePathfinding(),
     timberSearches: createTimberSearches(),
     land: {
@@ -202,9 +208,11 @@ export function createWorldState(missionNumber = 1): World {
     routeNotice: null,
     levelStart: [],
     levelStartStoneSound: 0,
+    reincarnationSites: [],
     terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],
+    vehicleAllocationSeed: 0,
     vehicles: [],
     buildings: [],
     effects: [],
@@ -256,9 +264,10 @@ export function createWorldState(missionNumber = 1): World {
     pendingTime: 0,
     randomState: 1,
     cosmeticRandom: { randomState: 1 },
+    worshipAcquisition: createWorshipAcquisitionRuntime(),
     effectCounter: 0,
     secondaryEffects: createSecondaryEffects(),
-    nextId: 1,
+    nextId: capacityMode === 'scalable' ? 1024 : 1,
     footprints: createFootprints(),
     selected: [],
     orderCursor: 0,
@@ -328,7 +337,7 @@ export function population(w: World, team: Team) {
 }
 export function populationLimit(w: World, team: Team) {
   return Math.min(
-    200,
+    populationCeiling(w.capacityPolicy),
     6 +
       w.buildings
         .filter(b => b.team === team && b.kind === 'hut' && b.progress === 1 && b.hp > 0)

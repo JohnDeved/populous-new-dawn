@@ -1,11 +1,19 @@
-import { useState, type KeyboardEvent } from 'react'
+import {
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type CSSProperties,
+} from 'react'
 import {
   openingCampaignMissions,
   openingMissionAvailable,
   openingRecommendedMission,
-  selectorWorlds,
 } from './world-selector-data'
 import styles from './world-selector.module.css'
+import { WorldSelectorScene } from './world-selector-scene'
+import { SelectorTitle, SelectorTooltip } from './world-selector-text'
 
 interface Props {
   missions: readonly number[]
@@ -15,6 +23,7 @@ interface Props {
   onTutorial: () => void
   onLoad: () => void
   onBack?: () => void
+  replacingWorld?: boolean
 }
 
 export function WorldSelector({
@@ -25,12 +34,29 @@ export function WorldSelector({
   onTutorial,
   onLoad,
   onBack,
+  replacingWorld = false,
 }: Props) {
+  const container = useRef<HTMLElement>(null)
+  const directHeading = useRef<HTMLHeadingElement>(null)
+  const focusDirectHeading = useRef(false)
+  const descriptionId = useId()
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
+  const [compatibility, setCompatibility] = useState(false)
+  const [failedArt, setFailedArt] = useState<string[]>([])
+  useLayoutEffect(() => {
+    if (!focusDirectHeading.current || compatibility || !allMissions) return
+    focusDirectHeading.current = false
+    // The activated switch disappears. Focus a non-action heading so a held
+    // Enter/Space cannot follow it into a mission launch; Tab reaches the grid.
+    directHeading.current?.focus({ preventScroll: true })
+  }, [allMissions, compatibility])
+  const panelArt = `/original/world-selector/panel/${selected}-`
+  const artFailed = failedArt.includes(panelArt)
+  const failArt = () =>
+    setFailedArt(previous => (previous.includes(panelArt) ? previous : [...previous, panelArt]))
   const available = openingMissionAvailable(selected, completed)
   const isCompleted = completed.includes(selected)
-  const body = selectorWorlds.find(world => world.mission === selected)!
   let status = 'Available'
   if (isCompleted) status = 'Completed · ready to replay'
   else if (!available) status = `Complete Mission ${selected - 1} to continue.`
@@ -41,33 +67,110 @@ export function WorldSelector({
     const availableMissions = openingCampaignMissions.filter(mission =>
       openingMissionAvailable(mission, completed)
     )
-    const direction = event.key === 'ArrowLeft' ? -1 : 1
-    const current = availableMissions.indexOf(selected as 1 | 2 | 3)
-    setSelected(
-      availableMissions[(current + direction + availableMissions.length) % availableMissions.length]
-    )
+    // Locked worlds can still be inspected through the panel. Search from that
+    // mission's position rather than treating it as a missing available index.
+    const next =
+      event.key === 'ArrowLeft'
+        ? (availableMissions.findLast(mission => mission < selected) ??
+          availableMissions[availableMissions.length - 1])
+        : (availableMissions.find(mission => mission > selected) ?? availableMissions[0])
+    setSelected(next)
+    // Keep panel activation tied to the world just selected by the arrow key.
+    // Arrows on Start retain its focus so Enter still launches that world.
+    if (event.currentTarget.hasAttribute('data-selector-mission')) {
+      container.current
+        ?.querySelector<HTMLButtonElement>(`[data-selector-mission="${next}"]`)
+        ?.focus()
+    }
   }
 
   return (
-    <section className={styles.selector} aria-label="World selection">
-      <header className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>Populous: The Beginning</p>
-          <h2>Select Level</h2>
-        </div>
-        {onBack && <button onClick={onBack}>Back</button>}
-      </header>
-      <div className={styles.tabs}>
-        <button aria-pressed={!allMissions} onClick={() => setAllMissions(false)}>
-          Campaign worlds
-        </button>
-        <button aria-pressed={allMissions} onClick={() => setAllMissions(true)}>
-          All missions
-        </button>
-      </div>
+    <section
+      ref={container}
+      className={`${styles.selector} ${!allMissions ? styles.nativePointer : ''}`}
+      aria-label="World selection"
+      style={
+        {
+          '--selector-cursor': `url("/original/world-selector/text/cursor-${selected}.png") 0 0`,
+        } as CSSProperties
+      }
+    >
+      <h2 className={styles.visuallyHidden}>Select Level</h2>
+      <button
+        className={styles.compatibilityToggle}
+        aria-expanded={compatibility}
+        aria-controls="selector-browser-controls"
+        onClick={() => setCompatibility(value => !value)}
+      >
+        Browser controls
+      </button>
+      {compatibility && (
+        <section
+          id="selector-browser-controls"
+          className={styles.compatibility}
+          aria-label="Browser compatibility controls"
+        >
+          <p>Browser compatibility controls</p>
+          <div className={styles.tabs}>
+            <button
+              aria-pressed={!allMissions}
+              onClick={() => {
+                setAllMissions(false)
+                setCompatibility(false)
+              }}
+            >
+              Campaign worlds
+            </button>
+            <button
+              aria-pressed={allMissions}
+              onClick={() => {
+                focusDirectHeading.current = true
+                setAllMissions(true)
+                setCompatibility(false)
+              }}
+            >
+              All missions
+            </button>
+          </div>
+          <label>
+            Inspect campaign world
+            <select
+              aria-label="Inspect campaign world"
+              value={selected}
+              onChange={event => {
+                const mission = openingCampaignMissions.find(
+                  value => value === Number(event.target.value)
+                )
+                if (mission) setSelected(mission)
+                setAllMissions(false)
+              }}
+            >
+              {openingCampaignMissions.map(mission => (
+                <option key={mission} value={mission}>
+                  Mission {mission} ·{' '}
+                  {completed.includes(mission)
+                    ? 'Completed'
+                    : openingMissionAvailable(mission, completed)
+                      ? 'Available'
+                      : 'Locked'}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className={styles.compatibilityActions}>
+            <button onClick={onTutorial}>Tutorial</button>
+            {hasCheckpoint && <button onClick={onLoad}>Load Game</button>}
+            {onBack && <button onClick={onBack}>Back</button>}
+          </div>
+          <p role="status">{status}</p>
+          {replacingWorld && <p>Starting a mission replaces the current world.</p>}
+        </section>
+      )}
       {allMissions ? (
         <section className={styles.direct} aria-label="All missions">
-          <h3>Choose any playable mission</h3>
+          <h3 ref={directHeading} tabIndex={-1}>
+            Choose any playable mission
+          </h3>
           <p>Direct access is available here, independently of campaign progress.</p>
           <div className={styles.missions}>
             {missions.map(mission => (
@@ -84,102 +187,77 @@ export function WorldSelector({
         </section>
       ) : (
         <>
-          <div className={styles.campaign}>
-            <div className={styles.map} aria-label="Opening worlds orbit map">
-              <svg
-                viewBox="0 0 420 400"
-                role="img"
-                aria-label="Missions 1, 2 and 3 orbit the same parent world. Mission 1 is the outermost moon."
-              >
-                {[150, 110, 70, 35].map(radius => (
-                  <circle key={radius} cx="190" cy="180" r={radius} className={styles.orbit} />
-                ))}
-                <circle cx="190" cy="180" r="10" className={styles.parentWorld} />
-                <text x="210" y="183">
-                  World 5
-                </text>
-                <circle cx="190" cy="215" r="8" className={styles.futureWorld} />
-                <text x="210" y="220">
-                  World 4
-                </text>
-                {openingCampaignMissions.map(mission => {
-                  const world = selectorWorlds.find(value => value.mission === mission)!
-                  const y = 180 + world.orbitRadius
-                  return (
-                    <g key={mission} className={mission === selected ? styles.selectedOrbit : ''}>
-                      <circle cx="190" cy={y} r={mission === selected ? 15 : 8} />
-                      <text x="220" y={y + 5}>
-                        Mission {mission}
-                        {completed.includes(mission) ? ' ✓' : ''}
-                      </text>
-                    </g>
-                  )
-                })}
-              </svg>
-              <p>Original orbit layout · opening worlds</p>
-            </div>
-            <section className={styles.details} aria-label="Selected world">
-              <div
-                className={styles.planet}
-                style={{ backgroundImage: `url(/original/world-selector/mission-${selected}.png)` }}
-                aria-hidden="true"
-              />
-              <p className={styles.eyebrow}>World {selected}</p>
-              <h3>Mission {selected}</h3>
-              <p role="status">{status}</p>
-              <p className={styles.orbitDescription}>Moon of World 5 · orbit {body.orbitRadius}</p>
-              <button
-                className={styles.start}
-                disabled={!available}
-                onKeyDown={navigate}
-                onClick={() => onStart(selected)}
-              >
-                {isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
-              </button>
-            </section>
+          <WorldSelectorScene
+            mission={selected}
+            progressionMission={openingRecommendedMission(completed)}
+          />
+          <div className={styles.selectedTitle}>
+            <p role="status" className={available ? styles.visuallyHidden : styles.lockedStatus}>
+              {status}
+            </p>
+            <SelectorTitle mission={selected} />
           </div>
-          <div className={styles.worldChoices} aria-label="Choose campaign world">
-            {openingCampaignMissions.map(mission => {
-              const unlocked = openingMissionAvailable(mission, completed)
-              let label = 'Locked'
-              if (completed.includes(mission)) label = 'Completed ✓'
-              else if (unlocked) label = 'Available'
-              return (
+          <div
+            className={`${styles.panel} ${artFailed ? styles.artFallback : ''}`}
+            aria-label="Campaign status panel"
+          >
+            {!artFailed && (
+              <img className={styles.panelArt} src={`${panelArt}0.png`} alt="" onError={failArt} />
+            )}
+            <div className={styles.panelGlyphs}>
+              {openingCampaignMissions.map(mission => (
                 <button
                   key={mission}
-                  autoFocus={!hasCheckpoint && mission === selected}
+                  className={styles.panelGlyph}
+                  aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
                   aria-pressed={mission === selected}
-                  aria-label={`Select Mission ${mission}`}
+                  data-selector-mission={mission}
+                  autoFocus={mission === selected}
+                  aria-describedby={`${descriptionId}-${mission}`}
+                  data-selector-tooltip={
+                    openingMissionAvailable(mission, completed)
+                      ? completed.includes(mission)
+                        ? 980
+                        : 979
+                      : undefined
+                  }
                   onKeyDown={navigate}
                   onClick={() => setSelected(mission)}
+                  style={{ left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }}
                 >
-                  <strong>Mission {mission}</strong>
-                  <span>{label}</span>
+                  <span id={`${descriptionId}-${mission}`} className={styles.visuallyHidden}>
+                    {completed.includes(mission)
+                      ? 'Completed, ready to replay'
+                      : openingMissionAvailable(mission, completed)
+                        ? 'Available'
+                        : `Locked, complete Mission ${mission - 1} to continue`}
+                  </span>
+                  {artFailed && <span>{mission}</span>}
+                  {!artFailed && openingMissionAvailable(mission, completed) && (
+                    <img
+                      src={`${panelArt}${completed.includes(mission) ? 6 : 5}.png`}
+                      alt=""
+                      onError={failArt}
+                    />
+                  )}
                 </button>
-              )
-            })}
+              ))}
+            </div>
+            <button
+              className={styles.start}
+              disabled={!available}
+              data-selector-tooltip={available ? 978 : undefined}
+              aria-label={isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
+              onKeyDown={navigate}
+              onClick={() => onStart(selected)}
+            >
+              {!artFailed && <img src={`${panelArt}10.png`} alt="" onError={failArt} />}
+              <span className={artFailed ? undefined : styles.visuallyHidden}>Start</span>
+            </button>
           </div>
-          <p className={styles.hint}>
-            Select a world, then start. Left and right arrows cycle available worlds.
-          </p>
-          {completed.includes(3) && (
-            <p className={styles.hint}>
-              Opening worlds completed. Continue with the other playable worlds in All missions.
-            </p>
-          )}
+          <SelectorTooltip key={selected} mission={selected} container={container} />
         </>
       )}
-      <footer className={styles.footer}>
-        <button onClick={onTutorial}>Tutorial</button>
-        {hasCheckpoint && (
-          <button autoFocus onClick={onLoad}>
-            Load Game
-          </button>
-        )}
-        {onBack && (
-          <p>Starting a mission replaces the current world. Save a checkpoint before switching.</p>
-        )}
-      </footer>
     </section>
   )
 }

@@ -83,8 +83,8 @@ try {
           const px = x + dx, py = y + dy
           if (px < 0 || px >= 128 || py < 0 || py >= 128) continue
           const sx = Math.floor((dx + .5) * p.w / d.w), sy = Math.floor((dy + .5) * p.h / d.h)
-          const ax = d.piece % units.columns * units.cell + (d.flags & 1 ? p.w - 1 - sx : sx)
-          const ay = Math.floor(d.piece / units.columns) * units.cell + sy
+          const ax = (p.atlasX ?? d.piece % units.columns * units.cell) + (d.flags & 1 ? p.w - 1 - sx : sx)
+          const ay = (p.atlasY ?? Math.floor(d.piece / units.columns) * units.cell) + sy
           const src = (ay * units.width + ax) * 4
           if (rgba[src + 3]) reference.set(rgba.subarray(src, src + 4), (py * 128 + px) * 4)
         }

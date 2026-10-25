@@ -1,6 +1,9 @@
 """Run complete original person layer renderers against the shipped TS/atlas.
 Usage: python scripts/check-native-sprite-layers.py /path/to/d3dpoptb.exe
 --record updates the reviewed regression fixture; never run it in a normal check.
+--firewarrior-resting-only checks source720 and the retained728 control with
+descriptor18, original loaded VELE flags and explicit shared-shadow qualification.
+It prints its bounded result and never records the established576 fixtures.
 """
 import hashlib, importlib.util, json, random, struct, subprocess, sys
 from pathlib import Path
@@ -10,6 +13,9 @@ from PIL import Image
 from decomp import native_cpu, ROOT
 
 exe = Path(sys.argv[1]); cpu, _ = native_cpu(exe)
+resting_only = '--firewarrior-resting-only' in sys.argv[2:]
+if resting_only and sys.argv[2:] != ['--firewarrior-resting-only']:
+    raise ValueError('The bounded resting check accepts no recording options')
 cpu.mem_map(0x2000000, 0x1000000)
 bank, frames, elements, camera, stack, stop = 0x2000000, 0x2100000, 0x2200000, 0x2400000, 0x2ffd000, 0x2ffe000
 units = json.loads((ROOT/'app/original-units.json').read_text())
@@ -25,7 +31,13 @@ vfra = (exe.parent/'data/vfra-0.ani').read_bytes()
 # Loaded VFRA draw records omit the two-byte next-frame link.
 cpu.mem_write(frames,b''.join(vfra[i:i+6] for i in range(0,len(vfra),8)))
 vele = bytearray((exe.parent/'data/vele-0.ani').read_bytes())
-for i in range(0,len(vele),10): struct.pack_into('<H',vele,i,struct.unpack_from('<H',vele,i)[0]//6*8)
+for i in range(0,len(vele),10):
+    struct.pack_into('<H',vele,i,struct.unpack_from('<H',vele,i)[0]//6*8)
+    if resting_only:
+        # 0042c5b7..0042c5e3. Supply actual loaded low flags to the original
+        # layer routine; the checker retains its equivalent one-based bank.
+        flags = struct.unpack_from('<H', vele, i+6)[0]
+        struct.pack_into('<H', vele, i+6, (flags & 0xfff0) | (flags & 3) | ((flags & 4) << 1))
 cpu.mem_write(elements,bytes(vele))
 write(0x59df18,'I',bank); write(0x59df48,'I',frames); write(0x59df4c,'I',elements); write(0x74a350,'I',camera)
 packed = {p['source']: i for i,p in enumerate(units['pieces'])}
@@ -34,7 +46,7 @@ assert atlas.size == (units['width'],units['height'])
 hashes = []
 for i,p in enumerate(units['pieces']):
     w,h,data=raw[p['source']]; assert (w,h)==(p['w'],p['h'])
-    x=i%units['columns']*units['cell']; y=i//units['columns']*units['cell']
+    x=p.get('atlasX', i%units['columns']*units['cell']); y=p.get('atlasY', i//units['columns']*units['cell'])
     assert atlas.crop((x,y,x+w,y+h)).tobytes()==data, ('atlas piece',i,p['source'])
     hashes.append(hashlib.sha256(data).hexdigest())
 def submit(cpu,a,size,user):
@@ -54,6 +66,54 @@ def native(frame, options, view):
     cpu.emu_start(address,stop,count=20000)
     assert cpu.reg_read(UC_X86_REG_EIP)==stop
     return draws
+if resting_only:
+    cases = []
+    descriptor = rules['animationDescriptors'][18]
+    assert (descriptor['mode'], descriptor['step'], descriptor['person'], descriptor['variant']) == (2,1,2,1)
+    for owner, team in enumerate(['blue','red']):
+        for pose, source in [('restingGesture',720),('idleGesture',728)]:
+            for direction, cycle in enumerate(units['animations'][team+'-firewarrior'][pose]):
+                assert cycle['source'] == source+direction and len(cycle['frames']) == 14
+                for step, frame in enumerate(cycle['frames']):
+                    for hide_shadow in (False, True):
+                        options = dict(owner=owner,person=2,variant=1,flags=int(cycle['flip']) | (2 if hide_shadow else 0),bucket=1,scale=False,levelFlags=0)
+                        cases.append(dict(source=source,owner=owner,direction=direction,step=step,
+                                          frame=frame,options=options,view=views[0],
+                                          draws=native(frame,options,views[0])))
+                        if direction in (2,6) and step in (0,13):
+                            scaled = dict(options, bucket=2000, scale=True, levelFlags=0x100)
+                            cases.append(dict(source=source,owner=owner,direction=direction,step=step,
+                                              frame=frame,options=scaled,view=views[0],
+                                              draws=native(frame,scaled,views[0])))
+    js = """import {spriteLayers} from './app/sprite-layers.ts';import u from './app/original-units.json' with {type:'json'};let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(c=>spriteLayers(u.frames[c.frame].layers,u.pieces,c.options,c.view))));"""
+    compared = subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),text=True,capture_output=True,cwd=ROOT)
+    assert compared.returncode == 0, compared.stderr
+    actual = json.loads(compared.stdout)
+    assert len(actual) == len(cases) == 928
+    assert sum(case['options']['scale'] for case in cases) == 32
+    differences = []
+    for index, (case, port) in enumerate(zip(cases, actual)):
+        assert len(case['draws']) == len(port), ('layer count', index)
+        for layer, (expected, got) in enumerate(zip(case['draws'], port)):
+            assert {k:v for k,v in expected.items() if k!='flags'} == {k:v for k,v in got.items() if k!='flags'}, ('geometry', index, layer, expected, got)
+            if expected['flags'] != got['flags']:
+                # Report this existing shared convention explicitly. Do not
+                # generalize the exception to new body/weapon layers or blending.
+                assert units['pieces'][got['piece']]['source'] == 22
+                assert got['flags'] in (4,5) and expected['flags'] == got['flags']+4
+                differences.append(dict(case=index,source=case['source'],owner=case['owner'],
+                                        direction=case['direction'],step=case['step'],layer=layer,
+                                        pieceSource=22,portFlags=got['flags'],nativeFlags=expected['flags']))
+    assert len(differences) == 464
+    report = dict(status='PASS_NATIVE_LAYER_GEOMETRY_WITH_RETAINED_SHADOW_FLAG_DIFFERENCE',
+                  cases=cases,shadowFlagDifferences=differences,atlasPieceCount=len(hashes),
+                  atlasSha256=hashlib.sha256((ROOT/f"public/original/{units['atlas']}.png").read_bytes()).hexdigest(),
+                  executableSha256=hashlib.sha256(exe.read_bytes()).hexdigest(),
+                  scriptSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  supplied='Loaded sprite tables, camera/scale inputs and terminal raster submissions; original0045f9d0 executes. No complete loader, GPU rasterization or person lifecycle.',
+                  limits='896 unscaled and32 representative scaled layer/geometry cases, plus original atlas RGBA. All464 flag differences are existing shadowpiece22; native raster flag/blending equivalence remains unclaimed.')
+    print(json.dumps(report,indent=2))
+    sys.exit(0)
 rng=random.Random(0x45f9d0);cases=[]
 for frame in range(len(units['frames'])):
     for owner in (-1,0,1):

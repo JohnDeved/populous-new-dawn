@@ -1,3 +1,4 @@
+import { makeTornado, drawTornado } from './scene-tornado.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture, effectFrame, nativeModel } from './scene-assets.ts'
@@ -28,8 +29,11 @@ import {
   shamanReincarnationPose,
 } from './shaman-appearance.ts'
 import { shamanDeathVfx } from './shaman-death-vfx.ts'
+import { followerCorpseFrame, followerCorpsePose } from './follower-corpse-animation.ts'
 import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
+import { vaultKnowledgeGiftAppearance } from './vault-appearance.ts'
+import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
   const g = new THREE.Group()
@@ -48,6 +52,12 @@ export function animateVaultKnowledgeMarker(scene: GameScene, g: THREE.Group, vi
 }
 
 export function makeFx(scene: GameScene, f: Effect) {
+  const knowledge = f.kind === 'gift' && vaultKnowledgeGiftAppearance(scene.world, f as Gift)
+  if (knowledge) {
+    const presentation = makeVaultWorldPresentation(knowledge, false)
+    scene.locate(presentation, f, f.height)
+    return presentation
+  }
   const g = new THREE.Group()
   if (f.swamp) {
     const pool = new THREE.Mesh(
@@ -81,25 +91,10 @@ export function makeFx(scene: GameScene, f: Effect) {
     }
     return g
   }
-  if (f.tornado) {
-    g.name = 'tornado'
-    for (const _ of f.tornado.particles) {
-      const sprite = new THREE.Sprite(
-        new THREE.SpriteMaterial({
-          map: texture('effects'),
-          transparent: true,
-          depthWrite: false,
-          toneMapped: false,
-        })
-      )
-      sprite.userData.atlasTransform = new THREE.Vector4(1, 1, 0, 0)
-      sprite.center.set(0.5, 0)
-      g.add(sprite)
-    }
-    return g
-  }
+  if (f.tornado) return makeTornado(f.tornado)
   if (
     f.wave ||
+    f.reincarnationWave ||
     f.bridge ||
     f.flatten ||
     f.erosion ||
@@ -112,13 +107,13 @@ export function makeFx(scene: GameScene, f: Effect) {
   )
     return g
   if (f.sinking) {
-    const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage)
+    const mesh = nativeModel(f.sinking.object, 2, f.sinking.stage, false, scene.environment)
     mesh.name = 'sinking-building'
     g.add(mesh)
     return g
   }
   if (f.fire) {
-    const mesh = nativeModel(5)
+    const mesh = nativeModel(5, 2, 4, false, scene.environment)
     mesh.material.transparent = true
     mesh.material.alphaTest = 0
     mesh.material.depthWrite = false
@@ -135,7 +130,7 @@ export function makeFx(scene: GameScene, f: Effect) {
       new THREE.Mesh(
         geometry,
         new THREE.MeshBasicMaterial({
-          map: texture('atlas'),
+          map: texture(scene.environment.landscape.modelAtlas),
           side: THREE.DoubleSide,
           alphaTest: 0.5,
         })
@@ -191,8 +186,7 @@ export function makeFx(scene: GameScene, f: Effect) {
     g.userData.draw = nativeUnitDraw(f.unit.kind)
     g.userData.drawFlags = f.corpse ? 0 : 2
     g.userData.shaman = f.unit.kind === 'shaman'
-    if (f.corpse)
-      g.userData.directions = Array.from({ length: 8 }, () => ({ frames: [304], flip: false }))
+    if (f.corpse) g.userData.directions = followerCorpsePose(f.unit, f.corpse.phase).directions
     return g
   }
   const sequence =
@@ -269,7 +263,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     for (let i = 0; i < g.children.length; i++) {
       const sprite = g.children[i] as THREE.Sprite,
         insect = swarm.insects[i]
-      sprite.visible = !!insect
+      sprite.visible = !!insect && !insect.hidden
       if (!insect) continue
       sprite.position.set(
         short(insect.x - swarm.x) / 256,
@@ -280,25 +274,12 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.tornado) {
-    const frames = nativeEffects.animations.smoke,
-      short = (n: number) => (n << 16) >> 16
-    for (let i = 0; i < g.children.length; i++) {
-      const sprite = g.children[i] as THREE.Sprite,
-        particle = f.tornado.particles[i]
-      sprite.visible = !!particle
-      if (!particle) continue
-      sprite.position.set(
-        short(particle.x - f.tornado.x) / 256,
-        (particle.h - f.tornado.h) / 128,
-        -short(particle.y - f.tornado.y) / 256
-      )
-      effectFrame(sprite, frames[(scene.world.turn + i) % frames.length])
-      sprite.material.opacity = f.tornado.phase ? Math.min(1, f.tornado.remaining / 12) : 0.9
-    }
+    drawTornado(scene, g, f.tornado)
     return
   }
   if (
     f.wave ||
+    f.reincarnationWave ||
     f.bridge ||
     f.flatten ||
     f.erosion ||
@@ -344,6 +325,11 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.kind === 'gift') {
+    const knowledge = vaultKnowledgeGiftAppearance(scene.world, f as Gift)
+    if (knowledge) {
+      drawVaultWorldPresentation(scene, g, knowledge, f.sprite!.frame, (f as Gift).phase > 0)
+      return
+    }
     g.visible = (f as Gift).phase > 0
     if (g.visible) {
       scene.animatePerson(g, 0, g.userData.directions, 0)
@@ -371,14 +357,13 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
   }
   if (f.unit) {
     if (f.corpse) {
-      const frame = f.corpse.phase === 0 ? 304 : f.corpse.phase === 1 ? 312 : 320,
-        directions = g.userData.directions as { frames: number[]; flip: boolean }[]
       g.visible = f.corpse.phase < 4
       if (!g.visible) return
-      if (g.userData.frame !== frame)
-        for (const direction of directions) direction.frames[0] = frame
+      const pose = followerCorpsePose(f.unit, f.corpse.phase)
+      g.userData.draw = pose.draw
+      g.userData.directions = pose.directions
       g.userData.drawFlags = f.corpse.phase >= 3 ? 6 : 0
-      scene.animatePerson(g, f.unit.heading, directions, 0)
+      scene.animatePerson(g, f.unit.heading, pose.directions, 0, false, followerCorpseFrame(f))
       return
     }
     // The model-12 effect already draws this Shaman's body/spirit. Keep the
@@ -559,9 +544,15 @@ export function updateSpellHalo(scene: GameScene, frame: number) {
   }
 }
 
+const effectFrameIds = new WeakMap<GameScene, Set<number>>()
+
 export function updateEffectsFrame(scene: GameScene) {
+  let ids = effectFrameIds.get(scene)
+  if (!ids) effectFrameIds.set(scene, (ids = new Set()))
+  ids.clear()
+  for (const f of scene.world.effects) ids.add(f.id)
   for (const [id, g] of scene.fxMeshes)
-    if (!scene.world.effects.some(f => f.id === id)) {
+    if (Number.isNaN(id) || !ids.has(id)) {
       g.removeFromParent()
       scene.releaseGroup(g)
       scene.fxMeshes.delete(id)

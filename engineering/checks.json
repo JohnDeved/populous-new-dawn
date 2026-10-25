@@ -2,6 +2,1004 @@
   "version": 1,
   "checks": [
     {
+      "id": "evidence-archive-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate archive-first native UI collection and bounded identity-owned selected cache lifetimes.",
+      "coveredBehavior": [
+        "API raw archive/source identity separation and complete member indexing without default extraction",
+        "Bounded ZIP parsing, exact selected restoration, persistent ownership journals and fail-closed cache release",
+        "Failed/interrupted evidence preservation without runtime or visual acceptance"
+      ],
+      "knownLimits": [
+        "Synthetic archives only; no original retirement authorization or claim of real archive drill completion.",
+        "Hosted runtime/visual acceptance and build/runtime archive formats remain separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/evidence-archive.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py",
+        "engineering/artifact-retention.md"
+      ],
+      "inputs": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Python 3.12 standard library on Linux"
+      ],
+      "sideEffects": [
+        "Runs two serial Python fixture processes, each capped at 30 seconds and 4 MiB captured output; two collector CLI fixtures each launch one additional Python child with a 5-second timeout. Creates/removes only owned synthetic temporary data; retains partial output on failure. No network, browser, installed-package writes or real archive use."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "native-ui-evidence-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate bounded native-style UI evidence, trusted checker ownership and source-bound acceptance guards.",
+      "coveredBehavior": [
+        "Exact candidate/infrastructure identities, dependency export resolution, cleanup and bounded episode accounting",
+        "Effective sound pending state and focus/world/popup ownership rejection controls",
+        "Finite, visible pending pointer targets owned by the sound control or its artwork"
+      ],
+      "knownLimits": [
+        "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
+        "Exact-candidate screenshots, real AudioContext recovery and unchanged full integration gates remain required."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/native-ui-evidence.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/native-ui-evidence",
+        "tests/native-ui-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml",
+        "engineering/native-ui-evidence.md",
+        "tests/native-ui-pause-acceptance.test.mjs"
+      ],
+      "inputs": [
+        "app/frontend-composition.ts",
+        "app/original-main-menu.tsx",
+        "app/original-pause-menu.tsx",
+        "scripts/native-ui-evidence",
+        "scripts/tutorial-browser/browser-config.mjs",
+        "scripts/tutorial-browser/run.mjs",
+        "scripts/orchestration/dependency-profile.mjs",
+        "tests/native-ui-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml",
+        ".github/workflows/tutorial-browser.yml",
+        ".github/workflows/ready-pr-check.yml",
+        "engineering/native-ui-evidence.md",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "tests/native-ui-pause-acceptance.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Installed project dependencies including js-yaml and @playwright/test"
+      ],
+      "sideEffects": [
+        "Creates and removes owned temporary Git/filesystem fixtures; imports installed Playwright without browser launch. No network, persistent source edits or fixed ports."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "neutral-canvas-cursor",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate the bounded POINT14 browser cursor adaptation, readiness and scene ownership.",
+      "coveredBehavior": [
+        "Exact source asset dimensions/hash and hotspot",
+        "Neutral-state exclusions, stationary transitions and original inline-style restoration",
+        "Decode failure, timeout, cancellation, blur and disposal; actual scene constructor/readiness/lifecycle statements"
+      ],
+      "knownLimits": [
+        "Mock DOM and image decode; parent-owned hosted cursor/picking/DPR verification remains required.",
+        "Browser adaptation, not complete native contextual cursor-state parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/neutral-cursor.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/neutral-cursor.ts",
+        "app/scene.ts",
+        "app/scene-entities.ts",
+        "app/unit-animation-source.ts",
+        "tests/neutral-cursor.test.mjs",
+        "public/original/cursor-point14.png",
+        "public/original/cursor-point14.json",
+        "scripts/import-neutral-cursor.py",
+        "scripts/import-original.py",
+        "decomp/research/neutral-canvas-cursor.md"
+      ],
+      "prerequisites": [
+        "Installed project dependencies",
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "In-process mocked DOM/Image/timers only; reads source and asset files. No network, ports or filesystem writes."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-impact-original-reference",
+      "kind": "portable",
+      "automation": "manual",
+      "receiptAdapter": "historical-blast-impact",
+      "purpose": "Interpret the reviewed port comparison against six historical original-reference Blast snapshots; never execute the original or comparator.",
+      "coveredBehavior": [
+        "Six compared arrival/head-retirement and first enemy/friendly impulse snapshots"
+      ],
+      "knownLimits": [
+        "Historical-reference provenance; raw native execution attestation is missing and original execution remains unknown, including on a matching port source tree.",
+        "Supplied gameFlags32 and a ground cast do not validate the ordinary bit-clear person-selection path. Native allocation, deletion and person bodies are supplied; the full fixture event log is not port-compared.",
+        "Unscored check detail only. No complete Blast, native whole-game, native timing, matched-frame or hardware-performance credit."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/blast-impact.test.mjs",
+        "tests/fixtures/blast-impact.json",
+        "scripts/check-native-blast-impact.py",
+        "decomp/exports.json",
+        "app",
+        "package.json",
+        "package-lock.json",
+        "engineering/checks.json"
+      ],
+      "prerequisites": [
+        "Existing explicit comparator receipt and reviewed manifest/runner Git identities; historical fixture origin available as Git data"
+      ],
+      "sideEffects": [
+        "Reads existing receipts and Git objects; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch tests, browser or native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-controls-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-blast-controls",
+      "purpose": "Read the reviewed owned Blast controls receipt and sidecar; never run the harness.",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast controls observation"
+      ],
+      "knownLimits": [
+        "Six public Mission 2 control stages including active-cast Save and fresh-page Load. Equality covers the bounded saved/loaded projection; the recorded digest is not an independent full-World recomputation. No original execution, save-format or paired parity claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "engineering/parity-capabilities.json"
+      ],
+      "prerequisites": [
+        "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
+      ],
+      "sideEffects": [
+        "Reads existing receipts; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch browser/native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "blast-person-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-blast-person",
+      "purpose": "Read the reviewed owned Blast person receipt and sidecar; never run the harness.",
+      "coveredBehavior": [
+        "Evidence-only ordinary Blast person observation"
+      ],
+      "knownLimits": [
+        "Owned public Mission 2 person release, real windup move and friendly Blue Brave tracking through arrival/impact. Historical browser observations only when source differs; no enemy-target, native execution, paired-frame, hardware-performance or whole-spell claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/parity-measure.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "engineering/parity-capabilities.json"
+      ],
+      "prerequisites": [
+        "Existing raw outer receipt, owned harness receipt and scenario sidecar with reviewed checker Git objects"
+      ],
+      "sideEffects": [
+        "Reads existing receipts; writes generated report.json, index.html and history.json under work/orchestration/parity-measure. Does not launch browser/native work."
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "mission-two-checkpoint-ordinary",
+      "kind": "browser",
+      "automation": "manual",
+      "receiptAdapter": "ordinary-m2-checkpoint",
+      "purpose": "Read the owned early-missions harness witness for ordinary Mission 2 checkpoint restoration.",
+      "coveredBehavior": [
+        "Public Save checkpoint, fresh reload, public Load, retained turn/roster/stats and real-clock resumption"
+      ],
+      "knownLimits": [
+        "Only the exact reviewed ordinary scenario and source-bound owned harness are accepted. This is browser checkpoint modernization, not original save compatibility or full mission parity. Historical source changes produce stale evidence."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/early-missions.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/local-render/early-missions.mjs",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/owned-profile.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/vite.config.mjs",
+        "scripts/checkpoint-readback.mjs",
+        "scripts/browser-game.mjs",
+        "app",
+        "public/original",
+        "package.json",
+        "package-lock.json"
+      ],
+      "prerequisites": [
+        "Existing source-bound owned harness receipt, matching journey and raw outer receipt"
+      ],
+      "sideEffects": [
+        "Report adapter reads only; harness execution requires separate lane and runtime setup"
+      ],
+      "resources": [
+        "No runtime resources for receipt projection"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "parity-measure-tests",
+      "kind": "metadata",
+      "automation": "safe",
+      "purpose": "Validate receipt-derived automatic parity measurement without executing game checks.",
+      "coveredBehavior": [
+        "Evidence freshness, failure precedence, unknown scope, deterministic history and report escaping",
+        "Bounded sequential JSON reads, conservative cache exclusion and malformed/interrupted candidate retention"
+      ],
+      "knownLimits": [
+        "Synthetic evidence validates measurement, not actual game parity."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/parity-measure.test.mjs",
+        "tests/parity-owned-checkpoint.test.mjs",
+        "tests/parity-owned-blast.test.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
+        "scripts/parity-measure.mjs",
+        "scripts/parity-owned-checkpoint.mjs",
+        "scripts/parity-owned-blast.mjs",
+        "tests/parity-owned-blast.test.mjs",
+        "tests/parity-owned-checkpoint.test.mjs",
+        "scripts/orchestration/command-receipt.mjs",
+        "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/command-log.mjs",
+        "scripts/orchestration/cli.mjs",
+        "tests/parity-measure.test.mjs",
+        "engineering/parity-capabilities.json",
+        "engineering/checks.json",
+        "parity.json",
+        "scripts/parity-discovery.mjs",
+        "scripts/parity-json-metadata.mjs",
+        "tests/parity-discovery.test.mjs",
+        "tests/parity-discovery-reader.test.mjs",
+        "tests/parity-streaming-discovery.test.mjs",
+        "tests/parity-json-metadata.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [
+        "Task-owned temporary fixture repositories only"
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [
+        "Temporary native traces removed on exit"
+      ],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-seats-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare native settled seats and prove seating/ejection/physics composition.",
+      "coveredBehavior": [
+        "Native settled slot geometry and heading flags",
+        "Seat elevation preserves voluntary launch"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-seats.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Vehicle panel, source-alpha, selection, unload and checkpoint invariants.",
+      "coveredBehavior": [
+        "Panel geometry",
+        "Passenger flags",
+        "Live unload ownership",
+        "Checkpoints"
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/vehicle-panel.test.mjs",
+        "tests/vehicle-panel-runtime.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [
+        "Temporary trace output removed on exit"
+      ],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-panel owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-panel contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-panel.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-selection-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-panel-selection owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-panel-selection contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-panel-selection.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-exit-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-exit owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-exit contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-exit.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-unload-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-unload owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-unload contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-unload.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Reserved browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4354"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Render and operate original vehicle panels through shipped controls.",
+      "coveredBehavior": [
+        "Authored craft inspection",
+        "Passenger controls",
+        "Unload landing",
+        "Checkpoints",
+        "Viewport layout"
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-vehicle-panel.mjs",
+        "--port",
+        "4354",
+        "--output",
+        "work/orchestration/vehicle-panel-browser",
+        "--timeout",
+        "300000"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "tests/follower-tasks.test.mjs",
+        "tests/follower-task-runtime.test.mjs"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-tasks-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check native task contracts and live controller projection.",
+      "coveredBehavior": [
+        "Classifier tables",
+        "counts and enabled-state inputs",
+        "selection flags",
+        "task focus",
+        "legacy work projections",
+        "non-mutating reads"
+      ],
+      "knownLimits": [
+        "Controlled state fixtures do not prove campaign acquisition or original UI painter order."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/follower-tasks.test.mjs",
+        "tests/follower-task-runtime.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/check-native-follower-tasks.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-tasks-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare task helpers with original executed routines.",
+      "coveredBehavior": [
+        "Native classification",
+        "whole task-count rebuild",
+        "task selection and focus",
+        "raw-radius versus centered acquisition"
+      ],
+      "knownLimits": [
+        "UI/sound leaves are intercepted; live browser composition is separate."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-tasks.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/check-native-follower-task-art.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Verify imported task artwork against executed native logical draws.",
+      "coveredBehavior": [
+        "Native root/frame geometry",
+        "18 exact sprite regions",
+        "144 task/transport glyph layouts and 36 zero/99/100 boundaries"
+      ],
+      "knownLimits": [
+        "Supplied raster/coordinate leaves; no original-game runtime or complete painter-order claim."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-task-art.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/check-native-follower-task-adapters.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-task-adapters-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute native G producer and explicit legacy command categories.",
+      "coveredBehavior": [
+        "G keyboard dispatch and command30 producer",
+        "native task categories for projected legacy command identities"
+      ],
+      "knownLimits": [
+        "Allocator/queue consumers are supplied; category projections do not migrate legacy gameplay."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-task-adapters.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/local-render/harness.mjs",
+        "scripts/check-browser-follower-tasks.mjs"
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4189"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-tasks-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Exercise task rows through the shipped local UI.",
+      "coveredBehavior": [
+        "Mission1 task controls",
+        "source-pixel crops",
+        "focus memory",
+        "disrupted tabs and modes",
+        "guard task",
+        "checkpoint reload",
+        "HUD scaling"
+      ],
+      "knownLimits": [
+        "Supporting injected-class/occupancy fixture is explicitly labelled.",
+        "Headless SwiftShader does not establish hardware performance."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-tasks.mjs",
+        "--port",
+        "4189",
+        "--output",
+        "work/orchestration/follower-tasks-browser",
+        "--timeout",
+        "300000"
+      ]
+    },
+    {
+      "id": "snapshot-drag-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Catch protected held-drag source-route drift before expensive verification.",
+      "coveredBehavior": ["Exact source-owner admission", "Held-drag observer contract"],
+      "knownLimits": ["Node-only regression; does not run a browser, admit new source profiles or establish rendering or hardware performance."],
+      "executable": "node",
+      "args": ["--test", "tests/browser-snapshot-drag.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "app/scene-input-runtime.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-picking.ts",
+        "app/render-view.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/runtime-terrain-picking.ts",
+        "app/neutral-cursor.ts",
+        "scripts/browser-performance/snapshot-drag-contract.mjs",
+        "scripts/browser-performance/snapshot-drag-observer.mjs",
+        "tests/browser-snapshot-drag.test.mjs"
+      ],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
+      "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "orchestration-tests",
       "kind": "metadata",
       "automation": "safe",
@@ -12,17 +1010,22 @@
         "Git change routing",
         "Contract audit",
         "Portable review bundle integrity",
-        "Source-bound raw command receipts"
+        "Source-bound raw command receipts",
+        "Raw-only verification capture and allowance-bounded on-demand diagnostics",
+        "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs",
+        "tests/receipt-streams.test.mjs", "tests/receipt-raw-budget.test.mjs",
+        "tests/receipt-budget-failures.test.mjs", "tests/command-log.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -46,6 +1049,24 @@
       ],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "shared-setup-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check read-only shared pnpm setup admission and measured inode reuse.",
+      "coveredBehavior": ["Committed dependency metadata identity", "Source-only zero allocation", "Physical same-filesystem capacity admission", "Actual shared versus copied package-file accounting", "Drift rejection and private mutable caches"],
+      "knownLimits": ["Synthetic Git/filesystem fixtures only; no real pnpm install, dependency compatibility, allocation savings or RAM acceptance."],
+      "executable": "node",
+      "args": ["--test", "tests/shared-setup.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "engineering/shared-worktrees.md", "README.md", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+      "inputs": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "package.json", "package-lock.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"],
+      "prerequisites": ["Node.js >=22.13.0", "Python 3", "Git", "Filesystem supports symlinks and hardlinks"],
+      "sideEffects": ["Creates and removes owned tiny temporary fixtures; never invokes pnpm, network, browser or game assets."],
+      "resources": [],
+      "expected": {"exitCode": 0, "artifacts": []}
     },
     {
       "id": "orchestration-structural",
@@ -92,12 +1113,16 @@
       "knownLimits": [
         "Does not run native executable, browser integration, or hardware performance checks."
       ],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "check"],
       "cwd": ".",
       "env": [],
       "inputs": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package-lock.json",
         ".codex/config.toml",
+        ".github/workflows/ready-pr-check.yml",
         "package.json",
         "app",
         "engineering",
@@ -107,8 +1132,8 @@
         "parity-history.json",
         "PARITY.md"
       ],
-      "prerequisites": ["Installed npm dependencies"],
-      "sideEffects": ["May update ignored tool caches"],
+      "prerequisites": ["Installed locked dependencies"],
+      "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
@@ -119,12 +1144,15 @@
       "purpose": "Build the production browser application.",
       "coveredBehavior": ["Bundling", "server/client module boundaries", "production transforms"],
       "knownLimits": ["A successful build does not establish browser behavior or native parity."],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "build"],
       "cwd": ".",
       "env": [],
-      "inputs": ["package.json", "app", "build"],
-      "prerequisites": ["Installed npm dependencies"],
+      "inputs": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package-lock.json", "package.json", "app", "build"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": ["Writes ignored dist/ and Wrangler logs"],
       "resources": ["Shared build directories; run serially"],
       "expected": { "exitCode": 0, "artifacts": ["dist/server/index.js", "dist/client/.vite/manifest.json"] }
@@ -163,7 +1191,7 @@
         "tests/fixtures/drag-occupants.json",
         "tests/fixtures/selection-raster.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -256,7 +1284,9 @@
         "tests/ground-waypoints.test.mjs",
         "tests/live-movement.test.mjs",
         "tests/world-movement.test.mjs",
-        "tests/command-context.test.mjs"
+        "tests/command-context.test.mjs",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-input.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -267,10 +1297,12 @@
         "app/model.ts",
         "app/world-turn.ts",
         "app/person-orders.ts",
+        "app/shaman-guard.ts",
+        "tests/fixtures/shaman-guard-native.json",
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -334,7 +1366,7 @@
         "app/world-initialization.ts",
         "app/original-rules.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -577,8 +1609,8 @@
       "coveredBehavior": [
         "First visit offers Missions 1 through 4 before scene creation",
         "Mission 1 mouse and Mission 4 keyboard selection",
-        "Normal Mission 1 victory continues through the shipped result UI into Mission 2",
-        "Normal Mission 1 victory persists a completion mark and Mission 2 recommendation",
+        "Injected Mission 1 enemy removal and one simulation tick reach the result UI; Continue then starts Mission 2",
+        "The injected Mission 1 outcome persists a completion mark and Mission 2 recommendation",
         "Mission 2 Totem route and one-shot Tornado-use instruction",
         "Mission 2 marker-triggered Matak tower counterattack",
         "Returning-player mission and Load Game choice before scene creation",
@@ -586,7 +1618,7 @@
         "Fresh-world isolation and in-session completion/checkpoint fallback when storage is unavailable"
       ],
       "knownLimits": [
-        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
+        "Removes enemy units and ticks to seed Mission 1 victory; later diagnostics use direct commands/ticks and injected state. This is not natural Mission 1 victory. Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
       ],
       "executable": "node",
       "args": ["scripts/check-browser-checkpoint.mjs"],
@@ -695,25 +1727,42 @@
     {
       "id": "campaign-natural-victory-browser",
       "kind": "browser",
-      "automation": "safe",
-      "purpose": "Win Mission 2, continue through the shipped result UI, and win Mission 3 through rendered player controls and ordinary simulation ownership.",
+      "automation": "manual",
+      "purpose": "Run the retained fixed-turn diagnostic: win Mission 2, continue through the shipped result UI, and win Mission 3 with rendered orders and simulation-owned outcomes.",
       "coveredBehavior": [
         "Mission 2 construction, training, Totem worship, Tornado casting, combat, and natural Matak defeat",
         "Mission 2 result presentation and shipped Continue transition into Mission 3",
-        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, conversion, construction, training, combat, and natural Chumara defeat",
-        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path"
+        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, construction, training, combat, and natural Chumara defeat",
+        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path",
+        "Reports native preacher-victim replacement groups only when they are actually observed"
       ],
       "knownLimits": [
-        "Advances ordinary simulation turns faster than wall time while preserving campaign, AI, RNG, combat, and outcome ownership.",
-        "Does not establish native-equivalent timing or behavior outside the exercised Mission 2 and Mission 3 route."
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
+        "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-campaign-natural-victory.mjs"],
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario", "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port", "4196",
+        "--timeout", "900000",
+        "--output", "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
       "cwd": ".",
-      "env": [],
+      "env": ["POPULOUS_BROWSER", "POPULOUS_CAMPAIGN_OUTPUT"],
       "inputs": [
         "scripts/check-browser-campaign-natural-victory.mjs",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/vite.config.mjs",
+        "tests/campaign-fixed-turn-adapter.test.mjs",
         "scripts/campaign-swarm-target.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/campaign-conversion-observer.mjs",
+        "tests/campaign-conversion-observer.test.mjs",
+        "tests/campaign-start-readiness.test.mjs",
         "scripts/browser-game.mjs",
         "app/combat-runtime.ts",
         "app/live-building-combat.ts",
@@ -727,9 +1776,9 @@
         "app/page.tsx",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context campaign profile state"],
-      "resources": ["Fixed game server and browser; run serially"],
+      "prerequisites": ["Installed official Chrome Headless Shell", "Private installed dependencies", "Reserved local browser lane", "Unique output directory"],
+      "sideEffects": ["Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"],
+      "resources": ["Owned local server on port 4196 and sandboxed browser; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
@@ -818,7 +1867,7 @@
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable with adjacent constant.dat",
-        "Installed npm dependencies"
+        "Installed locked dependencies"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],
@@ -3337,7 +4386,7 @@
         "app/live-construction-runtime.ts",
         "app/world-turn.ts"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -3368,7 +4417,7 @@
         "tests/fixtures/building-fetch.json",
         "tests/fixtures/timber-search.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -3494,23 +4543,45 @@
         "12 Hz simulation",
         "pause",
         "long frames",
-        "5-240 Hz schedules"
+        "5-240 Hz schedules",
+        "Shared tooltip visits and retained Hut records on the existing flyby opportunity"
       ],
       "knownLimits": [
         "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
       ],
       "executable": "node",
-      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-interpolation.test.mjs"],
+      "args": ["--test", "tests/game-clock.test.mjs", "tests/unit-motion.test.mjs", "tests/hut-tooltip-controller.test.mjs", "tests/camp-inspection.test.mjs", "tests/import-tooltip-string.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "app/game-clock.ts",
         "app/unit-motion.ts",
+        "app/projection.ts",
+        "app/original-camera.json",
         "app/model.ts",
         "app/world-turn.ts",
-        "tests/game-clock.test.mjs"
+        "tests/game-clock.test.mjs",
+        "tests/unit-motion.test.mjs",
+        "tests/fixtures/unit-interpolation.json",
+        "tests/hut-tooltip-controller.test.mjs",
+        "tests/camp-inspection.test.mjs",
+        "tests/support/tooltip-scene.mjs",
+        "tests/import-tooltip-string.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/hut-smoke-scene.mjs",
+        "app/tooltip-controller.ts",
+        "app/scene-tooltip-runtime.ts",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene-input-runtime.ts",
+        "app/object-panels.ts",
+        "app/building-panels.ts",
+        "app/scene-secondary-effects.ts",
+        "app/tooltips.ts",
+        "app/original-tooltips.json",
+        "scripts/import-messages.py"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -3617,7 +4688,7 @@
         "app/original-rules.json"
       ],
       "prerequisites": [
-        "Installed npm dependencies"
+        "Installed locked dependencies"
       ],
       "sideEffects": [],
       "resources": [],
@@ -3734,7 +4805,7 @@
         "app/terrain-visibility.ts",
         "app/painter-order.ts"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4084,17 +5155,16 @@
         "Authored startup gates",
         "Real terrain and replacement braves",
         "Persisted staged sequence and no replay",
-        "Native Shaman pose clock and command18 input ownership"
+        "Native Shaman pose clock and command18 input ownership",
+        "Actual startup burst pitch/yaw ownership and retained native child trajectories"
       ],
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
       ],
-      "executable": "node",
-      "args": [
-        "--test",
-        "tests/level-start.test.mjs"
-      ],
+      "executable": "pnpm",
+      "args": ["run", "test:level-start"],
       "inputs": [
+        "package.json",
         "app/level-start.ts",
         "app/level-start-runtime.ts",
         "app/world-initialization.ts",
@@ -4111,7 +5181,14 @@
         "app/scene-camera-runtime.ts",
         "app/spell-casting.ts",
         "app/live-people.ts",
-        "app/live-movement.ts"
+        "app/live-movement.ts",
+        "tests/startup-burst-angles.test.mjs",
+        "tests/fixtures/startup-burst-native.json",
+        "app/spell-trails.ts",
+        "app/effect-motion.ts",
+        "tests/startup-burst-observer.test.mjs",
+        "scripts/local-render/startup-burst.mjs",
+        "scripts/local-render/startup-burst-observer.mjs"
       ],
       "prerequisites": [
         "Node.js with TypeScript stripping"
@@ -4280,6 +5357,575 @@
         "Playwright Chromium with verified local launch wrapper",
         "Unique output directory"
       ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "app/hud-layout.ts",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-types.ts",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "scripts/transport-pixel-reference.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check native transport row contracts and live passenger/owner adapters.",
+      "coveredBehavior": [
+        "Occupied craft counts per passenger class",
+        "All-passenger selection",
+        "Native priority and remembered focus",
+        "First/later boarding, unboarding and disguise owner writes",
+        "Legacy/occupied checkpoints and current class reads",
+        "Real/apparent owner consumers and frame-cache refresh",
+        "Preferred HUD scale and complete lower-panel height budget"
+      ],
+      "knownLimits": [
+        "Supporting class/owner fixtures do not establish natural acquisition or arbitrary mixed-tribe admission."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-transports.ts",
+        "scripts/check-native-follower-transports.py",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare occupied craft count, selection and focus helpers with native execution.",
+      "coveredBehavior": [
+        "480 native/TypeScript count, selection and six-click focus cases",
+        "Real/apparent owners",
+        "Driver priority, passenger distance and nearby craft bounds",
+        "Selected/blocked passengers and model variants"
+      ],
+      "knownLimits": [
+        "UI/sound and world leaves are supplied; no full original-game loop proof."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-transports.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "app/world-types.ts",
+        "scripts/check-native-transport-ownership.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute authoritative native vehicle real/apparent owner writers.",
+      "coveredBehavior": [
+        "39 native initialization, boarding, exit, disguise, destruction and count/search cases"
+      ],
+      "knownLimits": [
+        "Native-only writer evidence is composed with live portable/browser adapters; supplied animation/world leaves and truncated command/timer boundaries remain explicit."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-transport-ownership.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "app/scene-input-runtime.ts",
+        "scripts/local-render/harness.mjs",
+        "scripts/check-browser-follower-transports.mjs",
+        "app/hud-layout.ts",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts",
+        "app/vehicle-appearance.ts",
+        "scripts/check-native-live-models.py",
+        "scripts/transport-pixel-reference.mjs"
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4357"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Exercise occupied Boat/Balloon rows through shipped Followers controls.",
+      "coveredBehavior": [
+        "Presence/count and mixed-class selection",
+        "Independent focus and actual vehicle panel",
+        "Disrupted/repeated controls",
+        "Checkpoint and responsive HUD behavior",
+        "Strict physical-grid pixels, footer separation and center/digit hit ownership",
+        "Live apparent-owner UV/cache and genuine Boat/Balloon geometry capture"
+      ],
+      "knownLimits": [
+        "Supporting injected crews/crafts are explicitly labelled; no natural acquisition, Windows full-frame parity or hardware-performance claim.",
+        "Boat driver-Spy disguise is a bounded supporting fixture; non-driver scheduling and Balloon commandPosition remain outside this claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-transports.mjs",
+        "--port",
+        "4357",
+        "--output",
+        "work/orchestration/follower-transports-browser",
+        "--timeout",
+        "600000"
+      ]
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare genuinely captured live transport geometry with native rendering and apparent-owner texture dispatch.",
+      "coveredBehavior": [
+        "Full native projection, shading, culling, buckets and picking for actual Boat/Balloon meshes",
+        "Original loader flags and all four apparent tribes plus neutral texture handles"
+      ],
+      "knownLimits": [
+        "Requires read-only model capture from the approved browser run; no synthetic input or fixture recording.",
+        "No final native GPU rasterization or hardware-performance claim."
+      ],
+      "executable": "python3",
+      "args": [
+        "-B",
+        "scripts/check-native-vehicle-materials.py",
+        "$POPULOUS_EXE",
+        "$POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE",
+        "POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "inputs": [
+        "scripts/check-native-vehicle-materials.py",
+        "scripts/check-native-live-models.py",
+        "app/vehicle-appearance.ts",
+        "app/scene-entities.ts",
+        "app/world-types.ts",
+        "public/original/provenance.json"
+      ],
+      "prerequisites": [
+        "Verified executable and original objects/objs0-2.dat, facs0-2.dat and pnts0-2.dat",
+        "Actual captured live-vehicle-models.json from the source-bound transport browser run"
+      ],
+      "sideEffects": [
+        "Writes native-vehicle-materials.json beside the captured input with exclusive creation"
+      ],
+      "resources": [
+        "Read-only native inputs; unique capture/output directory"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check grounding.",
+      "coveredBehavior": [
+        "Ordinary combat death and actual phase1 world-turn caller",
+        "Rising and lowering death-site ground",
+        "Last phase1 sample retention through checkpoint, phase2 and rise",
+        "Unchanged phase0 and direct drowning-entry anchor",
+        "Existing animation cadence and frame/hide behavior"
+      ],
+      "knownLimits": [
+        "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/world-turn.ts",
+        "app/reincarnation.ts",
+        "app/shaman-death-vfx.ts",
+        "app/world-terrain-runtime.ts",
+        "app/game-store.ts",
+        "tests/level-start-fixture.mjs",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare heights.",
+      "coveredBehavior": [
+        "Original death producer, model12 allocator/initializer and phase controller",
+        "Actual original terrain interpolation during every phase1 visit",
+        "Four-owner raising/lowering, phase2 retention and first rise",
+        "Unchanged phase0 and direct unsupported entry",
+        "Guarded mapped search bytes and all configured constants"
+      ],
+      "knownLimits": [
+        "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+        "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-shaman-death-ground.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "app/world-turn.ts",
+        "app/world-terrain-runtime.ts",
+        "app/reincarnation.ts",
+        "app/original-constants.json",
+        "tests/level-start-fixture.mjs"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment and Node.js",
+        "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+      ],
+      "sideEffects": [],
+      "resources": ["Read-only native inputs; coordinate CPU use"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Full Scene frames.",
+      "coveredBehavior": [
+        "M1 public H/worship/move/attack/casts; four earned Bridge shots",
+        "Bridge request/body/arrival/next-turn payout",
+        "Injured living caster creates Bridge, then combat death",
+        "Phase1 ground/stored/body/mesh; stable anchor",
+        "Framebuffer contribution and combined cached-height control"
+      ],
+      "knownLimits": [
+        "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_HEADLESS_SHELL",
+        "POPULOUS_ARTIFACT_DIR"
+      ],
+      "inputs": [
+        "app/world-turn.ts",
+        "app/reincarnation.ts",
+        "app/shaman-death-vfx.ts",
+        "app/scene-effects.ts",
+        "app/scene.ts",
+        "app/live-command.ts",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/hud-texture-readiness.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs",
+        "app/game-clock.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/scene-worship-acquisition.ts",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs"
+      ],
+      "prerequisites": [
+        "Verified installed dependencies",
+        "Supported sandboxed browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound screenshots/report in an owned artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
+      "coveredBehavior": [
+        "One-shot failed/busy allocation and saved height",
+        "Native eligible targets, panic and repeated protected damage",
+        "Same-turn older Swamp cleanup",
+        "Ordinary death, deferred first visit and independent post-spawn lifetime",
+        "Active encounter, entry queue and Boat/Balloon passenger handoffs",
+        "Checkpoint continuation without duplicated controller/orbits"
+      ],
+      "knownLimits": [
+        "Supporting fixtures and source integration do not establish rendered acceptance."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "inputs": [
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/game-store.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/live-vehicles.ts",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "cwd": ".",
+      "env": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
+      "coveredBehavior": [
+        "Real allocator, height quantization, busy/failure branches",
+        "Real panic/damage with eligibility and repeated ring endpoints",
+        "First cross-class traversal and spawn-request order",
+        "Terrain/orbit/sound lifetime and Swamp removal traversal",
+        "Passenger deselection and unchanged seat/order identity"
+      ],
+      "knownLimits": [
+        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+        "Earlier corrupt-search receipts through94e88b4 are superseded."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "app/original-constants.json",
+        "decomp/research/reincarnation-site-wave.md"
+      ],
+      "prerequisites": [
+        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+        "Pinned Unicorn environment"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE",
+        "POPULOUS_PYTHON"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
+      "coveredBehavior": [
+        "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
+        "Deferred wave visit, orbit pixels, successful respawn and cleanup",
+        "Fresh-page checkpoint and responsive rendering",
+        "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",
+        "No remaining wave-owned lights after cleanup"
+      ],
+      "knownLimits": [
+        "Command adapter is not pointer-picking proof.",
+        "Staged intruders are separate from natural gameplay acceptance.",
+        "Linux headless rendering cannot establish hardware performance."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "inputs": [
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/game-store.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/live-vehicles.ts",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "app/scene-effects.ts",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs"
+      ],
+      "prerequisites": [
+        "Owned local game server",
+        "Supported sandboxed Playwright browser"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_ARTIFACT_DIR",
+        "POPULOUS_HEADLESS_SHELL"
+      ],
+      "sideEffects": [
+        "Writes source-bound captures/report to unique artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     }
   ]
 }

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Recover an isolated, pinned Linux research workspace. Never launch the game.
+"""Plan or create a bound source-only workspace; explicitly recover native tools.
 
 Host prerequisites: Linux x86_64, Python 3.12 with venv, git, curl, Node >=22.13,
-and npm. See engineering/cloud-bootstrap.md for trust and recovery boundaries.
+for native recovery. Source-only mode needs Python and Git, not native tools.
+See engineering/cloud-bootstrap.md for trust and recovery boundaries.
 """
 import argparse
 import datetime
@@ -295,65 +296,7 @@ class Bootstrap:
         self.run([python, '-m', 'pip', '--isolated', '--cache-dir', self.cache / 'pip', 'check'])
 
     def repository(self):
-        repository = self.root / 'repository.git'
-        url = self.manifest['repository']
-        if not repository.exists():
-            if self.args.offline:
-                raise ValueError('Offline repository miss; clone requires existing GitHub access/network')
-            staging = self.root / 'staging' / ('repository-' + uuid.uuid4().hex)
-            self.run(['git', 'clone', '--bare', url, staging])
-            staging.rename(repository)
-        if self.run(['git', '-C', repository, 'rev-parse', '--is-bare-repository']) != 'true':
-            raise ValueError('Expected the managed bare repository; refusing to alter it')
-        if self.run(['git', '-C', repository, 'remote', 'get-url', 'origin']) != url:
-            raise ValueError('Repository origin differs from the pinned repository')
-        reference = self.args.ref
-        if reference != 'main' and not re.fullmatch('[0-9a-f]{40}', reference):
-            raise ValueError('--ref must be main or a full lowercase commit SHA')
-        if not self.args.offline:
-            fetch_ref = 'refs/heads/main:refs/heads/main' if reference == 'main' else reference
-            self.run(['git', '-C', repository, 'fetch', '--no-tags', 'origin', fetch_ref])
-        commit = self.run(['git', '-C', repository, 'rev-parse', '--verify', reference + '^{commit}'])
-        name = self.args.worktree or commit[:12]
-        if not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_-]{0,63}', name):
-            raise ValueError('Unsafe worktree name')
-        target = self.root / 'worktrees' / name
-        marker = self.root / 'worktree-state' / (name + '.json')
-        if target.exists():
-            if target.is_symlink():
-                raise ValueError(f'Symlinked worktree preserved: {target}')
-            if not marker.is_file():
-                raise ValueError(f'Unowned worktree preserved: {target}')
-            common = Path(self.run(['git', '-C', target, 'rev-parse', '--git-common-dir']))
-            if (target / common).resolve() != repository.resolve():
-                raise ValueError('Worktree belongs to another repository; preserved untouched')
-            state = json.loads(marker.read_text())
-            head = self.run(['git', '-C', target, 'rev-parse', 'HEAD'])
-            if head != commit or state['commit'] != commit:
-                raise ValueError('Existing worktree is a different revision; choose a new --worktree name')
-            if self.run(['git', '-C', target, 'status', '--porcelain']):
-                raise ValueError('Existing worktree has changes; preserved untouched, choose a new --worktree')
-            if (target / 'node_modules').is_symlink() or not (target / 'node_modules').is_dir() or digest(target / 'package-lock.json') != state['lockSha256']:
-                raise ValueError('Existing dependencies are missing/different; choose a new --worktree name')
-            if dependency_digest(target / 'node_modules') != state.get('dependencyTreeSha256'):
-                raise ValueError('Existing dependency contents changed; preserved untouched, choose a new --worktree')
-            return target, commit
-        staging = self.root / 'staging' / ('worktree-' + uuid.uuid4().hex)
-        self.run(['git', '-C', repository, 'worktree', 'add', '--detach', staging, commit])
-        temporary = self.root / 'runtime' / self.run_id / 'tmp'
-        temporary.mkdir(parents=True, exist_ok=True)
-        env = dict(os.environ, WRANGLER_SEND_METRICS='false', CLOUDFLARE_CF_FETCH_ENABLED='false', TMPDIR=str(temporary))
-        command = ['npm', 'ci', '--no-audit', '--no-fund', '--cache', self.cache / 'npm']
-        if self.args.offline:
-            command.append('--offline')
-        self.run(command, cwd=staging, env=env)
-        (staging / 'node_modules').mkdir(exist_ok=True)
-        dependency_hash = dependency_digest(staging / 'node_modules')
-        target.parent.mkdir(parents=True, exist_ok=True)
-        self.run(['git', '-C', repository, 'worktree', 'move', staging, target])
-        atomic_json(marker, {'commit': commit, 'lockSha256': digest(target / 'package-lock.json'),
-                             'dependencyTreeSha256': dependency_hash})
-        return target, commit
+        raise ValueError('Per-worker npm bootstrap retired; use the bound source/runtime planner')
 
     def environment(self, paths, python, repository):
         variables = dict(POPULOUS_PREREQUISITES=str(self.tools), POPULOUS_EXE=str(paths['game'] / 'd3dpoptb.exe'),
@@ -381,11 +324,13 @@ class Bootstrap:
         return env
 
     def recover(self):
+        if not self.args.prerequisites_only:
+            raise ValueError('Native recovery requires explicit prerequisites-only scope')
         if (platform.system(), platform.machine()) != ('Linux', 'x86_64'):
             raise ValueError('This manifest supports Linux x86_64 only')
         if sys.version_info[:2] != (3, 12):
             raise ValueError('Use Python 3.12 for the pinned native dependencies')
-        for tool in ['git', 'curl', 'node', 'npm']:
+        for tool in ['git', 'curl', 'node']:
             if not shutil.which(tool):
                 raise ValueError(f'Missing host prerequisite: {tool}')
         node = self.run(['node', '--version'])
@@ -461,20 +406,48 @@ class Bootstrap:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--root', required=True, type=Path, help='New or bootstrap-owned writable workspace root')
+    parser.add_argument('--mode', choices=('source', 'runtime', 'prerequisites'), default='source')
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument('--plan', '--dry-run', action='store_true', help='Read-only planning (default)')
+    action.add_argument('--apply', action='store_true', help='Create source-only workspace or explicitly recover prerequisites')
+    parser.add_argument('--binding', type=Path, help='Existing environment-owned storage binding')
+    parser.add_argument('--binding-sha256', help='Explicit approved binding fingerprint')
+    parser.add_argument('--source', type=Path, help='Existing clean local exact-source donor')
+    parser.add_argument('--reserve-bytes', type=int, default=0)
+    parser.add_argument('--allocation-bytes', type=int, default=0)
+    parser.add_argument('--root', type=Path, help='Native prerequisite recovery root; not a warm storage selector')
     parser.add_argument('--cache', type=Path, action='append', default=[], help='Read-only archive cache; repeatable')
     parser.add_argument('--reuse-prerequisites', type=Path, help='Explicitly trusted existing tools/venv, verified before reuse')
     parser.add_argument('--offline', action='store_true', help='No artifact downloads, pip downloads or git fetches')
     parser.add_argument('--prerequisites-only', action='store_true', help='Recover tools/input without creating a checkout')
-    parser.add_argument('--ref', default='main', help='main or an exact 40-character commit SHA')
-    parser.add_argument('--worktree', help='New isolated worktree name; defaults to the commit prefix')
+    parser.add_argument('--ref', help='Exact 40-character commit SHA for warm provisioning')
+    parser.add_argument('--worktree', help='Explicit stable worker name under the bound private workspace root')
     args = parser.parse_args()
-    manifest = json.loads(MANIFEST.read_text())
     try:
-        Bootstrap(args, manifest).execute()
-    except (ValueError, RuntimeError, OSError, subprocess.TimeoutExpired) as error:
+        if args.prerequisites_only:
+            if args.mode != 'source':
+                raise ValueError('Use either --mode prerequisites or --prerequisites-only')
+            args.mode = 'prerequisites'
+        if args.mode != 'prerequisites':
+            if args.root or args.cache or args.reuse_prerequisites:
+                raise ValueError('Recovery roots/cache options are separate from warm storage bindings')
+            if not args.source or not args.binding:
+                raise ValueError('Warm provisioning requires --source and --binding')
+            sys.dont_write_bytecode = True
+            sys.path.insert(0, str(SOURCE / 'scripts/orchestration'))
+            from shared_workspace import execute
+            print(json.dumps(execute(args), indent=2))
+        else:
+            if not args.root or not args.apply:
+                raise ValueError('Native recovery requires explicit --root and --apply; no implicit downloads')
+            if args.binding or args.source or args.worktree or args.ref:
+                raise ValueError('Native recovery does not provision workspaces; use a separate warm invocation')
+            args.prerequisites_only = True
+            Bootstrap(args, json.loads(MANIFEST.read_text())).execute()
+    except (ValueError, RuntimeError, OSError, KeyError, subprocess.SubprocessError) as error:
         parser.exit(1, f'Bootstrap blocked: {error}\n')
 
 
 if __name__ == '__main__':
     main()
+

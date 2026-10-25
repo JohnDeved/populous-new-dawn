@@ -1,4 +1,4 @@
-import { buildingPose } from './building-shapes.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { sound } from './world-effects.ts'
 import { browserPosition, nativePosition, type World, type Unit } from './model.ts'
 import {
@@ -42,7 +42,7 @@ function restingWorld(w: World): RestingWorld {
     slotOffsets: slots,
     // The retained cell registry currently contains live people only.
     cellObjects: cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>,
-    outside: id => buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!)),
+    outside: id => buildingOutsidePoint(liveBuildingShape(w, id)!),
   }
 }
 function collision(w: World, p: { x: number; y: number }) {
@@ -81,8 +81,7 @@ export function initializeLiveIdleApproach(
       const cell = (p.y >> 9) * 128 + (p.x >> 9)
       return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
     },
-    buildingPoint: id =>
-      buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!)),
+    buildingPoint: id => buildingOutsidePoint(liveBuildingShape(w, id)!),
     prepareOrder: (id, model, to) =>
       Object.assign(w.buildingOrders.records[id], {
         model,
@@ -139,8 +138,16 @@ export function stepLiveResting(w: World, u: Unit) {
   stepPersonReaction(p)
   moveLivePerson(w, u, p)
   if (p.state === 10) changeLivePersonState(w, u, 17) // Empty ordinary order queue.
+  stepLiveRestingState(w, u, p)
+  p.flags2 = (p.flags2 & ~0x2004) >>> 0
+  u.heading = Math.PI - (p.angle * Math.PI) / 1024
+  u.cargo = p.cargo / 100
+}
+
+// State dispatch follows either ground motion or airborne physics, once per visit.
+export function stepLiveRestingState(w: World, u: Unit, p: LivePerson) {
   if (p.state === 17) {
-    if (stepIdleApproach(p, to => collision(w, to))) changeLivePersonState(w, u, 19)
+    if (stepIdleApproach(p, to => collision(w, to))) changeLivePersonState(w, u, 19, p)
   } else if (p.state === 19) {
     const rest = restingWorld(w)
     const next = stepRestingPerson(
@@ -188,13 +195,10 @@ export function stepLiveResting(w: World, u: Unit) {
         frameCount: object => sprites.frameCounts[object],
       }
     )
-    if (next) changeLivePersonState(w, u, next)
+    if (next) changeLivePersonState(w, u, next, p)
   } else if (p.state === 1) {
     p.timer = ((p.timer - 1) << 16) >> 16
     if (p.timer < 1 || p.flags2 & 0x2004)
-      changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags))
+      changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags), p)
   }
-  p.flags2 = (p.flags2 & ~0x2004) >>> 0
-  u.heading = Math.PI - (p.angle * Math.PI) / 1024
-  u.cargo = p.cargo / 100
 }

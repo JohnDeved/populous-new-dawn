@@ -1,0 +1,221 @@
+{
+  "caseCount": 1,
+  "unitCount": 6,
+  "supplies": [
+    {
+      "scope": "Preacher full person",
+      "source": "retained-inputs.json#/fullOrdinaryRecord/person",
+      "kind": "observed live port record",
+      "values": "Copy all fields and nested objects, not only native byte fields. Preserve turnY40704, slowTurn0, velocity{24,0,-25}, reactions0, recoveryCounter3, destination/anchor fields and movement flags.",
+      "overrides": {
+        "counter": 13,
+        "cellNext": 3165,
+        "cellPrevious": 0
+      },
+      "overrideReason": "Explicit counter alignment and supplied six-person topology, not observed chronology"
+    },
+    {
+      "scope": "Preacher unit",
+      "source": "fullOrdinaryRecord core and actual addUnit defaults",
+      "kind": "observed core with supplied fixture defaults",
+      "values": {
+        "id": 3164,
+        "kind": "preacher",
+        "team": "blue",
+        "hp": 55,
+        "inside": null,
+        "path": [],
+        "fight": null,
+        "casting": null,
+        "work": null,
+        "cargo": 0,
+        "lift": 0,
+        "heading": "Math.PI - p.angle * Math.PI / 1024",
+        "position": "actual browserPosition(p)",
+        "flight": "absent",
+        "entry": "absent",
+        "builder": "absent"
+      },
+      "reason": "Physics writes life=round(HP*20); HP55 is mandatory for retained life1100"
+    },
+    {
+      "scope": "Five listeners",
+      "source": "retained-inputs.json#/nativeProposal/records/1..5 and explicitSupplies/listenerShape; actual createLivePerson defaults for extra live fields",
+      "kind": "wholly supplied already-owned listener projections",
+      "values": {
+        "ids": [
+          3165,
+          3166,
+          3167,
+          3168,
+          3169
+        ],
+        "class": 1,
+        "model": 2,
+        "physics": 2,
+        "kind": "brave",
+        "team": "red",
+        "tribe": 1,
+        "life": 1000,
+        "hp": 50,
+        "state": 23,
+        "workTarget": 3164,
+        "inside": null,
+        "flight": "absent",
+        "native": "existing object per unit"
+      },
+      "reason": "Preserve all mapped fields from proposal. No initializer or victim-update history; never use model1 or call initializeConversionVictim"
+    },
+    {
+      "scope": "World skeleton",
+      "source": "app/world-state.ts:createWorldState(3)",
+      "kind": "production empty-data constructor",
+      "values": {
+        "mission": 3,
+        "nextIdBeforeAddUnit": 3164,
+        "nextIdAfterAddUnit": 3170,
+        "unitOrder": [
+          3164,
+          3165,
+          3166,
+          3167,
+          3168,
+          3169
+        ],
+        "selected": [],
+        "buildings": [],
+        "vehicles": [],
+        "fights": [],
+        "sounds": [],
+        "effects": [],
+        "projectiles": [],
+        "pathfinding.people": "empty Map",
+        "motionRoutes": "constructor-empty"
+      },
+      "reason": "No createWorld/createStartedWorld/tick/advanceGame. Constructor and module terrain initialization still require the later execution grant"
+    },
+    {
+      "scope": "Ground",
+      "source": "retained site metadata plus explicit supplies",
+      "kind": "local flat ground patch, not recovered ordinary terrain",
+      "values": {
+        "cornerIndices": [
+          10133,
+          10134,
+          10261,
+          10262
+        ],
+        "cornerHeights": [
+          155,
+          155,
+          155,
+          155
+        ],
+        "centerCell": 10133,
+        "centerFlags": 49,
+        "centerCategory": 0,
+        "centerBuilding": 0,
+        "land.landFlags": 0,
+        "landVersion": "set equal to terrainVersion after patch"
+      },
+      "reason": "Ground stationary h155 and prevent implicit resampling during fixture nativePosition queries. Assert terrainPointHeight155 before measurement; no terrain processing in measured calls"
+    },
+    {
+      "scope": "Queue",
+      "source": "retained nativeProposal/order and fullOrdinaryRecord/person/commands",
+      "kind": "supplied retained queue/pool ownership",
+      "values": {
+        "records[26]": {
+          "model": 17,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 11008,
+          "b": 40704
+        },
+        "otherRecords": "constructor-empty",
+        "cursor": 26,
+        "active": 1,
+        "commands": [
+          26,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "commandCursor": 0,
+        "immediateCommand": 0,
+        "commandStatus": 17
+      },
+      "reason": "Command creation/appendLiveOrders is outside this test; avoid extra setup initialization"
+    },
+    {
+      "scope": "Cells",
+      "source": "actual registerLivePerson with declared topology",
+      "kind": "production registration of supplied persons",
+      "values": {
+        "registrationOrder": [
+          3169,
+          3168,
+          3167,
+          3166,
+          3165,
+          3164
+        ],
+        "head[10133]": 3164,
+        "chain": [
+          3164,
+          3165,
+          3166,
+          3167,
+          3168,
+          3169,
+          0
+        ],
+        "map": "same object references as unit.native",
+        "otherHeads": "zero"
+      },
+      "reason": "Production acquisition scans units; physics still needs coherent object registration. Assert topology before measurement"
+    },
+    {
+      "scope": "RNG and clock",
+      "source": "observed RNG words and declared alignment",
+      "kind": "observed words; supplied schedule",
+      "values": {
+        "simulationAfterSetup": 3603658299,
+        "cosmeticAfterSetup": 2096320492,
+        "initialWorldTurn": 4243,
+        "nextTurns": [
+          4244,
+          4245,
+          4246
+        ],
+        "storedCounter": 13,
+        "controllerCounters": [
+          14,
+          15,
+          16
+        ],
+        "updater": "actual stepObjectAnimation on Preacher only after stamp=world.turn",
+        "updaterLevelFlags": 0,
+        "updaterLevelFlags2": 0,
+        "manaWorld.gameFlags": 0,
+        "manaWorld.levelFlags": 0,
+        "manaWorld.loadFlags": 0,
+        "manaWorld.playerTribe": 0,
+        "manaTribes.flags2": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "reason": "Only stepLivePhysics increments counter. Set RNG words after all setup; no victim/full-world/render visit"
+    }
+  ],
+  "maxLifeCaveat": "Native maxLife1100 is unobserved supply; not an observed full port LivePerson field. Do not call unknown native fields observed.",
+  "freezeRule": "Review material source, supply, boundary or expectation changes before execution."
+}

@@ -166,7 +166,8 @@ test('combat removes a waiting trainee from its physical line while retaining it
   assert.equal(p.flags3 & 32, 0)
   assert.equal(p.reservationNext, 0)
   assert.equal(currentPersonOrder(w.buildingOrders, p), record)
-  assert.equal(record.references, 1)
+  assert.equal(record.references, people.length, 'combat retains its share of the group training order')
+  assert.ok(people.every(unit => currentPersonOrder(w.buildingOrders, person(unit)) === record))
   const queue = []
   for (let id = b.admission.queueHead; id; ) {
     assert.ok(!queue.includes(id))
@@ -179,5 +180,5 @@ test('combat removes a waiting trainee from its physical line while retaining it
   until(w, () => !!(p.flags3 & 32))
   assert.equal(u.entry.person, p)
   assert.equal(u.work, b.id)
-  assert.equal(record.references, 1)
+  assert.equal(record.references, people.length, 'rejoining the queue keeps the same shared references')
 })

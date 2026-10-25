@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5ffd3d4f-a15d-4ea3-96e2-598d7a52b2b5",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8b842e87382cf5c772db82bcd27a0904bfe0e2dc",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-clock-route/arena-battle.mjs": "f6feb028960f5fd337e4f8d5759fb2e4d4d932b73b5fc7f71fdbea45a00f3b39",
+      "work/m17-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m17-clock-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m17-clock-route/arena-admission-terminal.v8": "908e458d89e5bfcff568b7b36254e4da3e688d9928b4f980ec05933e3948fe5f",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m17-clock-route/arena-battle.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-clock-audit",
+  "startedAt": "2026-10-14T14:23:07.017Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/orchestration/m17-clock-route/arena-battle.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/orchestration/m17-clock-route/arena-battle.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T14:23:12.069Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"event\":\"actual automatic Armageddon battle\",\"turn\":6620,\"status\":\"playing\",\"counts\":[30,70,79,79],\"inputMask\":32,\"arena\":{\"phase\":2,\"delay\":37,\"interval\":39},\"rank0\":[{\"id\":1548,\"team\":\"blue\",\"hp\":100,\"state\":39},{\"id\":1578,\"team\":\"red\",\"hp\":100,\"state\":39},{\"id\":1648,\"team\":\"yellow\",\"hp\":100,\"state\":39},{\"id\":1727,\"team\":\"green\",\"hp\":100,\"state\":39}]}\n",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Native/browser position agreement for 1586 at 6674\n+ actual - expected\n\n+ 0.27091470131874534\n- 0\n\n    at assertNativeSeatConsistency (file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/convoy-native-consistency-combat.mjs:13:10)\n    at step (file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/arena-battle.mjs:5:294)\n    at file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/arena-battle.mjs:6:51\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/tests/support/profile-storage.mjs:115:5)\n    at async file:///workspace/scratch/69fd8163d94e/populous-m17-clock-audit/work/m17-clock-route/arena-battle.mjs:4:1 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: 0.27091470131874534,\n  expected: 0,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "3c9ad74b0648cb19a55609a37d2427008c883387ba9db6f61347143ef44b3871",
+  "stderrSha256": "d40b11de5a26aebdd49c3e00b9a885574e201641fa1ab25376036a5d33d76f43",
+  "sourceAfter": {
+    "headOid": "8b842e87382cf5c772db82bcd27a0904bfe0e2dc",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-clock-route/arena-battle.mjs": "f6feb028960f5fd337e4f8d5759fb2e4d4d932b73b5fc7f71fdbea45a00f3b39",
+      "work/m17-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m17-clock-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m17-clock-route/arena-admission-terminal.v8": "908e458d89e5bfcff568b7b36254e4da3e688d9928b4f980ec05933e3948fe5f",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

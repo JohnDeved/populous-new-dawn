@@ -1,116 +1,189 @@
-# Recover a cloud development workspace
+# Bound cloud workspace recovery
 
-Run `scripts/cloud-bootstrap.py` from a reviewed checkout after a Linux cloud reset.
-The recipe lives in Git; disposable paths are recreated, not promised permanent.
-It does not configure a service, scheduled job, paid environment, or GitHub Actions.
-A cloud environment's existing startup command can invoke this same entry point.
+This is a continuation of #179 / PR #180, not a second bootstrap. The historical
+head is `9e29c810bf82e364aaf72ff858a0da08919356bc`; the composition baseline is main
+`08745845a526e739c4c0778e75fc2be8d5817abd`. Historical recovery inputs and their
+hash-pinned download/extraction helpers remain separate from warm workspace setup.
 
-## Start or resume
+**Current boundary:** the source-only implementation and nonexecuting runtime
+plan received scoped independent review with 24 retained and 36 new offline fixtures.
+Current-main integration and the historical native prerequisite recovery still need
+their own final acceptance; the old report of 24 fixtures does not establish it.
+Runtime execution remains disabled pending a reviewed write-enforcing adapter,
+resource admission and real acceptance. This is not a completed permanent storage
+or RAM solution, a configured startup service, or a disk-persistence promise.
 
-Host requirements: Linux x86_64, Python 3.12 with `venv`, Git, curl, Node >=22.13.0,
-npm, and the ordinary shared libraries needed by Chrome/Java. Node 24.19.0 and
-Python 3.12.14 are the recovered baseline. Host runtimes and OS packages are not
-installed by this script. A first recovery needs network access to GitHub, npm,
-PyPI, the pinned vendor downloads, and the already-approved game archive.
+## Warm source-only setup
 
-Choose a new writable directory **outside every Node package** (no ancestor
-`package.json`). Keep a reviewed checkout or fetch it normally with existing Git
-access, then run:
-
-```sh
-python3 scripts/cloud-bootstrap.py --root "$HOME/pnd-cloud" --ref main
-```
-
-The JSON result names a unique receipt and `env.sh`. Source that exact file, then
-use `$POPULOUS_REPOSITORY`. Re-running reuses verified installed inputs and the
-same clean worktree. A different main commit gets a new worktree; it never resets
-an existing branch. Use `--ref <full-commit-sha> --worktree <name>` for a frozen
-candidate. Writable dependencies remain private at that worktree's literal
-`node_modules` path. `TMPDIR` is a private sibling outside its ESM package scope.
-Do not use this recipe to share writable dependencies or start competing heavy jobs.
-
-When the previous tools/archive cache still exists, reuse it rather than copying
-or downloading it again:
+Default behavior is a read-only plan. It does not invoke native recovery, Python
+package installation, Node, pnpm, npm, downloads, Git fetches or full asset checkout.
+Use a reviewed copy of this entry point together with the unchanged current
+`shared_setup.py` and `shared_runtime.py` helpers.
 
 ```sh
-python3 scripts/cloud-bootstrap.py --root "$HOME/pnd-recovered" \
-  --reuse-prerequisites "$EXISTING_PREREQUISITES" \
-  --cache "$EXISTING_PREREQUISITES" --prerequisites-only --offline
+python3 scripts/cloud-bootstrap.py --mode source --plan \
+  --source "$existing_clean_local_source" --ref "$exact_40_character_commit" \
+  --binding "$environment_owned_binding" --binding-sha256 "$approved_binding_sha256" \
+  --worktree "$stable_worker_name" \
+  --allocation-bytes "$declared_allocation" --reserve-bytes "$unchanged_reserve"
 ```
 
-`--prerequisites-only` verifies tools/input without cloning/installing a worktree.
-`--offline` prevents downloads, git fetches and the online GitHub-auth check;
-it does not invent absent caches. For a full offline recovery the managed bare
-repository, npm cache, and Python packages must already exist. `--cache` is
-repeatable and read-only; it accepts original archive names or hash-prefixed names,
-and Python distributions in the directory or its `python/` child.
+Use the same arguments with `--apply` to create the source-only workspace. No
+package manager or native tool is required. A fresh private Git repository uses
+`clone --local --shared --no-checkout` and sparse patterns before checkout.
+This keeps Git metadata private, reuses the donor object database without copying
+its object payload, and never changes the donor index, refs or worktree registry.
+`public/original` and executor-local `.codex` content are not checked out.
+Other tracked source is materialized; `node_modules` is never created.
 
-## What is pinned and checked
+Only a standalone donor with physical local `.git`, common and object directories,
+no `commondir` redirection and no object alternates is supported. Linked-worktree
+and alternate-backed donors are explicitly rejected before creation. The target
+also needs standalone physical Git metadata, with exactly one private alternate
+file naming the approved donor's physical object directory, and no additional
+registered worktrees. Completion records both donor and target directory and
+private metadata identities; reuse revalidates them without migration or repair.
 
-- `cloud-bootstrap.json` records the actual 2026-10-04 recovery URLs, archive
-  SHA-256s, versions and complete extracted-tree fingerprints. It selects the base
-  game's `Component0`, verifies all 1,210 extracted files as one tree, and checks
-  the original EXE's canonical SHA-256. No installer or complete EXE is launched.
-- Ghidra 12.1.3, Linux Temurin 21.0.12.1+1, and Chrome Headless Shell 154.0.8037.92
-  are fixed downloads. An archive/tree mismatch fails closed; no new release,
-  alternate build, or silently changed download is accepted.
-- Python locks contain the restored versions, including Unicorn 2.1.4, Capstone
-  5.0.7 and binary-refinery 0.10.11, with official PyPI release hashes. The pinned binary dependency closure
-  is installed first because refinery imports its runtime during source metadata generation. Package installation uses `--require-hashes`, `--no-deps`
-  and `--no-build-isolation`; `pip check` and actual imports validate the closure.
-  An explicitly supplied existing venv is trusted local executable code: its
-  package versions/imports are checked, but its provenance is **not** retroactively
-  certified by download hashes. New environments use the hash-locked path.
-- `npm ci` uses the chosen revision's committed lockfile and integrity hashes.
-  No writable `node_modules` copy or symlink is adopted. A reused worktree must
-  retain its recorded commit/lock, complete dependency content/executable-mode
-  fingerprint, and clean tracked/untracked state. Only disposable top-level
-  `node_modules/.cache`, `.vite` and `.vite-temp` are excluded from that fingerprint.
-- Java and Chrome are invoked only for versions; the Ghidra launcher/tree is
-  checked. Native `decomp.py check` verifies the EXE, exports and native tables
-  in a full workspace recovery. This is not Ghidra project initialization or a
-  rendered gameplay check. Follow the usual coordinated native/browser checks
-  before claiming those capabilities or hardware performance.
+Every present nonexcluded tracked source file is authenticated against its exact
+Git blob and executable mode even when the index marks it skip-worktree. Missing
+donor source is allowed only for a committed entry marked sparse by Git, and those
+omissions are listed in the plan. The created or reused target must contain the
+entire requested nonexcluded projection. Source-only verification deliberately
+does not authenticate `public/original` or `.codex` payload; it still refuses their
+materialization in the target. A clean `git status` alone is not source proof.
 
-## Failures, authentication and evidence
+The resulting workspace points at the exact commit and cannot survive loss or
+garbage collection of required donor Git objects. Do not delete or prune that
+donor while any bound workspace uses it. This is ordinary Git object sharing,
+not an independent backup. Push original commits and retain source-bound evidence
+through the established handoff process.
 
-One filesystem lock serializes this recipe per root. It never infers an old job
-stopped from missing PIDs and never clears queue locks or analysis projects.
-An unowned/nonempty root, changed worktree, corrupt cache/tree, or missing offline
-input is preserved and reported. Use a fresh root/worktree when ownership is
-uncertain; do not clean or overwrite another task's files.
+A completed, unchanged workspace is reused under its same worker name. Changed
+source, unexpected dependencies, materialized excluded paths, conflicting ownership
+or incomplete prior creation fails closed. Nothing is reset, cleaned, overwritten,
+deleted or silently replaced with a newly named workspace. Failed partial creation
+and its unique receipt remain for owner review; a retry does not adopt them.
 
-Downloads resume their owned `.part` files and are renamed only after SHA-256
-verification. Tool extraction is staged and only a verified complete tree is
-published. Interrupted staging directories remain for diagnosis. Python venvs
-keep their original paths so absolute console-script shebangs do not break; a
-completed venv is published through a relative link. A failed/incomplete venv is
-never adopted as complete. Review and manually remove only known-owned failed
-staging after confirming no job uses it. A server that cannot resume a partial
-fails visibly; the script does not erase it or redownload behind your back.
+## One explicit owned storage binding
 
-Authentication is a separate prerequisite for publishing. The recipe reports
-`gh auth status` as available/absent/unreachable, never prints or saves its output,
-and never copies config, creates tokens, backs up secrets, logs in, or tests write
-permission by pushing. Use the shared approved GitHub login route if absent.
-Read access can still suffice to recover the workspace. Never bundle credentials,
-browser profiles, environment dumps or session data with recovery evidence.
+Warm setup never chooses or creates shared roots. A separately reviewed environment
+owner must supply one binding for the existing storage and pass its exact SHA-256.
+The binding is local configuration, not repository source or credentials. It has:
 
-Each attempt gets immutable-named command stdout/stderr, input fingerprints,
-exit results, a terminal result (or retained unknown result on interruption), and
-its own environment file under `receipts/`. Old receipts/native projects are not
-rewritten. These local files may also disappear on a complete executor reset:
-push original source commits frequently, retain source-bound native findings in
-Git, and publish bounded redacted review bundles/Git bundles through the existing
-[handoff process](worker-handoff.md). Recovered prerequisites do not recover
-uncommitted work, ignored evidence, saves, or old Ghidra projects.
+- `schema: 1`, a stable `storageId`, and the canonical repository URL.
+- Exactly four `roots`: `shared`, `workspaces`, `store`, and `assets`.
+- Each root records its normalized absolute `path`, filesystem `device`, and
+  directory `inode`. All must exist, be physical, owned by the current user,
+  have known non-RAM-backed filesystem evidence and be on one filesystem.
+- `store.path` is exactly `shared.path/pnpm-store/v11`; `assets.path` is exactly
+  `shared.path/assets`. The `workspaces` root is a separate nonnested root,
+  outside Node package scope.
+- Both `shared` and `workspaces` contain a private regular
+  `.pnd-storage-owner.json` with exactly `schema: 1`, `storageId`, and the
+  binding's `bindingSha256`.
 
-## Regression coverage
+Binding files and owner markers must be private regular files, not symlinks or
+hardlinked metadata. Missing/replaced/relocated roots, conflicting markers, changed
+bindings, or overlaps with the source and any registered worktree are rejected.
+Unknown registered worktrees are not pruned. A reset, mount relocation or inode
+change requires a separately reviewed recovery/rebinding, not an automatic second
+store. This entry point deliberately provides no auto-bind or root-migration option.
+It cannot discover unrelated clones or prevent another program selecting a different
+store. Consistent use by all workers remains part of environment integration.
 
-`node --test tests/cloud-bootstrap.test.mjs` runs isolated Python fixtures for
-hash rejection, unsafe archives/links, cache reuse, partial resumption, atomic
-publication, ownership/locking, failure receipts, safe environment quoting, and an
-actual tiny Git clone/worktree plus npm install/reuse. It uses no real vendor or
-game downloads. Live validation results, exact commits and remaining cold-path
-limits belong in the PR/evidence receipt; these fixtures alone do not prove a
-complete network recovery or browser launch.
+Source admission composes the current read-only shared setup guard, with explicit
+allocation and reserve. Its estimate covers source files conservatively, not an
+enforced quota on Git metadata, cache/output growth, concurrent allocation or RAM.
+Warm commands allow only local Git transport and disable lazy fetching; failure
+never turns into online recovery. These are process-local settings, not changes to
+authentication, security settings or saved Git configuration.
+
+Source creation uses pathname-based mkdir and Git operations under cooperative,
+exclusive directory ownership. Pre/post identity checks are not containment against
+concurrent root replacement. `OwnedEvidence` protects receipt descriptors, not Git's
+checkout writes. Do not use this source-apply path where another process may rename
+or redirect its roots; stronger containment requires a separately reviewed adapter.
+
+## Runtime plan, not runtime execution
+
+Select `--mode runtime --plan` with the same binding. The planner verifies the named
+store exists and is nonempty and uses the existing runtime helper to verify the
+exact asset tree's CAS bytes and hardlink identities. It does not certify the
+store contains a complete dependency closure.
+
+The output composes the existing source preparation, asset preparation, pinned
+pnpm 11.25.0 frozen/offline installation and installed-layout readiness interfaces.
+It specifies the same named `pnpm-store/v11`, private pnpm metadata/virtual stores
+and all wrappers, and per-worker cache/home/tmp/XDG paths. The committed
+`pnpm-workspace.yaml` remains authoritative for hardlink import, isolated layout,
+integrity checking, disabled lifecycle scripts and side-effect cache.
+
+`--mode runtime --apply` refuses before any action. The printed commands are
+descriptive components, **not a qualified shell script or permission to run them**.
+A maintained implementation still needs:
+
+1. Reviewed write-enforcing execution adapter; do not treat post-run drift checks
+   or a writable hardlink as protection. The local qualification runner is not
+   automatically a reusable bootstrap interface.
+2. Pinned pnpm executable and complete offline closure verification; no automatic
+   online fallback, cold seeding, second store, or adoption of foreign dependencies.
+3. Separate total runtime/package/output budgets and the serialized resource lane.
+4. Actual private metadata/cache and shared inode checks, native/import smoke,
+   exact-source build, and normal affected gates, followed by independent review.
+5. A controlled new-worker/restart drill and integration into the real environment
+   startup workflow. None of these are established by fixture success.
+
+## Explicit native prerequisite recovery
+
+The historical pinned recovery components remain available only through explicit
+`--mode prerequisites --apply --root ...` (or the `--prerequisites-only` alias plus
+`--apply`). They recover tools/input, not workspaces or per-worker npm installations:
+
+```sh
+python3 scripts/cloud-bootstrap.py --mode prerequisites --apply \
+  --root "$owned_recovery_root" --reuse-prerequisites "$surviving_prerequisites" \
+  --cache "$surviving_archive_cache" --offline
+```
+
+Host prerequisites remain Linux x86_64, Python 3.12 with venv, Git, curl and Node
+>=22.13.0. Non-offline recovery is an explicit separate operation, subject to the
+normal authorized sources, resource lane and verification requirements. The old
+full-worktree + per-worker `npm ci` path is retired, not a fallback.
+
+Unchanged recovery components retain exact game/archive/EXE and tool hashes,
+staged extraction, containment checks, resumable verified downloads, hash-locked
+Python closure, reusable verified tools and read-only external caches. Existing
+venvs are trusted executable inputs, not retroactively hash-certified packages.
+Root locking, unknown-work preservation and source-bound receipts remain as in
+the historical recovery path. Native/game/installer execution and authentication
+are not added by warm setup. See `engineering/cloud-bootstrap.json`,
+`cloud-python.lock` and `cloud-python-build.lock` for preserved pinned inputs.
+
+The historical final independent review stopped after dependency-integrity and
+archive-link findings; repairs were reported but final acceptance remains pending.
+This modernization does not relabel that history as accepted. Re-review all retained
+recovery code before claiming the complete cold recovery path is qualified.
+
+## Focused tests and persistence limits
+
+The new tiny offline suite is:
+
+```sh
+PND_BOOTSTRAP_FIXTURE_ROOT="$approved_private_fixture_directory" \
+  PYTHONDONTWRITEBYTECODE=1 python3 -B tests/shared-workspace-bootstrap.test.py -v
+```
+
+It exercises read-only planning, two source-only workers, sparse asset omission,
+private Git metadata, stable ownership/reuse, dirty/interrupted state preservation,
+missing/conflicting/replaced bindings and roots, exact locks/revisions, explicit
+offline failure and nonexecuting runtime plans. It invokes only local Git, no
+package manager or vendor/game recovery. The separate historical suite remains
+`tests/cloud-bootstrap.test.py`; its former npm fixture now checks that obsolete
+entry point is unavailable. Historical fixtures must be rerun and independently
+reviewed for the combined final candidate, not counted as new acceptance.
+
+No cloud filesystem is guaranteed to survive. A surviving binding permits verified
+reuse; a lost binding/store/source requires explicit reconstruction and rebinding.
+Neither source recreation, inode counts nor hardlink storage demonstrates gameplay
+RAM improvement or bounded process-tree memory. Keep those acceptance claims separate.
+

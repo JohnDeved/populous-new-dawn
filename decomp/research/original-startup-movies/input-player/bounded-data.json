@@ -1,0 +1,1612 @@
+{
+  "input_sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "image_base": "0x400000",
+  "raw_data": {
+    "0x5ca864": "0000000010cc490030cc4900000000000000000000000000",
+    "0x590938": "602b1d6fa0d5cf11bfc7444553540000612b1d6fa0d5cf11bfc7444553540000",
+    "0x526bf0": "546b5200546b5200186b520000000002010101",
+    "0x526cf4": "5c6c5200806c5200b66c5200c26c5200ce6c5200",
+    "0x52d1b4": "8ccf52008ccf5200b2cf5200a5d0520000030303010303030303030302020202",
+    "0x584f20": "1800000010000000020000000001000000010000203f5800",
+    "0x584fb0": "1800000010000000020000001000000007000000404f5800",
+    "0x584f40": "880859000000000003ffff0000000000980859000400000003ffff0000000000a80859000800000003ffff8000000000000000000c0000000cffff0000000000000000000d0000000cffff0000000000000000000e0000000cffff8000000000000000000f0000000cffff8000000000"
+  },
+  "keyboard_format": [
+    24,
+    16,
+    2,
+    256,
+    256,
+    5783328
+  ],
+  "mouse_format": [
+    24,
+    16,
+    2,
+    16,
+    7,
+    5787456
+  ],
+  "keyboard_objects": [
+    {
+      "guid_va": "0x590908",
+      "offset": 0,
+      "type": "0x8000000c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 1,
+      "type": "0x8000010c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 2,
+      "type": "0x8000020c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 3,
+      "type": "0x8000030c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 4,
+      "type": "0x8000040c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 5,
+      "type": "0x8000050c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 6,
+      "type": "0x8000060c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 7,
+      "type": "0x8000070c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 8,
+      "type": "0x8000080c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 9,
+      "type": "0x8000090c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 10,
+      "type": "0x80000a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 11,
+      "type": "0x80000b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 12,
+      "type": "0x80000c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 13,
+      "type": "0x80000d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 14,
+      "type": "0x80000e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 15,
+      "type": "0x80000f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 16,
+      "type": "0x8000100c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 17,
+      "type": "0x8000110c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 18,
+      "type": "0x8000120c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 19,
+      "type": "0x8000130c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 20,
+      "type": "0x8000140c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 21,
+      "type": "0x8000150c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 22,
+      "type": "0x8000160c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 23,
+      "type": "0x8000170c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 24,
+      "type": "0x8000180c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 25,
+      "type": "0x8000190c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 26,
+      "type": "0x80001a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 27,
+      "type": "0x80001b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 28,
+      "type": "0x80001c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 29,
+      "type": "0x80001d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 30,
+      "type": "0x80001e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 31,
+      "type": "0x80001f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 32,
+      "type": "0x8000200c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 33,
+      "type": "0x8000210c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 34,
+      "type": "0x8000220c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 35,
+      "type": "0x8000230c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 36,
+      "type": "0x8000240c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 37,
+      "type": "0x8000250c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 38,
+      "type": "0x8000260c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 39,
+      "type": "0x8000270c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 40,
+      "type": "0x8000280c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 41,
+      "type": "0x8000290c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 42,
+      "type": "0x80002a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 43,
+      "type": "0x80002b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 44,
+      "type": "0x80002c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 45,
+      "type": "0x80002d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 46,
+      "type": "0x80002e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 47,
+      "type": "0x80002f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 48,
+      "type": "0x8000300c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 49,
+      "type": "0x8000310c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 50,
+      "type": "0x8000320c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 51,
+      "type": "0x8000330c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 52,
+      "type": "0x8000340c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 53,
+      "type": "0x8000350c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 54,
+      "type": "0x8000360c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 55,
+      "type": "0x8000370c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 56,
+      "type": "0x8000380c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 57,
+      "type": "0x8000390c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 58,
+      "type": "0x80003a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 59,
+      "type": "0x80003b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 60,
+      "type": "0x80003c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 61,
+      "type": "0x80003d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 62,
+      "type": "0x80003e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 63,
+      "type": "0x80003f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 64,
+      "type": "0x8000400c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 65,
+      "type": "0x8000410c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 66,
+      "type": "0x8000420c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 67,
+      "type": "0x8000430c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 68,
+      "type": "0x8000440c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 69,
+      "type": "0x8000450c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 70,
+      "type": "0x8000460c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 71,
+      "type": "0x8000470c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 72,
+      "type": "0x8000480c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 73,
+      "type": "0x8000490c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 74,
+      "type": "0x80004a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 75,
+      "type": "0x80004b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 76,
+      "type": "0x80004c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 77,
+      "type": "0x80004d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 78,
+      "type": "0x80004e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 79,
+      "type": "0x80004f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 80,
+      "type": "0x8000500c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 81,
+      "type": "0x8000510c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 82,
+      "type": "0x8000520c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 83,
+      "type": "0x8000530c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 84,
+      "type": "0x8000540c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 85,
+      "type": "0x8000550c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 86,
+      "type": "0x8000560c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 87,
+      "type": "0x8000570c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 88,
+      "type": "0x8000580c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 89,
+      "type": "0x8000590c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 90,
+      "type": "0x80005a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 91,
+      "type": "0x80005b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 92,
+      "type": "0x80005c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 93,
+      "type": "0x80005d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 94,
+      "type": "0x80005e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 95,
+      "type": "0x80005f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 96,
+      "type": "0x8000600c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 97,
+      "type": "0x8000610c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 98,
+      "type": "0x8000620c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 99,
+      "type": "0x8000630c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 100,
+      "type": "0x8000640c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 101,
+      "type": "0x8000650c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 102,
+      "type": "0x8000660c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 103,
+      "type": "0x8000670c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 104,
+      "type": "0x8000680c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 105,
+      "type": "0x8000690c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 106,
+      "type": "0x80006a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 107,
+      "type": "0x80006b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 108,
+      "type": "0x80006c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 109,
+      "type": "0x80006d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 110,
+      "type": "0x80006e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 111,
+      "type": "0x80006f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 112,
+      "type": "0x8000700c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 113,
+      "type": "0x8000710c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 114,
+      "type": "0x8000720c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 115,
+      "type": "0x8000730c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 116,
+      "type": "0x8000740c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 117,
+      "type": "0x8000750c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 118,
+      "type": "0x8000760c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 119,
+      "type": "0x8000770c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 120,
+      "type": "0x8000780c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 121,
+      "type": "0x8000790c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 122,
+      "type": "0x80007a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 123,
+      "type": "0x80007b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 124,
+      "type": "0x80007c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 125,
+      "type": "0x80007d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 126,
+      "type": "0x80007e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 127,
+      "type": "0x80007f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 128,
+      "type": "0x8000800c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 129,
+      "type": "0x8000810c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 130,
+      "type": "0x8000820c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 131,
+      "type": "0x8000830c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 132,
+      "type": "0x8000840c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 133,
+      "type": "0x8000850c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 134,
+      "type": "0x8000860c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 135,
+      "type": "0x8000870c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 136,
+      "type": "0x8000880c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 137,
+      "type": "0x8000890c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 138,
+      "type": "0x80008a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 139,
+      "type": "0x80008b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 140,
+      "type": "0x80008c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 141,
+      "type": "0x80008d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 142,
+      "type": "0x80008e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 143,
+      "type": "0x80008f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 144,
+      "type": "0x8000900c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 145,
+      "type": "0x8000910c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 146,
+      "type": "0x8000920c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 147,
+      "type": "0x8000930c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 148,
+      "type": "0x8000940c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 149,
+      "type": "0x8000950c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 150,
+      "type": "0x8000960c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 151,
+      "type": "0x8000970c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 152,
+      "type": "0x8000980c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 153,
+      "type": "0x8000990c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 154,
+      "type": "0x80009a0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 155,
+      "type": "0x80009b0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 156,
+      "type": "0x80009c0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 157,
+      "type": "0x80009d0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 158,
+      "type": "0x80009e0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 159,
+      "type": "0x80009f0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 160,
+      "type": "0x8000a00c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 161,
+      "type": "0x8000a10c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 162,
+      "type": "0x8000a20c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 163,
+      "type": "0x8000a30c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 164,
+      "type": "0x8000a40c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 165,
+      "type": "0x8000a50c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 166,
+      "type": "0x8000a60c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 167,
+      "type": "0x8000a70c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 168,
+      "type": "0x8000a80c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 169,
+      "type": "0x8000a90c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 170,
+      "type": "0x8000aa0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 171,
+      "type": "0x8000ab0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 172,
+      "type": "0x8000ac0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 173,
+      "type": "0x8000ad0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 174,
+      "type": "0x8000ae0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 175,
+      "type": "0x8000af0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 176,
+      "type": "0x8000b00c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 177,
+      "type": "0x8000b10c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 178,
+      "type": "0x8000b20c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 179,
+      "type": "0x8000b30c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 180,
+      "type": "0x8000b40c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 181,
+      "type": "0x8000b50c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 182,
+      "type": "0x8000b60c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 183,
+      "type": "0x8000b70c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 184,
+      "type": "0x8000b80c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 185,
+      "type": "0x8000b90c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 186,
+      "type": "0x8000ba0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 187,
+      "type": "0x8000bb0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 188,
+      "type": "0x8000bc0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 189,
+      "type": "0x8000bd0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 190,
+      "type": "0x8000be0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 191,
+      "type": "0x8000bf0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 192,
+      "type": "0x8000c00c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 193,
+      "type": "0x8000c10c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 194,
+      "type": "0x8000c20c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 195,
+      "type": "0x8000c30c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 196,
+      "type": "0x8000c40c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 197,
+      "type": "0x8000c50c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 198,
+      "type": "0x8000c60c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 199,
+      "type": "0x8000c70c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 200,
+      "type": "0x8000c80c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 201,
+      "type": "0x8000c90c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 202,
+      "type": "0x8000ca0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 203,
+      "type": "0x8000cb0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 204,
+      "type": "0x8000cc0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 205,
+      "type": "0x8000cd0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 206,
+      "type": "0x8000ce0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 207,
+      "type": "0x8000cf0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 208,
+      "type": "0x8000d00c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 209,
+      "type": "0x8000d10c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 210,
+      "type": "0x8000d20c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 211,
+      "type": "0x8000d30c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 212,
+      "type": "0x8000d40c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 213,
+      "type": "0x8000d50c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 214,
+      "type": "0x8000d60c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 215,
+      "type": "0x8000d70c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 216,
+      "type": "0x8000d80c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 217,
+      "type": "0x8000d90c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 218,
+      "type": "0x8000da0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 219,
+      "type": "0x8000db0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 220,
+      "type": "0x8000dc0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 221,
+      "type": "0x8000dd0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 222,
+      "type": "0x8000de0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 223,
+      "type": "0x8000df0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 224,
+      "type": "0x8000e00c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 225,
+      "type": "0x8000e10c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 226,
+      "type": "0x8000e20c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 227,
+      "type": "0x8000e30c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 228,
+      "type": "0x8000e40c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 229,
+      "type": "0x8000e50c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 230,
+      "type": "0x8000e60c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 231,
+      "type": "0x8000e70c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 232,
+      "type": "0x8000e80c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 233,
+      "type": "0x8000e90c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 234,
+      "type": "0x8000ea0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 235,
+      "type": "0x8000eb0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 236,
+      "type": "0x8000ec0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 237,
+      "type": "0x8000ed0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 238,
+      "type": "0x8000ee0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 239,
+      "type": "0x8000ef0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 240,
+      "type": "0x8000f00c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 241,
+      "type": "0x8000f10c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 242,
+      "type": "0x8000f20c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 243,
+      "type": "0x8000f30c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 244,
+      "type": "0x8000f40c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 245,
+      "type": "0x8000f50c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 246,
+      "type": "0x8000f60c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 247,
+      "type": "0x8000f70c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 248,
+      "type": "0x8000f80c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 249,
+      "type": "0x8000f90c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 250,
+      "type": "0x8000fa0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 251,
+      "type": "0x8000fb0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 252,
+      "type": "0x8000fc0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 253,
+      "type": "0x8000fd0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 254,
+      "type": "0x8000fe0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590908",
+      "offset": 255,
+      "type": "0x8000ff0c",
+      "flags": 0
+    }
+  ],
+  "mouse_objects": [
+    {
+      "guid_va": "0x590888",
+      "offset": 0,
+      "type": "0xffff03",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x590898",
+      "offset": 4,
+      "type": "0xffff03",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x5908a8",
+      "offset": 8,
+      "type": "0x80ffff03",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x0",
+      "offset": 12,
+      "type": "0xffff0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x0",
+      "offset": 13,
+      "type": "0xffff0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x0",
+      "offset": 14,
+      "type": "0x80ffff0c",
+      "flags": 0
+    },
+    {
+      "guid_va": "0x0",
+      "offset": 15,
+      "type": "0x80ffff0c",
+      "flags": 0
+    }
+  ]
+}

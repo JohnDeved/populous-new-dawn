@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   appendFileSync,
+  chmodSync,
+  copyFileSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -31,6 +33,7 @@ import {
 } from '../scripts/orchestration/cli.mjs'
 import { checkAutomation, startGameServer, verifyContract } from '../scripts/orchestration/verify.mjs'
 import { main as prepareMain, prepareContract } from '../scripts/orchestration/prepare.mjs'
+import { dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const put = (repo, path, value) => {
@@ -825,6 +828,8 @@ test('Shaman appearance context keeps its complete checks and evidence within th
     'shaman-appearance-portable', 'shaman-assets-static',
     'shaman-appearance-browser', 'shaman-appearance-native',
     'level-start-portable', 'level-start-native', 'level-start-static', 'level-start-browser',
+    'reincarnation-wave-portable', 'reincarnation-wave-native', 'reincarnation-wave-browser',
+    'shaman-death-ground-portable', 'shaman-death-ground-native', 'shaman-death-ground-browser',
   ]
   assert.deepEqual(shamanMapping.checkIds, expectedChecks)
   assert.ok(expectedChecks.every(id => !terrainMapping.checkIds.includes(id)))
@@ -846,6 +851,30 @@ test('Shaman appearance context keeps its complete checks and evidence within th
     assert.ok(packet.sourceExcerpts.some(item =>
       item.path === reference.path && item.headingTrail.at(-1) === reference.heading
     ), 'Required original Shaman evidence must remain visible: ' + reference.heading)
+  assert.equal(packet.executesChecks, false)
+})
+
+// Task-table evidence has its own bounded packet; world picking must retain its limits.
+test('Followers task context retains complete checks without bloating selection context', () => {
+  const { project, checks } = validateRepository(ROOT)
+  const mapping = project.subsystems.find(item => item.id === 'follower-task-controls')
+  const selection = project.subsystems.find(item => item.id === 'selection')
+  const expected = ['follower-tasks-portable', 'follower-tasks-native', 'follower-task-art-native',
+    'follower-task-adapters-native', 'follower-tasks-browser']
+  assert.deepEqual(mapping.checkIds, expected)
+  assert.ok(expected.every(id => !selection.checkIds.includes(id)))
+  const packet = contextPacket(ROOT, { subsystem: 'follower-task-controls' })
+  assert.equal(packet.budgetBytes, 24_000)
+  assert.ok(packet.contextBytes <= packet.budgetBytes)
+  assert.deepEqual(packet.checks.map(check => check.id), expected)
+  for (const projected of packet.checks) {
+    const original = checks.checks.find(check => check.id === projected.id)
+    for (const key of ['purpose', 'knownLimits', 'prerequisites', 'sideEffects', 'resources'])
+      assert.deepEqual(projected[key], original[key])
+    assert.deepEqual(projected.command, [original.executable, ...original.args])
+  }
+  for (const reference of mapping.evidence)
+    assert.ok(packet.sourceExcerpts.some(item => item.path === reference.path && item.headingTrail.at(-1) === reference.heading))
   assert.equal(packet.executesChecks, false)
 })
 
@@ -875,6 +904,132 @@ test('plan handles cross-cutting edits, renames, deletions, untracked and unsafe
     assert.ok(plan.unknownPaths.includes('mystery/new.ts'))
     assert.equal(plan.checks.find(check => check.id === 'native').status, 'blocked')
     assert.throws(() => planChanges(repo, { base: '--help' }), /Unsafe base ref/)
+  }))
+
+// Exercise the real source-owner trigger list against both narrow and conservative
+// fixture routing. Adding a cheap check must not remove gates or broaden feedback.
+test('protected held-drag owners add the cheap regression without changing existing routing', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const check = checks.checks.find(item => item.id === 'snapshot-drag-portable')
+    assert.ok(check)
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs'])
+    const owners = [...new Set(dragSourceProfiles.flatMap(profile => profile.slices.map(slice => slice.path)))]
+    const paths = [...owners, 'scripts/browser-performance/snapshot-drag-contract.mjs',
+      'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
+    assert.deepEqual([...check.triggerPaths].sort(), [...paths].sort())
+    for (const path of [...paths, 'tests/support/tooltip-scene.mjs', 'tests/support/bloodlust-scene.mjs',
+      'tests/support/hut-smoke-scene.mjs', 'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-game.mjs'])
+      assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)), `Missing check input: ${path}`)
+    for (const path of ['scripts', 'tests/support']) mkdirSync(join(repo, path), { recursive: true })
+    put(repo, 'package-lock.json', '{}\n')
+    for (const path of paths) put(repo, path, '// fixture\n')
+    // One explicit narrow owner and one shared owner; all other owners stay
+    // unknown here so their conservative fallback is checked independently too.
+    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
+    mapping.subsystems[0].implementationPaths.push('app/neutral-cursor.ts')
+    mapping.subsystems[0].sharedPaths.push('app/scene-input-runtime.ts')
+    put(repo, 'engineering/project-map.json', mapping)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'source owner fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check)
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'add portable triggers')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo), previous = baseline.get(path)
+      assert.deepEqual(plan.checks.find(item => item.id === check.id)?.command, [check.executable, ...check.args], path)
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      assert.equal(plan.feedback.finalGate, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.executesChecks, false)
+      if (plan.feedback.scope === 'focused') assert.ok(plan.feedback.command.includes('tests/browser-snapshot-drag.test.mjs'))
+      put(repo, path, '// fixture\n')
+    }
+    put(repo, 'app/unmapped.ts', '// unrelated\n')
+    const unrelated = planChanges(repo)
+    assert.ok(!unrelated.checks.some(item => item.id === check.id))
+    assert.ok(unrelated.unknownPaths.includes('app/unmapped.ts'))
+    assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
+  }))
+
+test('native UI checker changes select focused regressions without losing workflow gates', () =>
+  withRepo(repo => {
+    const check = JSON.parse(readFileSync(join(ROOT, 'engineering/checks.json'))).checks
+      .find(item => item.id === 'native-ui-evidence-tests')
+    assert.ok(check)
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs'])
+    const paths = ['scripts/native-ui-evidence/hud-sound-control-style.mjs',
+      'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
+      '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
+    for (const input of check.inputs) {
+      if (input === 'scripts/native-ui-evidence') mkdirSync(join(repo, input), { recursive: true })
+      else put(repo, input, input === 'package.json' ? '{"type":"module"}\n' : '// fixture\n')
+    }
+    for (const path of paths) put(repo, path, '// fixture\n')
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check); put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker routing')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo)
+      assert.deepEqual(plan.unknownPaths, [], path)
+      for (const id of [check.id, 'orchestration-tests', 'orchestration-structural', 'repository-check'])
+        assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      assert.equal(plan.executesChecks, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.feedback.finalGate, false)
+      put(repo, path, '// fixture\n')
+    }
+  }))
+
+test('explicit check triggers reject unsafe, malformed and empty routes', () =>
+  withRepo(repo => {
+    const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    for (const triggerPaths of [[], 'app/a.ts', ['../escape'], ['/absolute']]) {
+      checks.checks[0].triggerPaths = triggerPaths
+      put(repo, 'engineering/checks.json', checks)
+      assert.throws(() => validateRepository(repo), /triggerPaths|Non-canonical|Unsafe repository path/)
+    }
+  }))
+
+test('context-index mapping changes already require behavioral orchestration tests as well as structure', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const original = checks.checks.find(check => check.id === 'orchestration-tests')
+    assert.ok(original.args.includes('tests/orchestration.test.mjs'))
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    Object.assign(manifest.checks.find(check => check.id === original.id), {
+      executable: original.executable, args: original.args,
+    })
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'real orchestration command')
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    for (const path of ['engineering/project-map.json', 'engineering/README.md']) {
+      const previous = readFileSync(join(repo, path), 'utf8')
+      appendFileSync(join(repo, path), '\n')
+      const plan = planChanges(repo, { base })
+      assert.ok(plan.checks.find(check => check.id === 'orchestration-tests').command.includes('tests/orchestration.test.mjs'))
+      assert.ok(plan.checks.some(check => check.id === 'orchestration-structural'))
+      assert.ok(plan.checks.some(check => check.id === 'repository-check'))
+      assert.deepEqual(plan.feedback.command, ['npm', 'test'])
+      assert.equal(plan.executesChecks, false)
+      put(repo, path, previous)
+    }
   }))
 
 function contract(repo, base) {
@@ -1092,7 +1247,9 @@ test('game server rejects an invalid isolated port', async () => {
 })
 
 function taskSpec(repo) {
-  const { identity: _identity, version: _version, ...spec } = contract(repo, 'HEAD')
+  const spec = contract(repo, 'HEAD')
+  delete spec.identity
+  delete spec.version
   spec.verification.results = []
   return spec
 }
@@ -1102,7 +1259,7 @@ function configureAggregate(repo) {
   const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
     { automation: 'safe', executable, args })
   configure('repository-check', 'npm', ['run', 'check'])
-  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
   configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
   checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
   put(repo, 'engineering/checks.json', checks)
@@ -1354,4 +1511,189 @@ test('verification runs only safe contract checks, records blocking, and detects
     invalid.identity.taskId = '../escape'
     assert.throws(() => validateContract(repo, invalid), /Invalid task id/)
   })
+})
+
+
+// Copy the real CLI and its import closure into the existing small repository.
+// Only the context child is synthetic: never recursively execute this test suite.
+function preflightCliFixture(t) {
+  const repo = fixtureRepo()
+  t.after(() => rmSync(repo, { recursive: true, force: true }))
+  mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
+  for (const name of ['preflight', 'cli', 'dependency-profile', 'research-evidence', 'review-bundle', 'receipt-streams']) {
+    copyFileSync(new URL(`../scripts/orchestration/${name}.mjs`, import.meta.url),
+      join(repo, `scripts/orchestration/${name}.mjs`))
+  }
+  put(repo, 'tests/orchestration.test.mjs', [
+    "import assert from 'node:assert/strict'",
+    "import { existsSync } from 'node:fs'",
+    "import test from 'node:test'",
+    "test('context fixture', () => assert.ok(existsSync('GOAL.md')))",
+    "test('unselected fixture', () => assert.fail('must remain filtered'))",
+    '',
+  ].join('\n'))
+  run(repo, 'git', 'config', 'core.whitespace', 'blank-at-eol,blank-at-eof,space-before-tab')
+  run(repo, 'git', 'add', '.')
+  run(repo, 'git', 'commit', '-qm', 'CLI fixture')
+  return { repo, base: run(repo, 'git', 'rev-parse', 'HEAD').trim() }
+}
+
+function runPreflightCli(repo, args, cwd = repo) {
+  const snapshot = () => ({
+    head: run(repo, 'git', 'rev-parse', 'HEAD'),
+    index: run(repo, 'git', 'ls-files', '--stage'),
+    status: run(repo, 'git', 'status', '--porcelain=v1', '--untracked-files=all'),
+    diff: run(repo, 'git', 'diff', '--binary'),
+  })
+  const before = snapshot()
+  const env = { ...process.env }
+  // This CLI launches its own bounded node:test child, outside the parent runner.
+  delete env.NODE_TEST_CONTEXT
+  const result = spawnSync(process.execPath,
+    [join(repo, 'scripts/orchestration/preflight.mjs'), ...args],
+    { cwd, env, encoding: 'utf8', timeout: 20_000 })
+  assert.ifError(result.error)
+  assert.equal(result.signal, null)
+  assert.deepEqual(snapshot(), before, 'preflight must not change HEAD, index or worktree')
+  return result
+}
+
+function preflightCliReport(stdout) {
+  // stdout intentionally includes inherited validator/TAP or Git diagnostics.
+  // The final pretty-printed JSON object is the preflight receipt, not all stdout.
+  const start = stdout.lastIndexOf('{\n  "base":')
+  assert.ok(start >= 0, stdout)
+  const report = JSON.parse(stdout.slice(start))
+  assert.deepEqual(Object.keys(report), ['base', 'paths', 'results', 'status', 'finalGate'])
+  assert.equal(report.finalGate, false)
+  for (const result of report.results) {
+    assert.deepEqual(Object.keys(result),
+      ['command', 'startedAt', 'finishedAt', 'status', 'exitCode', 'signal', 'error'])
+    assert.ok(Number.isFinite(Date.parse(result.startedAt)))
+    assert.ok(Date.parse(result.finishedAt) >= Date.parse(result.startedAt))
+    assert.equal(result.signal, null)
+  }
+  return report
+}
+
+test('preflight CLI passes clean untracked changes from its script root with inherited output', t => {
+  const { repo, base } = preflightCliFixture(t)
+  put(repo, '-clean file.txt', 'clean\n')
+  // Launch outside the repository: children must still run in the CLI's root.
+  const result = runPreflightCli(repo, ['--base', base], tmpdir())
+  assert.equal(result.status, 0, result.stderr || result.stdout)
+  assert.equal(result.stderr, '')
+  assert.match(result.stdout, /context fixture/)
+  assert.doesNotMatch(result.stdout, /must remain filtered/)
+  const report = preflightCliReport(result.stdout)
+  assert.equal(report.base, base)
+  assert.deepEqual(report.paths, ['-clean file.txt'])
+  assert.equal(report.status, 'passed')
+  assert.equal(report.results.length, 6)
+  assert.ok(report.results.every(item => item.status === 'passed' && item.error === null))
+  assert.deepEqual(report.results.map(item => item.exitCode), [0, 0, 0, 1, 0, 0])
+  assert.deepEqual(report.results[3].command.slice(-4), ['--no-index', '--', '/dev/null', '-clean file.txt'])
+  assert.deepEqual(report.results.at(-1).command,
+    ['node', '--test', '--test-name-pattern=context', 'tests/orchestration.test.mjs'])
+  assert.equal(readFileSync(join(repo, '-clean file.txt'), 'utf8'), 'clean\n')
+})
+
+test('preflight CLI exits one on real whitespace findings and stops before other checks', t => {
+  const { repo, base } = preflightCliFixture(t)
+  put(repo, '-finding file.txt', 'trailing   \n')
+  const result = runPreflightCli(repo, ['--base', base])
+  assert.equal(result.status, 1)
+  assert.equal(result.stderr, '')
+  assert.match(result.stdout, /-finding file\.txt:1: trailing whitespace/)
+  const report = preflightCliReport(result.stdout)
+  assert.equal(report.status, 'failed')
+  assert.equal(report.results.length, 4)
+  assert.equal(report.results.at(-1).exitCode, 3)
+  assert.equal(report.results.at(-1).status, 'failed')
+  assert.ok(report.results.every(item => item.command[0] === 'git'))
+  assert.equal(readFileSync(join(repo, '-finding file.txt'), 'utf8'), 'trailing   \n')
+})
+
+for (const unavailable of ['missing', 'nonexecutable']) {
+  test(`preflight CLI reports a ${unavailable} tool as blocked JSON with exit one`, t => {
+    const { repo, base } = preflightCliFixture(t)
+    if (unavailable === 'nonexecutable') {
+      put(repo, 'node_modules/.bin/eslint', '#!/bin/sh\nexit 0\n')
+      chmodSync(join(repo, 'node_modules/.bin/eslint'), 0o644)
+      run(repo, 'git', 'add', '.')
+      run(repo, 'git', 'commit', '-qm', 'unavailable tool')
+    }
+    put(repo, 'tests/new.test.mjs', 'export {}\n')
+    const result = runPreflightCli(repo, ['--base', base])
+    assert.equal(result.status, 1)
+    assert.equal(result.stderr, '')
+    const report = preflightCliReport(result.stdout)
+    assert.equal(report.status, 'blocked')
+    assert.equal(report.results.length, 5)
+    assert.deepEqual(report.results.at(-1).command,
+      ['node_modules/.bin/eslint', '--max-warnings', '0', '--', 'tests/new.test.mjs'])
+    assert.equal(report.results.at(-1).status, 'blocked')
+    assert.equal(report.results.at(-1).exitCode, null)
+    assert.match(report.results.at(-1).error, unavailable === 'missing' ? /ENOENT/ : /EACCES/)
+  })
+}
+
+test('preflight CLI rejects invalid arguments on stderr without creating an output file', t => {
+  const { repo, base } = preflightCliFixture(t)
+  for (const [args, message] of [
+    [[], 'Requires --base <accepted-base>'],
+    [['--base', 'missing-base'], 'Base ref is not a commit'],
+    [['--base', base, '--output', 'unexpected.json'], 'Only --base is supported'],
+  ]) {
+    const result = runPreflightCli(repo, args)
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, '')
+    assert.match(result.stderr, /^orchestration preflight: /m)
+    assert.ok(result.stderr.includes(message), result.stderr)
+  }
+})
+
+test('preflight CLI fails closed on a real unreadable changed file', {
+  skip: process.platform === 'win32' || process.getuid?.() === 0
+    ? 'requires ordinary Unix file permissions' : false,
+}, t => {
+  const { repo, base } = preflightCliFixture(t)
+  const path = join(repo, 'unreadable.txt')
+  writeFileSync(path, 'private fixture\n')
+  chmodSync(path, 0)
+  try {
+    const result = runPreflightCli(repo, ['--base', base])
+    assert.equal(result.status, 1)
+    assert.equal(result.stdout, '')
+    assert.match(result.stderr, /^orchestration preflight: .*EACCES/)
+    assert.match(result.stderr, /unreadable\.txt/)
+  } finally {
+    chmodSync(path, 0o600)
+  }
+  assert.equal(readFileSync(path, 'utf8'), 'private fixture\n')
+})
+
+
+test('preflight CLI preserves failed child stdout and stderr before the final report', t => {
+  const { repo, base } = preflightCliFixture(t)
+  put(repo, 'node_modules/.bin/eslint', [
+    '#!/usr/bin/env node',
+    "process.stdout.write('fixture lint finding\\n')",
+    "process.stderr.write('fixture lint diagnostic\\n')",
+    'process.exitCode = 2',
+    '',
+  ].join('\n'))
+  chmodSync(join(repo, 'node_modules/.bin/eslint'), 0o755)
+  run(repo, 'git', 'add', '.')
+  run(repo, 'git', 'commit', '-qm', 'failing child fixture')
+  put(repo, 'tests/new.test.mjs', 'export {}\n')
+  const result = runPreflightCli(repo, ['--base', base])
+  assert.equal(result.status, 1)
+  assert.equal(result.stderr, 'fixture lint diagnostic\n')
+  assert.ok(result.stdout.startsWith('fixture lint finding\n'))
+  const report = preflightCliReport(result.stdout)
+  assert.equal(report.status, 'failed')
+  assert.equal(report.results.length, 5)
+  assert.equal(report.results.at(-1).exitCode, 2)
+  assert.equal(report.results.at(-1).error, null)
 })

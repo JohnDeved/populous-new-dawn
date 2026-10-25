@@ -73,6 +73,12 @@ export function checkBuildingSite(
   team: Team,
   plan = 0
 ) {
+  return prepareBuildingSiteCheck(w, team)(pose, model, plan)
+}
+
+// Own this snapshot only across consecutive read-only rejected proposals.
+// Discard before selection/pathfinding, any world edit, or returning to a caller.
+export function prepareBuildingSiteCheck(w: World, team: Team) {
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
   const tribe = {
@@ -102,18 +108,7 @@ export function checkBuildingSite(
       add(nativePosition(w, shrine), 9)
       continue
     }
-    const p = nativePosition(w, shrine),
-      id = shrine.id & 1023
-    buildings.set(id, { model: 18, tribe: 255 })
-    for (const i of buildingFootprintCells({
-      object: rules.buildingObjects[18],
-      angle: Math.round((shrine.angle * 1024) / Math.PI) & 2047,
-      anchorX: p.x & 0xfe00,
-      anchorY: p.y & 0xfe00,
-    })) {
-      land.flags[i] |= 512
-      land.buildingIds[i] = (land.buildingIds[i] & 0xfc00) | id
-    }
+    if (shrine.model) buildings.set(shrine.id, { model: 18, tribe: 255 })
   }
   for (const team of campaignShamanTeams(w)) {
     const center = campaignPosition(w, team)
@@ -133,19 +128,23 @@ export function checkBuildingSite(
     },
     scenery: (i: number) => scenery.get(i) ?? [],
   }
-  const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
-    buildingCellValid(
-      world,
-      tribe,
-      ((index & 127) << 1) | ((index >> 7) << 9),
-      mask,
-      model,
-      plan,
-      tribe.playerType === 1
+  return (pose: BuildingShapePose, model: number, plan = 0) => {
+    tribe.flags = 0
+    const valid = buildingFootprintTiles(pose).every(({ index, mask }) =>
+      buildingCellValid(
+        world,
+        tribe,
+        ((index & 127) << 1) | ((index >> 7) << 9),
+        mask,
+        model,
+        plan,
+        tribe.playerType === 1
+      )
     )
-  )
-  return { valid, flags: tribe.flags }
+    return { valid, flags: tribe.flags }
+  }
 }
+
 export function buildingPlanPose(w: World, kind: BuildingKind, p: Point) {
   return {
     object: rules.buildingObjects[buildingModel({ kind, level: 1 })],
@@ -214,10 +213,22 @@ function buildingId(w: World) {
   // have unbounded IDs, so they must not push new buildings out of that range.
   // Full native allocation/list ownership remains separate from this adapter.
   const used = new Set(
-    [w.units, w.buildings, w.trees, w.shrines, w.effects, w.fights, w.projectiles].flatMap(
-      objects => objects.map(o => o.id)
-    )
+    [
+      w.units,
+      w.buildings,
+      w.vehicles,
+      w.trees,
+      w.shrines,
+      w.effects,
+      w.fights,
+      w.projectiles,
+    ].flatMap(objects => objects.map(o => o.id))
   )
+  const reserveLinkedHeads = (head: World['shrines'][number]) => {
+    used.add(head.id)
+    if (head.linkedShrine) reserveLinkedHeads(head.linkedShrine)
+  }
+  for (const head of w.shrines) reserveLinkedHeads(head)
   for (let id = 1023; id > 0; id--) if (!used.has(id)) return id
   throw new Error('No free terrain building handles')
 }

@@ -1,0 +1,123 @@
+import {createRoot} from 'react-dom/client'
+import {useEffect,useRef,useState} from 'react'
+import {hudScale} from '/tmp/populous-selector-scene-457/app/hud-layout.ts'
+import {OriginalResultScreen} from '/tmp/populous-selector-scene-457/app/original-result-screen.tsx'
+import '/tmp/populous-selector-scene-457/app/globals.css'
+const counts={primary:0,restart:0,continue:0,selector:0,outside:0,overview:0,skip:0,update:0,menu:0}
+function Fixture(){
+ const shell=useRef<HTMLElement>(null)
+ const [state,setState]=useState({status:'won',level:1,playerTribe:0,time:125,cameraPlaying:false,inputMask:65535,nextMission:2,hudPreference:'auto',paused:false})
+ const world={status:state.status,outcome:{level:state.level,cameraPlaying:state.cameraPlaying},manaWorld:{playerTribe:state.playerTribe},time:state.time,inputMask:state.inputMask,flyby:{flags:0},paused:state.paused,units:[],selected:[],mode:null}
+ const nextMission=state.nextMission
+ const restart=()=>{counts.primary++;counts.restart++}
+ const continueCampaign=()=>{counts.primary++;counts.continue++}
+ const openSelector=()=>{counts.selector++}
+ const blockLoadingInteraction=()=>false
+ const ready=true,menu=false,tutorialLevel=79,SPELLS=[],HOME={}
+ const update=()=>{counts.update++},openMenu=()=>{counts.menu++},setTab=()=>{},spellHudVisibility=()=>'',cancelInteraction=()=>{},guardShaman=()=>{},select=()=>{},rotateBuildingPlan=()=>false
+ const store={getWorld:()=>world,change:(fn:any)=>fn(world)}
+ const engine=useRef({skipIntroduction:()=>{counts.skip++},overview:()=>{counts.overview++},focus:()=>{}}),audio=useRef({cue:()=>{}})
+ useEffect(()=>{
+  const resize=()=>shell.current?.style.setProperty('--hud-scale',String(hudScale(innerWidth,innerHeight,state.hudPreference)))
+  resize();window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize)
+ },[state.hudPreference])
+ useEffect(()=>{window.fixture={configure:(patch:any)=>setState(current=>({...current,...patch})),read:()=>({state,world,counts:{...counts}})}},[state])
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (
+        !ready ||
+        menu ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        (e.target as HTMLElement).closest('input,dialog')
+      )
+        return
+      if (world.inputMask) {
+        if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
+          e.preventDefault()
+          engine.current?.skipIntroduction()
+        }
+        return
+      }
+      const s =
+        !e.code.startsWith('Numpad') &&
+        SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
+      if (s) {
+        store.change(w => {
+          w.mode = w.mode === s.id ? null : s.id
+        })
+        setTab('spells')
+      }
+      if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
+        engine.current?.overview()
+      if (e.key === 'Escape') {
+        if (store.getWorld().outcome.level === tutorialLevel) {
+          e.preventDefault()
+          openMenu()
+          return
+        }
+        store.change(cancelInteraction)
+      }
+      if (e.key.toLowerCase() === 'g') guardShaman(world)
+      if (e.key.toLowerCase() === 'h') select(world, 'shaman')
+      if (e.key.toLowerCase() === 'f') {
+        const u = world.units.find(u => world.selected.includes(u.id))
+        engine.current?.focus(u ?? HOME, { animate: true })
+      }
+      if (e.key.toLowerCase() === 'b') {
+        setTab('buildings')
+        store.change(w => {
+          w.mode = null
+        })
+      }
+      if (e.code === 'Space' && !(e.target as HTMLElement).closest('button')) {
+        e.preventDefault()
+        if (!e.repeat) {
+          store.change(w => {
+            if (rotateBuildingPlan(w)) audio.current?.cue(0x26)
+            else w.paused = !w.paused
+          })
+        }
+      }
+      update()
+    }
+    window.addEventListener('keydown', key)
+    return () => window.removeEventListener('keydown', key)
+  }, [world, update, store, ready, openMenu, menu])
+ return <main className="game-shell" ref={shell}
+      onClickCapture={e => {
+        if (blockLoadingInteraction(e)) return
+        if (
+          world.inputMask &&
+          !(e.target as Element).closest(
+            '.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
+          )
+        ) {
+          e.preventDefault()
+          e.stopPropagation()
+          return
+        }
+        if (e.detail > 0 && (e.target as Element).closest('.native-hud'))
+          (e.target as Element).closest('button')?.blur()
+      }}
+ ><div className="world-viewport" onClick={()=>counts.outside++} />
+      {world.status !== 'playing' && !world.outcome.cameraPlaying && (
+        <OriginalResultScreen
+          status={world.status}
+          level={world.outcome.level}
+          player={world.manaWorld.playerTribe + 1}
+          time={world.time}
+          primaryLabel={
+            world.status === 'won' && nextMission
+              ? `Continue to Mission ${nextMission}`
+              : 'Restart Level'
+          }
+          onPrimary={world.status === 'won' && nextMission ? continueCampaign : restart}
+          onSelectLevel={openSelector}
+        />
+      )}
+
+ </main>
+}
+createRoot(document.getElementById('root')!).render(<Fixture />)

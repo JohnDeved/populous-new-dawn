@@ -1,0 +1,399 @@
+{
+  "measurementSha256": "f9a471e8472bd54f460d8cfc900d6fe970dea8c1d16614b604e2300b6fe81953",
+  "checkerSha256": "5d7e8fe558a9651876b619d01bdf3b03961d3e619f6f1b6fdf4b2e6508f74815",
+  "acceptedHead": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "nativeInputs": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+    "data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+    "data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+    "data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "pieces": [
+    {
+      "source": 6531,
+      "w": 24,
+      "h": 27,
+      "atlasX": 1920,
+      "atlasY": 8064,
+      "rgbaSha256": "471e1fca34158f0fa8aefec5ce17012f620e14e337df578d2ed760faee88ebb9"
+    },
+    {
+      "source": 6532,
+      "w": 21,
+      "h": 27,
+      "atlasX": 1952,
+      "atlasY": 8064,
+      "rgbaSha256": "b3702e36e246754f6f0242738bb80cf7a71fef2765c77615908c3f77a08357e6"
+    },
+    {
+      "source": 6533,
+      "w": 21,
+      "h": 27,
+      "atlasX": 1920,
+      "atlasY": 8096,
+      "rgbaSha256": "c7bd71170824253d31f6cd000320f091ab4da29d1543c24e346821f417034bf9"
+    },
+    {
+      "source": 6534,
+      "w": 26,
+      "h": 27,
+      "atlasX": 1952,
+      "atlasY": 8096,
+      "rgbaSha256": "066bf43d2b5147f9d2185a9858edab0da956fdbb5425e3018396fe69a347e249"
+    },
+    {
+      "source": 6535,
+      "w": 32,
+      "h": 30,
+      "atlasX": 1984,
+      "atlasY": 8064,
+      "rgbaSha256": "7eb1781dc39b268a83b77de1958126640d34cbf47045eec9892212ee36d200a6"
+    },
+    {
+      "source": 6536,
+      "w": 32,
+      "h": 30,
+      "atlasX": 2016,
+      "atlasY": 8064,
+      "rgbaSha256": "f3389e8fbadeff219dd041b98cb9ef053d32b7dd08c48f2e2b8f647e0600b032"
+    },
+    {
+      "source": 6542,
+      "w": 24,
+      "h": 30,
+      "atlasX": 1984,
+      "atlasY": 8096,
+      "rgbaSha256": "e49ccd438b163303ffee4ed0364ccbb3b93a0d9836fe5a62de9a92d9dfb389e7"
+    },
+    {
+      "source": 6543,
+      "w": 19,
+      "h": 30,
+      "atlasX": 2016,
+      "atlasY": 8096,
+      "rgbaSha256": "811b84a8e908c1ab249131de6a7f8080b891b42ad1bac13961241b1fbfd718ae"
+    },
+    {
+      "source": 6544,
+      "w": 19,
+      "h": 30,
+      "atlasX": 0,
+      "atlasY": 8128,
+      "rgbaSha256": "9c84f25f10af09fdfcab90ef1f6d7a2185c28d6cfdf662b3d62fae7983a533c2"
+    },
+    {
+      "source": 6545,
+      "w": 25,
+      "h": 30,
+      "atlasX": 32,
+      "atlasY": 8128,
+      "rgbaSha256": "55390bddc9d0c4fc9633e4e23689a7a6fb417cee7f28bdfdf3f4e7014d0cef9a"
+    },
+    {
+      "source": 6546,
+      "w": 29,
+      "h": 32,
+      "atlasX": 0,
+      "atlasY": 8160,
+      "rgbaSha256": "34c54b157e0f51fde03b82d786d2ebf8b2ec20a0fe86f5fd3ff069f65ac41ec3"
+    },
+    {
+      "source": 6547,
+      "w": 29,
+      "h": 32,
+      "atlasX": 32,
+      "atlasY": 8160,
+      "rgbaSha256": "14e3506df448adf07e2fbe7dc949ef039636b614682dd6e365688c118eb8547c"
+    },
+    {
+      "source": 6553,
+      "w": 19,
+      "h": 29,
+      "atlasX": 64,
+      "atlasY": 8128,
+      "rgbaSha256": "bcab4b27dcf4c839bf4193428aeb13ca526fc20859908e0fb7220f0f9bde990f"
+    },
+    {
+      "source": 6554,
+      "w": 20,
+      "h": 29,
+      "atlasX": 96,
+      "atlasY": 8128,
+      "rgbaSha256": "8f2ae4412fb82386dc755de98f963d148741b6ca1455df7682f8f0cc950074db"
+    },
+    {
+      "source": 6555,
+      "w": 20,
+      "h": 29,
+      "atlasX": 64,
+      "atlasY": 8160,
+      "rgbaSha256": "10b0938df98a83633cc1a9ea4c6ec6986815cbf8c92334ac56a4a38731a3f67f"
+    },
+    {
+      "source": 6556,
+      "w": 23,
+      "h": 29,
+      "atlasX": 96,
+      "atlasY": 8160,
+      "rgbaSha256": "a0e7446993a1f7883a5d0b6e508d7c07cb87fa27d969b43c3dc32d532ffbfd34"
+    },
+    {
+      "source": 6557,
+      "w": 25,
+      "h": 30,
+      "atlasX": 128,
+      "atlasY": 8128,
+      "rgbaSha256": "af6dcc4567b05a5f00f035e297b72f4b20743e6035dfdd8a7c9e74e1680b2b0a"
+    },
+    {
+      "source": 6558,
+      "w": 25,
+      "h": 30,
+      "atlasX": 160,
+      "atlasY": 8128,
+      "rgbaSha256": "94827200df86fa9136e26e9bb2a986740fca4ab472337bc10aaf5943e653ccbe"
+    },
+    {
+      "source": 6563,
+      "w": 17,
+      "h": 28,
+      "atlasX": 128,
+      "atlasY": 8160,
+      "rgbaSha256": "5c47ec6f7a133e82f6f9bb968440fae9cf7a7557cae85cda11349ef772d14dc5"
+    },
+    {
+      "source": 6564,
+      "w": 17,
+      "h": 28,
+      "atlasX": 160,
+      "atlasY": 8160,
+      "rgbaSha256": "f34b85a0fe2e165c2db2e0f696925373d151cbffd8c08d5862a0884789bb7678"
+    },
+    {
+      "source": 6565,
+      "w": 19,
+      "h": 28,
+      "atlasX": 192,
+      "atlasY": 8128,
+      "rgbaSha256": "f81f74c3a11e64fbb641482f90af132d199ba8b65f6961e896c346f9fb3e0e43"
+    },
+    {
+      "source": 6566,
+      "w": 25,
+      "h": 31,
+      "atlasX": 224,
+      "atlasY": 8128,
+      "rgbaSha256": "7268c70b3fb274cde8ac6509d142fb133649ee2d46f0ff1185f5734859aff3f4"
+    },
+    {
+      "source": 6571,
+      "w": 20,
+      "h": 26,
+      "atlasX": 192,
+      "atlasY": 8160,
+      "rgbaSha256": "3f3451c2edd6025ab6545f1b0d46c2e1eb29c665f2f90719a373ea82b15727d3"
+    },
+    {
+      "source": 6572,
+      "w": 20,
+      "h": 28,
+      "atlasX": 224,
+      "atlasY": 8160,
+      "rgbaSha256": "6318a490619676b3e0b329bd4bc234019462526d87d7d50a4d3a8d1e2aa7fc9e"
+    },
+    {
+      "source": 6573,
+      "w": 24,
+      "h": 28,
+      "atlasX": 256,
+      "atlasY": 8128,
+      "rgbaSha256": "ba0f394ed04cddd188cc8cafb38d33f880efd19b4118615b6c9a1711c07a43b6"
+    },
+    {
+      "source": 6574,
+      "w": 30,
+      "h": 31,
+      "atlasX": 288,
+      "atlasY": 8128,
+      "rgbaSha256": "4500f9403ef0866f07e2f370dca37e3a8f7a77d8c0b3cfba2d5a37ab57b3b7ce"
+    },
+    {
+      "source": 6585,
+      "w": 3,
+      "h": 6,
+      "atlasX": 256,
+      "atlasY": 8160,
+      "rgbaSha256": "d7cdd9ab2f6221596488e1932ba7f36c196fc4b9c162adc8132882e6fd4419f0"
+    },
+    {
+      "source": 6586,
+      "w": 3,
+      "h": 6,
+      "atlasX": 288,
+      "atlasY": 8160,
+      "rgbaSha256": "d7cdd9ab2f6221596488e1932ba7f36c196fc4b9c162adc8132882e6fd4419f0"
+    },
+    {
+      "source": 6594,
+      "w": 3,
+      "h": 6,
+      "atlasX": 320,
+      "atlasY": 8128,
+      "rgbaSha256": "d7cdd9ab2f6221596488e1932ba7f36c196fc4b9c162adc8132882e6fd4419f0"
+    },
+    {
+      "source": 6601,
+      "w": 2,
+      "h": 6,
+      "atlasX": 352,
+      "atlasY": 8128,
+      "rgbaSha256": "8e78bd9d40eb022cbbbcd1488e1a7447fbb6d8064534b7066dda84e835f98196"
+    },
+    {
+      "source": 6611,
+      "w": 3,
+      "h": 6,
+      "atlasX": 320,
+      "atlasY": 8160,
+      "rgbaSha256": "d7cdd9ab2f6221596488e1932ba7f36c196fc4b9c162adc8132882e6fd4419f0"
+    },
+    {
+      "source": 6619,
+      "w": 3,
+      "h": 6,
+      "atlasX": 352,
+      "atlasY": 8160,
+      "rgbaSha256": "7c9ee51ec0537a0000bba122ef922d240bb4639d2e30e568cc50ad9838b6135c"
+    },
+    {
+      "source": 6622,
+      "w": 3,
+      "h": 6,
+      "atlasX": 384,
+      "atlasY": 8128,
+      "rgbaSha256": "7c9ee51ec0537a0000bba122ef922d240bb4639d2e30e568cc50ad9838b6135c"
+    },
+    {
+      "source": 6625,
+      "w": 3,
+      "h": 6,
+      "atlasX": 416,
+      "atlasY": 8128,
+      "rgbaSha256": "22b1e4bf7ffa174614818db8898783e94e69eb9780f29897b4e633e8f1bb2c22"
+    },
+    {
+      "source": 6635,
+      "w": 3,
+      "h": 6,
+      "atlasX": 384,
+      "atlasY": 8160,
+      "rgbaSha256": "22b1e4bf7ffa174614818db8898783e94e69eb9780f29897b4e633e8f1bb2c22"
+    },
+    {
+      "source": 6645,
+      "w": 3,
+      "h": 6,
+      "atlasX": 416,
+      "atlasY": 8160,
+      "rgbaSha256": "22b1e4bf7ffa174614818db8898783e94e69eb9780f29897b4e633e8f1bb2c22"
+    },
+    {
+      "source": 6650,
+      "w": 2,
+      "h": 6,
+      "atlasX": 448,
+      "atlasY": 8128,
+      "rgbaSha256": "548f3369b8abe660c49b33d10f32e56917f039a88c312aedc384e8d46f33af7f"
+    },
+    {
+      "source": 6652,
+      "w": 2,
+      "h": 6,
+      "atlasX": 480,
+      "atlasY": 8128,
+      "rgbaSha256": "548f3369b8abe660c49b33d10f32e56917f039a88c312aedc384e8d46f33af7f"
+    },
+    {
+      "source": 6660,
+      "w": 3,
+      "h": 6,
+      "atlasX": 448,
+      "atlasY": 8160,
+      "rgbaSha256": "22b1e4bf7ffa174614818db8898783e94e69eb9780f29897b4e633e8f1bb2c22"
+    },
+    {
+      "source": 6668,
+      "w": 3,
+      "h": 6,
+      "atlasX": 480,
+      "atlasY": 8160,
+      "rgbaSha256": "9030ef507607bce14e40b633a0bb20f9f80bb351c915d405a2418e763fa9b578"
+    },
+    {
+      "source": 6671,
+      "w": 3,
+      "h": 6,
+      "atlasX": 512,
+      "atlasY": 8128,
+      "rgbaSha256": "9030ef507607bce14e40b633a0bb20f9f80bb351c915d405a2418e763fa9b578"
+    },
+    {
+      "source": 6674,
+      "w": 3,
+      "h": 6,
+      "atlasX": 544,
+      "atlasY": 8128,
+      "rgbaSha256": "4fe7a8ae2de2098f02faae96e8ccb97302f9c9e68138a1905d2b5bf6fbbfc35d"
+    },
+    {
+      "source": 6684,
+      "w": 3,
+      "h": 6,
+      "atlasX": 512,
+      "atlasY": 8160,
+      "rgbaSha256": "4fe7a8ae2de2098f02faae96e8ccb97302f9c9e68138a1905d2b5bf6fbbfc35d"
+    },
+    {
+      "source": 6688,
+      "w": 3,
+      "h": 5,
+      "atlasX": 544,
+      "atlasY": 8160,
+      "rgbaSha256": "3360818f0045b0113fd417f0cce334ffb5332ab641de0ddc867dbfa4008825df"
+    },
+    {
+      "source": 6694,
+      "w": 3,
+      "h": 6,
+      "atlasX": 576,
+      "atlasY": 8128,
+      "rgbaSha256": "4fe7a8ae2de2098f02faae96e8ccb97302f9c9e68138a1905d2b5bf6fbbfc35d"
+    },
+    {
+      "source": 6710,
+      "w": 3,
+      "h": 6,
+      "atlasX": 608,
+      "atlasY": 8128,
+      "rgbaSha256": "4fe7a8ae2de2098f02faae96e8ccb97302f9c9e68138a1905d2b5bf6fbbfc35d"
+    },
+    {
+      "source": 6711,
+      "w": 3,
+      "h": 6,
+      "atlasX": 576,
+      "atlasY": 8160,
+      "rgbaSha256": "4fe7a8ae2de2098f02faae96e8ccb97302f9c9e68138a1905d2b5bf6fbbfc35d"
+    },
+    {
+      "source": 6720,
+      "w": 3,
+      "h": 6,
+      "atlasX": 608,
+      "atlasY": 8160,
+      "rgbaSha256": "f4671d286fc134a271a04d962cbcb5683621c1e028cadd222f38360402bfe66c"
+    }
+  ]
+}
