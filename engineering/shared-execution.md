@@ -77,6 +77,15 @@ success. Read-only sentinel cases require a bounded, exact init-and-gate PID vie
 sentinel inode through every visible /proc/<pid>/root, and unchanged visibility
 across the write-denial checks. Disappearing/unreadable aliases fail closed.
 
+Qualifier cleanup waits for asynchronous owned-process termination within the
+existing five-second cleanup limit. Observer-fault recovery and finalization share
+one deadline rather than receiving separate grace periods. Each phase retains
+before/after process identities and observation errors. A fresh zero-survivor
+observation must finish before the deadline; live or unknown survivors at the
+deadline still fail. The observer is joined even if cleanup fails. This changes
+only generated qualification cleanup, not normal payload failure classification.
+It does not retroactively certify a historical missing cleanup observation.
+
 The generated protected hardlink sentinels live outside the all-private sealed
 qualification evidence root. Production layout never constructs those sentinels.
 The full qualifier allocation includes both trees. No production sealer exemption
@@ -209,7 +218,7 @@ The generated Python tests prohibit every subprocess entry point before importin
 the adapter. They cover pure planning failure, mount/identity/state/alias policy,
 private filesystem fixtures, bounded results, producer-clock predicates, positive
 PID binding and final seals. They do not certify Linux mounts or package behavior.
-The conventional `tests/shared-execution.test.mjs` wrapper runs all 82 Python
+The conventional `tests/shared-execution.test.mjs` wrapper runs the generated Python
 cases with isolated imports, bytecode writes disabled, a 60-second subprocess
 timeout and a 1 MiB spawn buffer limit. It is discoverable by the repository
 `.test.mjs` inventory. These are narrow regression checks, not a substitute for repository

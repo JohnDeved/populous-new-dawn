@@ -1190,6 +1190,104 @@ class DescendantDiagnosticCase(unittest.TestCase):
         self.assertEqual(execution.OwnerWatch.survivors(watch), [rows[2]])
 
 
+class CleanupClock:
+    def __init__(self):
+        self.now = 0
+
+    def monotonic(self):
+        return self.now
+
+    def sleep(self, seconds):
+        self.now += seconds
+
+
+class DelayedCleanupWatch:
+    """Generated process timeline; never creates or signals a real process."""
+    row = {'pid': 91, 'startTicks': 123, 'state': 'S', 'pidNamespace': 'pid:[generated]'}
+
+    def __init__(self, clock, until=0.09, unknown=False):
+        self.clock = clock
+        self.until = until
+        self.unknown = unknown
+        self.cleanup_calls = 0
+
+    def cleanup(self):
+        self.cleanup_calls += 1
+
+    def survivors(self):
+        if self.clock.now < self.until:
+            if self.unknown:
+                raise OSError('Generated observation unavailable')
+            return [dict(self.row)]
+        return []
+
+
+class OwnedCleanupWaitCase(unittest.TestCase):
+    def run_case(self, until=0.09, unknown=False, context=None):
+        clock = CleanupClock()
+        watch = DelayedCleanupWatch(clock, until, unknown)
+        records = {}
+        context = {} if context is None else context
+        error = None
+        with patch.object(execution.time, 'monotonic', clock.monotonic), \
+             patch.object(execution.time, 'sleep', clock.sleep), \
+             patch.object(execution, 'save_new', lambda path, value: records.update({path.name: value})):
+            try:
+                execution.await_owned_cleanup(watch, execution.Limits(), Path('/generated'),
+                                              context, phase='test')
+            except Exception as failure:
+                error = failure
+        return clock, watch, records['cleanup-observations-test.json'], error, context
+
+    def test_old_immediate_check_rejects_delayed_exit(self):
+        watch = DelayedCleanupWatch(CleanupClock())
+        watch.cleanup()
+        with self.assertRaisesRegex(ValueError, 'Qualification survivor'):
+            execution.require(not watch.survivors(), 'Qualification survivor')
+
+    def test_delayed_exit_waits_and_records_identity(self):
+        clock, watch, record, error, context = self.run_case()
+        self.assertIsNone(error)
+        self.assertGreaterEqual(clock.now, 0.09)
+        self.assertLessEqual(clock.now, 5)
+        self.assertEqual(record['observations'][0]['after'], [watch.row])
+        self.assertEqual(record['observations'][-1]['after'], [])
+        self.assertEqual(record['status'], 'observed-zero-live-survivors')
+
+    def test_persistent_live_fails_at_unchanged_deadline(self):
+        clock, watch, record, error, context = self.run_case(until=10)
+        self.assertIsNotNone(error)
+        self.assertEqual(clock.now, 5)
+        self.assertEqual(record['status'], 'failed-or-unknown')
+        self.assertEqual(record['observations'][-1]['after'], [watch.row])
+
+    def test_persistent_unknown_fails_at_deadline(self):
+        clock, watch, record, error, context = self.run_case(until=10, unknown=True)
+        self.assertIsNotNone(error)
+        self.assertEqual(clock.now, 5)
+        self.assertIsNone(record['observations'][-1]['after'])
+        self.assertIsNotNone(record['observations'][-1]['afterError'])
+
+    def test_unknown_requires_fresh_zero(self):
+        clock, watch, record, error, context = self.run_case(unknown=True)
+        self.assertIsNone(error)
+        self.assertIsNone(record['observations'][0]['after'])
+        self.assertEqual(record['observations'][-1]['after'], [])
+
+    def test_second_phase_does_not_renew_deadline(self):
+        clock, watch, record, error, context = self.run_case(until=10, context={'deadline': 0.06})
+        self.assertIsNotNone(error)
+        self.assertEqual(clock.now, 0.06)
+        self.assertEqual(context['deadline'], 0.06)
+
+    def test_already_empty_completes_without_sleep(self):
+        clock, watch, record, error, context = self.run_case(until=0)
+        self.assertIsNone(error)
+        self.assertEqual(clock.now, 0)
+        self.assertEqual(watch.cleanup_calls, 1)
+
+
+
 if __name__ == '__main__':
     try:
         unittest.main(verbosity=2)
