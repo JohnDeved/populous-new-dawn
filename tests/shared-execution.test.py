@@ -839,7 +839,7 @@ class PureCase(unittest.TestCase):
         spec = {'version': execution.VERSION, 'kind': 'shared-execution-qualification-spec',
                 'tools': tools, 'toolRoots': {path: 'a' * 64 for path in roots}, 'limits': asdict(limits)}
         class Watch:
-            def __init__(self, *args): pass
+            def __init__(self, *args): self.snapshot = lambda: {}
             def cleanup(self): pass
             def survivors(self): return []
             def finish(self): raise ValueError('late qualifier observer failure')
@@ -1402,9 +1402,214 @@ class ReadonlyExecutableAliasCase(unittest.TestCase):
             self.invoke(final_readonly=False)
 
 
+class OwnerScopedProcfsTests(unittest.TestCase):
+    def row(self, pid, ppid, namespace='pid:[10]', ticks=None):
+        return dict(pid=pid, ppid=ppid, startTicks=ticks or pid*10, pgid=pid,
+                    session=pid, state='S', rss=4096, nspid=[pid],
+                    pidNamespace=namespace, executable='/owned')
+
+    def rows(self):
+        return {1:self.row(1,0),10:self.row(10,1),20:self.row(20,10),30:self.row(30,20)}
+
+    def select(self, rows, known=None, roots=None, enrich=None):
+        return execution.owned_process_rows(rows,rows[10],known or {},roots or {},enrich or rows.__getitem__)
+
+    def test_unrelated_root_namespace_is_never_read(self):
+        rows=self.rows(); calls=[]
+        def enrich(pid):
+            calls.append(pid)
+            if pid==1:raise PermissionError('root namespace denied')
+            return rows[pid]
+        self.assertEqual([r['pid'] for r in self.select(rows,enrich=enrich)],[10,20,30])
+        self.assertEqual(calls,[10,20,30])
+
+    def test_owned_permission_error_is_not_skipped(self):
+        rows=self.rows()
+        for denied in (10,20,30):
+            def enrich(pid):
+                if pid==denied:raise PermissionError('owned procfs denied')
+                return rows[pid]
+            with self.assertRaises(PermissionError):self.select(rows,enrich=enrich)
+
+    def test_public_census_permission_error_is_fatal(self):
+        with patch.object(Path,'iterdir',return_value=iter([Path('/proc/1')])), \
+             patch.object(execution,'process_ancestry',side_effect=PermissionError('unknown ancestry')):
+            with self.assertRaises(PermissionError):execution.ancestry_snapshot()
+
+    def test_public_census_only_tolerates_exit_race(self):
+        with patch.object(Path,'iterdir',return_value=iter([Path('/proc/1')])), \
+             patch.object(execution,'process_ancestry',side_effect=ProcessLookupError('exited')):
+            self.assertEqual(execution.ancestry_snapshot(),{})
+
+    def test_pid_reuse_or_reparent_during_enrichment_fails(self):
+        rows=self.rows()
+        for change in ({'startTicks':999},{'ppid':1}):
+            with self.assertRaises(ValueError):
+                self.select(rows,enrich=lambda pid:{**rows[pid],**change} if pid==30 else rows[pid])
+
+    def test_unknown_setsid_orphan_reparented_to_subreaper_is_owned(self):
+        rows=self.rows();rows[30]=self.row(30,10);rows[40]=self.row(40,30)
+        self.assertEqual([r['pid'] for r in self.select(rows)],[10,20,30,40])
+
+    def test_namespace_init_anchors_unknown_reparented_nested_members(self):
+        rows=self.rows();rows[20]=self.row(20,1,'pid:[20]')
+        rows[30]=self.row(30,20,'pid:[30]');rows[40]=self.row(40,30,'pid:[30]')
+        roots={'pid:[20]':{'pid':20,'startTicks':200}}
+        self.assertEqual([r['pid'] for r in self.select(rows,roots=roots)],[10,20,30,40])
+        with self.assertRaises(ValueError):self.select(rows,roots={'pid:[20]':{'pid':20,'startTicks':999}})
+
+    def test_unrelated_session_does_not_confer_ownership(self):
+        rows=self.rows();rows[50]={**self.row(50,1),'session':10,'pgid':10}
+        self.assertNotIn(50,[r['pid'] for r in self.select(rows)])
+
+    def test_cleanup_signals_retained_pidfds_even_if_observation_denied(self):
+        watch=object.__new__(execution.OwnerWatch);watch.lock=threading.RLock()
+        watch.pidfds={(20,200):45};watch.direct_fds=[46]
+        watch.observe=lambda:(_ for _ in ()).throw(PermissionError('owned denied'))
+        with patch.object(execution.signal,'pidfd_send_signal') as send:
+            watch.cleanup()
+            self.assertEqual([call.args[0] for call in send.call_args_list],[45,46])
+
+    def watch(self, snapshots, known=None, roots=None, pidfds=None):
+        watch=object.__new__(execution.OwnerWatch);watch.lock=threading.RLock()
+        watch.parent=self.row(10,1);watch.known=known or {};watch.namespace_roots=roots or {}
+        watch.pidfds=pidfds or {};watch.history={}
+        watch.snapshot=unittest.mock.Mock(side_effect=snapshots)
+        return watch
+
+    def test_second_census_positive_reparent_and_setsid_remain_owned(self):
+        before=self.rows();after={**before,30:{**self.row(30,10),'session':30}}
+        watch=self.watch([before,after]);watch.pidfds={(20,200):45,(30,300):46}
+        def member(pid):return (before if watch.snapshot.call_count==1 else after)[pid]
+        with patch.object(execution,'process_member',side_effect=member):
+            self.assertEqual([r['pid'] for r in watch.observe()],[10,20,30])
+            self.assertEqual(watch.known[(30,300)]['ppid'],10)
+
+    def test_second_census_unanchored_reparent_is_not_clean(self):
+        before=self.rows();after={**before,30:self.row(30,1)}
+        watch=self.watch([before,after]);watch.pidfds={(20,200):45,(30,300):46}
+        def member(pid):return (before if watch.snapshot.call_count==1 else after)[pid]
+        with patch.object(execution,'process_member',side_effect=member):
+            with self.assertRaisesRegex(ValueError,'positive parent anchor'):watch.observe()
+
+    def test_initial_gate_child_addition_between_censuses_is_pinned(self):
+        before={1:self.row(1,0),10:self.row(10,1)}
+        after={**before,20:self.row(20,10)};watch=self.watch([before,after])
+        def member(pid):return (before if watch.snapshot.call_count==1 else after)[pid]
+        with patch.object(execution,'process_member',side_effect=member), \
+             patch.object(execution.os,'pidfd_open',return_value=45) as pin:
+            rows=watch.observe()
+        self.assertEqual([r['pid'] for r in rows],[10,20]);pin.assert_called_once_with(20)
+        self.assertEqual(watch.pidfds,{(20,200):45})
+
+    def test_new_descendant_closure_between_censuses_is_pinned(self):
+        before={10:self.row(10,1)};after=self.rows();watch=self.watch([before,after])
+        with patch.object(execution,'process_member',side_effect=lambda pid:after[pid]), \
+             patch.object(execution.os,'pidfd_open',side_effect=[45,46]):
+            self.assertEqual([r['pid'] for r in watch.observe()],[10,20,30])
+        self.assertEqual(set(watch.pidfds),{(20,200),(30,300)})
+
+    def test_first_census_pid_reuse_cannot_be_dropped_as_unrelated(self):
+        before={10:self.row(10,1),20:self.row(20,10)}
+        after={10:before[10],20:self.row(20,1,ticks=999)}
+        watch=self.watch([before,after]);watch.pidfds={(20,200):45}
+        with patch.object(execution,'process_member',side_effect=lambda pid:before[pid]):
+            with self.assertRaisesRegex(ValueError,'PID reused between'):watch.observe()
+
+    def test_addition_with_unreadable_owned_enrichment_still_fails(self):
+        before={10:self.row(10,1)};after={**before,20:self.row(20,10)};watch=self.watch([before,after])
+        def member(pid):
+            if pid==20:raise PermissionError('new owned inaccessible')
+            return after[pid]
+        with patch.object(execution,'process_member',side_effect=member):
+            with self.assertRaises(PermissionError):watch.observe()
+
+    def test_removed_first_census_child_requires_pidfd_exit(self):
+        import select
+        before={10:self.row(10,1),20:self.row(20,10)};after={10:before[10]}
+        for exited in (False,True):
+            watch=self.watch([before,after]);watch.pidfds={(20,200):45}
+            with patch.object(execution,'process_member',side_effect=lambda pid:before[pid]), \
+                 patch.object(select,'select',return_value=([45] if exited else [],[],[])):
+                if exited:self.assertEqual([r['pid'] for r in watch.observe()],[10])
+                else:
+                    with self.assertRaisesRegex(ValueError,'positive exit'):watch.observe()
+
+    def test_absent_or_reused_retained_pid_requires_positive_exit(self):
+        import select
+        for replacement in (None,self.row(20,1,ticks=999)):
+            rows={10:self.row(10,1)}
+            if replacement:rows[20]=replacement
+            watch=self.watch([rows,rows],known={(20,200):self.row(20,10)},pidfds={(20,200):45})
+            with patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]), \
+                 patch.object(select,'select',return_value=([],[],[])):
+                with self.assertRaisesRegex(ValueError,'without positive exit'):watch.observe()
+
+    def test_vanished_init_does_not_make_live_member_clean(self):
+        import select
+        rows={10:self.row(10,1)}
+        watch=self.watch([rows,rows],known={(20,200):self.row(20,10,'pid:[20]')},
+                         roots={'pid:[20]':{'pid':20,'startTicks':200}},pidfds={(20,200):45})
+        with patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]), \
+             patch.object(select,'select',return_value=([],[],[])):
+            with self.assertRaises(ValueError):watch.observe()
+
+    def test_vanished_init_and_positive_retained_exit_allow_parent_only(self):
+        import select
+        rows={10:self.row(10,1)}
+        watch=self.watch([rows,rows],known={(20,200):self.row(20,10,'pid:[20]')},
+                         roots={'pid:[20]':{'pid':20,'startTicks':200}},pidfds={(20,200):45})
+        with patch.object(execution,'process_member',side_effect=lambda pid:rows[pid]), \
+             patch.object(select,'select',return_value=([45],[],[])):
+            self.assertEqual([r['pid'] for r in watch.observe()],[10])
+
+    def test_qualifier_restores_exact_owner_census_on_recovery_and_finally(self):
+        import ast
+        import inspect
+        source=ast.parse(inspect.getsource(execution.qualify_backend))
+        captures=[n for n in ast.walk(source) if isinstance(n,ast.Assign) and
+                  any(isinstance(t,ast.Name) and t.id=='actual_snapshot' for t in n.targets)]
+        restores=[n for n in ast.walk(source) if isinstance(n,ast.Assign) and
+                  any(isinstance(t,ast.Attribute) and isinstance(t.value,ast.Name) and
+                      t.value.id=='watch' and t.attr=='snapshot' for t in n.targets) and
+                  isinstance(n.value,ast.Name) and n.value.id=='actual_snapshot']
+        injections=[n for n in ast.walk(source) if isinstance(n,ast.If) and
+                    any(isinstance(child,ast.FunctionDef) and child.name=='failed_snapshot' for child in n.body)]
+        self.assertEqual(len(captures),1);self.assertEqual(len(restores),2);self.assertEqual(len(injections),1)
+        self.assertLess(captures[0].lineno,injections[0].lineno)
+        rows={1:self.row(1,0),10:self.row(10,1)}
+        def enrich(pid):
+            if pid==1:raise PermissionError('unrelated root namespace denied')
+            return rows[pid]
+        for restore in restores:
+            watch=self.watch([]);watch.binding=None;watch.snapshot=lambda:rows
+            original=watch.snapshot
+            scope={'watch':watch,'name':'observer','QualificationObservationFault':execution.QualificationObservationFault}
+            def run(node):exec(compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),'qualifier-exact-node','exec'),scope)
+            run(captures[0]);run(injections[0])
+            self.assertIs(watch.snapshot(),rows)
+            watch.binding={'positive':True}
+            with self.assertRaises(execution.QualificationObservationFault):watch.snapshot()
+            run(restore)
+            self.assertIs(watch.snapshot,original)
+            with patch.object(execution,'process_member',side_effect=enrich), \
+                 patch.object(execution,'process_snapshot',side_effect=AssertionError('host-wide scan forbidden')):
+                self.assertEqual([r['pid'] for r in watch.observe()],[10])
+            # Ordinary-case finally must preserve the same census without injection.
+            watch.snapshot=original;scope['name']='readonly';run(captures[0]);run(restore)
+            self.assertIs(watch.snapshot,original)
+
+    def test_subreaper_failure_is_pre_admission_failure(self):
+        import ctypes
+        with patch.object(ctypes,'CDLL') as library:
+            library.return_value.prctl.return_value=-1
+            with self.assertRaisesRegex(ValueError,'subreaper unavailable'):execution.require_child_subreaper()
+
+
 if __name__ == '__main__':
     try:
         unittest.main(verbosity=2)
     finally:
         for guard in reversed(GUARDS):
             guard.stop()
+
