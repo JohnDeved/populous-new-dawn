@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import { gameplayThreeCycleProfile } from './gameplay-resource-profile.mjs'
+import { captureGameplayThreeCycleHeapSample, gameplayThreeCycleHeapPolicy, gameplayThreeCycleHeapLimits, gameplayThreeCycleProtocol, gameplayThreeCycleResourceLimits, validateGameplayThreeCycleHeapProbe, summarizeGameplayThreeCycleWorkload } from './gameplay-heap-observer.mjs'
 import { captureGameplayMatchedHeapSample, gameplayMatchedHeapPolicy, gameplayMatchedHeapLimits, gameplayMatchedProtocol, gameplayHeapResourceLimits, validateGameplayMatchedHeapProbe, summarizeGameplayMatchedWorkload } from './gameplay-heap-observer.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -26,8 +28,10 @@ export function gameplayPhaseSchedule(measuredPhases) {
   return plan.phases.slice(0, lastPhase + 1).map(phase => ({ phase, measured: measuredPhases.includes(phase.name) }))
 }
 
-export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name), resourceLifecycle = false }) {
+export default async function ({ page, url, output, expectedRevision, measuredPhases = plan.phases.map(phase => phase.name), resourceLifecycle = false, resourceProfile }) {
   assertResourceScenario(resourceLifecycle, measuredPhases, plan.phases.map(phase => phase.name))
+  assert.ok(resourceProfile === undefined || (resourceLifecycle && resourceProfile === gameplayThreeCycleProfile), 'Unknown resource profile')
+  const threeCycles = resourceProfile === gameplayThreeCycleProfile
   const schedule = gameplayPhaseSchedule(measuredPhases)
   const report = { schema: 'populous-new-dawn/gameplay-frame-recording', schemaVersion: 1,
     status: 'running', plan, measuredPhases, expectedRevision, phases: [], limits: gameplayFrameLimits }
@@ -35,6 +39,11 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     report.schemaVersion = 2; delete report.phases
     report.protocol = gameplayMatchedProtocol; report.cycles = []
     report.resources = { version: 3, status: 'observing', limits: gameplayHeapResourceLimits }
+    if (threeCycles) {
+      report.schemaVersion = 3; report.resourceProfile = resourceProfile
+      report.protocol = gameplayThreeCycleProtocol
+      report.resources = { version: 4, status: 'observing', limits: gameplayThreeCycleResourceLimits, restarts: [] }
+    }
   }
   const save = () => writeFileSync(resolve(output, 'gameplay-frames.json'), JSON.stringify(report, null, 2) + '\n')
   const observe = () => page.evaluate(observeGameplayFramePhase)
@@ -161,49 +170,72 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
       await runCycle(first, 'cycle-1-')
       // Exactly one intervention at each complete post-workload endpoint, outside F8.
       report.resources.heap = { version: 2, status: 'running', policy: gameplayMatchedHeapPolicy, limits: gameplayMatchedHeapLimits, samples: [], sessionDetached: false }; save()
+      if (threeCycles) Object.assign(report.resources.heap, { version: 3, policy: gameplayThreeCycleHeapPolicy, limits: gameplayThreeCycleHeapLimits })
       heapSession = await page.context().newCDPSession(page)
-      const heapSample = boundary => captureGameplayMatchedHeapSample({ session: heapSession, boundary,
+      const heapSample = boundary => (threeCycles ? captureGameplayThreeCycleHeapSample : captureGameplayMatchedHeapSample)({ session: heapSession, boundary,
         onSample: sample => { report.resources.heap.samples.push(sample); save() },
         observe: () => page.evaluate(observeGameplayResources),
         assertF8Hidden: async () => assert.equal(await graph.isVisible(), false, 'Heap probe must remain outside F8 windows') })
       await heapSample('after-cycle-1-workload'); save()
-      // Dedicated scenario: complete original workload, then one lifecycle episode.
-      report.resources.restart = { status: 'running' }; save()
-      await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-      const menu = page.locator('dialog[data-original-pause-menu]')
-      await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
-      await menu.getByRole('button', { name: 'Yes', exact: true }).click()
-      const disposed = await page.waitForFunction(() => window.testScene?.disposed === true)
-      await disposed.dispose()
-      report.resources.restart.retired = await page.evaluate(captureRetiredGameplayScene)
-      save()
-      await bindGame(page)
-      const restarted = await page.waitForFunction(m2StartupReady)
-      const ready = await restarted.jsonValue(); await restarted.dispose()
-      assert.equal(ready.level, 2)
-      if (ready.action === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
-      await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
-      const rendered = await page.waitForFunction(() => {
-        const memory = window.testSceneRef?.current?.renderer.info.memory
-        return memory?.geometries > 0 && memory?.textures > 0
-      })
-      await rendered.dispose()
-      report.resources.restart.after = await page.evaluate(observeGameplayResources)
-      await page.waitForTimeout(plan.warmupMs)
-      report.resources.restart.settled = await page.evaluate(observeGameplayResources)
-      Object.assign(report.resources.restart, summarizeResourceRestart(first.resources.afterWorkload,
-        report.resources.restart.retired, report.resources.restart.after, report.resources.restart.settled))
+      // Each restart reuses only the existing alias; retirement deletes it before rebinding.
+      const restartCycle = async (previous, nextId) => {
+        const restart = { status: 'running' }
+        if (threeCycles) {
+          Object.assign(restart, { fromCycle: previous.id, toCycle: nextId })
+          report.resources.restarts.push(restart)
+        } else report.resources.restart = restart
+        save()
+        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        const menu = page.locator('dialog[data-original-pause-menu]')
+        await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
+        await menu.getByRole('button', { name: 'Yes', exact: true }).click()
+        const disposed = await page.waitForFunction(() => window.testScene?.disposed === true)
+        await disposed.dispose()
+        restart.retired = await page.evaluate(captureRetiredGameplayScene)
+        save()
+        await bindGame(page)
+        const restarted = await page.waitForFunction(m2StartupReady)
+        const ready = await restarted.jsonValue(); await restarted.dispose()
+        assert.equal(ready.level, 2)
+        if (ready.action === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
+        await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
+        const rendered = await page.waitForFunction(() => {
+          const memory = window.testSceneRef?.current?.renderer.info.memory
+          return memory?.geometries > 0 && memory?.textures > 0
+        })
+        await rendered.dispose()
+        restart.after = await page.evaluate(observeGameplayResources)
+        await page.waitForTimeout(plan.warmupMs)
+        restart.settled = await page.evaluate(observeGameplayResources)
+        Object.assign(restart, summarizeResourceRestart(previous.resources.afterWorkload,
+          restart.retired, restart.after, restart.settled))
+        return ready
+      }
+      const ready = await restartCycle(first, 'cycle-2')
       const second = { id: 'cycle-2', startup: ready, phases: [] }
       report.cycles.push(second)
       await runCycle(second, 'cycle-2-')
       await heapSample('after-cycle-2-workload'); save()
+      if (threeCycles) {
+        const third = { id: 'cycle-3', startup: await restartCycle(second, 'cycle-3'), phases: [] }
+        report.cycles.push(third)
+        await runCycle(third, 'cycle-3-')
+        await heapSample('after-cycle-3-workload'); save()
+      }
       const closingHeapSession = heapSession; heapSession = undefined
       await closingHeapSession.detach()
       report.resources.heap.sessionDetached = true
-      report.resources.heap.status = 'passed-two-cycle-descriptive-observations'
-      validateGameplayMatchedHeapProbe(report.resources.heap, report.resources, report.cycles)
-      report.resources.status = 'passed-two-cycle-matched-protocol'
-      report.observedWorkloadComparison = summarizeGameplayMatchedWorkload(report.cycles)
+      if (threeCycles) {
+        report.resources.heap.status = 'passed-three-cycle-descriptive-observations'
+        report.resources.status = 'passed-three-cycle-protocol'
+        report.resources.heap.deltas = validateGameplayThreeCycleHeapProbe(report.resources.heap, report.resources, report.cycles)
+        report.observedWorkloadComparison = summarizeGameplayThreeCycleWorkload(report.cycles)
+      } else {
+        report.resources.heap.status = 'passed-two-cycle-descriptive-observations'
+        validateGameplayMatchedHeapProbe(report.resources.heap, report.resources, report.cycles)
+        report.resources.status = 'passed-two-cycle-matched-protocol'
+        report.observedWorkloadComparison = summarizeGameplayMatchedWorkload(report.cycles)
+      }
     }
 
     report.status = 'passed'

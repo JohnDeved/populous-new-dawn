@@ -154,3 +154,60 @@ export function validateGameplayMatchedHeapProbe(probe, resources, cycles) {
     interpretation: gameplayMatchedProtocol.interpretation,
     secondMinusFirstBytes: Object.fromEntries(gameplayHeapPolicy.fields.map(key => [key, second.bytes[key] - first.bytes[key]])) }
 }
+
+// Separate fixed profile: historical two-cycle constants and validators stay unchanged.
+export const gameplayThreeCycleHeapPolicy = Object.freeze({ ...gameplayHeapPolicy, version: 3,
+  boundaries: ['after-cycle-1-workload', 'after-cycle-2-workload', 'after-cycle-3-workload'] })
+export const gameplayThreeCycleProtocol = Object.freeze({ ...gameplayMatchedProtocol, version: 2,
+  cycles: 3, publicRestarts: 2,
+  restartPreconditioning: 'additional-live-settling-interval-before-each-replacement-cycle-pointer-reset-and-warmup',
+  interpretation: 'three-cycle-descriptive-isolate-byte-change-only' })
+export const gameplayThreeCycleHeapLimits = Object.freeze([
+  'Three complete same-input-recipe workloads are not identical observed work: turns, frames, target, camera and query differences are retained.',
+  'Three post-workload samples describe finite isolate-byte change across two public restarts, not a plateau, leak, memory reduction or bound.',
+  'Each replacement Scene has an additional recorded live settling interval before its repeated pointer reset and warmup; preconditioning histories are not identical.',
+  ...gameplayMatchedHeapLimits.slice(3),
+])
+export const gameplayThreeCycleResourceLimits = Object.freeze([
+  'Two same-document public Restart Level episodes between three complete unchanged gameplay workloads; not a leak slope, long-session plateau, heap/RSS reduction or memory cap.',
+  ...gameplayHeapResourceLimits.slice(1),
+])
+export const captureGameplayThreeCycleHeapSample = options => captureHeapSample(options, gameplayThreeCycleHeapPolicy)
+export function summarizeGameplayThreeCycleWorkload(cycles) {
+  assert.deepEqual(cycles.map(cycle => cycle.id), ['cycle-1', 'cycle-2', 'cycle-3'])
+  return { cycle2MinusCycle1: summarizeGameplayMatchedWorkload(cycles.slice(0, 2)),
+    cycle3MinusCycle2: summarizeGameplayMatchedWorkload(cycles.slice(1, 3)) }
+}
+export function validateGameplayThreeCycleHeapProbe(probe, resources, cycles) {
+  assert.equal(probe.version, 3); assert.equal(probe.status, 'passed-three-cycle-descriptive-observations')
+  assert.deepEqual(probe.policy, gameplayThreeCycleHeapPolicy); assert.deepEqual(probe.limits, gameplayThreeCycleHeapLimits)
+  assert.equal(probe.sessionDetached, true)
+  assert.deepEqual(probe.samples.map(sample => sample.boundary), gameplayThreeCycleHeapPolicy.boundaries)
+  assert.deepEqual(cycles.map(cycle => cycle.id), ['cycle-1', 'cycle-2', 'cycle-3'])
+  assert.equal(resources.restart, undefined)
+  assert.deepEqual(resources.restarts.map(restart => [restart.fromCycle, restart.toCycle]),
+    [['cycle-1', 'cycle-2'], ['cycle-2', 'cycle-3']])
+  assert.equal(new Set(probe.samples.map(sample => sample.before.sceneUuid)).size, 3)
+  for (const [index, sample] of probe.samples.entries()) {
+    assertHeapSample(sample, gameplayThreeCycleHeapPolicy)
+    const endpoint = cycles[index].resources.afterWorkload
+    assert.equal(sample.before.sceneUuid, endpoint.sceneUuid)
+    assert.equal(sample.before.timeOriginUnixMs, endpoint.timeOriginUnixMs)
+    assert.ok(sample.before.timestampMs >= endpoint.timestampMs && sample.before.turn >= endpoint.turn)
+    assert.equal(sample.isolateBefore, probe.samples[0].isolateBefore)
+    assert.equal(sample.before.timeOriginUnixMs, probe.samples[0].before.timeOriginUnixMs)
+    if (index) {
+      const previous = probe.samples[index - 1], restart = resources.restarts[index - 1]
+      assert.equal(sample.before.sceneUuid, restart.settled.sceneUuid)
+      assert.ok(previous.after.timestampMs < restart.after.timestampMs)
+      assert.ok(cycles[index].resources.beforeWarmup.timestampMs >= restart.settled.timestampMs)
+      assert.ok(cycles[index].resources.beforeWarmup.turn >= restart.settled.turn)
+      assert.ok(sample.timing.startedMs >= previous.timing.endedMs)
+    }
+  }
+  const delta = (before, after) => Object.fromEntries(gameplayHeapPolicy.fields.map(key =>
+    [key, probe.samples[after].bytes[key] - probe.samples[before].bytes[key]]))
+  return { capabilityVerified: true, threeCycleProtocolVerified: true, sampleCount: 3, scope: gameplayHeapPolicy.scope,
+    interpretation: gameplayThreeCycleProtocol.interpretation,
+    cycle2MinusCycle1Bytes: delta(0, 1), cycle3MinusCycle2Bytes: delta(1, 2), cycle3MinusCycle1Bytes: delta(0, 2) }
+}
