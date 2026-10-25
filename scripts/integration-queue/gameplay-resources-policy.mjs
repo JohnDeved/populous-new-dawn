@@ -1,6 +1,6 @@
 // Explicit current resource inventory. Historical eight-job and spell-nine policies remain unchanged.
 import assert from 'node:assert/strict'
-import { gameplayThreeCycleProfile, gameplayThreeCycleArgument } from '../tutorial-browser/gameplay-resource-profile.mjs'
+import { gameplayThreeCycleProfile, gameplayThreeCycleArgument, gameplayOwnershipArgument } from '../tutorial-browser/gameplay-resource-profile.mjs'
 import { gameplayThreeCycleProtocol, gameplayThreeCycleResourceLimits, validateGameplayThreeCycleHeapProbe, summarizeGameplayThreeCycleWorkload } from '../tutorial-browser/gameplay-heap-observer.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { validateGameplayHeapProbe, gameplayHeapResourceLimits, gameplayMatchedProtocol, validateGameplayMatchedHeapProbe, summarizeGameplayMatchedWorkload } from '../tutorial-browser/gameplay-heap-observer.mjs'
@@ -14,7 +14,8 @@ export const GAMEPLAY_RESOURCE_POLICY = 'gameplay-resources-nine-v1'
 export const GAMEPLAY_HEAP_POLICY = 'gameplay-resources-nine-v2'
 export const GAMEPLAY_MATCHED_POLICY = 'gameplay-resources-nine-v3'
 export const GAMEPLAY_THREE_CYCLE_POLICY = 'gameplay-resources-nine-v4'
-export const GAMEPLAY_RESOURCE_POLICIES = Object.freeze([GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY])
+export const GAMEPLAY_OWNERSHIP_POLICY = 'gameplay-resources-weak-v1'
+export const GAMEPLAY_RESOURCE_POLICIES = Object.freeze([GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY])
 export const GAMEPLAY_RESOURCE_JOB = Object.freeze(['gameplay-resources', 'Gameplay resource lifecycle browser',
   'gameplay-resource-lifecycle-browser', 'Observe full live Mission 2 workload and one same-document resource restart', 15])
 export const GAMEPLAY_RESOURCE_BROWSER_JOBS = Object.freeze([...SPLIT_BROWSER_JOBS.slice(0, -1), GAMEPLAY_RESOURCE_JOB, SPLIT_BROWSER_JOBS.at(-1)])
@@ -34,9 +35,13 @@ export const GAMEPLAY_HEAP_INPUTS = Object.freeze([...GAMEPLAY_RESOURCE_INPUTS, 
 export const GAMEPLAY_THREE_CYCLE_INPUTS = Object.freeze([...GAMEPLAY_HEAP_INPUTS,
   'scripts/tutorial-browser/gameplay-resource-profile.mjs', 'scripts/browser-new-game.mjs',
   'scripts/integration-queue/policy.mjs', 'scripts/integration-queue/github.mjs'])
+export const GAMEPLAY_OWNERSHIP_INPUTS = Object.freeze([...GAMEPLAY_THREE_CYCLE_INPUTS,
+  'scripts/tutorial-browser/gameplay-ownership-observer.mjs', 'app/globe-renderer.ts', 'app/scene-terrain-runtime.ts'])
+const threeCyclePolicy = policy => [GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)
 export function gameplayResourceInputs(policy) {
   assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(policy), 'Explicit supported resource policy required')
-  return policy === GAMEPLAY_THREE_CYCLE_POLICY ? GAMEPLAY_THREE_CYCLE_INPUTS
+  return policy === GAMEPLAY_OWNERSHIP_POLICY ? GAMEPLAY_OWNERSHIP_INPUTS
+    : policy === GAMEPLAY_THREE_CYCLE_POLICY ? GAMEPLAY_THREE_CYCLE_INPUTS
     : policy === GAMEPLAY_RESOURCE_POLICY ? GAMEPLAY_RESOURCE_INPUTS : GAMEPLAY_HEAP_INPUTS
 }
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -52,7 +57,7 @@ export function validateGameplayResourceBrowserJobs(jobs, run, expected) {
   validateSplitBrowserJobs(jobs.filter(job => job !== resources[0]), run)
   for (const job of jobs) assert.equal(job.head_sha, expected.headSha)
   const job = resources[0]
-  const buildStep = expected.policy === GAMEPLAY_THREE_CYCLE_POLICY ? GAMEPLAY_THREE_CYCLE_JOB[3] : GAMEPLAY_RESOURCE_JOB[3]
+  const buildStep = threeCyclePolicy(expected.policy) ? GAMEPLAY_THREE_CYCLE_JOB[3] : GAMEPLAY_RESOURCE_JOB[3]
   assert.equal(job.run_id, run.id); assert.equal(job.run_attempt, run.run_attempt)
   assert.equal(job.status, 'completed'); assert.equal(job.conclusion, 'success')
   for (const name of ['Require a ready pull request', 'Check out exact proposed merge', 'Set up Node',
@@ -95,7 +100,7 @@ const matchedFilesRequired = ['receipt.json', 'gameplay-frames.json', ...['cycle
   filesRequired.filter(name => name !== 'receipt.json' && name !== 'gameplay-frames.json').map(name => prefix + name))]
 const threeCycleFilesRequired = ['receipt.json', 'gameplay-frames.json', ...['cycle-1-', 'cycle-2-', 'cycle-3-'].flatMap(prefix =>
   filesRequired.filter(name => name !== 'receipt.json' && name !== 'gameplay-frames.json').map(name => prefix + name))]
-const requiredFiles = policy => policy === GAMEPLAY_THREE_CYCLE_POLICY ? threeCycleFilesRequired
+const requiredFiles = policy => threeCyclePolicy(policy) ? threeCycleFilesRequired
   : policy === GAMEPLAY_MATCHED_POLICY ? matchedFilesRequired : filesRequired
 function validateCycle(report, read, json, expected, prefix = '') {
   assert.deepEqual(report.phases.map(phase => phase.name), plan.phases.map(phase => phase.name))
@@ -162,11 +167,13 @@ export function validateGameplayResourceArtifact(files, expected) {
   assert.deepEqual(raw.launch, { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
   assert.deepEqual(raw.gameplayResourceSplitBudget, gameplayResourceSplitBudget)
   assert.ok(isDeepStrictEqual(raw.gameplayResources, report), 'Receipt gameplay resources differ from retained report')
-  const threeCycles = expected.policy === GAMEPLAY_THREE_CYCLE_POLICY
+  const ownership = expected.policy === GAMEPLAY_OWNERSHIP_POLICY
+  const threeCycles = threeCyclePolicy(expected.policy)
   const matched = threeCycles || expected.policy === GAMEPLAY_MATCHED_POLICY
   assert.equal(raw.gameplayResourceProfile, threeCycles ? gameplayThreeCycleProfile : undefined)
   assert.equal(report.resourceProfile, threeCycles ? gameplayThreeCycleProfile : undefined)
-  if (threeCycles) assert.deepEqual(raw.command.slice(2), ['outputs/tutorial-browser', gameplayThreeCycleArgument])
+  if (threeCycles) assert.deepEqual(raw.command.slice(2), ['outputs/tutorial-browser', gameplayThreeCycleArgument, ...(ownership ? [gameplayOwnershipArgument] : [])])
+  const ownershipEvidence = ownership ? validateGameplayOwnershipEvidence(raw, report, expected.identity.headSha) : rejectGameplayOwnershipEvidence(raw, report)
   assert.equal(report.schema, 'populous-new-dawn/gameplay-frame-recording'); assert.equal(report.schemaVersion, threeCycles ? 3 : matched ? 2 : 1)
   assert.equal(report.status, 'passed'); assert.equal(report.expectedRevision, expected.identity.mergeSha)
   assert.ok(!report.failure && !report.resourceObserverCleanupFailure && !report.heapObserverCleanupFailure)
@@ -234,7 +241,7 @@ export function validateGameplayResourceArtifact(files, expected) {
   const heap = threeCycles ? validateGameplayThreeCycleHeapProbe(resources.heap, resources, report.cycles) : matched ? validateGameplayMatchedHeapProbe(resources.heap, resources, report.cycles) : heapRequired ? validateGameplayHeapProbe(resources.heap, resources) : undefined
   if (threeCycles) assert.deepEqual(resources.heap.deltas, heap)
   if (!matched) assert.deepEqual(read('gameplay-frames-final.png').subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-  return { ...(threeCycles ? { threeCyclesVerified: true, cycleCount: 3 } : matched ? { matchedCyclesVerified: true, cycleCount: 2 } : {}), ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
+  return { ...(ownership ? { ownershipVerified: true, ownership: ownershipEvidence } : {}), ...(threeCycles ? { threeCyclesVerified: true, cycleCount: 3 } : matched ? { matchedCyclesVerified: true, cycleCount: 2 } : {}), ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
     phaseCount: threeCycles ? 15 : matched ? 10 : 5, lifecycle: recomputed, scope: threeCycles ? gameplayThreeCycleProtocol.interpretation : matched ? gameplayMatchedProtocol.interpretation : heapRequired ? 'one-cycle-lifecycle-and-isolate-byte-capability-not-retention-comparison' : 'one-cycle-cleanup-and-counts-not-ram-or-plateau', visualReview: 'required' }
 }
 // Caller first binds upload to the exact current job log and API metadata; never follow candidate URLs.
@@ -246,4 +253,103 @@ export function resolveGameplayResourceArtifact(archive, upload, expected) {
   const files = Object.fromEntries(readArtifactZip(archive, { maxArchiveBytes: gameplayResourceArchiveLimit,
     maxFileBytes: 32 * 1024 * 1024, maxTotalBytes: 96 * 1024 * 1024, maxEntries: allowed.size, allowName: name => allowed.has(name) }))
   return validateGameplayResourceArtifact(files, expected)
+}
+
+const ownershipOwners = ['scene', 'globe', 'terrain', 'terrain.geometry']
+const ownershipSlots = ['terrain.position', 'terrain.uv', 'terrain.landUv', 'terrain.surface', 'terrain.light', 'terrain.highlight',
+  'terrain.index', 'globe.atlas.pixels', 'globe.map.image.data']
+const ownershipInterpretation = 'weak-wrapper-survival-and-registered-buffer-lengths-not-retained-backing-attribution'
+const ownershipLimits = 'two-retirements-four-owners-nine-buffer-slots-each; no-cache-export-external-string-GPU-process-accounting'
+const exactKeys = (value, keys) => {
+  assert.ok(value && typeof value === 'object' && !Array.isArray(value))
+  assert.deepEqual(Object.keys(value).sort(), [...keys].sort())
+}
+const natural = value => assert.ok(Number.isSafeInteger(value) && value >= 0)
+const finiteTime = value => assert.ok(Number.isFinite(value) && value >= 0)
+function validateOwnershipSlots(slots, bufferCount) {
+  assert.deepEqual(slots.map(slot => slot.label), ownershipSlots)
+  for (const slot of slots) {
+    assert.ok(['registered', 'missing', 'unsupported', 'absent-optional'].includes(slot.status))
+    exactKeys(slot, slot.status === 'registered' ? ['label', 'status', 'bufferId'] : ['label', 'status'])
+    if (slot.status === 'registered') { natural(slot.bufferId); assert.ok(slot.bufferId < bufferCount) }
+    if (slot.status === 'absent-optional') assert.equal(slot.label, 'terrain.index')
+  }
+  assert.deepEqual([...new Set(slots.filter(s => s.status === 'registered').map(s => s.bufferId))].sort((a,b) => a-b),
+    Array.from({ length: bufferCount }, (_, index) => index))
+}
+export function rejectGameplayOwnershipEvidence(raw, report) {
+  if (Array.isArray(raw.command)) assert.ok(!raw.command.some(value => typeof value === 'string' && value.startsWith('--gameplay-ownership-probe')), 'Historical policy cannot carry ownership command')
+  for (const key of ['gameplayOwnershipProbe', 'gameplayOwnershipSelection']) assert.equal(Object.hasOwn(raw, key), false, 'Historical policy cannot carry ownership markers')
+  assert.equal(Object.hasOwn(report, 'ownershipProbe'), false)
+  for (const restart of [...(report.resources?.restarts ?? []), ...(report.resources?.restart ? [report.resources.restart] : [])])
+    assert.equal(Object.hasOwn(restart, 'ownershipRegistration'), false)
+  for (const sample of report.resources?.heap?.samples ?? []) {
+    assert.equal(Object.hasOwn(sample, 'ownership'), false); assert.equal(Object.hasOwn(sample, 'ownershipTiming'), false)
+  }
+}
+export function validateGameplayOwnershipEvidence(raw, report, headSha) {
+  assert.match(headSha, /^[a-f0-9]{40}$/)
+  assert.equal(raw.gameplayOwnershipProbe, 'weak-v1')
+  assert.deepEqual(raw.gameplayOwnershipSelection, { version: 1, mode: 'weak-v1', event: 'pull_request',
+    action: 'ready_for_review', headSha, label: `weak-v1:${headSha}`, scenario: 'gameplay-resources' })
+  assert.deepEqual(report.ownershipProbe, { version: 1, scope: 'bounded-retired-wrapper-survival-only' })
+  const restarts = report.resources.restarts, samples = report.resources.heap.samples
+  assert.equal(restarts.length, 2); assert.equal(samples.length, 3)
+  const bounded = { marker: report.ownershipProbe, registrations: restarts.map(r => r.ownershipRegistration),
+    samples: samples.map(s => ({ ownership: s.ownership, timing: s.ownershipTiming })) }
+  assert.ok(Buffer.byteLength(JSON.stringify(bounded)) <= 65536, 'Ownership diagnostic exceeds bounded output')
+  for (const [index, restart] of restarts.entries()) {
+    const registration = restart.ownershipRegistration
+    exactKeys(registration, ['retirement', 'registeredOwners', 'registeredBuffers', 'slots'])
+    assert.equal(registration.retirement, index + 1)
+    natural(registration.registeredOwners); assert.ok(registration.registeredOwners <= 4)
+    natural(registration.registeredBuffers); assert.ok(registration.registeredBuffers <= 9)
+    validateOwnershipSlots(registration.slots, registration.registeredBuffers)
+  }
+  for (const [index, sample] of samples.entries()) {
+    assert.equal(sample.boundary, `after-cycle-${index + 1}-workload`)
+    exactKeys(sample.ownershipTiming, ['startedMs', 'completedMs'])
+    for (const value of Object.values(sample.ownershipTiming)) finiteTime(value)
+    assert.ok(sample.ownershipTiming.startedMs >= sample.timing.heapReadCompletedMs)
+    assert.ok(sample.ownershipTiming.completedMs >= sample.ownershipTiming.startedMs)
+    assert.ok(sample.ownershipTiming.completedMs <= sample.timing.endedMs)
+    const diagnostic = sample.ownership
+    exactKeys(diagnostic, ['version', 'interpretation', 'limits', 'records'])
+    assert.equal(diagnostic.version, 1); assert.equal(diagnostic.interpretation, ownershipInterpretation); assert.equal(diagnostic.limits, ownershipLimits)
+    assert.deepEqual(diagnostic.records.map(record => record.retirement), Array.from({ length: index }, (_, i) => i + 1))
+    for (const record of diagnostic.records) {
+      exactKeys(record, ['retirement', 'owners', 'slots', 'buffers', 'complete', 'survivingBufferCount', 'survivingRegisteredByteLengths'])
+      const registration = restarts[record.retirement - 1].ownershipRegistration
+      assert.deepEqual(record.owners.map(owner => owner.label), ownershipOwners)
+      for (const owner of record.owners) {
+        exactKeys(owner, ['label', 'status', 'survival']); assert.ok(['registered', 'missing'].includes(owner.status))
+        assert.ok((owner.status === 'registered' ? ['alive', 'collected'] : ['unavailable']).includes(owner.survival))
+      }
+      assert.equal(record.owners.filter(o => o.status === 'registered').length, registration.registeredOwners)
+      assert.equal(record.buffers.length, registration.registeredBuffers)
+      validateOwnershipSlots(record.slots, record.buffers.length); assert.deepEqual(record.slots, registration.slots)
+      for (const [id, buffer] of record.buffers.entries()) {
+        exactKeys(buffer, ['id', 'registeredByteLength', 'survival', 'currentByteLength', 'byteLengthChanged'])
+        assert.equal(buffer.id, id); natural(buffer.registeredByteLength)
+        assert.ok(['alive', 'collected'].includes(buffer.survival))
+        if (buffer.survival === 'collected') { assert.equal(buffer.currentByteLength, null); assert.equal(buffer.byteLengthChanged, null) }
+        else { natural(buffer.currentByteLength); assert.equal(buffer.byteLengthChanged, buffer.currentByteLength !== buffer.registeredByteLength) }
+      }
+      assert.equal(record.complete, record.owners.every(o => o.status === 'registered') && record.slots.every(s => ['registered', 'absent-optional'].includes(s.status)))
+      assert.equal(record.survivingBufferCount, record.buffers.filter(b => b.survival === 'alive').length)
+      natural(record.survivingRegisteredByteLengths)
+      assert.equal(record.survivingRegisteredByteLengths, record.buffers.reduce((n,b) => n + (b.survival === 'alive' ? b.registeredByteLength : 0), 0))
+      // The same retired record may recur at later boundaries. Never sum records
+      // across retirements: their buffers may alias and ownership is not exclusive.
+      const previous = index > 1 ? samples[index - 1].ownership.records.find(r => r.retirement === record.retirement) : undefined
+      if (previous) {
+        assert.deepEqual(record.owners.map(o => [o.label,o.status]), previous.owners.map(o => [o.label,o.status]))
+        assert.deepEqual(record.buffers.map(b => [b.id,b.registeredByteLength]), previous.buffers.map(b => [b.id,b.registeredByteLength]))
+        for (const [i, owner] of previous.owners.entries()) if (owner.survival === 'collected') assert.equal(record.owners[i].survival, 'collected')
+        for (const [i, buffer] of previous.buffers.entries()) if (buffer.survival === 'collected') assert.equal(record.buffers[i].survival, 'collected')
+      }
+    }
+  }
+  return { protocolVerified: true, coverageComplete: samples.every(s => s.ownership.records.every(r => r.complete)),
+    sampleCount: 3, retirementCount: 2, scope: ownershipInterpretation, aggregation: 'per-retirement-only-no-cross-record-byte-total' }
 }

@@ -1,4 +1,4 @@
-import { GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_INPUTS, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, gameplayResourceArchiveLimit,
+import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_INPUTS, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, gameplayResourceArchiveLimit,
   validateGameplayResourceBrowserJobs, gameplayResourceArtifactUpload, validateGameplayResourceArtifactMetadata,
   resolveGameplayResourceArtifact } from './gameplay-resources-policy.mjs'
 import { COMPOSED_SOURCE_INPUTS, composedContract } from './composed-profile-artifact.mjs'
@@ -104,7 +104,7 @@ export class GitHubReader {
     return this.immutableBlob(commit, path)
   }
   immutableBlob(commit, path) {
-    ensure(sha(commit) && (SPELL_VISUAL_INPUTS.includes(path) || COMPOSED_SOURCE_INPUTS.includes(path) || GAMEPLAY_THREE_CYCLE_INPUTS.includes(path)), 'Unreviewed immutable source input')
+    ensure(sha(commit) && (SPELL_VISUAL_INPUTS.includes(path) || COMPOSED_SOURCE_INPUTS.includes(path) || GAMEPLAY_OWNERSHIP_INPUTS.includes(path)), 'Unreviewed immutable source input')
     ensure(typeof this.executeBinary === 'function', 'Binary Git transport must be explicitly injected')
     const prefix = ['--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
       '-c', 'core.fsmonitor=false', '-c', 'core.attributesFile=/dev/null']
@@ -480,7 +480,7 @@ export class GitHubReader {
     const evidence = resolveGameplayResourceArtifact(this.gameplayResourceArchive(upload.id), upload, expected)
     ensure(evidence && typeof evidence.then !== 'function' && evidence.lifecycleVerified === true,
       'Unresolved gameplay resources artifact evidence')
-    if ([GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY].includes(entry.browserPolicy)) {
+    if ([GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(entry.browserPolicy)) {
       ensure(evidence.heapCapabilityVerified === true, 'Missing mandatory isolate byte capability proof')
       row.gameplayHeapVerified = true
     }
@@ -488,9 +488,13 @@ export class GitHubReader {
       ensure(evidence.matchedCyclesVerified === true, 'Missing mandatory matched two-cycle proof')
       row.gameplayMatchedCyclesVerified = true
     }
-    if (entry.browserPolicy === GAMEPLAY_THREE_CYCLE_POLICY) {
+    if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(entry.browserPolicy)) {
       ensure(evidence.threeCyclesVerified === true && evidence.cycleCount === 3, 'Missing mandatory three-cycle proof')
       row.gameplayThreeCyclesVerified = true
+    }
+    if (entry.browserPolicy === GAMEPLAY_OWNERSHIP_POLICY) {
+      ensure(evidence.ownershipVerified === true, 'Missing mandatory bounded ownership proof')
+      row.gameplayOwnershipVerified = true
     }
     row.gameplayResourcesVerified = true
     row.gameplayResourcesCheckId = check.id

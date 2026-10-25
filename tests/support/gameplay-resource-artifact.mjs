@@ -5,7 +5,7 @@ import { createPointerFrameMetrics } from '../../app/pointer-frame-metrics.ts'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from '../../scripts/tutorial-browser/gameplay-frame-evidence.mjs'
 import { gameplayResourceLimits, summarizeResourceRestart } from '../../scripts/tutorial-browser/gameplay-resource-observer.mjs'
 import { gameplayResourceSplitBudget } from '../../scripts/tutorial-browser/scenario-policy.mjs'
-import { GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
 import { gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits, gameplayMatchedHeapPolicy, gameplayMatchedHeapLimits, gameplayMatchedProtocol, summarizeGameplayMatchedWorkload } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
 import { gameplayThreeCycleProfile, gameplayThreeCycleArgument } from '../../scripts/tutorial-browser/gameplay-resource-profile.mjs'
 import { gameplayThreeCycleHeapPolicy, gameplayThreeCycleHeapLimits, gameplayThreeCycleProtocol, gameplayThreeCycleResourceLimits, summarizeGameplayThreeCycleWorkload, validateGameplayThreeCycleHeapProbe } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
@@ -73,8 +73,8 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
    inputs: commands.map(command => ({ ...command, observedTimestampMs: before.timestampMs + command.offsetMs })),
    rawSha256: summary.rawSha256, turnsAdvanced: summary.turnsAdvanced, work: summary.work, frameCount: summary.analysis.sampleCount })
  }
- if ([GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY].includes(policy)) makeMatchedCycles(report, files)
- if (policy === GAMEPLAY_THREE_CYCLE_POLICY) makeThreeCycles(report, files)
+ if ([GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) makeMatchedCycles(report, files)
+ if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) makeThreeCycles(report, files)
  const raw = { status: 'passed', selectedScenario: 'gameplay-resources', source: { commit: revision, files: expected.inputs }, buildRevision: revision,
   github: { head: expected.identity.headSha, base: expected.identity.baseSha, merge: revision, runId: '12', runAttempt: '2' },
   build: { exitCode: 0, signal: null, timedOut: false, capMs: 120000 }, browserCapMs: 180000, browserTimedOut: false,
@@ -82,8 +82,9 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
   browserSha256: 'd'.repeat(64), browserBinaryVersion: 'Google Chrome synthetic fixture', buildPackageVersions: { 'playwright-core': '1.63.0-fixture' },
   browserPath: '/opt/google/chrome/chrome', launch: { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless','--remote-debugging-pipe'], timeout: 30000 },
   gameplayResourceSplitBudget, gameplayResources: report }
- if (policy === GAMEPLAY_THREE_CYCLE_POLICY) Object.assign(raw, { gameplayResourceProfile: gameplayThreeCycleProfile,
+ if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) Object.assign(raw, { gameplayResourceProfile: gameplayThreeCycleProfile,
   command: ['/usr/bin/node', '/repo/scripts/tutorial-browser/run.mjs', 'outputs/tutorial-browser', gameplayThreeCycleArgument] })
+ if (policy === GAMEPLAY_OWNERSHIP_POLICY) makeOwnership(report, raw, expected.identity.headSha)
  const save = () => { files['receipt.json'] = encode(raw); files['gameplay-frames.json'] = encode(report) }; save()
  // Direct-validator mutation fixtures need exact file buffers, not an unused ZIP copy.
  if (!includeArchive) return { expected, files, raw, report, save }
@@ -204,4 +205,22 @@ function makeThreeCycles(report, files) {
   bytes: { usedSize: 149, totalSize: 240, embedderHeapUsedSize: 35, backingStorageSize: 310 } })
  resources.heap.samples.push(sample)
  resources.heap.deltas = validateGameplayThreeCycleHeapProbe(resources.heap, resources, report.cycles)
+}
+
+function makeOwnership(report, raw, headSha) {
+ raw.gameplayOwnershipProbe = 'weak-v1'
+ raw.gameplayOwnershipSelection = { version: 1, mode: 'weak-v1', event: 'pull_request', action: 'ready_for_review', headSha, label: `weak-v1:${headSha}`, scenario: 'gameplay-resources' }
+ raw.command.push('--gameplay-ownership-probe=weak-v1')
+ report.ownershipProbe = { version: 1, scope: 'bounded-retired-wrapper-survival-only' }
+ const slots = ['position','uv','landUv','surface','light','highlight'].map(name => ({label:`terrain.${name}`,status:'registered',bufferId:0}))
+ slots.push({label:'terrain.index',status:'absent-optional'}, {label:'globe.atlas.pixels',status:'registered',bufferId:1}, {label:'globe.map.image.data',status:'registered',bufferId:1})
+ const records = [1,2].map(retirement => ({ retirement,
+  owners: ['scene','globe','terrain','terrain.geometry'].map(label => ({label,status:'registered',survival:'alive'})), slots,
+  buffers: [64,128].map((registeredByteLength,id) => ({id,registeredByteLength,survival:'alive',currentByteLength:registeredByteLength,byteLengthChanged:false})),
+  complete:true,survivingBufferCount:2,survivingRegisteredByteLengths:192 }))
+ for(const [index,restart] of report.resources.restarts.entries()) restart.ownershipRegistration = {retirement:index+1,registeredOwners:4,registeredBuffers:2,slots:structuredClone(slots)}
+ for(const [index,sample] of report.resources.heap.samples.entries()) {
+  sample.ownershipTiming = { startedMs: sample.timing.heapReadCompletedMs, completedMs: sample.timing.heapReadCompletedMs + 0.5 }
+  sample.ownership = {version:1,interpretation:'weak-wrapper-survival-and-registered-buffer-lengths-not-retained-backing-attribution',limits:'two-retirements-four-owners-nine-buffer-slots-each; no-cache-export-external-string-GPU-process-accounting',records:structuredClone(records.slice(0,index))}
+ }
 }

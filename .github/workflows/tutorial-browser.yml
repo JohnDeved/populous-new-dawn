@@ -149,9 +149,15 @@ jobs:
             sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
           fi
       - name: ${{ matrix.scenario == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}
+        env:
+          POPULOUS_GAMEPLAY_OWNERSHIP: ${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}
         run: |
           if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then
-            node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1
+            else
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            fi
           else
             node scripts/tutorial-browser/run.mjs
           fi
