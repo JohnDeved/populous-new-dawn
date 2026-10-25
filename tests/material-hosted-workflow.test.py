@@ -19,6 +19,59 @@ import hosted_setup as setup
 import hosted_entry as entry
 import projection
 
+class NpmConfigTests(unittest.TestCase):
+    def test_distinct_exclusive_private_empty_configs(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);env=setup.private_npm_configs(root)
+            files=list(map(Path,env.values()))
+            self.assertNotEqual(files[0].stat().st_ino,files[1].stat().st_ino)
+            for file in files:
+                self.assertEqual(file.read_bytes(),b'');self.assertEqual(file.stat().st_mode & 0o777,0o600)
+            with self.assertRaises(FileExistsError):setup.private_npm_configs(root)
+    def test_real_npm_loader_without_network_or_install(self):
+        import shutil
+        import resource
+        npm=shutil.which('npm');self.assertIsNotNone(npm)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for name in ('home','cwd','cache','tmp'):(root/name).mkdir()
+            env={'PATH':str(Path(shutil.which('node')).parent)+':/usr/bin:/bin',
+                 'HOME':str(root/'home'),'TMPDIR':str(root/'tmp'),'CI':'1',
+                 'NPM_CONFIG_CACHE':str(root/'cache'),'NPM_CONFIG_OFFLINE':'true',
+                 'NPM_CONFIG_UPDATE_NOTIFIER':'false','NODE_OPTIONS':'--max-old-space-size=128',
+                 **setup.private_npm_configs(root)}
+            def bounds():
+                resource.setrlimit(resource.RLIMIT_FSIZE,(65536,65536))
+                resource.setrlimit(resource.RLIMIT_CPU,(5,5))
+            for name in ('userconfig','globalconfig'):
+                with (root/(name+'.raw')).open('wb+') as raw:
+                    result=subprocess.run([npm,'config','get',name],cwd=root/'cwd',env=env,
+                        stdin=subprocess.DEVNULL,stdout=raw,stderr=raw,timeout=8,check=False,preexec_fn=bounds)
+                    raw.seek(0);output=raw.read(65537)
+                self.assertLessEqual(len(output),65536)
+                self.assertEqual(result.returncode,0,output)
+                self.assertEqual(output.decode().strip(),env['NPM_CONFIG_'+name.upper()])
+
+class ProducerCallerTests(unittest.TestCase):
+    def test_install_and_acquire_share_terminal_owned_receipt_on_failure(self):
+        from contextlib import nullcontext
+        class ProducerFailed(Exception):pass
+        for caller in (setup.install,setup.acquire):
+            with self.subTest(caller=caller.__name__),tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);details={};shared=object();watch=object()
+                def producer(*args,receipt=None):
+                    self.assertIs(receipt,details['producer'])
+                    self.assertIs(args[0],shared);self.assertIs(args[1],watch)
+                    receipt.update(exitCode=7,waitCompleted=True,waitExitCode=7)
+                    raise ProducerFailed('actual command failure')
+                with patch.object(setup,'checked_setup',return_value=(root,root,root,shared)),\
+                     patch.object(setup.hosted_resources,'guard',return_value=nullcontext((watch,details))),\
+                     patch.object(setup.hosted_resources,'install',side_effect=producer),\
+                     patch.object(setup,'extract') as extract:
+                    with self.assertRaises(ProducerFailed):caller({'PATH':'/usr/bin:/bin'})
+                    extract.assert_not_called()
+                self.assertEqual(details['producer'],{'exitCode':7,'waitCompleted':True,'waitExitCode':7})
+
 class IdentityTests(unittest.TestCase):
     def setUp(self):
         self.env={'GITHUB_REPOSITORY':setup.REPOSITORY,'GITHUB_EVENT_NAME':'workflow_dispatch',

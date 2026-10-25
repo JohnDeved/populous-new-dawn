@@ -65,15 +65,16 @@ class GuardTests(unittest.TestCase):
             with r.guard(self.shared,[self.root],self.root/'evidence',**kwargs) as (_,details):details['actual']='result'
     def test_success_measured_and_sealed_after_join(self):
         self.run_guard();self.assertIn('joined',self.events);self.assertIsNone(self.terminals[0]['error'])
+        self.assertEqual(self.terminals[0]['cleanupObservation'],{'survivors':[],'survivorsObserved':True,'observerFinished':True,'withinDeadline':True});
         self.assertEqual(self.terminals[0]['details'],{'actual':'result'});self.assertEqual(self.terminals[0]['peakUnionAllocatedBytes'],123)
     def test_cleanup_fault_still_joins_and_rejects(self):
         self.cleanup_error=True
         with self.assertRaises(ValueError):self.run_guard()
-        self.assertIn('joined',self.events);self.assertIn('cleanup unknown',self.terminals[0]['error'])
+        self.assertIn('joined',self.events);self.assertIn('cleanup unknown',self.terminals[0]['error']);self.assertFalse(self.terminals[0]['cleanupObservation']['survivorsObserved'])
     def test_late_observer_failure_rejects(self):
         self.join_error=True
         with self.assertRaises(ValueError):self.run_guard()
-        self.assertIn('late unexpected',self.terminals[0]['error'])
+        self.assertIn('late unexpected',self.terminals[0]['error']);self.assertFalse(self.terminals[0]['cleanupObservation']['observerFinished'])
     def test_survivors_reject(self):
         self.live=[123]
         with self.assertRaises(ValueError):self.run_guard()
@@ -98,5 +99,33 @@ class GuardTests(unittest.TestCase):
         calls=[]
         self.shared.Limits=lambda **k:(calls.append(k) or types.SimpleNamespace(**k))
         self.run_guard(acquire=True);self.assertEqual(calls[0]['envelope_seconds'],180)
+
+class ProducerReceiptTests(unittest.TestCase):
+    def test_nonzero_producer_preserves_actual_wait_before_raise(self):
+        import io
+        class Pipe(io.BytesIO):
+            def fileno(self):return 99
+        class Selector:
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def register(self,*args):pass
+            def get_map(self):return {}
+        for wait_error in (False,True):
+            with self.subTest(wait_error=wait_error),tempfile.TemporaryDirectory() as tmp:
+                receipt={}
+                def wait(**kw):
+                    if wait_error:raise TimeoutError('wait unknown')
+                    return 7
+                process=types.SimpleNamespace(pid=123,returncode=7,poll=lambda:7,wait=wait,
+                    stdin=Pipe(),stdout=Pipe(),stderr=Pipe())
+                watch=types.SimpleNamespace(pin_direct=lambda p:None,observe=lambda:None,check=lambda:None)
+                shared=types.SimpleNamespace(__file__='/reviewed/helper.py')
+                with patch.object(r.subprocess,'Popen',return_value=process),patch.object(r.selectors,'DefaultSelector',Selector),patch.object(r.os,'set_blocking'):
+                    with self.assertRaises((ValueError,TimeoutError)):
+                        r.install(shared,watch,Path(tmp),['/command'],tmp,{},receipt=receipt)
+                self.assertEqual(receipt['exitCode'],7)
+                self.assertEqual(receipt['waitCompleted'],not wait_error)
+                self.assertEqual(receipt['waitExitCode'],None if wait_error else 7)
+                self.assertEqual(receipt['directPid'],123)
 
 if __name__=='__main__':unittest.main()
