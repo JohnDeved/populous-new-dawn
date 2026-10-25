@@ -18,6 +18,67 @@ sys.path.insert(0,str(HERE))
 import hosted_setup as setup
 import hosted_entry as entry
 import projection
+import host_metadata
+
+class HostMetadataTests(unittest.TestCase):
+    def collect(self, payload=b'enforce\n', denied=False):
+        import errno
+        import stat
+        opened=[]
+        def opening(path,flags):
+            opened.append((path,flags))
+            if denied:raise PermissionError(errno.EACCES,'denied')
+            return 123
+        info=types.SimpleNamespace(st_mode=stat.S_IFREG|0o644,st_uid=0,st_gid=0,
+                                   st_size=7,st_dev=1,st_ino=2)
+        with patch.object(host_metadata.os,'stat',return_value=info),\
+             patch.object(host_metadata.os,'access',return_value=False),\
+             patch.object(host_metadata.os,'open',side_effect=opening),\
+             patch.object(host_metadata.os,'fstat',return_value=info),\
+             patch.object(host_metadata.os,'read',return_value=payload) as read,\
+             patch.object(host_metadata.os,'close') as close:
+            result=host_metadata.collect({'GITHUB_RUN_ID':'123','GITHUB_RUN_ATTEMPT':'1'})
+        self.assertEqual(result['admission'],'not-established')
+        for path,flags in opened:
+            self.assertFalse(flags & (os.O_WRONLY|os.O_RDWR|os.O_CREAT))
+            self.assertTrue(flags & os.O_NOFOLLOW);self.assertTrue(flags & os.O_NONBLOCK)
+        return result,read,close
+    def test_quality_hook_is_once_and_before_install_and_setup_persists_first(self):
+        workflow=(ROOT/'.github/workflows/ready-pr-check.yml').read_text()
+        command='timeout --signal=TERM --kill-after=2s 5s python -I -B scripts/material-lifecycle-evidence/host_metadata.py'
+        self.assertEqual(workflow.count(command),1)
+        self.assertLess(workflow.index(command),workflow.index('      - name: Install locked dependencies'))
+        source=(HERE/'hosted_setup.py').read_text()
+        self.assertLess(source.index("save(evidence/'setup-install/host-metadata.json'"),
+                        source.index('        for binary in host_binaries():'))
+
+    def test_bounded_success_is_not_namespace_admission(self):
+        result,read,close=self.collect()
+        self.assertEqual(read.call_count,10);self.assertEqual(close.call_count,10)
+        self.assertEqual(read.call_args.args,(123,1025))
+        self.assertIn('/opt/hostedtoolcache/pnd-material-tools-123-1/bwrap/bin/bwrap',result['paths'])
+        self.assertFalse(result['paths']['/usr/bin/bwrap']['executableAccess']['value'])
+        row=result['policyFiles']['/proc/self/attr/current']
+        self.assertEqual(row['observedBytesSha256'],hashlib.sha256(b'enforce\n').hexdigest())
+    def test_denied_policy_is_explicit_unknown_and_not_ci_failure(self):
+        result,read,close=self.collect(denied=True)
+        self.assertEqual(result['policyFiles']['/proc/self/attr/current']['error']['errno'],13)
+        read.assert_not_called();close.assert_not_called()
+    def test_truncated_invalid_text_remains_bounded_unknown(self):
+        result,_,_=self.collect(payload=b'\xff'*1025)
+        row=result['policyFiles']['/proc/self/attr/current']
+        self.assertTrue(row['truncated'])
+        self.assertEqual(row['observedBytesSha256'],hashlib.sha256(b'\xff'*1024).hexdigest())
+        self.assertIn('EOF and full-file digest not established',row['readSemantics'])
+        self.assertLess(len(json.dumps(result).encode()),131072)
+    def test_missing_path_and_invalid_run_id_do_not_expand_read_scope(self):
+        with patch.object(host_metadata.os,'stat',side_effect=FileNotFoundError(2,'missing')),\
+             patch.object(host_metadata.os,'access',return_value=False),\
+             patch.object(host_metadata.os,'open',side_effect=FileNotFoundError(2,'missing')):
+            result=host_metadata.collect({'GITHUB_RUN_ID':'../../outside','GITHUB_RUN_ATTEMPT':'1'})
+        self.assertEqual(result['paths']['/usr/bin/bwrap']['lstat']['error']['errno'],2)
+        self.assertEqual(result['paths']['/usr/bin/bwrap']['stat']['error']['errno'],2)
+        self.assertEqual(len(result['paths']),11)
 
 class NpmConfigTests(unittest.TestCase):
     def test_distinct_exclusive_private_empty_configs(self):
@@ -70,6 +131,8 @@ class ProducerCallerTests(unittest.TestCase):
                      patch.object(setup,'host_binaries',return_value=[root/'fixture-host-tool']),\
                      patch.object(setup.os,'access',side_effect=lambda path,mode: mode==os.X_OK and
                          str(path) in (str(root/'fixture-host-tool'),'/usr/bin/curl')),\
+                     patch.object(setup.host_metadata,'collect',return_value={'admission':'not-established'}),\
+                     patch.object(setup,'save'),\
                      patch.object(setup,'dependency_paths',return_value=set()),\
                      patch.object(setup,'extract') as extract:
                     with self.assertRaises(ProducerFailed):caller({'PATH':'/usr/bin:/bin'})
@@ -157,6 +220,8 @@ class DependencyTests(unittest.TestCase):
         binary=self.elf();binary.chmod(0o600)
         with patch.object(setup,'checked_setup',return_value=(self.root,self.root,self.root,object())),\
              patch.object(setup.hosted_resources,'guard',return_value=nullcontext((None,{}))),\
+             patch.object(setup.host_metadata,'collect',return_value={'admission':'not-established'}),\
+             patch.object(setup,'save'),\
              patch.object(setup,'host_binaries',return_value=[binary]),patch.object(setup,'dependency_paths') as scan:
             with self.assertRaisesRegex(ValueError,'executable unavailable'):setup.install({'PATH':'/usr/bin:/bin'})
             scan.assert_not_called()
