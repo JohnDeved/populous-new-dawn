@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict'
 import { gameplayThreeCycleProfile, gameplayThreeCycleArgument, gameplayOwnershipArgument } from '../tutorial-browser/gameplay-resource-profile.mjs'
 import { gameplayThreeCycleProtocol, gameplayThreeCycleResourceLimits, validateGameplayThreeCycleHeapProbe, summarizeGameplayThreeCycleWorkload } from '../tutorial-browser/gameplay-heap-observer.mjs'
+import { validateGameplayProducerPreflight } from '../tutorial-browser/gameplay-heap-observer.mjs'
 import { isDeepStrictEqual } from 'node:util'
 import { validateGameplayHeapProbe, gameplayHeapResourceLimits, gameplayMatchedProtocol, validateGameplayMatchedHeapProbe, summarizeGameplayMatchedWorkload } from '../tutorial-browser/gameplay-heap-observer.mjs'
 import { createHash } from 'node:crypto'
@@ -16,6 +17,18 @@ export const GAMEPLAY_MATCHED_POLICY = 'gameplay-resources-nine-v3'
 export const GAMEPLAY_THREE_CYCLE_POLICY = 'gameplay-resources-nine-v4'
 export const GAMEPLAY_OWNERSHIP_POLICY = 'gameplay-resources-weak-v1'
 export const GAMEPLAY_RESOURCE_POLICIES = Object.freeze([GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY])
+// Separate opt-in evidence claim. Historical nine-artifact acceptance does not
+// silently acquire a new producer requirement, and an absent/failed diagnostic
+// cannot be accepted as observed metadata by this entry point.
+export function validateGameplayProducerPreflightArtifact(files, expected) {
+  const artifact = validateGameplayResourceArtifact(files, expected)
+  assert.equal(expected.policy, GAMEPLAY_OWNERSHIP_POLICY)
+  const raw = JSON.parse(files['receipt.json'].toString('utf8'))
+  assert.ok(raw.heapProducerPreflight, 'Producer preflight missing')
+  const producer = validateGameplayProducerPreflight(raw.heapProducerPreflight, raw.gameplayResources,
+    { requireObserved: true, executableSha256: raw.browserSha256 })
+  return { artifact, producer }
+}
 export const GAMEPLAY_RESOURCE_JOB = Object.freeze(['gameplay-resources', 'Gameplay resource lifecycle browser',
   'gameplay-resource-lifecycle-browser', 'Observe full live Mission 2 workload and one same-document resource restart', 15])
 export const GAMEPLAY_RESOURCE_BROWSER_JOBS = Object.freeze([...SPLIT_BROWSER_JOBS.slice(0, -1), GAMEPLAY_RESOURCE_JOB, SPLIT_BROWSER_JOBS.at(-1)])
@@ -124,7 +137,7 @@ function validateCycle(report, read, json, expected, prefix = '') {
     assert.equal(record.before.timeOriginUnixMs, report.resources.beforeWarmup.timeOriginUnixMs)
     assert.ok(record.before.timestampMs >= (index ? report.phases[index - 1].after.timestampMs : report.warmupAfter.timestampMs))
     const commands = phase.moving ? plan.pointerOffsets.map(([dx, dy], i) => ({ offsetMs: i * plan.pointerIntervalMs, action: 'move', x: record.point.x + dx, y: record.point.y + dy })) : phase.camera ? plan.cameraInputs : []
-    assert.deepEqual(record.inputs.map(({ observedTimestampMs, ...command }) => command), commands)
+    assert.deepEqual(record.inputs.map(({ observedTimestampMs, ...command }) => { void observedTimestampMs; return command }), commands)
     for (const input of record.inputs) assert.ok(Number.isFinite(input.observedTimestampMs) && input.observedTimestampMs >= record.before.timestampMs && input.observedTimestampMs <= record.after.timestampMs)
     assert.equal(record.rawFile, `${prefix}gameplay-frame-${phase.name}.json`); assert.equal(record.summaryFile, `${prefix}gameplay-summary-${phase.name}.json`)
     const summary = summarizeGameplayPhase(read(record.rawFile).toString('utf8'), phase, record.before, record.after, expected.identity.mergeSha)
@@ -174,6 +187,11 @@ export function validateGameplayResourceArtifact(files, expected) {
   assert.equal(report.resourceProfile, threeCycles ? gameplayThreeCycleProfile : undefined)
   if (threeCycles) assert.deepEqual(raw.command.slice(2), ['outputs/tutorial-browser', gameplayThreeCycleArgument, ...(ownership ? [gameplayOwnershipArgument] : [])])
   const ownershipEvidence = ownership ? validateGameplayOwnershipEvidence(raw, report, expected.identity.headSha) : rejectGameplayOwnershipEvidence(raw, report)
+  if (raw.heapProducerPreflight !== undefined) {
+    assert.equal(ownership, true, 'Producer preflight belongs only to the unchanged three-cycle weak route')
+    validateGameplayProducerPreflight(raw.heapProducerPreflight, report, { executableSha256: raw.browserSha256 })
+    if (raw.heapProducerPreflight.status === 'observed') assert.equal(raw.heapProducerPreflight.browser.product, `Chrome/${raw.browserVersion}`)
+  }
   assert.equal(report.schema, 'populous-new-dawn/gameplay-frame-recording'); assert.equal(report.schemaVersion, threeCycles ? 3 : matched ? 2 : 1)
   assert.equal(report.status, 'passed'); assert.equal(report.expectedRevision, expected.identity.mergeSha)
   assert.ok(!report.failure && !report.resourceObserverCleanupFailure && !report.heapObserverCleanupFailure)

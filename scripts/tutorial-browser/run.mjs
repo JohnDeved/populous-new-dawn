@@ -118,7 +118,7 @@ if (resourceArguments.ownershipProbe) {
 }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
-let browser, context, page, server, timer, m2Fixture, browserDeadlineAt
+let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, producerBudget, producerCleanup
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
 try {
@@ -154,7 +154,9 @@ try {
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   receipt.browserCapMs = browserCapMs(selectedScenario)
+  const browserStartedMs = performance.now()
   browserDeadlineAt = Date.now() + receipt.browserCapMs
+  producerBudget = { startedMs: browserStartedMs, deadlineMs: browserStartedMs + receipt.browserCapMs, deadlineUnixMs: browserDeadlineAt }
   if (['gameplay-frames', 'gameplay-resources'].includes(selectedScenario)) receipt.gameplayResourceSplitBudget = gameplayResourceSplitBudget
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else
@@ -181,6 +183,15 @@ try {
     // Separate job owns the complete five-phase workload and mandatory restart.
     // No melee/corpse work is moved or removed from the original gameplay job.
     receipt.gameplayResources = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments.profile, ownershipProbe: resourceArguments.ownershipProbe })
+    // This await has completed all three original workloads, their metrics,
+    // alias/weak-state removal and original CDP detach. No snapshot is attempted.
+    if (resourceArguments.ownershipProbe === 'weak-v1') {
+      const { observeGameplayProducerPreflight, recordGameplayProducerCleanup } = await import('./gameplay-heap-observer.mjs')
+      producerCleanup = recordGameplayProducerCleanup
+      receipt.heapProducerPreflight = await observeGameplayProducerPreflight({
+        browser, page, report: receipt.gameplayResources, budget: producerBudget,
+        executableSha256: receipt.browserSha256, signal: abort.signal })
+    }
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
@@ -244,6 +255,9 @@ try {
 } finally {
   clearTimeout(timer)
   try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  // The original timer is already cleared. Report actual remaining time, even
+  // negative, without claiming an independently enforced cleanup deadline.
+  if (receipt.heapProducerPreflight) producerCleanup(receipt.heapProducerPreflight, performance.now(), receipt.cleanupVerified)
   try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (m2Fixture) {
     try {
