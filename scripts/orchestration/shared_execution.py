@@ -912,14 +912,17 @@ class OwnerWatch:
     def pin_identity(self, row, phase):
         """Census ancestry selects; fd plus matching reread validates before enrichment."""
         key = row['pid'], row['startTicks']
-        self.observation_context = {'phase':phase,'callsite':'pin-ancestry',
+        self.observation_context = {'phase':phase,'callsite':'pin-preparation',
                                     'pid':row['pid'],'startTicks':row['startTicks'],'ppid':row['ppid']}
         if row['pid'] == self.parent['pid'] or key in self.pidfds:
             return
         fd = None
         try:
+            self.observation_context['callsite'] = 'pin-pidfd-open'
             fd = os.pidfd_open(row['pid'])
+            self.observation_context['callsite'] = 'pin-identity-reread'
             current = process_ancestry(row['pid'])
+            self.observation_context['callsite'] = 'pin-identity-compare'
             require(all(current[name] == row[name] for name in ('pid','startTicks','ppid')),
                     'Owned identity/ancestry changed before pin validation')
             self.pidfds[key] = fd
