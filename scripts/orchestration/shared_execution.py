@@ -811,7 +811,7 @@ def require_child_subreaper():
             'Child subreaper not verified')
 
 
-def owned_process_rows(census, parent, known, namespace_roots, enrich):
+def owned_process_rows(census, parent, known, namespace_roots, enrich, *, prepare=None, exited=None):
     # Full enrichment is injected only after positive ancestry selection.
     identity = census.get(parent['pid'])
     require(identity and identity['startTicks'] == parent['startTicks'], 'Controller identity invisible')
@@ -831,7 +831,14 @@ def owned_process_rows(census, parent, known, namespace_roots, enrich):
         owned.update(more)
     result = []
     for pid in sorted(owned):
-        row = enrich(pid)  # Owned read failures are never skipped.
+        if prepare is not None:
+            prepare(census[pid])
+        try:
+            row = enrich(pid)
+        except (FileNotFoundError, ProcessLookupError):
+            if exited is not None and exited(census[pid]):
+                continue  # Exact identity-validated retained pidfd proved exit.
+            raise  # Unknown/unpinned/readable-live identities remain fatal.
         require(all(row[key] == census[pid][key] for key in ('pid', 'startTicks', 'ppid')),
                 'Owned identity/ancestry changed during observation')
         result.append(row)
@@ -881,6 +888,7 @@ class OwnerWatch:
         self.failure_marker = None
         self.unexpected_failure = None
         self.samples = self.peak = 0
+        self.observation_context = {}; self.observation_failure = None; self.exited_observations = []
         self.stream = (evidence / 'resources.ndjson').open('xb')
         self.resource_bytes = 0
         self.thread = threading.Thread(target=self.loop, daemon=True)
@@ -901,23 +909,78 @@ class OwnerWatch:
             raise QualificationObservationFault(self.failure)
         require(self.failure is None, self.failure or 'Unknown observer failure')
 
+    def pin_identity(self, row, phase):
+        """Census ancestry selects; fd plus matching reread validates before enrichment."""
+        key = row['pid'], row['startTicks']
+        self.observation_context = {'phase':phase,'callsite':'pin-ancestry',
+                                    'pid':row['pid'],'startTicks':row['startTicks'],'ppid':row['ppid']}
+        if row['pid'] == self.parent['pid'] or key in self.pidfds:
+            return
+        fd = None
+        try:
+            fd = os.pidfd_open(row['pid'])
+            current = process_ancestry(row['pid'])
+            require(all(current[name] == row[name] for name in ('pid','startTicks','ppid')),
+                    'Owned identity/ancestry changed before pin validation')
+            self.pidfds[key] = fd
+        except BaseException:
+            if fd is not None:
+                os.close(fd)
+            # Readability of an UNVALIDATED fd never proves the census identity.
+            raise
+
+    def exited_identity(self, row):
+        import select
+        key = row['pid'], row['startTicks']
+        fd = self.pidfds.get(key)
+        if fd is None or not select.select([fd], [], [], 0)[0]:
+            return False
+        observations = getattr(self,'exited_observations',None)
+        if observations is None:
+            observations = self.exited_observations = []
+        require(len(observations) < 1024,'Retained exit observation evidence cap')
+        observations.append({**self.observation_context,'retainedIdentityValidated':True,
+                             'pidfdExitObserved':True})
+        return True
+
+    def observe_member(self, pid, census, phase):
+        row = census[pid]
+        self.observation_context = {'phase':phase,'callsite':'owned-enrichment',
+                                    'pid':pid,'startTicks':row['startTicks'],'ppid':row['ppid']}
+        return process_member(pid)
+
     def observe(self):
+        try:
+            return self._observe()
+        except Exception as error:
+            with self.lock:
+                if getattr(self,'observation_failure',None) is None:
+                    self.observation_failure = {**getattr(self,'observation_context',{}),
+                        'errorType':type(error).__name__,'errno':getattr(error,'errno',None),
+                        'message':str(error)[:512]}
+            raise
+
+    def _observe(self):
         with self.lock:
+            self.observation_context = {'phase':'first','callsite':'ancestry-census'}
             all_rows = self.snapshot()
-            rows = owned_process_rows(all_rows, self.parent, self.known,
-                                      self.namespace_roots, process_member)
+            rows = owned_process_rows(all_rows, self.parent, set(self.known) | set(self.pidfds),
+                self.namespace_roots, lambda pid:self.observe_member(pid,all_rows,'first'),
+                prepare=lambda row:self.pin_identity(row,'first'),exited=self.exited_identity)
             # Pin the first positive closure before taking the second census.
             # Fork/setsid/reparent are ordinary owned transitions, not a reason
             # to demand a globally frozen host process set. Two bounded passes
             # retain additions while removals require kernel exit evidence.
             self.retain_rows(rows)
+            self.observation_context = {'phase':'second','callsite':'ancestry-census'}
             after = self.snapshot()
             for previous in rows:
                 replacement = after.get(previous['pid'])
                 require(replacement is None or replacement['startTicks'] == previous['startTicks'],
                         'Owned PID reused between censuses')
-            second = owned_process_rows(after, self.parent, self.known,
-                                        self.namespace_roots, process_member)
+            second = owned_process_rows(after, self.parent, set(self.known) | set(self.pidfds),
+                self.namespace_roots, lambda pid:self.observe_member(pid,after,'second'),
+                prepare=lambda row:self.pin_identity(row,'second'),exited=self.exited_identity)
             first_by_pid = {row['pid']: row for row in rows}
             second_pids = {row['pid'] for row in second}
             for row in second:
@@ -961,23 +1024,8 @@ class OwnerWatch:
     def retain_rows(self, rows):
         for row in rows:
             key = row['pid'], row['startTicks']
-            if row['pid'] != self.parent['pid'] and key not in self.pidfds:
-                fd = None
-                try:
-                    fd = os.pidfd_open(row['pid'])
-                    require(process_member(row['pid'])['startTicks'] == row['startTicks'],
-                            'PID reused during pin')
-                    self.pidfds[key] = fd
-                except (FileNotFoundError, ProcessLookupError):
-                    if fd is not None:
-                        os.close(fd)
-                    # The observed process exited while pinning. Do not retain
-                    # an unpinned identity as evidence of successful cleanup.
-                    raise ValueError('Owned process exited before identity pin')
-                except BaseException:
-                    if fd is not None:
-                        os.close(fd)
-                    raise
+            require(row['pid'] == self.parent['pid'] or key in self.pidfds,
+                    'Enriched owned row lacks validated retained identity')
             self.known[key] = row
 
     def loop(self):
@@ -1061,16 +1109,35 @@ class OwnerWatch:
     def survivors(self):
         return [row for row in self.observe() if row['pid'] != self.parent['pid'] and row['state'] != 'Z']
 
-    def finish(self):
+    def finish(self, *, cleanup_deadline=None, receipt=None):
+        receipt = {} if receipt is None else receipt
+        deadline = time.monotonic()+self.limits.cleanup_seconds if cleanup_deadline is None else cleanup_deadline
+        receipt.update(joined=False,healthy=None,withinDeadline=None,deadlineMonotonic=deadline)
+        self.finish_observation = receipt
         self.closed.set()
-        self.thread.join(timeout=self.limits.cleanup_seconds)
-        require(not self.thread.is_alive(), 'Observer thread did not stop')
-        self.stream.close()
-        for fd in [*self.namespace_fds, *self.pidfds.values(), *self.direct_fds]:
-            os.close(fd)
-        # A sample already in flight can fail after the caller's last check.
-        # Joining is the final health boundary, not merely resource disposal.
-        self.check()
+        error = None
+        try:
+            self.thread.join(timeout=max(0,deadline-time.monotonic()))
+            receipt['joined'] = not self.thread.is_alive()
+            require(receipt['joined'], 'Observer thread did not stop')
+            self.stream.close()
+            for fd in [*self.namespace_fds, *self.pidfds.values(), *self.direct_fds]:
+                os.close(fd)
+            try:
+                self.check()
+                receipt['healthy'] = True
+            except BaseException as failure:
+                receipt['healthy'] = False
+                receipt['healthError'] = type(failure).__name__+': '+str(failure)[:512]
+                raise
+        except BaseException as failure:
+            error = failure
+            raise
+        finally:
+            receipt['finishedMonotonic'] = time.monotonic()
+            receipt['withinDeadline'] = receipt['finishedMonotonic'] <= deadline
+            if error is None:
+                require(receipt['withinDeadline'],'Observer join exceeded shared cleanup deadline')
 
     def report(self):
         with self.lock:
@@ -1080,7 +1147,10 @@ class OwnerWatch:
             return {'sampledPeakOwnerRssBytes': self.peak, 'sampleCount': self.samples,
                     'failure': self.failure, 'failureMarker': self.failure_marker,
                     'unexpectedFailure': self.unexpected_failure,
-                    'gateBinding': self.binding, 'history': history}
+                    'gateBinding': self.binding, 'history': history,
+                    'observationFailure':getattr(self,'observation_failure',None),
+                    'retainedExitObservations':getattr(self,'exited_observations',[]),
+                    'finishObservation':getattr(self,'finish_observation',None)}
 
 
 def await_owned_cleanup(watch, limits, evidence, context, *, phase):
@@ -1111,9 +1181,12 @@ def await_owned_cleanup(watch, limits, evidence, context, *, phase):
             observations.append({'startedMonotonic': observed_at, 'finishedMonotonic': finished,
                                  'before': before, 'beforeError': before_error,
                                  'after': survivors, 'afterError': observation_error})
+            context['lastObservation'] = observations[-1]
+            context['accepted'] = False
             require(finished <= deadline, 'Owned cleanup deadline exhausted')
             if survivors == []:
                 accepted = True
+                context['accepted'] = True
                 return
             require(finished < deadline, 'Owned cleanup has live or unknown survivors')
             time.sleep(min(0.03, deadline - finished))
@@ -1128,10 +1201,13 @@ def await_owned_cleanup(watch, limits, evidence, context, *, phase):
                   'observations': observations, 'error': error})
 
 
-def finish_observer(watch, *, expected_fault=False, result=None):
+def finish_observer(watch, *, expected_fault=False, result=None, cleanup_deadline=None, receipt=None):
     """Shared joined-health gate for application and generated qualifier paths."""
     try:
-        watch.finish()
+        if cleanup_deadline is None and receipt is None:
+            watch.finish()
+        else:
+            watch.finish(cleanup_deadline=cleanup_deadline,receipt=receipt)
     except QualificationObservationFault:
         require(expected_fault, 'Unexpected injected observer fault outside its case')
         require_qualifier_observer_failure(result)
