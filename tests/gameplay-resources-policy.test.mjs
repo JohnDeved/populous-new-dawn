@@ -254,7 +254,7 @@ test('v4 rejects incomplete, reordered, stale, cross-document, aliased or cleanu
  }
 })
 
-import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS, validateGameplayOwnershipEvidence } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS, validateGameplayProducerPreflightArtifact } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
 test('weak-v1 source-bound artifact validates per-retirement observations, never an aggregate memory claim', () => {
  const v=directFixture(GAMEPLAY_OWNERSHIP_POLICY), result=validateGameplayResourceArtifact(v.files,v.expected)
  assert.equal(result.ownershipVerified,true);assert.equal(result.ownership.protocolVerified,true)
@@ -306,4 +306,46 @@ test('weak-v1 rejects altered selection, count/order, timing, bounds, sums, sour
   v=>{const r=v.report.resources.heap.samples[1].ownership.records[0];Object.assign(r.buffers[0],{survival:'collected',currentByteLength:null,byteLengthChanged:null});r.survivingBufferCount=1;r.survivingRegisteredByteLengths=128},
  ]
  for(const [index,mutate] of mutations.entries()) {const v=directFixture(GAMEPLAY_OWNERSHIP_POLICY);v.raw.source.files={...v.raw.source.files};const before=JSON.stringify(v.raw), trusted=JSON.stringify(v.expected);mutate(v);assert.notEqual(JSON.stringify(v.raw),before,`mutation ${index} must change evidence`);assert.equal(JSON.stringify(v.expected),trusted,`mutation ${index} must not change trusted expectation`);v.save();assert.throws(()=>validateGameplayResourceArtifact(v.files,v.expected),`mutation ${index}`)}
+})
+
+function addProducerFixture(v) {
+ const sample = v.report.resources.heap.samples[2], start = sample.timing.endedMs + 10
+ v.raw.browserVersion = '155.0.8059.39'
+ v.raw.heapProducerPreflight = { version: 1, mode: 'metadata-only', snapshot_attempted: false, capture_ready: false,
+  status: 'observed', code: null, expectedPinMatched: false,
+  browser: { product: 'Chrome/155.0.8059.39', revision: '@3ff7ac5a9224be9156d7f8703a06e22890aafd34', jsVersion: '15.5.35.20', protocolVersion: '1.3' },
+  target: { targetId: 'synthetic-target', type: 'page' }, isolateId: sample.isolateAfter, timeOriginUnixMs: sample.after.timeOriginUnixMs,
+  timing: { clock: 'driver-performance.now-milliseconds', browserStartedMs: 0, browserDeadlineMs: 180000,
+   browserDeadlineUnixMs: 1800000, lastMetricEndedMs: sample.timing.endedMs, observerCleanupCompletedMs: start,
+   startedMs: start, operationsDeadlineMs: start + 2000, cleanupDeadlineMs: start + 3000,
+   metadataCompletedMs: start + 5, endedMs: start + 10, remainingAfterPreflightMs: 180000 - start - 10,
+   ordinaryCleanupEndedMs: start + 20, remainingAfterOrdinaryCleanupMs: 180000 - start - 20,
+   ordinaryCleanupVerified: true, cleanupDeadlineEnforced: false },
+  sessionCleanup: { created: 2, detached: 2, promisesSettled: true } }
+ v.save()
+}
+test('metadata receipt is additive: historical inventory/report gates remain, separate acceptance requires observed proof', () => {
+ const v = directFixture(GAMEPLAY_OWNERSHIP_POLICY), report = Buffer.from(v.files['gameplay-frames.json']), inventory = Object.keys(v.files)
+ assert.equal(validateGameplayResourceArtifact(v.files, v.expected).ownershipVerified, true)
+ assert.throws(() => validateGameplayProducerPreflightArtifact(v.files, v.expected), /missing/)
+ addProducerFixture(v)
+ const accepted = validateGameplayProducerPreflightArtifact(v.files, v.expected)
+ assert.equal(accepted.artifact.ownershipVerified, true)
+ assert.deepEqual(accepted.producer, { metadataObserved: true, snapshotAttempted: false, captureReady: false })
+ assert.deepEqual(Object.keys(v.files), inventory); assert.deepEqual(v.files['gameplay-frames.json'], report)
+ v.raw.heapProducerPreflight.status = 'failed'; v.raw.heapProducerPreflight.code = 'PROTOCOL'; v.save()
+ assert.equal(validateGameplayResourceArtifact(v.files, v.expected).ownershipVerified, true)
+ assert.throws(() => validateGameplayProducerPreflightArtifact(v.files, v.expected), /not observed/)
+})
+test('present metadata fails closed on forged pin/capture/settlement/shape and cannot weaken existing source/runtime gates', () => {
+ const mutations = [v => { v.raw.heapProducerPreflight.expectedPinMatched = true },
+  v => { v.raw.heapProducerPreflight.snapshot_attempted = true }, v => { v.raw.heapProducerPreflight.capture_ready = true },
+  v => { v.raw.heapProducerPreflight.browser.title = 'private' }, v => { v.raw.heapProducerPreflight.sessionCleanup.promisesSettled = false },
+  v => { v.raw.browserVersion = 'different' }, v => { v.raw.browserCapMs++ }, v => { v.raw.command.pop() },
+  v => { v.raw.source.files = { ...v.raw.source.files, 'scripts/tutorial-browser/gameplay-heap-observer.mjs': 'f'.repeat(64) } },
+  v => { v.raw.cleanupVerified = false }, v => { v.files['extra-producer.json'] = encode({}) }]
+ for (const mutate of mutations) {
+  const v = directFixture(GAMEPLAY_OWNERSHIP_POLICY); addProducerFixture(v); mutate(v); v.save()
+  assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected))
+ }
 })
