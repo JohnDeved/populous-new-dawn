@@ -56,6 +56,13 @@ export function validateLifecycle(report) {
   plan(p.transitioned, p.preparedTransition, true)
   plan(p.replacementStable, p.preparedTransition, true)
   plan(p.preparedSurvivor, p.preparedSurvivor, false)
+  // Terminal rows must describe the same survivor; scene teardown is not
+  // the earlier plan-removal inPlans/detached contract.
+  for (const row of [p.disposed, p.disposedAgain]) {
+    assert.equal(row.buildingId, p.preparedSurvivor.buildingId)
+    assert.equal(row.geometry, p.preparedSurvivor.geometry)
+    assert.deepEqual(row.materials, p.preparedSurvivor.materials)
+  }
   // The ten-bit building allocator can recycle a removed ID. Resource identity,
   // not a historical numeric building handle, separates the retired instances.
   assert.notEqual(p.preparedTransition.buildingId, p.preparedSurvivor.buildingId)

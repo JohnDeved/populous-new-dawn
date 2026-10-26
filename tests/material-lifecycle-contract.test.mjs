@@ -99,6 +99,24 @@ test('rejects adversarial lifecycle evidence without relying on a terminal pass 
   assert.equal(cases.length, 38)
 })
 
+test('rejects terminal lifecycle rows attributed to another prepared identity', () => {
+  let checked = 0
+  const mutations = [
+    ['building ID', (r, phase) => { r.phases[phase].buildingId = 999 }],
+    ['geometry', (r, phase) => { r.phases[phase].geometry = r.phases.preparedRemoval.geometry }],
+    ['materials', (r, phase) => { r.phases[phase].materials = [...r.phases.preparedTransition.materials] }],
+  ]
+  for (const phase of ['disposed', 'disposedAgain']) {
+    for (const [name, mutate] of mutations) {
+      const report = structuredClone(validReport())
+      mutate(report, phase)
+      assert.throws(() => validateLifecycle(report), undefined, `${phase}: different ${name}`)
+      checked++
+    }
+  }
+  assert.equal(checked, 6)
+})
+
 // Minimal event fixture exercises the actual injected observer, not a second
 // implementation. It provides no Three, browser, GC or GPU acceptance.
 function resource() {

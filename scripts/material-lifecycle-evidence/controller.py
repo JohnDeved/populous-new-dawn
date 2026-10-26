@@ -15,7 +15,7 @@ REVISION = '977bf3026e429f7edd6187c16427913357224f7d'
 TREE = 'c17cce4f10b9f4407d22c9266254e6cbb524a8f3'
 BROWSER_VERSION = '154.0.8037.92'
 BROWSER_SHA256 = '7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706'
-CONTRACT_SHA256 = '371bda5a55538c122aab37543c69dd9cd22f5898131672ed975040748da20f8e'
+CONTRACT_SHA256 = 'bb5e9afe155a587dd8aff1d7db2c96868da047c389c2dfc803be456e569c435a'
 ARCHIVE_SHA256 = '636aa5c79f2693632e9921b8bbb050038ba11672e02346c06c20f991aed096f9'
 OPENING_MEMORY = 5100273664
 LIMITS = dict(owner_rss_bytes=2147483648, v8_mib=768, producer_seconds=210,
@@ -23,7 +23,7 @@ LIMITS = dict(owner_rss_bytes=2147483648, v8_mib=768, producer_seconds=210,
               evidence_bytes=134217728, allocation_bytes=1073741824,
               reserve_bytes=2147483648, available_memory_bytes=2147483648,
               free_inodes=32768, cleanup_seconds=5, sample_seconds=0.1)
-FROZEN_PINS = {'probe.mjs': 'f18743101f39485662be279ef40597a9473a205f755bbcd3938253a70dc70469', 'observer.mjs': '08c58009394e49a41d1057f5b7e382246271eeb1b1fdafdf2b53031de0b9b0df', 'contract.mjs': '371bda5a55538c122aab37543c69dd9cd22f5898131672ed975040748da20f8e', 'source-inputs.json': 'ad82dfae18b914bd2e40dc0457ba0a1a92e19f89166dd8fd609a0ab8fdbdb906'}
+FROZEN_PINS = {'probe.mjs': 'f18743101f39485662be279ef40597a9473a205f755bbcd3938253a70dc70469', 'observer.mjs': '08c58009394e49a41d1057f5b7e382246271eeb1b1fdafdf2b53031de0b9b0df', 'contract.mjs': 'bb5e9afe155a587dd8aff1d7db2c96868da047c389c2dfc803be456e569c435a', 'source-inputs.json': 'ad82dfae18b914bd2e40dc0457ba0a1a92e19f89166dd8fd609a0ab8fdbdb906'}
 SCREENSHOTS = ('prepared-removal.png', 'prepared-transition.png', 'replacement.png')
 
 
