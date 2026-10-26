@@ -3073,15 +3073,21 @@
         "Legacy Mission 5 checkpoint insertion of the previously omitted authored head"
       ],
       "knownLimits": [
+        "Model 69 corrects initial visual identity only; native movement-mode/model 62 transitions, tilt and roll remain unported.",
         "The browser check bounds cleanup after combat; model-91's exact sprite presentation remains deferred.",
         "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs"],
+      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs", "tests/angel-presentation.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "tests/mission5-angel.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "app/angel-presentation.ts",
+        "app/original-angel-presentation.json",
+        "app/game-clock.ts",
+        "app/model-resources.ts",
         "app/angel.ts",
         "app/game-store.ts",
         "app/live-worship.ts",

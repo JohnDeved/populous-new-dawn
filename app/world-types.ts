@@ -1,3 +1,4 @@
+import type { AngelPresentation } from './angel-presentation.ts'
 import type { SecondaryEffects } from './secondary-effects.ts'
 import type { CapacityPolicy } from './capacity-policy.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
@@ -159,6 +160,7 @@ export type Projectile = {
   fireball?: boolean
 }
 export type AngelState = {
+  presentation?: AngelPresentation
   phase: 'seeking' | 'striking' | 'dying'
   target: number | null
   heading: number
