@@ -39,7 +39,8 @@ export class OrdinaryNumericProjection {
     p.x = (Math.round((wx + 8) * 256) - centerX) >> 1
     p.y = Math.round(((wy * 128) / 45) * 45)
     p.z = (Math.round((-wz - 8) * 256) - centerY) >> 1
-    const projected = projectPoint(p, projection, true, this.projected)
+    // Numeric picking consumes coordinates only; the scan owns visibility rejection.
+    const projected = projectPoint(p, projection, false, this.projected)
     const slot = this.length++,
       offset = slot * 6
     this.values[offset] = wx
