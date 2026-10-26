@@ -1,6 +1,7 @@
 {
   "version": 1,
   "owners": [
+    {"id":"angel-strike-presentation","kind":"imported-assets","generator":{"executable":"python3","args":["scripts/import-angel-strike.py","<verified-game-root>"]},"callers":["scripts/import-angel-strike.py","app/angel-presentation.ts","app/model-resources.ts"],"inputs":["decomp/research/angel-presentation/strike.md","scripts/import-angel-presentation.py","scripts/import-original.py"],"outputs":[{"path":"app/original-angel-strike.json","type":"file","tracked":true,"protected":true}],"recording":"Exact hash-pinned model 62, keys 63\u201368 and 76\u201378; both banks equal. Native pursuit entry remains unported; no shared atlas regeneration. --check is read-only."},
     {
       "id": "initial-angel-presentation",
       "kind": "imported-assets",

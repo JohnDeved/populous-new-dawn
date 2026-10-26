@@ -3073,27 +3073,35 @@
         "Legacy Mission 5 checkpoint insertion of the previously omitted authored head"
       ],
       "knownLimits": [
-        "Model 69 corrects initial visual identity only; native movement-mode/model 62 transitions, tilt and roll remain unported.",
+        "Initial model 69 and proved strike-triggered model 62 transitions are covered; pursuit preparation/mode ownership, tilt and roll remain unported.",
         "The browser check bounds cleanup after combat; model-91's exact sprite presentation remains deferred.",
         "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs", "tests/angel-presentation.test.mjs"],
+      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs", "tests/angel-presentation.test.mjs", "tests/angel-strike-presentation.test.mjs",
+        "tests/angel-painter-order.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "tests/mission5-angel.test.mjs",
         "tests/angel-presentation.test.mjs",
+        "tests/angel-strike-presentation.test.mjs",
+        "tests/angel-painter-order.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "app/painter.ts",
+        "app/scene-effects.ts",
         "app/angel-presentation.ts",
         "app/original-angel-presentation.json",
+        "app/original-angel-strike.json",
+        "app/world-turn.ts",
+        "app/game-store.ts",
         "app/game-clock.ts",
         "app/model-resources.ts",
         "app/angel.ts",
-        "app/game-store.ts",
         "app/live-worship.ts",
         "app/world-effects.ts",
         "app/world-initialization.ts",
-        "app/world-turn.ts",
         "app/world-types.ts",
         "app/worship.ts",
         "app/level-five.ts"
@@ -3112,7 +3120,8 @@
         "Mission 5 launch and ordinary introduction skip",
         "Rendered warrior selection and stone-head command",
         "Live prayer completion and linked Angel reward",
-        "Angel GPU pixels, movement, enemy targeting, lethal strike, and audio"
+        "Angel GPU pixels, movement, enemy targeting, lethal strike, and audio",
+        "Partial strike checkpoint, original model 62 UV/material switch, return to 69, and owned resource disposal"
       ],
       "knownLimits": [
         "An existing warrior is positioned at the worship ring to bound travel; no head, Angel, enemy, or completion state is injected.",
@@ -3125,6 +3134,7 @@
       "env": [],
       "inputs": [
         "scripts/check-browser-mission5-angel.mjs",
+        "scripts/angel-strike-witness.mjs",
         "scripts/browser-game.mjs",
         "app/angel.ts",
         "app/audio.ts",
