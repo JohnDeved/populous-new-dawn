@@ -351,8 +351,12 @@ for (const [name, makeBusy] of Object.entries(busy)) {
     const { w, units, shaman } = setup(2), ordinary = units[1], person = ordinary.native
     makeBusy(units[0], w)
     const before = phase(person), expected = structuredClone(w)
-    legacyGuard(expected); guardShaman(w)
-    assert.deepEqual(units[0], expected.units.find(u => u.id === units[0].id), 'unsupported unit retains its exact legacy result')
+    // Compare this member's unchanged legacy cleanup, not an old whole-batch
+    // release of its eligible peer (which can rebuild shared resting slots).
+    const expectedBusy = expected.units.find(u => u.id === units[0].id), guard = !expectedBusy.guard
+    release(expected, expectedBusy); expectedBusy.guard = guard
+    guardShaman(w)
+    assert.deepEqual(units[0], expectedBusy, 'unsupported unit retains its exact legacy cleanup result')
     assert.equal(ordinary.native, person)
     assert.deepEqual(phase(person), before)
     assert.equal(person.guardInputPending, true)
@@ -363,6 +367,23 @@ for (const [name, makeBusy] of Object.entries(busy)) {
     assert.equal(unitAnimationSource(ordinary), person)
   })
 }
+
+
+test('native mixed dispatch does not eagerly rebuild a flight peer resting slot by releasing the ordinary owner', () => {
+  const { w, units } = setup(2)
+  busy.flight(units[0])
+  const p = units[0].flight, before = [p.assignment, p.anchorFlags], old = structuredClone(w)
+  assert.ok(units[1].native.assignment & 1)
+  legacyGuard(old)
+  const oldFlight = old.units.find(u => u.id === units[0].id).flight
+  assert.notDeepEqual([oldFlight.assignment, oldFlight.anchorFlags], before,
+    'old whole-batch ordinary release rebuilds the shared resting cell')
+  guardShaman(w)
+  assert.deepEqual([p.assignment, p.anchorFlags], before,
+    'native producer defers ordinary state transition; no synthetic eager peer release')
+  assert.equal(units[0].guard, true)
+  assert.equal(order(w, units[1])?.model, 30)
+})
 
 for (const repeat of [false, true]) test(`public training peer does not replace ordinary native ownership${repeat ? ' on repeated G' : ''}`, () => {
   const { w, u, p, shaman } = setup()
