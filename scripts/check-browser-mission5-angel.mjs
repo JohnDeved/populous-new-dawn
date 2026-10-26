@@ -311,6 +311,8 @@ try {
   stage('normal authored Angel reward', reward)
   const pixels = await effectPixels(page, [reward.angel.id])
   assert.ok(pixels > 20, `Original Angel mesh must reach GPU pixels (${pixels})`)
+  // effectPixels leaves the last framebuffer with the measured effect hidden.
+  await page.evaluate(() => { const scene = globalThis.testScene; scene.renderer.render(scene.scene, scene.camera) })
   await page.screenshot({ path: resolve(artifactDir, 'mission5-angel-model69-initial.png') })
   const animation = await page.evaluate(async angelId => {
     const scene = globalThis.testScene, world = scene.world,
