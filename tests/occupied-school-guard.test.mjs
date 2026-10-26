@@ -164,7 +164,7 @@ for (const group of [false, true])
       nextId = w.nextId,
       randomState = w.randomState
     guardShaman(w)
-    assert.equal(u.entry.person, p)
+    assert.equal(u.entry?.person, p)
     assert.equal(u.native, null)
     assert.equal(u.inside, b.id)
     assert.equal(p.building, b.id)
@@ -193,7 +193,7 @@ test('reissue before adoption shares native producer without eager departure; po
   assert.equal(first.references, 0)
   assert.equal(order(w, p).model, 30)
   assert.equal(u.inside, b.id)
-  assert.equal(u.entry.person, p)
+  assert.equal(u.entry?.person, p)
   setSelection(w, [])
   guardShaman(w)
   assert.equal(order(w, p).model, 30, 'no-selection does not cancel unadopted school')
@@ -222,7 +222,7 @@ test('protection after genuine producer retains occupancy and owner, then adopts
   assert.equal(trace.filter(row => row.event === 'physics').length, 1)
   assert.equal(trace.filter(row => row.event === 'departure').length, 0)
   assert.equal(u.native, null)
-  assert.equal(u.entry.person, p)
+  assert.equal(u.entry?.person, p)
   assert.equal(u.inside, b.id)
   assert.equal(b.admission.inside, before)
   assert.equal(p.guardInputPending, true)
@@ -235,7 +235,8 @@ test('protection after genuine producer retains occupancy and owner, then adopts
 })
 
 function exhaust(w) {
-  w.buildingOrders.scalable = false // Fixed native-pool mechanics control.
+  assert.equal(w.capacityPolicy.mode, 'classic', 'fixed-pool mechanics fixture')
+  assert.equal(w.buildingOrders.scalable, undefined, 'retain valid classic checkpoint shape')
   for (let id = 1; id < w.buildingOrders.records.length; id++) {
     const record = w.buildingOrders.records[id]
     if (!record.references) Object.assign(record, emptyPersonOrder(), { model: 3, references: 1 })
@@ -279,7 +280,7 @@ test('native slot0 exhaustion reaches real occupied21, retains its next visit an
   assert.equal(trace.filter(row => row.event === 'prepare').length, 1)
   assert.equal(trace.filter(row => row.event === 'physics').length, 1)
   assert.equal(trace.filter(row => row.event === 'departure').length, 0)
-  assert.equal(u.entry.person, p)
+  assert.equal(u.entry?.person, p)
   assert.equal(u.native, null)
   assert.equal(p.state, 21)
   assert.equal(u.inside, b.id)
