@@ -17,15 +17,18 @@ const meleeArtworkViewport = { width: 960, height: 720 }
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
-export function meleeCameraInput(minimap) {
+export function meleeCameraInput(minimap, recoil = false) {
+  assert.equal(typeof recoil, 'boolean')
   const { width, height, rect, center, heading } = minimap
   assert.ok(Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0)
   assert.ok([rect.x, rect.y, rect.width, rect.height].every(Number.isFinite) && rect.width > 0 && rect.height > 0)
   const nearest = minimapInput(minimap, minimapPick, () => true)
   assert.ok(nearest, 'Authored target must be reachable through public minimap camera input')
   // One fixed setup offset frames the target above the paused badge and the
-  // retained approach corridor inside the view. This is not live camera pursuit.
-  const offsetBacking = { x: 0, y: 12 }, backing = {
+  // retained approach corridor inside the view. Recoil's opposite heading uses
+  // the nearest target center (zero offset), avoiding that corridor's top-edge
+  // clipping after the declared half-turn. This is not live camera pursuit.
+  const offsetBacking = { x: 0, y: recoil ? 0 : 12 }, backing = {
     x: (nearest.x - rect.x) / rect.width * width + offsetBacking.x,
     y: (nearest.y - rect.y) / rect.height * height + offsetBacking.y,
   }
@@ -398,7 +401,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
   if (recoil) {
-    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited.'
+    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry').replace('plus one fixed (0,+12) backing-pixel corridor offset', 'with zero offset at the nearest target center') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited.'
     report.limits.push('The first observed recoil is accepted only from its exact entry, using original four-turn knockback or seven-turn Shaman duration; no later favorable episode or native-executable comparison is substituted.')
     for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts'])
       report.source[path] = sha256(readFileSync(resolve(root, path)))
@@ -506,10 +509,10 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
     assert.deepEqual(setup.environment.viewport, meleeArtworkViewport)
     assert.equal(setup.environment.dpr, 1)
-    const camera = report.cameraInput = meleeCameraInput(setup.minimap)
+    const camera = report.cameraInput = meleeCameraInput(setup.minimap, recoil)
     save()
     assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)
-    await action('Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
+    await action(recoil ? 'Minimap camera at nearest Green Shaman20 center, zero offset' : 'Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
     await settle()
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)

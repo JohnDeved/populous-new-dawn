@@ -115,3 +115,10 @@ No hut, actor, world state or later episode is substituted. A new unobscured
 capture remains required. The standalone wrapper also closes only its known
 unused nonpersistent local preflight page before its scenario-owned context;
 persistent-profile use is rejected, and default hosted attack behavior is unchanged.
+
+The first opposite-heading attempt at `4e2566ec` correctly failed the strict
+in-canvas assertion: retaining the original +12 minimap offset placed the first
+recoil above the viewport. Recoil setup therefore uses the nearest authored
+Green Shaman 20 minimap center with zero offset after the fixed half-turn;
+default attack setup keeps its original +12 offset. This prescribed framing
+change is made before the order, not by following or replacing an episode.

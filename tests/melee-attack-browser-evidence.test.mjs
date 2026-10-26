@@ -58,6 +58,15 @@ test('one fixed minimap corridor offset retains nearest input and scales backing
   assert.deepEqual([scaled.nearest.x, scaled.nearest.y], [77, 97])
   assert.deepEqual([scaled.x, scaled.y], [77, 121])
   assert.deepEqual(scaled.backing, original.backing); assert.deepEqual(scaled.native, original.native)
+  const recoil = meleeCameraInput(minimap, true)
+  assert.deepEqual(recoil.offsetBacking, { x: 0, y: 0 })
+  assert.deepEqual([recoil.x, recoil.y], [original.nearest.x, original.nearest.y])
+  assert.deepEqual(recoil.native, original.nearest.native)
+  const scaledRecoil = meleeCameraInput({ ...minimap, rect: { x: 11, y: 13, width: 100, height: 384 } }, true)
+  assert.deepEqual([scaledRecoil.x, scaledRecoil.y], [scaled.nearest.x, scaled.nearest.y])
+  assert.deepEqual(scaledRecoil.native, recoil.native)
+  assert.throws(() => meleeCameraInput(minimap, 'yes'))
+  assert.deepEqual(minimap, before)
 })
 
 test('fixed minimap offset rejects invalid dimensions and an out-of-bounds shifted point without clamping', () => {
