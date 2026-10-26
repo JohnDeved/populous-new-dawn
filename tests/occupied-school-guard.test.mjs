@@ -25,6 +25,7 @@ const {
   allocatePersonOrder,
   attachPersonOrder,
   orderEffects,
+  skipIntroduction,
 } = api
 const order = (w, p) => currentPersonOrder(w.buildingOrders, p)
 const phase = p => [p.object, p.draw, p.f1, p.f2, p.stamp]
@@ -34,6 +35,19 @@ function until(w, predicate, limit = 500) {
 }
 function admitted(kind = 'firewarriorHut', count = 1) {
   const w = createStartedWorld(1)
+  // Normal ticks do not run Scene's camera consumer. Use the same shipped
+  // Skip-introduction caller as mission6-natural-marker-bridge, not flag writes.
+  const introduction = { inputMask: w.inputMask, flags: w.flyby.flags, warmup: w.flyby.warmup }
+  if (w.flyby.flags & 1 && w.flyby.warmup > 0)
+    skipIntroduction({ world: w, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+  assert.equal(w.inputMask, 0, `public introduction completion: ${JSON.stringify(introduction)}`)
+  console.info(
+    'school-introduction',
+    JSON.stringify({
+      before: introduction,
+      after: { inputMask: w.inputMask, flags: w.flyby.flags, warmup: w.flyby.warmup },
+    })
+  )
   retainFixtureUnits(w, u => u.kind === 'shaman')
   w.terrain.fill(3)
   w.terrainVersion++
@@ -61,8 +75,24 @@ function admitted(kind = 'firewarriorHut', count = 1) {
   return { w, b, units, u: units[0], p: units[0].entry.person }
 }
 function selectPanel(w, b, u, group = false) {
+  const before = {
+    inputMask: w.inputMask,
+    landFlags: w.land.landFlags,
+    team: b.team,
+    hp: b.hp,
+    progress: b.progress,
+    occupants: [...b.admission.occupants],
+    inside: u.inside,
+    unitHp: u.hp,
+    flags4: u.entry.person.flags4,
+    selectionFlags: u.entry.person.selectionFlags,
+    selected: [...w.selected],
+  }
   selectBuildingOccupants(w, b, u.id, group)
-  assert.ok(w.selected.includes(u.id))
+  assert.ok(
+    w.selected.includes(u.id),
+    `actual panel selection prerequisites: ${JSON.stringify(before)}`
+  )
   assert.equal(!!(u.entry.person.flags3 & 0x10000000), !group)
 }
 function departed(w, b, u, p, inside, nextId) {

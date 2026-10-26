@@ -1,7 +1,8 @@
 // Bounded Node-only call observations. Actual bodies/results are preserved;
 // this is not browser/native-executable proof and never writes app/ or game state.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { registerHooks } from 'node:module'
 import { sceneFixtureSource } from './scene-fixture-source.mjs'
 
@@ -46,7 +47,22 @@ export async function loadSchoolGuardFixture(app = new URL('../../app/', import.
     })
   }
   registerHooks({
+    // Same unchanged Vite-style resolution as the existing bloodlust-scene fixture.
+    resolve(specifier, context, next) {
+      if (specifier.startsWith('.') && context.parentURL?.startsWith(app.href)) {
+        const url = new URL(specifier, context.parentURL)
+        if (!/\.[a-z]+$/i.test(url.pathname) && existsSync(fileURLToPath(url) + '.ts'))
+          return next(url.href + '.ts', context)
+      }
+      return next(specifier, context)
+    },
     load(url, context, next) {
+      if (url.startsWith(app.href) && url.endsWith('.json'))
+        return {
+          format: 'module',
+          source: 'export default ' + readFileSync(new URL(url), 'utf8'),
+          shortCircuit: true,
+        }
       if (!url.startsWith(app.href) || !url.endsWith('.ts')) return next(url, context)
       let source = sceneFixtureSource(readFileSync(new URL(url), 'utf8'))
       const name = url.slice(app.href.length)
@@ -77,6 +93,7 @@ export async function loadSchoolGuardFixture(app = new URL('../../app/', import.
   const selection = await import(new URL('selection-runtime.ts', app).href)
   const store = await import(new URL('game-store.ts', app).href)
   const movement = await import(new URL('live-movement.ts', app).href)
+  const camera = await import(new URL('scene-camera-runtime.ts', app).href)
   const math = await import(new URL('native-math.ts', app).href)
   assert.equal(observed.size, 12, 'all required real-call observation anchors loaded')
   return {
@@ -88,6 +105,7 @@ export async function loadSchoolGuardFixture(app = new URL('../../app/', import.
     ...store,
     ...math,
     ...movement,
+    ...camera,
   }
 }
 export function observeSchoolGuard(id, callback) {
