@@ -93,7 +93,10 @@ test('renderer consumes mesh/serialized phase, not Warrior source or simulation 
   const source = readFileSync(new URL('../app/scene-effects.ts', import.meta.url), 'utf8')
   assert.ok(source.includes('g.add(nativeModel(69, 2, 4, false, scene.environment))'))
   assert.ok(source.includes('f.angel.presentation?.displayedFrame ?? 0'))
-  assert.ok(source.includes('position.copyArray(angelPositions(frame))'))
+  assert.ok(source.includes('position.copyArray(positions)'))
+  assert.ok(source.includes('angelPosePositions(pose)'))
+  assert.ok(source.includes('nativeModel(pose.object, 2, 4, false, scene.environment)'))
+  assert.ok(source.includes('scene.releaseGroup(mesh)'))
   assert.ok(!source.includes("nativeUnits.animations['blue-warrior'].stagger"))
   assert.ok(!source.includes('f.angel.heading, g.userData.directions, f.age'))
   const clock = readFileSync(new URL('../app/game-clock.ts', import.meta.url), 'utf8')
@@ -137,12 +140,17 @@ test('public cast and real clock retain gameplay and checkpoint continuation', a
     for (const e of copy.effects) if (e.angel) delete e.angel.presentation
     return copy
   }
-  for (let i = 0; i < 27; i++) {
+  let partialStrike = false
+  for (let i = 0; i < 96; i++) {
     advanceGame(w, clock, 1 / 24)
     advanceGame(control, other, 1 / 24)
     for (const e of control.effects) if (e.angel) delete e.angel.presentation
     assert.deepEqual(strip(w), control)
+    const pending = w.effects.find(e => e.angel)?.angel
+    if (pending?.phase === 'striking' && pending.presentation?.transitionCounter > 0 &&
+        pending.presentation.transitionCounter < 5) { partialStrike = true; break }
   }
+  assert.equal(partialStrike, true, 'Actual casting reaches a partial strike transition')
   const angel = w.effects.find(e => e.angel)
   assert.ok(angel?.angel.presentation)
   const store = createGameStore()
@@ -157,4 +165,15 @@ test('public cast and real clock retain gameplay and checkpoint continuation', a
     assert.deepEqual(restored, w)
   }
   assert.equal(w.killCredits[0][1], 1)
+  const partial = structuredClone(store.getWorld().effects.find(e => e.angel).angel.presentation)
+  const missingCounter = {...partial}
+  delete missingCounter.transitionCounter
+  const invalidTimer = {...partial, morphTimer: -4, morphFrames: 2,
+    renderFlags: (partial.renderFlags | 0x1000) & ~0x400, sourceKey: 69, targetKey: 76}
+  for (const malformed of [missingCounter, invalidTimer, null, 0]) {
+    store.getWorld().effects.find(e => e.angel).angel.presentation = malformed
+    await assert.rejects(store.saveCheckpoint(), /incompatible with this development version/)
+    assert.equal(store.loadCheckpoint(), true, 'Invalid save attempt retains prior checkpoint')
+    assert.ok(store.getWorld().effects.find(e => e.angel).angel.presentation.transitionCounter > 0)
+  }
 })
