@@ -7,6 +7,69 @@ import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-perfor
 import { installSnapshotDragObserver } from '../scripts/browser-performance/snapshot-drag-observer.mjs'
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
+const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
+// Literal inverse of PR831's reviewed resource route, only for historical fixtures.
+// Production admission never strips or normalizes candidate source.
+const looseLogDeltas = [
+  ['app/scene-picking.ts', `    // Only live loose timber uses this sprite route. Other effects/decorations
+    // remain non-pickable, and the shared painter stream still owns occlusion.
+    if (!s.overviewActive)
+      s.decorations.traverseVisible(group => {
+        const { point: tree, sprite } = group.userData
+        if (
+          tree?.model !== 11 ||
+          !Number.isInteger(tree.id) ||
+          tree.id <= 0 ||
+          !(tree.logs > 0) ||
+          !s.world.trees.includes(tree) ||
+          !(sprite instanceof THREE.Sprite) ||
+          sprite.parent !== group ||
+          !sprite.visible ||
+          !sprite.material.visible
+        )
+          return
+        const source = view.painter.source(sprite)
+        if (!source) return
+        const anchor = view.screen(sprite.getWorldPosition(new THREE.Vector3()), s.camera),
+          scale = sprite.getWorldScale(new THREE.Vector3()),
+          width = Math.trunc((scale.x * rect.width) / view.projection.width),
+          height = Math.trunc((scale.y * rect.height) / view.projection.height),
+          x = Math.trunc(((anchor.x + 1) * rect.width) / 2),
+          y = Math.trunc(((1 - anchor.y) * rect.height) / 2)
+        // Native type-1 header rectangles include all four edges and transparent
+        // corners. Use current displayed size/anchor, not unported native scaling
+        // or height offsets; odd widths intentionally use integer half-width.
+        const bounds = { x: x - Math.trunc(width / 2), y: y - height, width, height }
+        if (width <= 0 || height <= 0 || !inHitBounds(point, bounds)) return
+        hits.push({
+          kind: 'resource',
+          id: tree.id,
+          bounds,
+          eligible: true,
+          source,
+          bucket: source.bucket,
+          face: source.face,
+        })
+      })
+`, ``],
+  ['app/scene-picking.ts', `  lastKind: 'person' | 'model' | 'resource' | null = null`, `  lastKind: 'person' | 'model' | null = null`],
+  ['app/world-picking.ts', `  | { kind: 'person' | 'resource'; id: number; bounds: HitBounds; eligible: boolean }`, `  | { kind: 'person'; id: number; bounds: HitBounds; eligible: boolean }`],
+  ['app/world-picking.ts', `  let result: { kind: 'person' | 'model' | 'resource'; id: number } | null = null`, `  let result: { kind: 'person' | 'model'; id: number } | null = null`],
+  ['app/world-picking.ts', `      case 'person':
+      case 'resource':
+        if (command.eligible && inHitBounds(point, command.bounds))
+          result = { kind: command.kind, id: command.id }`, `      case 'person':
+        if (command.eligible && inHitBounds(point, command.bounds))
+          result = { kind: 'person', id: command.id }`],
+ ]
+function preLooseLogRead(path, read = name => readFileSync(resolve(root, name), 'utf8')) {
+  let source = read(path)
+  for (const [owner, current, previous] of looseLogDeltas) if (path === owner) {
+    assert.equal(source.split(current).length, 2, 'exact reviewed loose-log inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
 const cpuProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
 // Exact inverse of the independently reviewed CPU-retirement delta. Never strip
 // arbitrary guards or normalize candidate source before the admission hash.
@@ -29,7 +92,7 @@ const cpuRetirementDeltas = [
   ['app/scene-terrain-runtime.ts', `export function updateWater(scene: GameScene, metrics?: WaterUpdateMetrics) {
   if (scene.disposed) return`, `export function updateWater(scene: GameScene, metrics?: WaterUpdateMetrics) {`],
 ]
-function preCpuRead(path, read = name => readFileSync(resolve(root, name), 'utf8')) {
+function preCpuRead(path, read = preLooseLogRead) {
   let source = read(path)
   for (const [owner, current, previous] of cpuRetirementDeltas) if (path === owner) {
     assert.equal(source.split(current).length, 2, 'exact reviewed inverse boundary')
@@ -259,7 +322,7 @@ const renderCpuDeltas = [
 }
 `],
 ]
-function preRenderCpuRead(path, read = name => readFileSync(resolve(root, name), 'utf8')) {
+function preRenderCpuRead(path, read = preLooseLogRead) {
   let source = read(path)
   if (path === 'app/render-view.ts') for (const [current, previous] of renderCpuDeltas) {
     assert.equal(source.split(current).length, 2, 'exact reviewed RenderView inverse boundary')
@@ -276,7 +339,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -350,7 +413,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -514,7 +577,7 @@ test('disposed CPU source admission is a new atomic route, not a historical hash
 })
 
 test('combined CPU admission preserves both siblings and composes exact historical readers', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = preLooseLogRead
   const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
   for (const [reader, id] of [[read, combinedCpuProfileId], [preCpuRead, renderCpuProfileId],
     [preRenderCpuRead, cpuProfileId], [preBothCpuRead, epochId],
@@ -691,4 +754,42 @@ test('two fixed six-input observers retain one absolute recorder epoch and never
   assert.equal(sequences[0].recorder.endTimestampMs, sequences[1].recorder.startTimestampMs)
   assert.equal(o.recorder.recentCount, 49); assert.equal(o.scene.cameraPosition.angle, 0)
   for (const result of sequences) { assert.equal(result.error, null); assert.equal(result.events.length, 6); assert.equal(result.frames.length, 24) }
+})
+
+
+test('loose-log source admission is additive and binds the exact shared queue owner', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const current = inspectDragSource(root), previous = inspectDragSource(root, preLooseLogRead)
+  assert.equal(current.profile, looseLogProfileId)
+  assert.equal(previous.profile, combinedCpuProfileId)
+  for (const result of [current, previous]) {
+    assert.equal(result.status, 'admitted')
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  const oldProfile = dragSourceProfiles.find(profile => profile.id === combinedCpuProfileId)
+  const profile = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
+  assert.equal(oldProfile.slices.length, 18)
+  assert.equal(profile.slices.length, 19)
+  for (const [i, oldSlice] of oldProfile.slices.entries()) {
+    assert.deepEqual({ ...profile.slices[i], sha256: oldSlice.sha256 }, oldSlice)
+    assert.equal(profile.slices[i].sha256 !== oldSlice.sha256, oldSlice.id === 'native-route')
+  }
+  assert.equal(oldProfile.slices.find(slice => slice.id === 'native-route').sha256,
+    '80d43ac8561bb04fbc6f4491ad9a8d0e91395cb63bf08ce1997173298bb3ccc9')
+  assert.equal(profile.slices.at(-1).id, 'resource-queue-owner')
+  for (const helper of [preLooseLogRead('app/world-picking.ts'), `${read('app/world-picking.ts')}\n`, '']) {
+    const result = inspectDragSource(root, path => path === 'app/world-picking.ts' ? helper : read(path))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.equal(result.profile, null)
+  }
+  // A new resource route is not admitted with any historical CPU-owner mixture.
+  for (const reader of [preCpuRead, preRenderCpuRead, preBothCpuRead]) {
+    const result = inspectDragSource(root, path => path === 'app/scene-picking.ts' || path === 'app/world-picking.ts'
+      ? read(path) : reader(path))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.equal(result.profile, null)
+  }
+  // Preserve the historical boundary: an unused new helper was not hashed there.
+  assert.equal(inspectDragSource(root, path => path === 'app/scene-picking.ts'
+    ? preLooseLogRead(path) : read(path)).profile, combinedCpuProfileId)
 })

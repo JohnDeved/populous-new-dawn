@@ -177,7 +177,7 @@ const ownedRouteOverrides = {
     "sha256": "c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86"
   }
 }
-export const dragSourceProfiles = Object.freeze([
+const historicalDragSourceProfiles = Object.freeze([
   Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
   Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
     slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
@@ -274,6 +274,20 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'pick-operation-leases', path: 'app/render-view.ts',
       start: '  private beginPickOperation()', end: '\n  private resolveCandidates(',
       sha256: '3949a4264ea8c4d612658cdbc0c6923b028af8457ef04656319378dc22f6b41a' }),
+  ]) }),
+])
+// Reviewed loose-log sprite hits extend only the complete current CPU-owner route.
+// Historical routes remain byte-exact; no new-log/old-CPU mixtures are admitted.
+// Bind the shared queue resolver too, not just its new call-site submissions.
+// This is source admission only, not performance equivalence or a new benchmark.
+export const dragSourceProfiles = Object.freeze([
+  ...historicalDragSourceProfiles,
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
+    ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
+      slice.id === 'native-route' ? { ...slice,
+        sha256: '4c06971b6ece6c52eebc066fe594af406551cf362d9660db2c0e774d5bf9b344' } : slice)),
+    Object.freeze({ id: 'resource-queue-owner', path: 'app/world-picking.ts', start: null, end: null,
+      sha256: '45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611' }),
   ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
