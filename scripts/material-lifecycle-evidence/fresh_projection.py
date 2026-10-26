@@ -15,7 +15,7 @@ import time
 import controller as policy
 
 HERE = Path(__file__).resolve().parent
-MANIFEST_SHA = '831d9746a06207f311ef783e1f8748732d7222e5502e5b5efd7fe6699d1e6844'
+MANIFEST_SHA = 'ec9e4bb3de7cd2f3578560040f542f0e49fcdf3b3cf4efe68c67cc94bd7d2432'
 PRIVATE_OUTPUTS = ('work', 'dist', '.wrangler', '.next', '.vinext', '.fallow')
 CACHES = ('.vite', '.vite-temp', '.cache')
 PNPM_VERSION = '11.25.0'
