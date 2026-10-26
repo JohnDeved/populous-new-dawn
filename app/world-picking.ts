@@ -12,7 +12,7 @@ export interface HitBounds {
 }
 export type PickCommand =
   | { kind: 'bounds'; id: number; bounds: HitBounds }
-  | { kind: 'person'; id: number; bounds: HitBounds; eligible: boolean }
+  | { kind: 'person' | 'resource'; id: number; bounds: HitBounds; eligible: boolean }
   | { kind: 'model'; id: number; points: ScreenPoint[] }
   | { kind: 'ground'; points?: ScreenPoint[] }
 
@@ -87,15 +87,16 @@ export function personHitBounds(
 // Unbounded candidates deliberately remove the original three-model ring overflow.
 export function pickQueuedObjects(commands: PickCommand[], point: ScreenPoint) {
   const candidates = new Set<number>()
-  let result: { kind: 'person' | 'model'; id: number } | null = null
+  let result: { kind: 'person' | 'model' | 'resource'; id: number } | null = null
   for (const command of commands) {
     switch (command.kind) {
       case 'bounds':
         if (inHitBounds(point, command.bounds)) candidates.add(command.id)
         break
       case 'person':
+      case 'resource':
         if (command.eligible && inHitBounds(point, command.bounds))
-          result = { kind: 'person', id: command.id }
+          result = { kind: command.kind, id: command.id }
         break
       case 'model':
         if (candidates.has(command.id) && inHitTriangle(point, command.points)) {

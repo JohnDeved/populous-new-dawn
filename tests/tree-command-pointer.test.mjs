@@ -142,3 +142,29 @@ test('authored model geometry resolves through ScenePicking into pointer command
   pointerUp(scene, { ...event, buttons: 0 })
   assert.equal(brave.tree, null, 'hidden model must use existing terrain command, not retain tree identity')
 })
+
+test('actual submitted loose-log Sprite reaches existing command through public pointer down/up', async t => {
+  const THREE = await import('three')
+  const { ScenePicking } = await import('../app/scene-picking.ts')
+  const { world, brave, tree, scene, click } = fixture(t)
+  tree.model = 11; tree.logs = 1
+  const group = new THREE.Group(), sprite = new THREE.Sprite(new THREE.SpriteMaterial())
+  t.after(() => sprite.material.dispose())
+  sprite.scale.set(17,11,1); sprite.center.set(.5,0); group.add(sprite)
+  group.userData = { point: tree, sprite }
+  scene.decorations = new THREE.Group(); scene.decorations.add(group)
+  scene.objects = new THREE.Group(); scene.unitMeshes = new Map(); scene.frame = 1
+  scene.camera = new THREE.Camera()
+  Object.assign(scene.view, {
+    center: {x:0,y:0}, rawCenter:{x:0,y:0}, projection:{width:800,height:600},
+    screen:()=>({x:0,y:0}),
+    painter:{source:()=>({bucket:10,cell:0,phase:0,object:-tree.id,face:0})},
+    pickSubmissionKey:()=>'', pickCandidates:()=>[], resolvePickCandidates:()=>null,
+  })
+  scene.picking = new ScenePicking(scene)
+  assert.equal(scene.picking.pickPerson({clientX:400,clientY:300}),null)
+  assert.equal(liveCommandContext(world,tree).model,7)
+  click()
+  assert.equal(scene.picking.lastKind,'resource')
+  assert.equal(brave.tree,tree.id)
+})
