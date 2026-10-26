@@ -1,3 +1,4 @@
+import { validAngelPresentation } from './angel-presentation.ts'
 import { validTornadoAppearance } from './tornado-appearance.ts'
 import { applySpellTestCheat, CHEAT_SAVE_NOTICE, type SpellTestCheat } from './spell-test-cheats.ts'
 import { worldEnvironment } from './world-environment.ts'
@@ -82,7 +83,11 @@ function requireCurrentCheckpoint(world: World) {
     !Array.isArray(world.respawnPoints) ||
     !Number.isInteger(world.outcome.level) ||
     world.effects.some(
-      effect => effect.tornado && !effect.tornado.particles.every(validTornadoAppearance)
+      effect =>
+        (effect.tornado && !effect.tornado.particles.every(validTornadoAppearance)) ||
+        (effect.angel &&
+          'presentation' in effect.angel &&
+          !validAngelPresentation(effect.angel.presentation))
     )
   )
     throw new RangeError('Checkpoint is incompatible with this development version')

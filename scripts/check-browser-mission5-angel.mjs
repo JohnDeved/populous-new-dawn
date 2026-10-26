@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { bindGame, effectPixels, openGame } from './browser-game.mjs'
+import { witnessAngelStrike } from './angel-strike-witness.mjs'
 
 const artifactDir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? 'work/orchestration/worker5-22-static157-recovery/browser')
 mkdirSync(artifactDir, { recursive: true })
@@ -342,7 +343,7 @@ try {
     assert.equal(animation.frames[i], (animation.frames[i - 1] + 1) % 12)
   assert.equal(new Set(animation.geometries.map(points => JSON.stringify(points))).size, 12)
   assert.equal(animation.pauseHeld && animation.sameTurn && animation.sameRandom, true)
-  stage('controlled presentation-only loop (later model 62 transition unresolved)', {
+  stage('controlled initial model 69 presentation-only loop', {
     model: 69, frames: animation.frames, pauseHeld: animation.pauseHeld,
     sameTurn: animation.sameTurn, sameRandom: animation.sameRandom,
   })
@@ -403,13 +404,15 @@ try {
   assert.ok(running.samples.some(sample => sample.lifetime < running.before.lifetime))
   stage('ordinary RAF gameplay observation (not native timing parity)', running)
 
-  const combat = await page.evaluate(async angelId => {
+  const strikeWitness = await witnessAngelStrike(page, reward.angel.id, artifactDir, stage)
+  const combat = await page.evaluate(async ({angelId, strikeTarget}) => {
     const scene = globalThis.testScene,
       world = scene.world,
       { advanceGame } = await import('/app/game-clock.ts'),
       angel = world.effects.find(effect => effect.id === angelId)
+    world.paused = false
     world.speed = 1
-    let target = null
+    let target = strikeTarget
     for (let frame = 0; frame < 1200; frame++) {
       advanceGame(world, scene.gameClock, 1 / 24)
       target ??= angel.angel.target
@@ -436,7 +439,7 @@ try {
       cleanupCue: world.sounds.some(sound => sound.cue === 0xb2),
       meshRemoved: !scene.fxMeshes.has(angel.id),
     }
-  }, reward.angel.id)
+  }, { angelId: reward.angel.id, strikeTarget: strikeWitness.target })
   assert.ok(combat.target)
   assert.deepEqual(
     {

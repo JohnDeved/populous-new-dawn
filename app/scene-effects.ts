@@ -1,4 +1,4 @@
-import { angelPositions } from './angel-presentation.ts'
+import { angelPosePositions, INITIAL_ANGEL_POSE } from './angel-presentation.ts'
 import { makeTornado, drawTornado } from './scene-tornado.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
@@ -175,7 +175,7 @@ export function makeFx(scene: GameScene, f: Effect) {
   if (f.angel) {
     g.name = 'angel-of-death'
     // Native class 6/model 8 starts with original model 69, not a Warrior sprite.
-    // Later model 62 movement transitions remain outside this bounded adapter.
+    // Strike requests can switch to model 62; seeking-flight ownership remains unported.
     g.add(nativeModel(69, 2, 4, false, scene.environment))
     return g
   }
@@ -349,19 +349,29 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.angel) {
-    const mesh = g.children[0] as THREE.Mesh,
-      frame = f.angel.presentation?.displayedFrame ?? 0
-    if (mesh.userData.angelFrame !== frame) {
+    const pose = f.angel.presentation?.displayedPose ?? INITIAL_ANGEL_POSE
+    let mesh = g.children[0] as THREE.Mesh
+    if (mesh.userData.nativeModel !== pose.object) {
+      // 62/69 have different UVs, tiles and depth biases despite equal topology.
+      // Release only this owned mesh/material; the shared atlas remains alive.
+      mesh.removeFromParent()
+      scene.releaseGroup(mesh)
+      mesh = nativeModel(pose.object, 2, 4, false, scene.environment)
+      g.add(mesh)
+    }
+    const positions = angelPosePositions(pose)
+    if (mesh.userData.angelPositions !== positions) {
       const position = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
-      position.copyArray(angelPositions(frame))
+      position.copyArray(positions)
       position.needsUpdate = true
       mesh.geometry.computeBoundingSphere()
       mesh.geometry.computeBoundingBox()
-      mesh.userData.angelFrame = frame
+      mesh.userData.angelPositions = positions
     }
+    mesh.userData.angelFrame = f.angel.presentation?.displayedFrame ?? 0
     g.userData.nativeHeading = Math.round(((Math.PI - f.angel.heading) * 1024) / Math.PI) & 2047
     // Retain the existing bounded death timer; native movement/tilt/roll and
-    // model-transition ownership are not inferred from these browser phases.
+    // seeking-flight model ownership are not inferred from browser phases.
     const scale = f.angel.phase === 'dying' ? Math.max(0, f.angel.timer / 16) : 1
     mesh.userData.nativeSize = Math.trunc(160 * scale)
     return

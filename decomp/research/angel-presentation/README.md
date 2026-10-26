@@ -1,6 +1,8 @@
 # Initial Angel attachment: real mesh instead of Warrior artwork
 
-Scope: a bounded presentation correction for #27, not complete Angel parity.
+Scope: the initial-model checkpoint in PR #823, not complete Angel parity.
+The subsequent bounded strike extension is documented in [strike.md](strike.md);
+statements below describe the initial checkpoint rather than that extension.
 
 ## Original source identity
 
