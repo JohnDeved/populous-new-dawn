@@ -242,3 +242,20 @@ test('recoil state is refresh-independent and pause preserves its complete curre
   advanceGame(world, timing, 1 / 24)
   assert.deepEqual(world.units, landPaused.units, 'native land pause freezes recoil owner')
 })
+
+test('coexisting native attack and recoil markers retain one physical render owner across fight phases and current checkpoints', () => {
+  const { world, unit } = suppliedRecoil('shaman', true)
+  unit.fight.nativeAttackAnimation = true
+  processBattles(world)
+  assert.equal(unit.fight.nativeRecoilAnimation, true)
+  // Explicit branch-ownership fixture, not an ordinary encounter or browser run.
+  for (const action of ['recoil', 'push', 'approach', 'attack']) {
+    unit.fight.action = action
+    assert.equal(unitRenderAnimationSource(unit), unit.fight.motion)
+    const restored = migrateCheckpoint(structuredClone(world))
+    const actor = restored.units.find(actor => actor.id === unit.id)
+    assert.equal(actor.fight.nativeAttackAnimation, true)
+    assert.equal(actor.fight.nativeRecoilAnimation, true)
+    assert.equal(unitRenderAnimationSource(actor), actor.fight.motion)
+  }
+})

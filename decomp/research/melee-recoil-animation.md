@@ -71,8 +71,35 @@ raw checks and the baseline failure are retained with the implementation handoff
 Attack choice, damage, duration, RNG and push physics are not edited. Broader
 gameplay parity still requires the standard gates and independent review.
 
-No original executable was run, no local browser was launched, and no fixture,
-golden, imported art, native export or existing melee browser witness was changed.
-Full check/build and actual rendered browser acceptance remain separate gates.
+At the original implementation checkpoint, no original executable or local browser
+was run, and the existing melee browser witness was unchanged. The October 26
+integration adds an explicit recoil mode to that maintained witness, retaining its
+default attack behavior and ordinary public Green Shaman20 route. No fixture,
+golden, imported art or native export is changed. Full check/build and actual
+rendered browser acceptance remain separate gates.
 Other fallback animation families and absolute original wall-clock calibration
 remain open under #214.
+
+## Separate current recoil browser witness
+
+`node scripts/local-render/harness.mjs --game-root <exact checkout> --scenario
+<exact checkout>/scripts/tutorial-browser/melee-recoil.mjs --output <fresh output>
+--browser <verified official browser> --timeout 180000` invokes the existing
+public Mission 2 route separately. It adds no hosted job and does not consume or
+remove the original gameplay/attack/corpse workload. The recoil episode retains
+the existing 75-second case limit within that outer envelope.
+
+The observer waits only for the first processed recoil entry, after any pending
+action assignment. It binds the original Shaman row9/step0/five-frame source,
+first physical person, and native four-turn knockback or seven-turn ordinary
+countdown. It requires every pre-expiry logical phase, exact expiry to push or
+approach, and the first four distinct same-frame canvas crop slots. A seven-turn
+episode observes the five-frame loop; a four-turn episode does not claim that
+loop or subsequent push physics. Missing entry/expiry/phase or crop evidence
+fails rather than selecting a later favorable episode.
+
+Supplied-observer tests exercise both duration branches and invalid identities,
+phases, pixels metadata and late/changed/missed entries; they are not browser
+execution. Current checkpoint tests also cover coexisting attack/recoil markers
+retaining one physical render owner. Actual rendered screenshots and independent
+review remain required before browser acceptance.
