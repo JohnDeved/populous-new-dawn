@@ -49,7 +49,7 @@ and current checkpoint continuation retain the latch.
 simplified browser Angel lifecycle. It is not the correct native model for every
 later movement state.** In particular `004ddb30` selects 62 for native movement
 mode 3, or controller state 6/substate 2, except controller states 7/8. Native ordinary
-chase enters mode 2 and then mode 3 after 2 visits (`004db980` state 5/substate 1).
+chase enters mode 2 and then mode 3 after 2 visits (`004db980` raw controller state 6/substate 1).
 The browser's broad `seeking` and `striking` phases do not own those fields; this
 patch does not invent a 62/69 mapping from them. Native transition keys 76–78,
 attack-specific pose overrides, tilt/roll and exact chase/landing physics remain
