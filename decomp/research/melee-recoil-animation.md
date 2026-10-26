@@ -103,3 +103,15 @@ phases, pixels metadata and late/changed/missed entries; they are not browser
 execution. Current checkpoint tests also cover coexisting attack/recoil markers
 retaining one physical render owner. Actual rendered screenshots and independent
 review remain required before browser acceptance.
+
+The 2026-10-26 static Tutorial capture at `d5034404` passed the logical first
+recoil observer (turns 379–385), but independent pixel review rejected artwork
+acceptance: a foreground hut obscured the actor. That machine pass is not a
+visual pass. The recoil-only setup now uses two public 512-pixel right-button
+drags while paused before minimap framing, declaring a native half-turn (1024
+of 2048 angle units). It checks actual heading, unchanged camera position and
+route gameplay state, then uses the same target 20 and first-episode observer.
+No hut, actor, world state or later episode is substituted. A new unobscured
+capture remains required. The standalone wrapper also closes only its known
+unused nonpersistent local preflight page before its scenario-owned context;
+persistent-profile use is rejected, and default hosted attack behavior is unchanged.

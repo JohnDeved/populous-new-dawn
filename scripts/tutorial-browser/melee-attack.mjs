@@ -70,6 +70,17 @@ export function assertMeleeRouteReady(state, paused = true) {
   assert.equal(state.camera.resultActive, 0); assert.equal(state.inputMask, 0)
 }
 
+// Declared recoil-only view from the opposite side of the foreground hut.
+// Two ordinary 512px right drags equal 1024 native angle units (half a turn).
+export async function rotateRecoilCamera(page) {
+  for (let drag = 0; drag < 2; drag++) {
+    await page.mouse.move(200, 200)
+    await page.mouse.down({ button: 'right' })
+    try { await page.mouse.move(712, 200) }
+    finally { await page.mouse.up({ button: 'right' }) }
+  }
+}
+
 export async function shiftClickMeleeTarget(page, point) {
   try {
     await page.keyboard.down('Shift')
@@ -387,7 +398,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
   if (recoil) {
-    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry')
+    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited.'
     report.limits.push('The first observed recoil is accepted only from its exact entry, using original four-turn knockback or seven-turn Shaman duration; no later favorable episode or native-executable comparison is substituted.')
     for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts'])
       report.source[path] = sha256(readFileSync(resolve(root, path)))
@@ -451,6 +462,25 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out to ordinary bird’s-eye', () => page.keyboard.press('-'))
     await settle()
+    if (recoil) {
+      const before = await page.evaluate(readMeleeRouteState)
+      assertMeleeRouteReady(before)
+      await action('Two public 512px right drags: fixed half-turn before framing and attack', () => rotateRecoilCamera(page))
+      await settle()
+      const after = await page.evaluate(readMeleeRouteState)
+      assertMeleeRouteReady(after)
+      assert.equal(after.camera.position.angle, (before.camera.position.angle + 1024) & 2047)
+      assert.equal(after.camera.position.x, before.camera.position.x)
+      assert.equal(after.camera.position.y, before.camera.position.y)
+      const gameplay = state => ({ turn: state.turn, selected: state.selected, paused: state.paused,
+        speed: state.speed, inputMask: state.inputMask,
+        actor: { id: state.actor.id, hp: state.actor.hp, target: state.actor.target, fight: state.actor.fight },
+        target: { id: state.target.id, hp: state.target.hp, target: state.target.target, fight: state.target.fight } })
+      assert.deepEqual(gameplay(after), gameplay(before), 'Paused camera setup must preserve route gameplay state')
+      report.recoilCamera = { method: 'two public right-button drags (200,200) to (712,200)',
+        nativeAngleDelta: 1024, before, after, gameplayUnchanged: true }
+      save()
+    }
     report.eligibility = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.eligibility)
     const setup = await page.evaluate(() => {
