@@ -1,3 +1,4 @@
+import type { AngelPresentation } from './angel-presentation.ts'
 import type { SecondaryEffects } from './secondary-effects.ts'
 import type { CapacityPolicy } from './capacity-policy.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
@@ -109,6 +110,8 @@ export type Fight = {
   knockback?: boolean
   // Only attacks entered with a native pose own it; legacy active saves keep fallback.
   nativeAttackAnimation?: boolean
+  // A processed recoil entry owns its phase through the following push/approach.
+  nativeRecoilAnimation?: boolean
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
@@ -159,6 +162,7 @@ export type Projectile = {
   fireball?: boolean
 }
 export type AngelState = {
+  presentation?: AngelPresentation
   phase: 'seeking' | 'striking' | 'dying'
   target: number | null
   heading: number

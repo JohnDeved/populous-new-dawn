@@ -8,6 +8,8 @@ import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
 import { spriteDirection } from '../../app/projection.ts'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
+import { recoilRunningProtocol, validateRecoilObservation } from './melee-recoil-evidence.mjs'
+import { installRecoilCameraFollow } from './melee-recoil-camera.mjs'
 
 export const meleeAttackLimitMs = 75000
 // A fixed functional artwork workload, separate from performance frame recording.
@@ -16,15 +18,18 @@ const meleeArtworkViewport = { width: 960, height: 720 }
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
-export function meleeCameraInput(minimap) {
+export function meleeCameraInput(minimap, recoil = false) {
+  assert.equal(typeof recoil, 'boolean')
   const { width, height, rect, center, heading } = minimap
   assert.ok(Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0)
   assert.ok([rect.x, rect.y, rect.width, rect.height].every(Number.isFinite) && rect.width > 0 && rect.height > 0)
   const nearest = minimapInput(minimap, minimapPick, () => true)
   assert.ok(nearest, 'Authored target must be reachable through public minimap camera input')
   // One fixed setup offset frames the target above the paused badge and the
-  // retained approach corridor inside the view. This is not live camera pursuit.
-  const offsetBacking = { x: 0, y: 12 }, backing = {
+  // retained approach corridor inside the view. Recoil's opposite heading uses
+  // the nearest target center (zero offset), avoiding that corridor's top-edge
+  // clipping after the declared half-turn. This is not live camera pursuit.
+  const offsetBacking = { x: 0, y: recoil ? 0 : 12 }, backing = {
     x: (nearest.x - rect.x) / rect.width * width + offsetBacking.x,
     y: (nearest.y - rect.y) / rect.height * height + offsetBacking.y,
   }
@@ -67,6 +72,17 @@ export function assertMeleeRouteReady(state, paused = true) {
   assert.equal(state.camera.overview, false); assert.equal(state.drawMode, 0)
   assert.equal(state.camera.transitioning, false); assert.equal(state.camera.active, 0)
   assert.equal(state.camera.resultActive, 0); assert.equal(state.inputMask, 0)
+}
+
+// Declared recoil-only view from the opposite side of the foreground hut.
+// Two ordinary 512px right drags equal 1024 native angle units (half a turn).
+export async function rotateRecoilCamera(page) {
+  for (let drag = 0; drag < 2; drag++) {
+    await page.mouse.move(200, 200)
+    await page.mouse.down({ button: 'right' })
+    try { await page.mouse.move(712, 200) }
+    finally { await page.mouse.up({ button: 'right' }) }
+  }
 }
 
 export async function shiftClickMeleeTarget(page, point) {
@@ -113,14 +129,15 @@ export async function meleeTargetPoint(page, bounds, attempts, save) {
 }
 
 // Expected artwork comes from retained tables, never from the observed pose.
-export function meleeAttackMapping() {
+export function meleeAttackMapping(recoil = false) {
   const rules = JSON.parse(readFileSync(resolve(root, 'app/original-rules.json')))
   const units = JSON.parse(readFileSync(resolve(root, 'app/original-units.json')))
-  return Object.fromEntries(Object.entries({ attack: 10, strike: 8, special: 16 }).map(([action, row]) => {
+  return Object.fromEntries(Object.entries(recoil ? { recoil: 9 } : { attack: 10, strike: 8, special: 16 }).map(([action, row]) => {
     const [object, draw] = rules.animationObjects[rules.personAnimationObjects[row * 9 + 7]]
     return [`shaman:${action}`, { object, draw, step: rules.animationDescriptors[draw].step,
       frameCount: units.frameCounts[object],
-      duration: (rules.animationDescriptors[draw].step + 1) * units.frameCounts[object],
+      duration: recoil ? 7 : (rules.animationDescriptors[draw].step + 1) * units.frameCounts[object],
+      ...(recoil ? { knockbackDuration: 4 } : {}),
       directions: units.shamanSources[object] }]
   }))
 }
@@ -128,13 +145,15 @@ export function meleeAttackMapping() {
 // A separate RAF reads after the Scene's already-scheduled ordinary render.
 // It does not mutate World, advance time, render, replace a game method or issue
 // a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
-export function installMeleeFrameObserver(originalMapping) {
+export function installMeleeFrameObserver(input) {
+  const recoil = input?.mode === 'recoil', originalMapping = recoil ? input.mapping : input
+  const admitted = action => recoil ? action === 'recoil' : ['attack', 'strike', 'special'].includes(action)
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement, visitLimit = 75 * 240
   // These independent original tables arrive from Node, not the observed pose,
   // countdown or a game getter. Keep a private copy for the entire episode.
   const mapping = structuredClone(originalMapping)
-  const result = { protocol: 'running-original-entry-v2', samples: [], crops: [], visits: [], visitLimit,
+  const result = { protocol: recoil ? 'running-native-recoil-entry-v1' : 'running-original-entry-v2', samples: [], crops: [], visits: [], visitLimit,
     error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null }
   let raf, stopped = false, firstPerson = null, firstEntry = null
   const cropKeys = new Set(), copies = []
@@ -204,17 +223,24 @@ export function installMeleeFrameObserver(originalMapping) {
         f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
-      if (!firstEntry && fight && ['attack', 'strike', 'special'].includes(fight.action)) {
+      // A recoil action can be assigned after this actor's controller visit.
+      // Wait only for its first processed entry, never skip a processed episode.
+      const pendingRecoil = recoil && fight?.action === 'recoil' && fight.remaining === undefined
+      if (!firstEntry && fight && admitted(fight.action) && !pendingRecoil) {
         const original = mapping?.[`${unit.kind}:${fight.action}`]
         if (!original || original.step !== 0 || !Number.isSafeInteger(original.frameCount) ||
-          original.frameCount < 2 || original.duration !== (original.step + 1) * original.frameCount ||
+          original.frameCount < 2 || original.duration !== (recoil ? 7 : (original.step + 1) * original.frameCount) ||
           !Number.isSafeInteger(fight.started) || fight.started > world.turn)
           throw Error('First melee entry lacks an independent original duration')
+        if (recoil && (world.turn !== fight.started || original.knockbackDuration !== 4))
+          throw Error('First observed recoil must be its exact entry with original durations; no later replacement')
+        const duration = recoil && fight.knockback === true ? original.knockbackDuration : original.duration
         result.firstAttackTurn = world.turn
         firstPerson = fight.motion
         firstEntry = Object.freeze({ id: unit.id, kind: unit.kind, action: fight.action, started: fight.started,
-          fightGroup: fight.group, opponent: fight.opponent, duration: original.duration,
-          endExclusive: fight.started + original.duration - 1 })
+          fightGroup: fight.group, opponent: fight.opponent, duration,
+          ...(recoil ? { knockback: fight.knockback === true } : {}),
+          endExclusive: fight.started + duration - 1 })
         result.entry = firstEntry
       }
       if (firstEntry) {
@@ -227,7 +253,7 @@ export function installMeleeFrameObserver(originalMapping) {
           // Entry initializes remaining=D-1; expiry decrements it to zero,
           // changes to approach and continues without selecting another attack.
           // Actor life and all uninterrupted-running guards still apply here.
-          if (fight.action !== 'approach' || fight.remaining !== undefined)
+          if (fight.action !== (recoil && entry.knockback ? 'push' : 'approach') || fight.remaining !== undefined)
             throw Error('First melee entry did not reach its native expiry transition')
           const person = fight.motion
           result.endpoint = { turn: world.turn, stamp: scene.renderer.info.render.frame,
@@ -235,6 +261,7 @@ export function installMeleeFrameObserver(originalMapping) {
             hp: unit.hp, alive: true, action: fight.action, started: fight.started,
             fightGroup: fight.group, opponent: fight.opponent, remaining: fight.remaining ?? null,
             animation: fight.animation, nativeAttackAnimation: fight.nativeAttackAnimation === true,
+            ...(recoil ? { nativeRecoilAnimation: fight.nativeRecoilAnimation === true, knockback: fight.knockback === true } : {}),
             personId: person.id, personState: person.state, personModel: person.model, personClass: person.class,
             personIdentityMatch: person === firstPerson, workFlags: person.workFlags,
             object: person.object, draw: person.draw, f1: person.f1, f2: person.f2, logicalStamp: person.stamp,
@@ -246,8 +273,8 @@ export function installMeleeFrameObserver(originalMapping) {
         }
         if (fight.action !== entry.action) throw Error('Melee observation changed its first attack before expiry')
       }
-      if (fight && ['attack', 'strike', 'special'].includes(fight.action)) {
-        diagnostic.stage = 'attack'
+      if (fight && admitted(fight.action) && !pendingRecoil) {
+        diagnostic.stage = recoil ? 'recoil' : 'attack'
         const person = fight.motion, group = scene.unitMeshes.get(54)
         if (!person || !group) throw Error('Attack lacks physical person or rendered group')
         const layers = (group.userData.layers ?? []).filter(layer => layer.visible)
@@ -258,6 +285,7 @@ export function installMeleeFrameObserver(originalMapping) {
           opponent: fight.opponent, participants: [...(world.fights?.find(group => group.id === fight.group)?.members ?? [])],
           object: person.object, draw: person.draw, f1: person.f1, f2: person.f2,
           logicalStamp: person.stamp, nativeAttackAnimation: fight.nativeAttackAnimation === true,
+          ...(recoil ? { nativeRecoilAnimation: fight.nativeRecoilAnimation === true, knockback: fight.knockback === true } : {}),
           frame: group.userData.frame, flip: group.userData.frameFlip,
           heading: unit.heading, cameraBearing: scene.cameraBearing,
           visible: group.visible, submittedLayers, canvasConnected: canvas.isConnected,
@@ -271,7 +299,8 @@ export function installMeleeFrameObserver(originalMapping) {
           // This records the reviewed pure source-branch contract, not a
           // direct call/observation of the private visual getter's return.
           fightMotionSourceAdmitted: !unit.flight && (
-            fight.nativeAttackAnimation === true && ['attack', 'strike', 'special', 'approach'].includes(fight.action) ||
+            (recoil ? fight.nativeRecoilAnimation === true && fight.action === 'recoil' :
+              fight.nativeAttackAnimation === true && ['attack', 'strike', 'special', 'approach'].includes(fight.action)) ||
             ['walk', 'idle'].includes(fight.animation) || person === unit.native && person.state !== 10),
           renderedDraw: group.userData.draw,
         })
@@ -312,7 +341,8 @@ export function installMeleeFrameObserver(originalMapping) {
               sample.bodyInCanvas = bounds.x >= 0 && bounds.y >= 0 &&
                 bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
               sample.cropOverlayClear = overlays.length === 0
-              sample.cropVisibility = { bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
+              sample.cropVisibility = { bodyBounds: { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height },
+                canvasRect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height }, bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
               // Snapshot the current canvas in this callback, never from a
               // later render. Color scanning and PNG encoding wait until retain().
               const started = performance.now(), copy = document.createElement('canvas')
@@ -326,7 +356,7 @@ export function installMeleeFrameObserver(originalMapping) {
                 copy.width = 0; copy.height = 0
                 throw error
               } finally { diagnostic.cropCopyMs = performance.now() - started }
-              sample.cropFile = `melee-attack-frame-${result.crops.length}.png`
+              sample.cropFile = `${recoil ? 'melee-recoil' : 'melee-attack'}-frame-${result.crops.length}.png`
               const crop = { filename: sample.cropFile, turn: world.turn, stamp: sample.stamp,
                 frame: sample.frame, object: sample.object, f2: sample.f2,
                 phase: sample.phase, clip: { x, y, width, height },
@@ -349,13 +379,15 @@ export function installMeleeFrameObserver(originalMapping) {
   raf = requestAnimationFrame(visit)
 }
 
-export default async function meleeAttack({ browser, url, output, expectedRevision }) {
+export default async function meleeAttack({ browser, url, output, expectedRevision, recoil = false }) {
+  assert.equal(typeof recoil, 'boolean')
+  const label = recoil ? 'melee-recoil' : 'melee-attack'
   const context = await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = await context.newPage()
   page.setDefaultTimeout(10000)
-  const report = { schema: 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: 2,
+  const report = { schema: recoil ? 'populous-new-dawn/ordinary-recoil-artwork' : 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: recoil ? 1 : 2,
     status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
-    protocol: meleeRunningProtocol,
+    protocol: recoil ? recoilRunningProtocol : meleeRunningProtocol,
     method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; uninterrupted normal RAF through the first observed attack entry and its independently mapped exact native expiry, with same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
       'Fixed 960x720/DPR1 functional artwork capture; performance recording keeps its separate viewport. No improvement in frame cadence is assumed.',
@@ -370,7 +402,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       'scripts/tutorial-browser/melee-attack-running-evidence.mjs',
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
-  const save = () => writeFileSync(resolve(output, 'melee-attack.json'), JSON.stringify(report, null, 2) + '\n')
+  if (recoil) {
+    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry').replace('plus one fixed (0,+12) backing-pixel corridor offset', 'with zero offset at the nearest target center') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited. After the actual order, the supported camera focus follows only authored actor54 after each observer sample to keep intercepted combat in view; tooltip state is reset and camera-relative terrain lightView follows actor54 through that API; combat orders, RNG and actor state are unchanged.'
+    report.limits.push('The first observed recoil is accepted only from its exact entry, using original four-turn knockback or seven-turn Shaman duration; no later favorable episode or native-executable comparison is substituted.')
+    for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts', 'scripts/tutorial-browser/melee-recoil-camera.mjs'])
+      report.source[path] = sha256(readFileSync(resolve(root, path)))
+  }
+  const save = () => writeFileSync(resolve(output, `${label}.json`), JSON.stringify(report, null, 2) + '\n')
   const action = async (name, perform) => {
     report.actions.push({ name, startedAt: new Date().toISOString() }); save()
     await perform()
@@ -393,7 +431,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
         'Observer crop direction must match the retained projection function')
     for (const crop of observation.crops) {
       if (crop.error) continue // Keep other immutable crops and the failed timeline.
-      assert.match(crop.filename, /^melee-attack-frame-[0-3]\.png$/)
+      assert.match(crop.filename, recoil ? /^melee-recoil-frame-[0-3]\.png$/ : /^melee-attack-frame-[0-3]\.png$/)
       assert.match(crop.png, /^data:image\/png;base64,/)
       const sample = observation.samples.find(sample => sample.cropFile === crop.filename)
       assert.ok(sample, 'Every canvas crop must belong to an actual sampled native frame')
@@ -429,6 +467,25 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out to ordinary bird’s-eye', () => page.keyboard.press('-'))
     await settle()
+    if (recoil) {
+      const before = await page.evaluate(readMeleeRouteState)
+      assertMeleeRouteReady(before)
+      await action('Two public 512px right drags: fixed half-turn before framing and attack', () => rotateRecoilCamera(page))
+      await settle()
+      const after = await page.evaluate(readMeleeRouteState)
+      assertMeleeRouteReady(after)
+      assert.equal(after.camera.position.angle, (before.camera.position.angle + 1024) & 2047)
+      assert.equal(after.camera.position.x, before.camera.position.x)
+      assert.equal(after.camera.position.y, before.camera.position.y)
+      const gameplay = state => ({ turn: state.turn, selected: state.selected, paused: state.paused,
+        speed: state.speed, inputMask: state.inputMask,
+        actor: { id: state.actor.id, hp: state.actor.hp, target: state.actor.target, fight: state.actor.fight },
+        target: { id: state.target.id, hp: state.target.hp, target: state.target.target, fight: state.target.fight } })
+      assert.deepEqual(gameplay(after), gameplay(before), 'Paused camera setup must preserve route gameplay state')
+      report.recoilCamera = { method: 'two public right-button drags (200,200) to (712,200)',
+        nativeAngleDelta: 1024, before, after, gameplayUnchanged: true }
+      save()
+    }
     report.eligibility = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.eligibility)
     const setup = await page.evaluate(() => {
@@ -454,15 +511,15 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
     assert.deepEqual(setup.environment.viewport, meleeArtworkViewport)
     assert.equal(setup.environment.dpr, 1)
-    const camera = report.cameraInput = meleeCameraInput(setup.minimap)
+    const camera = report.cameraInput = meleeCameraInput(setup.minimap, recoil)
     save()
     assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)
-    await action('Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
+    await action(recoil ? 'Minimap camera at nearest Green Shaman20 center, zero offset' : 'Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
     await settle()
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)
-    report.mapping = meleeAttackMapping(); save()
-    await page.evaluate(installMeleeFrameObserver, report.mapping)
+    report.mapping = meleeAttackMapping(recoil); save()
+    await page.evaluate(installMeleeFrameObserver, recoil ? { mode: 'recoil', mapping: report.mapping } : report.mapping)
     await button('Resume game')
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.afterResume = await page.evaluate(readMeleeRouteState); save()
@@ -495,7 +552,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'Public attack must record an issued command on the live logical timeline')
-    await page.waitForFunction(() => window.__pndMeleeObservation.result.done, null, { timeout: meleeAttackLimitMs })
+    if (recoil) await page.evaluate(installRecoilCameraFollow, { order: report.order })
+    await page.waitForFunction(() => window.__pndMeleeObservation.result.done || window.__pndRecoilCameraFollow?.result.error, null, { timeout: meleeAttackLimitMs })
+    if (recoil) {
+      report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow.stop('observer-terminal'))
+      assert.equal(report.cameraFollow.error, null)
+      assert.ok(report.cameraFollow.visits.length > 0, 'Declared actor camera follow must execute')
+    }
     await retainObservation()
     assert.ok(report.observation.samples.every(sample => sample.turn >= report.order.lastOrderTurn && sample.stamp > report.order.stamp),
       'Every melee sample must follow the actual public attack command')
@@ -503,16 +566,16 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     for (const crop of report.observation.crops)
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.done, true)
-    report.acceptance = validateMeleeRunningObservation(report.observation, report.mapping)
+    report.acceptance = (recoil ? validateRecoilObservation : validateMeleeRunningObservation)(report.observation, report.mapping)
     await button('Pause game')
-    await page.screenshot({ path: resolve(output, 'melee-attack-context.png') })
+    await page.screenshot({ path: resolve(output, `${label}-context.png`) })
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()
     if (!page.isClosed()) {
       try { report.failureState = await page.evaluate(readMeleeRouteState); save() }
       catch (diagnostic) { report.failureStateError = String(diagnostic) }
       try {
-        const filename = 'melee-attack-failure.png'
+        const filename = `${label}-failure.png`
         await page.screenshot({ path: resolve(output, filename), timeout: 2000 })
         report.failureScreenshot = { filename, sha256: sha256(readFileSync(resolve(output, filename))) }
       } catch (diagnostic) { report.failureScreenshotError = String(diagnostic) }
@@ -520,12 +583,16 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   finally {
     clearTimeout(timer)
+    if (recoil && !page.isClosed()) {
+      try { report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow?.stop('cleanup') ?? null) }
+      catch (error) { report.errors.push(`Camera follow cleanup: ${error}`) }
+    }
     try { await retainObservation() }
     catch (error) { report.errors.push(`Observer cleanup: ${error}`) }
     try { await context.close(); report.contextClosed = true }
     catch (error) { report.errors.push(`Context cleanup: ${error}`) }
     report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'; save()
   }
-  assert.equal(report.status, 'passed', 'Ordinary melee browser case failed; see melee-attack.json')
+  assert.equal(report.status, 'passed', `Ordinary ${label} browser case failed; see ${label}.json`)
   return report
 }

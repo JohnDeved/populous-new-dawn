@@ -2,6 +2,15 @@
   "version": 1,
   "owners": [
     {
+      "id": "initial-angel-presentation",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-angel-presentation.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-angel-presentation.py", "app/angel-presentation.ts", "app/model-resources.ts"],
+      "inputs": ["decomp/research/angel-presentation/README.md", "scripts/import-original.py"],
+      "outputs": [{ "path": "app/original-angel-presentation.json", "type": "file", "tracked": true, "protected": true }],
+      "recording": "Only hash-verified original model 69 and keys 70–75, independently equal in object banks 2/6. Existing model catalogs, atlas and gameplay state remain unchanged. The missing movement-mode owner and model 62 transition are not inferred. --check is read-only."
+    },
+    {
       "id": "native-ui-archive-collection",
       "kind": "measurement",
       "generator": {

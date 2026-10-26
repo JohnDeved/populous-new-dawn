@@ -6,7 +6,7 @@ import {
   type MeleeAttack,
   meleeDuration,
   chooseMeleeAttack,
-  startMeleeAttackAnimation,
+  startMeleeActionAnimation,
 } from './melee.ts'
 import { nativeAngle, nativeStep, random, short } from './native-math.ts'
 import { nativePersonTribe, nativePersonModel } from './live-combat.ts'
@@ -58,10 +58,10 @@ export function applyUnitDamage(u: Unit, damage: number, mode = 0) {
   u.hp = Math.max(0, (Math.round(u.hp * 20) - amount) / 20)
   return true
 }
-function startAttackAnimation(w: World, u: Unit, action: MeleeAttack) {
+function startFightAnimation(w: World, u: Unit, action: MeleeAttack | 'recoil') {
   const person = u.fight?.motion
   if (!person) return false
-  startMeleeAttackAnimation(person, action, (_, object) =>
+  startMeleeActionAnimation(person, action, (_, object) =>
     setLivePersonAnimation(w, person, object)
   )
   return true
@@ -71,7 +71,7 @@ function meleeExchange(w: World, u: Unit, target: Unit, action: MeleeAttack) {
   // 0x518fb0 states 2/3/4; 0x4a39c0 calculates both damages before applying either.
   const damage = meleeDamage(u),
     counter = meleeDamage(target),
-    nativeAttackAnimation = startAttackAnimation(w, u, action)
+    nativeAttackAnimation = startFightAnimation(w, u, action)
   u.heading =
     Math.PI -
     (nativeAngle(Math.round((target.x - u.x) * 256), Math.round((target.z - u.z) * 256)) *
@@ -539,7 +539,8 @@ function processBattleRosters(
           f.remaining = meleeDuration(u.kind, f.action, f.knockback)
           f.started = w.turn
           f.animation = f.action
-          if (f.action !== 'recoil') f.nativeAttackAnimation = startAttackAnimation(w, u, f.action)
+          if (f.action === 'recoil') f.nativeRecoilAnimation = startFightAnimation(w, u, f.action)
+          else f.nativeAttackAnimation = startFightAnimation(w, u, f.action)
         }
         f.remaining = short(f.remaining - 1)
         if (f.remaining > 0) continue

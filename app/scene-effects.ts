@@ -1,3 +1,4 @@
+import { angelPositions } from './angel-presentation.ts'
 import { makeTornado, drawTornado } from './scene-tornado.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
@@ -173,11 +174,9 @@ export function makeFx(scene: GameScene, f: Effect) {
   }
   if (f.angel) {
     g.name = 'angel-of-death'
-    g.userData.layers = []
-    g.userData.owner = tribeForTeam(f.team!)
-    g.userData.draw = 15
-    g.userData.drawFlags = 2
-    g.userData.directions = nativeUnits.animations['blue-warrior'].stagger
+    // Native class 6/model 8 starts with original model 69, not a Warrior sprite.
+    // Later model 62 movement transitions remain outside this bounded adapter.
+    g.add(nativeModel(69, 2, 4, false, scene.environment))
     return g
   }
   if (f.unit) {
@@ -350,9 +349,21 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     return
   }
   if (f.angel) {
-    scene.animatePerson(g, f.angel.heading, g.userData.directions, f.age)
+    const mesh = g.children[0] as THREE.Mesh,
+      frame = f.angel.presentation?.displayedFrame ?? 0
+    if (mesh.userData.angelFrame !== frame) {
+      const position = mesh.geometry.getAttribute('position') as THREE.BufferAttribute
+      position.copyArray(angelPositions(frame))
+      position.needsUpdate = true
+      mesh.geometry.computeBoundingSphere()
+      mesh.geometry.computeBoundingBox()
+      mesh.userData.angelFrame = frame
+    }
+    g.userData.nativeHeading = Math.round(((Math.PI - f.angel.heading) * 1024) / Math.PI) & 2047
+    // Retain the existing bounded death timer; native movement/tilt/roll and
+    // model-transition ownership are not inferred from these browser phases.
     const scale = f.angel.phase === 'dying' ? Math.max(0, f.angel.timer / 16) : 1
-    g.scale.setScalar(scale)
+    mesh.userData.nativeSize = Math.trunc(160 * scale)
     return
   }
   if (f.unit) {
