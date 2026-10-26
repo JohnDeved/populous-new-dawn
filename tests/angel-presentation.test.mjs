@@ -84,6 +84,7 @@ test('pause and land-pause hold, JSON checkpoint continuation preserves exact ne
     assert.deepEqual(world, saved)
   }
   const { presentation, ...gameplay } = angel
+  assert.ok(presentation, 'Presentation visitor initialized the serialized latch')
   assert.deepEqual(gameplay, { phase: 'seeking', target: 91, heading: 0.75, timer: 0, lifetime: 2000 })
   assert.deepEqual(world.effects[1], { age: 7 })
 })

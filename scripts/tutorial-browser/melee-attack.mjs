@@ -9,6 +9,7 @@ import { minimapPick } from '../../app/minimap.ts'
 import { spriteDirection } from '../../app/projection.ts'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
 import { recoilRunningProtocol, validateRecoilObservation } from './melee-recoil-evidence.mjs'
+import { installRecoilCameraFollow } from './melee-recoil-camera.mjs'
 
 export const meleeAttackLimitMs = 75000
 // A fixed functional artwork workload, separate from performance frame recording.
@@ -340,7 +341,8 @@ export function installMeleeFrameObserver(input) {
               sample.bodyInCanvas = bounds.x >= 0 && bounds.y >= 0 &&
                 bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
               sample.cropOverlayClear = overlays.length === 0
-              sample.cropVisibility = { bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
+              sample.cropVisibility = { bodyBounds: { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height },
+                canvasRect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height }, bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
               // Snapshot the current canvas in this callback, never from a
               // later render. Color scanning and PNG encoding wait until retain().
               const started = performance.now(), copy = document.createElement('canvas')
@@ -401,9 +403,9 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
   if (recoil) {
-    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry').replace('plus one fixed (0,+12) backing-pixel corridor offset', 'with zero offset at the nearest target center') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited.'
+    report.method = report.method.replace('first observed attack entry', 'first observed recoil entry').replace('plus one fixed (0,+12) backing-pixel corridor offset', 'with zero offset at the nearest target center') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited. After the actual order, the supported camera focus follows only authored actor54 after each observer sample to keep intercepted combat in view; tooltip state is reset and camera-relative terrain lightView follows actor54 through that API; combat orders, RNG and actor state are unchanged.'
     report.limits.push('The first observed recoil is accepted only from its exact entry, using original four-turn knockback or seven-turn Shaman duration; no later favorable episode or native-executable comparison is substituted.')
-    for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts'])
+    for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts', 'scripts/tutorial-browser/melee-recoil-camera.mjs'])
       report.source[path] = sha256(readFileSync(resolve(root, path)))
   }
   const save = () => writeFileSync(resolve(output, `${label}.json`), JSON.stringify(report, null, 2) + '\n')
@@ -550,7 +552,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'Public attack must record an issued command on the live logical timeline')
-    await page.waitForFunction(() => window.__pndMeleeObservation.result.done, null, { timeout: meleeAttackLimitMs })
+    if (recoil) await page.evaluate(installRecoilCameraFollow, { order: report.order })
+    await page.waitForFunction(() => window.__pndMeleeObservation.result.done || window.__pndRecoilCameraFollow?.result.error, null, { timeout: meleeAttackLimitMs })
+    if (recoil) {
+      report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow.stop('observer-terminal'))
+      assert.equal(report.cameraFollow.error, null)
+      assert.ok(report.cameraFollow.visits.length > 0, 'Declared actor camera follow must execute')
+    }
     await retainObservation()
     assert.ok(report.observation.samples.every(sample => sample.turn >= report.order.lastOrderTurn && sample.stamp > report.order.stamp),
       'Every melee sample must follow the actual public attack command')
@@ -575,6 +583,10 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   finally {
     clearTimeout(timer)
+    if (recoil && !page.isClosed()) {
+      try { report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow?.stop('cleanup') ?? null) }
+      catch (error) { report.errors.push(`Camera follow cleanup: ${error}`) }
+    }
     try { await retainObservation() }
     catch (error) { report.errors.push(`Observer cleanup: ${error}`) }
     try { await context.close(); report.contextClosed = true }
