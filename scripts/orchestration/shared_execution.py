@@ -806,6 +806,58 @@ def process_ancestry(pid):
             'pgid': int(fields[2]), 'session': int(fields[3]), 'state': fields[0]}
 
 
+def open_proc_directory(pid):
+    require(type(pid) is int and pid > 0, 'Positive process PID required')
+    return os.open('/proc/' + str(pid), os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC | os.O_NOFOLLOW)
+
+
+def proc_text_at(directory, name):
+    # Fixed public/owned leaves only. Never turn a retained handle back into a
+    # numeric /proc pathname, including when the task exits during a read.
+    require(name in ('stat', 'status', 'statm'), 'Unsupported process text leaf')
+    fd = os.open(name, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW, dir_fd=directory)
+    stream = error = None
+    try:
+        stream = os.fdopen(fd, 'r')
+        fd = None  # The stream now owns this transient descriptor.
+        return stream.read()
+    except BaseException as failure:
+        error = failure
+        raise
+    finally:
+        try:
+            if stream is not None:
+                stream.close()
+            elif fd is not None:
+                os.close(fd)
+        except BaseException as close_error:
+            if error is None:
+                raise
+            error.add_note('Process text handle close failed: ' + str(close_error))
+
+
+def process_ancestry_at(pid, directory):
+    data = proc_text_at(directory, 'stat')
+    observed_pid = int(data.split(' ', 1)[0])
+    require(observed_pid == pid, 'Retained process stat PID differs')
+    fields = data.rsplit(')', 1)[1].split()
+    return {'pid': observed_pid, 'startTicks': int(fields[19]), 'ppid': int(fields[1]),
+            'pgid': int(fields[2]), 'session': int(fields[3]), 'state': fields[0]}
+
+
+def process_member_at(pid, directory):
+    row = process_ancestry_at(pid, directory)
+    status = dict(line.split(':', 1) for line in proc_text_at(directory, 'status').splitlines() if ':' in line)
+    row.update(rss=int(proc_text_at(directory, 'statm').split()[1]) * os.sysconf('SC_PAGE_SIZE'),
+               nspid=[int(value) for value in status['NSpid'].split()],
+               pidNamespace=os.readlink('ns/pid', dir_fd=directory))
+    try:
+        row['executable'] = os.readlink('exe', dir_fd=directory)
+    except FileNotFoundError:
+        row['executable'] = None
+    return row
+
+
 def ancestry_snapshot():
     rows = {}
     for path in Path('/proc').iterdir():
@@ -898,7 +950,8 @@ class OwnerWatch:
         self.namespace_roots = {}
         self.snapshot = snapshot
         self.parent = process_member(os.getpid())
-        self.known, self.history, self.pidfds = {}, {}, {}
+        self.known, self.history, self.pidfds, self.procdirs = {}, {}, {}, {}
+        self.handles_closed = False
         self.namespace_fds, self.direct_fds, self.namespaces = [], [], set()
         self.lock = threading.RLock()
         self.closed = threading.Event()
@@ -928,25 +981,44 @@ class OwnerWatch:
         require(self.failure is None, self.failure or 'Unknown observer failure')
 
     def pin_identity(self, row, phase):
-        """Census ancestry selects; fd plus matching reread validates before enrichment."""
+        """Directory, then pidfd, then fresh relative stat bind one kernel PID.
+
+        This does not prove census-era birth or relax any initial identity or
+        ancestry comparison. A fresh watcher never retrofits an unpaired fd.
+        """
+        require(not self.handles_closed, 'Owner process handles already closed')
         key = row['pid'], row['startTicks']
         self.observation_context = {'phase':phase,'callsite':'pin-preparation',
                                     'pid':row['pid'],'startTicks':row['startTicks'],'ppid':row['ppid']}
-        if row['pid'] == self.parent['pid'] or key in self.pidfds:
+        if row['pid'] == self.parent['pid']:
             return
-        fd = None
+        if key in self.pidfds or key in self.procdirs:
+            require(key in self.pidfds and key in self.procdirs, 'Owned identity lacks paired process handles')
+            return
+        fd = directory = None
         try:
+            self.observation_context['callsite'] = 'pin-proc-directory-open'
+            directory = open_proc_directory(row['pid'])
             self.observation_context['callsite'] = 'pin-pidfd-open'
             fd = os.pidfd_open(row['pid'])
             self.observation_context['callsite'] = 'pin-identity-reread'
-            current = process_ancestry(row['pid'])
+            # Open/read stat only AFTER pidfd_open. A cached pre-open record
+            # would not prove the directory and pidfd refer to the same task.
+            current = process_ancestry_at(row['pid'], directory)
             self.observation_context['callsite'] = 'pin-identity-compare'
             require(all(current[name] == row[name] for name in ('pid','startTicks','ppid')),
                     'Owned identity/ancestry changed before pin validation')
             self.pidfds[key] = fd
-        except BaseException:
-            if fd is not None:
-                os.close(fd)
+            self.procdirs[key] = directory
+        except BaseException as error:
+            self.pidfds.pop(key, None)
+            self.procdirs.pop(key, None)
+            for acquired in (fd, directory):
+                if acquired is not None:
+                    try:
+                        os.close(acquired)
+                    except OSError as close_error:
+                        error.add_note('Partial process handle close failed: ' + str(close_error))
             # Readability of an UNVALIDATED fd never proves the census identity.
             raise
 
@@ -968,7 +1040,14 @@ class OwnerWatch:
         row = census[pid]
         self.observation_context = {'phase':phase,'callsite':'owned-enrichment',
                                     'pid':pid,'startTicks':row['startTicks'],'ppid':row['ppid']}
-        return process_member(pid)
+        require(not self.handles_closed, 'Owner process handles already closed')
+        if pid == self.parent['pid']:
+            # This executing controller cannot be reaped/reused while reading
+            # itself. It is not an acquired descendant and has no signal pidfd.
+            return process_member(pid)
+        key = pid, row['startTicks']
+        require(key in self.pidfds and key in self.procdirs, 'Owned identity lacks paired process handles')
+        return process_member_at(pid, self.procdirs[key])
 
     def observe(self):
         try:
@@ -985,6 +1064,7 @@ class OwnerWatch:
 
     def _observe(self):
         with self.lock:
+            require(not self.handles_closed, 'Owner process handles already closed')
             self.observation_context = {'phase':'first','callsite':'ancestry-census'}
             all_rows = self.snapshot()
             rows = owned_process_rows(all_rows, self.parent, set(self.known) | set(self.pidfds),
@@ -1082,8 +1162,9 @@ class OwnerWatch:
 
     def pin_direct(self, process):
         # Popen establishes direct ownership; its unreaped PID cannot be reused.
-        fd = os.pidfd_open(process.pid)
         with self.lock:
+            require(not self.handles_closed, 'Owner process handles already closed')
+            fd = os.pidfd_open(process.pid)
             self.direct_fds.append(fd)
 
     def bind_gate(self, ready, direct):
@@ -1097,9 +1178,16 @@ class OwnerWatch:
                 len(gate['nspid']) == len(self.parent['nspid']) + 1, 'Gate depth/RSS mismatch')
         init = [row for row in rows if row['pidNamespace'] == gate['pidNamespace'] and row['nspid'][-1] == 1]
         require(len(init) == 1, 'Namespace init lacks positive ancestry ownership')
-        fd = os.open('/proc/' + str(gate['pid']) + '/ns/pid', os.O_RDONLY | os.O_CLOEXEC)
-        require(os.fstat(fd).st_ino == int(gate['pidNamespace'].split('[')[1].rstrip(']')), 'Namespace handle changed')
         with self.lock:
+            require(not self.handles_closed, 'Owner process handles already closed')
+            key = gate['pid'], gate['startTicks']
+            require(key in self.pidfds and key in self.procdirs, 'Gate lacks paired process handles')
+            fd = os.open('ns/pid', os.O_RDONLY | os.O_CLOEXEC, dir_fd=self.procdirs[key])
+            try:
+                require(os.fstat(fd).st_ino == int(gate['pidNamespace'].split('[')[1].rstrip(']')), 'Namespace handle changed')
+            except BaseException:
+                os.close(fd)
+                raise
             self.namespace_fds.append(fd)
             self.namespaces.add(gate['pidNamespace'])
             self.namespace_roots[gate['pidNamespace']] = {
@@ -1143,9 +1231,28 @@ class OwnerWatch:
             self.thread.join(timeout=max(0,deadline-time.monotonic()))
             receipt['joined'] = not self.thread.is_alive()
             require(receipt['joined'], 'Observer thread did not stop')
-            self.stream.close()
-            for fd in [*self.namespace_fds, *self.pidfds.values(), *self.direct_fds]:
-                os.close(fd)
+            stream_error = None
+            try:
+                self.stream.close()
+            except BaseException as failure:
+                stream_error = failure
+            with self.lock:
+                # Mark closed and detach maps before close: later calls must
+                # never reuse an fd integer that the OS has since recycled.
+                self.handles_closed = True
+                descriptors = [*self.namespace_fds, *self.pidfds.values(),
+                               *self.direct_fds, *self.procdirs.values()]
+                self.namespace_fds.clear(); self.pidfds.clear()
+                self.direct_fds.clear(); self.procdirs.clear()
+                close_error = stream_error
+                for fd in descriptors:
+                    try:
+                        os.close(fd)
+                    except OSError as failure:
+                        if close_error is None:
+                            close_error = failure
+                if close_error is not None:
+                    raise close_error
             try:
                 self.check()
                 receipt['healthy'] = True
