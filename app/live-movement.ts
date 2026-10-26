@@ -1027,10 +1027,12 @@ export function stepLiveMovement(
   if (next) {
     if (p.commandStatus === 27) u.work = null
     clearLivePath(w, u)
-    owner ? owner.changeState(next) : changeLivePersonState(w, u, next)
+    if (owner) owner.changeState(next)
+    else changeLivePersonState(w, u, next)
   }
   if (!(next && p.flags2 & 0x100000)) delete p.guardInputPending
-  owner ? owner.adopt() : adoptLiveOrders(w, u, p)
+  if (owner) owner.adopt()
+  else adoptLiveOrders(w, u, p)
 }
 
 // Shared native state-10 completion: entry and movement advance the same queue.
