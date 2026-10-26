@@ -110,7 +110,7 @@ test('existing runner owns mandatory dedicated scenario and preserves complete o
   const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8')
   const runner = read('scripts/tutorial-browser/run.mjs'), frames = read('scripts/tutorial-browser/gameplay-frames.mjs')
   const dedicated = runner.split("} else if (selectedScenario === 'gameplay-resources') {")[1].split("} else if (selectedScenario === 'gameplay-frames') {")[0]
-  assert.match(dedicated, /receipt\.gameplayResources = .*default\(\{ page, url, output: out, expectedRevision: receipt\.buildRevision, resourceLifecycle: true \}\)/)
+  assert.match(dedicated, /receipt\.gameplayResources = .*default\(\{ page, url, output: out, expectedRevision: receipt\.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments\.profile, ownershipProbe: resourceArguments\.ownershipProbe \}\)/)
   assert.doesNotMatch(dedicated, /measuredPhases|meleeScenario|followerCorpseScenario/)
   const original = runner.split("} else if (selectedScenario === 'gameplay-frames') {")[1].split("} else if (['profile-recovery'")[0]
   assert.match(original, /receipt\.gameplayFrames = .*default\(\{ page, url, output: out, expectedRevision: receipt\.buildRevision \}\)/)
@@ -123,7 +123,10 @@ test('existing runner owns mandatory dedicated scenario and preserves complete o
   assert.match(frames, /report\.resources = \{ beforeWarmup: await page\.evaluate\(observeGameplayResources\)/)
   assert.match(frames, /await runCycle\(first, 'cycle-1-'\)/)
   assert.match(frames, /await runCycle\(second, 'cycle-2-'\)/)
-  assert.equal((frames.match(/await heapSample\(/g) ?? []).length, 2)
+  assert.equal((frames.match(/await heapSample\(/g) ?? []).length, 3)
+  assert.match(frames, /if \(threeCycles\) \{\s+const third = \{ id: 'cycle-3', startup: await restartCycle\(second, 'cycle-3'\)/)
+  assert.match(frames, /await runCycle\(third, 'cycle-3-'\)/)
+  assert.match(frames, /await heapSample\('after-cycle-3-workload'\)/)
   assert.match(frames, /await heapSample\('after-cycle-1-workload'\)/)
   assert.match(frames, /await heapSample\('after-cycle-2-workload'\)/)
   assert.doesNotMatch(frames, /after-restart-settled/)
@@ -136,4 +139,57 @@ test('existing runner owns mandatory dedicated scenario and preserves complete o
   assert.match(workflow, /scenario: gameplay-frames\s+timeoutMinutes: 15/)
   assert.match(workflow, /types: \[ready_for_review\]/)
   assert.doesNotMatch(workflow, /continue-on-error|workflow_dispatch|no-sandbox/)
+})
+
+import { parseGameplayResourceArguments, gameplayThreeCycleArgument } from '../scripts/tutorial-browser/gameplay-resource-profile.mjs'
+test('finite resource profile parsing leaves defaults alone and rejects arbitrary knobs before output creation', () => {
+  for (const scenario of browserScenarios) {
+    assert.deepEqual(parseGameplayResourceArguments([], scenario), { output: undefined, profile: undefined })
+    assert.deepEqual(parseGameplayResourceArguments(['fresh-output'], scenario), { output: 'fresh-output', profile: undefined })
+  }
+  assert.deepEqual(parseGameplayResourceArguments(['fresh-output', gameplayThreeCycleArgument], 'gameplay-resources'),
+    { output: 'fresh-output', profile: 'three-cycle-v1' })
+  assert.deepEqual(parseGameplayResourceArguments([gameplayThreeCycleArgument], 'gameplay-resources'),
+    { output: undefined, profile: 'three-cycle-v1' })
+  for (const args of [
+    ['fresh', '--gameplay-resource-profile=unknown'], ['fresh', '--cycles=3'], ['fresh', '3'],
+    ['fresh', gameplayThreeCycleArgument, gameplayThreeCycleArgument], ['fresh', '--gameplay-resource-profile', 'three-cycle-v1'],
+    [gameplayThreeCycleArgument, 'fresh'], ['--gameplay-resource-profile=two-cycle-v1'],
+  ]) assert.throws(() => parseGameplayResourceArguments(args, 'gameplay-resources'))
+  for (const scenario of browserScenarios.filter(name => name !== 'gameplay-resources'))
+    assert.throws(() => parseGameplayResourceArguments([gameplayThreeCycleArgument], scenario))
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.ok(runner.indexOf('const resourceArguments = parseGameplayResourceArguments') < runner.indexOf('mkdirSync(out'))
+  assert.doesNotMatch(runner, /process\.env\.(?:POPULOUS_RESOURCE|GAMEPLAY_RESOURCE|POPULOUS_BROWSER_CYCLES)/)
+})
+
+test('hosted opt-in changes only resource invocation and its accurate label, not the matrix or deadlines', () => {
+  const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
+  const block = workflow.split('      - name: ${{ matrix.scenario')[1].split('      - name: Reject tracked input mutation')[0]
+  assert.equal(block, ` == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}
+        env:
+          POPULOUS_GAMEPLAY_OWNERSHIP: \${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}
+        run: |
+          if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then
+            if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1
+            else
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            fi
+          else
+            node scripts/tutorial-browser/run.mjs
+          fi
+`)
+  assert.equal((workflow.match(/--gameplay-resource-profile=/g) ?? []).length, 2)
+  assert.match(workflow, /buildStep: Observe full live Mission 2 workload and one same-document resource restart/)
+  assert.match(workflow, /runs-on: ubuntu-24\.04/)
+  assert.match(workflow, /permissions:\n  contents: read/)
+  assert.match(workflow, /retention-days: 7/)
+  const frames = readFileSync(new URL('../scripts/tutorial-browser/gameplay-frames.mjs', import.meta.url), 'utf8')
+  const restart = frames.split('const restartCycle = async')[1].split("const ready = await restartCycle(first")[0]
+  assert.ok(restart.indexOf('page.evaluate(captureRetiredGameplayScene)') < restart.indexOf('await bindGame(page)'))
+  assert.equal((restart.match(/Restart Level/g) ?? []).length, 1)
+  assert.match(restart, /await page\.waitForTimeout\(plan\.warmupMs\)/)
+  assert.match(frames, /const ready = await restartCycle\(first, 'cycle-2'\)/)
+  assert.doesNotMatch(frames, /oldScenes|retiredScenes|evaluateHandle|queryObjects/)
 })

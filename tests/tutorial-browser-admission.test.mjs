@@ -5,6 +5,33 @@ import { readFileSync } from 'node:fs'
 import test from 'node:test'
 
 const read = name => readFileSync(new URL(`../.github/workflows/${name}`, import.meta.url), 'utf8')
+// Parse the actual workflow step rather than assuming the historical one-line YAML form.
+// Keep the fixed resource opt-in and every other scenario's original command/name exact.
+const assertBrowserDispatch = workflow => {
+  const job = yaml.load(workflow).jobs['tutorial-browser']
+  const steps = job.steps.filter(step => step.run?.includes('scripts/tutorial-browser/run.mjs'))
+  assert.equal(steps.length, 1, 'Exactly one browser dispatch step')
+  const [step] = steps
+  assert.equal(step.name, "${{ matrix.scenario == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}")
+  assert.deepEqual(step.env, { POPULOUS_GAMEPLAY_OWNERSHIP: "${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}" })
+  assert.equal(step.run, [
+    'if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then',
+    '  if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then',
+    '    node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1',
+    '  else',
+    '    node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1',
+    '  fi',
+    'else',
+    '  node scripts/tutorial-browser/run.mjs',
+    'fi',
+    '',
+  ].join('\n'))
+  const items = job.strategy.matrix.include
+  assert.equal(items.filter(item => item.scenario === 'gameplay-resources').length, 1)
+  for (const item of items) assert.equal(typeof item.buildStep, 'string')
+  return step
+}
+
 const activityTypes = source => {
   const admission = source.slice(source.indexOf('\non:\n'), source.indexOf('\npermissions:\n'))
   assert.match(admission, /\n {2}pull_request:\n/)
@@ -33,7 +60,7 @@ test('Tutorial preserves exact merge, runtime readiness defense and validation, 
   assert.match(source, /Require a ready pull request/)
   assert.match(source, /if \[ "\$IS_DRAFT" != false \]; then/)
   assert.match(source, /exit 1/)
-  assert.match(source, /run: node scripts\/tutorial-browser\/run\.mjs/)
+  assertBrowserDispatch(source)
   assert.match(source, /test "\$\(git rev-parse HEAD\)" = "\$GITHUB_SHA"/)
   assert.match(source, /git diff --exit-code HEAD --/)
   assert.doesNotMatch(source, /Full check|continue-on-error|exit 0/)
@@ -76,7 +103,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
     workflow,
     /buildStep: Build plain production Home and validate pause checkpoint recovery/
   )
-  assert.match(workflow, /name: \$\{\{ matrix\.buildStep \}\}/)
+  assertBrowserDispatch(workflow)
   assert.match(workflow, /timeout-minutes: \$\{\{ matrix\.timeoutMinutes \}\}/)
   assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 8)
   assert.match(workflow, /fail-fast: false/)
@@ -185,4 +212,29 @@ test('selector keyboard regression is reached by the existing hosted Tutorial pa
   assert.match(tutorial, /import \{ checkSelectorKeyboardFocus \} from '\.\.\/check-browser-world-selector.mjs'/)
   assert.match(tutorial, /await checkSelectorKeyboardFocus\(\{ page, output \}\)/)
   assert.match(tutorial, /selector-keyboard\.json/)
+})
+
+
+test('resource-only dispatch rejects widened selection, changed defaults, labels and duplicate execution', () => {
+  const original = yaml.load(read('tutorial-browser.yml'))
+  const selected = original.jobs['tutorial-browser'].steps.findIndex(step => step.run?.includes('scripts/tutorial-browser/run.mjs'))
+  const changes = [
+    step => { step.env.POPULOUS_GAMEPLAY_OWNERSHIP = 'weak-v1' },
+    step => { step.env.POPULOUS_GAMEPLAY_OWNERSHIP = step.env.POPULOUS_GAMEPLAY_OWNERSHIP.replace("format('weak-v1:{0}', github.event.pull_request.head.sha)", "'weak-v1'") },
+    step => { step.run = step.run.replace('--gameplay-ownership-probe=weak-v1', '--gameplay-ownership-probe=other') },
+    step => { step.run = step.run.replace('= gameplay-resources', '!= tutorial') },
+    step => { step.run = step.run.replace('three-cycle-v1', 'two-cycle-v1') },
+    step => { step.run = step.run.replace('else\n  node scripts/tutorial-browser/run.mjs\n', 'else\n  node scripts/tutorial-browser/run.mjs --gameplay-resource-profile=three-cycle-v1\n') },
+    step => { step.run = step.run.replace('outputs/tutorial-browser', 'outputs/other') },
+    step => { step.name = '${{ matrix.buildStep }}' },
+    step => { step.name = step.name.replace("|| matrix.buildStep", "|| 'Changed default label'") },
+  ]
+  for (const change of changes) {
+    const workflow = structuredClone(original)
+    change(workflow.jobs['tutorial-browser'].steps[selected])
+    assert.throws(() => assertBrowserDispatch(yaml.dump(workflow)), assert.AssertionError)
+  }
+  const duplicate = structuredClone(original)
+  duplicate.jobs['tutorial-browser'].steps.push(duplicate.jobs['tutorial-browser'].steps[selected])
+  assert.throws(() => assertBrowserDispatch(yaml.dump(duplicate)), assert.AssertionError)
 })

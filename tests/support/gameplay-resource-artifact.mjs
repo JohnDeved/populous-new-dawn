@@ -5,8 +5,10 @@ import { createPointerFrameMetrics } from '../../app/pointer-frame-metrics.ts'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from '../../scripts/tutorial-browser/gameplay-frame-evidence.mjs'
 import { gameplayResourceLimits, summarizeResourceRestart } from '../../scripts/tutorial-browser/gameplay-resource-observer.mjs'
 import { gameplayResourceSplitBudget } from '../../scripts/tutorial-browser/scenario-policy.mjs'
-import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
 import { gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits, gameplayMatchedHeapPolicy, gameplayMatchedHeapLimits, gameplayMatchedProtocol, summarizeGameplayMatchedWorkload } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
+import { gameplayThreeCycleProfile, gameplayThreeCycleArgument } from '../../scripts/tutorial-browser/gameplay-resource-profile.mjs'
+import { gameplayThreeCycleHeapPolicy, gameplayThreeCycleHeapLimits, gameplayThreeCycleProtocol, gameplayThreeCycleResourceLimits, summarizeGameplayThreeCycleWorkload, validateGameplayThreeCycleHeapProbe } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
 const revision = 'a'.repeat(40), hash = bytes => createHash('sha256').update(bytes).digest('hex')
 function frameFixture(route = 'world') {
   const ring = new FramePerformance()
@@ -71,7 +73,8 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
    inputs: commands.map(command => ({ ...command, observedTimestampMs: before.timestampMs + command.offsetMs })),
    rawSha256: summary.rawSha256, turnsAdvanced: summary.turnsAdvanced, work: summary.work, frameCount: summary.analysis.sampleCount })
  }
- if (policy === GAMEPLAY_MATCHED_POLICY) makeMatchedCycles(report, files)
+ if ([GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) makeMatchedCycles(report, files)
+ if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) makeThreeCycles(report, files)
  const raw = { status: 'passed', selectedScenario: 'gameplay-resources', source: { commit: revision, files: expected.inputs }, buildRevision: revision,
   github: { head: expected.identity.headSha, base: expected.identity.baseSha, merge: revision, runId: '12', runAttempt: '2' },
   build: { exitCode: 0, signal: null, timedOut: false, capMs: 120000 }, browserCapMs: 180000, browserTimedOut: false,
@@ -79,6 +82,9 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
   browserSha256: 'd'.repeat(64), browserBinaryVersion: 'Google Chrome synthetic fixture', buildPackageVersions: { 'playwright-core': '1.63.0-fixture' },
   browserPath: '/opt/google/chrome/chrome', launch: { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless','--remote-debugging-pipe'], timeout: 30000 },
   gameplayResourceSplitBudget, gameplayResources: report }
+ if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) Object.assign(raw, { gameplayResourceProfile: gameplayThreeCycleProfile,
+  command: ['/usr/bin/node', '/repo/scripts/tutorial-browser/run.mjs', 'outputs/tutorial-browser', gameplayThreeCycleArgument] })
+ if (policy === GAMEPLAY_OWNERSHIP_POLICY) makeOwnership(report, raw, expected.identity.headSha)
  const save = () => { files['receipt.json'] = encode(raw); files['gameplay-frames.json'] = encode(report) }; save()
  // Direct-validator mutation fixtures need exact file buffers, not an unused ZIP copy.
  if (!includeArchive) return { expected, files, raw, report, save }
@@ -152,4 +158,69 @@ function makeMatchedCycles(report, files) {
  report.resources.heap.samples.forEach((sample, index) => { sample.boundary = gameplayMatchedHeapPolicy.boundaries[index] })
  Object.assign(report.resources.heap.samples[1], { before: live(225, 32001, 'new'), after: live(225, 32002, 'new'),
   bytes: { usedSize: 137, totalSize: 200, embedderHeapUsedSize: 40, backingStorageSize: 300 } })
+}
+
+function makeThreeCycles(report, files) {
+ const third = structuredClone(report.cycles[0]); third.id = 'cycle-3'
+ third.pointerReset.observedTimestampMs = 36000
+ for (const key of ['warmupBefore', 'warmupAfter', 'menuBefore', 'menuAfter', 'after']) {
+  third[key].timestampMs += 36000; third[key].turn += 50
+ }
+ third.resources = { beforeWarmup: live(50, 36000, 'third'), afterWorkload: live(250, 50000, 'third') }
+ for (const [index, phase] of plan.phases.entries()) {
+  const next = third.phases[index], raw = JSON.parse(files[next.rawFile])
+  if (phase.nativeWork) next.point.id = 7
+  for (const frame of raw.frames) {
+   frame.timestampMs += 36000; frame.pointerBreakdown.nativeOcclusion.submittedTriangles += 2
+  }
+  for (const key of ['startTimestampMs', 'endTimestampMs']) raw.timing[key] += 36000
+  next.before.timestampMs += 36000; next.after.timestampMs += 36000
+  next.before.turn += 6; next.after.turn += 14
+  for (const command of next.inputs) command.observedTimestampMs += 36000
+  next.rawFile = next.rawFile.replace('cycle-1-', 'cycle-3-')
+  next.summaryFile = next.summaryFile.replace('cycle-1-', 'cycle-3-')
+  files[next.rawFile] = encode(raw)
+  const summary = summarizeGameplayPhase(files[next.rawFile].toString(), phase, next.before, next.after, revision)
+  files[next.summaryFile] = encode(summary)
+  Object.assign(next, { rawSha256: summary.rawSha256, turnsAdvanced: summary.turnsAdvanced,
+   frameCount: summary.analysis.sampleCount, work: summary.work })
+ }
+ third.screenshotFile = 'cycle-3-gameplay-frames-final.png'
+ files[third.screenshotFile] = files['cycle-1-gameplay-frames-final.png']
+ report.cycles.push(third)
+ report.schemaVersion = 3; report.resourceProfile = gameplayThreeCycleProfile; report.protocol = gameplayThreeCycleProtocol
+ report.observedWorkloadComparison = summarizeGameplayThreeCycleWorkload(report.cycles)
+ const resources = report.resources
+ Object.assign(resources, { version: 4, status: 'passed-three-cycle-protocol', limits: gameplayThreeCycleResourceLimits })
+ const first = { ...resources.restart, fromCycle: 'cycle-1', toCycle: 'cycle-2' }
+ const second = { fromCycle: 'cycle-2', toCycle: 'cycle-3', retired: structuredClone(first.retired),
+  after: live(1, 33000, 'third'), settled: live(25, 35000, 'third') }
+ Object.assign(second, summarizeResourceRestart(report.cycles[1].resources.afterWorkload, second.retired, second.after, second.settled))
+ resources.restarts = [first, second]; delete resources.restart
+ Object.assign(resources.heap, { version: 3, status: 'passed-three-cycle-descriptive-observations',
+  policy: gameplayThreeCycleHeapPolicy, limits: gameplayThreeCycleHeapLimits })
+ const sample = structuredClone(resources.heap.samples[1])
+ Object.assign(sample, { boundary: 'after-cycle-3-workload', before: live(250, 50001, 'third'), after: live(250, 50002, 'third'),
+  timing: { startedMs: 11, gcStartedMs: 12, gcCompletedMs: 13, heapReadCompletedMs: 14, endedMs: 15 },
+  bytes: { usedSize: 149, totalSize: 240, embedderHeapUsedSize: 35, backingStorageSize: 310 } })
+ resources.heap.samples.push(sample)
+ resources.heap.deltas = validateGameplayThreeCycleHeapProbe(resources.heap, resources, report.cycles)
+}
+
+function makeOwnership(report, raw, headSha) {
+ raw.gameplayOwnershipProbe = 'weak-v1'
+ raw.gameplayOwnershipSelection = { version: 1, mode: 'weak-v1', event: 'pull_request', action: 'ready_for_review', headSha, label: `weak-v1:${headSha}`, scenario: 'gameplay-resources' }
+ raw.command.push('--gameplay-ownership-probe=weak-v1')
+ report.ownershipProbe = { version: 1, scope: 'bounded-retired-wrapper-survival-only' }
+ const slots = ['position','uv','landUv','surface','light','highlight'].map(name => ({label:`terrain.${name}`,status:'registered',bufferId:0}))
+ slots.push({label:'terrain.index',status:'absent-optional'}, {label:'globe.atlas.pixels',status:'registered',bufferId:1}, {label:'globe.map.image.data',status:'registered',bufferId:1})
+ const records = [1,2].map(retirement => ({ retirement,
+  owners: ['scene','globe','terrain','terrain.geometry'].map(label => ({label,status:'registered',survival:'alive'})), slots,
+  buffers: [64,128].map((registeredByteLength,id) => ({id,registeredByteLength,survival:'alive',currentByteLength:registeredByteLength,byteLengthChanged:false})),
+  complete:true,survivingBufferCount:2,survivingRegisteredByteLengths:192 }))
+ for(const [index,restart] of report.resources.restarts.entries()) restart.ownershipRegistration = {retirement:index+1,registeredOwners:4,registeredBuffers:2,slots:structuredClone(slots)}
+ for(const [index,sample] of report.resources.heap.samples.entries()) {
+  sample.ownershipTiming = { startedMs: sample.timing.heapReadCompletedMs, completedMs: sample.timing.heapReadCompletedMs + 0.5 }
+  sample.ownership = {version:1,interpretation:'weak-wrapper-survival-and-registered-buffer-lengths-not-retained-backing-attribution',limits:'two-retirements-four-owners-nine-buffer-slots-each; no-cache-export-external-string-GPU-process-accounting',records:structuredClone(records.slice(0,index))}
+ }
 }

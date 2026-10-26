@@ -55,6 +55,10 @@ test('resource acceptance requires artifact verification and the matching curren
   validatePassedGate(o,GAMEPLAY_HEAP_BROWSER_GATE,{...latest,gameplayHeapVerified:true})
   assert.throws(()=>validatePassedGate(o,GAMEPLAY_MATCHED_BROWSER_GATE,{...latest,gameplayHeapVerified:true}))
   validatePassedGate(o,GAMEPLAY_MATCHED_BROWSER_GATE,{...latest,gameplayHeapVerified:true,gameplayMatchedCyclesVerified:true})
+  assert.throws(()=>validatePassedGate(o,GAMEPLAY_THREE_CYCLE_BROWSER_GATE,{...latest,gameplayHeapVerified:true,gameplayMatchedCyclesVerified:true}))
+  validatePassedGate(o,GAMEPLAY_THREE_CYCLE_BROWSER_GATE,{...latest,gameplayHeapVerified:true,gameplayThreeCyclesVerified:true})
+  assert.throws(()=>validatePassedGate(o,GAMEPLAY_OWNERSHIP_BROWSER_GATE,{...latest,gameplayHeapVerified:true,gameplayThreeCyclesVerified:true}))
+  validatePassedGate(o,GAMEPLAY_OWNERSHIP_BROWSER_GATE,{...latest,gameplayHeapVerified:true,gameplayThreeCyclesVerified:true,gameplayOwnershipVerified:true})
   for(const key of ['pauseRecoveryVerified','profileRecoveryVerified','mission10Verified','gameplayResourcesVerified']) assert.throws(()=>validatePassedGate(o,GAMEPLAY_RESOURCE_BROWSER_GATE,{...latest,[key]:false}))
   for(const mutate of [checks=>checks.splice(7,1),checks=>{checks[7].head=oid(9)},checks=>{checks[7].appId=0},checks=>{checks[7].conclusion='failure'},checks=>checks.push({...checks[7],id:999,startedAt:'2026-10-24T01:00:00Z'})]) {
     const bad=structuredClone(o);mutate(bad.currentChecks);assert.throws(()=>validatePassedGate(bad,GAMEPLAY_RESOURCE_BROWSER_GATE,latest))
@@ -67,7 +71,7 @@ import { createHash } from 'node:crypto'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 function resourceAdapter(policy = GAMEPLAY_RESOURCE_POLICY) {
   const f=makeResourceFixture(policy), identity=f.expected.identity, e=entry(), reader=new GitHubReader()
-  const j=jobs().map(job=>({...job,head_sha:identity.headSha,run_id:12})), exact={...run(),id:12,head_sha:identity.headSha}
+  const j=jobs([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy) ? GAMEPLAY_THREE_CYCLE_BROWSER_JOBS : GAMEPLAY_RESOURCE_BROWSER_JOBS).map(job=>({...job,head_sha:identity.headSha,run_id:12})), exact={...run(),id:12,head_sha:identity.headSha}
   const pr={head:{sha:identity.headSha},base:{sha:identity.baseSha}}, synthetic={sha:identity.mergeSha}, row={merge:identity.mergeSha}
   e.browserPolicy=policy
   e.sourceHead=identity.headSha;e.reviewBase=identity.baseSha
@@ -150,4 +154,55 @@ test('v3 requires the matched-cycle gate and bound ten-phase archive, never hist
   const old=resourceAdapter(policy);old.args[0].browserPolicy=GAMEPLAY_MATCHED_POLICY
   assert.throws(()=>old.reader.verifyGameplayResourceRun(...old.args));assert.equal(old.args[5].gameplayMatchedCyclesVerified,undefined)
  }
+})
+
+import { GAMEPLAY_THREE_CYCLE_BROWSER_GATE } from '../scripts/integration-queue/policy.mjs'
+import { GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_BROWSER_JOBS } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+test('v4 selects its own three-cycle gate and exact step label; historical proof never upgrades', () => {
+ const e = {...entry(), browserPolicy: GAMEPLAY_THREE_CYCLE_POLICY}; validateEntry(e)
+ assert.equal(gatesFor(e)[1], GAMEPLAY_THREE_CYCLE_BROWSER_GATE)
+ assert.equal(GAMEPLAY_THREE_CYCLE_BROWSER_GATE.gameplayThreeCyclesRequired, true)
+ assert.equal(GAMEPLAY_THREE_CYCLE_BROWSER_GATE.gameplayMatchedCyclesRequired, undefined)
+ const good = resourceAdapter(GAMEPLAY_THREE_CYCLE_POLICY)
+ assert.equal(good.reader.verifyGameplayResourceRun(...good.args), true)
+ assert.equal(good.args[5].gameplayThreeCyclesVerified, true)
+ assert.equal(good.args[5].gameplayHeapVerified, true)
+ assert.equal(good.args[5].gameplayMatchedCyclesVerified, undefined)
+ for (const mutate of [
+  v => {v.args[4] = jobs().map(job => ({...job, head_sha: v.f.expected.identity.headSha, run_id: 12}))},
+  v => {v.args[0].browserPolicy = GAMEPLAY_MATCHED_POLICY},
+  v => {delete v.f.files['cycle-3-gameplay-frame-hud.json']; v.rebuild()},
+  v => {v.f.raw.gameplayResourceProfile = undefined; v.rebuild()},
+  v => {v.f.report.resources.restarts[1].retired.disposed = false; v.rebuild()},
+  v => {v.f.raw.source.files = {...v.f.raw.source.files, 'scripts/tutorial-browser/gameplay-resource-profile.mjs': 'f'.repeat(64)}; v.rebuild()},
+ ]) {
+  const bad = resourceAdapter(GAMEPLAY_THREE_CYCLE_POLICY); mutate(bad)
+  assert.throws(() => bad.reader.verifyGameplayResourceRun(...bad.args))
+  assert.equal(bad.args[5].gameplayThreeCyclesVerified, undefined)
+ }
+ for (const policy of [GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY]) {
+  const old = resourceAdapter(policy); old.args[0].browserPolicy = GAMEPLAY_THREE_CYCLE_POLICY
+  assert.throws(() => old.reader.verifyGameplayResourceRun(...old.args))
+  assert.equal(old.args[5].gameplayThreeCyclesVerified, undefined)
+ }
+})
+
+
+import { GAMEPLAY_OWNERSHIP_BROWSER_GATE } from '../scripts/integration-queue/policy.mjs'
+import { GAMEPLAY_OWNERSHIP_POLICY } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+test('weak ownership policy requires its own verified row and immutable source evidence', () => {
+ const e = {...entry(), browserPolicy: GAMEPLAY_OWNERSHIP_POLICY}; validateEntry(e)
+ assert.equal(gatesFor(e)[1], GAMEPLAY_OWNERSHIP_BROWSER_GATE)
+ const good = resourceAdapter(GAMEPLAY_OWNERSHIP_POLICY)
+ assert.equal(good.reader.verifyGameplayResourceRun(...good.args), true)
+ assert.equal(good.args[5].gameplayOwnershipVerified, true)
+ assert.equal(good.args[5].gameplayThreeCyclesVerified, true)
+ for (const mutate of [
+  v => {delete v.f.raw.gameplayOwnershipSelection;v.rebuild()},
+  v => {v.f.raw.source.files = {...v.f.raw.source.files, 'scripts/tutorial-browser/gameplay-ownership-observer.mjs':'f'.repeat(64)};v.rebuild()},
+  v => {v.f.report.resources.heap.samples[2].ownership.records=[];v.rebuild()},
+  v => {v.args[0].browserPolicy=GAMEPLAY_THREE_CYCLE_POLICY},
+ ]) {const bad=resourceAdapter(GAMEPLAY_OWNERSHIP_POLICY);mutate(bad);assert.throws(()=>bad.reader.verifyGameplayResourceRun(...bad.args));assert.equal(bad.args[5].gameplayOwnershipVerified,undefined)}
+ const old=resourceAdapter(GAMEPLAY_THREE_CYCLE_POLICY);old.args[0].browserPolicy=GAMEPLAY_OWNERSHIP_POLICY
+ assert.throws(()=>old.reader.verifyGameplayResourceRun(...old.args));assert.equal(old.args[5].gameplayOwnershipVerified,undefined)
 })

@@ -5926,6 +5926,68 @@
         "exitCode": 0,
         "artifacts": []
       }
+    },
+    {
+      "id": "scene-fixture-precompilation-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Preserve exact fixture compiler semantics and explicit precompiled-output/preparer boundaries.",
+      "coveredBehavior": [
+        "Unchanged TypeScript emission and generated-level literal contract",
+        "Pinned source/tool/output validation without importing the compiler in reader-only paths",
+        "Five in-process preparer guard exceptions, complete output consumption, and first-write failure without a usable completed bundle"
+      ],
+      "knownLimits": [
+        "Portable preparer cases evaluate the real module sequentially in-process, not separate CLI exit observations or OS-crash durability.",
+        "These tests do not run the application scene or establish a memory gain; exact-source serial preparation/consumer qualification and broad integration remain separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/scene-fixture-precompiled.test.mjs",
+        "tests/scene-fixture-preparer.test.mjs",
+        "tests/scene-fixture-source.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/prepare-scene-fixture.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/scene-fixture-precompiled.test.mjs",
+        "tests/scene-fixture-preparer.test.mjs",
+        "tests/scene-fixture-source.test.mjs",
+        "engineering/scene-fixture-precompilation.md",
+        "engineering/generated-files.json"
+      ],
+      "inputs": [
+        "scripts/prepare-scene-fixture.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/scene-fixture-precompiled.test.mjs",
+        "tests/scene-fixture-preparer.test.mjs",
+        "tests/scene-fixture-source.test.mjs",
+        "app",
+        "package.json",
+        "pnpm-lock.yaml",
+        "package-lock.json",
+        "engineering/generated-files.json"
+      ],
+      "prerequisites": [
+        "Maintained Node.js 24 toolchain and frozen installed TypeScript",
+        "Both PND_SCENE_FIXTURE_PRECOMPILED settings unset; native per-file test isolation"
+      ],
+      "sideEffects": [
+        "Runs test files serially with native file isolation; imports the TypeScript compiler only in preparer/compiler-contract processes. Creates/removes owned temporary synthetic files. In-process argv, environment and fs export changes are restored. No app scene, browser, network or package writes."
+      ],
+      "resources": [
+        "Compiler tests allocate compiler/AST memory; serialize with the existing resource lane."
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     }
   ]
 }

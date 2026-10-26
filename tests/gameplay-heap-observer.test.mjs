@@ -67,3 +67,22 @@ test('matched protocol uses exactly one GC at each explicit post-workload bounda
   await assert.rejects(captureGameplayMatchedHeapSample(historical.options))
   assert.equal(historical.calls.length, 0)
 })
+
+import { captureGameplayThreeCycleHeapSample, gameplayThreeCycleHeapPolicy } from '../scripts/tutorial-browser/gameplay-heap-observer.mjs'
+test('three-cycle profile has exactly three fixed boundaries and the same one-GC primitive protocol', async () => {
+  assert.deepEqual(gameplayThreeCycleHeapPolicy.boundaries, ['after-cycle-1-workload', 'after-cycle-2-workload', 'after-cycle-3-workload'])
+  for (const boundary of gameplayThreeCycleHeapPolicy.boundaries) {
+    const f = fixture(); f.options.boundary = boundary
+    const sample = await captureGameplayThreeCycleHeapSample(f.options)
+    assert.equal(sample.boundary, boundary); assert.equal(sample.gc.calls, 1)
+    assert.deepEqual(f.calls, ['hidden', 'observe', 'Runtime.getIsolateId', 'HeapProfiler.collectGarbage',
+      'Runtime.getHeapUsage', 'Runtime.getIsolateId', 'observe', 'hidden'])
+    assert.deepEqual(Object.keys(sample.bytes), gameplayHeapPolicy.fields)
+  }
+  for (const boundary of ['after-cycle-4-workload', 'after-workload', 'after-restart-settled']) {
+    const f = fixture(); f.options.boundary = boundary
+    await assert.rejects(captureGameplayThreeCycleHeapSample(f.options)); assert.equal(f.calls.length, 0)
+  }
+  const old = fixture(); old.options.boundary = 'after-cycle-3-workload'
+  await assert.rejects(captureGameplayMatchedHeapSample(old.options)); assert.equal(old.calls.length, 0)
+})
