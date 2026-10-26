@@ -1,4 +1,4 @@
-import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
+import { writeLivePersonOrder as writePersonOrder } from "./live-person-order.ts";
 import {
   tribeForTeam,
   type Building,
@@ -7,23 +7,27 @@ import {
   type Spell,
   type Unit,
   type World,
-} from './world-types.ts'
-import { nativePosition, syncLandscapeObjects, syncNativeTerrain } from './world-terrain-runtime.ts'
-import { browserPosition, distance, height } from './world-coordinates.ts'
-import { combatPerson, nativePersonModel } from './live-combat.ts'
+} from "./world-types.ts";
+import {
+  nativePosition,
+  syncLandscapeObjects,
+  syncNativeTerrain,
+} from "./world-terrain-runtime.ts";
+import { browserPosition, distance, height } from "./world-coordinates.ts";
+import { combatPerson, nativePersonModel } from "./live-combat.ts";
 import {
   buildingFootprintCells,
   buildingModel,
   buildingOutsidePoint,
   buildingPose,
-} from './building-shapes.ts'
+} from "./building-shapes.ts";
 import {
   chooseContextCommand,
   moveCommandAllowed,
   CommandContext as Context,
-} from './command-context.ts'
-import { acceptLivePath, findLivePath, planLivePath } from './live-pathfinding.ts'
-import { cancelLiveResting } from './live-resting.ts'
+} from "./command-context.ts";
+import { acceptLivePath, findLivePath, planLivePath } from "./live-pathfinding.ts";
+import { cancelLiveResting } from "./live-resting.ts";
 import {
   acceptsPersonOrder,
   allocatePersonOrder,
@@ -31,7 +35,7 @@ import {
   currentPersonOrder,
   emptyPersonOrder,
   playerOrderInput,
-} from './person-orders.ts'
+} from "./person-orders.ts";
 import {
   appendLiveOrders,
   appendLivePlayerOrders,
@@ -42,44 +46,49 @@ import {
   replaceLiveTrainingOrders,
   startLiveConstructionOrder,
   startLiveOrder,
-} from './live-movement.ts'
-import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
-import { release } from './world-tasks.ts'
-import { releasePersonRoute } from './person-routes.ts'
+} from "./live-movement.ts";
+import { canOrder, cancelInteraction, selectionPeople } from "./selection-runtime.ts";
+import { release } from "./world-tasks.ts";
+import { releasePersonRoute } from "./person-routes.ts";
 import {
   addBuilding,
   buildingPlanPose,
   constructionWorkers,
   placementError,
-} from './construction-runtime.ts'
-import { assignBuilder, BuilderTask } from './building-workers.ts'
-import { worshipHeadPose, worshipOrder } from './live-worship.ts'
-import { worshipApproach } from './worship.ts'
-import { canShamanCast, spellInRange, beginCast, landBridgeTargetAllowed } from './spell-casting.ts'
-import { unitAnimationSource } from './unit-animation-source.ts'
-import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
-import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
-import rules from './original-rules.json' with { type: 'json' }
-import { randomPersonSpeed } from './person-state.ts'
-import { changeLivePersonState, registerLivePerson } from './live-people.ts'
-import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
-import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
+} from "./construction-runtime.ts";
+import { assignBuilder, BuilderTask } from "./building-workers.ts";
+import { worshipHeadPose, worshipOrder } from "./live-worship.ts";
+import { worshipApproach } from "./worship.ts";
+import {
+  canShamanCast,
+  spellInRange,
+  beginCast,
+  landBridgeTargetAllowed,
+} from "./spell-casting.ts";
+import { unitAnimationSource } from "./unit-animation-source.ts";
+import { blastPersonPosition, blastPersonTargeting } from "./blast-targeting.ts";
+import { BUILDINGS, isShaman, SPELLS } from "./world-rules.ts";
+import rules from "./original-rules.json" with { type: "json" };
+import { randomPersonSpeed } from "./person-state.ts";
+import { changeLivePersonState, registerLivePerson } from "./live-people.ts";
+import { vehicleExitTarget, syncLiveVehiclePassengers } from "./live-vehicles.ts";
+import { guardShamanOrders, replaceShamanGuardOrder } from "./shaman-guard.ts";
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
 export function liveCommandContext(w: World, point: Point & { id?: number }) {
-  const selected = w.units.filter(u => w.selected.includes(u.id))
-  const team = selected[0]?.team ?? 'blue'
+  const selected = w.units.filter((u) => w.selected.includes(u.id));
+  const team = selected[0]?.team ?? "blue";
   const cell = (p: Point) => {
-    const n = nativePosition(w, p)
-    return ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
-  }
-  const index = cell(point)
-  const pointedPerson = w.units.find(u => u.id === point.id && u.hp > 0)
-  const pointedBuilding = w.buildings.find(b => b.id === point.id && b.hp > 0)
-  const pointedHead = w.shrines.find(h => h.id === point.id && h.active)
-  const pointedTree = w.trees.find(t => t.id === point.id && t.logs > 0)
-  const pointedVehicle = w.vehicles.find(v => v.id === point.id && v.active)
+    const n = nativePosition(w, p);
+    return ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9);
+  };
+  const index = cell(point);
+  const pointedPerson = w.units.find((u) => u.id === point.id && u.hp > 0);
+  const pointedBuilding = w.buildings.find((b) => b.id === point.id && b.hp > 0);
+  const pointedHead = w.shrines.find((h) => h.id === point.id && h.active);
+  const pointedTree = w.trees.find((t) => t.id === point.id && t.logs > 0);
+  const pointedVehicle = w.vehicles.find((v) => v.id === point.id && v.active);
   if (
     point.id !== undefined &&
     !pointedPerson &&
@@ -88,78 +97,78 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
     !pointedTree &&
     !pointedVehicle
   )
-    return null
+    return null;
   const building =
     pointedBuilding ??
     (w.land.flags[index] & 0x600
-      ? w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023) && b.hp > 0)
-      : undefined)
+      ? w.buildings.find((b) => b.id === (w.land.buildingIds[index] & 1023) && b.hp > 0)
+      : undefined);
   // ponytail: heads/scenery do not yet share the native mixed-class cell chains.
   // Query their original cell/shape here; replace this adapter when registration owns them.
   const shrine =
     pointedHead ??
     (!building
-      ? w.shrines.find(h => {
-          if (!h.active) return false
-          if (h.kind !== 'vault') return cell(h) === index
-          const n = nativePosition(w, h)
+      ? w.shrines.find((h) => {
+          if (!h.active) return false;
+          if (h.kind !== "vault") return cell(h) === index;
+          const n = nativePosition(w, h);
           return buildingFootprintCells({
             object: rules.buildingObjects[18],
             angle: Math.round((h.angle * 1024) / Math.PI) & 2047,
             anchorX: n.x & 0xfe00,
             anchorY: n.y & 0xfe00,
-          }).includes(index)
+          }).includes(index);
         })
-      : undefined)
+      : undefined);
   const enemy =
-    pointedPerson && pointedPerson.team !== team && pointedPerson.team !== 'wild'
+    pointedPerson && pointedPerson.team !== team && pointedPerson.team !== "wild"
       ? pointedPerson
-      : undefined
+      : undefined;
   const nearby =
     !building && !shrine
       ? w.units.find(
-          u =>
+          (u) =>
             u.hp > 0 &&
             u.team !== team &&
-            u.team !== 'wild' &&
+            u.team !== "wild" &&
             u.inside === null &&
             !u.lift &&
-            cell(u) === index
+            cell(u) === index,
         )
-      : undefined
-  let flags: number = Context.Ground
+      : undefined;
+  let flags: number = Context.Ground;
   if (building) {
     flags |=
       building.progress === 1
         ? Context.Building | Context.Completed
-        : Context.Plan | Context.Unfinished
-    if (building.team === team) flags |= Context.Friendly
-    if ((building.admission?.activity ?? 0) & 0x8000) flags |= Context.Dismantling
+        : Context.Plan | Context.Unfinished;
+    if (building.team === team) flags |= Context.Friendly;
+    if ((building.admission?.activity ?? 0) & 0x8000) flags |= Context.Dismantling;
   }
-  if (shrine) flags |= shrine.kind === 'vault' ? Context.Building | Context.Vault : Context.Head
-  if (pointedTree) flags |= Context.Tree
-  if (pointedVehicle) flags |= Context.Vehicle
-  if (enemy) flags |= Context.Enemy
-  if (nearby) flags |= Context.NearbyEnemy
-  if (pointedPerson?.kind === 'shaman' && !pointedPerson.ghost && pointedPerson.team === team)
-    flags |= Context.OwnShaman
-  const people = selected.reduce((mask, u) => mask | (1 << nativePersonModel(u)), 0)
-  const model = chooseContextCommand(flags, people)
+  if (shrine) flags |= shrine.kind === "vault" ? Context.Building | Context.Vault : Context.Head;
+  if (pointedTree) flags |= Context.Tree;
+  if (pointedVehicle) flags |= Context.Vehicle;
+  if (enemy) flags |= Context.Enemy;
+  if (nearby) flags |= Context.NearbyEnemy;
+  if (pointedPerson?.kind === "shaman" && !pointedPerson.ghost && pointedPerson.team === team)
+    flags |= Context.OwnShaman;
+  const people = selected.reduce((mask, u) => mask | (1 << nativePersonModel(u)), 0);
+  const model = chooseContextCommand(flags, people);
   // Forced/manual choices, ghost-only selection and contested-building
   // classification require their native lifecycle owners; no invented actions here.
   const tribeFlags =
     (w.castingTribes[tribeForTeam(team)].flags & ~64) |
-    (w.vehicles.some(v => v.active && v.team === team && !(rules.vehicleRestFlags[v.model] & 1))
+    (w.vehicles.some((v) => v.active && v.team === team && !(rules.vehicleRestFlags[v.model] & 1))
       ? 64
-      : 0)
+      : 0);
   const enabled =
     model !== 3 ||
     moveCommandAllowed(
       { flags: w.land.flags[index], category: w.land.categories[index] },
       w.land.walkMasks[0],
       nativePosition(w, point),
-      tribeFlags
-    )
+      tribeFlags,
+    );
   return {
     model,
     enabled,
@@ -168,45 +177,45 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
     tree: pointedTree,
     person: enemy ?? nearby,
     vehicle: pointedVehicle,
-  }
+  };
 }
 
 export function walkable(terrain: number[], p: Point) {
-  return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > 0.45
+  return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > 0.45;
 }
 
 function planRoute(w: World, u: Unit, end: Point) {
-  syncNativeTerrain(w)
-  syncLandscapeObjects(w)
-  return planLivePath(w, u, end)
+  syncNativeTerrain(w);
+  syncLandscapeObjects(w);
+  return planLivePath(w, u, end);
 }
 
 export function findPath(w: World, start: Unit, end: Point): Point[] {
-  syncNativeTerrain(w)
-  syncLandscapeObjects(w)
-  return findLivePath(w, start, end)
+  syncNativeTerrain(w);
+  syncLandscapeObjects(w);
+  return findLivePath(w, start, end);
 }
 
 export function route(w: World, u: Unit, end: Point, preserveOrders = false) {
-  const person = u.native ?? u.fight?.motion
-  if (!preserveOrders && person?.guardInputPending) cancelLiveOrder(w, u)
-  cancelLiveResting(w, u)
+  const person = u.native ?? u.fight?.motion;
+  if (!preserveOrders && person?.guardInputPending) cancelLiveOrder(w, u);
+  cancelLiveResting(w, u);
   if (!preserveOrders && (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28))
-    cancelLiveOrder(w, u)
-  return acceptLivePath(w, u, planRoute(w, u, end))
+    cancelLiveOrder(w, u);
+  return acceptLivePath(w, u, planRoute(w, u, end));
 }
 
 export function tell(w: World, message: string) {
-  w.message = message
-  w.messageUntil = w.time + 9
+  w.message = message;
+  w.messageUntil = w.time + 9;
 }
 
 function ordinaryGuardOwner(w: World, u: Unit) {
   const p = u.native,
-    registeredRoute = w.pathfinding.people.get(u.id)
+    registeredRoute = w.pathfinding.people.get(u.id);
   if (
     !p ||
-    u.team !== 'blue' ||
+    u.team !== "blue" ||
     u.hp <= 0 ||
     u.ghost ||
     p.class !== 1 ||
@@ -235,172 +244,238 @@ function ordinaryGuardOwner(w: World, u: Unit) {
     (registeredRoute && registeredRoute !== p) ||
     (u.path.length && registeredRoute !== p)
   )
-    return false
-  const ids = [p.immediateCommand, ...p.commands].filter(Boolean)
-  if (ids.some(id => ![3, 30].includes(w.buildingOrders.records[id]?.model ?? 0))) return false
-  if (![0, 3, 30].includes(p.commandStatus)) return false
+    return false;
+  const ids = [p.immediateCommand, ...p.commands].filter(Boolean);
+  if (ids.some((id) => ![3, 30].includes(w.buildingOrders.records[id]?.model ?? 0))) return false;
+  if (![0, 3, 30].includes(p.commandStatus)) return false;
   // Empty legacy state10 has no native order owner. A genuine pending G may
   // have an empty queue after cancellation or exhausted allocation.
-  return p.state !== 10 || ids.length > 0 || !!p.guardInputPending
+  return p.state !== 10 || ids.length > 0 || !!p.guardInputPending;
+}
+
+// Only a consistent physical occupant of a normal school. This is not generic
+// entry/state21 support, and admission never creates or changes a person owner.
+function schoolGuardOwner(w: World, u: Unit) {
+  const p = u.entry?.person,
+    b = w.buildings.find((b) => b.id === u.inside),
+    route = w.pathfinding.people.get(u.id),
+    cell = w.objectCells.objects.get(u.id);
+  if (
+    !p ||
+    u.native ||
+    u.entry!.orders !== w.buildingOrders ||
+    p.id !== u.id ||
+    u.team !== "blue" ||
+    u.hp <= 0 ||
+    u.ghost ||
+    p.class !== 1 ||
+    p.model < 2 ||
+    p.model > 6 ||
+    p.vehicle ||
+    p.flags2 & (1 | 0x80000 | 0x100000) ||
+    !(p.flags2 & 0x800000) ||
+    p.flags4 & 0x800 ||
+    u.flight ||
+    u.fight ||
+    u.fighting ||
+    u.casting ||
+    u.lift ||
+    u.builder ||
+    u.target !== null ||
+    u.tree !== null ||
+    u.harvest ||
+    u.delivery ||
+    u.vault ||
+    u.attackReservation ||
+    p.workFlags ||
+    (route && route !== p) ||
+    (cell && cell !== p) ||
+    !b ||
+    b.team !== "blue" ||
+    b.hp <= 0 ||
+    b.progress !== 1 ||
+    b.burn ||
+    !["camp", "temple", "spyHut", "firewarriorHut"].includes(b.kind) ||
+    u.work !== b.id ||
+    p.building !== b.id ||
+    b.admission?.class !== 2 ||
+    b.admission.occupants.filter((id) => id === u.id).length !== 1
+  )
+    return null;
+  const orders = [p.immediateCommand, ...p.commands]
+    .filter(Boolean)
+    .map((id) => w.buildingOrders.records[id]);
+  if (p.guardInputPending && (p.state === 21 || (p.state === 10 && p.substate === 13)))
+    return p.commandStatus === 0 && orders.every((order) => order?.model === 30) ? p : null;
+  if (p.state === 21) return p.commandStatus === 0 && !orders.length ? p : null;
+  if (p.state !== 10 || p.substate !== 13) return null;
+  return p.commandStatus === 8 &&
+    orders.length > 0 &&
+    orders.every((order) => order?.model === 8 && order.a === b.id)
+    ? p
+    : null;
 }
 
 export function guardShaman(w: World) {
-  const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
-  if (!shaman) return
+  const shaman = w.units.find((u) => u.team === "blue" && canOrder(u) && isShaman(u));
+  if (!shaman) return;
   // Unit-array order is the port's established roster order, independent of
   // selection order. Native linked-list ordering is a remaining compatibility
   // boundary, observable in which follower gets slot0 when the pool is full.
-  const selected = w.units.filter(u => w.selected.includes(u.id) && u.id !== shaman.id),
+  const selected = w.units.filter((u) => w.selected.includes(u.id) && u.id !== shaman.id),
     guards = w.units.filter(
-      u => u.team === 'blue' && u.native?.state === 10 && u.native.commandStatus === 30
+      (u) => u.team === "blue" && u.native?.state === 10 && u.native.commandStatus === 30,
     ),
     candidates = selected.length ? selected : guards,
-    admissions = candidates.map(u => ({
+    admissions = candidates.map((u) => ({
       unit: u,
-      person: ordinaryGuardOwner(w, u) ? u.native : null,
-      legacy: canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman',
-    }))
+      person: ordinaryGuardOwner(w, u) ? u.native : schoolGuardOwner(w, u),
+      legacy: canOrder(u) && w.selected.includes(u.id) && u.kind !== "shaman",
+    }));
   if (admissions.every(({ person }) => person)) {
-    const people = candidates.map(u => {
-      const p = u.native!
-      p.selectionFlags = (p.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0)
-      return p
-    })
+    const people = admissions.map(({ unit: u, person }) => {
+      const p = person!;
+      p.selectionFlags = (p.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0);
+      return p;
+    });
     const changed = guardShamanOrders(
       w.buildingOrders,
       people,
       shaman.id,
       orderEffects(w),
       (p, order) => anchorLiveShamanGuard(w, p, order),
-      id => id
-    )
+      (id) => id,
+    );
     for (const p of changed) {
-      p.guardInputPending = true
-      w.units.find(u => u.id === p.id)!.guard = false
+      p.guardInputPending = true;
+      w.units.find((u) => u.id === p.id)!.guard = false;
     }
     tell(
       w,
       selected.length
-        ? 'Selected followers will guard your shaman.'
-        : 'Your followers stop guarding your shaman.'
-    )
-    return
+        ? "Selected followers will guard your shaman."
+        : "Your followers stop guarding your shaman.",
+    );
+    return;
   }
   // Busy owners retain their old adapter, without discarding an ordinary peer's
   // native owner. Snapshot both admissions before cleanup, then preserve roster
   // visit order: a busy release may free a slot for a later native allocation.
-  let shared = 0
+  let shared = 0;
   for (const { unit: u, person, legacy } of selected.length ? admissions : []) {
     if (person) {
-      person.selectionFlags |= 128
+      person.selectionFlags |= 128;
       shared = replaceShamanGuardOrder(
         w.buildingOrders,
         person,
         shaman.id,
         shared,
         orderEffects(w),
-        id => id
-      )
-      person.guardInputPending = true
-      u.guard = false
+        (id) => id,
+      );
+      person.guardInputPending = true;
+      u.guard = false;
     } else if (legacy) {
-      const guard = !u.guard
-      release(w, u)
-      u.guard = guard
+      const guard = !u.guard;
+      release(w, u);
+      u.guard = guard;
     }
   }
-  tell(w, 'Selected followers will guard your shaman.')
+  tell(w, "Selected followers will guard your shaman.");
 }
 
 export function disguiseSelectedSpies(w: World, tribe: number) {
-  if (w.paused || w.status !== 'playing' || tribe < 0 || tribe > 3) return false
+  if (w.paused || w.status !== "playing" || tribe < 0 || tribe > 3) return false;
   const units = w.units.filter(
-    u =>
-      u.kind === 'spy' && canOrder(u) && w.selected.includes(u.id) && tribeForTeam(u.team) !== tribe
-  )
-  if (!units.length) return false
-  for (const u of units) release(w, u)
-  const order = emptyPersonOrder()
-  writePersonOrder(order, 16, tribe, 0, 0)
-  const result = appendLiveOrders(w, units, order, true)
+    (u) =>
+      u.kind === "spy" &&
+      canOrder(u) &&
+      w.selected.includes(u.id) &&
+      tribeForTeam(u.team) !== tribe,
+  );
+  if (!units.length) return false;
+  for (const u of units) release(w, u);
+  const order = emptyPersonOrder();
+  writePersonOrder(order, 16, tribe, 0, 0);
+  const result = appendLiveOrders(w, units, order, true);
   tell(
     w,
-    result.accepted ? 'Your spies are preparing their disguises.' : 'No command slots available.'
-  )
-  return result.accepted
+    result.accepted ? "Your spies are preparing their disguises." : "No command slots available.",
+  );
+  return result.accepted;
 }
 
 export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
-  if (w.paused || w.status !== 'playing') return false
-  const spec = BUILDINGS.find(b => b.id === kind)
+  if (w.paused || w.status !== "playing") return false;
+  const spec = BUILDINGS.find((b) => b.id === kind);
   if (
     !spec ||
-    (kind === 'camp' && !w.unlockedCamp) ||
-    (kind === 'tower' && !w.unlockedTower) ||
-    (kind === 'temple' && !w.unlockedTemple) ||
-    (kind === 'spyHut' && !w.unlockedSpyHut) ||
-    (kind === 'firewarriorHut' && !w.unlockedFirewarriorHut) ||
-    (kind === 'boatHouse' && !w.unlockedBoatHouse) ||
-    (kind === 'balloonHut' && !w.unlockedBalloonHut)
+    (kind === "camp" && !w.unlockedCamp) ||
+    (kind === "tower" && !w.unlockedTower) ||
+    (kind === "temple" && !w.unlockedTemple) ||
+    (kind === "spyHut" && !w.unlockedSpyHut) ||
+    (kind === "firewarriorHut" && !w.unlockedFirewarriorHut) ||
+    (kind === "boatHouse" && !w.unlockedBoatHouse) ||
+    (kind === "balloonHut" && !w.unlockedBalloonHut)
   ) {
     tell(
       w,
-      `Your shaman must discover the ${kind === 'temple' ? 'Temple' : kind === 'tower' ? 'Guard Tower' : kind === 'spyHut' ? 'Spy Training Hut' : kind === 'firewarriorHut' ? 'Firewarrior Training Hut' : kind === 'boatHouse' ? 'Boat House' : kind === 'balloonHut' ? 'Balloon Hut' : 'Warrior Training Hut'} at the vault.`
-    )
-    return false
+      `Your shaman must discover the ${kind === "temple" ? "Temple" : kind === "tower" ? "Guard Tower" : kind === "spyHut" ? "Spy Training Hut" : kind === "firewarriorHut" ? "Firewarrior Training Hut" : kind === "boatHouse" ? "Boat House" : kind === "balloonHut" ? "Balloon Hut" : "Warrior Training Hut"} at the vault.`,
+    );
+    return false;
   }
-  const plan = buildingPlanPose(w, kind, p)
-  p = browserPosition({ x: plan.anchorX, y: plan.anchorY })
-  const error = placementError(w, kind, p)
+  const plan = buildingPlanPose(w, kind, p);
+  p = browserPosition({ x: plan.anchorX, y: plan.anchorY });
+  const error = placementError(w, kind, p);
   if (error) {
-    tell(w, error)
-    return false
+    tell(w, error);
+    return false;
   }
   const selected = w.units.filter(
-    u => u.team === 'blue' && canOrder(u) && u.kind === 'brave' && w.selected.includes(u.id)
-  )
+    (u) => u.team === "blue" && canOrder(u) && u.kind === "brave" && w.selected.includes(u.id),
+  );
   const workers = (
     selected.length
       ? selected
       : w.units.filter(
-          u =>
-            u.team === 'blue' &&
+          (u) =>
+            u.team === "blue" &&
             canOrder(u) &&
-            u.kind === 'brave' &&
-            (u.work === null || u.inside !== null)
+            u.kind === "brave" &&
+            (u.work === null || u.inside !== null),
         )
   )
     .sort((a, b) => distance(a, p) - distance(b, p))
-    .map(u => ({ u, path: findPath(w, u, p) }))
-    .filter(a => a.path.length)
-    .slice(0, rules.buildingMaxWorkers[buildingModel({ kind, level: 1 })])
-  const b = addBuilding(w, 'blue', kind, p, false, {
+    .map((u) => ({ u, path: findPath(w, u, p) }))
+    .filter((a) => a.path.length)
+    .slice(0, rules.buildingMaxWorkers[buildingModel({ kind, level: 1 })]);
+  const b = addBuilding(w, "blue", kind, p, false, {
     angle: (plan.angle * Math.PI) / 1024,
     plan: true,
-  })
-  b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0)
+  });
+  b.builders = Array<number>(rules.buildingMaxWorkers[buildingModel(b)]).fill(0);
   if (workers.length) {
-    const order = allocatePersonOrder(w.buildingOrders)
+    const order = allocatePersonOrder(w.buildingOrders);
     if (order) {
-      writePersonOrder(w.buildingOrders.records[order], 6, b.id, 0, 0)
+      writePersonOrder(w.buildingOrders.records[order], 6, b.id, 0, 0);
       for (const { u } of workers) {
-        release(w, u)
-        startLiveOrder(w, u, order)
-        if (startLiveConstructionOrder(w, u)) route(w, u, entrance(w, b), true)
+        release(w, u);
+        startLiveOrder(w, u, order);
+        if (startLiveConstructionOrder(w, u)) route(w, u, entrance(w, b), true);
       }
     }
   }
-  w.mode = null
-  tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`)
-  return true
+  w.mode = null;
+  tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`);
+  return true;
 }
 
 // Shared browser target adapter: cursor feedback and click rejection must agree.
 export function spellTargetError(w: World, spell: Spell, p: Point) {
-  const spec = SPELLS.find(s => s.id === spell),
-    shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
-  if (!spec) return { code: -1, message: '' }
-  if (!shaman) return { code: -1, message: 'Your shaman is reincarnating.' }
+  const spec = SPELLS.find((s) => s.id === spell),
+    shaman = w.units.find((u) => u.team === "blue" && canOrder(u) && isShaman(u));
+  if (!spec) return { code: -1, message: "" };
+  if (!shaman) return { code: -1, message: "Your shaman is reincarnating." };
   if (
     shaman.lift > 0 ||
     shaman.casting ||
@@ -410,131 +485,131 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
       flags4: 0,
     })
   )
-    return { code: -1, message: 'Your shaman must finish her current action.' }
+    return { code: -1, message: "Your shaman must finish her current action." };
   if (!spellInRange(w, shaman, spec.model, p))
-    return { code: -2, message: 'Beyond your reach. Move your shaman closer.' }
+    return { code: -2, message: "Beyond your reach. Move your shaman closer." };
   const target = nativePosition(w, p),
-    targetCell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9)
-  if (spell === 'bridge') {
+    targetCell = ((target.y & 65535) >> 9) * 128 + ((target.x & 65535) >> 9);
+  if (spell === "bridge") {
     const terrainFlags = rules.terrainCategoryFlags[w.land.categories[targetCell] & 15],
       owner = unitAnimationSource(shaman) ?? shaman.native,
       // Alternate-mode origin ownership is separate; preserve its current path.
-      vehicle = w.manaWorld.gameFlags & 32 ? 0 : (owner?.vehicle ?? 0)
+      vehicle = w.manaWorld.gameFlags & 32 ? 0 : (owner?.vehicle ?? 0);
     if (!landBridgeTargetAllowed(w.castingTribes[0].flags, vehicle, terrainFlags))
       return {
         code: -3,
         message:
           terrainFlags & 2
-            ? 'Land Bridge must target dry terrain.'
-            : 'Your shaman must leave her vehicle to cast Land Bridge.',
-      }
+            ? "Land Bridge must target dry terrain."
+            : "Your shaman must leave her vehicle to cast Land Bridge.",
+      };
   }
-  return null
+  return null;
 }
 
 export function cast(w: World, spell: Spell, p: Point, personId?: number) {
-  if (w.paused || w.status !== 'playing') return false
+  if (w.paused || w.status !== "playing") return false;
   const direct =
     personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
       ? blastPersonPosition(w, personId, nativePosition)
-      : null
-  if (direct) p = browserPosition(direct)
-  const error = spellTargetError(w, spell, p)
+      : null;
+  if (direct) p = browserPosition(direct);
+  const error = spellTargetError(w, spell, p);
   if (error?.code === -1) {
-    if (error.message) tell(w, error.message)
-    return false
+    if (error.message) tell(w, error.message);
+    return false;
   }
   if (w.shots[spell] <= 0) {
     tell(
       w,
-      spell === 'blast'
-        ? 'Blast is charging. Braves working or inside huts generate more mana.'
-        : spell === 'flatten' ||
-            spell === 'erosion' ||
-            spell === 'swamp' ||
-            spell === 'firestorm' ||
-            spell === 'earthquake' ||
-            spell === 'volcano' ||
-            spell === 'convertWild' ||
-            spell === 'hypnotise' ||
-            spell === 'ghostArmy' ||
-            spell === 'tornado' ||
-            spell === 'shield' ||
-            spell === 'invisibility' ||
-            spell === 'swarm'
-          ? `${SPELLS.find(s => s.id === spell)!.name} is not available in this mission.`
-          : 'Worship the stone head to receive this spell.'
-    )
-    return false
+      spell === "blast"
+        ? "Blast is charging. Braves working or inside huts generate more mana."
+        : spell === "flatten" ||
+            spell === "erosion" ||
+            spell === "swamp" ||
+            spell === "firestorm" ||
+            spell === "earthquake" ||
+            spell === "volcano" ||
+            spell === "convertWild" ||
+            spell === "hypnotise" ||
+            spell === "ghostArmy" ||
+            spell === "tornado" ||
+            spell === "shield" ||
+            spell === "invisibility" ||
+            spell === "swarm"
+          ? `${SPELLS.find((s) => s.id === spell)!.name} is not available in this mission.`
+          : "Worship the stone head to receive this spell.",
+    );
+    return false;
   }
   if (error) {
-    tell(w, error.message)
-    return false
+    tell(w, error.message);
+    return false;
   }
-  const shaman = w.units.find(u => u.team === 'blue' && isShaman(u))!
+  const shaman = w.units.find((u) => u.team === "blue" && isShaman(u))!;
   const person =
-    shaman.fight?.motion ?? shaman.native ?? shaman.entry?.person ?? shaman.builder?.person
-  release(w, shaman)
+    shaman.fight?.motion ?? shaman.native ?? shaman.entry?.person ?? shaman.builder?.person;
+  release(w, shaman);
   // Releasing a browser fight/task must not discard its native animation phase.
-  if (person) shaman.native = person
-  beginCast(w, shaman, spell, p, direct ? personId : undefined)
-  w.mode = null
-  return true
+  if (person) shaman.native = person;
+  beginCast(w, shaman, spell, p, direct ? personId : undefined);
+  w.mode = null;
+  return true;
 }
 
 export function buildingDoor(b: Building) {
-  const point = buildingOutsidePoint(buildingPose(b))
-  return browserPosition(point)
+  const point = buildingOutsidePoint(buildingPose(b));
+  return browserPosition(point);
 }
 
 export function entrance(w: World, b: Point, radius = 4) {
-  if ('level' in b && 'team' in b && 'kind' in b && 'angle' in b) {
-    return buildingDoor(b as Building)
+  if ("level" in b && "team" in b && "kind" in b && "angle" in b) {
+    return buildingDoor(b as Building);
   }
-  const angle = 'angle' in b ? Number(b.angle) : 0
+  const angle = "angle" in b ? Number(b.angle) : 0;
   // Native model doors face -Z. Reflect both the model and the native map coordinates.
-  if ('angle' in b) return { x: b.x - Math.sin(angle) * radius, z: b.z + Math.cos(angle) * radius }
+  if ("angle" in b) return { x: b.x - Math.sin(angle) * radius, z: b.z + Math.cos(angle) * radius };
   return (
     Array.from({ length: 16 }, (_, i) => ({
       x: b.x + Math.sin((i * Math.PI) / 8) * radius,
       z: b.z + Math.cos((i * Math.PI) / 8) * radius,
-    })).find(p => walkable(w.terrain, p)) ?? b
-  )
+    })).find((p) => walkable(w.terrain, p)) ?? b
+  );
 }
 
 // Input acceptance is separate from later route/allocation success.
 export function command(
   w: World,
   p: Point & { id?: number },
-  modifiers: { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean } = {}
+  modifiers: { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean } = {},
 ) {
-  if (w.paused || w.status !== 'playing') return false
-  syncNativeTerrain(w)
-  syncLandscapeObjects(w)
-  const context = liveCommandContext(w, p)
-  if (!context?.enabled) return false
-  const { model } = context
-  w.lastOrderTurn = w.turn
+  if (w.paused || w.status !== "playing") return false;
+  syncNativeTerrain(w);
+  syncLandscapeObjects(w);
+  const context = liveCommandContext(w, p);
+  if (!context?.enabled) return false;
+  const { model } = context;
+  w.lastOrderTurn = w.turn;
   const sharedVehicleMovement =
     model === 3 &&
     w.units.some(
-      u =>
+      (u) =>
         w.selected.includes(u.id) &&
         u.native?.vehicle &&
-        w.vehicles.some(v => v.id === u.native!.vehicle && v.active && [1, 3].includes(v.model))
-    )
+        w.vehicles.some((v) => v.id === u.native!.vehicle && v.active && [1, 3].includes(v.model)),
+    );
   const sharedBoarding =
     model === 22 &&
     context.vehicle &&
     w.units
-      .filter(u => canOrder(u) && w.selected.includes(u.id))
-      .every(u => {
-        const person = u.native ?? u.entry?.person ?? u.builder?.person
-        if (!person?.vehicle) return true
+      .filter((u) => canOrder(u) && w.selected.includes(u.id))
+      .every((u) => {
+        const person = u.native ?? u.entry?.person ?? u.builder?.person;
+        if (!person?.vehicle) return true;
         // Native player input retains an existing passenger. Only an exact,
         // living registered seat owner enters this already-supported controller.
-        const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active),
-          slot = vehicle?.passengers.indexOf(u.id) ?? -1
+        const vehicle = w.vehicles.find((v) => v.id === person.vehicle && v.active),
+          slot = vehicle?.passengers.indexOf(u.id) ?? -1;
         return (
           u.hp > 0 &&
           u.native === person &&
@@ -546,86 +621,86 @@ export function command(
           slot !== -1 &&
           slot < rules.vehicleCapacity[vehicle.model] &&
           w.objectCells.objects.get(u.id) === person
-        )
-      })
+        );
+      });
   if (model === 22 && context.vehicle && !sharedBoarding) {
     const point = browserPosition(vehicleExitTarget(w, context.vehicle)),
       units = w.units.filter(
-        u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22)
+        (u) => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), 22),
       ),
-      order = allocatePersonOrder(w.buildingOrders)
+      order = allocatePersonOrder(w.buildingOrders);
     if (order)
       Object.assign(w.buildingOrders.records[order], {
         model: 22,
         a: context.vehicle.id,
         b: ((context.vehicle.x >>> 8) & 255) | (context.vehicle.y & 0xff00),
-      })
-    let count = 0
+      });
+    let count = 0;
     for (const u of units) {
-      if (!order) continue
-      release(w, u)
-      const path = planLivePath(w, u, point, undefined, false, true)
-      if (!path) continue
-      u.native = path
-      attachPersonOrder(w.buildingOrders, path, order, 0, orderEffects(w))
-      path.commandStatus = 3
-      path.state = 10
-      path.speed = randomPersonSpeed(w, path)
-      acceptLivePath(w, u, path)
-      registerLivePerson(w, path)
-      changeLivePersonState(w, u, 10)
+      if (!order) continue;
+      release(w, u);
+      const path = planLivePath(w, u, point, undefined, false, true);
+      if (!path) continue;
+      u.native = path;
+      attachPersonOrder(w.buildingOrders, path, order, 0, orderEffects(w));
+      path.commandStatus = 3;
+      path.state = 10;
+      path.speed = randomPersonSpeed(w, path);
+      acceptLivePath(w, u, path);
+      registerLivePerson(w, path);
+      changeLivePersonState(w, u, 10);
       // Route setup can board before publishing its final native person.
-      if (path.vehicle === context.vehicle.id) syncLiveVehiclePassengers(w, context.vehicle)
-      count++
+      if (path.vehicle === context.vehicle.id) syncLiveVehiclePassengers(w, context.vehicle);
+      count++;
     }
-    const name = rules.vehicleRestFlags[context.vehicle.model] & 1 ? 'Balloon' : 'Boat'
-    tell(w, count ? `Followers are boarding the ${name}.` : `No land route to the ${name}.`)
-    return true
+    const name = rules.vehicleRestFlags[context.vehicle.model] & 1 ? "Balloon" : "Boat";
+    tell(w, count ? `Followers are boarding the ${name}.` : `No land route to the ${name}.`);
+    return true;
   }
   const queuedBuilding =
     [6, 8, 10].includes(model) &&
     context.building &&
     [
-      'hut',
-      'camp',
-      'tower',
-      'temple',
-      'spyHut',
-      'firewarriorHut',
-      'boatHouse',
-      'balloonHut',
-    ].includes(context.building.kind)
+      "hut",
+      "camp",
+      "tower",
+      "temple",
+      "spyHut",
+      "firewarriorHut",
+      "boatHouse",
+      "balloonHut",
+    ].includes(context.building.kind);
   const queuedTree =
-    model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
+    model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6;
   if (
     model === 8 &&
     context.building &&
-    ['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(context.building.kind) &&
+    ["camp", "temple", "spyHut", "firewarriorHut"].includes(context.building.kind) &&
     !modifiers.ctrlKey &&
     !w.orderCursor
   ) {
-    const units = w.units.filter(u => u.hp > 0 && w.selected.includes(u.id)),
+    const units = w.units.filter((u) => u.hp > 0 && w.selected.includes(u.id)),
       input = playerOrderInput(8, 0, false, modifiers.shiftKey, modifiers.altKey),
-      order = emptyPersonOrder()
-    writePersonOrder(order, 8, context.building.id, 0, input.flags)
-    const result = replaceLiveTrainingOrders(w, units, order)
+      order = emptyPersonOrder();
+    writePersonOrder(order, 8, context.building.id, 0, input.flags);
+    const result = replaceLiveTrainingOrders(w, units, order);
     for (const person of selectionPeople(w))
-      person.selectionFlags = (person.selectionFlags & ~1) | (person.selectionFlags >>> 7)
-    if (input.deselect) cancelInteraction(w)
+      person.selectionFlags = (person.selectionFlags & ~1) | (person.selectionFlags >>> 7);
+    if (input.deselect) cancelInteraction(w);
     const trained = {
-      camp: 'warriors',
-      temple: 'preachers',
-      spyHut: 'spies',
-      firewarriorHut: 'firewarriors',
-    }
-    let message = 'No command slots available.'
+      camp: "warriors",
+      temple: "preachers",
+      spyHut: "spies",
+      firewarriorHut: "firewarriors",
+    };
+    let message = "No command slots available.";
     if (result.accepted) {
-      message = 'No selected followers can take this order.'
+      message = "No selected followers can take this order.";
       if (result.count)
-        message = `Braves sent to train as ${trained[context.building.kind as keyof typeof trained]}.`
+        message = `Braves sent to train as ${trained[context.building.kind as keyof typeof trained]}.`;
     }
-    tell(w, message)
-    return true
+    tell(w, message);
+    return true;
   }
   if (
     model === 15 ||
@@ -636,36 +711,36 @@ export function command(
     ((model === 3 || model === 27 || model === 28 || queuedBuilding || queuedTree) &&
       (modifiers.ctrlKey || w.orderCursor))
   ) {
-    const slot = w.orderCursor
+    const slot = w.orderCursor;
     const input = playerOrderInput(
       model,
       slot,
       modifiers.ctrlKey,
       modifiers.shiftKey,
-      modifiers.altKey
-    )
+      modifiers.altKey,
+    );
     const units = w.units.filter(
-      u => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), model)
-    )
+      (u) => canOrder(u) && w.selected.includes(u.id) && acceptsPersonOrder(combatPerson(u), model),
+    );
     if (!units.length) {
-      tell(w, 'No selected followers can take this order.')
-      return true
+      tell(w, "No selected followers can take this order.");
+      return true;
     }
     // Only release the old controller when beginning a new sequence or replacing
     // an order whose ownership has not yet migrated to the shared queue.
     for (const u of units) {
       const person = u.native ?? u.entry?.person ?? u.builder?.person,
-        active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
+        active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0;
       if (
         ![17, 31, 32].includes(active) &&
         (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 22, 27, 28].includes(active))
       ) {
-        release(w, u, model === 33)
-        if (model === 33 && person) u.native = person
+        release(w, u, model === 33);
+        if (model === 33 && person) u.native = person;
       }
     }
     const order = emptyPersonOrder(),
-      to = nativePosition(w, p)
+      to = nativePosition(w, p);
     writePersonOrder(
       order,
       model,
@@ -679,76 +754,76 @@ export function command(
             context.vehicle?.id ??
             0),
       ((to.x >>> 8) & 255) | (to.y & 0xff00),
-      input.flags
-    )
-    const result = appendLivePlayerOrders(w, units, order, slot === 0)
+      input.flags,
+    );
+    const result = appendLivePlayerOrders(w, units, order, slot === 0);
     if (model === 15 && result.accepted && context.building)
       for (const u of units) {
-        const person = u.native ?? u.entry?.person ?? u.builder?.person
-        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 15) continue
-        u.target = context.building.id
+        const person = u.native ?? u.entry?.person ?? u.builder?.person;
+        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 15) continue;
+        u.target = context.building.id;
       }
     if (model === 28 && result.accepted)
       for (const u of units) {
-        const person = u.native ?? u.entry?.person ?? u.builder?.person
-        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28) continue
-        u.target = context.person!.id
-        route(w, u, context.person!, true)
+        const person = u.native ?? u.entry?.person ?? u.builder?.person;
+        if (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28) continue;
+        u.target = context.person!.id;
+        route(w, u, context.person!, true);
       }
     for (const p of selectionPeople(w))
-      p.selectionFlags = (p.selectionFlags & ~1) | (p.selectionFlags >>> 7)
-    w.orderCursor = input.nextCursor
-    if (input.deselect) cancelInteraction(w)
+      p.selectionFlags = (p.selectionFlags & ~1) | (p.selectionFlags >>> 7);
+    w.orderCursor = input.nextCursor;
+    if (input.deselect) cancelInteraction(w);
     tell(
       w,
       result.accepted
         ? result.count
-          ? 'Your followers are on the move.'
-          : 'No followers can take this order.'
-        : 'No command slots available.'
-    )
-    return true
+          ? "Your followers are on the move."
+          : "No followers can take this order."
+        : "No command slots available.",
+    );
+    return true;
   }
   // Non-ground commands retain their existing controller until mixed queues are live.
-  w.orderCursor = 0
-  const shrine = model === 27 || model === 33 ? context.shrine : undefined
-  const friendly = [6, 8, 10].includes(model) ? context.building : undefined
-  const enemy = model === 28 ? context.person : undefined
-  const tree = model === 7 ? context.tree : undefined
-  const dismantling = model === 10
-  const headOrder = shrine && shrine.kind !== 'vault' ? worshipOrder(w, shrine) : 0
+  w.orderCursor = 0;
+  const shrine = model === 27 || model === 33 ? context.shrine : undefined;
+  const friendly = [6, 8, 10].includes(model) ? context.building : undefined;
+  const enemy = model === 28 ? context.person : undefined;
+  const tree = model === 7 ? context.tree : undefined;
+  const dismantling = model === 10;
+  const headOrder = shrine && shrine.kind !== "vault" ? worshipOrder(w, shrine) : 0;
   const moveOrder =
-    !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, tree ?? p)) : 0
+    !shrine && !friendly && !enemy ? movementOrder(w, nativePosition(w, tree ?? p)) : 0;
   if (
-    (shrine && shrine.kind !== 'vault' && !headOrder) ||
+    (shrine && shrine.kind !== "vault" && !headOrder) ||
     (!shrine && !friendly && !enemy && !moveOrder)
   ) {
-    tell(w, 'No command slots available.')
-    return true
+    tell(w, "No command slots available.");
+    return true;
   }
-  const aboardAttack: Unit[] = []
+  const aboardAttack: Unit[] = [];
   let count = 0,
     constructionFull = false,
-    attackOrdersFull = false
-  if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly)
-  for (const u of w.units.filter(u => canOrder(u) && w.selected.includes(u.id))) {
-    if (!acceptsPersonOrder(combatPerson(u), model)) continue
+    attackOrdersFull = false;
+  if (friendly && friendly.progress < 1 && !dismantling) constructionWorkers(w, friendly);
+  for (const u of w.units.filter((u) => canOrder(u) && w.selected.includes(u.id))) {
+    if (!acceptsPersonOrder(combatPerson(u), model)) continue;
     if (
       friendly &&
       (friendly.progress < 1 ||
         ![
-          'hut',
-          'camp',
-          'tower',
-          'temple',
-          'spyHut',
-          'firewarriorHut',
-          'boatHouse',
-          'balloonHut',
+          "hut",
+          "camp",
+          "tower",
+          "temple",
+          "spyHut",
+          "firewarriorHut",
+          "boatHouse",
+          "balloonHut",
         ].includes(friendly.kind)) &&
-      u.kind !== 'brave'
+      u.kind !== "brave"
     )
-      continue
+      continue;
     if (
       friendly &&
       friendly.progress < 1 &&
@@ -756,8 +831,8 @@ export function command(
       !friendly.builders!.includes(u.id) &&
       !friendly.builders!.includes(0)
     ) {
-      constructionFull = true
-      continue
+      constructionFull = true;
+      continue;
     }
     const goal = shrine
       ? headOrder
@@ -765,87 +840,88 @@ export function command(
         : entrance(w, shrine, 2)
       : friendly
         ? entrance(w, friendly)
-        : enemy && 'progress' in enemy
+        : enemy && "progress" in enemy
           ? entrance(w, enemy)
-          : (enemy ?? tree ?? p)
+          : (enemy ?? tree ?? p);
     const order = moveOrder || headOrder,
-      path = moveOrder ? null : planLivePath(w, u, goal)
-    if (!moveOrder && !path) continue
-    const person = u.native
+      path = moveOrder ? null : planLivePath(w, u, goal);
+    if (!moveOrder && !path) continue;
+    const person = u.native;
     if (
       enemy &&
       person?.vehicle &&
       ![4, 6].includes(person.model) &&
       w.objectCells.objects.get(u.id) === person &&
-      w.vehicles.some(v => v.id === person.vehicle && v.active && v.passengers.includes(u.id))
+      w.vehicles.some((v) => v.id === person.vehicle && v.active && v.passengers.includes(u.id))
     ) {
       // Admission is unchanged. Plain and staged packets both own command 28;
       // only the player-input staging bit differs (0x444f60/0x435cb0).
-      releasePersonRoute(w.motionRoutes, path!)
-      aboardAttack.push(u)
-      continue
+      releasePersonRoute(w.motionRoutes, path!);
+      aboardAttack.push(u);
+      continue;
     }
-    if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
-    release(w, u)
+    if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id);
+    release(w, u);
     if (order) {
-      if (path) releasePersonRoute(w.motionRoutes, path)
-      startLiveOrder(w, u, order)
-    } else acceptLivePath(w, u, path)
-    u.work = shrine?.id ?? friendly?.id ?? null
+      if (path) releasePersonRoute(w.motionRoutes, path);
+      startLiveOrder(w, u, order);
+    } else acceptLivePath(w, u, path);
+    u.work = shrine?.id ?? friendly?.id ?? null;
     if (friendly && friendly.progress < 1 && !dismantling)
-      u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true }
-    u.target = enemy?.id ?? null
-    u.tree = tree?.id ?? null
-    if (shrine?.kind === 'vault')
-      u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 }
-    count++
+      u.builder = { task: BuilderTask.Approach, busy: 0, phase: 0, restart: true };
+    u.target = enemy?.id ?? null;
+    u.tree = tree?.id ?? null;
+    if (shrine?.kind === "vault")
+      u.vault = { head: shrine.id, phase: 1, entering: true, remaining: 0 };
+    count++;
   }
   if (enemy && aboardAttack.length) {
     const input = playerOrderInput(28, 0, false, modifiers.shiftKey, modifiers.altKey),
       order = emptyPersonOrder(),
-      to = nativePosition(w, enemy)
-    for (const u of aboardAttack) release(w, u)
-    writePersonOrder(order, 28, enemy.id, ((to.x >>> 8) & 255) | (to.y & 0xff00), input.flags)
-    const result = appendLiveOrders(w, aboardAttack, order, true)
-    attackOrdersFull = !result.accepted
+      to = nativePosition(w, enemy);
+    for (const u of aboardAttack) release(w, u);
+    writePersonOrder(order, 28, enemy.id, ((to.x >>> 8) & 255) | (to.y & 0xff00), input.flags);
+    const result = appendLiveOrders(w, aboardAttack, order, true);
+    attackOrdersFull = !result.accepted;
     if (result.accepted)
       for (const u of aboardAttack) {
-        if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 28) continue
-        u.target = enemy.id
-        route(w, u, enemy, true)
-        count++
+        if (!u.native || currentPersonOrder(w.buildingOrders, u.native)?.model !== 28) continue;
+        u.target = enemy.id;
+        route(w, u, enemy, true);
+        count++;
       }
     for (const u of aboardAttack)
       if (u.native)
-        u.native.selectionFlags = (u.native.selectionFlags & ~1) | (u.native.selectionFlags >>> 7)
-    if (input.deselect) cancelInteraction(w)
+        u.native.selectionFlags = (u.native.selectionFlags & ~1) | (u.native.selectionFlags >>> 7);
+    if (input.deselect) cancelInteraction(w);
   }
-  let message = 'No land route. Bring your shaman to the shore and make a Land Bridge.'
+  let message = "No land route. Bring your shaman to the shore and make a Land Bridge.";
   if (count) {
-    message = 'Your followers are on the move.'
-    if (dismantling) message = 'Braves assigned to dismantle the building and recover timber.'
+    message = "Your followers are on the move.";
+    if (dismantling) message = "Braves assigned to dismantle the building and recover timber.";
     else if (shrine) {
-      let requirement: string
-      if (shrine.kind === 'vault') requirement = 'Only your shaman can learn its secrets.'
-      else if (shrine.mode === 3) requirement = 'Only your shaman can worship here.'
-      else if (shrine.required === 1) requirement = 'One follower is enough.'
-      else requirement = `${shrine.required} followers are required.`
-      message = `Worshipping ${shrine.name}. ${requirement}`
+      let requirement: string;
+      if (shrine.kind === "vault") requirement = "Only your shaman can learn its secrets.";
+      else if (shrine.mode === 3) requirement = "Only your shaman can worship here.";
+      else if (shrine.required === 1) requirement = "One follower is enough.";
+      else requirement = `${shrine.required} followers are required.`;
+      message = `Worshipping ${shrine.name}. ${requirement}`;
     } else if (friendly) {
-      if (friendly.progress < 1) message = 'Braves assigned to construction.'
-      else if (friendly.kind === 'camp') message = 'Braves sent to train as warriors.'
-      else if (friendly.kind === 'temple') message = 'Braves sent to train as preachers.'
-      else if (friendly.kind === 'spyHut') message = 'Braves sent to train as spies.'
-      else if (friendly.kind === 'firewarriorHut') message = 'Braves sent to train as firewarriors.'
-      else if (friendly.kind === 'boatHouse') message = 'Braves sent to build a Boat.'
-      else if (friendly.kind === 'balloonHut') message = 'Braves sent to build a Balloon.'
-      else if (friendly.kind === 'tower') message = 'Followers sent to occupy the guard tower.'
-      else message = 'Braves sent to live in the hut.'
-    } else if (enemy) message = 'Your followers march to battle.'
-  } else if (attackOrdersFull) message = 'No command slots available.'
-  else if (constructionFull) message = 'This building already has its full construction crew.'
-  else if (shrine?.kind === 'vault')
-    message = 'Select your shaman to worship the Vault of Knowledge.'
-  tell(w, message)
-  return true
+      if (friendly.progress < 1) message = "Braves assigned to construction.";
+      else if (friendly.kind === "camp") message = "Braves sent to train as warriors.";
+      else if (friendly.kind === "temple") message = "Braves sent to train as preachers.";
+      else if (friendly.kind === "spyHut") message = "Braves sent to train as spies.";
+      else if (friendly.kind === "firewarriorHut")
+        message = "Braves sent to train as firewarriors.";
+      else if (friendly.kind === "boatHouse") message = "Braves sent to build a Boat.";
+      else if (friendly.kind === "balloonHut") message = "Braves sent to build a Balloon.";
+      else if (friendly.kind === "tower") message = "Followers sent to occupy the guard tower.";
+      else message = "Braves sent to live in the hut.";
+    } else if (enemy) message = "Your followers march to battle.";
+  } else if (attackOrdersFull) message = "No command slots available.";
+  else if (constructionFull) message = "This building already has its full construction crew.";
+  else if (shrine?.kind === "vault")
+    message = "Select your shaman to worship the Vault of Knowledge.";
+  tell(w, message);
+  return true;
 }
