@@ -81,16 +81,20 @@ animation files and tools are not copied into the repository.
 
 ## Live integration boundary
 
-Public `guardShaman` selects one mode for the entire selected non-Shaman batch.
-Native input accepts Blue living class1/model2–6 owners in ordinary native state17,
+Public `guardShaman` admits supported native owners individually within a selected
+non-Shaman batch. Native input accepts Blue living class1/model2–6 owners in ordinary native state17,
 19, or supported state10 move3/Guard30 queues. It rejects competing flight, fight,
 casting, lift, building-entry, builder, inside, work, target, tree, harvest, delivery,
 vault, attack-reservation, native work-group, vehicle, protected/dead/airborne/ghost,
 different-route or legacy-path ownership. A genuine pending G can retain state10
-with an empty queue after cancellation or exhaustion. All unsupported and mixed
-batches execute the former legacy operation unchanged; they are not native parity.
-No-selected/Shaman-only cancellation applies to supported adopted native guards.
-Old boolean guard history stays untouched by that cancellation.
+with an empty queue after cancellation or exhaustion. Unsupported selected people retain the former legacy release/toggle operation;
+they are not native parity. Native and legacy admission are both snapshotted before
+any cleanup, then the selected roster is visited once in order. Eligible people
+share one native command30 while unsupported peers keep their cleanup at their
+original roster position. This preserves allocation-before-clear and retry after
+earlier cleanup frees a slot; it does not claim original mixed-busy pool equality.
+No-selected/Shaman-only cancellation retains its existing all-candidates support
+check. Old boolean guard history stays untouched by that cancellation.
 
 The port uses existing `World.units` roster order, not `World.selected` order.
 It has no native tribe linked-list equivalent. Tests reverse selection order to
@@ -136,7 +140,10 @@ tested separately from the ordinary browser Save/Load gate.
 Focused native-vector and live tests cover shared/partial replacement, empty and
 Shaman-only cancellation, exhaustion, signed boundaries, same-person phase,
 protected/early returns, raw target anchors, checkpoint/pause, 30/60/120/144 Hz and
-irregular schedules, and whole-world equivalence to the old busy/mixed operation.
+irregular schedules, and whole-world equivalence to the old all-unsupported operation. Mixed-selection
+regressions preserve unsupported cleanup while requiring ordinary peers to retain
+native person/order/phase ownership; mixed whole-world equality to the old
+all-legacy dispatch is deliberately no longer the contract.
 These tests use supporting mechanics fixtures; they do not substitute for normal
 Mission10 Firewarrior training through hut149 with its ordinary mana, public G,
 deselection, repeat/cancel, following and Save/Load observation.

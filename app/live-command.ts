@@ -63,7 +63,7 @@ import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
 import { changeLivePersonState, registerLivePerson } from './live-people.ts'
 import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
-import { guardShamanOrders } from './shaman-guard.ts'
+import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
@@ -254,8 +254,13 @@ export function guardShaman(w: World) {
     guards = w.units.filter(
       u => u.team === 'blue' && u.native?.state === 10 && u.native.commandStatus === 30
     ),
-    candidates = selected.length ? selected : guards
-  if (candidates.every(u => ordinaryGuardOwner(w, u))) {
+    candidates = selected.length ? selected : guards,
+    admissions = candidates.map(u => ({
+      unit: u,
+      person: ordinaryGuardOwner(w, u) ? u.native : null,
+      legacy: canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman',
+    }))
+  if (admissions.every(({ person }) => person)) {
     const people = candidates.map(u => {
       const p = u.native!
       p.selectionFlags = (p.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0)
@@ -281,14 +286,28 @@ export function guardShaman(w: World) {
     )
     return
   }
-  // Busy/mixed groups and old boolean saves retain the existing whole-batch
-  // adapter until their controller handoffs are independently established.
-  for (const u of w.units.filter(
-    u => canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman'
-  )) {
-    const guard = !u.guard
-    release(w, u)
-    u.guard = guard
+  // Busy owners retain their old adapter, without discarding an ordinary peer's
+  // native owner. Snapshot both admissions before cleanup, then preserve roster
+  // visit order: a busy release may free a slot for a later native allocation.
+  let shared = 0
+  for (const { unit: u, person, legacy } of selected.length ? admissions : []) {
+    if (person) {
+      person.selectionFlags |= 128
+      shared = replaceShamanGuardOrder(
+        w.buildingOrders,
+        person,
+        shaman.id,
+        shared,
+        orderEffects(w),
+        id => id
+      )
+      person.guardInputPending = true
+      u.guard = false
+    } else if (legacy) {
+      const guard = !u.guard
+      release(w, u)
+      u.guard = guard
+    }
   }
   tell(w, 'Selected followers will guard your shaman.')
 }
