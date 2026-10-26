@@ -960,9 +960,12 @@ export class RenderView {
       const determinant = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
       if (Math.abs(determinant) < 1e-12) continue
       const u = ((by - cy) * (mouse.x - cx) + (cx - bx) * (mouse.y - cy)) / determinant,
-        v = ((cy - ay) * (mouse.x - cx) + (ax - cx) * (mouse.y - cy)) / determinant,
+        vNumerator = (cy - ay) * (mouse.x - cx) + (ax - cx) * (mouse.y - cy)
+      // Preserve mouse reads/coercions even when the first weight already rejects.
+      if (u < 0) continue
+      const v = vNumerator / determinant,
         t = 1 - u - v
-      if (u < 0 || v < 0 || t < 0) continue
+      if (v < 0 || t < 0) continue
       const ids = [ia, ib, ic],
         weights = [u / 1, v / 1, t / 1],
         sum = weights.reduce((total, weight) => total + weight),
