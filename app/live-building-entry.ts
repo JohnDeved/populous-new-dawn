@@ -471,7 +471,7 @@ function stepSchoolGuard(w: World, u: Unit) {
   const publish = () => {
     const occupied = !!(p.flags2 & 0x800000)
     if (occupied || u.inside !== null || p.building !== null) {
-      const b = w.buildings.find(b => b.id === u.inside)
+      const b = w.buildings.find(candidate => candidate.id === u.inside)
       const consistent =
         b && p.building === b.id && b.admission?.occupants.filter(id => id === p.id).length === 1
       const waiting = p.guardInputPending && !!(p.flags2 & 0x100000)

@@ -248,8 +248,8 @@ function ordinaryGuardOwner(w: World, u: Unit) {
 // entry/state21 support, and admission never creates or changes a person owner.
 function schoolGuardOwner(w: World, u: Unit) {
   const p = u.entry?.person,
-    b = w.buildings.find(b => b.id === u.inside),
-    route = w.pathfinding.people.get(u.id),
+    b = w.buildings.find(candidate => candidate.id === u.inside),
+    registeredRoute = w.pathfinding.people.get(u.id),
     cell = w.objectCells.objects.get(u.id)
   if (
     !p ||
@@ -279,7 +279,7 @@ function schoolGuardOwner(w: World, u: Unit) {
     u.vault ||
     u.attackReservation ||
     p.workFlags ||
-    (route && route !== p) ||
+    (registeredRoute && registeredRoute !== p) ||
     (cell && cell !== p) ||
     !b ||
     b.team !== 'blue' ||
