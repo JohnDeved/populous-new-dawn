@@ -1145,6 +1145,7 @@
         "tests/mission5-angel.test.mjs",
         "tests/angel-presentation.test.mjs",
         "tests/angel-strike-presentation.test.mjs",
+        "tests/angel-painter-order.test.mjs",
         "tests/shield-spell.test.mjs",
         "tests/housing-entry.test.mjs",
         "tests/human-training-orders.test.mjs",

@@ -207,10 +207,16 @@ export class Painter {
       const id = metadata.unit ?? metadata.building ?? metadata.shrine ?? metadata.point?.id
       // ponytail: only native people retain cell chains so far. Legacy people
       // and other object classes still need original allocation/list ownership.
+      // An owned mesh replacement can retain its original fallback allocation
+      // identity without painterSequence, which also selects the sprite phase.
       const sourceOrder =
         object.userData.painterSequence ??
         cellOrder.get(metadata.unit) ??
-        (id === undefined ? (sprite ? group.id : object.id) : -id)
+        (id === undefined
+          ? sprite
+            ? group.id
+            : (object.userData.painterFallbackId ?? object.id)
+          : -id)
       const rotation = scale
         ? modelMatrix(
             metadata.nativeHeading ?? 0,

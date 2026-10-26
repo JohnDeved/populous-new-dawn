@@ -354,9 +354,11 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     if (mesh.userData.nativeModel !== pose.object) {
       // 62/69 have different UVs, tiles and depth biases despite equal topology.
       // Release only this owned mesh/material; the shared atlas remains alive.
+      const fallbackId = mesh.userData.painterFallbackId ?? mesh.id
       mesh.removeFromParent()
       scene.releaseGroup(mesh)
       mesh = nativeModel(pose.object, 2, 4, false, scene.environment)
+      mesh.userData.painterFallbackId = fallbackId
       g.add(mesh)
     }
     const positions = angelPosePositions(pose)

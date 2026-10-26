@@ -59,6 +59,7 @@ export async function witnessAngelStrike(page, angelId, artifactDir, stage) {
     const trace = globalThis.angelStrikeResources = {
       oldMesh: mesh.uuid, oldGeometry: mesh.geometry.uuid,
       oldMaterial: mesh.material.uuid, atlas: mesh.material.map.uuid,
+      fallbackId: mesh.userData.painterFallbackId ?? mesh.id,
       geometryDisposals: 0, materialDisposals: 0, atlasDisposals: 0,
     }
     mesh.geometry.addEventListener('dispose', () => trace.geometryDisposals++)
@@ -83,6 +84,7 @@ export async function witnessAngelStrike(page, angelId, artifactDir, stage) {
         textureModeMatches: equal(mesh.geometry.getAttribute('textureMode').array, modelTextureModes(resource.data, 4)),
         mesh: mesh.uuid, geometry: mesh.geometry.uuid, material: mesh.material.uuid,
         atlas: mesh.material.map.uuid, trace: {...globalThis.angelStrikeResources},
+        fallbackId: mesh.userData.painterFallbackId, phase: scene.view.painter.source(mesh)?.phase,
         projectedCenter: { x: point.x, y: point.y } }
     }, { id: angelId, expected })
     assert.equal(result.model, expected)
@@ -92,6 +94,8 @@ export async function witnessAngelStrike(page, angelId, artifactDir, stage) {
     assert.notEqual(result.geometry, result.trace.oldGeometry)
     assert.notEqual(result.material, result.trace.oldMaterial)
     assert.equal(result.atlas, result.trace.atlas)
+    assert.equal(result.fallbackId, result.trace.fallbackId)
+    assert.equal(result.phase, 1, 'Resource replacement must retain the native-model Painter phase')
     assert.equal(result.trace.geometryDisposals, 1)
     assert.equal(result.trace.materialDisposals, 1)
     assert.equal(result.trace.atlasDisposals, 0)
