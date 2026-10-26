@@ -1,27 +1,37 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { registerHooks } from 'node:module'
+import { registerHooks, stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
 import { OrdinaryNumericProjection } from '../app/ordinary-numeric-projection.ts'
 
 // Exact helper bytes from fba1b019d6852a35853fa4ed4d95525841b32466.
 // Loading an old RenderView with candidate helper imports is not an independent oracle.
-const baselineURL = new URL('./support/ordinary-numeric-projection-before-clip.ts', import.meta.url)
+const frozenSource = readFileSync(
+  new URL('./fixtures/ordinary-numeric-projection-before-clip.ts.txt', import.meta.url), 'utf8'
+)
 assert.equal(
-  createHash('sha256').update(readFileSync(baselineURL)).digest('hex'),
+  createHash('sha256').update(frozenSource).digest('hex'),
   '509943ed976fadfb515d6d496d209e04c2f3ab417c6c9525708f8a368fc5ce0b'
 )
+// A synthetic app-local URL keeps the original helper's dependency resolution;
+// the exact frozen fixture stays outside TypeScript's production source glob.
+const baselineURL = new URL('../app/__ordinary_numeric_before_clip.ts', import.meta.url).href
 const hook = registerHooks({
   resolve(specifier, context, next) {
-    if (context.parentURL === baselineURL.href && specifier === './projection.ts')
-      return next(new URL('../app/projection.ts', import.meta.url).href, context)
+    if (specifier === baselineURL) return { url: baselineURL, shortCircuit: true }
     return next(specifier, context)
+  },
+  load(url, context, next) {
+    if (url === baselineURL)
+      return { format: 'module', shortCircuit: true,
+        source: stripTypeScriptTypes(frozenSource, { mode: 'transform' }) }
+    return next(url, context)
   },
 })
 let BaselineProjection
 try {
-  BaselineProjection = (await import(baselineURL.href)).OrdinaryNumericProjection
+  BaselineProjection = (await import(baselineURL)).OrdinaryNumericProjection
 } finally {
   hook.deregister()
 }
