@@ -412,7 +412,7 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const pickedId = (!scene.world.mode || directBlast) && scene.picking.pickPerson(event)
   // Ordinary commands may target a model; direct Blast retains its person-only hit.
   const modelId =
-    !scene.world.mode && !scene.overviewActive && scene.world.selected.length
+    !pickedId && !scene.world.mode && !scene.overviewActive && scene.world.selected.length
       ? scene.picking.pick(event)
       : null
   const picked =
