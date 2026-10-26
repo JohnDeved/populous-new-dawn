@@ -5,15 +5,26 @@ import { bindGame, effectPixels } from './browser-game.mjs'
 // Controlled logical-clock visits of the existing authored Angel. No injected
 // phase, target, pose, position, damage, or animation-controller state.
 export async function witnessAngelStrike(page, angelId, artifactDir, stage) {
-  async function visitUntil(stop, maxFrames) {
-    return page.evaluate(async ({ angelId, stop, maxFrames }) => {
+  async function visitUntil(stop, maxFrames, targetId = null) {
+    return page.evaluate(async ({ angelId, stop, maxFrames, targetId }) => {
       const scene = globalThis.testScene, world = scene.world,
         { advanceGame } = await import('/app/game-clock.ts'),
         angel = world.effects.find(effect => effect.id === angelId)
       world.paused = false
       world.speed = 1
+      const observedHits = []
       for (let frame = 0; frame < maxFrames; frame++) {
+        const target = world.units.find(unit => unit.id === targetId),
+          existingHits = new Set(world.effects.filter(effect => effect.kind === 'hit').map(effect => effect.id))
         advanceGame(world, scene.gameClock, 1 / 24)
+        // Observe the real short-lived effect at the proved timer-8 impact;
+        // waiting until model 69 returns would inspect it after natural expiry.
+        if (target && angel.angel.target === targetId && angel.angel.phase === 'striking' && angel.angel.timer === 8) {
+          const hit = world.effects.find(effect => effect.kind === 'hit' && !existingHits.has(effect.id) &&
+            effect.x === target.x && effect.z === target.z)
+          if (hit) observedHits.push({turn:world.turn,id:hit.id,target:target.id,x:hit.x,z:hit.z,
+            timer:angel.angel.timer, angelTarget:angel.angel.target, targetRemoved:!world.units.some(unit => unit.id === target.id)})
+        }
         scene.animateFx(scene.fxMeshes.get(angelId), angel)
         const state = angel.angel.presentation
         if ((stop === 'partial' && angel.angel.phase === 'striking' &&
@@ -28,11 +39,12 @@ export async function witnessAngelStrike(page, angelId, artifactDir, stage) {
           cancelAnimationFrame(scene.frame)
           scene.renderer.render(scene.scene, scene.camera)
           return { frame, turn: world.turn, target: angel.angel.target,
-            phase: angel.angel.phase, state: structuredClone(state) }
+            phase: angel.angel.phase, state: structuredClone(state), observedHits,
+            targetRemoved: targetId !== null && !world.units.some(unit => unit.id === targetId) }
         }
       }
       throw new Error(`Authored Angel did not reach ${stop} within ${maxFrames} visits`)
-    }, { angelId, stop, maxFrames })
+    }, { angelId, stop, maxFrames, targetId })
   }
 
   const partial = await visitUntil('partial', 1200)
@@ -119,8 +131,11 @@ export async function witnessAngelStrike(page, angelId, artifactDir, stage) {
     mesh.geometry.addEventListener('dispose', () => trace.geometryDisposals++)
     mesh.material.addEventListener('dispose', () => trace.materialDisposals++)
   }, angelId)
-  const returned = await visitUntil('69', 96), returnedMesh = await inspect(69)
+  const returned = await visitUntil('69', 96, partial.target), returnedMesh = await inspect(69)
+  assert.ok(returned.observedHits.some(hit => hit.target === partial.target && hit.timer === 8),
+    'Actual target-specific timer-8 hit must be observed before its transient effect expires')
+  assert.equal(returned.targetRemoved, true, 'The observed strike target must be removed by return to model 69')
   await page.screenshot({ path: resolve(artifactDir, 'mission5-angel-strike-return69.png') })
   stage('actual return to initial model 69 with owned resource cleanup', { returned, returnedMesh })
-  return { target: partial.target }
+  return { target: partial.target, hit: returned.observedHits.length > 0 }
 }

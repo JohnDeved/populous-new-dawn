@@ -405,7 +405,7 @@ try {
   stage('ordinary RAF gameplay observation (not native timing parity)', running)
 
   const strikeWitness = await witnessAngelStrike(page, reward.angel.id, artifactDir, stage)
-  const combat = await page.evaluate(async ({angelId, strikeTarget}) => {
+  const combat = await page.evaluate(async ({angelId, strikeTarget, observedStrikeHit}) => {
     const scene = globalThis.testScene,
       world = scene.world,
       { advanceGame } = await import('/app/game-clock.ts'),
@@ -418,7 +418,7 @@ try {
       target ??= angel.angel.target
       if (target && !world.units.some(unit => unit.id === target)) break
     }
-    const hit = world.effects.some(effect => effect.kind === 'hit'),
+    const hit = observedStrikeHit || world.effects.some(effect => effect.kind === 'hit'),
       strikeCue = world.sounds.some(sound => sound.cue === 0xdc)
     // Retain PR105's bounded expiry-only fixture after a natural chase/strike;
     // no travel, reward, target, damage or kill state is forced.
@@ -439,7 +439,7 @@ try {
       cleanupCue: world.sounds.some(sound => sound.cue === 0xb2),
       meshRemoved: !scene.fxMeshes.has(angel.id),
     }
-  }, { angelId: reward.angel.id, strikeTarget: strikeWitness.target })
+  }, { angelId: reward.angel.id, strikeTarget: strikeWitness.target, observedStrikeHit: strikeWitness.hit })
   assert.ok(combat.target)
   assert.deepEqual(
     {
