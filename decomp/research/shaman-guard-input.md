@@ -95,6 +95,12 @@ original roster position. This preserves allocation-before-clear and retry after
 earlier cleanup frees a slot; it does not claim original mixed-busy pool equality.
 No-selected/Shaman-only cancellation retains its existing all-candidates support
 check. Old boolean guard history stays untouched by that cancellation.
+Unsupported cleanup equality is local to its unchanged release/toggle operation,
+not an assertion that old whole-batch side effects persist: eagerly releasing an
+ordinary resting peer previously rebuilt the shared resting cell, even changing
+a registered flight peer's slot. Native dispatch deliberately defers that ordinary
+state transition. Tests retain exact all-unsupported world equality and explicitly
+witness this mixed shared-cell difference without ignoring fields.
 
 The port uses existing `World.units` roster order, not `World.selected` order.
 It has no native tribe linked-list equivalent. Tests reverse selection order to
@@ -135,7 +141,7 @@ queue remains on its prior toggle; a later supported ordinary owner can accept
 fresh G. Paused input, replacement, cancellation and resumed clone/migration are
 tested separately from the ordinary browser Save/Load gate.
 
-## Acceptance status
+## Acceptance scope and retained prior evidence
 
 Focused native-vector and live tests cover shared/partial replacement, empty and
 Shaman-only cancellation, exhaustion, signed boundaries, same-person phase,
@@ -145,9 +151,11 @@ regressions preserve unsupported cleanup while requiring ordinary peers to retai
 native person/order/phase ownership; mixed whole-world equality to the old
 all-legacy dispatch is deliberately no longer the contract.
 These tests use supporting mechanics fixtures; they do not substitute for normal
-Mission10 Firewarrior training through hut149 with its ordinary mana, public G,
+Mission10 Firewarrior training through the authored hut with its ordinary mana, public G,
 deselection, repeat/cancel, following and Save/Load observation.
 
+The earlier native-G implementation recorded the following quality results; these
+are historical, not acceptance of the current mixed-selection revision.
 Scoped formatting and typecheck pass. Scoped ESLint findings are byte-identical
 to baseline; normalized Oxlint reports 388 baseline and 388 candidate findings,
 with none introduced. Global format still flags the unchanged baseline
