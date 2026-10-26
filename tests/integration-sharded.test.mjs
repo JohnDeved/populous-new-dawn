@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { gzipSync } from 'node:zlib'
+import { reportLines } from '../scripts/orchestration/ci-gate.mjs'
 import { GATES, SHARDED_FULL_GATE, gatesFor, reviewedWorkflows, validateEntry, decide, sha256 } from '../scripts/integration-queue/policy.mjs'
 import { BASELINE_DIAGNOSTIC, SHARDED_JOBS, shardedLogReceipt, validateShardedReceipt, validateBaselineLog } from '../scripts/integration-queue/sharded.mjs'
 import { GitHubReader } from '../scripts/integration-queue/github.mjs'
@@ -156,7 +158,7 @@ function adapterFixture() {
   }
   reader.workflow = () => ({ sha256: h })
   reader.git = () => expected.inventory.map(i => i.file).join('\n')
-  reader.gitOutput = (_, ref) => ref.endsWith('package-lock.json') ? 'lock\n' : `test ${ref.match(/a(\d)\.test/)[1]}\n`
+  reader.gitOutput = (_, ref) => ref.endsWith(':package.json') ? '{}' : ref.endsWith('package-lock.json') ? 'lock\n' : `test ${ref.match(/a(\d)\.test/)[1]}\n`
   return { reader, args: [e, pr, synthetic, exact, jobs, row, log] }
 }
 
@@ -213,7 +215,7 @@ test('reader rejects foreign worker checkout, workflow source, ref and altered G
     [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowSha = oid(9); args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
     [({ args }) => { const log = shardedLogReceipt(args[6]); log.identity.workflowRef = 'wrong'; args[6] = args[6].slice(0, args[6].indexOf('PND_FULL_CHECK_RECEIPT')) + receiptLog(log) }, /workflow source\/ref differs/],
     [({ reader }) => { reader.workflow = () => ({ sha256: 'b'.repeat(64) }) }, /workflow source\/ref differs/],
-    [({ reader }) => { reader.gitOutput = () => 'altered source' }, /test inventory differs/],
+    [({ reader }) => { const get = reader.gitOutput.bind(reader); reader.gitOutput = (command, ref) => ref.includes(':tests/') ? 'altered source' : get(command, ref) }, /test inventory differs/],
   ]) { const f = adapterFixture(); mutate(f); assert.throws(() => f.reader.verifyShardedRun(...f.args), reason) }
 })
 
@@ -336,4 +338,158 @@ test('reader obtains diagnostic reporter hash from exact merge Git bytes, not re
     }
     assert.deepEqual(seen, [`${oid(4)}:scripts/orchestration/test-timing-reporter.mjs`])
   }
+})
+
+// Independent known-answer fixture: a hand-built gzip member with one stored
+// DEFLATE block for ASCII 123456789. Standard CRC32 check value is cbf43926.
+// Neither this fixture nor its SHA256 comes from the production encoder.
+const knownRaw = '123456789'
+const knownSha = '15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225'
+const knownGzip = Buffer.from('1f8b0800000000000003010900f6ff3132333435363738392639f4cb09000000', 'hex')
+const transportHeader = 'PND_FULL_CHECK_RECEIPT_TRANSPORT=2:gzip-base64'
+function transportFixture(bytes, digest = knownSha, header = transportHeader) {
+  const encoded = bytes.toString('base64'), count = Math.ceil(encoded.length / 16000)
+  const chunks = Array.from({ length: count }, (_, index) =>
+    `PND_FULL_CHECK_RECEIPT_CHUNK=${index}/${count}:${encoded.slice(index * 16000, (index + 1) * 16000)}`)
+  return [...(header === null ? [] : [header]), ...chunks, `PND_FULL_CHECK_RECEIPT_SHA256=${digest}`].join('\n')
+}
+
+test('known gzip and intentional historical plain fixtures decode independently', () => {
+  assert.equal(shardedLogReceipt(transportFixture(knownGzip)), 123456789)
+  const plain = `PND_FULL_CHECK_RECEIPT_CHUNK=0/1:MTIzNDU2Nzg5\nPND_FULL_CHECK_RECEIPT_SHA256=${knownSha}`
+  assert.equal(shardedLogReceipt(plain), 123456789)
+  assert.equal(shardedLogReceipt(transportFixture(knownGzip).split('\n')
+    .map(line => `2026-10-20T03:15:09.000Z ${line}`).join('\n')), 123456789)
+})
+
+test('production gzip transport preserves complete independently validated receipt', () => {
+  const { receipt, expected } = fixture()
+  const decoded = shardedLogReceipt(reportLines(receipt).join('\n'))
+  assert.deepEqual(decoded, receipt)
+  assert.equal(validateShardedReceipt(decoded, expected), true)
+})
+
+test('versioned transport rejects headers, mixed codecs, ordering and corruption', () => {
+  const good = transportFixture(knownGzip), lines = good.split('\n')
+  for (const bad of [
+    good.replace('2:gzip-base64', '3:gzip-base64'),
+    good.replace('2:gzip-base64', '2:plain-base64'),
+    good.replace('TRANSPORT=', 'TRANSPORT ='),
+    good.replace('TRANSPORT=2', 'TRANSPORT=02'),
+    good.replace('gzip-base64', 'gzip-base64 '),
+    `${transportHeader}\n${good}`, `${good}\n${transportHeader}`,
+    [lines[1], lines[0], lines[2]].join('\n'),
+    [lines[0], lines[2], lines[1]].join('\n'),
+    `${good}\n${lines[1]}`, `${good}\n${lines[2]}`,
+    `${good}\nPND_FULL_CHECK_RECEIPT_UNKNOWN=1`,
+    transportFixture(Buffer.from(knownRaw)),
+    transportFixture(knownGzip, knownSha, null),
+    good.replace('CHUNK=0/1', 'CHUNK=00/1'),
+    good.replace('CHUNK=0/1', 'CHUNK=0/01'),
+    good.replace('CHUNK=0/1', 'CHUNK=0/2'),
+    good.replace('CHUNK=0/1', 'CHUNK=1/1'),
+    good.replace(/SHA256=./, 'SHA256=0'),
+    good.replace(/CHUNK=0\/1:./, 'CHUNK=0/1:!'),
+    lines.slice(0, 2).join('\n'), lines.slice(1).join('\n'),
+  ]) assert.throws(() => shardedLogReceipt(bad))
+})
+
+test('gzip rejects optional headers, corrupt trailers, truncation and trailing streams', () => {
+  const mutations = [
+    b => { b[0] = 0 }, b => { b[2] = 0 }, b => { b[3] = 4 },
+    b => { b[4] = 1 }, b => { b[8] = 2 }, b => { b[9] = 0 },
+    b => { b[b.length - 8] ^= 1 }, b => { b[b.length - 4] ^= 1 },
+    b => { b[10] = 7 },
+  ]
+  for (const mutate of mutations) {
+    const bytes = Buffer.from(knownGzip); mutate(bytes)
+    assert.throws(() => shardedLogReceipt(transportFixture(bytes)))
+  }
+  for (let length = 0; length < knownGzip.length; length++)
+    assert.throws(() => shardedLogReceipt(transportFixture(knownGzip.subarray(0, length))))
+  for (const bytes of [
+    Buffer.concat([knownGzip, knownGzip]), Buffer.concat([knownGzip, Buffer.from([0])]),
+    Buffer.concat([knownGzip.subarray(0, -8), Buffer.from([0]), knownGzip.subarray(-8)]),
+    Buffer.concat([knownGzip, Buffer.from('trailing')]),
+  ]) assert.throws(() => shardedLogReceipt(transportFixture(bytes)))
+})
+
+test('transport rejects bounded-input overflow and decompression bombs', () => {
+  assert.throws(() => shardedLogReceipt('x'.repeat(32 * 1024 * 1024 + 1)), /input byte limit/)
+  assert.throws(() => shardedLogReceipt('é'.repeat(16 * 1024 * 1024 + 1)), /input byte limit/)
+  // Valid JSON and matching SHA: only the inflation ceiling may produce this
+  // exact error, not the later decoded-size, checksum or JSON checks.
+  const bombJson = JSON.stringify(' '.repeat(8 * 1024 * 1024 - 2))
+  const bomb = gzipSync(Buffer.from(bombJson), { level: 6 })
+  Buffer.from('1f8b0800000000000003', 'hex').copy(bomb)
+  assert.throws(() => shardedLogReceipt(transportFixture(bomb, sha256(bombJson))),
+    { code: 'ERR_BUFFER_TOO_LARGE' })
+  const oversized = Buffer.alloc(8 * 1024 * 1024 + 1, 1)
+  assert.throws(() => shardedLogReceipt(transportFixture(oversized)), /byte limit/)
+  const tooMany = `${transportHeader}\n${'PND_FULL_CHECK_RECEIPT_CHUNK=0/1:AA==\n'.repeat(701)}PND_FULL_CHECK_RECEIPT_SHA256=${knownSha}`
+  assert.throws(() => shardedLogReceipt(tooMany))
+})
+
+
+test('multi-chunk compressed receipts reject omissions, reordering and noncanonical base64', () => {
+  let state = 123456789
+  const padding = Array.from({ length: 48000 }, () => {
+    state ^= state << 13; state ^= state >>> 17; state ^= state << 5
+    return String.fromCharCode(33 + ((state >>> 0) % 90))
+  }).join('')
+  const receipt = { padding }, lines = reportLines(receipt)
+  assert.ok(lines.length > 3)
+  assert.deepEqual(shardedLogReceipt(lines.join('\n')), receipt)
+  for (const bad of [
+    [lines[0], ...lines.slice(2)],
+    [lines[0], lines[2], lines[1], ...lines.slice(3)],
+    [lines[0], lines[1], lines[1], ...lines.slice(2)],
+    lines.map((line, index) => index === 1 ? line.slice(0, -1) : line),
+  ]) assert.throws(() => shardedLogReceipt(bad.join('\n')))
+  const known = transportFixture(knownGzip)
+  const parts = known.split('\n'), [prefix, data] = parts[1].split(':')
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+  const end = data.indexOf('=')
+  assert.ok(end > 0)
+  const changed = alphabet[alphabet.indexOf(data[end - 1]) | 1]
+  parts[1] = `${prefix}:${data.slice(0, end - 1)}${changed}${data.slice(end)}`
+  const noncanonical = parts.join('\n')
+  assert.notEqual(noncanonical, known)
+  assert.throws(() => shardedLogReceipt(noncanonical))
+})
+
+
+test('valid gzip cannot bypass original-JSON checksum or UTF-8 checks', () => {
+  const invalidUtf8 = Buffer.from([0x22, 0xff, 0x22])
+  const compressed = gzipSync(invalidUtf8, { level: 6 })
+  Buffer.from('1f8b0800000000000003', 'hex').copy(compressed)
+  assert.throws(() => shardedLogReceipt(transportFixture(compressed, sha256(invalidUtf8))), /UTF-8/)
+  assert.throws(() => shardedLogReceipt(transportFixture(knownGzip, '0'.repeat(64))), /checksum/)
+})
+
+test('trusted pnpm Full schema binds exact source locks without accepting an npm downgrade', () => {
+  const f = fixture()
+  Object.assign(f.expected, { packageManager: 'pnpm@11.25.0', packageJsonSha256: 'b'.repeat(64), pnpmLockSha256: 'c'.repeat(64), workspaceSha256: 'd'.repeat(64) })
+  const runtime = { ...f.receipt.runtime, dependencyFormat: 'pnpm-isolated-v1', packageManager: 'pnpm@11.25.0',
+    packageJsonSha256: f.expected.packageJsonSha256, sourceNpmLockSha256: f.expected.lockSha256,
+    pnpmLockSha256: f.expected.pnpmLockSha256, installedPnpmLockSha256: f.expected.pnpmLockSha256, workspaceSha256: f.expected.workspaceSha256 }
+  delete runtime.npm; delete runtime.installedLockSha256
+  for (const [i, envelope] of [f.receipt, f.receipt.quality, ...f.receipt.shards].entries()) {
+    envelope.version = 2; envelope.runtime = { ...runtime }; envelope.installation = { modulesMetadataSha256: String(i).repeat(64) }
+    if (envelope.shard) {
+      envelope.shard.version = 2; envelope.shard.plan.dependencyFormat = 'pnpm-isolated-v1'
+      envelope.shard.installationBefore = { ...envelope.installation }; envelope.shard.installationAfter = { ...envelope.installation }
+    }
+  }
+  assert.equal(validateShardedReceipt(f.receipt, f.expected), true)
+  for (const mutate of [
+    r => { r.version = 1 }, r => { r.runtime.pnpmLockSha256 = h },
+    r => { r.runtime.installedPnpmLockSha256 = h }, r => { r.runtime.workspaceSha256 = h },
+    r => { r.runtime.packageJsonSha256 = h }, r => { r.runtime.sourceNpmLockSha256 = h },
+    r => { r.runtime.npm = '11.9.0' }, r => { delete r.quality.installation },
+    r => { r.shards[0].installation = { modulesMetadataSha256: 'bad' } },
+    r => { r.shards[1].version = 1 }, r => { r.shards[1].shard.version = 1 },
+    r => { r.shards[1].shard.installationAfter = { modulesMetadataSha256: h } },
+  ]) { const copy = structuredClone(f.receipt); mutate(copy); assert.throws(() => validateShardedReceipt(copy, f.expected)) }
+  assert.throws(() => validateShardedReceipt(fixture().receipt, f.expected), /aggregate did not pass/)
 })

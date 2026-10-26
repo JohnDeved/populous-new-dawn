@@ -7,9 +7,10 @@ import { tooltipCallerFixture } from './support/tooltip-scene.mjs'
 import { supplyPanelDom } from './support/camp-panel-scene.mjs'
 
 // Test-local supplied-school fixture; no shared helper or resource policy expansion.
-async function firewarriorPanelFixture(t) {
+async function firewarriorPanelFixture(t, capacityMode = 'classic') {
   const fixture = await tooltipCallerFixture(t, {
     level: 2,
+    capacityMode,
     async prepareTarget({ api, world }) {
       const { buildingAdmission } = await import('../app/live-building-entry.ts')
       const hut = api.addBuilding(world, 'blue', 'firewarriorHut', { x: -99, z: -105 }, true)
@@ -350,14 +351,19 @@ function disposeScene(t, scene) {
     globe: { dispose: nop },
     waterMap: { dispose: nop },
     terrainMap: { dispose: nop },
+    terrainUpload: {},
+    minimap: { revision: undefined },
     pointerOutline: { remove: nop },
     spellPointer: { remove: nop },
   })
+  let contextLosses = 0
   scene.renderer.dispose = nop
+  scene.renderer.forceContextLoss = () => { ++contextLosses }
   scene.renderer.domElement.remove = nop
   scene.tooltipElement.remove = nop
   scene.worshipPresentation.dispose = nop
   scene.dispose()
+  assert.equal(contextLosses, 1, 'owned renderer context retirement reaches its supplied boundary')
 }
 
 async function replacementScene(t, scene, world) {
@@ -378,7 +384,7 @@ async function replacementScene(t, scene, world) {
 }
 
 test('Save preserves the current owner; Load clears transient ownership and stale bit23 cannot suppress the next request', async t => {
-  const fixture = await firewarriorPanelFixture(t),
+  const fixture = await firewarriorPanelFixture(t, 'scalable'),
     { scene } = fixture,
     { createGameStore } = await import('../app/game-store.ts'),
     { stepLiveTraining } = await import('../app/live-building-entry.ts'),

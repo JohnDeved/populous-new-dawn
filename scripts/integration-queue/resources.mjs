@@ -1,3 +1,4 @@
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import {
@@ -22,7 +23,7 @@ export function resourcePreflight(repo, git, approval = null, installReceipt = n
     result.files = plan.files.length
     result.groups = plan.groups.map(g => ({ concurrency: g.concurrency, files: g.files.length }))
     result.runtime = { node: process.versions.node, platform: process.platform, arch: process.arch }
-    result.installedLockSha256 = sha256(readFileSync(join(repo, 'node_modules/.package-lock.json')))
+    Object.assign(result, dependencyReceipt(repo))
     result.status = 'observed'
     result.reason =
       plan.parallelEligibility === 'reviewed'
@@ -40,6 +41,10 @@ export function productionOnlyProposal(repo, preflight, approval, installReceipt
   const raw = readFileSync(join(repo, 'engineering/test-resources.json'), 'utf8')
   const policy = JSON.parse(raw)
   const production = productionFingerprint(repo)
+  // The historical v1 approval cannot authorize a new pnpm concurrency profile.
+  // Observing pnpm is supported above; C1 remains until a separately reviewed
+  // source/helper/resource-policy renewal. Do not auto-refresh resource hashes.
+  if (preflight.dependencyFormat) throw new Error('Pnpm resource renewal requires a separately reviewed explicit approval schema; conservative C1 remains')
   if (
     approval.version !== 1 ||
     approval.kind !== 'productionSha256-only' ||

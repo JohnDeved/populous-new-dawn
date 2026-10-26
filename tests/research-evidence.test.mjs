@@ -73,7 +73,7 @@ for (const command of ['research-view', 'research-read']) for (const mode of ['m
       '--query', expected.query, '--adapter-version', expected.adapterVersion]
     if (command === 'research-read') args.push('--dossier', 'training', '--field', 'assembly')
     mkdirSync(join(f.repo, 'scripts/orchestration'), { recursive: true })
-    for (const name of ['cli.mjs', 'research-evidence.mjs', 'review-bundle.mjs'])
+    for (const name of ['cli.mjs', 'dependency-profile.mjs', 'research-evidence.mjs', 'review-bundle.mjs', 'receipt-streams.mjs'])
       writeFileSync(join(f.repo, 'scripts/orchestration', name), readFileSync(new URL(`../scripts/orchestration/${name}`, import.meta.url)))
     const result = spawnSync(process.execPath, ['scripts/orchestration/cli.mjs', ...args], { cwd: f.repo, encoding: 'utf8' })
     assert.equal(result.status, 1, result.stderr)
@@ -178,7 +178,7 @@ test('freshness boundary is inclusive and empty or duplicate contracts fail clos
 test('actual CLI exit status distinguishes accepted, failed and malformed claims', t => {
   const f = fixture(t)
   mkdirSync(join(f.repo, 'scripts/orchestration'), { recursive: true })
-  for (const name of ['cli.mjs', 'research-evidence.mjs', 'review-bundle.mjs']) {
+  for (const name of ['cli.mjs', 'dependency-profile.mjs', 'research-evidence.mjs', 'review-bundle.mjs', 'receipt-streams.mjs']) {
     writeFileSync(join(f.repo, 'scripts/orchestration', name), readFileSync(new URL(`../scripts/orchestration/${name}`, import.meta.url)))
   }
   f.claim.maxAgeMs = 60_000

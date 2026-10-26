@@ -176,7 +176,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   const { ObjectPanels } = await import('../app/object-panels.ts')
   const projections = []
   const draws = []
-  let screenOverride
+  let screenOverride, contextLosses = 0
   const element = (tagName = 'div') => ({
     tagName,
     children: [], style: {}, dataset: {}, classList: { add: nop },
@@ -207,6 +207,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
     visible: () => true, ownedSounds: new Map(), resize: { disconnect: nop },
     disposeListeners: [], scene: { remove: nop }, globe: { dispose: nop },
     releaseGroup: nop, waterMap: { dispose: nop }, terrainMap: { dispose: nop },
+    terrainUpload: {}, minimap: { revision: undefined },
     view: {
       dispose: nop,
       screen(point) {
@@ -214,7 +215,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
         return screenOverride ?? { x: point.x / 128, y: point.y / 32, z: 0 }
       },
     },
-    renderer: { dispose: nop, domElement: element() },
+    renderer: { dispose: nop, domElement: element(), forceContextLoss: () => { ++contextLosses } },
     cancelTooltipInspection: nop, tooltipElement: element(), pointerOutline: element(),
     spellPointer: element(), worshipPresentation: { dispose: nop },
   })
@@ -223,6 +224,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   assert.equal(scene.start(), true)
   t.after(() => {
     scene.dispose()
+    assert.equal(contextLosses, 1, 'each retired Scene reaches its supplied context-loss boundary once')
     for (const [name, descriptor] of globals) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
       else delete globalThis[name]
@@ -513,12 +515,14 @@ test('Vault Save/Load and replacement Scene rebuild only on the next live reques
   const { createGameStore } = await import('../app/game-store.ts')
   const { trainingPanelRequestOwner } = await import('../app/training-panel-requests.ts')
   const store = createGameStore()
-  const original = createWorld(3)
+  store.startMission(3)
+  const original = store.getWorld()
+  assert.equal(original.capacityPolicy.mode, 'scalable')
+  assert.ok(original.objectCells.heads instanceof Float64Array)
   finishLevelStart(original)
   select(original, 'shaman')
   assert.equal(command(original, original.shrines.find(shrine => shrine.kind === 'vault')), true)
   until(original, 'ordinary positive cache before Save', () => original.shrines.find(shrine => shrine.kind === 'vault').followers === 1)
-  store.change(target => Object.assign(target, structuredClone(original)))
   const current = await vaultSceneFixture(t, store.getWorld())
   current.scene.presentationBinding = store.bindPresentation(current.world)
   until(current.world, 'current automatic owner', () => current.scene.objectPanels.panels.has(current.vault.id))
@@ -588,7 +592,11 @@ test('Vault sampler rejects invalid local task owners and requests the sampled l
   const vault = world.shrines.find(shrine => shrine.kind === 'vault')
   // Explicit supplied second linked-body seam, not an authored second M3 Vault
   // or proof of the original separate class2/model18 physical object identity.
-  const second = { ...structuredClone(vault), id: world.nextId++, x: vault.x + 64 }
+  // A supplied physical body needs a unique ten-bit handle, not the unbounded
+  // general allocator used by current development saves.
+  const id = 900
+  assert.equal([...world.units, ...world.buildings, ...world.shrines].some(o => o.id === id), false)
+  const second = { ...structuredClone(vault), id, x: vault.x + 64 }
   world.shrines.push(second)
   const requests = []
   const release = bindTrainingPanelRequests(world, {

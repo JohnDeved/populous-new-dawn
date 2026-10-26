@@ -9,8 +9,7 @@ import { releasePersonRoute } from '../app/person-routes.ts'
 import { stepLiveVehicle } from '../app/live-vehicles.ts'
 import { stepLiveRoute } from '../app/live-pathfinding.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 
 const ids = [63, 111, 112, 113, 114]
 const checkpoint = () => {
@@ -25,7 +24,7 @@ const checkpoint = () => {
   )
   const w = deserialize(bytes)
   assert.equal(w.turn, 3800)
-  return w
+  return normalizeHistoricalFixture(w)
 }
 const party = w => ids.map(id => w.units.find(u => u.id === id))
 const distance = (a, b) =>
@@ -39,11 +38,14 @@ const distance = (a, b) =>
 // Historical browser checkpoint before the observed discontinuity. This does
 // not certify earlier route history or a complete authentic campaign crossing.
 test('route-advance departure launches every matching passenger without moving them to a distant ground waypoint', async () => {
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(10)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(checkpoint()))
+    const historical = checkpoint()
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     await store.saveCheckpoint()
     assert.ok(store.loadCheckpoint())
     const twin = store.getWorld(),
@@ -117,7 +119,7 @@ test('route-advance departure launches every matching passenger without moving t
       people.every(u => distance(u, { x: -13, z: 35 }) > 40),
       'this receipt does not fabricate mainland arrival'
     )
-  })
+  }
 })
 
 // Supplied route-ownership split at an otherwise actual pre-departure frontier.

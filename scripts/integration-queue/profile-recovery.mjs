@@ -1,3 +1,5 @@
+import { validateMission10SelectionEvidence } from '../local-render/mission10-selection-evidence.mjs'
+import { mission10ExpectedSelection, mission10Controls, mission10Modifiers } from '../local-render/mission10-selection.mjs'
 // Trusted read-only policy: never import this module from candidate Git source.
 import { createHash } from 'node:crypto'
 const ensure = (value, message) => {
@@ -39,6 +41,36 @@ export const PROFILE_INPUTS = [
   'app/page.tsx',
   'app/game-store.ts',
   'package-lock.json',
+  'scripts/tutorial-browser/mission10-profile.mjs',
+  'scripts/tutorial-browser/mission10-artifacts.mjs',
+  'scripts/tutorial-browser/mission10-input.mjs',
+  'scripts/tutorial-browser/mission10-profile-receipt.mjs',
+  'scripts/tutorial-browser/checkpoint-codec.mjs',
+  'scripts/local-render/mission10-boat-checkpoint.mjs',
+  'scripts/local-render/mission10-selection.mjs',
+  'scripts/local-render/mission10-selection-evidence.mjs',
+  'scripts/integration-queue/profile-artifact.mjs',
+  'scripts/artifact-zip.mjs',
+  'app/unit-animation-source.ts',
+  'app/building-workers.ts',
+  'scripts/local-render/mission1-vault-input.mjs',
+  'qa/erosion-ordinary/input.mjs',
+  'qa/erosion-ordinary/minimap-input.mjs',
+  'app/minimap.ts',
+  'app/world-coordinates.ts',
+  'app/native-math.ts',
+  'app/original-rules.json',
+  'app/live-command.ts',
+  'app/world-terrain-runtime.ts',
+  'app/selection-runtime.ts',
+  'app/hud-selection.ts',
+  'app/hud-person-source.ts',
+  'scripts/tutorial-browser/profile-host-receipt.mjs',
+  'scripts/tutorial-browser/profile-episodes.mjs',
+  'scripts/tutorial-browser/mission10-crew-receipt.mjs',
+  'scripts/integration-queue/mission10-recovery.mjs',
+  'scripts/integration-queue/browser-jobs.mjs',
+  'scripts/tutorial-browser/scenario-policy.mjs',
 ]
 export const PROFILE_CASES = [
   ['empty', 'passed', true],
@@ -77,12 +109,24 @@ export function profileRecoveryLog(log) {
   )
   return JSON.parse(bytes.toString('utf8'))
 }
-export function validateProfileRecovery(receipt, expected) {
+// Caller-owned contract, never inferred from receipt checkpoint versions.
+export function profileCheckpointVersion(expected = {}) {
+  if (expected.policy === 'spell-visuals-nine-v2') {
+    ensure(expected.checkpointVersion === 4, 'nine-job policy requires explicit current-v4 contract')
+    return 4
+  }
+  ensure(expected.policy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1'].includes(expected.policy),
+    'unsupported checkpoint policy')
+  ensure(expected.checkpointVersion === undefined || expected.checkpointVersion === 3, 'older policies require v3')
+  return 3
+}
+export function validateProfileHost(receipt, expected, kind, scenario) {
+  profileCheckpointVersion(expected)
   ensure(
     receipt?.version === 1 &&
-      receipt.kind === 'profile-recovery-browser' &&
+      receipt.kind === kind &&
       receipt.status === 'passed' &&
-      receipt.selectedScenario === 'profile-recovery',
+      receipt.selectedScenario === scenario,
     'scenario did not pass'
   )
   ensure(same(receipt.identity, expected.identity), 'run/attempt/source identity differs')
@@ -123,6 +167,10 @@ export function validateProfileRecovery(receipt, expected) {
       }),
     'official sandboxed Chrome required'
   )
+  return true
+}
+function validateProfileCasesCore(receipt, expected, kind) {
+  validateProfileHost(receipt, expected, kind, 'profile-recovery')
   ensure(
     receipt.scenarioStatus === 'passed' &&
       receipt.runtimeUnchanged === true &&
@@ -142,5 +190,104 @@ export function validateProfileRecovery(receipt, expected) {
       receipt.screenshots.every(s => isHash(s.sha256)),
     'visual evidence inventory incomplete'
   )
+  return true
+}
+export function validateProfileRecovery(receipt, expected) {
+  validateProfileCasesCore(receipt, expected, 'profile-recovery-browser')
+  validateMission10Profile(receipt.mission10, expected.identity.mergeSha, expected.mission10Evidence, expected)
+  return true
+}
+export function validateProfileCases(receipt, expected) {
+  validateProfileCasesCore(receipt, expected, 'profile-recovery-cases-browser')
+  ensure(receipt.mission10 === undefined, 'Separate M10 job cannot be claimed by recovery receipt')
+  return true
+}
+export const profileCasesLog = log => {
+  ensure(!log.includes('PND_PROFILE_RECOVERY_'), 'Composite receipt cannot replace split recovery evidence')
+  return profileRecoveryLog(log.replaceAll('PND_PROFILE_CASES_', 'PND_PROFILE_RECOVERY_'))
+}
+
+
+// Required companion, not a substitute for any of the nine recovery cases.
+export function validateMission10Profile(value, mergeSha, rawPhases, expected = {}) {
+  const checkpointVersion = profileCheckpointVersion(expected)
+  ensure(Array.isArray(rawPhases) && rawPhases.length === 2, 'Mission 10 bound raw evidence missing')
+  ensure(value?.status === 'passed' && value.sourceCommit === mergeSha &&
+    isHash(value.sourceFingerprint) && isHash(value.runtimeSha256) && isHash(value.reportSha256),
+    'Mission 10 source/runtime or report is missing')
+  ensure(value.artifacts?.path === 'mission10-artifacts.json' && isHash(value.artifacts.sha256) &&
+    Number.isSafeInteger(value.artifacts.bytes) && value.artifacts.bytes > 0, 'Mission 10 retained artifact manifest missing')
+  ensure(Array.isArray(value.phases) && value.phases.length === 2, 'Mission 10 requires both browser processes')
+  const party = [63, 111, 112, 113, 114]
+  const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/.test(value)
+  const checkpoint = tuple => {
+    ensure(Array.isArray(tuple) && tuple.length === 8, 'Mission 10 checkpoint tuple malformed')
+    const [version, level, turn, time, checkpointSha256, actorsSha256, terrainSha256, stockSha256] = tuple
+    return { version, level, turn, time, checkpointSha256, actorsSha256, terrainSha256, stockSha256 }
+  }
+  const phases = value.phases.map((phase, index) => {
+    ensure(Array.isArray(phase.binding) && phase.binding.length === 8, 'Mission 10 binding tuple malformed')
+    const [shared, sourceAfter, runtimeMatchesHost,
+      profileId, runId, previousRunId, cleanupVerified, continuationVerified] = phase.binding
+    ensure(shared === 0, 'Mission 10 source/runtime reference invalid')
+    const { sourceCommit, sourceFingerprint, runtimeSha256 } = value
+    ensure(index === 0 ? Array.isArray(phase.saved) : phase.saved === 0, 'Mission 10 saved checkpoint reference invalid')
+    return { ...phase, sourceCommit, sourceFingerprint, runtimeSha256, sourceAfter, runtimeMatchesHost,
+      profileId, runId, previousRunId, cleanupVerified, continuationVerified,
+      saved: checkpoint(index === 0 ? phase.saved : value.phases[0].saved), loaded: phase.loaded === null ? null : checkpoint(phase.loaded) }
+  })
+  const [saved, loaded] = phases
+  for (const [index, phase] of phases.entries()) {
+    ensure(phase.mode === (index === 0 ? 'created' : 'reused') && phase.status === 'passed' &&
+      phase.sourceCommit === mergeSha && phase.sourceFingerprint === value.sourceFingerprint &&
+      phase.runtimeSha256 === value.runtimeSha256 && phase.runtimeMatchesHost === true && phase.sourceAfter === 'identical' &&
+      phase.cleanupVerified === true && phase.continuationVerified === true &&
+      isHash(phase.receiptSha256) && isHash(phase.resultSha256) && uuid(phase.profileId) && uuid(phase.runId),
+      'Mission 10 phase source/runtime/cleanup is invalid')
+    ensure(phase.saved?.version === checkpointVersion && phase.saved.level === 10 && Number.isInteger(phase.saved.turn) && phase.saved.turn > 0 &&
+      Number.isFinite(phase.saved.time) && ['checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'].every(key => isHash(phase.saved[key])) &&
+      phase.checkpointAtEnd === phase.saved.checkpointSha256, 'Mission 10 committed checkpoint is incomplete')
+    ensure(phase.receiptName === `mission10-${phase.mode}--receipt.json` &&
+      phase.resultName === `mission10-${phase.mode}--boat-checkpoint.json`, 'Mission 10 retained report paths differ')
+    const names = index === 0 ? ['boarded'] : ['loaded', 'unloaded']
+    ensure(phase.selection === 0, 'Mission 10 selection must resolve the complete retained result')
+    const selection = validateMission10SelectionEvidence(rawPhases[index], names)
+    for (const raw of selection) {
+      const row = { ...raw, occupants: raw.occupants.map(p => [p.id, p.hp, p.vehicle]),
+        checks: raw.checks.map(c => [mission10Controls.indexOf(c.name), mission10Modifiers.indexOf(c.modifier), c.cleared, c.selected, c.preserved]) }
+      const occupied = row.phase !== 'unloaded'
+      const query = row.query
+      ensure(query.people.every(p => party.includes(p[0]) ? p[6] === (occupied ? 62 : 0) : p[6] === 0), 'Mission 10 query occupancy differs')
+      ensure(row.occupied === occupied && Array.isArray(row.occupants) &&
+        row.occupants.every(Array.isArray) && same(row.occupants.map(person => person[0]), party) &&
+        row.occupants.every(person => person.length === 3 && Number.isFinite(person[1]) && person[1] > 0 && (occupied ? person[2] === 62 : !person[2])),
+        'Mission 10 real occupancy/unload observation invalid')
+      ensure(Array.isArray(row.checks) && row.checks.length === 6, 'Mission 10 public selection checks incomplete')
+      for (const [at, check] of row.checks.entries()) {
+        ensure(Array.isArray(check) && check.length === 5, 'Mission 10 control observation malformed')
+        const [control, observedModifier, cleared, selected, preserved] = check
+        const name = at < 3 ? 'Select warrior' : 'Select follower', modifier = ['single', 'Control', 'Shift'][at % 3]
+        ensure(control === mission10Controls.indexOf(name) && observedModifier === mission10Modifiers.indexOf(modifier) && same(cleared, []) && preserved === true,
+          'Mission 10 Escape/control/modifier/preservation evidence invalid')
+        const expected = mission10ExpectedSelection(query, name, modifier).selected
+        ensure(same(selected, expected), 'Mission 10 selected crew differs')
+        ensure(!occupied || party.every(id => selected.includes(id)), 'Mission 10 crew propagation omitted')
+      }
+    }
+    const actions = index === 0 ? ['ordinary rally click', 'ordinary Boat boarding click', 'public Save single click']
+      : ['public Load Game', 'ordinary Boat right-click inspection', 'public Unload all passengers']
+    ensure(Array.isArray(phase.publicActions) && actions.every(action => phase.publicActions.filter(value => value === action).length === 1),
+      'Mission 10 genuine public route actions missing')
+    const namesExpected = index === 0 ? ['mission10-created--boarded-class-selected.png', 'mission10-created--saved-occupied-boat.png']
+      : ['mission10-reused--loaded-class-selected.png', 'mission10-reused--unloaded-class-selected.png']
+    ensure(Array.isArray(phase.screenshots) && same(phase.screenshots.map(row => row.name), namesExpected) &&
+      phase.screenshots.every(row => isHash(row.sha256)), 'Mission 10 rendered evidence missing')
+  }
+  ensure(saved.checkpointAtStart === null && saved.previousRunId === null && saved.loaded === null &&
+    loaded.profileId === saved.profileId && loaded.runId !== saved.runId && loaded.previousRunId === saved.runId &&
+    loaded.checkpointAtStart === saved.checkpointAtEnd && same(loaded.saved, saved.saved),
+    'Mission 10 process/profile/checkpoint continuation differs')
+  ensure(loaded.loaded?.version === checkpointVersion && ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']
+    .every(key => loaded.loaded[key] === saved.saved[key]), 'Mission 10 public Load boundary differs')
   return true
 }

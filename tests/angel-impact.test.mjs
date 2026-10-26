@@ -1,3 +1,4 @@
+import { retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addUnit, cast, tick } from '../app/model.ts'
@@ -8,11 +9,11 @@ import { createGameStore } from '../app/game-store.ts'
 // Supplied flat field, people, spell stock and status durations. The public cast,
 // projectile arrival, target selection and timer-eight impact run normally.
 function launch({ shield = false, bloodlust = false, immune = false } = {}) {
-  const w = createWorld()
+  const w = createWorld(1, 'scalable')
   w.manaWorld.loadFlags |= 0x200
   w.terrain.fill(3)
   w.terrainVersion++
-  w.units = []
+  retainFixtureUnits(w, () => false)
   w.buildings = []
   w.trees = []
   w.shrines = []

@@ -94,6 +94,7 @@ interface Props {
   onRetryCheckpoint: () => void
   renderOptions: (onBack: () => void) => ReactNode
   onContinue: () => void
+  saveDisabledReason?: string
   onSave: () => Promise<boolean>
   onLoad: () => void
   onRestart: () => void
@@ -104,6 +105,8 @@ function checkpointNotice(status: CheckpointReadStatus, hasCheckpoint: boolean) 
   switch (status) {
     case 'failed':
       return 'Could not read browser storage. Your saved checkpoint may still be available.'
+    case 'incompatible':
+      return 'This checkpoint is incompatible with the current development version. The stored save has not been changed.'
     case 'pending':
       return 'Checking browser storage…'
     case 'unavailable':
@@ -130,7 +133,8 @@ export function OriginalPauseMenu(props: Props) {
   const returnFocus = useRef('Continue Game')
   const rootFocus = useRef('Continue Game')
   const lookupAvailable = ['idle', 'pending', 'failed'].includes(props.checkpointReadStatus)
-  const loadDisabled = !props.hasCheckpoint && !lookupAvailable
+  const loadDisabled =
+    !props.hasCheckpoint && !lookupAvailable && props.checkpointReadStatus !== 'incompatible'
   useEffect(() => {
     const resize = () => setScale(frontendScale(window.innerWidth, window.innerHeight))
     resize()
@@ -305,8 +309,13 @@ export function OriginalPauseMenu(props: Props) {
         if (!buttons.length) return
         event.preventDefault()
         const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
+        // Save/load panel controls are outside nav, not the row before its first item.
         let next =
-          (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+          current < 0
+            ? event.key === 'ArrowUp'
+              ? buttons.length - 1
+              : 0
+            : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
         if (event.key === 'Home') next = 0
         else if (event.key === 'End') next = buttons.length - 1
         buttons[next]?.focus()
@@ -369,8 +378,8 @@ export function OriginalPauseMenu(props: Props) {
             </p>
             {panel === 'save' ? (
               <>
-                <p>Saving replaces the previous checkpoint.</p>
-                <button disabled={saving} onClick={() => void save()}>
+                <p>{props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}</p>
+                <button disabled={saving || !!props.saveDisabledReason} onClick={() => void save()}>
                   {saving ? 'Saving…' : 'Save checkpoint'}
                 </button>
               </>

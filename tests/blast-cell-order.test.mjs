@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { cast, command, createWorld, select, tick } from '../app/model.ts'
@@ -7,11 +8,13 @@ import { stepBlastWave } from '../app/blast-wave.ts'
 import { stepLiveBlastWave } from '../app/spell-effects-runtime.ts'
 import { createGameStore } from '../app/game-store.ts'
 
+const referenceId = scalableReferenceIds(3)
+
 function pendingFinalWave() {
   const store = createGameStore()
   store.startMission(3)
   const world = finishLevelStart(store.getWorld()),
-    mover = world.units.find(unit => unit.id === 312),
+    mover = world.units.find(unit => unit.id === referenceId(312)),
     origin = { x: mover.x, z: mover.z },
     originalCell = (mover.native.y >>> 9) * 128 + (mover.native.x >>> 9),
     roster = world.units.filter(unit => unit.team === 'blue').map(unit => unit.id)
@@ -97,9 +100,9 @@ const flights = world => world.units.filter(unit => unit.flight).map(unit => uni
 test('ordinary moved followers receive Blast in retained cell order at the five-visit allied cap', () => {
   const { world, wave } = pendingFinalWave()
   // 0050b740 counts visits, not unique followers: type2 search repeats its ring0 cell.
-  assert.deepEqual(nativeAlliedVisits(world, wave), [507, 507, 312, 309, 513])
+  assert.deepEqual(nativeAlliedVisits(world, wave), [507, 507, 312, 309, 513].map(referenceId))
   tick(world, 1 / 12)
-  assert.deepEqual(flights(world), [312, 309, 513, 507])
+  assert.deepEqual(flights(world), [312, 309, 513, 507].map(referenceId))
 })
 
 test('public checkpoint continuation preserves the pending Blast cap and linked identities', async () => {
@@ -108,9 +111,9 @@ test('public checkpoint continuation preserves the pending Blast cap and linked 
   assert.equal(store.loadCheckpoint(), true)
   const restored = store.getWorld(),
     { wave } = restored.effects.find(effect => effect.wave)
-  assert.deepEqual(nativeAlliedVisits(restored, wave), [507, 507, 312, 309, 513])
+  assert.deepEqual(nativeAlliedVisits(restored, wave), [507, 507, 312, 309, 513].map(referenceId))
   tick(restored, 1 / 12)
-  assert.deepEqual(flights(restored), [312, 309, 513, 507])
+  assert.deepEqual(flights(restored), [312, 309, 513, 507].map(referenceId))
 })
 
 test('unregistered legacy people retain the existing Blast fallback ordering', () => {
@@ -120,30 +123,30 @@ test('unregistered legacy people retain the existing Blast fallback ordering', (
     world.objectCells.objects.delete(person.id)
   }
   stepLiveBlastWave(world, wave)
-  assert.deepEqual(flights(world), [312, 309, 510, 507])
+  assert.deepEqual(flights(world), [312, 309, 510, 507].map(referenceId))
 })
 
 test('a mixed registered/unregistered cell retains the unregistered person slot', () => {
   const { world, wave } = pendingFinalWave(),
-    person = world.objectCells.objects.get(513)
+    person = world.objectCells.objects.get(referenceId(513))
   removeObjectFromCell(world.objectCells, person)
   world.objectCells.objects.delete(person.id)
   stepLiveBlastWave(world, wave)
-  assert.deepEqual(flights(world), [312, 309, 510, 507])
+  assert.deepEqual(flights(world), [312, 309, 510, 507].map(referenceId))
 })
 
 test('a same-ID cell alias cannot reorder a different live person owner', () => {
   const { world, wave } = pendingFinalWave(),
-    person = world.objectCells.objects.get(513)
+    person = world.objectCells.objects.get(referenceId(513))
   world.objectCells.objects.set(person.id, structuredClone(person))
   stepLiveBlastWave(world, wave)
-  assert.deepEqual(flights(world), [312, 309, 510, 507])
+  assert.deepEqual(flights(world), [312, 309, 510, 507].map(referenceId))
 })
 
 test('Blast snapshots owned slots before callbacks and preserves allied RNG', () => {
   const { world, wave } = pendingFinalWave(),
-    first = world.units.find(unit => unit.id === 507).native,
-    later = world.objectCells.objects.get(513),
+    first = world.units.find(unit => unit.id === referenceId(507)).native,
+    later = world.objectCells.objects.get(referenceId(513)),
     random = world.randomState
   let flags = first.flags4,
     interrupted = false
@@ -164,13 +167,13 @@ test('Blast snapshots owned slots before callbacks and preserves allied RNG', ()
   })
   stepLiveBlastWave(world, wave)
   assert.ok(interrupted)
-  assert.deepEqual(flights(world), [312, 309, 513, 507])
+  assert.deepEqual(flights(world), [312, 309, 513, 507].map(referenceId))
   assert.equal(world.randomState, random)
 })
 
 test('an unregistered vehicle retains its mixed-class slot before projected people', () => {
   const { world, wave } = pendingFinalWave(),
-    person = world.objectCells.objects.get(513),
+    person = world.objectCells.objects.get(referenceId(513)),
     boat = {
       ...createWorld(22).vehicles.find(vehicle => vehicle.model === 1),
       id: world.nextId++,
@@ -211,14 +214,14 @@ test('an unregistered vehicle retains its mixed-class slot before projected peop
   assert.equal(life, 4950)
   assert.equal(events[0], 'vehicle')
   assert.ok(events.includes('person'))
-  assert.deepEqual(flights(world), [312, 309, 513, 507])
+  assert.deepEqual(flights(world), [312, 309, 513, 507].map(referenceId))
 })
 
 test('supplied malformed distinct roster IDs sharing one person retain Blast fallback tolerance', () => {
   const { world, wave } = pendingFinalWave(),
-    unit = world.units.find(candidate => candidate.id === 513)
+    unit = world.units.find(candidate => candidate.id === referenceId(513))
   // Deliberately malformed compatibility control, without an ordinary producer.
   world.units.push({ ...unit, id: world.nextId++ })
   assert.doesNotThrow(() => stepLiveBlastWave(world, wave))
-  assert.deepEqual(flights(world), [312, 309, 513, 507])
+  assert.deepEqual(flights(world), [312, 309, 513, 507].map(referenceId))
 })

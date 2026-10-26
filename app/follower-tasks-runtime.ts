@@ -4,9 +4,14 @@ import { nativePersonModel } from './live-combat.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import { currentPersonOrder } from './person-orders.ts'
-import { unitAnimationSource, builderActivity, selectionBuilding } from './selection-runtime.ts'
+import {
+  type unitAnimationSource,
+  builderActivity,
+  selectionBuilding,
+} from './selection-runtime.ts'
 import { classifyFollowerTask, selectTaskFollowers, type FollowerTask } from './hud-tasks.ts'
 import type { HudSelectionMode } from './hud-selection.ts'
+import { hudPersonSource } from './hud-person-source.ts'
 import { markPersonSelected } from './person-selection.ts'
 import { sound } from './world-effects.ts'
 
@@ -73,20 +78,7 @@ export function hudTaskPeople(w: World, ownedOnly = true) {
   return w.units
     .filter(u => (!ownedOnly || u.team === 'blue') && u.hp > 0)
     .map(u => {
-      const active = unitAnimationSource(u),
-        route = w.pathfinding.people.get(u.id),
-        special = u.native && ![1, 10, 17, 19].includes(u.native.state) ? u.native : null,
-        source =
-          u.flight ??
-          u.fight?.motion ??
-          special ??
-          u.entry?.person ??
-          (route?.vehicle ? route : null) ??
-          active ??
-          u.native ??
-          u.builder?.person ??
-          route ??
-          null,
+      const { active, source } = hudPersonSource(w, u),
         position = source?.vehicle ? source : (active ?? nativePosition(w, u))
       return {
         id: u.id,

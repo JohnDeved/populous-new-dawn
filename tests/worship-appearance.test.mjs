@@ -4,7 +4,7 @@ import test from 'node:test'
 
 import models from '../app/original-models.json' with { type: 'json' }
 import { createWorld } from '../app/world-initialization.ts'
-import { migrateLegacyWorshipAppearance } from '../app/game-store.ts'
+import { migrateLegacyWorshipAppearance } from './helpers/historical-checkpoint.ts'
 import { tutorialLevel } from '../app/mission-data.ts'
 import {
   WORSHIP_ANGEL_MODEL,

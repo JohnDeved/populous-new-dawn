@@ -266,6 +266,23 @@ export function OriginalMainMenu({
     dialog.current?.querySelector<HTMLButtonElement>('nav button[aria-label="Load Game"]')?.focus()
     onRetryCheckpoint()
   }
+  const checkpointDescriptions = {
+    idle: 'Checking browser storage',
+    pending: 'Checking browser storage',
+    failed: 'Saved checkpoint could not be read',
+    unavailable: 'Browser storage is unavailable',
+    incompatible: 'Checkpoint is incompatible with this development version',
+    read: 'No usable saved checkpoint',
+  }
+  const checkpointRecoveryNotices = {
+    idle: '',
+    read: '',
+    failed: 'Could not read browser storage. Your saved checkpoint may still be available.',
+    incompatible:
+      'This checkpoint is incompatible with the current development version. The stored save has not been changed.',
+    pending: 'Checking browser storage…',
+    unavailable: 'Browser storage is unavailable. You can still play and save for this session.',
+  }
   const rows = [
     {
       label: 'New Game',
@@ -281,15 +298,7 @@ export function OriginalMainMenu({
     {
       label: 'Load Game',
       action: onLoad,
-      unavailable: hasCheckpoint
-        ? undefined
-        : checkpointReadStatus === 'failed'
-          ? 'Saved checkpoint could not be read'
-          : checkpointReadStatus === 'unavailable'
-            ? 'Browser storage is unavailable'
-            : checkpointReadStatus === 'pending' || checkpointReadStatus === 'idle'
-              ? 'Checking browser storage'
-              : 'No usable saved checkpoint',
+      unavailable: hasCheckpoint ? undefined : checkpointDescriptions[checkpointReadStatus],
     },
     {
       label: 'Multiplayer',
@@ -362,12 +371,15 @@ export function OriginalMainMenu({
           ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
         ]
         const current = buttons.indexOf(document.activeElement as HTMLButtonElement)
-        const next =
-          event.key === 'Home'
-            ? 0
-            : event.key === 'End'
+        // Recovery controls sit outside nav. Enter the row list at its nearest end.
+        let next =
+          current < 0
+            ? event.key === 'ArrowUp'
               ? buttons.length - 1
-              : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+              : 0
+            : (current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length
+        if (event.key === 'Home') next = 0
+        else if (event.key === 'End') next = buttons.length - 1
         buttons[next]?.focus()
       }}
       onCancel={event => {
@@ -457,14 +469,8 @@ export function OriginalMainMenu({
         {panel === 'options' && renderOptions(back, setOptionRows)}
         {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
           <section className={styles.checkpointRecovery} aria-label="Browser checkpoint recovery">
-            <p role="status">
-              {checkpointReadStatus === 'failed'
-                ? 'Could not read browser storage. Your saved checkpoint may still be available.'
-                : checkpointReadStatus === 'pending'
-                  ? 'Checking browser storage…'
-                  : 'Browser storage is unavailable. You can still play and save for this session.'}
-            </p>
-            {checkpointReadStatus !== 'unavailable' && (
+            <p role="status">{checkpointRecoveryNotices[checkpointReadStatus]}</p>
+            {!['unavailable', 'incompatible'].includes(checkpointReadStatus) && (
               <button
                 type="button"
                 disabled={checkpointReadStatus === 'pending'}

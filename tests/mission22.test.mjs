@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { migrateCheckpoint } from '../app/game-store.ts'
-import { liveCommandContext } from '../app/live-command.ts'
+import { liveCommandContext, spellTargetError } from '../app/live-command.ts'
 import { liveVehicleCellObjects } from '../app/live-vehicles.ts'
 import { messageText } from '../app/messages.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
@@ -197,10 +197,10 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
   )
 
   // Original 0051f990 terrain clearance blocks tower 96 at 1336/1340. The first
-  // clear volley is 1344, impacting 1355 for 25 HP. Unlike the old through-ridge
+  // clear volley is 1344, impacting 1354 for 25 HP. Unlike the old through-ridge
   // impact at 1347, this misses the 1352 healing tick; every later heal remains 1.6 HP.
   assert.deepEqual(volleys, [[1344, 96, shaman.id]])
-  assert.deepEqual(health, [[1355, 75], [1360, 76.6], [1368, 78.2], [1376, 79.8]])
+  assert.deepEqual(health, [[1354, 75], [1360, 76.6], [1368, 78.2], [1376, 79.8]])
   assert.deepEqual([world.turn, shaman.hp], [1378, 79.8])
 
   world = migrateCheckpoint(structuredClone(world))
@@ -298,6 +298,14 @@ test('Mission 22 supplied-focus Shaman can claim the authored Balloon and comple
   world.selected = [shaman.id]
   assert.ok(command(world, { ...browserPosition(boat), id: boat.id }))
   stepUntil(world, () => boat.passengerCount === 1, 500)
+  // This stock was charged from the authored reward, and boarding used ordinary commands.
+  const bridgeStock = world.shots.bridge, shotsBefore = world.projectiles.length
+  const dryBridgeTarget = { x: -25, z: -61 }
+  assert.ok(bridgeStock > 0)
+  assert.equal(spellTargetError(world, 'bridge', dryBridgeTarget)?.code, -3)
+  assert.equal(cast(world, 'bridge', dryBridgeTarget), false)
+  assert.equal(world.shots.bridge, bridgeStock)
+  assert.equal(world.projectiles.length, shotsBefore)
   // A dry destination requests the native route-ground departure.
   assert.ok(supportsFollower(world, { x: -83, z: -59 }))
   assert.ok(command(world, { x: -83, z: -59 }))
@@ -316,6 +324,12 @@ test('Mission 22 supplied-focus Shaman can claim the authored Balloon and comple
     [balloon.team, balloon.passengers, shaman.native.vehicle],
     ['blue', [shaman.id], balloon.id]
   )
+  const balloonBridgeStock = world.shots.bridge
+  assert.ok(balloonBridgeStock > 0, 'authored mana continues charging Bridge')
+  assert.ok(supportsFollower(world, shaman), 'Balloon is over dry terrain for this target')
+  assert.equal(spellTargetError(world, 'bridge', shaman)?.code, -3)
+  assert.equal(cast(world, 'bridge', shaman), false)
+  assert.equal(world.shots.bridge, balloonBridgeStock)
 
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)

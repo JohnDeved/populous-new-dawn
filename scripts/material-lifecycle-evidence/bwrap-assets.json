@@ -1,0 +1,34 @@
+{
+  "status": "source-plan-not-acquired",
+  "assets": [
+    {
+      "name": "bubblewrap",
+      "version": "0.13.1",
+      "url": "https://github.com/containers/bubblewrap/releases/download/v0.13.1/bubblewrap-0.13.1.tar.xz",
+      "bytes": 129472,
+      "sha256": "0e85c8702248b8dd64144f594147553650cdd0e4c951690345faace79c217c4d"
+    },
+    {
+      "name": "meson",
+      "version": "1.12.1",
+      "url": "https://files.pythonhosted.org/packages/57/99/36cd25f9598eef70db97577440a70a360af505f6f01c2338a18d1556079c/meson-1.12.1-py3-none-any.whl",
+      "bytes": 1108668,
+      "sha256": "930bc7542cbd9f57009e182fd014eba48cf1a0180a7b9006d2d32d8f168d8b02"
+    },
+    {
+      "name": "libcap-dev",
+      "version": "1:2.66-5ubuntu2.4",
+      "url": "https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+build/32756518/+files/libcap-dev_2.66-5ubuntu2.4_amd64.deb",
+      "bytes": 595634,
+      "sha256": "07f2462867569a2119a2ad0f1593232663f2d1612b791c230d22a8d73a15abee"
+    },
+    {
+      "name": "libcap2",
+      "version": "1:2.66-5ubuntu2.4",
+      "url": "https://launchpad.net/~ubuntu-security-proposed/+archive/ubuntu/ppa/+build/32756518/+files/libcap2_2.66-5ubuntu2.4_amd64.deb",
+      "bytes": 30500,
+      "sha256": "23c627c77c66552a658e62852f244f4946dc543898e0ec5428d5dc6bffde2d6a"
+    }
+  ],
+  "totalCompressedBytes": 1864274
+}

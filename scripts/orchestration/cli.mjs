@@ -1,3 +1,4 @@
+import { scriptCommand } from './dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
@@ -1214,8 +1215,11 @@ function workflowPath(path) {
     '.agents/skills/populous-engineering',
     'engineering',
     'scripts/orchestration',
+    'scripts/native-ui-evidence',
+    'tests/native-ui-evidence.test.mjs',
     'tests/orchestration.test.mjs',
     'tests/workflow-handoff.test.mjs',
+    'tests/command-log.test.mjs',
     'tests/workflow-policy.test.mjs',
     'tests/test-runner.test.mjs',
     'tests/research-evidence.test.mjs',
@@ -1335,15 +1339,16 @@ export function planChanges(repo = ROOT, { base = 'HEAD' } = {}) {
   result.feedback = focusedTestFeedback(result, [
     ...project.crossCutting.map(entry => entry.path),
     ...project.subsystems.flatMap(subsystem => subsystem.sharedPaths),
-  ])
+  ], readJson(repo, 'package.json').packageManager === 'pnpm@11.25.0' ? 'pnpm' : 'npm')
   return result
 }
 
 // Reviewed mappings suggest a cheap editing loop only. They do not establish
 // dependency completeness, reuse evidence, or replace any selected final gate.
-export function focusedTestFeedback(plan, sharedPaths = []) {
+export function focusedTestFeedback(plan, sharedPaths = [], manager = 'npm') {
+  assert(['npm', 'pnpm'].includes(manager), 'Unsupported feedback package manager')
   const isTest = path => /^tests\/[^/]+\.test\.mjs$/.test(path)
-  const broad = path => sharedPaths.some(shared => pathMatches(path, shared)) || ['package.json', 'package-lock.json', 'tsconfig.json', 'app/model.ts', 'app/scene.ts'].includes(path) ||
+  const broad = path => sharedPaths.some(shared => pathMatches(path, shared)) || ['package.json', 'package-lock.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'tsconfig.json', 'app/model.ts', 'app/scene.ts'].includes(path) ||
     ['scripts/', 'engineering/', 'tests/support/', 'tests/helpers/'].some(prefix => path.startsWith(prefix)) ||
     (path.startsWith('tests/') && !isTest(path))
   const fallback = plan.changes.filter(change => broad(change.path) || change.status.startsWith('D') || change.endpoint === 'from').map(change => change.path)
@@ -1359,7 +1364,7 @@ export function focusedTestFeedback(plan, sharedPaths = []) {
   const full = fallback.length > 0 || (plan.changes.length > 0 && files.size === 0)
   return { advisory: true, finalGate: false, fullVerificationRequired: true,
     scope: full ? 'full' : files.size ? 'focused' : 'none',
-    command: full ? ['npm', 'test'] : files.size ? ['npm', 'run', 'test:focus', '--', ...[...files].sort()] : null,
+    command: full ? [manager, 'test'] : files.size ? scriptCommand(manager, 'test:focus', [...files].sort()) : null,
     reasons: full ? ['Conservative fallback: broad, deleted, unmapped, or no exact portable test mapping.', ...new Set(fallback)].sort() :
       ['Editing feedback only; mapped files are not an exhaustive dependency graph.'],
   }
@@ -1381,12 +1386,15 @@ export function repositoryCheckCoverage(repo, manifests = validateRepository(rep
       check.expected.exitCode === 0 && !check.expected.artifacts.length &&
       JSON.stringify([check.executable, ...check.args]) === JSON.stringify(command)
   }
-  const { scripts = {} } = readJson(repo, 'package.json')
-  if (!matches('repository-check', ['npm', 'run', 'check']) ||
-      scripts.check !== 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check') return []
+  const { scripts = {}, packageManager } = readJson(repo, 'package.json')
+  const manager = packageManager === 'pnpm@11.25.0' ? 'pnpm' : 'npm'
+  if (!matches('repository-check', [manager, 'run', 'check']) ||
+      scripts.check !== `${manager} run typecheck && ${manager} test && ${manager} run parity:check && ${manager} run orchestration:check`) return []
   return [
     ...(['node --test tests/*.test.mjs', 'node scripts/orchestration/test-runner.mjs all'].includes(scripts.test) &&
-      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
+      (matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs']) ||
+        matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/command-log.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs']) ||
+        matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/receipt-raw-budget.test.mjs', 'tests/receipt-budget-failures.test.mjs', 'tests/command-log.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs']))
       ? ['orchestration-tests'] : []),
     ...(scripts['orchestration:check'] === 'node scripts/orchestration/cli.mjs check' &&
       matches('orchestration-structural', ['node', 'scripts/orchestration/cli.mjs', 'check'])

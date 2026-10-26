@@ -358,7 +358,7 @@ test('Temple phase2 manual-to-automatic reuse exits without restarting and held 
 })
 
 test('typed Save and first Load publication preserve gameplay and discard manual Temple ownership', async t => {
-  const fixture = await templePanelFixture(t),
+  const fixture = await templePanelFixture(t, 'scalable'),
     { scene, temple, paint } = fixture,
     { createGameStore, migrateCheckpoint } = await import('../app/game-store.ts'),
     { ObjectPanels } = await import('../app/object-panels.ts'),
@@ -409,14 +409,19 @@ test('typed Save and first Load publication preserve gameplay and discard manual
     globe: { dispose: nop },
     waterMap: { dispose: nop },
     terrainMap: { dispose: nop },
+    terrainUpload: {},
+    minimap: { revision: undefined },
     pointerOutline: { remove: nop },
     spellPointer: { remove: nop },
   })
+  let contextLosses = 0
   scene.renderer.dispose = nop
+  scene.renderer.forceContextLoss = () => { ++contextLosses }
   scene.renderer.domElement.remove = nop
   scene.tooltipElement.remove = nop
   scene.worshipPresentation.dispose = nop
   scene.dispose()
+  assert.equal(contextLosses, 1, 'owned renderer context retirement reaches its supplied boundary')
   assert.equal(records(scene).size, 0)
   assert.equal(scene.objectPanels.buildingInspected, null)
   assert.equal(scene.objectPanels.buildingHeldPointer, null)

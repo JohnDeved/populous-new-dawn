@@ -97,14 +97,18 @@ try{
   const u=window.testStore.getWorld().units.find(u=>u.id===window.detourPerson);
   return u.native.heading!==512&&(u.x!==window.detourStart.x||u.z!==window.detourStart.z);
  }),'blocked live follower selects and moves along a native detour');
- await page.evaluate(()=>{
+ await page.evaluate(async()=>{
+  const {attachPersonRoute,releasePersonRoute}=await import('/app/person-routes.ts');
   const w=window.testStore.getWorld(),followers=w.units.filter(u=>u.kind!=='shaman').slice(0,2),routes=w.motionRoutes;
-  routes.active=1;routes.last=1;new DataView(routes.records.buffer).setInt16(109,2,true);routes.records[111]=1;
+  if(!(routes.references instanceof Float64Array))throw new Error('Expected current scalable route ownership');
+  for(const u of followers)releasePersonRoute(routes,u.native);
+  if(routes.active!==0)throw new Error('Shared celebration fixture requires no other route owners');
+  routes.records[111]=1;
   window.routeFollowers=followers.map(u=>u.id);
-  for(const u of followers)Object.assign(u.native,{substate:1,flags2:0x40020000,assignment:16,animationMode:0,speed:0,motionGroup:1,motionIndex:5});
+  for(const u of followers){attachPersonRoute(routes,u.native,1);Object.assign(u.native,{substate:1,flags2:0x40020000,assignment:16,animationMode:0,speed:0,motionIndex:5});}
  });
  await page.waitForFunction(()=>{const w=window.testStore.getWorld();return window.routeFollowers.every(id=>w.units.find(u=>u.id===id).native.motionGroup===0)&&w.motionRoutes.active===0;});
- assert.ok(await page.evaluate(()=>{const r=window.testStore.getWorld().motionRoutes.records;return r[109]===0&&r[110]===0&&r[111]===0;}),'last live follower frees the shared route');
+ assert.ok(await page.evaluate(()=>{const routes=window.testStore.getWorld().motionRoutes,r=routes.records;return routes.references[1]===0&&r[109]===0&&r[110]===0&&r[111]===0;}),'last live follower frees the shared route');
  await page.waitForFunction(()=>!window.testStore.getWorld().outcome.cameraPlaying);
  await page.evaluate(()=>{
   const store=window.testStore,startMission=store.startMission,old=store.getWorld()

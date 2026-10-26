@@ -1,5 +1,5 @@
 import { moveObjectInCells } from './object-cells.ts'
-import { buildingPose } from './building-shapes.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
 import {
   nativePosition,
   browserPosition,
@@ -244,9 +244,9 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     )
   const routeEffects: RouteEffects = {
     outside: id => {
-      const b = w.buildings.find(b => b.id === id)
-      if (!b) throw new Error(`Missing native route building ${id}`)
-      return buildingOutsidePoint(buildingPose(b))
+      const shape = liveBuildingShape(w, id)
+      if (!shape) throw new Error(`Missing native route building ${id}`)
+      return buildingOutsidePoint(shape)
     },
     buildingBlocks: cell =>
       !!pathCellBlocked(

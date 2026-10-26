@@ -1,4 +1,6 @@
 import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
+import { createCapacityPolicy, type CapacityMode } from './capacity-policy.ts'
+import { createMotionRoutes } from './person-routes.ts'
 import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
 import type { Point, Shrine, Vehicle, World } from './world-types.ts'
@@ -24,7 +26,9 @@ import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
-export function createWorld(missionNumber = 1): World {
+// Direct callers default to the classic/native contract. The shipped store
+// explicitly selects scalable for new games; checkpoints carry their own mode.
+export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'classic'): World {
   const mission = missionData(missionNumber),
     level = mission.level
   const linkedObjects = (object: (typeof level.objects)[number]) =>
@@ -62,12 +66,17 @@ export function createWorld(missionNumber = 1): World {
                   ? 'balloonHut'
                   : undefined
   }
+  // Keep authored object IDs and initialization RNG identical to classic. The
+  // scalable general-ID reservation is installed before exposing the world.
   const w = createWorldState(missionNumber),
     linkedObjectIds = new Set(
       level.objects
         .filter(object => object.type === 6 && object.model === 6)
         .flatMap(object => linkedObjects(object).map(linked => linked.index + 1))
     )
+  // Select route storage before any authored command can acquire ownership.
+  // Keep classic initialization IDs/RNG; this is new-world setup, not save repair.
+  if (capacityMode === 'scalable') w.motionRoutes = createMotionRoutes(true)
   function missionTwentyShrine(object: (typeof level.objects)[number]): Shrine {
     const settings = object.settings!,
       links = linkedObjects(object),
@@ -503,5 +512,10 @@ export function createWorld(missionNumber = 1): World {
   if ([1, 2, 3].includes(missionNumber))
     for (const ai of w.campaignAIs) if (ai) ai.constructionRadius = 0
   rebuildConstructionBuildings(w)
+  w.capacityPolicy = createCapacityPolicy(capacityMode)
+  if (capacityMode === 'scalable') {
+    w.nextId = Math.max(1024, w.nextId)
+    w.buildingOrders.scalable = true
+  }
   return w
 }

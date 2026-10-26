@@ -4,6 +4,7 @@ import { browserPosition, command, createWorld, select, tick } from '../app/mode
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { vaultWorkEligible } from '../app/vault.ts'
 import { vaultAtPersonCell, vaultPoints } from '../app/vault-geometry.ts'
+import { syncLandscapeObjects } from '../app/world-terrain-runtime.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 
 function orderedWorld() {
@@ -55,8 +56,13 @@ test('supplied admission uses occupied Vault cells OR the linked outside coarse 
     assert.deepEqual(world, before, 'admission must not write navigation, route, task or RNG state')
   }
   const { world, shaman, vault, person } = suppliedAt(source, { x: 66304 & 65535, y: 32000 })
-  const other = { ...vault, id: world.nextId++, x: vault.x + 32 }
+  // Explicit low, unique authored-style handle: live building cells have ten
+  // owner bits even when the general development-save allocator exceeds 1023.
+  const id = 900
+  assert.equal([...world.units, ...world.buildings, ...world.shrines].some(o => o.id === id), false)
+  const other = { ...vault, id, x: vault.x + 32 }
   world.shrines.push(other)
+  syncLandscapeObjects(world)
   assert.equal(vaultAtPersonCell(world, person)?.id, other.id)
   assert.equal(vaultWorkEligible(world, shaman, vault), true, 'native occupancy need not name the sampled Vault')
 

@@ -12,7 +12,9 @@ coverage. Historical research and acceptance records remain evidence, not live q
    Prefer playable impact and unblock value, then evidence, effort, and risk. An issue
    names the live entry point, acceptance, owner, and concrete dependencies.
 2. **Isolate the writer.** Record the base/head and dirty status. Use one writer per
-   branch/worktree, with up to six workers coordinated by the parent. Commit coherent
+   branch/worktree. The current usage budget is four active workers across the whole
+   delegation tree, including nested workers and reviewers, plus the coordinating
+   parent (five active agents total), not a platform ceiling. Commit coherent
    checkpoints as Johann Berger <johann@objekt.stream>. Never overwrite another
    worker's work or push directly to main. Parent integration may use an explicitly
    supplied reviewed base; disclose dependencies in the PR.
@@ -31,17 +33,19 @@ coverage. Historical research and acceptance records remain evidence, not live q
 6. **Open/update a draft PR.** Link the issue; include outcome, scope, base/head,
    acceptance, check statuses, evidence, and remaining limits. For partial or dependent
    PRs, use `Refs #N`; use `Closes #N` only when the complete issue acceptance is met.
-   For visual changes, include before/after images in the PR and relevant issue
-   whenever possible (or link the same retained pair from both). Use comparable
-   scenarios/viewports and caption each with its exact commit SHA, what it shows,
-   and renderer/capture limitations. Distinguish original-game references; never
-   fabricate a before image. If a pair is unavailable, state why. Docs/tooling-only
-   changes need no images. Workers own repairs and evidence publication through review.
+   Complete the [PR template](../.github/pull_request_template.md), including
+   [visual evidence](#visual-evidence-before-review), before marking ready for review.
+   Workers own repairs and evidence publication through review.
 7. **Review and integrate.** A fresh internal reviewer inspects the actual full diff
    and evidence, returning findings plus ACCEPT/REJECT. The parent reviews the PR,
    resolves findings, validates the combined tree, and performs authorized main
    merges. A changed head requires review of substantive repairs and affected checks.
    Stop or clean only processes owned by this task; retain useful evidence.
+
+Before expensive preparation or validation, apply the [resource budget](resource-budget.md):
+one heavy execution owner, measured disk/tmpfs/memory admission, preserve-before-cleanup,
+and source-bound outcomes. Recover capacity before retrying; a blocked launch is not
+a failed build or permission to weaken acceptance.
 
 Use existing labels: `release-gate`, `overdue`, `unblocks`, `priority:critical`, and
 one applicable `status:in-progress`, `status:needs-review`, or `status:blocked`.
@@ -57,14 +61,47 @@ For narrow read-only research or a small docs fix, a compact issue/PR brief is e
 Do not create another contract just to delegate. An optional contract helps when scope,
 generated ownership, or multi-step verification needs mechanical checks.
 
+## Bound source-only workspace recovery
+
+Use the [cloud workspace bootstrap](cloud-bootstrap.md) for an explicit owned-storage
+binding and a read-only plan; source-only apply creates a sparse local source
+workspace without installing dependencies or materializing shared game assets.
+Runtime mode remains plan-only. The implementation has scoped source-only review,
+not acceptance of current-main integration, historical native recovery, runtime
+execution, startup adoption, permanent storage survival or RAM savings. Continue
+using [native setup](native-setup.md) separately when native prerequisites are needed.
+
+## Visual evidence before review
+
+- Any UI or game visual change requires actual rendered screenshots attached or
+  embedded in the PR body or a PR comment before marking it ready for review.
+  Keep the PR draft if capture or publication is blocked, and state the blocker.
+- Include comparable before/after views when useful; label both commits and explain
+  an unavailable before view. Never fabricate one. For animation changes, also
+  include a short ordered screenshot sequence or recording showing the changed motion.
+- Caption captures with the exact tested commit SHA, scene/scenario, viewport,
+  renderer, and what they demonstrate. Disclose supplied fixtures, seeded/injected
+  state, crops, and other capture limitations. Distinguish original-game references.
+  Refresh affected captures after visual changes; old-head images are not new-head proof.
+- Inspect actual pixels before publication. Generated mockups are not validation
+  evidence, and screenshots do not replace native, behavioral, or performance checks.
+  Use the existing [media attachment workflow](local-render-harness.md#put-visual-evidence-directly-in-github-reviews);
+  link relevant issues to the PR evidence rather than duplicating uploads.
+- Keep raw screenshots, recordings, and logs out of main when they exist only as
+  review evidence; retain them in ignored `work/` or outside the checkout and publish
+  on the PR. Preserve intentional fixtures under [artifact retention](artifact-retention.md).
+- Nonvisual PRs may mark visual evidence `not-applicable` with a brief reason.
+  This is a reviewer readiness requirement, not automated CI screenshot detection
+  or permission to bypass existing capture, publication, or verification safeguards.
+
 ## Useful local commands
 
 ```sh
-npm run orchestration:context -- --subsystem selection --query "native drag selection"
-npm run orchestration:plan -- --base <actual-base>
-npm run orchestration:check
-npm run orchestration:receipt -- --output work/orchestration/task/check.json -- npm run check
-npm run orchestration:receipt -- --output work/orchestration/task/build.json -- npm run build
+pnpm run orchestration:context --subsystem selection --query "native drag selection"
+pnpm run orchestration:plan --base <actual-base>
+pnpm run orchestration:check
+pnpm run orchestration:receipt --output work/orchestration/task/check.json -- pnpm run check
+pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pnpm run build
 ```
 
 - `context` retrieves bounded mapped evidence, current parity scope, source hashes,
@@ -93,6 +130,9 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
 - Optional `prepare`, `verify`, `audit`, and specialist role packets are documented in
   [contracts](contracts.md). They check scope/fingerprints and execute allowlisted
   checks; they never grant recording authority. Their use is not an acceptance claim.
+  Production verification retains raw-only command capture; decoded diagnostics are
+  optional allowance-bounded derivatives, not automatic duplicate files. See
+  [command diagnostics](contracts.md#on-demand-command-diagnostics) for safe materialization.
 
 There is no mandatory Local Dev binding, source-release handshake, delivery-clock
 ledger, separate reviewer chat, or browser-driven worker watcher. Use the executor's
@@ -100,7 +140,7 @@ normal task controls and report useful results directly to the parent.
 
 ## Fast feedback and full verification
 
-Use `npm run test:focus -- tests/example.test.mjs` while editing. It accepts exact,
+Use `pnpm run test:focus tests/example.test.mjs` while editing. It accepts exact,
 unique existing top-level test paths only, runs them with Node file isolation and
 concurrency one, and rejects empty lists, unknown paths and extra Node flags.
 `orchestration:plan` now adds an advisory `feedback` command from the existing
@@ -108,14 +148,23 @@ reviewed mappings and directly changed tests. Broad/shared, deleted, unmapped an
 unresolved cases suggest the full suite. These suggestions are deliberately
 partial; they do not establish dependency completeness or reuse a previous pass.
 
-`npm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
+For explicitly bounded scene-fixture startup, see
+[optional precompilation](scene-fixture-precompilation.md). It separates the exact
+TypeScript emitter from a later direct fixture process; it is off by default.
+Standard test plans/execution and shard certification reject either cache setting
+by presence (including empty values), rather than certify an unbound external cache.
+
+`pnpm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
 content-reviewed, in-memory/read-only files with at most two isolated Node workers,
 then every other file serially. `engineering/test-resources.json` binds each
-parallel file, all non-test `.mjs` helpers under `tests/`, the whole `app/` tree,
+parallel file, all other regular files under `tests/`, the whole `app/` tree,
 package/installed-lock/TypeScript configuration, and Node version/platform/architecture
 to a reviewed resource inventory. New/changed/unclassified tests run serially;
 shared-helper, production/config/runtime drift makes the whole suite serial until
-reviewed. Any nonempty `NODE_OPTIONS`, `NODE_PATH`, `NODE_COMPILE_CACHE`, or
+reviewed. The shared boundary includes helper code of any extension, fixtures and
+documentation; even data/docs-only changes deliberately require renewed review.
+Only discovered top-level test files retain individual classification.
+Any nonempty `NODE_OPTIONS`, `NODE_PATH`, `NODE_COMPILE_CACHE`, or
 `NODE_V8_COVERAGE` also forces serial execution;
 test-selection/isolation options in `NODE_OPTIONS` are rejected. The inventory never excludes a discovered test. Review
 transitive production/runtime resource changes too: this classification is not a
@@ -138,18 +187,18 @@ For example, this prints candidate shared fingerprints without writing the polic
 node --input-type=module -e "import {productionFingerprint,helperFingerprint} from './scripts/orchestration/test-runner.mjs'; console.log(JSON.stringify({productionSha256:productionFingerprint(process.cwd()),helpersSha256:helperFingerprint(process.cwd())},null,2))"
 ```
 
-`PND_TEST_CONCURRENCY=1 npm run check` uses the same file groups/order with the
+`PND_TEST_CONCURRENCY=1 pnpm run check` uses the same file groups/order with the
 parallel group reduced to one worker. Only values `1` and `2` are accepted.
-`npm run test:serial` provides the same serial test phase directly.
+`pnpm run test:serial` provides the same serial test phase directly.
 On an executor with an inherited global module path, the conservative default is
 serial. After verifying that this checkout resolves its installed dependencies
-without a custom loader/path, use `NODE_PATH= NODE_OPTIONS= NODE_COMPILE_CACHE= NODE_V8_COVERAGE= npm run check` for
+without a custom loader/path, use `NODE_PATH= NODE_OPTIONS= NODE_COMPILE_CACHE= NODE_V8_COVERAGE= pnpm run check` for
 that one invocation; use the same empty environment for both measurement profiles. This also prevents
 shared cache/coverage writes from qualifying for the parallel inventory.
 Do not change persistent settings or discard an intentional custom loader silently.
 `pnd-test-plan.parallelEligibility` explains any shared/runtime fallback. Focus always
 uses one worker. No new transform/result cache or runtime migration is involved.
-The standard `npm run check` and `npm run build` final gates remain required.
+The standard `pnpm run check` and `pnpm run build` final gates remain required.
 For ready PRs targeting main, the approved [hosted full gate](continuous-integration.md)
 runs both on the exact proposed merge. Use focused local checks while editing;
 do not duplicate a current hosted full run locally merely to wait for it. Keep
@@ -194,7 +243,12 @@ Leave `.openai/hosting.json` untouched.
 
 ## Verification
 
-Standard code-change gates are `npm run check` and `npm run build`, plus affected
+For save changes, follow [the development save contract](../README.md#development-save-contract).
+Verify current-format durability, new-game/restart/save/load continuation, malformed
+input checks, and clear incompatible-save rejection without stored-data changes.
+Classic/native fixtures are scoped research evidence, not an old-save obligation.
+
+Standard code-change gates are `pnpm run check` and `pnpm run build`, plus affected
 native/browser/performance checks. Maintained TypeScript also follows
 [README's quality workflow](../README.md#typescript-quality-workflow). Focused checks
 are useful during editing; run one sufficient final set on the reviewed candidate.
@@ -235,7 +289,7 @@ gates or GitHub ownership, and speed targets remain unproven until measured.
 
 ## Automatic evidence report
 
-`npm run parity:measure` derives local JSON/HTML/history from source-bound receipts,
+`pnpm run parity:measure` derives local JSON/HTML/history from source-bound receipts,
 without running game checks or editing completion flags. Normal receipt/verification
 commands refresh it automatically. See [automatic parity evidence](automatic-parity.md)
 for the initially incomplete Mission 1–3 bindings, freshness rules and evidence limits.

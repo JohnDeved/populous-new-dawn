@@ -11,9 +11,6 @@ import {
   effectFrame,
   nativeModel,
   nativeModels,
-  material,
-  part,
-  box,
   updateModelLighting,
 } from './scene-assets.ts'
 import {
@@ -23,7 +20,6 @@ import {
   buildingStage,
   nativePosition,
   maxHp,
-  buildingHp,
   unitAnimation,
   unitInvisibleToPlayer,
   unitInvisibilityRenderFlag,
@@ -61,6 +57,7 @@ import { stoneHeadAngle } from './stone-head-orientation.ts'
 import { stoneHead149Model } from './stone-head-149.ts'
 import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
+import { followerNativeDirections, nativeSpriteHidden } from './follower-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
 import { animationTeam, teamForTribe, tribeForTeam, vehicleApparentTribe } from './world-types.ts'
@@ -80,13 +77,14 @@ const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
 type UnitDirections = { frames: number[]; flip: boolean; source?: number }[]
 type UnitAnimationTable = Record<string, UnitDirections>
 
+// Preserve a matching legacy source only when the native catalog has no entry.
 // Imported animation tables have no runtime writers; retain their first source match.
 const unitDirectionsBySource = new WeakMap<
   UnitAnimationTable,
   Map<number | undefined, UnitDirections>
 >()
 
-function followerDirections(animations: UnitAnimationTable, source: number) {
+function legacyFollowerDirections(animations: UnitAnimationTable, source: number) {
   if (Number.isNaN(source)) return undefined
   let sources = unitDirectionsBySource.get(animations)
   if (!sources) {
@@ -114,14 +112,6 @@ const hutPuffFrames = new WeakMap<
   GameScene,
   { puffs: Extract<SecondaryEffect, { kind: 'hutPuff' }>[]; serials: Set<number> }
 >()
-
-const teamColor = {
-  blue: 0x303fc1,
-  red: 0xb92720,
-  yellow: 0xd1aa22,
-  green: 0x29864a,
-  wild: 0x9f9170,
-}
 
 function makeUnit(u: Unit) {
   const g = new THREE.Group()
@@ -219,16 +209,9 @@ function makeBuilding(scene: GameScene, b: Building, stage: number, temple = fal
     scene.environment
   )
   g.add(model)
-  const health = new THREE.Group(),
-    top = b.kind === 'tower' ? 6 : 4.8
-  part(health, box(2.5, 0.09, 0.05), material(0x201d16), 0, top)
-  const healthFill = part(health, box(2.5, 0.09, 0.06), material(teamColor[b.team]), 0, top, 0.01)
-  g.add(health)
   g.userData = {
     building: b.id,
     signature: `${id}-${stage}`,
-    health,
-    healthFill,
   }
   if (temple) g.userData.signature += '-animated'
   return g
@@ -604,13 +587,20 @@ export function updateUnitsFrame(scene: GameScene) {
     g.quaternion.identity()
     g.userData.nativeHeading = 0
     g.userData.cellPosition = u
-    if (u.native?.vehicle) {
+    const animationSource = unitRenderAnimationSource(u)
+    g.userData.missingNativeSource = undefined
+    g.userData.nativeSpriteHidden = nativeSpriteHidden(
+      animationSource?.object,
+      animationSource?.renderFlags ?? 0
+    )
+    if (u.native?.vehicle || g.userData.nativeSpriteHidden) {
       g.visible = false
       continue
     }
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
       !unitInvisibleToPlayer(scene.world, u)
+    if (!g.visible) continue
     const shield = g.userData.shield as THREE.Mesh
     shield.visible = !!u.shield
     if (shield.visible) {
@@ -621,8 +611,7 @@ export function updateUnitsFrame(scene: GameScene) {
     const bloodlust = g.userData.bloodlust as THREE.Mesh
     bloodlust.visible = !!u.bloodlust && (u.bloodlust >= 16 * 8 || !(scene.world.turn & 2))
     if (bloodlust.visible) bloodlust.rotation.z = scene.world.time * 4
-    const animationSource = unitRenderAnimationSource(u),
-      person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
+    const person = animationSource ?? u.native ?? u.entry?.person ?? u.builder?.person,
       owner = tribeForTeam(u.team),
       disguise = u.kind === 'spy' ? (person?.disguise ?? owner << 6) : owner << 6,
       target = disguise >>> 6,
@@ -676,13 +665,21 @@ export function updateUnitsFrame(scene: GameScene) {
       g.userData.since = scene.world.time
     }
     const source = animationSource?.object,
-      nativeDirections =
+      catalogDirections =
         source === undefined
           ? undefined
           : u.kind === 'shaman'
             ? shamanNativeDirections(u.team, source)
-            : followerDirections(animations, source),
+            : followerNativeDirections(source),
+      nativeDirections =
+        catalogDirections ??
+        (source !== undefined && u.kind !== 'shaman'
+          ? legacyFollowerDirections(animations, source)
+          : undefined),
       directions = nativeDirections || animations[state] || animations.idle
+    // Presentation-only diagnostic: unknown native sources remain observable
+    // without logging/allocating per frame or hiding a still-live legacy unit.
+    if (source !== undefined && !catalogDirections) g.userData.missingNativeSource = source
     scene.animatePerson(
       g,
       u.heading,
@@ -862,13 +859,6 @@ export function updateBuildingsFrame(scene: GameScene) {
     )
     g.userData.nativeTilt = b.damageState?.tilt ?? 0
     g.userData.nativeRoll = b.damageState?.roll ?? 0
-    // Original staged models carry construction progress in their geometry;
-    // the always-on horizontal construction box was a browser placeholder.
-    g.userData.health.visible = b.progress >= 1 && b.hp < buildingHp(b.kind)
-    g.userData.health.quaternion.copy(
-      g.quaternion.clone().invert().multiply(scene.camera.quaternion)
-    )
-    g.userData.healthFill.scale.x = Math.max(0.001, b.hp / buildingHp(b.kind))
   }
   updateHutSmokePuffs(scene)
 }
@@ -898,6 +888,14 @@ export function updateShrinesFrame(scene: GameScene) {
     const entry = scene.shrineMeshes.get(shrine.id)
     if (!entry) continue
     scene.locate(entry.g, shrine)
+    if (shrine.kind === 'vault')
+      updateWaveShake(
+        entry.g,
+        shrine,
+        nativePosition(scene.world, shrine),
+        scene.gameClock.animationFrame,
+        scene.waveFrames
+      )
     scene.orientModel(entry.g, stoneHeadAngle(shrine, scene.world.outcome.level))
     const marker = entry.g.userData.vaultKnowledgeMarker as THREE.Group | undefined
     if (marker) {

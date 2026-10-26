@@ -1,4 +1,5 @@
 import type { SecondaryEffects } from './secondary-effects.ts'
+import type { CapacityPolicy } from './capacity-policy.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
@@ -319,6 +320,8 @@ export type Shrine = Point &
     stoneHead?: StoneHeadAnimation | null
     knowledgeGlow?: AnimatedUnit & { displayedFrame: number }
     angle: number
+    shake?: number
+    shakeOrigin?: number
   }
 export type Tree = Point & {
   id: number
@@ -376,7 +379,7 @@ export type Effect = Point & {
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
-  corpse?: { remaining: number; phase: number; ground: number }
+  corpse?: { remaining: number; phase: number; ground: number; displayedFrame?: number }
   bridge?: LandBridge
   flatten?: Flatten
   erosion?: Erosion
@@ -445,6 +448,7 @@ export type CampaignAI = ScriptState &
   }
 
 export type World = {
+  capacityPolicy: CapacityPolicy
   objectCells: ObjectCells
   marching: LiveFormation[]
   combatMarches: CombatMarch[]

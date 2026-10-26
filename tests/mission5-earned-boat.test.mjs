@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 // Genuine campaign inputs: earn Convert, occupy the authored Tower, convert a
 // wild follower near the disconnected head, then earn and board the linked Boat.
 import test from 'node:test'
@@ -8,6 +9,8 @@ import { currentPersonOrder } from '../app/person-orders.ts'
 import { spellInRange, spellRange } from '../app/spell-casting.ts'
 import { vehicleReady } from '../app/vehicle-routing.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+
+const referenceId = scalableReferenceIds(5)
 
 test('earned Mission5 Boat is allocated, retires its template, and boards a real converted follower', async () => {
   await loadSceneFixture()
@@ -54,7 +57,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
     .sort(
       (a, b) => Math.hypot(a.x - head.x, a.z - head.z) - Math.hypot(b.x - head.x, b.z - head.z)
     )[0]
-  assert.deepEqual([world.turn, actor.id], [612, 339])
+  assert.deepEqual([world.turn, actor.id], [612, referenceId(339)])
   selectUnit(world, actor.id, false)
   assert.ok(command(world, { ...head, id: head.id }))
   const worship = currentPersonOrder(world.buildingOrders, actor.native)
@@ -92,7 +95,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   assert.ok(boat)
   assert.deepEqual(
     [boat.id, boat.x, boat.y, boat.counter, boat.life, boat.speed, world.vehicleAllocationSeed],
-    [489, 58340, 12314, 1, 4999, 0, 2]
+    [referenceId(489), 58340, 12314, 1, 4999, 0, 2]
   )
   assert.deepEqual(boat.rewardInitialization, {
     state: 1,

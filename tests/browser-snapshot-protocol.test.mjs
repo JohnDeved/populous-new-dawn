@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
+import { sha256 } from '../scripts/browser-performance/browser-runtime.mjs'
 import { FramePerformance } from '../app/frame-performance.ts'
 import { createPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
 import { installSnapshotObserver } from '../scripts/browser-performance/snapshot-observer.mjs'
@@ -168,10 +169,34 @@ test('paired classification requires exact query/submission inventory, state, so
   assert.equal(compareReports([report()], identity).rows.find(r => r.metric === 'terrainPick').p50.status, 'incomplete-shards-observation-only')
   const geometry = report(); geometry.runs[1].phases[0].blocks[0].geometrySha256 = 'd'.repeat(64)
   assert.equal(compareReports([geometry, report('recovery')], identity).rows[0].p50.status, 'geometry-input-mismatch')
-  const wrong = report(); wrong.runtimeSha256 = 'd'.repeat(64)
+  const wrong = report(); wrong.runs[1].environmentSha256 = 'd'.repeat(64)
   assert.equal(compareReports([wrong, report('recovery')], identity).rows[0].p50.status, 'environment-mismatch')
   assert.throws(() => compareReports([report()], { ...identity, runId: 9 }))
 })
+test('snapshot pinning preserves within-cell host/runtime refusals and independent shard admission', () => {
+  const environment = { browserVersion: 'Google Chrome 155.0.8059.84', browserSha256: '1'.repeat(64),
+    browserPinSha256: '2'.repeat(64), release: '7.0.0-1017-azure', runnerVersion: '20261018.339.1' }
+  const runtime = change => sha256(JSON.stringify({ ...environment, ...change }))
+  const make = (shard, change = {}) => {
+    const value = report(shard)
+    value.runtimeSha256 = runtime(change)
+    for (const run of value.runs) run.environmentSha256 = runtime(change)
+    return value
+  }
+  const matched = compareReports([make('world'), make('recovery')], identity)
+  assert.equal(matched.complete, true)
+  for (const change of [{ release: '6.17.0-1022-azure' }, { runnerVersion: '20261012.334.1' },
+    { browserVersion: 'Google Chrome 155.0.8059.39' }, { browserSha256: '3'.repeat(64) }, { browserPinSha256: '4'.repeat(64) }]) {
+    // V2 never pools disjoint shard cells; each shard still owns six matched arms.
+    assert.deepEqual(compareReports([make('world'), make('recovery', change)], identity), matched)
+    const changed = make('world'); changed.runs[1].environmentSha256 = runtime(change)
+    const result = compareReports([changed, make('recovery')], identity)
+    assert.ok(result.rows.filter(row => row.shard === 'world').every(row =>
+      row.p50.status === 'environment-mismatch' && row.p95.status === 'environment-mismatch'))
+    assert.deepEqual(result.rows.filter(row => row.shard === 'recovery'), matched.rows.filter(row => row.shard === 'recovery'))
+  }
+})
+
 function observer(actualRecorder) {
   const callbacks = new Map(), events = new Map(); let id = 0
   const recorder = actualRecorder ?? { recentCount: 1, timestamp: 20 }, scene = { fpsGraph: { samples: recorder }, cameraPosition: { x: 1, y: 2, angle: 0 },
@@ -487,5 +512,48 @@ test('capture handoff checks return before measured inputs or sidecar restart, w
     }
     assert.equal(calls.filter(call => call === 'six-fixed-inputs').length, 1)
     assert.equal(record.warmup.blocks.length, 6)
+  }
+})
+
+
+test('independent shard runtimes do not contaminate disjoint comparison cells', () => {
+  const reports = [report(), report('recovery')]
+  const before = compareReports(reports, identity)
+  reports[1].runtimeSha256 = 'd'.repeat(64)
+  for (const run of reports[1].runs) run.environmentSha256 = 'e'.repeat(64)
+  assert.deepEqual(compareReports(reports, identity), before)
+})
+
+test('within-cell environment changes fail closed, even when each pair agrees', () => {
+  for (const indexes of [[0], [1], [2], [3], [4], [5], [0, 1], [2, 3], [4, 5]]) {
+    const reports = [report(), report('recovery')]
+    for (const index of indexes) reports[0].runs[index].environmentSha256 = 'e'.repeat(64)
+    const result = compareReports(reports, identity)
+    for (const row of result.rows.filter(row => row.shard === 'world')) {
+      assert.deepEqual(row.p50, { status: 'environment-mismatch' })
+      assert.deepEqual(row.p95, row.p50)
+    }
+    assert.deepEqual(result.rows.filter(row => row.shard === 'recovery'),
+      compareReports([report(), report('recovery')], identity).rows.filter(row => row.shard === 'recovery'))
+  }
+})
+
+test('same-cell evidence cannot be combined from reports with same or different runtimes', () => {
+  for (const runtime of [digest, 'd'.repeat(64)]) {
+    const duplicate = report(); duplicate.runtimeSha256 = runtime
+    assert.throws(() => compareReports([report(), duplicate, report('recovery')], identity), /One report per shard/)
+  }
+  const transplanted = report('recovery')
+  transplanted.runs[0].phases[0] = structuredClone(report().runs[0].phases[0])
+  assert.throws(() => compareReports([report(), transplanted], identity))
+})
+
+test('environment scope change does not admit missing identity or historical protocol reports', () => {
+  for (const mutate of [r => { r.runtimeSha256 = null },
+    r => { r.runs[0].environmentSha256 = null },
+    r => { r.runs[0].runtimeSha256 = 'd'.repeat(64) },
+    r => { r.protocolSha256 = '6697351a369a029e19401a6a10e0a20763bcd4379a9b6fa02c2fd465503a5c51' }]) {
+    const value = report(); mutate(value)
+    assert.throws(() => compareReports([value, report('recovery')], identity))
   }
 })

@@ -1,0 +1,171 @@
+{
+  "evidence": "Static original PE bytes and disassembly only; no original instructions executed.",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "excerpt": {
+    "path": "controller.asm",
+    "start": "0x5029d0",
+    "endExclusive": "0x502d03",
+    "byteSha256": "45af58c5b002f53b7f91bebc1f17b3c93462058a9af1433a7daa9131534040e1",
+    "outputSha256": "80fac96c64882164d08beaddec339a588c1df82c9bd5fe0ed61cce1e8ec6e6d3",
+    "command": [
+      "objdump",
+      "-d",
+      "-Mintel",
+      "--start-address=0x5029d0",
+      "--stop-address=0x502d03",
+      "<verified-d3dpoptb.exe>"
+    ],
+    "exitCode": 0
+  },
+  "personTableRows": [
+    {
+      "row": 19,
+      "address": "0x5a6ea6",
+      "models": [
+        {
+          "model": 1,
+          "object": 0,
+          "source": 8,
+          "draw": 13
+        },
+        {
+          "model": 2,
+          "object": 115,
+          "source": 304,
+          "draw": 14
+        },
+        {
+          "model": 3,
+          "object": 116,
+          "source": 304,
+          "draw": 15
+        },
+        {
+          "model": 4,
+          "object": 117,
+          "source": 304,
+          "draw": 16
+        },
+        {
+          "model": 5,
+          "object": 118,
+          "source": 304,
+          "draw": 17
+        },
+        {
+          "model": 6,
+          "object": 119,
+          "source": 304,
+          "draw": 18
+        },
+        {
+          "model": 7,
+          "object": 126,
+          "source": 680,
+          "draw": 14
+        }
+      ]
+    },
+    {
+      "row": 18,
+      "address": "0x5a6e94",
+      "models": [
+        {
+          "model": 1,
+          "object": 0,
+          "source": 8,
+          "draw": 13
+        },
+        {
+          "model": 2,
+          "object": 88,
+          "source": 312,
+          "draw": 14
+        },
+        {
+          "model": 3,
+          "object": 89,
+          "source": 312,
+          "draw": 15
+        },
+        {
+          "model": 4,
+          "object": 90,
+          "source": 312,
+          "draw": 16
+        },
+        {
+          "model": 5,
+          "object": 91,
+          "source": 312,
+          "draw": 17
+        },
+        {
+          "model": 6,
+          "object": 92,
+          "source": 312,
+          "draw": 18
+        },
+        {
+          "model": 7,
+          "object": 127,
+          "source": 352,
+          "draw": 14
+        }
+      ]
+    },
+    {
+      "row": 20,
+      "address": "0x5a6eb8",
+      "models": [
+        {
+          "model": 1,
+          "object": 108,
+          "source": 248,
+          "draw": 13
+        },
+        {
+          "model": 2,
+          "object": 120,
+          "source": 320,
+          "draw": 14
+        },
+        {
+          "model": 3,
+          "object": 121,
+          "source": 320,
+          "draw": 15
+        },
+        {
+          "model": 4,
+          "object": 122,
+          "source": 320,
+          "draw": 16
+        },
+        {
+          "model": 5,
+          "object": 123,
+          "source": 320,
+          "draw": 17
+        },
+        {
+          "model": 6,
+          "object": 124,
+          "source": 320,
+          "draw": 18
+        },
+        {
+          "model": 7,
+          "object": 128,
+          "source": 360,
+          "draw": 14
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No original game, installer, native CPU or Ghidra execution.",
+    "Static controller branches and table identities do not prove the browser renderer, cadence adapter or ordinary death reachability."
+  ]
+}

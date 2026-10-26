@@ -5,6 +5,7 @@ import { OriginalOptions } from './original-options'
 import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
+import { StartupLogo } from './startup-logo'
 
 import { hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
@@ -45,6 +46,8 @@ import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
+import { SpellTestMenu } from './spell-test-menu'
+import { CHEAT_SAVE_NOTICE, spellTestShortcut } from './spell-test-cheats'
 import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -136,6 +139,8 @@ export default function Home() {
   const frontendPreparation = useRef<Promise<FrontendAssets> | null>(null)
   const [frontendAssets, setFrontendAssets] = useState<FrontendAssets | null>(null)
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
+  const [startupLogoDone, setStartupLogoDone] = useState(false)
+  const finishStartupLogo = useCallback(() => setStartupLogoDone(true), [])
   useEffect(() => {
     try {
       const saved = localStorage.getItem('hud-size')
@@ -146,6 +151,7 @@ export default function Home() {
     }
   }, [])
   const [menu, setMenu] = useState(false)
+  const [cheatsOpen, setCheatsOpen] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
@@ -269,14 +275,19 @@ export default function Home() {
       setNearbyPressed(false)
     }
     scene.nearbyFollowersHudActive =
-      ready && startup === 'playing' && !menu && !selectorOpen && scene.world === world
+      ready &&
+      startup === 'playing' &&
+      !menu &&
+      !cheatsOpen &&
+      !selectorOpen &&
+      scene.world === world
     if (!scene.nearbyFollowersHudActive) scene.cancelNearbyFollowers()
     return () => {
       scene.nearbyFollowersHudActive = false
       scene.cancelNearbyFollowers()
       scene.onNearbyFollowersCancel = undefined
     }
-  }, [world, ready, startup, menu, selectorOpen])
+  }, [world, ready, startup, menu, cheatsOpen, selectorOpen])
   useEffect(() => {
     const cancel = () => {
       nearbyPress.current = null
@@ -520,10 +531,25 @@ export default function Home() {
     }
   }, [startup, startupCampaign, selectorOpen, store])
   useEffect(() => {
+    const toggle = (event: KeyboardEvent) => {
+      if (!ready || startup !== 'playing' || menu || selectorOpen || world.status !== 'playing')
+        return
+      if (!spellTestShortcut(event, cheatsOpen)) return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      if (!cheatsOpen) cancelNearbyInput()
+      setCheatsOpen(open => !open)
+    }
+    globalThis.addEventListener('keydown', toggle, true)
+    return () => globalThis.removeEventListener('keydown', toggle, true)
+  }, [ready, startup, menu, selectorOpen, world, cheatsOpen, cancelNearbyInput])
+  useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
         menu ||
+        cheatsOpen ||
+        (e.key === 'Escape' && e.repeat) ||
         e.ctrlKey ||
         e.metaKey ||
         e.altKey ||
@@ -581,7 +607,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu, menu])
+  }, [world, update, store, ready, openMenu, menu, cheatsOpen])
   useEffect(() => {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
       audio.current?.mute()
@@ -715,6 +741,7 @@ export default function Home() {
     },
   }
   function beginLoad(request: LoadRequest) {
+    setCheatsOpen(false)
     if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
     menuSession.current = null
     pendingMenuCamera.current = []
@@ -746,6 +773,7 @@ export default function Home() {
     beginLoad({ kind: 'mission', mission })
   }
   function exitTutorial() {
+    setCheatsOpen(false)
     menuSession.current = null
     pendingMenuCamera.current = []
     cancelNearbyInput()
@@ -769,6 +797,7 @@ export default function Home() {
     return store.saveCheckpoint(session?.world === store.getWorld() ? session.paused : undefined)
   }
   function quitLevel() {
+    setCheatsOpen(false)
     menuSession.current = null
     pendingMenuCamera.current = []
     cancelNearbyInput()
@@ -808,7 +837,7 @@ export default function Home() {
     if (
       ready ||
       (event.target as Element).closest(
-        '.loading-world,[data-world-selector],[data-original-main-menu],[data-fullscreen-control]'
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-startup-logo],[data-fullscreen-control]'
       )
     )
       return false
@@ -1021,7 +1050,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
@@ -1119,7 +1148,7 @@ export default function Home() {
             className="world-message route-notice"
             style={{
               visibility: menu ? 'hidden' : undefined,
-              animationPlayState: menu || selectorOpen ? 'paused' : undefined,
+              animationPlayState: menu || selectorOpen || cheatsOpen ? 'paused' : undefined,
             }}
             role="status"
             onAnimationEnd={() =>
@@ -1468,7 +1497,8 @@ export default function Home() {
         </div>
       )}
 
-      {startup === 'choice' && !startupCampaign && frontendAssets && (
+      {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
+      {startup === 'choice' && startupLogoDone && !startupCampaign && frontendAssets && (
         <OriginalMainMenu
           prepared={frontendAssets}
           hasCheckpoint={store.hasCheckpoint()}
@@ -1557,6 +1587,20 @@ export default function Home() {
           onSelectLevel={openSelector}
         />
       )}
+      {cheatsOpen && (
+        <SpellTestMenu
+          store={store}
+          sceneRef={engine}
+          onClose={() => setCheatsOpen(false)}
+          onSelect={spell => {
+            store.change(w => {
+              w.mode = spell
+            })
+            setTab('spells')
+            setCheatsOpen(false)
+          }}
+        />
+      )}
       {menu && (
         <OriginalPauseMenu
           prepared={frontendAssets?.ingame}
@@ -1568,6 +1612,7 @@ export default function Home() {
           }}
           onContinue={closeMenu}
           onSave={saveCheckpoint}
+          saveDisabledReason={store.hasUsedCheats() ? CHEAT_SAVE_NOTICE : undefined}
           onLoad={loadCheckpoint}
           onRestart={restart}
           onQuitLevel={quitLevel}
