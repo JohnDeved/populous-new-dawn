@@ -59,9 +59,27 @@ class QualificationObservationFault(RuntimeError):
     """Exact internal fault type used only by the generated qualifier."""
 
 
+class OwnedIdentityComparisonFault(ValueError):
+    """Bounded comparison evidence; an ancestry mismatch remains fatal."""
+    def __init__(self, census, enriched):
+        super().__init__('Owned identity/ancestry changed during observation')
+        fields = ('pid', 'startTicks', 'ppid')
+        def bounded(value):
+            return value if type(value) is int and 0 <= value < 2**64 else None
+        self.comparison = {
+            'kind': 'owned-identity-ancestry-comparison', 'version': 1,
+            'census': {key: bounded(census[key]) for key in fields},
+            'enriched': {key: bounded(enriched[key]) for key in fields},
+            'differentFields': [key for key in fields if census[key] != enriched[key]],
+        }
+
+
 def failure_record(error):
-    return {'type': type(error).__name__, 'message': str(error),
-            'injectedFault': QUALIFIER_OBSERVER_FAULT if type(error) is QualificationObservationFault else None}
+    record = {'type': type(error).__name__, 'message': str(error),
+              'injectedFault': QUALIFIER_OBSERVER_FAULT if type(error) is QualificationObservationFault else None}
+    if type(error) is OwnedIdentityComparisonFault:
+        record['comparison'] = error.comparison
+    return record
 
 
 def require_qualifier_observer_failure(result):
@@ -839,8 +857,8 @@ def owned_process_rows(census, parent, known, namespace_roots, enrich, *, prepar
             if exited is not None and exited(census[pid]):
                 continue  # Exact identity-validated retained pidfd proved exit.
             raise  # Unknown/unpinned/readable-live identities remain fatal.
-        require(all(row[key] == census[pid][key] for key in ('pid', 'startTicks', 'ppid')),
-                'Owned identity/ancestry changed during observation')
+        if not all(row[key] == census[pid][key] for key in ('pid', 'startTicks', 'ppid')):
+            raise OwnedIdentityComparisonFault(census[pid], row)
         result.append(row)
     return result
 
@@ -961,6 +979,8 @@ class OwnerWatch:
                     self.observation_failure = {**getattr(self,'observation_context',{}),
                         'errorType':type(error).__name__,'errno':getattr(error,'errno',None),
                         'message':str(error)[:512]}
+                    if type(error) is OwnedIdentityComparisonFault:
+                        self.observation_failure['comparison'] = error.comparison
             raise
 
     def _observe(self):
@@ -1977,6 +1997,43 @@ def qualification_fixture(args):
         raise ValueError('Unknown qualification fixture')
 
 
+def finish_qualification_case(watch, limits, attempt, cleanup_context, case, failure=None, *, expected_fault=False):
+    """Retain failed cases and secondary failures without erasing the primary one."""
+    case['failure'] = failure_record(failure) if failure is not None else None
+    case['cleanupFailure'] = case['finishFailure'] = case['resourceRecordingFailure'] = None
+    case['resources'] = None
+    finish_receipt = {}
+    case['finishObservation'] = finish_receipt
+    try:
+        await_owned_cleanup(watch, limits, attempt, cleanup_context, phase='final')
+    except BaseException as error:
+        case['cleanupFailure'] = failure_record(error)
+        if failure is None:
+            failure = error
+    try:
+        deadline = cleanup_context.get('deadline')
+        require(type(deadline) in (int, float) and math.isfinite(deadline), 'Original cleanup deadline missing')
+        finish_observer(watch, expected_fault=expected_fault, result=case['result'],
+                        cleanup_deadline=deadline, receipt=finish_receipt)
+        finished = finish_receipt.get('finishedMonotonic')
+        require(finish_receipt.get('joined') is True and type(finished) in (int, float) and
+                math.isfinite(finished) and finished <= deadline,
+                'Qualifier observer finish exceeded original cleanup deadline')
+    except BaseException as error:
+        case['finishFailure'] = failure_record(error)
+        if failure is None:
+            failure = error
+    try:
+        case['resources'] = watch.report()
+    except BaseException as error:
+        case['resourceRecordingFailure'] = failure_record(error)
+        if failure is None:
+            failure = error
+    if failure is not None and case['failure'] is None:
+        case['failure'] = failure_record(failure)
+    return failure
+
+
 def qualify_backend(reference, evidence, expected_adapter):
     """Explicit live generated-sentinel lane. Produces evidence, never self-acceptance.
 
@@ -2033,10 +2090,16 @@ def qualify_backend(reference, evidence, expected_adapter):
             for name in ('readonly', 'rename', 'frozen', 'clock', 'escape', 'overflow', 'observer'):
                 attempt = records / name
                 make_layout(attempt, stage='run')
-                watch = OwnerWatch(attempt, limits, started)
+                case = results[name] = {'result': None, 'resources': None}
+                try:
+                    watch = OwnerWatch(attempt, limits, started)
+                except BaseException as failure:
+                    case['failure'] = failure_record(failure)
+                    raise
                 actual_snapshot = watch.snapshot
                 result = None
                 cleanup_context = {}
+                case_failure = None
                 try:
                     mounts = [['rw', str(attempt / 'launch-root'), '/pnd-fixture'],
                               ['ro', str(protected), str(protected)], ['ro', str(HERE), str(HERE)]]
@@ -2066,6 +2129,7 @@ def qualify_backend(reference, evidence, expected_adapter):
                     result = run_payload(runtime_spec, plan, attempt, command, case_limits, watch, expected_exe=tools['python'],
                                          producer_mode='inner' if name == 'clock' else 'gate',
                                          producer_receipt=attempt / 'control/producer-ready.json' if name == 'clock' else None)
+                    case['result'] = result
                     if name == 'observer':
                         watch.snapshot = actual_snapshot
                         require_qualifier_observer_failure(result)
@@ -2099,16 +2163,15 @@ def qualify_backend(reference, evidence, expected_adapter):
                         state = {'path': str(path), 'identity': file_identity(path, private=True)}
                     if name == 'frozen':
                         require(file_identity(state['path'], private=True) == state['identity'], 'Frozen fixture state changed')
-                    results[name] = {'result': result}
                     require(tree_inventory(protected) == before, 'Original sentinel or hardlink metadata changed')
+                except BaseException as failure:
+                    case_failure = failure
                 finally:
                     watch.snapshot = actual_snapshot
-                    try:
-                        await_owned_cleanup(watch, limits, attempt, cleanup_context, phase='final')
-                    finally:
-                        finish_observer(watch, expected_fault=name == 'observer', result=result)
-                    if name in results:
-                        results[name]['resources'] = watch.report()
+                    case_failure = finish_qualification_case(watch, limits, attempt, cleanup_context, case,
+                                                            case_failure, expected_fault=name == 'observer')
+                if case_failure is not None:
+                    raise case_failure
             require({str(path): inventory_hash(path) for path in tool_roots} == spec['toolRoots'], 'Qualifier tool input drift')
         except BaseException as failure:
             error = type(failure).__name__ + ': ' + str(failure)

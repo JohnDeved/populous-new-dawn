@@ -842,7 +842,8 @@ class PureCase(unittest.TestCase):
             def __init__(self, *args): self.snapshot = lambda: {}
             def cleanup(self): pass
             def survivors(self): return []
-            def finish(self): raise ValueError('late qualifier observer failure')
+            def finish(self, *, cleanup_deadline=None, receipt=None):
+                raise ValueError('late qualifier observer failure')
             def report(self): return {'failure': 'late qualifier observer failure'}
         with patch.object(execution, 'pinned_json', return_value=spec), \
              patch.object(execution, 'inventory_hash', return_value='a' * 64), \
@@ -1703,6 +1704,213 @@ class FinishFactsTests(unittest.TestCase):
         with patch.object(execution.time,'monotonic',return_value=6),self.assertRaisesRegex(ValueError,'shared cleanup deadline'):
             execution.finish_observer(watch,cleanup_deadline=5,receipt=receipt)
         self.assertTrue(receipt['joined']);self.assertTrue(receipt['healthy']);self.assertFalse(receipt['withinDeadline'])
+
+
+class QualificationFailureRetentionTests(unittest.TestCase):
+    def test_qualifier_registers_partial_case_and_finalizes_same_context(self):
+        import ast
+        import inspect
+        source = ast.parse(inspect.getsource(execution.qualify_backend))
+        loop = next(node for node in ast.walk(source) if isinstance(node, ast.For) and
+                    isinstance(node.target, ast.Name) and node.target.id == 'name' and
+                    isinstance(node.iter, ast.Tuple) and node.iter.elts[0].value == 'readonly')
+        registration = next(node for node in loop.body if isinstance(node, ast.Assign) and
+                            any(isinstance(target, ast.Name) and target.id == 'case' for target in node.targets))
+        payload = next(node for node in ast.walk(loop) if isinstance(node, ast.Call) and
+                       isinstance(node.func, ast.Name) and node.func.id == 'run_payload')
+        retention = next(node for node in ast.walk(loop) if isinstance(node, ast.Assign) and
+                         any(isinstance(target, ast.Subscript) and isinstance(target.value, ast.Name) and
+                             target.value.id == 'case' and isinstance(target.slice, ast.Constant) and
+                             target.slice.value == 'result' for target in node.targets))
+        body = next(node for node in loop.body if isinstance(node, ast.Try) and node.finalbody)
+        finalization = next(node for node in body.finalbody if isinstance(node, ast.Assign) and
+                            isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Name) and
+                            node.value.func.id == 'finish_qualification_case')
+        self.assertLess(registration.lineno, payload.lineno)
+        self.assertLess(payload.lineno, retention.lineno)
+        self.assertIs(body.body[body.body.index(retention) - 1].value, payload)
+        self.assertEqual([argument.id for argument in finalization.value.args],
+                         ['watch', 'limits', 'attempt', 'cleanup_context', 'case', 'case_failure'])
+        scope = {'results': {}, 'name': 'rename'}
+        def execute(node):
+            exec(compile(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[])),
+                         'qualifier-case-wiring', 'exec'), scope)
+        execute(registration)
+        self.assertIs(scope['case'], scope['results']['rename'])
+        self.assertEqual(scope['case'], {'result': None, 'resources': None})
+        result = {'stopReason': 'original failed payload'}
+        scope['result'] = result
+        execute(retention)
+        self.assertIs(scope['results']['rename']['result'], result)
+        primary = ValueError('primary assertion')
+        context = {'deadline': 15}
+        observed = []
+        def finalize(watch, limits, attempt, current_context, case, failure, *, expected_fault):
+            observed.append((current_context, case, failure, expected_fault))
+            return failure
+        scope.update(watch=object(), limits=object(), attempt=Path('/generated'), cleanup_context=context,
+                     case_failure=primary, finish_qualification_case=finalize)
+        execute(finalization)
+        self.assertIs(observed[0][0], context)
+        self.assertIs(observed[0][1], scope['results']['rename'])
+        self.assertIs(observed[0][2], primary)
+        self.assertFalse(observed[0][3])
+        self.assertIs(scope['case_failure'], primary)
+
+    def invoke(self, *, primary=None, cleanup_error=None, finish_error=None, report_error=None,
+               finished=14, joined=True, result=None, context=None):
+        context = {'deadline': 15} if context is None else context
+        case = {'result': result}
+        def cleanup(watch, limits, attempt, current, *, phase):
+            self.assertEqual(phase, 'final')
+            current.setdefault('deadline', 15)
+            if cleanup_error is not None:
+                raise cleanup_error
+        def finish(watch, *, expected_fault, result, cleanup_deadline, receipt):
+            self.assertEqual(cleanup_deadline, context['deadline'])
+            receipt.update(joined=joined, healthy=finish_error is None, finishedMonotonic=finished,
+                           deadlineMonotonic=cleanup_deadline)
+            if finish_error is not None:
+                raise finish_error
+        def report():
+            if report_error is not None:
+                raise report_error
+            return {'finishObservation': case['finishObservation'], 'sampleCount': 1}
+        watch = SimpleNamespace(report=report)
+        with patch.object(execution, 'await_owned_cleanup', side_effect=cleanup), \
+             patch.object(execution, 'finish_observer', side_effect=finish):
+            failure = execution.finish_qualification_case(watch, execution.BUILD_LIMITS, Path('/generated'),
+                                                          context, case, primary)
+        return failure, case
+
+    def test_failed_result_and_resources_are_retained(self):
+        primary = ValueError('original case assertion')
+        result = {'exitCode': 0, 'stopReason': 'retained ownership failure'}
+        failure, case = self.invoke(primary=primary, result=result)
+        self.assertIs(failure, primary)
+        self.assertIs(case['result'], result)
+        self.assertEqual(case['failure']['message'], 'original case assertion')
+        self.assertTrue(case['finishObservation']['joined'])
+        self.assertEqual(case['resources']['sampleCount'], 1)
+
+    def test_exception_before_result_assignment_retains_explicit_null(self):
+        failure, case = self.invoke(primary=ValueError('before result'))
+        self.assertIsInstance(failure, ValueError)
+        self.assertIn('result', case)
+        self.assertIsNone(case['result'])
+        self.assertIsNotNone(case['resources'])
+
+    def test_primary_failure_survives_cleanup_finish_and_report_errors(self):
+        for option, field in [('cleanup_error', 'cleanupFailure'), ('finish_error', 'finishFailure'),
+                              ('report_error', 'resourceRecordingFailure')]:
+            with self.subTest(option=option):
+                primary = ValueError('first failure')
+                failure, case = self.invoke(primary=primary, **{option: RuntimeError('secondary failure')})
+                self.assertIs(failure, primary)
+                self.assertEqual(case['failure']['message'], 'first failure')
+                self.assertEqual(case[field]['message'], 'secondary failure')
+                self.assertIn('finishObservation', case)
+
+    def test_success_with_any_secondary_failure_is_rejected(self):
+        for option in ('cleanup_error', 'finish_error', 'report_error'):
+            with self.subTest(option=option):
+                secondary = RuntimeError(option)
+                failure, case = self.invoke(**{option: secondary})
+                self.assertIs(failure, secondary)
+                self.assertEqual(case['failure']['message'], option)
+
+    def test_report_failure_cannot_erase_explicit_finish_receipt(self):
+        failure, case = self.invoke(report_error=RuntimeError('report broke'))
+        self.assertIsNotNone(failure)
+        self.assertIsNone(case['resources'])
+        self.assertEqual(case['finishObservation']['finishedMonotonic'], 14)
+        self.assertTrue(case['finishObservation']['joined'])
+
+    def test_original_deadline_is_passed_and_late_finish_rejected(self):
+        failure, case = self.invoke(context={'deadline': 5}, finished=6)
+        self.assertIsInstance(failure, ValueError)
+        self.assertEqual(case['finishObservation']['deadlineMonotonic'], 5)
+        self.assertIn('original cleanup deadline', case['finishFailure']['message'])
+
+    def test_missing_original_deadline_is_not_replaced(self):
+        case = {'result': None}
+        watch = SimpleNamespace(report=lambda: {})
+        with patch.object(execution, 'await_owned_cleanup'), patch.object(execution, 'finish_observer') as finish:
+            failure = execution.finish_qualification_case(watch, execution.BUILD_LIMITS, Path('/generated'), {}, case)
+        self.assertIsInstance(failure, ValueError)
+        finish.assert_not_called()
+        self.assertIn('Original cleanup deadline missing', case['finishFailure']['message'])
+
+    def test_unjoined_or_nonfinite_finish_is_rejected(self):
+        for kwargs in ({'joined': False}, {'finished': float('nan')}, {'finished': float('inf')}):
+            with self.subTest(kwargs=kwargs):
+                failure, _ = self.invoke(**kwargs)
+                self.assertIsInstance(failure, ValueError)
+
+    def expected_fault(self, finished):
+        watch = PureCase.fake_finished_watch(self, first_expected=True)
+        watch.report = lambda: {'finishObservation': watch.finish_observation,
+                               'failureMarker': watch.failure_marker, 'unexpectedFailure': watch.unexpected_failure}
+        result = PureCase.observer_fault_result(self)
+        case = {'result': result}
+        with patch.object(execution, 'await_owned_cleanup'), patch.object(execution.time, 'monotonic', return_value=finished):
+            failure = execution.finish_qualification_case(watch, execution.BUILD_LIMITS, Path('/generated'),
+                                                          {'deadline': 5}, case, expected_fault=True)
+        return failure, case, result
+
+    def test_expected_observer_negative_is_joined_but_stays_unhealthy(self):
+        failure, case, result = self.expected_fault(4)
+        self.assertIsNone(failure)
+        self.assertTrue(case['finishObservation']['joined'])
+        self.assertFalse(case['finishObservation']['healthy'])
+        self.assertIs(case['result'], result)
+        self.assertIsNone(result['survivors'])
+        self.assertEqual(result['failure']['injectedFault'], execution.QUALIFIER_OBSERVER_FAULT)
+        self.assertIsNone(case['resources']['unexpectedFailure'])
+
+    def test_expected_observer_fault_cannot_hide_late_finish(self):
+        failure, case, _ = self.expected_fault(6)
+        self.assertIsInstance(failure, ValueError)
+        self.assertFalse(case['finishObservation']['healthy'])
+        self.assertEqual(case['finishObservation']['finishedMonotonic'], 6)
+
+
+class OwnedComparisonDiagnosticTests(unittest.TestCase):
+    def test_all_tuple_mismatches_remain_fatal_with_bounded_typed_details(self):
+        parent = {'pid': 10, 'startTicks': 100, 'ppid': 1}
+        child = {'pid': 20, 'startTicks': 200, 'ppid': 10}
+        census = {10: parent, 20: child}
+        for key in ('pid', 'startTicks', 'ppid'):
+            enriched = {**child, key: 999, 'unrelated': 'not retained'}
+            with self.assertRaises(execution.OwnedIdentityComparisonFault) as caught:
+                execution.owned_process_rows(census, parent, {}, {},
+                                             lambda pid: parent if pid == 10 else enriched)
+            record = execution.failure_record(caught.exception)
+            self.assertIsInstance(caught.exception, ValueError)
+            self.assertEqual(record['comparison']['differentFields'], [key])
+            self.assertEqual(record['comparison']['census'], child)
+            self.assertEqual(set(record['comparison']['enriched']), {'pid', 'startTicks', 'ppid'})
+            self.assertNotIn('unrelated', json.dumps(record))
+            self.assertIsNone(record['injectedFault'])
+
+    def test_comparison_value_types_and_magnitude_are_bounded(self):
+        before = {'pid': 20, 'startTicks': 200, 'ppid': 10}
+        after = {'pid': 'not-an-integer', 'startTicks': 2**128, 'ppid': -1}
+        fault = execution.OwnedIdentityComparisonFault(before, after)
+        self.assertEqual(fault.comparison['enriched'], {'pid': None, 'startTicks': None, 'ppid': None})
+        self.assertLess(len(json.dumps(execution.failure_record(fault))), 1024)
+
+    def test_observer_first_failure_retains_typed_comparison(self):
+        fault = execution.OwnedIdentityComparisonFault({'pid': 20, 'startTicks': 200, 'ppid': 10},
+                                                       {'pid': 20, 'startTicks': 200, 'ppid': 1})
+        watch = object.__new__(execution.OwnerWatch)
+        watch.lock = threading.RLock()
+        watch.observation_context = {'phase': 'second', 'callsite': 'owned-enrichment'}
+        watch._observe = lambda: (_ for _ in ()).throw(fault)
+        with self.assertRaises(execution.OwnedIdentityComparisonFault):
+            watch.observe()
+        self.assertEqual(watch.observation_failure['comparison'], fault.comparison)
+        self.assertEqual(watch.observation_failure['phase'], 'second')
 
 
 if __name__ == '__main__':
