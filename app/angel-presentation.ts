@@ -46,8 +46,8 @@ export function animateAngelPresentations(world: Pick<World, 'paused' | 'land' |
   if (world.paused || world.land.landFlags & 2) return
   for (const effect of world.effects) {
     if (!effect.angel) continue
-    const state = (effect.angel.presentation ??= createAngelPresentation())
-    stepAngelPresentation(state)
+    effect.angel.presentation ??= createAngelPresentation()
+    stepAngelPresentation(effect.angel.presentation)
   }
 }
 
