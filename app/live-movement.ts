@@ -911,11 +911,23 @@ export function startLiveConstructionOrder(w: World, u: Unit) {
   return true
 }
 
-export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects['commands'] = {}) {
+// A retained entry owner uses the same visit with its existing initializer and
+// final ownership publication. Ordinary callers keep the established defaults.
+export interface MovementOwner {
+  initialize: () => void
+  changeState: (next: number) => void
+  adopt: () => void
+}
+export function stepLiveMovement(
+  w: World,
+  u: Unit,
+  commands: OrderUpdateEffects['commands'] = {},
+  ownerContext?: MovementOwner
+) {
   const p = u.native!
   // 0x4d32b0 prepares and visits physics before vehicle/order dispatch too.
   // Seated physics is frozen by 0x4000, but its clock/reaction still advance.
-  stepLivePhysics(w, u, p)
+  stepLivePhysics(w, u, p, ownerContext?.initialize)
   const boarding = currentPersonOrder(w.buildingOrders, p)?.model === 22
   const driver = p.vehicle ? stepLiveVehicle(w, p) : false
   if (!p.vehicle || driver) stepLiveRoute(w, u)
@@ -1015,10 +1027,12 @@ export function stepLiveMovement(w: World, u: Unit, commands: OrderUpdateEffects
   if (next) {
     if (p.commandStatus === 27) u.work = null
     clearLivePath(w, u)
-    changeLivePersonState(w, u, next)
+    if (ownerContext) ownerContext.changeState(next)
+    else changeLivePersonState(w, u, next)
   }
   if (!(next && p.flags2 & 0x100000)) delete p.guardInputPending
-  adoptLiveOrders(w, u, p)
+  if (ownerContext) ownerContext.adopt()
+  else adoptLiveOrders(w, u, p)
 }
 
 // Shared native state-10 completion: entry and movement advance the same queue.
