@@ -741,22 +741,24 @@ export class RenderView {
                   continue
                 }
               }
-            }
-            if (numeric) {
-              const slot = numeric.append(
-                position.getX(i),
-                position.getY(i),
-                position.getZ(i),
-                transform.elements,
-                this.rawCenter.x,
-                this.rawCenter.y,
-                this.projection,
-                this.config.depth
-              )
-              terrainSlots![i] = slot + 1
-              if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
-              if (projectionMetrics) projectionMetrics.projectedVertices++
-              continue
+              // The owned numeric path admits the same plain Float32 inputs.
+              // Reuse this query's exact raw reads, not cached geometry/projections.
+              if (numeric) {
+                const slot = numeric.append(
+                  x,
+                  y,
+                  z,
+                  transform.elements,
+                  this.rawCenter.x,
+                  this.rawCenter.y,
+                  this.projection,
+                  this.config.depth
+                )
+                terrainSlots![i] = slot + 1
+                if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+                if (projectionMetrics) projectionMetrics.projectedVertices++
+                continue
+              }
             }
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
             if (scale) {
