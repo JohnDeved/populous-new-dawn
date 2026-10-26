@@ -1198,11 +1198,17 @@ export function registerLivePerson(w: World, p: LivePerson) {
 }
 
 // Grounded combat and airborne impulses share the original person physics.
-export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
-  stepLivePhysicsImpl(w, u, p)
+export function stepLivePhysics(w: World, u: Unit, p: LivePerson, initializeOwner?: () => void) {
+  stepLivePhysicsImpl(w, u, p, false, initializeOwner)
 }
 
-function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = false) {
+function stepLivePhysicsImpl(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  ownedImpulse = false,
+  initializeOwner?: () => void
+) {
   const fighting = p.state === 25 || p.state === 29,
     recovering = p.state === 33
   registerLivePerson(w, p)
@@ -1216,7 +1222,14 @@ function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = fa
     const object = personAnimationObject(p)
     if (object !== -1) setLivePersonAnimation(w, p, object)
   }
-  const initialize = () => initializeLivePerson(w, u, stateContext(), p)
+  const initialize = () => {
+    if (!initializeOwner) return initializeLivePerson(w, u, stateContext(), p)
+    // The entry initializer commits its own RNG context. Synchronize either
+    // direction if a physics consumer already opened the ordinary context.
+    if (ctx) w.randomState = ctx.state.randomState
+    initializeOwner()
+    if (ctx) ctx.state.randomState = w.randomState
+  }
   p.counter = (p.counter + 1) & 255
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize,
