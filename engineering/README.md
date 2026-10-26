@@ -148,6 +148,12 @@ reviewed mappings and directly changed tests. Broad/shared, deleted, unmapped an
 unresolved cases suggest the full suite. These suggestions are deliberately
 partial; they do not establish dependency completeness or reuse a previous pass.
 
+For explicitly bounded scene-fixture startup, see
+[optional precompilation](scene-fixture-precompilation.md). It separates the exact
+TypeScript emitter from a later direct fixture process; it is off by default.
+Standard test plans/execution and shard certification reject either cache setting
+by presence (including empty values), rather than certify an unbound external cache.
+
 `pnpm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
 content-reviewed, in-memory/read-only files with at most two isolated Node workers,
 then every other file serially. `engineering/test-resources.json` binds each
