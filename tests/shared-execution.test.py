@@ -754,6 +754,7 @@ class PureCase(unittest.TestCase):
         watch.stream = io.BytesIO()
         watch.limits = execution.BUILD_LIMITS
         watch.namespace_fds, watch.pidfds, watch.direct_fds = [], {}, []
+        watch.procdirs = {}; watch.handles_closed = False
         if first_expected:
             watch.fail('expected injection', fault_marker=execution.QUALIFIER_OBSERVER_FAULT)
         class Thread:
@@ -1408,6 +1409,9 @@ class OwnerScopedProcfsTests(unittest.TestCase):
         # Every process identity in this class is synthetic; no live procfs/pidfd.
         for guard in [patch.object(execution.os,'pidfd_open',return_value=99),
                       patch.object(execution.os,'close'),
+                      patch.object(execution,'open_proc_directory',return_value=199),
+                      patch.object(execution,'process_ancestry_at',side_effect=lambda pid, directory:execution.process_ancestry(pid)),
+                      patch.object(execution,'process_member_at',side_effect=lambda pid, directory:execution.process_member(pid)),
                       patch.object(execution,'process_ancestry',side_effect=lambda pid:execution.process_member(pid))]:
             guard.start();self.addCleanup(guard.stop)
 
@@ -1482,12 +1486,13 @@ class OwnerScopedProcfsTests(unittest.TestCase):
         watch=object.__new__(execution.OwnerWatch);watch.lock=threading.RLock()
         watch.parent=self.row(10,1);watch.known=known or {};watch.namespace_roots=roots or {}
         watch.pidfds=pidfds or {};watch.history={}
+        watch.procdirs={key:fd+1000 for key,fd in watch.pidfds.items()};watch.handles_closed=False
         watch.snapshot=unittest.mock.Mock(side_effect=snapshots)
         return watch
 
     def test_second_census_positive_reparent_and_setsid_remain_owned(self):
         before=self.rows();after={**before,30:{**self.row(30,10),'session':30}}
-        watch=self.watch([before,after]);watch.pidfds={(20,200):45,(30,300):46}
+        watch=self.watch([before,after]);watch.pidfds={(20,200):45,(30,300):46};watch.procdirs={key:fd+1000 for key,fd in watch.pidfds.items()}
         def member(pid):return (before if watch.snapshot.call_count==1 else after)[pid]
         with patch.object(execution,'process_member',side_effect=member):
             self.assertEqual([r['pid'] for r in watch.observe()],[10,20,30])
@@ -1495,7 +1500,7 @@ class OwnerScopedProcfsTests(unittest.TestCase):
 
     def test_second_census_unanchored_reparent_is_not_clean(self):
         before=self.rows();after={**before,30:self.row(30,1)}
-        watch=self.watch([before,after]);watch.pidfds={(20,200):45,(30,300):46}
+        watch=self.watch([before,after]);watch.pidfds={(20,200):45,(30,300):46};watch.procdirs={key:fd+1000 for key,fd in watch.pidfds.items()}
         def member(pid):return (before if watch.snapshot.call_count==1 else after)[pid]
         with patch.object(execution,'process_member',side_effect=member):
             with self.assertRaisesRegex(ValueError,'positive parent anchor'):watch.observe()
@@ -1520,7 +1525,7 @@ class OwnerScopedProcfsTests(unittest.TestCase):
     def test_first_census_pid_reuse_cannot_be_dropped_as_unrelated(self):
         before={10:self.row(10,1),20:self.row(20,10)}
         after={10:before[10],20:self.row(20,1,ticks=999)}
-        watch=self.watch([before,after]);watch.pidfds={(20,200):45}
+        watch=self.watch([before,after]);watch.pidfds={(20,200):45};watch.procdirs={key:fd+1000 for key,fd in watch.pidfds.items()}
         with patch.object(execution,'process_member',side_effect=lambda pid:before[pid]):
             with self.assertRaisesRegex(ValueError,'PID reused between'):watch.observe()
 
@@ -1536,7 +1541,7 @@ class OwnerScopedProcfsTests(unittest.TestCase):
         import select
         before={10:self.row(10,1),20:self.row(20,10)};after={10:before[10]}
         for exited in (False,True):
-            watch=self.watch([before,after]);watch.pidfds={(20,200):45}
+            watch=self.watch([before,after]);watch.pidfds={(20,200):45};watch.procdirs={key:fd+1000 for key,fd in watch.pidfds.items()}
             with patch.object(execution,'process_member',side_effect=lambda pid:before[pid]), \
                  patch.object(select,'select',return_value=([45] if exited else [],[],[])):
                 if exited:self.assertEqual([r['pid'] for r in watch.observe()],[10])
