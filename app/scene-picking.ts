@@ -28,7 +28,7 @@ export class ScenePicking {
   >()
   lastKey = ''
   lastId: number | null = null
-  lastKind: 'person' | 'model' | null = null
+  lastKind: 'person' | 'model' | 'resource' | null = null
   groundKey = ''
   groundHits = new Map<string, ReturnType<GameScene['view']['pickCandidates']>>()
   constructor(readonly scene: GameScene) {}
@@ -194,6 +194,46 @@ export class ScenePicking {
       metrics.objectUnitsMs += now - phaseStart
       phaseStart = now
     }
+    // Only live loose timber uses this sprite route. Other effects/decorations
+    // remain non-pickable, and the shared painter stream still owns occlusion.
+    if (!s.overviewActive)
+      s.decorations.traverseVisible(group => {
+        const { point: tree, sprite } = group.userData
+        if (
+          tree?.model !== 11 ||
+          !Number.isInteger(tree.id) ||
+          tree.id <= 0 ||
+          !(tree.logs > 0) ||
+          !s.world.trees.includes(tree) ||
+          !(sprite instanceof THREE.Sprite) ||
+          sprite.parent !== group ||
+          !sprite.visible ||
+          !sprite.material.visible
+        )
+          return
+        const source = view.painter.source(sprite)
+        if (!source) return
+        const anchor = view.screen(sprite.getWorldPosition(new THREE.Vector3()), s.camera),
+          scale = sprite.getWorldScale(new THREE.Vector3()),
+          width = Math.trunc((scale.x * rect.width) / view.projection.width),
+          height = Math.trunc((scale.y * rect.height) / view.projection.height),
+          x = Math.trunc(((anchor.x + 1) * rect.width) / 2),
+          y = Math.trunc(((1 - anchor.y) * rect.height) / 2)
+        // Native type-1 header rectangles include all four edges and transparent
+        // corners. Use current displayed size/anchor, not unported native scaling
+        // or height offsets; odd widths intentionally use integer half-width.
+        const bounds = { x: x - Math.trunc(width / 2), y: y - height, width, height }
+        if (width <= 0 || height <= 0 || !inHitBounds(point, bounds)) return
+        hits.push({
+          kind: 'resource',
+          id: tree.id,
+          bounds,
+          eligible: true,
+          source,
+          bucket: source.bucket,
+          face: source.face,
+        })
+      })
     for (const root of [s.objects, s.decorations])
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || object.userData.nativeModel === undefined) return

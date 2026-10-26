@@ -984,6 +984,7 @@
         "app/scene-tooltip-runtime.ts",
         "app/scene.ts",
         "app/scene-picking.ts",
+        "app/world-picking.ts",
         "app/render-view.ts",
         "app/scene-camera-runtime.ts",
         "app/scene-terrain-runtime.ts",
