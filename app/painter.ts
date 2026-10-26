@@ -209,14 +209,11 @@ export class Painter {
       // and other object classes still need original allocation/list ownership.
       // An owned mesh replacement can retain its original fallback allocation
       // identity without painterSequence, which also selects the sprite phase.
+      const fallbackOrder = sprite ? group.id : (object.userData.painterFallbackId ?? object.id)
       const sourceOrder =
         object.userData.painterSequence ??
         cellOrder.get(metadata.unit) ??
-        (id === undefined
-          ? sprite
-            ? group.id
-            : (object.userData.painterFallbackId ?? object.id)
-          : -id)
+        (id === undefined ? fallbackOrder : -id)
       const rotation = scale
         ? modelMatrix(
             metadata.nativeHeading ?? 0,
