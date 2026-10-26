@@ -1,3 +1,4 @@
+import { requestAngelStrikePresentation } from './angel-presentation.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
   assignVehicleAllocationCounter,
@@ -632,6 +633,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.angel) {
       const event = stepAngel(w, fx)
+      // Only the proved raw state 6/substate 2 strike branch requests model 62.
+      if (!event.expired) requestAngelStrikePresentation(fx.angel)
       // ponytail: keep one stable native initial offset until target midpoints enter browser state.
       fx.height = (terrainPointHeight(w.land, nativePosition(w, fx)) + 100) / 45
       if (event.hit) {
