@@ -1,8 +1,17 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { startIndexedSearch, nextIndexedSearch, endIndexedSearch } from './indexed-search.ts'
 
-type Resource = { id: number; class: number; model: number; x: number; y: number }
-type Point = { x: number; y: number }
+interface Resource {
+  id: number
+  class: number
+  model: number
+  x: number
+  y: number
+}
+interface Point {
+  x: number
+  y: number
+}
 
 // 004a74e0: descriptor eligibility and type-2 traversal only. Object lifetime
 // and cell-list order belong to the caller, not wood/fog/reachability filters.
@@ -47,8 +56,10 @@ export function acquireQueuedResource<T extends Resource>(
   objects: (cell: number) => Iterable<T>,
   approach: (object: T) => void
 ) {
-  const selector = flags & 12,
-    mode = selector === 4 ? 1 : selector === 8 ? 2 : 0
+  const selector = flags & 12
+  let mode: 0 | 1 | 2 = 0
+  if (selector === 4) mode = 1
+  else if (selector === 8) mode = 2
   return (
     (mode ? searchQueuedResource(pool, center, angle, mode, objects, approach) : undefined) ??
     searchQueuedResource(pool, center, angle, 0, objects, approach)

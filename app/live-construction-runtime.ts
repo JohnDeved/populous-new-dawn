@@ -628,7 +628,14 @@ export function stepQueuedTreeOrder(
     // Current live scenery is stationary, appended on birth/activation and
     // stable-filtered on removal. Zero is retired; positive fractions stay live.
     // Rebuild this acquisition-local projection; no retained/save index is added.
-    type Resource = { id: number; class: number; model: number; x: number; y: number; tree: Tree }
+    interface Resource {
+      id: number
+      class: number
+      model: number
+      x: number
+      y: number
+      tree: Tree
+    }
     let cells: Map<number, Resource[]> | undefined
     const empty: Resource[] = [],
       centerX = (order.a >>> 9) & 127,
