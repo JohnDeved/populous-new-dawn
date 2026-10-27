@@ -110,7 +110,13 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     clearLivePath(w, u)
   }
   const allocateLog = () => {
-    w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+    w.trees.push({
+      ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+      id: w.nextId++,
+      ...browserPosition(p),
+      logs: 1,
+      model: 11,
+    })
     return true // ponytail: unbounded scenery until native object-pool allocation is connected.
   }
   let finished = 0
@@ -603,7 +609,13 @@ export function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
   for (const u of workers) {
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
       const point = buildingDoor(b)
-      w.trees.push({ ...point, id: w.nextId++, model: 11, logs: u.cargo })
+      w.trees.push({
+        ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+        ...point,
+        id: w.nextId++,
+        model: 11,
+        logs: u.cargo,
+      })
       sound(w, 0xb, u)
       u.cargo = 0
       u.tree = null
