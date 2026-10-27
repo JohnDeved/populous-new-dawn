@@ -274,7 +274,8 @@ export default function Home() {
   function closeSelector() {
     setSelectorOpen(false)
     if (resultSession.back(store.getWorld())) {
-      engine.current?.setModalSuspended(false)
+      // Back restores the prior result stage, including its presentation hold.
+      engine.current?.setModalSuspended(resultSession.stage(store.getWorld()) === 'statistics')
       update()
     } else if (world.status === 'playing') openMenu()
   }
@@ -634,7 +635,7 @@ export default function Home() {
         return
       scene.keys.clear()
       if (stage === 'terminal-overlay' && !resultSession.bypassStatistics(current)) {
-        resultSession.openStatistics(current)
+        if (resultSession.openStatistics(current)) scene.setModalSuspended(true)
         update()
         return
       }

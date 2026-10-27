@@ -1,7 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { tooltipCallerFixture } from './support/tooltip-scene.mjs'
-import { pageNearby } from './support/follower-nearby-page.mjs'
+import { pageNearby, pageEffect, pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
+import { createResultSession, createResultKeys, resultSpaceEligible } from '../app/result-session.ts'
 
 // Execute actual Home handlers, scene animate, updateFlyby and shared tooltip
 // controller. Glyph submission/DOM/projection are supplied by the controlled
@@ -135,4 +136,141 @@ test('paused expiry and forced replacement notify Home to clear its accessibilit
   api.requestTutorial(world,0x200000,603)
   scene.acquireForcedTooltip(tooltipApi.worldTooltipObject(world,hut.id),3)
   assert.equal(world.routeNotice,null);assert.equal(notifications,2)
+})
+
+
+// Compose actual Home result/Back handlers with this fixture's real Scene modal
+// boundary and route owner. Terminal status, selector storage admission and event
+// delivery are supplied; this does not prove a naturally earned outcome or pixels.
+function resultPage(t, { scene, world }, admitted = true) {
+  const resultSession = createResultSession(), resultKeys = createResultKeys(),
+    listeners = new Map()
+  let admission = admitted, selector = false, entries = 0
+  const events = {
+    addEventListener(name, handler) { assert.equal(listeners.has(name), false); listeners.set(name, handler) },
+    removeEventListener(name, handler) { assert.equal(listeners.get(name), handler); listeners.delete(name) },
+  }
+  const store = {
+    getWorld: () => world,
+    enterCampaignSelector(candidate) {
+      assert.equal(candidate, world)
+      entries++
+      if (admission instanceof Error) throw admission
+      return admission
+    },
+  }
+  const bindings = {
+    globalThis: events, world, store, engine: { current: scene }, ready: true,
+    startup: 'playing', menu: false, cheatsOpen: false, selectorOpen: false, debugPicker: false,
+    messageDetails: { current: new Map() }, resultSession, resultKeys, resultSpaceEligible,
+    audio: { current: { reset() {} } }, setSelectorOpen(value) { selector = value },
+    update() {}, openMenu() { assert.fail('a terminal Back must not open gameplay Menu') },
+  }
+  const cleanup = pageEffect('resultKeys.down(event)', bindings)()
+  t.after(cleanup)
+  const back = evaluatePage(
+    pageNode(node => node.name?.getText(pageSource) === 'closeSelector').getText(pageSource),
+    bindings
+  )
+  function press() {
+    const event = { key: ' ', code: 'Space', repeat: false, ctrlKey: false, metaKey: false,
+      altKey: false, shiftKey: false, target: { closest: () => null },
+      preventDefault() {}, stopImmediatePropagation() {} }
+    try { listeners.get('keydown')(event) }
+    finally { listeners.get('keyup')(event) }
+  }
+  return { press, back, resultSession, admit(value) { admission = value },
+    get selector() { return selector }, get entries() { return entries } }
+}
+
+test('actual statistics entry hides a retained route and freezes its lifetime while result blink advances', async t => {
+  const f = await fixture(t), { scene, world, frame } = f,
+    notice = world.routeNotice, remaining = scene.tooltip.remaining
+  // Existing result-camera ownership can defer route visits, rather than spend
+  // its remaining lifetime before result input is admitted.
+  f.cameraOwns(true); frame(1)
+  assert.equal(scene.tooltip.remaining, remaining)
+  f.cameraOwns(false)
+  world.status = 'won' // supplied terminal boundary after the authored opening
+  const page = resultPage(t, f)
+  assert.equal(scene.tooltipElement.hidden, false, 'positive visible-route precondition')
+  page.press()
+  assert.equal(page.resultSession.stage(world), 'statistics')
+  assert.equal(world.paused, true)
+  assert.equal(scene.modalSuspended, true)
+  assert.equal(scene.tooltipElement.hidden, true, 'statistics hides before another RAF')
+  const frozen = structuredClone(world), inputCycles = scene.resultClock.inputCycles,
+    submissions = scene.tooltipCanvas.submissions.length
+  frame(0); frame(0.5)
+  assert.deepEqual(world, frozen, 'statistics must not advance simulation or presentation World state')
+  assert.equal(world.routeNotice, notice)
+  assert.equal(scene.tooltip.remaining, remaining)
+  assert.equal(scene.tooltipElement.hidden, true)
+  assert.equal(scene.tooltipCanvas.submissions.length, submissions, 'no world-tooltip painting behind statistics')
+  assert.ok(scene.resultClock.inputCycles > inputCycles, 'result input/blink clock keeps its separate owner')
+})
+
+test('failed result exits and repeated selector Back preserve the statistics route hold', async t => {
+  const f = await fixture(t), { scene, world, frame } = f,
+    notice = world.routeNotice, remaining = scene.tooltip.remaining
+  world.status = 'lost'
+  const page = resultPage(t, f, false)
+  page.press()
+  assert.equal(page.resultSession.stage(world), 'statistics')
+  for (const failure of [false, new Error('supplied selector rejection')]) {
+    page.admit(failure)
+    if (failure instanceof Error) assert.throws(() => page.press(), error => error === failure)
+    else page.press()
+    assert.equal(page.resultSession.stage(world), 'statistics')
+    assert.equal(page.selector, false)
+    assert.equal(world.paused, true)
+    assert.equal(scene.modalSuspended, true)
+    frame(0); frame(0.5)
+    assert.equal(scene.tooltipElement.hidden, true)
+    assert.equal(world.routeNotice, notice)
+    assert.equal(scene.tooltip.remaining, remaining)
+  }
+  page.admit(true)
+  for (let repeat = 0; repeat < 2; repeat++) {
+    page.press()
+    assert.equal(page.resultSession.stage(world), 'selector')
+    assert.equal(page.selector, true)
+    page.back()
+    assert.equal(page.resultSession.stage(world), 'statistics')
+    assert.equal(page.selector, false)
+    assert.equal(world.paused, true)
+    assert.equal(scene.modalSuspended, true, 'Back cannot release statistics presentation ownership')
+    frame(0); frame(0.5)
+    assert.equal(scene.tooltipElement.hidden, true)
+    assert.equal(world.routeNotice, notice)
+    assert.equal(scene.tooltip.remaining, remaining)
+  }
+  assert.equal(page.entries, 4)
+})
+
+test('statistics-bypass Back releases only the selector hold and resumes the retained terminal route', async t => {
+  const f = await fixture(t), { scene, world, frame } = f,
+    notice = world.routeNotice, remaining = scene.tooltip.remaining
+  world.status = 'lost'
+  world.manaWorld.loadFlags |= 0x04000000 // explicit native statistics-bypass input
+  const page = resultPage(t, f, false)
+  page.press()
+  assert.equal(page.resultSession.stage(world), 'terminal-overlay')
+  assert.notEqual(scene.modalSuspended, true, 'rejected bypass exit must not invent a statistics hold')
+  assert.equal(world.paused, false)
+  page.admit(true); page.press()
+  assert.equal(page.resultSession.stage(world), 'selector')
+  assert.equal(scene.modalSuspended, true)
+  world.paused = true // supplied selector dialog showModal pause boundary
+  frame(0); frame(0.5)
+  page.back()
+  assert.equal(page.resultSession.stage(world), 'terminal-overlay')
+  assert.equal(world.paused, false, 'Back restores the pre-selector pause')
+  assert.equal(scene.modalSuspended, false)
+  frame(0)
+  assert.equal(scene.tooltip.remaining, remaining, 'no suspended wall-time catch-up')
+  frame()
+  assert.equal(world.routeNotice, notice)
+  assert.equal(scene.tooltip.remaining, remaining - 1)
+  assert.equal(scene.tooltipElement.hidden, false, 'live terminal presentation resumes')
 })
