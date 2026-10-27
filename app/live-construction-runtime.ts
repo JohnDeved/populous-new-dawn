@@ -19,7 +19,8 @@ import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live
 import { nativePersonModel } from './live-combat.ts'
 import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
-import { clearLivePath, probeLivePathCost } from './live-pathfinding.ts'
+import { clearLivePath, probeLivePathCost, buildLiveResourceRoute } from './live-pathfinding.ts'
+import { acquireQueuedResource } from './queued-resource-search.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
 import { buildingDoor, entrance, findPath, route } from './live-command.ts'
@@ -543,7 +544,7 @@ export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queu
   }
   if (u.path.length) return false
   if (distance(u, tree) >= 1) {
-    route(w, u, tree)
+    route(w, u, tree, queued)
     return false
   }
   if (!u.harvest) {
@@ -579,20 +580,45 @@ export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queu
   return true
 }
 
-export function stepQueuedTreeOrder(w: World, u: Unit, order: { a: number; b: number }) {
+export function stepQueuedTreeOrder(w: World, u: Unit, order: { a: number; b: number; flags: number }) {
   if (u.cargo) return 1
+  if (u.tree !== null && !w.trees.some(tree => tree.id === u.tree && tree.logs > 0)) {
+    // Native phases 2/3 schedule reacquisition for the next visit. Ordinary
+    // manual harvesting retains its existing owner/transfer behavior.
+    u.tree = null
+    u.harvest = undefined
+    clearLivePath(w, u)
+    return 0
+  }
   if (u.tree === null) {
-    // Native command 7 stores the coarse-cell center, then resolves scenery later.
-    const tree = w.trees.findLast(t => {
-      const point = nativePosition(w, t)
-      return (
-        t.logs > 0 &&
-        t.model >= 1 &&
-        t.model <= 6 &&
-        (point.x & 0xff00) + 128 === order.a &&
-        (point.y & 0xff00) + 128 === order.b
-      )
-    })
+    const p = u.native!
+    // Current live scenery is stationary, appended on birth/activation and
+    // stable-filtered on removal. Zero is retired; positive fractions stay live.
+    // Rebuild this acquisition-local projection; no retained/save index is added.
+    type Resource = { id: number; class: number; model: number; x: number; y: number }
+    const cells = new Map<number, Resource[]>(),
+      empty: Resource[] = []
+    for (let i = w.trees.length - 1; i >= 0; i--) {
+      const tree = w.trees[i]
+      if (!(tree.logs > 0)) continue
+      const point = nativePosition(w, tree),
+        cell = ((point.y >>> 9) & 127) * 128 + ((point.x >>> 9) & 127),
+        object = { id: tree.id, class: 5, model: tree.model, ...point },
+        row = cells.get(cell)
+      if (row) row.push(object)
+      else cells.set(cell, [object])
+    }
+    const tree = acquireQueuedResource(
+      w.indexedSearch,
+      { x: order.a, y: order.b },
+      p.angle,
+      order.flags,
+      cell => cells.get(cell) ?? empty,
+      target => {
+        if (p.vehicle && p.flags4 & 0x02000000) personStepCollision(collisionWorld(w), p, target)
+        else if (!buildLiveResourceRoute(w, u, p, target)) p.flags4 = (p.flags4 & ~0x10000000) >>> 0
+      }
+    )
     if (!tree) return 1
     u.tree = tree.id
   }

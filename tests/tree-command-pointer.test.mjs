@@ -47,7 +47,7 @@ function fixture(t, options = {}) {
   assert.deepEqual(world.selected, [brave.id])
   const event = { pointerId: 1, button: 0, buttons: 1, clientX: 400, clientY: 300,
     ctrlKey: false, shiftKey: false, altKey: false, metaKey: false }
-  const click = () => { pointerDown(scene, event); pointerUp(scene, { ...event, buttons: 0 }) }
+  const click = (modifiers = {}) => { pointerDown(scene, { ...event, ...modifiers }); pointerUp(scene, { ...event, ...modifiers, buttons: 0 }) }
   return { world, brave, tree, scene, event, click }
 }
 
@@ -167,4 +167,17 @@ test('actual submitted loose-log Sprite reaches existing command through public 
   click()
   assert.equal(scene.picking.lastKind,'resource')
   assert.equal(brave.tree,tree.id)
+})
+
+// Picker identity is supplied here; actual rendered resource admission has its own witness.
+test('actual pointer Ctrl-click on loose resource stages command 7 subtype 2', t => {
+  const { world, brave, tree, click } = fixture(t)
+  tree.model = 11
+  tree.logs = 1
+  click({ ctrlKey: true })
+  assert.equal(world.orderCursor, 1)
+  const order = world.buildingOrders.records[brave.native.commands[0]]
+  assert.equal(order.model, 7)
+  assert.equal(order.flags & 12, 8)
+  assert.equal(brave.tree, null, 'input stages the shared command, not immediate legacy collection')
 })

@@ -659,7 +659,7 @@ export function command(
       'balloonHut',
     ].includes(context.building.kind)
   const queuedTree =
-    model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
+    model === 7 && context.tree && !!(rules.sceneryResourceFlags[context.tree.model] & 4)
   if (
     model === 8 &&
     context.building &&
@@ -735,7 +735,7 @@ export function command(
       model === 19
         ? 0
         : model === 7
-          ? 1
+          ? rules.sceneryResourceFlags[context.tree!.model] & 16 ? 1 : 2
           : (context.person?.id ??
             context.building?.id ??
             context.shrine?.id ??

@@ -298,6 +298,21 @@ export function buildLiveRecoveryRoute(w: World, u: Unit, p: LivePerson, option:
   return routeEffects.build(p, from, to)
 }
 
+// 004a74e0 uses the raw endpoint/build pair for its chosen resource. It does
+// not replace the person's goal or use the broader destination planner.
+export function buildLiveResourceRoute(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  target: { x: number; y: number }
+) {
+  const { planner, routeEffects } = routeContext(w, u, p, 0)
+  const from = { x: (p.x >>> 8) & 255, y: (p.y >>> 8) & 255 },
+    to = { x: (target.x >>> 8) & 255, y: (target.y >>> 8) & 255 }
+  correctRouteEndpoints(planner, p, from, to, routeEffects)
+  return routeEffects.build(p, from, to)
+}
+
 function planDestination(
   w: World,
   u: Unit,
