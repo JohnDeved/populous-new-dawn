@@ -109,7 +109,9 @@ test('linked releases copy trees with fresh IDs but move the allocated linked sh
 
 test('marked world releasing an unknown legacy template does not manufacture half a claim', () => {
   const { world, head } = releaseFixture()
-  head.linkedTrees = head.linkedTrees.map(({ authoredSlot, ...template }) => template)
+  head.linkedTrees = head.linkedTrees.map(template => {
+    const unknown = { ...template }; delete unknown.authoredSlot; return unknown
+  })
   const before = new Set(world.trees.map(t => t.id))
   release(world, head)
   const copies = world.trees.filter(t => !before.has(t.id))

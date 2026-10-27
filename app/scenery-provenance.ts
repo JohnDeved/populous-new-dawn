@@ -3,7 +3,11 @@ import type { Shrine, Tree, World } from './world-types.ts'
 
 // Source origins only: neither pool handles, current native class/object identity,
 // cell order nor a claim that every runtime adapter has recorded provenance.
-export type ScenerySource = { version: 1; sourceSha256: string; headerSha256: string }
+export interface ScenerySource {
+  version: 1
+  sourceSha256: string
+  headerSha256: string
+}
 export type SceneryBirth = 'initial' | 'linked-release' | 'replant' | 'loose-log'
 export type SceneryOrigin =
   | { kind: 'unknown' }
@@ -18,7 +22,7 @@ const record = (value: unknown): value is Record<string, unknown> =>
   (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null)
 
 function sourceObjects(world: World) {
-  const source = world.scenerySource
+  const { scenerySource: source } = world
   if (!record(source) || source.version !== 1 || !Number.isInteger(world.outcome?.level))
     return null
   try {
