@@ -26,7 +26,7 @@ function sourceObjects(world: World) {
   if (!record(source) || source.version !== 1 || !Number.isInteger(world.outcome?.level))
     return null
   try {
-    const level = missionData(world.outcome.level).level
+    const { level } = missionData(world.outcome.level)
     if (source.sourceSha256 !== level.sourceSha256 || source.headerSha256 !== level.headerSha256)
       return null
     return new Map(level.objects.map(object => [object.index, object]))
