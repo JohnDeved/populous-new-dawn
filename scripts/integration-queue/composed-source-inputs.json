@@ -1,5 +1,6 @@
 [
   "app/ambient-sound.ts",
+  "app/angel-presentation.ts",
   "app/angel.ts",
   "app/animation.ts",
   "app/armageddon.ts",
@@ -189,6 +190,8 @@
   "app/object-panels.ts",
   "app/ordinary-numeric-projection.ts",
   "app/ordinary-terrain-metrics.ts",
+  "app/original-angel-presentation.json",
+  "app/original-angel-strike.json",
   "app/original-bloodlust.json",
   "app/original-camera.json",
   "app/original-constants.json",
