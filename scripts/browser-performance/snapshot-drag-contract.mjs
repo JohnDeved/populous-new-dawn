@@ -352,8 +352,22 @@ const composedDragSourceProfile = Object.freeze({
       .filter(slice => ['result-clock-owner', 'result-clock-import', 'result-clock-initialization'].includes(slice.id)),
   ]),
 })
+// Additive callback-retirement composition. Historical profiles stay exact;
+// new admission binds both producer changes and the invoked owner predicate.
+// No timing, capture, retention, runtime or performance acceptance is implied.
+const callbackRetirementDragSourceProfile = Object.freeze({
+  id: "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-tooltip-retirement-v1",
+  slices: Object.freeze([
+    ...composedDragSourceProfile.slices.map(slice => Object.freeze(
+      slice.id === 'camera-producers' ? { ...slice, sha256: "a750b893a1bccc9b547085d6b7bcfe83c4b04c025cee2590c2965374bebe1338" }
+        : slice.id === 'frame-order' ? { ...slice, sha256: "5a45d023cdf1e6bfe328d46c2ad87df9a489e16ef5f29bd5b32cfc7560e92cf2" } : slice)),
+    Object.freeze({"id": "tooltip-retirement-owner", "path": "app/scene-tooltip-runtime.ts", "start": "export function acquireForcedTooltip(", "end": "\n// Normal world painting clears status ownership.", "sha256": "e3dc96c1980527f5ee816f1e9c2ee1855c92ee8aad06460fa946fb0220b88144"}),
+    Object.freeze({"id": "scene-current-owner", "path": "app/scene.ts", "start": "  isCurrent() {", "end": "\n  canRequestNearbyFollowers()", "sha256": "4c75b4cd3726d00472121d5ef31b706ad3c8a003f05ff65ce6e451d8f305c8fd"}),
+  ]),
+})
 export const dragSourceProfiles = Object.freeze([
   ...mainDragSourceProfiles, ...uiDragSourceProfiles, composedDragSourceProfile,
+  callbackRetirementDragSourceProfile,
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {

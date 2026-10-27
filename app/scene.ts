@@ -970,7 +970,7 @@ export class GameScene {
     if (this.cursorFrameBlocked) this.cancelTooltipInspection()
     if (!cameraOwnsFrame) {
       const flying = this.updateFlyby(dt)
-      if (this.disposed) return
+      if (!this.isCurrent()) return
       if (!flying) this.updateView()
     }
     this.updateUnitsFrame()

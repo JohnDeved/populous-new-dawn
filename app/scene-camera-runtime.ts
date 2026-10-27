@@ -439,16 +439,22 @@ export function updateFlyby(scene: GameScene, dt: number) {
     scene.flybyTime += dt
     while (scene.flybyTime + 1e-9 >= 1 / 24) {
       for (const event of scene.world.paused ? [] : stepFlyby(state, scene.flybyCamera, 24)) {
-        if (event.kind === 5)
+        if (event.kind === 5) {
           scene.acquireForcedTooltip(
             forcedTooltipObject(scene.world, event.flags, event.value),
             event.duration
           )
+          // Route replacement may synchronously publish and retire this owner.
+          if (!scene.isCurrent()) return false
+        }
       }
       // One composed compatibility visit per existing tick. Catch-up visits use
       // the actual outer RAF observation time, never invented earlier timestamps.
-      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice)
+      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice) {
         scene.updateTooltipController(scene.previous ?? performance.now())
+        // Stop this catch-up visit before touching released/replaced scene state.
+        if (!scene.isCurrent()) return false
+      }
       scene.flybyTime = Math.max(0, scene.flybyTime - 1 / 24)
       if (active && !scene.world.paused) scene.commitSky(scene.flybyCamera, scene.flybyTime)
     }

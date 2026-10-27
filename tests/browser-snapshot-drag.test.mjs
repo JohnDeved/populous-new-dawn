@@ -336,10 +336,45 @@ function preRenderCpuRead(path, read = preLooseLogRead) {
 
 const preBothCpuRead = path => preCpuRead(path, preRenderCpuRead)
 const atomicProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-v1'
+const callbackRetirementProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-tooltip-retirement-v1'
 
 // These readers reconstruct historical fixtures only; production admission never
 // strips source. The guarded callback is the exact independently reviewed delta.
 const rawSnapshotRead = path => readFileSync(resolve(root, path), 'utf8')
+
+// Exact inverse only for historical fixtures. Production inspectDragSource reads
+// raw candidate bytes; it never invokes this reader or normalizes new owners.
+const callbackRetirementDeltas = [
+  [
+    "app/scene-camera-runtime.ts",
+    "        if (event.kind === 5) {\n          scene.acquireForcedTooltip(\n            forcedTooltipObject(scene.world, event.flags, event.value),\n            event.duration\n          )\n          // Route replacement may synchronously publish and retire this owner.\n          if (!scene.isCurrent()) return false\n        }\n",
+    "        if (event.kind === 5)\n          scene.acquireForcedTooltip(\n            forcedTooltipObject(scene.world, event.flags, event.value),\n            event.duration\n          )\n"
+  ],
+  [
+    "app/scene-camera-runtime.ts",
+    "      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice) {\n        scene.updateTooltipController(scene.previous ?? performance.now())\n        // Stop this catch-up visit before touching released/replaced scene state.\n        if (!scene.isCurrent()) return false\n      }\n",
+    "      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice)\n        scene.updateTooltipController(scene.previous ?? performance.now())\n"
+  ],
+  [
+    "app/scene-tooltip-runtime.ts",
+    "    if (expiredRoute) {\n      scene.onChange()\n      // Publication can revoke this Scene before the panel/output work below.\n      if (!scene.isCurrent()) return\n    }\n",
+    "    if (expiredRoute) scene.onChange()\n"
+  ],
+  [
+    "app/scene.ts",
+    "      const flying = this.updateFlyby(dt)\n      if (!this.isCurrent()) return\n",
+    "      const flying = this.updateFlyby(dt)\n      if (this.disposed) return\n"
+  ]
+]
+function preCallbackRetirementRead(path) {
+  let source = rawSnapshotRead(path)
+  for (const [owner, current, previous] of callbackRetirementDeltas) if (owner === path) {
+    assert.equal(source.split(current).length, 2, 'exact callback-retirement inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
+
 const correctedResultClockFrame = `    if (!document.hidden) {
       const previousPhase =
         ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
@@ -360,15 +395,15 @@ const guardedResultCallback = `      if (this.world.status !== 'playing' && prev
       }`
 const historicalResultCallback = `      if (this.world.status !== 'playing' && previousPhase !== nextPhase) this.onChange()`
 function mainHistoricalRead(path) {
-  let scene = rawSnapshotRead('app/scene.ts')
+  let scene = preCallbackRetirementRead('app/scene.ts')
   assert.equal(scene.split(correctedResultClockFrame).length, 2, 'exact corrected result-clock inverse')
   scene = scene.replace(correctedResultClockFrame, '')
-  return preRouteTooltipReader(name => name === 'app/scene.ts' ? scene : rawSnapshotRead(name))(path)
+  return preRouteTooltipReader(name => name === 'app/scene.ts' ? scene : preCallbackRetirementRead(name))(path)
 }
 function uiHistoricalRead(path) {
   // Explicitly start at raw current source, not the main-only default reader.
   const read = name => preRenderCpuRead(name,
-    owner => preCpuRead(owner, file => preLooseLogRead(file, rawSnapshotRead)))
+    owner => preCpuRead(owner, file => preLooseLogRead(file, preCallbackRetirementRead)))
   let source = read(path)
   if (path === 'app/scene.ts') {
     assert.equal(source.split(guardedResultCallback).length, 2, 'exact reviewed callback guard inverse')
@@ -385,7 +420,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === atomicProfileId ? 22 : profile.id === resultClockId ? 20 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId, cpuProfileId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === callbackRetirementProfileId ? 24 : profile.id === atomicProfileId ? 22 : profile.id === resultClockId ? 20 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId, cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -438,7 +473,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, routeTooltipId, resultClockId, atomicProfileId].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, routeTooltipId, resultClockId, atomicProfileId, callbackRetirementProfileId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -599,7 +634,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, routeTooltipId, resultClockId, atomicProfileId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, routeTooltipId, resultClockId, atomicProfileId, callbackRetirementProfileId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -805,7 +840,7 @@ test('combined CPU admission preserves both siblings and composes exact historic
 
 
 test('composed source profile preserves both exact historical branch inventories', () => {
-  assert.equal(new Set(dragSourceProfiles.map(profile => profile.id)).size, 12)
+  assert.equal(new Set(dragSourceProfiles.map(profile => profile.id)).size, 13)
   for (const [ids, digest] of [
     [mainHistoricalIds, '82475e1af1f3f44c1bf7487ddee1071b912e565bee93c1dd31dce703245d5706'],
     [uiHistoricalIds, '782217be629beb86e707a7455d9ec0a7f9e56757816d3d232213dda7f2529444'],
@@ -822,7 +857,7 @@ test('composed source profile preserves both exact historical branch inventories
   }
 })
 
-test('new atomic source route binds all22 reviewed owners without widening the gate', () => {
+test('historical atomic source route retains all22 reviewed owners without widening the gate', () => {
   const current = dragSourceProfiles.find(profile => profile.id === atomicProfileId)
   const main = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
   const ui = dragSourceProfiles.find(profile => profile.id === resultClockId)
@@ -837,12 +872,12 @@ test('new atomic source route binds all22 reviewed owners without widening the g
     } else assert.deepEqual(next, inherited)
   }
   assert.deepEqual(current.slices.slice(19), ui.slices.slice(17))
-  const admitted = inspectDragSource(root)
+  const admitted = inspectDragSource(root, preCallbackRetirementRead)
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.profile, atomicProfileId)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   // All22 individual owner mutations, source bounds, unknown reads, and mutable
   // projection-kernel checks remain in the original shared admission tests.
-  const scene = rawSnapshotRead('app/scene.ts')
+  const scene = preCallbackRetirementRead('app/scene.ts')
   for (const [before, after] of [
     [guardedResultCallback, historicalResultCallback],
     [correctedResultClockFrame, ''],
@@ -852,19 +887,19 @@ test('new atomic source route binds all22 reviewed owners without widening the g
   ]) {
     assert.equal(scene.split(before).length, 2, 'Exact new owner mutation boundary')
     const rejected = inspectDragSource(root, path => path === 'app/scene.ts'
-      ? scene.replace(before, after) : rawSnapshotRead(path))
+      ? scene.replace(before, after) : preCallbackRetirementRead(path))
     assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
   }
   // Neither parent frame nor the old camera alone is the composed atomic route.
   for (const owner of ['app/scene.ts', cameraPath]) {
-    const rejected = inspectDragSource(root, path => path === owner ? mainHistoricalRead(path) : rawSnapshotRead(path))
+    const rejected = inspectDragSource(root, path => path === owner ? mainHistoricalRead(path) : preCallbackRetirementRead(path))
     assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
   }
   for (const [code, text] of [['ENOENT', 'missing'], ['EACCES', 'unreadable']]) {
     let failures = 0
     const rejected = inspectDragSource(root, path => {
       if (path === 'app/result-session.ts') { failures++; throw Object.assign(Error(text), { code }) }
-      return rawSnapshotRead(path)
+      return preCallbackRetirementRead(path)
     })
     assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
     assert.equal(failures, 1)
@@ -1046,4 +1081,47 @@ test('loose-log source admission is additive and binds the exact shared queue ow
   // Preserve the historical boundary: an unused new helper was not hashed there.
   assert.equal(inspectDragSource(root, path => path === 'app/scene-picking.ts'
     ? preLooseLogRead(path) : read(path)).profile, combinedCpuProfileId)
+})
+
+
+test('callback-retirement source profile adds exact owners without replacing historical identities', () => {
+  const previous = dragSourceProfiles.find(profile => profile.id === atomicProfileId)
+  const current = dragSourceProfiles.find(profile => profile.id === callbackRetirementProfileId)
+  assert.equal(previous.slices.length, 22)
+  assert.equal(current.slices.length, 24)
+  assert.equal(new Set(current.slices.map(slice => slice.id)).size, 24)
+  for (const [index, inherited] of previous.slices.entries()) {
+    const next = current.slices[index]
+    assert.deepEqual({ ...next, sha256: inherited.sha256 }, inherited)
+    assert.equal(next.sha256 !== inherited.sha256, ['camera-producers', 'frame-order'].includes(next.id))
+  }
+  assert.deepEqual(current.slices.slice(22).map(slice => slice.id),
+    ['tooltip-retirement-owner', 'scene-current-owner'])
+  for (const [read, expected] of [[rawSnapshotRead, callbackRetirementProfileId],
+    [preCallbackRetirementRead, atomicProfileId]]) {
+    const result = inspectDragSource(root, read)
+    assert.equal(result.status, 'admitted'); assert.equal(result.profile, expected)
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  // Omission of any individual guard never admits the current composition.
+  for (const [owner, currentText, previousText] of callbackRetirementDeltas) {
+    const source = rawSnapshotRead(owner)
+    assert.equal(source.split(currentText).length, 2)
+    const rejected = inspectDragSource(root, path => path === owner
+      ? source.replace(currentText, previousText) : rawSnapshotRead(path))
+    assert.equal(rejected.status, 'unsupported-source-contract')
+    assert.equal(rejected.profile, null)
+  }
+  // The new profile binds the actual callback producer and current-owner helper,
+  // not just the call sites. Historical profiles retain their prior boundaries.
+  for (const [path, before, after] of [
+    ['app/scene-tooltip-runtime.ts', 'if (!scene.isCurrent()) return', 'if (false) return'],
+    ['app/scene.ts', 'return !this.disposed && (!this.presentationBinding || this.presentationBinding.isCurrent())', 'return true'],
+  ]) {
+    const source = rawSnapshotRead(path)
+    assert.equal(source.split(before).length, 2)
+    const rejected = inspectDragSource(root, owner => owner === path
+      ? source.replace(before, after) : rawSnapshotRead(owner))
+    assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
+  }
 })

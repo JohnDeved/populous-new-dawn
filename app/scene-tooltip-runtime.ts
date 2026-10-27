@@ -309,7 +309,11 @@ export function updateTooltipController(scene: GameScene, now: number) {
     if (expiredRoute) scene.world.routeNotice = null
     owner.routeNotice = null
     resetTooltipController(owner, state)
-    if (expiredRoute) scene.onChange()
+    if (expiredRoute) {
+      scene.onChange()
+      // Publication can revoke this Scene before the panel/output work below.
+      if (!scene.isCurrent()) return
+    }
   }
   if (!handled && ordinary && !sample?.hud) {
     const worldRoute =

@@ -226,7 +226,8 @@ test('the exact Spy checkpoint introduction outlasts 8s but the production nativ
   // fixture's simulation ticks, own this preserved timeline.
   world.paused = false
   let notifications = 0
-  const scene = { world, wasFlying: true, flybyTime: 0,
+  // Supplied introduction fixture retains one live Scene owner throughout.
+  const scene = { world, wasFlying: true, flybyTime: 0, isCurrent: () => true,
     flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     onChange: () => notifications++,
     updateTooltipController() {}, acquireForcedTooltip() {}, commitSky() {}, updateView() {},
