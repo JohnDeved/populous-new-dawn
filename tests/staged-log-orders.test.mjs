@@ -283,3 +283,18 @@ test('live cell projection follows insertion chronology, skips retired stock, an
   assert.equal(stepQueuedTreeOrder(w, u, { a: point.x, b: point.y, flags: 8 }), 0)
   assert.equal(u.tree, newestLive.id)
 })
+
+test('exhausted resource search completes the staged head and releases the reachable tail without cargo', () => {
+  const { w, u, log } = scenario()
+  command(w, log, { ctrlKey: true })
+  command(w, { x: 12, z: 0 })
+  const head = orders(w, u)[0],
+    tail = orders(w, u)[1]
+  log.logs = 0
+  until(w, () => w.buildingOrders.active === 0 && w.motionRoutes.active === 0)
+  assert.equal(u.cargo, 0)
+  assert.equal(u.tree, null)
+  assert.equal(head.references, 0)
+  assert.equal(tail.references, 0)
+  assert.ok(u.x > 10)
+})
