@@ -19,7 +19,11 @@ export function searchQueuedResource<T extends Resource>(
   try {
     const x = (center.x >>> 8) & 254,
       y = (center.y >>> 8) & 254
-    for (let offset = nextIndexedSearch(pool, search); offset; offset = nextIndexedSearch(pool, search)) {
+    for (
+      let offset = nextIndexedSearch(pool, search);
+      offset;
+      offset = nextIndexedSearch(pool, search)
+    ) {
       const cell = (((y + offset.y * 2) & 255) >>> 1) * 128 + (((x + offset.x * 2) & 255) >>> 1)
       for (const object of objects(cell)) {
         if (object.class !== 5) continue

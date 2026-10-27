@@ -33,7 +33,10 @@ test('Ctrl loose-log input stages subtype 2 and preserves a following ordinary w
   const owner = u.native
   command(w, { x: 12, z: 0 })
   assert.equal(u.native, owner)
-  assert.deepEqual(orders(w, u).map(order => order.model), [7, 3])
+  assert.deepEqual(
+    orders(w, u).map(order => order.model),
+    [7, 3]
+  )
   assert.equal(w.orderCursor, 0)
   assert.equal(w.buildingOrders.active, 2)
 })
@@ -124,7 +127,10 @@ test('checkpoint clone and canonical migration preserve staged resource owner an
     other = restored.units.find(person => person.id === u.id)
   assert.deepEqual(restored.trees, w.trees)
   assert.deepEqual(other.native.commands, u.native.commands)
-  for (const [world, person] of [[w, u], [restored, other]]) {
+  for (const [world, person] of [
+    [w, u],
+    [restored, other],
+  ]) {
     until(world, () => world.buildingOrders.active === 0 && world.motionRoutes.active === 0)
     assert.equal(person.cargo, 1)
     assert.ok(person.x > 10)
@@ -132,7 +138,7 @@ test('checkpoint clone and canonical migration preserve staged resource owner an
   assert.deepEqual(restored.trees, w.trees)
 })
 
-test('retirement while approaching releases stale staged path and reacquires on the next visit', () => {
+test('retirement defers approach replacement until next-visit resource reacquisition', () => {
   const { w, u, log } = scenario()
   command(w, log, { ctrlKey: true })
   command(w, { x: 12, z: 0 })
@@ -140,12 +146,81 @@ test('retirement while approaching releases stale staged path and reacquires on 
   const replacement = { ...log, id: w.nextId++, x: -6, logs: 1 }
   w.trees.push(replacement)
   log.logs = 0
-  const order = orders(w, u)[0]
+  const order = orders(w, u)[0],
+    oldPath = u.path
   assert.equal(stepQueuedTreeOrder(w, u, order), 0)
   assert.equal(u.tree, null)
-  assert.deepEqual(u.path, [])
+  assert.equal(u.path, oldPath, 'invalidation does not advance the next acquisition')
   assert.equal(stepQueuedTreeOrder(w, u, order), 0)
   assert.equal(u.tree, replacement.id)
+  assert.notEqual(u.path, oldPath)
   assert.equal(orders(w, u)[0], order)
   assert.ok(u.path.length > 0)
+})
+
+test('explicit raw resource route masks signed endpoints and leaves the current goal untouched', async () => {
+  const { buildLiveResourceRoute, buildLiveRecoveryRoute } =
+    await import('../app/live-pathfinding.ts')
+  const { w, u } = scenario()
+  const p = createLivePerson(w, u)
+  p.goalX = 1234
+  p.goalY = 5678
+  u.native = p
+  const other = structuredClone(w),
+    v = other.units.find(person => person.id === u.id),
+    q = v.native,
+    target = { x: -256, y: -512 }
+  q.goalX = target.x & 65535
+  q.goalY = target.y & 65535
+  const actual = buildLiveResourceRoute(w, u, p, target),
+    expected = buildLiveRecoveryRoute(other, v, q, 0)
+  assert.equal(actual, expected)
+  assert.deepEqual(w.motionRoutes, other.motionRoutes)
+  assert.equal(p.flags4, q.flags4)
+  assert.equal(p.goalX, 1234)
+  assert.equal(p.goalY, 5678)
+})
+
+test('vehicle collision acquisition branch retains the resource without a raw route build', () => {
+  const { w, u, log } = scenario()
+  log.x = u.x
+  log.z = u.z
+  u.native = createLivePerson(w, u)
+  u.native.vehicle = 123
+  u.native.flags4 |= 0x02000000
+  const before = structuredClone(w.motionRoutes),
+    target = nativePosition(w, log)
+  assert.equal(stepQueuedTreeOrder(w, u, { a: target.x, b: target.y, flags: 8 }), 0)
+  assert.equal(u.tree, log.id)
+  assert.deepEqual(w.motionRoutes, before)
+})
+
+test('live acquisition projection preserves ring-eight candidates across both wrapped boundaries', async () => {
+  const { browserPosition } = await import('../app/world-coordinates.ts')
+  for (const [center, offset, model] of [
+    [0, -8, 11],
+    [127, 8, 11],
+    [0, -8, 1],
+  ]) {
+    const { w, u, log } = scenario()
+    const target = { x: ((center + offset) & 127) * 512 + 256, y: 256 }
+    Object.assign(log, browserPosition(target), { model })
+    // A newer outside-ring log must not displace the boundary candidate.
+    w.trees.push({
+      ...log,
+      ...browserPosition({ x: ((center + Math.sign(offset) * 9) & 127) * 512 + 256, y: 256 }),
+      id: w.nextId++,
+      model: 11,
+    })
+    u.native = createLivePerson(w, u)
+    const result = stepQueuedTreeOrder(w, u, { a: center * 512 + 256, b: 256, flags: 8 })
+    assert.equal(result, 0)
+    assert.equal(
+      u.tree,
+      log.id,
+      model === 1
+        ? 'preferred logs miss, fallback keeps wrapped tree'
+        : 'wrapped ring-eight loose log remains admitted'
+    )
+  }
 })

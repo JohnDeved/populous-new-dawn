@@ -1,6 +1,13 @@
 import { liveBuildingShape } from './live-building-shapes.ts'
 import { timberPhaseObjects } from './timber-phase-index.ts'
-import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
+import {
+  tribeForTeam,
+  type Building,
+  type Point,
+  type Tree,
+  type Unit,
+  type World,
+} from './world-types.ts'
 import { buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
 import { short, positionDistance } from './native-math.ts'
@@ -536,7 +543,23 @@ export function directTimberDestination(w: World, u: Unit) {
 // Hut upgrades retain the existing loose-log delivery adapter.
 export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queued = false) {
   if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return false
-  const tree = w.trees.find(t => t.id === u.tree)
+  return harvestResolvedTree(
+    w,
+    u,
+    w.trees.find(t => t.id === u.tree),
+    destination,
+    queued
+  )
+}
+
+function harvestResolvedTree(
+  w: World,
+  u: Unit,
+  tree: Tree | undefined,
+  destination?: Point,
+  queued = false
+) {
+  if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return false
   if (!tree) {
     u.tree = null
     u.harvest = undefined
@@ -580,14 +603,18 @@ export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queu
   return true
 }
 
-export function stepQueuedTreeOrder(w: World, u: Unit, order: { a: number; b: number; flags: number }) {
+export function stepQueuedTreeOrder(
+  w: World,
+  u: Unit,
+  order: { a: number; b: number; flags: number }
+) {
   if (u.cargo) return 1
-  if (u.tree !== null && !w.trees.some(tree => tree.id === u.tree && tree.logs > 0)) {
+  let owned = u.tree === null ? undefined : w.trees.find(tree => tree.id === u.tree)
+  if (u.tree !== null && (!owned || !(owned.logs > 0))) {
     // Native phases 2/3 schedule reacquisition for the next visit. Ordinary
     // manual harvesting retains its existing owner/transfer behavior.
     u.tree = null
     u.harvest = undefined
-    clearLivePath(w, u)
     return 0
   }
   if (u.tree === null) {
@@ -595,34 +622,55 @@ export function stepQueuedTreeOrder(w: World, u: Unit, order: { a: number; b: nu
     // Current live scenery is stationary, appended on birth/activation and
     // stable-filtered on removal. Zero is retired; positive fractions stay live.
     // Rebuild this acquisition-local projection; no retained/save index is added.
-    type Resource = { id: number; class: number; model: number; x: number; y: number }
-    const cells = new Map<number, Resource[]>(),
-      empty: Resource[] = []
-    for (let i = w.trees.length - 1; i >= 0; i--) {
-      const tree = w.trees[i]
-      if (!(tree.logs > 0)) continue
-      const point = nativePosition(w, tree),
-        cell = ((point.y >>> 9) & 127) * 128 + ((point.x >>> 9) & 127),
-        object = { id: tree.id, class: 5, model: tree.model, ...point },
-        row = cells.get(cell)
-      if (row) row.push(object)
-      else cells.set(cell, [object])
+    type Resource = { id: number; class: number; model: number; x: number; y: number; tree: Tree }
+    let cells: Map<number, Resource[]> | undefined
+    const empty: Resource[] = [],
+      centerX = (order.a >>> 9) & 127,
+      centerY = (order.b >>> 9) & 127
+    const objects = (cell: number) => {
+      if (!cells) {
+        cells = new Map()
+        for (let i = w.trees.length - 1; i >= 0; i--) {
+          const tree = w.trees[i]
+          if (!(tree.logs > 0)) continue
+          const point = nativePosition(w, tree),
+            x = (point.x >>> 9) & 127,
+            y = (point.y >>> 9) & 127
+          // A conservative superset of rings 0..8, not an eligibility test:
+          // retain wrapping boundary cells and native order inside each bucket.
+          if (
+            Math.abs(((x - centerX + 64) & 127) - 64) > 8 ||
+            Math.abs(((y - centerY + 64) & 127) - 64) > 8
+          )
+            continue
+          const index = y * 128 + x,
+            object = { id: tree.id, class: 5, model: tree.model, ...point, tree },
+            row = cells.get(index)
+          if (row) row.push(object)
+          else cells.set(index, [object])
+        }
+      }
+      return cells.get(cell) ?? empty
     }
     const tree = acquireQueuedResource(
       w.indexedSearch,
       { x: order.a, y: order.b },
       p.angle,
       order.flags,
-      cell => cells.get(cell) ?? empty,
+      objects,
       target => {
         if (p.vehicle && p.flags4 & 0x02000000) personStepCollision(collisionWorld(w), p, target)
         else if (!buildLiveResourceRoute(w, u, p, target)) p.flags4 = (p.flags4 & ~0x10000000) >>> 0
       }
     )
     if (!tree) return 1
+    // Keep native acquisition effects ahead of the browser approach handoff.
+    // The chosen owner now replaces the coarse-click or retired-target path.
+    clearLivePath(w, u)
     u.tree = tree.id
+    owned = tree.tree
   }
-  return Number(harvestAssignedTree(w, u, undefined, true))
+  return Number(harvestResolvedTree(w, u, owned, undefined, true))
 }
 
 export function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
