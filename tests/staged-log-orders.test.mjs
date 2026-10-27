@@ -8,8 +8,8 @@ import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
-function scenario() {
-  const w = createStartedWorld()
+function scenario(capacity = 'scalable') {
+  const w = createStartedWorld(1, capacity)
   retainFixtureUnits(w, () => false)
   w.buildings = []
   w.shrines = []
@@ -85,7 +85,7 @@ test('retired queued owner is invalidated without harvesting a replacement durin
 })
 
 test('queued command allocation exhaustion does not assign an immediate legacy log owner', () => {
-  const { w, u, log } = scenario()
+  const { w, u, log } = scenario('classic')
   for (const record of w.buildingOrders.records.slice(1)) record.references = 1
   const before = structuredClone(w.buildingOrders)
   command(w, log, { ctrlKey: true })
@@ -244,7 +244,8 @@ test('live acquisition projection preserves ring-eight candidates across both wr
   }
 })
 
-test('raw route failure keeps selected resource and clears only acquisition failure bit', () => {
+test('raw route failure keeps selected resource and clears only acquisition failure bit', async () => {
+  const { buildLiveResourceRoute } = await import('../app/live-pathfinding.ts')
   const { w, u, log } = scenario()
   log.x = u.x
   log.z = u.z
@@ -258,10 +259,27 @@ test('raw route failure keeps selected resource and clears only acquisition fail
   cache[3] = (p.y >>> 8) & 254
   cache[6] = (target.x >>> 8) & 254
   cache[7] = (target.y >>> 8) & 254
-  p.flags4 |= 0x80000000
+  p.flags4 = (p.flags4 | 0x90000000) >>> 0
+  const control = structuredClone(w),
+    other = control.units.find(person => person.id === u.id)
+  assert.equal(buildLiveResourceRoute(control, other, other.native, target), 0)
+  assert.ok(other.native.flags4 & 0x10000000)
   assert.equal(stepQueuedTreeOrder(w, u, { a: target.x, b: target.y, flags: 8 }), 0)
   assert.equal(u.tree, log.id)
   assert.equal(p.flags4 & 0x10000000, 0)
   assert.equal(p.flags4 >>> 31, 1)
   assert.ok(p.flags4 >= 0)
+})
+
+test('live cell projection follows insertion chronology, skips retired stock, and ignores numeric ID order', () => {
+  const { w, u, log } = scenario()
+  w.nextId += 3
+  log.id = w.nextId - 1
+  const newestLive = { ...log, id: w.nextId - 2 },
+    retired = { ...log, id: w.nextId - 3, logs: 0 }
+  w.trees.push(newestLive, retired)
+  u.native = createLivePerson(w, u)
+  const point = nativePosition(w, log)
+  assert.equal(stepQueuedTreeOrder(w, u, { a: point.x, b: point.y, flags: 8 }), 0)
+  assert.equal(u.tree, newestLive.id)
 })
