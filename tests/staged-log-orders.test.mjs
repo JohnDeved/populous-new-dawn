@@ -6,6 +6,7 @@ import { stepQueuedTreeOrder } from '../app/live-construction-runtime.ts'
 import { nativePosition } from '../app/world-terrain-runtime.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import rules from '../app/original-rules.json' with { type: 'json' }
 
 function scenario() {
   const w = createStartedWorld()
@@ -106,8 +107,9 @@ test('staged log approach preserves command ownership, pickup advances the tail,
     ids = owner.commands.filter(Boolean),
     head = w.buildingOrders.records[ids[0]],
     tail = w.buildingOrders.records[ids[1]]
-  tick(w, 1 / 12)
+  until(w, () => u.tree === log.id && u.path.length > 0)
   assert.equal(u.native, owner)
+  assert.equal(w.pathfinding.people.get(u.id), owner)
   assert.equal(head.references, 1)
   assert.equal(tail.references, 1)
   until(w, () => u.cargo === 1)
@@ -156,6 +158,12 @@ test('retirement defers approach replacement until next-visit resource reacquisi
   assert.notEqual(u.path, oldPath)
   assert.equal(orders(w, u)[0], order)
   assert.ok(u.path.length > 0)
+  assert.equal(w.pathfinding.people.get(u.id), u.native)
+  const selected = nativePosition(w, replacement)
+  assert.equal(u.native.goalX, selected.x & 65535)
+  assert.equal(u.native.goalY, selected.y & 65535)
+  until(w, () => u.cargo === 1)
+  assert.equal(replacement.logs, 0)
 })
 
 test('explicit raw resource route masks signed endpoints and leaves the current goal untouched', async () => {
@@ -166,6 +174,9 @@ test('explicit raw resource route masks signed endpoints and leaves the current 
   p.goalX = 1234
   p.goalY = 5678
   u.native = p
+  const coast = rules.terrainCategoryFlags.findIndex(flags => flags & 60)
+  assert.ok(coast >= 0)
+  w.land.categories[127 * 128 + 127] = coast
   const other = structuredClone(w),
     v = other.units.find(person => person.id === u.id),
     q = v.native,
@@ -223,4 +234,26 @@ test('live acquisition projection preserves ring-eight candidates across both wr
         : 'wrapped ring-eight loose log remains admitted'
     )
   }
+})
+
+test('raw route failure keeps selected resource and clears only acquisition failure bit', () => {
+  const { w, u, log } = scenario()
+  log.x = u.x
+  log.z = u.z
+  u.native = createLivePerson(w, u)
+  const p = u.native,
+    target = nativePosition(w, log),
+    cache = w.motionRoutes.failedSearches,
+    view = new DataView(cache.buffer, cache.byteOffset, cache.byteLength)
+  view.setInt16(0, 16, true)
+  cache[2] = (p.x >>> 8) & 254
+  cache[3] = (p.y >>> 8) & 254
+  cache[6] = (target.x >>> 8) & 254
+  cache[7] = (target.y >>> 8) & 254
+  p.flags4 |= 0x80000000
+  assert.equal(stepQueuedTreeOrder(w, u, { a: target.x, b: target.y, flags: 8 }), 0)
+  assert.equal(u.tree, log.id)
+  assert.equal(p.flags4 & 0x10000000, 0)
+  assert.equal(p.flags4 >>> 31, 1)
+  assert.ok(p.flags4 >= 0)
 })

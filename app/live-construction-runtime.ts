@@ -26,7 +26,12 @@ import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live
 import { nativePersonModel } from './live-combat.ts'
 import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
-import { clearLivePath, probeLivePathCost, buildLiveResourceRoute } from './live-pathfinding.ts'
+import {
+  clearLivePath,
+  probeLivePathCost,
+  buildLiveResourceRoute,
+  replanLivePath,
+} from './live-pathfinding.ts'
 import { acquireQueuedResource } from './queued-resource-search.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
@@ -567,7 +572,8 @@ function harvestResolvedTree(
   }
   if (u.path.length) return false
   if (distance(u, tree) >= 1) {
-    route(w, u, tree, queued)
+    if (queued) replanLivePath(w, u, u.native!, nativePosition(w, tree))
+    else route(w, u, tree)
     return false
   }
   if (!u.harvest) {
