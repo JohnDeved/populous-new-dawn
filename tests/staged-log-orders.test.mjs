@@ -208,23 +208,27 @@ test('vehicle collision acquisition branch retains the resource without a raw ro
 
 test('live acquisition projection preserves ring-eight candidates across both wrapped boundaries', async () => {
   const { browserPosition } = await import('../app/world-coordinates.ts')
-  for (const [center, offset, model] of [
-    [0, -8, 11],
-    [127, 8, 11],
-    [0, -8, 1],
+  for (const [center, offset, model, axis] of [
+    [0, -8, 11, 'x'],
+    [127, 8, 11, 'x'],
+    [0, -8, 1, 'x'],
+    [0, -8, 11, 'y'],
+    [127, 8, 1, 'y'],
   ]) {
     const { w, u, log } = scenario()
-    const target = { x: ((center + offset) & 127) * 512 + 256, y: 256 }
+    const point = delta => ({ x: 256, y: 256, [axis]: ((center + delta) & 127) * 512 + 256 })
+    const target = point(offset)
     Object.assign(log, browserPosition(target), { model })
     // A newer outside-ring log must not displace the boundary candidate.
     w.trees.push({
       ...log,
-      ...browserPosition({ x: ((center + Math.sign(offset) * 9) & 127) * 512 + 256, y: 256 }),
+      ...browserPosition(point(Math.sign(offset) * 9)),
       id: w.nextId++,
       model: 11,
     })
     u.native = createLivePerson(w, u)
-    const result = stepQueuedTreeOrder(w, u, { a: center * 512 + 256, b: 256, flags: 8 })
+    const origin = point(0)
+    const result = stepQueuedTreeOrder(w, u, { a: origin.x, b: origin.y, flags: 8 })
     assert.equal(result, 0)
     assert.equal(
       u.tree,
