@@ -4409,6 +4409,44 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "tornado-building-wood-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check live Tornado building damage and loose-log provenance through the existing controlled real-caller regression.",
+      "coveredBehavior": [
+        "Loose-log allocation, position, identity and dynamic provenance",
+        "Building work, stage, attribution, debris and normal retirement",
+        "Protected, rejected, unactivated and retired targets",
+        "Supplied allocation-failure bookkeeping"
+      ],
+      "knownLimits": [
+        "Controlled createWorld targets do not prove ordinary earned-stock/UI behavior or native allocator failure.",
+        "The app input directory binds the model facade's transitive imports; only explicit triggerPaths select this check."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/tornado-building-wood.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "tests/tornado-building-wood.test.mjs",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts",
+        "app/world-initialization.ts",
+        "app/scenery-provenance.ts"
+      ],
+      "inputs": [
+        "tests/tornado-building-wood.test.mjs",
+        "app",
+        "package.json",
+        "pnpm-lock.yaml",
+        "package-lock.json"
+      ],
+      "prerequisites": ["Maintained Node.js 24 toolchain"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "construction-research-portable",
       "kind": "portable",
       "automation": "safe",
