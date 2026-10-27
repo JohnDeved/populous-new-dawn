@@ -90,7 +90,11 @@ test('queued command allocation exhaustion does not assign an immediate legacy l
   const before = structuredClone(w.buildingOrders)
   command(w, log, { ctrlKey: true })
   assert.equal(u.tree, null)
-  assert.equal(w.orderCursor, 0)
+  assert.equal(
+    w.orderCursor,
+    1,
+    'existing staged input advances its cursor even on allocation failure'
+  )
   assert.deepEqual(w.buildingOrders, before)
 })
 
