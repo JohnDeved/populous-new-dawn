@@ -310,6 +310,7 @@
   "app/scene-worship-acquisition.ts",
   "app/scene.ts",
   "app/scenery-fire.ts",
+  "app/scenery-provenance.ts",
   "app/secondary-effects.ts",
   "app/selection-mesh.ts",
   "app/selection-raster.ts",

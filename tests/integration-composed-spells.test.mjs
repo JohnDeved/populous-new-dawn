@@ -53,6 +53,33 @@ test('Promise results at artifact, verifier and actual caller boundaries cannot 
   assert.throws(()=>resolveMission10Artifact(f.archives.get(3001),{bytes:f.archives.get(3001).length,sha256:f.artifacts[1].digest.slice(7)},f.records[1].receipt,{profileArtifactPolicy:'composed-spells-eight-v1',browserPolicy:'profile-split-v1',checkpointVersion:4}))
 })
 
+// The fixture derives its source map from this finite inventory. Require the new
+// checkpoint dependency explicitly, so removing it cannot make fixture and reader
+// agree on the same incomplete input set.
+test('composed checkpoint source inventory includes scenery provenance exactly once', () => {
+  assert.equal(COMPOSED_SOURCE_INPUTS.filter(path => path === 'app/scenery-provenance.ts').length, 1)
+})
+
+test('composed evidence rejects missing or changed scenery provenance bytes', () => {
+  const path = 'app/scenery-provenance.ts'
+  const mismatch = /Composed immutable source differs: app\/scenery-provenance\.ts/
+  for (const index of [0, 1]) {
+    for (const missing of [true, false]) {
+      const f = composedBrowserFixture()
+      const record = f.records[index]
+      if (missing) delete record.host.source.files[path]
+      else record.host.source.files[path] = 'f'.repeat(64)
+      // Rebind the artifact ZIP/upload to the altered host receipt, so rejection
+      // must come from immutable source comparison, not a stale transport hash.
+      f.rebuild(record)
+      assert.throws(() => f.run(), mismatch)
+    }
+  }
+  const f = composedBrowserFixture()
+  f.sourceBlobs[path] = Buffer.from('changed scenery provenance')
+  assert.throws(() => f.run(), mismatch)
+})
+
 // Read the tracked application independently: synthetic host fixtures deliberately
 // derive their source bytes from the allowlist and cannot detect omissions alone.
 function requireApplicationInventory(inputs, applicationPaths) {

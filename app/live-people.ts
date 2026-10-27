@@ -627,7 +627,13 @@ function context(w: World, synchronize = () => syncLivePersonCells(w)) {
         x: ((person.x & 0xfe00) + 256 + 32 - (random(state) & 63)) & 65535,
         y: ((person.y & 0xfe00) + 256 + 32 - (random(state) & 63)) & 65535,
       }
-      w.trees.push({ id: w.nextId++, ...browserPosition(pos), logs: 1, model: 11 })
+      w.trees.push({
+        ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+        id: w.nextId++,
+        ...browserPosition(pos),
+        logs: 1,
+        model: 11,
+      })
       return true
     },
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
