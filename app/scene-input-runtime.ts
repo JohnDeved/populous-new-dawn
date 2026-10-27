@@ -418,12 +418,13 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
       : null
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
-    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
-    scene.world.buildings.find(b => b.id === pickedId) ??
-    scene.world.shrines.find(h => h.id === pickedId) ??
+    // Keep the exact resource/tree winner ahead of the proximity-vehicle fallback.
     scene.world.trees.find(
       t => t.id === modelId && t.logs > 0 && rules.sceneryResourceFlags[t.model] & 4
     ) ??
+    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
+    scene.world.buildings.find(b => b.id === pickedId) ??
+    scene.world.shrines.find(h => h.id === pickedId) ??
     undefined
   const p = picked ?? scene.pick(event) ?? clickedUnit
   if (!p) return
