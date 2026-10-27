@@ -965,6 +965,68 @@ test('protected held-drag owners add the cheap regression without changing exist
     assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
   }))
 
+// The Tornado regression must be selected explicitly: input fingerprints are not
+// dependency discovery, and the construction bundle does not execute this test.
+test('Tornado building wood owners select their standalone portable regression without broadening routing', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const check = checks.checks.find(item => item.id === 'tornado-building-wood-portable')
+    assert.ok(check)
+    assert.equal(check.kind, 'portable')
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/tornado-building-wood.test.mjs'])
+    const paths = ['tests/tornado-building-wood.test.mjs', 'app/building-runtime.ts',
+      'app/tornado-runtime.ts', 'app/world-initialization.ts', 'app/scenery-provenance.ts']
+    assert.deepEqual(check.triggerPaths, paths)
+    assert.deepEqual(check.inputs, ['tests/tornado-building-wood.test.mjs', 'app',
+      'package.json', 'pnpm-lock.yaml', 'package-lock.json'])
+    assert.deepEqual(check.sideEffects, [])
+    for (const path of ['pnpm-lock.yaml', 'package-lock.json', ...paths]) put(repo, path, '// fixture\n')
+    // Exercise a narrow owner, a shared owner and conservative unknown owners.
+    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
+    mapping.subsystems[0].implementationPaths.push('app/building-runtime.ts')
+    mapping.subsystems[0].sharedPaths.push('app/world-initialization.ts')
+    put(repo, 'engineering/project-map.json', mapping)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'Tornado source owner fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check)
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'add Tornado portable triggers')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo), previous = baseline.get(path)
+      const selected = plan.checks.find(item => item.id === check.id)
+      assert.deepEqual(selected?.command, [check.executable, ...check.args], path)
+      assert.ok(selected.reasons.includes(`explicit check trigger changed: ${path}`), path)
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      assert.equal(plan.feedback.finalGate, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.executesChecks, false)
+      if (plan.feedback.scope === 'focused') assert.ok(plan.feedback.command.includes('tests/tornado-building-wood.test.mjs'))
+      put(repo, path, '// fixture\n')
+    }
+    // Even files within the broad fingerprint directory must not become triggers.
+    appendFileSync(join(repo, 'app/a.ts'), '// unrelated mapped owner\n')
+    const mapped = planChanges(repo)
+    assert.ok(!mapped.checks.some(item => item.id === check.id))
+    put(repo, 'app/unmapped.ts', '// unrelated unknown owner\n')
+    const unknown = planChanges(repo)
+    assert.ok(!unknown.checks.some(item => item.id === check.id))
+    assert.ok(unknown.unknownPaths.includes('app/unmapped.ts'))
+    assert.deepEqual(unknown.feedback.command, ['npm', 'test'])
+  }))
+
 test('native UI checker changes select focused regressions without losing workflow gates', () =>
   withRepo(repo => {
     const check = JSON.parse(readFileSync(join(ROOT, 'engineering/checks.json'))).checks
