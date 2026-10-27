@@ -1,8 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { COMPOSED_SOURCE_INPUTS } from '../scripts/integration-queue/composed-profile-artifact.mjs'
 import { composedBrowserFixture } from './support/composed-browser-reader.mjs'
 import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
-import { COMPOSED_SOURCE_INPUTS } from '../scripts/integration-queue/composed-profile-artifact.mjs'
 import { validateEntry,validatePassedGate,gatesFor } from '../scripts/integration-queue/policy.mjs'
 import { resolveProfileCasesArtifact,resolveMission10Artifact,profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
 const checkView=f=>({head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion}))})
@@ -76,4 +78,52 @@ test('composed evidence rejects missing or changed scenery provenance bytes', ()
   const f = composedBrowserFixture()
   f.sourceBlobs[path] = Buffer.from('changed scenery provenance')
   assert.throws(() => f.run(), mismatch)
+})
+
+// Read the tracked application independently: synthetic host fixtures deliberately
+// derive their source bytes from the allowlist and cannot detect omissions alone.
+function requireApplicationInventory(inputs, applicationPaths) {
+  assert.equal(new Set(inputs).size, inputs.length, 'Duplicate composed source input')
+  assert.deepEqual(inputs.filter(path => path.startsWith('app/')).sort(),
+    [...applicationPaths].sort(), 'Composed inventory must bind every tracked app file')
+}
+test('composed source inventory covers every tracked application file exactly once', () => {
+  const tracked = execFileSync('git', ['ls-files', '--cached', '-z', '--', 'app/'], {
+    cwd: new URL('..', import.meta.url), encoding: 'utf8', timeout: 10_000, maxBuffer: 1024 * 1024,
+  }).split('\0').filter(Boolean)
+  assert.ok(tracked.length > 0, 'Tracked application inventory must not be empty')
+  requireApplicationInventory(COMPOSED_SOURCE_INPUTS, tracked)
+  const added = 'app/future-composed-dependency.ts'
+  assert.ok(!tracked.includes(added))
+  assert.throws(() => requireApplicationInventory(COMPOSED_SOURCE_INPUTS, [...tracked, added]),
+    /Composed inventory must bind every tracked app file/)
+  assert.throws(() => requireApplicationInventory([...COMPOSED_SOURCE_INPUTS, tracked[0]], tracked),
+    /Duplicate composed source input/)
+})
+
+test('composed evidence binds all Angel presentation dependencies in both artifact kinds', () => {
+  for (const path of ['app/angel-presentation.ts', 'app/original-angel-presentation.json',
+    'app/original-angel-strike.json']) {
+    assert.equal(COMPOSED_SOURCE_INPUTS.filter(input => input === path).length, 1)
+    const mismatch = error => error.code === 'ERR_ASSERTION' &&
+      error.message.split('\n')[0] === `Composed immutable source differs: ${path}`
+    for (const index of [0, 1]) {
+      for (const missing of [true, false]) {
+        const f = composedBrowserFixture(), record = f.records[index]
+        if (missing) delete record.host.source.files[path]
+        else record.host.source.files[path] = 'f'.repeat(64)
+        // Authenticate the altered transport so only the source comparison fails.
+        f.rebuild(record)
+        assert.throws(() => f.run(), mismatch)
+      }
+      const f = composedBrowserFixture(), changed = Buffer.from(`changed immutable ${path}`)
+      f.sourceBlobs[path] = changed
+      // Rebind the OTHER kind to the changed blob: the selected kind must reject
+      // its stale hash itself, rather than accidentally failing Profile first.
+      const other = f.records[1 - index]
+      other.host.source.files[path] = createHash('sha256').update(changed).digest('hex')
+      f.rebuild(other)
+      assert.throws(() => f.run(), mismatch)
+    }
+  }
 })
