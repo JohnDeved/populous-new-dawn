@@ -572,7 +572,7 @@ CRC, chunk order, dimensions, DEFLATE length and filters; rejects APNG and tRNS;
 and permits only singleton pre-IDAT sRGB, standard sRGB gAMA and valid pHYs
 metadata. No arbitrary pixel-interpretation chunks are ignored.
 
-The complete candidate byte-input set is the explicit 488-path
+The complete candidate byte-input set is the explicit finite
 [`composed-source-inputs.json`](composed-source-inputs.json), derived by static
 inspection of that producer. It includes the Tornado adapter/fixture, native
 fixture data, transitive rendering and clock inputs, and both `tornado.png` and
