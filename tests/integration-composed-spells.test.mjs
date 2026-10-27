@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { composedBrowserFixture } from './support/composed-browser-reader.mjs'
 import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
+import { COMPOSED_SOURCE_INPUTS } from '../scripts/integration-queue/composed-profile-artifact.mjs'
 import { validateEntry,validatePassedGate,gatesFor } from '../scripts/integration-queue/policy.mjs'
 import { resolveProfileCasesArtifact,resolveMission10Artifact,profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
 const checkView=f=>({head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion}))})
@@ -48,4 +49,31 @@ test('Promise results at artifact, verifier and actual caller boundaries cannot 
   const record=f.records[0],upload={bytes:f.archives.get(3000).length,sha256:f.artifacts[0].digest.slice(7)}
   assert.throws(()=>resolveProfileCasesArtifact(Promise.resolve(f.archives.get(3000)),upload,record.receipt,Promise.resolve({})))
   assert.throws(()=>resolveMission10Artifact(f.archives.get(3001),{bytes:f.archives.get(3001).length,sha256:f.artifacts[1].digest.slice(7)},f.records[1].receipt,{profileArtifactPolicy:'composed-spells-eight-v1',browserPolicy:'profile-split-v1',checkpointVersion:4}))
+})
+
+// The fixture derives its source map from this finite inventory. Require the new
+// checkpoint dependency explicitly, so removing it cannot make fixture and reader
+// agree on the same incomplete input set.
+test('composed checkpoint source inventory includes scenery provenance exactly once', () => {
+  assert.equal(COMPOSED_SOURCE_INPUTS.filter(path => path === 'app/scenery-provenance.ts').length, 1)
+})
+
+test('composed evidence rejects missing or changed scenery provenance bytes', () => {
+  const path = 'app/scenery-provenance.ts'
+  const mismatch = /Composed immutable source differs: app\/scenery-provenance\.ts/
+  for (const index of [0, 1]) {
+    for (const missing of [true, false]) {
+      const f = composedBrowserFixture()
+      const record = f.records[index]
+      if (missing) delete record.host.source.files[path]
+      else record.host.source.files[path] = 'f'.repeat(64)
+      // Rebind the artifact ZIP/upload to the altered host receipt, so rejection
+      // must come from immutable source comparison, not a stale transport hash.
+      f.rebuild(record)
+      assert.throws(() => f.run(), mismatch)
+    }
+  }
+  const f = composedBrowserFixture()
+  f.sourceBlobs[path] = Buffer.from('changed scenery provenance')
+  assert.throws(() => f.run(), mismatch)
 })
