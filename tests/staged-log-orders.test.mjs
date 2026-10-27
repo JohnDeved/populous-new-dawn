@@ -16,6 +16,8 @@ function scenario(capacity = 'scalable') {
   w.trees = []
   w.terrain.fill(3)
   w.terrainVersion++
+  // Keep the real campaign outcome controller active without winning this isolated fixture.
+  addUnit(w, 'red', 'brave', { x: 40, z: 40 })
   const u = addUnit(w, 'blue', 'brave', { x: 0, z: 0 })
   w.selected = [u.id]
   const log = { id: w.nextId++, x: 6, z: 0, model: 11, logs: 1 }
@@ -98,9 +100,40 @@ test('queued command allocation exhaustion does not assign an immediate legacy l
   assert.deepEqual(w.buildingOrders, before)
 })
 
+function continuationState(w) {
+  return JSON.stringify({
+    turn: w.turn,
+    paused: w.paused,
+    outcome: w.outcome,
+    status: w.status,
+    landFlags: w.land.landFlags,
+    tribes: w.manaTribes.map(t => ({ population: t.population, defeatTimer: t.defeatTimer })),
+    trees: w.trees,
+    orders: w.buildingOrders.active,
+    routes: w.motionRoutes.active,
+    units: w.units.map(u => ({
+      id: u.id,
+      x: u.x,
+      z: u.z,
+      hp: u.hp,
+      cargo: u.cargo,
+      tree: u.tree,
+      harvest: u.harvest,
+      path: u.path,
+      native: u.native,
+    })),
+  })
+}
+
 function until(w, condition, limit = 360) {
-  for (let i = 0; i < limit && !condition(); i++) tick(w, 1 / 12)
-  assert.ok(condition(), 'bounded ordinary world turns reach the expected queue state')
+  for (let i = 0; i < limit && !condition(); i++) {
+    tick(w, 1 / 12)
+    if (w.status !== 'playing') assert.equal(w.status, 'playing', continuationState(w))
+  }
+  assert.ok(
+    condition(),
+    `bounded ordinary world turns reach the expected queue state: ${continuationState(w)}`
+  )
 }
 
 test('staged log approach preserves command ownership, pickup advances the tail, and pools release', () => {
@@ -121,7 +154,7 @@ test('staged log approach preserves command ownership, pickup advances the tail,
   until(w, () => w.buildingOrders.active === 0 && w.motionRoutes.active === 0)
   assert.equal(head.references, 0)
   assert.equal(tail.references, 0)
-  assert.ok(u.x > 10)
+  assert.ok(u.x > 10, continuationState(w))
 })
 
 test('checkpoint clone and canonical migration preserve staged resource owner and queue continuation', () => {
@@ -138,7 +171,7 @@ test('checkpoint clone and canonical migration preserve staged resource owner an
     [restored, other],
   ]) {
     until(world, () => world.buildingOrders.active === 0 && world.motionRoutes.active === 0)
-    assert.equal(person.cargo, 1)
+    assert.equal(person.cargo, 1, continuationState(world))
     assert.ok(person.x > 10)
   }
   assert.deepEqual(restored.trees, w.trees)
@@ -296,5 +329,5 @@ test('exhausted resource search completes the staged head and releases the reach
   assert.equal(u.tree, null)
   assert.equal(head.references, 0)
   assert.equal(tail.references, 0)
-  assert.ok(u.x > 10)
+  assert.ok(u.x > 10, continuationState(w))
 })
