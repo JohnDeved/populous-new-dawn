@@ -10,6 +10,7 @@ import hashlib
 import json
 import os
 from pathlib import Path, PurePosixPath
+import selectors
 import stat
 import shutil
 import subprocess
@@ -24,6 +25,9 @@ BUILD_EXCLUDES = {'.agents', '.codex', '.github', '.serena', 'decomp', 'docs',
                   'engineering', 'evidence', 'qa', 'references', 'tests', 'tools', 'work'}
 MUTABLE_ROOTS = {'node_modules', 'work', 'dist', '.next', '.vinext', '.wrangler', '.fallow'}
 LOCAL_FILES = {MANIFEST, 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'tsconfig.tsbuildinfo'}
+DEFAULT_MAX_RAW_BYTES = 64 * 1024 * 1024
+RAW_READ_BYTES = 64 * 1024
+RAW_CLEANUP_SECONDS = 1.0
 
 
 def require(condition, message):
@@ -499,6 +503,22 @@ def dependency_identity(runtime):
 
 
 
+def verify_ready(source, revision, pool, runtime, dependency_store):
+    """Explicit source/assets and installed-layout admission, not a build gate."""
+    require(dependency_store, 'Readiness requires an explicit --dependency-store')
+    # Keep dependency-free diagnostics and their existing receipts unchanged.
+    # Reuse the pinned pnpm audit rather than treating an inventory as readiness.
+    from shared_setup import verify_install
+    before = verify(source, revision, pool, runtime)
+    installation = verify_install(Path(before['runtime']), dependency_store)
+    require(verify(source, revision, pool, runtime) == before,
+            'Source/assets changed during readiness check')
+    return {'status': 'verified', 'kind': 'shared-runtime-readiness',
+            'source': before, 'installation': installation,
+            'scope': 'Source/assets and installed pnpm layout only; not dependency compatibility, '
+                     'native smoke, check/build, browser, disk savings or RAM acceptance'}
+
+
 def hash_file(path):
     h = hashlib.sha256()
     with Path(path).open('rb') as stream:
@@ -592,20 +612,187 @@ class OwnedEvidence:
             leaf, stream, _ = self.files[name]
             stream.seek(0)
             h = hashlib.sha256()
+            size = 0
             for chunk in iter(lambda: stream.read(1024 * 1024), b''):
                 h.update(chunk)
-            result[name] = {'path': str(self.receipt.parent / leaf), 'sha256': h.hexdigest()}
+                size += len(chunk)
+            result[name] = {'path': str(self.receipt.parent / leaf), 'sha256': h.hexdigest(), 'bytes': size}
         self.validate()
         return result
 
 
-def execute_locked(source, revision, pool, runtime, receipt, command):
+def raw_output_limit(value=None):
+    if value is None:
+        value = os.environ.get('PND_RUNTIME_MAX_RAW_BYTES', str(DEFAULT_MAX_RAW_BYTES))
+    if isinstance(value, str):
+        require(value.isascii() and value.isdecimal() and len(value) <= 16,
+                'PND_RUNTIME_MAX_RAW_BYTES must be a nonnegative safe integer')
+        value = int(value)
+    require(type(value) is int and 0 <= value <= 2 ** 53 - 1,
+            'PND_RUNTIME_MAX_RAW_BYTES must be a nonnegative safe integer')
+    return value
+
+
+class UnreapedRuntimeCommand(ValueError):
+    """An owned producer may still be running; preserve its runtime run lock."""
+
+
+def capture_command(command, cwd, env, evidence, max_raw_bytes):
+    """Drain both pipes without buffering full output or giving the child log FDs."""
+    capture = {'maxRawBytes': max_raw_bytes, 'storedBytes': 0, 'observedBytes': 0,
+               'complete': False, 'error': None, 'streams': {
+                   name: {'observedBytes': 0, 'storedBytes': 0, 'eof': False}
+                   for name in ('stdout', 'stderr')},
+               'cleanup': {'terminateAttempted': False, 'killAttempted': False, 'errors': []}}
+    # Do not use Popen's context manager: its unbounded wait can hang on a failed sink.
+    with selectors.DefaultSelector() as selector:
+        proc = subprocess.Popen(command, cwd=cwd, env=env, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, bufsize=0)
+        capture['pid'] = proc.pid
+        failed_at = exited_at = None
+
+        def signal_owned(action):
+            if proc.poll() is not None or capture['cleanup'][action + 'Attempted']:
+                return
+            capture['cleanup'][action + 'Attempted'] = True
+            try:
+                getattr(proc, action)()
+            except OSError as error:
+                capture['cleanup']['errors'].append(f'{action}: {error}')
+
+        def fail(reason):
+            nonlocal failed_at
+            if capture['error'] is None:
+                capture['error'] = reason
+                failed_at = time.monotonic()
+                signal_owned('terminate')
+
+        try:
+            try:
+                for name in ('stdout', 'stderr'):
+                    pipe = getattr(proc, name)
+                    os.set_blocking(pipe.fileno(), False)
+                    selector.register(pipe, selectors.EVENT_READ, name)
+            except (OSError, ValueError) as error:
+                fail(f'Could not initialize raw output capture: {error}')
+            while True:
+                now = time.monotonic()
+                code = proc.poll()
+                if code is not None and exited_at is None:
+                    exited_at = now
+                if not selector.get_map() and code is not None:
+                    break
+                if failed_at is not None:
+                    if now - failed_at >= RAW_CLEANUP_SECONDS and not capture['cleanup']['killAttempted']:
+                        signal_owned('kill')
+                    if now - failed_at >= 2 * RAW_CLEANUP_SECONDS:
+                        break
+                elif exited_at is not None and now - exited_at >= RAW_CLEANUP_SECONDS:
+                    fail('Raw output pipes remained open after the owned child exited')
+                    break
+                try:
+                    events = selector.select(0.05) if selector.get_map() else []
+                except (OSError, ValueError) as error:
+                    fail(f'Could not drain raw output: {error}')
+                    # No further select calls after a selector failure; bounded cleanup below.
+                    for key in list(selector.get_map().values()):
+                        selector.unregister(key.fileobj)
+                        key.fileobj.close()
+                    events = []
+                if not selector.get_map():
+                    time.sleep(0.05)
+                for key, _ in events:
+                    name = key.data
+                    stream = capture['streams'][name]
+                    try:
+                        chunk = os.read(key.fd, RAW_READ_BYTES)
+                    except BlockingIOError:
+                        continue
+                    except OSError as error:
+                        fail(f'Could not read raw {name}: {error}')
+                        selector.unregister(key.fileobj)
+                        key.fileobj.close()
+                        continue
+                    if not chunk:
+                        stream['eof'] = True
+                        selector.unregister(key.fileobj)
+                        key.fileobj.close()
+                        continue
+                    stream['observedBytes'] += len(chunk)
+                    capture['observedBytes'] += len(chunk)
+                    if capture['error'] is not None:
+                        continue
+                    keep = min(len(chunk), max_raw_bytes - capture['storedBytes'])
+                    offset = 0
+                    try:
+                        while offset < keep:
+                            count = os.write(evidence.stream(name).fileno(), memoryview(chunk)[offset:keep])
+                            if count <= 0:
+                                raise OSError('Raw log write made no progress')
+                            offset += count
+                            stream['storedBytes'] += count
+                            capture['storedBytes'] += count
+                    except OSError as error:
+                        fail(f'Could not persist raw {name}: {error}')
+                    if keep < len(chunk):
+                        fail(f'Combined raw output budget exceeded ({max_raw_bytes} bytes)')
+        finally:
+            # Unexpected Python errors/interruptions still leave the initial unknown
+            # receipt, close our pipes and make bounded attempts to reap our child.
+            cleanup_error = None
+            try:
+                needs_cleanup = proc.poll() is None
+            except BaseException as error:
+                needs_cleanup = True
+                cleanup_error = error
+            if needs_cleanup:
+                # A wait/poll failure must not skip closure or release the run lock.
+                # Both phases remain bounded even when a signal or wait fails.
+                for action in ('terminate', 'kill'):
+                    try:
+                        signal_owned(action)
+                        proc.wait(timeout=RAW_CLEANUP_SECONDS)
+                        break
+                    except subprocess.TimeoutExpired:
+                        continue
+                    except BaseException as error:
+                        cleanup_error = error
+                        capture['cleanup']['errors'].append(f'{action}/wait: {error}')
+            for name in ('stdout', 'stderr'):
+                try:
+                    getattr(proc, name).close()
+                except BaseException as error:
+                    cleanup_error = error
+                    capture['cleanup']['errors'].append(f'close {name}: {error}')
+            try:
+                observed_exit = proc.poll()
+            except BaseException as error:
+                observed_exit = None
+                capture['cleanup']['errors'].append(f'poll: {error}')
+            if observed_exit is None:
+                raise UnreapedRuntimeCommand(
+                    f'Owned child {proc.pid} exit was not observed; runtime run lock retained; '
+                    f'capture error: {capture["error"]}; cleanup errors: {capture["cleanup"]["errors"]}')
+            if cleanup_error is not None:
+                raise cleanup_error
+    capture['exitCode'] = proc.returncode
+    capture['cleanup']['exitObserved'] = proc.returncode is not None
+    for stream in capture['streams'].values():
+        stream['droppedBytes'] = stream['observedBytes'] - stream['storedBytes']
+    capture['complete'] = (capture['error'] is None and proc.returncode is not None and
+                           all(stream['eof'] for stream in capture['streams'].values()))
+    return capture
+
+
+def execute_locked(source, revision, pool, runtime, receipt, command, max_raw_bytes=None):
     require(command, 'A command is required')
+    max_raw_bytes = raw_output_limit(max_raw_bytes)
     before = verify(source, revision, pool, runtime)
     dependencies = dependency_identity(runtime)
     payload = {'version': 1, 'kind': 'shared-runtime-command', 'status': 'unknown',
                'sourceBefore': before, 'dependenciesBefore': dependencies, 'command': command,
                'startedAt': time.time(), 'toolchain': toolchain_identity(command),
+               'maxRawBytes': max_raw_bytes,
                'resourceEnvironment': {k: os.environ.get(k) for k in ('NODE_OPTIONS', 'PND_TEST_CONCURRENCY',
                  'ROLLDOWN_WORKER_THREADS', 'RAYON_NUM_THREADS', 'ROLLDOWN_MAX_BLOCKING_THREADS')}}
     env = dict(os.environ)
@@ -615,17 +802,16 @@ def execute_locked(source, revision, pool, runtime, receipt, command):
                 'PND_RUNTIME_POOL': before['pool'], 'PND_RUNTIME_ROOT': before['runtime']})
     with OwnedEvidence(receipt) as evidence:
         evidence.write_receipt(payload)
-        result = subprocess.run(command, cwd=before['runtime'], env=env,
-                                stdout=evidence.stream('stdout'), stderr=evidence.stream('stderr'))
+        capture = capture_command(command, before['runtime'], env, evidence, max_raw_bytes)
         # Tampered output paths cannot receive a terminal receipt, even on exit zero.
         evidence.validate()
-        payload.update({'exitCode': result.returncode, 'finishedAt': time.time()})
+        payload.update({'exitCode': capture['exitCode'], 'capture': capture, 'finishedAt': time.time()})
         try:
             payload['sourceAfter'] = verify(source, revision, pool, runtime)
             payload['dependenciesAfter'] = dependency_identity(runtime)
             require(payload['sourceAfter'] == before and payload['dependenciesAfter'] == dependencies,
                     'Source/assets/dependencies changed during command')
-            payload['status'] = 'passed' if result.returncode == 0 else 'failed'
+            payload['status'] = 'passed' if capture['exitCode'] == 0 and capture['complete'] else 'failed'
         except (ValueError, OSError, subprocess.CalledProcessError) as error:
             payload.update({'status': 'invalidated', 'error': str(error)})
         payload['logs'] = evidence.logs()
@@ -634,7 +820,8 @@ def execute_locked(source, revision, pool, runtime, receipt, command):
 
 
 
-def execute(source, revision, pool, runtime, receipt, command):
+def execute(source, revision, pool, runtime, receipt, command, max_raw_bytes=None):
+    max_raw_bytes = raw_output_limit(max_raw_bytes)
     root = physical(runtime)
     work = root / 'work'
     if work.exists() or work.is_symlink():
@@ -643,15 +830,20 @@ def execute(source, revision, pool, runtime, receipt, command):
         work.mkdir()
     lock = work / '.shared-runtime-run-lock'
     lock.mkdir()  # One writer/run per runtime. Unknown abandoned locks are preserved.
+    retain_lock = False
     try:
-        return execute_locked(source, revision, pool, runtime, receipt, command)
+        return execute_locked(source, revision, pool, runtime, receipt, command, max_raw_bytes)
+    except UnreapedRuntimeCommand:
+        retain_lock = True
+        raise
     finally:
-        lock.rmdir()
+        if not retain_lock:
+            lock.rmdir()
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['prepare', 'verify', 'run', 'revision'])
+    parser.add_argument('action', choices=['prepare', 'verify', 'ready', 'run', 'revision'])
     parser.add_argument('--source', required=True)
     parser.add_argument('--revision', required=True)
     parser.add_argument('--pool', required=True)
@@ -659,12 +851,18 @@ def main():
     parser.add_argument('--reserve-bytes', type=int, default=0)
     parser.add_argument('--scope', choices=['build', 'full'], default='build')
     parser.add_argument('--receipt')
+    parser.add_argument('--dependency-store', help='Declared active pnpm store; required only for ready')
     args, command = parser.parse_known_args()
+    require(args.action == 'ready' or args.dependency_store is None,
+            '--dependency-store is only supported by ready')
     if command and command[0] == '--':
         command = command[1:]
     if args.action == 'prepare':
         require(not command, 'Unexpected prepare arguments')
         result = prepare(args.source, args.revision, args.pool, args.runtime, args.reserve_bytes, args.scope)
+    elif args.action == 'ready':
+        require(not command, 'Unexpected readiness arguments')
+        result = verify_ready(args.source, args.revision, args.pool, args.runtime, args.dependency_store)
     elif args.action == 'run':
         require(args.receipt, 'A new receipt path is required')
         result = execute(args.source, args.revision, args.pool, args.runtime, args.receipt, command)

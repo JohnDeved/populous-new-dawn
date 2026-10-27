@@ -12,6 +12,7 @@ import { mission10CrewReceipt, mission10CrewReceiptLog } from '../scripts/tutori
 import { PROFILE_INPUTS, PROFILE_CASES, PROFILE_SCREENSHOTS, profileCasesLog, validateProfileCases, validateProfileRecovery } from '../scripts/integration-queue/profile-recovery.mjs'
 import { MISSION10_JOB, mission10CrewLog, validateMission10Crew, validateMission10Resumption } from '../scripts/integration-queue/mission10-recovery.mjs'
 import { mission10ArtifactUpload, profileArtifactUpload, resolveMission10Artifact, resolveProfileArtifact, resolveProfileCasesArtifact, validateProfileArtifactMetadata } from '../scripts/integration-queue/profile-artifact.mjs'
+import { GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_RESOURCE_BROWSER_JOBS } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from '../scripts/integration-queue/browser-jobs.mjs'
 import { GATES, SPLIT_PROFILE_BROWSER_GATE, gatesFor, validateEntry, reviewedWorkflows, validatePassedGate } from '../scripts/integration-queue/policy.mjs'
 import { RECOVERY_INPUTS } from '../scripts/integration-queue/pause-recovery.mjs'
@@ -64,14 +65,14 @@ function entry() {
     review: { reviewer: 'independent', decision: 'ACCEPT', head: oid(2), base: oid(3), sha256: h, file: '/review' },
     workflowHashes: Object.fromEntries(GATES.map(g => [g.workflow, h])), deployment: { kind: 'unverified', reason: 'fixture' } }
 }
-test('parsed eight-job matrix explicitly spends two independent180s allowances without changing other caps or permissions', () => {
+test('parsed resource-nine matrix preserves legacy split allowances without changing other caps or permissions', () => {
   const workflow = yaml.load(readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'))
   const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
-  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), SPLIT_BROWSER_JOBS)
+  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), GAMEPLAY_RESOURCE_BROWSER_JOBS)
   assert.deepEqual(workflow.on.pull_request.types, ['ready_for_review'])
   assert.deepEqual(workflow.permissions, { contents: 'read' })
   assert.equal(workflow.jobs['tutorial-browser']['runs-on'], 'ubuntu-24.04')
-  assert.equal(new Set(items.map(x => x.artifact)).size, 8)
+  assert.equal(new Set(items.map(x => x.artifact)).size, 9)
   assert.deepEqual(profileSplitBudget, { version: 1, recoveryMs: 180000, mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
   assert.equal(browserCapMs('profile-recovery'), profileSplitBudget.recoveryMs)
   assert.equal(browserCapMs('mission10-profile'), profileSplitBudget.mission10Ms)
@@ -247,6 +248,19 @@ test('real trusted adapter requires both exact current official jobs and indepen
     const row = { job: 'Tutorial browser', merge: oid(1) }
     return { reader, mission, recovery, pause, args: [e, { head: { sha: oid(2) }, base: { sha: oid(3) } }, { sha: oid(1) }, exact, jobs, row], downloads: () => downloads }
   }
+  const resource = adapter()
+  resource.args[0].browserPolicy = GAMEPLAY_RESOURCE_POLICY
+  resource.args[0].browserCheckpointVersion = 3
+  resource.args[4] = GAMEPLAY_RESOURCE_BROWSER_JOBS.map(([, name, , buildStep], i) => ({
+    ...structuredClone(completeJobs()[0]), id: 200 + i, name, head_sha: oid(2),
+    check_run_url: `https://api.github.com/repos/JohnDeved/populous-new-dawn/check-runs/${300 + i}`,
+    steps: completeJobs()[0].steps.map((step, index) => index === 5 ? { ...step, name: buildStep } : step),
+  }))
+  resource.reader.verifyPauseRecoveryRun(...resource.args)
+  resource.reader.verifyProfileRecoveryRun(...resource.args)
+  resource.reader.verifyMission10Run(...resource.args)
+  for (const key of ['pauseRecoveryVerified', 'profileRecoveryVerified', 'mission10Verified']) assert.equal(resource.args[5][key], true)
+  assert.equal(resource.args[5].gameplayResourcesVerified, undefined, 'Existing artifacts cannot prove new lifecycle')
   const good = adapter()
   good.reader.verifyPauseRecoveryRun(...good.args); assert.equal(good.args[5].pauseRecoveryVerified, true)
   assert.equal(good.args[5].pauseRecoveryCheckId, 303)
@@ -284,3 +298,4 @@ test('real trusted adapter requires both exact current official jobs and indepen
   }
   assert.equal(validateMission10Resumption(resolveMission10Artifact(good.mission.archive, good.mission.upload, good.mission.receipt)), true)
 })
+

@@ -159,6 +159,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
         globe: disposable(),
         waterMap: disposable(),
         terrainMap: disposable(),
+        terrainUpload: {}, minimap: { revision: undefined },
         view: disposable(),
         tooltipElement: disposable(),
         pointerOutline: disposable(),

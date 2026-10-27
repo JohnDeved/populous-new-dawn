@@ -345,6 +345,7 @@ export function stepScenery(w: World) {
         if (!point) return false
         // Native scenery initialization snaps the allocated corner to its cell center.
         w.trees.push({
+          ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'replant' as const } : {}),
           ...browserPosition({ x: point.x + 256, y: point.y + 256 }),
           id: w.nextId++,
           model: request.model,

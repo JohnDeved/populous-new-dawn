@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
 import { bindGame, effectPixels, openCampaignFixtureGame } from './browser-game.mjs'
+import { witnessAngelStrike } from './angel-strike-witness.mjs'
 
 const artifactDir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? 'work/orchestration/worker5-22-static157-recovery/browser')
 mkdirSync(artifactDir, { recursive: true })
@@ -301,26 +302,124 @@ try {
   )
   assert.equal(reward.summonCues, true)
   const rewardMesh = await page.evaluate(id => {
-    const mesh = globalThis.testScene.fxMeshes.get(id)
-    return mesh && { visible: mesh.visible, layers: mesh.userData.layers.length, frame: mesh.userData.frame }
+    const group = globalThis.testScene.fxMeshes.get(id), mesh = group?.children[0]
+    return group && { visible: group.visible, model: mesh?.userData.nativeModel,
+      frame: mesh?.userData.angelFrame, vertices: mesh?.geometry?.getAttribute('position')?.count,
+      spriteLayers: group.userData.layers ?? null }
   }, reward.angel.id)
-  assert.ok(rewardMesh?.visible && rewardMesh.layers > 0 && Number.isInteger(rewardMesh.frame))
+  assert.ok(rewardMesh?.visible && rewardMesh.vertices > 0 && Number.isInteger(rewardMesh.frame))
+  assert.equal(rewardMesh.model, 69)
+  assert.equal(rewardMesh.spriteLayers, null)
   stage('normal authored Angel reward', reward)
   const pixels = await effectPixels(page, [reward.angel.id])
-  assert.ok(pixels > 20, `Angel sprite must reach GPU pixels (${pixels})`)
-  const combat = await page.evaluate(async angelId => {
+  assert.ok(pixels > 20, `Original Angel mesh must reach GPU pixels (${pixels})`)
+  // effectPixels leaves the last framebuffer with the measured effect hidden.
+  await page.evaluate(() => { const scene = globalThis.testScene; scene.renderer.render(scene.scene, scene.camera) })
+  await page.screenshot({ path: resolve(artifactDir, 'mission5-angel-model69-initial.png') })
+  const animation = await page.evaluate(async angelId => {
+    const scene = globalThis.testScene, world = scene.world,
+      { advanceGame } = await import('/app/game-clock.ts'),
+      angel = world.effects.find(effect => effect.id === angelId),
+      mesh = scene.fxMeshes.get(angelId).children[0],
+      frames = [], geometries = [], turn = world.turn, random = world.randomState
+    const speed = world.speed
+    world.speed = 0 // Presentation-only visits: no invented combat/movement state.
+    for (let i = 0; i < 14; i++) {
+      advanceGame(world, scene.gameClock, 1 / 24)
+      scene.animateFx(scene.fxMeshes.get(angelId), angel)
+      frames.push(angel.angel.presentation.displayedFrame)
+      geometries.push(Array.from(mesh.geometry.getAttribute('position').array))
+    }
+    const before = JSON.stringify(angel.angel.presentation)
+    world.paused = true
+    advanceGame(world, scene.gameClock, 1)
+    const pauseHeld = before === JSON.stringify(angel.angel.presentation)
+    world.paused = false
+    world.speed = speed
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    return { frames, geometries, pauseHeld, sameTurn: world.turn === turn, sameRandom: world.randomState === random }
+  }, reward.angel.id)
+  for (let i = 1; i < animation.frames.length; i++)
+    assert.equal(animation.frames[i], (animation.frames[i - 1] + 1) % 12)
+  assert.equal(new Set(animation.geometries.map(points => JSON.stringify(points))).size, 12)
+  assert.equal(animation.pauseHeld && animation.sameTurn && animation.sameRandom, true)
+  stage('controlled initial model 69 presentation-only loop', {
+    model: 69, frames: animation.frames, pauseHeld: animation.pauseHeld,
+    sameTurn: animation.sameTurn, sameRandom: animation.sameRandom,
+  })
+  await page.screenshot({ path: resolve(artifactDir, 'mission5-angel-model69-animated.png') })
+  // Public checkpoint API must preserve the live attachment, not only a JSON copy.
+  const savedPresentation = await page.evaluate(id => {
+    const world = globalThis.testScene.world
+    world.paused = true // Hold the serialized latch through asynchronous save/load.
+    return structuredClone(world.effects.find(effect => effect.id === id).angel.presentation)
+  }, reward.angel.id)
+  assert.equal(await page.evaluate(() => globalThis.testStore.saveCheckpoint()), true)
+  assert.equal(await page.evaluate(() => globalThis.testStore.loadCheckpoint()), true)
+  await bindGame(page)
+  const loadedPresentation = await page.evaluate(id => {
+    const scene = globalThis.testScene
+    cancelAnimationFrame(scene.frame)
+    scene.world.speed = 0
+    const angel = scene.world.effects.find(effect => effect.id === id)
+    scene.focus(angel)
+    scene.onChange()
+    scene.animate(scene.previous)
+    cancelAnimationFrame(scene.frame)
+    return { state: angel.angel.presentation,
+      frame: scene.fxMeshes.get(id).children[0].userData.angelFrame }
+  }, reward.angel.id)
+  assert.deepEqual(loadedPresentation.state, savedPresentation)
+  assert.equal(loadedPresentation.frame, savedPresentation.displayedFrame)
+  stage('live attachment checkpoint', loadedPresentation)
+
+  // Separate ordinary running observation: resume the existing RAF callback at
+  // normal speed. No direct clock/animateFx calls, injected effect, or lifetime edits.
+  const running = await page.evaluate(id => new Promise(resolve => {
+    const scene = globalThis.testScene, world = scene.world,
+      angel = world.effects.find(effect => effect.id === id),
+      before = { turn: world.turn, lifetime: angel.angel.lifetime, x: angel.x, z: angel.z },
+      samples = [], started = performance.now()
+    world.paused = false
+    world.speed = 1
+    scene.previous = started
+    scene.frame = requestAnimationFrame(scene.animate)
+    function observe(now) {
+      const effect = world.effects.find(effect => effect.id === id),
+        mesh = scene.fxMeshes.get(id)?.children[0]
+      samples.push({ turn: world.turn, frame: mesh?.userData.angelFrame,
+        model: mesh?.userData.nativeModel, lifetime: effect?.angel.lifetime,
+        x: effect?.x, z: effect?.z })
+      if (now - started < 750 && effect) requestAnimationFrame(observe)
+      else resolve({ before, samples })
+    }
+    requestAnimationFrame(observe)
+  }), reward.angel.id)
+  await page.screenshot({ path: resolve(artifactDir, 'mission5-angel-model69-running.png') })
+  await page.evaluate(() => { cancelAnimationFrame(globalThis.testScene.frame) })
+  assert.ok(running.samples.length > 1)
+  assert.ok(running.samples.every(sample => sample.model === 69 && Number.isInteger(sample.frame)))
+  assert.ok(new Set(running.samples.map(sample => sample.frame)).size > 1)
+  assert.ok(running.samples.some(sample => sample.turn > running.before.turn))
+  assert.ok(running.samples.some(sample => sample.lifetime < running.before.lifetime))
+  stage('ordinary RAF gameplay observation (not native timing parity)', running)
+
+  const strikeWitness = await witnessAngelStrike(page, reward.angel.id, artifactDir, stage)
+  const combat = await page.evaluate(async ({angelId, strikeTarget, observedStrikeHit}) => {
     const scene = globalThis.testScene,
       world = scene.world,
       { advanceGame } = await import('/app/game-clock.ts'),
       angel = world.effects.find(effect => effect.id === angelId)
+    world.paused = false
     world.speed = 1
-    let target = null
+    let target = strikeTarget
     for (let frame = 0; frame < 1200; frame++) {
       advanceGame(world, scene.gameClock, 1 / 24)
       target ??= angel.angel.target
       if (target && !world.units.some(unit => unit.id === target)) break
     }
-    const hit = world.effects.some(effect => effect.kind === 'hit'),
+    const hit = observedStrikeHit || world.effects.some(effect => effect.kind === 'hit'),
       strikeCue = world.sounds.some(sound => sound.cue === 0xdc)
     // Retain PR105's bounded expiry-only fixture after a natural chase/strike;
     // no travel, reward, target, damage or kill state is forced.
@@ -341,7 +440,7 @@ try {
       cleanupCue: world.sounds.some(sound => sound.cue === 0xb2),
       meshRemoved: !scene.fxMeshes.has(angel.id),
     }
-  }, reward.angel.id)
+  }, { angelId: reward.angel.id, strikeTarget: strikeWitness.target, observedStrikeHit: strikeWitness.hit })
   assert.ok(combat.target)
   assert.deepEqual(
     {

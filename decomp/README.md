@@ -87,6 +87,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Native melee attack animation ownership](research/melee-attack-animation.md),
+[Native recoil entry and push handoff](research/melee-recoil-animation.md),
 [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
 [Completed authored Vault prayer-panel socket anchor](research/vault-prayer-panel-anchor.md),
 [Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),

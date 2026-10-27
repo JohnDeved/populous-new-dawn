@@ -573,16 +573,27 @@ test('pending sound pointer requires a finite positive visible center owned by t
   sandbox.document.elementFromPoint = () => ({})
   assert.throws(() => assertPendingSoundPointerTarget(vm.runInNewContext(`(${pendingSoundPointerTarget.toString()})(node)`, sandbox)), /actually hit/)
 })
-test('workflow is isolated read-only manual evidence with two credential-free pinned checkouts and bounded artifacts', () => {
+test('workflow is isolated read-only manual evidence with default two and opt-in third credential-free pinned checkouts and bounded artifacts', () => {
   const workflow = yaml.load(read('.github/workflows/native-ui-evidence.yml'))
   assert.deepEqual(Object.keys(workflow.on), ['workflow_dispatch']); assert.deepEqual(workflow.permissions, { contents: 'read' })
   assert.deepEqual(Object.keys(workflow.jobs), ['evidence'])
   const job = workflow.jobs.evidence
-  assert.equal(job['runs-on'], 'ubuntu-24.04'); assert.equal(job['timeout-minutes'], 20)
+  assert.equal(job['runs-on'], 'ubuntu-24.04')
+  assert.equal(job['timeout-minutes'], "${{ inputs.evidence_kind == 'material-lifecycle' && 30 || 20 }}")
+  assert.deepEqual(workflow.on.workflow_dispatch.inputs.evidence_kind, {
+    description: 'Existing UI episodes or reviewed exact PR722 material lifecycle',
+    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle'],
+  })
   const checkouts = job.steps.filter(step => step.uses?.startsWith('actions/checkout@'))
-  assert.equal(checkouts.length, 2); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
-  assert.equal(checkouts[0].with.ref, '${{ github.workflow_sha }}'); assert.equal(checkouts[1].with.ref, '${{ inputs.candidate_sha }}')
-  assert.equal(checkouts[1].with.repository, 'JohnDeved/populous-new-dawn')
+  assert.equal(checkouts.length, 3); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
+  const helper = checkouts[1]
+  assert.equal(helper.if, "${{ inputs.evidence_kind == 'material-lifecycle' }}")
+  assert.equal(helper.with.ref, 'a2e1cd1b2dbda79a75a79573ff6ff504ce46845d')
+  assert.equal(helper.with.repository, 'JohnDeved/populous-new-dawn')
+  assert.equal(helper.with.path, 'material-helper-source')
+  assert.deepEqual(checkouts.filter(step => !step.if), [checkouts[0], checkouts[2]])
+  assert.equal(checkouts[0].with.ref, '${{ github.workflow_sha }}'); assert.equal(checkouts[2].with.ref, '${{ inputs.candidate_sha }}')
+  assert.equal(checkouts[2].with.repository, 'JohnDeved/populous-new-dawn')
   const sparse = checkouts[0].with['sparse-checkout'].trim().split(/\r?\n/).map(line => line.trim())
   for (const path of ['/scripts/native-ui-evidence/', '/scripts/browser-options-audio.mjs',
     '/scripts/orchestration/dependency-profile.mjs', '/scripts/tutorial-browser/browser-config.mjs',
@@ -1399,3 +1410,4 @@ test('exact candidate source contract runs with candidate cwd before build and m
   assert.match(gate, /artifactInventory\(output\)/)
   assert.match(gate, /assert\.equal\(report\.candidateAudioSourceContract\.status, 'passed'/)
 })
+

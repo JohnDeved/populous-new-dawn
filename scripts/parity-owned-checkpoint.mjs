@@ -7,6 +7,7 @@ import { readFileSync, statSync } from 'node:fs'
 import { isAbsolute, relative, resolve } from 'node:path'
 import { isDeepStrictEqual } from 'node:util'
 import { safeRepoPath } from './orchestration/cli.mjs'
+import { readReceiptStreams, requireVerifiedReceiptStreams } from './orchestration/receipt-streams.mjs'
 
 export const ORDINARY_M2 = 'mission-two-checkpoint-ordinary'
 const SCENARIO = 'scripts/local-render/early-missions.mjs'
@@ -67,6 +68,7 @@ export function jsonFile(repo, path) {
 
 // Shared raw owned-harness boundary; scenario-specific adapters validate the sidecar.
 export function validateOwnedReceipt(outer, inner) {
+  requireVerifiedReceiptStreams(outer)
   assert(outer.phase === 'finished' && ['passed', 'failed', 'invalidated'].includes(outer.status), 'interrupted outer receipt')
   assert(Number.isFinite(Date.parse(outer.finishedAt)), 'invalid completion time')
   assert(outer.source?.headOid === inner.source?.commit && outer.cwd === inner.source?.root, 'source identity mismatch')
@@ -150,8 +152,10 @@ export function projectOrdinaryCheckpoint({ outer, inner, journey, sourceFiles, 
   return result
 }
 
-export function readOrdinaryCheckpoint(repo, { path, commandReceipt: outer }, current) {
+export function readOrdinaryCheckpoint(repo, { path, commandReceipt: supplied }, current) {
+  let outer = supplied
   try {
+    outer = readReceiptStreams(repo, path, outer)
     const { output } = optionsFor(outer)
     const inner = jsonFile(repo, `${output}/receipt.json`), journey = jsonFile(repo, `${output}/journey.json`)
     assert(/^[a-f0-9]{40}$/.test(inner.source?.commit ?? ''), 'invalid tested commit')

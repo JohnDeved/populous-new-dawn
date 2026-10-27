@@ -130,3 +130,18 @@ all nine terminal records and raw evidence; inspect pixels and caption images
 with candidate SHA, viewport and browser/renderer. Obtain independent review,
 then complete the unchanged full synthetic-merge gate for the actual combined
 head/base. This head-only evidence never establishes full integration acceptance.
+
+## Local collection without duplicate extraction
+
+After an authorized terminal artifact download, use the
+[archive-first collector](artifact-retention.md#archive-first-native-ui-collection)
+with the retained raw API digest/size and independent complete candidate and
+infrastructure source manifests. Its default is metadata-only: one canonical ZIP,
+a complete member index and a small collection receipt, not a second full
+`unpacked/` tree. Failed episodes remain visible in the raw archive and summary;
+collection exit zero is not episode acceptance. Explicit bounded selected caches
+serve screenshot inspection and publication, with external ownership/release
+journals. Merely indexing screenshots does not mean anyone viewed them.
+The narrow reader profile fails closed for larger/unsupported archives and does
+not change this workflow's producer limits or acceptance requirements. Existing
+sealed collections stay held until a separate reader/holder transition is proved.

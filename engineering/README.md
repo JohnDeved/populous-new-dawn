@@ -61,6 +61,16 @@ For narrow read-only research or a small docs fix, a compact issue/PR brief is e
 Do not create another contract just to delegate. An optional contract helps when scope,
 generated ownership, or multi-step verification needs mechanical checks.
 
+## Bound source-only workspace recovery
+
+Use the [cloud workspace bootstrap](cloud-bootstrap.md) for an explicit owned-storage
+binding and a read-only plan; source-only apply creates a sparse local source
+workspace without installing dependencies or materializing shared game assets.
+Runtime mode remains plan-only. The implementation has scoped source-only review,
+not acceptance of current-main integration, historical native recovery, runtime
+execution, startup adoption, permanent storage survival or RAM savings. Continue
+using [native setup](native-setup.md) separately when native prerequisites are needed.
+
 ## Visual evidence before review
 
 - Any UI or game visual change requires actual rendered screenshots attached or
@@ -120,6 +130,9 @@ pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pn
 - Optional `prepare`, `verify`, `audit`, and specialist role packets are documented in
   [contracts](contracts.md). They check scope/fingerprints and execute allowlisted
   checks; they never grant recording authority. Their use is not an acceptance claim.
+  Production verification retains raw-only command capture; decoded diagnostics are
+  optional allowance-bounded derivatives, not automatic duplicate files. See
+  [command diagnostics](contracts.md#on-demand-command-diagnostics) for safe materialization.
 
 There is no mandatory Local Dev binding, source-release handshake, delivery-clock
 ledger, separate reviewer chat, or browser-driven worker watcher. Use the executor's
@@ -134,6 +147,12 @@ concurrency one, and rejects empty lists, unknown paths and extra Node flags.
 reviewed mappings and directly changed tests. Broad/shared, deleted, unmapped and
 unresolved cases suggest the full suite. These suggestions are deliberately
 partial; they do not establish dependency completeness or reuse a previous pass.
+
+For explicitly bounded scene-fixture startup, see
+[optional precompilation](scene-fixture-precompilation.md). It separates the exact
+TypeScript emitter from a later direct fixture process; it is off by default.
+Standard test plans/execution and shard certification reject either cache setting
+by presence (including empty values), rather than certify an unbound external cache.
 
 `pnpm test` discovers the same top-level `tests/*.test.mjs` set as before. It runs
 content-reviewed, in-memory/read-only files with at most two isolated Node workers,

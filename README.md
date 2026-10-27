@@ -5,12 +5,37 @@ The original first mission, rebuilt for desktop browsers with original-game visu
 ## Run
 
 ```sh
-npm install --global --ignore-scripts pnpm@11.25.0
-pnpm install --frozen-lockfile --ignore-scripts
+# Source-only work needs no package install or copied game assets:
+python3 scripts/orchestration/shared_setup.py --revision "$(git rev-parse HEAD)"
+
+# For an active development checkout, choose one persistent, same-filesystem root:
+export PND_SHARED_ROOT="$HOME/.local/share/populous-new-dawn"
+# Requires an already available pnpm 11.25.0 (one-time provisioning below).
+# Declare this install's allowance and the space that must remain for other work.
+export PND_SETUP_ALLOCATION_BYTES=2147483648 PND_SETUP_RESERVE_BYTES=2147483648
+python3 scripts/orchestration/shared_setup.py plan --revision "$(git rev-parse HEAD)" \
+  --allocation-bytes "$PND_SETUP_ALLOCATION_BYTES" --reserve-bytes "$PND_SETUP_RESERVE_BYTES" &&
+test "$(pnpm --pm-on-fail=error --runtime-on-fail=error --version)" = 11.25.0 &&
+pnpm_config_runtime_on_fail=error pnpm install --frozen-lockfile --ignore-scripts \
+  --store-dir "$PND_SHARED_ROOT/pnpm-store" --cache-dir "$PND_SHARED_ROOT/pnpm-cache" \
+  --pm-on-fail=error --no-runtime --network-concurrency=1 --child-concurrency=1 &&
+python3 scripts/orchestration/shared_setup.py check --revision "$(git rev-parse HEAD)" \
+  --reserve-bytes "$PND_SETUP_RESERVE_BYTES" &&
 pnpm run dev
 ```
 
 Use Node 24, a desktop monitor, keyboard/mouse and a WebGL 2 browser. The music-note button enables original sample playback for voices, spells and combat.
+
+The allowances above are explicit examples, not measured requirements or a quota.
+Choose a root on the checkout's filesystem and adjust the declared budgets to the
+coordinator's actual resource plan; do not lower the remaining reserve to force a pass.
+Reuse an available pinned pnpm instead of reinstalling it. If missing, provision it
+once with `npm install --global --ignore-scripts pnpm@11.25.0` under the separate
+tooling budget, before starting this install. For a populated shared
+store, add `--offline` to the install; a missing package must fail, not fall back to
+network. Use a fresh/private `node_modules`, never another checkout's install.
+See [shared storage setup and its measured limits](engineering/shared-worktrees.md#current-pnpm-shared-storage-setup)
+for frozen-lock identity, safe reuse, package-cache repair behavior, and asset views.
 
 ## Play
 

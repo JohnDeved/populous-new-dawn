@@ -59,6 +59,10 @@ jobs:
           python-version: '3.12.14'
           architecture: x64
 
+      - name: Record read-only sandbox host metadata
+        timeout-minutes: 1
+        run: timeout --signal=TERM --kill-after=2s 5s python -I -B scripts/material-lifecycle-evidence/host_metadata.py
+
       - name: Install locked dependencies
         run: |
           manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
@@ -94,6 +98,10 @@ jobs:
       - name: Production build
         run: $PND_PACKAGE_MANAGER run build
 
+      - name: Qualify generated-only CMS encryption
+        timeout-minutes: 1
+        run: timeout --signal=TERM --kill-after=3s 35s python -I -B scripts/cms-interop/run.py
+
       - name: Reject tracked input mutation
         run: |
           git diff --exit-code HEAD --
@@ -104,6 +112,16 @@ jobs:
         with:
           name: full-check-${{ github.run_id }}-${{ github.run_attempt }}-quality
           path: work/ci/receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload generated-only CMS interoperability fixture
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cms-interop-${{ github.run_id }}-${{ github.run_attempt }}-quality
+          path: |
+            ${{ runner.temp }}/pnd-cms-interop-${{ github.run_id }}-${{ github.run_attempt }}-quality/envelope.cms
+            ${{ runner.temp }}/pnd-cms-interop-${{ github.run_id }}-${{ github.run_attempt }}-quality/summary.json
           if-no-files-found: error
           retention-days: 7
 

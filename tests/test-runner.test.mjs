@@ -10,8 +10,11 @@ import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, r
 
 // These synthetic inventories explicitly model an uncustomized Node runtime.
 // The environment-fallback regression below supplies customizations separately.
-const inheritedRuntime = Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].map(key => [key, process.env[key]]))
-for (const key of Object.keys(inheritedRuntime)) process.env[key] = ''
+const nodeRuntimeKeys = ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE']
+const sceneFixtureKeys = ['PND_SCENE_FIXTURE_PRECOMPILED', 'PND_SCENE_FIXTURE_PRECOMPILED_SHA256']
+const inheritedRuntime = Object.fromEntries([...nodeRuntimeKeys, ...sceneFixtureKeys].map(key => [key, process.env[key]]))
+for (const key of nodeRuntimeKeys) process.env[key] = ''
+for (const key of sceneFixtureKeys) delete process.env[key]
 after(() => {
   for (const [key, value] of Object.entries(inheritedRuntime)) {
     if (value === undefined) delete process.env[key]
@@ -41,6 +44,42 @@ function fixture(t) {
   return { repo, put, policy }
 }
 const quiet = { log() {} }
+
+test('standard plans, execution and shard certification reject any external fixture-cache setting', async t => {
+  const { repo, put } = fixture(t)
+  put('tests/c.test.mjs', 'export {}\n')
+  put('tests/d.test.mjs', 'export {}\n')
+  put('scripts/check.mjs', 'export {}\n')
+  const plan = planTestRun(repo, 'focus', ['tests/a.test.mjs'])
+  const shard = planTestShard(repo, 0)
+  const fingerprint = shardInputFingerprint(repo)
+  const [pathKey, hashKey] = sceneFixtureKeys
+  for (const values of [
+    { [pathKey]: '/private/manifest.json' }, { [hashKey]: 'a'.repeat(64) },
+    { [pathKey]: '/private/manifest.json', [hashKey]: 'a'.repeat(64) },
+    { [pathKey]: '' }, { [hashKey]: '' }, { [pathKey]: '', [hashKey]: '' },
+    { [pathKey]: '', [hashKey]: 'a'.repeat(64) }, { [pathKey]: '/private/manifest.json', [hashKey]: '' },
+  ]) {
+    try {
+      Object.assign(process.env, values)
+      const expected = /explicit source-bound direct command/
+      for (const mode of ['all', 'serial', 'focus'])
+        assert.throws(() => planTestRun(repo, mode, mode === 'focus' ? ['tests/a.test.mjs'] : []), expected)
+      assert.throws(() => planTestShard(repo, 0), expected)
+      assert.throws(() => shardInputFingerprint(repo), expected)
+      let launches = 0
+      const options = { ...quiet, launch() { launches++; throw new Error('must not launch') } }
+      // Plans were built before the setting appeared; execution must reject too.
+      await assert.rejects(runTestPlan(repo, plan, options), expected)
+      await assert.rejects(runTestShard(repo, shard, options), expected)
+      assert.equal(launches, 0)
+    } finally {
+      for (const key of sceneFixtureKeys) delete process.env[key]
+    }
+  }
+  assert.deepEqual(planTestRun(repo, 'focus', ['tests/a.test.mjs']), plan)
+  assert.equal(shardInputFingerprint(repo), fingerprint)
+})
 
 function pnpmFixture(t, external = false) {
   const f = fixture(t)

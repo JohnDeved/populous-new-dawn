@@ -177,7 +177,7 @@ const ownedRouteOverrides = {
     "sha256": "c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86"
   }
 }
-export const dragSourceProfiles = Object.freeze([
+const historicalDragSourceProfiles = Object.freeze([
   Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
   Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
     slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
@@ -215,6 +215,84 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
+  // Terminal CPU-owner guards preserve the active route and recorder epoch.
+  // Bind both the complete frame and terrain producer deltas atomically; keep
+  // every historical route exact. This admits source, not timing equivalence.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'pointer-callback'
+      ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+      : slice.id === 'query-inputs'
+        ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+        : slice.id === 'frame-order'
+          ? { ...slice, sha256: 'cb8253460282f1ca9605e4b7a4d43b6c6a2844816fd53b5e3b01ae2d7514cd08' }
+          : slice.id === 'terrain-producers'
+            ? { ...slice, sha256: '1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012' }
+            : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
+  // Reviewed RenderView CPU leases extend the epoch route, not its historical
+  // hashes. Bind the new helper body too; call-site hashes alone are insufficient.
+  // This admits exact source, not timing equivalence or retrospective reports.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => {
+      const inherited = ownedRouteOverrides[slice.id] ?? slice
+      const sha256 = {
+        'submission-key': '851a6568e0d0cd0e998c4465a04f74648bcf98c8aca7e58889d0533959d71c63',
+        'query-entry': '53d968701fa1a46599f3c32470db0d917fe9559cae74c72abb82514a70a8d67e',
+        'owned-terrain-entry': '7f554b1b133b1873d4c5f0779c8d9424c0dcc546bfff6d2e87e35edbb45369fa',
+        'pointer-callback': '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895',
+        'query-inputs': 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c',
+        'frame-order': '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf',
+      }[slice.id]
+      return Object.freeze(sha256 ? { ...inherited, sha256 } : inherited)
+    }),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+    Object.freeze({ id: 'pick-operation-leases', path: 'app/render-view.ts',
+      start: '  private beginPickOperation()', end: '\n  private resolveCandidates(',
+      sha256: '3949a4264ea8c4d612658cdbc0c6923b028af8457ef04656319378dc22f6b41a' }),
+  ]) }),
+  // Compose both reviewed CPU-lifetime changes as one exact route. Preserve
+  // each sibling profile; this is source admission, not measured equivalence.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => {
+      const inherited = ownedRouteOverrides[slice.id] ?? slice
+      const sha256 = {
+        'submission-key': '851a6568e0d0cd0e998c4465a04f74648bcf98c8aca7e58889d0533959d71c63',
+        'query-entry': '53d968701fa1a46599f3c32470db0d917fe9559cae74c72abb82514a70a8d67e',
+        'owned-terrain-entry': '7f554b1b133b1873d4c5f0779c8d9424c0dcc546bfff6d2e87e35edbb45369fa',
+        'pointer-callback': '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895',
+        'query-inputs': 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c',
+        'frame-order': 'cb8253460282f1ca9605e4b7a4d43b6c6a2844816fd53b5e3b01ae2d7514cd08',
+        'terrain-producers': '1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012',
+      }[slice.id]
+      return Object.freeze(sha256 ? { ...inherited, sha256 } : inherited)
+    }),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+    Object.freeze({ id: 'pick-operation-leases', path: 'app/render-view.ts',
+      start: '  private beginPickOperation()', end: '\n  private resolveCandidates(',
+      sha256: '3949a4264ea8c4d612658cdbc0c6923b028af8457ef04656319378dc22f6b41a' }),
+  ]) }),
+])
+// Reviewed loose-log sprite hits extend only the complete current CPU-owner route.
+// Historical routes remain byte-exact; no new-log/old-CPU mixtures are admitted.
+// Bind the shared queue resolver too, not just its new call-site submissions.
+// This is source admission only, not performance equivalence or a new benchmark.
+const mainDragSourceProfiles = Object.freeze([
+  ...historicalDragSourceProfiles,
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
+    ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
+      slice.id === 'native-route' ? { ...slice,
+        sha256: '4c06971b6ece6c52eebc066fe594af406551cf362d9660db2c0e774d5bf9b344' } : slice)),
+    Object.freeze({ id: 'resource-queue-owner', path: 'app/world-picking.ts', start: null, end: null,
+      sha256: '45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611' }),
+  ]) }),
+])
+// Preserve the two exact UI historical routes separately from main's branch-local
+// inheritance. No historical profile, source boundary or digest is refreshed.
+const uiDragSourceProfiles = Object.freeze([
   // The reviewed native route tooltip keeps eligible 24 Hz visits during ordinary
   // pause without advancing flyby or sky. Bind the complete camera owner and keep
   // the historical epoch route exact; no other slice or boundary changes here.
@@ -258,6 +336,24 @@ export const dragSourceProfiles = Object.freeze([
       start: '  resultClock = createResultClock()', end: '\n  focusPauseOwned =',
       sha256: 'ac3b234a89c07d24ca0ebc49a91617029e37018708cb32f18ab1329870752f6f' }),
   ]) }),
+])
+// This new atomic route composes reviewed owner bytes, not independent per-owner
+// allowlists. It adds no timing/performance claim or capture/retention allowance.
+const composedDragSourceProfile = Object.freeze({
+  id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-v1',
+  slices: Object.freeze([
+    ...mainDragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1').slices
+      .map(slice => Object.freeze(slice.id === 'camera-producers'
+        ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
+        : slice.id === 'frame-order'
+          ? { ...slice, sha256: 'b21655fc1ea8787294beb80db52f8113a36a10f3fefe1ea4a0515a1b8f190cd1' }
+          : slice)),
+    ...uiDragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1').slices
+      .filter(slice => ['result-clock-owner', 'result-clock-import', 'result-clock-initialization'].includes(slice.id)),
+  ]),
+})
+export const dragSourceProfiles = Object.freeze([
+  ...mainDragSourceProfiles, ...uiDragSourceProfiles, composedDragSourceProfile,
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {

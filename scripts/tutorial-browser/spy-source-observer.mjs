@@ -1,16 +1,74 @@
-// Page-serializable, read-only logical-turn and ordinary RAF observers. They
-// never replace a clock/controller/render method, inject a phase or issue input.
-export function installSpySourceObserver({ spyId, targetId }) {
+// Version 2 capture keeps two independent logical boundaries: the transparent
+// afterTurn hook precedes animation; observeGameTurns follows the completed step.
+// Full-frame raster samples remain separate. No controller, phase or pixels are supplied.
+export function installSpySourceObserver({ spyId, targetId, controlled = false }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-  const canvas = scene.renderer.domElement
-  const result = { spyId, targetId, samples: [], turns: [], crops: [], runtime: [], error: null, done: false }
+  const canvas = scene.renderer.domElement, clock = scene.gameClock
+  const result = { spyId, targetId, samples: [], turnSamples: [], turns: [], crops: [], runtime: [], error: null, done: false,
+    nonAdvancingCallbacks: 0, hook: { installed: false, restored: false, foreign: false } }
   const copies = [], copied = new Set()
   let raf, stopped = false, visits = 0, lastKey, unsubscribe = () => {}
-  const stop = () => { stopped = true; unsubscribe(); cancelAnimationFrame(raf); return result }
-  const failed = error => { result.error = String(error); stop() }
+  let originalDescriptor, ownedDescriptor, hookActive = false, lastTurn = world.turn
+  const same = (a, b) => !!a && !!b &&
+    ['value', 'writable', 'get', 'set', 'enumerable', 'configurable'].every(k => a[k] === b[k])
+  const restoreHook = () => {
+    if (!hookActive) return
+    if (!same(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), ownedDescriptor)) {
+      hookActive = false; result.hook.foreign = true
+      throw Error('Spy observer lost owned afterTurn descriptor')
+    }
+    Object.defineProperty(clock, 'afterTurn', originalDescriptor)
+    result.hook.restored = same(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), originalDescriptor)
+    if (!result.hook.restored) throw Error('Spy afterTurn restoration failed')
+    hookActive = false
+  }
+  const stop = () => {
+    stopped = true
+    const release = unsubscribe
+    unsubscribe = () => {}
+    try { release() } catch (error) { result.error ??= String(error) }
+    if (raf !== undefined) cancelAnimationFrame(raf)
+    try { restoreHook() } catch (error) { result.error ??= String(error) }
+    return result
+  }
+  const current = () => {
+    if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world ||
+      scene.world !== world || scene.gameClock !== clock)
+      throw Error('Spy observer lost original Scene/world/clock')
+    if (hookActive && !same(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), ownedDescriptor))
+      throw Error('Spy observer lost owned afterTurn descriptor')
+  }
+  const reserve = () => {
+    if (result.samples.length + result.turnSamples.length + result.turns.length >= 600)
+      throw Error('Spy observer exceeded combined sample bound')
+  }
+  function afterTurn(...args) {
+    let returned, failure, threw = false
+    try { returned = Reflect.apply(originalDescriptor.value, this, args) }
+    catch (value) { failure = value; threw = true }
+    if (!stopped) {
+      try {
+        if (threw) throw failure
+        current()
+        if (world.turn === lastTurn) result.nonAdvancingCallbacks++
+        else {
+          if (world.turn !== lastTurn + 1) throw Error('Spy observer missed consecutive logical turn')
+          const spy = world.units.find(unit => unit.id === spyId), p = spy?.native
+          if (!p || spy.hp <= 0) throw Error('Logical Spy owner missing')
+          reserve()
+          result.turnSamples.push({ spyId, targetId, turn: world.turn, substate: p.substate,
+            object: p.object, timer: p.timer, f2: p.f2, entryArmed: !!(p.flags2 & 0x40000000),
+            target: spy.target, speed: world.speed, paused: world.paused })
+          lastTurn = world.turn
+        }
+      } catch (error) { result.error ??= String(error); stop() }
+    }
+    if (threw) throw failure
+    return returned
+  }
+  const failed = error => { result.error ??= String(error); stop() }
   const liveSpy = () => {
-    if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
-      throw Error('Spy observer lost the loaded Scene/world')
+    current()
     const spy = world.units.find(unit => unit.id === spyId)
     if (!spy?.native || spy.hp <= 0) throw Error('Trained Spy or actual mesh missing')
     return spy
@@ -18,6 +76,7 @@ export function installSpySourceObserver({ spyId, targetId }) {
   const observeTurn = () => {
     if (stopped) return
     const spy = liveSpy(), p = spy.native
+    reserve()
     result.turns.push({ spyId, targetId, turn: world.turn, substate: p.substate,
       timer: p.timer, entryArmed: !!(p.flags2 & 0x40000000), object: p.object,
       f2: p.f2, target: spy.target, paused: world.paused, speed: world.speed,
@@ -64,8 +123,7 @@ export function installSpySourceObserver({ spyId, targetId }) {
     if (stopped) return
     try {
       if (++visits > 45 * 240) throw Error('Spy observer exceeded visit bound')
-      if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
-        throw Error('Spy observer lost the loaded Scene/world')
+      current()
       const spy = world.units.find(unit => unit.id === spyId), p = spy?.native
       const g = scene.unitMeshes.get(spyId)
       if (result.runtime.at(-1)?.turn !== world.turn) {
@@ -121,16 +179,25 @@ export function installSpySourceObserver({ spyId, targetId }) {
             frame: sample.frame, f2: p.f2, clip }
           result.crops.push(crop); copies.push({ copy, context, crop })
         }
+        reserve()
         result.samples.push(sample)
         if (result.samples.length > 600) throw Error('Spy observer exceeded sample bound')
         if (copied.size === 2) result.done = true
       }
-    } catch (error) { failed(error); return }
-    raf = requestAnimationFrame(visit)
+    } catch (error) { result.error = String(error); stop(); return }
+    if (!controlled) raf = requestAnimationFrame(visit)
   }
-  window.__pndSpySourceObservation = { result, stop, retain, readRuntime }
-  unsubscribe = scene.observeGameTurns(observeTurn, failed)
-  raf = requestAnimationFrame(visit)
+  window.__pndSpySourceObservation = { result, stop, retain, readRuntime, sample: visit }
+  try {
+    originalDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn')
+    if (typeof originalDescriptor?.value !== 'function') throw Error('Spy requires own afterTurn callback')
+    ownedDescriptor = { ...originalDescriptor, value: afterTurn }
+    Object.defineProperty(clock, 'afterTurn', ownedDescriptor)
+    hookActive = true; result.hook.installed = true
+    unsubscribe = scene.observeGameTurns(observeTurn, failed)
+    if (!controlled) raf = requestAnimationFrame(visit)
+  } catch (error) { result.error ??= String(error); stop() }
+  return result
 }
 
 export function readSpySourceHold(spyId) {

@@ -100,6 +100,16 @@ function jsonArtifact(zip, name, maximum = 1024 * 1024) {
     maxFileBytes: maximum, maxEntries: 1, allowName: file => file === name })
   assert.ok(files.has(name)); return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(files.get(name)))
 }
+function mergedGateSource(gate, pr) {
+  // GitHub may clear run.pull_requests after merge. That transient metadata is
+  // only a consistency check; the merged PR, exact source and tested tree bind
+  // production. Missing/malformed or explicitly conflicting metadata still fails.
+  return Array.isArray(gate.pull_requests) && (gate.pull_requests.length === 0 ||
+    (gate.pull_requests.length === 1 && gate.pull_requests[0]?.number === pr.number)) &&
+    gate.repository?.full_name === repository && gate.head_repository?.full_name === pr.head.repo?.full_name &&
+    gate.path === gatePath && gate.event === 'pull_request' && gate.status === 'completed' &&
+    gate.conclusion === 'success' && gate.head_sha === pr.head.sha && gate.head_branch === pr.head.ref
+}
 export async function productionGate(api, download, run) {
   assert.equal(run.event, 'push'); assert.equal(run.head_branch, 'main')
   const associated = await api(`${prefix}/commits/${run.head_sha}/pulls?per_page=100`)
@@ -109,14 +119,14 @@ export async function productionGate(api, download, run) {
   const pr = await api(`${prefix}/pulls/${prs[0].number}`)
   assert.equal(pr.number, prs[0].number); assert.equal(pr.base.ref, 'main'); assert.equal(pr.base.repo.full_name, repository)
   assert.equal(pr.merged, true); assert.equal(pr.merge_commit_sha, run.head_sha)
+  assert.ok(positive(pr.number) && sha(pr.head.sha) && pr.head.repo?.full_name, 'Invalid merged PR source')
   const list = await api(`${prefix}/actions/workflows/ready-pr-check.yml/runs?event=pull_request&status=success&head_sha=${pr.head.sha}&per_page=100`)
   assert.ok(list.total_count <= 100 && list.workflow_runs.length === list.total_count, 'Incomplete gate inventory')
-  const candidates = list.workflow_runs.filter(gate => gate.pull_requests.some(item => item.number === pr.number))
+  const candidates = list.workflow_runs.filter(gate => mergedGateSource(gate, pr))
     .sort((a, b) => b.id - a.id)
   assert.ok(candidates.length, 'No successful trusted ready-PR gate')
   const gate = await verifiedRun(api, candidates[0].id, gatePath)
-  assert.equal(gate.event, 'pull_request'); assert.equal(gate.status, 'completed'); assert.equal(gate.conclusion, 'success')
-  assert.equal(gate.head_sha, pr.head.sha); assert.ok(gate.pull_requests.some(item => item.number === pr.number))
+  assert.ok(mergedGateSource(gate, pr), 'Ready-PR gate source does not match the merged PR')
   await exactFile(api, gatePath, gate.head_sha)
   const jobs = await api(`${prefix}/actions/runs/${gate.id}/attempts/${gate.run_attempt}/jobs?per_page=100`)
   assert.ok(jobs.total_count <= 100 && jobs.jobs.length === jobs.total_count)
@@ -144,7 +154,7 @@ export async function prepare({ api, download, runId, mode, destination }) {
   await exactFile(api, buildPath, run.head_sha)
   const gate = pr ? null : await productionGate(api, download, run)
   const zip = await oneArtifact(api, download, run, `cloudflare-dist-${run.id}-${run.run_attempt}`, maxArchiveBytes)
-  materializeBuild(zip, destination)
+  materializeBuild(zip, destination, run.head_sha)
   return { version: 1, source: run.id, sourceAttempt: run.run_attempt, sha: run.head_sha,
     pr: pr?.number ?? null, alias: pr ? branchAlias(pr.head.ref) : null, gate, status: 'prepared' }
 }
@@ -207,22 +217,26 @@ export async function route(api, eventRun) {
   const pr = await runPr(api, source)
   return pr ? { source: source.id, pr: pr.number } : null
 }
-export async function report({ api, download, sourceId, expectedPr, mode }) {
+export async function report({ api, download, sourceId, expectedPr, mode, reportRun, diagnose = () => {} }) {
   const run = await verifiedRun(api, sourceId, buildPath), pr = await runPr(api, run)
   if (!pr || pr.number !== expectedPr || pr.state !== 'open' || pr.head.sha !== run.head_sha) return 'stale'
-  let status, publication = null, urls = null
+  let status, outcome = 'skipped', publication = null, urls = null
   const current = async () => {
     const latestPr = await api(`${prefix}/pulls/${pr.number}`)
     const latestRun = await api(`${prefix}/actions/runs/${run.id}`)
     if (publication) {
       const latest = await verifiedRun(api, publication.id, publishPath)
-      if (latest.run_attempt !== publication.run_attempt || latest.status !== publication.status || latest.conclusion !== publication.conclusion) return false
+      if (latest.run_attempt !== publication.run_attempt || latest.status !== publication.status || latest.conclusion !== publication.conclusion || latest.updated_at !== publication.updated_at) return false
     }
-    return latestPr.state === 'open' && latestPr.base.ref === 'main' && latestPr.head.sha === run.head_sha && latestRun.run_attempt === run.run_attempt && !await newerBuild(api, run, pr.number)
+    return latestPr.state === 'open' && latestPr.base.ref === 'main' && latestPr.head.sha === run.head_sha && latestRun.run_attempt === run.run_attempt && latestRun.status === run.status &&
+      latestRun.conclusion === run.conclusion && latestRun.updated_at === run.updated_at && !await newerBuild(api, run, pr.number)
   }
   if (pr.head.repo?.full_name !== repository) status = 'Skipped: fork previews are not published to this account.'
-  else if (run.status !== 'completed') status = 'Building on GitHub Actions.'
-  else if (run.conclusion !== 'success') status = `Build ${run.conclusion || 'unknown'}; not published.`
+  else if (run.status !== 'completed') { outcome = 'pending'; status = 'Building on GitHub Actions.' }
+  else if (run.conclusion !== 'success') {
+    outcome = run.conclusion === 'cancelled' ? 'cancelled' : run.conclusion === 'skipped' ? 'skipped' : 'failure'
+    status = `Build ${run.conclusion || 'unknown'}; not published.`
+  }
   else if (!['preview', 'enabled'].includes(mode)) status = 'Build succeeded; publishing is disabled pending setup/cutover.'
   else {
     const list = await api(`${prefix}/actions/workflows/cloudflare-publish.yml/runs?event=workflow_run&per_page=100`)
@@ -234,12 +248,15 @@ export async function report({ api, download, sourceId, expectedPr, mode }) {
       const match = /^Cloudflare publish build (\d+) attempt (\d+)$/.exec(item.display_title)
       return match && Number(match[1]) === run.id && Number(match[2]) === run.run_attempt
     }).sort((a, b) => b.id - a.id || b.run_attempt - a.run_attempt)
-    if (!matching.length) status = 'Build succeeded; publication queued or not yet observed.'
+    if (!matching.length) { outcome = 'pending'; status = 'Build succeeded; publication queued or not yet observed.' }
     else {
       publication = await verifiedRun(api, matching[0].id, publishPath)
       await exactFile(api, publishPath, publication.head_sha)
-      if (publication.status !== 'completed') status = 'Build succeeded; publishing preview.'
-      else if (publication.conclusion !== 'success') status = `Publication ${publication.conclusion || 'unknown'}; remote outcome is not verified.`
+      if (publication.status !== 'completed') { outcome = 'pending'; status = 'Build succeeded; publishing preview.' }
+      else if (publication.conclusion !== 'success') {
+        outcome = publication.conclusion === 'cancelled' ? 'cancelled' : publication.conclusion === 'skipped' ? 'skipped' : 'failure'
+        status = `Publication ${publication.conclusion || 'unknown'}; remote outcome is not verified.`
+      }
       else {
         try {
           const zip = await oneArtifact(api, download, publication,
@@ -252,7 +269,7 @@ export async function report({ api, download, sourceId, expectedPr, mode }) {
             assert.equal(result.status, 'preview-published')
             assert.equal(result.alias, branchAlias(pr.head.ref))
             urls = uploadedVersion(result.output, result.alias)
-            status = 'Preview published successfully. Production unchanged.'
+            outcome = 'success'; status = 'Preview published successfully. Production unchanged.'
           }
         } catch {
           // Bad/missing evidence must clear prior success, not leave stale links.
@@ -276,8 +293,16 @@ export async function report({ api, download, sourceId, expectedPr, mode }) {
     assert.ok(previous, 'Unknown comment provenance')
     if (Number(previous[1]) > run.id || (Number(previous[1]) === run.id && Number(previous[2]) > run.run_attempt)) return 'older'
   }
-  const body = renderComment({ run, status, publication, urls })
-  if (owned[0]?.body === body) return 'unchanged'
+  // The visible native template has one View logs link. Send it to this trusted
+  // report, whose summary explains disabled/unverified states and links both
+  // pipeline stages, so exact presentation does not hide actionable diagnostics.
+  diagnose({ status, run, publication })
+  const body = renderComment({ run, outcome, publication, urls, diagnostic: status, logsRun: reportRun || publication || run })
+  // Keep the prior diagnostic-run link when everything it explains is identical.
+  // Otherwise a fresh reporter run ID would manufacture a comment edit every time.
+  const stableBody = text => text?.replace(/\[View logs\]\(https:\/\/github\.com\/JohnDeved\/populous-new-dawn\/actions\/runs\/\d+\/attempts\/\d+\)/,
+    '[View logs](trusted-report)')
+  if (stableBody(owned[0]?.body) === stableBody(body)) return 'unchanged'
   if (!await current()) return 'stale'
   await api(owned.length ? `${prefix}/issues/comments/${owned[0].id}` : `${prefix}/issues/${pr.number}/comments`,
     { method: owned.length ? 'PATCH' : 'POST', body: { body } })
@@ -296,7 +321,13 @@ export async function main() {
     const routed = await route(api, event.workflow_run)
     if (routed) for (const [key, value] of Object.entries(routed)) output(key, value)
   } else if (command === 'report') {
-    console.log(await report({ api, download, sourceId: Number(process.env.SOURCE_RUN_ID), expectedPr: Number(process.env.EXPECTED_PR), mode }))
+    console.log(await report({ api, download, sourceId: Number(process.env.SOURCE_RUN_ID), expectedPr: Number(process.env.EXPECTED_PR), mode,
+      reportRun: { id: Number(process.env.GITHUB_RUN_ID), run_attempt: Number(process.env.GITHUB_RUN_ATTEMPT) },
+      diagnose: ({ status, run, publication }) => {
+        console.log(status)
+        const logs = (name, source) => `[${name}](https://github.com/${repository}/actions/runs/${source.id}/attempts/${source.run_attempt})`
+        appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${status}\n\n${logs('Build logs', run)}\n\n${publication ? logs('Publish logs', publication) : 'No publisher run was observed.'}\n`)
+      } }))
   } else if (command === 'prepare') {
     const state = await prepare({ api, download, runId: event.workflow_run.id, mode, destination: '.cloudflare-publisher' })
     output('publish', Boolean(state))

@@ -25,7 +25,8 @@ test('retired status and binding commands are not exposed or coupled to verifica
 test('live aggregate coverage includes every maintained workflow integrity suite', () => {
   const { checks } = JSON.parse(read('engineering/checks.json'))
   assert.deepEqual(checks.find(check => check.id === 'orchestration-tests').args, [
-    '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs',
+    '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs',
+    'tests/receipt-raw-budget.test.mjs', 'tests/receipt-budget-failures.test.mjs', 'tests/command-log.test.mjs',
     'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs',
   ])
   for (const id of ['orchestration-tests', 'repository-check']) {
@@ -237,7 +238,8 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
     ['actions/download-artifact', 'd3f86a106a0bac45b974a628896c90dbdf5c8093'],
   ])
   const actions = [...workflow.matchAll(/uses: ([\w/-]+)@([^ ]+)/g)]
-  assert.equal(actions.length, 16)
+  // One separate generated-only CMS artifact; full-check stays receipt-only.
+  assert.equal(actions.length, 17)
   for (const [, action, sha] of actions) assert.equal(sha, pins.get(action))
   for (const value of ['ref: ${{ github.sha }}', 'persist-credentials: false', "node-version: '24.19.0'", "python-version: '3.12.14'", 'npm ci --no-audit --no-fund', 'pnpm install --frozen-lockfile --ignore-scripts', '--require-hashes -r engineering/ci-python-requirements.txt'])
     assert.equal(workflow.split(value).length - 1, 4, value)
@@ -246,7 +248,7 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
   assert.match(workflow, /shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json/)
   assert.match(workflow, /pattern: full-check-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}-\*/)
   assert.match(workflow, /merge-multiple: false/)
-  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 2)
+  assert.equal((workflow.match(/if-no-files-found: error/g) ?? []).length, 3)
   assert.match(workflow, /run: test "\$QUALITY_RESULT" = success && test "\$SHARDS_RESULT" = success/)
   assert.match(workflow, /run: node scripts\/orchestration\/ci-gate.mjs aggregate work\/ci\/receipts work\/ci\/full-check.json/)
   assert.match(read('engineering/ci-python-requirements.txt'), /^Pillow==12\.3\.0 --hash=sha256:[a-f0-9]{64}$/m)

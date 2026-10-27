@@ -49,6 +49,7 @@ import { nativeAngle, positionDistance } from './native-math.ts'
 import { spellCursor } from './spell-casting.ts'
 import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import nativeHud from './original-hud.json'
+import rules from './original-rules.json' with { type: 'json' }
 import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { texture } from './scene-assets.ts'
@@ -410,12 +411,19 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
     ? scene.world.units.find(u => u.id === scene.down.unit)
     : undefined
   const pickedId = (!scene.world.mode || directBlast) && scene.picking.pickPerson(event)
+  // Ordinary commands may target a model; direct Blast retains its person-only hit.
+  const modelId =
+    !pickedId && !scene.world.mode && !scene.overviewActive && scene.world.selected.length
+      ? scene.picking.pick(event)
+      : null
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
     (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
     scene.world.buildings.find(b => b.id === pickedId) ??
     scene.world.shrines.find(h => h.id === pickedId) ??
-    scene.world.trees.find(t => t.id === pickedId) ??
+    scene.world.trees.find(
+      t => t.id === modelId && t.logs > 0 && rules.sceneryResourceFlags[t.model] & 4
+    ) ??
     undefined
   const p = picked ?? scene.pick(event) ?? clickedUnit
   if (!p) return

@@ -744,3 +744,126 @@ test('historical v2 protocol cannot publish a summary or mutate comments through
     assert.equal(mock.state.calls.filter(call => call.method).length, 0)
   }
 })
+
+
+test('trusted snapshot reader evidence admits RenderView CPU leases and rejects mixed or stale profiles', async () => {
+  const reports = readerReports()
+  const previousId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const currentId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+  for (const report of reports) for (const run of report.runs) {
+    const id = run.side === 'base' ? previousId : currentId
+    const profile = dragSourceProfiles.find(profile => profile.id === id)
+    assert.ok(profile)
+    run.readers.source = { profile: id, importSha256: readerImportSha256,
+      slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  const historical = dragSourceProfiles.find(profile => profile.id === previousId)
+  for (const mutate of [
+    run => { run.readers.source.profile = 'unknown-render-cpu-leases' },
+    run => { run.readers.source.slices = run.readers.source.slices.filter(slice => slice.id !== 'pick-operation-leases') },
+    ...['submission-key', 'query-entry', 'owned-terrain-entry'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+    run => { const slice = run.readers.source.slices.find(slice => slice.id === 'pick-operation-leases'); slice.expectedSha256 = slice.actualSha256 = '0'.repeat(64) },
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed)
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+  // Registry changes have a new trusted protocol identity, not retrospective
+  // authority to compare or publish reports captured under an older protocol.
+  const stale = structuredClone(reports); stale[0].protocolSha256 = '0'.repeat(64)
+  const mock = readerMock(stale)
+  await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+})
+
+test('trusted snapshot reader evidence admits the reviewed CPU route and rejects mixed or unknown routes', async () => {
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) {
+    const id = run.side === 'base' ? 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+      : 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
+    const profile = dragSourceProfiles.find(profile => profile.id === id)
+    assert.ok(profile)
+    run.readers.source = { profile: id, importSha256: readerImportSha256,
+      slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  const historical = dragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1')
+  for (const mutate of [
+    run => { run.readers.source.profile = 'unknown-disposed-cpu' },
+    ...['frame-order', 'terrain-producers'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed)
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+  // Newly registered source profiles change the trusted protocol identity;
+  // an older or arbitrary protocol cannot be relabelled as current evidence.
+  const stale = structuredClone(reports); stale[0].protocolSha256 = '0'.repeat(64)
+  const mock = readerMock(stale)
+  await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+})
+
+test('combined CPU source proof is exact and ordered without reauthorizing sibling reports', async () => {
+  const previousId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const cpuId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
+  const renderId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+  const combinedId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-v1'
+  const profile = dragSourceProfiles.find(profile => profile.id === combinedId)
+  const historical = dragSourceProfiles.find(profile => profile.id === previousId)
+  assert.equal(profile.slices.length, 18)
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) {
+    const selected = run.side === 'base' ? historical : profile
+    run.readers.source = { profile: selected.id, importSha256: readerImportSha256,
+      slices: selected.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  for (const mutate of [
+    ...[cpuId, renderId, 'unknown-combined-cpu'].map(id => run => { run.readers.source.profile = id }),
+    run => { run.readers.source.slices.reverse() },
+    run => { run.readers.source.slices.push({ ...run.readers.source.slices[0] }) },
+    run => { run.readers.source.slices[1] = { ...run.readers.source.slices[0] } },
+    run => { run.readers.source.slices = run.readers.source.slices.filter(slice => slice.id !== 'pick-operation-leases') },
+    ...['frame-order', 'terrain-producers', 'submission-key', 'query-entry', 'owned-terrain-entry'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+    run => { const slice = run.readers.source.slices.find(slice => slice.id === 'pick-operation-leases'); slice.expectedSha256 = slice.actualSha256 = '0'.repeat(64) },
+    run => { run.readers.source.slices.at(-1).reason = 'source-changed' },
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed), summaries = []
+    mock.arguments.publishSummary = text => summaries.push(text)
+    await assert.rejects(reportRun(mock.arguments))
+    assert.equal(mock.state.calls.some(call => call.method), false); assert.equal(summaries.length, 0)
+  }
+  // Exact protocol identities from the authenticated 786 and 789 sibling heads.
+  // Neither defaults nor an explicit historical override permit old reports to
+  // publish through the current trusted renderer after registry composition.
+  for (const staleProtocol of ['e23fb4d7efbfbbcce230ecfc06697c978c7fd77b97e2b2f7136b7680bd87e4f6',
+    'cb1e6458406a25fce2e9c3dbab4b74fa9d47abb36f11d8bc8f1b5ec16ee3900f']) {
+    assert.notEqual(staleProtocol, snapshot.protocolHash())
+    for (const explicitHistoricalOverride of [false, true]) {
+      const stale = structuredClone(reports)
+      for (const report of stale) report.protocolSha256 = staleProtocol
+      const mock = readerMock(stale), summaries = []
+      delete mock.arguments.trustedProtocol
+      if (explicitHistoricalOverride) mock.arguments.trustedProtocol = staleProtocol
+      mock.arguments.publishSummary = text => summaries.push(text)
+      await assert.rejects(reportRun(mock.arguments))
+      assert.equal(mock.state.calls.some(call => call.method), false); assert.equal(summaries.length, 0)
+    }
+  }
+})

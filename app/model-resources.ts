@@ -1,9 +1,15 @@
+import angelStrike from './original-angel-strike.json' with { type: 'json' }
+import angel from './original-angel-presentation.json' with { type: 'json' }
 import models from './original-models.json' with { type: 'json' }
 import bank6 from './original-models-bank6.json' with { type: 'json' }
 import shapes from './original-shapes.json' with { type: 'json' }
 import type { NativeModel } from './model-faces.ts'
 
-export const nativeModels: Record<number, NativeModel> = models
+export const nativeModels: Record<number, NativeModel> = {
+  ...models,
+  62: angelStrike.baseGeometry,
+  69: angel.baseGeometry,
+}
 const trees: Record<number, NativeModel> = bank6.models
 const treeShapes: Record<number, number[]> = bank6.shapes
 export interface NativeModelResource {

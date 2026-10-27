@@ -1221,6 +1221,7 @@ function workflowPath(path) {
     'tests/browser-options-audio.test.mjs',
     'tests/orchestration.test.mjs',
     'tests/workflow-handoff.test.mjs',
+    'tests/command-log.test.mjs',
     'tests/workflow-policy.test.mjs',
     'tests/test-runner.test.mjs',
     'tests/research-evidence.test.mjs',
@@ -1393,7 +1394,9 @@ export function repositoryCheckCoverage(repo, manifests = validateRepository(rep
       scripts.check !== `${manager} run typecheck && ${manager} test && ${manager} run parity:check && ${manager} run orchestration:check`) return []
   return [
     ...(['node --test tests/*.test.mjs', 'node scripts/orchestration/test-runner.mjs all'].includes(scripts.test) &&
-      matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
+      (matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs']) ||
+        matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/command-log.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs']) ||
+        matches('orchestration-tests', ['node', '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/receipt-raw-budget.test.mjs', 'tests/receipt-budget-failures.test.mjs', 'tests/command-log.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs']))
       ? ['orchestration-tests'] : []),
     ...(scripts['orchestration:check'] === 'node scripts/orchestration/cli.mjs check' &&
       matches('orchestration-structural', ['node', 'scripts/orchestration/cli.mjs', 'check'])

@@ -397,7 +397,7 @@ support branch depends on exact PR707 head `29bcefe4e7510c0fbd5a4db1dfb9d7a32a34
 
 See the [composed support contract](../scripts/integration-queue/README.md#passive-composed-eight-job-artifact-support)
 for the exact finite inventories, original episode budgets, semantic/image checks,
-485 immutable source inputs, complete 18→23 runtime closure delta, synchronous
+488 immutable source inputs, complete 18→23 runtime closure delta, synchronous
 acceptance boundaries and limits of the retained evidence. Independently review
 and pin that entire closure before any later task-local read-only use. Neither
 this documentation nor successful synthetic fixtures changes hosted admission,

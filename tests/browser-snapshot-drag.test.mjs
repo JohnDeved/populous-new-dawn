@@ -10,6 +10,374 @@ import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
 const routeTooltipId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-v1'
 const resultClockId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1'
+const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
+// Literal inverse of PR831's reviewed resource route, only for historical fixtures.
+// Production admission never strips or normalizes candidate source.
+const looseLogDeltas = [
+  ['app/scene-picking.ts', `    // Only live loose timber uses this sprite route. Other effects/decorations
+    // remain non-pickable, and the shared painter stream still owns occlusion.
+    if (!s.overviewActive)
+      s.decorations.traverseVisible(group => {
+        const { point: tree, sprite } = group.userData
+        if (
+          tree?.model !== 11 ||
+          !Number.isInteger(tree.id) ||
+          tree.id <= 0 ||
+          !(tree.logs > 0) ||
+          !s.world.trees.includes(tree) ||
+          !(sprite instanceof THREE.Sprite) ||
+          sprite.parent !== group ||
+          !sprite.visible ||
+          !sprite.material.visible
+        )
+          return
+        const source = view.painter.source(sprite)
+        if (!source) return
+        const anchor = view.screen(sprite.getWorldPosition(new THREE.Vector3()), s.camera),
+          scale = sprite.getWorldScale(new THREE.Vector3()),
+          width = Math.trunc((scale.x * rect.width) / view.projection.width),
+          height = Math.trunc((scale.y * rect.height) / view.projection.height),
+          x = Math.trunc(((anchor.x + 1) * rect.width) / 2),
+          y = Math.trunc(((1 - anchor.y) * rect.height) / 2)
+        // Native type-1 header rectangles include all four edges and transparent
+        // corners. Use current displayed size/anchor, not unported native scaling
+        // or height offsets; odd widths intentionally use integer half-width.
+        const bounds = { x: x - Math.trunc(width / 2), y: y - height, width, height }
+        if (width <= 0 || height <= 0 || !inHitBounds(point, bounds)) return
+        hits.push({
+          kind: 'resource',
+          id: tree.id,
+          bounds,
+          eligible: true,
+          source,
+          bucket: source.bucket,
+          face: source.face,
+        })
+      })
+`, ``],
+  ['app/scene-picking.ts', `  lastKind: 'person' | 'model' | 'resource' | null = null`, `  lastKind: 'person' | 'model' | null = null`],
+  ['app/world-picking.ts', `  | { kind: 'person' | 'resource'; id: number; bounds: HitBounds; eligible: boolean }`, `  | { kind: 'person'; id: number; bounds: HitBounds; eligible: boolean }`],
+  ['app/world-picking.ts', `  let result: { kind: 'person' | 'model' | 'resource'; id: number } | null = null`, `  let result: { kind: 'person' | 'model'; id: number } | null = null`],
+  ['app/world-picking.ts', `      case 'person':
+      case 'resource':
+        if (command.eligible && inHitBounds(point, command.bounds))
+          result = { kind: command.kind, id: command.id }`, `      case 'person':
+        if (command.eligible && inHitBounds(point, command.bounds))
+          result = { kind: 'person', id: command.id }`],
+ ]
+function preLooseLogRead(path, read = mainHistoricalRead) {
+  let source = read(path)
+  for (const [owner, current, previous] of looseLogDeltas) if (path === owner) {
+    assert.equal(source.split(current).length, 2, 'exact reviewed loose-log inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
+const cpuProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
+// Exact inverse of the independently reviewed CPU-retirement delta. Never strip
+// arbitrary guards or normalize candidate source before the admission hash.
+const cpuRetirementDeltas = [
+  ['app/scene.ts', `    this.dispatchNearbyFollowers(now)
+    // Synchronous UI/audio callbacks may retire this scene before the frame ends.
+    if (this.disposed) return`, `    this.dispatchNearbyFollowers(now)`],
+  ['app/scene.ts', `    advanceGame(this.world, this.gameClock, dt, simulationMetrics)
+    if (this.disposed) return`, `    advanceGame(this.world, this.gameClock, dt, simulationMetrics)`],
+  ['app/scene.ts', `    this.playWorldSounds()
+    if (this.disposed) return`, `    this.playWorldSounds()`],
+  ['app/scene.ts', `    if (!cameraOwnsFrame) {
+      const flying = this.updateFlyby(dt)
+      if (this.disposed) return
+      if (!flying) this.updateView()
+    }`, `    if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()`],
+  ['app/scene.ts', `    this.updateHudFrame(now, dt)
+    if (this.disposed) return`, `    this.updateHudFrame(now, dt)`],
+  ['app/scene-terrain-runtime.ts', `  if (scene.disposed || !scene.terrainTextures) return`, `  if (!scene.terrainTextures) return`],
+  ['app/scene-terrain-runtime.ts', `export function updateWater(scene: GameScene, metrics?: WaterUpdateMetrics) {
+  if (scene.disposed) return`, `export function updateWater(scene: GameScene, metrics?: WaterUpdateMetrics) {`],
+]
+function preCpuRead(path, read = preLooseLogRead) {
+  let source = read(path)
+  for (const [owner, current, previous] of cpuRetirementDeltas) if (path === owner) {
+    assert.equal(source.split(current).length, 2, 'exact reviewed inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
+
+const combinedCpuProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-v1'
+const renderCpuProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+// Literal inverse of the reviewed PR #789 RenderView delta. This reconstructs
+// historical fixture reads only; production admission never normalizes source.
+const renderCpuDeltas = [
+  [`  private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryPickDepth = 0
+  private pickOperationDepth = 0
+  private ordinaryPickDisposed = false
+  groundPickCache = new WeakMap<
+`, `  private ordinaryPickScratch: OrdinaryPickScratch | null = null
+  private ordinaryPickDepth = 0
+  private ordinaryPickDisposed = false
+  groundPickCache = new WeakMap<
+`],
+  [`  // for equivalent submissions even when an external producer rewrites the index.
+  pickSubmissionKey(objects: THREE.Object3D[]) {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickSubmissionKey(objects)
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
+  private collectPickSubmissionKey(objects: THREE.Object3D[]) {
+    const submissions = this.pickSubmissions,
+      keys: string[] = []
+    for (const root of objects)
+      root.traverseVisible(object => {
+`, `  // for equivalent submissions even when an external producer rewrites the index.
+  pickSubmissionKey(objects: THREE.Object3D[]) {
+    const keys: string[] = []
+    for (const root of objects)
+      root.traverseVisible(object => {
+`],
+  [`            object instanceof THREE.InstancedMesh ? object.instanceMatrix.version : -1,
+          matrix = object.matrixWorld.elements.join(',')
+        const cached = submissions.get(object)
+        let same =
+          !!cached &&
+`, `            object instanceof THREE.InstancedMesh ? object.instanceMatrix.version : -1,
+          matrix = object.matrixWorld.elements.join(',')
+        const cached = this.pickSubmissions.get(object)
+        let same =
+          !!cached &&
+`],
+  [`        }
+        const revision = same ? cached!.revision : (cached?.revision ?? 0) + 1
+        if (!this.ordinaryPickDisposed)
+          submissions.set(object, {
+            revision,
+            position,
+            positionVersion,
+            index,
+            indexVersion: index?.version ?? -1,
+            drawStart,
+            drawCount,
+            instances,
+            instanceVersion,
+            matrix,
+            cells,
+          })
+        keys.push(\`\${object.id}:\${revision}\`)
+      })
+`, `        }
+        const revision = same ? cached!.revision : (cached?.revision ?? 0) + 1
+        this.pickSubmissions.set(object, {
+          revision,
+          position,
+          positionVersion,
+          index,
+          indexVersion: index?.version ?? -1,
+          drawStart,
+          drawCount,
+          instances,
+          instanceVersion,
+          matrix,
+          cells,
+        })
+        keys.push(\`\${object.id}:\${revision}\`)
+      })
+`],
+  [`    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`, `    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`],
+  [`    owned = false
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`, `    owned = false
+  ): ViewPickCandidate[] {
+    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+`],
+  [`            if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+          }
+          if (nativeEdges && !reuse && !this.ordinaryPickDisposed) {
+            let entries = this.groundPickCache.get(object)
+            if (!entries) this.groundPickCache.set(object, (entries = new Map()))
+`, `            if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+          }
+          if (nativeEdges && !reuse) {
+            let entries = this.groundPickCache.get(object)
+            if (!entries) this.groundPickCache.set(object, (entries = new Map()))
+`],
+  [`    if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
+      return this.pick(mouse, [terrain], camera, false, metrics)
+    this.beginPickOperation()
+    try {
+      return this.pickOwnedTerrainQuery(mouse, terrain, camera, metrics)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private pickOwnedTerrainQuery(
+    mouse: THREE.Vector2,
+    terrain: THREE.Object3D,
+    camera: THREE.Camera,
+    metrics?: OrdinaryTerrainMetrics
+  ) {
+    const candidates = this.pickCandidateQuery(
+      mouse,
+`, `    if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
+      return this.pick(mouse, [terrain], camera, false, metrics)
+    const candidates = this.pickCandidateQuery(
+      mouse,
+`],
+  [`  }
+
+  private beginPickOperation() {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.pickOperationDepth++
+    this.painter.beginCpuLease()
+  }
+
+  private endPickOperation() {
+    this.pickOperationDepth--
+    this.painter.endCpuLease()
+  }
+
+  resolvePickCandidates(candidates: ViewPickCandidate[]) {
+    this.beginPickOperation()
+    try {
+      return this.resolveCandidates(candidates)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private resolveCandidates(candidates: ViewPickCandidate[]) {
+    let best: ViewPickCandidate | null = null
+    for (const candidate of candidates) {
+`, `  }
+
+  resolvePickCandidates(candidates: ViewPickCandidate[]) {
+    let best: ViewPickCandidate | null = null
+    for (const candidate of candidates) {
+`],
+  [`    camera: THREE.Camera,
+    nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+    this.beginPickOperation()
+    try {
+      return this.pickQuery(mouse, objects, camera, nativeEdges, ordinaryMetrics)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private pickQuery(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+`, `    camera: THREE.Camera,
+    nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+`],
+  [`    // Drop ownership without mutating any buffers an active reentrant call holds.
+    this.ordinaryPickScratch = null
+    this.groundPickCache = new WeakMap()
+    this.pickSubmissions = new WeakMap()
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
+    this.boundsTexture.dispose()
+    this.painter.dispose()
+  }
+}
+`, `    // Drop ownership without mutating any buffers an active reentrant call holds.
+    this.ordinaryPickScratch = null
+    // Remaining instances/roots in this query must not reacquire ownership.
+    // A later independent top-level query may initialize fresh storage.
+    this.ordinaryPickDisposed = true
+    this.boundsTexture.dispose()
+    this.painter.texture.dispose()
+  }
+}
+`],
+]
+function preRenderCpuRead(path, read = preLooseLogRead) {
+  let source = read(path)
+  if (path === 'app/render-view.ts') for (const [current, previous] of renderCpuDeltas) {
+    assert.equal(source.split(current).length, 2, 'exact reviewed RenderView inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
+
+const preBothCpuRead = path => preCpuRead(path, preRenderCpuRead)
+const atomicProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-v1'
+
+// These readers reconstruct historical fixtures only; production admission never
+// strips source. The guarded callback is the exact independently reviewed delta.
+const rawSnapshotRead = path => readFileSync(resolve(root, path), 'utf8')
+const correctedResultClockFrame = `    if (!document.hidden) {
+      const previousPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      advanceResultClock(this.resultClock, dt)
+      const nextPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      if (this.world.status !== 'playing' && previousPhase !== nextPhase) {
+        this.onChange()
+        if (this.disposed) return
+      }
+    }
+`
+const guardedResultCallback = `      if (this.world.status !== 'playing' && previousPhase !== nextPhase) {
+        this.onChange()
+        if (this.disposed) return
+      }`
+const historicalResultCallback = `      if (this.world.status !== 'playing' && previousPhase !== nextPhase) this.onChange()`
+function mainHistoricalRead(path) {
+  let scene = rawSnapshotRead('app/scene.ts')
+  assert.equal(scene.split(correctedResultClockFrame).length, 2, 'exact corrected result-clock inverse')
+  scene = scene.replace(correctedResultClockFrame, '')
+  return preRouteTooltipReader(name => name === 'app/scene.ts' ? scene : rawSnapshotRead(name))(path)
+}
+function uiHistoricalRead(path) {
+  // Explicitly start at raw current source, not the main-only default reader.
+  const read = name => preRenderCpuRead(name,
+    owner => preCpuRead(owner, file => preLooseLogRead(file, rawSnapshotRead)))
+  let source = read(path)
+  if (path === 'app/scene.ts') {
+    assert.equal(source.split(guardedResultCallback).length, 2, 'exact reviewed callback guard inverse')
+    source = source.replace(guardedResultCallback, historicalResultCallback)
+  }
+  return source
+}
+const mainHistoricalIds = ["generic-terrain-v1", "owned-numeric-terrain-v1", "owned-numeric-terrain-neutral-cursor-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1"]
+const uiHistoricalIds = ["generic-terrain-v1", "owned-numeric-terrain-v1", "owned-numeric-terrain-neutral-cursor-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1"]
 
 test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
   const read = path => readFileSync(resolve(root, path), 'utf8')
@@ -17,7 +385,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === resultClockId ? 20 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === atomicProfileId ? 22 : profile.id === resultClockId ? 20 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId, cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -70,7 +438,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', routeTooltipId, resultClockId].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, routeTooltipId, resultClockId, atomicProfileId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -102,12 +470,12 @@ function preResultClockReader(read) {
 }
 
 test('result-clock admission preserves all historical profiles and binds the complete new clock route', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
-  assert.equal(createHash('sha256').update(JSON.stringify(dragSourceProfiles.slice(0, -1))).digest('hex'),
+  const read = uiHistoricalRead
+  assert.equal(createHash('sha256').update(JSON.stringify(uiHistoricalIds.slice(0, -1).map(id => dragSourceProfiles.find(profile => profile.id === id)))).digest('hex'),
     'b265d10660d59d936f8c2c8a22af59b46cb429aca85616206fd0926eaa9ef1e8',
     'all six historical profile IDs, owner boundaries and pins remain exact')
   const previous = dragSourceProfiles.find(profile => profile.id === routeTooltipId)
-  const current = dragSourceProfiles.at(-1)
+  const current = dragSourceProfiles.find(profile => profile.id === resultClockId)
   assert.equal(current.id, resultClockId)
   assert.equal(current.slices.length, 20)
   for (let i = 0; i < previous.slices.length; i++) {
@@ -120,7 +488,7 @@ test('result-clock admission preserves all historical profiles and binds the com
   }
   assert.deepEqual(current.slices.slice(17).map(slice => slice.id),
     ['result-clock-owner', 'result-clock-import', 'result-clock-initialization'])
-  const admitted = inspectDragSource(root)
+  const admitted = inspectDragSource(root, read)
   assert.equal(admitted.profile, resultClockId)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const historical = inspectDragSource(root, preResultClockReader(read))
@@ -178,7 +546,7 @@ function preRouteTooltipReader(read) {
 }
 
 test('route-tooltip admission adds only the exact reviewed camera owner and rejects partial or mixed routes', () => {
-  const read = preResultClockReader(path => readFileSync(resolve(root, path), 'utf8'))
+  const read = preResultClockReader(uiHistoricalRead)
   const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   const route = dragSourceProfiles.find(profile => profile.id === routeTooltipId)
@@ -223,7 +591,7 @@ test('route-tooltip admission adds only the exact reviewed camera owner and reje
 })
 
 test('pick-path and recording-epoch admission preserve exact historical source contracts', () => {
-  const read = preRouteTooltipReader(preResultClockReader(path => readFileSync(resolve(root, path), 'utf8')))
+  const read = preBothCpuRead
   const oldId = 'owned-numeric-terrain-neutral-cursor-v1'
   const newId = 'owned-numeric-terrain-neutral-cursor-pick-paths-v1'
   const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
@@ -231,7 +599,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, routeTooltipId, resultClockId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, routeTooltipId, resultClockId, atomicProfileId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -302,6 +670,204 @@ test('pick-path and recording-epoch admission preserve exact historical source c
     const rejected = inspectDragSource(root, name => name === path ? read(name).replace(before, after) : read(name))
     assert.equal(rejected.status, 'unsupported-source-contract')
     assert.equal(rejected.profile, null)
+  }
+})
+
+
+test('RenderView CPU lease admission is additive, atomic and binds the new helper', () => {
+  const read = preCpuRead
+  const current = inspectDragSource(root, read), previous = inspectDragSource(root, preBothCpuRead)
+  assert.equal(current.profile, renderCpuProfileId)
+  assert.equal(previous.profile, 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1')
+  for (const result of [current, previous]) {
+    assert.equal(result.status, 'admitted')
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  const oldProfile = dragSourceProfiles.find(profile => profile.id === previous.profile)
+  const next = dragSourceProfiles.find(profile => profile.id === current.profile)
+  const changed = ['submission-key', 'query-entry', 'owned-terrain-entry']
+  assert.equal(oldProfile.slices.length, 17)
+  assert.equal(next.slices.length, 18)
+  for (const [i, oldSlice] of oldProfile.slices.entries()) {
+    assert.deepEqual({ ...next.slices[i], sha256: oldSlice.sha256 }, oldSlice)
+    assert.equal(next.slices[i].sha256 !== oldSlice.sha256, changed.includes(oldSlice.id), oldSlice.id)
+  }
+  const historicalHashes = {
+    'submission-key': '5e18c8d895f34b4b0f161c08993932ab41be6a4f53fe585d77641921e5c9c67a',
+    'query-entry': '5344885e512cc204ccbd721fb5210977eb9b16efa7dc55de39ee72b235cb1bb8',
+    'owned-terrain-entry': 'c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86',
+  }
+  for (const [id, hash] of Object.entries(historicalHashes))
+    assert.equal(oldProfile.slices.find(slice => slice.id === id).sha256, hash)
+  const helper = next.slices.at(-1)
+  assert.equal(helper.id, 'pick-operation-leases')
+  const sliceText = (source, spec) => source.slice(source.indexOf(spec.start), source.indexOf(spec.end))
+  const path = 'app/render-view.ts', source = read(path), historical = preBothCpuRead(path)
+  // Every nonempty proper mixture of the three old/new call sites is unreviewed.
+  for (let mask = 1; mask < 7; mask++) {
+    let mixed = source
+    for (let i = 0; i < changed.length; i++) if (mask & (1 << i)) {
+      const spec = next.slices.find(slice => slice.id === changed[i])
+      mixed = mixed.replace(sliceText(source, spec), sliceText(historical, spec))
+    }
+    const result = inspectDragSource(root, name => name === path ? mixed : read(name))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.equal(result.profile, null)
+  }
+  for (const [before, after] of [
+    ['    this.pickOperationDepth++', '    this.pickOperationDepth += 2'],
+    ['    this.painter.beginCpuLease()', '    /* missing painter lease */'],
+    ['    this.painter.endCpuLease()', '    /* missing painter release */'],
+    ['      return this.resolveCandidates(candidates)', '      return null'],
+  ]) {
+    assert.equal(source.split(before).length, 2)
+    const result = inspectDragSource(root, name => name === path ? source.replace(before, after) : read(name))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.ok(result.profiles.find(profile => profile.id === renderCpuProfileId).slices.find(slice => slice.id === helper.id).reason)
+  }
+})
+
+test('disposed CPU source admission is a new atomic route, not a historical hash replacement', () => {
+  const read = preRenderCpuRead
+  const current = inspectDragSource(root, read), previous = inspectDragSource(root, preBothCpuRead)
+  assert.equal(current.profile, cpuProfileId)
+  assert.equal(previous.profile, 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1')
+  for (const result of [current, previous]) {
+    assert.equal(result.status, 'admitted')
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  const oldProfile = dragSourceProfiles.find(profile => profile.id === previous.profile)
+  const newProfile = dragSourceProfiles.find(profile => profile.id === current.profile)
+  assert.equal(newProfile.slices.length, 17)
+  const changed = ['frame-order', 'terrain-producers']
+  for (const [i, oldSlice] of oldProfile.slices.entries()) {
+    const next = newProfile.slices[i]
+    assert.deepEqual({ ...next, sha256: oldSlice.sha256 }, oldSlice, 'same exact slice boundaries')
+    assert.equal(next.sha256 !== oldSlice.sha256, changed.includes(oldSlice.id), oldSlice.id)
+  }
+  assert.equal(oldProfile.slices.find(slice => slice.id === 'frame-order').sha256,
+    '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf')
+  assert.equal(oldProfile.slices.find(slice => slice.id === 'terrain-producers').sha256,
+    'dc14566b740986371148d787257891351a3ca0f7ea236cda730cba542f50a3ad')
+  // Neither partial route is reviewed, even though each owner was seen before.
+  for (const owner of ['app/scene.ts', 'app/scene-terrain-runtime.ts']) {
+    const mixed = inspectDragSource(root, path => path === owner ? preBothCpuRead(path) : read(path))
+    assert.equal(mixed.status, 'unsupported-source-contract'); assert.equal(mixed.profile, null)
+  }
+  // Omitting any single new boundary does not accidentally admit a historical route.
+  for (const [owner, currentText, previousText] of cpuRetirementDeltas) {
+    assert.equal(read(owner).split(currentText).length, 2)
+    const missing = inspectDragSource(root, path => path === owner ? read(path).replace(currentText, previousText) : read(path))
+    assert.equal(missing.status, 'unsupported-source-contract'); assert.equal(missing.profile, null)
+  }
+})
+
+test('combined CPU admission preserves both siblings and composes exact historical readers', () => {
+  const read = preLooseLogRead
+  const epochId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  for (const [reader, id] of [[read, combinedCpuProfileId], [preCpuRead, renderCpuProfileId],
+    [preRenderCpuRead, cpuProfileId], [preBothCpuRead, epochId],
+    [path => preRenderCpuRead(path, preCpuRead), epochId]]) {
+    const result = inspectDragSource(root, reader)
+    assert.equal(result.status, 'admitted'); assert.equal(result.profile, id)
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  const combined = dragSourceProfiles.find(profile => profile.id === combinedCpuProfileId)
+  const render = dragSourceProfiles.find(profile => profile.id === renderCpuProfileId)
+  const cpu = dragSourceProfiles.find(profile => profile.id === cpuProfileId)
+  assert.equal(combined.slices.length, 18)
+  for (const [i, slice] of combined.slices.entries()) {
+    const sibling = ['frame-order', 'terrain-producers'].includes(slice.id) ? cpu : render
+    assert.deepEqual(slice, sibling.slices[i], 'reuse the exact reviewed sibling boundary')
+  }
+  const changed = ['frame-order', 'terrain-producers', 'submission-key', 'query-entry', 'owned-terrain-entry']
+  const part = (source, spec) => spec.start === null ? source
+    : source.slice(source.indexOf(spec.start), source.indexOf(spec.end))
+  // Test every five-slice old/new combination. Whole sibling groups stay valid;
+  // partial groups do not. Old call sites with an unused new helper retain their
+  // existing historical admission. This does not tighten that known boundary.
+  for (let mask = 0; mask < 32; mask++) {
+    const replacements = new Map()
+    for (const [i, id] of changed.entries()) if (mask & (1 << i)) {
+      const spec = combined.slices.find(slice => slice.id === id)
+      const source = replacements.get(spec.path) ?? read(spec.path)
+      replacements.set(spec.path, source.replace(part(read(spec.path), spec), part(preBothCpuRead(spec.path), spec)))
+    }
+    const result = inspectDragSource(root, path => replacements.get(path) ?? read(path))
+    const expected = { 0: combinedCpuProfileId, 3: renderCpuProfileId, 28: cpuProfileId, 31: epochId }[mask]
+    assert.equal(result.profile, expected ?? null, `mixed-route mask ${mask}`)
+    assert.equal(result.status, expected ? 'admitted' : 'unsupported-source-contract', `mixed-route mask ${mask}`)
+    if (expected) assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+    if (mask === 28 || mask === 31)
+      assert.ok(replacements.get('app/render-view.ts').includes('  private beginPickOperation()'))
+  }
+})
+
+
+test('composed source profile preserves both exact historical branch inventories', () => {
+  assert.equal(new Set(dragSourceProfiles.map(profile => profile.id)).size, 12)
+  for (const [ids, digest] of [
+    [mainHistoricalIds, '82475e1af1f3f44c1bf7487ddee1071b912e565bee93c1dd31dce703245d5706'],
+    [uiHistoricalIds, '782217be629beb86e707a7455d9ec0a7f9e56757816d3d232213dda7f2529444'],
+  ]) {
+    const historical = ids.map(id => dragSourceProfiles.find(profile => profile.id === id))
+    assert.ok(historical.every(Boolean), 'Every historical ID remains present')
+    assert.equal(createHash('sha256').update(JSON.stringify(historical)).digest('hex'), digest,
+      'Original ordered branch profile data, boundaries and hashes remain byte-exact')
+  }
+  for (const [read, id] of [[mainHistoricalRead, looseLogProfileId], [uiHistoricalRead, resultClockId]]) {
+    const result = inspectDragSource(root, read)
+    assert.equal(result.status, 'admitted'); assert.equal(result.profile, id)
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+})
+
+test('new atomic source route binds all22 reviewed owners without widening the gate', () => {
+  const current = dragSourceProfiles.find(profile => profile.id === atomicProfileId)
+  const main = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
+  const ui = dragSourceProfiles.find(profile => profile.id === resultClockId)
+  assert.equal(current.slices.length, 22)
+  assert.equal(new Set(current.slices.map(slice => slice.id)).size, 22)
+  for (const [index, inherited] of main.slices.entries()) {
+    const next = current.slices[index]
+    if (next.id === 'camera-producers') assert.deepEqual(next, ui.slices.find(slice => slice.id === next.id))
+    else if (next.id === 'frame-order') {
+      assert.deepEqual({ ...next, sha256: inherited.sha256 }, inherited)
+      assert.equal(next.sha256, 'b21655fc1ea8787294beb80db52f8113a36a10f3fefe1ea4a0515a1b8f190cd1')
+    } else assert.deepEqual(next, inherited)
+  }
+  assert.deepEqual(current.slices.slice(19), ui.slices.slice(17))
+  const admitted = inspectDragSource(root)
+  assert.equal(admitted.status, 'admitted'); assert.equal(admitted.profile, atomicProfileId)
+  assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  // All22 individual owner mutations, source bounds, unknown reads, and mutable
+  // projection-kernel checks remain in the original shared admission tests.
+  const scene = rawSnapshotRead('app/scene.ts')
+  for (const [before, after] of [
+    [guardedResultCallback, historicalResultCallback],
+    [correctedResultClockFrame, ''],
+    ['  resultClock = createResultClock()', '  resultClock = sharedClock'],
+    ["import { createResultClock, advanceResultClock } from './result-session.ts'",
+      "import { createResultClock, advanceResultClock } from './unreviewed-clock.ts'"],
+  ]) {
+    assert.equal(scene.split(before).length, 2, 'Exact new owner mutation boundary')
+    const rejected = inspectDragSource(root, path => path === 'app/scene.ts'
+      ? scene.replace(before, after) : rawSnapshotRead(path))
+    assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
+  }
+  // Neither parent frame nor the old camera alone is the composed atomic route.
+  for (const owner of ['app/scene.ts', cameraPath]) {
+    const rejected = inspectDragSource(root, path => path === owner ? mainHistoricalRead(path) : rawSnapshotRead(path))
+    assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
+  }
+  for (const [code, text] of [['ENOENT', 'missing'], ['EACCES', 'unreadable']]) {
+    let failures = 0
+    const rejected = inspectDragSource(root, path => {
+      if (path === 'app/result-session.ts') { failures++; throw Object.assign(Error(text), { code }) }
+      return rawSnapshotRead(path)
+    })
+    assert.equal(rejected.status, 'unsupported-source-contract'); assert.equal(rejected.profile, null)
+    assert.equal(failures, 1)
   }
 })
 
@@ -442,4 +1008,42 @@ test('two fixed six-input observers retain one absolute recorder epoch and never
   assert.equal(sequences[0].recorder.endTimestampMs, sequences[1].recorder.startTimestampMs)
   assert.equal(o.recorder.recentCount, 49); assert.equal(o.scene.cameraPosition.angle, 0)
   for (const result of sequences) { assert.equal(result.error, null); assert.equal(result.events.length, 6); assert.equal(result.frames.length, 24) }
+})
+
+
+test('loose-log source admission is additive and binds the exact shared queue owner', () => {
+  const read = mainHistoricalRead
+  const current = inspectDragSource(root, read), previous = inspectDragSource(root, preLooseLogRead)
+  assert.equal(current.profile, looseLogProfileId)
+  assert.equal(previous.profile, combinedCpuProfileId)
+  for (const result of [current, previous]) {
+    assert.equal(result.status, 'admitted')
+    assert.equal(result.profiles.filter(profile => profile.status === 'admitted').length, 1)
+  }
+  const oldProfile = dragSourceProfiles.find(profile => profile.id === combinedCpuProfileId)
+  const profile = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
+  assert.equal(oldProfile.slices.length, 18)
+  assert.equal(profile.slices.length, 19)
+  for (const [i, oldSlice] of oldProfile.slices.entries()) {
+    assert.deepEqual({ ...profile.slices[i], sha256: oldSlice.sha256 }, oldSlice)
+    assert.equal(profile.slices[i].sha256 !== oldSlice.sha256, oldSlice.id === 'native-route')
+  }
+  assert.equal(oldProfile.slices.find(slice => slice.id === 'native-route').sha256,
+    '80d43ac8561bb04fbc6f4491ad9a8d0e91395cb63bf08ce1997173298bb3ccc9')
+  assert.equal(profile.slices.at(-1).id, 'resource-queue-owner')
+  for (const helper of [preLooseLogRead('app/world-picking.ts'), `${read('app/world-picking.ts')}\n`, '']) {
+    const result = inspectDragSource(root, path => path === 'app/world-picking.ts' ? helper : read(path))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.equal(result.profile, null)
+  }
+  // A new resource route is not admitted with any historical CPU-owner mixture.
+  for (const reader of [preCpuRead, preRenderCpuRead, preBothCpuRead]) {
+    const result = inspectDragSource(root, path => path === 'app/scene-picking.ts' || path === 'app/world-picking.ts'
+      ? read(path) : reader(path))
+    assert.equal(result.status, 'unsupported-source-contract')
+    assert.equal(result.profile, null)
+  }
+  // Preserve the historical boundary: an unused new helper was not hashed there.
+  assert.equal(inspectDragSource(root, path => path === 'app/scene-picking.ts'
+    ? preLooseLogRead(path) : read(path)).profile, combinedCpuProfileId)
 })

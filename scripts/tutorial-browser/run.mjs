@@ -6,8 +6,9 @@ import { resolve, dirname } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSync, mkdirSync, symlinkSync, accessSync, constants } from 'node:fs'
 import assert from 'node:assert/strict'
+import { parseGameplayResourceArguments, gameplayOwnershipSelection } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
-import { browserScenarios, browserCapMs, snapshotSmokeBudget } from './scenario-policy.mjs'
+import { browserScenarios, browserCapMs, snapshotSmokeBudget, composedGameplayResourceSplitBudget, composedGameplayResourceBudgetPolicy } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
@@ -19,7 +20,6 @@ import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
-const out = resolve(process.argv[2] || resolve(root, 'outputs/tutorial-browser'))
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
@@ -36,6 +36,8 @@ const mission10ProfileScenario = resolve(root, 'scripts/tutorial-browser/mission
 const spySourceScenario = resolve(root, 'scripts/tutorial-browser/spy-source.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
+const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
+const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
 const gameplayScenario = resolve(root, 'scripts/tutorial-browser/gameplay-frames.mjs')
 const meleeScenario = resolve(root, 'scripts/tutorial-browser/melee-attack.mjs')
@@ -80,7 +82,7 @@ function outputManifest(path, prefix = '') {
   }
   return result
 }
-const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), meleeScenarioSha256: hash(meleeScenario), followerCorpseScenarioSha256: hash(followerCorpseScenario),
+const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision: buildRevision(root), gameplayScenarioSha256: hash(gameplayScenario), gameplayResourceObserverSha256: hash(resolve(root, 'scripts/tutorial-browser/gameplay-resource-observer.mjs')), scenarioPolicySha256: hash(resolve(root, 'scripts/tutorial-browser/scenario-policy.mjs')), meleeScenarioSha256: hash(meleeScenario), followerCorpseScenarioSha256: hash(followerCorpseScenario),
   host: { platform: platform(), arch: arch(), release: release(), logicalCpus: cpus().length,
     cpuModels: [...new Set(cpus().map(cpu => cpu.model))] },
   github: { head: process.env.PR_HEAD_SHA ?? null, base: process.env.PR_BASE_SHA ?? null,
@@ -107,9 +109,19 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   browserChannel: browserConfig.launch.channel ?? null, browserBinaryVersion, browserSha256: hash(browserPath), node: process.version,
   environment: { TMPDIR: process.env.TMPDIR, XDG_CACHE_HOME: process.env.XDG_CACHE_HOME },
   limits: [...source.limits, 'Production Vite bundle of actual Home; excludes Vinext/Cloudflare/RSC hosting. No causal claim about prior development-server crashes.'], errors: [], warnings: [] }
+if (resourceArguments.profile) receipt.gameplayResourceProfile = resourceArguments.profile
+if (resourceArguments.ownershipProbe) {
+  receipt.gameplayOwnershipProbe = resourceArguments.ownershipProbe
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    receipt.gameplayOwnershipSelection = gameplayOwnershipSelection(
+      JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+      process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario)
+    assert.ok(receipt.gameplayOwnershipSelection, 'Weak ownership probe requires exact-head Ready event label')
+  }
+}
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
-let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, gameplayAdmission, gameplayBrowser, compactAdmission, compactBrowser
+let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, gameplayAdmission, gameplayBrowser, compactAdmission, compactBrowser, producerBudget, producerCleanup
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
 try {
@@ -145,7 +157,13 @@ try {
   browser = await chromium.launch(browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   receipt.browserCapMs = browserCapMs(selectedScenario)
+  const browserStartedMs = performance.now()
   browserDeadlineAt = Date.now() + receipt.browserCapMs
+  producerBudget = { startedMs: browserStartedMs, deadlineMs: browserStartedMs + receipt.browserCapMs, deadlineUnixMs: browserDeadlineAt }
+  if (['gameplay-frames', 'gameplay-resources'].includes(selectedScenario)) {
+    receipt.gameplayResourceBudgetPolicy = composedGameplayResourceBudgetPolicy
+    receipt.gameplayResourceSplitBudget = composedGameplayResourceSplitBudget
+  }
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else if (selectedScenario === 'gameplay-frames') {
     gameplayAdmission = createGameplayAdmission({ deadlineAt: browserDeadlineAt, expectedRevision: receipt.buildRevision,
@@ -182,6 +200,19 @@ try {
     receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
     // Separate natural Mission3 context, after F9, within the unchanged global cap.
     receipt.spellConversion = await (await import(pathToFileURL(spellConversionScenario).href)).default({ browser, url, output: out })
+  } else if (selectedScenario === 'gameplay-resources') {
+    // Separate job owns the complete five-phase workload and mandatory restart.
+    // No melee/corpse work is moved or removed from the original gameplay job.
+    receipt.gameplayResources = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision, resourceLifecycle: true, resourceProfile: resourceArguments.profile, ownershipProbe: resourceArguments.ownershipProbe })
+    // This await has completed all three original workloads, their metrics,
+    // alias/weak-state removal and original CDP detach. No snapshot is attempted.
+    if (resourceArguments.ownershipProbe === 'weak-v1') {
+      const { observeGameplayProducerPreflight, recordGameplayProducerCleanup } = await import('./gameplay-heap-observer.mjs')
+      producerCleanup = recordGameplayProducerCleanup
+      receipt.heapProducerPreflight = await observeGameplayProducerPreflight({
+        browser, page, report: receipt.gameplayResources, budget: producerBudget,
+        executableSha256: receipt.browserSha256, signal: abort.signal })
+    }
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
@@ -283,6 +314,9 @@ try {
     catch (error) { compactAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }
     finally { compactAdmission.dispose() }
   }
+  // The original timer is already cleared. Report actual remaining time, even
+  // negative, without claiming an independently enforced cleanup deadline.
+  if (receipt.heapProducerPreflight) producerCleanup(receipt.heapProducerPreflight, performance.now(), receipt.cleanupVerified)
   try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (m2Fixture) {
     try {

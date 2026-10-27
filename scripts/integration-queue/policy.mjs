@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { usesComposedGameplayResourceBudget } from '../tutorial-browser/scenario-policy.mjs'
 
 export const REPO = 'JohnDeved/populous-new-dawn'
 export const CLOUDFLARE = {
@@ -38,6 +39,11 @@ export const PROFILE_BROWSER_GATE = { ...RECOVERY_BROWSER_GATE, profileRequired:
 export const SPLIT_PROFILE_BROWSER_GATE = { ...PROFILE_BROWSER_GATE, mission10Required: true, mission10Job: 'Mission 10 crew persistence browser' }
 export const COMPOSED_PROFILE_POLICY = 'composed-spells-eight-v1'
 export const COMPOSED_PROFILE_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, composedRequired: true }
+export const GAMEPLAY_RESOURCE_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, gameplayResourcesRequired: true, gameplayResourcesJob: 'Gameplay resource lifecycle browser' }
+export const GAMEPLAY_HEAP_BROWSER_GATE = { ...GAMEPLAY_RESOURCE_BROWSER_GATE, gameplayHeapRequired: true }
+export const GAMEPLAY_MATCHED_BROWSER_GATE = { ...GAMEPLAY_HEAP_BROWSER_GATE, gameplayMatchedCyclesRequired: true }
+export const GAMEPLAY_THREE_CYCLE_BROWSER_GATE = { ...GAMEPLAY_HEAP_BROWSER_GATE, gameplayThreeCyclesRequired: true }
+export const GAMEPLAY_OWNERSHIP_BROWSER_GATE = { ...GAMEPLAY_THREE_CYCLE_BROWSER_GATE, gameplayOwnershipRequired: true }
 export const SPELL_VISUAL_BROWSER_GATE = { ...SPLIT_PROFILE_BROWSER_GATE, spellVisualsRequired: true, spellVisualsJob: 'Spell visuals browser' }
 export const SHARDED_FULL_GATE = {
   ...GATES[0],
@@ -54,14 +60,27 @@ export const SHARDED_FULL_GATE = {
     'Reject tracked input mutation',
   ],
 }
-export const gatesFor = entry => [
+const historicalGatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
   entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY ? COMPOSED_PROFILE_BROWSER_GATE :
+  entry.browserPolicy === 'gameplay-resources-weak-v1' ? GAMEPLAY_OWNERSHIP_BROWSER_GATE :
+  entry.browserPolicy === 'gameplay-resources-nine-v4' ? GAMEPLAY_THREE_CYCLE_BROWSER_GATE :
+  entry.browserPolicy === 'gameplay-resources-nine-v3' ? GAMEPLAY_MATCHED_BROWSER_GATE :
+  entry.browserPolicy === 'gameplay-resources-nine-v2' ? GAMEPLAY_HEAP_BROWSER_GATE :
+  entry.browserPolicy === 'gameplay-resources-nine-v1' ? GAMEPLAY_RESOURCE_BROWSER_GATE :
   entry.browserPolicy === 'spell-visuals-nine-v2' ? SPELL_VISUAL_BROWSER_GATE :
   entry.browserPolicy === 'profile-split-v1' ? SPLIT_PROFILE_BROWSER_GATE :
   entry.browserPolicy === 'profile-recovery-v1' ? PROFILE_BROWSER_GATE :
     entry.browserPolicy === 'pause-recovery-v1' ? RECOVERY_BROWSER_GATE : GATES[1],
 ]
+export function gatesFor(entry) {
+  const gates = historicalGatesFor(entry)
+  if (usesComposedGameplayResourceBudget(entry.gameplayResourceBudgetPolicy)) {
+    requireThat(gates[1].gameplayResourcesRequired === true, 'Composed budget requires an explicit resource gate')
+    gates[1] = { ...gates[1], gameplayResourceBudgetPolicy: entry.gameplayResourceBudgetPolicy }
+  }
+  return gates
+}
 export const sha256 = value => createHash('sha256').update(value).digest('hex')
 export const digest = value => sha256(JSON.stringify(value))
 const sha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value)
@@ -129,21 +148,27 @@ export function validateEntry(entry) {
       Object.keys(d).length === 1 && Number.isSafeInteger(d.activationPr) && d.activationPr > 0,
       'Diagnostic policy must pin one literal activation PR under sharded-v1')
   }
-  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2'].includes(entry.browserPolicy),
+  requireThat(entry.browserPolicy === undefined || ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2', 'gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy),
     'Unsupported browser evidence policy')
   requireThat(entry.browserPolicy === 'spell-visuals-nine-v2'
     ? entry.browserCheckpointVersion === 4
+    : ['gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy) ? entry.browserCheckpointVersion === 3
     : entry.browserCheckpointVersion === undefined || entry.browserCheckpointVersion === 3,
-    'Nine-job policy requires explicit current-v4 contract; older policies remain v3')
+    'Spell visuals requires explicit v4; gameplay resources requires explicit v3; older policies remain v3')
   requireThat(entry.profileArtifactPolicy === undefined ||
     (entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY && entry.browserPolicy === 'profile-split-v1' &&
       entry.browserCheckpointVersion === 3), 'Composed artifacts require explicit eight-job/current-v3 contract')
+  if (usesComposedGameplayResourceBudget(entry.gameplayResourceBudgetPolicy)) {
+    requireThat(entry.requireBrowser === true &&
+      ['gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy) &&
+      entry.browserCheckpointVersion === 3, 'Composed budget requires explicit resource/browser/current-v3 admission')
+  }
   if (entry.browserWorkflowTransition !== undefined) {
     const t = entry.browserWorkflowTransition
     requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
       t.sourceHead === entry.sourceHead && t.base === entry.reviewBase &&
       hash(t.baseSha256) && t.candidateSha256 === entry.workflowHashes[t.workflow] &&
-      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2'].includes(entry.browserPolicy) &&
+      t.baseSha256 !== t.candidateSha256 && ['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', 'spell-visuals-nine-v2', 'gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy) &&
       entry.allowMechanicalRefresh === false,
     'Browser workflow transition must pin reviewed base/head and both digests without refresh')
   }
@@ -640,6 +665,13 @@ export function validatePassedGate(o, gate, latest) {
       (!gate.profileRequired || latest.profileRecoveryVerified === true) &&
       (!gate.mission10Required || latest.mission10Verified === true) &&
       (!gate.spellVisualsRequired || latest.spellVisualsVerified === true) &&
+      (!gate.gameplayResourcesRequired || (latest.gameplayResourcesVerified === true &&
+        latest.gameplayResourceBudgetPolicy === gate.gameplayResourceBudgetPolicy &&
+        (!usesComposedGameplayResourceBudget(gate.gameplayResourceBudgetPolicy) || latest.gameplayResourceBudgetVerified === true))) &&
+      (!gate.gameplayHeapRequired || latest.gameplayHeapVerified === true) &&
+      (!gate.gameplayMatchedCyclesRequired || latest.gameplayMatchedCyclesVerified === true) &&
+      (!gate.gameplayThreeCyclesRequired || latest.gameplayThreeCyclesVerified === true) &&
+      (!gate.gameplayOwnershipRequired || latest.gameplayOwnershipVerified === true) &&
       (!gate.composedRequired || (latest.tornadoVerified === true && latest.spySourceVerified === true)) &&
       gate.steps.every(
         name =>
@@ -672,6 +704,12 @@ export function validatePassedGate(o, gate, latest) {
       c.name === gate.spellVisualsJob && c.appId === 15368 && c.head === o.head), 'Spell visuals current checks')
     requireThat(spell.id === latest.spellVisualsCheckId && spell.status === 'completed' &&
       spell.conclusion === 'success', 'Current Spell visuals check disagrees with exact tested attempt')
+  }
+  if (gate.gameplayResourcesRequired) {
+    const resources = latestChronological(o.currentChecks.filter(c =>
+      c.name === gate.gameplayResourcesJob && c.appId === 15368 && c.head === o.head), 'Gameplay resources current checks')
+    requireThat(resources.id === latest.gameplayResourcesCheckId && resources.status === 'completed' &&
+      resources.conclusion === 'success', 'Current gameplay resources check disagrees with exact tested attempt')
   }
   const current = latestChronological(
     o.currentChecks.filter(c => c.name === gate.job && c.appId === 15368 && c.head === o.head),
@@ -731,3 +769,4 @@ export function validateBeforeDraft(entry, o, required, allowTutorialDraftGuard 
       )
   }
 }
+

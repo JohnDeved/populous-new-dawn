@@ -208,6 +208,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
     visible: () => true, ownedSounds: new Map(), resize: { disconnect: nop },
     disposeListeners: [], scene: { remove: nop }, globe: { dispose: nop },
     releaseGroup: nop, waterMap: { dispose: nop }, terrainMap: { dispose: nop },
+    terrainUpload: {}, minimap: { revision: undefined },
     view: {
       dispose: nop,
       screen(point) {

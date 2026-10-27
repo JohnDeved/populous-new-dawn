@@ -1,5 +1,6 @@
 import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import { worldPauseState } from '../scripts/browser-world-input.mjs'
+import { spyDeliveryFixture, corruptSpyDelivery } from './support/spy-delivery-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -33,14 +34,29 @@ function sample(f2 = 0) {
 function report() {
   const samples = [sample(), sample(1)]
   samples.forEach(row => { row.submittedLayers = row.pieces.length })
-  return { spyId: 100, targetId: 101, order: { target: 101, selected: [100], lastOrderTurn: 10 },
+  return { evidenceVersion: 3, delivery: spyDeliveryFixture(),
+    inputs: { 'scripts/controlled-scene-frames.mjs': spyDeliveryFixture().sha256 }, budget: { deadlineAt: 45000 },
+    capture: { version: 2, method: 'controlled-full-scene', frameMs: 1000 / 24,
+      maxFrames: 384, maxTurns: 192, frames: 8, turns: 4, startTurn: 18,
+      suppliedElapsedMilliseconds: 8 * (1000 / 24), deadlineAt: 45000,
+      installed: true, released: true, rafRestored: true, cancelRestored: true,
+      resumedRAF: true, foreign: false, error: null,
+      handback: { previous: 1000, timestamp: 1500, turn: 22, stamp: 40,
+        spyAndAnimationUnchanged: true, evidence: false } },
+    spyId: 100, targetId: 101, order: { target: 101, selected: [100], lastOrderTurn: 10 },
     holdBefore: { paused: true, turn: 22 },
     holdAfter: { paused: true, turn: 22 }, resumed: { paused: false, turn: 23 },
-    observation: { error: null, done: true, turns: [
+    observation: { error: null, done: true, nonAdvancingCallbacks: 0,
+      turns: [
       { turn: 18, substate: 1, timer: 1, object: 48, entryArmed: false, f2: 0 },
       { turn: 19, substate: 2, timer: 0, object: 48, entryArmed: true, f2: 0 },
       { turn: 20, substate: 2, timer: 23, object: 136, entryArmed: false, f2: 0 },
-    ].map(row => ({ ...row, spyId: 100, targetId: 101, target: 101, speed: 1, paused: false, sceneStoreMatch: true })), samples: [
+    ].map(row => ({ ...row, spyId: 100, targetId: 101, target: 101, speed: 1, paused: false, sceneStoreMatch: true })),
+      hook: { installed: true, restored: true, foreign: false },
+      turnSamples: [19, 20, 21, 22].map(turn => ({ spyId: 100, targetId: 101, target: 101,
+        turn, speed: 1, paused: false, substate: 2, entryArmed: turn === 19,
+        object: turn === 19 ? 48 : 136, timer: turn === 19 ? 0 : 43 - turn,
+        f2: turn === 19 || turn === 20 ? 0 : 1 })), samples: [
       { substate: 1, target: 101 },
       { substate: 2, entryArmed: true, object: 48, timer: 0, turn: 19 }, ...samples],
     crops: samples.map(row => ({ filename: row.cropFile, spyId: row.spyId,
@@ -53,6 +69,19 @@ test('Spy browser evidence admits actual source136 identity and rejects substitu
   assert.deepEqual(validateSpySourceObservation(catchUp).croppedFrames, [0, 1],
     'Pending entry witnessed by its real logical visit need not have its own rendered frame')
   for (const change of [
+    ...corruptSpyDelivery,
+    r => { delete r.evidenceVersion },
+    r => { r.capture.resumedRAF = false },
+    r => { r.capture.handback.evidence = true },
+    r => { r.capture.foreign = true },
+    r => { r.capture.frames = 385 },
+    r => { r.captureCleanupFailure = 'restore failed' },
+    r => { r.observation.hook.restored = false },
+    r => { r.observation.turnSamples.splice(1, 1) },
+    r => { r.observation.turnSamples[1].timer = 22 },
+    r => { r.observation.turnSamples[1].f2 = 1 },
+    r => { r.observation.turnSamples[1].object = 48 },
+    r => { r.observation.crops[0].f2 = 1 },
     r => { r.observation.error = 'Page failed' },
     r => { r.order.target = 102 },
     r => { r.order.selected = [102] },
@@ -311,4 +340,53 @@ test('the wired Spy witness retains the M10 artifact root and existing job cap w
   const observer = readFileSync(new URL('../scripts/tutorial-browser/spy-source-observer.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(observer, /(?:world|p|spy)\.(?:paused|substate|timer|object|f1|f2)\s*=(?!=)/)
   assert.doesNotMatch(observer, /scene\.animate|tick\(|advanceGame|stepLiveBuildingAttack/)
+})
+
+test('ordinary catch-up keeps exact Spy logical entry even when the next rendered state is frame1', async () => {
+  const fixture = await createSpySourceFixture('a'.repeat(40)),
+    { world } = checkpointCodec(fixture.transfer, true),
+    { loadSceneFixture } = await import('./support/bloodlust-scene.mjs'), api = await loadSceneFixture(),
+    spy = world.units.find(u => u.id === fixture.spyId), target = world.buildings.find(b => b.id === fixture.targetId)
+  // CPU setup, not a public browser input or pixel claim.
+  api.select(world, 'spy'); world.paused = false
+  assert.equal(api.disguiseSelectedSpies(world, 1), true)
+  for (let n = 0; spy.native.disguise !== 0x40 && n < 100; n++) api.tick(world, 1 / 12)
+  assert.equal(spy.native.disguise, 0x40)
+  assert.equal(api.command(world, target), true)
+  const clock = { animationTime: 0, animationFrame: 0 }
+  for (let n = 0; !(spy.native.substate === 2 && (spy.native.flags2 & 0x40000000)) && n < 360; n++)
+    api.advanceGame(world, clock, 1 / 24)
+  assert.equal(spy.native.substate, 2); assert.ok(spy.native.flags2 & 0x40000000)
+  const armedTurn = world.turn, visits = []
+  clock.afterTurn = () => visits.push({ turn: world.turn, object: spy.native.object,
+    timer: spy.native.timer, f2: spy.native.f2 })
+  api.advanceGame(world, clock, 1 / 6)
+  assert.deepEqual(visits, [
+    { turn: armedTurn + 1, object: 136, timer: 23, f2: 0 },
+    { turn: armedTurn + 2, object: 136, timer: 22, f2: 0 },
+  ]) // afterTurn precedes logical animation; do not relabel it as a rendered sample.
+  assert.equal(world.turn, armedTurn + 2)
+  assert.equal(spy.native.timer, 22)
+  assert.equal(spy.native.f2, 1)
+  const missingRaster = report()
+  missingRaster.observation.samples.splice(2, 1)
+  missingRaster.observation.crops.shift()
+  assert.throws(() => validateSpySourceObservation(missingRaster), 'Logical entry never substitutes missing frame0 pixels')
+})
+
+test('Spy browser reader enforces all-three aggregate600 while retaining valid boundary evidence', () => {
+  const value = report(), observation = value.observation
+  const padding = 600 - observation.samples.length - observation.turnSamples.length - observation.turns.length
+  observation.samples.unshift(...Array.from({ length: padding }, () => structuredClone(observation.samples[0])))
+  assert.equal(observation.samples.length + observation.turnSamples.length + observation.turns.length, 600)
+  assert.deepEqual(validateSpySourceObservation(value).croppedFrames, [0, 1])
+  observation.samples.unshift(structuredClone(observation.samples[0]))
+  assert.ok(observation.samples.length + observation.turnSamples.length <= 600, 'old two-ledger bound still passes')
+  assert.throws(() => validateSpySourceObservation(value), /Spy aggregate observation bound/)
+  for (const key of ['samples', 'turnSamples', 'turns']) {
+    for (const malformed of [null, {}, 'not-an-array', undefined]) {
+      const bad = report(); bad.observation[key] = malformed
+      assert.throws(() => validateSpySourceObservation(bad))
+    }
+  }
 })

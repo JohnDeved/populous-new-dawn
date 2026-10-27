@@ -209,6 +209,7 @@ test('actual Scene disposal cancels pending input and the elapsed phase', async 
     ownedSounds: new Map(), terrainLoad: new AbortController(), resize: { disconnect: noOp },
     disposeListeners: [], scene: { remove: noOp }, globe: disposable(), waterMap: disposable(),
     terrainMap: disposable(), view: disposable(), renderer: { ...f.scene.renderer, dispose: noOp, domElement: disposable(), forceContextLoss: () => { ++contextLosses } },
+    terrainUpload: {}, minimap: { revision: undefined },
     tooltipElement: disposable(), pointerOutline: disposable(), spellPointer: disposable(),
     objectPanels: disposable(), worshipPresentation: disposable(), releaseGroup: noOp,
   })

@@ -1,6 +1,6 @@
 // Fixed read-only browser episode policy. No environment-selected cap overrides.
 export const browserScenarios = Object.freeze(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery',
-  'profile-recovery', 'mission10-profile', 'gameplay-frames', 'snapshot-protocol', 'compact-message-layout', 'frontend-held-escape'])
+  'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'compact-message-layout', 'frontend-held-escape'])
 // This expands smoke from one shared 90s allowance to at most two 90s
 // episodes (180s combined), still inside the unchanged six-minute hosted job.
 export const snapshotSmokeBudget = Object.freeze({ version: 1, maxEpisodes: 2,
@@ -36,3 +36,24 @@ export const compactAggregateBudget = Object.freeze({ version: 1, preparationMs:
 // maxima; acquisition/cleanup remain inside total and the unchanged host cap.
 export const ordinaryM2Budget = Object.freeze({ version: 1, setupMs: 45000,
   functionalMs: 45000, totalMs: 90000 })
+
+// Historical v1 receipt declaration only; current composition is separately versioned below.
+// Additional independent job/build: explicit 360s combined, not a speed improvement.
+// Original gameplay→melee→corpse remains within its unchanged 180s allowance.
+export const gameplayResourceSplitBudget = Object.freeze({ version: 1, gameplayMs: 180000,
+  resourcesMs: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
+
+// New source composition, not a per-job cap increase or performance result.
+// UI gameplay355 plus main resources180 declares535s across independent jobs:
+// +175s versus historical main360. No transfer of unused time between jobs.
+export const composedGameplayResourceBudgetPolicy = 'composed-gameplay-resources-v2'
+export const composedGameplayResourceSplitBudget = Object.freeze({ version: 2,
+  gameplayMs: 355000, resourcesMs: 180000, totalBrowserMs: 535000,
+  buildMsPerJob: 120000, hostedJobMs: 900000 })
+// Only a trusted expectation may select this dimension. Raw receipt versions
+// never select policy; unknown/null values must fail rather than fall back.
+export function usesComposedGameplayResourceBudget(value) {
+  if (value === undefined) return false
+  if (value !== composedGameplayResourceBudgetPolicy) throw Error('Unsupported gameplay resource budget policy')
+  return true
+}

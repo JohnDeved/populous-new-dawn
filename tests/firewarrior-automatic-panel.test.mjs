@@ -351,6 +351,8 @@ function disposeScene(t, scene) {
     globe: { dispose: nop },
     waterMap: { dispose: nop },
     terrainMap: { dispose: nop },
+    terrainUpload: {},
+    minimap: { revision: undefined },
     pointerOutline: { remove: nop },
     spellPointer: { remove: nop },
   })

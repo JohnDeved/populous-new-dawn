@@ -75,6 +75,11 @@ jobs:
             name: Gameplay frame recording browser
             artifact: gameplay-frame-recording-browser
             buildStep: Record live authored Level 2 frame exports and workload summaries
+          - scenario: gameplay-resources
+            timeoutMinutes: 15
+            name: Gameplay resource lifecycle browser
+            artifact: gameplay-resource-lifecycle-browser
+            buildStep: Observe full live Mission 2 workload and one same-document resource restart
           - scenario: snapshot-protocol
             timeoutMinutes: 6
             name: Controlled snapshot functional smoke
@@ -143,8 +148,19 @@ jobs:
           else
             sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
           fi
-      - name: ${{ matrix.buildStep }}
-        run: node scripts/tutorial-browser/run.mjs
+      - name: ${{ matrix.scenario == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}
+        env:
+          POPULOUS_GAMEPLAY_OWNERSHIP: ${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}
+        run: |
+          if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then
+            if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1
+            else
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            fi
+          else
+            node scripts/tutorial-browser/run.mjs
+          fi
       - name: Reject tracked input mutation
         if: ${{ always() && steps.checkout.outcome == 'success' }}
         run: git diff --exit-code HEAD --

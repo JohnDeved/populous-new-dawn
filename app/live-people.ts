@@ -627,7 +627,13 @@ function context(w: World, synchronize = () => syncLivePersonCells(w)) {
         x: ((person.x & 0xfe00) + 256 + 32 - (random(state) & 63)) & 65535,
         y: ((person.y & 0xfe00) + 256 + 32 - (random(state) & 63)) & 65535,
       }
-      w.trees.push({ id: w.nextId++, ...browserPosition(pos), logs: 1, model: 11 })
+      w.trees.push({
+        ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+        id: w.nextId++,
+        ...browserPosition(pos),
+        logs: 1,
+        model: 11,
+      })
       return true
     },
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
@@ -1131,12 +1137,17 @@ export function startMeleeKnockback(w: World, u: Unit) {
   p.flags2 = ((p.flags2 & ~0x40000000) | 0x83080) >>> 0
   p.flags3 |= 0x8000000
   p.flags4 |= 0x2000
-  setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
-  p.f1 = 1
-  // Carry the displayed recoil frame across the browser-to-native handoff.
-  // Ordinary fight poses still use elapsed turns rather than a retained person.
-  const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
-  p.f2 = Math.min(sprites.frameCounts[p.object] - 1, Math.max(0, Math.floor(elapsed * sprites.fps)))
+  // Native substate7 retains both counters from the processed recoil entry.
+  // Only a pose without that owner still needs the existing elapsed-time adapter.
+  if (!u.fight?.nativeRecoilAnimation) {
+    setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
+    p.f1 = 1
+    const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
+    p.f2 = Math.min(
+      sprites.frameCounts[p.object] - 1,
+      Math.max(0, Math.floor(elapsed * sprites.fps))
+    )
+  }
   groundVelocity(p.velocity, p, (random(w) % 70) + 35, (p.heading + 1024) & 2047, (x, y) =>
     terrainPointHeight(w.land, { x, y })
   )
@@ -1193,11 +1204,17 @@ export function registerLivePerson(w: World, p: LivePerson) {
 }
 
 // Grounded combat and airborne impulses share the original person physics.
-export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
-  stepLivePhysicsImpl(w, u, p)
+export function stepLivePhysics(w: World, u: Unit, p: LivePerson, initializeOwner?: () => void) {
+  stepLivePhysicsImpl(w, u, p, false, initializeOwner)
 }
 
-function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = false) {
+function stepLivePhysicsImpl(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  ownedImpulse = false,
+  initializeOwner?: () => void
+) {
   const fighting = p.state === 25 || p.state === 29,
     recovering = p.state === 33
   registerLivePerson(w, p)
@@ -1211,7 +1228,14 @@ function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = fa
     const object = personAnimationObject(p)
     if (object !== -1) setLivePersonAnimation(w, p, object)
   }
-  const initialize = () => initializeLivePerson(w, u, stateContext(), p)
+  const initialize = () => {
+    if (!initializeOwner) return initializeLivePerson(w, u, stateContext(), p)
+    // The entry initializer commits its own RNG context. Synchronize either
+    // direction if a physics consumer already opened the ordinary context.
+    if (ctx) w.randomState = ctx.state.randomState
+    initializeOwner()
+    if (ctx) ctx.state.randomState = w.randomState
+  }
   p.counter = (p.counter + 1) & 255
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize,

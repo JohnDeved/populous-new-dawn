@@ -1,3 +1,5 @@
+import type { ScenerySource, SceneryBirth } from './scenery-provenance.ts'
+import type { AngelPresentation } from './angel-presentation.ts'
 import type { SecondaryEffects } from './secondary-effects.ts'
 import type { CapacityPolicy } from './capacity-policy.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
@@ -109,6 +111,8 @@ export type Fight = {
   knockback?: boolean
   // Only attacks entered with a native pose own it; legacy active saves keep fallback.
   nativeAttackAnimation?: boolean
+  // A processed recoil entry owns its phase through the following push/approach.
+  nativeRecoilAnimation?: boolean
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
@@ -159,6 +163,7 @@ export type Projectile = {
   fireball?: boolean
 }
 export type AngelState = {
+  presentation?: AngelPresentation
   phase: 'seeking' | 'striking' | 'dying'
   target: number | null
   heading: number
@@ -259,6 +264,8 @@ export type Building = Point & {
 }
 export type Shrine = Point &
   WorshipState & {
+    triggerSlot?: number
+    verifiedDecorationSlot?: number | null
     id: number
     kind:
       | Spell
@@ -291,7 +298,7 @@ export type Shrine = Point &
     lightningTargets?: Point[]
     firestormTargets?: Point[]
     volcanoTargets?: Point[]
-    linkedTrees?: { x: number; z: number; model: number }[]
+    linkedTrees?: { x: number; z: number; model: number; authoredSlot?: number }[]
     linkedShrine?: Shrine
     rewardVehicle?: number
     rewardMana?: number
@@ -322,6 +329,8 @@ export type Shrine = Point &
     shakeOrigin?: number
   }
 export type Tree = Point & {
+  authoredSlot?: number | null
+  sceneryBirth?: SceneryBirth
   id: number
   logs: number
   model: number
@@ -446,6 +455,7 @@ export type CampaignAI = ScriptState &
   }
 
 export type World = {
+  scenerySource?: ScenerySource
   capacityPolicy: CapacityPolicy
   objectCells: ObjectCells
   marching: LiveFormation[]

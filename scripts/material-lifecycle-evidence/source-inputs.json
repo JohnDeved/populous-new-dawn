@@ -1,0 +1,11 @@
+{
+  "app/scene.ts": "6afc65b2c94bea61e506aa13a7c2ef8b7091b6cad25bad25930d6a78d231810c",
+  "app/scene-entities.ts": "d5c928f4f53267ab75d8307c9d14e1cac096a2779844ebf17cd0866fd3793799",
+  "app/render-view.ts": "5f37d797b2e467b62b10351aa92e4026b9d6a465e809fa75cf732cffdcf75322",
+  "app/scene-assets.ts": "fd9c8b169442d5936cb286cede0dac6132010db701af28f999e9d1ca84dbb8de",
+  "app/construction-runtime.ts": "fab855c106c5cfb64d50e045d2e57db4558cf2f6ce46623295de2d96e62bd3b2",
+  "app/model.ts": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+  "scripts/local-render/harness.mjs": "698973cbfd61fa16e7d1a0020c79b0f746d302a64a5b8a5f80f944d0155031a4",
+  "scripts/browser-game.mjs": "2e0373e4a1f0629432fdf3f8abbc104a25140dce4b6c58582c11ad00565369dd",
+  "scripts/browser-new-game.mjs": "e9084b65063f863da08d036e9730e626660a8755b7d826b123aef5a7fcbe0fbd"
+}
