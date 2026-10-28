@@ -288,7 +288,19 @@ export function OriginalOptions({
     if (!browser) return
     const element = root.current
     function keydown(event: KeyboardEvent) {
-      if (browser && event.key === 'Escape' && element?.closest('dialog')?.open) {
+      const owner = element?.closest('dialog')
+      if (browser && event.key === 'Escape' && !event.defaultPrevented && owner?.open) {
+        const origin = event.target instanceof Element ? event.target.closest('dialog') : null
+        // An open underlying dialog is not the current keyboard owner. Keep
+        // another dialog's Escape intact, without guessing top-layer DOM order.
+        if (origin && origin !== owner) return
+        // Disabled controls can leave focus on body. Retain that fallback only
+        // when no other open dialog makes ownership ambiguous.
+        if (
+          !origin &&
+          [...document.querySelectorAll('dialog[open]')].some(dialog => dialog !== owner)
+        )
+          return
         event.preventDefault()
         event.stopPropagation()
         setBrowser(false)
