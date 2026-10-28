@@ -280,6 +280,7 @@ for (const retire of [true, false]) {
     } }
     const makeAnimate = evaluate(`function () { return ${animateField.initializer.getText(source)} }`, {
       document: { hidden: false }, devicePixelRatio: 1, advanceResultClock,
+      sceneTextureRevision: () => 0,
       requestAnimationFrame: () => {
         assert.equal(f.scene.disposed, false, 'no RAF after result retirement')
         phases.push('schedule'); return 42
