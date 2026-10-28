@@ -1039,6 +1039,7 @@ test('native UI checker changes select focused regressions without losing workfl
       'tests/browser-options-audio.test.mjs',
       'tests/campaign-popup-fullscreen-fixture.test.mjs',
       'tests/pause-world-snapshot.test.mjs',
+      'tests/query-world-phase.test.mjs',
       'tests/pause-clearance-batch.test.mjs',
       'tests/pause-checker-registration.test.mjs',
       'tests/pause-focus-observation.test.mjs',
@@ -1049,7 +1050,9 @@ test('native UI checker changes select focused regressions without losing workfl
       'tests/options-copy-clearance.test.mjs',
       'tests/recovery-input-budget.test.mjs',
       'tests/original-loading-screen.test.mjs',
+      'tests/loading-focus.test.mjs',
       'tests/checkpoint-scroll-area.test.mjs',
+      'tests/pause-style-case-plan.test.mjs',
     ])
     const workflowPaths = ['scripts/native-ui-evidence/options-audio-control-style.mjs',
       'scripts/browser-options-audio.mjs', 'tests/browser-options-audio.test.mjs',

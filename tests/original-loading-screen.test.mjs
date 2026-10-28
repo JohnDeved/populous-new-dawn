@@ -7,6 +7,7 @@ import ts from 'typescript'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createElement } from 'react'
 import * as scrolling from '../app/checkpoint-scroll.ts'
+import { captureLoadingFocus } from '../app/loading-focus.ts'
 
 const require = createRequire(import.meta.url)
 const art = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
@@ -23,6 +24,7 @@ function load(react = require('react'), exportName = 'OriginalLoadingScreen') {
     if (name === './original-loading-art.json') return {default: art}
     if (name === 'react/jsx-runtime') return require(name)
     if (name === './checkpoint-scroll-area') return loadScrollArea()
+    if (name === './loading-focus') return { captureLoadingFocus }
     throw Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports)
   return component.exports[exportName]
@@ -414,37 +416,12 @@ test('only failed recovery mounts the shipped original-art scroll region', () =>
   assert.match(html, /class="loadingContent"/)
 })
 
-test('recovery Tab ownership includes the real overflow region and visible caps, not hidden fallback art', () => {
-  const previousDocument = globalThis.document, previousStyle = globalThis.getComputedStyle
+test('loading mounts the shared document focus owner rather than a sibling-blind local trap', () => {
   const harness = inspectState(), root = harness.render('failed')[0]
-  const focused = []
-  const control = (name, visible = true) => ({ name, getClientRects: () => visible ? [{}] : [],
-    focus() { focused.push(name); globalThis.document.activeElement = this } })
-  const region = control('region'), summary = control('summary'), retry = control('retry')
-  const up = control('up'), down = control('down'), hidden = control('hidden', false)
-  let candidates = [region, summary, retry, up, down, hidden]
-  root.props.ref.current = { querySelectorAll(selector) {
-    assert.equal(selector, 'summary,button,[data-loading-recovery-scroll][tabindex="0"]')
-    return candidates
-  } }
-  globalThis.document = { activeElement: retry }
-  globalThis.getComputedStyle = () => ({ visibility: 'visible' })
-  const tab = shiftKey => root.props.onKeyDown({ key: 'Tab', shiftKey, preventDefault() {} })
-  try {
-    tab(false); tab(false); tab(false); tab(false)
-    assert.deepEqual(focused, ['up', 'down', 'region', 'summary'])
-    tab(true); assert.equal(focused.at(-1), 'region')
-    candidates = [summary, retry, hidden]; document.activeElement = retry
-    tab(false); assert.equal(focused.at(-1), 'summary', 'no-overflow/forced-colors hidden art is not a focus trap')
-    let prevented = false
-    root.props.onKeyDown({ key: 'End', preventDefault() { prevented = true } })
-    assert.equal(prevented, false, 'Home/End/native scrolling remain browser-owned')
-  } finally {
-    if (previousDocument === undefined) delete globalThis.document
-    else globalThis.document = previousDocument
-    if (previousStyle === undefined) delete globalThis.getComputedStyle
-    else globalThis.getComputedStyle = previousStyle
-  }
+  assert.equal(root.props.onKeyDown, undefined)
+  assert.match(source, /const root = screen\.current\s+if \(root\) return captureLoadingFocus\(document, root\)/)
+  assert.match(source, /else screen\.current\?\.focus\(\)/)
+  assert.match(source, /if \(phase === 'failed'\) retry\.current\?\.focus\(\)/)
 })
 
 
@@ -532,12 +509,12 @@ test('existing loading captures bind the actual scroller and count art/caps as f
 test('canonical loading validation fingerprints the new shared controller and every consumed loading asset', () => {
   const registry = JSON.parse(readFileSync(new URL('../engineering/checks.json', import.meta.url)))
   const check = registry.checks.find(item => item.id === 'native-ui-evidence-tests')
-  for (const path of ['tests/original-loading-screen.test.mjs', 'tests/checkpoint-scroll-area.test.mjs'])
+  for (const path of ['tests/original-loading-screen.test.mjs', 'tests/loading-focus.test.mjs', 'tests/checkpoint-scroll-area.test.mjs'])
     assert.ok(check.args.includes(path), `Canonical execution: ${path}`)
-  for (const path of ['app/original-loading-screen.tsx', 'app/original-loading-art.json', 'app/original-frontend.json',
+  for (const path of ['app/original-loading-screen.tsx', 'app/loading-focus.ts', 'app/original-loading-art.json', 'app/original-frontend.json',
     'app/page.tsx', 'app/checkpoint-scroll-area.tsx', 'app/checkpoint-scroll-area.module.css', 'app/checkpoint-scroll.ts',
-    'app/globals.css', 'scripts/local-render/loading-recovery-style.mjs', 'tests/original-loading-screen.test.mjs',
-    'tests/checkpoint-scroll-area.test.mjs', 'references/checkpoint-scrollbar-art.json', 'public/original/loading-mask.png',
+    'app/globals.css', 'scripts/local-render/loading-recovery-style.mjs', 'tests/original-loading-screen.test.mjs', 'tests/loading-focus.test.mjs',
+    'scripts/integration-queue/composed-source-inputs.json', 'tests/checkpoint-scroll-area.test.mjs', 'references/checkpoint-scrollbar-art.json', 'public/original/loading-mask.png',
     'public/original/loading-label.json', 'public/original/loading-label.png',
     ...[451, 452, 453, 454, 455].map(id => `public/original/help/hfx-${id}.png`)]) {
     assert.ok(check.inputs.includes(path), `Fingerprinted input: ${path}`)
@@ -552,19 +529,19 @@ test('loading keyboard traversal uses the original locator predicate and genuine
     const node = { tagName: 'SUMMARY', id: '', textContent: 'Technical details', tabIndex: 0, isConnected: true,
       getClientRects() { return [{}] }, getAttribute() { return null }, closest() { return null } }
     let reads = 0
-    Object.assign(globalThis, { document: { activeElement: { ...node, tagName: 'BUTTON' } },
+    Object.assign(globalThis, { document: { activeElement: { ...node, tagName: 'BUTTON' }, querySelector() { return null } },
       getComputedStyle: () => ({ visibility: 'visible' }), innerWidth: 640, innerHeight: 480 })
     try {
       const target = { async evaluate(predicate) {
         assert.equal(this, target)
-        if (++reads === 4) document.activeElement = node
+        if (++reads === 5) document.activeElement = node
         return predicate(node)
       } }
       await loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) { keys.push(key) } } }, target, { reverse, record })
-      assert.deepEqual(keys, Array(4).fill(reverse ? 'Shift+Tab' : 'Tab'))
-      assert.deepEqual(record.observations, [false, false, false, true])
+      assert.deepEqual(keys, Array(5).fill(reverse ? 'Shift+Tab' : 'Tab'))
+      assert.deepEqual(record.observations, [false, false, false, false, true])
       assert.equal(record.status, 'passed'); assert.equal(record.pending, null)
-      assert.deepEqual(record.focusObservations.map(row => row.active.tag), ['BUTTON', 'BUTTON', 'BUTTON', 'SUMMARY'])
+      assert.deepEqual(record.focusObservations.map(row => row.active.tag), ['BUTTON', 'BUTTON', 'BUTTON', 'BUTTON', 'SUMMARY'])
       assert.deepEqual(record.focusObservations.map(row => row.focused), record.observations)
     } finally {
       for (const [key, value] of Object.entries(old)) {
@@ -577,10 +554,10 @@ test('loading keyboard traversal uses the original locator predicate and genuine
 test('loading keyboard traversal neither skips a read nor invents focus when ownership remains wrong', async () => {
   const record = {}, keys = [], saved = []
   await assert.rejects(loadingCheckerExports().tabToLoadingControl({ keyboard: { async press(key) { keys.push(key) } } },
-    { async evaluate() { return { focused: false, active: { tag: 'BODY' }, controls: [] } } }, { record, save() { saved.push([...record.observations]) } }), /within four genuine Tab presses/)
-  assert.equal(keys.length, 4); assert.deepEqual(record.observations, [false, false, false, false])
-  assert.equal(record.focusObservations.length, 4); assert.ok(record.focusObservations.every(row => row.active.tag === 'BODY'))
-  assert.deepEqual(saved.at(-1), [false, false, false, false], 'failed endpoint observations were persisted before assertion')
+    { async evaluate() { return { focused: false, active: { tag: 'BODY' }, controls: [] } } }, { record, save() { saved.push([...record.observations]) } }), /within five genuine Tab presses/)
+  assert.equal(keys.length, 5); assert.deepEqual(record.observations, [false, false, false, false, false])
+  assert.equal(record.focusObservations.length, 5); assert.ok(record.focusObservations.every(row => row.active.tag === 'BODY'))
+  assert.deepEqual(saved.at(-1), [false, false, false, false, false], 'failed endpoint observations were persisted before assertion')
   assert.equal(record.status, 'failed')
 })
 
@@ -651,7 +628,7 @@ test('loading focus diagnostics retain actual visible roster and ownership witho
   const root = { contains(node) { return roster.includes(node) }, querySelectorAll(selector) {
     assert.equal(selector, 'summary,button,[data-loading-recovery-scroll][tabindex="0"]'); return roster
   } }
-  Object.assign(globalThis, { document: { activeElement: cap }, getComputedStyle: () => ({ visibility: 'visible' }), innerWidth: 640, innerHeight: 480 })
+  Object.assign(globalThis, { document: { activeElement: cap, querySelector() { return null } }, getComputedStyle: () => ({ visibility: 'visible' }), innerWidth: 640, innerHeight: 480 })
   try {
     const observe = loadingCheckerExports().observeLoadingFocus
     let sample = observe(summary)
@@ -713,7 +690,7 @@ test('actual loading entry reuses readiness for captures and final resize withou
   assert.match(source, /setViewportSize\(\{ width: 640, height: 480 \}\)[\s\S]*?prepareLoadingTraversal\(page, button\(page\), \{ record: preparation, signal, deadlineAt, save \}\)[\s\S]*?keyboardTo\(failed\(page\)\.locator\('summary'\)\)/)
   assert.equal((source.match(/await retry\.focus\(/g) ?? []).length, 1)
   assert.equal((source.match(/await button\(page\)\.focus\(/g) ?? []).length, 0)
-  assert.match(source, /index < 4/)
+  assert.match(source, /index < 5/)
 })
 
 

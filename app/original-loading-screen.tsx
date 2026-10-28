@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { CheckpointScrollArea } from './checkpoint-scroll-area'
+import { captureLoadingFocus } from './loading-focus'
 import art from './original-loading-art.json' with { type: 'json' }
 import frontend from './original-frontend.json'
 
@@ -100,6 +101,10 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
       active = false
     }
   }, [phase])
+  useEffect(() => {
+    const root = screen.current
+    if (root) return captureLoadingFocus(document, root)
+  }, [])
   function requestRetry() {
     if (retried.current) return
     retried.current = true
@@ -203,19 +208,6 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
       aria-label={phase === 'failed' ? 'Browser loading recovery' : undefined}
       aria-modal={phase === 'failed' ? true : undefined}
       tabIndex={-1}
-      onKeyDown={event => {
-        if (event.key !== 'Tab') return
-        event.preventDefault()
-        if (phase !== 'failed') return
-        const controls = [
-          ...(screen.current?.querySelectorAll<HTMLElement>(
-            'summary,button,[data-loading-recovery-scroll][tabindex="0"]'
-          ) ?? []),
-        ].filter(node => node.getClientRects().length > 0 && getComputedStyle(node).visibility === 'visible')
-        const current = controls.indexOf(document.activeElement as HTMLElement)
-        const next = (current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length
-        controls[next]?.focus()
-      }}
     >
       <style>{loadingStyle}</style>
       <RecoveryFrame failed={phase === 'failed'}>{content}</RecoveryFrame>

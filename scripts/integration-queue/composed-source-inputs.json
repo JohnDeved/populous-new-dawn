@@ -166,6 +166,7 @@
   "app/live-settlement.ts",
   "app/live-vehicles.ts",
   "app/live-worship.ts",
+  "app/loading-focus.ts",
   "app/mana.ts",
   "app/marching-formations.ts",
   "app/melee-encounter.ts",

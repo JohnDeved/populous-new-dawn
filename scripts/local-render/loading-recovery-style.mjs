@@ -43,16 +43,20 @@ export function loadingScrollbarReady(viewport) {
 }
 
 export function observeLoadingFocus(target) {
-  const root = target.closest('[data-loading-phase="failed"]')
+  const host = document.querySelector('[data-fullscreen-control]')
+  const fullscreen = host && host.parentElement === document.body ? host.querySelector('button') : null
+  const root = target.closest('[data-loading-phase]') ??
+    (target === fullscreen ? document.querySelector('[data-loading-phase]') : null)
   const visible = node => node.getClientRects().length > 0 && getComputedStyle(node).visibility === 'visible'
   const describe = node => node ? {
     tag: node.tagName, id: node.id, role: node.getAttribute('role'),
     label: node.getAttribute('aria-label'), text: node.textContent?.trim().slice(0, 120),
     tabIndex: node.tabIndex, disabled: !!node.disabled, connected: node.isConnected,
-    owned: !!root?.contains(node), visible: visible(node),
+    owned: !!root?.contains(node) || node === fullscreen, visible: visible(node),
     cap: node.getAttribute('data-loading-scroll-cap'),
   } : null
-  const controls = [...(root?.querySelectorAll('summary,button,[data-loading-recovery-scroll][tabindex="0"]') ?? [])].filter(visible)
+  const controls = [...(root?.querySelectorAll('summary,button,[data-loading-recovery-scroll][tabindex="0"]') ?? []),
+    ...(root && fullscreen ? [fullscreen] : [])].filter(node => !node.disabled && visible(node))
   return {
     focused: target === document.activeElement,
     active: describe(document.activeElement), target: describe(target), controls: controls.map(describe),
@@ -91,7 +95,8 @@ export async function prepareLoadingTraversal(page, retry, { record = {}, signal
 }
 
 // Existing Retry/summary outcomes now include the optional real region and
-// two cap buttons. At most four genuine presses reach the opposite control;
+// two cap buttons and the body fullscreen portal. The six-control maximum
+// permits five genuine presses to any other control;
 // preserve the original strict locator/activeElement observation on every step.
 export async function tabToLoadingControl(page, target, { reverse = false, record = {}, signal, deadlineAt, save = () => {} } = {}) {
   const key = reverse ? 'Shift+Tab' : 'Tab'
@@ -101,7 +106,7 @@ export async function tabToLoadingControl(page, target, { reverse = false, recor
   }
   Object.assign(record, { key, presses: 0, observations: [], focusObservations: [], status: 'running' })
   try {
-    for (let index = 0; index < 4; index++) {
+    for (let index = 0; index < 5; index++) {
       live()
       record.pending = 'key'
       await page.keyboard.press(key)
@@ -117,7 +122,7 @@ export async function tabToLoadingControl(page, target, { reverse = false, recor
       save() // Retain each real observation before any endpoint assertion.
       if (focused) { record.status = 'passed'; return }
     }
-    assert.fail('Loading recovery target not reached within four genuine Tab presses')
+    assert.fail('Loading recovery target not reached within five genuine Tab presses')
   } catch (error) {
     record.status = 'failed'; record.error = String(error)
     throw error
@@ -253,8 +258,8 @@ export default async function ({ page, browser, url, output, signal, deadlineAt 
   const save = () => writeFileSync(resolve(output, 'loading-recovery-style.json'), JSON.stringify(report, null, 2) + '\n')
   const button = p => p.getByRole('button', { name: 'Try again', exact: true })
   const failed = p => p.getByRole('dialog', { name: 'Browser loading recovery', exact: true })
-  const keyboardTo = async (target, reverse = false) => {
-    const record = { viewport: page.viewportSize(), target: reverse ? 'retry' : 'summary' }
+  const keyboardTo = async (target, reverse = false, name = reverse ? 'retry' : 'summary') => {
+    const record = { viewport: page.viewportSize(), target: name }
     report.keyboardTraversal.push(record)
     await tabToLoadingControl(page, target, { reverse, record, signal, deadlineAt, save })
     save()
@@ -317,6 +322,10 @@ export default async function ({ page, browser, url, output, signal, deadlineAt 
     const mask = await page.locator('.loading-original-art').boundingBox()
     assert.deepEqual([mask.x, mask.y, mask.width, mask.height], [575, 319, 130, 161])
     await capture(page, 'pending-1280x800')
+    const fullscreen = page.locator('body > [data-fullscreen-control] button')
+    await keyboardTo(fullscreen, false, 'pending-fullscreen-forward')
+    await keyboardTo(fullscreen, true, 'pending-fullscreen-reverse')
+    assert.equal(await fullscreen.evaluate(node => node.matches(':focus-visible')), true)
     await failHeld()
     await failed(page).locator('.loading-recovery-text').first().waitFor()
     assert.equal(await button(page).locator('.loading-recovery-text').evaluate(node => node.getBoundingClientRect().width), 134)
@@ -331,6 +340,11 @@ export default async function ({ page, browser, url, output, signal, deadlineAt 
     await keyboardTo(button(page), true)
     await assertFont(button(page), 'fehi33we')
     await assertFont(summary, 'felo33we')
+    await keyboardTo(fullscreen, false, 'recovery-fullscreen-forward')
+    assert.equal(await fullscreen.evaluate(node => node.matches(':focus-visible')), true)
+    await keyboardTo(summary)
+    await keyboardTo(fullscreen, true, 'recovery-fullscreen-reverse')
+    await keyboardTo(button(page), true)
     await summary.hover()
     await assertFont(summary, 'fehi33we')
     await page.keyboard.press('Tab')
@@ -419,7 +433,7 @@ export default async function ({ page, browser, url, output, signal, deadlineAt 
     }
     assert.deepEqual(report.errors, [])
     report.status = 'passed'
-    report.limits = ['Controlled loader failures and font availability; no native failure-dialog claim', 'Loading keeps summary/Retry outcomes but adds the actual overflow region and decoded-art caps to its Tab trap; bounded real traversal includes those controls', 'No completed scene or full checkpoint continuation proof', 'No hardware performance or pixel-parity claim']
+    report.limits = ['Controlled loader failures and font availability; no native failure-dialog claim', 'Loading shares Tab ownership with its body fullscreen portal; bounded real traversal covers both directions, pending/failure transitions and overflow controls', 'No completed scene or full checkpoint continuation proof', 'No hardware performance or pixel-parity claim']
     return report
   } catch (error) {
     report.status = 'failed'
