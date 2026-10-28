@@ -924,10 +924,28 @@
         "app/follower-tasks-runtime.ts",
         "app/follower-tasks-view.tsx",
         "tests/follower-tasks.test.mjs",
-        "tests/follower-task-runtime.test.mjs"
+        "tests/follower-task-runtime.test.mjs",
+        "app",
+        "tests/support/follower-nearby-page.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "decomp/research/follower-task-panel/native-panel-contract.json",
+        "engineering/checks.json",
+        "scripts/prepare-scene-fixture.mjs",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "package-lock.json",
+        "public/original/world-selector/native/runtime.json",
+        "public/original/world-selector/text/provenance.json"
       ],
-      "prerequisites": [],
-      "sideEffects": [],
+      "prerequisites": [
+        "Maintained Node.js 24 toolchain with node:module registerHooks",
+        "Installed locked project dependencies, including TypeScript and Three.js"
+      ],
+      "sideEffects": [
+        "Registers process-local Node source hooks and evaluates extracted UI source against supplied leaves; no browser, server, network or source writes."
+      ],
       "resources": [],
       "expected": {
         "exitCode": 0,
@@ -946,7 +964,9 @@
         "non-mutating reads"
       ],
       "knownLimits": [
-        "Controlled state fixtures do not prove campaign acquisition or original UI painter order."
+        "Controlled state fixtures do not prove campaign acquisition or original UI painter order.",
+        "Source-extracted Home/Scene coverage uses controlled leaves, not rendered browser or natural mixed-tribe acquisition evidence.",
+        "Repository input fingerprints do not qualify installed dependencies or optional external precompiled fixture manifests/modules; those require separate exact runtime/input admission."
       ],
       "executable": "node",
       "args": [

@@ -104,11 +104,13 @@ export function selectFollowerTask(
   point: { x: number; y: number },
   mode: HudSelectionMode
 ) {
-  const people = hudTaskPeople(w),
+  const people = hudTaskPeople(w, false),
     byId = new Map(people.map(p => [p.id, p])),
+    owned = new Set(w.units.filter(u => u.team === 'blue').map(u => u.id)),
+    updated = new Set(people.filter(p => owned.has(p.id))),
     vehicles = new Map(w.vehicles.filter(v => v.active && v.passengerCount).map(v => [v.id, v]))
   const result = selectTaskFollowers(
-    people,
+    people.filter(p => owned.has(p.id)),
     model,
     category,
     point,
@@ -121,11 +123,16 @@ export function selectFollowerTask(
       if (!vehicle) return
       for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
         const passenger = byId.get(id)
-        if (passenger && passenger !== p) markPersonSelected(passenger, selected)
+        // Only primary acquisition is tribe-filtered. Native task commands
+        // propagate to every valid companion without changing unrelated owners.
+        if (passenger && passenger !== p) {
+          markPersonSelected(passenger, selected)
+          updated.add(passenger)
+        }
       }
     }
   )
-  for (const p of people)
+  for (const p of updated)
     if (p.source) {
       p.source.flags3 = p.flags3
       p.source.selectionFlags = p.selectionFlags
