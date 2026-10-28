@@ -8,6 +8,8 @@ import { acknowledgeMessage, addMessage, createMessages, messageHasDelete, messa
 import { showCampaignPopup } from '../app/campaign-popup-session.ts'
 import art from '../app/original-campaign-popup.json' with { type: 'json' }
 import result from '../app/original-result-ui.json' with { type: 'json' }
+import ts from 'typescript'
+import { pageSource, pageNode, evaluatePage } from './support/follower-nearby-page.mjs'
 
 const source = file => readFileSync(new URL(`../${file}`,import.meta.url),'utf8')
 const sha = data => createHash('sha256').update(data).digest('hex')
@@ -220,4 +222,133 @@ test('single native controller replaces bodies without acknowledgment, queue or 
   assert.equal(paused.paused,true)
   acknowledgeMessage(state,1);assert.equal(state.slots[1],null)
   assert.deepEqual(state.slots[0],oneShot.slots[0])
+})
+
+// Compose the actual Home style initializer with the complete shipped HUD frame
+// owner. Rendering boundaries are inert doubles; CSS cancellation is asserted as
+// arithmetic, not presented as a browser layout or native-pixel measurement.
+function popupMotionFixture(height) {
+  const screen = pageNode(node => ts.isVariableDeclaration(node) && node.name.getText(pageSource) === 'messageScreenY'),
+    screenY = evaluatePage(screen.initializer.getText(pageSource), {}),
+    details = pageNode(node => ts.isJsxElement(node) && node.openingElement.tagName.getText(pageSource) === 'details' &&
+      node.openingElement.attributes.properties.some(attribute => attribute.name?.getText(pageSource) === 'data-message-serial')),
+    styleExpression = details.openingElement.attributes.properties.find(attribute => attribute.name?.getText(pageSource) === 'style').initializer.expression,
+    messages = createMessages()
+  addMessage(messages, 641, () => 0)
+  addMessage(messages, 644, () => 0)
+  messages.slots[0].position = 0x2000
+  messages.slots[1].position = 0x9000
+  const makeStyle = initial => ({ ...initial,
+    setProperty(name, value) { this[name] = value },
+    getPropertyValue(name) { return this[name] ?? '' },
+  })
+  const elements = messages.slots.filter(Boolean).map((message, index) => ({
+    dataset: { messageSerial: String(message.serial) }, open: index === 0,
+    style: makeStyle(evaluatePage(styleExpression.getText(pageSource), {
+      top: screenY(message.position, height), height: screenY(message.height, height),
+    })),
+    attributes: new Set(),
+    setAttribute(name) { this.attributes.add(name) },
+    removeAttribute(name) { this.attributes.delete(name) },
+  }))
+  const stale = { ...elements[1], dataset: { messageSerial: '999' },
+    style: makeStyle({ top: '19px', '--message-top': '19px' }), attributes: new Set() }
+  const shell = {
+    style: makeStyle({}),
+    querySelectorAll(selector) {
+      assert.equal(selector, '.campaign-messages details[data-message-serial]')
+      return [...elements, stale]
+    },
+  }
+  const hud = ts.createSourceFile('scene-hud-runtime.ts', source('app/scene-hud-runtime.ts'), ts.ScriptTarget.Latest, true),
+    names = ['messageScreenY', 'syncCampaignMessagePresentation', 'updateHudFrame'],
+    bodies = names.map(name => {
+      const declarations = hud.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
+      assert.equal(declarations.length, 1, `one actual ${name} owner`)
+      return declarations[0].getText(hud).replace(/^export\s+/, '')
+    }).join('\n'),
+    noop = () => {},
+    calls = { publications: 0, minimap: 0, worship: 0 },
+    updateHud = evaluatePage(`function(){${bodies}; return updateHudFrame}`, {
+      window: { innerHeight: height }, publishTooltipStatus: noop,
+      texture: () => ({ image: {} }), populationMeter: () => ({ color: 0 }),
+      nativeHud: { colors: ['black'] }, nativeUnits: { atlas: 'unused' },
+      drawPortrait: noop, portraitBackground: noop, isShaman: () => false, maxHp: () => 1,
+      requestAnimationFrame: () => assert.fail('message synchronization must not create another RAF'),
+    })(),
+    scene = {
+      world: { messages, units: [] }, container: { parentElement: shell },
+      unitMeshes: new Map(), portrait: { parentElement: null },
+      gameClock: { animationFrame: 0 }, view: { config: {} },
+      objectPanels: { update: noop }, worshipPresentation: { draw: () => calls.worship++ },
+      drawPointer: noop, renderBuildingPanels: noop, drawMinimap: () => calls.minimap++,
+      onChange: () => calls.publications++, uiTimer: 0, disposed: false,
+    }
+  return { messages, elements, stale, calls, scene, screenY,
+    frame: (dt = 1 / 60) => updateHud(scene, 0, dt) }
+}
+
+test('actual HUD frame keeps moving open and closed notification offsets paired before React publication', () => {
+  const css = source('app/original-campaign-popup.module.css')
+  assert.match(css, /\.viewport\s*\{[^}]*position:\s*absolute;[^}]*top:\s*calc\(-1 \* var\(--message-top, 0px\)\)/)
+  for (const height of [360, 480, 1000]) {
+    const f = popupMotionFixture(height),
+      layouts = f.messages.slots.filter(Boolean).map(message =>
+        fitCampaignPopup(messageText(message.stringId), 540, height, 640, 1, ['OK', 'Delete']))
+    for (const [first, second] of [[0x3000, 0x8000], [0xe000, 0x1000], [-0x0800, 0xa000], [0x4000, 0x7000]]) {
+      f.messages.slots[0].position = first
+      f.messages.slots[1].position = second
+      const before = structuredClone(f.messages)
+      f.frame()
+      for (const [index, element] of f.elements.entries()) {
+        const expectedTop = f.screenY(f.messages.slots[index].position, height),
+          layout = layouts[index],
+          compensation = Number.parseFloat(element.style.getPropertyValue('--message-top'))
+        assert.equal(element.style.top, `${expectedTop}px`)
+        assert.equal(compensation, expectedTop, 'popup compensation follows the same frame sample, without React')
+        assert.equal(Number.parseFloat(element.style.top) - compensation + layout.y, layout.y,
+          'viewport-relative panel origin stays fixed under the shipped CSS cancellation')
+        for (const button of layout.buttons)
+          assert.equal(Number.parseFloat(element.style.top) - compensation + layout.y + button.y * layout.scale,
+            layout.y + button.y * layout.scale, 'action offsets do not inherit strip motion')
+        assert.equal(element.attributes.has('data-lower'), expectedTop > Math.trunc(height / 2),
+          'legacy lower-half marker retains its existing threshold')
+      }
+      assert.deepEqual(f.messages, before, 'HUD synchronization cannot mutate queue, motion, flags or lifetime')
+      assert.deepEqual(f.elements.map(element => element.open), [true, false], 'never change popup ownership')
+      assert.equal(f.stale.style.top, '19px', 'an unmatched mounted serial is not assigned another message')
+      assert.equal(f.stale.style.getPropertyValue('--message-top'), '19px')
+      assert.equal(f.calls.publications, 0, 'do not fix compensation by publishing React every frame')
+    }
+    assert.deepEqual([f.calls.minimap, f.calls.worship], [4, 4], 'retain the remaining frame work')
+    f.frame(0.2)
+    assert.equal(f.calls.publications, 1, 'existing slower publisher still fires at its threshold')
+    assert.equal(f.scene.uiTimer, 0)
+    f.frame()
+    assert.equal(f.calls.publications, 1, 'no additional notification-driven publication')
+  }
+})
+
+test('actual message rebound keeps the open popup compensated without changing its pending-open signal', () => {
+  const f = popupMotionFixture(480), message = f.messages.slots[0]
+  // Supplied rebound boundary, not a natural campaign/browser acquisition claim.
+  message.position = 0xf000
+  message.speed = 0x3000
+  message.flags |= 0x20000
+  const positions = [message.position]
+  for (let frame = 0; frame < 3; frame++) {
+    stepMessages(f.messages)
+    positions.push(message.position)
+    const before = structuredClone(f.messages)
+    f.frame()
+    const top = f.elements[0].style.top
+    assert.equal(f.elements[0].style.getPropertyValue('--message-top'), top)
+    assert.deepEqual(f.messages, before, 'presentation writer preserves the actual motion owner result')
+    assert.equal(f.elements[0].open, true)
+    assert.equal(f.calls.publications, 0)
+  }
+  assert.ok(positions[1] > positions[0], 'first presentation reaches its lower collision')
+  assert.ok(positions[2] < positions[1], 'the following presentation rebounds upward')
+  assert.equal(message.flags & 0x20000, 0, 'native pending-open consumption remains owned by stepMessages')
+  assert.equal(message.flags & 2, 2, 'HUD binding must not acknowledge or clear the draw signal')
 })

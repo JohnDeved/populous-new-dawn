@@ -33,6 +33,8 @@ function syncCampaignMessagePresentation(scene: GameScene) {
     if (!message) continue
     const top = messageScreenY(message.position, height)
     element.style.top = `${top}px`
+    // The viewport-fixed popup cancels this moving notification offset.
+    element.style.setProperty('--message-top', `${top}px`)
     if (top > lowerBoundary) element.setAttribute('data-lower', '')
     else element.removeAttribute('data-lower')
   }
