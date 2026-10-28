@@ -3,6 +3,7 @@ import test from 'node:test'
 import { FpsGraph } from '../app/fps-graph.ts'
 import { FramePerformance } from '../app/frame-performance.ts'
 import { createPointerFrameMetrics } from '../app/pointer-frame-metrics.ts'
+import { capturePointerInteraction } from '../app/pointer-interaction-context.ts'
 
 function fixture() {
   const writes = []
@@ -20,7 +21,8 @@ function fixture() {
     cleared: false, previous: null, samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
       'render', 'calls', 'heap', 'export-status', 'renderer', 'cores', 'memory', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak',
-      'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'].map(name => [name, sink(name)])),
+      'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation',
+      'pick-route', 'pick-pointer-change', 'pick-view-change'].map(name => [name, sink(name)])),
     line: sink('line'), budget: sink('budget'),
   })
   const update = now => graph.update(now, 1, 2, 3, 'Live', 4)
@@ -254,4 +256,105 @@ test('actual picking toggle preserves native activation, isolates game input and
       assert.equal(event.defaultPrevented, false, 'wheel/Home/End scrolling remains native')
     }
   }
+})
+
+test('live context preserves every recorded route and distinguishes false, null and absent context', () => {
+  const { graph } = fixture(), metrics = createPointerFrameMetrics(true)
+  const update = (now, detail = metrics) => graph.update(now, 0, 0, 0, 'Live', 0, 0, detail)
+  const values = () => ['pick-route', 'pick-pointer-change', 'pick-view-change'].map(name => graph.fields[name].textContent)
+  graph.reset()
+  update(0)
+  let now = 0
+  for (const [route, moved, changed, expected] of [
+    ['world', true, false, ['World', 'Yes', 'No']],
+    ['hud', false, true, ['HUD', 'No', 'Yes']],
+    ['outside', null, false, ['Outside', 'Unknown', 'No']],
+    ['unknown', false, null, ['Unknown', 'No', 'Unknown']],
+  ]) {
+    Object.assign(metrics.interaction, { route, pointerMoved: moved, viewChanged: changed })
+    update(now += 250)
+    assert.deepEqual(values(), expected)
+  }
+  update(now += 250, createPointerFrameMetrics())
+  assert.deepEqual(values(), ['Unknown', 'Unknown', 'Unknown'], 'absent optional context is not a known negative')
+})
+
+test('live context uses the latest accepted publication sample without early or rejected-sample writes', () => {
+  const { graph, writes } = fixture(), metrics = createPointerFrameMetrics(true)
+  const update = now => graph.update(now, 0, 0, 0, 'Live', 0, 0, metrics)
+  graph.reset()
+  update(0)
+  Object.assign(metrics.interaction, { route: 'world', pointerMoved: false, viewChanged: true })
+  for (let i = 1; i <= 24; i++) update(i * 10)
+  for (const name of ['pick-route', 'pick-pointer-change', 'pick-view-change'])
+    assert.equal(graph.fields[name].textContent, '--', 'no early context publication')
+  Object.assign(metrics.interaction, { route: 'hud', pointerMoved: true, viewChanged: false })
+  update(250)
+  assert.equal(graph.fields['pick-route'].textContent, 'HUD', 'latest sample, not the route occupying most of the window')
+  assert.equal(graph.fields['pick-pointer-change'].textContent, 'Yes')
+  assert.equal(graph.fields['pick-view-change'].textContent, 'No')
+  writes.length = 0
+  Object.assign(metrics.interaction, { route: 'world', pointerMoved: false, viewChanged: true })
+  update(260)
+  assert.deepEqual(writes, [], 'unpublished context does not touch the DOM')
+  const count = graph.samples.count
+  metrics.interaction.pointerMoved = 'invalid'
+  update(500)
+  assert.equal(graph.samples.count, count, 'invalid context rejects the entire sample')
+  assert.deepEqual(writes, [], 'rejected context cannot publish')
+  metrics.interaction.pointerMoved = false
+  update(750)
+  assert.equal(graph.fields['pick-route'].textContent, 'World')
+  assert.equal(graph.fields['pick-pointer-change'].textContent, 'No')
+  assert.equal(graph.fields['pick-view-change'].textContent, 'Yes')
+})
+
+test('captured context resets its baseline with the graph epoch and never revives stale readouts', () => {
+  const { graph } = fixture(), metrics = createPointerFrameMetrics(true)
+  const viewInputs = Array(12).fill(0)
+  const capture = x => capturePointerInteraction(metrics.interaction, graph.interactionRecording,
+    { clientX: x, clientY: 20 }, viewInputs, 'world')
+  const update = now => graph.update(now, 0, 0, 0, 'Live', 0, 0, metrics)
+  graph.reset()
+  const firstEpoch = graph.interactionRecording
+  update(0)
+  capture(10); update(250)
+  assert.equal(graph.fields['pick-route'].textContent, 'World')
+  assert.equal(graph.fields['pick-pointer-change'].textContent, 'Unknown')
+  assert.equal(graph.fields['pick-view-change'].textContent, 'Unknown')
+  viewInputs[8] = 1
+  capture(11); update(500)
+  assert.equal(graph.fields['pick-pointer-change'].textContent, 'Yes')
+  assert.equal(graph.fields['pick-view-change'].textContent, 'Yes')
+  graph.reset('Hidden tab · sampling stopped')
+  assert.notEqual(graph.interactionRecording, firstEpoch)
+  for (const name of ['pick-route', 'pick-pointer-change', 'pick-view-change'])
+    assert.equal(graph.fields[name].textContent, '--')
+  capture(11); update(10000)
+  assert.equal(graph.fields['pick-route'].textContent, '--', 'warmup cannot revive old context')
+  update(10250)
+  assert.equal(graph.fields['pick-route'].textContent, 'World')
+  assert.equal(graph.fields['pick-pointer-change'].textContent, 'Unknown', 'new recording does not inherit the previous pointer baseline')
+  assert.equal(graph.fields['pick-view-change'].textContent, 'Unknown')
+})
+
+test('live context remains optional and explicitly covered by the existing rendered metric inventory', async () => {
+  const { readFileSync } = await import('node:fs')
+  const { pickingPathMetricIds, pickingPathViewports } = await import('../scripts/tutorial-browser/picking-path-readout.mjs')
+  const source = readFileSync(new URL('../app/fps-graph.ts', import.meta.url), 'utf8')
+  const shared = readFileSync(new URL('../scripts/tutorial-browser/picking-path-readout.mjs', import.meta.url), 'utf8')
+  const optional = source.match(/<section class="fps-picking"[^>]*hidden>[\s\S]*?<\/section>/)?.[0]
+  assert.ok(optional)
+  assert.deepEqual([...optional.matchAll(/data-metric="([^"]+)"/g)].map(match => match[1]), pickingPathMetricIds)
+  for (const name of ['pick-route', 'pick-pointer-change', 'pick-view-change']) {
+    assert.ok(pickingPathMetricIds.includes(name))
+    assert.ok(optional.includes(`data-metric="${name}">--`))
+    assert.ok(!source.replace(optional, '').includes(`data-metric="${name}"`), 'collapsed layout has no extra context rows')
+  }
+  assert.match(optional, /Latest accepted sample at publication/)
+  assert.match(optional, /prior recorded pointer sample, which need not have been accepted/)
+  assert.match(optional, /not camera motion alone/)
+  assert.match(shared, /for \(const name of pickingPathCounterIds\)/, 'all prior numeric assertions remain')
+  assert.match(shared, /pickingContextMetricIds\.map\(name =>/, 'all context rows participate in existing reachability checks')
+  assert.deepEqual(pickingPathViewports, [[640, 480], [1280, 799], [1280, 800], [1280, 801], [1280, 820]])
 })
