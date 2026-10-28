@@ -58,7 +58,8 @@
       "coveredBehavior": [
         "Exact candidate/infrastructure identities, dependency export resolution, cleanup and bounded episode accounting",
         "Effective sound pending state and focus/world/popup ownership rejection controls",
-        "Finite, visible pending pointer targets owned by the sound control or its artwork"
+        "Finite, visible pending pointer targets owned by the sound control or its artwork",
+        "Owned pause tracing accounts intermediate and exported bytes, retains first failure and bounds stop observation before genuine context close; synthetic tests do not qualify browser flush."
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -67,7 +68,8 @@
       "executable": "node",
       "args": [
         "--test",
-        "tests/native-ui-evidence.test.mjs"
+        "tests/native-ui-evidence.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -76,7 +78,8 @@
         "tests/native-ui-evidence.test.mjs",
         ".github/workflows/native-ui-evidence.yml",
         "engineering/native-ui-evidence.md",
-        "tests/native-ui-pause-acceptance.test.mjs"
+        "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -94,7 +97,8 @@
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
-        "tests/native-ui-pause-acceptance.test.mjs"
+        "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
