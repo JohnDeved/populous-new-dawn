@@ -1,15 +1,7 @@
-import { openCampaignFromMainMenu } from './browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
-
-async function click(page,name) {
-  if(['Back','All missions','Campaign worlds','Tutorial','Load Game'].includes(name)) {
-    const controls=page.getByRole('button',{name:'Browser controls',exact:true})
-    if(await controls.count() && await controls.getAttribute('aria-expanded')==='false') await controls.click()
-  }
-  await button(page,name).click()
-}
 
 const sceneSelector = 'canvas[data-world-scene="true"]'
 const button = (page, name) => page.getByRole('button', {name, exact:true})
@@ -136,7 +128,8 @@ async function backing(page) {
   })
   return scene(page).evaluate(c=>{
     const box=c.getBoundingClientRect()
-    return {width:c.width,height:c.height,cssWidth:box.width,cssHeight:box.height,dpr:devicePixelRatio,pointerEvents:getComputedStyle(c).pointerEvents,tabIndex:c.tabIndex}
+    const panel=document.querySelector('[aria-label="Campaign status panel"]').getBoundingClientRect()
+    return {width:c.width,height:c.height,cssWidth:box.width,cssHeight:box.height,panel:{x:panel.x,y:panel.y,width:panel.width,height:panel.height},dpr:devicePixelRatio,pointerEvents:getComputedStyle(c).pointerEvents,tabIndex:c.tabIndex}
   })
 }
 
@@ -154,10 +147,107 @@ async function settle(page,mission,output) {
   return state
 }
 
+// Optional renderer/lifecycle episodes use a declared diagnostic profile, not
+// earned progress. Never apply it to a persistent harness profile or overwrite
+// unrelated saved data. Canonical failureEpisode continues to use fresh progress.
+export function selectorInspectionProfile(completed = false) {
+  assert.equal(typeof completed, 'boolean')
+  return {version:1, completed:completed ? [1,2] : [], nativeCampaign:{
+    version:1, history:'legacy-completed-only',
+    flags:Array.from({length:25},(_,i)=>i<3 ? 4+(completed&&i<2 ? 1 : 0) : 0),
+  }}
+}
+
+export async function installSelectorInspectionProfile(page, completed = false) {
+  const profile=selectorInspectionProfile(completed)
+  const expected=completed ? selectorInspectionProfile(false) : undefined
+  await waitForStartupMenu(page)
+  const committed=await page.evaluate(async({profile,expected})=>{
+    const canonical=value=>JSON.stringify(value, function(_key,item) {
+      return item && typeof item==='object' && !Array.isArray(item)
+        ? Object.fromEntries(Object.keys(item).sort().map(key=>[key,item[key]])) : item
+    })
+    const database=await new Promise((resolve,reject)=>{
+      const request=indexedDB.open('populous-new-dawn',1)
+      request.onsuccess=()=>resolve(request.result)
+      request.onerror=()=>reject(request.error)
+    })
+    try {
+      await new Promise((resolve,reject)=>{
+        const transaction=database.transaction('checkpoints','readwrite')
+        const store=transaction.objectStore('checkpoints'), request=store.get('profile')
+        let failure
+        request.onsuccess=()=>{
+          if(canonical(request.result)!==canonical(expected)) {
+            failure=new Error('Selector fixture refuses unexpected existing campaign profile')
+            transaction.abort()
+          } else store.put(profile,'profile')
+        }
+        transaction.oncomplete=resolve
+        transaction.onerror=()=>reject(failure??transaction.error)
+        transaction.onabort=()=>reject(failure??transaction.error??new Error('Selector fixture aborted'))
+      })
+      return await new Promise((resolve,reject)=>{
+        const transaction=database.transaction('checkpoints','readonly')
+        const request=transaction.objectStore('checkpoints').get('profile')
+        let value
+        request.onsuccess=()=>{value=request.result}
+        transaction.oncomplete=()=>canonical(value)===canonical(profile)
+          ? resolve(value) : reject(new Error('Selector fixture committed readback differs'))
+        transaction.onerror=()=>reject(transaction.error)
+        transaction.onabort=()=>reject(transaction.error??new Error('Selector fixture readback aborted'))
+      })
+    } finally {database.close()}
+  },{profile,expected})
+  assert.deepEqual(committed,profile)
+  await page.reload({waitUntil:'domcontentloaded'})
+  return {kind:'explicit-isolated-campaign-profile-fixture',profile:committed,
+    naturallyEarned:false,priorProfile:expected??null}
+}
+
+export function assertSelectorSceneGeometry(sample, viewport) {
+  const scale=Math.min(viewport.width/640,viewport.height/480)
+  assert.ok(Number.isFinite(scale)&&scale>0)
+  const close=(actual,expected,label)=>{
+    assert.ok(Number.isFinite(actual)&&Math.abs(actual-expected)<=.75,
+      `${label}: ${actual} != ${expected}`)
+  }
+  // The canvas fills the width; native art is uniformly scaled inside it.
+  // A wide canvas is intentionally NOT constrained to a 4:3 aspect ratio.
+  close(sample.cssWidth,viewport.width,'canvas width')
+  close(sample.cssHeight,480*scale,'canvas height')
+  close(sample.panel.x,(viewport.width-638*scale)/2,'panel x')
+  close(sample.panel.y,viewport.height-61*scale,'panel y')
+  close(sample.panel.width,638*scale,'panel width')
+  close(sample.panel.height,61*scale,'panel height')
+}
+
 export default async function renderEpisode({page,context,output,receipt}) {
-  await observe(page); await open(page); await ready(page)
+  assert.equal(receipt.profile,undefined,'Diagnostic selector fixtures require an ephemeral harness profile')
+  await observe(page)
+  const fixtures=[await installSelectorInspectionProfile(page)]
+  save(output,'scene-profile-fixtures.json',fixtures)
+  await open(page); await ready(page)
   await selected(page,24,24)
   await page.setViewportSize({width:800,height:600})
+  // The inspection fixture unlocks only 1–3. Preserve genuine locked-world
+  // rejection using Mission4 instead of expecting an unavailable world to select.
+  const locked=select(page,4)
+  assert.equal(await locked.isDisabled(),true)
+  const hit=await locked.evaluate(node=>{
+    const box=node.getBoundingClientRect(), x=box.x+box.width/2, y=box.y+box.height/2
+    const target=document.elementFromPoint(x,y)
+    return {x,y,width:box.width,height:box.height,viewportWidth:innerWidth,viewportHeight:innerHeight,
+      owned:target===node || (target!==null && node.contains(target))}
+  })
+  assert.ok(['x','y','width','height','viewportWidth','viewportHeight'].every(key=>Number.isFinite(hit[key])))
+  assert.ok(hit.width>0&&hit.height>0&&hit.x>=0&&hit.y>=0&&hit.x<hit.viewportWidth&&hit.y<hit.viewportHeight)
+  assert.equal(hit.owned,true)
+  await page.mouse.click(hit.x,hit.y)
+  assert.equal(await locked.getAttribute('aria-pressed'),'false')
+  await selected(page,24,24)
+  assert.equal(await button(page,'Start Mission 1').isEnabled(),true)
+  assert.equal(await page.locator('.world-viewport canvas').count(),0)
   await page.screenshot({path:resolve(output,'scene-mission1-initial.png')})
   const settled=[await settle(page,1,output)]
   await select(page,2).click();await selected(page,23,24)
@@ -174,12 +264,12 @@ export default async function renderEpisode({page,context,output,receipt}) {
   for (const [width,height] of [[640,480],[1920,1080],[3440,1440],[390,844]]) {
     await page.setViewportSize({width,height})
     const sample=await backing(page)
-    assert.ok(Math.abs(sample.cssWidth/sample.cssHeight-4/3)<.01)
+    assertSelectorSceneGeometry(sample,{width,height})
     assert.equal(sample.pointerEvents,'none'); assert.equal(sample.tabIndex,-1)
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false)
     // Actual clicks below also test that the scene never captures control input.
     await select(page,2).click(); await selected(page,23,24)
-    assert.equal(await button(page,'Start Mission 2').isDisabled(),true)
+    assert.equal(await button(page,'Start Mission 2').isEnabled(),true)
     await select(page,1).click(); await selected(page,24,24)
     samples.push({viewport:[width,height],...sample})
     await page.screenshot({path:resolve(output,`scene-${width}x${height}.png`)})
@@ -204,50 +294,66 @@ export default async function renderEpisode({page,context,output,receipt}) {
       samples.push({viewport:[width,height],...sample})
     }
   } finally { await cdp.send('Emulation.clearDeviceMetricsOverride'); await cdp.detach() }
-  // Exercise progression independently from selection through the existing persisted profile schema.
-  await page.evaluate(async()=>{
-    const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
-    try { await new Promise((resolve,reject)=>{const tx=db.transaction('checkpoints','readwrite');tx.objectStore('checkpoints').put({version:1,completed:[1,2]},'profile');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)}) } finally { db.close() }
-  })
   const initialObservation=await observation(page)
   save(output,'scene-initial-observation.json',initialObservation)
   assert.ok(initialObservation.callbacks.length>5)
   const measured=initialObservation.callbacks.slice(5).sort((a,b)=>a-b)
   const cpuSummary={warmupCallbacksDiscarded:5,samples:measured.length,p95:measured[Math.floor((measured.length-1)*.95)],max:Math.max(...measured),workload:'viewport/selection/DPR transitions, geometry/pixel observers disabled'}
   save(output,'scene-cpu-summary.json',cpuSummary)
-  await page.reload({waitUntil:'domcontentloaded'}); await open(page); await ready(page)
+  await page.keyboard.press('Escape'); await noSceneWork(page)
+  fixtures.push(await installSelectorInspectionProfile(page,true))
+  save(output,'scene-profile-fixtures.json',fixtures)
+  await open(page); await ready(page)
   await selected(page,22,22)
   await select(page,1).click(); await selected(page,24,22)
   assert.equal(await button(page,'Replay Mission 1').isEnabled(),true)
   await page.screenshot({path:resolve(output,'scene-replay-anchor.png')})
   assert.deepEqual(receipt.errors,[])
   save(output,'scene-backing.json',samples)
-  return {checks:['shared retained scene across rapid selection','moving elapsed state','selected/progression body independence','responsive 4:3 scene and control clicks','DPR2/4 and 4096 backing cap','replay availability'],samples,settled,cpuSummary,callbackCpuMs:initialObservation.callbacks,limits}
+  return {checks:['shared retained scene across rapid selection','moving elapsed state','selected/progression body independence','full-width scene with uniformly scaled native panel and real selectable control clicks','DPR2/4 and 4096 backing cap','replay availability','real locked Mission4 pointer rejection'],samples,settled,cpuSummary,fixtures,callbackCpuMs:initialObservation.callbacks,limits}
 }
 
 export async function lifecycleEpisode({page,output,receipt}) {
+  assert.equal(receipt.profile,undefined,'Diagnostic selector fixtures require an ephemeral harness profile')
   await observe(page)
-  for(const exit of ['Back','Escape','All missions']) {
-    await open(page); await ready(page)
-    await select(page,3).click(); await selected(page,22,24)
-    if(exit==='Escape') await page.keyboard.press('Escape')
-    else await click(page,exit)
-    await noSceneWork(page)
-    if(exit==='All missions') {
-      assert.equal(await page.getByRole('button',{name:/^Mission \d+(, completed)?$/}).count(),23)
-      await click(page,'Campaign worlds'); await ready(page); await selected(page,22,24)
-      await click(page,'Back'); await noSceneWork(page)
-    }
-    // Escaped selector has no document-wide arrow handler stealing main-menu input.
+  const fixture=await installSelectorInspectionProfile(page)
+  save(output,'scene-profile-fixtures.json',[fixture])
+  // Native selector dismissal is Escape. Reentry recomputes its recommendation;
+  // selection persistence is asserted only while the same selector remains mounted.
+  for(const mission of [3,2]) {
+    await open(page); await ready(page); await selected(page,24,24)
+    await select(page,mission).click(); await selected(page,25-mission,24)
+    await page.keyboard.press('Escape'); await noSceneWork(page)
     await button(page,'New Game').focus(); await page.keyboard.press('ArrowDown')
     assert.equal(await button(page,'Tutorial').evaluate(b=>b===document.activeElement),true)
   }
-  // Separate pending-load episodes: newer selection on the same owner, then unmount.
+  // The 23 direct-access controls moved to the public F8 diagnostic overlay.
+  // Unlike the removed All-missions view, this overlay retains the selector.
+  for(const exit of ['Back','Escape']) {
+    await open(page); await ready(page)
+    await select(page,3).click(); await selected(page,22,24)
+    const original=await scene(page).elementHandle()
+    await page.keyboard.press('F8')
+    const debug=page.getByRole('dialog',{name:'Debug missions',exact:true})
+    await debug.waitFor({state:'visible'})
+    assert.equal(await debug.getByRole('button',{name:/^Mission \d+$/}).count(),23)
+    assert.equal(await page.locator('.world-viewport canvas').count(),0)
+    if(exit==='Back') await debug.getByRole('button',{name:'Back',exact:true}).click()
+    else await page.keyboard.press('Escape')
+    await debug.waitFor({state:'detached'})
+    await selected(page,22,24)
+    assert.equal(await original.evaluate(c=>c===document.querySelector('canvas[data-world-scene]')),true)
+    assert.equal(await button(page,'Start Mission 3').isEnabled(),true)
+    assert.equal(await page.locator('.world-viewport canvas').count(),0)
+    await page.keyboard.press('Escape'); await noSceneWork(page)
+  }
+  // Separate pending-load episodes: newer selection on the same owner, then
+  // native dismissal and fresh public reentry. No forced clicks or fake events.
   for (const replace of [false,true]) {
     let release, arrived
     const arrivedPromise=new Promise(resolve=>{arrived=resolve})
     const releasePromise=new Promise(resolve=>{release=resolve})
-    const pattern='**/original/world-selector/globes/mission-2.png'
+    const pattern=/\/original\/world-selector\/globes\/mission-2\.png(?:\?[^#]*)?$/
     await page.route(pattern,async route=>{arrived();await releasePromise;await route.continue().catch(()=>{})})
     let timeout
     try {
@@ -256,19 +362,22 @@ export async function lifecycleEpisode({page,output,receipt}) {
       clearTimeout(timeout)
       await select(page,3).click()
       const old=await scene(page).elementHandle()
-      if (replace) { await click(page,'All missions'); await noSceneWork(page) }
+      if (replace) { await page.keyboard.press('Escape'); await noSceneWork(page) }
       release(); await page.unroute(pattern)
-      if (replace) await click(page,'Campaign worlds')
+      if (replace) {
+        await open(page); await ready(page); await selected(page,24,24)
+        await select(page,3).click()
+      }
       await ready(page); await selected(page,22,24)
       assert.equal(await old.evaluate(c=>c.isConnected),!replace)
       if (replace) assert.equal(await old.evaluate(c=>c.dataset.ready),undefined)
       assert.ok((await observation(page)).records.every(r=>r.detachedDraws===0))
     } finally {clearTimeout(timeout);release();await page.unroute(pattern)}
-    await click(page,'Back'); await noSceneWork(page)
+    await page.keyboard.press('Escape'); await noSceneWork(page)
   }
   const observed=await observation(page);save(output,'scene-lifecycle.json',observed)
   assert.deepEqual(receipt.errors,[])
-  return {checks:['Back/Escape/All missions cleanup','23 direct-access controls','remount retains selected mission within selector','main-menu keyboard ownership after dismissal','pending texture uses newest selection','pending texture cancellation and no detached draws'],observed,limits}
+  return {checks:['native Escape cleanup and fresh recommendation on reentry','23 public F8 diagnostic controls with Back/Escape and no gameplay launch','same selector/selection retained across diagnostic overlay','main-menu keyboard ownership after dismissal','pending texture uses newest selection','pending texture cancellation and no detached draws'],fixture,observed,limits}
 }
 
 // The shipped native selector rejects locked worlds instead of selecting them
