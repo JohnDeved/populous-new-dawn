@@ -57,7 +57,10 @@ function fixture(phase = 'failed') {
   doc.removeEventListener = (type, listener, capture) => {
     const index = listeners.findIndex(row => row.type === type && row.listener === listener && row.capture === capture)
     if (index >= 0) listeners.splice(index, 1)
-    nativeRemove(type, listener, capture)
+    // Node 24.22.1's EventTarget removal reads an options object, unlike the DOM's
+    // boolean overload. Normalize only this stand-in boundary; production still
+    // supplies and is checked against its exact capture argument above.
+    nativeRemove(type, listener, typeof capture === 'boolean' ? { capture } : capture)
   }
   const release = captureLoadingFocus(doc, root)
   function key(key = 'Tab', options = {}) {
