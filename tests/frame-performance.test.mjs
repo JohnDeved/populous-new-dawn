@@ -145,7 +145,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   let gpuCalls = 0
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
-    resetPointerFrameMetrics, createResultClock, advanceResultClock,
+    resetPointerFrameMetrics, createResultClock, advanceResultClock, sceneTextureRevision: () => 0,
     performance: { now() { reads++; return clock } },
     document: { hidden, querySelector() { return null } }, devicePixelRatio: 1,
     requestAnimationFrame() { events.push('schedule'); clock += 1; return 42 },
@@ -158,6 +158,7 @@ ${body} })()`), context)
     view: { painter: new Painter({}) },
     pointerFrameMetrics: createPointerFrameMetrics(),
     isCurrent: () => current, previous: 0, modalSuspended: modal,
+    modalRenderVersion: 0, modalRenderedVersion: -1, modalTextureVersion: -1,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
     fpsGraph: enabled ? { renderGpu(draw) { gpuCalls++; return draw() }, update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null

@@ -141,11 +141,17 @@ export class FpsGraph {
     this.budget = this.element.querySelector('.fps-budget')!
   }
 
+  // Service earlier submissions on callbacks that do not submit a new draw.
+  // No frame token is reserved: results retain their original frame ownership.
+  pollGpu() {
+    if (!this.disposed) this.gpuTimer?.poll()
+  }
+
   renderGpu(draw: () => void) {
     if (this.disposed || this.gpuRendering) return draw()
     this.gpuRendering = true
     try {
-      this.gpuTimer?.poll()
+      this.pollGpu()
       const token = this.samples.reserveGpuFrame()
       this.gpuFrame = { token, timing: { status: 'pending' } }
       if (!('createQuery' in this.gl)) {
