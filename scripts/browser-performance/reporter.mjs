@@ -28,6 +28,28 @@ const harnessPaths = ['scripts/browser-performance/protocol.mjs', 'scripts/brows
 const positive = number => Number.isSafeInteger(number) && number > 0
 const digest = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value)
 const prefix = `/repos/${repository}`
+// Event metadata links a reporter log to its trigger, not to an admitted
+// API-current attempt or verified execution base. Fixed fields stay below 512 B.
+export function reporterTriggerReceipt(event) {
+  const run = event?.workflow_run
+  const association = Array.isArray(run?.pull_requests) && run.pull_requests.length === 1
+    ? run.pull_requests[0] : null
+  return {
+    kind: 'populous-browser-performance-trigger', version: 1,
+    reporterRepository: repository, provenance: 'workflow-run-event', admission: 'not-established',
+    eventRunId: positive(run?.id) ? run.id : null,
+    eventRunAttempt: positive(run?.run_attempt) ? run.run_attempt : null,
+    eventHeadSha: digest(run?.head_sha) && run.head_sha.length === 40 ? run.head_sha : null,
+    eventPrNumber: positive(association?.number) ? association.number : null,
+  }
+}
+export function emitReporterTrigger(event, write = line => console.log(line)) {
+  const line = JSON.stringify(reporterTriggerReceipt(event))
+  try { write(line) } catch {
+    // Best effort only: a synchronous diagnostic failure must not change the
+    // reporter outcome. Missing output establishes no attribution or admission.
+  }
+}
 export async function reportRun({ api, download, runId, expectedPrNumber, trustedWorkflow, publishSummary = () => {}, protocolVersion = 1, trustedProtocol = protocolVersion === 2 ? snapshot.protocolHash() : protocolHash(gameplayFramePlan) }) {
   assert.ok(protocolVersion === 1 || protocolVersion === 2, 'Only trusted explicitly selected protocols')
   const protocol = protocolVersion === 2 ? snapshot : { shards, parseReport, compareReports }
@@ -166,6 +188,7 @@ export async function main() {
   assert.equal(process.env.GITHUB_REPOSITORY, repository)
   const token = process.env.GITHUB_TOKEN; assert.ok(token, 'Comment token required in trusted job only')
   const event = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8'))
+  emitReporterTrigger(event)
   const api = async (path, { method = 'GET', body } = {}) => {
     assert.ok(path.startsWith(`${prefix}/`))
     const response = await fetch(`https://api.github.com${path}`, { method, redirect: 'error',
