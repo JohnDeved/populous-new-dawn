@@ -1,5 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import vm from 'node:vm'
 import { assertFullscreenClearance } from '../scripts/local-render/fullscreen-clearance.mjs'
 import { restorePausePreferenceWrite } from '../scripts/local-render/original-pause-checkpoint-style.mjs'
 
@@ -49,4 +51,48 @@ test('noninteractive Options labels and rows have the same strict collision cont
     sample.occupied.push({label,x:20,y:12,right:300,bottom:40})
     assert.throws(() => assertFullscreenClearance(sample), /must clear/)
   }
+})
+
+
+test('preference restore preserves explicit nonstandard primaries even when diagnostics cannot be attached', async () => {
+  const unprintable = { toString() { throw Error('diagnostic coercion failed') } }
+  const hostile = Object.defineProperty({}, 'preferenceRestoreError', { set() { throw Error('annotation rejected') } })
+  for (const primary of [undefined, null, false, 0, -0, NaN, '', 'primary', 0n, Symbol('primary'),
+    Object.freeze(Error('frozen')), Object.preventExtensions(Error('nonextensible')), hostile]) {
+    for (const cleanup of [Error('restore failed'), unprintable])
+      await assert.doesNotReject(restorePausePreferenceWrite({ evaluate: async () => { throw cleanup } }, primary))
+  }
+  await assert.rejects(restorePausePreferenceWrite({ evaluate: async () => { throw unprintable } }),
+    error => error === unprintable, 'omitting the primary still rejects the actual cleanup value')
+})
+
+test('actual Options finally distinguishes no primary from every caught value and restores once', async () => {
+  const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
+  const start = source.indexOf('      let optionsError')
+  const end = source.indexOf("      await phase('input', () => button('Back').click(), 'back-from-options')", start)
+  assert.ok(start >= 0 && end > start)
+  const body = source.slice(start, end)
+  assert.match(body, /finally \{ await phase\(\x27cleanup\x27, \(\) => restorePausePreferenceWrite/)
+  const primaries = [undefined, null, false, 0, -0, NaN, '', 'primary', 0n, Symbol('primary'),
+    Object.freeze(Error('frozen')), Object.preventExtensions(Error('nonextensible'))]
+  for (const actionFails of [false, true]) for (const restoreFails of [false, true])
+    for (const primary of actionFails ? primaries : [undefined]) {
+      const cleanup = Error('restore failed'); let actions = 0, restores = 0
+      const page = {
+        locator: () => ({ click: async () => { actions++; if (actionFails) throw primary } }),
+        setViewportSize: async () => {},
+        evaluate: async () => { restores++; if (restoreFails) throw cleanup },
+      }
+      const run = vm.runInNewContext(`(async () => { ${body} })`, {
+        page, modal: { getByRole: () => ({ filter: () => ({ waitFor: async () => {} }) }) },
+        button: () => ({ click: async () => {} }), fullscreenClearance: async () => {},
+        fallback: false, screenshots: [], restorePausePreferenceWrite,
+        phase: (_stage, operation) => operation(), labelCase: () => {}, diagnostics: { fail: () => {} },
+      })
+      const outcome = await run().then(() => ({ failed: false }), error => ({ failed: true, error }))
+      assert.equal(actions, 1); assert.equal(restores, 1)
+      assert.equal(outcome.failed, actionFails || restoreFails)
+      if (outcome.failed) assert.ok(Object.is(outcome.error, actionFails ? primary : cleanup),
+        'the real finally never replaces a caught value or swallows cleanup-only failure')
+    }
 })

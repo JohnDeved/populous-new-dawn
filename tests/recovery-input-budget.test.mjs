@@ -407,7 +407,7 @@ test('pause-style caller explicitly opts in only with an outer deadline and pers
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
   assert.match(source, /receipt\.pauseStyleInputBudgets = inputBudgets/)
   assert.match(source, /Number\.isFinite\(deadlineAt\)\s*\? \{ setupTimeout: 25000, deadlineAt, signal, trace, popupRetryPreparation: true \} : \{ signal, trace \}/)
-  assert.match(source, /finally \{ writePauseInputBudgets\(output, inputBudgets, inputError\) \}/)
+  assert.match(source, /finally \{ writePauseInputBudgets\(output, inputBudgets, \.\.\.\(inputFailed \? \[inputError\] : \[\]\)\) \}/)
   assert.doesNotMatch(source, /deadlineAt:\s*Date\.now/)
 })
 
@@ -416,7 +416,7 @@ test('actual pause-style input persistence keeps original error identity and rej
   const root = mkdtempSync(join(tmpdir(), 'pnd-pause-input-budget-'))
   t.after(() => rmSync(root, { recursive: true, force: true }))
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
-  const match = source.match(/let inputError\s+try \{\s+await skipPauseIntroduction\(page, Number\.isFinite\(deadlineAt\)[\s\S]+?finally \{ writePauseInputBudgets\(output, inputBudgets, inputError\) \}/)
+  const match = source.match(/let inputError, inputFailed = false\s+try \{\s+await skipPauseIntroduction\(page, Number\.isFinite\(deadlineAt\)[\s\S]+?finally \{ writePauseInputBudgets\(output, inputBudgets, \.\.\.\(inputFailed \? \[inputError\] : \[\]\)\) \}/)
   assert.ok(match)
   for (const inputFails of [false, true]) for (const writeFails of [false, true]) {
     const inputError = Error('original Space uncertainty'), trace = {}, inputBudgets = [trace]
@@ -608,4 +608,46 @@ for (const contract of ['v2', 'v1', 'shared-input-v1']) test(`${contract} does n
   assert.equal(attempt.delivery.completed.findLast(item => item.phase === 'finalize-space-witness').status, 'fulfilled',
     'The real late RPC settlement remains in the raw delivery trace')
   assert.ok(f.calls.includes(contract === 'shared-input-v1' ? 'cleanup-witness' : 'cleanup-witness-and-native'))
+})
+
+
+test('actual input-budget finally preserves arbitrary thrown values across write failure and both deadline modes', async t => {
+  const root = mkdtempSync(join(tmpdir(), 'pnd-pause-primary-values-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
+  const match = source.match(/let inputError, inputFailed = false\s+try \{\s+await skipPauseIntroduction\(page, Number\.isFinite\(deadlineAt\)[\s\S]+?finally \{ writePauseInputBudgets\(output, inputBudgets, \.\.\.\(inputFailed \? \[inputError\] : \[\]\)\) \}/)
+  assert.ok(match)
+  // Execute only the actual input try/catch/finally, inside the unchanged diagnostic phase.
+  const block = match[0]
+  assert.match(block, /finally \{ writePauseInputBudgets/)
+  for (const primary of [undefined, null, false, 0, -0, NaN, '', 'primary', 0n, Symbol('primary'),
+    Object.freeze(Error('frozen')), Object.preventExtensions(Error('nonextensible'))])
+    for (const writeFails of [false, true]) for (const deadlineAt of [90000, undefined]) {
+      const trace = {}, inputBudgets = [trace], output = writeFails ? join(root, 'missing') : root
+      let inputs = 0
+      const signal = {}, run = vm.runInNewContext(`(async () => { ${block} })`, {
+        page: {}, trace, inputBudgets, output, deadlineAt, signal, writePauseInputBudgets,
+        skipPauseIntroduction: async (_page, options) => {
+          inputs++; assert.equal(options.trace, trace); assert.equal(options.signal, signal)
+          assert.equal(options.setupTimeout, Number.isFinite(deadlineAt) ? 25000 : undefined)
+          assert.equal(options.deadlineAt, deadlineAt)
+          trace.phase = 'original-failure'; throw primary
+        },
+      })
+      const outcome = await run().then(() => ({ failed: false }), error => ({ failed: true, error }))
+      assert.equal(inputs, 1); assert.equal(outcome.failed, true); assert.ok(Object.is(outcome.error, primary))
+      if (!writeFails) assert.deepEqual(JSON.parse(readFileSync(join(output, 'pause-style-input-budgets.json'), 'utf8')), inputBudgets)
+    }
+})
+
+test('input-budget diagnostic coercion and annotation cannot mask an existing primary', () => {
+  const unprintable = { toString() { throw Error('diagnostic coercion failed') } }
+  const hostile = Object.defineProperty({}, 'traceWriteError', { set() { throw Error('annotation rejected') } })
+  // JSON serialization fails before the filesystem call; this is a diagnostic-boundary fixture.
+  for (const secondary of [Error('serialization failed'), unprintable]) {
+    const budgets = { toJSON() { throw secondary } }
+    for (const primary of [undefined, null, false, 0, '', Symbol('primary'), Object.freeze(Error('frozen')), hostile])
+      assert.doesNotThrow(() => writePauseInputBudgets('unused-output', budgets, primary))
+    assert.throws(() => writePauseInputBudgets('unused-output', budgets), error => error === secondary)
+  }
 })

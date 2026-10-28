@@ -40,20 +40,21 @@ export async function reachPauseKeyboardFocus(page, target, signal, phase = (_st
   }
 }
 
-// A cleanup RPC must not hide the assertion/timeout that caused the failure.
-export async function restorePausePreferenceWrite(page, primaryError) {
+// Argument presence, not truthiness, identifies an existing thrown value.
+// Best-effort annotation must not replace it, even for undefined or frozen errors.
+export async function restorePausePreferenceWrite(page, ...primaryErrors) {
   try { await page.evaluate(() => window.restorePausePreferenceWrite()) }
   catch (error) {
-    if (!primaryError) throw error
-    primaryError.preferenceRestoreError = String(error)
+    if (!primaryErrors.length) throw error
+    try { primaryErrors[0].preferenceRestoreError = String(error) } catch {}
   }
 }
 
-export function writePauseInputBudgets(output, inputBudgets, primaryError) {
+export function writePauseInputBudgets(output, inputBudgets, ...primaryErrors) {
   try { writeFileSync(resolve(output, 'pause-style-input-budgets.json'), JSON.stringify(inputBudgets, null, 2) + '\n') }
   catch (error) {
-    if (!primaryError) throw error
-    primaryError.traceWriteError = String(error)
+    if (!primaryErrors.length) throw error
+    try { primaryErrors[0].traceWriteError = String(error) } catch {}
   }
 }
 
@@ -124,12 +125,12 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
       if (action === 'skip') {
         const trace = { fallback }; inputBudgets.push(trace)
         diagnostics.begin('input', 'skip-introduction')
-        let inputError
+        let inputError, inputFailed = false
         try {
           await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
             ? { setupTimeout: 25000, deadlineAt, signal, trace, popupRetryPreparation: true } : { signal, trace })
-        } catch (error) { inputError = error; throw error }
-        finally { writePauseInputBudgets(output, inputBudgets, inputError) }
+        } catch (error) { inputFailed = true; inputError = error; throw error }
+        finally { writePauseInputBudgets(output, inputBudgets, ...(inputFailed ? [inputError] : [])) }
         diagnostics.end()
       }
       await phase('readiness', () => page.waitForFunction(() => !window.testStore.getWorld().inputMask))
@@ -153,7 +154,7 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
           return set.call(this, key, value)
         }
       }))
-      let optionsError
+      let optionsError, optionsFailed = false
       try {
         await phase('input', () => page.locator('[data-option-key="rotation"]').click(), 'toggle-rotation')
         await phase('readiness', () => modal.getByRole('status').filter({ hasText: 'browser storage is unavailable' }).waitFor())
@@ -171,8 +172,8 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
             }
           }
         }
-      } catch (error) { diagnostics.fail('rejected'); optionsError = error; throw error }
-      finally { await phase('cleanup', () => restorePausePreferenceWrite(page, optionsError)) }
+      } catch (error) { diagnostics.fail('rejected'); optionsFailed = true; optionsError = error; throw error }
+      finally { await phase('cleanup', () => restorePausePreferenceWrite(page, ...(optionsFailed ? [optionsError] : []))) }
       await phase('input', () => button('Back').click(), 'back-from-options')
       labelCase('checkpoint-setup')
       await phase('input', () => button('Save Game').click(), 'open-save')
