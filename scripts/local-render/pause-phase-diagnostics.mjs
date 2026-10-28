@@ -7,14 +7,30 @@ const stages = ['setup', 'navigation', 'input', 'readiness', 'viewport', 'frame'
   'focus-observation', 'focus-tab', 'hud', 'fullscreen-observation', 'assertions',
   'body-observation', 'screenshot', 'world-capture', 'world-compare', 'cleanup', 'coverage']
 
+// Fixed call-site identities, not arbitrary keys or a per-event log. Distinguish
+// heterogeneous input/observation costs without adding browser observations.
+export const pauseOperationStages = Object.freeze({
+  'start-mission': 'input', 'dismiss-desktop-notice': 'input', 'skip-introduction': 'input',
+  'open-menu': 'input', 'open-options': 'input', 'toggle-rotation': 'input',
+  'select-options-category': 'input', 'back-from-options': 'input', 'open-save': 'input',
+  'save-checkpoint': 'input', 'back-from-save': 'input', 'open-load': 'input',
+  'focus-home': 'input', 'key-home': 'input', 'focus-end': 'input', 'key-end': 'input',
+  'back-from-load': 'input', 'continue-game': 'input',
+  'has-checkpoint': 'body-observation', 'initial-checkpoint-layout': 'body-observation',
+  'scrolled-panel-owner': 'body-observation', 'scrolled-checkpoint-layout': 'body-observation',
+  'load-button-focus': 'body-observation', 'world-paused': 'body-observation',
+})
+
 export async function recordPausePhases({ receipt, signal, output, mode }, action,
   { now = () => performance.now(), write = writeFileSync } = {}) {
   const started = now()
   const elapsed = () => Math.max(0, now() - started)
   const state = {
-    version: 'pause-phase-diagnostics-v1', mode, status: 'running', case: 'setup',
+    version: 'pause-phase-diagnostics-v2', mode, status: 'running', case: 'setup',
     sequence: 0, active: null, lastSettled: null, failure: null, finishedMs: null,
     totals: Object.fromEntries(stages.map(stage => [stage, { count: 0, elapsedMs: 0 }])),
+    operationTotals: Object.fromEntries(Object.keys(pauseOperationStages).map(name =>
+      [name, { count: 0, elapsedMs: 0, longest: null }])),
   }
   receipt.pauseStylePhases = state
   const fail = kind => {
@@ -33,11 +49,13 @@ export async function recordPausePhases({ receipt, signal, output, mode }, actio
   if (signal.aborted) abort()
   const trace = {
     setCase(label) { state.case = label.slice(0, 128) },
-    begin(stage) {
+    begin(stage, operation = null) {
       if (!Object.hasOwn(state.totals, stage)) throw new Error('Unknown pause diagnostic stage')
+      if (operation !== null && (!Object.hasOwn(pauseOperationStages, operation) || pauseOperationStages[operation] !== stage))
+        throw new Error('Unknown or mismatched pause operation')
       if (state.active) throw new Error('Overlapping pause diagnostic stages')
       const phase = { sequence: ++state.sequence, case: state.case, stage,
-        startedMs: elapsed(), status: 'pending' }
+        startedMs: elapsed(), status: 'pending', ...(operation === null ? {} : { operation }) }
       state.active = phase
       return phase
     },
@@ -47,11 +65,22 @@ export async function recordPausePhases({ receipt, signal, output, mode }, actio
       settled.elapsedMs = Math.max(0, settled.finishedMs - settled.startedMs)
       state.totals[phase.stage].count++
       state.totals[phase.stage].elapsedMs += settled.elapsedMs
+      if (phase.operation) {
+        const total = state.operationTotals[phase.operation]
+        total.count++
+        total.elapsedMs += settled.elapsedMs
+        // Include rejected settlements and retain their outcome. Ties keep the
+        // first maximum; late settlement cannot alter the frozen first failure.
+        if (!total.longest || settled.elapsedMs > total.longest.elapsedMs)
+          total.longest = Object.freeze({ case: phase.case, sequence: phase.sequence,
+            startedMs: phase.startedMs, finishedMs: settled.finishedMs,
+            elapsedMs: settled.elapsedMs, status })
+      }
       state.active = null
       state.lastSettled = settled
     },
-    async wait(stage, operation) {
-      const phase = trace.begin(stage)
+    async wait(stage, operation, name = null) {
+      const phase = trace.begin(stage, name)
       try {
         const value = await operation()
         trace.end(phase)
@@ -71,8 +100,9 @@ export async function recordPausePhases({ receipt, signal, output, mode }, actio
     signal.removeEventListener('abort', abort)
     state.finishedMs = elapsed()
     if (!state.failure) state.status = 'completed'
-    // The payload is bounded by fixed stage totals and three phase snapshots,
-    // not an event log. The first failure snapshot survives cleanup/late awaits.
+    // Fixed stage/call-site totals, one maximum per call-site and three phase
+    // snapshots bound the payload; never retain a per-event history. The first
+    // failure snapshot survives cleanup/late awaits.
     receipt.pauseStylePhaseWrite = 'attempted'
     try {
       write(resolve(output, 'pause-style-phases.json'), JSON.stringify(state, null, 2) + '\n')

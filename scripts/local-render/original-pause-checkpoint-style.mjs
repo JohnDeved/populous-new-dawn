@@ -114,16 +114,16 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
       }
       await phase('navigation', () => page.goto(url, { waitUntil: 'domcontentloaded' }))
       await phase('navigation', () => openCampaignFromMainMenu(page))
-      await phase('input', () => button('Start Mission 1').click())
+      await phase('input', () => button('Start Mission 1').click(), 'start-mission')
       await phase('setup', () => bindGame(page))
       const desktop = page.getByRole('button', { name: 'Continue anyway', exact: false })
-      if (await phase('readiness', () => desktop.isVisible())) await phase('input', () => desktop.click())
+      if (await phase('readiness', () => desktop.isVisible())) await phase('input', () => desktop.click(), 'dismiss-desktop-notice')
       const startup = await phase('readiness', () => page.waitForFunction(pauseStartupReady))
       const action = await phase('readiness', () => startup.jsonValue())
       await phase('cleanup', () => startup.dispose())
       if (action === 'skip') {
         const trace = { fallback }; inputBudgets.push(trace)
-        diagnostics.begin('input')
+        diagnostics.begin('input', 'skip-introduction')
         let inputError
         try {
           await skipPauseIntroduction(page, Number.isFinite(deadlineAt)
@@ -134,14 +134,14 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
       }
       await phase('readiness', () => page.waitForFunction(() => !window.testStore.getWorld().inputMask))
       await phase('readiness', () => page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'unavailable'))
-      await phase('input', () => button('Menu').click())
+      await phase('input', () => button('Menu').click(), 'open-menu')
       for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
         labelCase(`root-${width}x${height}`)
         await phase('viewport', () => page.setViewportSize({ width, height }))
         await fullscreenClearance(`root-${width}x${height}`)
       }
       labelCase('options-setup')
-      await phase('input', () => button('Options').click())
+      await phase('input', () => button('Options').click(), 'open-options')
       // Same ordinary Game-options storage boundary as the reported overlap;
       // neither font availability nor preference/world state is forged.
       await phase('setup', () => page.evaluate(() => {
@@ -155,10 +155,11 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
       }))
       let optionsError
       try {
-        await phase('input', () => page.locator('[data-option-key="rotation"]').click())
+        await phase('input', () => page.locator('[data-option-key="rotation"]').click(), 'toggle-rotation')
         await phase('readiness', () => modal.getByRole('status').filter({ hasText: 'browser storage is unavailable' }).waitFor())
         for (const category of ['Game', 'Sound', 'Graphics']) {
-          if (category !== 'Game') await phase('input', () => button(category).click())
+          if (category !== 'Game') labelCase(`options-${category}-setup`)
+          if (category !== 'Game') await phase('input', () => button(category).click(), 'select-options-category')
           for (const [width, height] of [[320, 240], [640, 480], [800, 450], [1920, 1080]]) {
             labelCase(`options-${category}-${width}x${height}`)
             await phase('viewport', () => page.setViewportSize({ width, height }))
@@ -172,12 +173,12 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
         }
       } catch (error) { diagnostics.fail('rejected'); optionsError = error; throw error }
       finally { await phase('cleanup', () => restorePausePreferenceWrite(page, optionsError)) }
-      await phase('input', () => button('Back').click())
+      await phase('input', () => button('Back').click(), 'back-from-options')
       labelCase('checkpoint-setup')
-      await phase('input', () => button('Save Game').click())
-      await phase('input', () => button('Save checkpoint').click())
+      await phase('input', () => button('Save Game').click(), 'open-save')
+      await phase('input', () => button('Save checkpoint').click(), 'save-checkpoint')
       await phase('readiness', () => modal.getByRole('status').filter({ hasText: 'Checkpoint saved for this session only; browser storage is unavailable.' }).waitFor())
-      assert.equal(await phase('body-observation', () => page.evaluate(() => window.testStore.hasCheckpoint())), true)
+      assert.equal(await phase('body-observation', () => page.evaluate(() => window.testStore.hasCheckpoint()), 'has-checkpoint'), true)
       if (fallback) assert.ok(blockedFontRequests > 0)
       const frozen = await phase('world-capture', () => capturePauseWorld(page))
       let worldError, worldFailed = false
@@ -185,8 +186,8 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
       for (const panel of ['save', 'load']) {
         labelCase(`${panel}-setup`)
         if (panel === 'load') {
-          await phase('input', () => button('Back').click())
-          await phase('input', () => button('Load Game').click())
+          await phase('input', () => button('Back').click(), 'back-from-save')
+          await phase('input', () => button('Load Game').click(), 'open-load')
         }
         for (const [width, height] of [[320, 240], [640, 480], [1920, 1080], [800, 450]]) {
           signal.throwIfAborted()
@@ -194,8 +195,8 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
           await phase('viewport', () => page.setViewportSize({ width, height }))
           await phase('frame', () => waitForPauseFrame(page))
           const details = modal.locator('[aria-label="Checkpoint details"]')
-          await phase('input', () => details.focus())
-          await phase('input', () => page.keyboard.press('Home'))
+          await phase('input', () => details.focus(), 'focus-home')
+          await phase('input', () => page.keyboard.press('Home'), 'key-home')
           await phase('readiness', () => page.waitForFunction(() => {
             const dialog = document.querySelector('dialog[data-original-pause-menu][open]')
             const nodes = dialog?.querySelectorAll('[aria-label="Checkpoint details"]')
@@ -204,7 +205,7 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
             return node.scrollTop === 0 && node.parentElement.getAttribute('data-scroll-art') ===
               String(node.scrollHeight > node.clientHeight)
           }))
-          const layout = await phase('body-observation', () => modal.evaluate(observeCheckpointLayout))
+          const layout = await phase('body-observation', () => modal.evaluate(observeCheckpointLayout), 'initial-checkpoint-layout')
           records.push({ viewport: { width, height }, fallback, blockedFontRequests, ...layout })
           writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
           diagnostics.begin('assertions')
@@ -254,8 +255,8 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
             screenshots.push(`${name}.png`)
           }
           if (layout.body.overflow) {
-            await phase('input', () => details.focus())
-            await phase('input', () => page.keyboard.press('End'))
+            await phase('input', () => details.focus(), 'focus-end')
+            await phase('input', () => page.keyboard.press('End'), 'key-end')
             await phase('readiness', () => page.waitForFunction(() => {
               const dialog = document.querySelector('dialog[data-original-pause-menu][open]')
               const nodes = dialog?.querySelectorAll('[aria-label="Checkpoint details"]')
@@ -263,10 +264,10 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
               const body = nodes[0]
               return body.scrollTop > 0 && body.scrollTop + body.clientHeight >= body.scrollHeight - 1
             }))
-            assert.equal(await phase('body-observation', () => modal.getAttribute('data-panel')), panel)
+            assert.equal(await phase('body-observation', () => modal.getAttribute('data-panel'), 'scrolled-panel-owner'), panel)
             // Extend the existing focus-observation RPC, not the case/capture or
             // World-oracle schedule. Retain actual End geometry before assertions.
-            const scrolled = await phase('body-observation', () => details.evaluate(observeCheckpointLayout))
+            const scrolled = await phase('body-observation', () => details.evaluate(observeCheckpointLayout), 'scrolled-checkpoint-layout')
             records.at(-1).scrolled = scrolled
             writeFileSync(resolve(output, 'checkpoint-style-progress.json'), JSON.stringify({ records, screenshots }, null, 2))
             diagnostics.begin('assertions')
@@ -286,11 +287,11 @@ async function runPauseStyle({ browser, page, url, root, output, receipt, signal
       }
       } catch (error) { diagnostics.fail('rejected'); worldFailed = true; worldError = error; throw error }
       finally { await phase('cleanup', () => disposePauseWorld(frozen, ...(worldFailed ? [worldError] : []))) }
-      await phase('input', () => button('Back').click())
+      await phase('input', () => button('Back').click(), 'back-from-load')
       labelCase('return-to-game')
-      assert.equal(await phase('body-observation', () => button('Load Game').evaluate(node => node === document.activeElement)), true)
-      await phase('input', () => button('Continue Game').click())
-      assert.equal(await phase('body-observation', () => page.evaluate(() => window.testStore.getWorld().paused)), false)
+      assert.equal(await phase('body-observation', () => button('Load Game').evaluate(node => node === document.activeElement), 'load-button-focus'), true)
+      await phase('input', () => button('Continue Game').click(), 'continue-game')
+      assert.equal(await phase('body-observation', () => page.evaluate(() => window.testStore.getWorld().paused), 'world-paused'), false)
     } catch (error) { diagnostics.fail('rejected'); contextFailed = true; throw error }
     finally { await phase('cleanup', () => closePauseStyleContext(context, contextFailed, receipt)) }
   })

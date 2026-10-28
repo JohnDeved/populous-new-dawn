@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { recordPausePhases } from '../scripts/local-render/pause-phase-diagnostics.mjs'
+import { recordPausePhases, pauseOperationStages } from '../scripts/local-render/pause-phase-diagnostics.mjs'
 import { reachPauseKeyboardFocus } from '../scripts/local-render/original-pause-checkpoint-style.mjs'
 
 function fixture() {
@@ -139,7 +139,9 @@ test('bounded summaries keep no per-operation history and cap case labels', asyn
   assert.equal(state.sequence, 1000)
   assert.equal(state.totals['focus-tab'].count, 1000)
   assert.equal(Object.keys(state.totals).length, 17)
-  assert.ok(f.writes[0].data.length < 4096)
+  // V2 adds 24 fixed call-site totals; the saturated escaped-label case below
+  // verifies the same 32-KiB bound, rather than relying on this sparse example.
+  assert.ok(Buffer.byteLength(f.writes[0].data) < 32 * 1024)
   assert.equal(f.writes.length, 1)
 })
 
@@ -239,4 +241,112 @@ test('native UI checker registers diagnostic implementation, complete regression
     assert.ok(check.triggerPaths.includes(path), `${path} triggers the checker`)
   }
   assert.equal(check.args.filter(arg => arg === testPath).length, 1)
+})
+
+test('fixed operation tags distinguish cumulative cost and preserve the longest case/outcome', async () => {
+  const f = fixture()
+  await f.run(async trace => {
+    trace.setCase('fallback:save-640x480')
+    await trace.wait('input', () => {
+      assert.equal(f.receipt.pauseStylePhases.active.operation, 'focus-home')
+      f.tick(2)
+    }, 'focus-home')
+    trace.setCase('fallback:load-1920x1080')
+    await trace.wait('input', () => { f.tick(8) }, 'focus-home')
+    await trace.wait('input', () => { f.tick(1) }, 'key-home')
+  })
+  const { operationTotals, totals } = f.receipt.pauseStylePhases
+  assert.equal(totals.input.count, 3)
+  assert.equal(totals.input.elapsedMs, 11)
+  assert.equal(operationTotals['focus-home'].count, 2)
+  assert.equal(operationTotals['focus-home'].elapsedMs, 10)
+  assert.deepEqual(operationTotals['focus-home'].longest, {
+    case: 'fallback:load-1920x1080', sequence: 2, startedMs: 2, finishedMs: 10,
+    elapsedMs: 8, status: 'fulfilled',
+  })
+  assert.equal(operationTotals['key-home'].elapsedMs, 1)
+  assert.equal(operationTotals['key-end'].count, 0)
+})
+
+test('operation maxima include rejected outcomes, ties retain first case, and failures stay primary', async () => {
+  const f = fixture(), primary = Object.freeze(new Error('original input error'))
+  await assert.rejects(f.run(async trace => {
+    trace.setCase('first')
+    try { await trace.wait('input', () => { f.tick(3); throw primary }, 'open-menu') }
+    finally {
+      trace.setCase('tie')
+      await trace.wait('input', () => { f.tick(3) }, 'open-menu')
+    }
+  }), error => error === primary)
+  const state = f.receipt.pauseStylePhases, total = state.operationTotals['open-menu']
+  assert.equal(total.count, 2)
+  assert.equal(total.elapsedMs, 6)
+  assert.equal(total.longest.case, 'first')
+  assert.equal(total.longest.status, 'rejected')
+  assert.ok(Object.isFrozen(total.longest))
+  assert.equal(state.failure.phase.operation, 'open-menu')
+  assert.equal(state.failure.phase.case, 'first')
+})
+
+test('abort retains the exact pending operation despite later settlement and cleanup', async () => {
+  const f = fixture()
+  let release
+  const run = f.run(async trace => {
+    await trace.wait('body-observation', () => new Promise(resolve => { release = resolve }), 'initial-checkpoint-layout')
+    await trace.wait('cleanup', () => {})
+  })
+  f.tick(10); f.controller.abort()
+  const snapshot = f.receipt.pauseStylePhases.failure
+  assert.equal(snapshot.phase.operation, 'initial-checkpoint-layout')
+  assert.equal(snapshot.phase.status, 'pending')
+  f.tick(2); release()
+  await run
+  assert.equal(f.receipt.pauseStylePhases.failure, snapshot)
+  assert.equal(snapshot.phase.status, 'pending')
+  const settled = f.receipt.pauseStylePhases.operationTotals['initial-checkpoint-layout']
+  assert.equal(settled.count, 1)
+  assert.equal(settled.elapsedMs, 12)
+  assert.equal(f.receipt.pauseStylePhases.status, 'aborted')
+})
+
+test('unknown or cross-stage operation tags reject before the operation and never grow the table', async () => {
+  for (const [stage, name] of [['input', '__proto__'], ['input', 'new-dynamic-key'], ['cleanup', 'open-menu']]) {
+    const f = fixture(); let called = false
+    await assert.rejects(f.run(trace => trace.wait(stage, () => { called = true }, name)), /Unknown or mismatched/)
+    assert.equal(called, false)
+    assert.deepEqual(Object.keys(f.receipt.pauseStylePhases.operationTotals), Object.keys(pauseOperationStages))
+  }
+})
+
+test('all call-site maxima with worst escaped case labels stay fixed-size with no per-event history', async () => {
+  const f = fixture()
+  await f.run(async trace => {
+    trace.setCase('\0'.repeat(500))
+    for (const [name, stage] of Object.entries(pauseOperationStages))
+      for (let i = 0; i < 20; i++) await trace.wait(stage, () => { f.tick(1) }, name)
+  })
+  const state = f.receipt.pauseStylePhases
+  assert.equal(state.version, 'pause-phase-diagnostics-v2')
+  assert.equal(Object.keys(state.operationTotals).length, 24)
+  assert.equal(state.sequence, 480)
+  for (const total of Object.values(state.operationTotals)) {
+    assert.equal(total.count, 20)
+    assert.equal(total.elapsedMs, 20)
+    assert.equal(total.longest.case.length, 128)
+  }
+  assert.equal(f.writes.length, 1)
+  assert.ok(Buffer.byteLength(f.writes[0].data) < 32 * 1024)
+})
+
+test('every actual input/body-observation call site has exactly one fixed compatible operation tag', () => {
+  const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-style.mjs', import.meta.url), 'utf8')
+  const sites = [...source.matchAll(/(?:phase|diagnostics\.begin)\('(input|body-observation)'([^\n]*)/g)]
+  const observed = []
+  for (const [, stage, line] of sites) {
+    const names = Object.keys(pauseOperationStages).filter(name => line.includes(`, '${name}')`))
+    assert.equal(names.length, 1, `one call-site tag: ${line}`)
+    assert.equal(pauseOperationStages[names[0]], stage)
+    observed.push(names[0])
+  }
+  assert.deepEqual(observed.sort(), Object.keys(pauseOperationStages).sort())
 })
