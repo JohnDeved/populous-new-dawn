@@ -11,7 +11,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     'Actual production Home and renderer through test host; existing native friendly people relocated to supplied authored-shrine slots; not natural prayer acquisition',
     'Panel opening and slot/follower setup supplied; single/group selection and right-click focus use actual browser pointer input',
     'Retained stale DOM callbacks use synthetic event dispatch after supplied identity/overview/disposal boundaries and actual store replacement; not trusted stale user input',
-    'Focus/sound observers delegate actual consumers and are restored; no production hooks, native pixel parity, deployment or performance claim',
+    'Focus/sound/change observers delegate actual consumers and are restored; no production hooks, native pixel parity, deployment or performance claim',
   ] }
   let page, failure
   const screenshot = async name => {
@@ -46,7 +46,9 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     await page.mouse.move(10, 10)
     report.setup = await page.evaluate(() => {
       const h = window.worshipLifecycle = window.__pndWorshipPanelFixture.prepare(window.testSceneRef.current)
-      return { shrine: h.head.id, people: h.units.map(u => u.id), expectedFocus: { x: h.units[0].x, z: h.units[0].z } }
+      const gl = h.scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+      return { shrine: h.head.id, people: h.units.map(u => u.id), expectedFocus: { x: h.units[0].x, z: h.units[0].z },
+        renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER) }
     })
     const panel = page.locator('.worship-panel:not([hidden])'), person = panel.locator(`button[data-person="${report.setup.people[0]}"]`)
     await person.waitFor({ state: 'visible' }); await person.focus()
@@ -64,9 +66,10 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     await page.evaluate(() => {
       const h = window.worshipLifecycle
       h.button = h.scene.objectPanels.panels.get(h.head.id).element.querySelector(`button[data-person="${h.units[0].id}"]`)
-      h.focusOriginal = h.scene.focus; h.soundOriginal = h.scene.onSound; h.events = []
+      h.focusOriginal = h.scene.focus; h.soundOriginal = h.scene.onSound; h.changeOriginal = h.scene.onChange; h.events = []
       h.scene.focus = function (...args) { h.events.push(['focus', ...args]); return h.focusOriginal.apply(this, args) }
       h.scene.onSound = function (...args) { h.events.push(['sound', ...args]); return h.soundOriginal.apply(this, args) }
+      h.scene.onChange = function (...args) { h.events.push(['change']); return h.changeOriginal.apply(this, args) }
     })
     await person.click({ button: 'right' })
     report.focus = await page.evaluate(() => {
@@ -79,7 +82,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     assert.equal(report.focus.inspected, report.setup.people[0]); assert.equal(report.focus.hasPersonPanel, true)
     await screenshot('right-focus')
     report.stale = await page.evaluate(() => {
-      const h = window.worshipLifecycle, results = []
+      const h = window.worshipLifecycle, results = h.staleResults = []
       const activate = () => {
         h.button.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }))
         h.button.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true }))
@@ -95,21 +98,25 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
             if (mode === 'overview') h.scene.overviewActive = true
             if (mode === 'disposed') h.scene.disposed = true
             if (mode === 'store replacement') window.testStore.startMission(2)
-            const currentSelected = [...window.testStore.getWorld().selected]
+            const currentSelected = [...window.testStore.getWorld().selected], boundaryEvents = [...h.events]
+            h.events = []
             activate()
             const unchanged = JSON.stringify(selected) === JSON.stringify(h.world.selected) &&
               JSON.stringify(currentSelected) === JSON.stringify(window.testStore.getWorld().selected) &&
               inspected === h.scene.objectPanels.inspected && h.events.length === 0
-            results.push({ mode, unchanged, events: [...h.events] })
+            results.push({ mode, unchanged, boundaryEvents, events: [...h.events] })
             if (!unchanged) throw Error(`Stale ${mode} callback changed selection, inspection or feedback`)
           } finally { h.world.shrines = shrines; h.scene.overviewActive = overview; h.scene.disposed = disposed }
         }
         return results
-      } finally { h.scene.focus = h.focusOriginal; h.scene.onSound = h.soundOriginal }
+      } finally { h.scene.focus = h.focusOriginal; h.scene.onSound = h.soundOriginal; h.scene.onChange = h.changeOriginal }
     })
     assert.equal(report.stale.length, 5); assert.ok(report.stale.every(x => x.unchanged))
   } catch (error) {
     failure = error
+    try {
+      if (page && !page.isClosed()) report.stale = await page.evaluate(() => window.worshipLifecycle?.staleResults ?? [])
+    } catch (e) { report.staleReceiptError = String(e) }
     try { if (page && !page.isClosed()) await screenshot('failure') } catch (e) { report.diagnosticError = String(e) }
   } finally {
     clearTimeout(timer)
@@ -118,6 +125,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
         const h = window.worshipLifecycle
         if (h?.focusOriginal) h.scene.focus = h.focusOriginal
         if (h?.soundOriginal) h.scene.onSound = h.soundOriginal
+        if (h?.changeOriginal) h.scene.onChange = h.changeOriginal
       })
     } catch (e) { report.observerCleanupError = String(e) }
     try { await context.close(); report.contextClosed = true } catch (e) { report.errors.push(String(e)) }
