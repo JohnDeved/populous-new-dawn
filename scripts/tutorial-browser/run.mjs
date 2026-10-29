@@ -24,6 +24,7 @@ const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-pr
 const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotise.mjs')
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
 const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-conversion.mjs')
+const worshipLifecycleScenario = resolve(root, 'scripts/tutorial-browser/worship-panel-lifecycle.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
@@ -99,6 +100,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   spellTestScenarioSha256: hash(spellTestScenario),
   spellConversionScenarioSha256: hash(spellConversionScenario),
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
+  worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -243,6 +245,7 @@ try {
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
   if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out })
+  if (selectedScenario === 'tutorial') receipt.worshipPanelLifecycle = await (await import(pathToFileURL(worshipLifecycleScenario).href)).default({ browser, url, output: out })
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'

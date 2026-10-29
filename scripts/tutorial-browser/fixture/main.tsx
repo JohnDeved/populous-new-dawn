@@ -1,3 +1,9 @@
+// Supplied worship-slot boundary in the test host only.
+if (new URLSearchParams(location.search).get('worship-panel-lifecycle') === '1') {
+  void import('../worship-panel-fixture.mjs').then(fixture => {
+    Object.defineProperty(globalThis, '__pndWorshipPanelFixture', { value: Object.freeze({ ...fixture }) })
+  })
+}
 import { Matrix4 as PndReaderMatrix4 } from 'three'
 Object.defineProperty(globalThis, '__pndReaderTypes', {
   value: Object.freeze({ Matrix4: PndReaderMatrix4 }),
