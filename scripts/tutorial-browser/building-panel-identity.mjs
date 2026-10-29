@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { bindGame } from '../browser-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
+import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
 
 export const buildingPanelIdentityLimitMs = 35000
 
@@ -246,7 +247,11 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     }
     for (const hold of ['pointer', 'focus']) {
       for (const boundary of ['ownership', 'visibility']) {
-        await revealCurrentPanel(`${hold}/${boundary}/initial`)
+        // Selection or the prior actual restoration already opened this panel.
+        // Fail closed immediately instead of repeating an input-driven reopening.
+        timing.mark(`${hold}/${boundary}/reuse-precondition:start`)
+        assertCurrentBuildingPanel(await page.evaluate(readCurrentBuildingPanel))
+        timing.mark(`${hold}/${boundary}/reuse-precondition:complete`)
         if (hold === 'pointer') {
           await panel.hover()
           await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur())
@@ -258,7 +263,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
           const h = window.buildingIdentity, p = h.panel
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
           const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover')
-          if (!held || otherHold || p.hidden || h.building.team !== 'blue' || !h.scene.visible(h.building) || h.scene.navigationButtons() !== 0)
+          if (!held || otherHold || !p.isConnected || p.hidden || h.scene.buildingPanels.get(h.building.id) !== p || h.building.team !== 'blue' || !h.scene.visible(h.building) || h.scene.navigationButtons() !== 0)
             throw Error('Expected held, owned and visible positive control')
           h.heldVisibilityBefore = { frame: h.scene.renderer.info.render.frame, viewPoint: { ...h.scene.viewPoint } }
           return { hold, boundary, held, frame: h.heldVisibilityBefore.frame }
