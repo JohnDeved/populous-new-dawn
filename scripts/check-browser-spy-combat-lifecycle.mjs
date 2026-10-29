@@ -1160,7 +1160,13 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
     result.reveal.priorHP,
     'Reveal observed before first encounter damage tick'
   )
-  if (result.firstDamage) assert.equal(result.firstDamage.disguise, 0)
+  if (result.firstDamage) {
+    assert.equal(result.firstDamage.disguise, 0)
+    assert.ok(
+      result.reveal.turn < result.firstDamage.turn,
+      'Reveal must precede first observed damage'
+    )
+  }
   assert.ok(result.outcome, 'Combat death/cleanup not reached within bounded normal encounter')
   if (!result.cleanup.spyAlive)
     assert.equal(result.cleanup.selected, false, 'Dead Spy must leave selection normally')
