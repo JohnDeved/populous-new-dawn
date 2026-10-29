@@ -205,6 +205,36 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
   }
 })
 
+test('compact text witnesses reject empty-area and inverted fragments without rejecting ancillary zero-area ranges', () => {
+  for (const target of ['worldMessages', 'campaignText', 'diagnosticRows', 'diagnosticFields', 'diagnosticTextRuns']) {
+    for (const damage of [
+      fragment => { fragment.right = fragment.left },
+      fragment => { fragment.bottom = fragment.top },
+      fragment => { fragment.right = fragment.left - 1 },
+      fragment => { fragment.bottom = fragment.top - 1 },
+      fragment => { fragment.left = Number.NaN },
+    ]) {
+      const bad = clearWitness()
+      damage(bad.witness[target][0].fragments[0])
+      assert.throws(() => assertCompactMessageWitness(bad.layout, bad.witness, 900, 360))
+    }
+    for (const damage of [
+      fragment => { fragment.right = fragment.left - 1 },
+      fragment => { fragment.left = Number.NaN },
+    ]) {
+      const mixed = clearWitness(), node = mixed.witness[target][0]
+      const invalid = { ...node.fragments[0] }
+      damage(invalid)
+      node.fragments.push(invalid)
+      assert.throws(() => assertCompactMessageWitness(mixed.layout, mixed.witness, 900, 360))
+    }
+    const good = clearWitness(), node = good.witness[target][0]
+    const fragment = node.fragments[0]
+    node.fragments.push({ ...fragment, right: fragment.left, bottom: fragment.top })
+    assertCompactMessageWitness(good.layout, good.witness, 900, 360)
+  }
+})
+
 test('real FPS font overhang is allowed only inside actual clipping and non-overlap boundaries', () => {
   const good = clearWitness()
   // Retained run 39175629111 / artifact 12154202752, Automatic 900x360:
