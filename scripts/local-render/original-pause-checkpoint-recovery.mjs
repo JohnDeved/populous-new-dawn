@@ -259,14 +259,50 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   async function capture(page, name) {
     return observed(`capture:${name}`, async () => {
       const viewport = page.viewportSize()
-      for (const control of await modal(page).getByRole('button').all()) {
-        await observed(`capture:${name}:scroll`, () => control.scrollIntoViewIfNeeded())
-        const box = await observed(`capture:${name}:box`, () => control.boundingBox())
-        assert.ok(box && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1)
-        assert.equal(await control.evaluate(node => {
-          const box = node.getBoundingClientRect()
-          return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2))
-        }), true)
+      // Observe the same role-buttons together without repairing offscreen layout.
+      // Repeated scroll/boundingBox protocol calls cost48s in the retained pilot.
+      const controls = await observed(`capture:${name}:controls`, () => modal(page).getByRole('button').evaluateAll(nodes => new Promise((resolve, reject) => {
+        const dialog = nodes[0]?.closest('dialog, [role="dialog"]')
+        if (!dialog || !nodes.length) return reject(Error('No modal controls'))
+        let frame, previous, changed = false, finished = false
+        const mutations = new MutationObserver(() => { changed = true })
+        mutations.observe(dialog, { childList: true, subtree: true, attributes: true })
+        const finish = (error, value) => {
+          if (finished) return
+          finished = true
+          clearTimeout(timer)
+          cancelAnimationFrame(frame)
+          mutations.disconnect()
+          if (error) reject(error)
+          else resolve(value)
+        }
+        // One aggregate stability barrier, bounded inside the unchanged180s cap.
+        const timer = setTimeout(() => finish(Error('Modal geometry did not stabilize within5000ms')), 5000)
+        const sample = () => {
+          try {
+            if (changed || nodes.some(node => !node.isConnected || !dialog.contains(node)))
+              throw Error('Modal control identity/count changed during capture')
+            const boxes = nodes.map(node => {
+              const box = node.getBoundingClientRect(), style = getComputedStyle(node)
+              if (!node.getClientRects().length || style.visibility === 'hidden' || style.visibility === 'collapse' || box.width <= 0 || box.height <= 0)
+                throw Error('Modal control became hidden during capture')
+              return { label: node.getAttribute('aria-label') || node.textContent,
+                x: box.x, y: box.y, width: box.width, height: box.height }
+            })
+            const geometry = JSON.stringify(boxes.map(({ x, y, width, height }) => [x, y, width, height]))
+            if (previous === geometry) return finish(null, boxes.map((box, i) => ({ ...box,
+              hit: nodes[i].contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2)),
+            })))
+            previous = geometry
+            frame = requestAnimationFrame(sample)
+          } catch (error) { finish(error) }
+        }
+        frame = requestAnimationFrame(sample)
+      })))
+      assert.ok(controls.length > 0, `${name}: no visible modal buttons`)
+      for (const box of controls) {
+        assert.ok(box.width > 0 && box.height > 0 && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1, `${name}: offscreen button ${box.label}`)
+        assert.equal(box.hit, true, `${name}: obstructed button ${box.label}`)
       }
       await observed(`screenshot:${name}`, () => page.screenshot({ path: resolve(output, name) }))
       screenshots.push({ name, viewport, dpr: await page.evaluate(() => devicePixelRatio) })
