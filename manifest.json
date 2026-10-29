@@ -1,0 +1,43 @@
+{
+  "head": "7de2118c1f81cc3c3eafb31821762ee5aed8e6e6",
+  "base": "43f22fb8065481d303d889b3eee7d0c1ddb49205",
+  "merge": "0cb22d786d6dfc661bb49163fe48438375c976a2",
+  "run": "https://github.com/JohnDeved/populous-new-dawn/actions/runs/40838276779",
+  "scenarioSha256": "ca10ef824f2c0c5d04a0388804139513733c847f5cddec533dcae125df8d1fb6",
+  "screenshots": {
+    "original": {
+      "file": "building-identity-original.png",
+      "sha256": "3082d9c460bd75339ef042fdc211e28bc82c092733582c4e50896083077b2bbd"
+    },
+    "selected": {
+      "file": "building-identity-selected.png",
+      "sha256": "392f7ee8ef709a0cb0ae00bcde9a9fe7e25404f818cd2300ff629ffd32883566"
+    },
+    "held-ownership-hidden": {
+      "file": "building-identity-held-ownership-hidden.png",
+      "sha256": "3a28eeead2f0f8b06d4ef76e5aa8a11505f4d012ec21f799ed9ff1fc52efcb28"
+    },
+    "held-visibility-hidden": {
+      "file": "building-identity-held-visibility-hidden.png",
+      "sha256": "e98982f768f8f48fb87e2d325008f1c0c0e8a1b7be6d39401f86ce76129ee8ca"
+    },
+    "held-restored": {
+      "file": "building-identity-held-restored.png",
+      "sha256": "99acf144d527c808d390a3add120cdad02c7400febfd5e7dd638d95dd71f1c2a"
+    },
+    "dismantling": {
+      "file": "building-identity-dismantling.png",
+      "sha256": "1e6b52913d2e1e305397662cb03f9bee4af9a1fb3aa12541046fd8b6886088fb"
+    },
+    "completed": {
+      "file": "building-identity-completed.png",
+      "sha256": "43ef835251ff51750488f1492449469ea31d0fd7b07753d2fd3671b023d9eba2"
+    }
+  },
+  "limits": [
+    "Actual Home, visible DOM controls and ordinary renderer; supplied allocation-boundary buildings/person and camera setup",
+    "Synchronous bounded real damage, retirement, entry and worker-turn batches under public pause; not naturally timed campaign acquisition",
+    "Ownership/camera-exclusion and focus/blur boundaries supplied; actual pointer hover, DOM focus, Scene.visible and render frames observed; not natural enemy capture, keyboard navigation or ordinary camera input",
+    "No production hooks, gameplay deletion shortcut, native raster equivalence or performance claim"
+  ]
+}
