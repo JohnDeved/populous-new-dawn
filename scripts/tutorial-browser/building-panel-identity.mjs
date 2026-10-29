@@ -199,7 +199,9 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         const h = window.buildingIdentity
         return h.building.team === 'blue' && h.scene.visible(h.building)
       })
-      const target = await page.evaluate(() => {
+      // Scene.visible updates on focus, but picking also needs the next ordinary
+      // painter submission. Wait for an actual unobscured hit, never force paint.
+      const targetHandle = await page.waitForFunction(() => {
         const { scene, building } = window.buildingIdentity,
           p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect(),
           cx = rect.left + ((p.x + 1) * rect.width) / 2,
@@ -210,8 +212,10 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
             if (document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement && scene.picking.pick(event) === building.id)
               return { x: event.clientX, y: event.clientY }
           }
-        throw Error('No visible replacement tower hit target')
+        return false
       })
+      const target = await targetHandle.jsonValue()
+      await targetHandle.dispose()
       // Move away first so a same-coordinate move still produces a real hover.
       await page.mouse.move(0, 0)
       await page.mouse.move(target.x, target.y)
