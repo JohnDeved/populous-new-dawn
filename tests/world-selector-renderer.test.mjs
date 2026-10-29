@@ -3,7 +3,7 @@ import test from 'node:test'
 import {SelectorRenderer} from '../app/world-selector-renderer.ts'
 import {SelectorMotion} from '../app/world-selector-motion.ts'
 function fixture(failure){
- const calls=[],images=[];let handle=0
+ const calls=[],images=[],allocations=[];let handle=0
  const constants=new Map()
  const gl=new Proxy({}, {get(_,name){
   if(String(name)===String(name).toUpperCase()){
@@ -12,10 +12,11 @@ function fixture(failure){
   }
   return (...args)=>{
    calls.push([name,...args.map(arg=>ArrayBuffer.isView(arg)?arg.slice():arg)])
+   if(typeof failure==='function')failure(name,args)
    if(name===failure)return null
    if(name==='getShaderParameter'&&failure==='compile')return false
    if(name==='getProgramParameter'&&failure==='link')return false
-   if(String(name).startsWith('create'))return {id:++handle}
+   if(String(name).startsWith('create')){const value={id:++handle};allocations.push([name,value]);return value}
    if(name==='getShaderParameter'||name==='getProgramParameter')return true
    if(name==='getAttribLocation')return 0
    if(name==='getUniformLocation')return {id:++handle}
@@ -26,7 +27,7 @@ function fixture(failure){
  globalThis.Image=class{constructor(){images.push(this)} naturalWidth=128;naturalHeight=128;onload=null;onerror=null;src=''}
  globalThis.window={devicePixelRatio:2}
  const cleanup=()=>{globalThis.Image=previousImage;globalThis.window=previousWindow}
- return {gl,canvas,calls,images,cleanup}
+ return {gl,canvas,calls,images,allocations,cleanup}
 }
 test('partial GPU allocations are deleted and do not leak on constructor failure',()=>{
  const f=fixture('createBuffer')
@@ -119,5 +120,47 @@ test('wide scene reveals lateral space with native uniform scale across resize a
   assert.match(shader,/position.x \/ 320.0 - 1.0\) \* frameScale.x \* w/)
   assert.match(shader,/1.0 - position.y \/ 240.0\) \* frameScale.y \* w/)
   renderer.dispose()
+ }finally{f.cleanup()}
+})
+
+
+test('already queued image callbacks cannot regain GPU ownership after disposal',async()=>{
+ const f=fixture()
+ try{
+  const renderer=new SelectorRenderer(f.canvas),pending=renderer.load()
+  const callbacks=f.images.map(image=>({loaded:image.onload,failed:image.onerror}))
+  renderer.dispose()
+  await pending
+  const callsAfterDisposal=f.calls.length
+  for(const callback of callbacks){callback.loaded();callback.failed()}
+  await Promise.resolve()
+  assert.equal(f.calls.length,callsAfterDisposal,'queued callbacks do not issue GPU operations')
+  assert.ok(f.images.every(image=>image.onload===null&&image.onerror===null&&image.src===''))
+  renderer.dispose()
+  assert.equal(f.calls.length,callsAfterDisposal,'disposal remains idempotent after late callbacks')
+ }finally{f.cleanup()}
+})
+
+test('asynchronous upload failure preserves rejection and releases its allocated texture',async()=>{
+ let uploads=0
+ const f=fixture(name=>{if(name==='texImage2D'&&++uploads===2)throw Error('supplied image upload failure')})
+ try{
+  const renderer=new SelectorRenderer(f.canvas),pending=renderer.load()
+  const failure=assert.rejects(pending,/supplied image upload failure/)
+  f.images[0].onload()
+  await failure
+  assert.equal(f.calls.filter(call=>call[0]==='createTexture').length,2,'white plus failed image texture allocated')
+  renderer.dispose()
+  const allocated=f.allocations.filter(([name])=>name==='createTexture').map(([,value])=>value)
+  const deletedTextures=f.calls.filter(call=>call[0]==='deleteTexture').map(call=>call[1])
+  assert.equal(allocated.length,2)
+  assert.equal(deletedTextures.length,2)
+  assert.equal(new Set(deletedTextures).size,2)
+  for(const texture of allocated)assert.equal(deletedTextures.filter(value=>value===texture).length,1)
+  assert.equal(f.calls.filter(call=>call[0]==='deleteProgram').length,1)
+  assert.ok(f.images.slice(1).every(image=>image.onload===null&&image.onerror===null&&image.src===''))
+  const deleted=f.calls.filter(call=>String(call[0]).startsWith('delete')).length
+  renderer.dispose()
+  assert.equal(f.calls.filter(call=>String(call[0]).startsWith('delete')).length,deleted)
  }finally{f.cleanup()}
 })
