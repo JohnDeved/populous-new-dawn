@@ -274,3 +274,28 @@ test('Save preserves controls; public Load revokes the old Scene before its next
   assert.deepEqual(restored.selected, [unit.id])
   assert.equal(restored.units.find(u => u.id === unit.id).inside, building.id)
 })
+
+// Supplied ownership/visibility boundaries; rendering must retire stale held UI.
+for (const hold of ['pointer', 'keyboard']) {
+  test(`${hold}-held building panels hide when ownership changes before their next paint`, t => {
+    const { scene, building, panel } = fixture(t)
+    panel.matches = () => hold === 'pointer'
+    panel.contains = () => hold === 'keyboard'
+    renderBuildingPanels(scene, null)
+    assert.equal(panel.hidden, false, 'owned visible held panel remains available')
+    building.team = 'red'
+    scene.renderBuildingPanels()
+    assert.equal(panel.hidden, true)
+  })
+
+  test(`${hold}-held building panels hide when their building leaves the visible scene`, t => {
+    const { scene, panel } = fixture(t)
+    panel.matches = () => hold === 'pointer'
+    panel.contains = () => hold === 'keyboard'
+    renderBuildingPanels(scene, null)
+    assert.equal(panel.hidden, false, 'owned visible held panel remains available')
+    scene.visible = () => false
+    scene.renderBuildingPanels()
+    assert.equal(panel.hidden, true)
+  })
+}
