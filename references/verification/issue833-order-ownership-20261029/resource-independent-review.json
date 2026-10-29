@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-10-29T10:50:53.119788+00:00",
+  "verdict": "ACCEPT-bounded-three-test-execution-scope-only",
+  "guardSHA256": "d9152a69be1157144c3508463c99ee32bd14ece4718c3e408c9ab9b1f4fac87b",
+  "bindingsSHA256": "280d92d7535d91e74caf935dff5c771a0bf5013a6a61261607e367331f52492b",
+  "checks": [
+    "All5 pinned input hashes match;4 appfile framedGitOIDs independently reproduce savedmain e307 tree.",
+    "Static import closure is exactly person-orders/person-motion/native-math/original-rules JSON; no packages/network/browser.",
+    "Three bounded tests exercise actual writer/allocator/append/release with supplied prepare/effect callbacks: selector payload/shared ownership,fullqueue immediate replacement,pool exhaustion preserving inputs.",
+    "Runner unchanged reviewed direct-module guard except narrower source-only fsread and fixedlocalpaths; no Node filesystemwrite permissions.",
+    "15s monitored deadline,128MiBheap/256MiBsampledchildRSS/1MiBlogs; create-onlyattempt01,identity-bound cleanup,pre/postpins,finaloutputcaps."
+  ],
+  "conditions": [
+    "Coordinator execution-slot admission remains separate; Python-I/no-O.",
+    "Require all3named tests pass and fail/cancel/skip/todo0,exit0,no guarderrors/recordedsurvivors; accept defaultspec orTAP reporter honestly.",
+    "No cap expansion or automatic retry on failure."
+  ],
+  "limits": [
+    "No native search parity/live picking/routing/harvesting correctness,browser,fullCI or merge acceptance.",
+    "Supplied effects are intentional test seam,not realworld implementation.",
+    "Reviewer performed source/hash checks only; no tests executed."
+  ]
+}

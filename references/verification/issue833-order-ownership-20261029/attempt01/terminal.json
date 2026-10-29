@@ -1,0 +1,26 @@
+{
+  "exitCode": 0,
+  "errors": [],
+  "wallSeconds": 0.29933416200219654,
+  "peakSampledChildRSS": 59621376,
+  "ownedIdentities": {
+    "5": 1793271080.12
+  },
+  "survivors": [],
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=128",
+    "--permission",
+    "--allow-fs-read=/workspace/scratch/69fd8163d94e/issue833-order-ownership-regression-20261029/source",
+    "/workspace/scratch/69fd8163d94e/issue833-order-ownership-regression-20261029/source/tests/resource-order-ownership.test.mjs"
+  ],
+  "bindings": {
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/person-orders.ts": "ee1c00836168c4eaf078ce71334fc2eb49c8233b779046f4a37ff99a4c652333",
+    "app/person-motion.ts": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "tests/resource-order-ownership.test.mjs": "2395cce83dda191ca76b81617922678d0d12da63547732e01531c97a4e9abe2b"
+  },
+  "expected": "Full focused file exit0 and all TAP cases pass; no browser",
+  "scope": "actual order module with supplied routing preparation; no browser"
+}
