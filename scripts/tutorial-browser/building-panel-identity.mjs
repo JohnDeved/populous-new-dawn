@@ -216,8 +216,9 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       })
       const target = await targetHandle.jsonValue()
       await targetHandle.dispose()
-      // Move away first so a same-coordinate move still produces a real hover.
-      await page.mouse.move(0, 0)
+      // Move into the interior sidebar, not (0,0), which requests camera edge motion.
+      // Moving away also makes a same-coordinate return produce a real hover.
+      await page.mouse.move(10, 10)
       await page.mouse.move(target.x, target.y)
       await panel.waitFor({ state: 'visible' })
     }
@@ -229,13 +230,13 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
           await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur())
         } else {
           await panel.locator('.dismantle-control').focus()
-          await page.mouse.move(0, 0)
+          await page.mouse.move(10, 10)
         }
         const before = await page.evaluate(({ hold, boundary }) => {
           const h = window.buildingIdentity, p = h.panel
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
           const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover')
-          if (!held || otherHold || p.hidden || h.building.team !== 'blue' || !h.scene.visible(h.building))
+          if (!held || otherHold || p.hidden || h.building.team !== 'blue' || !h.scene.visible(h.building) || h.scene.navigationButtons() !== 0)
             throw Error('Expected held, owned and visible positive control')
           h.heldVisibilityBefore = { frame: h.scene.renderer.info.render.frame, viewPoint: { ...h.scene.viewPoint } }
           return { hold, boundary, held, frame: h.heldVisibilityBefore.frame }
@@ -245,7 +246,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         const transition = await page.evaluate(({ hold, boundary }) => {
           const h = window.buildingIdentity, p = h.panel
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
-          if (!held) throw Error('Hold lost before eligibility boundary')
+          if (!held || h.scene.navigationButtons() !== 0) throw Error('Hold lost or camera input active before eligibility boundary')
           const frame = h.scene.renderer.info.render.frame
           if (boundary === 'ownership') h.building.team = 'red'
           else h.scene.focus({ x: h.scene.viewPoint.x + 128, z: h.scene.viewPoint.z })
