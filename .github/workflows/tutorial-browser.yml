@@ -11,6 +11,7 @@ on:
       - 'scripts/local-render/tutorial-recommendation.mjs'
       - 'scripts/local-render/frontend-held-escape.mjs'
       - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+      - 'scripts/local-render/pause-capture-controls.mjs'
       - 'scripts/local-render/campaign-profile-recovery.mjs'
       - 'scripts/checkpoint-readback.mjs'
       - 'scripts/local-render/checkpoint-observer.mjs'
