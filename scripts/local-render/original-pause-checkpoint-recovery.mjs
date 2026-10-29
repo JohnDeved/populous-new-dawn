@@ -64,7 +64,40 @@ export function recoverVisibleIntroduction(page) {
 
 export default async function ({ browser, page, url, root, output, receipt, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
-  const checks = [], screenshots = [], renderers = [], frontendKeyboard = []
+  const checks = [], screenshots = [], renderers = [], frontendKeyboard = [], timing = []
+  const episodeStarted = performance.now()
+  // Durable diagnostic timings only: never extend a deadline or change input.
+  const timingWriteErrors = []
+  receipt.pauseTimingWriteErrors = timingWriteErrors
+  const saveTiming = () => {
+    try {
+      writeFileSync(resolve(output, 'pause-timing.json'), JSON.stringify({
+        elapsedMs: performance.now() - episodeStarted, timing,
+      }, null, 2))
+    } catch (error) {
+      // Diagnostic I/O must not prevent an action or replace its primary failure.
+      const message = String(error)
+      if (!timingWriteErrors.includes(message)) timingWriteErrors.push(message)
+    }
+  }
+  async function observed(label, action) {
+    const record = { label, startedMs: performance.now() - episodeStarted, status: 'pending' }
+    timing.push(record)
+    saveTiming()
+    try {
+      const result = await action()
+      record.status = 'completed' // Action returned; not an acceptance milestone.
+      return result
+    } catch (error) {
+      record.status = 'failed'
+      record.error = String(error)
+      throw error
+    } finally {
+      record.endedMs = performance.now() - episodeStarted
+      record.durationMs = record.endedMs - record.startedMs
+      saveTiming()
+    }
+  }
   const passed = name => {
     checks.push(name)
     writeFileSync(resolve(output, 'progress.json'), JSON.stringify({ checks, screenshots }, null, 2))
@@ -85,149 +118,159 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     })
   })
   async function enterMission(page) {
-    await openCampaignFromMainMenu(page)
-    await button(page, 'Start Mission 1').click()
-    await bindGame(page)
-    const desktop = page.getByRole('button', { name: 'Continue anyway', exact: false })
-    if (await desktop.isVisible()) await desktop.click()
-    const startup = await page.waitForFunction(pauseStartupReady)
-    const action = await startup.jsonValue()
-    await startup.dispose()
-    if (action === 'skip') await skipPauseIntroduction(page)
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    renderers.push(await page.evaluate(() => {
-      const gl = window.testSceneRef.current.renderer.getContext()
-      const debug = gl.getExtension('WEBGL_debug_renderer_info')
-      return {
-        version: gl.getParameter(gl.VERSION),
-        renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
-        dpr: devicePixelRatio,
-      }
-    }))
+    return observed('enterMission', async () => {
+      await openCampaignFromMainMenu(page)
+      await button(page, 'Start Mission 1').click()
+      await bindGame(page)
+      const desktop = page.getByRole('button', { name: 'Continue anyway', exact: false })
+      if (await desktop.isVisible()) await desktop.click()
+      const startup = await page.waitForFunction(pauseStartupReady)
+      const action = await startup.jsonValue()
+      await startup.dispose()
+      if (action === 'skip') await skipPauseIntroduction(page)
+      await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+      renderers.push(await page.evaluate(() => {
+        const gl = window.testSceneRef.current.renderer.getContext()
+        const debug = gl.getExtension('WEBGL_debug_renderer_info')
+        return {
+          version: gl.getParameter(gl.VERSION),
+          renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
+          dpr: devicePixelRatio,
+        }
+      }))
+    })
   }
   async function openFailedLoad(page, captureRoot = false) {
-    signal.throwIfAborted()
-    await enterMission(page)
-    await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'failed')
-    await button(page, 'Game settings').click()
-    assert.equal(await button(page, 'Load Game').isEnabled(), true)
-    if (captureRoot) {
-      for (const [width, height] of [[640, 480], [1920, 1080]]) {
-        await page.setViewportSize({ width, height })
-        await capture(page, `failed-root-${width}x${height}.png`)
+    return observed(`openFailedLoad:${captureRoot}`, async () => {
+      signal.throwIfAborted()
+      await enterMission(page)
+      await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'failed')
+      await button(page, 'Game settings').click()
+      assert.equal(await button(page, 'Load Game').isEnabled(), true)
+      if (captureRoot) {
+        for (const [width, height] of [[640, 480], [1920, 1080]]) {
+          await page.setViewportSize({ width, height })
+          await capture(page, `failed-root-${width}x${height}.png`)
+        }
       }
-    }
-    await button(page, 'Load Game').focus()
-    await page.keyboard.press('Enter')
-    await modal(page).getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
-    assert.equal(await button(page, 'Load checkpoint').isDisabled(), true)
+      await button(page, 'Load Game').focus()
+      await page.keyboard.press('Enter')
+      await modal(page).getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
+      assert.equal(await button(page, 'Load checkpoint').isDisabled(), true)
+    })
   }
   async function retry(page) {
-    await button(page, 'Retry checkpoint lookup').focus()
-    await page.keyboard.down('Enter')
-    try {
+    return observed('retry', async () => {
+      await button(page, 'Retry checkpoint lookup').focus()
       await page.keyboard.down('Enter')
-      await page.keyboard.down('Enter')
-      assert.equal(await modal(page).getAttribute('data-panel'), 'load')
-    } finally {
-      await page.keyboard.up('Enter')
-    }
-    await page.waitForFunction(() => typeof window.finishPauseLookup === 'function')
-    assert.equal(await page.evaluate(() => window.testStore.getCheckpointReadStatus()), 'pending')
-    assert.equal(await button(page, 'Retry checkpoint lookup').isDisabled(), true)
-    assert.equal(await focused(page, 'Back'), true)
-    // Repeated activation of the now-disabled real control cannot issue a read.
-    await button(page, 'Retry checkpoint lookup').evaluate(node => { node.click(); node.click() })
-    assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 2)
-  }
-  async function frontendRetry(key, leaveForOptions = false) {
-    signal.throwIfAborted()
-    await page.reload({ waitUntil: 'domcontentloaded' })
-    await waitForStartupMenu(page)
-    const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
-    await main.getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
-    await page.evaluate(() => {
-      // Read-only observation of Home's real store, as in profile-recovery.
-      const root = document.querySelector('main')
-      let fiber = root[Object.keys(root).find(key => key.startsWith('__reactFiber'))]
-      for (; fiber; fiber = fiber.return)
-        for (let hook = fiber.memoizedState; hook; hook = hook.next)
-          if (hook.memoizedState?.getCheckpointReadStatus && hook.memoizedState?.getWorld)
-            window.frontendRecoveryStore = hook.memoizedState
-      if (!window.frontendRecoveryStore) throw Error('Home checkpoint observer unavailable')
-      window.frontendRecoveryWorld = window.frontendRecoveryStore.getWorld()
-      window.frontendRecoveryKeys = []
-      for (const type of ['keydown', 'keyup'])
-        document.addEventListener(type, event => {
-          if (event.key === 'Enter' || event.key === ' ')
-            window.frontendRecoveryKeys.push({ type, key: event.key,
-              repeat: event.repeat, prevented: event.defaultPrevented })
-        })
-    })
-    await button(page, 'Retry checkpoint lookup').focus()
-    await page.keyboard.down(key)
-    let held = true
-    try {
-      await page.keyboard.down(key)
-      await page.keyboard.down(key)
-      if (key === 'Space') {
-        assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 1,
-          'Space must activate Retry on release, not repeated keydown')
-        await page.keyboard.up(key)
-        held = false
+      try {
+        await page.keyboard.down('Enter')
+        await page.keyboard.down('Enter')
+        assert.equal(await modal(page).getAttribute('data-panel'), 'load')
+      } finally {
+        await page.keyboard.up('Enter')
       }
       await page.waitForFunction(() => typeof window.finishPauseLookup === 'function')
+      assert.equal(await page.evaluate(() => window.testStore.getCheckpointReadStatus()), 'pending')
       assert.equal(await button(page, 'Retry checkpoint lookup').isDisabled(), true)
-      assert.equal(await focused(page, 'Load Game'), true)
+      assert.equal(await focused(page, 'Back'), true)
+      // Repeated activation of the now-disabled real control cannot issue a read.
+      await observed('retry:disabled-activation', () => button(page, 'Retry checkpoint lookup').evaluate(node => { node.click(); node.click() }))
       assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 2)
-      if (leaveForOptions) {
-        if (held) {
+    })
+  }
+  async function frontendRetry(key, leaveForOptions = false) {
+    return observed(`frontendRetry:${key}:${leaveForOptions}`, async () => {
+      signal.throwIfAborted()
+      await page.reload({ waitUntil: 'domcontentloaded' })
+      await waitForStartupMenu(page)
+      const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
+      await main.getByRole('status').filter({ hasText: 'Could not read browser storage.' }).waitFor()
+      await page.evaluate(() => {
+        // Read-only observation of Home's real store, as in profile-recovery.
+        const root = document.querySelector('main')
+        let fiber = root[Object.keys(root).find(key => key.startsWith('__reactFiber'))]
+        for (; fiber; fiber = fiber.return)
+          for (let hook = fiber.memoizedState; hook; hook = hook.next)
+            if (hook.memoizedState?.getCheckpointReadStatus && hook.memoizedState?.getWorld)
+              window.frontendRecoveryStore = hook.memoizedState
+        if (!window.frontendRecoveryStore) throw Error('Home checkpoint observer unavailable')
+        window.frontendRecoveryWorld = window.frontendRecoveryStore.getWorld()
+        window.frontendRecoveryKeys = []
+        for (const type of ['keydown', 'keyup'])
+          document.addEventListener(type, event => {
+            if (event.key === 'Enter' || event.key === ' ')
+              window.frontendRecoveryKeys.push({ type, key: event.key,
+                repeat: event.repeat, prevented: event.defaultPrevented })
+          })
+      })
+      await button(page, 'Retry checkpoint lookup').focus()
+      await page.keyboard.down(key)
+      let held = true
+      try {
+        await page.keyboard.down(key)
+        await page.keyboard.down(key)
+        if (key === 'Space') {
+          assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 1,
+            'Space must activate Retry on release, not repeated keydown')
           await page.keyboard.up(key)
           held = false
         }
-        await button(page, 'Options').click()
-        await button(page, 'Back').focus()
+        await page.waitForFunction(() => typeof window.finishPauseLookup === 'function')
+        assert.equal(await button(page, 'Retry checkpoint lookup').isDisabled(), true)
+        assert.equal(await focused(page, 'Load Game'), true)
+        assert.equal(await page.evaluate(() => window.pauseLookupAttempts), 2)
+        if (leaveForOptions) {
+          if (held) {
+            await page.keyboard.up(key)
+            held = false
+          }
+          await button(page, 'Options').click()
+          await button(page, 'Back').focus()
+        }
+        await page.evaluate(() => window.finishPauseLookup())
+        await page.waitForFunction(() => window.frontendRecoveryStore.getCheckpointReadStatus() === 'read')
+        if (held) {
+          await page.keyboard.down(key)
+          await page.keyboard.down(key)
+          await page.keyboard.up(key)
+          held = false
+        }
+        assert.equal(await main.isVisible(), true, 'held activation must not load the checkpoint')
+        assert.equal(await page.evaluate(() => window.frontendRecoveryStore.getWorld() === window.frontendRecoveryWorld), true)
+        if (leaveForOptions) {
+          assert.equal(await focused(page, 'Back'), true, 'late lookup must not steal Options focus')
+          await button(page, 'Back').click()
+        } else assert.equal(await focused(page, 'Load Game'), true)
+        assert.equal(await button(page, 'Load Game').getAttribute('aria-disabled'), 'false')
+        const events = await page.evaluate(() => window.frontendRecoveryKeys)
+        assert.ok(events.some(event => event.type === 'keydown' && event.repeat && event.prevented))
+        assert.ok(events.some(event => event.type === 'keyup'))
+        frontendKeyboard.push({ key, leaveForOptions, events, lookupAttempts: 2, worldRetained: true })
+        const name = `frontend-retry-${key.toLowerCase()}${leaveForOptions ? '-options' : ''}.png`
+        await observed(`screenshot:${name}`, () => page.screenshot({ path: resolve(output, name) }))
+        screenshots.push({ name, viewport: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio) })
+        passed(`frontend Retry preserves keyboard focus through ${key} repeats/release${leaveForOptions ? ' and late Options completion' : ' and successful lookup'}`)
+      } finally {
+        if (held) await page.keyboard.up(key)
       }
-      await page.evaluate(() => window.finishPauseLookup())
-      await page.waitForFunction(() => window.frontendRecoveryStore.getCheckpointReadStatus() === 'read')
-      if (held) {
-        await page.keyboard.down(key)
-        await page.keyboard.down(key)
-        await page.keyboard.up(key)
-        held = false
-      }
-      assert.equal(await main.isVisible(), true, 'held activation must not load the checkpoint')
-      assert.equal(await page.evaluate(() => window.frontendRecoveryStore.getWorld() === window.frontendRecoveryWorld), true)
-      if (leaveForOptions) {
-        assert.equal(await focused(page, 'Back'), true, 'late lookup must not steal Options focus')
-        await button(page, 'Back').click()
-      } else assert.equal(await focused(page, 'Load Game'), true)
-      assert.equal(await button(page, 'Load Game').getAttribute('aria-disabled'), 'false')
-      const events = await page.evaluate(() => window.frontendRecoveryKeys)
-      assert.ok(events.some(event => event.type === 'keydown' && event.repeat && event.prevented))
-      assert.ok(events.some(event => event.type === 'keyup'))
-      frontendKeyboard.push({ key, leaveForOptions, events, lookupAttempts: 2, worldRetained: true })
-      const name = `frontend-retry-${key.toLowerCase()}${leaveForOptions ? '-options' : ''}.png`
-      await page.screenshot({ path: resolve(output, name) })
-      screenshots.push({ name, viewport: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio) })
-      passed(`frontend Retry preserves keyboard focus through ${key} repeats/release${leaveForOptions ? ' and late Options completion' : ' and successful lookup'}`)
-    } finally {
-      if (held) await page.keyboard.up(key)
-    }
+    })
   }
   async function capture(page, name) {
-    const viewport = page.viewportSize()
-    for (const control of await modal(page).getByRole('button').all()) {
-      await control.scrollIntoViewIfNeeded()
-      const box = await control.boundingBox()
-      assert.ok(box && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1)
-      assert.equal(await control.evaluate(node => {
-        const box = node.getBoundingClientRect()
-        return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2))
-      }), true)
-    }
-    await page.screenshot({ path: resolve(output, name) })
-    screenshots.push({ name, viewport, dpr: await page.evaluate(() => devicePixelRatio) })
+    return observed(`capture:${name}`, async () => {
+      const viewport = page.viewportSize()
+      for (const control of await modal(page).getByRole('button').all()) {
+        await observed(`capture:${name}:scroll`, () => control.scrollIntoViewIfNeeded())
+        const box = await observed(`capture:${name}:box`, () => control.boundingBox())
+        assert.ok(box && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1)
+        assert.equal(await control.evaluate(node => {
+          const box = node.getBoundingClientRect()
+          return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2))
+        }), true)
+      }
+      await observed(`screenshot:${name}`, () => page.screenshot({ path: resolve(output, name) }))
+      screenshots.push({ name, viewport, dpr: await page.evaluate(() => devicePixelRatio) })
+    })
   }
 
   await page.setViewportSize({ width: 800, height: 600 })
@@ -335,7 +378,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await emptyContext.close()
   }
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, timing,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',
