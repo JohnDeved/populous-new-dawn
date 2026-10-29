@@ -323,6 +323,8 @@ export class ObjectPanels {
               event.shiftKey
             )
           else if (head) {
+            if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
+              return
             selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
             scene.onSound(0x6a)
             scene.onChange()
