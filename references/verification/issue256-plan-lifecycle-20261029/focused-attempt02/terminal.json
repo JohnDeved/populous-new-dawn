@@ -1,0 +1,80 @@
+{
+  "at": "2026-10-29T05:06:32.771617+00:00",
+  "status": "passed",
+  "errors": [],
+  "records": [
+    {
+      "name": "lifecycle",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=512",
+        "--permission",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/issue25-held-panel-visibility-20261029/baseline",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/resource-continuity-20261029T0200/recovered-runtime/source/node_modules",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/resource-continuity-20261029T0200/recovered-runtime/assets",
+        "--test",
+        "--test-isolation=none",
+        "--test-concurrency=1",
+        "--test-reporter=tap",
+        "lifecycle.test.mjs"
+      ],
+      "env": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "HOME": "/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029/focused-attempt02/home",
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029/focused-attempt02/tmp",
+        "LANG": "C.UTF-8",
+        "NODE_DISABLE_COMPILE_CACHE": "1"
+      },
+      "exit": 0,
+      "wallSeconds": 0.8058784389977518,
+      "peakSampledRSS": 150937600,
+      "samples": [
+        {
+          "elapsed": 0.0008150579997163732,
+          "rss": 135168
+        },
+        {
+          "elapsed": 0.10147864600003231,
+          "rss": 65417216
+        },
+        {
+          "elapsed": 0.20222503799959668,
+          "rss": 83386368
+        },
+        {
+          "elapsed": 0.30285566599923186,
+          "rss": 93032448
+        },
+        {
+          "elapsed": 0.403482477999205,
+          "rss": 109633536
+        },
+        {
+          "elapsed": 0.50410993100013,
+          "rss": 117944320
+        },
+        {
+          "elapsed": 0.6046961729989562,
+          "rss": 148078592
+        },
+        {
+          "elapsed": 0.7053104949991393,
+          "rss": 150937600
+        }
+      ],
+      "failureNames": []
+    }
+  ],
+  "wallSeconds": 3.4321497269993415,
+  "base": "a4b481d5b64dd2f4a017af349e3042e31487f9c4",
+  "sourceException": "existing unrelated tests/building-panel-identity.test.mjs overlay e6626b1c3aed92578e36762d10794492169743ee; not imported/executed",
+  "scope": "three actual preparation caller supplied-boundary tests; not ordinary episode, native parity, browser, build or CI",
+  "dependenciesSHA256Before": "b4d4424ac3721920452c13cdf28862818b0c2fdbb0ddb5ee1a87cb56a817be76",
+  "dependenciesSHA256After": "b4d4424ac3721920452c13cdf28862818b0c2fdbb0ddb5ee1a87cb56a817be76",
+  "resourceAdmission": {
+    "memAvailable": 9401421824,
+    "diskAvailable": 28290248704
+  },
+  "readOnly": "Node permission grants no writes/addons/children/workers; no network-sandbox claim"
+}

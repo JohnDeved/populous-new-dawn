@@ -1,0 +1,32 @@
+{
+  "reviewedAt": "2026-10-29T05:09:50.808146+00:00",
+  "finding": "ACCEPT import-only relocation for local checkpoint",
+  "originalSHA256": "73fe240cefb66f0f183fe4d373458007d536dd707121701c83b54d9431f060d1",
+  "relocatedSHA256": "eab827b93cb39872f70432f81fbbc5b8667f943f4b59c98924328765b65f3d08",
+  "intendedDestination": "tests/building-plan-lifecycle.test.mjs",
+  "base": "a4b481d5b64dd2f4a017af349e3042e31487f9c4",
+  "byteComparison": "Exactly four import URL prefixes changed, all other bytes equal",
+  "resolvedImportProof": [
+    {
+      "import": "../app/world-initialization.ts",
+      "resolved": "app/world-initialization.ts",
+      "oid": "7ec976a09803547acb494d9de6d91b060c99c065"
+    },
+    {
+      "import": "../app/construction-runtime.ts",
+      "resolved": "app/construction-runtime.ts",
+      "oid": "858904f599001ce64e48ad9f41c45483a77ba499"
+    },
+    {
+      "import": "../app/building-shapes.ts",
+      "resolved": "app/building-shapes.ts",
+      "oid": "895f2a3c4472ac06ef22c4aaddd99688c36a32fa"
+    },
+    {
+      "import": "../app/original-rules.json",
+      "resolved": "app/original-rules.json",
+      "oid": "1acb6f4bc60794942ec17ce26755c12cee40066d"
+    }
+  ],
+  "limits": "No rerun. Passed3/3 execution used external equivalent-path fixture; relocated checkpoint itself not executed."
+}

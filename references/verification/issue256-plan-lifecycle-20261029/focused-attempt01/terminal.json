@@ -1,0 +1,54 @@
+{
+  "at": "2026-10-29T05:03:55.757235+00:00",
+  "status": "failed",
+  "errors": [
+    "AssertionError: "
+  ],
+  "records": [
+    {
+      "name": "lifecycle",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=512",
+        "--permission",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/issue25-held-panel-visibility-20261029/baseline",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/resource-continuity-20261029T0200/recovered-runtime/source/node_modules",
+        "--allow-fs-read=/workspace/scratch/69fd8163d94e/resource-continuity-20261029T0200/recovered-runtime/assets",
+        "--test",
+        "--test-isolation=none",
+        "--test-concurrency=1",
+        "--test-reporter=tap",
+        "/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029/lifecycle.test.mjs"
+      ],
+      "env": {
+        "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+        "HOME": "/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029/focused-attempt01/home",
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/issue256-plan-membership-20261029/focused-attempt01/tmp",
+        "LANG": "C.UTF-8",
+        "NODE_DISABLE_COMPILE_CACHE": "1"
+      },
+      "exit": 1,
+      "wallSeconds": 0.10144580499763833,
+      "peakSampledRSS": 135168,
+      "samples": [
+        {
+          "elapsed": 0.0008778429983067326,
+          "rss": 135168
+        }
+      ],
+      "failureNames": []
+    }
+  ],
+  "wallSeconds": 2.7069039279995195,
+  "base": "a4b481d5b64dd2f4a017af349e3042e31487f9c4",
+  "sourceException": "existing unrelated tests/building-panel-identity.test.mjs overlay e6626b1c3aed92578e36762d10794492169743ee; not imported/executed",
+  "scope": "three actual preparation caller supplied-boundary tests; not ordinary episode, native parity, browser, build or CI",
+  "dependenciesSHA256Before": "b4d4424ac3721920452c13cdf28862818b0c2fdbb0ddb5ee1a87cb56a817be76",
+  "dependenciesSHA256After": "b4d4424ac3721920452c13cdf28862818b0c2fdbb0ddb5ee1a87cb56a817be76",
+  "resourceAdmission": {
+    "memAvailable": 9427800064,
+    "diskAvailable": 28290301952
+  },
+  "readOnly": "Node permission grants no writes/addons/children/workers; no network-sandbox claim"
+}
