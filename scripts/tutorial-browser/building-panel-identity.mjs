@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
 import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
 
@@ -110,6 +111,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     await page.goto(target.href, { waitUntil: 'domcontentloaded' })
     timing.mark('navigation:complete')
     const button = name => page.getByRole('button', { name, exact: true })
+    await waitForStartupMenu(page)
     await button('New Game').click()
     await page.locator('[data-original-tutorial-recommendation]').waitFor()
     await button('No').click()
