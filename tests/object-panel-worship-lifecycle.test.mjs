@@ -37,13 +37,15 @@ function setup(t) {
   const scene = { world, isCurrent: () => !scene.disposed && binding.isCurrent(),
     disposed: false, overviewActive: false, unitMeshes: new Map(),
     gameClock: { animationFrame: 0 }, container: { insertBefore() {} },
+    focus: (point, options) => events.push(['focus', point, options]),
     onSound: n => events.push(['sound', n]), onChange: () => events.push(['change']) }
   const panels = new ObjectPanels(scene)
   scene.objectPanels = panels
   panels.open(head.id, true)
   const button = panels.panels.get(head.id).element.children[1]
   button.dataset.person = String(people[0].id)
-  return { store, world, head, people, scene, events,
+  return { store, world, head, people, scene, events, panels,
+    focus: () => button.contextmenu({ preventDefault() {}, shiftKey: false }),
     click: group => button.click({ detail: 1, shiftKey: group }) }
 }
 
@@ -70,6 +72,41 @@ for (const mode of ['disposed', 'store replacement', 'world membership', 'remove
     f.click(false)
     assert.deepEqual(f.scene.world.selected, before)
     assert.deepEqual(f.people.map(p => p.selectionFlags), [0, 0])
+    assert.deepEqual(f.events, [])
+  })
+}
+
+// The actual focusWorshipper consumer resolves current live cell occupants.
+// Camera and subsequent panel-open endpoints are supplied call recorders;
+// these tests are not rendered input/camera verification.
+test('current shrine right-click keeps focus and person inspection', t => {
+  const f = setup(t)
+  f.panels.open = (id, immediate) => f.events.push(['open', id, immediate])
+  f.focus()
+  const signed16 = n => (n << 16) >> 16
+  assert.deepEqual(f.events[0], ['focus', {
+    x: signed16(f.people[0].x - 2048) / 256,
+    z: -signed16(f.people[0].y + 2048) / 256,
+  }, { animate: true }])
+  assert.deepEqual(f.events[0][2], { animate: true })
+  assert.deepEqual(f.events.slice(1), [['sound', 0x6a], ['open', f.people[0].id, true]])
+})
+
+for (const mode of ['disposed', 'store replacement', 'world membership', 'removed shrine', 'same-ID replacement', 'overview', 'input mask']) {
+  test(`stale worship right-click after ${mode} has no focus or feedback`, t => {
+    const f = setup(t)
+    f.panels.open = (id, immediate) => f.events.push(['open', id, immediate])
+    if (mode === 'disposed') f.scene.disposed = true
+    if (mode === 'store replacement') f.store.startMission(2)
+    if (mode === 'world membership') {
+      f.scene.world = { ...f.world, shrines: [] }
+      f.scene.isCurrent = () => true
+    }
+    if (mode === 'removed shrine') f.world.shrines = f.world.shrines.filter(h => h !== f.head)
+    if (mode === 'same-ID replacement') f.world.shrines = f.world.shrines.map(h => h === f.head ? { ...h } : h)
+    if (mode === 'overview') f.scene.overviewActive = true
+    if (mode === 'input mask') f.world.inputMask = 1
+    f.focus()
     assert.deepEqual(f.events, [])
   })
 }

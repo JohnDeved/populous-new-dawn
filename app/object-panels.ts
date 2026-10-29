@@ -309,7 +309,11 @@ export class ObjectPanels {
               true,
               event.shiftKey
             )
-          else if (head) this.focusWorshipper(id, Number(button.dataset.person))
+          else if (head) {
+            if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
+              return
+            this.focusWorshipper(id, Number(button.dataset.person))
+          }
           else this.focusOrder(id, Number(button.dataset.order))
         })
         // Person order icons use right-click; keyboard activation also exposes focus.
