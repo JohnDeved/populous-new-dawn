@@ -659,7 +659,7 @@ export function command(
       'balloonHut',
     ].includes(context.building.kind)
   const queuedTree =
-    model === 7 && context.tree && context.tree.model >= 1 && context.tree.model <= 6
+    model === 7 && context.tree && !!(rules.sceneryResourceFlags[context.tree.model] & 4)
   if (
     model === 8 &&
     context.building &&
@@ -729,21 +729,11 @@ export function command(
     }
     const order = emptyPersonOrder(),
       to = nativePosition(w, p)
-    writePersonOrder(
-      order,
-      model,
-      model === 19
-        ? 0
-        : model === 7
-          ? 1
-          : (context.person?.id ??
-            context.building?.id ??
-            context.shrine?.id ??
-            context.vehicle?.id ??
-            0),
-      ((to.x >>> 8) & 255) | (to.y & 0xff00),
-      input.flags
-    )
+    let first =
+      context.person?.id ?? context.building?.id ?? context.shrine?.id ?? context.vehicle?.id ?? 0
+    if (model === 19) first = 0
+    else if (model === 7) first = rules.sceneryResourceFlags[context.tree!.model] & 16 ? 1 : 2
+    writePersonOrder(order, model, first, ((to.x >>> 8) & 255) | (to.y & 0xff00), input.flags)
     const result = appendLivePlayerOrders(w, units, order, slot === 0)
     if (model === 15 && result.accepted && context.building)
       for (const u of units) {
