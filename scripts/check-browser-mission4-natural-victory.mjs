@@ -354,7 +354,7 @@ async function clearSelection(page) {
 
 async function selectShaman(page, clear = true) {
   if (clear) await clearSelection(page)
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
   const selected = await page.evaluate(() => {
     const world = window.testStore.getWorld()
     return world.selected.some(id =>

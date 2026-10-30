@@ -246,7 +246,7 @@ causal speedup. Nested CPU timing buckets overlap and must not be summed.
 After every existing gameplay-frame phase/export/assertion, that same job closes
 its first context and starts one fresh authored Mission 2 context. Public New Game,
 recommendation No, Browser controls, All missions, Mission 2 and Skip controls lead
-to public Pause and Select and focus shaman. One public `-` zoom-out reaches the
+to public Pause and Select shaman. One public `-` zoom-out reaches the
 ordinary bird’s-eye preset (2), explicitly not the no-person world overview.
 A declared pure minimap inverse chooses the nearest input to Green Shaman 20,
 then adds exactly `(0,+12)` minimap backing pixels, converted to CSS coordinates,

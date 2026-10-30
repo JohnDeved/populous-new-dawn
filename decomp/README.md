@@ -4940,6 +4940,10 @@ result does not justify a separate TS classifier. Run
 selection/focus and actual callback comparisons. Vehicles, category ownership and
 priority-field lifecycle writers remain open.
 
+The [Shaman portrait binding](research/shaman-portrait.md) confirms the separate
+model7 descriptor's exact PE bytes, left selection/right focus callbacks and
+bounded mounted integration. It retains native shared-ring/death-timing limits.
+
 ## 2026-09-11 — mixed painter hit ownership
 
 `check-native-world-picking.py EXE [--record]` executes the original mixed painter,
