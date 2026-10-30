@@ -1,0 +1,7 @@
+
+d3dpoptb.exe:     file format pei-i386
+
+Contents of section .data:
+ 599ba0 464d565c 706f7033 6d61736b 2e746771  FMV\pop3mask.tgq
+ 599bb0 00000000 464d565c 6f757472 6f2e7467  ....FMV\outro.tg
+ 599bc0 71000000                             q...

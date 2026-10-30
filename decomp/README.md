@@ -1,5 +1,10 @@
 # Static decompilation workspace
 
+[Native campaign selection and progression](research/native-campaign-progression/README.md)
+preserves the complete 25-mission branch contract, completion/availability distinction,
+terminal boundary, original disassembly, and static test oracles. The pure model is
+unwired; profile migration and live selector/result continuation remain separate.
+
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved

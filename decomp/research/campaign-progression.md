@@ -1,5 +1,11 @@
 # Campaign progression snapshot
 
+The later [native selector progression contract](native-campaign-progression/README.md)
+recovers the complete 25-mission recommendation/availability branches and preserves
+their original instruction listings. Its pure model remains unwired pending
+independent review and an explicit completed-only profile policy; the historical
+browser continuation described below is not the full native campaign contract.
+
 Executable SHA-256: `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 
 The Mission 1 victory branch in `00418e30` sets campaign progress bit 0 and calls
