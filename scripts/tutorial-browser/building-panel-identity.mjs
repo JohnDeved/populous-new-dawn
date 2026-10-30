@@ -256,18 +256,22 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         timing.mark(`${hold}/${boundary}/reuse-precondition:complete`)
         if (hold === 'pointer') {
           await panel.hover()
-          await page.evaluate(() => document.activeElement instanceof HTMLElement && document.activeElement.blur())
         } else {
           await panel.locator('.dismantle-control').focus()
           await page.mouse.move(10, 10)
         }
         const before = await page.evaluate(({ hold, boundary }) => {
+          // Keep the real blur, but observe its immediate result in the same command.
+          // The post-frame transition below revalidates before changing eligibility.
+          if (hold === 'pointer' && document.activeElement instanceof HTMLElement)
+            document.activeElement.blur()
           const h = window.buildingIdentity, p = h.panel
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
           const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover')
           if (!held || otherHold || !p.isConnected || p.hidden || h.scene.buildingPanels.get(h.building.id) !== p || h.building.team !== 'blue' || !h.scene.visible(h.building) || h.scene.navigationButtons() !== 0)
             throw Error('Expected held, owned and visible positive control')
-          h.heldVisibilityBefore = { frame: h.scene.renderer.info.render.frame, viewPoint: { ...h.scene.viewPoint } }
+          h.heldVisibilityBefore = { frame: h.scene.renderer.info.render.frame, viewPoint: { ...h.scene.viewPoint },
+            panel: p, building: h.building, scene: h.scene }
           return { hold, boundary, held, frame: h.heldVisibilityBefore.frame }
         }, { hold, boundary })
         await page.waitForFunction(frame => window.testSceneRef.current.renderer.info.render.frame >= frame + 2, before.frame)
@@ -276,6 +280,10 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
           const h = window.buildingIdentity, p = h.panel
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
           if (!held || h.scene.navigationButtons() !== 0) throw Error('Hold lost or camera input active before eligibility boundary')
+          const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover'),
+            expected = h.heldVisibilityBefore
+          if (!expected || p !== expected.panel || h.building !== expected.building || h.scene !== expected.scene || otherHold || !p.isConnected || p.hidden || h.scene.buildingPanels.get(h.building.id) !== p || h.building.team !== 'blue' || !h.scene.visible(h.building))
+            throw Error('Panel identity or eligibility changed before boundary')
           const frame = h.scene.renderer.info.render.frame
           if (boundary === 'ownership') h.building.team = 'red'
           else h.scene.focus({ x: h.scene.viewPoint.x + 128, z: h.scene.viewPoint.z })
