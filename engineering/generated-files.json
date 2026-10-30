@@ -1,6 +1,61 @@
 {
   "version": 1,
   "owners": [
+    {"id":"angel-strike-presentation","kind":"imported-assets","generator":{"executable":"python3","args":["scripts/import-angel-strike.py","<verified-game-root>"]},"callers":["scripts/import-angel-strike.py","app/angel-presentation.ts","app/model-resources.ts"],"inputs":["decomp/research/angel-presentation/strike.md","scripts/import-angel-presentation.py","scripts/import-original.py"],"outputs":[{"path":"app/original-angel-strike.json","type":"file","tracked":true,"protected":true}],"recording":"Exact hash-pinned model 62, keys 63\u201368 and 76\u201378; both banks equal. Native pursuit entry remains unported; no shared atlas regeneration. --check is read-only."},
+    {
+      "id": "initial-angel-presentation",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-angel-presentation.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-angel-presentation.py", "app/angel-presentation.ts", "app/model-resources.ts"],
+      "inputs": ["decomp/research/angel-presentation/README.md", "scripts/import-original.py"],
+      "outputs": [{ "path": "app/original-angel-presentation.json", "type": "file", "tracked": true, "protected": true }],
+      "recording": "Only hash-verified original model 69 and keys 70–75, independently equal in object banks 2/6. Existing model catalogs, atlas and gameplay state remain unchanged. The missing movement-mode owner and model 62 transition are not inferred. --check is read-only."
+    },
+    {
+      "id": "native-ui-archive-collection",
+      "kind": "measurement",
+      "generator": {
+        "executable": "python3",
+        "args": [
+          "-I",
+          "-B",
+          "scripts/orchestration/collect_native_ui_archive.py",
+          "--request",
+          "<bound-request>",
+          "--request-sha256",
+          "<reviewed-sha256>"
+        ]
+      },
+      "callers": [
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "scripts/orchestration/evidence_archive.py"
+      ],
+      "inputs": [
+        "engineering/artifact-retention.md",
+        "engineering/native-ui-evidence.md"
+      ],
+      "outputs": [
+        {
+          "path": "work/native-ui-archives",
+          "type": "directory",
+          "tracked": false,
+          "protected": true
+        },
+        {
+          "path": "work/native-ui-archive-collections",
+          "type": "directory",
+          "tracked": false,
+          "protected": true
+        },
+        {
+          "path": "work/native-ui-archive-views",
+          "type": "directory",
+          "tracked": false,
+          "protected": true
+        }
+      ],
+      "recording": "Canonical API archives, source-bound collection maps and external ownership/release journals remain held. Default collection never extracts all members. Only an explicitly selected completed cache may be released by exact ownership token and journal after its consumer ends; unknown/partial caches and historical evidence are not disposable. No automatic prune or original retirement."
+    },
     {
       "id": "startup-logo",
       "kind": "imported-assets",
@@ -44,7 +99,7 @@
       "id": "parity-report",
       "kind": "bookkeeping",
       "generator": {
-        "executable": "npm",
+        "executable": "pnpm",
         "args": ["run", "parity:record", "--", "<authorized-note>"]
       },
       "callers": ["scripts/parity.mjs", "package.json"],
@@ -754,7 +809,7 @@
     {
       "id": "orchestration-cache",
       "kind": "disposable",
-      "generator": { "executable": "npm", "args": ["run", "orchestration:index"] },
+      "generator": { "executable": "pnpm", "args": ["run", "orchestration:index"] },
       "callers": ["scripts/orchestration/cli.mjs"],
       "inputs": ["engineering/project-map.json", "engineering/checks.json", "parity.json"],
       "outputs": [

@@ -1,3 +1,7 @@
+import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_INPUTS, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, gameplayResourceArchiveLimit,
+  validateGameplayResourceBrowserJobs, gameplayResourceArtifactUpload, validateGameplayResourceArtifactMetadata,
+  resolveGameplayResourceArtifact } from './gameplay-resources-policy.mjs'
+import { COMPOSED_SOURCE_INPUTS, composedContract } from './composed-profile-artifact.mjs'
 import { SPELL_VISUAL_POLICY, SPELL_VISUAL_JOB, SPELL_VISUAL_INPUTS, validateSpellVisualBrowserJobs,
   readSpellVisualReceiptLog, resolveSpellVisualArtifact } from './spell-visuals-policy.mjs'
 import { spellVisualArtifactUpload, validateSpellVisualArtifactMetadata, spellVisualArchiveLimit } from './spell-visuals-artifact.mjs'
@@ -78,10 +82,29 @@ export class GitHubReader {
     ensure(Buffer.isBuffer(bytes) && bytes.length <= spellVisualArchiveLimit, 'Invalid synchronous spell visuals archive bytes')
     return bytes
   }
+  gameplayResourceArchive(id) {
+    ensure(Number.isSafeInteger(id) && id > 0, 'Invalid numeric gameplay resources artifact ID')
+    ensure(typeof this.executeBinary === 'function', 'Binary gameplay resources transport must be explicitly injected')
+    const bytes = this.executeBinary('gh', ['api', '--hostname', 'github.com', '--method', 'GET',
+      `repos/${REPO}/actions/artifacts/${id}/zip`], {
+      cwd: this.cwd, stdio: 'pipe', timeout: 30_000, maxBuffer: gameplayResourceArchiveLimit,
+      env: { ...process.env, GH_PROMPT_DISABLED: '1', GH_PAGER: 'cat' },
+    })
+    ensure(Buffer.isBuffer(bytes) && bytes.length <= gameplayResourceArchiveLimit, 'Invalid synchronous gameplay resources archive bytes')
+    return bytes
+  }
   // Immutable data-only blob read: no checkout, filters, text conversion or imports.
   // Explicitly bounded and byte-exact, including PNGs that cannot round-trip UTF-8.
   spellVisualBlob(commit, path) {
     ensure(sha(commit) && SPELL_VISUAL_INPUTS.includes(path), 'Unreviewed spell visuals input')
+    return this.immutableBlob(commit, path)
+  }
+  composedSourceBlob(commit, path) {
+    ensure(sha(commit) && COMPOSED_SOURCE_INPUTS.includes(path), 'Unreviewed composed source input')
+    return this.immutableBlob(commit, path)
+  }
+  immutableBlob(commit, path) {
+    ensure(sha(commit) && (SPELL_VISUAL_INPUTS.includes(path) || COMPOSED_SOURCE_INPUTS.includes(path) || GAMEPLAY_OWNERSHIP_INPUTS.includes(path)), 'Unreviewed immutable source input')
     ensure(typeof this.executeBinary === 'function', 'Binary Git transport must be explicitly injected')
     const prefix = ['--no-replace-objects', '-c', 'core.hooksPath=/dev/null',
       '-c', 'core.fsmonitor=false', '-c', 'core.attributesFile=/dev/null']
@@ -323,12 +346,26 @@ export class GitHubReader {
           }
           if (gate.recoveryRequired && exact.conclusion === 'success')
             this.verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row)
-          if (gate.profileRequired && exact.conclusion === 'success')
-            this.verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row)
-          if (gate.mission10Required && exact.conclusion === 'success')
-            this.verifyMission10Run(entry, pr, synthetic, exact, jobs, row)
+          if (gate.profileRequired && exact.conclusion === 'success') {
+            const proof = this.verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row)
+            if (gate.composedRequired) {
+              ensure(proof && typeof proof.then !== 'function' && proof.composedVerified === true, 'Unresolved composed Profile verifier')
+              row.profileRecoveryVerified = true; row.tornadoVerified = true
+              row.profileRecoveryReceiptSha256 = proof.receiptSha256; row.profileRecoveryCheckId = proof.checkId
+            }
+          }
+          if (gate.mission10Required && exact.conclusion === 'success') {
+            const proof = this.verifyMission10Run(entry, pr, synthetic, exact, jobs, row)
+            if (gate.composedRequired) {
+              ensure(proof && typeof proof.then !== 'function' && proof.composedVerified === true, 'Unresolved composed Mission10 verifier')
+              row.mission10Verified = true; row.spySourceVerified = true
+              row.mission10ReceiptSha256 = proof.receiptSha256; row.mission10CheckId = proof.checkId
+            }
+          }
           if (gate.spellVisualsRequired && exact.conclusion === 'success')
             ensure(this.verifySpellVisualRun(entry, pr, synthetic, exact, jobs, row) === true, 'Unresolved spell visuals verification')
+          if (gate.gameplayResourcesRequired && exact.conclusion === 'success')
+            ensure(this.verifyGameplayResourceRun(entry, pr, synthetic, exact, jobs, row) === true, 'Unresolved gameplay resource verification')
           row.identityVerified =
             identity.head === pr.head.sha &&
             identity.base === pr.base.sha &&
@@ -343,10 +380,18 @@ export class GitHubReader {
     return runs
   }
   validateBrowserJobs(entry, pr, exact, jobs) {
+    if (entry.profileArtifactPolicy !== undefined) {
+      composedContract({ profileArtifactPolicy: entry.profileArtifactPolicy, browserPolicy: entry.browserPolicy, checkpointVersion: entry.browserCheckpointVersion })
+      ensure(jobs.every(j => j.head_sha === pr.head.sha), 'Composed job head differs')
+    }
     if (entry.browserPolicy === SPELL_VISUAL_POLICY) {
       ensure(entry.browserCheckpointVersion === 4, 'Nine-job policy requires explicit current-v4 contract')
       ensure(validateSpellVisualBrowserJobs(jobs, exact, { policy: SPELL_VISUAL_POLICY, headSha: pr.head.sha }) === true,
         'Unresolved nine-job inventory')
+    } else if (GAMEPLAY_RESOURCE_POLICIES.includes(entry.browserPolicy)) {
+      ensure(entry.browserCheckpointVersion === 3, 'Resource policy requires explicit v3 contract')
+      ensure(validateGameplayResourceBrowserJobs(jobs, exact, { policy: entry.browserPolicy, headSha: pr.head.sha }) === true,
+        'Unresolved resource nine-job inventory')
     } else validateSplitBrowserJobs(jobs, exact)
   }
   verifySpellVisualRun(entry, pr, synthetic, exact, jobs, row) {
@@ -397,13 +442,74 @@ export class GitHubReader {
     row.spellVisualsArtifactSha256 = upload.sha256
     return true
   }
+  verifyGameplayResourceRun(entry, pr, synthetic, exact, jobs, row) {
+    ensure(GAMEPLAY_RESOURCE_POLICIES.includes(entry.browserPolicy) && entry.browserCheckpointVersion === 3,
+      'Gameplay resources requires explicit nine-job/current-v3 contract')
+    ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
+      exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha &&
+      synthetic && row.merge === synthetic.sha, 'Gameplay resources workflow/candidate identity differs')
+    this.validateBrowserJobs(entry, pr, exact, jobs)
+    const job = jobs.find(j => j.name === GAMEPLAY_RESOURCE_JOB[1])
+    ensure(Number.isSafeInteger(job.id) && job.id > 0 &&
+      new RegExp(`^https://api\\.github\\.com/repos/${REPO}/check-runs/[1-9][0-9]*$`).test(job.check_run_url),
+      'Unexpected gameplay resources job/check identity')
+    const check = this.get(job.check_run_url.slice('https://api.github.com/'.length))
+    ensure(check.id === Number(job.check_run_url.split('/').at(-1)) &&
+      check.check_suite?.id === exact.check_suite_id && check.head_sha === pr.head.sha &&
+      check.name === GAMEPLAY_RESOURCE_JOB[1] && check.app?.id === 15368 && check.app?.slug === 'github-actions' &&
+      check.status === 'completed' && check.conclusion === 'success', 'Gameplay resources check identity/result mismatch')
+    const rawLog = this.get(`repos/${REPO}/actions/jobs/${job.id}/logs`, true)
+    const log = stripVTControlCharacters(rawLog), identity = logIdentity(log)
+    ensure(identity.head === pr.head.sha && identity.base === pr.base.sha && identity.merge === synthetic.sha,
+      'Gameplay resources worker tested a different candidate')
+    ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
+      'Gameplay resources workflow source differs')
+    const inputs = Object.fromEntries(gameplayResourceInputs(entry.browserPolicy).map(path => [path, this.immutableBlob(synthetic.sha, path)]))
+    const expected = { policy: entry.browserPolicy,
+      identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
+        workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
+        mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
+      inputs: Object.fromEntries(Object.entries(inputs).map(([path, bytes]) => [path, sha256(bytes)])),
+    }
+    const upload = gameplayResourceArtifactUpload(log, synthetic.sha)
+    const artifacts = this.pages(`repos/${REPO}/actions/runs/${exact.id}/artifacts`, 'artifacts')
+    const matches = artifacts.filter(a => a.name === upload.name || a.id === upload.id)
+    ensure(matches.length === 1, 'Missing, duplicate or reuploaded gameplay resources artifact')
+    validateGameplayResourceArtifactMetadata(matches[0], upload, expected.identity)
+    validateGameplayResourceArtifactMetadata(this.get(`repos/${REPO}/actions/artifacts/${upload.id}`), upload, expected.identity)
+    const evidence = resolveGameplayResourceArtifact(this.gameplayResourceArchive(upload.id), upload, expected)
+    ensure(evidence && typeof evidence.then !== 'function' && evidence.lifecycleVerified === true,
+      'Unresolved gameplay resources artifact evidence')
+    if ([GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(entry.browserPolicy)) {
+      ensure(evidence.heapCapabilityVerified === true, 'Missing mandatory isolate byte capability proof')
+      row.gameplayHeapVerified = true
+    }
+    if (entry.browserPolicy === GAMEPLAY_MATCHED_POLICY) {
+      ensure(evidence.matchedCyclesVerified === true, 'Missing mandatory matched two-cycle proof')
+      row.gameplayMatchedCyclesVerified = true
+    }
+    if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(entry.browserPolicy)) {
+      ensure(evidence.threeCyclesVerified === true && evidence.cycleCount === 3, 'Missing mandatory three-cycle proof')
+      row.gameplayThreeCyclesVerified = true
+    }
+    if (entry.browserPolicy === GAMEPLAY_OWNERSHIP_POLICY) {
+      ensure(evidence.ownershipVerified === true, 'Missing mandatory bounded ownership proof')
+      row.gameplayOwnershipVerified = true
+    }
+    row.gameplayResourcesVerified = true
+    row.gameplayResourcesCheckId = check.id
+    row.gameplayResourcesLogSha256 = sha256(rawLog)
+    row.gameplayResourcesArtifactId = upload.id
+    row.gameplayResourcesArtifactSha256 = upload.sha256
+    return true
+  }
   verifyPauseRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Recovery workflow is not the successful current PR run')
-    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['pause-recovery-v1', 'profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Pause recovery requires explicit trusted policy and current synthetic source')
-    const nine = entry.browserPolicy === SPELL_VISUAL_POLICY
+    const nine = [SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy)
     const split = entry.browserPolicy === 'profile-split-v1' || nine
     if (split) this.validateBrowserJobs(entry, pr, exact, jobs)
     const expectedJobs = nine ? 9 : split ? 8 : entry.browserPolicy === 'profile-recovery-v1' ? 3 : 2
@@ -443,24 +549,41 @@ export class GitHubReader {
     row.pauseRecoveryReceiptSha256 = receipt.receiptSha256
     row.pauseRecoveryCheckId = check.id
   }
-  profileEvidence(log, receipt, identity, recoveryOnly = false) {
+  composedExpected(entry, identity) {
+    if (entry.profileArtifactPolicy === undefined) return undefined
+    const contract = { profileArtifactPolicy: entry.profileArtifactPolicy, browserPolicy: entry.browserPolicy,
+      checkpointVersion: entry.browserCheckpointVersion, identity }
+    ensure(composedContract(contract) === true, 'Invalid composed contract')
+    let total = 0
+    contract.sourceBytes = Object.fromEntries(COMPOSED_SOURCE_INPUTS.map(path => {
+      const bytes = this.composedSourceBlob(identity.mergeSha, path)
+      ensure(Buffer.isBuffer(bytes), 'Unresolved composed source blob')
+      total += bytes.length; ensure(total <= 128 * 1024 * 1024, 'Composed source byte bound')
+      return [path, bytes]
+    }))
+    return contract
+  }
+  profileEvidence(log, receipt, identity, recoveryOnly = false, composed) {
     const upload = profileArtifactUpload(log, identity.mergeSha)
     const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
-    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
+    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name || (composed !== undefined && artifact.id === upload.id))
     ensure(matchesArtifact.length === 1, 'Missing or duplicate profile artifact')
     validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
     const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
     validateProfileArtifactMetadata(metadata, upload, identity)
     const archive = this.artifactArchive(upload.id)
-    return recoveryOnly ? resolveProfileCasesArtifact(archive, upload, receipt) : resolveProfileArtifact(archive, upload, receipt)
+    const result = recoveryOnly ? resolveProfileCasesArtifact(archive, upload, receipt, composed) : resolveProfileArtifact(archive, upload, receipt)
+    if (composed !== undefined) ensure(result && typeof result.then !== 'function' && result.composedVerified === true,
+      'Unresolved composed Profile artifact')
+    return result
   }
   verifyProfileRecoveryRun(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Profile recovery workflow is not the successful current PR run')
-    ensure(['profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-recovery-v1', 'profile-split-v1', SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Profile recovery requires explicit trusted policy and current synthetic source')
-    const nine = entry.browserPolicy === SPELL_VISUAL_POLICY
+    const nine = [SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy)
     const split = entry.browserPolicy === 'profile-split-v1' || nine
     if (split) this.validateBrowserJobs(entry, pr, exact, jobs)
     const expectedJobs = nine ? 9 : split ? 8 : 3
@@ -497,9 +620,14 @@ export class GitHubReader {
       inputs: Object.fromEntries(PROFILE_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
     }
+    const composed = this.composedExpected(entry, expected.identity)
     if (split) {
-      validateProfileCases(receipt, expected)
-      this.profileEvidence(log, receipt, expected.identity, true)
+      ensure(validateProfileCases(receipt, expected) === true, 'Unresolved Profile validation')
+      const evidence = this.profileEvidence(log, receipt, expected.identity, true, composed)
+      if (composed !== undefined) {
+        ensure(evidence && typeof evidence.then !== 'function' && evidence.composedVerified === true, 'Unresolved composed Profile evidence')
+        return { composedVerified: true, receiptSha256: receipt.receiptSha256, checkId: check.id }
+      }
     } else {
       expected.mission10Evidence = this.profileEvidence(log, receipt, expected.identity)
       validateProfileRecovery(receipt, expected)
@@ -509,24 +637,27 @@ export class GitHubReader {
     row.profileRecoveryReceiptSha256 = receipt.receiptSha256
     row.profileRecoveryCheckId = check.id
   }
-  mission10Evidence(log, receipt, identity) {
+  mission10Evidence(log, receipt, identity, composed) {
     const upload = mission10ArtifactUpload(log, identity.mergeSha)
     const artifacts = this.pages(`repos/${REPO}/actions/runs/${identity.runId}/artifacts`, 'artifacts')
-    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name)
+    const matchesArtifact = artifacts.filter(artifact => artifact.name === upload.name || (composed !== undefined && artifact.id === upload.id))
     ensure(matchesArtifact.length === 1, 'Missing or duplicate Mission 10 artifact')
     validateProfileArtifactMetadata(matchesArtifact[0], upload, identity)
     const metadata = this.get(`repos/${REPO}/actions/artifacts/${upload.id}`)
     validateProfileArtifactMetadata(metadata, upload, identity)
-    return resolveMission10Artifact(this.artifactArchive(upload.id), upload, receipt)
+    const result = resolveMission10Artifact(this.artifactArchive(upload.id), upload, receipt, composed)
+    if (composed !== undefined) ensure(result && typeof result.then !== 'function' && result.composedVerified === true,
+      'Unresolved composed Mission10 artifact')
+    return result
   }
   verifyMission10Run(entry, pr, synthetic, exact, jobs, row) {
     ensure(exact.status === 'completed' && exact.conclusion === 'success' &&
       exact.event === 'pull_request' && exact.path === GATES[1].workflow && exact.head_sha === pr.head.sha,
       'Mission 10 workflow is not the successful current PR run')
-    ensure(['profile-split-v1', SPELL_VISUAL_POLICY].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
+    ensure(['profile-split-v1', SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) && synthetic && row.merge === synthetic.sha,
       'Mission 10 requires explicit trusted policy and current synthetic source')
     this.validateBrowserJobs(entry, pr, exact, jobs)
-    const expectedJobs = entry.browserPolicy === SPELL_VISUAL_POLICY ? 9 : 8
+    const expectedJobs = [SPELL_VISUAL_POLICY, ...GAMEPLAY_RESOURCE_POLICIES].includes(entry.browserPolicy) ? 9 : 8
     ensure(jobs.length === expectedJobs && new Set(jobs.map(j => j.id)).size === expectedJobs &&
       jobs.filter(j => j.name === RECOVERY_JOB).length === 1 &&
       jobs.filter(j => j.name === PROFILE_JOB).length === 1 &&
@@ -561,8 +692,13 @@ export class GitHubReader {
       inputs: Object.fromEntries(MISSION10_INPUTS.map(path =>
         [path, sha256(this.gitOutput('show', `${synthetic.sha}:${path}`))])),
     }
-    expected.mission10Evidence = this.mission10Evidence(log, receipt, expected.identity)
-    validateMission10Crew(receipt, expected)
+    const composed = this.composedExpected(entry, expected.identity)
+    const evidence = this.mission10Evidence(log, receipt, expected.identity, composed)
+    if (composed !== undefined) ensure(evidence && typeof evidence.then !== 'function' && evidence.composedVerified === true,
+      'Unresolved composed Mission10 evidence')
+    expected.mission10Evidence = composed === undefined ? evidence : evidence.phases
+    ensure(validateMission10Crew(receipt, expected) === true, 'Unresolved Mission10 validation')
+    if (composed !== undefined) return { composedVerified: true, receiptSha256: receipt.receiptSha256, checkId: check.id }
 
     row.mission10Verified = true
     row.mission10ReceiptSha256 = receipt.receiptSha256
@@ -614,7 +750,15 @@ export class GitHubReader {
     const files = this.git('ls-tree', '-r', '--name-only', synthetic.sha, '--', 'tests').split('\n')
       .filter(file => /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(file)).sort()
     const inventory = files.map(file => ({ file, sha256: sha256(this.gitOutput('show', `${synthetic.sha}:${file}`)) }))
-    validateShardedReceipt(receipt, { identity, inventory,
+    const packageJson = this.gitOutput('show', `${synthetic.sha}:package.json`)
+    const packageManager = JSON.parse(packageJson).packageManager ?? 'npm@11.9.0'
+    ensure(['npm@11.9.0', 'pnpm@11.25.0'].includes(packageManager), 'Unsupported source package-manager policy')
+    validateShardedReceipt(receipt, { identity, inventory, packageManager,
+      ...(packageManager === 'pnpm@11.25.0' ? {
+        packageJsonSha256: sha256(packageJson),
+        pnpmLockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:pnpm-lock.yaml`)),
+        workspaceSha256: sha256(this.gitOutput('show', `${synthetic.sha}:pnpm-workspace.yaml`)),
+      } : {}),
       lockSha256: sha256(this.gitOutput('show', `${synthetic.sha}:package-lock.json`)),
       ...(receipt.runtime?.timingReporterSha256 !== undefined ? {
         timingReporterSha256: sha256(this.gitOutput('show', `${synthetic.sha}:scripts/orchestration/test-timing-reporter.mjs`)),
@@ -780,7 +924,7 @@ export class GitHubReader {
           'check_runs'
         )
           .filter(c => c.app?.id === 15368 && gatesFor(entry).some(g =>
-            [g.job, g.recoveryJob, g.profileJob, g.mission10Job, g.spellVisualsJob].includes(c.name)))
+            [g.job, g.recoveryJob, g.profileJob, g.mission10Job, g.spellVisualsJob, g.gameplayResourcesJob].includes(c.name)))
           .map(c => ({
             id: c.id,
             name: c.name,
@@ -889,3 +1033,4 @@ export function assertSafeGitConfiguration(raw) {
     'Custom Git merge/filter drivers rejected before inspecting working files'
   )
 }
+

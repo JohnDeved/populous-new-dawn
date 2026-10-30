@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict'
+import { dependencyInputPaths } from './orchestration/dependency-profile.mjs'
 import { createHash, randomUUID } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -51,7 +52,9 @@ export function validateStageSource(expected, source, sharedPaths, producedInput
   return binding
 }
 
-export function runAcceptance(output) {
+export function runAcceptance(output, { boundedEarlyCamp = false } = {}) {
+  assert.equal(typeof boundedEarlyCamp, 'boolean', 'boundedEarlyCamp must be a boolean')
+  const boundedReceiptStages = ['fresh-release', ...(boundedEarlyCamp ? ['early-camp'] : [])]
   validatePlan(plan)
   assert(
     /^work\/orchestration\/m6-earned-victory\/[a-zA-Z0-9_-]+$/.test(output),
@@ -68,6 +71,7 @@ export function runAcceptance(output) {
     status: 'running',
     nodeVersion: process.version,
     sourceBinding: null,
+    boundedReceiptStages,
     limits: [
       'Ordinary public simulation commands, no rendered input dispatch',
       'Synthetic IndexedDB, not actual browser persistence',
@@ -83,76 +87,90 @@ export function runAcceptance(output) {
     'scripts/acceptance/m6/plan.json',
     'scripts/acceptance/m6/output-path.mjs',
     'scripts/orchestration/command-receipt.mjs',
+    'scripts/orchestration/command-log.mjs',
+    'scripts/orchestration/command-receipt-v1.mjs',
+    'scripts/orchestration/receipt-streams.mjs',
     'tests/support/profile-storage.mjs',
     'tests/support/bloodlust-scene.mjs',
     'package-lock.json',
-    'node_modules/.package-lock.json',
+    'package.json',
+    'scripts/orchestration/dependency-profile.mjs',
+    ...dependencyInputPaths(ROOT),
     ...plan.stages.map(stage => `scripts/acceptance/m6/${stage.name}.mjs`),
   ]
   const produced = new Map()
   save()
-  for (const stage of plan.stages) {
-    const script = `scripts/acceptance/m6/${stage.name}.mjs`
-    const receiptPath = `${output}/${stage.name}.json`
-    console.log(`Mission 6: ${stage.name}`)
-    const receipt = runCommandReceipt(ROOT, {
-      output: receiptPath,
-      command: [process.execPath, script],
-      inputs: [...sharedPaths, ...stage.inputs.map(name => `${checkpoints}/${name}`)],
-      env: { ...process.env, PND_M6_OUTPUT: resolve(ROOT, checkpoints) },
-    })
-    const result = {
-      name: stage.name,
-      status: receipt.status,
-      receipt: receiptPath,
-      receiptSha256: sha256(readFileSync(resolve(ROOT, receiptPath))),
-      source: receipt.source,
-      outputs: {},
-    }
-    manifest.stages.push(result)
-    if (receipt.status !== 'passed') {
-      manifest.status = 'failed'
+  return (async () => {
+    for (const stage of plan.stages) {
+      const script = `scripts/acceptance/m6/${stage.name}.mjs`
+      const receiptPath = `${output}/${stage.name}.json`
+      console.log(`Mission 6: ${stage.name}`)
+      const receipt = await runCommandReceipt(ROOT, {
+        output: receiptPath,
+        streamVersion: boundedReceiptStages.includes(stage.name) ? 2 : 1,
+        command: [process.execPath, script],
+        inputs: [...sharedPaths, ...stage.inputs.map(name => `${checkpoints}/${name}`)],
+        env: { ...process.env, PND_M6_OUTPUT: resolve(ROOT, checkpoints) },
+      })
+      const result = {
+        name: stage.name,
+        status: receipt.status,
+        receipt: receiptPath,
+        receiptSha256: sha256(readFileSync(resolve(ROOT, receiptPath))),
+        source: receipt.source,
+        outputs: {},
+      }
+      manifest.stages.push(result)
+      if (receipt.status !== 'passed') {
+        manifest.status = 'failed'
+        save()
+        throw new Error(`${stage.name}: ${receipt.status}; inspect ${receiptPath}`)
+      }
+      try {
+        manifest.sourceBinding = validateStageSource(
+          manifest.sourceBinding,
+          receipt.source,
+          sharedPaths,
+          Object.fromEntries(stage.inputs.map(name => [`${checkpoints}/${name}`, produced.get(name)]))
+        )
+      } catch (error) {
+        result.status = 'invalidated'
+        manifest.status = 'invalidated'
+        manifest.failure = error.message
+        save()
+        throw error
+      }
+      for (const name of stage.outputs) {
+        const hash = sha256(readFileSync(resolve(ROOT, checkpoints, name)))
+        result.outputs[name] = hash
+        produced.set(name, hash)
+      }
       save()
-      throw new Error(`${stage.name}: ${receipt.status}; inspect ${receiptPath}`)
     }
-    try {
-      manifest.sourceBinding = validateStageSource(
-        manifest.sourceBinding,
-        receipt.source,
-        sharedPaths,
-        Object.fromEntries(stage.inputs.map(name => [`${checkpoints}/${name}`, produced.get(name)]))
-      )
-    } catch (error) {
-      result.status = 'invalidated'
-      manifest.status = 'invalidated'
-      manifest.failure = error.message
-      save()
-      throw error
-    }
-    for (const name of stage.outputs) {
-      const hash = sha256(readFileSync(resolve(ROOT, checkpoints, name)))
-      result.outputs[name] = hash
-      produced.set(name, hash)
-    }
+    manifest.result = JSON.parse(
+      readFileSync(resolve(ROOT, checkpoints, 'recovery-persistence-summary.json'), 'utf8')
+    )
+    assert.equal(manifest.result.naturalWinTurn, plan.expectedWinTurn)
+    assert.deepEqual(manifest.result.profile.completed, [6])
+    assert.equal(manifest.result.continueMission, 7)
+    assert.equal(manifest.result.continueStatus, 'playing')
+    manifest.status = 'passed'
     save()
-  }
-  manifest.result = JSON.parse(
-    readFileSync(resolve(ROOT, checkpoints, 'recovery-persistence-summary.json'), 'utf8')
-  )
-  assert.equal(manifest.result.naturalWinTurn, plan.expectedWinTurn)
-  assert.deepEqual(manifest.result.profile.completed, [6])
-  assert.equal(manifest.result.continueMission, 7)
-  assert.equal(manifest.result.continueStatus, 'playing')
-  manifest.status = 'passed'
-  save()
-  console.log(JSON.stringify({ status: manifest.status, output, ...manifest.result }))
-  return manifest
+    console.log(JSON.stringify({ status: manifest.status, output, ...manifest.result }))
+    return manifest
+  })()
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const args = process.argv.slice(2), flag = '--bounded-early-camp'
+  const boundedEarlyCamp = args.includes(flag)
+  const positional = args.filter(arg => arg !== flag)
   assert(
-    process.argv.length <= 3,
-    'Usage: node scripts/check-mission6-earned-victory.mjs [output-directory]'
+    args.filter(arg => arg === flag).length <= 1 &&
+      positional.length <= 1 && positional.every(arg => !arg.startsWith('-')),
+    'Usage: node scripts/check-mission6-earned-victory.mjs [output-directory] [--bounded-early-camp]'
   )
-  runAcceptance(process.argv[2] ?? `work/orchestration/m6-earned-victory/${randomUUID()}`)
+  await runAcceptance(positional[0] ?? `work/orchestration/m6-earned-victory/${randomUUID()}`, {
+    boundedEarlyCamp,
+  })
 }

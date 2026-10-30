@@ -8,6 +8,7 @@ import { createSnapshotGeometryObserver } from './snapshot-geometry.mjs'
 import { installSnapshotObserver } from './snapshot-observer.mjs'
 import { installSnapshotDragObserver } from './snapshot-drag-observer.mjs'
 import { dragContract } from './snapshot-drag-contract.mjs'
+import { recoverSnapshotMenu } from './snapshot-menu-recovery.mjs'
 import { plan, shards, invariant, assertDragWarmupReturn, summarizeSnapshotPhase, sha256 } from './snapshot-protocol.mjs'
 import { m2HudPoint } from '../tutorial-browser/m2-pointer-f8.mjs'
 
@@ -161,13 +162,8 @@ export default async function capture({ page, url, output, expectedRevision, fix
         record.status = 'unsupported-source-contract'; record.sourceAdmission = dragSource ?? null; save(); continue
       }
       if (name === 'menu-recovery') {
-        record.preparation.push({ action: 'open-public-settings', before: await observe() })
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-        await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
-        record.menu = await observe(); assert.equal(record.menu.paused, true)
-        await page.keyboard.press('Escape')
-        await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
-        record.preparation.push({ action: 'close-public-settings', after: await observe() })
+        await recoverSnapshotMenu({ page, record, observe, save,
+          assertAdmission: state => assertSnapshotAdmission(state, fixture) })
         // This measures subsequent pointer-input CPU, NOT first post-close work.
       }
       const point = name === 'hud' ? await page.evaluate(m2HudPoint)

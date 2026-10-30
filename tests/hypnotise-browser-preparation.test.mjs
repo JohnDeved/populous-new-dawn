@@ -80,6 +80,9 @@ function observation() {
   })
   return { error: null, bornTurn: 20, birth: { id: 7, remaining: 16, stock: 0, cue: true },
     terminal: { reason: 'logical-expiry', turn: 36, present: false, meshPresent: false, remaining: 0 },
+    hook: { installed: true, restored: true, foreign: false },
+    turnSamples: [{ id: 7, turn: 24, remaining: 12, converted: [] },
+      { id: 7, turn: 25, remaining: 11, converted: [90, 91] }],
     samples, crops }
 }
 
@@ -89,11 +92,16 @@ test('Hypnotise rendered contract requires authored frames, callback timing, rea
     o => { o.samples[0].frame = 1288 },
     o => { o.samples[0].uv[0] = 1 },
     o => { o.samples[0].submitted = false },
-    o => { o.samples[3].converted = [] },
-    o => { o.samples[2].converted = [90] },
+    o => { o.turnSamples[1].converted = [] },
+    o => { o.turnSamples[0].converted = [90] },
+    o => { o.turnSamples[1].remaining = 10 },
+    o => { o.turnSamples[1].turn++ },
+    o => { o.turnSamples[1].id++ },
+    o => { o.hook.restored = false },
     o => { o.crops[0].stamp++ },
     o => { o.crops[0].colors = 1 },
     o => { o.terminal.turn-- },
+    o => { o.terminal.turn++ },
     o => { o.terminal.meshPresent = true },
     o => { o.birth.cue = false },
   ]) {

@@ -207,6 +207,7 @@ export class RenderView {
   private ordinaryNumericProjection: OrdinaryNumericProjection | null = null
   private ordinaryPickScratch: OrdinaryPickScratch | null = null
   private ordinaryPickDepth = 0
+  private pickOperationDepth = 0
   private ordinaryPickDisposed = false
   groundPickCache = new WeakMap<
     THREE.Object3D,
@@ -396,7 +397,19 @@ export class RenderView {
   // Compare submitted cells when the index version changes, retaining a revision
   // for equivalent submissions even when an external producer rewrites the index.
   pickSubmissionKey(objects: THREE.Object3D[]) {
-    const keys: string[] = []
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.ordinaryPickDepth++
+    try {
+      return this.collectPickSubmissionKey(objects)
+    } finally {
+      if (--this.ordinaryPickDepth === 0) this.ordinaryPickScratch?.clearPoints()
+    }
+  }
+
+  private collectPickSubmissionKey(objects: THREE.Object3D[]) {
+    const submissions = this.pickSubmissions,
+      keys: string[] = []
     for (const root of objects)
       root.traverseVisible(object => {
         if (!(object instanceof THREE.Mesh) || !object.visible) return
@@ -411,7 +424,7 @@ export class RenderView {
           instanceVersion =
             object instanceof THREE.InstancedMesh ? object.instanceMatrix.version : -1,
           matrix = object.matrixWorld.elements.join(',')
-        const cached = this.pickSubmissions.get(object)
+        const cached = submissions.get(object)
         let same =
           !!cached &&
           cached.position === position &&
@@ -443,19 +456,20 @@ export class RenderView {
           } else cells = new Uint32Array(0)
         }
         const revision = same ? cached!.revision : (cached?.revision ?? 0) + 1
-        this.pickSubmissions.set(object, {
-          revision,
-          position,
-          positionVersion,
-          index,
-          indexVersion: index?.version ?? -1,
-          drawStart,
-          drawCount,
-          instances,
-          instanceVersion,
-          matrix,
-          cells,
-        })
+        if (!this.ordinaryPickDisposed)
+          submissions.set(object, {
+            revision,
+            position,
+            positionVersion,
+            index,
+            indexVersion: index?.version ?? -1,
+            drawStart,
+            drawCount,
+            instances,
+            instanceVersion,
+            matrix,
+            cells,
+          })
         keys.push(`${object.id}:${revision}`)
       })
     return keys.join('|')
@@ -473,7 +487,8 @@ export class RenderView {
     metrics?: NativeOcclusionMetrics,
     ordinaryMetrics?: OrdinaryTerrainMetrics
   ): ViewPickCandidate[] {
-    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
     this.ordinaryPickDepth++
     try {
       return this.collectPickCandidates(
@@ -498,7 +513,8 @@ export class RenderView {
     ordinaryMetrics?: OrdinaryTerrainMetrics,
     owned = false
   ): ViewPickCandidate[] {
-    if (this.ordinaryPickDepth === 0) this.ordinaryPickDisposed = false
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
     this.ordinaryPickDepth++
     try {
       return this.collectPickCandidates(
@@ -725,22 +741,24 @@ export class RenderView {
                   continue
                 }
               }
-            }
-            if (numeric) {
-              const slot = numeric.append(
-                position.getX(i),
-                position.getY(i),
-                position.getZ(i),
-                transform.elements,
-                this.rawCenter.x,
-                this.rawCenter.y,
-                this.projection,
-                this.config.depth
-              )
-              terrainSlots![i] = slot + 1
-              if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
-              if (projectionMetrics) projectionMetrics.projectedVertices++
-              continue
+              // The owned numeric path admits the same plain Float32 inputs.
+              // Reuse this query's exact raw reads, not cached geometry/projections.
+              if (numeric) {
+                const slot = numeric.append(
+                  x,
+                  y,
+                  z,
+                  transform.elements,
+                  this.rawCenter.x,
+                  this.rawCenter.y,
+                  this.projection,
+                  this.config.depth
+                )
+                terrainSlots![i] = slot + 1
+                if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
+                if (projectionMetrics) projectionMetrics.projectedVertices++
+                continue
+              }
             }
             let p = new THREE.Vector3().fromBufferAttribute(position, i)
             if (scale) {
@@ -764,7 +782,7 @@ export class RenderView {
             // Keep the first source when later corners disagree in height or sign.
             if (terrainCorners && firstCorner >= 0) terrainCorners[firstCorner] = i + 1
           }
-          if (nativeEdges && !reuse) {
+          if (nativeEdges && !reuse && !this.ordinaryPickDisposed) {
             let entries = this.groundPickCache.get(object)
             if (!entries) this.groundPickCache.set(object, (entries = new Map()))
             entries.set(instance, { key: cacheKey, position, world, screen, slots: terrainSlots })
@@ -875,6 +893,20 @@ export class RenderView {
   ) {
     if (!runtimeTerrainPicking(this, terrain) || this.overview || this.ordinaryPickDepth !== 0)
       return this.pick(mouse, [terrain], camera, false, metrics)
+    this.beginPickOperation()
+    try {
+      return this.pickOwnedTerrainQuery(mouse, terrain, camera, metrics)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private pickOwnedTerrainQuery(
+    mouse: THREE.Vector2,
+    terrain: THREE.Object3D,
+    camera: THREE.Camera,
+    metrics?: OrdinaryTerrainMetrics
+  ) {
     const candidates = this.pickCandidateQuery(
       mouse,
       [terrain],
@@ -928,9 +960,12 @@ export class RenderView {
       const determinant = (by - cy) * (ax - cx) + (cx - bx) * (ay - cy)
       if (Math.abs(determinant) < 1e-12) continue
       const u = ((by - cy) * (mouse.x - cx) + (cx - bx) * (mouse.y - cy)) / determinant,
-        v = ((cy - ay) * (mouse.x - cx) + (ax - cx) * (mouse.y - cy)) / determinant,
+        vNumerator = (cy - ay) * (mouse.x - cx) + (ax - cx) * (mouse.y - cy)
+      // Preserve mouse reads/coercions even when the first weight already rejects.
+      if (u < 0) continue
+      const v = vNumerator / determinant,
         t = 1 - u - v
-      if (u < 0 || v < 0 || t < 0) continue
+      if (v < 0 || t < 0) continue
       const ids = [ia, ib, ic],
         weights = [u / 1, v / 1, t / 1],
         sum = weights.reduce((total, weight) => total + weight),
@@ -953,7 +988,28 @@ export class RenderView {
     }
   }
 
+  private beginPickOperation() {
+    if (this.ordinaryPickDepth === 0 && this.pickOperationDepth === 0)
+      this.ordinaryPickDisposed = false
+    this.pickOperationDepth++
+    this.painter.beginCpuLease()
+  }
+
+  private endPickOperation() {
+    this.pickOperationDepth--
+    this.painter.endCpuLease()
+  }
+
   resolvePickCandidates(candidates: ViewPickCandidate[]) {
+    this.beginPickOperation()
+    try {
+      return this.resolveCandidates(candidates)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private resolveCandidates(candidates: ViewPickCandidate[]) {
     let best: ViewPickCandidate | null = null
     for (const candidate of candidates) {
       const depth =
@@ -971,6 +1027,21 @@ export class RenderView {
     objects: THREE.Object3D[],
     camera: THREE.Camera,
     nativeEdges = false,
+    ordinaryMetrics?: OrdinaryTerrainMetrics
+  ) {
+    this.beginPickOperation()
+    try {
+      return this.pickQuery(mouse, objects, camera, nativeEdges, ordinaryMetrics)
+    } finally {
+      this.endPickOperation()
+    }
+  }
+
+  private pickQuery(
+    mouse: THREE.Vector2,
+    objects: THREE.Object3D[],
+    camera: THREE.Camera,
+    nativeEdges: boolean,
     ordinaryMetrics?: OrdinaryTerrainMetrics
   ) {
     const candidates = this.pickCandidates(
@@ -1206,10 +1277,12 @@ export class RenderView {
     releaseRuntimeTerrainPicking(this)
     // Drop ownership without mutating any buffers an active reentrant call holds.
     this.ordinaryPickScratch = null
+    this.groundPickCache = new WeakMap()
+    this.pickSubmissions = new WeakMap()
     // Remaining instances/roots in this query must not reacquire ownership.
     // A later independent top-level query may initialize fresh storage.
     this.ordinaryPickDisposed = true
     this.boundsTexture.dispose()
-    this.painter.texture.dispose()
+    this.painter.dispose()
   }
 }

@@ -136,6 +136,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
           domElement: disposable(),
           initTexture: texture => calls.push(['texture', texture.image.src]),
           getPixelRatio: () => 1,
+          forceContextLoss: () => calls.push(['context loss']),
         },
         unitMotion: { beforeTurn: nop, afterTurn: nop },
         projectileMotion: { beforeTurn: nop, afterTurn: nop },
@@ -156,6 +157,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
         globe: disposable(),
         waterMap: disposable(),
         terrainMap: disposable(),
+        terrainUpload: {}, minimap: { revision: undefined },
         view: disposable(),
         tooltipElement: disposable(),
         pointerOutline: disposable(),
@@ -310,6 +312,9 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
     snapshot,
     'Scene disposal does not reset shared phase'
   )
+  for (const fixture of [first, rejected, stale, next])
+    assert.equal(fixture.calls.filter(([kind]) => kind === 'context loss').length, 1,
+      'each retired Scene reaches its supplied context-loss boundary once')
 })
 
 test('actual world building caller binds the Temple shader across nine selections without changing source UVs', async () => {

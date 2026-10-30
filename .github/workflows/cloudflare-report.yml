@@ -1,0 +1,73 @@
+name: Cloudflare preview comment
+
+on:
+  workflow_run:
+    workflows: [Cloudflare build, Cloudflare publish]
+    types: [requested, in_progress, completed]
+
+permissions: {}
+
+jobs:
+  route:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      pr: ${{ steps.route.outputs.pr }}
+      source: ${{ steps.route.outputs.source }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            .github/workflows
+            scripts/cloudflare
+            scripts/artifact-zip.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          package-manager-cache: false
+      - id: route
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/cloudflare/control.mjs route
+  comment:
+    needs: route
+    if: ${{ needs.route.outputs.pr != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    # Routing happens before concurrency, so unrelated PR updates cannot evict
+    # each other. Every report refreshes live state, not its old event status.
+    concurrency:
+      group: cloudflare-comment-${{ needs.route.outputs.pr }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: |
+            .github/workflows
+            scripts/cloudflare
+            scripts/artifact-zip.mjs
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          package-manager-cache: false
+      - name: Update one current-head preview comment (including cancellations)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ needs.route.outputs.source }}
+          EXPECTED_PR: ${{ needs.route.outputs.pr }}
+          CLOUDFLARE_ACTIONS_MODE: ${{ vars.CLOUDFLARE_ACTIONS_MODE }}
+        run: node scripts/cloudflare/control.mjs report

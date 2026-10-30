@@ -1,3 +1,4 @@
+import { packageScriptCommand } from './orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
@@ -137,9 +138,10 @@ try {
   assert(await portFree(), 'Refusing to start over an occupied POPULOUS_URL port')
   const serverLog = fs.openSync(path.join(output, 'server.log'), 'wx', 0o600)
   try {
+    const [manager, ...args] = packageScriptCommand(process.cwd(), 'dev', ['--port', String(port), '--hostname', url.hostname])
     server = spawn(
-      'npm',
-      ['run', 'dev', '--', '--port', String(port), '--hostname', url.hostname],
+      manager,
+      args,
       {
         cwd: process.cwd(),
         detached: true,

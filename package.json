@@ -13,7 +13,7 @@
     "test:level-start": "node --test tests/level-start.test.mjs tests/startup-burst-angles.test.mjs tests/startup-burst-height.test.mjs tests/startup-burst-observer.test.mjs",
     "typecheck": "node node_modules/@typescript/native/bin/tsc --noEmit --checkers 1",
     "typecheck:legacy": "node node_modules/typescript/bin/tsc --noEmit",
-    "check": "npm run typecheck && npm test && npm run parity:check && npm run orchestration:check",
+    "check": "pnpm run typecheck && pnpm test && pnpm run parity:check && pnpm run orchestration:check",
     "parity": "node scripts/parity.mjs",
     "parity:check": "node scripts/parity.mjs check",
     "parity:render": "node scripts/parity.mjs render",
@@ -36,9 +36,9 @@
     "orchestration:audit": "node scripts/orchestration/cli.mjs audit",
     "orchestration:review-bundle": "node scripts/orchestration/review-bundle.mjs",
     "orchestration:receipt": "node scripts/orchestration/command-receipt.mjs",
-    "build:cloudflare": "PND_CLOUDFLARE=1 npm run build",
-    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy --config dist/server/wrangler.json",
-    "preview:cloudflare": "npm run build:cloudflare && wrangler versions upload --config dist/server/wrangler.json",
+    "build:cloudflare": "PND_CLOUDFLARE=1 pnpm run build",
+    "deploy:cloudflare": "pnpm run build:cloudflare && wrangler deploy --config dist/server/wrangler.json",
+    "preview:cloudflare": "pnpm run build:cloudflare && wrangler versions upload --config dist/server/wrangler.json",
     "parity:measure": "node scripts/parity-measure.mjs",
     "test:mission6-earned": "node scripts/check-mission6-earned-victory.mjs",
     "test:focus": "node scripts/orchestration/test-runner.mjs focus",
@@ -78,5 +78,6 @@
     "vite": "8.0.13",
     "wrangler": "4.92.0"
   },
-  "type": "module"
+  "type": "module",
+  "packageManager": "pnpm@11.25.0"
 }

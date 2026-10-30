@@ -138,6 +138,7 @@ class Element extends DomEventTarget {
   }
 }
 class Renderer {
+  contextLosses = 0
   domElement = new Element()
   shadowMap = {}
   ratio = 1
@@ -163,6 +164,7 @@ class Renderer {
     scene.onAfterRender(this, scene, camera)
   }
   dispose() {}
+  forceContextLoss() { ++this.contextLosses }
 }
 
 test('real constructor owns first null-index query, production render and permanent disposal', async t => {
@@ -354,6 +356,7 @@ test('real constructor owns first null-index query, production render and perman
   assert.deepEqual(held[0].map(normal), held[1])
   assert.deepEqual(scene.world, before)
   scene.dispose()
+  assert.equal(scene.renderer.contextLosses, 1, 'owned renderer context retirement reaches its supplied boundary')
   assert.equal(runtimeTerrainPicking(scene.view, scene.terrain), false)
   assert.equal(scene.view.ordinaryNumericProjection, null)
   assert.equal(scene.view.ordinaryPickScratch, null)

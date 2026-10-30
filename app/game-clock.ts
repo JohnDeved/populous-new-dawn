@@ -1,6 +1,7 @@
 import { HOME, sound, tick, TURNS_PER_SECOND, type World, type TurnObserver } from './model.ts'
 import { animateLiveObjects } from './live-people.ts'
 import { stepMessages } from './messages.ts'
+import { animateAngelPresentations } from './angel-presentation.ts'
 import { animateStoneHeads } from './stone-head-animation.ts'
 import { worshipDeadline } from './worship-acquisition-runtime.ts'
 
@@ -103,6 +104,7 @@ export function advanceGame(
       clock.animationTime = 0
       animateLiveObjects(w)
       animateStoneHeads(w)
+      animateAngelPresentations(w)
       stepMessages(w.messages, () => sound(w, 0xe4, HOME))
       clock.animationFrame++
       w.secondaryEffects.animationFrame++

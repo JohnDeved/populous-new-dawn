@@ -7,6 +7,21 @@ import { sites } from "./build/sites-vite-plugin";
 // Embed the actual checkout identity, never a guessed release/version. Archives
 // without Git metadata explicitly report unknown in diagnostic exports.
 function buildRevision() {
+  if (process.env.PND_RUNTIME_ROOT) {
+    const source = process.env.PND_RUNTIME_SOURCE;
+    const revision = process.env.PND_RUNTIME_REVISION;
+    const pool = process.env.PND_RUNTIME_POOL;
+    if (!source || !revision || !pool) throw new Error("Incomplete shared runtime identity");
+    // A caller-supplied revision is not proof. The verifier rechecks the Git commit,
+    // every materialized source file, and every externally linked asset byte.
+    const verified = execFileSync("python3", [
+      `${import.meta.dirname}/scripts/orchestration/shared_runtime.py`, "revision",
+      "--source", source, "--revision", revision, "--pool", pool,
+      "--runtime", import.meta.dirname,
+    ], { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] }).trim();
+    if (!/^[0-9a-f]{40}$/.test(verified)) throw new Error("Invalid shared runtime revision");
+    return verified;
+  }
   try {
     const revision = execFileSync("git", ["rev-parse", "HEAD"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
     const dirty = execFileSync("git", ["status", "--porcelain"], { cwd: import.meta.dirname, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();

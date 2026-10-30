@@ -1,0 +1,165 @@
+name: Native UI pre-ready evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact reviewed same-repository UI candidate commit (40 lowercase hex characters)
+        required: true
+        type: string
+      evidence_kind:
+        description: Existing UI episodes or reviewed exact PR722 material lifecycle
+        required: true
+        default: native-ui
+        type: choice
+        options:
+          - native-ui
+          - material-lifecycle
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-ui-evidence-${{ inputs.candidate_sha }}
+  cancel-in-progress: false
+
+jobs:
+  evidence:
+    name: Native UI evidence (not Full check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: ${{ inputs.evidence_kind == 'material-lifecycle' && 30 || 20 }}
+    env:
+      PND_EVIDENCE_KIND: ${{ inputs.evidence_kind || 'native-ui' }}
+      PND_UI_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out reviewed default-branch evidence infrastructure
+        id: infrastructure
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: evidence-infrastructure
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/native-ui-evidence/
+            /scripts/material-lifecycle-evidence/
+            /scripts/orchestration/shared_execution.py
+            /scripts/orchestration/shared_runtime.py
+            /scripts/orchestration/shared_setup.py
+            /scripts/orchestration/shared_workspace.py
+            /scripts/orchestration/state_serialization.py
+            /scripts/browser-options-audio.mjs
+            /scripts/orchestration/dependency-profile.mjs
+            /scripts/tutorial-browser/browser-config.mjs
+            /.github/workflows/native-ui-evidence.yml
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Require this workflow on main with an exact separate candidate
+        run: |
+          node --input-type=module -e "import { manualIdentity } from './evidence-infrastructure/scripts/native-ui-evidence/identity.mjs'; console.log(JSON.stringify(manualIdentity(process.env)))"
+      - name: Check out pinned reviewed material containment helpers
+        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: JohnDeved/populous-new-dawn
+          ref: a2e1cd1b2dbda79a75a79573ff6ff504ce46845d
+          path: material-helper-source
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /scripts/orchestration/shared_execution.py
+            /scripts/orchestration/shared_runtime.py
+            /scripts/orchestration/shared_setup.py
+            /scripts/orchestration/shared_workspace.py
+            /scripts/orchestration/state_serialization.py
+      - name: Initialize exact material job using reviewed infrastructure
+        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        run: python3 -I -B evidence-infrastructure/scripts/material-lifecycle-evidence/hosted_setup.py initialize
+      - name: Check out exact candidate (not a synthetic merge)
+        id: candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: JohnDeved/populous-new-dawn
+          ref: ${{ inputs.candidate_sha }}
+          path: candidate
+          persist-credentials: false
+      - name: Install candidate locked dependencies and verify supported Chrome
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$PND_UI_CANDIDATE_SHA"
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          if [ "$PND_EVIDENCE_KIND" = material-lifecycle ]; then
+            python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" install
+            exit 0
+          fi
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
+          test -x /opt/google/chrome/chrome
+          /opt/google/chrome/chrome --version
+          node --version
+          if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
+      - name: Acquire pinned material browser data (no launch)
+        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        timeout-minutes: 3
+        run: python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" acquire
+      - name: Qualify actual material tools and run one reviewed lifecycle attempt
+        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        timeout-minutes: 13
+        run: python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" finalize
+      - name: Build candidate Home and run all nine mandatory UI episodes
+        if: ${{ inputs.evidence_kind != 'material-lifecycle' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/native-ui-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/native-ui-evidence" "$GITHUB_WORKSPACE/native-ui-dist"
+      - name: Reject candidate tracked input mutation
+        if: ${{ always() && steps.candidate.outcome == 'success' }}
+        working-directory: candidate
+        run: git diff --exit-code HEAD --
+      - name: Reject infrastructure tracked input mutation
+        if: ${{ always() && steps.infrastructure.outcome == 'success' }}
+        working-directory: evidence-infrastructure
+        run: git diff --exit-code HEAD --
+      - name: Retain bounded raw receipts and screenshots
+        if: ${{ always() && inputs.evidence_kind != 'material-lifecycle' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: native-ui-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/native-ui-evidence/**/*.json
+            outputs/native-ui-evidence/**/*.log
+            outputs/native-ui-evidence/**/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Retain material qualification, raw receipts and screenshots
+        if: ${{ always() && inputs.evidence_kind == 'material-lifecycle' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: material-lifecycle-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: outputs/material-lifecycle
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7

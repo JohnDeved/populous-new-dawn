@@ -37,7 +37,9 @@ export function readArtifactZip(input, { maxArchiveBytes, maxFileBytes, maxTotal
     assert.equal(zip.readUInt32LE(at + 38) & 0x10, 0, 'Directory attribute')
     const nameBytes = zip.subarray(at + 46, at + 46 + nameLength)
     const name = new TextDecoder('utf-8', { fatal: true }).decode(nameBytes)
-    assert.ok(/^[a-zA-Z0-9][a-zA-Z0-9._/-]*$/.test(name) &&
+    // '~' is an ordinary URL-unreserved filename character used by Vinext
+    // shared chunks. Paths are data, never shell-expanded; segment checks stay.
+    assert.ok(/^[a-zA-Z0-9][a-zA-Z0-9._/~-]*$/.test(name) &&
       name.split('/').every(part => part && part !== '.' && part !== '..') && allowName(name), 'Unexpected artifact path')
     assert.ok(!entries.has(name), 'Duplicate artifact path')
     extras(at + 46 + nameLength, extraLength)

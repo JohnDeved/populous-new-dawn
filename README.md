@@ -5,11 +5,37 @@ The original first mission, rebuilt for desktop browsers with original-game visu
 ## Run
 
 ```sh
-npm ci
-npm run dev
+# Source-only work needs no package install or copied game assets:
+python3 scripts/orchestration/shared_setup.py --revision "$(git rev-parse HEAD)"
+
+# For an active development checkout, choose one persistent, same-filesystem root:
+export PND_SHARED_ROOT="$HOME/.local/share/populous-new-dawn"
+# Requires an already available pnpm 11.25.0 (one-time provisioning below).
+# Declare this install's allowance and the space that must remain for other work.
+export PND_SETUP_ALLOCATION_BYTES=2147483648 PND_SETUP_RESERVE_BYTES=2147483648
+python3 scripts/orchestration/shared_setup.py plan --revision "$(git rev-parse HEAD)" \
+  --allocation-bytes "$PND_SETUP_ALLOCATION_BYTES" --reserve-bytes "$PND_SETUP_RESERVE_BYTES" &&
+test "$(pnpm --pm-on-fail=error --runtime-on-fail=error --version)" = 11.25.0 &&
+pnpm_config_runtime_on_fail=error pnpm install --frozen-lockfile --ignore-scripts \
+  --store-dir "$PND_SHARED_ROOT/pnpm-store" --cache-dir "$PND_SHARED_ROOT/pnpm-cache" \
+  --pm-on-fail=error --no-runtime --network-concurrency=1 --child-concurrency=1 &&
+python3 scripts/orchestration/shared_setup.py check --revision "$(git rev-parse HEAD)" \
+  --reserve-bytes "$PND_SETUP_RESERVE_BYTES" &&
+pnpm run dev
 ```
 
 Use Node 24, a desktop monitor, keyboard/mouse and a WebGL 2 browser. The music-note button enables original sample playback for voices, spells and combat.
+
+The allowances above are explicit examples, not measured requirements or a quota.
+Choose a root on the checkout's filesystem and adjust the declared budgets to the
+coordinator's actual resource plan; do not lower the remaining reserve to force a pass.
+Reuse an available pinned pnpm instead of reinstalling it. If missing, provision it
+once with `npm install --global --ignore-scripts pnpm@11.25.0` under the separate
+tooling budget, before starting this install. For a populated shared
+store, add `--offline` to the install; a missing package must fail, not fall back to
+network. Use a fresh/private `node_modules`, never another checkout's install.
+See [shared storage setup and its measured limits](engineering/shared-worktrees.md#current-pnpm-shared-storage-setup)
+for frozen-lock identity, safe reuse, package-cache repair behavior, and asset views.
 
 ## Play
 
@@ -30,19 +56,19 @@ Send braves inside huts to increase mana flow and breeding. Builders collect act
 ## Verify
 
 ```sh
-npm run check
-npm run build
+pnpm run check
+pnpm run build
 # With the development server running and Google Chrome installed:
 node qa/browser-check.mjs
 node qa/flyby-check.mjs
-npm run test:sprites
+pnpm run test:sprites
 node scripts/check-browser-camera-focus.mjs
 node scripts/check-browser-camera-input.mjs
 node scripts/check-browser-camera-view.mjs
 node scripts/check-browser-navigation.mjs
 ```
 
-`npm run test:sprites` checks a frozen atlas hash, 336 original-engine pose fixtures,
+`pnpm run test:sprites` checks a frozen atlas hash, 336 original-engine pose fixtures,
 actual GPU artwork at native resolution, scaled layer rectangles, selection and
 Blast shadows. Run it after sprite, atlas, animation or projection changes. The
 fixture generator requires the original executable; updating fixtures is an
@@ -65,17 +91,17 @@ original game. Partial work receives no percentage credit. The denominator is th
 versioned known-scope inventory, not estimated effort, and expands with discoveries.
 
 ```sh
-npm run parity                 # Compact global/subsystem report
-npm run --silent parity -- --json # Machine-readable counts and percentage
-npm run parity:check           # Evidence paths, revision and report freshness
-npm run parity:render          # Refresh report wording without recording progress
-npm run parity:record -- "Describe the change and checks run"
+pnpm run parity                 # Compact global/subsystem report
+pnpm run --silent parity --json # Machine-readable counts and percentage
+pnpm run parity:check           # Evidence paths, revision and report freshness
+pnpm run parity:render          # Refresh report wording without recording progress
+pnpm run parity:record "Describe the change and checks run"
 ```
 
 Edit `parity.json` after comparing and integrating behavior, then record a snapshot.
 Keep IDs/scope stable; scope changes require a revision increment and an explanation.
 Commit the ledger, history and generated dashboard together. Metadata checks run
-with `npm run check`; they do not execute the linked native or browser comparisons.
+with `pnpm run check`; they do not execute the linked native or browser comparisons.
 
 The percentage covers **known scope**. The inventory remains open: add new groups
 or `unassessed` checkpoints as research reveals more, or split broad checkpoints
@@ -140,7 +166,7 @@ saves only, not unrelated platform or API compatibility.
 | Original assets, maps or script data | `scripts/import-*.py`; rerun the importer rather than editing its generated output |
 | Native behavior evidence | `decomp/`, `references/reverse-engineering.md`, `scripts/check-native-*.py` |
 
-Run `npm run dev` to edit and play, then `npm run check` for types and gameplay regressions. [Vite supports fast module updates but does not type-check TypeScript](https://vite.dev/guide/features#typescript), so checking stays explicit. The tests run the same engine modules directly using [Node's TypeScript support](https://nodejs.org/api/typescript.html). Use `npm run build` before publishing and the browser checks above for interaction/rendering changes.
+Run `pnpm run dev` to edit and play, then `pnpm run check` for types and gameplay regressions. [Vite supports fast module updates but does not type-check TypeScript](https://vite.dev/guide/features#typescript), so checking stays explicit. The tests run the same engine modules directly using [Node's TypeScript support](https://nodejs.org/api/typescript.html). Use `pnpm run build` before publishing and the browser checks above for interaction/rendering changes.
 
 Separate growing simulation and scene files only when the locked gameplay feature
 requires it. Prefer readable functions, shared data and direct module imports; do not
@@ -149,8 +175,8 @@ hand-written code should stay easy to inspect.
 
 ### TypeScript quality workflow
 
-`npm run typecheck` uses pinned TypeScript 7.0.2's native checker with one checker
-worker to limit parallelism on memory-constrained runners. `npm run check` and the existing CI gate use this same
+`pnpm run typecheck` uses pinned TypeScript 7.0.2's native checker with one checker
+worker to limit parallelism on memory-constrained runners. `pnpm run check` and the existing CI gate use this same
 command. It checks the unchanged `tsconfig.json`; it does not replace Vite/Oxc's
 JavaScript transpilation or change gameplay performance.
 
@@ -162,27 +188,27 @@ A separate TypeScript 6 API migration would need to account for its changed emit
 defaults, including strict-mode directives in expression-based test fixtures.
 
 Both packages declare a `tsc` binary, so do not use bare `tsc` or `npx tsc`.
-The npm scripts invoke exact package entrypoints rather than depending on npm's
-bin-link ordering. `npm run typecheck:legacy` explicitly runs TypeScript 5.9.3
+The package scripts invoke exact package entrypoints rather than depending on the package manager's
+bin-link ordering. `pnpm run typecheck:legacy` explicitly runs TypeScript 5.9.3
 for diagnosis, not as a replacement for the native gate.
 
-Use `npm ci` with optional dependencies enabled: the native compiler's
-platform-specific executable is supplied by npm. No Go installation is required.
+Use `pnpm install --frozen-lockfile --ignore-scripts` with optional dependencies enabled: the native compiler's
+platform-specific executable is supplied by the locked pnpm optional package. No Go installation is required.
 For cold-check comparisons, pass `-- --incremental false` to both scripts and keep
 source, dependency and generated-type inputs identical. A killed or failed check
 is not a performance baseline; no speed or memory ratio is claimed by this upgrade.
 
-Use `npm run format` to format maintained app TypeScript with
-[ox-standard](https://github.com/JohnDeved/ox-standard), and `npm run format:check`
+Use `pnpm run format` to format maintained app TypeScript with
+[ox-standard](https://github.com/JohnDeved/ox-standard), and `pnpm run format:check`
 to verify it. Generated level data and original asset JSON remain importer-owned.
-`npm run lint:standard` runs the preset's Oxlint rules without modifying files.
+`pnpm run lint:standard` runs the preset's Oxlint rules without modifying files.
 The preset’s hexadecimal-case rule is disabled because Oxfmt normalizes hex
 digits to lowercase; formatting owns that choice. Oxlint currently reports legacy findings; do not hide them or treat it as a passing gate.
-Keep `npm run lint` for the existing correctness and accessibility checks during migration.
+Keep `pnpm run lint` for the existing correctness and accessibility checks during migration.
 
 [Fallow](https://github.com/fallow-rs/fallow) is pinned locally:
-`npm run quality:health` ranks complexity hotspots and refactoring targets,
-`npm run quality:dupes` finds duplication, and `npm run quality:unused` finds
+`pnpm run quality:health` ranks complexity hotspots and refactoring targets,
+`pnpm run quality:dupes` finds duplication, and `pnpm run quality:unused` finds
 unused-code candidates. These commands are advisory: exit 1 means findings,
 exit 2 means an execution/configuration error. For a deliberately time-bounded
 advisory attempt, use the opt-in [foreground supervisor](engineering/performance-queue.md#optional-bounded-foreground-advisories)

@@ -10,8 +10,11 @@ import { discoverTests, helperFingerprint, productionFingerprint, planTestRun, r
 
 // These synthetic inventories explicitly model an uncustomized Node runtime.
 // The environment-fallback regression below supplies customizations separately.
-const inheritedRuntime = Object.fromEntries(['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].map(key => [key, process.env[key]]))
-for (const key of Object.keys(inheritedRuntime)) process.env[key] = ''
+const nodeRuntimeKeys = ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE']
+const sceneFixtureKeys = ['PND_SCENE_FIXTURE_PRECOMPILED', 'PND_SCENE_FIXTURE_PRECOMPILED_SHA256']
+const inheritedRuntime = Object.fromEntries([...nodeRuntimeKeys, ...sceneFixtureKeys].map(key => [key, process.env[key]]))
+for (const key of nodeRuntimeKeys) process.env[key] = ''
+for (const key of sceneFixtureKeys) delete process.env[key]
 after(() => {
   for (const [key, value] of Object.entries(inheritedRuntime)) {
     if (value === undefined) delete process.env[key]
@@ -41,6 +44,108 @@ function fixture(t) {
   return { repo, put, policy }
 }
 const quiet = { log() {} }
+
+test('standard plans, execution and shard certification reject any external fixture-cache setting', async t => {
+  const { repo, put } = fixture(t)
+  put('tests/c.test.mjs', 'export {}\n')
+  put('tests/d.test.mjs', 'export {}\n')
+  put('scripts/check.mjs', 'export {}\n')
+  const plan = planTestRun(repo, 'focus', ['tests/a.test.mjs'])
+  const shard = planTestShard(repo, 0)
+  const fingerprint = shardInputFingerprint(repo)
+  const [pathKey, hashKey] = sceneFixtureKeys
+  for (const values of [
+    { [pathKey]: '/private/manifest.json' }, { [hashKey]: 'a'.repeat(64) },
+    { [pathKey]: '/private/manifest.json', [hashKey]: 'a'.repeat(64) },
+    { [pathKey]: '' }, { [hashKey]: '' }, { [pathKey]: '', [hashKey]: '' },
+    { [pathKey]: '', [hashKey]: 'a'.repeat(64) }, { [pathKey]: '/private/manifest.json', [hashKey]: '' },
+  ]) {
+    try {
+      Object.assign(process.env, values)
+      const expected = /explicit source-bound direct command/
+      for (const mode of ['all', 'serial', 'focus'])
+        assert.throws(() => planTestRun(repo, mode, mode === 'focus' ? ['tests/a.test.mjs'] : []), expected)
+      assert.throws(() => planTestShard(repo, 0), expected)
+      assert.throws(() => shardInputFingerprint(repo), expected)
+      let launches = 0
+      const options = { ...quiet, launch() { launches++; throw new Error('must not launch') } }
+      // Plans were built before the setting appeared; execution must reject too.
+      await assert.rejects(runTestPlan(repo, plan, options), expected)
+      await assert.rejects(runTestShard(repo, shard, options), expected)
+      assert.equal(launches, 0)
+    } finally {
+      for (const key of sceneFixtureKeys) delete process.env[key]
+    }
+  }
+  assert.deepEqual(planTestRun(repo, 'focus', ['tests/a.test.mjs']), plan)
+  assert.equal(shardInputFingerprint(repo), fingerprint)
+})
+
+function pnpmFixture(t, external = false) {
+  const f = fixture(t)
+  rmSync(join(f.repo, 'node_modules/.package-lock.json'))
+  const profile = external ? join(f.repo, 'private-profile') : f.repo
+  const putProfile = (name, value) => f.put(external ? `private-profile/${name}` : name, value)
+  if (external) {
+    rmSync(join(f.repo, 'node_modules'), { recursive: true })
+    putProfile('package.json', readFileSync(join(f.repo, 'package.json')))
+    putProfile('package-lock.json', readFileSync(join(f.repo, 'package-lock.json')))
+  }
+  putProfile('pnpm-lock.yaml', 'lockfileVersion: 9.0\n')
+  putProfile('pnpm-workspace.yaml', 'nodeLinker: isolated\npackageImportMethod: hardlink\n')
+  putProfile('node_modules/.modules.yaml', 'packageManager: pnpm@11.25.0\nvirtualStoreDir: .pnpm\n')
+  putProfile('node_modules/.pnpm/lock.yaml', 'lockfileVersion: 9.0\n')
+  if (external) symlinkSync(join(profile, 'node_modules'), join(f.repo, 'node_modules'))
+  return { ...f, profile, putProfile }
+}
+
+test('ordinary npm fingerprint keeps its exact existing schema', t => {
+  const { repo } = fixture(t)
+  const app = digest(JSON.stringify([['app/source.ts', digest(readFileSync(join(repo, 'app/source.ts')))]]))
+  const paths = ['package.json', 'package-lock.json', 'tsconfig.json', 'node_modules/.package-lock.json']
+  assert.equal(productionFingerprint(repo), digest(JSON.stringify({ app,
+    packages: paths.map(path => [path, digest(readFileSync(join(repo, path)))]),
+    runtime: { node: process.versions.node, platform: process.platform, arch: process.arch } })))
+})
+
+for (const external of [false, true]) test(`pnpm ${external ? 'private linked' : 'in-checkout'} profile binds genuine metadata and forces npm policy fallback`, t => {
+  const { repo, put, putProfile } = pnpmFixture(t, external)
+  const original = productionFingerprint(repo)
+  assert.match(original, /^[a-f0-9]{64}$/)
+  assert.equal(planTestRun(repo, 'all').parallelEligibility, 'production-config-runtime-drift')
+  for (const path of ['package.json', 'package-lock.json', 'pnpm-workspace.yaml', 'node_modules/.modules.yaml']) {
+    const full = join(external ? join(repo, 'private-profile') : repo, path)
+    const bytes = readFileSync(full)
+    putProfile(path, Buffer.concat([bytes, Buffer.from('\n')]))
+    assert.notEqual(productionFingerprint(repo), original, path)
+    putProfile(path, bytes)
+  }
+  putProfile('pnpm-lock.yaml', 'lockfileVersion: 9.1\n')
+  assert.equal(productionFingerprint(repo), null, 'Changed desired lock must not accept the old installed lock')
+  putProfile('node_modules/.pnpm/lock.yaml', 'lockfileVersion: 9.1\n')
+  assert.notEqual(productionFingerprint(repo), original, 'Both genuine locks participate')
+  put('tsconfig.json', '{"compilerOptions":{}}')
+  assert.notEqual(productionFingerprint(repo), original)
+})
+
+test('missing, mixed or symlinked dependency metadata cannot enable parallel eligibility', t => {
+  const { repo, profile, putProfile } = pnpmFixture(t, true)
+  putProfile('node_modules/.package-lock.json', '{}')
+  assert.equal(productionFingerprint(repo), null)
+  rmSync(join(profile, 'node_modules/.package-lock.json'))
+  rmSync(join(profile, 'pnpm-workspace.yaml'))
+  assert.equal(productionFingerprint(repo), null)
+  assert.equal(planTestRun(repo, 'all').parallelEligibility, 'production-config-runtime-drift')
+  symlinkSync(join(repo, 'package.json'), join(profile, 'pnpm-workspace.yaml'))
+  assert.equal(productionFingerprint(repo), null)
+})
+
+test('an absent npm installed lock safely selects serial fallback rather than crashing', t => {
+  const { repo } = fixture(t)
+  rmSync(join(repo, 'node_modules/.package-lock.json'))
+  assert.equal(productionFingerprint(repo), null)
+  assert.equal(planTestRun(repo, 'all').parallelEligibility, 'production-config-runtime-drift')
+})
 
 test('full discovery preserves the top-level glob and includes unclassified files once', t => {
   const { repo, put, policy } = fixture(t)
@@ -371,6 +476,7 @@ test('shard signals, failed groups and inherited test-selection flags cannot cer
 test('real native shard execution writes a source-bound terminal receipt and refuses an existing receipt', async t => {
   const { repo, put } = shardFixture(t)
   put('scripts/orchestration/test-runner.mjs', readFileSync(new URL('../scripts/orchestration/test-runner.mjs', import.meta.url)))
+  put('scripts/orchestration/dependency-profile.mjs', readFileSync(new URL('../scripts/orchestration/dependency-profile.mjs', import.meta.url)))
   const output = join(repo, 'shard.json')
   const cli = () => new Promise(resolve => {
     const child = spawn(process.execPath, [join(repo, 'scripts/orchestration/test-runner.mjs'), 'shard',

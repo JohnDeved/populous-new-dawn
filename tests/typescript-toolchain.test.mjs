@@ -20,7 +20,7 @@ test('pinned native checking and JavaScript API have explicit, distinct entrypoi
   assert.equal(manifest.devDependencies.typescript, '5.9.3')
   assert.equal(manifest.scripts.typecheck, 'node node_modules/@typescript/native/bin/tsc --noEmit --checkers 1')
   assert.equal(manifest.scripts['typecheck:legacy'], 'node node_modules/typescript/bin/tsc --noEmit')
-  assert.equal(manifest.scripts.check, 'npm run typecheck && npm test && npm run parity:check && npm run orchestration:check')
+  assert.equal(manifest.scripts.check, 'pnpm run typecheck && pnpm test && pnpm run parity:check && pnpm run orchestration:check')
   for (const [path, name, version, bin] of [
     ['@typescript/native', 'typescript', '7.0.2', ['tsc']],
     ['typescript', 'typescript', '5.9.3', ['tsc', 'tsserver']],

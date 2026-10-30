@@ -70,7 +70,55 @@ export class Painter {
     return cached.positions
   }
 
+  private cpuLeaseDepth = 0
+  private disposePending = false
+  private disposing = false
+
+  // Picking and drawing may call user hooks. Keep their frame data alive until
+  // the outer operation finishes, including nested renders and thrown callbacks.
+  beginCpuLease() {
+    this.cpuLeaseDepth++
+  }
+
+  endCpuLease() {
+    this.cpuLeaseDepth--
+    this.releaseDisposedCpuCaches()
+  }
+
+  dispose() {
+    if (this.disposing) return
+    this.disposePending = true
+    this.releaseDisposedCpuCaches()
+  }
+
+  private releaseDisposedCpuCaches() {
+    if (!this.disposePending || this.cpuLeaseDepth) return
+    this.disposePending = false
+    this.disposing = true
+    try {
+      this.restoreTransparentMeshes(0)
+      // Replace ownership, never clear buffers held by callers or source geometry.
+      this.vertices = new PainterVertices()
+      this.centers = new WeakMap()
+      this.ranges = new WeakMap()
+      this.commandsBySlot = []
+      this.texture.image = { data: new Float32Array(1024), width: 1024, height: 1 }
+      this.texture.dispose()
+    } finally {
+      this.disposing = false
+    }
+  }
+
   update(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
+    this.beginCpuLease()
+    try {
+      this.updateScene(scene, renderer)
+    } finally {
+      this.endCpuLease()
+    }
+  }
+
+  private updateScene(scene: THREE.Scene, renderer: THREE.WebGLRenderer) {
     const sampleAmbience = this.pendingSoundEnvironment && this.land
     const listener = sampleAmbience && soundListener(this.view.center, this.view.angle)
     if (sampleAmbience) {
@@ -159,10 +207,13 @@ export class Painter {
       const id = metadata.unit ?? metadata.building ?? metadata.shrine ?? metadata.point?.id
       // ponytail: only native people retain cell chains so far. Legacy people
       // and other object classes still need original allocation/list ownership.
+      // An owned mesh replacement can retain its original fallback allocation
+      // identity without painterSequence, which also selects the sprite phase.
+      const fallbackOrder = sprite ? group.id : (object.userData.painterFallbackId ?? object.id)
       const sourceOrder =
         object.userData.painterSequence ??
         cellOrder.get(metadata.unit) ??
-        (id === undefined ? (sprite ? group.id : object.id) : -id)
+        (id === undefined ? fallbackOrder : -id)
       const rotation = scale
         ? modelMatrix(
             metadata.nativeHeading ?? 0,
@@ -399,6 +450,7 @@ export class Painter {
   render(renderer: Pick<THREE.WebGLRenderer, 'render'>, scene: THREE.Scene, camera: THREE.Camera) {
     const base = this.transparentMeshes.length
     this.renderLeaseBases.push(base)
+    this.beginCpuLease()
     try {
       renderer.render(scene, camera)
     } finally {
@@ -406,6 +458,7 @@ export class Painter {
         this.restoreTransparentMeshes(base)
       } finally {
         this.renderLeaseBases.pop()
+        this.endCpuLease()
       }
     }
   }
@@ -436,11 +489,10 @@ export class Painter {
       }
   }
   depth(object: THREE.Object3D, triangle: number, instance: number) {
-    const range = this.ranges.get(object)
+    const range = this.ranges.get(object),
+      pixels = this.texture.image.data!
     if (object instanceof THREE.Mesh && object.userData.selectionCommands && object.geometry.index)
       triangle = object.geometry.index.getX(triangle * 3) / 3
-    return range
-      ? this.texture.image.data![range[0] + range[1] * instance + triangle] * 2 - 1
-      : null
+    return range ? pixels[range[0] + range[1] * instance + triangle] * 2 - 1 : null
   }
 }

@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
-import { meleeRunningProtocol, validateMeleeRunningFrames, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
+import { meleeRunningProtocol, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
+import { validateRecoilObservation } from '../scripts/tutorial-browser/melee-recoil-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
 import { minimapPick } from '../app/minimap.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
@@ -57,6 +58,15 @@ test('one fixed minimap corridor offset retains nearest input and scales backing
   assert.deepEqual([scaled.nearest.x, scaled.nearest.y], [77, 97])
   assert.deepEqual([scaled.x, scaled.y], [77, 121])
   assert.deepEqual(scaled.backing, original.backing); assert.deepEqual(scaled.native, original.native)
+  const recoil = meleeCameraInput(minimap, true)
+  assert.deepEqual(recoil.offsetBacking, { x: 0, y: 0 })
+  assert.deepEqual([recoil.x, recoil.y], [original.nearest.x, original.nearest.y])
+  assert.deepEqual(recoil.native, original.nearest.native)
+  const scaledRecoil = meleeCameraInput({ ...minimap, rect: { x: 11, y: 13, width: 100, height: 384 } }, true)
+  assert.deepEqual([scaledRecoil.x, scaledRecoil.y], [scaled.nearest.x, scaled.nearest.y])
+  assert.deepEqual(scaledRecoil.native, recoil.native)
+  assert.throws(() => meleeCameraInput(minimap, 'yes'))
+  assert.deepEqual(minimap, before)
 })
 
 test('fixed minimap offset rejects invalid dimensions and an out-of-bounds shifted point without clamping', () => {
@@ -268,7 +278,7 @@ test('ordinary M2 command observes descriptor-derived first-entry expiry without
 
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
-function withObserverFixture(run) {
+function withObserverFixture(run, observerInput = mapping) {
   const world = structuredClone({ turn: 40, paused: false, randomState: 12345,
     terrain: new Uint8Array([1, 2, 3]), selected: [54],
     units: [{ id: 54, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
@@ -351,7 +361,7 @@ function withObserverFixture(run) {
     const before = structuredClone(world)
     // Match page.evaluate's serialization boundary: no module closure/import
     // may accidentally satisfy an undeclared browser dependency in this fixture.
-    new Function(`return (${installMeleeFrameObserver.toString()})`)()(mapping)
+    new Function(`return (${installMeleeFrameObserver.toString()})`)()(observerInput)
     assert.deepEqual(world, before, 'installation preserves the supplied World')
     const observation = window.__pndMeleeObservation
     const next = (timestamp = 1234) => {
@@ -487,7 +497,7 @@ test('retention encodes only the first four immutable copies after the entry and
 
 test('deferred readback and encoding failures retain timeline and other crops, release copies and never retry', () => {
   for (const stage of ['readback', 'encoding']) withObserverFixture(fixture => {
-    const { world, scene, observation, next, copies, operations, faults } = fixture
+    const { observation, copies, operations, faults } = fixture
     retainValidObserverPair(fixture)
     completeObserverEntry(fixture)
     const { result } = observation, terminal = structuredClone(result.terminal), visits = structuredClone(result.visits)
@@ -820,4 +830,103 @@ test('route diagnostics and attack observations retain actual interception ident
     assert.deepEqual(observation.result.samples[0].participants, [54, 13, 19])
     assert.equal(group.userData.frame, 998); assert.deepEqual(world, before)
   })
+})
+
+test('explicit recoil mode retains the first ordinary phase and exact original expiry without changing attack default', () => {
+  const recoilMapping = meleeAttackMapping(true)
+  const original = recoilMapping['shaman:recoil']
+  const [object, draw] = rules.animationObjects[rules.personAnimationObjects[9 * 9 + 7]]
+  assert.deepEqual(original, { object, draw, step: 0, frameCount: 5, duration: 7, knockbackDuration: 4,
+    directions: units.shamanSources[object] })
+  assert.deepEqual(meleeAttackMapping(), mapping, 'default attack mapping stays byte-for-byte equivalent')
+  for (const knockback of [false, true]) {
+    withObserverFixture(({ world, scene, group, next, observation, pending, unrelated }) => {
+      const fight = world.units[0].fight, person = fight.motion, duration = knockback ? 4 : 7
+      world.fights = [{ id: fight.group, members: [54, 13] }]
+      Object.assign(fight, { action: 'recoil', animation: 'recoil', knockback, nativeRecoilAnimation: true })
+      Object.assign(person, { object, draw, f1: 0, f2: 0 })
+      group.userData.draw = draw
+      const direction = spriteDirection(0, 0)
+      for (let elapsed = 0; elapsed < duration; elapsed++) {
+        world.turn = fight.started + elapsed
+        scene.gameClock.animationFrame = world.turn * 2
+        scene.renderer.info.render.frame = 100 + elapsed
+        person.stamp = world.turn; person.f2 = elapsed % 5
+        group.userData.frame = original.directions[direction].frames[person.f2]
+        group.userData.frameFlip = original.directions[direction].flip
+        fight.remaining = duration - 1 - elapsed
+        if (elapsed === duration - 1) {
+          fight.action = knockback ? 'push' : 'approach'; fight.remaining = undefined
+        }
+        next()
+      }
+      observation.retain()
+      assert.deepEqual([...pending.keys()], [unrelated])
+      const result = observation.result, before = structuredClone(result)
+      const accepted = validateRecoilObservation(result, recoilMapping)
+      assert.deepEqual(result, before, 'acceptance never mutates supplied evidence')
+      assert.equal(accepted.nativeFiveFrameLoopObserved, !knockback)
+      assert.equal(accepted.duration, duration)
+      assert.deepEqual(result.samples.map(sample => sample.f2), knockback ? [0, 1, 2] : [0, 1, 2, 3, 4, 0])
+      for (const mutate of [
+        r => { r.protocol = 'running-original-entry-v2' }, r => { r.done = false },
+        r => { r.error = 'failed' }, r => { r.entry.started++ }, r => { r.entry.duration++ },
+        r => { r.entry.knockback = !knockback }, r => { r.firstAttackTurn++ },
+        r => { r.samples[0].turn++ }, r => { r.samples[1].f2 = 4 },
+        r => { r.samples[1].frame++ }, r => { r.samples[1].nativeRecoilAnimation = false },
+        r => { r.samples[1].personIdentityMatch = false }, r => { r.samples[1].opponent++ },
+        r => { r.samples[1].fightMotionSourceAdmitted = false },
+        r => { r.samples[1].logicalStamp-- }, r => { r.samples[1].remaining++ },
+        r => { r.samples[1].cropOverlayClear = false }, r => { delete r.samples[0].cropFile },
+        r => { r.samples[0].cropFile = 'melee-attack-frame-0.png' },
+        r => { r.samples.splice(1, 1) }, r => { r.samples[1].submittedLayers = 0 },
+        r => { r.endpoint.action = 'recoil' }, r => { r.endpoint.knockback = !knockback },
+        r => { r.endpoint.nativeRecoilAnimation = false }, r => { r.endpoint.f2++ },
+        r => { r.endpoint.hp = 0 }, r => { r.endpoint.alive = false },
+        r => { r.endpoint.personIdentityMatch = false }, r => { r.endpoint.logicalStamp-- },
+        r => { r.endpoint.documentVisible = false }, r => { r.endpoint.flight = true },
+        r => { r.endpoint.personFlags4 |= 0x400 }, r => { r.terminal.reason = 'stopped' },
+        r => { r.terminal.turn++ }, r => { r.terminal.stamp-- },
+      ]) {
+        const invalid = structuredClone(result); mutate(invalid)
+        assert.throws(() => validateRecoilObservation(invalid, recoilMapping))
+      }
+    }, { mode: 'recoil', mapping: recoilMapping })
+  }
+})
+
+test('explicit recoil observer cannot substitute late entry, changed identity or skipped expiry', () => {
+  for (const fault of ['late-entry', 'changed-entry', 'missed-expiry']) {
+    withObserverFixture(({ world, scene, next, observation }) => {
+      const fight = world.units[0].fight
+      Object.assign(fight, { action: 'recoil', animation: 'recoil', nativeRecoilAnimation: true, remaining: 6 })
+      if (fault === 'late-entry') fight.started--
+      next()
+      if (fault !== 'late-entry') {
+        if (fault === 'changed-entry') fight.opponent++
+        else world.turn += 7
+        scene.renderer.info.render.frame++; next()
+      }
+      assert.equal(observation.result.done, true)
+      assert.ok(observation.result.error)
+      assert.equal(observation.result.terminal.reason, 'error')
+    }, { mode: 'recoil', mapping: meleeAttackMapping(true) })
+  }
+})
+
+test('recoil observer waits for the first processed entry without accepting an unprocessed assignment', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    const fight = world.units[0].fight
+    fight.action = 'recoil'; fight.remaining = undefined
+    next()
+    assert.equal(observation.result.done, false)
+    assert.equal(observation.result.firstAttackTurn, null)
+    assert.deepEqual(observation.result.samples, [])
+    world.turn++; scene.renderer.info.render.frame++
+    Object.assign(fight, { started: world.turn, remaining: 6, animation: 'recoil', nativeRecoilAnimation: true })
+    next()
+    assert.equal(observation.result.error, null)
+    assert.equal(observation.result.entry.started, world.turn)
+    assert.equal(observation.result.samples.length, 1)
+  }, { mode: 'recoil', mapping: meleeAttackMapping(true) })
 })

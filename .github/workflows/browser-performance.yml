@@ -57,16 +57,28 @@ jobs:
       - name: Install common locked base dependencies
         working-directory: harness
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --ignore-scripts --no-audit --no-fund
-          test -x /opt/google/chrome/chrome
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --ignore-scripts --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
+          node scripts/browser-performance/install-browser.mjs
           test -f scripts/browser-performance/run.mjs
       - name: Run sequential paired fresh browsers on this runner
         working-directory: harness
-        run: node scripts/browser-performance/run.mjs
+        run: node scripts/browser-performance/run-pinned.mjs
       - name: Retain bounded reporter input separately from raw evidence
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: browser-performance-report-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
           path: harness/outputs/browser-performance/${{ matrix.shard }}/report.json
@@ -74,10 +86,12 @@ jobs:
           retention-days: 7
       - name: Retain raw captures, summaries and execution provenance
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: browser-performance-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
           path: |
+            harness/outputs/browser-runtime/receipt.json
+            harness/outputs/browser-runtime/install.log
             harness/outputs/browser-performance/${{ matrix.shard }}/receipt.json
             harness/outputs/browser-performance/${{ matrix.shard }}/*.log
             harness/outputs/browser-performance/${{ matrix.shard }}/session-*/*.json

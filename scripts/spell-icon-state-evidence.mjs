@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { dependencyInputPaths } from './orchestration/dependency-profile.mjs'
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -21,7 +22,7 @@ export function spellIconSourceSnapshot(root) {
   files.push('scripts/check-browser-spell-icon-states.mjs', 'scripts/spell-icon-state-evidence.mjs',
     'scripts/spell-hud-checker-contract.mjs', 'scripts/browser-game.mjs', 'scripts/browser-new-game.mjs',
     'tests/fixtures/spell-icon-states.json', 'package.json', 'package-lock.json',
-    'node_modules/.package-lock.json', 'node_modules/@playwright/test/package.json',
+    'scripts/orchestration/dependency-profile.mjs', ...dependencyInputPaths(root), 'node_modules/@playwright/test/package.json',
     'node_modules/playwright-core/package.json', 'node_modules/vinext/package.json', 'vite.config.ts')
   return {
     head: git('rev-parse', 'HEAD').toString().trim(),
