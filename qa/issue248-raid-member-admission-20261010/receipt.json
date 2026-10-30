@@ -1,0 +1,75 @@
+{
+  "status": "failed",
+  "classification": "intended expected-red ownership assertions",
+  "sourceHead": "b6a74587a428faea1e08ff46f5b3bb0361be6c53",
+  "runtimeBase": "4754e12d3590bde18656416514871b033de164be",
+  "testSha256": "95420d98dceb5a149f11b730ea9aa82ad7d6d01cf1d08778ec72e6dfc5205c18",
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "55s",
+    "node",
+    "--test",
+    "tests/raid-member-admission.test.mjs"
+  ],
+  "startedUtc": "2026-10-10T08:00:23.845519+00:00",
+  "endedUtc": "2026-10-10T08:00:25.078500+00:00",
+  "elapsedSeconds": 1.2327820139980759,
+  "exitCode": 1,
+  "counts": {
+    "tests": 7,
+    "passed": 4,
+    "failed": 3,
+    "skipped": 0,
+    "cancelled": 0
+  },
+  "failureAssertions": [
+    "missing phase3 completion ownership: admit the full current state14 set",
+    "missing phase3 completion ownership: write the registered state14 person",
+    "missing phase23 matched-owner release: clear ownership before slot reuse"
+  ],
+  "sourceInputsMatchPreflightBeforeAfter": true,
+  "trackedStatusBeforeAfter": "",
+  "inputsUnchanged": true,
+  "dependencyIdentityBefore": {
+    "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "device": 27,
+    "inode": 538212
+  },
+  "dependencyIdentityAfter": {
+    "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "device": 27,
+    "inode": 538212
+  },
+  "rawArtifacts": {
+    "receipt.json": {
+      "path": "work/orchestration/issue248-raid-member-admission-20261010/run-1/receipt.json",
+      "bytes": 5122,
+      "sha256": "4d285168f67499a6e5fb068a91f6116cf275d95a60f9917b6b9dc33f27cc3679"
+    },
+    "stdout.log": {
+      "path": "work/orchestration/issue248-raid-member-admission-20261010/run-1/stdout.log",
+      "bytes": 5629,
+      "sha256": "c3832c88fd72b23600547741500a79668b9fcecd041ee120141f3931399e1ea7"
+    },
+    "stderr.log": {
+      "path": "work/orchestration/issue248-raid-member-admission-20261010/run-1/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "testSourceReviewSha256": "69fcd7b84fcf3c86d8443cf79348a2a7d1d4e14dc4b4a6f2d799c300d6ccbfde",
+  "limits": [
+    "supplied actual-dispatcher cases, not a campaign witness",
+    "no runtime edits",
+    "no native/emulator/browser execution",
+    "no full gates",
+    "no dependency install/copy/move",
+    "no historical fixture changes",
+    "runtime ownership representation and migration remain held"
+  ]
+}

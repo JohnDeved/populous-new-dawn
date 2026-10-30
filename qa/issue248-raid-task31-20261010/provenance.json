@@ -1,0 +1,197 @@
+{
+  "scope": "Data-only source binding of two ATTACK task+0x31 latch producers/consumers. No game, model, browser, tests or runtime edits. No new disassembly; exact accepted excerpt reused.",
+  "sourceCommit": "4754e12d3590bde18656416514871b033de164be",
+  "canonicalCheckoutHead": "99f8a8907380fd2f3c8a3fe0e3f31fb13335a840",
+  "canonicalStatus": "",
+  "executable": {
+    "path": "/workspace/scratch/69fd8163d94e/training-static-recovery-20261009/game/d3dpoptb.exe",
+    "bytes": 2275840,
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "tail": {
+    "start": "004e638b",
+    "endExclusive": "004e63ff",
+    "bytes": 116,
+    "instructionRows": 34,
+    "byteSha256": "3f5bbd2a9de1e5f2d6eb4aa9624a5aaf4d6771331bbdca129d1dcc8ec2b31e32",
+    "allInstructionBytesMatchCanonicalPE": true
+  },
+  "sourceInputs": [
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/exports.json",
+      "bytes": 115741,
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "blob": "9946a05e8cfa42abc3cfeff2439df3f841cf420f"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/generated/0048ef00.c",
+      "bytes": 1748,
+      "sha256": "eaa9a28660ca72c172f3a98e5e83ad08429bba0f3ebdd121c8e555e248b8d2bb",
+      "blob": "231103ae4ecc00910b3c0d66e1a51cbdad2e5ac3",
+      "registrySha256": "eaa9a28660ca72c172f3a98e5e83ad08429bba0f3ebdd121c8e555e248b8d2bb"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/generated/0048f350.c",
+      "bytes": 10081,
+      "sha256": "d9b12b2ae9430bff2b2016230060713a14dc4d9430044f3b0acecd494b1afef4",
+      "blob": "af3eeae17b8c7f6be64b38f903deec2eccae03ae",
+      "registrySha256": "d9b12b2ae9430bff2b2016230060713a14dc4d9430044f3b0acecd494b1afef4"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/generated/0048c6b0.c",
+      "bytes": 4538,
+      "sha256": "5450c143fdf7b377a49576ca58d1e56f5b7c81bb5bc7a6029abd1c0e4250e015",
+      "blob": "f507e0317784cc0efeff80ed2904019e0a078458",
+      "registrySha256": "5450c143fdf7b377a49576ca58d1e56f5b7c81bb5bc7a6029abd1c0e4250e015"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/generated/0048c980.c",
+      "bytes": 4547,
+      "sha256": "93624791aebca6e0276de907d30d751019c24d5100abf884772af3767f1c176d",
+      "blob": "e00f72900ad4dacbbedef9afd03ab5e6c5b04cd6",
+      "registrySha256": "93624791aebca6e0276de907d30d751019c24d5100abf884772af3767f1c176d"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/generated/00461d70.c",
+      "bytes": 1977,
+      "sha256": "b3615d5df13470b64957be7de66ec21d444d9f093f78172cb9ac5ba65c4a8c46",
+      "blob": "ff77f98992047299006ed4b8e72264b9d9e834df",
+      "registrySha256": "b3615d5df13470b64957be7de66ec21d444d9f093f78172cb9ac5ba65c4a8c46"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "decomp/generated/004d1420.c",
+      "bytes": 387,
+      "sha256": "03b55474219f2b7b177c444b27ea06311b51f93bf51f9d94ebe56b6e3433fc43",
+      "blob": "e6e17710cfe8785298bba705f35935115240e28c",
+      "registrySha256": "03b55474219f2b7b177c444b27ea06311b51f93bf51f9d94ebe56b6e3433fc43"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/popscript.ts",
+      "bytes": 5065,
+      "sha256": "1e17b6e10f209893d472fe49a6483130633778aeaf85528c6026216fdd5afe45",
+      "blob": "73f528f13608ef96bb6bbff813f28a112b93fc9b"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/computer.ts",
+      "bytes": 28654,
+      "sha256": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d",
+      "blob": "861a6362c451be97cfa7d3f8e75c7e62bd703e38"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/campaign-command-runtime.ts",
+      "bytes": 32936,
+      "sha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+      "blob": "b35a070c14e3e9c3ab2fbfb57c3947fd6cbee16d"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/campaign-runtime.ts",
+      "bytes": 13937,
+      "sha256": "b8c23bacf9a3310b541091864b68623a6641734f81c4a4265894dbc0919176e8",
+      "blob": "4b30378a4b78badd1faacd33baba68434d7f5e3b"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/mission-data.ts",
+      "bytes": 7435,
+      "sha256": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf",
+      "blob": "eb70607c84e04a344df7f2f2acd404887979fef1"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/original-script.json",
+      "bytes": 8579,
+      "sha256": "ced4ce5323a9c68962f4c0762c799c08102bd75157c24b681047e27e539d342c",
+      "blob": "cd52e006dc0d33d4aa7e1e590c9ebe4ebe94a75c"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/original-script-two.json",
+      "bytes": 5706,
+      "sha256": "2a3b71e046b4935cfb54fa27c04c84f4b90d6f9b7d92c0471e28c505e4a2f94b",
+      "blob": "6cdcc7f9f8873c1a59c84e577ceeffd33c7306e9"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/original-script-three.json",
+      "bytes": 6192,
+      "sha256": "7362d19fef54dc06869b9c54c41c2d8229acf2942a4b22e6056aab6208789ccc",
+      "blob": "40d7eca91541d74e0e3a5e7e904528b261a0ea7c"
+    },
+    {
+      "kind": "git-blob",
+      "commit": "4754e12d3590bde18656416514871b033de164be",
+      "path": "app/original-script-six.json",
+      "bytes": 23569,
+      "sha256": "672d6c911118ca34a1a274a820f214c55782e7fdf88cf0205416e3e0b1fc12b6",
+      "blob": "07d3c08ea833b4c149126b8f94440e5e3ed22607"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-raid-admission-static-20261010/004e5fd0-attack-producer.asm.txt",
+      "bytes": 17652,
+      "sha256": "aa58de74adcedfef1e0766d660eb1edf4dcda486bb99c8e136bcffff983e6a10"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-raid-admission-static-20261010/provenance.json",
+      "bytes": 12071,
+      "sha256": "40c8faa8918f3a38e368d05ef7454851124397bb13aabc328a4014aa644b5543"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-raid-member-lifetime-static-20261010/findings.md",
+      "bytes": 16110,
+      "sha256": "01d618aebc971d04688e60c560f4e0f91535ab338e1f445e1825146a18f60cbe"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-phase16-specialist-release-static-20261010/findings.md",
+      "bytes": 12609,
+      "sha256": "aa40dc8f11f64b15e7d9ed0069c806135860fdb2a43bb7d3a29ee6484b00ae41"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-model4-maintenance-static-20261010/findings.md",
+      "bytes": 11045,
+      "sha256": "f770760ce167832ef2b4314323eaf5c818693b40447c2445702d122f88c35567"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-scheduled-trace-packet-20261010/phase3-capture-run.cohort.json",
+      "bytes": 22444,
+      "sha256": "ca5ed62c80a414923ceefcfd1454a72526eb9383d9335ab3659f5af8c21d7372"
+    },
+    {
+      "kind": "local-accepted-input",
+      "path": "issue248-scheduled-trace-packet-20261010/record205-retained-input-inventory.json",
+      "bytes": 8116,
+      "sha256": "fba87d7c85a921a6dbcdf7efd7092bf219555f56f7b7e7c00b12a32a18e67105"
+    }
+  ]
+}

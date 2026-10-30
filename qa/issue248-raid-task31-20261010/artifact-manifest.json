@@ -1,0 +1,22 @@
+[
+  {
+    "path": "004e638b-task31-tail.asm.txt",
+    "bytes": 1673,
+    "sha256": "615678535834b7ea5c38b0ec9aeeaf1e0cdbd950eacf14ef0f60e120138a4ad0"
+  },
+  {
+    "path": "findings.md",
+    "bytes": 7003,
+    "sha256": "403a0e750391db88b1444aa835b6b74d56bb6b2a257a2f056e1dc18942866787"
+  },
+  {
+    "path": "provenance.json",
+    "bytes": 7940,
+    "sha256": "d93789fbff0c2ca83a7b82c1fc1731336322c8db110618ea6e29a6b0e648b33b"
+  },
+  {
+    "path": "script-input-inventory.json",
+    "bytes": 2337,
+    "sha256": "a9bfc6254078d85351232183d70989603bb2001eb71a073b699229c5b53a2f74"
+  }
+]

@@ -1,0 +1,23 @@
+# Issue 248: supplied order-cancellation ownership continuation
+
+This test-only continuation starts from PR 309 head `2c0cb8933f623b819869ce7e35e200dcae450076`; all production remains exact main `4754e12d3590bde18656416514871b033de164be`. The seven prior membership tests and their failed three-red/four-control receipt remain unchanged and are not rerun.
+
+The accepted cleanup contract is local `issue248-raid-order-cleanup-static-20261010/findings.md`, SHA256 `c2baca97c15acd3fb42df93de7144934f8b058709e5bdf7ef89a981e11934ccb`, and independent review `issue248-raid-order-cleanup-review-20261010.md`, SHA256 `1c54e9e78edeb1a8ba20800dfef883a2019424f1c5b89a0ebf55ed10f4c22231`. The five hash-pinned original exports establish that `00436ca0 → 004364d0` retains this person and `+0xaf`; cancellation is not membership retirement.
+
+## Actual caller and fixture boundary
+
+Three supplied cases call `cancelLiveBuildingAttack`, `syncLivePersonCells`, and successful `startLiveCombatResponse`, then read a structured clone through the actual `computerSelectionWorld` raw-native adapter. No assignment helper, mocked consumer, campaign turn, or native execution substitutes for those callers. The first case has one sole native owner with assignment 3. The passing controls retain an entry alias to that same person, with assignment 3 and foreign task assignment 4 respectively. Each roster belongs to its actual owner, so the foreign control cannot silently become task 3. Task arrays are observed and are never used to seed a person.
+
+Every case guards class 1/model 3/tribe 2, state 10/substate 1, one uncancelled command 19 with reference count 1 and associated object 0, immediate slot 0, `assignment & 0x20 == 0`, and `workTarget == 0`. The last condition selects the accepted `+0x89=0` variant: the read-only predicate executes but no target release is needed. No fight, route group, path owner, vehicle, builder, casting, or resting state enters another cleanup branch. The known `nativeFlags7f=0xa4` byte must survive; the test does not infer an absent byte or task `+0x31`.
+
+`createWorldState(6)` and `addUnit/createLivePerson` supply complete port fields without advancing gameplay. A live hostile Shaman 1.5 browser units away is in the warrior's idle scan area. Turn 0 meets the scan phase; level suppression and alliances are zero. The actual combat-world adapter and eligibility predicate are guarded before response. Both the retained empty-state-10 person and the current fresh fallback can reach automatic command 21. The response must succeed and attach a reference-counted order before the intended ownership assertion. No unknown callback is reached: command 19 excludes spell/model-7 handling, zero associated object excludes deletion, zero assignment0x20 excludes fight release, and route group 0 excludes route cleanup effects.
+
+Cancellation observations are collected before and after registry reconciliation, then after successful response. Assertions verify assignment, the same registered person, known ownership bit0x2000 and byte7f, query source/busy reservation, and matching task roster. The raw-native query mode is explicit: an empty state10 person has not yet entered its response presentation dispatcher. It is not a claim that every selection caller uses that mode. Structured clone checks existing field/alias continuity only, with no legacy-save migration claim.
+
+## One controlled run after exact source acceptance
+
+`taskset -c 4 timeout --signal=TERM --kill-after=5s 55s node --test tests/raid-member-order-continuation.test.mjs`
+
+The process receives TERM after 55 seconds and has a 60-second maximum lifetime. Record a new source-bound receipt and raw streams in a separate continuation folder. Expected unchanged-product result is one labeled ownership-continuation failure and two passing retained controls. The first case currently loses its query owner after cancellation, its registry owner on reconciliation, and recreates assignment 0/ownership-bit0 after successful response; the roster still contains owner 3. Setup, import, target eligibility, allocation failure, timeout, or any control failure is not the intended red and must stop further execution.
+
+Only this command is authorized after independent test-source ACCEPT. Existing stationary dependencies are read-only linked; no install/copy/move. Runtime edits, broad gates, campaign/browser/native execution and general ownership/save rewrites remain held. The original membership red is separate evidence. A later compact publication will carry the accepted source contract/review and this distinct result on the same branch.

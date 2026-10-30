@@ -1,0 +1,10 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "address": "005a7f40",
+  "command": 17,
+  "stride": 22,
+  "field": "descriptor.flags",
+  "value": 131201,
+  "hex": "0x20081",
+  "bytesHex": "81000200"
+}
