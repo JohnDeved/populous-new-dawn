@@ -16,6 +16,7 @@ interface TurnPhase {
   active: boolean
   callbacks: (() => void)[]
   observer: TurnObserver
+  diagnostics?: Set<{ visit: () => void; failed: (error: unknown) => void }>
 }
 const turnPhases = new WeakMap<GameClock, TurnPhase>()
 
@@ -53,6 +54,43 @@ function turnPhase(clock: GameClock) {
   }
   turnPhases.set(clock, phase)
   return phase
+}
+
+// Opt-in diagnostics observe each completed logical visit, not merely the last
+// turn of a rendered catch-up frame. Subscriptions are transient, outside World
+// and saves, and never replace the clock's production callbacks.
+export function observeGameTurns(
+  clock: GameClock,
+  visit: () => void,
+  failed: (error: unknown) => void
+) {
+  const phase = turnPhase(clock),
+    subscription = { visit, failed }
+  phase.diagnostics ??= new Set()
+  phase.diagnostics.add(subscription)
+  return () => {
+    phase.diagnostics?.delete(subscription)
+    if (!phase.diagnostics?.size) phase.diagnostics = undefined
+  }
+}
+
+function publishGameTurn(phase: TurnPhase) {
+  const diagnostics = phase.diagnostics
+  if (!diagnostics) return
+  for (const subscription of diagnostics) {
+    try {
+      subscription.visit()
+    } catch (error) {
+      diagnostics.delete(subscription)
+      // Broken diagnostic consumers cannot interrupt gameplay or later turns.
+      try {
+        subscription.failed(error)
+      } catch {
+        // The diagnostic owns its error, including a broken failure reporter.
+      }
+    }
+  }
+  if (!phase.diagnostics?.size) phase.diagnostics = undefined
 }
 
 // Advance animation and simulation in chronological order. Animation fields are
@@ -96,6 +134,7 @@ export function advanceGame(
     if (w.turn !== previousTurn) {
       animateLiveObjects(w, 'logical')
       animateStoneHeads(w, 'logical')
+      publishGameTurn(phase)
     }
     seconds = Math.max(0, seconds - elapsed)
     if (presentation) ui.elapsed += elapsed * 1000

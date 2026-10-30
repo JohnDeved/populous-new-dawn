@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
 import * as THREE from 'three'
+import { createResultClock, advanceResultClock } from '../app/result-session.ts'
 
 // Execute the production constructor's renderer assignment and complete dispose
 // body without allocating a world, loading assets, or supplying a real GPU.
@@ -204,8 +205,10 @@ test('late terrain body completion cannot repopulate a disposed owner, even if f
 })
 
 const animateField = sceneClass.members.find(node => ts.isPropertyDeclaration(node) && node.name.getText(source) === 'animate')
-for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'hud', null]) {
-  test(`animation stops after retiring callback phase ${stopAt ?? '(live control)'}`, () => {
+for (const stopAt of ['result-clock', 'nearby', 'simulation', 'sound', 'flyby', 'hud', null, 'result-clock-live']) {
+  test(`animation preserves retirement and continuation at ${stopAt ?? '(live control)'}`, () => {
+    const resultBoundary = stopAt === 'result-clock' || stopAt === 'result-clock-live'
+    const retires = stopAt !== null && stopAt !== 'result-clock-live'
     const f = fixture(), phases = [], phase = name => {
       phases.push(name)
       if (name === stopAt) f.dispose()
@@ -216,7 +219,9 @@ for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'hud', null]) {
     f.scene.neutralCursor.update = () => {}
     Object.assign(f.scene, {
       previous: 0, isCurrent() { return !this.disposed },
-      world: { paused: false, selected: [], buildings: [], manaWorld: { gameFlags: 0 } },
+      resultClock: createResultClock(), onChange: () => phase('result-clock'),
+      world: { status: resultBoundary ? 'won' : 'playing',
+        paused: false, selected: [], buildings: [], manaWorld: { gameFlags: 0 } },
       hoveredObject: null,
       dispatchNearbyFollowers: () => phase('nearby'),
       playWorldSounds: () => phase('sound'),
@@ -232,20 +237,67 @@ for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'hud', null]) {
     Object.assign(f.scene.renderer, { getPixelRatio: () => 1, info: { render: { calls: 0 } } })
     const makeAnimate = evaluate(`function () { return ${animateField.initializer.getText(source)} }`, {
       document: { hidden: false, querySelector: () => null }, devicePixelRatio: 1,
-      syncSecondaryReservations: () => {}, advanceGame: () => phase('simulation'),
+      advanceResultClock, syncSecondaryReservations: () => {}, advanceGame: () => phase('simulation'),
       updateVehiclesFrame: () => {}, SPELLS: [],
       requestAnimationFrame: () => { phase('schedule'); return 77 },
     })
     const animate = makeAnimate.call(f.scene)
-    animate(16)
+    if (resultBoundary) f.scene.resultClock.inputCycles = 3
+    animate(resultBoundary ? 83 : 16)
     const all = ['nearby', 'simulation', 'sound', 'terrain', 'flyby', 'water', 'render', 'hud', 'schedule']
-    assert.deepEqual(phases, stopAt ? all.slice(0, all.indexOf(stopAt) + 1) : all)
-    if (stopAt) {
+    if (resultBoundary) {
+      all.unshift('result-clock')
+      assert.equal(f.scene.resultClock.inputCycles, 4, 'the real 83 ms clock reaches the publication boundary')
+    }
+    assert.deepEqual(phases, retires ? all.slice(0, all.indexOf(stopAt) + 1) : all)
+    if (retires) {
       assertCpuReferencesReleased(f.scene)
       animate(32)
       assert.deepEqual(phases, all.slice(0, all.indexOf(stopAt) + 1), 'queued stale RAF cannot reschedule')
     }
     else assert.equal(f.scene.terrainMap.image.data.byteLength, 4)
+  })
+}
+
+// Result publication runs before the modal branch. Retired owners must stop;
+// a live publication must still render and schedule, not return unconditionally.
+for (const retire of [true, false]) {
+  test(`modal result-clock publication ${retire ? 'stops retired owners' : 'continues live owners'}`, () => {
+    const f = fixture(), phases = []
+    ownedCpuImages(f)
+    f.scene.fpsGraph = null
+    f.scene.neutralCursor.reset = () => {}
+    Object.assign(f.scene, {
+      previous: 0, isCurrent() { return !this.disposed }, modalSuspended: true,
+      resultClock: createResultClock(), world: { status: 'won' },
+      onChange: () => { phases.push('publish'); if (retire) f.dispose() },
+    })
+    f.scene.resultClock.inputCycles = 3
+    Object.assign(f.scene.renderer, { getPixelRatio: () => 1, info: { render: { calls: 0 } } })
+    f.scene.view.painter = { render: () => {
+      assert.equal(f.scene.disposed, false, 'no modal render after result retirement')
+      phases.push('render')
+    } }
+    const makeAnimate = evaluate(`function () { return ${animateField.initializer.getText(source)} }`, {
+      document: { hidden: false }, devicePixelRatio: 1, advanceResultClock,
+      sceneTextureRevision: () => 0,
+      requestAnimationFrame: () => {
+        assert.equal(f.scene.disposed, false, 'no RAF after result retirement')
+        phases.push('schedule'); return 42
+      },
+      syncSecondaryReservations: () => assert.fail('no ordinary frame work in modal branch'),
+    })
+    const animate = makeAnimate.call(f.scene)
+    animate(83)
+    assert.equal(f.scene.disposed, retire)
+    assert.equal(f.scene.resultClock.inputCycles, 4)
+    assert.deepEqual(phases, retire ? ['publish'] : ['publish', 'render', 'schedule'])
+    if (retire) {
+      assertCpuReferencesReleased(f.scene)
+      animate(166)
+      assert.equal(f.scene.resultClock.inputCycles, 4, 'a queued stale RAF cannot advance the retired result clock')
+      assert.deepEqual(phases, ['publish'], 'stale modal RAF cannot render or reschedule')
+    } else assert.equal(f.scene.terrainMap.image.data.byteLength, 4)
   })
 }
 
@@ -365,4 +417,165 @@ test('Scene cleanup keeps cached texture, image and geometry identities for late
   assert.equal(laterConsumer.map, texture)
   assert.equal(laterConsumer.map.image, image)
   laterConsumer.dispose()
+})
+
+
+// Exact production helper bodies, not a copied ownership implementation. The
+// source-extracted Scene disposer/isCurrent are real; DOM/painter leaves, flyby
+// event production and binding revocation are supplied. This is callback-boundary
+// coverage, not mounted Home replacement or ordinary-browser/native evidence.
+const retirementSources = new Map()
+function retirementFunction(file, name, bindings = {}) {
+  let parsed = retirementSources.get(file)
+  if (!parsed) {
+    parsed = ts.createSourceFile(file, readFileSync(new URL(`../app/${file}`, import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true)
+    retirementSources.set(file, parsed)
+  }
+  const declaration = parsed.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
+  assert.ok(declaration, `missing actual ${file}:${name}`)
+  return evaluate(declaration.getText(parsed).replace(/^export\s+/, ''), bindings)
+}
+
+function tooltipRetirementFixture(retirement, { paused = false, forced = false } = {}) {
+  const f = fixture(), trace = []
+  ownedCpuImages(f)
+  let current = true, flybySteps = 0, publications = 0
+  f.scene.presentationBinding.isCurrent = () => current
+  f.scene.isCurrent = evaluate(`function () ${sceneMethod('isCurrent').body.getText(source)}`).bind(f.scene)
+  const notice = { cell: 0x1234, serial: 1 }
+  Object.assign(f.scene, {
+    world: { ...f.scene.world, paused, routeNotice: notice, flyby: { flags: forced ? 1 : 0 },
+      status: 'playing', selected: [], inputMask: 0, mode: null },
+    tooltip: { remaining: 1, flags: 8, target: notice.cell, fixed: 1, draw: 1, text: 'route' },
+    tooltipInput: null, tooltipInspectionInputs: [], overviewActive: false, overviewStage: 0,
+    flybyTime: 0, wasFlying: forced, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, previous: 125,
+    onChange() {
+      trace.push('publish'); publications++
+      if (retirement === 'disposed') f.dispose()
+      else if (retirement === 'revoked') current = false
+    },
+    commitSky() { assert.equal(f.scene.isCurrent(), true, 'no retired sky work'); trace.push('sky') },
+    updateView() { assert.equal(f.scene.isCurrent(), true, 'no retired camera work'); trace.push('view') },
+  })
+  const owner = {
+    routeNotice: notice, category: 'none', key: null, dwell: 0, owners: {}, unsupportedHistory: [],
+    session: { visits: 0, sampleAt: null, sampleCount: 0, sample: 0, threshold: 0, initializedBy: null },
+    output: { retained: 'output' }, lastVisit: { retained: 'visit' },
+  }
+  f.scene.tooltipController = owner
+  const previousOutput = owner.output, previousVisit = owner.lastVisit
+  f.scene.objectPanels.renewBuildingInspection = () => {
+    assert.equal(f.scene.isCurrent(), true, 'no retired panel renewal'); trace.push('renew')
+  }
+  f.scene.objectPanels.stepBuildingInspections = () => {
+    assert.equal(f.scene.isCurrent(), true, 'no retired panel stepping'); trace.push('panels')
+  }
+  const clearTooltip = retirementFunction('tooltips.ts', 'clearTooltip')
+  const stepTooltip = retirementFunction('tooltips.ts', 'stepTooltip', { clearTooltip })
+  const resetTooltipController = retirementFunction('tooltip-controller.ts', 'resetTooltipController', { clearTooltip })
+  const sampleTooltipFrontend = retirementFunction('tooltip-controller.ts', 'sampleTooltipFrontend')
+  const showObjectTooltip = retirementFunction('tooltips.ts', 'showObjectTooltip', {
+    clearTooltip, tooltipName: () => ({ stringId: 0 }),
+  })
+  const acquireForced = retirementFunction('tooltip-controller.ts', 'acquireForcedTooltip', {
+    resetTooltipController, showObjectTooltip,
+  })
+  const acquire = retirementFunction('scene-tooltip-runtime.ts', 'acquireForcedTooltip', {
+    getTooltipController: () => owner, acquireForced,
+  })
+  const update = retirementFunction('scene-tooltip-runtime.ts', 'updateTooltipController', {
+    getTooltipController: () => owner, resetTooltipController, sampleTooltipFrontend, stepTooltip,
+    worldTooltipObject: () => null, document: { querySelector: () => null },
+    visitHudTooltip() {}, finishOrdinaryTooltip() {}, explicitAdmission: () => true,
+  })
+  f.scene.acquireForcedTooltip = (...args) => { trace.push('forced'); return acquire(f.scene, ...args) }
+  f.scene.updateTooltipController = now => { trace.push('tooltip'); return update(f.scene, now) }
+  const updateFlyby = retirementFunction('scene-camera-runtime.ts', 'updateFlyby', {
+    stepFlyby() {
+      flybySteps++
+      assert.equal(f.scene.isCurrent(), true, 'no next flyby step after retirement')
+      return forced && flybySteps === 1
+        ? [{ kind: 5, flags: 0, value: 0, duration: 3 }, { kind: 5, flags: 0, value: 1, duration: 3 }]
+        : []
+    },
+    forcedTooltipObject: (_world, _flags, id) => ({ id }),
+  })
+  return { ...f, trace, owner, previousOutput, previousVisit,
+    run: () => updateFlyby(f.scene, 3 / 24),
+    counts: () => ({ flybySteps, publications }) }
+}
+
+for (const paused of [false, true]) for (const retirement of ['disposed', 'revoked', 'live']) {
+  test(`route expiry keeps the actual tooltip/flyby boundary with ${retirement}, paused=${paused}`, () => {
+    const f = tooltipRetirementFixture(retirement, { paused })
+    f.run()
+    assert.equal(f.counts().publications, 1)
+    assert.equal(f.scene.world.routeNotice, null, 'expiry commits before publication')
+    assert.equal(f.owner.routeNotice, null)
+    if (retirement !== 'live') {
+      assert.deepEqual(f.trace, ['tooltip', 'publish'])
+      assert.equal(f.owner.session.visits, 1, 'no later catch-up tooltip visit')
+      if (paused) assert.equal(f.scene.flybyTime, 3 / 24,
+        'paused retirement cannot consume the already-entered catch-up remainder')
+      assert.equal(f.owner.output, f.previousOutput, 'no post-publication output write')
+      assert.equal(f.owner.lastVisit, f.previousVisit, 'no post-publication visit record')
+      if (retirement === 'disposed') assertCpuReferencesReleased(f.scene)
+      else assert.equal(f.scene.disposed, false, 'binding revocation is distinct from disposal')
+    } else {
+      assert.equal(f.owner.session.visits, paused ? 1 : 3)
+      assert.equal(f.trace.filter(value => value === 'panels').length, paused ? 1 : 3)
+      assert.notEqual(f.owner.output, f.previousOutput)
+      assert.notEqual(f.owner.lastVisit, f.previousVisit)
+      assert.equal(f.scene.isCurrent(), true)
+    }
+  })
+}
+
+for (const retirement of ['disposed', 'revoked', 'live']) {
+  test(`forced route replacement stops before next actual flyby event for ${retirement}`, () => {
+    const f = tooltipRetirementFixture(retirement, { forced: true })
+    f.run()
+    assert.equal(f.counts().publications, 1)
+    assert.equal(f.scene.world.routeNotice, null, 'replacement commits before publication')
+    if (retirement !== 'live') {
+      assert.deepEqual(f.trace, ['forced', 'publish'])
+      assert.equal(f.counts().flybySteps, 1)
+      assert.equal(f.owner.session.visits, 0, 'no tooltip visit after forced publication retires owner')
+      assert.equal(f.owner.output, f.previousOutput)
+      if (retirement === 'disposed') assertCpuReferencesReleased(f.scene)
+    } else {
+      assert.equal(f.trace.filter(value => value === 'forced').length, 2)
+      assert.equal(f.counts().flybySteps, 3)
+      assert.equal(f.owner.session.visits, 3)
+      assert.equal(f.trace.filter(value => value === 'sky').length, 3)
+      assert.equal(f.trace.at(-1), 'view')
+    }
+  })
+}
+
+test('outer animate stops when flyby revokes its binding without physical disposal', () => {
+  const f = fixture()
+  ownedCpuImages(f)
+  let current = true
+  f.scene.presentationBinding.isCurrent = () => current
+  f.scene.presentationBinding.snapshot = () => null
+  f.scene.isCurrent = evaluate(`function () ${sceneMethod('isCurrent').body.getText(source)}`).bind(f.scene)
+  Object.assign(f.scene, {
+    previous: 0, fpsGraph: null, resultClock: createResultClock(),
+    world: { status: 'playing', paused: false, selected: [], buildings: [], manaWorld: { gameFlags: 0 } },
+    dispatchNearbyFollowers() {}, playWorldSounds() {}, updateTerrainFrame() {}, updateDecorationsFrame() {},
+    updateCameraMotion: () => false,
+    updateFlyby() { current = false; return false },
+    updateView: () => assert.fail('outer animate must not update a revoked Scene'),
+    updateUnitsFrame: () => assert.fail('outer animate must not continue unit work'),
+  })
+  Object.assign(f.scene.renderer, { getPixelRatio: () => 1, info: { render: { calls: 0 } } })
+  const makeAnimate = evaluate(`function () { return ${animateField.initializer.getText(source)} }`, {
+    document: { hidden: false, querySelector: () => null }, devicePixelRatio: 1,
+    advanceResultClock, syncSecondaryReservations() {}, advanceGame() {},
+    requestAnimationFrame: () => assert.fail('revoked Scene must not reschedule'),
+  })
+  makeAnimate.call(f.scene)(16)
+  assert.equal(f.scene.disposed, false)
+  assert.equal(f.scene.isCurrent(), false)
 })

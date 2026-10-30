@@ -34,6 +34,11 @@ The later [producer trace](result-statistics/README.md) resolves the live storag
 reset and bounded increment owners separately for all ten rows, with remaining
 death/building/reward admission and final-snapshot limits. It does not enable UI rows.
 
+The later [result-navigation trace](result-navigation/README.md) establishes the
+two-stage native Space flow, HUD hiding/pause and selector destination, including
+the verified LEVLSPC2 level-54 sentinel. It supersedes those research unknowns
+below, but does not activate that lifecycle or remove the browser's sole routes.
+
 ## Bounded browser implementation
 
 `OriginalResultScreen` accepts scalar presentation values and existing callbacks.
@@ -45,8 +50,10 @@ completion, alter checkpoints, or manufacture statistics.
 Deliberate adaptations and remaining limits:
 
 - Existing browser after-camera activation is retained. Native statistics opening,
-  input ownership, Space destination, blinking cadence and reward row are unproved.
-  No native Space prompt, blink, reward icons or cursor change is invented.
+  input ownership and Space destination were outside this presentation slice;
+  the later result-navigation trace resolves their bounded static contract.
+  Blink-clock mapping and reward row remain separate. This implementation adds
+  no native Space prompt, blink, reward icons or cursor change.
 - All ten unowned statistics show `-`, with a visible explanation and accessible
   unavailable labels. Existing cast/build counters are not relabeled as native data.
 - Time reads the current browser simulation time on every render. The original

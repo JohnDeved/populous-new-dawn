@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
-import { bindGame, effectPixels, openGame } from './browser-game.mjs'
+import { bindGame, effectPixels, openCampaignFixtureGame } from './browser-game.mjs'
 import { witnessAngelStrike } from './angel-strike-witness.mjs'
 
 const artifactDir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? 'work/orchestration/worker5-22-static157-recovery/browser')
@@ -171,7 +171,8 @@ async function headFingerprint(page) {
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 let page
 try {
-  const opened = await openGame(browser, 5)
+  // Declared mission availability only, not naturally earned campaign history.
+  const opened = await openCampaignFixtureGame(browser, 5)
   page = opened.page
   const { errors } = opened
   // Own pacing while asynchronous asset/checkpoint work and UI input run;

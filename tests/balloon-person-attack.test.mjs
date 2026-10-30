@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import {
   seatedAttackOrigin,
   boundedGroundAttackDeparture,
@@ -12,7 +13,6 @@ import { supportsFollower } from '../app/model.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Bounded direct-target transport handoff; grounded combat remains the existing adapter.
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { stepLiveAboardPersonAttack } from '../app/live-building-combat.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
@@ -36,8 +36,8 @@ const stepUntil = (w, done, limit) => {
   }
 // Preparation supplies only the existing mana-focus mask adapter.
 test('supplied-focus current Mission22 queued person target moves its transport and preserves handoff through Save/Load', async () => {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),

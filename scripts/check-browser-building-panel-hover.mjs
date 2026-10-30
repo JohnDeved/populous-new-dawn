@@ -1,3 +1,4 @@
+import { changeHudSize } from './browser-native-options.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
@@ -66,9 +67,7 @@ async function waitHud(page) {
 }
 
 async function setHudSize(page, value) {
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByLabel('HUD size').selectOption(value)
-  await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
+  await changeHudSize(page, value)
   await page.waitForFunction(value => {
     const fit = Math.min(innerWidth / 640, innerHeight / 480),
       preferred =

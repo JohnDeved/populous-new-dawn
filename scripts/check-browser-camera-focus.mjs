@@ -1,3 +1,4 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 // Start npm run dev, then node scripts/check-browser-camera-focus.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -7,6 +8,10 @@ try {
   const { page, errors } = await openGame(browser)
   await page.evaluate(() => { const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30}) })
   const canvas=page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.',{exact:true})
+  const mini=page.getByLabel('Minimap. Click to move the camera.',{exact:true})
+  const rect=await mini.boundingBox()
+  assert.ok(rect&&rect.width>0&&rect.height>0,'The public minimap must be exposed')
+  const requestMinimapJourney=()=>page.mouse.click(rect.x+rect.width*.65,rect.y+rect.height*.2)
   await canvas.hover()
   await page.keyboard.down('q');await page.waitForTimeout(180);await page.keyboard.up('q')
   await page.mouse.wheel(0,-240)
@@ -14,7 +19,7 @@ try {
   const before=await page.evaluate(()=>{const s=window.testScene;return {point:s.viewPoint,angle:Math.round(s.cameraBearing*1024/Math.PI)&2047,preset:s.viewPreset}})
   assert.notEqual(before.angle,0);assert.notEqual(before.preset,0)
   await page.keyboard.press('1')
-  await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
+  await requestMinimapJourney()
   const moving=await page.evaluate(()=>{const s=window.testScene;return {motion:s.cameraMotion,point:s.viewPoint,preset:s.viewPreset,mode:s.world.mode}})
   assert.equal(moving.motion.active,1,'Focus must start an original camera journey')
   assert.notDeepEqual(moving.point,before.point,'Camera starts moving through intermediate positions')
@@ -27,14 +32,15 @@ try {
   assert.deepEqual(after.position,after.target)
   assert.equal(after.preset,before.preset)
   await page.screenshot({path:'/private/tmp/populous-camera-focus-arrived.png'})
-  await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click()
+  await clearPortraitSelection(page)
+  await page.getByRole('button',{name:'Select shaman',exact:true}).click()
+  await page.getByRole('button',{name:'Select shaman',exact:true}).click({button:'right'})
   await page.waitForFunction(()=>window.testScene.cameraMotion.active)
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
-  assert.equal(await page.evaluate(()=>window.testScene.world.selected.length),1)
+  assert.deepEqual(await page.evaluate(()=>{const w=window.testScene.world;return w.selected}),
+    await page.evaluate(()=>[window.testScene.world.units.find(u=>u.team==='blue'&&u.kind==='shaman'&&!u.ghost&&u.hp>0).id]))
   // A new minimap request replaces the journey from the camera's current point.
-  const mini=page.getByLabel('Minimap. Click to move the camera.',{exact:true})
-  const rect=await mini.boundingBox()
-  await page.mouse.click(rect.x+rect.width*.65,rect.y+rect.height*.2)
+  await requestMinimapJourney()
   await page.waitForFunction(()=>window.testScene.cameraMotion.active)
   const firstTarget=await page.evaluate(()=>({...window.testScene.cameraMotion.target}))
   await page.mouse.click(rect.x+rect.width*.3,rect.y+rect.height*.65)
@@ -46,11 +52,12 @@ try {
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
   await page.evaluate(()=>window.testScene.focus({x:2,z:30}))
   // Normal manual controls take over without a delayed snap to the old target.
-  await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
+  await requestMinimapJourney()
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1)
   await page.keyboard.down('d');await page.waitForTimeout(100);await page.keyboard.up('d')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
-  await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click()
+  await page.getByRole('button',{name:'Select shaman',exact:true}).click({button:'right'})
+  assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1)
   const worldRect=await canvas.boundingBox()
   await page.mouse.move(worldRect.x+worldRect.width/2,worldRect.y+worldRect.height/2)
   await page.mouse.down({button:'right'});await page.mouse.move(worldRect.x+worldRect.width/2+30,worldRect.y+worldRect.height/2);await page.mouse.up({button:'right'})
@@ -66,7 +73,7 @@ try {
   assert.equal(await page.evaluate(()=>window.testScene.viewPoint.x),-127)
   await page.evaluate(()=>{const s=window.testScene;s.world.paused=false;s.focus({x:2,z:30})})
   // Enter during a focus journey must keep the requested planet overview.
-  await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
+  await requestMinimapJourney()
   await page.keyboard.press('Enter')
   await page.waitForFunction(()=>window.testScene.overviewActive&&!window.testScene.cameraMotion.active)
   await page.waitForTimeout(150)

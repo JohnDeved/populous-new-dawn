@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -62,8 +63,8 @@ export default async function({page,browser,url,root,output,receipt}) {
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),79)
  await page.screenshot({path:resolve(output,'tutorial-ready.png')})
  passed('tutorial-ready')
- const desktop=page.getByRole('button',{name:'Continue anyway',exact:false});if(await desktop.isVisible())await desktop.click()
- await page.getByRole('button',{name:'Game settings',exact:true}).click()
+
+ await page.getByRole('button',{name:'Menu',exact:true}).click()
  await button('Quit Game').click();await button('Yes').click();await main.waitFor();await noScene()
  passed('tutorial-return-main')
  // Separate the independent failure-injection scenario from the previous WebGL context.
@@ -79,12 +80,11 @@ export default async function({page,browser,url,root,output,receipt}) {
  })
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.menuTestStore.getWorld().turn),stopped)
  await page.unroute('**/original/landscape.bin');await button('Try again').click();await bindGame(page)
- if(await desktop.isVisible())await desktop.click()
  passed('retry-load-ready')
  await page.waitForFunction(()=>window.testStore.getWorld().flyby.flags&1||!window.testStore.getWorld().inputMask)
- const skip=page.locator('.skip-introduction');if(await skip.isVisible())await skip.click()
+ await skipIntroductionWithSpace(page, { timeout: 45000 })
  await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
- await button('Game settings').click();await button('Save Game').click();await button('Save checkpoint').click()
+ await button('Menu').click();await button('Save Game').click();await button('Save checkpoint').click()
  await page.getByRole('status').filter({hasText:'Checkpoint saved in this browser.'}).waitFor()
  const saved=await page.evaluate(()=>({level:window.testStore.getWorld().outcome.level,turn:window.testStore.getWorld().turn}))
  const committed=await waitForCheckpointReadback(()=>page.evaluate(async expected=>{
@@ -95,11 +95,10 @@ export default async function({page,browser,url,root,output,receipt}) {
  await page.reload({waitUntil:'domcontentloaded'});await main.waitFor();await noScene()
  assert.equal(await button('Load Game').getAttribute('aria-disabled'),'false')
  await button('Load Game').click();await bindGame(page)
- if(await desktop.isVisible())await desktop.click()
  assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),saved.level)
  assert.ok(await page.evaluate(()=>window.testStore.getWorld().turn)>=saved.turn)
  passed('fresh-checkpoint-load-ready')
- await button('Game settings').click()
+ await button('Menu').click()
  const paused=await page.evaluate(()=>window.testStore.getWorld().turn)
  await page.waitForTimeout(250);assert.equal(await page.evaluate(()=>window.testStore.getWorld().turn),paused)
  await button('Options').click();await button('Select Level').click();await button('Back').click()

@@ -1,3 +1,4 @@
+import { routeNoticeCell } from './route-notice.ts'
 import { validSceneryProvenance } from './scenery-provenance.ts'
 import { validAngelPresentation } from './angel-presentation.ts'
 import { validTornadoAppearance } from './tornado-appearance.ts'
@@ -7,7 +8,21 @@ import { restoreCapacityPolicy } from './capacity-policy.ts'
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import { createWorld, syncLandscapeObjects, type World } from './model.ts'
-import { missionNumbers } from './mission-data.ts'
+import { tutorialLevel } from './mission-data.ts'
+import {
+  applyCampaignEvent,
+  campaignCompleted,
+  campaignSelectable,
+  joinCampaignProgress,
+  mergeCampaignProfile,
+  readCampaignProfile,
+  supportedCampaignMission,
+  type CampaignEvent,
+} from './campaign-profile.ts'
+import {
+  transitionNativeCampaign,
+  type NativeCampaignMission,
+} from './native-campaign-progression.ts'
 import { initializeVaultKnowledge } from './vault-appearance.ts'
 import { discardInvalidResident } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
@@ -17,8 +32,7 @@ import { CHECKPOINT_VERSION } from './checkpoint-format.ts'
 export { CHECKPOINT_VERSION } from './checkpoint-format.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
-  CHECKPOINT_STORE = 'checkpoints',
-  PROFILE_VERSION = 1
+  CHECKPOINT_STORE = 'checkpoints'
 let checkpointDatabase: Promise<IDBDatabase | null> | null = null
 
 export type CheckpointReadStatus =
@@ -33,6 +47,11 @@ export type CheckpointReadStatus =
 // established function name, this is not an older-save upgrader. Shipping store
 // boundaries require the current envelope and scalable schema before calling it.
 export function migrateCheckpoint(world: World) {
+  // Normalize only the cloned optional presentation anchors. Keep unknown data
+  // unknown instead of turning malformed saved integers into plausible map cells.
+  if (routeNoticeCell(world.lastOrderCell) === undefined) delete world.lastOrderCell
+  if (world.routeNotice && routeNoticeCell(world.routeNotice.cell) === undefined)
+    delete world.routeNotice.cell
   restoreCapacityPolicy(world)
   for (const unit of world.units) discardInvalidResident(world, unit)
   restoreSecondaryEffects(world)
@@ -118,7 +137,7 @@ function openCheckpointDatabase() {
 async function readStoredState() {
   const database = await openCheckpointDatabase()
   if (!database) return null
-  return new Promise<{ checkpoint: World | null; completed: number[]; incompatible: boolean }>(
+  return new Promise<{ checkpoint: World | null; profile: unknown; incompatible: boolean }>(
     (resolve, reject) => {
       const transaction = database.transaction(CHECKPOINT_STORE),
         store = transaction.objectStore(CHECKPOINT_STORE),
@@ -126,7 +145,7 @@ async function readStoredState() {
         profileRequest = store.get('profile')
       transaction.addEventListener('complete', () => {
         const saved = checkpointRequest.result as { version?: number; world?: World } | undefined,
-          profile = profileRequest.result as { version?: number; completed?: unknown } | undefined
+          profile = profileRequest.result
         resolve({
           checkpoint:
             saved?.world &&
@@ -142,13 +161,7 @@ async function readStoredState() {
               saved.world?.capacityPolicy?.version === 1 &&
               saved.world.capacityPolicy.mode === 'scalable'
             ),
-          completed:
-            profile?.version === PROFILE_VERSION && Array.isArray(profile.completed)
-              ? profile.completed.filter(
-                  (mission): mission is number =>
-                    Number.isInteger(mission) && missionNumbers.some(number => number === mission)
-                )
-              : [],
+          profile,
         })
       })
       const fail = () => reject(transaction.error)
@@ -171,46 +184,22 @@ async function writeStoredValue(key: 'latest', value: unknown) {
   })
 }
 
-async function writeCompletedMissions(completed: number[]) {
+async function writeCampaignProgress(
+  local: ReturnType<typeof readCampaignProfile>['progress'],
+  events: readonly CampaignEvent[]
+) {
   const database = await openCheckpointDatabase()
-  if (!database) return false
-  return new Promise<boolean>((resolve, reject) => {
+  if (!database) return null
+  return new Promise<ReturnType<typeof mergeCampaignProfile>>((resolve, reject) => {
     const transaction = database.transaction(CHECKPOINT_STORE, 'readwrite'),
       store = transaction.objectStore(CHECKPOINT_STORE),
       request = store.get('profile')
-    let written = false
+    let merged: ReturnType<typeof mergeCampaignProfile> = null
     request.addEventListener('success', () => {
-      const saved = request.result
-      // Preserve unknown or damaged records for recovery instead of overwriting
-      // them with this session's incomplete view of campaign progress.
-      if (
-        saved !== undefined &&
-        (saved === null ||
-          typeof saved !== 'object' ||
-          Array.isArray(saved) ||
-          saved.version !== PROFILE_VERSION ||
-          !Array.isArray(saved.completed) ||
-          !Array.from(saved.completed).every(
-            (mission: unknown) =>
-              Number.isInteger(mission) && missionNumbers.some(number => number === mission)
-          ))
-      )
-        return
-      // Read and merge in the same active transaction so another tab's completed
-      // missions cannot be replaced by a stale in-memory snapshot.
-      store.put(
-        {
-          ...saved,
-          version: PROFILE_VERSION,
-          completed: [...new Set<number>([...(saved?.completed ?? []), ...completed])].sort(
-            (a, b) => a - b
-          ),
-        },
-        'profile'
-      )
-      written = true
+      merged = mergeCampaignProfile(request.result, local, events)
+      if (merged) store.put(merged.profile, 'profile')
     })
-    transaction.addEventListener('complete', () => resolve(written))
+    transaction.addEventListener('complete', () => resolve(merged))
     const fail = () => reject(transaction.error)
     transaction.addEventListener('error', fail)
     transaction.addEventListener('abort', fail)
@@ -221,6 +210,15 @@ async function writeCompletedMissions(completed: number[]) {
 // instead of treating that world as immutable component state.
 export function createGameStore() {
   let cheatsUsed = false
+  let launch: 'campaign' | 'debug' | 'tutorial' | 'checkpoint' = 'campaign'
+  let earnedCompletion = false
+  let progress = readCampaignProfile(undefined).progress
+  let selected: NativeCampaignMission = 1,
+    anchor: NativeCampaignMission = 1
+  let selectionRevision = 0,
+    anchorRevision = 0
+  const pending: CampaignEvent[] = []
+  let writing = false
   let checkpointReadStatus: CheckpointReadStatus = 'idle'
   let checkpointRestore: Promise<boolean> | null = null
   let committedCheckpointRevision = 0
@@ -231,31 +229,75 @@ export function createGameStore() {
   const presentation = createSharedAniblResource()
   presentation.transition(worldEnvironment(world).landscape)
   let presentationToken: symbol | null = null
-  const completedMissions = new Set<number>()
   const listeners = new Set<() => void>()
+  const persistProgress = async () => {
+    if (writing || !pending.length) return
+    writing = true
+    const events = [...pending],
+      selection = selectionRevision,
+      anchorVersion = anchorRevision
+    let committed = false
+    try {
+      const merged = await writeCampaignProgress(progress, events)
+      if (merged) {
+        committed = true
+        pending.splice(0, events.length)
+        progress = joinCampaignProgress(progress, merged.progress)
+        if (anchorRevision === anchorVersion && merged.recommendation !== null) {
+          anchor = merged.recommendation
+          if (selectionRevision === selection) selected = anchor
+        }
+        update()
+      }
+    } catch {
+      // Keep local earned events through failed reads/aborts. A later authorized
+      // progress event retries them; restore itself never writes damaged storage.
+    } finally {
+      writing = false
+      if (committed && pending.length) void persistProgress()
+    }
+  }
+  const recordProgress = (event: CampaignEvent) => {
+    const next = applyCampaignEvent(progress, event)
+    progress = next.progress
+    pending.push(event)
+    if (next.recommendation !== null) {
+      anchorRevision++
+      anchor = next.recommendation
+      selected = anchor
+    }
+    void persistProgress()
+  }
   const update = () => {
     if (world.outcome.completedLevel !== observedCompletion) {
       observedCompletion = world.outcome.completedLevel
       const mission = observedCompletion === null ? null : observedCompletion + 1
       if (
         !cheatsUsed &&
-        mission !== null &&
-        missionNumbers.some(number => number === mission) &&
-        !completedMissions.has(mission)
+        launch !== 'debug' &&
+        launch !== 'tutorial' &&
+        mission === world.outcome.level &&
+        supportedCampaignMission(mission)
       ) {
-        completedMissions.add(mission)
-        void writeCompletedMissions([...completedMissions]).catch(() => {})
+        earnedCompletion = true
+        recordProgress({ kind: 'completion', mission: mission as NativeCampaignMission })
       }
     }
     revision++
     for (const listener of listeners) listener()
   }
-  const replaceWorld = (next: World, retainResource = false) => {
+  const replaceWorld = (next: World, provenance: typeof launch, retainResource = false) => {
     // Preparation has already succeeded. Commit both owners before publication;
     // old Scene callbacks lose authority even when Restart retains the resource.
     presentation.transition(worldEnvironment(next).landscape, retainResource)
     world = next
     cheatsUsed = false
+    earnedCompletion =
+      provenance === 'checkpoint' &&
+      next.status === 'won' &&
+      supportedCampaignMission(next.outcome.level) &&
+      next.outcome.completedLevel === next.outcome.level - 1
+    launch = provenance
     presentationToken = null
     observedCompletion = world.outcome.completedLevel
     update()
@@ -263,6 +305,41 @@ export function createGameStore() {
   return {
     getWorld: () => world,
     hasUsedCheats: () => cheatsUsed,
+    isDebugLaunch: () => launch === 'debug',
+    canSave: () => !cheatsUsed && launch !== 'debug',
+    getCampaignSelection: () => ({
+      selected,
+      progressionMission: anchor,
+      available: campaignSelectable(progress),
+    }),
+    selectCampaignMission: (mission: number) => {
+      if (!campaignSelectable(progress).includes(mission as NativeCampaignMission)) return false
+      selected = mission as NativeCampaignMission
+      selectionRevision++
+      update()
+      return true
+    },
+    enterCampaignSelector: (resultWorld?: World) => {
+      if (resultWorld && resultWorld !== world) return false
+      selectionRevision++
+      const victory = !!resultWorld && earnedCompletion && !cheatsUsed && launch !== 'debug'
+      if (victory && !(progress.flags[world.outcome.level - 1] & 1)) {
+        // A clean current-format terminal checkpoint may outlive a failed profile
+        // write. Restore/Load never write; its later result exit replays only the
+        // matching earned completion before applying the victory transition.
+        recordProgress({
+          kind: 'completion',
+          mission: world.outcome.level as NativeCampaignMission,
+        })
+      }
+      recordProgress(
+        victory
+          ? { kind: 'victory', mission: world.outcome.level as NativeCampaignMission }
+          : { kind: 'return' }
+      )
+      update()
+      return true
+    },
     applySpellTestCheat: (action: SpellTestCheat) => {
       if (!applySpellTestCheat(world, action)) return false
       cheatsUsed = true
@@ -301,7 +378,7 @@ export function createGameStore() {
     },
     hasCheckpoint: () => !!checkpoint,
     getCheckpointReadStatus: () => checkpointReadStatus,
-    getCompletedMissions: () => [...completedMissions].sort((a, b) => a - b),
+    getCompletedMissions: () => campaignCompleted(progress),
     restoreCheckpoint: () => {
       if (checkpointRestore) return checkpointRestore
       checkpointReadStatus = 'pending'
@@ -319,7 +396,13 @@ export function createGameStore() {
                 // Invalid saves do not suppress the independent campaign profile.
               }
             }
-            for (const mission of saved.completed) completedMissions.add(mission)
+            progress = joinCampaignProgress(progress, readCampaignProfile(saved.profile).progress)
+            if (selectionRevision === 0) {
+              anchor =
+                transitionNativeCampaign(progress.flags, { kind: 'return' }).recommendation ??
+                anchor
+              selected = anchor
+            }
           }
           // A successful explicit Save supersedes any older storage-read snapshot.
           if (readRevision === committedCheckpointRevision)
@@ -341,7 +424,7 @@ export function createGameStore() {
       return checkpointRestore
     },
     saveCheckpoint: async (paused = world.paused) => {
-      if (cheatsUsed) throw new Error(CHEAT_SAVE_NOTICE)
+      if (cheatsUsed || launch === 'debug') throw new Error(CHEAT_SAVE_NOTICE)
       requireCurrentCheckpoint(world)
       rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
@@ -366,15 +449,30 @@ export function createGameStore() {
     loadCheckpoint: () => {
       if (!checkpoint) return false
       requireCurrentCheckpoint(checkpoint)
-      replaceWorld(migrateCheckpoint(structuredClone(checkpoint)))
+      replaceWorld(migrateCheckpoint(structuredClone(checkpoint)), 'checkpoint')
       return true
     },
     restart: () => {
       const retainResource = !(world.land.landFlags & 8)
-      replaceWorld(createWorld(world.outcome.level, 'scalable'), retainResource)
+      replaceWorld(createWorld(world.outcome.level, 'scalable'), launch, retainResource)
     },
     startMission: (mission: number) => {
-      replaceWorld(createWorld(mission, 'scalable'))
+      if (
+        !supportedCampaignMission(mission) ||
+        !campaignSelectable(progress).includes(mission as NativeCampaignMission)
+      )
+        return false
+      replaceWorld(createWorld(mission, 'scalable'), 'campaign')
+      return true
+    },
+    startDebugMission: (mission: number) => {
+      if (!supportedCampaignMission(mission)) return false
+      replaceWorld(createWorld(mission, 'scalable'), 'debug')
+      return true
+    },
+    startTutorial: () => {
+      replaceWorld(createWorld(tutorialLevel, 'scalable'), 'tutorial')
+      return true
     },
   }
 }

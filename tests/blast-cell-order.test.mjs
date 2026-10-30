@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -6,13 +7,12 @@ import { finishLevelStart } from './level-start-fixture.mjs'
 import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
 import { stepBlastWave } from '../app/blast-wave.ts'
 import { stepLiveBlastWave } from '../app/spell-effects-runtime.ts'
-import { createGameStore } from '../app/game-store.ts'
 
 const referenceId = scalableReferenceIds(3)
 
-function pendingFinalWave() {
-  const store = createGameStore()
-  store.startMission(3)
+async function pendingFinalWave() {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = finishLevelStart(store.getWorld()),
     mover = world.units.find(unit => unit.id === referenceId(312)),
     origin = { x: mover.x, z: mover.z },
@@ -97,8 +97,8 @@ function nativeAlliedVisits(world, wave) {
 }
 const flights = world => world.units.filter(unit => unit.flight).map(unit => unit.id)
 
-test('ordinary moved followers receive Blast in retained cell order at the five-visit allied cap', () => {
-  const { world, wave } = pendingFinalWave()
+test('ordinary moved followers receive Blast in retained cell order at the five-visit allied cap', async () => {
+  const { world, wave } = await pendingFinalWave()
   // 0050b740 counts visits, not unique followers: type2 search repeats its ring0 cell.
   assert.deepEqual(nativeAlliedVisits(world, wave), [507, 507, 312, 309, 513].map(referenceId))
   tick(world, 1 / 12)
@@ -106,7 +106,7 @@ test('ordinary moved followers receive Blast in retained cell order at the five-
 })
 
 test('public checkpoint continuation preserves the pending Blast cap and linked identities', async () => {
-  const { store } = pendingFinalWave()
+  const { store } = await pendingFinalWave()
   await store.saveCheckpoint()
   assert.equal(store.loadCheckpoint(), true)
   const restored = store.getWorld(),
@@ -116,8 +116,8 @@ test('public checkpoint continuation preserves the pending Blast cap and linked 
   assert.deepEqual(flights(restored), [312, 309, 513, 507].map(referenceId))
 })
 
-test('unregistered legacy people retain the existing Blast fallback ordering', () => {
-  const { world, wave } = pendingFinalWave()
+test('unregistered legacy people retain the existing Blast fallback ordering', async () => {
+  const { world, wave } = await pendingFinalWave()
   for (const person of world.objectCells.objects.values()) {
     if (person.flags2 & 0x20000) removeObjectFromCell(world.objectCells, person)
     world.objectCells.objects.delete(person.id)
@@ -126,8 +126,8 @@ test('unregistered legacy people retain the existing Blast fallback ordering', (
   assert.deepEqual(flights(world), [312, 309, 510, 507].map(referenceId))
 })
 
-test('a mixed registered/unregistered cell retains the unregistered person slot', () => {
-  const { world, wave } = pendingFinalWave(),
+test('a mixed registered/unregistered cell retains the unregistered person slot', async () => {
+  const { world, wave } = await pendingFinalWave(),
     person = world.objectCells.objects.get(referenceId(513))
   removeObjectFromCell(world.objectCells, person)
   world.objectCells.objects.delete(person.id)
@@ -135,16 +135,16 @@ test('a mixed registered/unregistered cell retains the unregistered person slot'
   assert.deepEqual(flights(world), [312, 309, 510, 507].map(referenceId))
 })
 
-test('a same-ID cell alias cannot reorder a different live person owner', () => {
-  const { world, wave } = pendingFinalWave(),
+test('a same-ID cell alias cannot reorder a different live person owner', async () => {
+  const { world, wave } = await pendingFinalWave(),
     person = world.objectCells.objects.get(referenceId(513))
   world.objectCells.objects.set(person.id, structuredClone(person))
   stepLiveBlastWave(world, wave)
   assert.deepEqual(flights(world), [312, 309, 510, 507].map(referenceId))
 })
 
-test('Blast snapshots owned slots before callbacks and preserves allied RNG', () => {
-  const { world, wave } = pendingFinalWave(),
+test('Blast snapshots owned slots before callbacks and preserves allied RNG', async () => {
+  const { world, wave } = await pendingFinalWave(),
     first = world.units.find(unit => unit.id === referenceId(507)).native,
     later = world.objectCells.objects.get(referenceId(513)),
     random = world.randomState
@@ -171,8 +171,8 @@ test('Blast snapshots owned slots before callbacks and preserves allied RNG', ()
   assert.equal(world.randomState, random)
 })
 
-test('an unregistered vehicle retains its mixed-class slot before projected people', () => {
-  const { world, wave } = pendingFinalWave(),
+test('an unregistered vehicle retains its mixed-class slot before projected people', async () => {
+  const { world, wave } = await pendingFinalWave(),
     person = world.objectCells.objects.get(referenceId(513)),
     boat = {
       ...createWorld(22).vehicles.find(vehicle => vehicle.model === 1),
@@ -217,8 +217,8 @@ test('an unregistered vehicle retains its mixed-class slot before projected peop
   assert.deepEqual(flights(world), [312, 309, 513, 507].map(referenceId))
 })
 
-test('supplied malformed distinct roster IDs sharing one person retain Blast fallback tolerance', () => {
-  const { world, wave } = pendingFinalWave(),
+test('supplied malformed distinct roster IDs sharing one person retain Blast fallback tolerance', async () => {
+  const { world, wave } = await pendingFinalWave(),
     unit = world.units.find(candidate => candidate.id === referenceId(513))
   // Deliberately malformed compatibility control, without an ordinary producer.
   world.units.push({ ...unit, id: world.nextId++ })

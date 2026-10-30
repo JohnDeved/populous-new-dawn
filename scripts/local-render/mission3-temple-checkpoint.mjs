@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { waitForShamanReadiness } from '../browser-game.mjs'
+import { waitForPortraitReadiness } from '../browser-portrait-readiness.mjs'
 import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 import { createMission1VaultInput } from './mission1-vault-input.mjs'
 import { installMission1MoveWitness } from './mission1-vault-arrival.mjs'
@@ -171,7 +171,8 @@ export async function saveTempleCheckpoint({
     failed = false,
     failure
   try {
-    await input.button('Game settings')
+    await input.button('Menu')
+    await input.button('Save Game')
     await page.evaluate(armTempleSave)
     armed = true
     await input.button('Save checkpoint')
@@ -248,8 +249,9 @@ export async function saveTempleCheckpoint({
   return entry
 }
 
-// Direct M3 startup is a QA entry point, not campaign unlocking. Every mutation
-// below is a shipped DOM input; the harness owns real RAF, profile and shutdown.
+// A fresh, declared M3-available profile is QA setup, not earned campaign progress.
+// After its restore, every gameplay mutation is shipped DOM input; the harness
+// owns real RAF, profile provenance and shutdown. Continuation never reseeds it.
 export default async function mission3TempleCheckpoint(
   { page, openMission, output, signal, receipt, observeCheckpoint },
   acquisitionSteps = null
@@ -271,7 +273,7 @@ export default async function mission3TempleCheckpoint(
     actions: [],
     samples: [],
     scope:
-      'Ordinary M3 Temple construction and genuine Save only. No training, sermon, victory, art parity or hardware-performance claim.',
+      'Declared M3 availability fixture on first entry only, not earned campaign prerequisites. Ordinary M3 Temple construction and genuine Save. No training, sermon, victory, art parity or hardware-performance claim.',
   }
   const save = () =>
     writeFileSync(
@@ -346,8 +348,8 @@ export default async function mission3TempleCheckpoint(
       assert.equal(report.initial.vault[0].uses, 1)
       input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
     } else {
-      await openMission(3)
-      report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
+      await openMission(3, { campaignFixture: true })
+      report.readiness = await waitForPortraitReadiness(page, { timeout: 60000, signal })
       const initial = await page.evaluate(installTempleRouteObservation)
       report.initial = initial
       installed = true
@@ -362,7 +364,7 @@ export default async function mission3TempleCheckpoint(
       const acquisitionContext = { page, input, report, save, shamanId, read }
       if (acquisitionSteps) await acquisitionSteps.begin(acquisitionContext)
       await clear()
-      await input.button('Select and focus shaman')
+      await input.button('Select shaman')
       await input.view(initial.vault[0])
       report.vaultOrder = await input.clickEntity('shrines', initial.vault[0].id, 33, false, [
         shamanId,
@@ -376,7 +378,7 @@ export default async function mission3TempleCheckpoint(
       420000
     )
     await clear()
-    await input.button('Select and focus shaman')
+    await input.button('Select shaman')
     await focusTempleHome({ page, input, report, save, shamanId })
     await input.view({ x: 35, z: 70 })
     const movement = await input.moveGround({ x: 35, z: 70 })

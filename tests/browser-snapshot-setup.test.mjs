@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import ts from 'typescript'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -19,23 +20,61 @@ function makeStore() {
     listeners: () => listeners.size }
 }
 
-// The component contract is also tied to the actual shipped source, not merely a
-// fake store that omits the forced-unpause which caused the original race.
+// Extract and execute both actual Home handlers, rather than assuming the old
+// adjacent load/unpause spelling. Other page/DOM effects are supplied boundaries.
+function homeCheckpointHandler(store) {
+  const text = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+  const source = ts.createSourceFile('page.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+  const home = source.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'Home')
+  const handlers = ['beginLoad', 'loadCheckpoint'].map(name => {
+    const found = home.body.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
+    assert.equal(found.length, 1, `unique actual Home ${name} handler`)
+    return found[0].getText(source)
+  })
+  const effects = [], loadRequest = { current: null }
+  const bindings = { store, loadRequest, menuSession: { current: null }, engine: { current: null }, audio: { current: null } }
+  for (const name of ['setCheatsOpen', 'setDebugPicker', 'setResultInputCycles', 'cancelNearbyInput',
+    'setSelectorOpen', 'setMenu', 'setReady', 'setError', 'setTab', 'setStartup'])
+    bindings[name] = value => effects.push([name, value])
+  const code = ts.transpileModule(handlers.join('\n'), { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
+  const load = Function(...Object.keys(bindings), `${code}\nreturn loadCheckpoint`)(...Object.values(bindings))
+  return { load, effects, loadRequest }
+}
+
 test('latch spans exact store replacement and actual Home forced-unpause contract', () => {
-  const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
-  assert.match(home, /if \(!store\.loadCheckpoint\(\)\) return\s+store\.change\(w => \{\s+w\.paused = false/)
   const store = makeStore(), latch = armSnapshotPauseLatch(store, checkpointCodec)
   const restored = { paused: false, turn: 70 }, expected = JSON.stringify(checkpointCodec(restored))
-  store.replace(restored)
-  assert.equal(restored.paused, true)
-  store.change(w => { w.paused = false })
+  let loads = 0
+  store.loadCheckpoint = () => { loads++; store.replace(restored); return true }
+  const home = homeCheckpointHandler(store)
+  home.load()
+  assert.equal(loads, 1, 'the public Load handler uses the actual checkpoint boundary once')
   assert.equal(restored.paused, true)
   assert.deepEqual(latch.read(), { boundary: expected, failure: undefined, forcedUnpauses: 1, loaded: true, released: false })
+  assert.deepEqual(home.loadRequest.current, { kind: 'checkpoint' })
+  assert.ok(home.effects.some(([name, value]) => name === 'setResultInputCycles' && value === 0))
+  assert.deepEqual(home.effects.at(-1), ['setStartup', 'playing'])
   latch.release(); latch.release()
   assert.equal(store.listeners(), 0)
   assert.deepEqual(Object.getOwnPropertyDescriptor(restored, 'paused'), { value: true, writable: true, enumerable: true, configurable: true })
   restored.paused = false
   assert.equal(restored.paused, false, 'No hook can suppress normal resume after setup')
+})
+
+test('actual Home failed checkpoint load cannot force resume or start replacement', () => {
+  const store = makeStore(), original = store.getWorld()
+  original.paused = true
+  let loads = 0, changes = 0
+  store.loadCheckpoint = () => { loads++; return false }
+  store.change = () => { changes++; throw Error('failed Load must not mutate the live world') }
+  const home = homeCheckpointHandler(store)
+  home.load()
+  assert.equal(loads, 1)
+  assert.equal(changes, 0)
+  assert.equal(store.getWorld(), original)
+  assert.equal(original.paused, true)
+  assert.equal(home.loadRequest.current, null)
+  assert.deepEqual(home.effects, [['setCheatsOpen', false]])
 })
 
 test('latch cleanup before replacement and after codec exception never leaves subscription/accessor', () => {

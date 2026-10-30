@@ -28,7 +28,7 @@ test('supplied ready driver and passenger countdown retain then retire boarding 
       stepUntil(w, () => Math.hypot(s.x - p.x, s.z - p.z) < 2, 1000)
     }
   const store = createGameStore()
-  store.startMission(22)
+  assert.equal(store.startDebugMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     boat = world.vehicles.find(vehicle => vehicle.model === 1)

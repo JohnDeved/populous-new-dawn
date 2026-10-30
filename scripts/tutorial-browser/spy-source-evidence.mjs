@@ -79,7 +79,10 @@ export function validateSpySourceObservation(report) {
   assert.equal(capture.handback.evidence, false)
   assert.ok(Number.isFinite(capture.handback.previous) && Number.isFinite(capture.handback.timestamp))
   assert.deepEqual(observation.hook, { installed: true, restored: true, foreign: false })
-  assert.ok(observation.samples.length + observation.turnSamples.length <= 600)
+  assert.ok(['samples', 'turnSamples', 'turns'].every(key => Array.isArray(observation[key])),
+    'Spy observation ledgers must be arrays')
+  assert.ok(observation.samples.length + observation.turnSamples.length + observation.turns.length <= 600,
+    'Spy aggregate observation bound')
   let lastTurn = capture.startTurn
   for (const sample of observation.turnSamples) {
     assert.equal(sample.turn, lastTurn + 1)
@@ -103,10 +106,30 @@ export function validateSpySourceObservation(report) {
   assert.ok(Number.isInteger(report.order.lastOrderTurn))
   assert.ok(observation.samples.some(sample => sample.substate === 1 && sample.target === report.targetId),
     'Public command must actually reach phase1')
-  const armed = observation.samples.find(sample => sample.substate === 2 && sample.entryArmed)
+  // Logical visits can share a render. Never infer an unrendered boundary from
+  // adjacent RAF samples or pretend the logical record was itself rendered.
+  const turns = observation.turns
+  assert.ok(Array.isArray(turns) && turns.length > 0 && turns.length <= 600)
+  for (const [index, turn] of turns.entries()) {
+    assert.equal(turn.spyId, report.spyId); assert.equal(turn.targetId, report.targetId)
+    assert.ok(Number.isSafeInteger(turn.turn) && turn.turn >= 0)
+    if (index) assert.equal(turn.turn, turns[index - 1].turn + 1, 'Every real logical visit is retained')
+    assert.equal(turn.sceneStoreMatch, true); assert.equal(turn.speed, 1)
+    assert.equal(turn.paused, false)
+  }
+  const boundary = turns.findIndex(turn => turn.substate === 2 && turn.entryArmed)
+  const armed = turns[boundary]
   assert.ok(armed, 'Observe the real phase1-to-phase2 pending-entry boundary')
   assert.notEqual(armed.object, 136, 'Arming the next visit must not select source136 early')
   assert.equal(armed.timer, 0)
+  assert.equal(armed.target, report.targetId)
+  const approach = turns[boundary - 1], entered = turns[boundary + 1]
+  assert.ok(approach && entered, 'Retain both visits adjacent to pending entry')
+  assert.equal(approach.substate, 1); assert.equal(approach.timer, 1)
+  assert.equal(approach.target, report.targetId)
+  assert.equal(entered.substate, 2); assert.equal(entered.entryArmed, false)
+  assert.equal(entered.object, 136); assert.equal(entered.timer, 23); assert.equal(entered.f2, 0)
+  assert.equal(entered.target, report.targetId)
   const native = observation.samples.filter(sample => sample.object === 136)
   assert.ok(native.length >= 2)
   assert.equal(native[0].turn, armed.turn + 1, 'Entry belongs to the next logical visit')

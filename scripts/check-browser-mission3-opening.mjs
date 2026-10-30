@@ -25,7 +25,7 @@ try {
   await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()
   await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 3)
   await page.getByRole('button', { name: 'Swarm, 0 shots' }).waitFor()
-  await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
   await page.evaluate(
     () => (globalThis.mission3ProducerAttributes = [...globalThis.testStore.getWorld().ai.attributes])
   )

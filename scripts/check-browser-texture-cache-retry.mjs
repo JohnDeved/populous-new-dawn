@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { launchOptions } from './local-render/harness.mjs'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -193,7 +194,7 @@ try {
     observations.push({ activated })
     assert.ok(activated.time <= activated.elapsedSinceRelease * activated.speed,
       `game time exceeded the measured post-release interval: ${JSON.stringify(activated)}`)
-    await page.getByRole('button', { name: /Skip introduction/ }).click()
+    await skipIntroductionWithSpace(page)
     await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
     const playableTime = await page.evaluate(() => globalThis.testStore.getWorld().time)
     await page.waitForFunction(time => globalThis.testStore.getWorld().time > time, playableTime)

@@ -1,3 +1,4 @@
+import { usesComposedGameplayResourceBudget } from '../tutorial-browser/scenario-policy.mjs'
 import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_INPUTS, GAMEPLAY_MATCHED_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_RESOURCE_POLICIES, gameplayResourceInputs, GAMEPLAY_RESOURCE_JOB, gameplayResourceArchiveLimit,
   validateGameplayResourceBrowserJobs, gameplayResourceArtifactUpload, validateGameplayResourceArtifactMetadata,
   resolveGameplayResourceArtifact } from './gameplay-resources-policy.mjs'
@@ -390,7 +391,8 @@ export class GitHubReader {
         'Unresolved nine-job inventory')
     } else if (GAMEPLAY_RESOURCE_POLICIES.includes(entry.browserPolicy)) {
       ensure(entry.browserCheckpointVersion === 3, 'Resource policy requires explicit v3 contract')
-      ensure(validateGameplayResourceBrowserJobs(jobs, exact, { policy: entry.browserPolicy, headSha: pr.head.sha }) === true,
+      ensure(validateGameplayResourceBrowserJobs(jobs, exact, { policy: entry.browserPolicy,
+        gameplayResourceBudgetPolicy: entry.gameplayResourceBudgetPolicy, headSha: pr.head.sha }) === true,
         'Unresolved resource nine-job inventory')
     } else validateSplitBrowserJobs(jobs, exact)
   }
@@ -464,8 +466,9 @@ export class GitHubReader {
       'Gameplay resources worker tested a different candidate')
     ensure(this.workflow(GATES[1].workflow, synthetic.sha).sha256 === entry.workflowHashes[GATES[1].workflow],
       'Gameplay resources workflow source differs')
-    const inputs = Object.fromEntries(gameplayResourceInputs(entry.browserPolicy).map(path => [path, this.immutableBlob(synthetic.sha, path)]))
+    const inputs = Object.fromEntries(gameplayResourceInputs(entry.browserPolicy, entry.gameplayResourceBudgetPolicy).map(path => [path, this.immutableBlob(synthetic.sha, path)]))
     const expected = { policy: entry.browserPolicy,
+      gameplayResourceBudgetPolicy: entry.gameplayResourceBudgetPolicy,
       identity: { repository: REPO, runId: String(exact.id), runAttempt: String(exact.run_attempt),
         workflowRef: `${REPO}/${GATES[1].workflow}@refs/pull/${entry.pr}/merge`,
         mergeSha: synthetic.sha, headSha: pr.head.sha, baseSha: pr.base.sha },
@@ -495,6 +498,13 @@ export class GitHubReader {
     if (entry.browserPolicy === GAMEPLAY_OWNERSHIP_POLICY) {
       ensure(evidence.ownershipVerified === true, 'Missing mandatory bounded ownership proof')
       row.gameplayOwnershipVerified = true
+    }
+    if (usesComposedGameplayResourceBudget(entry.gameplayResourceBudgetPolicy)) {
+      ensure(evidence.gameplayResourceBudgetVerified === true &&
+        evidence.gameplayResourceBudgetPolicy === entry.gameplayResourceBudgetPolicy,
+        'Missing exact composed gameplay resource budget proof')
+      row.gameplayResourceBudgetVerified = true
+      row.gameplayResourceBudgetPolicy = entry.gameplayResourceBudgetPolicy
     }
     row.gameplayResourcesVerified = true
     row.gameplayResourcesCheckId = check.id

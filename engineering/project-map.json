@@ -225,7 +225,10 @@
         "scripts/check-native-follower-task-art.py",
         "scripts/check-native-follower-task-adapters.py",
         "scripts/check-browser-follower-tasks.mjs",
-        "decomp/research/follower-tasks-live.md"
+        "decomp/research/follower-tasks-live.md",
+        "decomp/research/ordinary-hud-controls/README.md",
+        "scripts/research-hud-controls.py",
+        "tests/command-dock-art.test.mjs"
       ],
       "sharedPaths": [
         "app/page.tsx",
@@ -259,6 +262,10 @@
         {
           "path": "decomp/research/follower-tasks-live.md",
           "heading": "Followers task rows: live integration"
+        },
+        {
+          "path": "decomp/research/ordinary-hud-controls/README.md",
+          "heading": "Ordinary HUD controls: original art and unresolved actions"
         }
       ],
       "nativeAddresses": [
@@ -812,6 +819,9 @@
         "app/person-update.ts",
         "app/live-worship.ts",
         "app/messages.ts",
+        "app/original-message-tab.tsx",
+        "app/original-message-tab.module.css",
+        "app/original-message-tabs.json",
         "app/object-panels.ts",
         "app/person-worship.ts",
         "app/popscript.ts",
@@ -848,6 +858,10 @@
       ],
       "researchPaths": [
         "decomp/research/world-selector-globes.md",
+        "decomp/research/result-navigation/README.md",
+        "scripts/research-result-navigation.py",
+        "tests/native-result-navigation-source.test.mjs",
+        "decomp/research/world-selector-manifest/README.md",
         "tests/worship-acquisition-controller.test.mjs",
         "tests/worship-acquisition-runtime.test.mjs",
         "tests/worship-acquisition-source.test.mjs",
@@ -1119,6 +1133,8 @@
         "scripts/check-native-messages.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
+        "scripts/import-message-tabs.py",
+        "tests/message-tab-art.test.mjs",
         "scripts/import-original.py",
         "scripts/import-script.py",
         "scripts/inspect-executable.py",
@@ -1201,7 +1217,9 @@
         "effects.reincarnation"
       ],
       "evidence": [
+        { "path": "decomp/research/campaign-notification-tabs.md", "heading": "Original descriptor and state ownership" },
         { "path": "decomp/research/world-selector-globes.md", "heading": "Ordinary selector globes" },
+        { "path": "decomp/research/world-selector-manifest/README.md", "heading": "All 25 native selector records" },
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
@@ -1805,6 +1823,8 @@
         "app/tornado-runtime.ts"
       ],
       "researchPaths": [
+        "decomp/research/swamp-presentation.md",
+        "scripts/check-native-swamp-presentation.py",
         "decomp/research/hypnotise-artwork.md",
         "scripts/check-hypnotise-source.py",
         "decomp/research/erosion-actual-capture.md",

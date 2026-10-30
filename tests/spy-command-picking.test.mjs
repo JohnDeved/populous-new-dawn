@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { readSpySabotageTarget, resumeSpySourceInput } from '../scripts/tutorial-browser/spy-source.mjs'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
+import { worldPauseState } from '../scripts/browser-world-input.mjs'
 await loadSceneFixture()
 const { pickWorldObject } = await import('../app/scene-input-runtime.ts')
 
@@ -48,15 +50,20 @@ test('actual driver resumes before selecting a current production hit and clicki
   assert.ok(start > 0 && end > start)
   scene.world.paused = true
   assert.throws(() => readSpySabotageTarget(1022), /after public Resume/)
-  const page = {
-    getByRole: () => ({ click: async () => { events.push('resume'); scene.world.paused = false } }),
+  const page = withoutCampaignPopup({
+    keyboard: { press: async key => {
+      assert.equal(key, 'Space'); events.push('resume'); scene.world.paused = false
+    } },
     waitForFunction: async () => { assert.equal(scene.world.paused, false); events.push('running') },
-    evaluate: async (fn, id) => { events.push('qualify'); return fn(id) },
-    mouse: { click: async (x, y) => { assert.equal(scene.pickWorldObject({ clientX: x, clientY: y }).id, 1022); events.push('click') } } },
+    evaluate: async (fn, id) => {
+      if (fn === worldPauseState) return { paused: scene.world.paused, inputMask: 0, turn: scene.world.turn }
+      events.push('qualify'); return fn(id)
+    },
+    mouse: { click: async (x, y) => { assert.equal(scene.pickWorldObject({ clientX: x, clientY: y }).id, 1022); events.push('click') } } }),
     drive = new (Object.getPrototypeOf(async function () {}).constructor)(
-      'page', 'action', 'resumeSpySourceInput', 'readSpySabotageTarget', 'fixture', 'report', 'save', source.slice(start, end))
+      'page', 'action', 'resumeSpySourceInput', 'readSpySabotageTarget', 'fixture', 'report', 'save', 'budget', source.slice(start, end))
   await drive(page, async (_name, run) => run(), resumeSpySourceInput, readSpySabotageTarget,
-    { targetId: 1022 }, report, () => {})
+    { targetId: 1022 }, report, () => {}, { deadlineAt: Date.now() + 8000 })
   assert.deepEqual(events, ['resume', 'running', 'qualify', 'click'])
   assert.equal(report.commandPick.commandObject, 1022)
 })

@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { command, createWorld, select, tick } from '../app/model.ts'
@@ -514,8 +515,8 @@ test('Vault prior1→new0 entry and a long paint expire on the first inactive ph
 test('Vault Save/Load and replacement Scene rebuild only on the next live request; stale disposal preserves the successor', async t => {
   const { createGameStore } = await import('../app/game-store.ts')
   const { trainingPanelRequestOwner } = await import('../app/training-panel-requests.ts')
-  const store = createGameStore()
-  store.startMission(3)
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const original = store.getWorld()
   assert.equal(original.capacityPolicy.mode, 'scalable')
   assert.ok(original.objectCells.heads instanceof Float64Array)

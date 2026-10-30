@@ -461,6 +461,7 @@ export type World = {
   marching: LiveFormation[]
   combatMarches: CombatMarch[]
   lastOrderTurn: number
+  lastOrderCell?: number
   buildingOrders: OrderPool
   motionRoutes: MotionRoutes
   pathfinding: ReturnType<typeof createLivePathfinding>
@@ -490,7 +491,7 @@ export type World = {
   castingTribes: TribeCasting[]
   manaWorld: ManaWorld
   manaTribes: (ManaTribe & TribeTurnState)[]
-  routeNotice: { flags: 0x200000; message: 603; serial: number } | null
+  routeNotice: { flags: 0x200000; message: 603; serial: number; cell?: number } | null
   tribeCount: number
   levelFlags2: number
   outcome: Omit<OutcomeWorld, 'turn' | 'landFlags' | 'playerTribe'> & {

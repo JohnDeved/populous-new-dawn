@@ -1,6 +1,6 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createGameStore } from '../app/game-store.ts'
 import {
   createWorld,
   addUnit,
@@ -126,8 +126,8 @@ test('unregistered or mismatched candidates keep the entire legacy fallback', ()
 })
 
 test('earned M22 Hypnotise binds replacement allocation to actual cell callback order', async () => {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   const w = store.getWorld(),
     s = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
   // Existing focus adapter only. Mana, spell stock and actors are not supplied.

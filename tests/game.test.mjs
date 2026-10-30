@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs';
 import {createLivePerson,syncLivePersonCells} from '../app/live-people.ts';
@@ -1273,21 +1274,21 @@ test('external game store publishes edits and restarts without sharing worlds be
  assert.equal(other.getWorld().paused,false);assert.equal(other.getSnapshot(),0);
  store.restart();assert.notEqual(store.getWorld(),old);assert.equal(store.getWorld().mode,null);
  assert.equal(events.length,2);assert.equal(events[1][0],2);
- store.startMission(4);assert.equal(store.getWorld().outcome.level,4);
+ assert.equal(store.startDebugMission(4),true);assert.equal(store.getWorld().outcome.level,4);
  store.startMission(1);assert.equal(store.getWorld().outcome.level,1);
  unsubscribe();store.update();assert.equal(events.length,4);
- const profile=createGameStore();assert.deepEqual(profile.getCompletedMissions(),[]);
+ const profile=await createCampaignFixtureStore([2,5]);assert.deepEqual(profile.getCompletedMissions(),[]);
  profile.getWorld().outcome.completedLevel=0;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1]);
- profile.startMission(2);profile.getWorld().outcome.completedLevel=1;profile.startMission(1);
+ assert.equal(profile.startMission(2),true);profile.getWorld().outcome.completedLevel=1;assert.equal(profile.startMission(1),true);
  assert.deepEqual(profile.getCompletedMissions(),[1],'replaced startup state does not record completion');
- profile.startMission(5);assert.equal(profile.getWorld().inputMask,128,'Mission 5 waits for its opening script');
+ assert.equal(profile.startMission(5),true);assert.equal(profile.getWorld().inputMask,128,'Mission 5 waits for its opening script');
  profile.getWorld().outcome.completedLevel=4;profile.update();assert.deepEqual(profile.getCompletedMissions(),[1,5]);
 });
 
-test('mission-one victory continuation creates and restarts the recovered mission-two world', async () => {
+test('declared Mission 2 availability creates and restarts its recovered world', async () => {
  const {createGameStore,migrateCheckpoint}=await import('../app/game-store.ts');
  const {campaignSpellModels}=await import('../app/mission-data.ts');
- const store=createGameStore();store.startMission(2);const world=store.getWorld();
+ const store=await createCampaignFixtureStore([2]);assert.equal(store.startMission(2),true);const world=store.getWorld();
  assert.equal(levelTwo.sourceSha256,'83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f');assert.equal(levelTwo.headerSha256,'44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49');assert.equal(scriptTwo.source,'cpscr074.dat');assert.equal(scriptTwo.sha256,'03931ad1bc69860177c0a0d7d850db46b268683bf95b274926e18fe1f8a5d9db');
  assert.deepEqual({level:world.outcome.level,blue:world.units.filter(u=>u.team==='blue').length,green:world.units.filter(u=>u.team==='green').length,wild:world.units.filter(u=>u.team==='wild').length,buildings:world.buildings.length},
   {level:2,blue:1,green:18,wild:8,buildings:6});
@@ -2373,7 +2374,7 @@ test('shaman escort uses native pursuit cadence and strict boundaries',async()=>
 });
 
 test('Mission 5 Boat worship emits its original one-shot tutorial',async()=>{
- const {createGameStore}=await import('../app/game-store.ts'),store=createGameStore();store.startMission(5);const w=store.getWorld(),boat=w.vehicles[0],head=w.shrines.find(s=>s.kind==='boat'),warrior=w.units.find(u=>u.team==='blue'&&u.kind==='warrior');
+ const store=await createCampaignFixtureStore([5]);assert.equal(store.startMission(5),true);const w=store.getWorld(),boat=w.vehicles[0],head=w.shrines.find(s=>s.kind==='boat'),warrior=w.units.find(u=>u.team==='blue'&&u.kind==='warrior');
  standAtHead(w,warrior,head);until(w,()=>w.vehicles.some(v=>v.active&&v.model===1&&v.id!==boat.id),10);assert.equal(head.active,false);assert.equal(w.vehicles.includes(boat),false);assert.equal(w.shrines.includes(head),false);until(w,()=>w.messages.slots.some(message=>message?.stringId===662),20);
  const tutorial=w.messages.slots.find(message=>message?.stringId===662);assert.deepEqual({text:messageText(tutorial.stringId),flags:tutorial.flags,lifetime:tutorial.lifetime,view:tutorial.view,latch:w.ai.variables[15]},{text:'The Ancients have granted you a Boat, Shaman.',flags:14065,lifetime:512,view:{cell:13022,payload:1800},latch:1});
  const serial=tutorial.serial;for(let turn=0;turn<32;turn++)tick(w,1/12);assert.deepEqual(w.messages.slots.filter(message=>message?.stringId===662).map(message=>message.serial),[serial]);
@@ -2383,8 +2384,8 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
   const { vehicleCanDisembark, vehicleReady } = await import('../app/vehicle-routing.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     { supportsFollower } = await import('../app/model.ts')
-  const store = createGameStore()
-  store.startMission(5)
+  const store = await createCampaignFixtureStore([5])
+  assert.equal(store.startMission(5), true)
   let w = store.getWorld(),
     boat = w.vehicles[0],
     followers = w.units.filter(u => u.team === 'blue' && u.kind === 'warrior').slice(0, 2)

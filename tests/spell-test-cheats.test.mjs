@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -113,7 +114,8 @@ test('cheats preserve ordinary range, busy-cast admission, charge spending and p
 })
 
 test('cheat sessions cannot overwrite checkpoints or record campaign completion; world replacement resets them', async () => {
-  const { store, world } = readyStore(), normal = structuredClone(world)
+  const store = await createCampaignFixtureStore([2]), world = store.getWorld(), normal = structuredClone(world)
+  world.inputMask = 0
   await store.saveCheckpoint()
   store.applySpellTestCheat('unlock')
   world.outcome.completedLevel = 0
@@ -155,7 +157,7 @@ test('actual Home F9 owner toggles once without mutating world and respects star
     world = { status: 'playing' }, before = structuredClone(world)
   for (const [ready, menu, selectorOpen, startup] of [[true, false, false, 'playing'], [false, false, false, 'playing'], [true, true, false, 'playing'], [true, false, true, 'playing'], [true, false, false, 'choice']]) {
     opened = false
-    const cleanup = pageEffect("globalThis.addEventListener('keydown', toggle, true)", {
+    const cleanup = pageEffect('spellTestShortcut(event, cheatsOpen)', {
       globalThis: window, ready, menu, selectorOpen, startup, world, cheatsOpen: false, spellTestShortcut,
       cancelNearbyInput: () => cancelled++, setCheatsOpen: action => { opened = action(opened) },
     })()
@@ -201,15 +203,17 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
   for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
     const calls = [], receipt = {}, page = { goto: async () => calls.push('goto') },
       context = { close: async () => calls.push('closeFrontendContext') },
-      browser = {}, bindings = {
+      browser = {}, m2Fixture = {}, browserDeadlineAt = 240000, abort = new AbortController(), bindings = {
         selectedScenario, receipt, page, context, browser, url: 'test-url', root: 'test-root',
-        out: 'test-output', dist: 'test-dist', m2Fixture: {},
+        out: 'test-output', dist: 'test-dist', m2Fixture, browserDeadlineAt, abort,
         ...Object.fromEntries(scenarios.map(name => [name, name])),
         pathToFileURL: value => ({ href: value }),
         importScenario: async name => ({ default: async input => {
           calls.push(name)
           assert.equal(input.output, 'test-output')
           if (name === 'spellTestScenario' || name === 'spellConversionScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
+          if (name === 'm2Scenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output',
+            fixture: m2Fixture, deadlineAt: browserDeadlineAt, signal: abort.signal })
           return { completed: name }
         } }),
       }

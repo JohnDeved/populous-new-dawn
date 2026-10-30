@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -106,8 +107,8 @@ test('historical research reconstruction recovers only missing immutable origins
 })
 
 test('component checkpoint preserves authored birth caches when sampled terrain changes before the next visit', async () => {
-  const store = createGameStore()
-  store.startMission(2)
+  const store = await createCampaignFixtureStore([2])
+  assert.equal(store.startMission(2), true)
   let world = store.getWorld()
   const effect = worshipBridge(world), initialized = structuredClone(effect.bridge)
   assert.equal(initialized.turn, 1)

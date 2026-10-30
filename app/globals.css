@@ -47,12 +47,18 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .dock-tabs button.active{border-image-source:url('/original/hud-tab-active.png')}
 .shaman-controls{position:absolute;left:0;top:112px;width:100px;height:39px}
 .shaman-controls button{padding:0}.nearby-followers-button{position:absolute;left:6px;top:10px;width:24px;height:18px;display:grid;place-content:center}
-.portrait{position:absolute;left:33px;top:2px;width:30px;height:35px;background:url('/original/hud-portrait.png')}
-.portrait:hover,.portrait:active{background-image:url('/original/hud-portrait-hover.png')}
+.portrait{position:absolute;left:33px;top:2px;width:30px;height:35px}
+.portrait::before{content:"";position:absolute;inset:0;background:url('/original/hud-portrait.png');pointer-events:none}
+/* The native disabled state fades only the frame, not the later opaque interior. */
+.portrait:disabled{opacity:1}
+.portrait:disabled::before{opacity:calc(85 / 255)}
+.portrait:enabled:is(:hover,:active)::before{background-image:url('/original/hud-portrait-hover.png')}
 .portrait canvas{position:absolute;left:-33px;top:-114px;width:100px;height:480px;pointer-events:none;image-rendering:pixelated}
-.help-button{position:absolute;left:64px;top:1px;width:12px;height:12px;border:1px outset #edb654;font-size:10px}
+.help-button{position:absolute;left:63px;top:1px;width:13px;height:12px;border:0;background:transparent}
 .health-bar{position:absolute;left:64px;top:14px;width:10px;height:22px;background:url('/original/hud-health.png')}.health-bar>span{position:absolute;inset:2px;display:flex;align-items:flex-end}.health-bar i{display:block;width:100%}
-.tribe-flag{position:absolute;left:78px;width:19px;height:10px;border:2px ridge #e9b451}.dakini{top:1px;background:#bd4239}.chumara{top:14px;background:#efd96b}.matak{top:26px;background:#43c286}
+/* Reference endpoints from independently normalized native tribe descriptors.
+   Artwork and native tribe interactions remain separate fidelity debt. */
+.tribe-flag{position:absolute;left:77px;width:20px;height:11px;border:2px ridge #e9b451}.dakini{top:1px;background:#bd4239}.chumara{top:14px;height:10px;background:#efd96b}.matak{top:25px;background:#43c286}
 .tribe-classes{position:absolute;left:0;top:153px;width:95px;display:grid;grid-template-columns:repeat(6,15px);gap:1px}
 .tribe-classes button{position:relative;width:15px;height:36px;padding:0;background:url('/original/hud-follower.png');image-rendering:pixelated}
 /* Original disabled follower frames retain RGB and use alpha 85/255. */
@@ -64,32 +70,23 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .population-meter{position:absolute;left:4px;top:4px;width:7px;height:22px;background:url('/original/hud-population.png');pointer-events:none}
 .population-meter>span{position:absolute;left:2px;top:2px;width:3px;height:18px}.population-meter i{position:absolute;left:0;bottom:0;width:3px}
 .mana-meter{position:absolute;left:4px;top:190px;width:92px;height:13px;background:url("/original/hud-mana.png");image-rendering:pixelated}.mana-meter>span{position:absolute;left:2px;top:2px;width:88px;height:9px}.mana-meter i{position:absolute;top:0;width:1px;height:10px}
-.command-dock{position:absolute;left:0;top:204px;width:100px;bottom:0;padding:7px 2px;background:url('/original/hud-commands.png');border:2px ridge #e4b152;border-bottom:0}
+/* All three native command roots share this 100x277 HFX712/005caa40 panel.
+   Preserve the existing spell content origin (4,9), not the CSS ridge. */
+.command-dock{position:absolute;left:0;top:203px;width:100px;height:277px;padding:9px 4px 7px;background:url('/original/follower-task-panel.png') no-repeat;border:0}
 .spell-list,.building-list,.follower-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px}
 .spell-card,.building-card,.follower-list button{position:relative;min-width:0;height:43px;padding:0;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-button.png') 8 fill repeat}
 .building-card.active{border-image-source:url('/original/hud-button-selected.png')}
 .spell-list{grid-template-columns:repeat(3,31px)}
 .spell-art{position:absolute;inset:-8px;pointer-events:none}.spell-art>span{position:absolute}
 .native-charge{left:2px;top:34px;width:26px;height:5px;background:url('/original/hud-charge.png')}.native-charge>i{position:absolute;left:1px;top:1px;height:3px}
-.building-list{grid-template-columns:repeat(2,1fr)}.building-card{height:53px}
-.top-actions{position:absolute;left:4px;bottom:3px;display:flex;gap:4px}.top-actions button{height:14px;width:17px;border:1px outset #f5ce7a;font-size:10px;line-height:12px}
-.hud-description{position:absolute;left:calc(var(--side) + 8px);top:43%;max-width:260px;background:#bf6f17;color:#634535;border:4px solid transparent;border-image:url('/original/tooltip-border.png') 4 repeat;padding:6px;font:12px/1.4 Arial,sans-serif;pointer-events:none;z-index:7}
+/* 005cc458 building descriptors: keys 1/4, 7/5, 6/8, 13/15.
+   Separately normalized root/child coordinates yield x=2/48 and y=206+54r
+   at 640x480, relative to the command root at y=203. Keep all eight slots. */
+.building-list{position:absolute;left:2px;top:3px;width:92px;grid-template-columns:repeat(2,46px);column-gap:0;row-gap:2px}.building-card{height:52px}
+/* Keep the inherited white 2px keyboard focus ring inside these edge-adjacent slots. */
+.building-card:focus-visible{outline-offset:-2px}
 .game-status{display:contents}
 .world-message{position:absolute;left:calc((100% + var(--side))/2);transform:translateX(-50%);bottom:12px;max-width:650px;padding:8px 15px;background:#1f281ccc;color:#efe7c8;font:12px/1.5 Arial,sans-serif;text-align:center;pointer-events:none;z-index:2}.world-message>span{margin-right:8px}
-.route-notice{animation:route-notice 3s linear forwards}@keyframes route-notice{0%,99%{opacity:1}100%{opacity:0}}
-.target-prompt{position:absolute;left:calc((100% + var(--side))/2);transform:translateX(-50%);top:12px;display:flex;gap:7px;align-items:center;background:#273021e6;border:1px solid #cead64;padding:8px;z-index:5}.target-prompt button{margin-left:10px}
-.paused-badge{position:absolute;left:calc((100% + var(--side))/2);top:45%;transform:translate(-50%,-50%);padding:14px 24px;background:#262d20ed;border:2px ridge #d2ae59;color:#f4dda5;z-index:5;font-size:16px}.paused-badge small{display:block;font-size:10px;margin-top:9px}
-/* Keep the public pause/resume control clear of the short-landscape F8 panel.
-   Taller narrow views have room below it; wider short views have room beside it. */
-@media (max-height:800px) and (min-width:560px) and (max-width:899px) and (min-height:420px){
-  .game-shell:has(.fps-graph) .paused-badge{left:auto;right:8px;top:auto;bottom:16px;transform:none;padding:6px 10px;font-size:12px}
-  .game-shell:has(.fps-graph) .paused-badge small{margin-top:4px}
-}
-@media (max-height:800px) and (min-width:900px){
-  .game-shell:has(.fps-graph) .paused-badge{left:calc(var(--side) + 8px);right:auto;top:45%;width:160px;transform:translateY(-50%);padding:6px 10px;font-size:12px}
-  .game-shell:has(.fps-graph) .paused-badge small{margin-top:4px}
-}
-
 /* Open campaign text owns its original HUD-adjacent column. In short wide
    windows, fit diagnostics beside that column instead of painting over it.
    The containing world viewport already excludes the scaled HUD width.
@@ -105,10 +102,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   .game-shell:has(.fps-graph):has(.campaign-messages details[open]) .world-message{left:calc(var(--side) + 8px);top:8px;bottom:auto;width:calc(var(--campaign-message-width) - 8px);transform:none}
 }
 
-/* At the bounded 640x480 compact size, status text and Resume share the
-   remaining lower-right column. Grid uses their actual wrapped heights, not a
-   guessed pause-button height. Reclaim F8 whitespace, never font size or rows.
-   Outside diagnostic mode the original status/pause placement is unchanged. */
+/* At the bounded 640x480 compact size, the retained route-failure notice
+   uses the lower-right column. Reclaim F8 whitespace, never font size or rows.
+   The native Paused status remains independently anchored at the screen edge. */
 @media (min-width:640px) and (max-width:899px) and (min-height:480px) and (max-height:700px){
   .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-graph{padding:6px}
   .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-reading{margin:4px 0}
@@ -116,31 +112,73 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
   .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .fps-graph dl>div{padding:0}
   .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .game-status{position:absolute;right:8px;bottom:8px;width:calc(100% - var(--side) - var(--campaign-message-width) - 16px);display:grid;gap:8px;pointer-events:none}
   .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .game-status .world-message{position:static;transform:none;max-width:none}
-  .game-shell:has(.fps-graph):has(.campaign-messages details[open]):has(.world-message) .game-status .paused-badge{position:static;transform:none;justify-self:end;pointer-events:auto}
+}
+/* Browser diagnostics are exempt from native artwork, but must move around the
+   recovered top-centered popup. Keep every field and native popup dimension. */
+/* One available rectangle excludes the native body, notification strip and
+   unscaled status floor. Columns optimize it; overflow remains reachable. */
+.game-shell:has(.campaign-messages details[open]) .fps-graph{top:auto;bottom:max(22px,calc(24px * var(--hud-scale)));right:8px;max-width:calc(100% - var(--side) - var(--message-width,32px) - 16px);max-height:calc(100dvh - var(--campaign-popup-bottom,0px) - 3px - max(22px,calc(24px * var(--hud-scale))));overflow:auto;pointer-events:auto;overscroll-behavior:contain}
+@media (min-width:560px) and (max-height:700px){
+  .game-shell:has(.campaign-messages details[open]) .fps-graph{width:calc(100% - var(--side) - var(--message-width,32px) - 16px);max-width:none;padding:5px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;font-size:11px;line-height:1.2}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph svg{height:16px;margin:2px 0}
+  .game-shell:has(.campaign-messages details[open]) .fps-reading{margin:0 0 2px}
+  .game-shell:has(.campaign-messages details[open]) .fps-reading strong{font-size:26px}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph dl{margin:1px 0;padding-top:1px}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph dl>div{padding:0;gap:4px}
+  .game-shell:has(.campaign-messages details[open]) .fps-renderer{max-height:none;overflow:visible}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph p{padding-top:3px;line-height:1.2}
+  .game-shell:has(.campaign-messages details[open]) .fps-hardware{padding-top:3px}
+  .game-shell:has(.campaign-messages details[open]) .fps-picking-toggle,.game-shell:has(.campaign-messages details[open]) .fps-graph kbd{padding:1px 2px;white-space:nowrap}
+}
+@media (min-width:900px) and (max-height:500px){
+  .game-shell:has(.campaign-messages details[open]) .fps-graph{bottom:22px;padding:2px;grid-template-columns:2.35fr 2.15fr;align-items:start}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph dl{margin:0;padding-top:0}
+  .game-shell:has(.campaign-messages details[open]) .fps-hardware,.game-shell:has(.campaign-messages details[open]) .fps-graph p{padding-top:0}
+  .game-shell:has(.campaign-messages details[open]) .fps-graph p{line-height:10px}
+  .game-shell:has(.campaign-messages details[open]) .fps-primary{display:grid;grid-template-columns:1fr 1.35fr;column-gap:8px;align-items:start}
+  .game-shell:has(.campaign-messages details[open]) .fps-secondary{display:grid;grid-template-columns:1fr 1.15fr;column-gap:8px;align-items:start}
+  .game-shell:has(.campaign-messages details[open]) .fps-primary>header,.game-shell:has(.campaign-messages details[open]) .fps-reading,.game-shell:has(.campaign-messages details[open]) .fps-primary>.fps-caption,.game-shell:has(.campaign-messages details[open]) .fps-graph svg{grid-column:1}
+  .game-shell:has(.campaign-messages details[open]) .fps-primary>dl{grid-column:2;grid-row:1 / 6}
+  .game-shell:has(.campaign-messages details[open]) .fps-picking{grid-column:1 / 3}
+  .game-shell:has(.campaign-messages details[open]) .fps-secondary>.fps-caption:nth-child(-n+2),.game-shell:has(.campaign-messages details[open]) .fps-secondary>dl,.game-shell:has(.campaign-messages details[open]) .fps-secondary>p{grid-column:1}
+  .game-shell:has(.campaign-messages details[open]) .fps-hardware{grid-column:2;grid-row:1 / 4}
+  .game-shell:has(.campaign-messages details[open]) .fps-export{grid-column:2;grid-row:4;margin-bottom:16px}
+  .game-shell:has(.campaign-messages details[open]) .fps-secondary>.fps-caption:nth-last-child(2){grid-column:2;grid-row:4;align-self:end}
+  .game-shell:has(.campaign-messages details[open]) .fps-secondary>.fps-caption:last-child{grid-column:2;grid-row:5}
 }
 
 .primary-button,.secondary-button{border:2px outset #f5ce7a;background:#dbaa38 url('/original/hud-commands.png')}
-.menu-objectives{margin:16px 0}.menu-utilities{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:12px}.menu-utilities button{border:1px solid #a89667;padding:5px}
-.primary-button,.secondary-button{padding:11px 16px;font-size:12px;color:#342914}.primary-button span{margin-left:25px}.game-dialog{margin:auto;background:#353526;color:#e9dcbb;border:3px ridge #dfbd6a;width:630px;max-width:95vw;max-height:90dvh;overflow:auto;padding:30px}.game-dialog::backdrop{background:#0b1719b8}.dialog-close{position:absolute;right:12px;top:7px;font-size:26px}.game-dialog h2{font-size:28px;margin:14px 0}.game-dialog>p{font-size:12px;line-height:1.7}.eyebrow{font-size:9px;letter-spacing:1px}.menu-actions{display:flex;gap:12px;margin:25px 0}.game-dialog h3{font-size:17px;margin:18px 0}.help-grid{display:grid;grid-template-columns:165px 1fr;gap:9px;font-size:11px}.help-grid strong{font-weight:400}.help-tip{margin:20px 0}.audio-settings{display:flex;flex-wrap:wrap;align-items:center;gap:20px}.audio-settings label{display:flex;align-items:center;gap:10px;font-size:11px}.audio-settings input{accent-color:#d9b454;width:130px}.reference-details{margin-top:20px;font-size:11px;line-height:1.7}.reference-details summary{cursor:pointer}.reference-details p{margin:10px 0}.reference-details a{display:block;color:#dcc984}.desktop-recommendation{display:none}
+.menu-utilities{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:12px}.menu-utilities button{border:1px solid #a89667;padding:5px}
+.primary-button,.secondary-button{padding:11px 16px;font-size:12px;color:#342914}.primary-button span{margin-left:25px}.game-dialog{margin:auto;background:#353526;color:#e9dcbb;border:3px ridge #dfbd6a;width:630px;max-width:95vw;max-height:90dvh;overflow:auto;padding:30px}.game-dialog::backdrop{background:#0b1719b8}.dialog-close{position:absolute;right:12px;top:7px;font-size:26px}.game-dialog h2{font-size:28px;margin:14px 0}.game-dialog>p{font-size:12px;line-height:1.7}.eyebrow{font-size:9px;letter-spacing:1px}.menu-actions{display:flex;gap:12px;margin:25px 0}.game-dialog h3{font-size:17px;margin:18px 0}.audio-settings{display:flex;flex-wrap:wrap;align-items:center;gap:20px}.audio-settings label{display:flex;align-items:center;gap:10px;font-size:11px}.audio-settings input{accent-color:#d9b454;width:130px}
 /* The original clear uses current palette index 0. Opaque black is the browser
    compatibility clear across startup/game palettes, not a native RGB claim. */
 .loading-browser-note{position:absolute;bottom:20px;left:16px;right:16px;font:13px/1.5 Arial,sans-serif;color:#ccc}
-.loading-world[data-loading-phase=failed]{display:flex;flex-direction:column;align-items:center;justify-content:safe center;gap:20px;padding:28px 20px;overflow:auto}
+.loading-world[data-loading-phase=failed]{overflow:hidden}
+/* Failed recovery scrolls in the original-art area; its content reserves both
+   artwork and compact fullscreen gutters throughout the full scroll range. */
 .loading-world[data-loading-phase=failed] .loading-original-art{position:relative;left:auto;top:auto}
-.loading-recovery{width:min(100%,480px);flex:none;font:14px/1.5 Arial,sans-serif}
-.loading-recovery h2{font:20px/1.3 Arial,sans-serif;margin:0 0 12px}
-.loading-recovery details{margin:14px 0;overflow-wrap:anywhere}
-.loading-recovery summary{cursor:pointer;width:fit-content;max-width:100%;margin:auto}
-.loading-recovery details p{margin-top:8px;color:#ccc}
-.loading-recovery button{border:1px solid #aaa;background:#171717;color:#fff;min-height:44px;padding:10px 24px}
-.loading-recovery button:hover{background:#303030}
-.loading-recovery-note{color:#aaa;font-size:11px;margin-top:12px}
+/* Browser recovery uses original gold label glyphs against the black clear, with
+   pale interactive highlights and unframed rows, not a claimed native failure
+   dialog. Responsive wrapping/scrolling is browser-only. */
+.loading-recovery{--loading-recovery-font:url('/original/frontend/felo33we.png');width:min(100%,576px);flex:none;color:#fff1bb;font:22px/30px Georgia,serif}
+.loading-recovery h2{font:inherit;margin:0 0 12px}
+.loading-recovery details{margin:14px 0;min-width:0}
+.loading-recovery summary{cursor:pointer;width:fit-content;max-width:100%;margin:auto;list-style:none}
+.loading-recovery summary::-webkit-details-marker{display:none}
+.loading-recovery .loading-recovery-error{margin-top:8px;white-space:pre-wrap;overflow-wrap:anywhere;text-align:left;font:14px/20px Georgia,serif;color:#fff1bb}
+.loading-recovery button{display:inline-flex;align-items:center;justify-content:center;min-width:200px;max-width:100%;min-height:30px;padding:0 8px;border:0;border-radius:0;background:transparent;color:inherit;font:inherit}
+.loading-recovery :is(button,summary):is(:hover,:focus-visible){--loading-recovery-font:url('/original/frontend/fehi33we.png')}
+.loading-recovery :is(button,summary):focus-visible{outline:1px solid #fff1bb;outline-offset:1px}
+.loading-recovery-note{margin-top:12px}
+.loading-recovery-text{image-rendering:pixelated;image-rendering:crisp-edges}
+.loading-recovery-word{display:inline-flex;vertical-align:top}
+.loading-recovery-word i{display:block;flex:none;background-image:var(--loading-recovery-font);background-repeat:no-repeat}
+.loading-recovery-fallback{font:22px/30px Georgia,serif;text-shadow:1px 2px #000}
 
-@media(max-width:900px){.desktop-recommendation{position:absolute;inset:0;z-index:30;background:#202b25f5;color:#e9dcbb;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:35px;gap:24px}.loading-world{z-index:31}.desktop-recommendation p{max-width:360px;line-height:1.7}.desktop-recommendation .brand-rune{font-size:60px}.controls-footer>span{display:none}}
-.campaign-messages{position:absolute;left:var(--side);top:0;z-index:5;pointer-events:none}.campaign-messages details{pointer-events:auto;position:absolute;left:0;width:var(--message-width,32px)}.campaign-messages details[open]{width:var(--campaign-message-width)}.campaign-messages summary{list-style:none;cursor:pointer;box-sizing:border-box;width:var(--message-width,32px);height:var(--message-height);display:grid;place-items:center;background:#d3ad47;border:2px ridge #b8a05c}.campaign-messages summary::-webkit-details-marker{display:none}.campaign-messages summary img{width:15px;height:22px;image-rendering:pixelated}.campaign-messages summary img[src$="message-type1.png"]{width:25px;height:18px}.campaign-messages details>div{position:absolute;left:0;top:100%;box-sizing:border-box;width:var(--campaign-message-width);padding:12px 30px 12px 12px;border:2px ridge #b8a05c;background:#24291eee;color:#f1e4c1;font:12px/1.5 Arial,sans-serif}.campaign-messages details[data-lower]>div{top:auto;bottom:100%}.campaign-messages button{position:absolute;right:8px;top:8px;font-size:20px}
 
-.skip-introduction { position: absolute; z-index: 30; bottom: 155px; left: 50%; transform: translateX(-50%); padding: 10px 16px; color: #efddb3; background: #242718e8; border: 1px solid #9c8655; cursor: pointer; }
-.skip-introduction kbd { margin-left: 12px; font-size: 10px; opacity: .7; }
+@media(max-width:900px){.loading-world{z-index:31}.controls-footer>span{display:none}}
+.campaign-messages{position:absolute;left:var(--side);top:0;z-index:5;pointer-events:none}.campaign-messages details{pointer-events:auto;position:absolute;left:0;width:var(--message-width,32px)}.campaign-messages summary{position:relative;list-style:none;cursor:pointer;box-sizing:border-box;width:var(--message-width,32px);height:var(--message-height);padding:0;border:0;background:none}.campaign-messages summary::-webkit-details-marker{display:none}
+
 
 .native-tooltip { position: absolute; z-index: 12; padding: 0; border: 4px solid transparent; border-image: url("/original/tooltip-border.png") 4 repeat; pointer-events: none; }
 .native-tooltip canvas { display: block; image-rendering: pixelated; }
@@ -151,6 +189,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .followers-dock{height:277px;bottom:auto;padding:0;border:0;background:url('/original/follower-task-panel.png') no-repeat}
 .follower-tasks{position:relative;width:100px;height:277px}
 .follower-tasks button{position:absolute;width:15px;height:34px;padding:0;overflow:visible}
+/* Paint above positioned native sprites: an inset parent outline is covered. */
+.follower-tasks button:focus-visible{outline:none}
+.follower-tasks button:focus-visible::after{content:"";position:absolute;inset:0;border:1px solid #fff7bb;z-index:1;pointer-events:none}
 .follower-tasks button:disabled{opacity:1}
 .follower-task-frame{position:absolute;inset:0;background:url('/original/follower-task-normal.png');pointer-events:none}
 .follower-tasks button:disabled .follower-task-frame{opacity:calc(85 / 255)}
@@ -162,3 +203,14 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .followers-dock .follower-list{margin:0 2px}
 
 .fps-export{pointer-events:auto;font:inherit;color:#f4f7f8;background:#24534d;border:1px solid #65e3ce80;border-radius:3px;padding:4px 8px;cursor:pointer}.fps-export:focus-visible{outline:2px solid #65e3ce;outline-offset:2px}
+
+.native-route-tooltip { position: fixed; border: 0; background: none !important; }
+
+/* Accessibility feedback only, never a visible gameplay card. */
+.game-a11y-status{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0;pointer-events:none}
+
+.debug-mission-picker { max-width: 40rem; max-height: 85vh; overflow: auto; }
+.debug-mission-picker > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+.game-shell[data-result-statistics='true'] { --side: 0px; }
+.game-shell[data-result-statistics='true'] .native-hud { visibility: hidden; pointer-events: none; }

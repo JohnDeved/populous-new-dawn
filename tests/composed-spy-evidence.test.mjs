@@ -1,4 +1,5 @@
 import { corruptSpyDelivery } from './support/spy-delivery-fixture.mjs'
+import { COMPOSED_SOURCE_INPUTS } from '../scripts/integration-queue/composed-profile-artifact.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { validateSpyEvidence } from '../scripts/integration-queue/composed-spy-evidence.mjs'
@@ -50,4 +51,45 @@ test('Spy rejects report/source/pixel splices, timing, cleanup and unsupported c
     f=>{f.report.observation.crops[0].clip.width=257},f=>{f.report.readiness.after.inputMask=64},
   ]) {const f=spyEvidenceFixture();mutate(f);f.hostReport=structuredClone(f.report);assert.throws(()=>run(f))}
   const f=spyEvidenceFixture();f.hostReport.status='failed';assert.throws(()=>run(f))
+})
+
+test('composed Spy reader applies the aggregate600 bound across both logical ledgers and raster samples', () => {
+  const f = spyEvidenceFixture(), observation = f.report.observation
+  const padding = 600 - observation.samples.length - observation.turnSamples.length - observation.turns.length
+  observation.samples.unshift(...Array.from({ length: padding }, () => structuredClone(observation.samples[0])))
+  f.hostReport = structuredClone(f.report)
+  assert.equal(run(f), true)
+  observation.samples.unshift(structuredClone(observation.samples[0]))
+  assert.ok(observation.samples.length + observation.turnSamples.length <= 600, 'old two-ledger bound still passes')
+  f.hostReport = structuredClone(f.report)
+  assert.throws(() => run(f), /Spy aggregate observation bound/)
+  for (const key of ['samples', 'turnSamples', 'turns']) {
+    for (const malformed of [null, {}, 'not-an-array', undefined]) {
+      const bad = spyEvidenceFixture(); bad.report.observation[key] = malformed
+      bad.hostReport = structuredClone(bad.report)
+      assert.throws(() => run(bad))
+    }
+  }
+})
+
+test('Spy helper provenance uses its exact report key and canonical immutable bytes', () => {
+  const key = '../browser-command-categories.mjs', path = 'scripts/browser-command-categories.mjs'
+  for (const dependency of [path, 'scripts/browser-world-input.mjs',
+    'scripts/browser-space-ownership.mjs', 'scripts/browser-introduction.mjs'])
+    assert.equal(COMPOSED_SOURCE_INPUTS.filter(name => name === dependency).length, 1)
+  const original = spyEvidenceFixture()
+  assert.ok(Object.hasOwn(original.report.sources, key))
+  assert.ok(Object.hasOwn(original.sourceBytes, path))
+  assert.equal(Object.hasOwn(original.sourceBytes, 'scripts/tutorial-browser/' + key), false)
+  assert.equal(run(original), true)
+  for (const mutate of [
+    f => { delete f.report.sources[key] },
+    f => { f.report.sources[key] = 'f'.repeat(64) },
+    f => { f.report.sources['browser-command-categories.mjs'] = f.report.sources[key]; delete f.report.sources[key] },
+    f => { f.sourceBytes[path] = Buffer.from('changed command-category owner') },
+    f => { f.sourceBytes['scripts/tutorial-browser/' + key] = f.sourceBytes[path]; delete f.sourceBytes[path] },
+  ]) {
+    const f = spyEvidenceFixture(); mutate(f); f.hostReport = structuredClone(f.report)
+    assert.throws(() => run(f))
+  }
 })

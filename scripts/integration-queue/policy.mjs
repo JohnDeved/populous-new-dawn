@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { usesComposedGameplayResourceBudget } from '../tutorial-browser/scenario-policy.mjs'
 
 export const REPO = 'JohnDeved/populous-new-dawn'
 export const CLOUDFLARE = {
@@ -59,7 +60,7 @@ export const SHARDED_FULL_GATE = {
     'Reject tracked input mutation',
   ],
 }
-export const gatesFor = entry => [
+const historicalGatesFor = entry => [
   entry.fullCheckPolicy === 'sharded-v1' ? SHARDED_FULL_GATE : GATES[0],
   entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY ? COMPOSED_PROFILE_BROWSER_GATE :
   entry.browserPolicy === 'gameplay-resources-weak-v1' ? GAMEPLAY_OWNERSHIP_BROWSER_GATE :
@@ -72,6 +73,14 @@ export const gatesFor = entry => [
   entry.browserPolicy === 'profile-recovery-v1' ? PROFILE_BROWSER_GATE :
     entry.browserPolicy === 'pause-recovery-v1' ? RECOVERY_BROWSER_GATE : GATES[1],
 ]
+export function gatesFor(entry) {
+  const gates = historicalGatesFor(entry)
+  if (usesComposedGameplayResourceBudget(entry.gameplayResourceBudgetPolicy)) {
+    requireThat(gates[1].gameplayResourcesRequired === true, 'Composed budget requires an explicit resource gate')
+    gates[1] = { ...gates[1], gameplayResourceBudgetPolicy: entry.gameplayResourceBudgetPolicy }
+  }
+  return gates
+}
 export const sha256 = value => createHash('sha256').update(value).digest('hex')
 export const digest = value => sha256(JSON.stringify(value))
 const sha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value)
@@ -149,6 +158,11 @@ export function validateEntry(entry) {
   requireThat(entry.profileArtifactPolicy === undefined ||
     (entry.profileArtifactPolicy === COMPOSED_PROFILE_POLICY && entry.browserPolicy === 'profile-split-v1' &&
       entry.browserCheckpointVersion === 3), 'Composed artifacts require explicit eight-job/current-v3 contract')
+  if (usesComposedGameplayResourceBudget(entry.gameplayResourceBudgetPolicy)) {
+    requireThat(entry.requireBrowser === true &&
+      ['gameplay-resources-nine-v1', 'gameplay-resources-nine-v2', 'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'].includes(entry.browserPolicy) &&
+      entry.browserCheckpointVersion === 3, 'Composed budget requires explicit resource/browser/current-v3 admission')
+  }
   if (entry.browserWorkflowTransition !== undefined) {
     const t = entry.browserWorkflowTransition
     requireThat(t?.version === 1 && t.workflow === GATES[1].workflow &&
@@ -651,7 +665,9 @@ export function validatePassedGate(o, gate, latest) {
       (!gate.profileRequired || latest.profileRecoveryVerified === true) &&
       (!gate.mission10Required || latest.mission10Verified === true) &&
       (!gate.spellVisualsRequired || latest.spellVisualsVerified === true) &&
-      (!gate.gameplayResourcesRequired || latest.gameplayResourcesVerified === true) &&
+      (!gate.gameplayResourcesRequired || (latest.gameplayResourcesVerified === true &&
+        latest.gameplayResourceBudgetPolicy === gate.gameplayResourceBudgetPolicy &&
+        (!usesComposedGameplayResourceBudget(gate.gameplayResourceBudgetPolicy) || latest.gameplayResourceBudgetVerified === true))) &&
       (!gate.gameplayHeapRequired || latest.gameplayHeapVerified === true) &&
       (!gate.gameplayMatchedCyclesRequired || latest.gameplayMatchedCyclesVerified === true) &&
       (!gate.gameplayThreeCyclesRequired || latest.gameplayThreeCyclesVerified === true) &&

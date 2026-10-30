@@ -69,11 +69,12 @@ import { makeResourceFixture } from './support/gameplay-resource-artifact.mjs'
 import { artifactZip } from './support/artifact-zip.mjs'
 import { createHash } from 'node:crypto'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
-function resourceAdapter(policy = GAMEPLAY_RESOURCE_POLICY) {
-  const f=makeResourceFixture(policy), identity=f.expected.identity, e=entry(), reader=new GitHubReader()
+function resourceAdapter(policy = GAMEPLAY_RESOURCE_POLICY, gameplayResourceBudgetPolicy) {
+  const f=makeResourceFixture(policy, { gameplayResourceBudgetPolicy }), identity=f.expected.identity, e=entry(), reader=new GitHubReader()
   const j=jobs([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy) ? GAMEPLAY_THREE_CYCLE_BROWSER_JOBS : GAMEPLAY_RESOURCE_BROWSER_JOBS).map(job=>({...job,head_sha:identity.headSha,run_id:12})), exact={...run(),id:12,head_sha:identity.headSha}
   const pr={head:{sha:identity.headSha},base:{sha:identity.baseSha}}, synthetic={sha:identity.mergeSha}, row={merge:identity.mergeSha}
   e.browserPolicy=policy
+  if (gameplayResourceBudgetPolicy !== undefined) e.gameplayResourceBudgetPolicy = gameplayResourceBudgetPolicy
   e.sourceHead=identity.headSha;e.reviewBase=identity.baseSha
   const check={id:307,name:'Gameplay resource lifecycle browser',check_suite:{id:500},head_sha:identity.headSha,
     app:{id:15368,slug:'github-actions'},status:'completed',conclusion:'success'}
@@ -205,4 +206,91 @@ test('weak ownership policy requires its own verified row and immutable source e
  ]) {const bad=resourceAdapter(GAMEPLAY_OWNERSHIP_POLICY);mutate(bad);assert.throws(()=>bad.reader.verifyGameplayResourceRun(...bad.args));assert.equal(bad.args[5].gameplayOwnershipVerified,undefined)}
  const old=resourceAdapter(GAMEPLAY_THREE_CYCLE_POLICY);old.args[0].browserPolicy=GAMEPLAY_OWNERSHIP_POLICY
  assert.throws(()=>old.reader.verifyGameplayResourceRun(...old.args));assert.equal(old.args[5].gameplayOwnershipVerified,undefined)
+})
+
+
+import { digest, decide } from '../scripts/integration-queue/policy.mjs'
+import { GAMEPLAY_RESOURCE_POLICIES, GAMEPLAY_COMPOSED_BUDGET_INPUTS, gameplayResourceInputs } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { composedGameplayResourceBudgetPolicy } from '../scripts/tutorial-browser/scenario-policy.mjs'
+const composedEntry = policy => ({...entry(), browserPolicy: policy,
+  gameplayResourceBudgetPolicy: composedGameplayResourceBudgetPolicy})
+test('composed budget requires explicit trusted resource admission and invalidates old checkpoint authorization', () => {
+  for (const policy of GAMEPLAY_RESOURCE_POLICIES) {
+    const old = {...entry(), browserPolicy: policy}, current = composedEntry(policy)
+    validateEntry(old); validateEntry(current)
+    assert.deepEqual(gatesFor(current)[1], {...gatesFor(old)[1], gameplayResourceBudgetPolicy: 'composed-gameplay-resources-v2'})
+    assert.equal(gatesFor(old)[1].gameplayResourceBudgetPolicy, undefined)
+    assert.notEqual(digest(old), digest(current))
+    for (const [authorized, requested] of [[old,current], [current,old]]) {
+      const result = decide(requested, null, {version: 1, authorization: digest(authorized), head: old.sourceHead}, 0)
+      assert.equal(result.status, 'stop'); assert.match(result.reason, /Checkpoint authorization changed/)
+    }
+  }
+  for (const patch of [
+    {gameplayResourceBudgetPolicy:null}, {gameplayResourceBudgetPolicy:false}, {gameplayResourceBudgetPolicy:{}},
+    {gameplayResourceBudgetPolicy:'unknown'}, {requireBrowser:false}, {browserCheckpointVersion:4},
+    {browserPolicy:'profile-split-v1'}, {browserPolicy:'snapshot-protocol-v1'},
+  ]) assert.throws(() => validateEntry({...composedEntry(GAMEPLAY_RESOURCE_POLICY), ...patch}))
+  assert.throws(() => gatesFor({...entry(), browserPolicy:'profile-split-v1', gameplayResourceBudgetPolicy:composedGameplayResourceBudgetPolicy}))
+})
+test('reader forwards trusted composed expectation for every generation and binds all appended immutable inputs', () => {
+  for (const policy of GAMEPLAY_RESOURCE_POLICIES) {
+    const good = resourceAdapter(policy, composedGameplayResourceBudgetPolicy), acquired = []
+    good.reader.immutableBlob = (_, path) => { acquired.push(path); return Buffer.from(path) }
+    assert.equal(good.reader.verifyGameplayResourceRun(...good.args), true)
+    assert.deepEqual(acquired, gameplayResourceInputs(policy, composedGameplayResourceBudgetPolicy))
+    assert.equal(good.args[5].gameplayResourceBudgetVerified, true)
+    assert.equal(good.args[5].gameplayResourceBudgetPolicy, 'composed-gameplay-resources-v2')
+    assert.equal(good.args[5].gameplayResourcesVerified, true)
+    const old = resourceAdapter(policy); old.reader.verifyGameplayResourceRun(...old.args)
+    assert.equal(old.args[5].gameplayResourceBudgetVerified, undefined)
+    assert.equal(old.args[5].gameplayResourceBudgetPolicy, undefined)
+    for (const flag of ['gameplayHeapVerified', 'gameplayMatchedCyclesVerified', 'gameplayThreeCyclesVerified', 'gameplayOwnershipVerified'])
+      assert.equal(good.args[5][flag], old.args[5][flag])
+    for (const mutate of [
+      a => { delete a.args[0].gameplayResourceBudgetPolicy },
+      a => { a.args[0].gameplayResourceBudgetPolicy = null },
+      a => { a.args[0].gameplayResourceBudgetPolicy = 'unknown' },
+      a => { delete a.f.raw.gameplayResourceBudgetPolicy; a.rebuild() },
+      a => { a.f.raw.gameplayResourceSplitBudget = {...a.f.raw.gameplayResourceSplitBudget, totalBrowserMs:535001}; a.rebuild() },
+      a => { a.f.raw.source.files = {...a.f.raw.source.files}; delete a.f.raw.source.files['scripts/tutorial-browser/gameplay-admission.mjs']; a.rebuild() },
+    ]) {
+      const bad = resourceAdapter(policy, composedGameplayResourceBudgetPolicy); mutate(bad)
+      assert.throws(() => bad.reader.verifyGameplayResourceRun(...bad.args))
+      assert.equal(bad.args[5].gameplayResourcesVerified, undefined)
+      assert.equal(bad.args[5].gameplayResourceBudgetVerified, undefined)
+    }
+    for (const changed of GAMEPLAY_COMPOSED_BUDGET_INPUTS) {
+      const bad = resourceAdapter(policy, composedGameplayResourceBudgetPolicy)
+      bad.reader.immutableBlob = (_, path) => Buffer.from(path === changed ? 'wrong immutable source' : path)
+      assert.throws(() => bad.reader.verifyGameplayResourceRun(...bad.args))
+      assert.equal(bad.args[5].gameplayResourceBudgetVerified, undefined)
+    }
+  }
+})
+test('composed gate requires matching verified budget in addition to every historical resource flag and current check', () => {
+  const base = {conclusion:'success',event:'pull_request',identityVerified:true,base:oid(3),merge:oid(1),
+    job:'Tutorial browser',jobConclusion:'success',app:'github-actions',appId:15368,id:100,attempt:2,
+    pauseRecoveryVerified:true,pauseRecoveryCheckId:303,profileRecoveryVerified:true,profileRecoveryCheckId:304,
+    mission10Verified:true,mission10CheckId:305,gameplayResourcesVerified:true,gameplayResourcesCheckId:307,
+    gameplayHeapVerified:true,gameplayMatchedCyclesVerified:true,gameplayThreeCyclesVerified:true,gameplayOwnershipVerified:true,
+    checkId:300,steps:GATES[1].steps.map(name=>({name,conclusion:'success'}))}
+  const o = {head:oid(2),base:oid(3),synthetic:{sha:oid(1)},currentChecks:jobs().map((j,i)=>({name:j.name,id:300+i,
+    appId:15368,head:oid(2),status:'completed',conclusion:'success',startedAt:'2026-10-24T00:00:00Z'}))}
+  for (const policy of GAMEPLAY_RESOURCE_POLICIES) {
+    const gate = gatesFor(composedEntry(policy))[1]
+    const current = {...base,gameplayResourceBudgetVerified:true,gameplayResourceBudgetPolicy:composedGameplayResourceBudgetPolicy}
+    validatePassedGate(o,gate,current)
+    assert.throws(() => validatePassedGate(o,gate,base))
+    assert.throws(() => validatePassedGate(o,gatesFor({...entry(),browserPolicy:policy})[1],current))
+    for (const patch of [{gameplayResourceBudgetVerified:false},{gameplayResourceBudgetVerified:undefined},
+      {gameplayResourceBudgetPolicy:undefined},{gameplayResourceBudgetPolicy:'unknown'},{gameplayResourcesVerified:false}])
+      assert.throws(() => validatePassedGate(o,gate,{...current,...patch}))
+    for (const [required,verified] of [['gameplayHeapRequired','gameplayHeapVerified'],
+      ['gameplayMatchedCyclesRequired','gameplayMatchedCyclesVerified'],['gameplayThreeCyclesRequired','gameplayThreeCyclesVerified'],
+      ['gameplayOwnershipRequired','gameplayOwnershipVerified']]) if (gate[required])
+      assert.throws(() => validatePassedGate(o,gate,{...current,[verified]:false}))
+    const wrongCheck = structuredClone(o); wrongCheck.currentChecks[7].head=oid(9)
+    assert.throws(() => validatePassedGate(wrongCheck,gate,current))
+  }
 })

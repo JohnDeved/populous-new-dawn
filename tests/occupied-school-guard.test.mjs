@@ -15,6 +15,7 @@ const {
   command,
   tick,
   guardShaman,
+  dismantleBuilding,
   selectBuildingOccupants,
   setSelection,
   currentPersonOrder,
@@ -413,3 +414,137 @@ for (const tail of [false, true])
     if (tail) assert.equal(w.buildingOrders.records[tailId].references, created.length)
     assert.equal(w.nextId, control.nextId)
   })
+
+// Use the public occupant/G/dismantle producers after actual training admission.
+// Pause is supplied mechanics state, not a browser key/focus or rendered proof.
+for (const scenario of [
+  { name: 'ordinary no-G control', count: 1, repeats: 0, group: false },
+  { name: 'pending G', count: 1, repeats: 1, group: false },
+  { name: 'repeated pending G', count: 1, repeats: 2, group: false },
+  { name: 'mixed pending and ordinary occupants', count: 2, repeats: 1, group: false },
+  { name: 'shared pending G occupants', count: 2, repeats: 1, group: true },
+])
+  test(`school dismantling supersedes ${scenario.name} without stealing the next visit`, () => {
+    const { w, b, u, units } = admitted('camp', scenario.count),
+      people = units.map(unit => unit.entry.person),
+      nextId = w.nextId,
+      turn = w.turn,
+      retiredGuards = []
+    w.paused = true
+    selectPanel(w, b, u, scenario.group)
+    assert.deepEqual(
+      [...w.selected].sort((a, b) => a - b),
+      (scenario.group ? units.map(unit => unit.id) : [u.id]).sort((a, b) => a - b)
+    )
+    for (let visit = 0; visit < scenario.repeats; visit++) {
+      guardShaman(w)
+      const guard = order(w, people[0])
+      assert.equal(guard.model, 30)
+      retiredGuards.push(guard)
+      for (const person of people) {
+        const selected = w.selected.includes(person.id)
+        assert.equal(person.guardInputPending, selected ? true : undefined)
+        assert.equal(order(w, person).model, selected ? 30 : 8)
+      }
+    }
+    tick(w, 1 / 12)
+    assert.equal(w.turn, turn, 'supplied pause retains the before-first-turn boundary')
+    dismantleBuilding(w, b)
+    assert.ok(b.admission.activity & 0x8000)
+    assert.equal(b.admission.inside, 0)
+    assert.ok(!b.admission.occupants.some(id => units.some(unit => unit.id === id)))
+    const replacement = order(w, people[0])
+    assert.equal(replacement.model, 10)
+    assert.equal(replacement.a, b.id)
+    assert.equal(replacement.references, units.length)
+    for (const guard of retiredGuards) {
+      assert.notEqual(guard, replacement)
+      assert.equal(guard.references, 0, 'superseded Guard has no retained queue reference')
+    }
+    for (const [index, unit] of units.entries()) {
+      const person = people[index]
+      assert.equal(unit.entry?.person, person)
+      assert.equal(unit.entry.orders, w.buildingOrders)
+      assert.equal(unit.native, null)
+      assert.equal(unit.inside, null)
+      assert.equal(person.building, null)
+      assert.equal(person.flags2 & 0x800000, 0)
+      assert.equal(person.flags2 & 16, 16, 'ordinary departure retains native deferred preparation')
+      assert.equal(person.guardInputPending, undefined, 'actual replacement retires only the G marker')
+      assert.equal(order(w, person), replacement)
+      assert.equal(person.commandStatus, 10)
+      assert.equal(w.objectCells.objects.get(person.id), person)
+    }
+    tick(w, 1 / 12)
+    assert.equal(w.turn, turn)
+    w.paused = false
+    const trace = observeSchoolGuard(u.id, () => tick(w, 1 / 12))
+    assert.equal(w.turn, turn + 1)
+    assert.equal(trace.filter(row => row.event === 'entry').length, 1)
+    assert.equal(trace.filter(row => row.event === 'prepare').length, 1)
+    assert.equal(trace.filter(row => row.event === 'adopt').length, 1)
+    assert.equal(trace.filter(row => row.event === 'guard').length, 0)
+    assert.equal(trace.filter(row => row.event === 'training').length, 0)
+    assert.ok(trace.every(row => row.owner === people[0]))
+    for (const [index, unit] of units.entries()) {
+      const person = people[index]
+      assert.equal(unit.entry?.person, person)
+      assert.equal(unit.native, null)
+      assert.equal(person.guardInputPending, undefined)
+      assert.equal(order(w, person), replacement)
+      assert.equal(person.commandStatus, 10)
+      assert.ok(person.substate > 0, 'ordinary dismantling body advances from startup')
+      assert.equal(w.objectCells.objects.get(person.id), person)
+    }
+    assert.equal(w.nextId, nextId)
+    assert.equal(replacement.references, units.length)
+    for (const guard of retiredGuards) assert.equal(guard.references, 0)
+  })
+
+test('failed dismantle allocation leaves the real pending school G for its normal next visit', () => {
+  const { w, b, u, p } = admitted('camp')
+  selectPanel(w, b, u)
+  guardShaman(w)
+  const guard = order(w, p)
+  assert.equal(guard.model, 30)
+  assert.equal(p.guardInputPending, true)
+  // Explicit fixed-pool mechanics control after the actual public G producer.
+  // Fill the old training slot too; no replacement allocation may succeed.
+  exhaust(w)
+  const before = {
+    commands: [...p.commands],
+    immediateCommand: p.immediateCommand,
+    commandCursor: p.commandCursor,
+    commandStatus: p.commandStatus,
+    deferred: p.flags2 & 16,
+    phase: phase(p),
+    inside: b.admission.inside,
+    occupants: [...b.admission.occupants],
+    nextId: w.nextId,
+    pool: structuredClone(w.buildingOrders),
+  }
+  dismantleBuilding(w, b)
+  assert.ok(b.admission.activity & 0x8000, 'the UI toggle can change despite failed assignment')
+  assert.equal(u.entry?.person, p)
+  assert.equal(u.native, null)
+  assert.equal(u.inside, b.id)
+  assert.equal(p.building, b.id)
+  assert.ok(p.flags2 & 0x800000)
+  assert.equal(p.guardInputPending, true, 'no actual replacement means no marker retirement')
+  assert.equal(order(w, p), guard)
+  assert.equal(guard.references, 1)
+  assert.deepEqual(p.commands, before.commands)
+  assert.equal(p.immediateCommand, before.immediateCommand)
+  assert.equal(p.commandCursor, before.commandCursor)
+  assert.equal(p.commandStatus, before.commandStatus)
+  assert.equal(p.flags2 & 16, before.deferred)
+  assert.deepEqual(phase(p), before.phase)
+  assert.deepEqual(w.buildingOrders, before.pool)
+  assert.equal(b.admission.inside, before.inside)
+  assert.deepEqual(b.admission.occupants, before.occupants)
+  const trace = observeSchoolGuard(u.id, () => tick(w, 1 / 12))
+  oneVisit(trace, p)
+  departed(w, b, u, p, before.inside, before.nextId)
+  assert.equal(order(w, p), guard)
+  assert.equal(guard.references, 1)
+})

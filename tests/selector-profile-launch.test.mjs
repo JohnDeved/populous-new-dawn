@@ -5,6 +5,7 @@ import ts from 'typescript'
 import { createWorld } from '../app/world-initialization.ts'
 import { missionNumbers, tutorialLevel } from '../app/mission-data.ts'
 import * as campaign from '../app/world-selector-data.ts'
+import * as selectorArtwork from '../app/world-selector-art.ts'
 import { withStorage } from './support/profile-storage.mjs'
 import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
@@ -18,7 +19,7 @@ const selectorFunction = selectorSource.statements.find(node =>
   ts.isFunctionDeclaration(node) && node.name?.text === 'WorldSelector')
 assert.ok(selectorFunction, 'actual selector component exists')
 const renderSelector = evaluatePage(selectorFunction.getText(selectorSource).replace(/^export /, ''), {
-  ...campaign, useRef: current => ({ current }), useId: () => 'selector-profile',
+  ...campaign, ...selectorArtwork, useRef: current => ({ current }), useId: () => 'selector-profile',
   useLayoutEffect() {},
   useState: initial => [typeof initial === 'function' ? initial() : initial,
     () => assert.fail('this route must launch the restored recommendation without changing selection')],
@@ -70,13 +71,13 @@ test('fresh Home restores independent progress and selector Start launches Missi
           store, loadRequest, menuSession: { current: null }, pendingMenuCamera: { current: [] },
           engine: { current: null }, audio: { current: null }, cancelNearbyInput: () => {},
           setStartup: state => states.push(state),
-          ...Object.fromEntries(['CheatsOpen', 'SelectorOpen', 'Menu', 'Ready', 'Error', 'Tab'].map(name =>
+          ...Object.fromEntries(['ResultInputCycles', 'CheatsOpen', 'DebugPicker', 'SelectorOpen', 'Menu', 'Ready', 'Error', 'Tab'].map(name =>
             [`set${name}`, value => { presentation[name] = value }])),
         })()
         const element = evaluatePage(homeSelector.getText(pageSource), {
           WorldSelector: 'WorldSelector', missionNumbers, tutorialLevel, store,
           completedMissions: evaluatePage(completedSource, { store }), selectorOpen: false,
-          startMission, world: initialWorld,
+          startMission, world: initialWorld, closeSelector: () => assert.fail('startup Back must not invoke result selection'),
           loadCheckpoint: () => assert.fail('Start must not invoke the selector Load route'),
           setSelectorOpen: () => assert.fail('Start must use Home beginLoad'),
           openMenu: () => assert.fail('Start must not return to the pause menu'),
@@ -99,7 +100,7 @@ test('fresh Home restores independent progress and selector Start launches Missi
         assert.equal(launched.turn, 0, 'Start creates the selected mission, not saved turn 217')
         assert.deepEqual(loadRequest.current, { kind: 'mission', mission: 3 })
         assert.deepEqual(states, ['choice', 'playing'])
-        assert.deepEqual(presentation, { CheatsOpen: false, SelectorOpen: false, Menu: false, Ready: false, Error: '', Tab: 'spells' })
+        assert.deepEqual(presentation, { ResultInputCycles: 0, CheatsOpen: false, DebugPicker: false, SelectorOpen: false, Menu: false, Ready: false, Error: '', Tab: 'spells' })
         await drain()
         assert.deepEqual(records, before, 'launch preserves both the older checkpoint and profile')
         assert.deepEqual(writes, [])

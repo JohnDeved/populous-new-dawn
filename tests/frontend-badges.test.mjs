@@ -67,6 +67,7 @@ test('live menu draw uploads badge snapshots from the same composition and owns 
       prepared: { composition: source, badgeVectors: ready ? [{}, {}] : [null, null] }, pointer: { current: { x: 600, y: 440 } }, panel: 'main',
       pointerMode: { current: glow !== null }, glowFrame: { current: glow }, optionRows: [], canvasWidth,
       tutorialRecommendationRows: [], tutorialParagraphRows: [], frontendQuitRows: [],
+      checkpointRecovery: { noticeRows: [], shadowRows: [] },
       vectorFailures: [failed, false], questionReady: true, artReady: true, logoReady: true, frontendBadgePixels,
       frontendBackground: (...values) => { compositions++; return frontendBackground(...values) },
       ImageData: class { constructor(data, width, height) { Object.assign(this, { data, width, height }) } },

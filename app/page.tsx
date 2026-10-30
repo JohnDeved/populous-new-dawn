@@ -1,14 +1,18 @@
 'use client'
 
+import { BuildingIcon } from './building-icon'
+
 import { FullscreenControl } from './fullscreen-control'
+import { QueryControlArt } from './query-control'
+import { OriginalPauseStatus } from './original-pause-status'
 import { OriginalOptions } from './original-options'
-import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
 import { StartupLogo } from './startup-logo'
 
-import { hudScale } from './hud-layout.ts'
+import { hudContentHeight, hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
+import { createResultSession, createResultKeys, resultSpaceEligible } from './result-session'
 import { flushSync } from 'react-dom'
 import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
@@ -44,6 +48,7 @@ import {
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
+import { DebugMissionPicker } from './debug-mission-picker'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
 import { SpellTestMenu } from './spell-test-menu'
@@ -63,7 +68,10 @@ import {
   saveGamePreferences,
   type GamePreferences,
 } from './game-preferences'
-import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
+import { acknowledgeMessage, messageHasDelete, messageText, messageViewPoint } from './messages'
+import { OriginalCampaignPopup } from './original-campaign-popup'
+import { OriginalMessageTab } from './original-message-tab'
+import { captureCampaignPopupKeys, showCampaignPopup } from './campaign-popup-session'
 import {
   HudSprite,
   FollowerNumber,
@@ -91,13 +99,6 @@ import {
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
-const timeLabel = (time: number) =>
-  `${Math.floor(time / 60)
-    .toString()
-    .padStart(2, '0')}:${Math.floor(time % 60)
-    .toString()
-    .padStart(2, '0')}`
-
 const messageScreenX = (value: number, width: number) => {
     const product = Math.imul(width, value)
     return (product + ((product >> 31) & 0xffff)) >> 16
@@ -109,9 +110,10 @@ const messageScreenX = (value: number, width: number) => {
 
 type LoadRequest =
   | { kind: 'mission'; mission: number }
+  | { kind: 'debug'; mission: number }
+  | { kind: 'tutorial' }
   | { kind: 'checkpoint' }
   | { kind: 'restart' }
-  | { kind: 'continue'; mission: number }
 
 export default function Home() {
   const [store] = useState(createGameStore)
@@ -119,8 +121,13 @@ export default function Home() {
   const world = store.getWorld(),
     update = store.update
   const completedMissions = store.getCompletedMissions()
+  const [resultSession] = useState(createResultSession)
+  const [resultKeys] = useState(createResultKeys)
+  const resultStage = resultSession.stage(world)
+  const statisticsVisible =
+    resultStage === 'statistics' || resultStage === 'exit-pending' || resultStage === 'selector'
   const spellRoster = spellHudRoster(world)
-  const { routeNotice } = world
+  const hudHeight = hudContentHeight(spellRoster.length)
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
   const [audioPreferences, setAudioPreferences] =
@@ -153,9 +160,10 @@ export default function Home() {
   const [menu, setMenu] = useState(false)
   const [cheatsOpen, setCheatsOpen] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [debugPicker, setDebugPicker] = useState(false)
   const [startupCampaign, setStartupCampaign] = useState(false)
   const [ready, setReady] = useState(false)
-  const [desktopNotice, setDesktopNotice] = useState(true)
+  const [resultInputCycles, setResultInputCycles] = useState(0)
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
   const hudPanel = useRef<HTMLElement>(null)
@@ -179,7 +187,7 @@ export default function Home() {
       // Scale artwork uniformly; extra screen height extends only the panel background.
       shell.current?.style.setProperty(
         '--hud-scale',
-        String(hudScale(window.innerWidth, window.innerHeight, hudSize))
+        String(hudScale(window.innerWidth, window.innerHeight, hudSize, spellRoster.length))
       )
 
       // 0x4314c0 + 0x44a1f0: campaign notifications use independent screen
@@ -196,14 +204,15 @@ export default function Home() {
     resize()
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
-  }, [hudSize])
+  }, [hudSize, spellRoster.length])
   useEffect(() => {
     const opened: number[] = []
     for (const message of world.messages.slots) {
       if (!message || !(message.flags & 2)) continue
       const details = messageDetails.current.get(message.serial)
       if (!details) continue
-      details.open = true
+      engine.current?.keys.clear()
+      showCampaignPopup(details, messageDetails.current.values())
       opened.push(message.serial)
     }
     if (!opened.length) return
@@ -229,7 +238,6 @@ export default function Home() {
     clearNearbyPress()
     engine.current?.cancelNearbyFollowers()
   }, [clearNearbyPress])
-  const pendingMenuCamera = useRef<((scene: GameScene) => void)[]>([])
   // Native 00458060 captures prior pause; only the same world may restore it.
   const menuSession = useRef<{ world: typeof world; paused: boolean } | null>(null)
   const openMenu = useCallback(() => {
@@ -237,7 +245,6 @@ export default function Home() {
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     if (!menuSession.current) {
       const current = store.getWorld()
-      pendingMenuCamera.current = []
       menuSession.current = { world: current, paused: current.paused }
       engine.current?.setModalSuspended(true)
       store.change(w => {
@@ -256,15 +263,21 @@ export default function Home() {
       })
       if (engine.current?.world === session.world) {
         engine.current.setModalSuspended(false)
-        for (const action of pendingMenuCamera.current) action(engine.current)
       }
     }
-    pendingMenuCamera.current = []
   }
   function openSelector() {
     cancelNearbyInput()
-    if (engine.current) engine.current.nearbyFollowersHudActive = false
+    store.enterCampaignSelector()
     setSelectorOpen(true)
+  }
+  function closeSelector() {
+    setSelectorOpen(false)
+    if (resultSession.back(store.getWorld())) {
+      // Back restores the prior result stage, including its presentation hold.
+      engine.current?.setModalSuspended(resultSession.stage(store.getWorld()) === 'statistics')
+      update()
+    } else if (world.status === 'playing') openMenu()
   }
   useEffect(() => {
     const scene = engine.current
@@ -456,10 +469,6 @@ export default function Home() {
       })
       return measureWorshipHud(model)
     }
-    if (window.innerWidth < 900)
-      store.change(w => {
-        w.paused = true
-      })
     import('./scene')
       .then(({ GameScene }) => {
         if (
@@ -478,6 +487,7 @@ export default function Home() {
           () => {
             if (disposed) return
             if (scene) {
+              setResultInputCycles(scene.resultClock.inputCycles)
               const { x, y } = scene.cameraPosition
               setHudCamera(previous => (previous.x === x && previous.y === y ? previous : { x, y }))
             }
@@ -532,6 +542,27 @@ export default function Home() {
   }, [startup, startupCampaign, selectorOpen, store])
   useEffect(() => {
     const toggle = (event: KeyboardEvent) => {
+      if (
+        event.key !== 'F8' ||
+        event.repeat ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return
+      if (!((startup === 'choice' && startupLogoDone) || selectorOpen)) return
+      if ((event.target as HTMLElement | null)?.closest('input,textarea,select,[contenteditable]'))
+        return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+      setDebugPicker(open => !open)
+    }
+    globalThis.addEventListener('keydown', toggle, true)
+    return () => globalThis.removeEventListener('keydown', toggle, true)
+  }, [startup, startupLogoDone, selectorOpen])
+  useEffect(() => {
+    const toggle = (event: KeyboardEvent) => {
       if (!ready || startup !== 'playing' || menu || selectorOpen || world.status !== 'playing')
         return
       if (!spellTestShortcut(event, cheatsOpen)) return
@@ -544,11 +575,135 @@ export default function Home() {
     return () => globalThis.removeEventListener('keydown', toggle, true)
   }, [ready, startup, menu, selectorOpen, world, cheatsOpen, cancelNearbyInput])
   useEffect(() => {
+    return captureCampaignPopupKeys(document, () =>
+      ready && !menu && !cheatsOpen && !selectorOpen
+        ? Array.from(messageDetails.current.values()).find(details => details.open)
+        : undefined
+    )
+  }, [ready, menu, cheatsOpen, selectorOpen])
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      const fresh = resultKeys.down(event)
+      const current = store.getWorld(),
+        scene = engine.current
+      if (
+        !ready ||
+        startup !== 'playing' ||
+        current !== world ||
+        !scene ||
+        scene.world !== current ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        debugPicker ||
+        [...messageDetails.current.values()].some(details => details.open) ||
+        (event.target as HTMLElement | null)?.closest(
+          'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
+        ) ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        event.shiftKey
+      )
+        return
+      const stage = resultSession.stage(current)
+      if (!stage) return
+      const space = event.code === 'Space' || event.key === ' '
+      // A focus pause belongs to the browser, not to the result. Release only
+      // that pause first, including while a paused terminal camera owns input.
+      if (space && scene.focusPauseOwned) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+        if (fresh) {
+          scene.focusPauseOwned = false
+          current.paused = false
+          update()
+        }
+        return
+      }
+      if (current.inputMask) return // Popup/flyby/masked owners remain ahead of results.
+      if (stage === 'statistics' || stage === 'exit-pending' || space) {
+        event.preventDefault()
+        event.stopImmediatePropagation()
+      }
+      if (
+        !space ||
+        !fresh ||
+        !resultSpaceEligible(current) ||
+        (current.paused && stage !== 'statistics')
+      )
+        return
+      scene.keys.clear()
+      if (stage === 'terminal-overlay' && !resultSession.bypassStatistics(current)) {
+        if (resultSession.openStatistics(current)) scene.setModalSuspended(true)
+        update()
+        return
+      }
+      const token = resultSession.beginExit(current)
+      if (!token) return
+      let accepted = false
+      try {
+        accepted = store.enterCampaignSelector(current)
+        if (accepted) {
+          audio.current?.reset()
+          scene.setModalSuspended(true)
+          setSelectorOpen(true)
+        }
+      } finally {
+        resultSession.finishExit(current, token, accepted)
+        update()
+      }
+    }
+    const up = (event: KeyboardEvent) => {
+      resultKeys.up(event)
+      if (
+        (event.code !== 'Space' && event.key !== ' ') ||
+        !ready ||
+        startup !== 'playing' ||
+        store.getWorld() !== world ||
+        !resultSession.stage(world) ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        debugPicker ||
+        [...messageDetails.current.values()].some(details => details.open) ||
+        (event.target as HTMLElement | null)?.closest(
+          'input,textarea,select,dialog,a,[contenteditable],[data-fullscreen-control],.fps-graph'
+        )
+      )
+        return
+      event.preventDefault()
+      event.stopImmediatePropagation()
+    }
+    const reset = () => resultKeys.reset()
+    globalThis.addEventListener('keydown', key, true)
+    globalThis.addEventListener('keyup', up, true)
+    globalThis.addEventListener('blur', reset)
+    return () => {
+      globalThis.removeEventListener('keydown', key, true)
+      globalThis.removeEventListener('keyup', up, true)
+      globalThis.removeEventListener('blur', reset)
+    }
+  }, [
+    world,
+    store,
+    ready,
+    startup,
+    menu,
+    cheatsOpen,
+    selectorOpen,
+    debugPicker,
+    resultSession,
+    resultKeys,
+    update,
+  ])
+  useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
         menu ||
         cheatsOpen ||
+        [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         e.ctrlKey ||
         e.metaKey ||
@@ -575,12 +730,21 @@ export default function Home() {
       if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
-        if (store.getWorld().outcome.level === tutorialLevel) {
-          e.preventDefault()
+        const current = store.getWorld()
+        if (current !== world || current.status !== 'playing') return
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        // The native Escape menu binding applies beyond the tutorial. Preserve
+        // existing browser targeting/selection cancellation before opening it.
+        if (
+          current.outcome.level === tutorialLevel ||
+          (!current.mode && current.selected.length === 0)
+        ) {
           openMenu()
           return
         }
         store.change(cancelInteraction)
+        return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
       if (e.key.toLowerCase() === 'h') select(world, 'shaman')
@@ -599,19 +763,28 @@ export default function Home() {
         if (!e.repeat) {
           store.change(w => {
             if (rotateBuildingPlan(w)) audio.current?.cue(0x26)
-            else w.paused = !w.paused
+            else {
+              w.paused = !w.paused
+              if (!w.paused && engine.current?.world === w) engine.current.focusPauseOwned = false
+            }
           })
         }
       }
       update()
     }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
+    globalThis.addEventListener('keydown', key)
+    return () => globalThis.removeEventListener('keydown', key)
   }, [world, update, store, ready, openMenu, menu, cheatsOpen])
   useEffect(() => {
     void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
       audio.current?.mute()
       setSound(false)
+      setAudioStartNotice('Audio stopped. Try Enable sound again.')
+      tell(
+        world,
+        'Audio stopped. Enable sound in Menu > Options > Game > Browser controls and help.'
+      )
+      update()
     })
   }, [world.paused])
   useEffect(() => {
@@ -636,8 +809,11 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
-        setAudioStartNotice('Audio could not start. Try the sound button again.')
-        tell(world, 'Audio could not start. Try the sound button again.')
+        setAudioStartNotice('Audio could not start. Try Enable sound again.')
+        tell(
+          world,
+          'Audio could not start. Retry in Menu > Options > Game > Browser controls and help.'
+        )
         update()
       } finally {
         setSoundPending(false)
@@ -742,9 +918,14 @@ export default function Home() {
   }
   function beginLoad(request: LoadRequest) {
     setCheatsOpen(false)
-    if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
+    if (request.kind === 'checkpoint' && !store.loadCheckpoint()) return
+    if (request.kind === 'mission' && !store.startMission(request.mission)) return
+    if (request.kind === 'debug' && !store.startDebugMission(request.mission)) return
+    if (request.kind === 'tutorial') store.startTutorial()
+    if (request.kind === 'restart') store.restart()
+    setDebugPicker(false)
+    setResultInputCycles(0)
     menuSession.current = null
-    pendingMenuCamera.current = []
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     setSelectorOpen(false)
@@ -753,12 +934,10 @@ export default function Home() {
     setReady(false)
     setError('')
     if (request.kind === 'checkpoint') {
-      if (!store.loadCheckpoint()) return
       store.change(w => {
         w.paused = false
       })
-    } else if (request.kind === 'restart') store.restart()
-    else store.startMission(request.mission)
+    }
     loadRequest.current = request
     setTab('spells')
     setStartup('playing')
@@ -766,16 +945,12 @@ export default function Home() {
   function restart() {
     beginLoad({ kind: 'restart' })
   }
-  function continueCampaign() {
-    beginLoad({ kind: 'continue', mission: world.outcome.level + 1 })
-  }
   function startMission(mission: number) {
     beginLoad({ kind: 'mission', mission })
   }
   function exitTutorial() {
     setCheatsOpen(false)
     menuSession.current = null
-    pendingMenuCamera.current = []
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     audio.current?.reset()
@@ -799,7 +974,6 @@ export default function Home() {
   function quitLevel() {
     setCheatsOpen(false)
     menuSession.current = null
-    pendingMenuCamera.current = []
     cancelNearbyInput()
     audio.current?.reset()
     setMenu(false)
@@ -807,6 +981,7 @@ export default function Home() {
     setSelectorOpen(false)
     setError('')
     loadRequest.current = null
+    store.enterCampaignSelector()
     setStartupCampaign(true)
     setStartup('choice')
   }
@@ -828,16 +1003,13 @@ export default function Home() {
     })
   const shaman = blue.find(isShaman),
     selected = blue.filter(u => world.selected.includes(u.id))
-  const focused =
-    SPELLS.find(s => s.id === (hover ?? world.mode)) ??
-    BUILDINGS.find(b => b.id === (hover ?? world.mode))
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
     if (
       ready ||
       (event.target as Element).closest(
-        '.loading-world,[data-world-selector],[data-original-main-menu],[data-startup-logo],[data-fullscreen-control]'
+        '.loading-world,[data-world-selector],[data-original-main-menu],[data-startup-logo],[data-fullscreen-control],[data-debug-mission-picker]'
       )
     )
       return false
@@ -845,203 +1017,12 @@ export default function Home() {
     event.stopPropagation()
     return true
   }
-  const nextMission = missionNumbers.find(mission => mission === world.outcome.level + 1),
-    objectives =
-      world.outcome.level === 1
-        ? [
-            { text: 'Bridge to the central island', done: world.stats.bridges > 0 },
-            { text: 'Discover warrior training', done: world.unlockedCamp },
-            { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-          ]
-        : world.outcome.level === 2
-          ? [
-              {
-                text: 'Open the way with the Totem Pole',
-                done: world.effects.some(effect => !!effect.bridge),
-              },
-              { text: 'Claim Tornado from the stone head', done: world.giftCounts.tornado > 0 },
-              { text: 'Defeat the Matak tribe', done: world.status === 'won' },
-            ]
-          : world.outcome.level === 3
-            ? [
-                { text: 'Reach the Chumara Vault', done: world.unlockedTemple },
-                {
-                  text: 'Build a Temple and train a Preacher',
-                  done: blue.some(unit => unit.kind === 'preacher'),
-                },
-                { text: 'Defeat the Chumara tribe', done: world.status === 'won' },
-              ]
-            : world.outcome.level === 4
-              ? [
-                  { text: 'Convert the Wildmen', done: blue.length > 3 },
-                  { text: 'Discover the Guard Tower', done: world.unlockedTower },
-                  { text: 'Defeat the Matak tribe', done: world.status === 'won' },
-                ]
-              : world.outcome.level === 5
-                ? [
-                    {
-                      text: 'Claim the Boat from the stone head',
-                      done: world.vehicles.some(vehicle => vehicle.active),
-                    },
-                    {
-                      text: 'Board followers onto the Boat',
-                      done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
-                    },
-                    { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-                  ]
-                : world.outcome.level === 6
-                  ? [
-                      {
-                        text: 'Defeat the Chumara tribe',
-                        done: !!world.manaTribes[2].defeatTimer,
-                      },
-                      {
-                        text: 'Defeat the Matak tribe',
-                        done: !!world.manaTribes[3].defeatTimer,
-                      },
-                    ]
-                  : world.outcome.level === 7
-                    ? [
-                        { text: 'Convert the Wildmen', done: blue.length > 1 },
-                        {
-                          text: 'Claim Invisibility from the stone head',
-                          done: world.giftCounts.invisibility > 0,
-                        },
-                        {
-                          text: 'Conceal followers with Invisibility',
-                          done: blue.some(unit => !!unit.invisibility),
-                        },
-                      ]
-                    : world.outcome.level === 8
-                      ? [
-                          {
-                            text: 'Discover Firewarrior training',
-                            done: world.unlockedFirewarriorHut,
-                          },
-                          {
-                            text: 'Train a Firewarrior',
-                            done: blue.some(unit => unit.kind === 'firewarrior'),
-                          },
-                          { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
-                        ]
-                      : world.outcome.level === 9
-                        ? [
-                            {
-                              text: 'Discover the Boat House',
-                              done: world.unlockedBoatHouse,
-                            },
-                            {
-                              text: 'Build the Boat House',
-                              done: world.buildings.some(
-                                building => building.kind === 'boatHouse' && building.progress === 1
-                              ),
-                            },
-                            {
-                              text: 'Send a Brave inside to launch and board a Boat',
-                              done: world.vehicles.some(
-                                vehicle => vehicle.active && vehicle.passengers.length
-                              ),
-                            },
-                          ]
-                        : world.outcome.level === 10
-                          ? [
-                              {
-                                text: 'Board two followers onto the provided Boat',
-                                done: world.vehicles.some(
-                                  vehicle => vehicle.passengers.length >= 2
-                                ),
-                              },
-                              {
-                                text: 'Worship the Totem Pole across the water',
-                                done: world.shrines.some(
-                                  shrine => shrine.kind === 'linkedEffects' && shrine.uses > 0
-                                ),
-                              },
-                              {
-                                text: 'Reach the Totem Pole in the Matak settlement',
-                                done: world.shrines.some(
-                                  shrine => shrine.name === 'Erosion Totem Pole' && shrine.uses > 0
-                                ),
-                              },
-                            ]
-                          : world.outcome.level === 14
-                            ? [
-                                {
-                                  text: 'Claim Angel of Death from the stone head',
-                                  done: world.giftCounts.angel > 0,
-                                },
-                                {
-                                  text: 'Claim Earthquake and Land Bridge together',
-                                  done:
-                                    world.giftCounts.earthquake > 0 && world.giftCounts.bridge > 0,
-                                },
-                                {
-                                  text: 'Cast Angel of Death',
-                                  done: world.effects.some(effect => !!effect.angel),
-                                },
-                              ]
-                            : world.outcome.level === 20
-                              ? [
-                                  {
-                                    text: 'Claim Land Bridge and reveal the next stone head',
-                                    done: world.giftCounts.bridge > 0,
-                                  },
-                                  {
-                                    text: 'Claim Flatten and Firestorm along the linked path',
-                                    done:
-                                      world.giftCounts.flatten > 0 &&
-                                      world.giftCounts.firestorm > 0,
-                                  },
-                                  {
-                                    text: 'Reach the final stone head and claim Volcano',
-                                    done: world.giftCounts.volcano > 0,
-                                  },
-                                ]
-                              : world.outcome.level === 21
-                                ? [
-                                    {
-                                      text: 'Convert Wildmen and send three followers to seal the first fault',
-                                      done:
-                                        world.campaignAIs[1]?.variables[22] === 2 &&
-                                        world.campaignAIs[1]?.variables[28] === 1,
-                                    },
-                                  ]
-                                : world.outcome.level === 22
-                                  ? [
-                                      {
-                                        text: 'Use Land Bridge to claim the southern mana gift',
-                                        done: world.shrines.some(
-                                          shrine =>
-                                            shrine.kind === 'mana' &&
-                                            shrine.rewardMana === 600_000 &&
-                                            shrine.uses > 0
-                                        ),
-                                      },
-                                      {
-                                        text: 'Steal the enemy Boat and Balloon',
-                                        done: [1, 3].every(model =>
-                                          world.vehicles.some(
-                                            vehicle =>
-                                              vehicle.model === model && vehicle.team === 'blue'
-                                          )
-                                        ),
-                                      },
-                                      {
-                                        text: 'Fly north and claim the final mana gift',
-                                        done: world.shrines.some(
-                                          shrine =>
-                                            shrine.kind === 'mana' &&
-                                            shrine.rewardMana === 1_000_000 &&
-                                            shrine.uses > 0
-                                        ),
-                                      },
-                                    ]
-                                  : []
   const pendingLoadingPhase = startup === 'loading' ? 'restore' : 'loading'
   return (
     <main
       ref={shell}
       className="game-shell"
+      data-result-statistics={statisticsVisible || undefined}
       onPointerDownCapture={blockLoadingInteraction}
       onPointerUpCapture={blockLoadingInteraction}
       onContextMenuCapture={blockLoadingInteraction}
@@ -1050,7 +1031,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
+            '[data-fullscreen-control],.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
@@ -1062,30 +1043,22 @@ export default function Home() {
       }}
     >
       <FullscreenControl />
-      <div className="world-viewport" ref={viewport} />
+      <div className="world-viewport" ref={viewport} tabIndex={-1} />
       <div className="world-vignette" />
-      {desktopNotice && (
-        <aside className="desktop-recommendation">
-          <span className="brand-rune">⟡</span>
-          <h2>A world worth a bigger screen.</h2>
-          <p>For the best experience, play on a desktop monitor with a keyboard and mouse.</p>
-          <button
-            className="primary-button"
-            onClick={() => {
-              setDesktopNotice(false)
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Continue anyway <span>↗</span>
-          </button>
-        </aside>
-      )}
       <aside
         className="campaign-messages"
         aria-label="Campaign messages"
-        style={{ visibility: menu ? 'hidden' : undefined }}
+        inert={statisticsVisible}
+        style={{ visibility: menu || statisticsVisible ? 'hidden' : undefined }}
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.stopPropagation()
+            if (event.repeat) event.preventDefault()
+          }
+        }}
+        onKeyUp={event => {
+          if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
+        }}
       >
         {world.messages.slots
           .map((message, slot) => ({ message, slot }))
@@ -1102,10 +1075,10 @@ export default function Home() {
                   if (element) messageDetails.current.set(message!.serial, element)
                   else messageDetails.current.delete(message!.serial)
                 }}
-                data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
                 style={
                   {
                     '--message-height': `${height}px`,
+                    '--message-top': `${top}px`,
                     top: `${top}px`,
                   } as CSSProperties
                 }
@@ -1115,98 +1088,69 @@ export default function Home() {
                   onClick={event => {
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    event.preventDefault()
+                    if (details.open) details.open = false
+                    else {
+                      engine.current?.keys.clear()
+                      if (target) engine.current?.focus(target, { animate: true })
+                      showCampaignPopup(details, messageDetails.current.values())
+                    }
                   }}
                 >
-                  <img src={messageIcon(message!)} alt="" />
+                  <OriginalMessageTab flags={message!.flags} />
                 </summary>
-                <div>
-                  <p>{messageText(message!.stringId)}</p>
-                  <button
-                    onClick={() => {
-                      removeMessage(world.messages, slot)
-                      update()
-                    }}
-                    aria-label="Dismiss campaign message"
-                  >
-                    ×
-                  </button>
-                </div>
+                <OriginalCampaignPopup
+                  text={messageText(message!.stringId)}
+                  onAcknowledge={() => {
+                    const details = messageDetails.current.get(message!.serial)
+                    if (details) details.open = false
+                    acknowledgeMessage(world.messages, slot)
+                    update()
+                    if (world.messages.slots[slot]) details?.querySelector('summary')?.focus()
+                    else viewport.current?.focus({ preventScroll: true })
+                  }}
+                  onDelete={
+                    messageHasDelete(message!)
+                      ? () => {
+                          acknowledgeMessage(world.messages, slot, true)
+                          update()
+                          viewport.current?.focus({ preventScroll: true })
+                        }
+                      : undefined
+                  }
+                />
               </details>
             )
           })}
       </aside>
-      {ready && !!(world.flyby.flags & 1) && (
-        <button className="skip-introduction" onClick={() => engine.current?.skipIntroduction()}>
-          Skip introduction <kbd>ESC</kbd>
-        </button>
-      )}
+      <p className="game-a11y-status" role="status" aria-atomic="true" data-route-announcement>
+        {ready && world.routeNotice && (
+          <span key={world.routeNotice.serial}>{ROUTE_FAILURE_TEXT}</span>
+        )}
+      </p>
       <div className="game-status">
-        {ready && routeNotice && (
-          <div
-            key={routeNotice.serial}
-            className="world-message route-notice"
-            style={{
-              visibility: menu ? 'hidden' : undefined,
-              animationPlayState: menu || selectorOpen || cheatsOpen ? 'paused' : undefined,
-            }}
-            role="status"
-            onAnimationEnd={() =>
-              store.change(w => {
-                if (w === world && w.routeNotice === routeNotice) w.routeNotice = null
-              })
-            }
-          >
-            <span>✧</span>
-            {ROUTE_FAILURE_TEXT}
-          </div>
-        )}
-        {ready && !routeNotice && world.messageUntil > world.time && (
-          <div
-            className="world-message"
-            role="status"
-            style={{ visibility: menu ? 'hidden' : undefined }}
-          >
-            <span>✧</span>
+        {ready && !world.routeNotice && world.messageUntil > world.time && (
+          <p className="game-a11y-status" role="status">
             {world.message}
-          </div>
-        )}
-        {ready && world.paused && !menu && world.status === 'playing' && (
-          <button
-            className="paused-badge"
-            onClick={() => {
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Ⅱ <span>WORLD PAUSED</span>
-            <small>Click to resume</small>
-          </button>
+          </p>
         )}
       </div>
+      {ready && world.paused && !menu && world.status === 'playing' && <OriginalPauseStatus />}
+
       {world.mode && (
-        <div className="target-prompt">
-          <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
-          <strong>{modeName}</strong>
-          {Object.hasOwn(world.buildingDirections, world.mode) && (
-            <span>
-              Rotate <kbd>SPACE</kbd>
-            </span>
-          )}
-          <button
-            onClick={() => {
-              store.change(w => {
-                w.mode = null
-              })
-            }}
-          >
-            Cancel <kbd>ESC</kbd>
-          </button>
-        </div>
+        <p className="game-a11y-status" role="status">
+          Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'} {modeName}.
+          {Object.hasOwn(world.buildingDirections, world.mode) && ' Space rotates the building.'}
+          {' Escape cancels.'}
+        </p>
       )}
 
-      <aside ref={hudPanel} className="native-hud" aria-label="Tribe controls">
+      <aside
+        ref={hudPanel}
+        className="native-hud"
+        aria-label="Tribe controls"
+        inert={statisticsVisible}
+      >
         <div className="minimap-wrap">
           <canvas
             ref={minimap}
@@ -1214,14 +1158,13 @@ export default function Home() {
             height={96}
             aria-label="Minimap. Click to move the camera."
           />
-          <MinimapFrame key={hudSize} />
+          <MinimapFrame key={`${hudSize}-${hudHeight}`} />
         </div>
         <nav className="dock-tabs" aria-label="Command categories">
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
             <button
               key={t}
               aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
-              title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
               onClick={() => {
@@ -1241,43 +1184,36 @@ export default function Home() {
             className="nearby-followers-button"
             aria-label="Nearby followers"
             aria-pressed={nearby}
-            title="Nearby followers · Limit counts and selection to the camera area"
+            aria-description="Nearby followers · Limit counts and selection to the camera area"
             {...nearbyControl}
           >
             <HudSprite id={875 + Number(nearby) * 2 + Number(nearbyPressed)} />
           </button>
           <button
             className="portrait"
-            aria-label="Select and focus shaman"
-            title="Shaman · H"
-            onClick={() => {
-              select(world, 'shaman')
-              audio.current?.cue(0x18)
-              update()
-              engine.current?.focus(shaman ?? HOME, { animate: true })
-            }}
+            aria-label="Select shaman"
+            aria-description="Shaman · Click: add to selection · Right-click: focus · H: select"
+            disabled={!shaman || shaman.hp <= 0}
+            {...followerControl(7)}
           >
             <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>
           <button
             className="help-button"
             aria-label="Menu"
-            title="Help and game menu"
+            aria-description="Help and game menu"
             onClick={openMenu}
           >
-            ?
+            <QueryControlArt />
           </button>
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           {enemies.map(enemy => (
-            <button
+            <span
               key={enemy.tribe}
               className={`tribe-flag ${enemy.name.toLowerCase()}`}
-              title={`${enemy.name}: ${enemy.units.filter(u => !u.ghost).length} followers`}
-              aria-label={`Focus ${enemy.name} tribe`}
-              onClick={() => {
-                const u = enemy.units.find(isShaman) ?? enemy.units[0]
-                if (u) engine.current?.focus(u, { animate: true })
-              }}
+              role="img"
+              aria-description={`${enemy.name}: ${enemy.units.filter(u => !u.ghost).length} followers`}
+              aria-label={`${enemy.name} tribe`}
             />
           ))}
         </div>
@@ -1285,7 +1221,7 @@ export default function Home() {
           <button
             className="population-button"
             aria-label="Select follower"
-            title="Select follower · Shift: all · Ctrl: five · Right-click: focus next"
+            aria-description="Select follower · Shift: all · Ctrl: five · Right-click: focus next"
             {...followerControl(0)}
           >
             <PopulationMeter
@@ -1298,7 +1234,7 @@ export default function Home() {
             <button
               key={u.kind}
               aria-label={`Select ${u.kind}`}
-              title={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
+              aria-description={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
               disabled={!u.enabled}
               aria-pressed={selected.length > 0 && selected.every(s => s.kind === u.kind)}
               {...followerControl(nativeUnitModel(u.kind))}
@@ -1371,7 +1307,7 @@ export default function Home() {
                       }
                       aria-disabled={visibility !== 'visible'}
                       aria-pressed={interactive && world.mode === s.id}
-                      title={
+                      aria-description={
                         undiscovered
                           ? 'Undiscovered spell'
                           : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
@@ -1427,7 +1363,7 @@ export default function Home() {
                   className={`building-card ${world.mode === b.id ? 'active' : ''}`}
                   aria-label={`${b.name}, ${b.cost} wood`}
                   aria-pressed={world.mode === b.id}
-                  title={`${b.name} · Space rotates the plan`}
+                  aria-description={`${b.name} · Space rotates the plan`}
                   onClick={() =>
                     store.change(w => {
                       w.mode = w.mode === b.id ? null : b.id
@@ -1438,9 +1374,7 @@ export default function Home() {
                   onFocus={() => setHover(b.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <HudSprite
-                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
-                  />
+                  <BuildingIcon kind={b.id} />
                 </button>
               ))}
             </div>
@@ -1451,7 +1385,6 @@ export default function Home() {
                 <button
                   key={`disguise-${enemy.tribe}`}
                   aria-label={`Disguise selected spies as ${enemy.name}`}
-                  title={`Disguise selected spies as ${enemy.name}`}
                   onClick={() =>
                     store.change(w => {
                       disguiseSelectedSpies(w, enemy.tribe)
@@ -1464,39 +1397,7 @@ export default function Home() {
             </div>
           )}
         </section>
-        <div className="top-actions">
-          <button
-            aria-label={sound ? 'Mute sound' : 'Enable sound'}
-            title={sound ? 'Mute sound' : 'Enable sound'}
-            onClick={toggleSound}
-            disabled={soundPending}
-            aria-busy={soundPending}
-          >
-            {sound ? '♪' : '♫'}
-          </button>
-          <button
-            aria-label={world.paused ? 'Resume game' : 'Pause game'}
-            title="Pause / resume · Space"
-            onClick={() =>
-              store.change(w => {
-                w.paused = !w.paused
-              })
-            }
-          >
-            {world.paused ? '▷' : 'Ⅱ'}
-          </button>
-          <button aria-label="Game settings" title="Game settings" onClick={openMenu}>
-            ☰
-          </button>
-        </div>
       </aside>
-      {focused && (
-        <div className="hud-description" role="tooltip">
-          <strong>{focused.name}</strong>
-          <p>{focused.description}</p>
-        </div>
-      )}
-
       {startup === 'choice' && !startupLogoDone && <StartupLogo onComplete={finishStartupLogo} />}
       {startup === 'choice' && startupLogoDone && !startupCampaign && frontendAssets && (
         <OriginalMainMenu
@@ -1506,8 +1407,11 @@ export default function Home() {
           onRetryCheckpoint={() => {
             void store.restoreCheckpoint()
           }}
-          onNewGame={() => setStartupCampaign(true)}
-          onTutorial={() => startMission(tutorialLevel)}
+          onNewGame={() => {
+            store.enterCampaignSelector()
+            setStartupCampaign(true)
+          }}
+          onTutorial={() => beginLoad({ kind: 'tutorial' })}
           onLoad={loadCheckpoint}
           renderOptions={(onBack, onTextRowsChange) => (
             <OriginalOptions
@@ -1539,28 +1443,23 @@ export default function Home() {
           aria-label="Start game"
           onCancel={event => {
             event.preventDefault()
-            if (selectorOpen) {
-              setSelectorOpen(false)
-              if (world.status === 'playing') openMenu()
-            } else setStartupCampaign(false)
+            if (selectorOpen) closeSelector()
+            else setStartupCampaign(false)
           }}
         >
           <WorldSelector
+            nativeSelection={{
+              ...store.getCampaignSelection(),
+              onSelect: store.selectCampaignMission,
+            }}
             missions={missionNumbers}
             replacingWorld={selectorOpen}
             completed={completedMissions}
             hasCheckpoint={store.hasCheckpoint()}
             onStart={startMission}
-            onTutorial={() => startMission(tutorialLevel)}
+            onTutorial={() => beginLoad({ kind: 'tutorial' })}
             onLoad={loadCheckpoint}
-            onBack={
-              selectorOpen
-                ? () => {
-                    setSelectorOpen(false)
-                    if (world.status === 'playing') openMenu()
-                  }
-                : () => setStartupCampaign(false)
-            }
+            onBack={selectorOpen ? closeSelector : () => setStartupCampaign(false)}
           />
         </dialog>
       )}
@@ -1572,19 +1471,20 @@ export default function Home() {
           onRetry={retryLoad}
         />
       )}
-      {world.status !== 'playing' && !world.outcome.cameraPlaying && (
+      {startup === 'playing' && ready && world.status !== 'playing' && !selectorOpen && !menu && (
         <OriginalResultScreen
           status={world.status}
           level={world.outcome.level}
           player={world.manaWorld.playerTribe + 1}
           time={world.time}
-          primaryLabel={
-            world.status === 'won' && nextMission
-              ? `Continue to Mission ${nextMission}`
-              : 'Restart Level'
-          }
-          onPrimary={world.status === 'won' && nextMission ? continueCampaign : restart}
-          onSelectLevel={openSelector}
+          stage={statisticsVisible ? 'statistics' : 'terminal-overlay'}
+          inputCycles={resultInputCycles}
+        />
+      )}
+      {debugPicker && (
+        <DebugMissionPicker
+          onClose={() => setDebugPicker(false)}
+          onStart={mission => beginLoad({ kind: 'debug', mission })}
         />
       )}
       {cheatsOpen && (
@@ -1612,7 +1512,7 @@ export default function Home() {
           }}
           onContinue={closeMenu}
           onSave={saveCheckpoint}
-          saveDisabledReason={store.hasUsedCheats() ? CHEAT_SAVE_NOTICE : undefined}
+          saveDisabledReason={!store.canSave() ? CHEAT_SAVE_NOTICE : undefined}
           onLoad={loadCheckpoint}
           onRestart={restart}
           onQuitLevel={quitLevel}
@@ -1634,260 +1534,36 @@ export default function Home() {
               onMusicVolume={nextVolume =>
                 changeAudioPreferences({ ...audioPreferences, musicVolume: nextVolume })
               }
-              compatibility={
-                <>
-                  <p>
-                    {world.outcome.level === tutorialLevel
-                      ? 'Leave the World View with Return, then learn to move and rotate the camera.'
-                      : world.outcome.level === 1
-                        ? 'Worship for Land Bridge, discover warrior training, then defeat every Dakini follower.'
-                        : world.outcome.level === 2
-                          ? 'Open the way with the Totem Pole, claim Tornado, then defeat every Matak follower.'
-                          : world.outcome.level === 3
-                            ? 'Use Swarm against the Chumara, steal Temple knowledge, then train preachers to turn their followers.'
-                            : world.outcome.level === 4
-                              ? 'Convert Wildmen, discover the Guard Tower, claim Lightning, then defeat the Matak.'
-                              : world.outcome.level === 5
-                                ? 'Claim the Boat from the stone head, board your followers, cross the water, then defeat the Dakini.'
-                                : world.outcome.level === 6
-                                  ? 'Establish your settlement, then defeat both the Chumara and Matak tribes.'
-                                  : world.outcome.level === 7
-                                    ? 'Convert Wildmen, claim Invisibility from the stone head, then conceal followers before engaging the Chumara.'
-                                    : world.outcome.level === 8
-                                      ? 'Claim Firewarrior training from the Vault, build the school, then train ranged defenders against the Dakini.'
-                                      : world.outcome.level === 9
-                                        ? 'Claim Boat House knowledge from the Vault, build at the shore, then send a Brave inside to build and board a Boat.'
-                                        : world.outcome.level === 10
-                                          ? 'Board two followers onto the provided Boat, cross the water, and worship the Totem Pole before the island sinks.'
-                                          : world.outcome.level === 11
-                                            ? 'Explore the Hypnotise, Swamp, and Flatten knowledge sites before facing the Chumara and Matak tribes.'
-                                            : world.outcome.level === 12
-                                              ? 'Prepare for all three Enemy tribes and seek Tornado, Spy Training, and Erosion knowledge.'
-                                              : world.outcome.level === 13
-                                                ? 'Seek Balloon Hut, Firestorm, Shield, Volcano, and Earthquake knowledge before facing the Chumara and Matak tribes.'
-                                                : world.outcome.level === 14
-                                                  ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge before facing all three Enemy tribes.'
-                                                  : world.outcome.level === 15
-                                                    ? 'Free your imprisoned Shaman before the Dakini timer expires.'
-                                                    : world.outcome.level === 16
-                                                      ? 'Claim Bloodlust, cast it on your followers, and use their fighting frenzy against every enemy tribe.'
-                                                      : world.outcome.level === 17
-                                                        ? 'Claim Armageddon and survive the final arena battle against every tribe.'
-                                                        : world.outcome.level === 20
-                                                          ? 'Create new land for war by following the linked stone heads through Land Bridge, Flatten, Firestorm, and Volcano.'
-                                                          : world.outcome.level === 21
-                                                            ? 'Focus mana on Convert Wild, then send three followers to the fault’s Flatten totem before it erupts.'
-                                                            : world.outcome.level === 22
-                                                              ? 'Restore your magic at the southern stone head, cross the water alone, and steal enemy transport to reach the other tribes.'
-                                                              : world.outcome.level === 18 ||
-                                                                  world.outcome.level === 23
-                                                                ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
-                                                                : null}
-                  </p>
-                  <div className="menu-actions">
-                    <button
-                      className="secondary-button"
-                      onClick={() => {
-                        setMenu(false)
-                        openSelector()
-                      }}
-                    >
-                      Select Level
-                    </button>
-                  </div>
-                  {objectives.length > 0 && (
-                    <details className="menu-objectives">
-                      <summary>
-                        Objectives · {objectives.filter(o => o.done).length} / {objectives.length}
-                      </summary>
-                      <ul>
-                        {objectives.map(o => (
-                          <li key={o.text}>
-                            {o.done ? '✓ ' : ''}
-                            {o.text}
-                          </li>
-                        ))}
-                      </ul>
-                    </details>
-                  )}
-                  <div className="menu-utilities">
-                    <span>{timeLabel(world.time)}</span>
-                    <button
-                      onClick={() => {
-                        store.change(w => {
-                          w.speed = w.speed === 1 ? 2 : 1
-                        })
-                      }}
-                    >
-                      {world.speed}× game speed
-                    </button>
-                    <button
-                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(true))}
-                    >
-                      Zoom in
-                    </button>
-                    <button
-                      onClick={() => pendingMenuCamera.current.push(scene => scene.zoom(false))}
-                    >
-                      Zoom out
-                    </button>
-                    <button
-                      onClick={() =>
-                        pendingMenuCamera.current.push(scene =>
-                          scene.focus(shaman ?? HOME, { animate: true })
-                        )
-                      }
-                    >
-                      Focus settlement
-                    </button>
-                  </div>
-                  <p>Camera changes apply when you continue.</p>
-                  <button
-                    className="secondary-button"
-                    aria-pressed={!!engine.current?.fpsGraph}
-                    onClick={() => {
-                      engine.current?.togglePerformance()
-                      update()
-                    }}
-                  >
-                    Toggle performance overlay · F8
-                  </button>
-                  <label className="hud-settings">
-                    HUD size
-                    <select
-                      aria-label="HUD size"
-                      value={hudSize}
-                      onChange={e => {
-                        setHudSize(e.target.value)
-                        try {
-                          localStorage.setItem('hud-size', e.target.value)
-                        } catch {
-                          // Keep the session preference when storage is unavailable.
-                        }
-                      }}
-                    >
-                      <option value="auto">Automatic</option>
-                      {[1, 1.5, 2, 2.5, 3, 4].map(size => (
-                        <option key={size} value={size}>
-                          {size * 100}%
-                        </option>
-                      ))}
-                    </select>
-                    <span>Fits your window without stretching.</span>
-                  </label>
-                  <h3>Controls</h3>
-                  <div className="help-grid">
-                    <span>Click</span>
-                    <strong>Select a follower or give a move / attack order</strong>
-                    <span>Right-click / Escape</span>
-                    <strong>Cancel targeting, then deselect followers · Orders keep running</strong>
-                    <span>Drag on land</span>
-                    <strong>Select a group · Ctrl adds to selection</strong>
-                    <span>Shift Z / X / C / V · Z / X / C / V</span>
-                    <strong>Set camera bookmarks · Recall them</strong>
-                    <span>Ctrl-click / Shift-click</span>
-                    <strong>Toggle a follower / Give an order through friendly followers</strong>
-                    <span>HUD follower buttons</span>
-                    <strong>
-                      Click adds one · Ctrl adds five · Shift adds all · Right-click focuses next
-                    </strong>
-                    <span>Right / middle drag</span>
-                    <strong>Right drag turns the view · middle drag moves it</strong>
-                    <span>Scroll · = / −</span>
-                    <strong>Switch view · WASD to move · Q / E to turn</strong>
-                    <span>↑ / ↓ · ← / →</span>
-                    <strong>
-                      Move forward / back ·{' '}
-                      {gamePreferences.rotation === 'cursor' ? 'Rotate' : 'Pan'} left / right
-                    </strong>
-                    <span>Ctrl + ← / → · Shift</span>
-                    <strong>
-                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Hold
-                      Shift for fast panning
-                    </strong>
-                    <span>Delete / Page Down</span>
-                    <strong>
-                      {gamePreferences.rotation === 'cursor' ? 'Pan sideways' : 'Rotate'} · Ctrl
-                      swaps pan and turn
-                    </strong>
-                    <span>Flip Rotation</span>
-                    <strong>
-                      Keyboard turn direction is{' '}
-                      {gamePreferences.flipRotation ? 'reversed' : 'normal'} · Mouse drag and
-                      sideways pan are unchanged
-                    </strong>
-                    <span>Screen edges</span>
-                    <strong>Move the pointer to an outer edge to scroll</strong>
-                    <span>1–3 / B</span>
-                    <strong>Choose a spell / open buildings</strong>
-                    <span>Space with a building plan</span>
-                    <strong>Rotate the entrance before placing</strong>
-                    <span>F8</span>
-                    <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
-                    <span>H / F / G / Space / Esc</span>
-                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
-                  </div>
-                  <BrowserHelpTips level={world.outcome.level} />
-                  <div className="audio-settings">
-                    <button
-                      className="secondary-button"
-                      onClick={toggleSound}
-                      disabled={soundPending}
-                      aria-busy={soundPending}
-                    >
-                      {sound ? '♪ Sound on' : '♫ Enable sound'}
-                    </button>
-                  </div>
-                  {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
-                  {audioStartNotice && <p role="status">{audioStartNotice}</p>}
-                  <details className="reference-details">
-                    <summary>About this recreation & references</summary>
-                    <p>
-                      Mission 1 reference: The Journey Begins. Terrain, starting objects and shrine
-                      timings were read from the supplied original level file. Building and tree
-                      meshes, texture coordinates, layered unit animations, HUD artwork and
-                      landscape bank c were decoded from the supplied game archive. The browser
-                      renderer approximates the original lighting, terrain displacement and water
-                      animation. Selection voices, spell cues and combat sounds use the original
-                      recordings. Original music and percussion now play alongside environmental
-                      sounds; exact world mixing, activity ownership and the complete native sound
-                      scheduler are still being reconstructed. Village growth and mana use rules
-                      traced from the executable. Combat state selection, pathfinding and defensive
-                      AI still differ from the original.
-                    </p>
-                    <div>
-                      <a
-                        href="https://store.steampowered.com/app/2616430/Populous_The_Beginning/"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Original game & visual references ↗
-                      </a>
-                      <a
-                        href="https://wiki.popre.net/Populous%3A_The_Beginning"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Gameplay reference ↗
-                      </a>
-                      <a
-                        href="https://www.youtube.com/watch?v=kIY_4F47R6Q"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Mark Knight’s original soundtrack ↗
-                      </a>
-                      <a
-                        href="https://sounds.spriters-resource.com/pc_computer/populousbegin/asset/393974/"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Shaman voice reference ↗
-                      </a>
-                    </div>
-                  </details>
-                </>
-              }
+              compatibility={{
+                onSelectLevel: () => {
+                  setMenu(false)
+                  openSelector()
+                },
+                speed: world.speed,
+                onSpeed: () => {
+                  store.change(w => {
+                    w.speed = w.speed === 1 ? 2 : 1
+                  })
+                },
+                performance: !!engine.current?.fpsGraph,
+                onPerformance: () => {
+                  engine.current?.togglePerformance()
+                  update()
+                },
+                hudSize,
+                onHudSize: value => {
+                  setHudSize(value)
+                  try {
+                    localStorage.setItem('hud-size', value)
+                  } catch {
+                    // Keep the session preference when storage is unavailable.
+                  }
+                },
+                sound,
+                soundPending,
+                onSound: toggleSound,
+                audioStartNotice,
+              }}
             />
           )}
         />

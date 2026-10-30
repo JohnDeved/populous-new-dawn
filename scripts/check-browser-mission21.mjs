@@ -1,4 +1,8 @@
-import { showAllMissions } from './browser-game.mjs'
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
+import { enterResultSelector, continueThroughNativeSelector } from './browser-result-navigation.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
+import { mission21BranchProfile, prepareMission21BranchFixture } from './mission21-declared-campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -54,8 +58,9 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 21', exact: true }).click()
+  // Declared M21 availability only, not naturally earned campaign history.
+  await prepareCampaignFixture(page, 21)
+  await launchCampaignMission(page, 21)
   await bindGame(page)
   await page.getByText(/mysterious, hostile land/).waitFor()
 
@@ -127,7 +132,7 @@ try {
     }
   })
   for (const [index, person] of route.people.entries()) {
-    await page.keyboard.press('Escape')
+    await clearPortraitSelection(page)
     await page.evaluate(personId => {
       const scene = globalThis.testScene,
         person = scene.world.units.find(unit => unit.id === personId)
@@ -136,7 +141,7 @@ try {
     }, person)
     await page
       .getByRole('button', {
-        name: index < 2 ? 'Select brave' : 'Select and focus shaman',
+        name: index < 2 ? 'Select brave' : 'Select shaman',
         exact: true,
       })
       .click()
@@ -206,7 +211,10 @@ try {
   })
   assert.deepEqual(sealedResolved, { state: 2, messages: 2, volcanoes: 0 })
 
-  await page.evaluate(() => globalThis.testStore.startMission(21))
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
+  await bindGame(page)
   await page.waitForFunction(
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
@@ -281,20 +289,55 @@ try {
   })
   assert.deepEqual(eruptedResolved, { state: 2, volcanoes: 1, warnings: 1 })
 
-  await page.evaluate(() => {
-    const store = globalThis.testStore
-    store.startMission(20)
-    const world = store.getWorld()
-    world.status = 'won'
-    world.outcome.cameraPlaying = false
-    store.update()
-  })
-  await page.getByRole('button', { name: 'Continue to Mission 21', exact: false }).click()
-  await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 21)
-  await page.getByText(/mysterious, hostile land/).waitFor()
+  // Separate empty contexts keep declared prerequisite history out of the
+  // actual M21 seal/eruption/checkpoint episode above. M20 victory is supplied
+  // diagnostic terminal state, not natural campaign-completion evidence.
+  for (const { completed, recommendation } of [
+    { completed: [16, 17, 18, 19], recommendation: 21 },
+    { completed: [16, 17, 19], recommendation: 18 },
+    { completed: [16, 17, 18], recommendation: 19 },
+    { completed: [16, 17], recommendation: 18 },
+  ]) {
+    const branchContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
+    try {
+      const branchPage = await branchContext.newPage()
+      branchPage.on('pageerror', error => errors.push(error.stack ?? error.message))
+      branchPage.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
+      await branchPage.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+      await prepareMission21BranchFixture(branchPage, mission21BranchProfile(completed))
+      await launchCampaignMission(branchPage, 20)
+      await bindGame(branchPage)
+      await skipIntroductionWithSpace(branchPage)
+      await branchPage.waitForFunction(() => !window.testStore.getWorld().inputMask)
+      await branchPage.evaluate(() => {
+        const store = globalThis.testStore, world = store.getWorld()
+        if (world.outcome.level !== 20) throw new Error('Declared transition fixture did not launch M20')
+        world.status = 'won'
+        world.outcome.completedLevel = 19
+        world.outcome.cameraPlaying = false
+        store.update()
+      })
+      await enterResultSelector(branchPage)
+      const selection = await branchPage.evaluate(() => globalThis.testStore.getCampaignSelection())
+      assert.equal(selection.progressionMission, recommendation)
+      assert.equal(selection.available.includes(21), recommendation === 21,
+        'Missing M18/M19 prerequisites must not force M21 availability')
+      console.log(JSON.stringify({ declaredBranchTransition: { completed, suppliedVictory: 20, selection,
+        limits: 'Declared prerequisite history and supplied M20 terminal state, not naturally earned campaign completion.' } }))
+      if (recommendation === 21) {
+        await continueThroughNativeSelector(branchPage, 21)
+        await branchPage.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 21)
+        await branchPage.getByText(/mysterious, hostile land/).waitFor()
+      } else {
+        const selector = branchPage.getByRole('dialog', { name: 'Start game', exact: true })
+        assert.equal(await selector.getByRole('button', { name: 'Panel Mission 21', exact: true }).getAttribute('aria-disabled'), 'true')
+        assert.equal(await selector.getByRole('button', { name: `Start Mission ${recommendation}`, exact: true }).isEnabled(), true)
+      }
+    } finally { await branchContext.close() }
+  }
   assert.deepEqual(errors, [])
   console.log(
-    'PASS: Mission 21 continuation, Convert Wild/totem fault seal, eruption, and checkpoint lifecycle'
+    'PASS: Mission 21 Convert Wild/totem fault seal, eruption, and checkpoint lifecycle; separately declared M20 branch transition and missing-prerequisite rejection'
   )
 } finally {
   await browser.close()

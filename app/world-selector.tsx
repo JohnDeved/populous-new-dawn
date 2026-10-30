@@ -14,6 +14,12 @@ import {
 import styles from './world-selector.module.css'
 import { WorldSelectorScene } from './world-selector-scene'
 import { SelectorTitle, SelectorTooltip } from './world-selector-text'
+import {
+  nativeSelectorMissions,
+  selectorArt,
+  selectorWorld,
+  type NativeSelectorSelection,
+} from './world-selector-art'
 
 interface Props {
   missions: readonly number[]
@@ -24,6 +30,7 @@ interface Props {
   onLoad: () => void
   onBack?: () => void
   replacingWorld?: boolean
+  nativeSelection?: NativeSelectorSelection
 }
 
 export function WorldSelector({
@@ -35,12 +42,34 @@ export function WorldSelector({
   onLoad,
   onBack,
   replacingWorld = false,
+  nativeSelection,
 }: Props) {
   const container = useRef<HTMLElement>(null)
+  const launchTaken = useRef(false)
   const directHeading = useRef<HTMLHeadingElement>(null)
   const focusDirectHeading = useRef(false)
   const descriptionId = useId()
-  const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
+  const [openingSelected, setOpeningSelected] = useState<number>(() =>
+    openingRecommendedMission(completed)
+  )
+  const selected = nativeSelection
+    ? selectorWorld(nativeSelection.selected).mission
+    : openingSelected
+  const setSelected = nativeSelection?.onSelect ?? setOpeningSelected
+  const campaignMissions = nativeSelection ? nativeSelectorMissions : openingCampaignMissions
+  const missionAvailable = (mission: number) =>
+    nativeSelection
+      ? nativeSelection.available.includes(mission)
+      : openingMissionAvailable(mission, completed)
+  function missionDescription(mission: number) {
+    if (completed.includes(mission)) {
+      return nativeSelection && !missionAvailable(mission)
+        ? 'Completed, unavailable'
+        : 'Completed, ready to replay'
+    }
+    if (missionAvailable(mission)) return 'Available'
+    return nativeSelection ? 'Locked' : `Locked, complete Mission ${mission - 1} to continue`
+  }
   const [allMissions, setAllMissions] = useState(false)
   const [compatibility, setCompatibility] = useState(false)
   const [failedArt, setFailedArt] = useState<string[]>([])
@@ -51,22 +80,34 @@ export function WorldSelector({
     // Enter/Space cannot follow it into a mission launch; Tab reaches the grid.
     directHeading.current?.focus({ preventScroll: true })
   }, [allMissions, compatibility])
-  const panelArt = `/original/world-selector/panel/${selected}-`
-  const artFailed = failedArt.includes(panelArt)
+  const selectedArt = selectorArt(selected)
+  const panelArt = selectedArt.panel
+  const artKey = String(selected)
+  const artFailed = failedArt.includes(artKey)
   const failArt = () =>
-    setFailedArt(previous => (previous.includes(panelArt) ? previous : [...previous, panelArt]))
-  const available = openingMissionAvailable(selected, completed)
+    setFailedArt(previous => (previous.includes(artKey) ? previous : [...previous, artKey]))
+  const available = missionAvailable(selected)
+  // Rendering all native records never makes an unimplemented mission launchable.
+  const canStart = available && (!nativeSelection || missions.includes(selected))
   const isCompleted = completed.includes(selected)
   let status = 'Available'
-  if (isCompleted) status = 'Completed · ready to replay'
-  else if (!available) status = `Complete Mission ${selected - 1} to continue.`
+  if (isCompleted)
+    status =
+      nativeSelection && !available ? 'Completed · unavailable' : 'Completed · ready to replay'
+  else if (!available)
+    status = nativeSelection ? 'Locked' : `Complete Mission ${selected - 1} to continue.`
+  if (nativeSelection && available && !canStart) status = 'Not playable in this version'
 
+  function start() {
+    if (!canStart || launchTaken.current) return
+    launchTaken.current = true
+    onStart(selected)
+  }
   function navigate(event: KeyboardEvent<HTMLElement>) {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
     event.preventDefault()
-    const availableMissions = openingCampaignMissions.filter(mission =>
-      openingMissionAvailable(mission, completed)
-    )
+    const availableMissions = campaignMissions.filter(missionAvailable)
+    if (availableMissions.length === 0) return
     // Locked worlds can still be inspected through the panel. Search from that
     // mission's position rather than treating it as a missing available index.
     const next =
@@ -87,23 +128,50 @@ export function WorldSelector({
   return (
     <section
       ref={container}
-      className={`${styles.selector} ${!allMissions ? styles.nativePointer : ''}`}
+      className={`${styles.selector} ${nativeSelection ? styles.nativeSelector : ''} ${!allMissions ? styles.nativePointer : ''}`}
       aria-label="World selection"
+      onKeyDownCapture={event => {
+        // Browser recovery controls retain their own Enter/Space activation.
+        if (
+          !nativeSelection ||
+          event.ctrlKey ||
+          event.altKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          (event.target as Element | null)?.closest('button[data-selector-recovery]')
+        )
+          return
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          event.stopPropagation()
+          if (event.key === 'Enter' && !event.repeat) start()
+        }
+      }}
+      onKeyUpCapture={event => {
+        if (
+          nativeSelection &&
+          !(event.target as Element | null)?.closest('button[data-selector-recovery]') &&
+          (event.key === 'Enter' || event.key === ' ')
+        )
+          event.preventDefault()
+      }}
       style={
         {
-          '--selector-cursor': `url("/original/world-selector/text/cursor-${selected}.png") 0 0`,
+          '--selector-cursor': `url("${selectedArt.cursor}") 0 0`,
         } as CSSProperties
       }
     >
       <h2 className={styles.visuallyHidden}>Select Level</h2>
-      <button
-        className={styles.compatibilityToggle}
-        aria-expanded={compatibility}
-        aria-controls="selector-browser-controls"
-        onClick={() => setCompatibility(value => !value)}
-      >
-        Browser controls
-      </button>
+      {!nativeSelection && (
+        <button
+          className={styles.compatibilityToggle}
+          aria-expanded={compatibility}
+          aria-controls="selector-browser-controls"
+          onClick={() => setCompatibility(value => !value)}
+        >
+          Browser controls
+        </button>
+      )}
       {compatibility && (
         <section
           id="selector-browser-controls"
@@ -138,19 +206,17 @@ export function WorldSelector({
               aria-label="Inspect campaign world"
               value={selected}
               onChange={event => {
-                const mission = openingCampaignMissions.find(
-                  value => value === Number(event.target.value)
-                )
+                const mission = campaignMissions.find(value => value === Number(event.target.value))
                 if (mission) setSelected(mission)
                 setAllMissions(false)
               }}
             >
-              {openingCampaignMissions.map(mission => (
+              {campaignMissions.map(mission => (
                 <option key={mission} value={mission}>
                   Mission {mission} ·{' '}
                   {completed.includes(mission)
                     ? 'Completed'
-                    : openingMissionAvailable(mission, completed)
+                    : missionAvailable(mission)
                       ? 'Available'
                       : 'Locked'}
                 </option>
@@ -189,7 +255,11 @@ export function WorldSelector({
         <>
           <WorldSelectorScene
             mission={selected}
-            progressionMission={openingRecommendedMission(completed)}
+            progressionMission={
+              nativeSelection
+                ? selectorWorld(nativeSelection.progressionMission).mission
+                : openingRecommendedMission(completed)
+            }
           />
           <div className={styles.selectedTitle}>
             <p role="status" className={available ? styles.visuallyHidden : styles.lockedStatus}>
@@ -198,60 +268,76 @@ export function WorldSelector({
             <SelectorTitle mission={selected} />
           </div>
           <div
-            className={`${styles.panel} ${artFailed ? styles.artFallback : ''}`}
+            className={`${styles.panel} ${nativeSelection ? styles.nativePanel : ''} ${artFailed ? styles.artFallback : ''}`}
             aria-label="Campaign status panel"
           >
             {!artFailed && (
-              <img className={styles.panelArt} src={`${panelArt}0.png`} alt="" onError={failArt} />
+              <img className={styles.panelArt} src={panelArt[0]} alt="" onError={failArt} />
             )}
             <div className={styles.panelGlyphs}>
-              {openingCampaignMissions.map(mission => (
-                <button
-                  key={mission}
-                  className={styles.panelGlyph}
-                  aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
-                  aria-pressed={mission === selected}
-                  data-selector-mission={mission}
-                  autoFocus={mission === selected}
-                  aria-describedby={`${descriptionId}-${mission}`}
-                  data-selector-tooltip={
-                    openingMissionAvailable(mission, completed)
-                      ? completed.includes(mission)
-                        ? 980
-                        : 979
-                      : undefined
-                  }
-                  onKeyDown={navigate}
-                  onClick={() => setSelected(mission)}
-                  style={{ left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }}
-                >
-                  <span id={`${descriptionId}-${mission}`} className={styles.visuallyHidden}>
-                    {completed.includes(mission)
-                      ? 'Completed, ready to replay'
-                      : openingMissionAvailable(mission, completed)
-                        ? 'Available'
-                        : `Locked, complete Mission ${mission - 1} to continue`}
-                  </span>
-                  {artFailed && <span>{mission}</span>}
-                  {!artFailed && openingMissionAvailable(mission, completed) && (
-                    <img
-                      src={`${panelArt}${completed.includes(mission) ? 6 : 5}.png`}
-                      alt=""
-                      onError={failArt}
-                    />
-                  )}
-                </button>
-              ))}
+              {campaignMissions.map(mission => {
+                const socket = selectorWorld(mission).panel
+                const glyphFrame = completed.includes(mission)
+                  ? socket.completedFrame
+                  : socket.availableFrame
+                return (
+                  <button
+                    key={mission}
+                    className={`${styles.panelGlyph} ${nativeSelection ? styles.nativeGlyph : ''}`}
+                    aria-label={`Panel Mission ${mission}${completed.includes(mission) ? ', completed' : ''}`}
+                    aria-pressed={mission === selected}
+                    aria-disabled={nativeSelection && !missionAvailable(mission) ? true : undefined}
+                    data-selector-mission={mission}
+                    autoFocus={mission === selected}
+                    aria-describedby={`${descriptionId}-${mission}`}
+                    data-selector-tooltip={
+                      missionAvailable(mission)
+                        ? completed.includes(mission)
+                          ? 980
+                          : 979
+                        : undefined
+                    }
+                    onKeyDown={navigate}
+                    onClick={() => {
+                      if (!nativeSelection || missionAvailable(mission)) setSelected(mission)
+                    }}
+                    style={
+                      nativeSelection
+                        ? {
+                            left: `calc(var(--panel-width) * ${socket.localXY[0]} / 640)`,
+                            top: `calc(var(--panel-width) * ${socket.localXY[1]} / 640)`,
+                            width: `calc(var(--panel-width) * ${socket.width} / 640)`,
+                            height: `calc(var(--panel-width) * ${socket.height} / 640)`,
+                          }
+                        : { left: `calc(var(--panel-width) * ${28 + (mission - 1) * 20} / 640)` }
+                    }
+                  >
+                    <span id={`${descriptionId}-${mission}`} className={styles.visuallyHidden}>
+                      {missionDescription(mission)}
+                    </span>
+                    {artFailed && <span>{mission}</span>}
+                    {!artFailed &&
+                      (missionAvailable(mission) ||
+                        (nativeSelection && completed.includes(mission))) && (
+                        <img
+                          src={panelArt[String(glyphFrame) as keyof typeof panelArt]}
+                          alt=""
+                          onError={failArt}
+                        />
+                      )}
+                  </button>
+                )
+              })}
             </div>
             <button
               className={styles.start}
-              disabled={!available}
-              data-selector-tooltip={available ? 978 : undefined}
+              disabled={!canStart}
+              data-selector-tooltip={canStart ? 978 : undefined}
               aria-label={isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
               onKeyDown={navigate}
-              onClick={() => onStart(selected)}
+              onClick={start}
             >
-              {!artFailed && <img src={`${panelArt}10.png`} alt="" onError={failArt} />}
+              {!artFailed && <img src={panelArt[10]} alt="" onError={failArt} />}
               <span className={artFailed ? undefined : styles.visuallyHidden}>Start</span>
             </button>
           </div>

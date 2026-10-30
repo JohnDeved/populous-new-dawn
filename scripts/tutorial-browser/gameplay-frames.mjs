@@ -1,3 +1,5 @@
+import { prepareWorldInput } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import { registerRetiredGameplayOwnership, sampleRetiredGameplayOwnership, clearRetiredGameplayOwnership } from './gameplay-ownership-observer.mjs'
 import assert from 'node:assert/strict'
 import { gameplayThreeCycleProfile } from './gameplay-resource-profile.mjs'
@@ -65,9 +67,10 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     await startup.dispose()
     assert.equal(report.startup.level, 2)
     if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await skipIntroductionWithSpace(page, { timeout: 25000 })
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
     const runCycle = async (report, prefix = '') => {
+      report.inputPopups = await prepareWorldInput(page)
       await page.mouse.move(900, 400)
       if (resourceLifecycle) {
         report.pointerReset = { x: 900, y: 400, observedTimestampMs: await page.evaluate(() => performance.now()) }
@@ -85,7 +88,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         // Real menu interruption followed by public Escape and world-pointer recovery.
         // This setup is outside measured windows, never passed off as live gameplay.
         if (phase.name === 'menu-recovery') {
-          await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+          await page.getByRole('button', { name: 'Menu', exact: true }).click()
           await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'visible' })
           report.menuBefore = await observe()
           assert.equal(report.menuBefore.paused, true)
@@ -95,6 +98,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
           await page.waitForFunction(() => !window.testStore.getWorld().paused)
           report.menuAfter = await observe()
         }
+        report.inputPopups.push(...await prepareWorldInput(page))
         const point = phase.route === 'hud' ? await page.evaluate(m2HudPoint)
           : phase.nativeWork ? await page.evaluate(m2NativePointerTarget) : { x: 900, y: 400 }
         assert.ok(point, 'a visible authored person is required for native hover work')
@@ -190,7 +194,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
           report.resources.restarts.push(restart)
         } else report.resources.restart = restart
         save()
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         const menu = page.locator('dialog[data-original-pause-menu]')
         await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
         await menu.getByRole('button', { name: 'Yes', exact: true }).click()
@@ -207,7 +211,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         const restarted = await page.waitForFunction(m2StartupReady)
         const ready = await restarted.jsonValue(); await restarted.dispose()
         assert.equal(ready.level, 2)
-        if (ready.action === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
+        if (ready.action === 'skip') await skipIntroductionWithSpace(page, { timeout: 25000 })
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
         const rendered = await page.waitForFunction(() => {
           const memory = window.testSceneRef?.current?.renderer.info.memory

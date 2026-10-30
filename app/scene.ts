@@ -22,7 +22,8 @@ import {
 } from './pointer-frame-metrics.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
-import { advanceGame } from './game-clock.ts'
+import { advanceGame, observeGameTurns } from './game-clock.ts'
+import { createResultClock, advanceResultClock } from './result-session.ts'
 import { FollowerNearbyMode } from './follower-nearby.ts'
 import { bindTrainingPanelRequests } from './training-panel-requests.ts'
 import {
@@ -45,7 +46,7 @@ import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
 import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
+import { loadTexture, releaseGroup, retryFailedTexture, sceneTextureRevision, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -330,9 +331,19 @@ export class GameScene {
   private neutralCursor: NeutralCanvasCursor | null = null
   neutralCursorRosterSelected = true
   cursorFrameBlocked = true
+  resultClock = createResultClock()
+  focusPauseOwned = false
   modalSuspended = false
+  private modalRenderVersion = 0
+  private modalRenderedVersion = -1
+  private modalTextureVersion = -1
+  private invalidateModalRender() {
+    if (!this.disposed) this.modalRenderVersion++
+  }
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    this.invalidateModalRender()
+    if (suspended) this.tooltipElement.hidden = true
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
@@ -364,6 +375,9 @@ export class GameScene {
       this.worshipPresentation.visit()
     },
     presentationHidden: () => document.hidden,
+  }
+  observeGameTurns(visit: () => void, failed: (error: unknown) => void) {
+    return observeGameTurns(this.gameClock, visit, failed)
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
@@ -578,6 +592,9 @@ export class GameScene {
       this.focus(browserPosition(camera))
     } else this.focus(shaman ?? HOME)
     this.drawMinimap()
+    this.listen(this.renderer.domElement, 'webglcontextrestored', () => this.invalidateModalRender())
+    this.listen(document, 'visibilitychange', () => this.invalidateModalRender())
+    this.listen(window, 'focus', () => this.invalidateModalRender())
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
@@ -671,6 +688,7 @@ export class GameScene {
     g.userData.nativeHeading = Math.round((angle * 1024) / Math.PI) & 2047
   }
   updateView() {
+    this.invalidateModalRender()
     updateView(this)
   }
   currentPreset() {
@@ -895,22 +913,48 @@ export class GameScene {
       dt = Math.max(0, now - previous) / 1000
     if (document.hidden) this.fpsGraph?.reset('Hidden tab · sampling stopped')
     this.previous = now
+    if (!document.hidden) {
+      const previousPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      advanceResultClock(this.resultClock, dt)
+      const nextPhase =
+        ((Math.floor(this.resultClock.inputCycles / 4) & 1) << 1) |
+        (Math.floor(this.resultClock.inputCycles / 6) & 1)
+      if (this.world.status !== 'playing' && previousPhase !== nextPhase) {
+        this.onChange()
+        if (this.disposed) return
+      }
+    }
     // Pause menus freeze the entire presentation, not ordinary Space pause.
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
       this.neutralCursor?.reset()
-      const renderStart = diagnostic ? performance.now() : 0
-      if (diagnostic)
-        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
-      else this.view.painter.render(this.renderer, this.scene, this.camera)
-      const renderMs = diagnostic ? performance.now() - renderStart : 0
+      const version = this.modalRenderVersion,
+        textures = sceneTextureRevision(),
+        redraw =
+          version !== this.modalRenderedVersion ||
+          textures !== this.modalTextureVersion ||
+          !!this.view.painter.pendingSoundEnvironment
+      let renderMs = 0
+      if (redraw) {
+        const renderStart = diagnostic ? performance.now() : 0
+        if (diagnostic)
+          diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+        else this.view.painter.render(this.renderer, this.scene, this.camera)
+        renderMs = diagnostic ? performance.now() - renderStart : 0
+        // A throw leaves the request dirty. Capture before rendering so an
+        // invalidation raised during a draw cannot be accidentally consumed.
+        this.modalRenderedVersion = version
+        this.modalTextureVersion = textures
+      } else diagnostic?.pollGpu()
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
         now,
         0,
         renderMs,
-        this.renderer.info.render.calls,
-        'Menu · rendering',
+        redraw ? this.renderer.info.render.calls : 0,
+        redraw ? 'Menu · rendering' : 'Menu · holding frame',
         performance.now() - callbackStart,
         0,
         pointerMetrics,
@@ -950,7 +994,7 @@ export class GameScene {
     if (this.cursorFrameBlocked) this.cancelTooltipInspection()
     if (!cameraOwnsFrame) {
       const flying = this.updateFlyby(dt)
-      if (this.disposed) return
+      if (!this.isCurrent()) return
       if (!flying) this.updateView()
     }
     this.updateUnitsFrame()

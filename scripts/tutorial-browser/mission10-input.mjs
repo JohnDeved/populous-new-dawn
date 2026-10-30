@@ -1,3 +1,4 @@
+import { prepareWorldInput } from '../browser-world-input.mjs'
 import { BuilderTask } from '../../app/building-workers.ts'
 import { builderActivity, unitAnimationSource } from '../../app/unit-animation-source.ts'
 import { hudPersonSource } from '../../app/hud-person-source.ts'
@@ -21,24 +22,44 @@ export function readMission10Minimap(target) {
     maxDistance: 8 * 256 }
 }
 
-export function readMission10Ground(target) {
+export function readMission10Ground(target, reportFailure = false) {
   const s = window.testSceneRef.current, rect = s.renderer.domElement.getBoundingClientRect()
   const projected = s.screen(target), center = { x: rect.left + (projected.x + 1) * rect.width / 2,
     y: rect.top + (1 - projected.y) * rect.height / 2 }, offsets = []
   for (let dy = -180; dy <= 180; dy += 4) for (let dx = -180; dx <= 180; dx += 4) offsets.push({ dx, dy })
   offsets.sort((a, b) => a.dx * a.dx + a.dy * a.dy - b.dx * b.dx - b.dy * b.dy)
-  let inspected = 0
+  let inspected = 0, nearestAimError = null
+  const rejected = { owner: 0, unit: 0, person: 0, object: 0, terrain: 0, aim: 0 }
   for (const { dx, dy } of offsets) {
     inspected++
     const hit = { x: Math.round(center.x + dx), y: Math.round(center.y + dy) }
-    if (document.elementFromPoint(hit.x, hit.y) !== s.renderer.domElement) continue
+    if (document.elementFromPoint(hit.x, hit.y) !== s.renderer.domElement) { rejected.owner++; continue }
     const event = { clientX: hit.x, clientY: hit.y }
-    if (s.pickUnit(event) || s.picking.pickPerson(event) || s.pickWorldObject(event)) continue
+    if (s.pickUnit(event)) { rejected.unit++; continue }
+    if (s.picking.pickPerson(event)) { rejected.person++; continue }
+    if (s.pickWorldObject(event)) { rejected.object++; continue }
     const point = s.pick(event)
-    if (point && Math.hypot(point.x - target.x, point.z - target.z) <= 0.35)
+    if (!point) { rejected.terrain++; continue }
+    const error = Math.hypot(point.x - target.x, point.z - target.z)
+    nearestAimError = nearestAimError === null ? error : Math.min(nearestAimError, error)
+    if (error <= 0.35)
       return { ...hit, point: { x: point.x, z: point.z }, target, inspected, turn: s.world.turn }
+    rejected.aim++
   }
-  throw Error('No unoccluded ground point within the retained 0.35 aim precision')
+  const owner = document.elementFromPoint(Math.round(center.x), Math.round(center.y))
+  const failure = { message: 'No unoccluded ground point within the retained 0.35 aim precision',
+    target, projected, center, inspected, rejected, nearestAimError, turn: s.world.turn,
+    camera: { position: { ...s.cameraPosition }, viewPoint: { ...s.viewPoint }, bearing: s.cameraBearing,
+      motionActive: s.cameraMotion?.active, viewTransition: !!s.viewTransition },
+    centerOwner: owner && { tag: owner.tagName, id: owner.id, className: owner.className,
+      popupSerial: owner.closest?.('.campaign-messages details')?.getAttribute('data-message-serial') ?? null },
+    popups: [...document.querySelectorAll('.campaign-messages details')].map(detail => {
+      const panel = detail.querySelector('[data-native-campaign-panel]'), r = panel?.getBoundingClientRect()
+      return { serial: detail.getAttribute('data-message-serial'), open: detail.open,
+        panel: r && { left: r.left, top: r.top, width: r.width, height: r.height } }
+    }) }
+  if (reportFailure) return { failure }
+  throw Error(failure.message, { cause: failure })
 }
 
 export async function mission10BoatPoint(page, id) {
@@ -62,10 +83,18 @@ export async function mission10BoatPoint(page, id) {
 }
 
 export function createMission10Input(options) {
-  const { page, signal, report, save } = options, input = createMission1VaultInput(options)
+  const { page, signal, report, save, deadlineAt } = options, input = createMission1VaultInput(options)
+  const prepare = async phase => {
+    signal.throwIfAborted()
+    const timeout = deadlineAt == null ? 2500 : Math.min(2500, deadlineAt - Date.now())
+    const popups = await prepareWorldInput(page, { timeout, keyboardFocus: false })
+    signal.throwIfAborted()
+    report.actions.push({ label: 'native-popup-input', phase, popups }); save()
+  }
   return { ...input,
     async view(target) {
       await input.settle()
+      await prepare('minimap')
       const geometry = await page.evaluate(readMission10Minimap, target)
       const hit = minimapInput(geometry, minimapPick, () => true)
       assert.ok(hit, 'No minimap point near the authored target')
@@ -77,14 +106,20 @@ export function createMission10Input(options) {
     },
     async fixedGround(target) {
       signal.throwIfAborted()
+      await prepare('ground')
       // One browser task captures geometry and World at the same simulation
       // boundary. No RAF visit can intervene between the two observations.
       // Pass a function: Playwright evaluates a string without invoking it.
       // Only source-owned helpers are embedded; target remains a normal argument.
-      const { hit, transfer } = await page.evaluate(new Function('target', `
-        const hit = (${readMission10Ground.toString()})(target)
+      const { hit, transfer, failure } = await page.evaluate(new Function('target', `
+        const hit = (${readMission10Ground.toString()})(target, true)
+        if (hit.failure) return hit
         return { hit, transfer: (${checkpointCodec.toString()})(window.testSceneRef.current.world) }
       `), target)
+      if (failure) {
+        report.actions.push({ label: 'rally-ground-rejection', ...failure }); save()
+        throw Error(failure.message)
+      }
       // Decode and synchronizing command validation occur in Node on a detached
       // World, never in the live browser. Maps and typed arrays are preserved.
       signal.throwIfAborted()

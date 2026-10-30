@@ -1,5 +1,21 @@
 # Static decompilation workspace
 
+[Ordinary HUD control artwork](research/ordinary-hud-controls/README.md) binds the
+shared command-root panel and separates the original Help/tribe callbacks from
+the browser's retained Menu/focus adaptations. Those controls remain unfinished.
+
+[Campaign notification tab presentation](research/campaign-notification-tabs.md)
+binds the original normal/hover/active frame descriptors and type1/type3 icon pairs.
+
+[Native campaign selection and progression](research/native-campaign-progression/README.md)
+preserves the complete 25-mission branch contract, completion/availability distinction,
+terminal boundary, original disassembly, and static test oracles. The pure model is
+unwired; profile migration and live selector/result continuation remain separate.
+
+[Original terminal-result navigation](research/result-navigation/README.md) traces
+the two-stage Space flow through HUD hiding/pause and the verified level-54 selector
+sentinel. Static contract only; existing result actions are not removed or activated.
+
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved
@@ -8,6 +24,9 @@ death/building/reward/final-snapshot leaves. Static research only; UI rows remai
 > Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/decomp), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
 
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
+
+[Swamp presentation](research/swamp-presentation.md) traces the original nine terrain
+sprites, five variant-positioned plants, independent animation clock and painter.
 
 ## Building-completion feedback ownership
 
@@ -5291,6 +5310,7 @@ Mixed-raid target availability versus member-order refresh: see
 [the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
 
 - [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)
+- [All 25 native selector records, panel sockets, palettes and title dispatch](research/world-selector-manifest/README.md)
 
 ## Original frontend Quit submenu
 

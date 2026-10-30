@@ -8,11 +8,14 @@ import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSy
 import assert from 'node:assert/strict'
 import { parseGameplayResourceArguments, gameplayOwnershipSelection } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
-import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget } from './scenario-policy.mjs'
+import { browserScenarios, browserCapMs, snapshotSmokeBudget, composedGameplayResourceSplitBudget, composedGameplayResourceBudgetPolicy } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
 import { runProfileEpisode } from './profile-episodes.mjs'
+import { createGameplayAdmission, guardGameplayBrowser, cleanupGameplayResources } from './gameplay-admission.mjs'
+import { createCompactAdmission } from './compact-admission.mjs'
+import { guardBrowserAdmission } from '../browser-admission-guard.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -118,7 +121,7 @@ if (resourceArguments.ownershipProbe) {
 }
 const save = () => writeFileSync(resolve(out, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 const abort = new AbortController()
-let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, producerBudget, producerCleanup
+let browser, context, page, server, timer, m2Fixture, browserDeadlineAt, gameplayAdmission, gameplayBrowser, compactAdmission, compactBrowser, producerBudget, producerCleanup
 const before = metadata(dependencies)
 receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(before)).digest('hex')
 try {
@@ -157,12 +160,30 @@ try {
   const browserStartedMs = performance.now()
   browserDeadlineAt = Date.now() + receipt.browserCapMs
   producerBudget = { startedMs: browserStartedMs, deadlineMs: browserStartedMs + receipt.browserCapMs, deadlineUnixMs: browserDeadlineAt }
-  if (['gameplay-frames', 'gameplay-resources'].includes(selectedScenario)) receipt.gameplayResourceSplitBudget = gameplayResourceSplitBudget
+  if (['gameplay-frames', 'gameplay-resources'].includes(selectedScenario)) {
+    receipt.gameplayResourceBudgetPolicy = composedGameplayResourceBudgetPolicy
+    receipt.gameplayResourceSplitBudget = composedGameplayResourceSplitBudget
+  }
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
-  else
+  else if (selectedScenario === 'gameplay-frames') {
+    gameplayAdmission = createGameplayAdmission({ deadlineAt: browserDeadlineAt, expectedRevision: receipt.buildRevision,
+      signal: abort.signal, onExpire: error => {
+        if (error.code === 'GAMEPLAY_ADMISSION_TIMEOUT') receipt.browserTimedOut = true
+        abort.abort(error); return browser.close()
+      } })
+    receipt.gameplayAdmission = gameplayAdmission.report
+    gameplayBrowser = guardGameplayBrowser(browser, gameplayAdmission)
+  } else if (selectedScenario === 'compact-message-layout') {
+    compactAdmission = createCompactAdmission({ deadlineAt: browserDeadlineAt, signal: abort.signal, onUpdate: save, onExpire: error => {
+      if (error.code === 'COMPACT_ADMISSION_TIMEOUT') receipt.browserTimedOut = true
+      abort.abort(error); return browser.close()
+    } })
+    receipt.compactAdmission = compactAdmission.report
+    compactBrowser = guardBrowserAdmission(browser, compactAdmission)
+  } else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
   if (selectedScenario !== 'snapshot-protocol') {
-  context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
+  context = await (gameplayBrowser ?? compactBrowser ?? browser).newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') receipt.errors.push(m.text()); if (m.type() === 'warning') receipt.warnings.push(m.text()) })
@@ -195,18 +216,23 @@ try {
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
-    // the independent ordinary-combat artwork episode. One browser, same cap.
+    // the independent ordinary-combat artwork episode. Frame180 includes close.
     await context.close(); context = undefined; page = undefined
-    receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
+    gameplayAdmission.finishEpisode('frames', receipt.gameplayFrames)
+    gameplayAdmission.begin('melee')
+    receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser: gameplayBrowser, url, output: out, expectedRevision: receipt.buildRevision, admission: gameplayAdmission })
+    gameplayAdmission.finishEpisode('melee', receipt.meleeAttack)
+    gameplayAdmission.begin('corpse')
     // Separate ordinary follower combat and actual checkpoint continuation. No
     // performance window or existing 75-second, first-observed-entry melee assertions change.
-    receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
+    receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser: gameplayBrowser, url, output: out, expectedRevision: receipt.buildRevision, admission: gameplayAdmission })
+    gameplayAdmission.finishEpisode('corpse', receipt.followerCorpse)
   } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
     // Independent jobs. Both persistent M10 phases finish before the separate
     // Spy witness is admitted; all three retain this same fixed 180s timer.
     Object.assign(receipt, await runProfileEpisode(selectedScenario, {
       signal: abort.signal, deadlineAt: browserDeadlineAt,
-      runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal }),
+      runRecovery: async () => (await import(pathToFileURL(recoveryScenario).href)).default({ browser, context, page, url, root, output: out, receipt, signal: abort.signal, deadlineAt: browserDeadlineAt }),
       // Recovery assertions/receipts are unchanged; only then run a fresh-context
       // Tornado episode inside the existing outer deadline (never a new timer).
       closeRecoveryProbe: async () => { await context.close(); context = undefined; page = undefined },
@@ -214,6 +240,7 @@ try {
         signal.throwIfAborted()
         return (await import(pathToFileURL(tornadoScenario).href)).runTornadoAppearance(browser, {
           url, artifactDir: out, budgetMs: Math.min(90000, deadlineAt - Date.now()),
+          signal, deadlineAt,
         })
       },
       closeProbe: async () => { await context.close(); context = undefined; page = undefined; await browser.close() },
@@ -225,21 +252,24 @@ try {
       runSpySource: async ({ signal, deadlineAt }) => (await import(pathToFileURL(spySourceScenario).href)).default({ chromium, launch: browserConfig.launch, url, output: out, source, signal, deadlineAt }),
     }))
   } else if (selectedScenario === 'compact-message-layout') {
-    await (await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({ browser, url, output: out, fixture: m2Fixture, report: receipt })
-    // Existing compact layout and picking assertions finish unchanged first.
-    await context.close(); context = undefined; page = undefined
-    receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
+    await compactAdmission.wait((await import(pathToFileURL(m2Scenario).href)).runCompactDiagnosticEpisodes({
+      browser: compactBrowser, url, output: out, fixture: m2Fixture, report: receipt, admission: compactAdmission,
+    }))
+    // All four compact cases and the independent picking episode remain required.
+    await compactAdmission.close('initial-context', context); context = undefined; page = undefined
+    receipt.hypnotise = await compactAdmission.wait((await import(pathToFileURL(hypnotiseScenario).href)).default({ browser: compactBrowser, url, output: out, deadlineAt: browserDeadlineAt }))
+    compactAdmission.finishCompanion('hypnotise', receipt.hypnotise)
   } else if (selectedScenario === 'm2-pointer-f8') {
-    receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
+    receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, deadlineAt: browserDeadlineAt, signal: abort.signal })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
-    receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
+    receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal, deadlineAt: browserDeadlineAt })
   } else {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   receipt.result = await (await import(pathToFileURL(scenario).href)).default({ page, context, browser, url, root, output: out, receipt })
   receipt.selectorInspection = await (await import(pathToFileURL(selectorScenario).href)).default({ browser, url, output: out })
   receipt.sceneryPlacement = await (await import(pathToFileURL(sceneryScenario).href)).default({ browser, url, output: out })
-  receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
+  receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, deadlineAt: browserDeadlineAt, signal: abort.signal })
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
   if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out })
@@ -247,14 +277,43 @@ try {
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
 } catch (error) {
+  gameplayAdmission?.fail(error)
+  compactAdmission?.fail(error)
   if (error.code === 'SNAPSHOT_EPISODE_TIMEOUT') receipt.browserTimedOut = true
   receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1
   if (page) {
-    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
+    try {
+      const capture = async () => { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) }
+      if (compactAdmission) await compactAdmission.wait(capture())
+      else await capture()
+    } catch (e) { receipt.diagnosticError = String(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
 } finally {
   clearTimeout(timer)
-  try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  if (gameplayAdmission) {
+    receipt.cleanupVerified = await cleanupGameplayResources(gameplayAdmission, { context, browser, server })
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = gameplayAdmission.report.cleanupErrors.join('\n'); receipt.status = 'failed'; process.exitCode = 1
+    }
+  } else if (compactAdmission) {
+    receipt.cleanupVerified = await compactAdmission.cleanup({ context, browser, server })
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = compactAdmission.report.cleanupErrors.join('\n') || 'Compact cleanup did not finish within admission'
+      receipt.status = 'failed'; process.exitCode = 1
+    }
+  } else {
+    try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  }
+  if (gameplayAdmission) {
+    try { if (receipt.status === 'passed') gameplayAdmission.complete() }
+    catch (error) { gameplayAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }
+    finally { gameplayAdmission.dispose() }
+  }
+  if (compactAdmission) {
+    try { if (receipt.status === 'passed') compactAdmission.complete() }
+    catch (error) { compactAdmission.fail(error); receipt.failure ??= String(error); receipt.status = 'failed'; process.exitCode = 1 }
+    finally { compactAdmission.dispose() }
+  }
   // The original timer is already cleared. Report actual remaining time, even
   // negative, without claiming an independently enforced cleanup deadline.
   if (receipt.heapProducerPreflight) producerCleanup(receipt.heapProducerPreflight, performance.now(), receipt.cleanupVerified)

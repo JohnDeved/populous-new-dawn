@@ -57,6 +57,117 @@
       "recording": "Canonical API archives, source-bound collection maps and external ownership/release journals remain held. Default collection never extracts all members. Only an explicitly selected completed cache may be released by exact ownership token and journal after its consumer ends; unknown/partial caches and historical evidence are not disposable. No automatic prune or original retirement."
     },
     {
+      "id": "native-query-control-art",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-query-control.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-query-control.py", "app/query-control.tsx"],
+      "inputs": ["scripts/import-result-ui.py", "scripts/import-original.py"],
+      "outputs": [
+        { "path": "public/original/query-control", "type": "directory", "tracked": true, "protected": true },
+        { "path": "decomp/research/native-help/query-control.json", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Hash-pinned EXE, HFX and palette data-only import. Existing outputs must match; --check is read-only. --reuse-assets hardlinks only byte-verified decoded PNGs. Does not run the original game, replace shared assets or claim restored Query behavior."
+    },
+    {
+      "id": "checkpoint-scrollbar-art-subset",
+      "kind": "imported-assets",
+      "generator": {
+        "executable": "git",
+        "args": [
+          "restore",
+          "--source=fd34c4a60b643c294c167ab9bcd83b5871a82fd3",
+          "--",
+          "public/original/help/hfx-451.png",
+          "public/original/help/hfx-452.png",
+          "public/original/help/hfx-453.png",
+          "public/original/help/hfx-454.png",
+          "public/original/help/hfx-455.png"
+        ]
+      },
+      "callers": [
+        "app/checkpoint-scroll-area.tsx"
+      ],
+      "inputs": [
+        "references/checkpoint-scrollbar-art.json"
+      ],
+      "outputs": [
+        {
+          "path": "public/original/help/hfx-451.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-452.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-453.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-454.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        },
+        {
+          "path": "public/original/help/hfx-455.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true
+        }
+      ],
+      "recording": "Byte-preserving subset of the hash-verified original Help importer at the source commit. No re-encoding, palette changes, or Help runtime import. Verify each PNG against references/checkpoint-scrollbar-art.json; future regeneration remains owned by scripts/import-help-ui.py at the source commit."
+    },
+    {
+      "id": "ordinary-hud-control-static-evidence",
+      "kind": "native-evidence",
+      "generator": { "executable": "python3", "args": ["scripts/research-hud-controls.py", "<hash-verified-original-exe>"] },
+      "callers": ["scripts/research-hud-controls.py"],
+      "inputs": ["scripts/import-result-ui.py", "decomp/research/ordinary-hud-controls/README.md"],
+      "outputs": [
+        { "path": "decomp/research/ordinary-hud-controls/native.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/ordinary-hud-controls/help.asm", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/ordinary-hud-controls/tribes.asm", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned PE/HFX/palette data extraction emits JSON to stdout; compare scratch output before replacing retained spans. Assembly uses the bounded objdump 2.44 commands in the adjacent README. No original execution, emulation, input download, or imported asset regeneration."
+    },
+    {
+      "id": "result-navigation-static-evidence",
+      "kind": "native-evidence",
+      "generator": { "executable": "python3", "args": ["scripts/research-result-navigation.py", "<hash-verified-original-exe>"] },
+      "callers": ["scripts/research-result-navigation.py"],
+      "inputs": ["decomp/tools.json", "decomp/research/result-navigation/provenance.json"],
+      "outputs": [
+        { "path": "decomp/research/result-navigation/native.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/result-navigation/native.asm", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned PE extraction emits JSON to stdout; compare scratch output before replacing retained spans. Assembly uses the bounded objdump 2.44 commands in provenance.json. No original execution or emulation. The separate 924-byte Component0 LEVLSPC2 observation is data-only and never implies mission 54 is playable."
+    },
+    {
+      "id": "world-selector-native-art",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-world-selector-art.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-world-selector-art.py", "app/world-selector-art.ts"],
+      "inputs": ["app/original-world-selector.json", "decomp/research/world-selector-manifest/sources.json", "scripts/import-world-selector-manifest.py", "scripts/import-world-selector-text.py", "scripts/import-original.py", "public/original/world-selector/panel/provenance.json", "public/original/world-selector/text/provenance.json"],
+      "outputs": [{ "path": "public/original/world-selector/native", "type": "directory", "tracked": true, "protected": true }],
+      "recording": "Re-derive the pinned manifest and validate every source before emitting only missing selector PNGs. Reuse byte-identical opening art without modifying it. --check is read-only; differing results require a new --output directory for review. No original execution, profile or mission activation."
+    },
+    {
+      "id": "world-selector-manifest",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/import-world-selector-manifest.py", "<verified-game-root>"] },
+      "callers": ["scripts/import-world-selector-manifest.py"],
+      "inputs": ["decomp/research/world-selector-manifest/sources.json", "scripts/import-world-selector-text.py", "scripts/check-static-world-selector.py", "scripts/check-static-mission18-sky.py", "scripts/import-original.py"],
+      "outputs": [{ "path": "app/original-world-selector.json", "type": "file", "tracked": true, "protected": true }],
+      "recording": "Inactive all-25-world data prerequisite only. Validate every pinned source first; --check is read-only. Generate a differing candidate to a new --output path for review. No original execution, profile writes, PNG regeneration or selector activation."
+    },
+    {
       "id": "startup-logo",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/import-startup-logo.py", "<verified-game-root>", "<new-output-directory>"] },
@@ -163,12 +274,15 @@
         "scripts/import-world-selector-panel.py",
         "scripts/import-world-selector-text.py",
         "scripts/import-result-ui.py",
+        "scripts/import-campaign-popup.py",
+        "scripts/import-message-tabs.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
         "scripts/import-script.py",
         "scripts/import-hud.py",
         "scripts/import-worship-acquisition.py",
         "scripts/import-vault-knowledge.py",
+        "scripts/import-swamp-art.py",
         "scripts/import-temple-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
@@ -179,11 +293,16 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-swamp.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-swamp-art.py" },
+        { "path": "public/original/swamp.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-swamp-art.py" },
         { "path": "app/original-tornado.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
         { "path": "public/original/tornado.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
         { "path": "public/original/loading-mask.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-art.py" },
         { "path": "public/original/loading-label.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
         { "path": "public/original/loading-label.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-label.py" },
+        { "path": "app/original-message-tabs.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-message-tabs.py" },
+        { "path": "app/original-campaign-popup.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-campaign-popup.py" },
+        { "path": "public/original/campaign-popup-tiles.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-campaign-popup.py" },
         { "path": "app/original-result-ui.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
         { "path": "public/original/result-panel.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },
         { "path": "public/original/result-font.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-result-ui.py" },

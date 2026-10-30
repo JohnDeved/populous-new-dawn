@@ -1,0 +1,39 @@
+{
+  "base": "eb8e02208097ae05d6ca33e008a7f3c97a2c225c",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "mode": "Static data only; no game execution/emulation, download, or live UI change",
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "commands": [
+    "objdump -d -Mintel --start-address=0x0041b4f0 --stop-address=0x0041b520 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x0042bde0 --stop-address=0x0042be9a VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x0043e90b --stop-address=0x0043e929 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x0043fb95 --stop-address=0x0043fbad VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x00479cf0 --stop-address=0x00479d66 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x00485660 --stop-address=0x00485679 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004858dc --stop-address=0x004858e6 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004858f0 --stop-address=0x00485ae3 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x00486350 --stop-address=0x0048644b VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004a470b --stop-address=0x004a472d VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004a9f09 --stop-address=0x004aa0ff VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004aabac --stop-address=0x004aabd8 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004ab498 --stop-address=0x004ab4ea VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004abbe2 --stop-address=0x004abc15 VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004abd86 --stop-address=0x004abdef VERIFIED_EXE",
+    "objdump -d -Mintel --start-address=0x004ff4f0 --stop-address=0x004ff52c VERIFIED_EXE"
+  ],
+  "nativeJsonSha256": "a6bb1b1b127c4bd00e6ebeb4a029ac385edf94f8c95a0590be910c7f0022027e",
+  "nativeAsmSha256": "e2546527909e779751946f2cf172b0fc51098458f5ebbbc5d225864342e82085",
+  "levelSpec": {
+    "installerSha256": "c5d3ad2a1b369e636df85a6061b832c18f2dc33526a03383f61abd7b5518c52d",
+    "member": "data/{app}/levels/levlspc2.dat",
+    "component": "Component0",
+    "bytes": 924,
+    "sha256": "28649cf28a49aeef9980b7481d2b9d836fe633d89c8c0a7f9641c604eb90608b",
+    "specialLevelOffset": "0x308",
+    "specialLevel": 54,
+    "sourceMode": "Existing verified installer read as data only; one bounded member decoded; no executable run; no downloads",
+    "tailHex": "000000001e00000036000000c101000032be329432aa0400c101000049c5838a67a70100",
+    "installerBytes": 323091880,
+    "tailOffset": "0x300"
+  }
+}

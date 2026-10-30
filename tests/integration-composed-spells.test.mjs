@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto'
 import { COMPOSED_SOURCE_INPUTS } from '../scripts/integration-queue/composed-profile-artifact.mjs'
 import { composedBrowserFixture } from './support/composed-browser-reader.mjs'
 import { passiveBrowserFixture } from './support/passive-browser-reader.mjs'
+import { spyEvidenceFixture } from './support/composed-spy-fixture.mjs'
+import { validateSpyEvidence } from '../scripts/integration-queue/composed-spy-evidence.mjs'
 import { validateEntry,validatePassedGate,gatesFor } from '../scripts/integration-queue/policy.mjs'
 import { resolveProfileCasesArtifact,resolveMission10Artifact,profileArchiveLimit } from '../scripts/integration-queue/profile-artifact.mjs'
 const checkView=f=>({head:f.pr.head.sha,base:f.pr.base.sha,synthetic:f.synthetic,currentChecks:f.checks.map(c=>({id:c.id,name:c.name,appId:c.app.id,head:c.head_sha,startedAt:c.started_at,status:c.status,conclusion:c.conclusion}))})
@@ -30,6 +32,10 @@ test('missing, extra, duplicate, mixed and spliced composed artifacts fail close
     f=>f.records[0].files.set('spy-source.json',f.records[1].files.get('spy-source.json')),
     f=>{f.records[0].host.tornadoAppearance.status='FAIL'},
     f=>{f.records[1].host.spySource.fixture.version=4},
+    f=>{delete f.records[1].host.spySource.observation.turns},
+    f=>{f.records[1].host.spySource.observation.turns.splice(1,1)},
+    f=>{f.records[1].host.spySource.observation.turns[1].object=136},
+    f=>{f.records[1].host.spySource.observation.turns[2].f2=1},
     f=>{f.records[1].host.source.files['public/original/unit-layers.png']='f'.repeat(64)},
     f=>{f.records[0].host.source.files['app/game-clock.ts']='f'.repeat(64)},
     f=>f.records[1].files.set('spy-source-frame-1.png',Buffer.from('bad')),
@@ -126,4 +132,19 @@ test('composed evidence binds all Angel presentation dependencies in both artifa
       assert.throws(() => f.run(), mismatch)
     }
   }
+})
+
+test('composed Spy admission keeps logical boundaries separate and requires the actual public Space action', () => {
+  const f = spyEvidenceFixture(), report = f.report, start = report.budget.startedAt
+  report.observation.samples.splice(1, 1)
+  report.readiness.actionable.action = 'skip'
+  report.actions.splice(1, 0, { name: 'Public Space skip', startedAt: start + 65, endedAt: start + 85 })
+  const validate = () => validateSpyEvidence(report, { ...f, hostReport: structuredClone(report) })
+  assert.equal(validate(), true)
+  report.actions[1].name = 'Public Skip introduction'
+  assert.throws(validate, /Public Space skip/)
+  report.actions[1].name = 'Public Space skip'
+  report.observation.samples.find(sample => sample.object === 136).turn++
+  assert.throws(validate, /Entry belongs to the next logical visit/,
+    'A later rendered frame cannot stand in for the actual entry frame')
 })

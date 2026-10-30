@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -21,7 +22,7 @@ try {
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
   await page.getByRole('button', { name: 'Convert Wild, 0 shots' }).waitFor()
-  await page.getByLabel('Focus Chumara tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
 
   await page.evaluate(async () => {
     const scene = globalThis.testScene,
@@ -36,7 +37,7 @@ try {
   await page
     .getByText('The Chumara will use the spell of Invisibility to attack us.', { exact: false })
     .waitFor()
-  await page.getByRole('button', { name: 'Skip introduction', exact: false }).click()
+  await skipIntroductionWithSpace(page, { timeout: 10000 })
   await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
   await page.getByRole('button', { name: 'Convert Wild, 1 shots' }).click()
   const convertPoint = await page.evaluate(() => {
@@ -145,11 +146,8 @@ try {
   }, convertedId)
 
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByText('Objectives · 2 / 3', { exact: true }).click()
-  const objectives = await page.locator('.menu-objectives').textContent()
-  assert.match(objectives, /Convert the Wildmen/)
-  assert.match(objectives, /Claim Invisibility from the stone head/)
-  await page.getByRole('button', { name: 'Return to the world', exact: false }).click()
+  assert.equal(await page.locator('.menu-objectives').count(), 0)
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.getByRole('button', { name: 'Invisibility, 1 shots' }).click()
   const followerPoint = await page.evaluate(convertedId => {
     const scene = globalThis.testScene,

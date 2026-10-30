@@ -1,10 +1,12 @@
+import { commandCategory } from './browser-command-categories.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, openCampaignFixtureGame } from './browser-game.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
@@ -96,7 +98,7 @@ async function openMissionInContext(context, mission, errors) {
   await page.waitForFunction(
     () => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask
   )
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(
     () => window.testSceneRef.current?.world === window.testStore.getWorld()
@@ -117,8 +119,8 @@ const rosterLabels = [
 ]
 
 async function openFollowers(page) {
-  await page.getByTitle('followers', { exact: true }).click()
-  const tab = page.getByTitle('followers', { exact: true })
+  await commandCategory(page, 'followers').click()
+  const tab = commandCategory(page, 'followers')
   assert.equal(await tab.getAttribute('aria-pressed'), 'true')
   const sprite = tab.locator('.hud-sprite')
   assert.equal(await sprite.evaluate(node => node.style.backgroundPosition), '-914px -26px')
@@ -163,7 +165,8 @@ let browser
 try {
   await startServer()
   browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
-  const { page, errors } = await openGame(browser, 12)
+  // Declared M12 availability, not naturally earned earlier campaign progress.
+  const { page, errors } = await openCampaignFixtureGame(browser, 12)
   page.setDefaultTimeout(30_000)
   await openFollowers(page)
 
@@ -171,7 +174,7 @@ try {
   const originalSurface = await rosterSnapshot(page)
   assert.deepEqual(originalSurface.labels, rosterLabels)
   assert.equal(
-    await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).count(),
+    await page.getByRole('button', { name: 'Select shaman', exact: true }).count(),
     1
   )
   assert.equal(
@@ -301,9 +304,11 @@ try {
 
   // Real checkpoint UI: save the fixture, perturb counts, load, then ensure roster and housed state restore.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.evaluate(async spyId => {
     const scene = window.testScene,
       world = scene.world,
@@ -319,6 +324,7 @@ try {
   const changed = await rosterSnapshot(page)
   assert.notDeepEqual(changed.counts, fixture.counts)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(
@@ -370,11 +376,12 @@ try {
   assert.deepEqual(wide.labels, rosterLabels)
   assert.equal(await page.locator('.command-dock button[aria-label^="Select "]').count(), 0)
   assert.equal(
-    await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).isVisible(),
+    await page.getByRole('button', { name: 'Select shaman', exact: true }).isVisible(),
     true
   )
 
-  // DPR=2 smoke uses a fresh normal Mission 12 startup; no fixture is needed for layout ownership.
+  // DPR=2 smoke is diagnostic-only, with no saves or campaign awards.
+  // It uses a separate fresh context; no campaign availability fixture is needed.
   const dprErrors = [],
     dprContext = await browser.newContext({
       viewport: { width: 1280, height: 720 },
@@ -388,7 +395,7 @@ try {
   assert.deepEqual(dprSurface.labels, rosterLabels)
   assert.equal(await dprPage.locator('.command-dock button[aria-label^="Select "]').count(), 0)
   assert.equal(
-    await dprPage.getByRole('button', { name: 'Select and focus shaman', exact: true }).isVisible(),
+    await dprPage.getByRole('button', { name: 'Select shaman', exact: true }).isVisible(),
     true
   )
   assert.deepEqual(dprErrors, [])

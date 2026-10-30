@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import frontend from './original-frontend.json'
 import ingame from './original-pause-font.json'
 import type { FrontendTextRow } from './frontend-composition'
@@ -6,6 +6,20 @@ import type { FrontendAssets, IngameMenuAssets } from './frontend-assets'
 import type { GamePreferences } from './game-preferences'
 import styles from './original-options.module.css'
 import { MenuTooltip } from './menu-tooltip'
+
+interface BrowserCompatibility {
+  speed: number
+  onSpeed: () => void
+  onSelectLevel: () => void
+  performance: boolean
+  onPerformance: () => void
+  hudSize: string
+  onHudSize: (value: string) => void
+  sound: boolean
+  soundPending: boolean
+  onSound: () => void
+  audioStartNotice: string
+}
 
 interface OriginalOptionsProps {
   preparedFrontend?: FrontendAssets
@@ -20,9 +34,37 @@ interface OriginalOptionsProps {
   gamePreferences: GamePreferences
   onGamePreferences: (preferences: GamePreferences) => void
   gameStorageNotice: string
-  compatibility?: ReactNode
+  compatibility?: BrowserCompatibility
   onTextRowsChange?: (rows: FrontendTextRow[]) => void
 }
+const hudSizes = ['auto', '1', '1.5', '2', '2.5', '3', '4'] as const
+const browserFallback = 'HUD size, audio and game speed are available from the battlefield menu.'
+const browserTitle = 'Browser compatibility and help'
+// Only browser-added copy is abbreviated. Native positions, glyphs and scale
+// remain unchanged; the complete storage announcement stays accessible.
+const ingameStorageCopy: Record<string, string> = {
+  'Game settings apply for this session; browser storage is unavailable.':
+    'Session-only game settings; browser storage unavailable.',
+  'Volume changes apply for this session; browser storage is unavailable.':
+    'Session-only volume changes; browser storage unavailable.',
+}
+
+// Browser-only notices retain the menu glyphs and 30-pixel line interval.
+function noticeLines(text: string, maxWidth = 600) {
+  const lines: string[] = []
+  for (const word of text.split(' ')) {
+    const previous = lines.at(-1)
+    const candidate = previous ? `${previous} ${word}` : word
+    const width = [...candidate].reduce(
+      (total, letter) => total + ingame.rects[letter.charCodeAt(0) - 32].w,
+      0
+    )
+    if (previous && width <= maxWidth) lines[lines.length - 1] = candidate
+    else lines.push(word)
+  }
+  return lines
+}
+
 const categories = ['Game', 'Sound', 'Graphics'] as const
 type Category = (typeof categories)[number] | 'Direct3D'
 type TextState = 'normal' | 'highlight' | 'low'
@@ -53,7 +95,12 @@ function Text({
   state: TextState
   ready: boolean
 }) {
-  if (!ready) return <span className={styles.fallback}>{text}</span>
+  if (!ready)
+    return (
+      <span className={styles.fallback} data-options-text={text} data-options-font="fallback">
+        {text}
+      </span>
+    )
   const name = fontBanks[state]
   const bank = skin === 'frontend' ? frontend.banks[name] : ingame
   const width = [...text].reduce(
@@ -64,6 +111,8 @@ function Text({
     <span
       aria-hidden="true"
       className={styles.text}
+      data-options-text={text}
+      data-options-font="glyphs"
       style={{
         transform: `translateX(-${width >> 1}px)`,
         opacity: skin === 'ingame' && state === 'normal' ? 2 / 3 : 1,
@@ -120,6 +169,7 @@ export function OriginalOptions({
       : 'Enable audio in Browser compatibility and help.'
   const masterText = `Master volume : <${Math.round(volume * 100)}%>`
   const musicText = `Music volume : <${Math.round(musicVolume * 100)}%>`
+  const browserLabel = skin === 'ingame' ? 'Browser controls and help' : browserTitle
   const gameRows = useMemo(
     () => [
       { id: 'tooltips', text: 'Tooltips : <Unavailable>', x: 320, y: 139 },
@@ -137,14 +187,42 @@ export function OriginalOptions({
       },
       { id: 'staySelected', text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
       { id: 'autocastSpell', text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
-      { id: 'compatibility', text: 'Browser compatibility and help', x: 320, y: 289 },
+      { id: 'compatibility', text: browserLabel, x: 320, y: 289 },
     ],
-    [gamePreferences.rotation, gamePreferences.flipRotation]
+    [gamePreferences.rotation, gamePreferences.flipRotation, browserLabel]
+  )
+  const activeStorageNotice =
+    (category === 'Game' && gameStorageNotice) || (category === 'Sound' && storageNotice) || ''
+  const storageRows = useMemo<FrontendTextRow[]>(
+    () =>
+      activeStorageNotice
+        ? noticeLines(
+            skin === 'ingame'
+              ? (ingameStorageCopy[activeStorageNotice] ?? activeStorageNotice)
+              : activeStorageNotice,
+            skin === 'ingame' ? 432 : 600
+          ).map((text, index) => ({
+            text,
+            x: 320,
+            y: 338 + index * 30,
+          }))
+        : [],
+    [activeStorageNotice, skin]
   )
   const rows = useMemo<FrontendTextRow[]>(
     () =>
       browser
-        ? []
+        ? [
+            { text: browserLabel, x: 320, y: skin === 'frontend' ? 139 : 79 },
+            { text: 'Back', x: 320, y: 454 },
+            ...(compatibility
+              ? []
+              : noticeLines(browserFallback).map((text, index) => ({
+                  text,
+                  x: 320,
+                  y: (skin === 'frontend' ? 199 : 139) + index * 30,
+                }))),
+          ]
         : [
             ...categories.map((text, index) => ({ text, x: 170 + 150 * index, y: 420 })),
             { text: 'Back', x: 320, y: 454 },
@@ -160,8 +238,9 @@ export function OriginalOptions({
                   { text: 'Sound quality : <Unavailable>', x: 320, y: 259 },
                 ]
               : []),
+            ...storageRows,
           ],
-    [browser, category, masterText, musicText, gameRows]
+    [browser, category, masterText, musicText, gameRows, compatibility, skin, storageRows, browserLabel]
   )
   useLayoutEffect(() => {
     onTextRowsChange?.(textReady ? rows : [])
@@ -201,8 +280,7 @@ export function OriginalOptions({
       ?.focus()
   }, [category])
   useEffect(() => {
-    // Help can overflow. Focusing its trailing Back button scrolls past the
-    // heading and first controls before the player has had a chance to read them.
+    // Keep entry focus before the controls, including after an audio retry.
     if (browser)
       root.current?.querySelector<HTMLHeadingElement>('[data-browser-help-heading]')?.focus()
   }, [browser])
@@ -210,7 +288,19 @@ export function OriginalOptions({
     if (!browser) return
     const element = root.current
     function keydown(event: KeyboardEvent) {
-      if (browser && event.key === 'Escape' && element?.closest('dialog')?.open) {
+      const owner = element?.closest('dialog')
+      if (browser && event.key === 'Escape' && !event.defaultPrevented && owner?.open) {
+        const origin = event.target instanceof Element ? event.target.closest('dialog') : null
+        // An open underlying dialog is not the current keyboard owner. Keep
+        // another dialog's Escape intact, without guessing top-layer DOM order.
+        if (origin && origin !== owner) return
+        // Disabled controls can leave focus on body. Retain that fallback only
+        // when no other open dialog makes ownership ambiguous.
+        if (
+          !origin &&
+          [...document.querySelectorAll('dialog[open]')].some(dialog => dialog !== owner)
+        )
+          return
         event.preventDefault()
         event.stopPropagation()
         setBrowser(false)
@@ -233,10 +323,10 @@ export function OriginalOptions({
     setCategory(next)
     setHighlight(null)
   }
-  function label(text: string, low = false, id = text) {
+  function label(text: string, low = false, id = text, disabled = false) {
     let state: TextState = 'normal'
     if (low) state = 'low'
-    else if (highlight === id) state = 'highlight'
+    else if (!disabled && highlight === id) state = 'highlight'
     return <Text text={text} skin={skin} state={state} ready={textReady} />
   }
   function choice(
@@ -245,7 +335,16 @@ export function OriginalOptions({
     y: number,
     action: () => void,
     selected = false,
-    options: { id?: string; wide?: boolean; help?: string } = {}
+    options: {
+      id?: string
+      wide?: boolean
+      help?: string
+      accessibleLabel?: string
+      disabled?: boolean
+      busy?: boolean
+      pressed?: boolean
+      hudSize?: string
+    } = {}
   ) {
     const position = { left: x, top: y }
     const id = options.id ?? text
@@ -268,9 +367,14 @@ export function OriginalOptions({
         key={id}
         className={`${styles.choice}${options.wide ? ` ${styles.gameChoice}` : ''}`}
         style={position}
-        aria-label={text}
+        aria-label={options.accessibleLabel ?? text}
+        disabled={options.disabled}
+        aria-busy={options.busy}
+        aria-pressed={options.pressed}
+        data-hud-size={options.hudSize}
         data-option-key={id}
         data-compatibility={id === 'compatibility' || undefined}
+        data-options-browser-copy={id === 'compatibility' ? 'help' : undefined}
         data-panel-back={text === 'Back' || undefined}
         data-menu-tooltip={options.help}
         aria-description={options.help}
@@ -280,7 +384,7 @@ export function OriginalOptions({
         onBlur={() => setHighlight(null)}
         onClick={action}
       >
-        {label(text, false, id)}
+        {label(text, false, id, options.disabled)}
       </button>
     )
   }
@@ -295,17 +399,114 @@ export function OriginalOptions({
       className={styles.options}
     >
       {browser ? (
-        <section className={styles.compatibility} aria-label="Browser compatibility and help">
-          <h2 tabIndex={-1} data-browser-help-heading>
-            Browser compatibility and help
+        <section className={styles.compatibility} aria-label={browserTitle}>
+          <h2
+            className={styles.soundLabel}
+            style={{ top: skin === 'frontend' ? 139 : 79 }}
+            tabIndex={-1}
+            data-browser-help-heading
+            data-options-browser-copy="heading"
+            aria-label={browserTitle}
+          >
+            {label(browserLabel)}
           </h2>
-          {compatibility ?? (
-            <p>
-              In-game HUD size, camera controls and help are available from the battlefield menu.
+          {compatibility ? (
+            <>
+              {choice('Select Level', 320, 139, compatibility.onSelectLevel, false, { wide: true })}
+              {choice(
+                `${compatibility.speed}× game speed`,
+                320,
+                169,
+                compatibility.onSpeed,
+                false,
+                {
+                  id: 'speed',
+                  wide: true,
+                }
+              )}
+              {choice(
+                'Toggle performance overlay · F8',
+                320,
+                199,
+                compatibility.onPerformance,
+                false,
+                {
+                  id: 'performance',
+                  wide: true,
+                  pressed: compatibility.performance,
+                }
+              )}
+              {choice(
+                `HUD size : <${compatibility.hudSize === 'auto' ? 'Automatic' : `${Number(compatibility.hudSize) * 100}%`}>`,
+                320,
+                229,
+                () =>
+                  compatibility.onHudSize(
+                    hudSizes[
+                      (hudSizes.indexOf(compatibility.hudSize as (typeof hudSizes)[number]) + 1) %
+                        hudSizes.length
+                    ]
+                  ),
+                false,
+                { id: 'hud-size', wide: true, hudSize: compatibility.hudSize }
+              )}
+              <div className="audio-settings">
+                {choice(
+                  compatibility.sound ? 'Sound on' : 'Enable sound',
+                  320,
+                  259,
+                  compatibility.onSound,
+                  false,
+                  {
+                    id: 'audio',
+                    wide: true,
+                    accessibleLabel: compatibility.sound ? '♪ Sound on' : '♫ Enable sound',
+                    disabled: compatibility.soundPending,
+                    busy: compatibility.soundPending,
+                  }
+                )}
+              </div>
+              {(storageNotice || compatibility.audioStartNotice) && (
+                <div className={styles.browserNotices}>
+                  {[storageNotice, compatibility.audioStartNotice].filter(Boolean).map(notice => (
+                    <p key={notice} role="status" aria-label={notice}>
+                      <span className="game-a11y-status">{notice}</span>
+                      {noticeLines(notice).map((line, index) => (
+                        <span key={index} className={styles.noticeLine} aria-hidden="true">
+                          {label(line)}
+                        </span>
+                      ))}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <p
+              className={styles.browserFallback}
+              style={{ top: skin === 'frontend' ? 199 : 139 }}
+              aria-label={browserFallback}
+            >
+              <span className="game-a11y-status">{browserFallback}</span>
+              {noticeLines(browserFallback).map((line, index) => (
+                <span key={index} className={styles.noticeLine} aria-hidden="true">
+                  {label(line)}
+                </span>
+              ))}
             </p>
           )}
-          <button onClick={returnFromBrowser} data-return-options>
-            Back to Options
+          <button
+            className={styles.choice}
+            style={{ left: 320, top: 454 }}
+            aria-label="Back to Options"
+            data-return-options
+            onPointerEnter={() => setHighlight('browser-back')}
+            onPointerLeave={() => setHighlight(null)}
+            onFocus={() => setHighlight('browser-back')}
+            onBlur={() => setHighlight(null)}
+            onClick={returnFromBrowser}
+          >
+            {label('Back', false, 'browser-back')}
           </button>
         </section>
       ) : (
@@ -317,6 +518,7 @@ export function OriginalOptions({
                   return choice(row.text, row.x, row.y, () => setBrowser(true), false, {
                     id: row.id,
                     wide: true,
+                    accessibleLabel: browserTitle,
                   })
                 }
                 if (row.id === 'rotation' || row.id === 'flipRotation') {
@@ -360,11 +562,6 @@ export function OriginalOptions({
                   </div>
                 )
               })}
-              {gameStorageNotice && (
-                <p className={styles.storage} role="status">
-                  {gameStorageNotice}
-                </p>
-              )}
             </>
           )}
           {category === 'Sound' && (
@@ -424,11 +621,6 @@ export function OriginalOptions({
               >
                 {label('Sound quality : <Unavailable>')}
               </div>
-              {storageNotice && (
-                <p className={styles.storage} role="status">
-                  {storageNotice}
-                </p>
-              )}
             </>
           )}
           {unavailableRows[category] && (
@@ -448,6 +640,21 @@ export function OriginalOptions({
                 </div>
               ))}
             </>
+          )}
+          {activeStorageNotice && (
+            <p
+              className={styles.storage}
+              role="status"
+              aria-label={activeStorageNotice}
+              data-options-browser-copy="storage"
+            >
+              <span className="game-a11y-status">{activeStorageNotice}</span>
+              {storageRows.map((row, index) => (
+                <span key={index} className={styles.noticeLine} aria-hidden="true">
+                  {label(row.text)}
+                </span>
+              ))}
+            </p>
           )}
           <nav aria-label="Options categories">
             {categories.map((text, index) =>

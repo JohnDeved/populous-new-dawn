@@ -21,11 +21,14 @@ const widths = [160, 80, 53, 40, 31, 26, 22, 20, 17, 15, 14, 13, 12, 11, 10, 10]
 
 export async function runTornadoAppearance(
   browser,
-  { artifactDir, budgetMs = 90000, url = process.env.POPULOUS_URL ?? 'http://localhost:3000' } = {}
+  { artifactDir, budgetMs = 90000, url = process.env.POPULOUS_URL ?? 'http://localhost:3000', signal, deadlineAt } = {}
 ) {
   assert.ok(budgetMs > 0 && budgetMs <= 90000)
+  signal?.throwIfAborted()
   const dir = resolve(artifactDir ?? 'work/orchestration/tornado-appearance-browser'),
     started = performance.now(),
+    inputDeadlineAt = Number.isFinite(deadlineAt) ? Math.min(deadlineAt, Date.now() + budgetMs) : null,
+    inputAbort = new AbortController(),
     priorContexts = new Set(browser.contexts()),
     report = {
       head: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
@@ -39,9 +42,12 @@ export async function runTornadoAppearance(
       episodes: [],
     }
   mkdirSync(dir, { recursive: true })
+  const outerAborted = () => inputAbort.abort(signal.reason)
+  signal?.addEventListener('abort', outerAborted, { once: true })
   let expired = false
   const deadline = setTimeout(() => {
     expired = true
+    inputAbort.abort(new Error('Tornado aggregate 90-second budget exhausted'))
     for (const context of browser.contexts())
       if (!priorContexts.has(context)) void context.close().catch(() => {})
   }, budgetMs)
@@ -53,17 +59,28 @@ export async function runTornadoAppearance(
   try {
     for (const kind of ['land', 'water']) {
       if (expired) throw new Error('Tornado aggregate 90-second budget exhausted')
-      const episode = { kind, stages: [], observedPalettes: [] }
+      const episode = { kind, stages: [], observedPalettes: [], inputBudgets: [] }
       report.episodes.push(episode)
       persist()
       const { page, errors } = await openTornadoGame(browser, url)
       page.setDefaultTimeout(8000)
+      // Only hosted Tornado opts in: one existing 8s public-action allowance,
+      // clipped again by each 12s readiness remainder and both outer deadlines.
+      const recoverIntroduction = phase => {
+        if (inputDeadlineAt === null) return recoverVisibleIntroduction(page)
+        const trace = { episode: kind, readinessPhase: phase }
+        episode.inputBudgets.push(trace)
+        return recoverVisibleIntroduction(page, {
+          setupTimeout: 8000, deadlineAt: inputDeadlineAt, signal: inputAbort.signal, trace,
+        })
+      }
       try {
         episode.readiness = await waitRecoveryReadiness(page, {
           timeout: 12000,
-          onBlocked: recoverVisibleIntroduction(page),
+          signal: inputAbort.signal,
+          onBlocked: recoverIntroduction('initial'),
         })
-        await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+        await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
         await page.keyboard.press('F9')
         await page.getByRole('button', { name: 'Unlock + refill all spells', exact: true }).click()
         await page.getByRole('button', { name: 'Close · F9', exact: true }).click()
@@ -378,7 +395,7 @@ export async function runTornadoAppearance(
         }
         // Water restarts with an active column; land also proves natural terminal deletion.
         // Neither route bypasses the normal restart or scene ownership path.
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
         await page.getByRole('button', { name: 'Yes', exact: true }).click()
         await bindGame(page)
@@ -389,7 +406,8 @@ export async function runTornadoAppearance(
         )
         episode.restartReadiness = await waitRecoveryReadiness(page, {
           timeout: 12000,
-          onBlocked: recoverVisibleIntroduction(page),
+          signal: inputAbort.signal,
+          onBlocked: recoverIntroduction('restart'),
         })
         episode.cleanup = await page.evaluate(() => ({
           differentScene: globalThis.testScene !== globalThis.tornadoProbe.oldScene,
@@ -433,6 +451,8 @@ export async function runTornadoAppearance(
     throw error
   } finally {
     clearTimeout(deadline)
+    signal?.removeEventListener('abort', outerAborted)
+    if (!inputAbort.signal.aborted) inputAbort.abort(new Error('Tornado episode settled'))
     if (report.status !== 'PASS')
       for (const context of browser.contexts())
         if (!priorContexts.has(context)) await context.close().catch(() => {})

@@ -1,3 +1,5 @@
+import { setWorldPaused } from '../browser-world-input.mjs'
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -108,11 +110,10 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     const startup = await page.waitForFunction(() => {
       const world = window.testStore.getWorld()
       if (!world.inputMask && world.levelStart.every(site => site.phase === 4)) return 'ready'
-      const skip = document.querySelector('button.skip-introduction')
-      return skip && skip.getClientRects().length && !skip.disabled ? 'skip' : false
+      return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
     })
     if ((await startup.jsonValue()) === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+      await skipIntroductionWithSpace(page, { timeout: 10000 })
     await page.waitForFunction(() => {
       const world = window.testStore.getWorld()
       return (
@@ -127,7 +128,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         )
       )
     })
-    await button('Pause game').click()
+    await setWorldPaused(page, true, { timeout: 10000 })
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     report.setup = await page.evaluate(() => {
       const scene = window.testSceneRef.current

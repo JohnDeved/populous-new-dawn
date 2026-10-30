@@ -3,11 +3,17 @@ import font from './original-pause-font.json'
 import type { IngameMenuAssets } from './frontend-assets'
 import type { CheckpointReadStatus } from './game-store'
 import { frontendScale } from './frontend-composition'
+import { CheckpointScrollArea } from './checkpoint-scroll-area'
+import { CHECKPOINT_COPY_WIDTH } from './checkpoint-scroll'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
 
+const fontText = (text: string) => text.replaceAll('…', '...')
 const textWidth = (text: string) =>
-  [...text].reduce((width, letter) => width + font.rects[letter.charCodeAt(0) - 32].w, 0)
+  [...fontText(text)].reduce(
+    (width, letter) => width + (font.rects[letter.charCodeAt(0) - 32]?.w ?? 13),
+    0
+  )
 function MenuText({
   text,
   highlighted,
@@ -17,7 +23,9 @@ function MenuText({
   highlighted: boolean
   ready: boolean
 }) {
-  if (!ready) return <span className={shared.fallback}>{text}</span>
+  const display = fontText(text)
+  if (!ready || [...display].some(letter => !font.rects[letter.charCodeAt(0) - 32]))
+    return <span className={shared.fallback}>{text}</span>
   return (
     <span
       className={shared.text}
@@ -27,7 +35,7 @@ function MenuText({
         opacity: highlighted ? 1 : 2 / 3,
       }}
     >
-      {[...text].map((letter, index) => {
+      {[...display].map((letter, index) => {
         const glyph = font.rects[letter.charCodeAt(0) - 32]
         return (
           <i
@@ -42,6 +50,59 @@ function MenuText({
         )
       })}
     </span>
+  )
+}
+
+// These browser checkpoint messages are not original save-slot text. Keep the
+// in-game font at its native size; only the bounded copy area may scroll.
+// The centered copy reserves equal gutters for the original-art scrollbar.
+function CheckpointText({
+  text,
+  ready,
+  status = false,
+}: {
+  text: string
+  ready: boolean
+  status?: boolean
+}) {
+  const display = fontText(text).replace(/\s+/g, ' ').trim()
+  const supported = [...display].every(letter => font.rects[letter.charCodeAt(0) - 32])
+  const lines: string[] = []
+  if (ready && supported) {
+    let line = ''
+    for (const word of display.split(' ')) {
+      const next = line ? `${line} ${word}` : word
+      if (textWidth(next) <= CHECKPOINT_COPY_WIDTH) line = next
+      else {
+        if (line) lines.push(line)
+        line = ''
+        // A long technical token still wraps without shrinking or clipping.
+        for (const letter of word) {
+          if (textWidth(line + letter) > CHECKPOINT_COPY_WIDTH) {
+            lines.push(line)
+            line = ''
+          }
+          line += letter
+        }
+      }
+    }
+    if (line) lines.push(line)
+  }
+  return (
+    <p className={styles.checkpointText} role={status ? 'status' : undefined}>
+      <span className={styles.visuallyHidden}>{text}</span>
+      {ready && supported ? (
+        lines.map((line, index) => (
+          <span key={index} className={styles.warningLine} aria-hidden="true">
+            <MenuText text={line} highlighted={false} ready={ready} />
+          </span>
+        ))
+      ) : (
+        <span className={shared.fallback} aria-hidden="true">
+          {text}
+        </span>
+      )}
+    </p>
   )
 }
 
@@ -67,6 +128,7 @@ function MenuRow({
   return (
     <button
       aria-label={label}
+      data-pause-action={label}
       disabled={disabled}
       title={disabled ? unavailable : undefined}
       style={{
@@ -299,7 +361,7 @@ export function OriginalPauseMenu(props: Props) {
         if (
           panel === 'options' ||
           !['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key) ||
-          (event.target as HTMLElement).closest('input,select,textarea')
+          (event.target as HTMLElement).closest('input,select,textarea,[tabindex="0"]')
         )
           return
         const buttons = [
@@ -370,42 +432,79 @@ export function OriginalPauseMenu(props: Props) {
         </nav>
         {panel === 'options' && props.renderOptions(back)}
         {!confirmation && panel !== 'root' && panel !== 'options' && (
-          <section className={styles.panel} aria-label={panelTitles[panel]}>
-            <h2>{panelTitles[panel]}</h2>
-            <p>
-              This browser version stores one checkpoint. Original multi-slot save files are not yet
-              supported.
-            </p>
+          <section
+            className={`${styles.panel} ${shared.rows} ${styles.rows}`}
+            aria-label={panelTitles[panel]}
+          >
+            <h2 className={styles.checkpointTitle} aria-label={panelTitles[panel]}>
+              <MenuText text={panelTitles[panel]!} highlighted={false} ready={ready} />
+            </h2>
+            <div className={styles.checkpointBody} data-pause-checkpoint-body>
+              <CheckpointScrollArea key={panel}>
+                <CheckpointText
+                  text="One browser checkpoint. No original multi-slot saves."
+                  ready={ready}
+                />
+                {panel === 'save' ? (
+                  <>
+                    <CheckpointText
+                      text={props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}
+                      ready={ready}
+                    />
+                    {notice && <CheckpointText text={notice} ready={ready} status />}
+                  </>
+                ) : (
+                  <>
+                    <CheckpointText
+                      text={checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
+                      ready={ready}
+                      status
+                    />
+                    {props.hasCheckpoint && props.checkpointReadStatus !== 'read' && (
+                      <CheckpointText text="Checkpoint available in this session." ready={ready} />
+                    )}
+                    <CheckpointText
+                      text="Loading replaces the current world and discards unsaved progress."
+                      ready={ready}
+                    />
+                  </>
+                )}
+              </CheckpointScrollArea>
+            </div>
             {panel === 'save' ? (
-              <>
-                <p>{props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}</p>
-                <button disabled={saving || !!props.saveDisabledReason} onClick={() => void save()}>
-                  {saving ? 'Saving…' : 'Save checkpoint'}
-                </button>
-              </>
+              <MenuRow
+                label={saving ? 'Saving…' : 'Save checkpoint'}
+                y={399}
+                disabled={saving || !!props.saveDisabledReason}
+                action={() => void save()}
+                highlight={highlight}
+                ready={ready}
+                setHighlight={setHighlight}
+              />
             ) : (
               <>
-                <p role="status">
-                  {checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
-                </p>
-                {props.hasCheckpoint && props.checkpointReadStatus !== 'read' && (
-                  <p>A checkpoint is available in this session and can be loaded.</p>
-                )}
                 {lookupAvailable && (
-                  <button
+                  <MenuRow
+                    label="Retry checkpoint lookup"
+                    y={369}
                     disabled={props.checkpointReadStatus === 'pending'}
-                    onClick={retryCheckpoint}
-                  >
-                    Retry checkpoint lookup
-                  </button>
+                    action={retryCheckpoint}
+                    highlight={highlight}
+                    ready={ready}
+                    setHighlight={setHighlight}
+                  />
                 )}
-                <p>Loading replaces the current world and discards unsaved progress.</p>
-                <button disabled={!props.hasCheckpoint} onClick={() => once(props.onLoad)}>
-                  Load checkpoint
-                </button>
+                <MenuRow
+                  label="Load checkpoint"
+                  y={399}
+                  disabled={!props.hasCheckpoint}
+                  action={() => once(props.onLoad)}
+                  highlight={highlight}
+                  ready={ready}
+                  setHighlight={setHighlight}
+                />
               </>
             )}
-            {panel === 'save' && notice && <p role="status">{notice}</p>}
           </section>
         )}
       </div>

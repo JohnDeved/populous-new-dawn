@@ -1,10 +1,10 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { campaignRules } from '../app/campaign-command-runtime.ts'
 import { withCampaignTribe } from '../app/campaign-runtime.ts'
-import { createGameStore } from '../app/game-store.ts'
 import script from '../app/original-script-eighteen.json' with { type: 'json' }
 
 const runAt = (w, turn) => {
@@ -67,8 +67,8 @@ test('M18 delivers its complete first recurring block with the original guard pr
 
 for (const kills of [9, 10])
   test(`supplied Blue kill count ${kills} respects the native due-turn shutoff`, async () => {
-    const store = createGameStore()
-    store.startMission(18)
+    const store = await createCampaignFixtureStore([18])
+    assert.equal(store.startMission(18), true)
     const w = store.getWorld(),
       ai = w.campaignAIs[1]
     w.killCredits[0][1] = kills
@@ -103,8 +103,8 @@ for (const value of [1, 2, 3, 4, 5])
   })
 
 test('ordinary M18 recurring dispatch replaces the old sermon and preserves live ownership through public Save/Load', async () => {
-  const store = createGameStore()
-  store.startMission(18)
+  const store = await createCampaignFixtureStore([18])
+  assert.equal(store.startMission(18), true)
   const w = store.getWorld()
   while (w.turn < 1472) tick(w, 1 / 12)
   const ai = w.campaignAIs[1],

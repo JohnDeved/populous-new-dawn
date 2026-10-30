@@ -1,9 +1,9 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { chargingSpells } from '../app/mana.ts'
 import { cast } from '../app/live-command.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { createWorld } from '../app/world-initialization.ts'
 import { spellButton } from '../app/spell-button.ts'
 import {
@@ -53,10 +53,10 @@ test('fresh and later missions use the native owned/reward-source/cast-permissio
 })
 
 test('restart and checkpoint restore reproduce fresh Mission 1 HUD visibility', async () => {
-  const store = createGameStore(),
+  const store = await createCampaignFixtureStore([16]),
     fresh = snapshot(store.getWorld())
   await store.saveCheckpoint()
-  store.startMission(16)
+  assert.equal(store.startMission(16), true)
   assert.notDeepEqual(snapshot(store.getWorld()), fresh)
   assert.equal(store.loadCheckpoint(), true)
   assert.deepEqual(snapshot(store.getWorld()), fresh)
@@ -137,8 +137,8 @@ test('earned mode-2 stock permits selection without enabling charging, including
 })
 
 test('earned mode-2 stock and legacy ownership survive save/load unchanged; restart uses new startup', async () => {
-  const store = createGameStore()
-  store.startMission(18)
+  const store = await createCampaignFixtureStore([18, 19])
+  assert.equal(store.startMission(18), true)
   store.change(world => {
     world.shots.armageddon = 1
     world.manaWorld.spells[0].available |= 1 << 18
@@ -146,7 +146,7 @@ test('earned mode-2 stock and legacy ownership survive save/load unchanged; rest
   const spell = SPELLS.find(spell => spell.id === 'armageddon'),
     before = structuredClone(store.getWorld())
   await store.saveCheckpoint()
-  store.startMission(19)
+  assert.equal(store.startMission(19), true)
   assert.equal(store.loadCheckpoint(), true)
   assert.equal(spellHudVisibility(store.getWorld(), spell), 'visible')
   assert.equal(store.getWorld().shots.armageddon, before.shots.armageddon)

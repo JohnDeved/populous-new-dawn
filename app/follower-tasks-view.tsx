@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { transportCounts, type HudTransport, type TransportKind } from './hud-transports.ts'
 import { FollowerNumber } from './hud'
+import { followerTaskPosition } from './hud-layout.ts'
 import art from './original-follower-tasks.json'
 import type { followerTaskCounts, FollowerTask, TaskPerson } from './hud-tasks.ts'
 
@@ -90,8 +91,8 @@ export function FollowerTasks({
               key={`${row.key}-${model}`}
               aria-label={`${row.label} ${kind}`}
               disabled={!enabled}
-              style={{ left: column * 16, top: row.y }}
-              title={
+              style={followerTaskPosition(column, row.y)}
+              aria-description={
                 enabled
                   ? `${row.label} ${kind}: Click to ${row.action}. ${row.five ? 'Ctrl: five. ' : ''}Shift: all. Right-click: focus next.`
                   : undefined

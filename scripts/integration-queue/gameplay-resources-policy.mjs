@@ -10,7 +10,7 @@ import { readArtifactZip } from '../artifact-zip.mjs'
 import { SPLIT_BROWSER_JOBS, validateSplitBrowserJobs } from './browser-jobs.mjs'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from '../tutorial-browser/gameplay-frame-evidence.mjs'
 import { gameplayResourceLimits, assertResourceLive, summarizeResourceRestart } from '../tutorial-browser/gameplay-resource-observer.mjs'
-import { gameplayResourceSplitBudget } from '../tutorial-browser/scenario-policy.mjs'
+import { gameplayResourceSplitBudget, composedGameplayResourceSplitBudget, usesComposedGameplayResourceBudget } from '../tutorial-browser/scenario-policy.mjs'
 export const GAMEPLAY_RESOURCE_POLICY = 'gameplay-resources-nine-v1'
 export const GAMEPLAY_HEAP_POLICY = 'gameplay-resources-nine-v2'
 export const GAMEPLAY_MATCHED_POLICY = 'gameplay-resources-nine-v3'
@@ -51,17 +51,35 @@ export const GAMEPLAY_THREE_CYCLE_INPUTS = Object.freeze([...GAMEPLAY_HEAP_INPUT
 export const GAMEPLAY_OWNERSHIP_INPUTS = Object.freeze([...GAMEPLAY_THREE_CYCLE_INPUTS,
   'scripts/tutorial-browser/gameplay-ownership-observer.mjs', 'app/globe-renderer.ts', 'app/scene-terrain-runtime.ts'])
 const threeCyclePolicy = policy => [GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)
-export function gameplayResourceInputs(policy) {
+// Orthogonal opt-in: original workload/heap/ownership IDs and input arrays stay exact.
+// These finite additions bind the current admission owners, never extend time.
+export const GAMEPLAY_COMPOSED_BUDGET_INPUTS = Object.freeze([
+  'scripts/tutorial-browser/gameplay-admission.mjs',
+  'scripts/tutorial-browser/melee-attack.mjs', 'scripts/tutorial-browser/follower-corpse.mjs',
+  'scripts/tutorial-browser/compact-admission.mjs', 'scripts/tutorial-browser/m2-admission.mjs',
+  'scripts/browser-admission-guard.mjs',
+  'scripts/integration-queue/policy.mjs', 'scripts/integration-queue/github.mjs',
+])
+export function gameplayResourceBudget(policy, budgetPolicy) {
   assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(policy), 'Explicit supported resource policy required')
-  return policy === GAMEPLAY_OWNERSHIP_POLICY ? GAMEPLAY_OWNERSHIP_INPUTS
+  return usesComposedGameplayResourceBudget(budgetPolicy)
+    ? composedGameplayResourceSplitBudget : gameplayResourceSplitBudget
+}
+export function gameplayResourceInputs(policy, budgetPolicy) {
+  gameplayResourceBudget(policy, budgetPolicy)
+  const historical = policy === GAMEPLAY_OWNERSHIP_POLICY ? GAMEPLAY_OWNERSHIP_INPUTS
     : policy === GAMEPLAY_THREE_CYCLE_POLICY ? GAMEPLAY_THREE_CYCLE_INPUTS
     : policy === GAMEPLAY_RESOURCE_POLICY ? GAMEPLAY_RESOURCE_INPUTS : GAMEPLAY_HEAP_INPUTS
+  return usesComposedGameplayResourceBudget(budgetPolicy)
+    ? Object.freeze([...historical, ...GAMEPLAY_COMPOSED_BUDGET_INPUTS.filter(path => !historical.includes(path))])
+    : historical
 }
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const positive = value => assert.ok(Number.isSafeInteger(value) && value > 0)
 export const gameplayResourceArchiveLimit = 48 * 1024 * 1024
 export function validateGameplayResourceBrowserJobs(jobs, run, expected) {
   assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(expected?.policy))
+  gameplayResourceBudget(expected.policy, expected.gameplayResourceBudgetPolicy)
   assert.match(expected.headSha, /^[a-f0-9]{40}$/)
   for (const value of [run.id, run.run_attempt, run.check_suite_id, ...jobs.map(job => job.id)]) positive(value)
   assert.equal(run.head_sha, expected.headSha); assert.equal(run.status, 'completed'); assert.equal(run.conclusion, 'success')
@@ -158,7 +176,7 @@ export function validateGameplayResourceArtifact(files, expected) {
   assert.ok(GAMEPLAY_RESOURCE_POLICIES.includes(expected?.policy))
   for (const key of ['headSha', 'baseSha', 'mergeSha']) assert.match(expected.identity[key], /^[a-f0-9]{40}$/)
   for (const key of ['runId', 'runAttempt']) assert.match(String(expected.identity[key]), /^[1-9][0-9]*$/)
-  assert.deepEqual(Object.keys(expected.inputs), gameplayResourceInputs(expected.policy))
+  assert.deepEqual(Object.keys(expected.inputs), gameplayResourceInputs(expected.policy, expected.gameplayResourceBudgetPolicy))
   for (const digest of Object.values(expected.inputs)) assert.match(digest, /^[a-f0-9]{64}$/)
   assert.deepEqual(Object.keys(files).filter(name => name !== 'build.log').sort(), [...requiredFiles(expected.policy)].sort())
   assert.ok(Object.values(files).every(Buffer.isBuffer))
@@ -178,7 +196,9 @@ export function validateGameplayResourceArtifact(files, expected) {
   assert.match(raw.dependenciesBeforeSha256, /^[a-f0-9]{64}$/); assert.equal(raw.dependenciesBeforeSha256, raw.dependenciesAfterSha256)
   assert.equal(raw.browserPath, '/opt/google/chrome/chrome')
   assert.deepEqual(raw.launch, { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless', '--remote-debugging-pipe'], timeout: 30000 })
-  assert.deepEqual(raw.gameplayResourceSplitBudget, gameplayResourceSplitBudget)
+  assert.equal(raw.gameplayResourceBudgetPolicy, expected.gameplayResourceBudgetPolicy)
+  assert.deepEqual(raw.gameplayResourceSplitBudget,
+    gameplayResourceBudget(expected.policy, expected.gameplayResourceBudgetPolicy))
   assert.ok(isDeepStrictEqual(raw.gameplayResources, report), 'Receipt gameplay resources differ from retained report')
   const ownership = expected.policy === GAMEPLAY_OWNERSHIP_POLICY
   const threeCycles = threeCyclePolicy(expected.policy)
@@ -259,7 +279,9 @@ export function validateGameplayResourceArtifact(files, expected) {
   const heap = threeCycles ? validateGameplayThreeCycleHeapProbe(resources.heap, resources, report.cycles) : matched ? validateGameplayMatchedHeapProbe(resources.heap, resources, report.cycles) : heapRequired ? validateGameplayHeapProbe(resources.heap, resources) : undefined
   if (threeCycles) assert.deepEqual(resources.heap.deltas, heap)
   if (!matched) assert.deepEqual(read('gameplay-frames-final.png').subarray(0, 8), Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
-  return { ...(ownership ? { ownershipVerified: true, ownership: ownershipEvidence } : {}), ...(threeCycles ? { threeCyclesVerified: true, cycleCount: 3 } : matched ? { matchedCyclesVerified: true, cycleCount: 2 } : {}), ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
+  return { ...(usesComposedGameplayResourceBudget(expected.gameplayResourceBudgetPolicy)
+    ? { gameplayResourceBudgetVerified: true, gameplayResourceBudgetPolicy: expected.gameplayResourceBudgetPolicy } : {}),
+    ...(ownership ? { ownershipVerified: true, ownership: ownershipEvidence } : {}), ...(threeCycles ? { threeCyclesVerified: true, cycleCount: 3 } : matched ? { matchedCyclesVerified: true, cycleCount: 2 } : {}), ...(heapRequired ? { heapCapabilityVerified: true, heap } : {}), lifecycleVerified: true, receiptSha256: hash(read('receipt.json')), reportSha256: hash(read('gameplay-frames.json')),
     phaseCount: threeCycles ? 15 : matched ? 10 : 5, lifecycle: recomputed, scope: threeCycles ? gameplayThreeCycleProtocol.interpretation : matched ? gameplayMatchedProtocol.interpretation : heapRequired ? 'one-cycle-lifecycle-and-isolate-byte-capability-not-retention-comparison' : 'one-cycle-cleanup-and-counts-not-ram-or-plateau', visualReview: 'required' }
 }
 // Caller first binds upload to the exact current job log and API metadata; never follow candidate URLs.

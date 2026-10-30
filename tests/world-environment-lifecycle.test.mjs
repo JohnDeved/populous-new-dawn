@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Page beginLoad/retry and GameStore World replacement, plus production
 // Scene resource/preload statements. DOM/network/GPU only are supplied.
 import assert from 'node:assert/strict'
@@ -10,10 +11,9 @@ import { bindSceneEnvironment, preloadScene } from './support/world-environment-
 
 test('Page switches, checkpoint Load, Restart and failed-resource retry bind each new scene independently', async t => {
   await loadSceneFixture()
-  const { createGameStore } = await import('../app/game-store.ts'),
-    { initializeTerrain, makeDecorations } = await import('../app/scene-terrain-runtime.ts'),
+  const { initializeTerrain, makeDecorations } = await import('../app/scene-terrain-runtime.ts'),
     { GameScene } = await import('../app/scene.ts'),
-    store = createGameStore(), requested = [], uploaded = [], attempts = new Map(),
+    store = await createCampaignFixtureStore([2, 3]), requested = [], uploaded = [], attempts = new Map(),
     originalLoad = THREE.TextureLoader.prototype.load, originalFetch = globalThis.fetch
   let failS = true
   THREE.TextureLoader.prototype.load = function (url, onLoad, _progress, onError) {
@@ -39,7 +39,7 @@ test('Page switches, checkpoint Load, Restart and failed-resource retry bind eac
   assert.equal(functions.length, 2)
   const cheatClosures = []
   const noop = () => {}, engine = { current: null }, loadRequest = { current: null },
-    bindings = { store, engine, loadRequest, menuSession: { current: null }, pendingMenuCamera: { current: [] }, audio: { current: { reset: noop } }, cancelNearbyInput: noop, setCheatsOpen: value => cheatClosures.push(value), setSelectorOpen: noop, setMenu: noop, setReady: noop, setError: noop, setTab: noop, setStartup: noop },
+    bindings = { store, engine, loadRequest, menuSession: { current: null }, pendingMenuCamera: { current: [] }, audio: { current: { reset: noop } }, cancelNearbyInput: noop, setCheatsOpen: value => cheatClosures.push(value), setDebugPicker: value => assert.equal(value, false), setResultInputCycles: value => assert.equal(value, 0), setSelectorOpen: noop, setMenu: noop, setReady: noop, setError: noop, setTab: noop, setStartup: noop },
     js = ts.transpileModule(`(function(){${functions.join('\n')}\nreturn {beginLoad,retryLoad}})`, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText,
     page = new Function(...Object.keys(bindings), `return ${js}`)(...Object.values(bindings))()
   async function sceneForWorld() {

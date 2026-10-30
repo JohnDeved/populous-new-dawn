@@ -138,6 +138,7 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
     marching: [],
     combatMarches: [],
     lastOrderTurn: 0,
+    lastOrderCell: 0,
     buildingOrders: createPersonOrderPool(capacityMode === 'scalable'),
     motionRoutes: createMotionRoutes(capacityMode === 'scalable'),
     pathfinding: createLivePathfinding(),

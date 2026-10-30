@@ -435,21 +435,28 @@ export function updateFlyby(scene: GameScene, dt: number) {
   }
   // ponytail: a 24 Hz presentation clock drives the recovered native timeline;
   // original frame throttling remains unported.
-  if (!scene.world.paused) {
+  if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice) {
     scene.flybyTime += dt
     while (scene.flybyTime + 1e-9 >= 1 / 24) {
-      for (const event of stepFlyby(state, scene.flybyCamera, 24)) {
-        if (event.kind === 5)
+      for (const event of scene.world.paused ? [] : stepFlyby(state, scene.flybyCamera, 24)) {
+        if (event.kind === 5) {
           scene.acquireForcedTooltip(
             forcedTooltipObject(scene.world, event.flags, event.value),
             event.duration
           )
+          // Route replacement may synchronously publish and retire this owner.
+          if (!scene.isCurrent()) return false
+        }
       }
       // One composed compatibility visit per existing tick. Catch-up visits use
       // the actual outer RAF observation time, never invented earlier timestamps.
-      scene.updateTooltipController(scene.previous ?? performance.now())
+      if (!scene.world.paused || scene.world.routeNotice || scene.tooltipController?.routeNotice) {
+        scene.updateTooltipController(scene.previous ?? performance.now())
+        // Stop this catch-up visit before touching released/replaced scene state.
+        if (!scene.isCurrent()) return false
+      }
       scene.flybyTime = Math.max(0, scene.flybyTime - 1 / 24)
-      if (active) scene.commitSky(scene.flybyCamera, scene.flybyTime)
+      if (active && !scene.world.paused) scene.commitSky(scene.flybyCamera, scene.flybyTime)
     }
   }
   if (!active && !scene.wasFlying) return false

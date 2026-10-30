@@ -20,13 +20,23 @@
   container-type: inline-size;
 }
 .selector button { min-height: 44px; padding: 8px 12px; border: 1px solid #66583d; border-radius: 2px; background: #171710; color: #f0e7d1; cursor: pointer; font: inherit; }
-.selector button:not(.panelGlyph):not(.start):hover { background: #302b1e; }
+.selector button:not(.panelGlyph):not(.start):not(.sceneRetry):hover { background: #302b1e; }
 .selector button:focus-visible { outline: 3px solid #f4db95; outline-offset: 2px; }
 .selector button:not(.panelGlyph)[aria-pressed='true'] { border-color: #eacf87; background: #38301e; }
 .selector button:disabled { opacity: .5; cursor: not-allowed; }
 .scene { position: absolute; width: 100%; height: calc(var(--panel-width) * .75); bottom: 0; left: 50%; transform: translateX(-50%); pointer-events: none; }
 .scene canvas { display: block; width: 100%; height: 100%; }
-.sceneFailure { position: absolute; top: 45%; left: 15%; right: 15%; text-align: center; pointer-events: auto; font-size: 13px; }
+.sceneFailure { position: absolute; top: 40%; left: 50%; width: var(--panel-width); transform: translateX(-50%); text-align: center; }
+.sceneFailure p { margin: 0 0 calc(var(--panel-width) * 12 / 640); }
+.sceneRecoveryLine { display: block; height: calc(var(--panel-width) * 30 / 640); }
+.sceneRecoveryText { display: inline-flex; align-items: flex-start; pointer-events: none; image-rendering: pixelated; image-rendering: crisp-edges; }
+.sceneRecoveryText i { display: block; flex: none; background-repeat: no-repeat; }
+.sceneRecoveryFallback { color: #fff1bb; font: calc(var(--panel-width) * 22 / 640)/calc(var(--panel-width) * 28 / 640) Georgia, serif; text-shadow: 1px 2px #000; white-space: nowrap; }
+/* The necessary browser recovery action uses the original gold label palette:
+   the normal menu bank is too dark on the failed scene's black clear. */
+.selector .sceneRetry { --selector-recovery-font: url('/original/frontend/felo33we.png'); display: inline-flex; align-items: center; justify-content: center; min-width: calc(var(--panel-width) * 200 / 640); min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; pointer-events: auto; }
+.selector .sceneRetry:hover, .selector .sceneRetry:focus-visible { --selector-recovery-font: url('/original/frontend/fehi33we.png'); }
+.selector .sceneRetry:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; }
 .selectedTitle, .panel { z-index: 1; }
 .selectedTitle { position: absolute; bottom: calc(var(--panel-width) * 61 / 640); left: 0; width: 100%; text-align: center; pointer-events: none; }
 .selectedTitle h3 { margin: 0; height: calc(var(--panel-width) * 19 / 640); min-height: 19px; font-size: clamp(16px, 2.5vw, 28px); line-height: 1; font-weight: 400; }
@@ -73,3 +83,13 @@
 .tabs, .compatibilityActions { display: flex; flex-wrap: wrap; gap: 6px; }
 .compatibility .tabs { margin-bottom: 12px; }
 .lockedStatus { color: #ead6a3; text-shadow: 0 1px 2px black; }
+
+/* All-world opt-in: draw each source socket at its own native size, without
+   enlarging the close-packed branch clusters. Browser controls remain available
+   for keyboard/accessibility selection. The opening default is unchanged. */
+.nativeGlyph img { left: 0; top: 0; width: 100%; height: 100%; }
+.nativeSelector .selectedTitle { bottom: calc(var(--panel-width) * 61 / 640); }
+.nativeSelector .selectedTitle h3 { min-height: 0; }
+.selector .nativePanel .start { left: calc(576 / 638 * 100%); top: calc(11 / 61 * 100%); right: auto; bottom: auto; min-width: 0; min-height: 0; }
+.nativePanel .start img { left: 0; top: 0; transform: none; }
+.nativeGlyph:active img, .nativePanel .start:active:not(:disabled) img { transform: translate(calc(var(--panel-width) / 640), calc(var(--panel-width) / 640)); }

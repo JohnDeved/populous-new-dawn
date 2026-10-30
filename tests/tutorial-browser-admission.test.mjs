@@ -153,7 +153,11 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
   assert.match(runner, /assert.ok\(browserScenarios.includes\(selectedScenario\)/)
   assert.match(runner, /snapshotScenarioSha256: hash\(snapshotScenario\)/)
   assert.match(runner, /receipt\.snapshotSmoke = await/)
-  assert.match(runner, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else\s+timer = setTimeout/)
+  const timers = runner.slice(runner.indexOf("if (selectedScenario === 'snapshot-protocol') receipt.browserBudget"), runner.indexOf("if (selectedScenario !== 'snapshot-protocol')"))
+  assert.match(timers, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else if \(selectedScenario === 'gameplay-frames'\)/)
+  assert.match(timers, /gameplayAdmission = createGameplayAdmission\(/)
+  assert.match(timers, /} else\s+timer = setTimeout/)
+  assert.equal((timers.match(/timer = setTimeout/g) ?? []).length, 1)
   assert.match(runner, /if \(error.code === 'SNAPSHOT_EPISODE_TIMEOUT'\) receipt.browserTimedOut = true/)
   assert.match(runner, /if \(page\) \{/)
   assert.match(runner, /receipt.failureEvidence = 'candidate-snapshot-smoke.json'/)
@@ -162,15 +166,15 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
 })
 
 
-test('parsed hosted matrix grants only Tutorial aggregate headroom and preserves other caps', () => {
+test('parsed hosted matrix grants explicit Tutorial, gameplay and two-phase compact admission and preserves other caps', () => {
   const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
   const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
   assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
   assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => name !== 'm2-pointer-f8').sort())
   assert.deepEqual(Object.fromEntries(browserScenarios.map(name => [name, browserCapMs(name)])), {
     tutorial: 240000, 'm2-pointer-f8': 180000, 'pause-checkpoint-recovery': 180000,
-    'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 180000, 'gameplay-resources': 180000,
-    'snapshot-protocol': 90000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000,
+    'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 355000, 'gameplay-resources': 180000,
+    'snapshot-protocol': 90000, 'compact-message-layout': 225000, 'frontend-held-escape': 180000,
   })
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.equal((runner.match(/browserDeadlineAt = Date\.now\(\) \+ receipt\.browserCapMs/g) ?? []).length, 1)

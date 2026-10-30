@@ -1,6 +1,6 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { objectsInCell } from '../app/object-cells.ts'
@@ -26,8 +26,8 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
   // The following marker request retains this order within the partial block;
   // conditional emergency1086 and the rest of the recurring script stay excluded.
   assert.deepEqual(red.codes.slice(235, 241), [1006, 1092, 16, 21, 36, 36])
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   const w = store.getWorld(),
     tower = w.buildings.find(b => b.id === 90),
     fw = w.units.find(u => u.id === 96)

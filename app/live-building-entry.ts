@@ -424,6 +424,8 @@ export function dismantleBuilding(w: World, b: Building) {
       u.entry ??= { person: p, orders: w.buildingOrders }
       leaveBuildingEntry(w, u)
       clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      // A real dismantle replacement owns the next visit, not the pending G adapter.
+      delete p.guardInputPending
       attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects(w))
       resetPersonMotion(p)
       u.work = b.id

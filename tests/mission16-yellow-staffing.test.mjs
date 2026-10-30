@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { objectsInCell } from '../app/object-cells.ts'
 import { campaignRules } from '../app/campaign-command-runtime.ts'
@@ -81,8 +81,8 @@ test('supplied M16 task-pool capacity preserves source request ordering', () => 
 })
 
 test('ordinary M16 recurring requests physically garrison all five Towers and replay through public Save/Load', async () => {
-  const store = createGameStore()
-  store.startMission(16)
+  const store = await createCampaignFixtureStore([16])
+  assert.equal(store.startMission(16), true)
   const w = store.getWorld(),
     ids = [294, 295, 296, 297, 298]
   while (w.turn < 127) tick(w, 1 / 12)

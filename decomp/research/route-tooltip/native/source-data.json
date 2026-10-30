@@ -1,0 +1,121 @@
+{
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "paletteSha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+  "hfxSha256": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+  "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+  "message603": "One or more of your people can't get to this point.",
+  "frameTableAddress": "005caae8",
+  "frameTable": [
+    591,
+    595,
+    592,
+    597,
+    0,
+    598,
+    593,
+    596,
+    594
+  ],
+  "allFrameTileSizes": [
+    4,
+    4
+  ],
+  "existingBorderPngPixelMismatchCount": 0,
+  "existingBorderPngSha256": "a27dfdd8b933cc088afb8202d8bfa403cbe2e982e5ac3b6617454e61b003af95",
+  "routePaletteInitTargetRGB": [
+    255,
+    0,
+    0
+  ],
+  "uniqueNearestPaletteIndices": [
+    139
+  ],
+  "routeSourcePaletteColor": [
+    255,
+    37,
+    0
+  ],
+  "layoutExamples": [
+    {
+      "screen": [
+        640,
+        480
+      ],
+      "font": 4,
+      "width": 102,
+      "height": 30,
+      "lineHeight": 10,
+      "lines": [
+        "One or more of",
+        "your people can't",
+        "get to this point."
+      ],
+      "lineWidths": [
+        85,
+        92,
+        95
+      ],
+      "penalty": 34
+    },
+    {
+      "screen": [
+        800,
+        600
+      ],
+      "font": 4,
+      "width": 100,
+      "height": 30,
+      "lineHeight": 10,
+      "lines": [
+        "One or more of",
+        "your people can't",
+        "get to this point."
+      ],
+      "lineWidths": [
+        85,
+        92,
+        95
+      ],
+      "penalty": 28
+    },
+    {
+      "screen": [
+        1024,
+        768
+      ],
+      "font": 3,
+      "width": 276,
+      "height": 38,
+      "lineHeight": 19,
+      "lines": [
+        "One or more of your people",
+        "can't get to this point."
+      ],
+      "lineWidths": [
+        267,
+        217
+      ],
+      "penalty": 68
+    },
+    {
+      "screen": [
+        1280,
+        720
+      ],
+      "font": 3,
+      "width": 276,
+      "height": 38,
+      "lineHeight": 19,
+      "lines": [
+        "One or more of your people",
+        "can't get to this point."
+      ],
+      "lineWidths": [
+        267,
+        217
+      ],
+      "penalty": 68
+    }
+  ],
+  "note": "Read-only static data and algorithm reconstruction, not a native execution or screenshot. Runtime palette/blend/projection acceptance remain separate."
+}

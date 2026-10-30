@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // Start npm run dev, then node scripts/check-browser-building-fire.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -9,8 +10,7 @@ import sprites from '../app/original-units.json' with {type:'json'}
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
-  await page.getByRole('button', { name: 'Mute sound', exact: true }).waitFor()
+  await setSoundThroughOptions(page, true)
   await page.evaluate(() => {
     const scene = window.testScene
     const play=scene.onSound,start=AudioBufferSourceNode.prototype.start

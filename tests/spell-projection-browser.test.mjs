@@ -226,6 +226,6 @@ test('hosted runner preserves old episodes, Tutorial aggregate headroom and sour
   assert.match(scenario, /assert\.equal\(\s*observed\.scriptSource,\s*code/)
   assert.ok(
     scenario.indexOf("await cdp.send('Profiler.takePreciseCoverage')") <
-      scenario.indexOf("await button('Resume game').click()")
+      scenario.indexOf("await setWorldPaused(page, false, { timeout: 10000 })", scenario.indexOf("Profiler.startPreciseCoverage"))
   )
 })

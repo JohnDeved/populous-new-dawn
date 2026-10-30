@@ -35,6 +35,7 @@ import { short } from './native-math.ts'
 import { SWARM_INSECT_COUNT, hasSwarmRuntime, swarmState } from './swarm.ts'
 import { vaultKnowledgeGiftAppearance } from './vault-appearance.ts'
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
+import { makeSwampPresentation, drawSwampPresentation } from './scene-swamp.ts'
 
 export function makeVaultKnowledgeMarker(frame: number) {
   const g = new THREE.Group()
@@ -60,17 +61,7 @@ export function makeFx(scene: GameScene, f: Effect) {
     return presentation
   }
   const g = new THREE.Group()
-  if (f.swamp) {
-    const pool = new THREE.Mesh(
-      new THREE.CircleGeometry(2.8, 32),
-      new THREE.MeshBasicMaterial({ color: 0x26351f, transparent: true, opacity: 0.78 })
-    )
-    pool.name = 'swamp-trap'
-    pool.rotation.x = -Math.PI / 2
-    pool.position.y = 0.02
-    g.add(pool)
-    return g
-  }
+  if (f.swamp) return makeSwampPresentation()
   if (f.swarm) {
     g.name = 'swarm-insects'
     for (let i = 0; i < SWARM_INSECT_COUNT; i++) {
@@ -239,6 +230,10 @@ export function makeFx(scene: GameScene, f: Effect) {
 }
 
 export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
+  if (f.swamp) {
+    drawSwampPresentation(scene, g, f)
+    return
+  }
   const displacement =
     f.animation && 'displacement' in f.animation ? f.animation.displacement : undefined
   if (displacement) {
@@ -282,7 +277,6 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
     f.bridge ||
     f.flatten ||
     f.erosion ||
-    f.swamp ||
     f.firestorm ||
     f.earthquake ||
     f.volcano ||

@@ -1,3 +1,5 @@
+import { createResultClock, advanceResultClock } from '../app/result-session.ts'
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Page handlers, Scene methods/animate, store ownership and fixed-clock
 // consumer. DOM/GPU and event trust are supplied; this is not browser evidence.
 import assert from 'node:assert/strict'
@@ -13,12 +15,12 @@ const declaration = source.statements.find(node => ts.isClassDeclaration(node) &
 const animateSource = declaration.members.find(node => node.name?.getText(source) === 'animate').initializer.getText(source)
 const execute = (expression, bindings, receiver) => Function(...Object.keys(bindings), `return ${ts.transpileModule(`(${expression})`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText}`).call(receiver, ...Object.values(bindings))
 
-async function fixture(t) {
+async function fixture(t, campaignMissions = []) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
     { RenderView } = await import('../app/render-view.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
-    store = createGameStore(), logs = [], globals = new Map()
+    store = campaignMissions.length ? await createCampaignFixtureStore(campaignMissions) : createGameStore(), logs = [], globals = new Map()
   let arrival = 1, modal = false
   for (const [name, value] of Object.entries({ document: { hidden: false, querySelector: () => modal ? {} : null }, performance: { now: () => arrival }, devicePixelRatio: 1, requestAnimationFrame: () => 1, cancelAnimationFrame: noOp })) {
     globals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
@@ -42,6 +44,8 @@ async function fixture(t) {
       view, scene: new THREE.Scene(), camera: new THREE.Camera(),
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
+      tooltipElement: { hidden: false }, // supplied DOM leaf used by the real modal boundary
+      resultClock: createResultClock(),
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,
       keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: { velocity: { x: 0, y: 0 } },
       renderer: { getPixelRatio: () => 1, render: noOp }, hoveredObject: null, buildingPanels: new Map(),
@@ -51,7 +55,7 @@ async function fixture(t) {
     })
     for (const name of ['playWorldSounds', 'updateTerrainFrame', 'updateDecorationsFrame', 'cancelTooltipInspection', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement', 'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame']) scene[name] = noOp
     scene.animate = execute(animateSource, {
-      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
+      advanceResultClock, syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
       advanceGame: (w, clock, seconds) => { logs.push(['advanceGame', w.castingTribes[0].flags]); api.advanceGame(w, clock, seconds) },
     }, scene)
     const page = pageNearby(scene)
@@ -147,7 +151,7 @@ test('blocked, modal and hidden visits cancel pending and armed input without de
 })
 
 test('actual store replacement and same-World rebinding reject stale callbacks before disposal', async t => {
-  const f = await fixture(t)
+  const f = await fixture(t, [2])
   for (const replace of [() => f.store.restart(), () => f.store.startMission(2), () => f.store.loadCheckpoint(), old => f.store.bindPresentation(old.world)]) {
     await f.store.saveCheckpoint()
     const old = f.bind()
@@ -221,7 +225,9 @@ test('actual Scene disposal cancels pending input and the elapsed phase', async 
 test('actual Scene modal boundary freezes game clock and rendering consumers, then restarts elapsed time at zero', async t => {
   const { scene, page, world, logs } = await fixture(t)
   world.paused = false
+  assert.equal(scene.tooltipElement.hidden, false)
   page.openMenu()
+  assert.equal(scene.tooltipElement.hidden, true, 'modal owner immediately hides the native tooltip')
   const before = structuredClone(world)
   const clock = structuredClone(scene.gameClock)
   let renders = 0

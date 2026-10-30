@@ -2,6 +2,7 @@
 // PND_BLOODLUST_IMPLEMENTATION_HEAD must name the implemented, tested local HEAD.
 // The opt-in red scene suite must pass before Playwright is even imported.
 import assert from 'node:assert/strict'
+// Declared mission availability only, not naturally earned campaign history.
 import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { execFileSync, spawnSync } from 'node:child_process'
@@ -12,7 +13,7 @@ import {
   assertOriginalOverlay,
   criticalState,
 } from './lib/bloodlust-acceptance.mjs'
-import { openGame, bindGame } from './browser-game.mjs'
+import { openCampaignFixtureGame, bindGame } from './browser-game.mjs'
 import artwork from '../app/original-bloodlust.json' with { type: 'json' }
 
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
@@ -60,7 +61,7 @@ const saveStage = (name, data) => {
   console.log(name, JSON.stringify(data))
 }
 try {
-  const opened = await openGame(browser, 16)
+  const opened = await openCampaignFixtureGame(browser, 16)
   page = opened.page
   page.setDefaultTimeout(45000)
   await page.evaluate(() => {

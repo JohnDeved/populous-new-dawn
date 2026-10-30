@@ -1,0 +1,133 @@
+{
+  "panelUrl": "/original/campaign-popup-tiles.png",
+  "rects": {
+    "1450": {
+      "x": 0,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "8a4071458d228e0dfab21781c569a23050eff98e0ee564c1533ee0b5e317dcbd"
+    },
+    "1451": {
+      "x": 16,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "112703e07719ab9b1258af05057d9b4a78744616a64e25582d2c4bdc7664f744"
+    },
+    "1452": {
+      "x": 32,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "a0172bf7da286eda2b67cfe06595ee612b3635474d7b88047e62ca02d82207fb"
+    },
+    "1453": {
+      "x": 48,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "72c9c062b3884cc7c7bf6b4ba8e4088ba80e7b4797142b0abb9b198021509693"
+    },
+    "1454": {
+      "x": 64,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "f1d6e2abb66563c23b18591dded045e3b077bb98b11b04a6a16fccb35a9992fe"
+    },
+    "1455": {
+      "x": 80,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "28b580b1d3e5e1b1ac7fbfa5c61edb0bcd1d82d68b5103db651231be5d4754a1"
+    },
+    "1456": {
+      "x": 96,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "51d2693d0a2c50709c8552b9fe900c22c5181fc146f8c0acfc00c73536f0776b"
+    },
+    "1457": {
+      "x": 112,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "35e8103ee7159de3d1463daf8a81420abdec034f338b847df0eaaca3ff9a5929"
+    },
+    "1458": {
+      "x": 128,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "63d74bf8dea57e1984f6076ea6a5073c5ffe4bd168f3237a578837ceebee6ba6"
+    },
+    "1459": {
+      "x": 144,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "1fdaa1d9d82eb7f732b76845f4c836f4c4080e0b9d404452d1ce68f2309819a8"
+    },
+    "1460": {
+      "x": 160,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "8ee59517c4d5db1944a6bd64f3a1c8ca8cb637846a8d1cabc3974ee5a778c37b"
+    },
+    "1461": {
+      "x": 176,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "50a63b6e475d0dad5ded6ec93d17da42346fa200d3665dc281a9f5d2b10c59ea"
+    },
+    "1462": {
+      "x": 192,
+      "y": 0,
+      "w": 16,
+      "h": 16,
+      "rgbaSha256": "5d896df301cc4b7412f68bf44dff1557c871f0133bd9edff0a5fa51dc029dae3"
+    }
+  },
+  "labels": {
+    "227": "OK",
+    "278": "Save",
+    "279": "Exit",
+    "323": "Delete"
+  },
+  "buttonUrls": {
+    "normal": "/original/hud-button.png",
+    "hover": "/original/hud-button-selected.png",
+    "pressed": "/original/hud-button-hover.png"
+  },
+  "provenance": {
+    "inputs": {
+      "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+      "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+      "language/lang00.dat": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d"
+    },
+    "decoderFunctionsSha256": {
+      "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+      "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+    },
+    "panelPngSha256": "2543b4053d867f3b518e4b2478a1f8c1e69b42040a8e69d77117ea4589a42356",
+    "panelRgbaSha256": "1979e15b6edd7530d33c0357dbe1ec0c5df71c1489123aeae4291fafff9e320b",
+    "panelRenderer": "00523d40",
+    "popupRenderer": "00525650",
+    "buttonRenderer": "004a2560",
+    "layout": "004afb00",
+    "wrapping": "004afee0 -> 0045ec10",
+    "configuration": "004af440",
+    "pixelPolicy": "Unmodulated source palette RGB; literal pixels opaque and RLE skips transparent. No invented tint or shadow.",
+    "limits": [
+      "Static source reconstruction, not a native GPU capture.",
+      "Inherited GPU blend and vertex state remain unverified.",
+      "Campaign OK and Delete follow message flags; mode1 Save/Exit is not emitted by the current campaign producers."
+    ]
+  }
+}

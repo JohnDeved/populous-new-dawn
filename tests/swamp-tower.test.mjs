@@ -1,14 +1,14 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { placeBuilding, selectUnit, command, tick, cast } from '../app/model.ts'
 import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
 import { stepLiveSwamp } from '../app/spell-effects-runtime.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
 test('earned Swamp kills an ordinary built Tower resident and releases its physical ownership', async () => {
-  const store = createGameStore()
-  store.startMission(14)
+  const store = await createCampaignFixtureStore([14])
+  assert.equal(store.startMission(14), true)
   const w = store.getWorld(),
     workers = w.units.filter(u => u.team === 'blue' && u.kind === 'brave')
   // Only the existing focus adapter is supplied; real workers acquire timber,

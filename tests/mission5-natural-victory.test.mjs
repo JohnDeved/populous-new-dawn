@@ -1,3 +1,4 @@
+import { nativeCampaignProfile } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 // Genuine campaign inputs: earn Convert, occupy the authored Tower, convert a
 // wild follower near the disconnected head, then earn and board the linked Boat.
@@ -19,12 +20,13 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 
 const referenceId = scalableReferenceIds(5)
 
-test('fresh Mission5 victory persists across stores and the source-bound Continue6 path', async () => {
-  await withStorage({}, async ({ freshStore, records, drain }) => {
+test('declared Mission5 prerequisite supports natural victory, native selector exit and fresh-session Mission6', async () => {
+  await withStorage({ profile: nativeCampaignProfile({ available: [5] }) }, async ({ freshStore, records, drain }) => {
     await loadSceneFixture()
     const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
     const store = await freshStore()
-    store.startMission(5)
+    await store.restoreCheckpoint()
+    assert.equal(store.startMission(5), true)
     const world = store.getWorld(),
       warrior = world.units.find(u => u.id === 112),
       head = world.shrines.find(s => s.kind === 'boat'),
@@ -249,6 +251,9 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       world.effects.includes(angel),
       'the live Blue Angel and absent Red Shaman trigger the authored override'
     )
+    // Admit the actual earned result before checkpoint replacement clears its session owner.
+    assert.equal(store.enterCampaignSelector(store.getWorld()), true)
+    assert.equal(store.getCampaignSelection().progressionMission, 6)
     await store.saveCheckpoint()
     assert.ok(store.loadCheckpoint())
     assert.deepEqual(store.getWorld(), world)
@@ -261,9 +266,10 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     assert.deepEqual(secondStore.getCompletedMissions(), [5])
     assert.ok(secondStore.loadCheckpoint())
     assert.deepEqual(secondStore.getWorld(), world)
-    // page.tsx Continue -> beginLoad -> store.startMission. This exercises its
-    // store path with synthetic IndexedDB, not rendered button/browser behavior.
-    secondStore.startMission(6)
+    // Native result exit persisted availability; fresh-session campaign launch
+    // uses the real gate. This is not rendered input or an earned Missions 1-4 route.
+    assert.ok(secondStore.getCampaignSelection().available.includes(6))
+    assert.equal(secondStore.startMission(6), true)
     assert.equal(secondStore.getWorld().outcome.level, 6)
     assert.equal(secondStore.getWorld().status, 'playing')
     assert.deepEqual(secondStore.getCompletedMissions(), [5])

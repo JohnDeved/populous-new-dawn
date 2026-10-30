@@ -1,0 +1,142 @@
+{
+  "sourceHead": "be44bc76f21429c472978c3dcb8893e565b6a4fb",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "files": [
+    {
+      "path": "FINDINGS.md",
+      "bytes": 9117,
+      "sha256": "de66117ba691315231191fa6f5f040d24bfc436389d6fd536ff487ae07193b7d"
+    },
+    {
+      "path": "audit_bit8.py",
+      "bytes": 941,
+      "sha256": "d008bf1aed49338e6f91272a8fba4d1240af8808f942859566d54e34bc466baf"
+    },
+    {
+      "path": "audit_callbacks.py",
+      "bytes": 1915,
+      "sha256": "5d53083510faf5c2f270419bb0db711c3f7065b8a03dc7d789ad5c5a05eb94b9"
+    },
+    {
+      "path": "audit_static.py",
+      "bytes": 5211,
+      "sha256": "383bccf5995fa631a6d2f630c583f50a0c5830a54387a30758970c6faa1e41b5"
+    },
+    {
+      "path": "background-submit.asm",
+      "bytes": 6216,
+      "sha256": "a3a6d90cef791c7c93d22b51f01567ebcf0d839cbfcce58018d73f8392c2fdeb"
+    },
+    {
+      "path": "callback-bit8-closure.asm",
+      "bytes": 121083,
+      "sha256": "70edbc455d9611b2bfb1708e022b56a6af0be0300175f5b238b039c9577f3b4d"
+    },
+    {
+      "path": "callback-bit8-closure.json",
+      "bytes": 4569,
+      "sha256": "160927f41289466f8d2384f701ce6074f36a19dc473c2491244380f5231a7671"
+    },
+    {
+      "path": "callback-direct-closure.json",
+      "bytes": 36339,
+      "sha256": "0985d2b1483cecb84cafc92756e1dfe8bc517ff5c68f0cdd4a58430dcc9f165a"
+    },
+    {
+      "path": "flag-save-restore.asm",
+      "bytes": 2164,
+      "sha256": "11a5f66ecf69f9712bf3bba2780ff97c2e28f26f8baf3359d71bd676b6e4584c"
+    },
+    {
+      "path": "flag-variable-or.asm",
+      "bytes": 3973,
+      "sha256": "8c8d686e64943138ec70a4befe5ce0430b9b27131691408223fd59d27fced2bc"
+    },
+    {
+      "path": "flag-write-closure.asm",
+      "bytes": 155842,
+      "sha256": "1f530551e66673028f4f6b7730e6df01642ecba83d0219b8715eb79de5336a26"
+    },
+    {
+      "path": "flag-write-closure.json",
+      "bytes": 9328,
+      "sha256": "47467a60dff1c820b571d0298e2cac28f0d42d3814d5ffe63205cab1cce799ec"
+    },
+    {
+      "path": "flags-full-writes-and-bit16-context.asm",
+      "bytes": 24489,
+      "sha256": "c2bacffe282177fee2d07e9b9f8bc676f96abdbe7bc0e2f50043d93c0d66e5b3"
+    },
+    {
+      "path": "frame-border.asm",
+      "bytes": 21694,
+      "sha256": "c46712e5b9216f63d00ada56cc6bab538be72a97a3468ca05fd25bcf37afed22"
+    },
+    {
+      "path": "intervening-noop.asm",
+      "bytes": 761,
+      "sha256": "cedae9b34d8a3781fddda45a79b15d5d13d34b4fe2aa1bf82917cf7243211b72"
+    },
+    {
+      "path": "main-draw.asm",
+      "bytes": 19952,
+      "sha256": "8a3be1f8ed09ba69a6f549e31ccb76c55f8709dbe2a04a5c35d70d24e1b0e03a"
+    },
+    {
+      "path": "normal-ui-initialization.asm",
+      "bytes": 1888,
+      "sha256": "f00b1efefed40d5804c4f854670eff1368a827aadeed2571a723cf6c05e6a0a7"
+    },
+    {
+      "path": "pretooltip-overlay.asm",
+      "bytes": 3187,
+      "sha256": "6990d9c469bedc2418b18de55a8e5d4ca3c83152823a48c6a6b28dc1063bc9e2"
+    },
+    {
+      "path": "preworld-draw.asm",
+      "bytes": 10199,
+      "sha256": "f25368be3b02ba0fa5feb9427d1ded45bd721dd952f78994d0ec47d5cdc4d872"
+    },
+    {
+      "path": "quad-packet-raster.asm",
+      "bytes": 4958,
+      "sha256": "b3f96385c1dcfbd6ec8565be322bb82b2221c7cef3612dfedde39243422d7a5b"
+    },
+    {
+      "path": "quad-submit.asm",
+      "bytes": 27794,
+      "sha256": "037e18e64cef3f27ef958481d3febb607a1f1ec0d5da5f9dc199a6325e7dce11"
+    },
+    {
+      "path": "source-data.json",
+      "bytes": 40388,
+      "sha256": "099163c2bfe03a75fecb0f6250a4c0f8ab49a50f2713f56ae28d6367601469a5"
+    },
+    {
+      "path": "sprite-corner-submit.asm",
+      "bytes": 2711,
+      "sha256": "437a48e927f1abdd2dc339e159ea2472538c9393e6606a5a3baff5acaa0c8f09"
+    },
+    {
+      "path": "tooltip-frame.asm",
+      "bytes": 2111,
+      "sha256": "d31c3f51b09fe69c9042b4ba36f55d3a9fe900640a2e025729ba25e30510c6be"
+    },
+    {
+      "path": "ui-dispatch.asm",
+      "bytes": 19902,
+      "sha256": "66ae3a42ac07f0d08562833b14777a50ff5f44e0c3fb49cc98b6c1c103c6a009"
+    },
+    {
+      "path": "vertices-flags-direct-references.asm",
+      "bytes": 11795,
+      "sha256": "38a7cdfa75e96726c2bb62eecd76f2b14135ec0e6654757aaec4379711e06b05"
+    },
+    {
+      "path": "window-init.asm",
+      "bytes": 20306,
+      "sha256": "ab4490a6793820953c3ccd5ad3571129ad531d26cb83ae94be13c46430e4d0a2"
+    }
+  ],
+  "bytesExcludingManifest": 568833
+}

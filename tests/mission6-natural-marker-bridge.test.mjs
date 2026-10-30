@@ -1,6 +1,6 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { cast, command, selectUnit, cancelInteraction, tick, findPath } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { spellInRange } from '../app/spell-casting.ts'
@@ -12,8 +12,8 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoint continuity', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
-  const store = createGameStore()
-  store.startMission(6)
+  const store = await createCampaignFixtureStore([6])
+  assert.equal(store.startMission(6), true)
   const world = store.getWorld(),
     shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
     population = team => world.units.filter(u => u.team === team && u.hp > 0).length,

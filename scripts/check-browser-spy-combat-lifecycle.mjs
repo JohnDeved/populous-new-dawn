@@ -1,3 +1,5 @@
+import { commandCategory } from './browser-command-categories.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Issue97 normal Spy lifecycle. PR108 acquisition helpers and stages are reused
 // from their exact reviewed source; the original checker is not modified.
@@ -1212,9 +1214,7 @@ try {
   await stage('normal-opening', async () => {
     await until('authored opening', { kind: 'opening' }, 64)
     await holdRaf(false)
-    const skip = page.getByRole('button', { name: /Skip introduction/ })
-    await skip.waitFor()
-    await skip.click()
+    await skipIntroductionWithSpace(page, { timeout: 15000 })
     await page.waitForFunction(
       () =>
         !(window.testStore.getWorld().inputMask & 64) &&
@@ -1507,7 +1507,7 @@ try {
   )
   await stage('real-Spy-disguise', async () => {
     await selectPerson(spyId)
-    const followersTab = page.getByTitle('followers', { exact: true })
+    const followersTab = commandCategory(page, 'followers')
     await followersTab.click()
     assert.equal(await followersTab.getAttribute('aria-pressed'), 'true')
     const before = await lifecycleState(spyId, school)

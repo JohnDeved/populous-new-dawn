@@ -1,8 +1,8 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { browserPosition, cast, command, selectUnit, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { buildingFirePoints, buildingPose } from '../app/building-shapes.ts'
 import { buildingFirePeople, initializeLivePanic } from '../app/live-people.ts'
 import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
@@ -18,9 +18,9 @@ const personOutcomes = world =>
       person = unit.native
     return { id, angle: person.turnAngle, trail: person.burnTrail, state: person.state }
   })
-function pendingIgnition() {
-  const store = createGameStore()
-  store.startMission(3)
+async function pendingIgnition() {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = finishLevelStart(store.getWorld()),
     hut = world.buildings.find(building => building.team === 'blue' && building.kind === 'hut'),
     points = buildingFirePoints(buildingPose(hut)),
@@ -84,7 +84,7 @@ function nativeIgnition(seed, orderedIds) {
 }
 
 test('ordinary Mission 3 fire assigns panic directions in retained person order and survives Save/Load', async () => {
-  const { world, store, hutId } = pendingIgnition()
+  const { world, store, hutId } = await pendingIgnition()
   await store.saveCheckpoint()
   assert.equal(store.loadCheckpoint(), true)
   const restored = store.getWorld()
@@ -108,8 +108,8 @@ test('ordinary Mission 3 fire assigns panic directions in retained person order 
   assert.ok(ids.every(id => world.units.some(unit => unit.id === id && unit.hp > 0)))
 })
 
-test('source-ordered snapshot matches per-person panic draws without changing aggregate RNG', () => {
-  const { world, point, packed } = pendingIgnition(),
+test('source-ordered snapshot matches per-person panic draws without changing aggregate RNG', async () => {
+  const { world, point, packed } = await pendingIgnition(),
     expected = structuredClone(world),
     linked = [...objectsInCell(expected.objectCells, packed)].filter(person =>
       ids.includes(person.id)
@@ -123,9 +123,9 @@ test('source-ordered snapshot matches per-person panic draws without changing ag
   assert.deepEqual(personOutcomes(world), native.people)
 })
 
-test('unregistered, partial and same-ID alias slots retain their previous fallback', () => {
+test('unregistered, partial and same-ID alias slots retain their previous fallback', async () => {
   for (const mode of ['unregistered', 'partial', 'alias']) {
-    const { world, point, linked } = pendingIgnition()
+    const { world, point, linked } = await pendingIgnition()
     for (const person of mode === 'unregistered' ? linked : linked.slice(0, 1)) {
       if (mode === 'alias') world.objectCells.objects.set(person.id, structuredClone(person))
       else {
@@ -145,8 +145,8 @@ test('unregistered, partial and same-ID alias slots retain their previous fallba
   }
 })
 
-test('duplicate roster ownership keeps the fallback rather than overrunning the projection', () => {
-  const { world, point } = pendingIgnition(),
+test('duplicate roster ownership keeps the fallback rather than overrunning the projection', async () => {
+  const { world, point } = await pendingIgnition(),
     unit = world.units.find(unit => unit.id === referenceId(312))
   // Deliberately supplied malformed ownership, not an ordinary producer.
   world.units.push(unit)
@@ -161,8 +161,8 @@ test('duplicate roster ownership keeps the fallback rather than overrunning the 
   assert.equal(world.randomState, expected.randomState)
 })
 
-test('repeated sockets preserve the snapshot when registry ownership changes before visits', () => {
-  const { world, point, packed, linked } = pendingIgnition(),
+test('repeated sockets preserve the snapshot when registry ownership changes before visits', async () => {
+  const { world, point, packed, linked } = await pendingIgnition(),
     expected = structuredClone(world),
     referencePeople = [...objectsInCell(expected.objectCells, packed)].filter(person =>
       ids.includes(person.id)

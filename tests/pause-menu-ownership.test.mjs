@@ -18,22 +18,17 @@ test('actual Page captures original pause once, holds it across panel return and
   assert.equal(page.bindings.menuSession.current,null)
  }
 })
-test('actual Page never restores an old pause state or queued camera request into a replacement world',()=>{
+test('actual Page never restores an old pause state into a replacement world',()=>{
  const {world,scene,page,replace}=fixture(false)
  page.openMenu()
- let cameraCalls=0
- page.bindings.pendingMenuCamera.current.push(()=>cameraCalls++)
  const next={paused:true};replace(next)
  page.closeMenu();assert.equal(next.paused,true);assert.equal(world.paused,true)
- assert.equal(cameraCalls,0);assert.equal(page.bindings.pendingMenuCamera.current.length,0)
  assert.equal(scene.modalSuspended,true,'obsolete scene remains suspended until disposed')
 })
-test('actual Page applies queued camera conveniences only on final same-world close',()=>{
- const {scene,page}=fixture(false)
- page.openMenu()
- let cameraCalls=0
- page.bindings.pendingMenuCamera.current.push(s=>{assert.equal(s,scene);assert.equal(s.modalSuspended,false);cameraCalls++})
- page.openMenu();assert.equal(cameraCalls,0)
- page.closeMenu();assert.equal(cameraCalls,1)
- page.closeMenu();assert.equal(cameraCalls,1)
+test('actual Page closes same-world menu once without deferred camera conveniences',()=>{
+ const {world,scene,page}=fixture(false)
+ page.openMenu();page.openMenu();page.closeMenu()
+ assert.equal(world.paused,false);assert.equal(scene.modalSuspended,false)
+ // Closing again cannot restore stale pause state or re-enter the world.
+ world.paused=true;page.closeMenu();assert.equal(world.paused,true)
 })

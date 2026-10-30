@@ -1,0 +1,250 @@
+{
+  "inputs": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf"
+  },
+  "decoders": {
+    "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+    "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+  },
+  "originalExecuted": false,
+  "referenceRect": [
+    64,
+    114,
+    13,
+    12
+  ],
+  "icons": {
+    "105": {
+      "url": "/original/query-control/hfx-105.png",
+      "width": 4,
+      "height": 6,
+      "sha256": "1c88ae1b237be47c12f5bde86b35f268851b788afbb1199a3bcda177f260d0d2"
+    },
+    "996": {
+      "url": "/original/query-control/hfx-996.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "8f551fb067483c06e2ef1c6b23e042bedbc8b1a2348e97721cbed30c18d6a141"
+    },
+    "997": {
+      "url": "/original/query-control/hfx-997.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "4791824c7b362c402878ca4cfeab5f91baa5d473375fed18fc5e65dbb010e303"
+    },
+    "998": {
+      "url": "/original/query-control/hfx-998.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "73a05016884a33b8f547e74888ff064abfeaab28d9a35dbafb22da28cfe58907"
+    },
+    "999": {
+      "url": "/original/query-control/hfx-999.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "eaedf5fcfbbb3027c04dbc62582b4a3d022819b9b4417d6dd5c30d8e2145ca13"
+    },
+    "1000": {
+      "url": "/original/query-control/hfx-1000.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "d8cddcc7b587fc14245f0bfb44843e236826613c75ae61fa1f50d1ba5d1110ab"
+    },
+    "1001": {
+      "url": "/original/query-control/hfx-1001.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "2b855e71842cd682f34fbee4e82f1681e70aff1b2aa385d3155fb866eb293186"
+    },
+    "1002": {
+      "url": "/original/query-control/hfx-1002.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "5b811dbf6f52fb39648d7f04a88c7a577c561a1cf135f75eafd37d47caed87f0"
+    },
+    "1003": {
+      "url": "/original/query-control/hfx-1003.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "023dd1339de2d7eb20e8650bcddf42b1dc8e87844dcd1b93df8909e2ee6cf045"
+    },
+    "1004": {
+      "url": "/original/query-control/hfx-1004.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "db9844bc90c61c345e25d8e657c08ca12ce167d5ebd0deeec14112ea0fb482c9"
+    },
+    "1005": {
+      "url": "/original/query-control/hfx-1005.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "6da842e9f2c2bf2295a154d5af975a3c7585eead6889a0e7c215cbdfbc5d618e"
+    },
+    "1006": {
+      "url": "/original/query-control/hfx-1006.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "389fa1b5e96d89de8405e4361ebd2f228d6aa08b8fd0023589ff1ff7de07cf85"
+    },
+    "1007": {
+      "url": "/original/query-control/hfx-1007.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "0cb8e7a8db3ea299b8f86d434844b13d991bc753286b7528e031688ee2ce7f83"
+    },
+    "1008": {
+      "url": "/original/query-control/hfx-1008.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "c46b4e5accbd463d159e59ae4d8fb1f561f432f39ccb1512a5dada5bb6231365"
+    },
+    "1009": {
+      "url": "/original/query-control/hfx-1009.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "b7714b08caa5563b46ec6b359be6f58504b9cc56ffcb0258b148c809e8a1be67"
+    },
+    "1010": {
+      "url": "/original/query-control/hfx-1010.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "d88ebc8e0c55820cdd2e6b633f7faf6f69a350f86f0a9644e9f2ef7b73522c0f"
+    },
+    "1011": {
+      "url": "/original/query-control/hfx-1011.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "f041eb59b4029c3c45ef9942ef5e1e3e0ff242e4b237bf931034658bd00c5a5c"
+    },
+    "1012": {
+      "url": "/original/query-control/hfx-1012.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "d91c5149c06b7db47f253156ac2a6767816f447b4c9a561d41ef5bf913ab2c42"
+    },
+    "1013": {
+      "url": "/original/query-control/hfx-1013.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "86ea1172459cdaa6efa304b935f61276be1b699aaa47e1d3ac07aabbebd5512d"
+    },
+    "1014": {
+      "url": "/original/query-control/hfx-1014.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "180b0043b00eb95f8e121b8c6aabebcb2670871d2a269443fdbad92b6b9b1b39"
+    },
+    "1015": {
+      "url": "/original/query-control/hfx-1015.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "a73b02e5c5a3b6476aa494a8af23129989b95c40a6a117d332d00ec906f8ffdf"
+    },
+    "1016": {
+      "url": "/original/query-control/hfx-1016.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "f06cace1bffbc847864583ad69690baa00c740aa0cd80760ba73fc6e19662d98"
+    },
+    "1017": {
+      "url": "/original/query-control/hfx-1017.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "395b86fcdf11bb5a14ef0948be88ae2446b472b89332b200e7ca770db0fe5b9d"
+    },
+    "1018": {
+      "url": "/original/query-control/hfx-1018.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "f89fc449d16890632a50f7c142e1cb7bc59c9b396cabddb0cdf68f9e4d0a4d23"
+    },
+    "1019": {
+      "url": "/original/query-control/hfx-1019.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "ce8650c2ec76325f2a31e885df51caf107913096fc32e05c7559490d705ce7ea"
+    },
+    "1020": {
+      "url": "/original/query-control/hfx-1020.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "ea844c68e552fb88d0eee9cb605aaedef8f0bf092dcbf8a1d672048046476937"
+    },
+    "1021": {
+      "url": "/original/query-control/hfx-1021.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "65980f4e7b821185309e2259f4221674c88db2246a03427eb8e000519a08e241"
+    },
+    "1022": {
+      "url": "/original/query-control/hfx-1022.png",
+      "width": 4,
+      "height": 4,
+      "sha256": "db9844bc90c61c345e25d8e657c08ca12ce167d5ebd0deeec14112ea0fb482c9"
+    }
+  },
+  "frames": {
+    "normal": {
+      "address": "005caba8",
+      "sha256": "d936a2cdfa76f4c34070cbb3c64dc5f8ecbf24845351687dec25ceb40cd46ddc",
+      "hex": "ed03f103ee03f303f503f403ef03f203f003",
+      "ids": [
+        1005,
+        1009,
+        1006,
+        1011,
+        1013,
+        1012,
+        1007,
+        1010,
+        1008
+      ]
+    },
+    "hover": {
+      "address": "005cabd8",
+      "sha256": "596f872284d5ddc0139bb54e5d0834a48a21a0184b81e250a95d3d3aec86d6a9",
+      "hex": "e403e803e503ea03ec03eb03e603e903e703",
+      "ids": [
+        996,
+        1000,
+        997,
+        1002,
+        1004,
+        1003,
+        998,
+        1001,
+        999
+      ]
+    },
+    "held": {
+      "address": "005cabc0",
+      "sha256": "cc8be9be5d76a326a204fba1a62aaf63cffc74867ea2642cde5512c507196c79",
+      "hex": "f603fa03f703fc03fe03fd03f803fb03f903",
+      "ids": [
+        1014,
+        1018,
+        1015,
+        1020,
+        1022,
+        1021,
+        1016,
+        1019,
+        1017
+      ]
+    }
+  },
+  "sourceDescriptor": {
+    "address": "005cb386",
+    "sha256": "83c1fa51b91bb2a52eba3e0730b9372ee49d116827a6d5ec9e88a13e7dc48e91",
+    "hex": "0000000001000000000000000050d1490050d149000000000040007200400072000d000c0069000000d0d14900c503000000000000000000000000000000001b0400",
+    "helpTopic": 1051
+  },
+  "sourceRenderer": {
+    "address": "0049d1d0",
+    "sha256": "cdb8f775deff2d9e0c8b34f9897a2c6d3577b6116bc91dbfbdc0bacf5f3be96f",
+    "hex": "83ec1053568b74241c57558b463750e80cd0faff8944241483c4048b463b50e81cd0faff83c4048bd88b464703463750e8ebcffaff83c4048be88b464b03463b50e8facffaff83c4048bf868d8ab5c0068c0ab5c0068a8ab5c0056e8a04b000083c410b90100000066813dcfc6890020037f0233c9034e4f8d041f99c1e1032bc2c1f801030d14df5900668b51065166c1ea010fb7da2bc3668b49045066c1e9018b44241803c5992bc20fb7d1c1f8012bc250e85890070083c40c5d5f5e5b83c410c3"
+  },
+  "boundary": "Source-palette640-reference Query art. Menu callback retained; no Query behavior or original GPU-capture claim."
+}

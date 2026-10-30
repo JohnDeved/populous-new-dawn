@@ -160,3 +160,15 @@ export const messageHeight = (message: CampaignMessage) =>
 export function removeMessage(state: MessageState, slot: number) {
   state.slots[slot] = null
 }
+
+// Campaign popup modes and acknowledgment retain ordinary notifications; the
+// authored one-shot flag removes them on OK. Delete explicitly opts into removal.
+export const messageHasDelete = (message: CampaignMessage) =>
+  !(message.flags & 0x100000) && !!(message.flags & 1) && !(message.flags & 0x200)
+
+export function acknowledgeMessage(state: MessageState, slot: number, deleting = false) {
+  const message = state.slots[slot]
+  if (!message) return
+  if (deleting && messageHasDelete(message)) message.flags |= 0x200
+  if (message.flags & 1 && message.flags & 0x200) removeMessage(state, slot)
+}

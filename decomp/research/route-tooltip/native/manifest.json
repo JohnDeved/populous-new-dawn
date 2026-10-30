@@ -1,0 +1,70 @@
+{
+  "scope": "Original static reads only; no native execution and no repository edits",
+  "files": [
+    {
+      "file": "FINDINGS.md",
+      "bytes": 9347,
+      "sha256": "5599e5f37b5973a203a0d038864a9e44dd824426c2ef31c91325baa7f3c72ecb"
+    },
+    {
+      "file": "background-submit.asm",
+      "bytes": 6216,
+      "sha256": "a3a6d90cef791c7c93d22b51f01567ebcf0d839cbfcce58018d73f8392c2fdeb"
+    },
+    {
+      "file": "clear-tooltip.asm",
+      "bytes": 724,
+      "sha256": "3464f00a3dbbe3eb8d7b0c569be5e971170224001f3cae3a246cf2afe56a0949"
+    },
+    {
+      "file": "input-frame-owner.asm",
+      "bytes": 12451,
+      "sha256": "95b6144dea2f71c594e8ebf3319472c2a90be4871581bba7a55e5a4a4a80f702"
+    },
+    {
+      "file": "last-command-anchor.asm",
+      "bytes": 7526,
+      "sha256": "9f75cf36a9835e571926c5d12a38177420c4c1444b378d52c658e0ef1626c18c"
+    },
+    {
+      "file": "palette-init.asm",
+      "bytes": 6146,
+      "sha256": "3e1b6ff610bd66f7cfa89e0da0ea32bd16633ea78db8ac618fcbe389395220c0"
+    },
+    {
+      "file": "palette-nearest.asm",
+      "bytes": 12084,
+      "sha256": "82eba8019bbbbd9b0f0adc319b93f3cc95de03222dafcbd5a976acff890bff2c"
+    },
+    {
+      "file": "request-dispatch.asm",
+      "bytes": 11027,
+      "sha256": "16898f48be442916e9928585e66a3fcf1ddc2cee6fbd4e3b07e470b6a80d5716"
+    },
+    {
+      "file": "source-data.json",
+      "bytes": 2420,
+      "sha256": "62aa79371861d910f132436a1462d52e10bbc0f94c3f602b449cf3fb7b84ce38"
+    },
+    {
+      "file": "tooltip-countdown.asm",
+      "bytes": 2689,
+      "sha256": "d16e87c0c33a14578f5d93fac01874dff068510ea9edc5c4ac81ea4f97eb0b22"
+    },
+    {
+      "file": "tooltip-frame.asm",
+      "bytes": 2961,
+      "sha256": "4f86b8cd1a14e2cdfa5f5c19073516183dd3dad06c091786147305f05a92f58f"
+    },
+    {
+      "file": "tooltip-mode-init.asm",
+      "bytes": 11152,
+      "sha256": "cd1dde3be6d7c5adae48f9e56b3a582287f84e50b9795b2a47da23a56632249d"
+    },
+    {
+      "file": "tooltip-renderer.asm",
+      "bytes": 33660,
+      "sha256": "d8b99d23cb0ed46627ae52c1c0919eee68f6ae9e4878e123bd950228c14cc1db"
+    }
+  ]
+}

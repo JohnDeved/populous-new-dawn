@@ -1,3 +1,4 @@
+import { introductionInputState, pressIntroductionSpace } from './browser-introduction.mjs'
 // Controlled elapsed full Scene.animate acceptance, not a real-clock journey.
 // Public controls own worship, movement, combat and all three Bridge casts.
 // The registered check retains its route but never calls tick directly or zeros
@@ -138,11 +139,11 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
           bridges: w.effects.filter(f => f.bridge).map(f => ({ id: f.id, turn: f.bridge.turn })), rows }
       }
     })
-    const skip = page.getByRole('button', { name: /Skip introduction/i }), resume = page.getByRole('button', { name: 'Resume game', exact: true })
     for (let batch = 0; batch < 80; batch++) {
       signal.throwIfAborted()
-      if (await skip.isVisible() && await skip.isEnabled()) await skip.click()
-      if (await resume.isVisible() && await resume.isEnabled()) await resume.click()
+      if (await page.evaluate(introductionInputState) === 'skip') await pressIntroductionSpace(page, { timeout: 45000 })
+      if (await page.evaluate(() => window.testStore.getWorld().paused && !window.testStore.getWorld().inputMask))
+        await page.locator('.world-viewport').press('Space')
       const ready = await readShamanReadiness(pollingPage)
       if (ready.ready) { report.startup = ready; break }
       await page.evaluate(() => window.runCombinedFrames('startup', 12))

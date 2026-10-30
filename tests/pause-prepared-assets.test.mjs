@@ -19,6 +19,8 @@ for (const fonts of [false, true]) test(`pause prepared font=${fonts} is used on
       if (name === 'react') return react
       if (name === 'react/jsx-runtime') return require(name)
       if (name.endsWith('.json')) return JSON.parse(readFileSync(new URL('../app/' + name.slice(2), import.meta.url)))
+      if (name === './checkpoint-scroll') return { CHECKPOINT_COPY_WIDTH: 368 }
+      if (name === './checkpoint-scroll-area') return { CheckpointScrollArea: ({ children }) => require('react/jsx-runtime').jsx('div', { tabIndex: 0, 'aria-label': 'Checkpoint details', children }) }
       if (name === './frontend-composition') return { frontendScale: () => 5 / 3 }
       if (name.endsWith('.module.css')) return {}
       throw Error(`Unexpected dependency: ${name}`)

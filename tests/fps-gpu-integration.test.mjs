@@ -57,3 +57,26 @@ test('actual FpsGraph forwards independent CPU subregions alongside asynchronous
   assert.equal(f.graph.samples.recentFrames()[0].sceneRenderGpu.status, 'pending')
   f.graph.dispose()
 })
+
+
+test('poll-only callbacks settle original GPU samples without inventing idle draw tokens', () => {
+  const f = fixture()
+  frame(f, 10)
+  frame(f, 20)
+  const count = f.queries.length
+  f.queries.forEach(q => q.ready = true)
+  f.graph.pollGpu()
+  f.graph.update(30, 0, 0, 0, 'Menu · holding frame', 1)
+  assert.equal(f.queries.length, count)
+  const frames = f.graph.samples.recentFrames()
+  assert.deepEqual(frames[0].sceneRenderGpu, { status: 'available', milliseconds: 3 })
+  assert.equal(frames[1].sceneRenderGpu, undefined, 'no GPU work is not a measured zero duration')
+  assert.equal(frames[1].sceneRenderCpuMs, 0)
+  f.graph.reset()
+  f.graph.pollGpu()
+  assert.equal(f.graph.samples.recentFrames().length, 0)
+  f.graph.dispose()
+  const before = f.calls
+  f.graph.pollGpu()
+  assert.equal(f.calls, before)
+})

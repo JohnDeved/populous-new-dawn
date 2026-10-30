@@ -35,34 +35,23 @@ try {
   const retry = page.getByRole('button', { name: 'Try again' })
   const layer = await retry.evaluate(button => {
     const loading = button.closest('.loading-world'),
-      desktop = document.querySelector('.desktop-recommendation'),
       rect = button.getBoundingClientRect(),
       top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
     return {
       loadingZ: Number(getComputedStyle(loading).zIndex),
-      desktopZ: Number(getComputedStyle(desktop).zIndex),
       retryIsTopTarget: top === button || button.contains(top),
     }
   })
-  assert.ok(layer.loadingZ > layer.desktopZ, layer)
+  assert.equal(await page.locator('.desktop-recommendation').count(), 0)
   assert.equal(layer.retryIsTopTarget, true, layer)
   await retry.click()
   await page.locator('.loading-world').waitFor({ state: 'detached' })
 
-  const continueAnyway = page.getByRole('button', { name: /Continue anyway/ })
-  await continueAnyway.waitFor()
-  const desktopTarget = await continueAnyway.evaluate(button => {
-    const rect = button.getBoundingClientRect(),
-      top = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
-    return top === button || button.contains(top)
-  })
-  assert.equal(desktopTarget, true)
-  await continueAnyway.click()
   await bindGame(page)
   assert.equal(await page.evaluate(() => globalThis.testStore.getWorld().outcome.level), 1)
   assert.deepEqual(pageErrors, [])
   await context.close()
-  console.log('PASS: <=900px load failure keeps Try again above the desktop recommendation; retry succeeds and Continue anyway becomes pointer-reachable afterward')
+  console.log('PASS: <=900px load failure keeps Try again pointer-reachable without a blocking desktop recommendation; retry reaches the game')
 } finally {
   await browser.close()
 }

@@ -54,6 +54,7 @@ import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { texture } from './scene-assets.ts'
 import { drawTooltip } from './tooltip-layout.ts'
+import { drawRouteTooltip, routeTooltipAnchor } from './route-tooltip.ts'
 import { worldTooltipObject } from './tooltips.ts'
 import {
   cancelTooltipInspection,
@@ -417,12 +418,13 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
       : null
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
-    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
-    scene.world.buildings.find(b => b.id === pickedId) ??
-    scene.world.shrines.find(h => h.id === pickedId) ??
+    // Keep the exact resource/tree winner ahead of the proximity-vehicle fallback.
     scene.world.trees.find(
       t => t.id === modelId && t.logs > 0 && rules.sceneryResourceFlags[t.model] & 4
     ) ??
+    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
+    scene.world.buildings.find(b => b.id === pickedId) ??
+    scene.world.shrines.find(h => h.id === pickedId) ??
     undefined
   const p = picked ?? scene.pick(event) ?? clickedUnit
   if (!p) return
@@ -584,6 +586,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     scene.previous = null
     scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
     scene.keys.clear()
+    if (!scene.world.paused) scene.focusPauseOwned = true
     scene.world.paused = true
     scene.onChange()
   }
@@ -751,6 +754,34 @@ export function renderTooltip(scene: GameScene, metrics?: PointerFrameMetrics) {
       pointer = ordinary ? output.pointer : null,
       object = ordinary ? null : worldTooltipObject(scene.world, state.target),
       element = scene.tooltipElement
+    const route = state.flags === 8 && state.fixed === 1
+    element.className = route ? 'native-tooltip native-route-tooltip' : 'native-tooltip'
+    if (route) {
+      const screen = { width: window.innerWidth, height: window.innerHeight },
+        layout = drawRouteTooltip(
+          scene.tooltipCanvas,
+          texture('hud').image as HTMLImageElement,
+          texture('tooltip-border').image as HTMLImageElement,
+          screen
+        ),
+        anchor =
+          layout &&
+          routeTooltipAnchor(
+            scene.tooltipController?.routeNotice?.cell,
+            scene.world.land,
+            scene.view,
+            scene.container.getBoundingClientRect(),
+            screen,
+            layout
+          )
+      element.hidden =
+        !state.draw || !anchor || scene.modalSuspended || !!document.querySelector('dialog[open]')
+      if (!anchor || element.hidden) return
+      element.setAttribute('aria-label', state.text)
+      element.style.left = `${anchor.x - 4}px`
+      element.style.top = `${anchor.y - 4}px`
+      return
+    }
     element.hidden =
       !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
     if (element.hidden) return

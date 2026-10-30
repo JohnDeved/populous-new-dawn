@@ -6,6 +6,8 @@ import ts from 'typescript'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createElement } from 'react'
 import * as layout from '../app/original-result-layout.ts'
+import * as popup from '../app/campaign-popup-layout.ts'
+import { resultBlink } from '../app/result-session.ts'
 
 const require = createRequire(import.meta.url)
 const native = JSON.parse(readFileSync(new URL('../app/original-result-ui.json', import.meta.url)))
@@ -17,13 +19,14 @@ const component = { exports: {} }
 new Function('require', 'module', 'exports', emitted)(name => {
   if (name === './original-result-ui.json') return { default: native }
   if (name === './original-result-layout') return layout
+  if (name === './campaign-popup-layout') return popup
+  if (name === './result-session') return { resultBlink }
   if (name === './original-result-screen.module.css') return { default: new Proxy({}, { get: (_, key) => key }) }
   if (name === 'react' || name === 'react/jsx-runtime') return require(name)
   throw Error(`Unexpected component dependency: ${name}`)
 }, component, component.exports)
 const render = props => renderToStaticMarkup(createElement(component.exports.OriginalResultScreen, {
-  status: 'won', level: 1, player: 1, time: 125, primaryLabel: 'Continue to Mission 2',
-  onPrimary() {}, onSelectLevel() {}, ...props,
+  status: 'won', level: 1, player: 1, time: 125, stage: 'statistics', inputCycles: 0, ...props,
 }))
 
 test('result time is a pure live-clock formatter with hours and no wrapping or mutation', () => {
@@ -34,7 +37,7 @@ test('result time is a pure live-clock formatter with hours and no wrapping or m
   assert.equal(layout.resultTime(NaN), '--:--:--')
 })
 
-test('result composition fits the battlefield and reserves room for browser controls', () => {
+test('legacy sizing helper retains bounded panel geometry', () => {
   for (const [width, height, preferred, controls] of [[544,480,.96,40],[1088,960,1.92,40],[1720,1080,2,40],[828,360,.72,40],[329,844,.61,64]]) {
     const scale = layout.resultScale(width, height, preferred, controls)
     assert.ok(scale > 0 && scale <= preferred)
@@ -53,19 +56,19 @@ test('actual result component renders source headings and ten explicitly unavail
   assert.equal((html.match(/role="group" aria-label="[^"]+: unavailable"/g) ?? []).length, 10)
   for (const row of native.nativeRows) assert.ok(html.includes(`${row.label}: unavailable`))
   assert.ok(html.includes('statistics not yet recorded'))
-  assert.ok(html.includes('Continue to Mission 2'))
-  assert.ok(html.includes('Select Level'))
+  assert.ok(html.includes('Press Space Bar'))
+  assert.ok(!html.includes('<button') && !html.includes('Continue to Mission 2') && !html.includes('Select Level'))
   assert.ok(!html.includes('SPELLS CAST') && !html.includes('BUILDINGS RAISED'))
-  assert.ok(!html.includes('Press Space Bar') && !html.includes('Level Complete'))
+  assert.ok(!html.includes('Level Complete'))
 })
 
-test('loss and terminal/tutorial actions retain the explicit parent-decided consequence', () => {
-  const lost = render({ status: 'lost', primaryLabel: 'Restart Level' })
+test('statistics retain loss and terminal/tutorial identity without navigation actions', () => {
+  const lost = render({ status: 'lost' })
   assert.ok(lost.includes('Level Status: Failed') && lost.includes('Level Lost'))
-  assert.ok(lost.includes('Restart Level') && !lost.includes('Continue to Mission'))
-  const terminal = render({ level: 23, primaryLabel: 'Restart Level' })
+  assert.ok(lost.includes('Press Space Bar') && !lost.includes('Restart Level') && !lost.includes('Continue to Mission'))
+  const terminal = render({ level: 23 })
   assert.ok(terminal.includes('23 : Inferno') && !terminal.includes('Mission 24'))
-  const tutorial = render({ level: 79, primaryLabel: 'Restart Level' })
+  const tutorial = render({ level: 79 })
   assert.ok(tutorial.includes('Tutorial') && !tutorial.includes('79 :'))
 })
 
@@ -82,7 +85,7 @@ test('pending-font headings center their actual text while statistic columns kee
     assert.ok(html.includes('data-font-ready="false"'))
     assert.equal(lines[3][2], 'Time Taken')
     assert.equal(lines[3][1], 'left:17px;top:76px')
-    assert.ok(lines.slice(3).every(line => !line[1].includes('transform')))
+    assert.ok(lines.slice(3, -1).every(line => !line[1].includes('transform')), 'counter columns retain their anchors; the final prompt is centered')
   }
 })
 
@@ -94,5 +97,29 @@ test('source panel metadata retains independently checked native geometry and gl
   for (const glyph of native.font.rects) {
     assert.ok(glyph.x >= 0 && glyph.y >= 0 && glyph.x + glyph.w <= native.font.width && glyph.y + glyph.h <= native.font.height)
     assert.equal(glyph.advance,glyph.w)
+  }
+})
+
+
+test('terminal overlays retain both native prompts and no statistics or pointer actions', () => {
+  for (const status of ['won', 'lost']) {
+    const html = render({ status, stage: 'terminal-overlay', inputCycles: 6 })
+    assert.ok(html.includes(status === 'won' ? 'Level Complete' : 'Level Failed'))
+    assert.ok(html.includes('Press Space Bar'))
+    assert.ok(!html.includes('Level statistics') && !html.includes('<button'))
+    assert.ok(html.includes('data-result-stage="terminal-overlay"'))
+  }
+})
+
+test('native result layout fits panel and prompt at low, wide and high-DPI CSS viewport sizes', () => {
+  for (const [width, height, preferred] of [[640, 480, 1], [344, 220, 1], [329, 844, .61], [1720, 1080, 2], [1088, 960, 1.92]]) {
+    const value = layout.resultLayout(width, height, preferred)
+    assert.ok(value.scale > 0 && value.scale <= preferred)
+    assert.ok(value.panelWidth * value.scale <= width - 8)
+    const panelTop = (height - value.panelHeight * value.scale) / 2
+    assert.ok(panelTop >= 0)
+    assert.ok(panelTop + (value.promptY + value.glyphHeight) * value.scale <= height - 1)
+    assert.equal(value.rows.length, 10)
+    assert.equal(value.font, width * height >= 640 * 480 ? 3 : 4)
   }
 })

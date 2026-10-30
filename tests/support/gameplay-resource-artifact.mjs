@@ -4,7 +4,7 @@ import { FramePerformance } from '../../app/frame-performance.ts'
 import { createPointerFrameMetrics } from '../../app/pointer-frame-metrics.ts'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from '../../scripts/tutorial-browser/gameplay-frame-evidence.mjs'
 import { gameplayResourceLimits, summarizeResourceRestart } from '../../scripts/tutorial-browser/gameplay-resource-observer.mjs'
-import { gameplayResourceSplitBudget } from '../../scripts/tutorial-browser/scenario-policy.mjs'
+import { gameplayResourceSplitBudget, composedGameplayResourceSplitBudget, usesComposedGameplayResourceBudget } from '../../scripts/tutorial-browser/scenario-policy.mjs'
 import { GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_HEAP_POLICY, GAMEPLAY_MATCHED_POLICY, gameplayResourceInputs } from '../../scripts/integration-queue/gameplay-resources-policy.mjs'
 import { gameplayHeapPolicy, gameplayHeapLimits, gameplayHeapResourceLimits, gameplayMatchedHeapPolicy, gameplayMatchedHeapLimits, gameplayMatchedProtocol, summarizeGameplayMatchedWorkload } from '../../scripts/tutorial-browser/gameplay-heap-observer.mjs'
 import { gameplayThreeCycleProfile, gameplayThreeCycleArgument } from '../../scripts/tutorial-browser/gameplay-resource-profile.mjs'
@@ -38,9 +38,9 @@ const live = (turn, timestampMs, sceneUuid = 'old') => ({ level: 2, turn, timest
  connectedBattlefieldCanvases: 1, contextLost: false, rendererGeometries: 4, rendererTextures: 3, rendererPrograms: 2,
  reachableGeometryIds: ['shared'], reachableTextureIds: ['shared'], reachableMaterialIds: ['material'] })
 const encode = value => Buffer.from(JSON.stringify(value))
-export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { includeArchive = true } = {}) {
- const expected = { policy, identity: { headSha: 'b'.repeat(40), baseSha: 'c'.repeat(40), mergeSha: revision, runId: '12', runAttempt: '2' },
-  inputs: Object.fromEntries(gameplayResourceInputs(policy).map(name => [name, hash(name)])) }
+export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { includeArchive = true, gameplayResourceBudgetPolicy } = {}) {
+ const expected = { policy, ...(gameplayResourceBudgetPolicy === undefined ? {} : { gameplayResourceBudgetPolicy }), identity: { headSha: 'b'.repeat(40), baseSha: 'c'.repeat(40), mergeSha: revision, runId: '12', runAttempt: '2' },
+  inputs: Object.fromEntries(gameplayResourceInputs(policy, gameplayResourceBudgetPolicy).map(name => [name, hash(name)])) }
  const resources = { version: 1, status: 'passed-scoped-lifecycle-observations', limits: gameplayResourceLimits,
   beforeWarmup: live(1, 0), afterWorkload: live(200, 14000), restart: { retired: { disposed: true, aborted: true,
    canvasConnected: false, contextLost: true, ownedSoundCount: 0, buildingPanelCount: 0, fpsGraphReleased: true },
@@ -82,6 +82,8 @@ export function makeResourceFixture(policy = GAMEPLAY_RESOURCE_POLICY, { include
   browserSha256: 'd'.repeat(64), browserBinaryVersion: 'Google Chrome synthetic fixture', buildPackageVersions: { 'playwright-core': '1.63.0-fixture' },
   browserPath: '/opt/google/chrome/chrome', launch: { channel: 'chrome', headless: true, chromiumSandbox: true, ignoreDefaultArgs: true, args: ['--headless','--remote-debugging-pipe'], timeout: 30000 },
   gameplayResourceSplitBudget, gameplayResources: report }
+ if (usesComposedGameplayResourceBudget(gameplayResourceBudgetPolicy)) Object.assign(raw, {
+  gameplayResourceBudgetPolicy, gameplayResourceSplitBudget: composedGameplayResourceSplitBudget })
  if ([GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_OWNERSHIP_POLICY].includes(policy)) Object.assign(raw, { gameplayResourceProfile: gameplayThreeCycleProfile,
   command: ['/usr/bin/node', '/repo/scripts/tutorial-browser/run.mjs', 'outputs/tutorial-browser', gameplayThreeCycleArgument] })
  if (policy === GAMEPLAY_OWNERSHIP_POLICY) makeOwnership(report, raw, expected.identity.headSha)

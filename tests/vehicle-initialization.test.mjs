@@ -1,10 +1,10 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createIndexedSearch, startIndexedSearch } from '../app/indexed-search.ts'
 import { prepareVehiclePosition, vehicleReady } from '../app/vehicle-routing.ts'
 import { initializeAuthoredBoat } from '../app/vehicle-initialization.ts'
 import { createNativeTerrain } from '../app/native-terrain.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { command, selectUnit, tick, browserPosition } from '../app/model.ts'
 import { createWorld } from '../app/world-initialization.ts'
 
@@ -150,8 +150,8 @@ test('later authored Boat sees a previously prepared inactive Boat at its new ce
 })
 
 test('ordinary authored Warriors board, retain seats through store load and depart', async () => {
-  const store = createGameStore()
-  store.startMission(10)
+  const store = await createCampaignFixtureStore([10])
+  assert.equal(store.startMission(10), true)
   let w = store.getWorld(),
     boat = w.vehicles[0]
   const ids = w.units.filter(u => u.team === 'blue' && u.kind === 'warrior').map(u => u.id)

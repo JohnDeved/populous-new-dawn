@@ -7,6 +7,8 @@ import { openGame } from './browser-game.mjs'
 
 const url = process.env.POPULOUS_URL ?? 'http://localhost:4335'
 const source = await readFile(new URL('../app/page.tsx', import.meta.url), 'utf8')
+const componentSource = (await Promise.all(['page.tsx', 'original-loading-screen.tsx', 'original-pause-menu.tsx', 'original-result-screen.tsx', 'original-main-menu.tsx', 'world-selector.tsx'].map(name => readFile(new URL(`../app/${name}`, import.meta.url), 'utf8')))).join('\n')
+assert.doesNotMatch(source, /aria-label="Game settings"|aria-label=\{world\.paused \? 'Resume game'/)
 
 const removed = [
   'POPULOUS · THE FIRST DAWN',
@@ -31,21 +33,18 @@ for (const text of [
   'Select Level',
   'Loading...',
   'Loading failed',
-  'Level Complete',
-  'Level Failed',
   'Level Won',
   'Level Lost',
-  'You have failed to conquer this world.',
   'Restart Level',
-  'Game settings',
+  'Menu',
   'Continue Game',
-  'The battlefield did not finish loading. Retry the same request when you are ready.',
+  'The battlefield did not finish loading. Try again to retry the same request.',
   'Technical details',
   'Try again',
   'Save checkpoint',
   'Load checkpoint',
 ])
-  assert.ok(source.includes(text), `expected preserved/replacement page copy: ${text}`)
+  assert.ok(componentSource.includes(text), `expected preserved/replacement page copy: ${text}`)
 
 async function startMission(page, mission) {
   await showAllMissions(page)
@@ -100,7 +99,7 @@ try {
     await startMission(page, 1)
     await page.getByRole('heading', { name: 'Loading failed', exact: true }).waitFor()
     await page
-      .getByText('The battlefield did not finish loading. Retry the same request when you are ready.', {
+      .getByText('The battlefield did not finish loading. Try again to retry the same request.', {
         exact: true,
       })
       .waitFor()
@@ -114,15 +113,21 @@ try {
   // is replaced by evidenced original result/menu labels.
   {
     const { page, errors } = await openGame(browser, 1)
-    await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-    const settings = page.getByRole('dialog')
-    await settings.getByText('Populous: The Beginning', { exact: true }).waitFor()
-    await settings.getByRole('heading', { name: 'Game settings', exact: true }).waitFor()
-    await settings.getByRole('button', { name: /Continue Game/ }).waitFor()
-    await settings.getByRole('button', { name: 'Save checkpoint', exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Menu', exact: true }).click()
+    const settings = page.getByRole('dialog', { name: 'Game menu', exact: true })
+    await settings.waitFor()
+    for (const name of ['Continue Game', 'Save Game', 'Load Game', 'Restart Level', 'Options'])
+      await settings.getByRole('button', { name, exact: true }).waitFor()
+    for (const name of ['Pause game', 'Resume game', 'Game settings'])
+      assert.equal(await page.getByRole('button', { name, exact: true }).count(), 0)
+    await settings.getByRole('button', { name: 'Save Game', exact: true }).click()
+    await settings.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+    await settings.getByRole('status').filter({ hasText: 'Checkpoint saved in this browser.' }).waitFor()
+    await settings.getByRole('button', { name: 'Back', exact: true }).click()
+    await settings.getByRole('button', { name: 'Load Game', exact: true }).click()
     await settings.getByRole('button', { name: 'Load checkpoint', exact: true }).waitFor()
-    await settings.getByRole('button', { name: 'Restart world', exact: true }).waitFor()
-    await settings.getByRole('button', { name: /Continue Game/ }).click()
+    await settings.getByRole('button', { name: 'Back', exact: true }).click()
+    await settings.getByRole('button', { name: 'Continue Game', exact: true }).click()
 
     await page.evaluate(() => {
       cancelAnimationFrame(globalThis.testScene.frame)
@@ -133,9 +138,9 @@ try {
       globalThis.testStore.update()
     })
     const result = page.locator('.end-screen')
-    await result.getByText('Level Complete', { exact: true }).waitFor()
+    await result.getByRole('img', { name: 'Status: Completed', exact: true }).waitFor()
     await result.getByRole('heading', { name: 'Level Won', exact: true }).waitFor()
-    await result.getByText(/^The .* are defeated\.$/).waitFor()
+    assert.equal(await result.getByRole('group', { name: /: unavailable$/ }).count(), 10)
     await result.getByRole('button', { name: /Continue to Mission 2/ }).waitFor()
     assert.equal(await result.getByText(/remember this dawn/i).count(), 0)
 
@@ -145,9 +150,8 @@ try {
       world.outcome.cameraPlaying = false
       globalThis.testStore.update()
     })
-    await result.getByText('Level Failed', { exact: true }).waitFor()
+    await result.getByRole('img', { name: 'Status: Failed', exact: true }).waitFor()
     await result.getByRole('heading', { name: 'Level Lost', exact: true }).waitFor()
-    await result.getByText('You have failed to conquer this world.', { exact: true }).waitFor()
     await result.getByRole('button', { name: /Restart Level/ }).waitFor()
 
     assert.deepEqual(errors, [])

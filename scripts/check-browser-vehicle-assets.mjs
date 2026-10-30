@@ -1,4 +1,5 @@
-import { showAllMissions } from './browser-game.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
+import { prepareCampaignFixture, launchCampaignMission, launchDebugMission } from './browser-game.mjs'
 // Focused original-vehicle acceptance. Run only through the shared queue with
 // --output-dir; capture inputs are original Mission22 actors and a labelled
 // completed-hut fixture exercising the normal Mission13 production handler.
@@ -34,13 +35,17 @@ try {
   page.on('pageerror', error => report.errors.push(error.stack ?? error.message))
   async function openMission(number) {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 })
-    await showAllMissions(page)
-    const button = page.getByRole('button', { name: `Mission ${number}`, exact: true })
-    await button.waitFor({ state: 'attached' })
-    await button.click()
+    if (number === 22) {
+      // Declared M22 availability only, not naturally earned campaign history.
+      await prepareCampaignFixture(page, number)
+      await launchCampaignMission(page, number)
+    } else {
+      // The later M13 rendering/lifecycle case never saves or awards progress.
+      assert.equal(number, 13)
+      await launchDebugMission(page, number)
+    }
     await bindGame(page)
-    const skip = page.getByRole('button', { name: /Skip introduction/ })
-    if (await skip.isVisible()) { await skip.click(); await bindGame(page) }
+    if (await skipIntroductionWithSpace(page, { timeout: 20000 }) === 'skip') await bindGame(page)
     await page.waitForFunction(() => window.testScene.terrainTextures && window.testScene.ground)
     await page.evaluate(async () => {
       const { browserPosition } = await import('/app/world-coordinates.ts')

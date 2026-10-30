@@ -170,12 +170,12 @@ test('ready-scene helper publicly pauses after Home resumes the transient restor
     testSceneRef: { current: scene }, testStore: { getWorld: () => restored } } })
   const page = { evaluate: async (fn, arg) => fn(arg), waitForFunction: async fn => assert.equal(fn(), true) }
   try {
-    const result = await pauseLoadedFollowerCorpse(page, 2, async name => {
-      calls.push(name); assert.equal(name, 'Pause game'); restored.paused = true
+    const result = await pauseLoadedFollowerCorpse(page, 2, async () => {
+      calls.push('Space'); restored.paused = true
     })
     assert.equal(transient.paused, true)
     assert.equal(result.readyBeforePause.paused, false); assert.equal(result.readyPaused.paused, true)
-    assert.equal(result.readyPaused.sceneReplaced, true); assert.deepEqual(calls, ['Pause game'])
+    assert.equal(result.readyPaused.sceneReplaced, true); assert.deepEqual(calls, ['Space'])
     restored.paused = false; window.__pndCorpsePreviousScene = scene
     await assert.rejects(pauseLoadedFollowerCorpse(page, 2, async () => assert.fail('Stale Scene must not accept setup input')), /new ready Scene/)
     window.__pndCorpsePreviousScene = originalScene
@@ -304,7 +304,7 @@ test('invoked gameplay chain keeps prior caps and exposes the committed-save pha
   assert.ok(run.indexOf('receipt.gameplayFrames = await') < run.indexOf('receipt.meleeAttack = await'))
   assert.ok(run.indexOf('receipt.meleeAttack = await') < run.indexOf('receipt.followerCorpse = await'))
   assert.deepEqual(followerCorpseBudgetMs, { deathAndSave: 75000, loadAndVerify: 25000 }); assert.equal(meleeAttackLimitMs, 75000)
-  assert.equal(browserCapMs('gameplay-frames'), 180000)
+  assert.equal(browserCapMs('gameplay-frames'), 355000)
   assert.equal(episode.includes('activateFollowerCorpseButton'), false)
   assert.ok(episode.includes("const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())"))
   assert.ok(episode.indexOf('budget.beginLoad(report.checkpoint)') > episode.indexOf('assert.deepEqual(report.checkpoint.committedCorpse.effect'))

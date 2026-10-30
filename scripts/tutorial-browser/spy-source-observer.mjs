@@ -1,12 +1,13 @@
-// Version 2: transparent logical-turn witness plus synchronous post-full-frame
-// capture. No controller, animation, phase, command or pixels are supplied.
+// Version 2 capture keeps two independent logical boundaries: the transparent
+// afterTurn hook precedes animation; observeGameTurns follows the completed step.
+// Full-frame raster samples remain separate. No controller, phase or pixels are supplied.
 export function installSpySourceObserver({ spyId, targetId, controlled = false }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement, clock = scene.gameClock
-  const result = { spyId, targetId, samples: [], turnSamples: [], crops: [], runtime: [], error: null, done: false,
+  const result = { spyId, targetId, samples: [], turnSamples: [], turns: [], crops: [], runtime: [], error: null, done: false,
     nonAdvancingCallbacks: 0, hook: { installed: false, restored: false, foreign: false } }
   const copies = [], copied = new Set()
-  let raf, stopped = false, visits = 0, lastKey
+  let raf, stopped = false, visits = 0, lastKey, unsubscribe = () => {}
   let originalDescriptor, ownedDescriptor, hookActive = false, lastTurn = world.turn
   const same = (a, b) => !!a && !!b &&
     ['value', 'writable', 'get', 'set', 'enumerable', 'configurable'].every(k => a[k] === b[k])
@@ -23,6 +24,9 @@ export function installSpySourceObserver({ spyId, targetId, controlled = false }
   }
   const stop = () => {
     stopped = true
+    const release = unsubscribe
+    unsubscribe = () => {}
+    try { release() } catch (error) { result.error ??= String(error) }
     if (raf !== undefined) cancelAnimationFrame(raf)
     try { restoreHook() } catch (error) { result.error ??= String(error) }
     return result
@@ -35,7 +39,7 @@ export function installSpySourceObserver({ spyId, targetId, controlled = false }
       throw Error('Spy observer lost owned afterTurn descriptor')
   }
   const reserve = () => {
-    if (result.samples.length + result.turnSamples.length >= 600)
+    if (result.samples.length + result.turnSamples.length + result.turns.length >= 600)
       throw Error('Spy observer exceeded combined sample bound')
   }
   function afterTurn(...args) {
@@ -61,6 +65,23 @@ export function installSpySourceObserver({ spyId, targetId, controlled = false }
     }
     if (threw) throw failure
     return returned
+  }
+  const failed = error => { result.error ??= String(error); stop() }
+  const liveSpy = () => {
+    current()
+    const spy = world.units.find(unit => unit.id === spyId)
+    if (!spy?.native || spy.hp <= 0) throw Error('Trained Spy or actual mesh missing')
+    return spy
+  }
+  const observeTurn = () => {
+    if (stopped) return
+    const spy = liveSpy(), p = spy.native
+    reserve()
+    result.turns.push({ spyId, targetId, turn: world.turn, substate: p.substate,
+      timer: p.timer, entryArmed: !!(p.flags2 & 0x40000000), object: p.object,
+      f2: p.f2, target: spy.target, paused: world.paused, speed: world.speed,
+      sceneStoreMatch: scene.world === world })
+    if (result.turns.length > 600) throw Error('Spy observer exceeded logical-turn bound')
   }
   const retain = () => {
     stop()
@@ -144,7 +165,7 @@ export function installSpySourceObserver({ spyId, targetId, controlled = false }
           if (width <= 1 || height <= 1) throw Error('Spy crop outside actual canvas')
           const clip = { x: rect.left + x / scaleX, y: rect.top + y / scaleY,
             width: width / scaleX, height: height / scaleY }
-          const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+          const overlays = [...document.querySelectorAll('.native-hud,[data-original-pause-status],.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
             .filter(element => { const style = getComputedStyle(element); return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 })
             .map(element => { const r = element.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } })
             .filter(r => r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x && r.y < clip.y + clip.height && r.y + r.height > clip.y)
@@ -173,6 +194,7 @@ export function installSpySourceObserver({ spyId, targetId, controlled = false }
     ownedDescriptor = { ...originalDescriptor, value: afterTurn }
     Object.defineProperty(clock, 'afterTurn', ownedDescriptor)
     hookActive = true; result.hook.installed = true
+    unsubscribe = scene.observeGameTurns(observeTurn, failed)
     if (!controlled) raf = requestAnimationFrame(visit)
   } catch (error) { result.error ??= String(error); stop() }
   return result

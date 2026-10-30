@@ -19,11 +19,13 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
   original.time = 217 / 12
   await store.saveCheckpoint(false)
   assert.equal(store.hasCheckpoint(), true, 'in-memory checkpoint exists even without browser storage')
-  const loadRequest = { current: null }, state = { cheatsOpen: true, ready: true, error: '', startup: 'choice' }
+  const loadRequest = { current: null }, state = { resultInputCycles: 12, debugPicker: true, cheatsOpen: true, ready: true, error: '', startup: 'choice' }
   const bindings = {
     store, loadRequest, OriginalLoadingScreen: 'OriginalLoadingScreen',
     menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, cancelNearbyInput() {},
+    setResultInputCycles(value) { state.resultInputCycles = value },
+    setDebugPicker(value) { state.debugPicker = value },
     setCheatsOpen(value) { state.cheatsOpen = value },
     setSelectorOpen() {}, setMenu() {}, setTab() {},
     setReady(value) { state.ready = value }, setError(value) { state.error = value },
@@ -57,6 +59,6 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
     assert.deepEqual(restored, expected, 'all checkpoint fields survive both failed-world mutations')
     assert.equal(failed.shots.blast, failure, 'replacement does not mutate the discarded world')
     assert.equal(loadRequest.current, request, 'the saved request remains owned by Home')
-    assert.deepEqual(state, { cheatsOpen: false, ready: false, error: '', startup: 'playing' })
+    assert.deepEqual(state, { resultInputCycles: 0, debugPicker: false, cheatsOpen: false, ready: false, error: '', startup: 'playing' })
   }
 })

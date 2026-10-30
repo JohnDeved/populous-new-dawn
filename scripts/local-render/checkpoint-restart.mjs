@@ -12,9 +12,9 @@ export default async function ({ page, root, output, receipt, openMission, obser
   const method = 'Ordinary UI and real RAF only. Committed IndexedDB and store subscription are read-only observations. No world/tick/storage injection.'
   if (receipt.profile.mode === 'created') {
     assert.equal(receipt.profile.checkpointAtStart, null)
-    await openMission(1)
+    await openMission(1, { nativeCampaign: true })
     const readiness = await waitForShamanReadiness(page)
-    await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+    await page.getByRole('button', { name: 'Menu', exact: true }).click()
     const menu = page.locator('dialog[data-original-pause-menu]')
     await menu.waitFor({ state: 'visible' })
     const savedTurn = await page.evaluate(() => window.testStore.getWorld().turn)
@@ -61,7 +61,7 @@ export default async function ({ page, root, output, receipt, openMission, obser
   const resumed = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn, paused: window.testStore.getWorld().paused }))
   assert.equal(resumed.paused, false, 'Shipped Load resumes the normal clock')
   await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, saved.turn)
-  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+  await page.locator('.world-viewport').press('Space')
   await page.screenshot({ path: resolve(output, 'loaded-paused.png') })
   const observed = await observeCheckpoint('After shipped Load')
   assert.equal(observed.checkpoint.checkpointSha256, saved.checkpointSha256, 'Loading must not replace the committed save')

@@ -2,16 +2,36 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { withStorage } from './support/profile-storage.mjs'
+import { nativeCampaignProfile } from './support/campaign-fixture.mjs'
 
-const complete = (store, mission) => store.change(world => { world.outcome.completedLevel = mission - 1 })
+// Declare a stale tab's prerequisite profile before installing the record under
+// test. Only real restore/startMission admit the world; completion must match it.
+async function runningStore(fixture, mission, available = [mission], existing) {
+  const hadProfile = fixture.records.has('profile'), original = fixture.records.get('profile')
+  fixture.records.set('profile', nativeCampaignProfile({ available }))
+  const store = existing ?? await fixture.freshStore()
+  await store.restoreCheckpoint()
+  assert.equal(store.startMission(mission), true)
+  if (hadProfile) fixture.records.set('profile', original)
+  else fixture.records.delete('profile')
+  return store
+}
+const complete = (store, mission) => {
+  assert.equal(store.getWorld().outcome.level, mission, 'matching live mission is required')
+  store.change(world => { world.outcome.completedLevel = mission - 1 })
+}
+const native = (flags, history = 'native-model') => ({ version: 1, flags: [...flags, ...Array(25 - flags.length).fill(0)], history })
 
 test('completion after failed startup read preserves earlier persisted progress', async () => {
-  await withStorage({ profile: { version: 1, completed: [1, 2], retained: 'metadata' } }, async ({ freshStore, records, drain }) => {
-    const store = await freshStore()
+  await withStorage({ profile: { version: 1, completed: [1, 2], retained: 'metadata' } }, async fixture => {
+    const { freshStore, records, drain } = fixture, store = await freshStore()
     assert.equal(await store.restoreCheckpoint(), false)
+    assert.equal(store.getCheckpointReadStatus(), 'failed')
+    // Recover the read through an explicit prerequisite fixture before Mission 3.
+    await runningStore(fixture, 3, [3], store)
     complete(store, 3)
     await drain()
-    assert.deepEqual(records.get('profile'), { version: 1, completed: [1, 2, 3], retained: 'metadata' })
+    assert.deepEqual(records.get('profile'), { version: 1, completed: [1, 2, 3], retained: 'metadata', nativeCampaign: native([5, 1, 5], 'legacy-completed-only') })
     const fresh = await freshStore()
     await fresh.restoreCheckpoint()
     assert.deepEqual(fresh.getCompletedMissions(), [1, 2, 3])
@@ -19,13 +39,15 @@ test('completion after failed startup read preserves earlier persisted progress'
 })
 
 test('stale independent stores atomically union completions instead of last-writer loss', async () => {
-  await withStorage({ profile: { version: 1, completed: [1] } }, async ({ freshStore, records, drain }) => {
-    const first = await freshStore(), second = await freshStore()
-    await Promise.all([first.restoreCheckpoint(), second.restoreCheckpoint()])
+  await withStorage({ profile: { version: 1, completed: [1] } }, async fixture => {
+    const { records, drain } = fixture
+    const first = await runningStore(fixture, 3, [3, 4]), second = await runningStore(fixture, 2, [2, 5])
     complete(first, 3)
     complete(second, 2)
     await drain()
     assert.deepEqual(records.get('profile').completed, [1, 2, 3])
+    assert.equal(first.startMission(4), true)
+    assert.equal(second.startMission(5), true)
     complete(first, 4)
     complete(second, 5)
     await drain()
@@ -41,8 +63,9 @@ for (const [label, profile] of [
   ['null record', null],
   ['sparse list', { version: 1, completed: Object.assign([], { 0: 1, 2: 2 }) }],
 ]) test(`${label} profile remains recoverable while session and checkpoint still work`, async () => {
-  await withStorage({ profile }, async ({ freshStore, records, writes, drain }) => {
-    const store = await freshStore(), before = structuredClone(profile)
+  await withStorage({ profile }, async fixture => {
+    const { records, writes, drain } = fixture
+    const store = await runningStore(fixture, 3), before = structuredClone(profile)
     await store.restoreCheckpoint()
     complete(store, 3)
     await drain()
@@ -57,24 +80,28 @@ for (const [label, profile] of [
 })
 
 test('new profile is created and duplicate completions remain unique and sorted', async () => {
-  await withStorage({}, async ({ freshStore, records, drain }) => {
-    const store = await freshStore()
+  await withStorage({}, async fixture => {
+    const { records, drain } = fixture, store = await runningStore(fixture, 3)
     complete(store, 3)
+    assert.equal(store.startMission(1), true)
     complete(store, 1)
+    assert.equal(store.startMission(3), true)
     complete(store, 3)
     await drain()
-    assert.deepEqual(records.get('profile'), { version: 1, completed: [1, 3] })
+    assert.deepEqual(records.get('profile'), { version: 1, completed: [1, 3], nativeCampaign: native([5, 0, 5]) })
   })
 })
 
 test('failed atomic profile read cannot overwrite data and later completion retries the union', async () => {
-  await withStorage({ profile: { version: 1, completed: [1, 2] } }, async ({ freshStore, records, drain, failNextProfileRead }) => {
-    const store = await freshStore()
+  await withStorage({ profile: { version: 1, completed: [1, 2] } }, async fixture => {
+    const { records, drain, failNextProfileRead } = fixture
+    const store = await runningStore(fixture, 3, [3, 4])
     failNextProfileRead()
     complete(store, 3)
     await drain()
     assert.deepEqual(records.get('profile').completed, [1, 2])
     assert.deepEqual(store.getCompletedMissions(), [3])
+    assert.equal(store.startMission(4), true)
     complete(store, 4)
     await drain()
     assert.deepEqual(records.get('profile').completed, [1, 2, 3, 4])
@@ -83,16 +110,34 @@ test('failed atomic profile read cannot overwrite data and later completion retr
 
 
 test('transaction abort after profile put leaves stored progress unchanged', async () => {
-  await withStorage({ profile: { version: 1, completed: [1, 2] } }, async ({ freshStore, records, writes, drain, failNextProfileCommit }) => {
-    const store = await freshStore()
+  await withStorage({ profile: { version: 1, completed: [1, 2] } }, async fixture => {
+    const { records, writes, drain, failNextProfileCommit } = fixture
+    const store = await runningStore(fixture, 3, [3, 4])
     failNextProfileCommit()
     complete(store, 3)
     await drain()
     assert.ok(writes.includes('profile'), 'the transaction reached put before aborting')
     assert.deepEqual(records.get('profile').completed, [1, 2])
     assert.deepEqual(store.getCompletedMissions(), [3])
+    assert.equal(store.startMission(4), true)
     complete(store, 4)
     await drain()
     assert.deepEqual(records.get('profile').completed, [1, 2, 3, 4])
   })
+})
+
+
+test('fresh Mission 1 completion after the first startup read fails still merges prior persisted progress', async () => {
+  await withStorage({ profile: { version: 1, completed: [2, 3], retained: 'startup metadata' } }, async ({ freshStore, records, drain }) => {
+    const store = await freshStore()
+    assert.equal(await store.restoreCheckpoint(), false)
+    assert.equal(store.getCheckpointReadStatus(), 'failed')
+    assert.equal(store.getWorld().outcome.level, 1)
+    complete(store, 1)
+    await drain()
+    assert.deepEqual(records.get('profile'), {
+      version: 1, completed: [1, 2, 3], retained: 'startup metadata',
+      nativeCampaign: native([5, 1, 1], 'legacy-completed-only'),
+    })
+  }, { failFirstRestore: true })
 })

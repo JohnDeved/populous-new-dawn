@@ -168,3 +168,141 @@ test('actual submitted loose-log Sprite reaches existing command through public 
   assert.equal(scene.picking.lastKind,'resource')
   assert.equal(brave.tree,tree.id)
 })
+
+// A renderer-supplied vehicle anchor is deliberately close to the winning
+// resource. The log uses the real ScenePicking sprite/header path; authored
+// tree and control winners use the existing final painter-hit boundary.
+async function resourceVehicleFixture(t, { kind = 'log', distance = 8 } = {}) {
+  const f = fixture(t), { world, brave, tree, scene } = f
+  const vehicle = {
+    ...structuredClone(api.createWorld(5).vehicles[0]),
+    ...api.nativePosition(world, brave),
+    id: world.nextId++, active: true, team: 'blue', apparentTribe: 0,
+    passengers: [], passengerCount: 0,
+  }
+  world.vehicles.push(vehicle)
+  const vehicleAnchor = {}
+  scene.vehicleMeshes.set(vehicle.id, { visible: true, position: vehicleAnchor })
+  scene.view.screen = point => point === vehicleAnchor
+    ? { x: distance / 400, y: 0 }
+    : { x: 0, y: 0 }
+  if (kind === 'log') {
+    const THREE = await import('three')
+    const { ScenePicking } = await import('../app/scene-picking.ts')
+    tree.model = 11; tree.logs = 1
+    const group = new THREE.Group(), sprite = new THREE.Sprite(new THREE.SpriteMaterial())
+    t.after(() => sprite.material.dispose())
+    sprite.scale.set(17, 11, 1); sprite.center.set(.5, 0); group.add(sprite)
+    group.userData = { point: tree, sprite }
+    scene.decorations = new THREE.Group(); scene.decorations.add(group)
+    scene.objects = new THREE.Group(); scene.unitMeshes = new Map(); scene.frame = 1
+    scene.camera = new THREE.Camera()
+    Object.assign(scene.view, {
+      center: { x: 0, y: 0 }, rawCenter: { x: 0, y: 0 },
+      projection: { width: 800, height: 600 },
+      painter: { source: object => object === sprite
+        ? { bucket: 10, cell: 0, phase: 0, object: -tree.id, face: 0 }
+        : null },
+      pickSubmissionKey: () => '', pickCandidates: () => [], resolvePickCandidates: () => null,
+    })
+    scene.picking = new ScenePicking(scene)
+  }
+  const acknowledged = []
+  scene.acknowledgePointer = id => acknowledged.push(id)
+  return { ...f, vehicle, acknowledged }
+}
+
+for (const kind of ['log', 'tree']) {
+  test(`exact winning ${kind} keeps its resource command beside a proximity vehicle`, async t => {
+    const { scene, world, brave, tree, vehicle, event, click, acknowledged } =
+      await resourceVehicleFixture(t, { kind })
+    assert.equal(scene.picking.pick(event), tree.id)
+    assert.equal(scene.picking.pickPerson(event), null)
+    // The compatibility inspection helper is intentionally not changed.
+    assert.equal(scene.pickWorldObject(event)?.id, vehicle.id)
+    assert.equal(liveCommandContext(world, tree).model, 7)
+    const selection = [...world.selected]
+    click()
+    assert.equal(brave.tree, tree.id)
+    assert.deepEqual(acknowledged, [tree.id], 'command acknowledgement must use the actual resource')
+    assert.deepEqual(world.selected, selection, 'ordinary resource selection behavior is retained')
+    assert.equal(world.lastOrderTurn, world.turn)
+    if (kind === 'log') assert.equal(scene.picking.lastKind, 'resource')
+  })
+}
+
+for (const distance of [18, 19]) {
+  test(`winning resource remains harvestable with vehicle at ${distance}-pixel fallback boundary`, async t => {
+    const { scene, brave, tree, event, click, acknowledged } =
+      await resourceVehicleFixture(t, { distance })
+    assert.equal(scene.pickWorldObject(event), null, 'the existing radius is strictly less than18')
+    click()
+    assert.equal(brave.tree, tree.id)
+    assert.deepEqual(acknowledged, [tree.id])
+  })
+}
+
+for (const winner of ['vehicle', 'ground']) {
+  test(`${winner} winner retains the ordinary nearby-vehicle command path`, async t => {
+    const { scene, world, brave, tree, vehicle, event, click, acknowledged } =
+      await resourceVehicleFixture(t)
+    // Supply the final winning ID for these compatibility controls, not a fake
+    // successful boarding outcome; the public command caller still runs.
+    scene.picking = { pickPerson: () => null, pick: () => winner === 'vehicle' ? vehicle.id : null }
+    const target = scene.pickWorldObject(event)
+    assert.equal(target?.id, vehicle.id)
+    assert.equal(liveCommandContext(world, target).model, 22)
+    click()
+    assert.equal(brave.tree, null)
+    assert.deepEqual(acknowledged, [vehicle.id])
+    assert.notEqual(acknowledged[0], tree.id)
+    assert.equal(world.lastOrderTurn, world.turn)
+  })
+}
+
+test('no exact hit at the strict vehicle radius retains a ground command', async t => {
+  const { scene, world, brave, event, click, acknowledged } =
+    await resourceVehicleFixture(t, { distance: 18 })
+  scene.picking = { pickPerson: () => null, pick: () => null }
+  assert.equal(scene.pickWorldObject(event), null)
+  click()
+  assert.equal(brave.tree, null)
+  assert.deepEqual(acknowledged, [0])
+  assert.equal(world.lastOrderTurn, world.turn)
+})
+
+for (const invalid of ['depleted', 'nonresource', 'removed']) {
+  test(`${invalid} tree ID does not acquire priority over the compatible vehicle fallback`, async t => {
+    const { scene, world, brave, tree, vehicle, event, click, acknowledged } =
+      await resourceVehicleFixture(t, { kind: 'tree' })
+    if (invalid === 'depleted') tree.logs = 0
+    if (invalid === 'nonresource') tree.model = 7
+    if (invalid === 'removed') world.trees = world.trees.filter(candidate => candidate !== tree)
+    assert.equal(scene.picking.pick(event), tree.id, 'supply the stale or ineligible final ID')
+    assert.equal(scene.pickWorldObject(event)?.id, vehicle.id)
+    click()
+    assert.equal(brave.tree, null)
+    assert.deepEqual(acknowledged, [vehicle.id])
+  })
+}
+
+test('an ordinary person click retains selection rather than issuing a nearby resource or vehicle order', async t => {
+  const { scene, world, brave, click, acknowledged } = await resourceVehicleFixture(t)
+  scene.picking = { pickPerson: () => brave.id, pick: () => brave.id }
+  const lastOrderTurn = world.lastOrderTurn
+  click()
+  assert.deepEqual(world.selected, [brave.id])
+  assert.equal(world.lastOrderTurn, lastOrderTurn)
+  assert.equal(brave.tree, null)
+  assert.deepEqual(acknowledged, [brave.id])
+})
+
+test('a resource click without selection cannot become an ordinary command', async t => {
+  const { world, brave, click, acknowledged } = await resourceVehicleFixture(t)
+  world.selected = []
+  const lastOrderTurn = world.lastOrderTurn
+  click()
+  assert.equal(world.lastOrderTurn, lastOrderTurn)
+  assert.equal(brave.tree, null)
+  assert.deepEqual(acknowledged, [])
+})

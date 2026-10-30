@@ -131,29 +131,34 @@ test('unsupported or privacy-restricted telemetry never fabricates hardware numb
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import vm from 'node:vm'
+import { createResultClock, advanceResultClock } from '../app/result-session.ts'
 
 // Exercise the actual callback body with deterministic boundary stubs. No
 // renderer, asset loading or timing benchmark is involved in this contract test.
 function runCallback({ enabled = true, hidden = false, modal = false, current = true, nestedPointer = 0, waterReason, simulationSteps = 0 } = {}) {
   const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
+  const resultClock = source.match(/^  resultClock = createResultClock\(\)$/m)?.[0]
+  assert.ok(resultClock, 'include the actual scene result-clock initializer')
   let clock = 0, reads = 0
   const events = [], updates = []
   let gpuCalls = 0
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
-    resetPointerFrameMetrics,
+    resetPointerFrameMetrics, createResultClock, advanceResultClock, sceneTextureRevision: () => 0,
     performance: { now() { reads++; return clock } },
     document: { hidden, querySelector() { return null } }, devicePixelRatio: 1,
     requestAnimationFrame() { events.push('schedule'); clock += 1; return 42 },
     syncSecondaryReservations: step('reservations'), advanceGame: (_world, _clock, _dt, metrics) => { step('simulation')(); if (metrics) metrics.steps += simulationSteps },
     updateVehiclesFrame: step('vehicles'), SPELLS: []
   }
-  const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${body} })()`), context)
+  const scene = vm.runInNewContext(stripTypeScriptTypes(`new (class { ${resultClock}
+${body} })()`), context)
   Object.assign(scene, {
     view: { painter: new Painter({}) },
     pointerFrameMetrics: createPointerFrameMetrics(),
     isCurrent: () => current, previous: 0, modalSuspended: modal,
+    modalRenderVersion: 0, modalRenderedVersion: -1, modalTextureVersion: -1,
     hoveredObject: null, world: { selected: [], buildings: [], trees: [] },
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
     fpsGraph: enabled ? { renderGpu(draw) { gpuCalls++; return draw() }, update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null

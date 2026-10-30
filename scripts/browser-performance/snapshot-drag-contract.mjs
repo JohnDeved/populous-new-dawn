@@ -280,7 +280,7 @@ const historicalDragSourceProfiles = Object.freeze([
 // Historical routes remain byte-exact; no new-log/old-CPU mixtures are admitted.
 // Bind the shared queue resolver too, not just its new call-site submissions.
 // This is source admission only, not performance equivalence or a new benchmark.
-export const dragSourceProfiles = Object.freeze([
+const mainDragSourceProfiles = Object.freeze([
   ...historicalDragSourceProfiles,
   Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
     ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
@@ -289,6 +289,85 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'resource-queue-owner', path: 'app/world-picking.ts', start: null, end: null,
       sha256: '45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611' }),
   ]) }),
+])
+// Preserve the two exact UI historical routes separately from main's branch-local
+// inheritance. No historical profile, source boundary or digest is refreshed.
+const uiDragSourceProfiles = Object.freeze([
+  // The reviewed native route tooltip keeps eligible 24 Hz visits during ordinary
+  // pause without advancing flyby or sky. Bind the complete camera owner and keep
+  // the historical epoch route exact; no other slice or boundary changes here.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'camera-producers'
+      ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
+      : slice.id === 'pointer-callback'
+        ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+        : slice.id === 'query-inputs'
+          ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+          : slice.id === 'frame-order'
+            ? { ...slice, sha256: '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf' }
+            : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+  ]) }),
+  // The native-result integration adds a pause-independent presentation clock
+  // before the existing modal/simulation frame gates. Admit that complete frame
+  // route only with its exact import, per-scene initialization and clock owner.
+  // All older profiles remain byte-for-byte identical. This admits source owners,
+  // not native scheduler equivalence or an unmeasured performance comparison.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'camera-producers'
+      ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
+      : slice.id === 'pointer-callback'
+        ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+        : slice.id === 'query-inputs'
+          ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+          : slice.id === 'frame-order'
+            ? { ...slice, sha256: '5c8dbbf4dc2caaf257c7eedb472dcd7caeca30aeda695dd2fa0294934a6aeb50' }
+            : ownedRouteOverrides[slice.id] ?? slice)),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+    Object.freeze({ id: 'result-clock-owner', path: 'app/result-session.ts',
+      start: 'export function createResultClock()', end: '\nexport function resultBlink(',
+      sha256: 'e13cdfd3133fb3867b5dac81fcda0bef017db7a7eacdd5174ec5d60339a46976' }),
+    Object.freeze({ id: 'result-clock-import', path: 'app/scene.ts',
+      start: 'import { createResultClock, advanceResultClock }', end: '\nimport { FollowerNearbyMode }',
+      sha256: 'fd473366de9695475cdb1e1ed6190c2dbbfa778851186442377e638dd4b40052' }),
+    Object.freeze({ id: 'result-clock-initialization', path: 'app/scene.ts',
+      start: '  resultClock = createResultClock()', end: '\n  focusPauseOwned =',
+      sha256: 'ac3b234a89c07d24ca0ebc49a91617029e37018708cb32f18ab1329870752f6f' }),
+  ]) }),
+])
+// This new atomic route composes reviewed owner bytes, not independent per-owner
+// allowlists. It adds no timing/performance claim or capture/retention allowance.
+const composedDragSourceProfile = Object.freeze({
+  id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-v1',
+  slices: Object.freeze([
+    ...mainDragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1').slices
+      .map(slice => Object.freeze(slice.id === 'camera-producers'
+        ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
+        : slice.id === 'frame-order'
+          ? { ...slice, sha256: 'b21655fc1ea8787294beb80db52f8113a36a10f3fefe1ea4a0515a1b8f190cd1' }
+          : slice)),
+    ...uiDragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1').slices
+      .filter(slice => ['result-clock-owner', 'result-clock-import', 'result-clock-initialization'].includes(slice.id)),
+  ]),
+})
+// Additive callback-retirement composition. Historical profiles stay exact;
+// new admission binds both producer changes and the invoked owner predicate.
+// No timing, capture, retention, runtime or performance acceptance is implied.
+const callbackRetirementDragSourceProfile = Object.freeze({
+  id: "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-route-tooltip-result-clock-tooltip-retirement-v1",
+  slices: Object.freeze([
+    ...composedDragSourceProfile.slices.map(slice => Object.freeze(
+      slice.id === 'camera-producers' ? { ...slice, sha256: "a750b893a1bccc9b547085d6b7bcfe83c4b04c025cee2590c2965374bebe1338" }
+        : slice.id === 'frame-order' ? { ...slice, sha256: "5a45d023cdf1e6bfe328d46c2ad87df9a489e16ef5f29bd5b32cfc7560e92cf2" } : slice)),
+    Object.freeze({"id": "tooltip-retirement-owner", "path": "app/scene-tooltip-runtime.ts", "start": "export function acquireForcedTooltip(", "end": "\n// Normal world painting clears status ownership.", "sha256": "e3dc96c1980527f5ee816f1e9c2ee1855c92ee8aad06460fa946fb0220b88144"}),
+    Object.freeze({"id": "scene-current-owner", "path": "app/scene.ts", "start": "  isCurrent() {", "end": "\n  canRequestNearbyFollowers()", "sha256": "4c75b4cd3726d00472121d5ef31b706ad3c8a003f05ff65ce6e451d8f305c8fd"}),
+  ]),
+})
+export const dragSourceProfiles = Object.freeze([
+  ...mainDragSourceProfiles, ...uiDragSourceProfiles, composedDragSourceProfile,
+  callbackRetirementDragSourceProfile,
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {

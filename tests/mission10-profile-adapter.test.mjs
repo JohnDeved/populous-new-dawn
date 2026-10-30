@@ -1,3 +1,4 @@
+import { withoutCampaignPopup } from './support/world-input-page.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -112,7 +113,7 @@ test('production helpers keep native coordinate/minimap math and strict canvas/g
     screen: () => ({ x: 0, y: 0 }), pickUnit: () => null, picking: { pickPerson: () => null },
     pickWorldObject: () => null, pick: () => ({ x: 27, z: -27 }) }
   globalThis.window = { testSceneRef: { current: scene } }
-  globalThis.document = { elementFromPoint: () => scene.renderer.domElement }
+  globalThis.document = { elementFromPoint: () => scene.renderer.domElement, querySelectorAll: () => [] }
   try {
     const geometry = readMission10Minimap({ x: 27, z: -27 })
     assert.deepEqual(geometry.center, { x: 8960, y: 4864 }); assert.equal(geometry.heading, 512)
@@ -154,7 +155,7 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
       pickUnit: () => null, picking: { pickPerson: () => null }, pickWorldObject: () => null,
       pick: () => ({ x: 27, z: -27 }) };
     globalThis.window = { testSceneRef: { current: scene } };
-    globalThis.document = { elementFromPoint: () => canvas };`, realm)
+    globalThis.document = { elementFromPoint: () => canvas, querySelectorAll: () => [] };`, realm)
   const before = runInContext('JSON.stringify(codec(world))', realm), controller = new AbortController()
   let calls = 0, returned, callbackType
   const page = { async evaluate(fn, arg) {
@@ -172,10 +173,11 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   } }
   assert.equal(await page.evaluate('target => ({ target })', { x: 27, z: -27 }), undefined,
     'The old arrow-string is not invoked and reproduces the hosted undefined result')
-  const input = createMission10Input({ page, signal: controller.signal, report: { actions: [] }, save() {}, originalShamanId: null })
+  const report = { actions: [] }
+  const input = createMission10Input({ page: withoutCampaignPopup(page), signal: controller.signal, report, save() {}, originalShamanId: null })
   calls = 0
   const ground = await input.fixedGround({ x: 27, z: -27 })
-  assert.equal(callbackType, 'function'); assert.equal(calls, 1)
+  assert.equal(callbackType, 'function'); assert.equal(calls, 1, 'Geometry and World still share one task after DOM-only popup preparation')
   assert.deepEqual(ground.point, { x: 27, z: -27 })
   assert.equal(ground.inspected, 1); assert.equal(ground.context.model, 3); assert.equal(ground.context.enabled, true)
   const snapshot = checkpointCodec(returned.transfer, true)
@@ -189,6 +191,12 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   for (const change of ['document.elementFromPoint = () => null', 'scene.pick = () => ({ x: 27.351, z: -27 })']) {
     runInContext('document.elementFromPoint = () => canvas', realm); runInContext(change, realm)
     await assert.rejects(input.fixedGround({ x: 27, z: -27 }), /0.35/)
+    const failure = report.actions.at(-1)
+    assert.equal(failure.label, 'rally-ground-rejection')
+    assert.equal(failure.inspected, 91 * 91)
+    assert.equal(failure.rejected[change.includes('elementFromPoint') ? 'owner' : 'aim'], 91 * 91)
+    assert.deepEqual(failure.center, { x: 50, y: 50 })
+    assert.deepEqual(failure.popups, [])
   }
   runInContext('scene.pick = () => ({ x: -67, z: 45 })', realm)
   await assert.rejects(input.fixedGround({ x: -67, z: 45 }), /ordinary ground command/)
@@ -198,7 +206,7 @@ test('fixedGround invokes the actual serialized callback in one task under suppo
   assert.equal(calls, 0)
 })
 
-test('hosted adapter never admits dev-server imports or a seeded checkpoint and retains public Save submenu', () => {
+test('hosted adapter declares native availability but never seeds checkpoints or bypasses public Save', () => {
   const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')
   const input = read('scripts/tutorial-browser/mission10-input.mjs')
   assert.doesNotMatch(input, /import\(['"]\/(?:app|qa)\//)
@@ -206,6 +214,10 @@ test('hosted adapter never admits dev-server imports or a seeded checkpoint and 
   const adapter = read('scripts/tutorial-browser/mission10-profile.mjs')
   assert.doesNotMatch(adapter, /seedRecords|readwrite|setWorld|\.tick\(|\.advance\(/)
   assert.match(adapter, /source\.status, ''/)
+  assert.match(adapter, /prepareCampaignFixture\(page, 10\)/)
+  assert.match(adapter, /launchCampaignMission\(page, 10\)/)
+  assert.doesNotMatch(adapter, /showAllMissions|launchDebugMission|startDebugMission/)
+  assert.match(adapter, /mode, 'created'/)
   assert.match(adapter, /lease\.finish\(phase, cleanup\.verified\)/)
   assert.match(read('scripts/local-render/mission10-boat-checkpoint.mjs'), /name: 'Save Game'/)
 })

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -15,9 +16,9 @@ export default async function ({ page, output }) {
   await openCampaignFromMainMenu(page)
   await button('Start Mission 1').click()
   await bindGame(page)
-  await page.locator('.skip-introduction').click()
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-  await button('Pause game').click()
+  await page.locator('.world-viewport').press('Space')
   assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
   await page.evaluate(() => {
     const world = window.testStore.getWorld(), scene = window.testSceneRef.current
@@ -53,7 +54,7 @@ export default async function ({ page, output }) {
   await page.waitForFunction(() => window.testStore.getWorld() !== window.resultLossFixture.world)
   await bindGame(page)
   await result.waitFor({ state: 'detached' })
-  await page.locator('.skip-introduction').click()
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
   const restarted = await page.evaluate(() => {
     const fixture = window.resultLossFixture, world = window.testStore.getWorld(), scene = window.testSceneRef.current

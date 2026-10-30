@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { effectPixels, openGame } from './browser-game.mjs'
+import { effectPixels, openCampaignGame } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
-  const { page, errors } = await openGame(browser)
+  const { page, errors } = await openCampaignGame(browser)
   await page.evaluate(async () => {
     const s = window.testScene,
       w = s.world,

@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 // Campaign setup supplies spell-focus masks; actors, charges and travel evolve through actual ticks.
 import { supportsFollower } from '../app/model.ts'
@@ -5,7 +6,6 @@ import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Ordinary acquired M22 Balloon; preparation supplies only the mana-focus adapter.
 import test from 'node:test'
 import { vehicleReady } from '../app/vehicle-routing.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
 import assert from 'node:assert/strict'
@@ -28,8 +28,8 @@ const stepUntil = (w, done, limit) => {
   }
 // Preparation supplies only the existing mana-focus mask adapter.
 test('supplied-focus same-vehicle boarding retains its acquired passenger through repeated input and Save/Load', async () => {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),

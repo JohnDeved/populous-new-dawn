@@ -5,8 +5,44 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import vm from 'node:vm'
 import spellTestMenu, { spellTestDiagnosticSnapshot, startSpellTestDiagnostics, spellTestLimitMs,
-  assertSpellTestDeadline, closeSpellTestContext } from '../scripts/tutorial-browser/spell-test-menu.mjs'
+  assertSpellTestDeadline, closeSpellTestContext, spellTestControlsReady } from '../scripts/tutorial-browser/spell-test-menu.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { SPELLS } from '../app/world-rules.ts'
+
+test('batched F9 observation retains every exact spell and rejects missing, duplicate or disabled controls', () => {
+  const names = SPELLS.map(spell => `Test ${spell.name}, 4 shots`)
+  const read = rows => vm.runInNewContext(`(${spellTestControlsReady})(names)`, {
+    names, getComputedStyle: button => button.style, document: { querySelectorAll: selector => {
+      assert.equal(selector, 'dialog[data-spell-test-menu][open]')
+      return [{ querySelectorAll: selector => {
+        assert.equal(selector, 'button')
+        return rows.map(row => ({
+          style: { display: row.displayNone ? 'none' : 'block', visibility: row.visibilityHidden ? 'hidden' : 'visible' },
+          getClientRects: () => row.zeroLayout ? [] : [{ width: 100, height: 25 }],
+          getAttribute: name => { assert.equal(name, 'aria-label'); return row.name },
+          matches: selector => { assert.equal(selector, ':disabled'); return !!row.disabled },
+          closest: selector => {
+            if (selector === '[hidden], [inert], [aria-hidden="true"]') return row.hidden ? {} : null
+            assert.equal(selector, '[aria-disabled="true"]'); return row.ariaDisabled ? {} : null
+          },
+        }))
+      } }]
+    } },
+  })
+  const rows = names.map(name => ({ name })), before = structuredClone(rows)
+  assert.deepEqual(JSON.parse(JSON.stringify(read(rows))), names.map(name => ({ name, count: 1, enabled: true })))
+  assert.deepEqual(rows, before, 'Observation does not mutate controls')
+  for (const index of [0, Math.floor(rows.length / 2), rows.length - 1]) {
+    assert.equal(read(rows.filter((_, i) => i !== index)), false)
+    assert.equal(read([...rows, rows[index]]), false)
+    for (const field of ['disabled', 'ariaDisabled', 'hidden', 'displayNone', 'visibilityHidden', 'zeroLayout']) {
+      const changed = structuredClone(rows); changed[index][field] = true
+      assert.equal(read(changed), false)
+    }
+    const stale = structuredClone(rows); stale[index].name = stale[index].name.replace('4 shots', '3 shots')
+    assert.equal(read(stale), false, 'A different stock label is not the expected exact control')
+  }
+})
 
 test('F9 diagnostics read current readiness and modal state without mutating the game', () => {
   const world = { turn: 4, inputMask: 192, paused: false, flyby: { flags: 16 }, status: 'playing' },
@@ -20,9 +56,17 @@ test('F9 diagnostics read current readiness and modal state without mutating the
   assert.deepEqual(JSON.parse(JSON.stringify(state)), {
     turn: 4, inputMask: 192, paused: false, flybyFlags: 16, status: 'playing',
     sceneMatchesWorld: true, sceneConnected: true, sceneStarted: true, sceneDisposed: false,
-    modalSuspended: false, hidden: false, loading: true, skipIntroduction: false, dialogs: ['Game menu'],
+    modalSuspended: false, hidden: false, loading: true, introductionActive: false, dialogs: ['Game menu'],
   })
   assert.deepEqual(world, before)
+  for (const flags of [0, 1, 16, 17, 64, 65]) {
+    const current = { ...world, flyby: { flags } }, saved = structuredClone(current)
+    const snapshot = vm.runInNewContext(`(${spellTestDiagnosticSnapshot})()`, {
+      window: { testStore: { getWorld: () => current }, testSceneRef: { current: { ...scene, world: current } } }, document,
+    })
+    assert.equal(snapshot.introductionActive, !!(flags & 1), 'native active bit, not a removed Skip element')
+    assert.deepEqual(current, saved, 'diagnostic reads cannot mutate introduction state')
+  }
   assert.doesNotThrow(() => vm.runInNewContext(`(${spellTestDiagnosticSnapshot})()`, { window: {}, document }))
 })
 
@@ -80,8 +124,13 @@ test('F9 uses one absolute measured-headroom cap without changing readiness or t
   assert.doesNotMatch(source, /report\.status = 'passed'/, 'no success before final cleanup validation')
   for (const phase of ['new game', 'checkpoint load', 'restart'])
     assert.ok(source.includes(`await waitReady('${phase}')`))
-  assert.equal((source.match(/await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask/g) ?? []).length, 2,
-    'both original readiness waits remain')
+  assert.match(source, /import \{ skipIntroductionWithSpace \} from '\.\.\/browser-introduction\.mjs'/)
+  assert.match(source, /await bindGame\(page\)[\s\S]*?await skipIntroductionWithSpace\(page, \{ timeout: 12000 \}\)[\s\S]*?await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask\)/,
+    'shared bounded native readiness precedes the final unlocked-input wait')
+  assert.equal((source.match(/await skipIntroductionWithSpace\(page, \{ timeout: 12000 \}\)/g) ?? []).length, 1)
+  assert.equal((source.match(/await page\.waitForFunction\(\(\) => !window\.testStore\.getWorld\(\)\.inputMask/g) ?? []).length, 1,
+    'final readiness wait remains after the shared native helper')
+  assert.doesNotMatch(source, /\.skip-introduction/, 'readiness cannot depend on the removed browser button')
 })
 
 test('F9 absolute deadline admits measured slow progress but never resets elapsed time', () => {

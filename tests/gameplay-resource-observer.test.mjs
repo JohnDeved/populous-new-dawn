@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { observeGameplayResources, captureRetiredGameplayScene, summarizeResourceRestart, assertResourceScenario } from '../scripts/tutorial-browser/gameplay-resource-observer.mjs'
-import { browserScenarios, browserCapMs, gameplayResourceSplitBudget } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { browserScenarios, browserCapMs, gameplayResourceSplitBudget, composedGameplayResourceSplitBudget,
+  composedGameplayResourceBudgetPolicy, usesComposedGameplayResourceBudget } from '../scripts/tutorial-browser/scenario-policy.mjs'
 
 const live = (turn, timestampMs) => ({ level: 2, turn, timestampMs, timeOriginUnixMs: 100, sceneUuid: timestampMs < 2000 ? 'old-scene' : 'replacement-scene',
   paused: false, inputMask: 0, speed: 1, visibility: 'visible', disposed: false,
@@ -97,9 +98,9 @@ test('resource mode is explicit boolean and requires all five original phases in
     assert.throws(() => assertResourceScenario(true, selection, phases), /all original phases/)
 })
 
-test('split declares two unchanged 180s browser caps and an extra build/job', () => {
+test('historical split remains180+180 while current composition explicitly declares355+180', () => {
   assert(browserScenarios.includes('gameplay-frames')); assert(browserScenarios.includes('gameplay-resources'))
-  assert.equal(browserCapMs('gameplay-frames'), 180000)
+  assert.equal(browserCapMs('gameplay-frames'), 355000)
   assert.equal(browserCapMs('gameplay-resources'), 180000)
   assert.deepEqual(gameplayResourceSplitBudget, { version: 1, gameplayMs: 180000,
     resourcesMs: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
@@ -192,4 +193,23 @@ test('hosted opt-in changes only resource invocation and its accurate label, not
   assert.match(restart, /await page\.waitForTimeout\(plan\.warmupMs\)/)
   assert.match(frames, /const ready = await restartCycle\(first, 'cycle-2'\)/)
   assert.doesNotMatch(frames, /oldScenes|retiredScenes|evaluateHandle|queryObjects/)
+})
+
+
+test('composed split is a separate pinned declaration with unchanged independent operation caps', () => {
+  assert.equal(composedGameplayResourceBudgetPolicy, 'composed-gameplay-resources-v2')
+  assert.deepEqual(composedGameplayResourceSplitBudget, { version: 2, gameplayMs: 355000,
+    resourcesMs: 180000, totalBrowserMs: 535000, buildMsPerJob: 120000, hostedJobMs: 900000 })
+  assert.equal(composedGameplayResourceSplitBudget.gameplayMs, 180000 + 75000 + 75000 + 25000)
+  assert.equal(composedGameplayResourceSplitBudget.totalBrowserMs, 355000 + 180000)
+  assert.equal(composedGameplayResourceSplitBudget.totalBrowserMs - gameplayResourceSplitBudget.totalBrowserMs, 175000)
+  assert.equal(usesComposedGameplayResourceBudget(undefined), false)
+  assert.equal(usesComposedGameplayResourceBudget('composed-gameplay-resources-v2'), true)
+  for (const value of [null, false, true, 2, {}, [], '', 'v2', 'composed-gameplay-resources-v3'])
+    assert.throws(() => usesComposedGameplayResourceBudget(value), /Unsupported/)
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.match(runner, /receipt\.gameplayResourceBudgetPolicy = composedGameplayResourceBudgetPolicy/)
+  assert.match(runner, /receipt\.gameplayResourceSplitBudget = composedGameplayResourceSplitBudget/)
+  assert.equal((runner.match(/browserDeadlineAt = Date\.now\(\) \+ receipt\.browserCapMs/g) ?? []).length, 1)
+  assert.match(runner, /deadlineMs: browserStartedMs \+ receipt\.browserCapMs, deadlineUnixMs: browserDeadlineAt/)
 })

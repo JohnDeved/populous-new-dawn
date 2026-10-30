@@ -17,6 +17,12 @@ type TextureAsset = {
   status: 'loading' | 'ready' | 'failed'
 }
 const textures = new Map<string, TextureAsset>()
+let textureCompletionRevision = 0
+// A paused scene still needs a draw when a lazily requested sky/effect texture
+// settles. A revision avoids retaining scene listeners in this shared cache.
+export function sceneTextureRevision() {
+  return textureCompletionRevision
+}
 export function texture(kind: string) {
   return loadTexture(kind).texture
 }
@@ -30,6 +36,7 @@ export function loadTexture(kind: string) {
     ready: new Promise<boolean>(resolve => {
       loaded = success => {
         result.status = success ? 'ready' : 'failed'
+        textureCompletionRevision++
         resolve(success)
       }
     }),

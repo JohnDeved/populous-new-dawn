@@ -1,0 +1,47 @@
+{
+  "sourceCommit": "fd34c4a60b643c294c167ab9bcd83b5871a82fd3",
+  "sourceImporter": "scripts/import-help-ui.py",
+  "sourceManifest": "app/original-help.json",
+  "originalInputs": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "decoders": {
+    "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+    "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+  },
+  "boundary": "Source-palette Western sprite reconstruction; not an original GPU capture.",
+  "assets": {
+    "451": {
+      "url": "/original/help/hfx-451.png",
+      "width": 24,
+      "height": 10,
+      "sha256": "5018cf32f012086c572de7b6edde3300518d1f242916d6bce42cce6c617b196b"
+    },
+    "452": {
+      "url": "/original/help/hfx-452.png",
+      "width": 24,
+      "height": 12,
+      "sha256": "cca3c9d54ca3d1152b84fa75314150e9d068c5125bdf8306a2288ae7c70555dc"
+    },
+    "453": {
+      "url": "/original/help/hfx-453.png",
+      "width": 24,
+      "height": 10,
+      "sha256": "ab392089c0e43ace3b55a37fa5978ab923d066b709a7f6295aada24f10af7c91"
+    },
+    "454": {
+      "url": "/original/help/hfx-454.png",
+      "width": 24,
+      "height": 12,
+      "sha256": "00cc1f5669cf59d2db809afd11635177d7a923cd52f69869aee32a4ae5d4827b"
+    },
+    "455": {
+      "url": "/original/help/hfx-455.png",
+      "width": 24,
+      "height": 1,
+      "sha256": "d033f4372985fc7ce0cbbe898de5afb9cd89482de643025912272abb1d2ac6b3"
+    }
+  }
+}

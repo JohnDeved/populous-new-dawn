@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -195,8 +196,8 @@ test('supplied ground and Tower occupancy without vehicle remain eligible', () =
 test('current-format in-session Save/Load retains supplied seated Bridge rejection', async () => {
   const { createGameStore } = await import('../app/game-store.ts')
   const { createLivePerson } = await import('../app/live-people.ts')
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   const w = store.getWorld(),
     u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
     v = w.vehicles.find(v => v.model === 1)

@@ -1,7 +1,20 @@
-import { showAllMissions } from './browser-game.mjs'
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
+
+async function selectShaman(page) {
+  await clearPortraitSelection(page)
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  const state = await page.evaluate(() => {
+    const world = globalThis.testScene.world,
+      shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman' && !unit.ghost && unit.hp > 0)
+    return { selected: [...world.selected], shaman: shaman?.id }
+  })
+  assert.ok(state.shaman, 'The authored solo-Shaman route requires its live Shaman')
+  assert.deepEqual(state.selected, [state.shaman], 'Mission22 must retain its actual solo-Shaman cohort')
+}
 
 async function terrainClickPoint(page, target, spell = null, affected = null, dry = false) {
   return page.evaluate(
@@ -176,6 +189,133 @@ async function moveShaman(page, target) {
   }, click.picked)
 }
 
+// Public restart keeps the native launch provenance. Rebind only after the new
+// scene has mounted; freezing simulation is diagnostic timing, not a new launch.
+async function restartMission22(page) {
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
+  await bindGame(page)
+  assert.deepEqual(await page.evaluate(() => {
+    const store = globalThis.testStore, world = store.getWorld()
+    world.speed = 0
+    return [world.outcome.level, store.isDebugLaunch(), store.canSave()]
+  }), [22, false, true])
+}
+
+// Read the complete structured-clone record through the existing test-only codec,
+// including typed-array bytes, Maps and undefined fields. This is an encoded-byte
+// fingerprint, not a claim about IndexedDB's private on-disk representation.
+// The corruption switch belongs only to this disposable QA profile, never runtime.
+async function mission22StoredRecords(page, corrupt = false) {
+  return page.evaluate(async corrupt => {
+    const { checkpointCodec } = await import('/scripts/tutorial-browser/checkpoint-codec.mjs'),
+      { CHECKPOINT_VERSION } = await import('/app/checkpoint-format.ts'),
+      database = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('populous-new-dawn', 1)
+        request.addEventListener('success', () => resolve(request.result))
+        request.addEventListener('error', () => reject(request.error))
+      })
+    try {
+      const [latest, profile] = await new Promise((resolve, reject) => {
+        const transaction = database.transaction('checkpoints', corrupt ? 'readwrite' : 'readonly'),
+          storage = transaction.objectStore('checkpoints'),
+          latest = storage.get('latest'), profile = storage.get('profile')
+        if (corrupt) latest.addEventListener('success', () => {
+          const record = latest.result
+          if (record?.version !== CHECKPOINT_VERSION || record.world?.outcome.level !== 22 ||
+            record.world.capacityPolicy?.mode !== 'scalable' || !record.world.worshipAcquisition) {
+            reject(new Error('Expected a current Mission 22 checkpoint before test-owned corruption'))
+            transaction.abort()
+            return
+          }
+          // Keep the current envelope, IDs, gifts, authored appearance and RNG.
+          // Missing acquisition ownership is malformed current data, not legacy data.
+          delete record.world.worshipAcquisition
+          storage.put(record, 'latest')
+        })
+        transaction.addEventListener('complete', () => resolve([latest.result, profile.result]))
+        transaction.addEventListener('error', () => reject(transaction.error))
+        transaction.addEventListener('abort', () => reject(transaction.error))
+      })
+      const fingerprint = async record => {
+        const bytes = new TextEncoder().encode(JSON.stringify(checkpointCodec(record))),
+          hash = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))
+        return { bytes: bytes.length, sha256: [...hash].map(n => n.toString(16).padStart(2, '0')).join('') }
+      }
+      return {
+        latest: await fingerprint(latest), profile: await fingerprint(profile),
+        version: latest.version,
+        hasAcquisition: !!latest.world.worshipAcquisition,
+        preserved: {
+          nextId: latest.world.nextId,
+          ids: ['units', 'buildings', 'vehicles', 'trees', 'shrines', 'effects', 'fights', 'projectiles']
+            .map(key => [key, latest.world[key].map(object => object.id)]),
+          shrines: checkpointCodec(latest.world.shrines),
+          gifts: checkpointCodec(latest.world.gifts),
+          random: [latest.world.randomState, latest.world.cosmeticRandom.randomState],
+        },
+      }
+    } finally { database.close() }
+  }, corrupt)
+}
+
+async function mission22CurrentCheckpoint(page) {
+  return page.evaluate(async () => {
+    const store = globalThis.testStore,
+      world = store.getWorld(),
+      mana = world.shrines.find(shrine => shrine.kind === 'mana' && shrine.rewardMana === 600_000),
+      inert = world.shrines.find(shrine => shrine.kind === 'inert'),
+      { checkpointCodec } = await import('/scripts/tutorial-browser/checkpoint-codec.mjs')
+    world.randomState = 0x3456789a
+    world.cosmeticRandom.randomState = 0x456789ab
+    mana.work = 17
+    mana.followers = 1
+    mana.uses = 2
+    mana.rewardDelay = 19
+    mana.rewardRecipient = 2
+    const snapshot = current => checkpointCodec({
+      nextId: current.nextId,
+      ids: ['units', 'buildings', 'vehicles', 'trees', 'shrines', 'effects', 'fights', 'projectiles']
+        .map(key => [key, current[key].map(object => object.id)]),
+      // reward is the current loader's derived kind alias, not authored state.
+      // Assert its normalization separately; every other shrine field is exact.
+      shrines: current.shrines.map(({ reward, ...authored }) => authored),
+      gifts: current.gifts, giftCounts: current.giftCounts,
+      random: [current.randomState, current.cosmeticRandom.randomState],
+    }), before = snapshot(world),
+      rewardAliases = world.shrines.map(shrine => shrine.reward ?? null),
+      saved = await store.saveCheckpoint()
+    world.randomState = 1
+    world.cosmeticRandom.randomState = 2
+    mana.work = 99
+    if (!store.loadCheckpoint()) throw new Error('Current Mission 22 checkpoint did not load')
+    const loaded = store.getWorld(), after = snapshot(loaded),
+      loadedMana = loaded.shrines.find(shrine => shrine.id === mana.id),
+      // Supporting diagnostic only: a cloned restored world, never the live
+      // campaign/profile. Mission 22 authors no Blue Brave and earns no award here.
+      diagnostic = structuredClone(loaded),
+      loadedInert = diagnostic.shrines.find(shrine => shrine.id === inert.id),
+      { addUnit, command, tick } = await import('/app/model.ts'),
+      brave = addUnit(diagnostic, 'blue', 'brave', loadedInert)
+    diagnostic.inputMask = 0
+    tick(diagnostic, 1 / 12)
+    tick(diagnostic, 1 / 12)
+    diagnostic.selected = [brave.id]
+    const submitted = command(diagnostic, loadedInert)
+    for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(diagnostic, 1 / 12)
+    return {
+      saved, before, after,
+      rewardAliases: { before: rewardAliases, after: loaded.shrines.map(shrine => shrine.reward ?? null) },
+      appearances: loaded.shrines.map(shrine => [shrine.mode, shrine.model]),
+      state: [loadedMana.work, loadedMana.followers, loadedMana.uses, loadedMana.rewardDelay, loadedMana.rewardRecipient],
+      random: [loaded.randomState, loaded.cosmeticRandom.randomState],
+      brave: { submitted, command: brave.native?.commandStatus, work: loadedInert.work,
+        followers: loadedInert.followers, mode: loadedInert.mode, model: loadedInert.model },
+    }
+  })
+}
+
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
@@ -186,8 +326,9 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 22', exact: true }).click()
+  // Declared mission availability only, not naturally earned campaign history.
+  await prepareCampaignFixture(page, 22)
+  await launchCampaignMission(page, 22)
   await bindGame(page)
   await page.getByText(/None of my followers could accompany me/).waitFor()
   assert.deepEqual(
@@ -197,14 +338,7 @@ try {
     ['shaman']
   )
 
-  await page.evaluate(() => {
-    globalThis.testStore.startMission(22)
-    globalThis.testStore.getWorld().speed = 0
-  })
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  await restartMission22(page)
   const worshipAppearance = await page.evaluate(() => {
     const scene = globalThis.testScene
     return scene.world.shrines.map(shrine => ({
@@ -222,101 +356,44 @@ try {
       [3, 8, 8],
     ]
   )
-  const legacyCheckpoint = await page.evaluate(async () => {
-    const store = globalThis.testStore,
-      world = store.getWorld(),
-      heads = world.shrines,
-      mana = heads.find(shrine => shrine.kind === 'mana' && shrine.rewardMana === 600_000),
-      inert = heads.find(shrine => shrine.kind === 'inert'),
-      identity = heads.map(shrine => [
-        shrine.id,
-        shrine.x,
-        shrine.z,
-        shrine.kind,
-        shrine.angle,
-        shrine.range,
-      ])
-    world.randomState = 0x3456789a
-    world.cosmeticRandom.randomState = 0x456789ab
-    mana.work = 17
-    mana.followers = 1
-    mana.uses = 2
-    mana.rewardDelay = 19
-    mana.rewardRecipient = 2
-    for (const shrine of heads) {
-      delete shrine.mode
-      shrine.model = 45
-    }
-    const saved = await store.saveCheckpoint()
-    world.randomState = 1
-    mana.work = 99
-    if (!store.loadCheckpoint()) throw new Error('Legacy Mission22 checkpoint did not load')
-    const loaded = store.getWorld(),
-      loadedMana = loaded.shrines.find(shrine => shrine.id === mana.id),
-      loadedInert = loaded.shrines.find(shrine => shrine.id === inert.id),
-      preservedState = [
-        loadedMana.work,
-        loadedMana.followers,
-        loadedMana.uses,
-        loadedMana.rewardDelay,
-        loadedMana.rewardRecipient,
-      ],
-      preservedRandom = [loaded.randomState, loaded.cosmeticRandom.randomState],
-      { addUnit, command, tick } = await import('/app/model.ts'),
-      brave = addUnit(loaded, 'blue', 'brave', loadedInert)
-    loaded.inputMask = 0
-    tick(loaded, 1 / 12)
-    tick(loaded, 1 / 12)
-    loaded.selected = [brave.id]
-    const submitted = command(loaded, loadedInert)
-    for (let turn = 0; turn < 300 && brave.native?.commandStatus !== 0; turn++) tick(loaded, 1 / 12)
-    return {
-      saved,
-      identity,
-      loadedIdentity: loaded.shrines.map(shrine => [
-        shrine.id,
-        shrine.x,
-        shrine.z,
-        shrine.kind,
-        shrine.angle,
-        shrine.range,
-      ]),
-      appearances: loaded.shrines.map(shrine => [shrine.mode, shrine.model]),
-      state: preservedState,
-      random: preservedRandom,
-      brave: {
-        submitted,
-        command: brave.native?.commandStatus,
-        work: loadedInert.work,
-        followers: loadedInert.followers,
-        mode: loadedInert.mode,
-        model: loadedInert.model,
-      },
-    }
+  const currentCheckpoint = await mission22CurrentCheckpoint(page)
+  assert.equal(currentCheckpoint.saved, true)
+  assert.deepEqual(currentCheckpoint.after, currentCheckpoint.before)
+  assert.deepEqual(currentCheckpoint.rewardAliases, { before: [null, null, null], after: ['mana', null, 'mana'] })
+  assert.deepEqual(currentCheckpoint.appearances, [[3, 8], [3, 8], [3, 8]])
+  assert.deepEqual(currentCheckpoint.state, [17, 1, 2, 19, 2])
+  assert.deepEqual(currentCheckpoint.random, [0x3456789a, 0x456789ab])
+  assert.deepEqual(currentCheckpoint.brave, {
+    submitted: true, command: 0, work: 0, followers: 0, mode: 3, model: 8,
   })
-  assert.equal(legacyCheckpoint.saved, true)
-  assert.deepEqual(legacyCheckpoint.loadedIdentity, legacyCheckpoint.identity)
-  assert.deepEqual(legacyCheckpoint.appearances, [
-    [3, 8],
-    [3, 8],
-    [3, 8],
-  ])
-  assert.deepEqual(legacyCheckpoint.state, [17, 1, 2, 19, 2])
-  assert.deepEqual(legacyCheckpoint.random, [0x3456789a, 0x456789ab])
-  assert.deepEqual(legacyCheckpoint.brave, {
-    submitted: true,
-    command: 0,
-    work: 0,
-    followers: 0,
-    mode: 3,
-    model: 8,
-  })
+  await bindGame(page)
 
-  await page.evaluate(() => globalThis.testStore.startMission(22))
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  const validRecord = await mission22StoredRecords(page)
+  await mission22StoredRecords(page, true)
+  const corruptRecord = await mission22StoredRecords(page)
+  assert.equal(corruptRecord.version, validRecord.version)
+  assert.equal(validRecord.hasAcquisition, true)
+  assert.equal(corruptRecord.hasAcquisition, false)
+  assert.notDeepEqual(corruptRecord.latest, validRecord.latest)
+  assert.deepEqual(corruptRecord.profile, validRecord.profile)
+  assert.deepEqual(corruptRecord.preserved, validRecord.preserved)
+  const rejectedPage = await context.newPage()
+  try {
+    rejectedPage.on('pageerror', error => errors.push(error.stack ?? error.message))
+    rejectedPage.on('console', message => {
+      if (message.type() === 'error') errors.push(message.text())
+    })
+    await rejectedPage.goto(page.url(), { waitUntil: 'networkidle' })
+    await rejectedPage.getByText('This checkpoint is incompatible with the current development version. The stored save has not been changed.', { exact: true }).waitFor()
+    assert.equal(await rejectedPage.getByRole('button', { name: 'Load Game', exact: true }).getAttribute('aria-disabled'), 'true')
+    assert.deepEqual(await mission22StoredRecords(rejectedPage), corruptRecord)
+  } finally { await rejectedPage.close() }
+  console.log(JSON.stringify({ mission22CurrentCheckpoint: {
+    exactRoundTrip: true, corruptCurrentRejected: true, records: corruptRecord,
+    limits: 'Test-owned malformed current checkpoint in a disposable declared-availability profile. Encoded complete record bytes unchanged by startup rejection; not naturally earned campaign progress or legacy-save compatibility.',
+  } }))
+
+  await restartMission22(page)
 
   const braveRejection = await page.evaluate(async () => {
     const { createWorld, addUnit, command, tick } = await import('/app/model.ts'),
@@ -374,7 +451,7 @@ try {
     cancelAnimationFrame(scene.frame)
     return head.id
   })
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const headPoint = await shrineClickPoint(page, manaHead)
   await page.mouse.click(headPoint.x, headPoint.y)
   const worshipped = await page.evaluate(async id => {
@@ -394,12 +471,9 @@ try {
   }, manaHead)
   assert.equal(worshipped.rewardDelay, 50, JSON.stringify(worshipped))
   assert.deepEqual([worshipped.active, worshipped.uses], [true, 0], JSON.stringify(worshipped))
-  await page.evaluate(() => globalThis.testStore.saveCheckpoint())
-  await page.evaluate(() => globalThis.testStore.loadCheckpoint())
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  assert.equal(await page.evaluate(() => globalThis.testStore.saveCheckpoint()), true)
+  assert.equal(await page.evaluate(() => globalThis.testStore.loadCheckpoint()), true)
+  await bindGame(page)
   assert.deepEqual(
     await page.evaluate(async id => {
       const world = globalThis.testScene.world,
@@ -424,15 +498,8 @@ try {
     { head: [false, 1, 3, 8], gift: [600_000, 0, 5, 1], pending: true }
   )
 
-  await page.evaluate(() => {
-    globalThis.testStore.startMission(22)
-    globalThis.testStore.getWorld().speed = 0
-  })
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await restartMission22(page)
+  await selectShaman(page)
   await focusSpell(page, 'swarm', 'Swarm')
   await moveShaman(page, { x: 0, z: -45 })
   await moveShaman(page, { x: 20, z: -45 })
@@ -478,12 +545,9 @@ try {
     }
   }, boatId)
   assert.deepEqual(boarded.result, ['blue', 1, 100, boatId], JSON.stringify(boarded))
-  await page.evaluate(() => globalThis.testStore.saveCheckpoint())
-  await page.evaluate(() => globalThis.testStore.loadCheckpoint())
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  assert.equal(await page.evaluate(() => globalThis.testStore.saveCheckpoint()), true)
+  assert.equal(await page.evaluate(() => globalThis.testStore.loadCheckpoint()), true)
+  await bindGame(page)
   const landing = await terrainClickPoint(page, { x: -25, z: -61 }, null, null, true)
   await page.mouse.click(landing.x, landing.y)
   assert.deepEqual(
@@ -501,7 +565,7 @@ try {
   const southernHeadId = await page.evaluate(
     () => globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 600_000).id
   )
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const southernHead = await shrineClickPoint(page, southernHeadId)
   await page.mouse.click(southernHead.x, southernHead.y)
   assert.equal(
@@ -517,7 +581,7 @@ try {
   await focusSpell(page, 'bridge', 'Land Bridge')
   await focusSpell(page, 'swarm', 'Swarm')
 
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const returnBoat = await vehicleClickPoint(page, boatId)
   await page.mouse.click(returnBoat.x, returnBoat.y)
   assert.equal(
@@ -543,7 +607,7 @@ try {
     0
   )
 
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const balloonBridge = await terrainClickPoint(page, { x: -83, z: -69 }, 'bridge')
   await page.getByRole('button', { name: /Land Bridge, [1-9] shots/ }).click()
   await page.mouse.click(balloonBridge.x, balloonBridge.y)
@@ -573,12 +637,9 @@ try {
     }, balloonId),
     ['blue', 1, balloonId]
   )
-  await page.evaluate(() => globalThis.testStore.saveCheckpoint())
-  await page.evaluate(() => globalThis.testStore.loadCheckpoint())
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  assert.equal(await page.evaluate(() => globalThis.testStore.saveCheckpoint()), true)
+  assert.equal(await page.evaluate(() => globalThis.testStore.loadCheckpoint()), true)
+  await bindGame(page)
 
   const northernLanding = await terrainClickPoint(page, { x: 55, z: 121 })
   await page.mouse.click(northernLanding.x, northernLanding.y)
@@ -595,7 +656,7 @@ try {
   const priorSwarms = await page.evaluate(() =>
     globalThis.testScene.world.effects.filter(effect => effect.swarm).map(effect => effect.id)
   )
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const northernSwarm = await terrainClickPoint(page, { x: 55, z: 121 }, 'swarm')
   await page.getByRole('button', { name: /^Swarm, [1-9] shots$/ }).click()
   await page.mouse.click(northernSwarm.x, northernSwarm.y)
@@ -615,7 +676,7 @@ try {
   const northernHeadId = await page.evaluate(
     () => globalThis.testScene.world.shrines.find(shrine => shrine.rewardMana === 1_000_000).id
   )
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await selectShaman(page)
   const northernHead = await shrineClickPoint(page, northernHeadId)
   await page.mouse.click(northernHead.x, northernHead.y)
   const northernCompletion = await page.evaluate(
@@ -646,12 +707,9 @@ try {
   assert.deepEqual(northernCompletion.slice(0, 4), [false, 1, 0, false])
   assert.ok(northernCompletion[4] >= 990_000)
   assert.deepEqual(northernCompletion.slice(5), ['blue', 0])
-  await page.evaluate(() => globalThis.testStore.saveCheckpoint())
-  await page.evaluate(() => globalThis.testStore.loadCheckpoint())
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
+  assert.equal(await page.evaluate(() => globalThis.testStore.saveCheckpoint()), true)
+  assert.equal(await page.evaluate(() => globalThis.testStore.loadCheckpoint()), true)
+  await bindGame(page)
   assert.deepEqual(
     await page.evaluate(
       ({ headId, balloonId }) => {

@@ -71,6 +71,8 @@ function pageLoad(store) {
       cancelNearbyInput: noop,
       engine: { current: null },
       setCheatsOpen: value => assert.equal(value, false, 'actual Page Load closes the testing menu'),
+      setDebugPicker: value => assert.equal(value, false, 'actual Page Load closes the debug picker'),
+      setResultInputCycles: value => assert.equal(value, 0, 'actual Page Load resets result input cycles'),
       setSelectorOpen: noop,
       audio: { current: { reset: noop } },
       setMenu: noop,

@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
@@ -12,16 +13,14 @@ export default async function({page,root,output,receipt}) {
   const { bindGame } = await import(pathToFileURL(resolve(root,'scripts/browser-game.mjs')).href)
   await bindGame(page)
   assert.equal(await page.evaluate(()=>window.testStore.getWorld().outcome.level),1)
-  const guard=page.getByRole('button',{name:'Continue anyway',exact:false});if(await guard.isVisible())await guard.click()
-  const skip=page.locator('.skip-introduction')
-  await skip.waitFor({state:'visible',timeout:45000}).catch(()=>{})
-  if(await skip.isVisible()) await skip.click()
+
+  await skipIntroductionWithSpace(page, { timeout: 45000 })
   await page.waitForFunction(()=>!window.testStore.getWorld().inputMask)
   const renderer = await page.evaluate(()=> {
     const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')
     return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
   })
-  await page.getByRole('button',{name:'Game settings',exact:true}).click()
+  await page.getByRole('button',{name:'Menu',exact:true}).click()
   await page.getByRole('button',{name:'Options',exact:true}).click()
   await page.getByRole('button',{name:'Browser compatibility and help',exact:true}).click()
   await page.getByRole('button',{name:'Select Level',exact:true}).click()

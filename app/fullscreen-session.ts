@@ -86,14 +86,21 @@ export function createFullscreenSession(
   }
 }
 
-/** Keep one portal node inside the modal top layer, not behind an inert dialog. */
+/** Keep browser controls in existing menus/loading, never over the battlefield.
+ * Detach the portal, not the session: browser Escape and pending state still work. */
 export function placeFullscreenHost(doc: Document, host: HTMLElement) {
   const dialogs = doc.querySelectorAll<HTMLDialogElement>('dialog[open]')
-  const actions = doc.querySelector<HTMLElement>('.top-actions')
   const target = dialogs[dialogs.length - 1] ??
-    (!doc.querySelector('.loading-world') && actions ? actions : doc.body)
+    (doc.querySelector('.loading-world') ? doc.body : null)
   if (host.parentElement === target) return
   const focused = host.contains(doc.activeElement) ? doc.activeElement as HTMLElement : null
+  if (!target) {
+    host.remove()
+    // Closing a dialog normally restores its own trigger. Only transfer focus
+    // when the removed portal still owns it; never steal a newer owner's focus.
+    if (focused) doc.querySelector<HTMLElement>('.world-viewport')?.focus({ preventScroll: true })
+    return
+  }
   target.appendChild(host)
   focused?.focus({ preventScroll: true })
 }
@@ -119,14 +126,14 @@ export function promoteFullscreenDialogs(doc: Document) {
 }
 
 /** Dialogs in the shipped app are direct children of the shell. Ignore ordinary
- * HUD text/list updates; only modal/loading/dock changes or removal of our host need a scan. */
+ * HUD text/list updates; only modal/loading changes or removal of our host need a scan. */
 export function fullscreenHostNeedsPlacement(records: MutationRecord[], host: HTMLElement) {
   return records.some(record =>
     record.type === 'attributes'
       ? record.target.nodeName === 'DIALOG'
       : [...record.addedNodes, ...record.removedNodes].some(node =>
           node.nodeName === 'DIALOG' || node.contains(host) ||
-          (node.nodeType === 1 && (node as Element).matches('.loading-world,.top-actions'))
+          (node.nodeType === 1 && (node as Element).matches('.loading-world'))
         )
   )
 }

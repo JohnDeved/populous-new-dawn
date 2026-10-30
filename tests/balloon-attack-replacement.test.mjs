@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { settleRouteLaunch } from './helpers/route-launch-landing.mjs'
 import {
   checkpointComparisonView,
@@ -8,7 +9,6 @@ import { supportsFollower } from '../app/model.ts'
 // Public attack-to-worship replacement preserves the original seated owner.
 import test from 'node:test'
 import { cancelLiveBuildingAttack } from '../app/live-building-combat.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 
 import assert from 'node:assert/strict'
@@ -31,8 +31,8 @@ const stepUntil = (w, done, limit) => {
   }
 // Preparation supplies only the existing mana-focus mask adapter.
 test('supplied-focus current Mission22 airborne attack replacement retains its passenger through worship and Save/Load', async () => {
-  const store = createGameStore()
-  store.startMission(22)
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),

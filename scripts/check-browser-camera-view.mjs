@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { chromium } from '@playwright/test'
 import { openGame, settleView } from './browser-game.mjs'
+import { zoomOutAfterPauseMenu } from './browser-camera-menu.mjs'
 import native from '../app/original-camera.json' with { type: 'json' }
 // Keep captures local to this checkout; parallel workers must not share /tmp names.
 const artifacts = fileURLToPath(new URL('../work/browser-camera-view/', import.meta.url))
@@ -74,7 +75,7 @@ try {
   await page.keyboard.press('-')
   await advance()
   assert.deepEqual((await state()).config, start.config, 'Normal view restores every config field')
-  // Wheel uses the same discrete command adapter as the keyboard and menu.
+  // Wheel uses the same discrete command adapter as the keyboard.
   const canvas = page.locator('.world-viewport canvas[data-engine]'),
     rect = await canvas.boundingBox()
   await page.mouse.move(rect.x + rect.width / 2, rect.y + rect.height / 2)
@@ -128,12 +129,7 @@ try {
   await page.waitForTimeout(100)
   assert.equal((await state()).preset, 3)
   assert.equal((await state()).config.scaledSprites, 1)
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Zoom out', exact: true }).click()
-  await advance()
-  assert.equal((await state()).preset, 0)
-
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await zoomOutAfterPauseMenu(page, state, advance)
   // Exercise the shipped camera runtime, not only the interpolation helper.
   // Timestamps are deterministic; these schedules are NOT measured hardware FPS.
   await page.setViewportSize({ width: 1440, height: 1000 })

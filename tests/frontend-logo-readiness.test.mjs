@@ -39,15 +39,18 @@ test('hidden logo shadow equals a transparent-logo-mask reference without changi
 test('every frontend panel passes foreground artwork readiness to its logo shadow', () => {
   const source = readFileSync(new URL('../app/original-main-menu.tsx', import.meta.url), 'utf8')
   const parsed = ts.createSourceFile('menu.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
-  let callback
+  let callback, dependencies
   function visit(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(parsed) === 'draw') callback = node.initializer.arguments[0]
+    if (ts.isVariableDeclaration(node) && node.name.getText(parsed) === 'draw') {
+      callback = node.initializer.arguments[0]
+      dependencies = node.initializer.arguments[1]
+    }
     ts.forEachChild(node, visit)
   }
   visit(parsed)
   assert.ok(callback)
   const body = ts.transpileModule(`return ${callback.getText(parsed)};`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
-  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', 'badges', 'vectorFailures', body)
+  const make = new Function('canvas', 'prepared', 'pointer', 'panel', 'pointerMode', 'glowFrame', 'optionRows', 'canvasWidth', 'tutorialRecommendationRows', 'frontendQuitRows', 'tutorialParagraphRows', 'questionReady', 'artReady', 'logoReady', 'frontendBackground', 'ImageData', 'badges', 'vectorFailures', 'checkpointRecovery', body)
   for (const panel of ['main', 'options', 'quit', 'tutorial-recommendation']) {
     for (const questionReady of [false, true]) for (const artReady of [false, true]) for (const logoReady of [false, true]) {
       let args
@@ -56,6 +59,7 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
         { current: { x: 320, y: 240 } }, panel, { current: false }, { current: 0 }, [], 640,
         [...tutorialParagraphRows, ...tutorialChoiceRows], frontendQuitRows, tutorialParagraphRows,
         questionReady, artReady, logoReady, (...values) => { args = values; return new Uint8ClampedArray(4) }, class {}, { current: [] }, [false, false],
+        { noticeRows: [], shadowRows: [] },
       )
       draw()
       assert.equal(args[6], logoReady, `${panel}: logo readiness follows foreground title`)
@@ -63,5 +67,8 @@ test('every frontend panel passes foreground artwork readiness to its logo shado
       assert.equal(args[2], panel === 'main')
     }
   }
-  assert.match(source, /\[panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures\]/)
+  assert.deepEqual(dependencies.elements.map(node => node.getText(parsed)), [
+    'panel', 'optionRows', 'canvasWidth', 'questionReady', 'artReady', 'logoReady',
+    'prepared', 'vectorFailures', 'checkpointRecovery',
+  ])
 })

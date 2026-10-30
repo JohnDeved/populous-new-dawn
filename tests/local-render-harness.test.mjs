@@ -87,6 +87,15 @@ test('source fingerprint catches dirty tracked and untracked byte drift with unc
   }
 })
 
+// Match the whole maintained import boundary. Lifecycle tests must neither
+// execute a real dynamic browser import nor silently accept a changed binding.
+function bindBrowserGameHelpers(source) {
+  const statement = "const { bindGame, showAllMissions, prepareCampaignFixture, launchCampaignMission } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)"
+  assert.equal(source.split(statement).length, 2, 'one exact browser-game import boundary')
+  return source.replace(statement,
+    "const bindGame = async () => { throw Error('Unexpected mission setup in lifecycle fixture') }, showAllMissions = bindGame, prepareCampaignFixture = bindGame, launchCampaignMission = bindGame")
+}
+
 // Exercise the exact production function with runtime-only fakes. No browser,
 // network, process, or screenshot is real in these cancellation regression tests.
 async function lateScenarioResult(trigger) {
@@ -150,8 +159,7 @@ async function lateScenarioResult(trigger) {
     },
   }
   let source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
-  source = source
-    .slice(0, source.indexOf('\nif (process.argv[1]'))
+  source = bindBrowserGameHelpers(source.slice(0, source.indexOf('\nif (process.argv[1]')))
     .replace(/^import[\s\S]*?from '[^']+'\n/gm, '')
     .replace(/^export \{ sourceReceipt \}$/gm, '')
     .replaceAll('export ', '')
@@ -159,10 +167,7 @@ async function lateScenarioResult(trigger) {
       'import.meta.url',
       JSON.stringify('file:///fixture/scripts/local-render/harness.mjs')
     )
-    .replace(
-      "const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)",
-      'const bindGame = async () => {}, showAllMissions = async () => {}'
-    )
+
   const sandbox = {
     // This VM supplies fixture filesystem bytes; dependency metadata is an explicit boundary stub.
     dependencyReceipt: () => ({ installedLockSha256: createHash('sha256').update('fixture bytes').digest('hex') }),
@@ -361,18 +366,13 @@ async function startupFixture({
   }
   const scenario = async () => ({ reached: true })
   let source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
-  source = source
-    .slice(0, source.indexOf('\nif (process.argv[1]'))
+  source = bindBrowserGameHelpers(source.slice(0, source.indexOf('\nif (process.argv[1]')))
     .replace(/^import[\s\S]*?from '[^']+'\n/gm, '')
     .replace(/^export \{ sourceReceipt \}$/gm, '')
     .replaceAll('export ', '')
     .replaceAll(
       'import.meta.url',
       JSON.stringify('file:///fixture/scripts/local-render/harness.mjs')
-    )
-    .replace(
-      "const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)",
-      'const bindGame = async () => {}, showAllMissions = async () => {}'
     )
     .replace(
       'await import(pathToFileURL(resolve(options.scenario)).href)',

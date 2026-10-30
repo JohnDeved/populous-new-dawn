@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
@@ -189,6 +190,12 @@ export default async function mission3BuildingScreen(context, continuation = nul
       failed = false,
       failure
     try {
+      if (!startup) {
+        const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+        if (await menu.getAttribute('data-panel') !== 'root')
+          await menu.getByRole('button', { name: 'Back', exact: true }).click()
+        await menu.getByRole('button', { name: kind === 'load' ? 'Load Game' : 'Restart Level', exact: true }).click()
+      }
       await page.evaluate(
         async options => {
           const { prepareM3Replacement } =
@@ -198,22 +205,25 @@ export default async function mission3BuildingScreen(context, continuation = nul
         { kind, shamanId, birth, startup }
       )
       armed = true
-      const name = kind === 'load' ? 'Load checkpoint' : 'Restart world'
+      const name = kind === 'load' ? 'Load checkpoint' : 'Yes'
       const click = async () => {
         if (startup)
           await page
             .getByRole('dialog', { name: 'Main menu', exact: true })
             .getByRole('button', { name: 'Load Game', exact: true })
             .click()
-        else await page.getByRole('button', { name, exact: true }).click()
+        else await page.getByRole('dialog', { name: 'Game menu', exact: true }).getByRole('button', { name, exact: true }).click()
         // PR274's proven continuation ordering: the next public input is Pause.
         // No health read, report write, bind, PNG serialization or digest in between.
-        if (pauseImmediately)
-          await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+        if (pauseImmediately) {
+          await page.locator('.loading-world').waitFor({ state: 'detached' })
+          await page.locator('.world-viewport').press('Space')
+        }
       }
       if (input) await input.action(pauseImmediately ? `${name} then Pause game` : name, click)
       else await click()
       await bindGame(page)
+      if (kind === 'restart') await skipIntroductionWithSpace(page)
     } catch (error) {
       failed = true
       failure = error
@@ -286,13 +296,14 @@ export default async function mission3BuildingScreen(context, continuation = nul
       await screenWait('whole')
       birth = await page.evaluate(() => window.m3BuildingScreen.read().birth)
       await input.pause()
-      await input.button('Game settings')
+      await input.button('Menu')
       evidence.activeSave = { boundary: null, committed: null, digest: null }
       const saved = evidence.activeSave
       let armed = false,
         failed = false,
         failure
       try {
+        await input.button('Save Game')
         await page.evaluate(armM3Save)
         armed = true
         await input.button('Save checkpoint')
@@ -337,11 +348,10 @@ export default async function mission3BuildingScreen(context, continuation = nul
       assert.equal(saved.digest.checkpoint.turn, saved.boundary.snapshot.turn)
       assert.equal(saved.digest.checkpoint.time, saved.boundary.snapshot.time)
       await replacement('load', input, 'fresh', { pauseImmediately: true })
-      await input.button('Game settings')
+      await input.button('Menu')
       await replacement('restart', input, 'beforeRestart')
-      // The fresh restart scene has completed binding; its opening need not be
-      // replayed. Settings is a real control admitted through its input mask.
-      await input.button('Game settings')
+      // The native introduction has relinquished input before Menu is used again.
+      await input.button('Menu')
       await replacement('load', input, 'restartWithoutAcquisition')
       await input.resume()
     },
@@ -387,9 +397,9 @@ export default async function mission3BuildingScreen(context, continuation = nul
         pauseImmediately: !continuation.completionOnly,
       })
       if (!continuation.completionOnly) {
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await replacement('restart', null, 'continuedBeforeRestart')
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        await page.getByRole('button', { name: 'Menu', exact: true }).click()
         await replacement('load', null, 'restartWithoutAcquisition')
       }
       return { shamanId }

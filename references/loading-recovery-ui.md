@@ -66,3 +66,28 @@ increase by one. Raw quality attribution and limits are retained. The final
 publication changes documentation/evidence only; runtime trees remain bound to the
 reviewed application. No complete native frame or hardware-performance claim is
 made.
+
+
+## Native-style recovery follow-up (2026-10-21)
+
+The failed presentation reuses the original frontend FEFT33WE atlas, with FEHI33WE
+for focused/hovered recovery rows. These banks share glyph rectangles and advances.
+At intrinsic scale, `Loading failed` measures 199px, `Technical details` 242px,
+`Try again` 134px, and `Browser recovery` 257px. Controls use unframed 30px frontend
+menu rows; the original mask stays 130×161 above a responsive, scrollable stack.
+The recovery stack is at most 576px wide. Word wrapping, scrolling, and recovery
+copy are browser adaptations, not evidence of an original failure dialog.
+
+The pending-phase inline stylesheet and artwork markup remain byte-identical to
+base `5841a883ebbd54902674d5d7595abbfb98e55fa7`, enforced by focused source hashes.
+Recovery fonts are requested only in the failed phase and never gate retry or
+resource readiness. Until both normal/highlight atlases decode, or if they fail,
+visible serif fallback text remains. Unsupported text also takes the full fallback
+rather than silently dropping characters or indexing outside the original atlas.
+
+Technical errors deliberately remain escaped, selectable browser text with
+preserved line breaks and wrapping for long paths and Unicode. They are not fed
+through a bitmap alphabet that cannot represent arbitrary diagnostics. The existing
+summary disclosure, focus cycle, one-shot retry guard, fresh/held Enter and Space
+ownership, and keyed Home presentation are unchanged. No gameplay, save, parity,
+asset, importer, or resource lifecycle change is claimed.

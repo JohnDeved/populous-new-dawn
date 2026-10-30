@@ -1,0 +1,433 @@
+{
+  "method": "F4 PSFB record headers independently matched all224 existing HUD rectangles; F3 metrics reused existing hash-pinned result import. No sprite decoding/extraction or native execution.",
+  "f4Sha256": "2cbebbf772ffa2fceca7ec5e37a08c1c6fe190653bbc3d85ebe126443d4494d0",
+  "f4RecordCount": 224,
+  "f4AllRectanglesMatch": true,
+  "resultMetadataSha256": "96daa41ef7a9cf0640dd7394d91d55545c00d36d64599852100041c3c61315c3",
+  "hudMetadataSha256": "48497414995d90ae0e7de3bb4b667e83d8121a024d24d4b7a620412520c98931",
+  "fontMetrics": {
+    "3": {
+      " ": {
+        "w": 8,
+        "h": 19
+      },
+      "2": {
+        "w": 11,
+        "h": 19
+      },
+      ":": {
+        "w": 4,
+        "h": 18
+      },
+      "A": {
+        "w": 10,
+        "h": 19
+      },
+      "B": {
+        "w": 9,
+        "h": 19
+      },
+      "C": {
+        "w": 12,
+        "h": 19
+      },
+      "D": {
+        "w": 11,
+        "h": 19
+      },
+      "E": {
+        "w": 8,
+        "h": 19
+      },
+      "F": {
+        "w": 8,
+        "h": 19
+      },
+      "K": {
+        "w": 10,
+        "h": 19
+      },
+      "L": {
+        "w": 8,
+        "h": 19
+      },
+      "O": {
+        "w": 14,
+        "h": 19
+      },
+      "P": {
+        "w": 9,
+        "h": 19
+      },
+      "R": {
+        "w": 10,
+        "h": 19
+      },
+      "S": {
+        "w": 9,
+        "h": 19
+      },
+      "T": {
+        "w": 10,
+        "h": 19
+      },
+      "V": {
+        "w": 11,
+        "h": 19
+      },
+      "W": {
+        "w": 16,
+        "h": 19
+      },
+      "a": {
+        "w": 10,
+        "h": 19
+      },
+      "b": {
+        "w": 9,
+        "h": 19
+      },
+      "c": {
+        "w": 12,
+        "h": 19
+      },
+      "d": {
+        "w": 11,
+        "h": 19
+      },
+      "e": {
+        "w": 8,
+        "h": 19
+      },
+      "f": {
+        "w": 8,
+        "h": 19
+      },
+      "g": {
+        "w": 12,
+        "h": 19
+      },
+      "h": {
+        "w": 10,
+        "h": 19
+      },
+      "i": {
+        "w": 4,
+        "h": 19
+      },
+      "l": {
+        "w": 8,
+        "h": 19
+      },
+      "m": {
+        "w": 14,
+        "h": 19
+      },
+      "n": {
+        "w": 10,
+        "h": 19
+      },
+      "o": {
+        "w": 14,
+        "h": 19
+      },
+      "p": {
+        "w": 9,
+        "h": 19
+      },
+      "r": {
+        "w": 10,
+        "h": 19
+      },
+      "s": {
+        "w": 9,
+        "h": 19
+      },
+      "t": {
+        "w": 10,
+        "h": 19
+      },
+      "u": {
+        "w": 11,
+        "h": 19
+      },
+      "v": {
+        "w": 11,
+        "h": 19
+      },
+      "w": {
+        "w": 16,
+        "h": 19
+      },
+      "y": {
+        "w": 12,
+        "h": 19
+      }
+    },
+    "4": {
+      " ": {
+        "w": 6,
+        "h": 10
+      },
+      "2": {
+        "w": 6,
+        "h": 10
+      },
+      ":": {
+        "w": 3,
+        "h": 10
+      },
+      "A": {
+        "w": 6,
+        "h": 10
+      },
+      "B": {
+        "w": 6,
+        "h": 10
+      },
+      "C": {
+        "w": 7,
+        "h": 10
+      },
+      "D": {
+        "w": 7,
+        "h": 10
+      },
+      "E": {
+        "w": 5,
+        "h": 10
+      },
+      "F": {
+        "w": 5,
+        "h": 10
+      },
+      "K": {
+        "w": 6,
+        "h": 10
+      },
+      "L": {
+        "w": 6,
+        "h": 10
+      },
+      "O": {
+        "w": 8,
+        "h": 10
+      },
+      "P": {
+        "w": 6,
+        "h": 10
+      },
+      "R": {
+        "w": 6,
+        "h": 10
+      },
+      "S": {
+        "w": 6,
+        "h": 10
+      },
+      "T": {
+        "w": 6,
+        "h": 10
+      },
+      "V": {
+        "w": 6,
+        "h": 10
+      },
+      "W": {
+        "w": 8,
+        "h": 10
+      },
+      "a": {
+        "w": 6,
+        "h": 10
+      },
+      "b": {
+        "w": 6,
+        "h": 10
+      },
+      "c": {
+        "w": 6,
+        "h": 10
+      },
+      "d": {
+        "w": 6,
+        "h": 10
+      },
+      "e": {
+        "w": 5,
+        "h": 10
+      },
+      "f": {
+        "w": 5,
+        "h": 10
+      },
+      "g": {
+        "w": 6,
+        "h": 10
+      },
+      "h": {
+        "w": 6,
+        "h": 10
+      },
+      "i": {
+        "w": 2,
+        "h": 10
+      },
+      "l": {
+        "w": 5,
+        "h": 10
+      },
+      "m": {
+        "w": 8,
+        "h": 10
+      },
+      "n": {
+        "w": 5,
+        "h": 10
+      },
+      "o": {
+        "w": 7,
+        "h": 10
+      },
+      "p": {
+        "w": 5,
+        "h": 10
+      },
+      "r": {
+        "w": 5,
+        "h": 10
+      },
+      "s": {
+        "w": 5,
+        "h": 10
+      },
+      "t": {
+        "w": 6,
+        "h": 10
+      },
+      "u": {
+        "w": 5,
+        "h": 10
+      },
+      "v": {
+        "w": 6,
+        "h": 10
+      },
+      "w": {
+        "w": 8,
+        "h": 10
+      },
+      "y": {
+        "w": 6,
+        "h": 10
+      }
+    }
+  },
+  "nativeRows": [
+    {
+      "labelId": 741,
+      "label": "Fights Won",
+      "counterIndex": 0,
+      "groupBefore": true,
+      "y": 101
+    },
+    {
+      "labelId": 742,
+      "label": "Fights Lost",
+      "counterIndex": 1,
+      "groupBefore": false,
+      "y": 119
+    },
+    {
+      "labelId": 743,
+      "label": "Enemy Tribes Destroyed",
+      "counterIndex": 2,
+      "groupBefore": true,
+      "y": 144
+    },
+    {
+      "labelId": 744,
+      "label": "Enemy Followers Killed",
+      "counterIndex": 3,
+      "groupBefore": false,
+      "y": 162
+    },
+    {
+      "labelId": 745,
+      "label": "Enemy Buildings Destroyed",
+      "counterIndex": 4,
+      "groupBefore": false,
+      "y": 180
+    },
+    {
+      "labelId": 746,
+      "label": "Enemy Shaman Kills",
+      "counterIndex": 5,
+      "groupBefore": false,
+      "y": 198
+    },
+    {
+      "labelId": 747,
+      "label": "Own Followers Lost",
+      "counterIndex": 6,
+      "groupBefore": true,
+      "y": 223
+    },
+    {
+      "labelId": 748,
+      "label": "Own Buildings Destroyed",
+      "counterIndex": 7,
+      "groupBefore": false,
+      "y": 241
+    },
+    {
+      "labelId": 749,
+      "label": "Own Shaman Deaths",
+      "counterIndex": 8,
+      "groupBefore": false,
+      "y": 259
+    },
+    {
+      "labelId": 750,
+      "label": "Vaults of Knowledge Raided",
+      "counterIndex": 9,
+      "groupBefore": true,
+      "y": 284
+    }
+  ],
+  "reference640": {
+    "panelWidth": 384,
+    "panelHeight": 368,
+    "contentWidth": 382,
+    "contentHeight": 358,
+    "contentInset": [
+      1,
+      5
+    ],
+    "columns": 24,
+    "rows": 23,
+    "headingY": 13,
+    "playerY": 31,
+    "statusY": 49,
+    "timeY": 76,
+    "labelX": 17,
+    "valueColonX": 277,
+    "lineHeight": 18,
+    "groupGap": 7,
+    "promptY": 372,
+    "maxLabelWidth": 256,
+    "colonWidth": 4,
+    "timeReserveWidth": 90,
+    "counterSeparatorWidth": 12,
+    "counterValueStartX": 289,
+    "counterReserveWidth": 86
+  },
+  "tile": {
+    "width": 16,
+    "height": 16
+  },
+  "reward": {
+    "width": 36,
+    "height": 43
+  }
+}

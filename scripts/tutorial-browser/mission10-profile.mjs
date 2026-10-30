@@ -7,7 +7,7 @@ import { resolve } from 'node:path'
 import { acquireProfile, sourceReceipt, profileInputReceipt, persistentLaunchOptions } from '../local-render/owned-profile.mjs'
 import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs'
 import scenario from '../local-render/mission10-boat-checkpoint.mjs'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, prepareCampaignFixture, launchCampaignMission } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from '../local-render/original-pause-checkpoint-recovery.mjs'
 import { createMission10Input, mission10BoatPoint } from './mission10-input.mjs'
@@ -61,7 +61,8 @@ export default async function runMission10Profile({ chromium, launch, url, root,
   assert.equal(existsSync(path), false, 'Only a brand-new task profile may be admitted')
   const report = { status: 'running', sourceCommit: source.commit, sourceFingerprint: source.fingerprint,
     runtimeSha256, deadlineAt, profilePath: path, phases: [],
-    limits: 'Public direct Mission 10 access, boarding, crew selection and same-shore unload. Not campaign unlock, sea crossing, completion, native parity or hardware performance.' }
+    campaignFixture: { mission: 10, completed: [], kind: 'declared-native-availability' },
+    limits: 'Declared Mission 10 availability fixture with public native launch, boarding, crew selection and same-shore unload. No checkpoint or gameplay seeding. Not earned campaign unlock, sea crossing, completion, native parity or hardware performance.' }
   const saveReport = () => writeFileSync(resolve(output, 'mission10-profile.json'), json(report))
   saveReport()
   try {
@@ -119,8 +120,11 @@ export default async function runMission10Profile({ chromium, launch, url, root,
           }
           const openMission = async mission => {
             assert.equal(mission, 10)
-            await showAllMissions(page)
-            await page.getByRole('button', { name: 'Mission 10', exact: true }).focus(); await page.keyboard.press('Enter')
+            assert.equal(mode, 'created', 'Only the new owned profile may receive launch prerequisites')
+            signal.throwIfAborted()
+            await prepareCampaignFixture(page, 10)
+            signal.throwIfAborted()
+            await launchCampaignMission(page, 10)
             await bindGame(page)
             const ready = await page.waitForFunction(pauseStartupReady)
             const action = await ready.jsonValue(); await ready.dispose()

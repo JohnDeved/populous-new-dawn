@@ -1033,29 +1033,89 @@ test('native UI checker changes select focused regressions without losing workfl
       .find(item => item.id === 'native-ui-evidence-tests')
     assert.ok(check)
     assert.equal(check.automation, 'safe')
-    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs'])
-    const paths = ['scripts/native-ui-evidence/hud-sound-control-style.mjs',
+    assert.deepEqual([check.executable, ...check.args], [
+      'node', '--test',
+      'tests/native-ui-evidence.test.mjs',
+      'tests/browser-options-audio.test.mjs',
+      'tests/campaign-popup-fullscreen-fixture.test.mjs',
+      'tests/pause-world-snapshot.test.mjs',
+      'tests/query-world-phase.test.mjs',
+      'tests/pause-clearance-batch.test.mjs',
+      'tests/pause-checker-registration.test.mjs',
+      'tests/pause-focus-observation.test.mjs',
+      'tests/pause-keyboard-traversal.test.mjs',
+      'tests/checkpoint-scrollbar.test.mjs',
+      'tests/checkpoint-body-clearance.test.mjs',
+      'tests/fullscreen-clearance.test.mjs',
+      'tests/options-copy-clearance.test.mjs',
+      'tests/recovery-input-budget.test.mjs',
+      'tests/original-loading-screen.test.mjs',
+      'tests/loading-focus.test.mjs',
+      'tests/checkpoint-scroll-area.test.mjs',
+      'tests/pause-style-case-plan.test.mjs',
+    ])
+    const workflowPaths = ['scripts/native-ui-evidence/options-audio-control-style.mjs',
+      'scripts/browser-options-audio.mjs', 'tests/browser-options-audio.test.mjs',
       'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
       '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
+    const popupPaths = [
+      'scripts/campaign-popup-fixture/home-source.mjs', 'scripts/campaign-popup-fixture/fullscreen-menu.mjs',
+      'scripts/campaign-popup-fixture/finalize.mjs', 'scripts/campaign-popup-fixture/run.mjs',
+      'tests/campaign-popup-fullscreen-fixture.test.mjs',
+      'app/scene-input-runtime.ts', 'app/fullscreen-session.ts']
+    const paths = [...workflowPaths, ...popupPaths]
     for (const input of check.inputs) {
+      // Keep the real fixture routing manifest: it is itself a declared input.
+      if (input === 'engineering/checks.json') continue
       if (input === 'scripts/native-ui-evidence') mkdirSync(join(repo, input), { recursive: true })
       else put(repo, input, input === 'package.json' ? '{"type":"module"}\n' : '// fixture\n')
     }
     for (const path of paths) put(repo, path, '// fixture\n')
+    run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker source fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
     const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
     manifest.checks.push(check); put(repo, 'engineering/checks.json', manifest)
     run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker routing')
     for (const path of paths) {
       appendFileSync(join(repo, path), '// changed\n')
-      const plan = planChanges(repo)
-      assert.deepEqual(plan.unknownPaths, [], path)
-      for (const id of [check.id, 'orchestration-tests', 'orchestration-structural', 'repository-check'])
-        assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      const plan = planChanges(repo), previous = baseline.get(path)
+      assert.deepEqual(plan.checks.find(item => item.id === check.id)?.command, [check.executable, ...check.args], path)
+      // Explicit triggers add a cheap check, not workflow ownership. Preserve
+      // unknown-path fallback and every pre-existing gate for fixture/app paths.
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      if (path === '.github/workflows/native-ui-evidence.yml') {
+        // A known workflow with no exact test command can gain focused editing
+        // advice. Its existing final gates remain identical above and required below.
+        assert.equal(previous.feedback.scope, 'full', path)
+        assert.equal(plan.feedback.scope, 'focused', path)
+        assert.deepEqual(plan.feedback.command, ['npm', 'run', 'test:focus', '--', ...check.args.slice(1).sort()], path)
+      } else assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      if (workflowPaths.includes(path)) {
+        assert.deepEqual(plan.unknownPaths, [], path)
+        for (const id of ['orchestration-tests', 'orchestration-structural', 'repository-check'])
+          assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      } else {
+        assert.deepEqual(plan.unknownPaths, [path], path)
+        assert.ok(plan.checks.some(item => item.id === 'repository-check'), path)
+        if (path.startsWith('app/')) assert.ok(plan.checks.some(item => item.id === 'production-build'), path)
+      }
       assert.equal(plan.executesChecks, false)
       assert.equal(plan.feedback.fullVerificationRequired, true)
       assert.equal(plan.feedback.finalGate, false)
       put(repo, path, '// fixture\n')
     }
+    put(repo, 'scripts/browser-unregistered.mjs', '// unrelated\n')
+    const unknown = planChanges(repo)
+    assert.deepEqual(unknown.unknownPaths, ['scripts/browser-unregistered.mjs'])
+    assert.ok(!unknown.checks.some(item => item.id === check.id))
+    assert.ok(unknown.checks.some(item => item.id === 'repository-check'))
   }))
 
 test('explicit check triggers reject unsafe, malformed and empty routes', () =>

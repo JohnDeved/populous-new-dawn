@@ -1,3 +1,4 @@
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { openCampaignFromMainMenu, waitForStartupMenu } from './browser-new-game.mjs'
 // Explicit public-UI setup for checks that start an arbitrary mission.
 // Campaign progression acceptance uses native panel selection + Start instead.
@@ -6,16 +7,70 @@ export async function showSelectorControls(page) {
   if (await controls.getAttribute('aria-expanded') !== 'true') await controls.click()
 }
 
-export async function showAllMissions(page) {
+export async function showDebugMissions(page) {
   await waitForStartupMenu(page, { allowSelector: true })
-  const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
-  if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
-  const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
-  await startup.waitFor({ state: 'visible' })
-  await showSelectorControls(page)
-  const allMissions = startup.getByRole('button', { name: 'All missions', exact: true })
-  if (await allMissions.getAttribute('aria-pressed') !== 'true') await allMissions.click()
+  await page.keyboard.press('F8')
+  await page.getByRole('dialog', { name: 'Debug missions', exact: true }).waitFor({ state: 'visible' })
 }
+
+export async function launchDebugMission(page, mission) {
+  if (!Number.isInteger(mission) || mission < 1 || mission > 23) throw new RangeError('Unsupported debug mission')
+  await showDebugMissions(page)
+  await page.getByRole('dialog', { name: 'Debug missions', exact: true })
+    .getByRole('button', { name: `Mission ${mission}`, exact: true }).click()
+}
+
+// Compatibility for diagnostic callers only. These runs are now explicitly
+// non-awarding and unsavable; save/progression scenarios must use native fixtures.
+export const showAllMissions = showDebugMissions
+
+// Explicit diagnostic fixture for an otherwise empty ephemeral browser profile.
+// Refuse to replace an existing profile. A seeded later mission proves only its
+// outcome and downstream route, never earned prerequisites or full campaign play.
+export async function prepareCampaignFixture(page, mission) {
+  if (!Number.isInteger(mission) || mission < 1 || mission > 23) throw new RangeError('Unsupported campaign fixture')
+  await waitForStartupMenu(page, { allowSelector: true })
+  const fixture = { version: 1, completed: [], nativeCampaign: {
+    version: 1, history: 'legacy-completed-only',
+    flags: Array.from({ length: 25 }, (_, i) => i + 1 === mission ? 4 : 0),
+  } }
+  await page.evaluate(async fixture => {
+    const database = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('populous-new-dawn', 1)
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+    try {
+      await new Promise((resolve, reject) => {
+        const transaction = database.transaction('checkpoints', 'readwrite')
+        const store = transaction.objectStore('checkpoints'), request = store.get('profile')
+        request.onsuccess = () => {
+          if (request.result !== undefined) { transaction.abort(); return }
+          store.put(fixture, 'profile')
+        }
+        transaction.oncomplete = resolve
+        transaction.onabort = () => reject(new Error('Campaign fixture refused an existing profile or aborted write'))
+        transaction.onerror = () => reject(transaction.error)
+      })
+    } finally { database.close() }
+  }, fixture)
+  console.log(JSON.stringify({ campaignFixture: { mission, profile: fixture,
+    limits: 'Declared availability fixture, not naturally earned prior campaign progress.' } }))
+  await page.reload({ waitUntil: 'networkidle' })
+}
+
+export async function launchCampaignMission(page, mission) {
+  await waitForStartupMenu(page, { allowSelector: true })
+  if (await page.getByRole('dialog', { name: 'Main menu', exact: true }).isVisible()) await openCampaignFromMainMenu(page)
+  const selector = page.getByRole('dialog', { name: 'Start game', exact: true })
+  await selector.getByRole('button', { name: new RegExp(`^Panel Mission ${mission}(, completed)?$`) }).click()
+  await selector.getByRole('button', { name: new RegExp(`^(Start|Replay) Mission ${mission}$`) }).click()
+}
+
+export const openCampaignFixtureGame = (browser, mission = 1) => openGame(browser, mission, { campaignFixture: true })
+// No profile seeding: use only initial or already-restored native availability.
+// This also keeps fresh Mission 1 usable when browser persistence is unavailable.
+export const openCampaignGame = (browser, mission = 1) => openGame(browser, mission, { nativeCampaign: true })
 
 export async function bindGame(page) {
   await page.waitForSelector('.world-viewport canvas')
@@ -86,7 +141,8 @@ export async function waitForShamanReadiness(page, { timeout = 30000, polling = 
 }
 
 // Shared setup for desktop checks; keep test access out of the shipped game API.
-export async function openGame(browser, mission = 1) {
+export async function openGame(browser, mission = 1, { campaignFixture = false, nativeCampaign = false } = {}) {
+  if (campaignFixture && nativeCampaign) throw new TypeError('Choose declared fixture or existing campaign availability, not both')
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage()
   const errors = []
@@ -94,12 +150,14 @@ export async function openGame(browser, mission = 1) {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
   // Direct-access setup is explicit; campaign selector checks exercise its gating separately.
-  await showAllMissions(page)
-  await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).focus()
-  await page.keyboard.press('Enter')
+  if (campaignFixture) {
+    await prepareCampaignFixture(page, mission)
+    await launchCampaignMission(page, mission)
+  } else if (nativeCampaign) await launchCampaignMission(page, mission)
+  else await launchDebugMission(page, mission)
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })

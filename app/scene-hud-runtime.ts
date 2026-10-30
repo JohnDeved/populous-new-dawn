@@ -33,6 +33,8 @@ function syncCampaignMessagePresentation(scene: GameScene) {
     if (!message) continue
     const top = messageScreenY(message.position, height)
     element.style.top = `${top}px`
+    // The viewport-fixed popup cancels this moving notification offset.
+    element.style.setProperty('--message-top', `${top}px`)
     if (top > lowerBoundary) element.setAttribute('data-lower', '')
     else element.removeAttribute('data-lower')
   }
@@ -47,7 +49,7 @@ export function updateHudFrame(scene: GameScene, now: number, dt: number) {
     '--population-full-color',
     nativeHud.colors[populationMeter(1, 1, scene.gameClock.animationFrame).color]
   )
-  const shaman = scene.world.units.find(u => u.team === 'blue' && isShaman(u))
+  const shaman = scene.world.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
   const portraitMesh = shaman && scene.unitMeshes.get(shaman.id)
   drawPortrait(
     scene.portrait,

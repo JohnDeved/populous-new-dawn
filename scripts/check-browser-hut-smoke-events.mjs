@@ -1,8 +1,9 @@
+import { clearPortraitSelection } from './browser-portrait-input.mjs'
 // Normal Mission1 input only. The queue-owned runner supplies POPULOUS_URL.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, openCampaignGame } from './browser-game.mjs'
 
 const report = {
   stages: [],
@@ -19,19 +20,25 @@ const browser = await chromium.launch({ headless: true })
 
 async function pause() {
   if (!(await page.evaluate(() => window.testScene.world.paused)))
-    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+    await page.locator('.world-viewport').press('Space')
   await page.waitForFunction(() => window.testScene.world.paused)
 }
 async function resume() {
   if (await page.evaluate(() => window.testScene.world.paused))
-    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+    await page.locator('.world-viewport').press('Space')
   await page.waitForFunction(() => !window.testScene.world.paused)
 }
 async function closeMenu() {
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
-  await page.waitForFunction(
-    () => !document.querySelector('.game-dialog').open && !window.testScene.world.paused
-  )
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  if (await page.getByRole('region', { name: 'Browser compatibility and help', exact: true }).isVisible())
+    await page.getByRole('button', { name: 'Back to Options', exact: true }).click()
+  if (await menu.getAttribute('data-panel') !== 'root')
+    await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
+  await menu.waitFor({ state: 'hidden' })
+  if (await page.evaluate(() => window.testScene.world.paused))
+    await page.locator('.world-viewport').press('Space')
+  await page.waitForFunction(() => !window.testScene.world.paused)
 }
 async function clearSelection() {
   await page.keyboard.press('Escape')
@@ -382,10 +389,10 @@ async function observe(hutId, phase) {
   )
 }
 try {
-  ;({ page, errors } = await openGame(browser, 1))
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await page.getByRole('button', { name: 'Focus settlement', exact: true }).click()
-  await closeMenu()
+  ;({ page, errors } = await openCampaignGame(browser, 1))
+  report.portraitCancellation = await clearPortraitSelection(page)
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' })
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
   await pause()
   report.hutId = await page.evaluate(
@@ -451,8 +458,10 @@ try {
   const full = await snapshot()
   await page.waitForTimeout(200)
   assert.deepEqual(await snapshot(), full, 'Paused scene must not advance smoke/counter')
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
   await closeMenu()
   await pause()
   let remaining = [...cohort]
@@ -471,7 +480,7 @@ try {
     ),
     'Must observe a genuine off-32-phase removal'
   )
-  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
   // Stop only this read-only observer before replacing the world; do not let
   // the checkpoint discontinuity masquerade as an occupancy event.
   await page.evaluate(() => {
@@ -480,6 +489,7 @@ try {
   await eventAudit()
   report.preLoadSealed = true
   save()
+  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await observe(report.hutId, 'postRebind')

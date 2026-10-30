@@ -1,8 +1,8 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { campaignRules } from '../app/campaign-command-runtime.ts'
 import { withCampaignTribe, campaignInternal } from '../app/campaign-runtime.ts'
@@ -108,8 +108,8 @@ for (const free of [0, 5, 6, 7, 8])
   })
 
 test('ordinary Red staffing and mixed patrols share selection and retire exact shared references', async () => {
-  const store = createGameStore()
-  store.startMission(16)
+  const store = await createCampaignFixtureStore([16])
+  assert.equal(store.startMission(16), true)
   const w = store.getWorld()
   while (w.turn < 129) tick(w, 1 / 12)
   assert.deepEqual(

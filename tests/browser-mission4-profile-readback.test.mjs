@@ -86,14 +86,13 @@ function fixture(values, { openError, readError, missingStore = false, poll = wa
     },
     getByRole(role, options) {
       assert.equal(role, 'button')
-      if (options.name === 'Continue to Mission 5') {
-        assert.equal(options.exact, false)
+      if (options.name === 'Start Mission 5') {
+        assert.equal(options.exact, true)
         return {
           async waitFor() { events.push('continue-ready') },
-          async click() { world.outcome.level = 5; events.push('continue-click') },
         }
       }
-      assert.equal(options.name, 'Mission 4, completed')
+      assert.equal(options.name, 'Panel Mission 4, completed')
       assert.equal(options.exact, true)
       return { async waitFor() { events.push('completed-after-reload') } }
     },
@@ -117,7 +116,14 @@ function fixture(values, { openError, readError, missingStore = false, poll = wa
     },
     waitForCheckpointReadback: poll,
     async releaseRaf() { continuations++; events.push('release-raf') },
-    async showAllMissions() { events.push('show-all-missions') },
+    async enterResultSelector(target) { assert.equal(target, page); events.push('result-selector') },
+    async continueThroughNativeSelector(target, mission) {
+      assert.equal(target, page)
+      assert.equal(mission, 5)
+      world.outcome.level = mission
+      events.push('native-selector-start')
+    },
+    async openCampaignFromMainMenu(target) { assert.equal(target, page); events.push('open-campaign') },
     record(name) { events.push(`record:${name}`) },
   }
   const run = () => vm.runInNewContext(`(async () => { ${source} })()`, sandbox)
@@ -142,8 +148,8 @@ test('maintained Mission 4 callsite awaits valid profile completion before conti
   assert.equal(f.continuations, 1)
   assert.deepEqual(f.events, [
     ...Array.from({ length: 5 }, () => ['read', 'close', 'pause']).flat(),
-    'read', 'close', 'release-raf', 'continue-ready', 'record:result-ui', 'continue-click',
-    'record:continuation', 'reload', 'show-all-missions', 'completed-after-reload', 'record:persistence',
+    'read', 'close', 'release-raf', 'result-selector', 'continue-ready', 'record:result-ui', 'native-selector-start',
+    'record:continuation', 'reload', 'open-campaign', 'completed-after-reload', 'record:persistence',
   ])
 })
 

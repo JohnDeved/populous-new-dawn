@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // Actual placement followed by native harvesting and bystander clearance.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -9,7 +10,7 @@ import sprites from '../app/original-units.json' with { type: 'json' }
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   await page.evaluate(() => {
     const s = window.testScene,
       w = s.world,
@@ -159,9 +160,6 @@ try {
   )
   assert.equal(pose.flip, directions[direction].flip)
   assert.ok(pose.pixels > 0 && pose.heard && pose.preparing)
-  await page.locator('.paused-badge').evaluate(el => {
-    el.style.visibility = 'hidden'
-  })
   await page.screenshot({ path: '/private/tmp/populous-clearing-harvest.png' })
   await page.evaluate(() => {
     window.testScene.world.paused = false

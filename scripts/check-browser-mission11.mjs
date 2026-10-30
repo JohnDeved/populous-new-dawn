@@ -1,3 +1,5 @@
+import { commandCategory } from './browser-command-categories.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame, openGame } from './browser-game.mjs'
@@ -385,8 +387,8 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Chumara tribe').waitFor()
-  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Matak tribe', exact: true }).waitFor()
   await page.getByText('Once again we must face two tribes.', { exact: false }).waitFor()
 
   const opening = await page.evaluate(() => {
@@ -593,9 +595,9 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Dakini tribe').waitFor()
-  await page.getByLabel('Focus Chumara tribe').waitFor()
-  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('img', { name: 'Dakini tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Matak tribe', exact: true }).waitFor()
   await page
     .getByRole('status')
     .getByText('For the first time we must face all three Enemy tribes.', { exact: false })
@@ -680,8 +682,7 @@ try {
     Object.values(missionTwelve.teams).reduce((sum, count) => sum + count, 0)
   )
 
-  const skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
-  await skip.waitFor()
+  await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
   await page.waitForFunction(
     initial =>
       Math.hypot(
@@ -690,7 +691,7 @@ try {
       ) > 0.5,
     missionTwelve.camera
   )
-  await skip.click()
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
@@ -1008,7 +1009,7 @@ try {
       name = ['', 'Dakini', 'Chumara', 'Matak'][tribe]
     return { id: target.building.id, tribe, name, clearance: target.clearance }
   }, spy)
-  await page.getByTitle('followers', { exact: true }).click()
+  await commandCategory(page, 'followers').click()
   await page.getByLabel(`Disguise selected spies as ${sabotage.name}`).click()
   const disguised = await page.evaluate(async ({ id, tribe }) => {
     const scene = globalThis.testScene,
@@ -1242,14 +1243,10 @@ try {
     () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
   )
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
-  await page.getByLabel('Focus Chumara tribe').waitFor()
-  await page.getByLabel('Focus Matak tribe').waitFor()
+  await page.getByRole('img', { name: 'Chumara tribe', exact: true }).waitFor()
+  await page.getByRole('img', { name: 'Matak tribe', exact: true }).waitFor()
   await page.getByText('I sense a new threat', { exact: false }).waitFor()
-  const missionThirteenSkip = page.getByRole('button', {
-    name: 'Skip introduction',
-    exact: false,
-  })
-  await missionThirteenSkip.waitFor()
+  await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
 
   const missionThirteen = await page.evaluate(() => {
     const scene = globalThis.testScene,
@@ -1331,7 +1328,7 @@ try {
       ) > 0.5,
     missionThirteen.camera
   )
-  await missionThirteenSkip.click()
+  await skipIntroductionWithSpace(page, { timeout: 20000 })
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)

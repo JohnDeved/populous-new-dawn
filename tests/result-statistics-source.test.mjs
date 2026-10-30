@@ -1,10 +1,11 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import native from '../decomp/research/result-statistics/native.json' with { type: 'json' }
 import art from '../app/original-result-ui.json' with { type: 'json' }
-import { createGameStore, CHECKPOINT_VERSION } from '../app/game-store.ts'
+import { CHECKPOINT_VERSION } from '../app/game-store.ts'
 
 const span = name => native.spans.find(s => s.name === name)
 const bytes = name => Buffer.from(span(name).hex, 'hex')
@@ -110,7 +111,7 @@ test('existing browser statistics are retained as their own metrics', () => {
 })
 
 test('current-format Save/Load clones stored metric data without aliasing or resetting it', async () => {
-  const store = createGameStore(), world = store.getWorld()
+  const store = await createCampaignFixtureStore([2]), world = store.getWorld()
   assert.equal(CHECKPOINT_VERSION, 3)
   assert.equal(world.capacityPolicy.mode, 'scalable')
   const values = { built: 17, cast: 29, bridges: 3, trained: 11, battlesWon: [0, 7, -2147483648, 2147483647] }
@@ -126,6 +127,6 @@ test('current-format Save/Load clones stored metric data without aliasing or res
   assert.deepEqual(store.getWorld().stats, { built: 0, cast: 0, bridges: 0, trained: 0, battlesWon: [0, 0, 0, 0] })
   assert.equal(store.loadCheckpoint(), true)
   assert.deepEqual(store.getWorld().stats, values)
-  store.startMission(2)
+  assert.equal(store.startMission(2), true)
   assert.deepEqual(store.getWorld().stats.battlesWon, [0, 0, 0, 0])
 })

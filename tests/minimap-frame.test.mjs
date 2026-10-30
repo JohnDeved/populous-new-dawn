@@ -79,7 +79,7 @@ test('2x and partial tiles retain exact 1:1 corner/edge pixels and a transparent
 test('frame is a separate overlay and does not change terrain, markers or click ownership', () => {
   const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
-  assert.match(page, /<MinimapFrame key=\{hudSize\} \/>/)
+  assert.match(page, /<MinimapFrame key=\{`\$\{hudSize\}-\$\{hudHeight\}`\} \/>/)
   assert.match(css, /\.minimap-wrap>\.map-frame\{[^}]*pointer-events:none/)
   assert.match(css, /\.minimap-wrap>canvas:not\(\.map-frame\)\{/)
   assert.doesNotMatch(css.match(/\.minimap-wrap>canvas:not\(\.map-frame\)\{[^}]*\}/)[0], /border-radius/)

@@ -1,7 +1,7 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { createWorld, tick } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { computerSelectionWorld, stepComputerTasks } from '../app/computer-runtime.ts'
@@ -18,8 +18,8 @@ const training = w => w.campaignAIs[1].tasks.filter(t => t.flags & 1 && t.type =
 const person = u => u?.entry?.person ?? u?.native ?? u?.flight ?? u?.fight?.motion
 
 test('ordinary M12 capacity admission produces real Warriors and replays the training lifecycle', async () => {
-  const store = createGameStore()
-  store.startMission(12)
+  const store = await createCampaignFixtureStore([12])
+  assert.equal(store.startMission(12), true)
   const w = store.getWorld(),
     authoredBuildings = new Set(w.buildings.map(b => b.id)),
     built = []

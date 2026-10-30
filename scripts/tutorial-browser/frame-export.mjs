@@ -49,17 +49,45 @@ export function m2NativePointerTarget() {
   return null
 }
 
+// These snapshots preserve the original read ordering around the one real
+// export action. Only the already-existing passive private observer is installed.
+export function beginFrameExportObservation() {
+  const scene = window.testSceneRef.current
+  const state = { turn: scene.world.turn, paused: scene.world.paused, selected: [...scene.world.selected],
+    camera: { ...scene.cameraPosition }, mode: scene.world.mode }
+  window.frameExportInputs = []
+  window.frameExportInputListener = event => window.frameExportInputs.push(event.type)
+  for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
+    window.addEventListener(type, window.frameExportInputListener)
+  return state
+}
+
+export function readFrameExportObservation(button) {
+  const scene = window.testSceneRef.current
+  const state = { turn: scene.world.turn, paused: scene.world.paused, selected: [...scene.world.selected],
+    camera: { ...scene.cameraPosition }, mode: scene.world.mode }
+  const r = button.getBoundingClientRect()
+  const status = document.querySelector('[data-metric="export-status"]').getBoundingClientRect()
+  return { inputs: window.frameExportInputs, state,
+    bounds: { buttonFits: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
+      statusFits: status.bottom <= innerHeight,
+      hit: button.contains(document.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2)) } }
+}
+
+export function assertFrameExportObservation(before, after) {
+  assert.deepEqual(after.inputs, [], 'export inputs must not bubble into gameplay')
+  assert.deepEqual(after.state, before, 'export preserves paused simulation, selection, camera and command mode')
+  assert.equal(after.bounds.buttonFits, true)
+  assert.equal(after.bounds.statusFits, true)
+  assert.equal(after.bounds.hit, true)
+}
+
 // Reuse the existing paused M2 scene and its deadline. No new navigation, world,
 // profiler, startup, timer window or simulation-state injection.
 export async function checkFrameExport({ page, output, keyboard }) {
   const button = page.getByRole('button', { name: 'Export recent frames', exact: true })
   await button.waitFor({ state: 'visible' })
   await page.waitForFunction(() => window.testSceneRef.current.fpsGraph.samples.count > 0)
-  const snapshot = () => page.evaluate(() => {
-    const scene = window.testSceneRef.current
-    return { turn: scene.world.turn, paused: scene.world.paused, selected: [...scene.world.selected],
-      camera: { ...scene.cameraPosition }, mode: scene.world.mode }
-  })
   // Settle pre-existing edge input before comparing the export action itself.
   await button.hover()
   if (keyboard) await button.focus()
@@ -68,13 +96,7 @@ export async function checkFrameExport({ page, output, keyboard }) {
     return scene.navigationPointer === null && scene.cameraPreviewButtons === null && scene.keys.size === 0 &&
       Object.values(scene.cameraVelocity).every(value => value === 0)
   })
-  const before = await snapshot()
-  await page.evaluate(() => {
-    window.frameExportInputs = []
-    window.frameExportInputListener = event => window.frameExportInputs.push(event.type)
-    for (const type of ['pointerdown', 'pointerup', 'click', 'keydown', 'keyup'])
-      window.addEventListener(type, window.frameExportInputListener)
-  })
+  const before = await page.evaluate(beginFrameExportObservation)
   let summary
   try {
     const [download] = await Promise.all([
@@ -100,17 +122,9 @@ export async function checkFrameExport({ page, output, keyboard }) {
       JSON.stringify({ frameCount: report.frames.length, nativeDiagnostics }, null, 2))
     assert.ok(nativeDiagnostics.nativeWorkFrames > 0,
       'existing M2 pointer/camera inputs must export actual native triangle work')
-    assert.deepEqual(await page.evaluate(() => window.frameExportInputs), [], 'export inputs must not bubble into gameplay')
-    assert.deepEqual(await snapshot(), before, 'export preserves paused simulation, selection, camera and command mode')
-    const bounds = await button.evaluate(el => {
-      const r = el.getBoundingClientRect()
-      const status = document.querySelector('[data-metric="export-status"]').getBoundingClientRect()
-      return { buttonFits: r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= innerHeight,
-        statusFits: status.bottom <= innerHeight, hit: el.contains(document.elementFromPoint((r.left + r.right) / 2, (r.top + r.bottom) / 2)) }
-    })
-    assert.equal(bounds.buttonFits, true)
-    assert.equal(bounds.statusFits, true)
-    assert.equal(bounds.hit, true)
+    const after = await button.evaluate(readFrameExportObservation)
+    assertFrameExportObservation(before, after)
+    const { bounds } = after
     summary = { filename, keyboard, frameCount: report.frames.length, capturedSpanMs: report.timing.capturedSpanMs,
       buildRevision: report.buildRevision, viewport: report.environment.viewportCssPixels, bounds, nativeDiagnostics }
   } finally {

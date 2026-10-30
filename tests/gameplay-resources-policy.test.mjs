@@ -349,3 +349,111 @@ test('present metadata fails closed on forged pin/capture/settlement/shape and c
   assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected))
  }
 })
+
+
+import { GAMEPLAY_RESOURCE_POLICIES, GAMEPLAY_COMPOSED_BUDGET_INPUTS, gameplayResourceBudget } from '../scripts/integration-queue/gameplay-resources-policy.mjs'
+import { composedGameplayResourceBudgetPolicy } from '../scripts/tutorial-browser/scenario-policy.mjs'
+const composedFixture = policy => artifactFixture(policy, { includeArchive: false,
+  gameplayResourceBudgetPolicy: composedGameplayResourceBudgetPolicy })
+const historicalBudget = { version: 1, gameplayMs: 180000, resourcesMs: 180000,
+  totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 }
+const composedBudget = { version: 2, gameplayMs: 355000, resourcesMs: 180000,
+  totalBrowserMs: 535000, buildMsPerJob: 120000, hostedJobMs: 900000 }
+const composedInputAdditions = [
+  'scripts/tutorial-browser/gameplay-admission.mjs',
+  'scripts/tutorial-browser/melee-attack.mjs', 'scripts/tutorial-browser/follower-corpse.mjs',
+  'scripts/tutorial-browser/compact-admission.mjs', 'scripts/tutorial-browser/m2-admission.mjs',
+  'scripts/browser-admission-guard.mjs',
+  'scripts/integration-queue/policy.mjs', 'scripts/integration-queue/github.mjs',
+]
+test('all five resource generations preserve absent-mode evidence and explicitly opt into the exact composed budget', () => {
+  assert.deepEqual(GAMEPLAY_RESOURCE_POLICIES, ['gameplay-resources-nine-v1', 'gameplay-resources-nine-v2',
+    'gameplay-resources-nine-v3', 'gameplay-resources-nine-v4', 'gameplay-resources-weak-v1'])
+  assert.deepEqual(GAMEPLAY_COMPOSED_BUDGET_INPUTS, composedInputAdditions)
+  for (const [policy, originalInputs] of [[GAMEPLAY_RESOURCE_POLICY, GAMEPLAY_RESOURCE_INPUTS],
+    [GAMEPLAY_HEAP_POLICY, GAMEPLAY_HEAP_INPUTS], [GAMEPLAY_MATCHED_POLICY, GAMEPLAY_HEAP_INPUTS],
+    [GAMEPLAY_THREE_CYCLE_POLICY, GAMEPLAY_THREE_CYCLE_INPUTS], [GAMEPLAY_OWNERSHIP_POLICY, GAMEPLAY_OWNERSHIP_INPUTS]]) {
+    assert.equal(gameplayResourceInputs(policy), originalInputs)
+    assert.deepEqual(gameplayResourceBudget(policy), historicalBudget)
+    assert.deepEqual(gameplayResourceBudget(policy, composedGameplayResourceBudgetPolicy), composedBudget)
+    const legacy = directFixture(policy), current = composedFixture(policy)
+    assert.equal(Object.hasOwn(legacy.expected, 'gameplayResourceBudgetPolicy'), false)
+    assert.equal(Object.hasOwn(legacy.raw, 'gameplayResourceBudgetPolicy'), false)
+    assert.deepEqual(legacy.raw.gameplayResourceSplitBudget, historicalBudget)
+    assert.deepEqual(current.raw.gameplayResourceSplitBudget, composedBudget)
+    const keys = [...originalInputs, ...composedInputAdditions.filter(path => !originalInputs.includes(path))]
+    assert.deepEqual(gameplayResourceInputs(policy, composedGameplayResourceBudgetPolicy), keys)
+    assert.equal(new Set(keys).size, keys.length)
+    assert.deepEqual(Object.keys(current.expected.inputs), keys)
+    const oldResult = validateGameplayResourceArtifact(legacy.files, legacy.expected)
+    const result = validateGameplayResourceArtifact(current.files, current.expected)
+    assert.equal(oldResult.gameplayResourceBudgetVerified, undefined)
+    assert.equal(oldResult.gameplayResourceBudgetPolicy, undefined)
+    assert.equal(result.gameplayResourceBudgetVerified, true)
+    assert.equal(result.gameplayResourceBudgetPolicy, 'composed-gameplay-resources-v2')
+    // Budget selection never selects, drops or upgrades a resource evidence claim.
+    for (const key of ['lifecycleVerified', 'heapCapabilityVerified', 'matchedCyclesVerified',
+      'threeCyclesVerified', 'ownershipVerified', 'phaseCount', 'cycleCount', 'scope'])
+      assert.deepEqual(result[key], oldResult[key])
+  }
+})
+test('trusted mode and exact metadata fail closed across all resource generations without raw version inference', () => {
+  for (const policy of GAMEPLAY_RESOURCE_POLICIES) {
+    for (const mutate of [
+      v => { delete v.raw.gameplayResourceBudgetPolicy },
+      v => { v.raw.gameplayResourceBudgetPolicy = null },
+      v => { v.raw.gameplayResourceBudgetPolicy = 'composed-gameplay-resources-v3' },
+      v => { v.raw.gameplayResourceSplitBudget = historicalBudget },
+      v => { v.raw.gameplayResourceSplitBudget = {...composedBudget, resourcesMs: 355000} },
+      v => { v.raw.gameplayResourceSplitBudget = {...composedBudget, gameplayMs: 180000} },
+      v => { v.raw.gameplayResourceSplitBudget = {...composedBudget, totalBrowserMs: 535001} },
+      v => { v.raw.gameplayResourceSplitBudget = {...composedBudget, buildMsPerJob: 240000} },
+      v => { v.raw.gameplayResourceSplitBudget = {...composedBudget, hostedJobMs: 1800000} },
+      v => { v.raw.browserCapMs = 355000 },
+      v => { delete v.expected.gameplayResourceBudgetPolicy },
+      v => { v.raw.source.files = {...v.raw.source.files}; delete v.raw.source.files['scripts/tutorial-browser/gameplay-admission.mjs'] },
+      v => {
+        const expected = JSON.stringify(v.expected)
+        v.raw.source.files = {...v.raw.source.files, 'scripts/browser-admission-guard.mjs': 'f'.repeat(64)}
+        assert.equal(JSON.stringify(v.expected), expected)
+      },
+      v => { v.expected.inputs = {...v.expected.inputs, 'unreviewed.mjs': 'f'.repeat(64)} },
+    ]) {
+      const v = composedFixture(policy); mutate(v); v.save()
+      assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected))
+    }
+    for (const mutate of [
+      v => { v.raw.gameplayResourceBudgetPolicy = composedGameplayResourceBudgetPolicy },
+      v => { v.raw.gameplayResourceSplitBudget = composedBudget },
+      v => { v.expected.gameplayResourceBudgetPolicy = composedGameplayResourceBudgetPolicy },
+    ]) {
+      const v = directFixture(policy); mutate(v); v.save()
+      assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected))
+    }
+    for (const unsupported of [null, false, true, 2, {}, [], '', 'unknown']) {
+      const v = directFixture(policy); v.expected.gameplayResourceBudgetPolicy = unsupported
+      assert.throws(() => gameplayResourceInputs(policy, unsupported))
+      assert.throws(() => gameplayResourceBudget(policy, unsupported))
+      assert.throws(() => validateGameplayResourceArtifact(v.files, v.expected))
+    }
+  }
+  for (const unsupported of [null, false, true, 2, {}, [], '', 'unknown']) {
+    const {jobs, run, expected} = jobFixture()
+    assert.throws(() => validateGameplayResourceBrowserJobs(jobs, run,
+      {...expected, gameplayResourceBudgetPolicy: unsupported}))
+  }
+})
+test('composed archive and separate producer opt-in preserve exact trusted budget expectations', () => {
+  const archive = artifactFixture(GAMEPLAY_OWNERSHIP_POLICY,
+    {gameplayResourceBudgetPolicy: composedGameplayResourceBudgetPolicy})
+  const result = resolveGameplayResourceArtifact(archive.archive, archive.upload, archive.expected)
+  assert.equal(result.gameplayResourceBudgetVerified, true)
+  assert.throws(() => resolveGameplayResourceArtifact(archive.archive, archive.upload,
+    {...archive.expected, gameplayResourceBudgetPolicy: undefined}))
+  const v = composedFixture(GAMEPLAY_OWNERSHIP_POLICY); addProducerFixture(v)
+  const accepted = validateGameplayProducerPreflightArtifact(v.files, v.expected)
+  assert.equal(accepted.artifact.gameplayResourceBudgetVerified, true)
+  assert.deepEqual(accepted.producer, {metadataObserved: true, snapshotAttempted: false, captureReady: false})
+  v.expected.gameplayResourceBudgetPolicy = undefined
+  assert.throws(() => validateGameplayProducerPreflightArtifact(v.files, v.expected))
+})

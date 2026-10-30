@@ -1,4 +1,7 @@
-import { showAllMissions } from './browser-game.mjs'
+import { skipIntroductionWithSpace } from './browser-introduction.mjs'
+import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
+import { continueThroughNativeSelector, enterResultSelector } from './browser-result-navigation.mjs'
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
@@ -354,7 +357,7 @@ async function clearSelection(page) {
 
 async function selectShaman(page, clear = true) {
   if (clear) await clearSelection(page)
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
   const selected = await page.evaluate(() => {
     const world = window.testStore.getWorld()
     return world.selected.some(id =>
@@ -618,9 +621,8 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
-  await showAllMissions(page)
-  await page.getByRole('button', { name: 'Mission 4', exact: true }).focus()
-  await page.keyboard.press('Enter')
+  await prepareCampaignFixture(page, 4)
+  await launchCampaignMission(page, 4)
   await bindGame(page)
   await page.waitForFunction(() => window.testStore.getWorld().outcome.level === 4)
   await page.waitForFunction(
@@ -653,9 +655,7 @@ try {
 
   await advanceUntil(page, { type: 'flyby' }, 64, 'Mission 4 opening flyby')
   await releaseRaf(page)
-  const skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
-  await skip.waitFor()
-  await skip.click()
+  await skipIntroductionWithSpace(page)
   await page.waitForFunction(() => !(window.testStore.getWorld().inputMask & 64))
   await page.waitForFunction(
     () => window.testSceneRef.current?.world === window.testStore.getWorld()
@@ -724,11 +724,11 @@ try {
   await waitForStoredMissionFour(page)
   await releaseRaf(page)
   await page.waitForFunction(() => !window.testStore.getWorld().outcome.cameraPlaying)
-  const continueButton = page.getByRole('button', { name: 'Continue to Mission 5', exact: false })
-  await continueButton.waitFor()
+  await enterResultSelector(page)
+  await page.getByRole('button', { name: 'Start Mission 5', exact: true }).waitFor()
   record('result-ui', { continueMission5: true })
 
-  await continueButton.click()
+  await continueThroughNativeSelector(page, 5)
   await page.waitForFunction(() => window.testStore.getWorld().outcome.level === 5)
   await page.waitForFunction(
     () => window.testSceneRef.current?.world === window.testStore.getWorld()
@@ -736,9 +736,9 @@ try {
   record('continuation', { level: 5 })
 
   await page.reload({ waitUntil: 'networkidle' })
-  await showAllMissions(page)
+  await openCampaignFromMainMenu(page)
   const completedMissionFour = page.getByRole('button', {
-    name: 'Mission 4, completed',
+    name: 'Panel Mission 4, completed',
     exact: true,
   })
   await completedMissionFour.waitFor()
@@ -752,7 +752,7 @@ try {
     `${JSON.stringify(report, null, 2)}\n`
   )
   console.log(
-    `PASS: shipped Mission 4 startup, Convert Wild worship/conversion, Guard Tower discovery/build/staff, rendered attacks, generic victory, persisted completion and Continue to Mission 5 (${attacks.length} attack orders)`
+    `PASS: shipped Mission 4 startup, Convert Wild worship/conversion, Guard Tower discovery/build/staff, rendered attacks, generic victory, persisted completion and native selector to Mission 5 (${attacks.length} attack orders)`
   )
 } catch (error) {
   report.finishedAt = new Date().toISOString()

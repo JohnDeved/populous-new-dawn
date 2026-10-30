@@ -578,6 +578,8 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
+  const destination = nativePosition(w, p)
+  w.lastOrderCell = ((destination.x >>> 8) & 255) | (destination.y & 0xff00)
   const sharedVehicleMovement =
     model === 3 &&
     w.units.some(

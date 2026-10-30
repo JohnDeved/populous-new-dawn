@@ -1,4 +1,28 @@
-# Contextual Browser help (#457)
+# Browser compatibility boundary
+
+## October 21, 2026: remove invented gameplay help
+
+The user's original-UI requirement supersedes the historical correction below.
+The normal Menu → Options browser compatibility content no longer supplies mission
+strategy synopses, objective checklists, a controls guide, general gameplay tips,
+reference links, an elapsed-time duplicate, or queued zoom/focus conveniences.
+The retired `BrowserHelpTips` component and the page-only objective computation
+are removed. Original campaign messages, native gameplay input, simulation and
+mission outcomes are unchanged.
+
+Speed, audio activation and recovery notices, HUD accessibility sizing, mission
+access, fullscreen, and the explicitly exempt F8 and cheat controls remain
+available. Their retained browser presentation is not claimed to be native parity;
+this slice removes invented content rather than disguising it with new prose.
+
+`tests/browser-help-tips.test.mjs` now renders the actual retained Home fragment
+and exercises its speed, HUD storage, audio, level-access and F8 handlers.
+Pause/result/recovery tests retain modal ownership assertions without the removed
+camera queue. Browser fixtures use existing native HUD focus rather than the
+retired compatibility shortcut and assert that objective/camera duplicates are
+absent. Rendered checks and standard gates remain separate evidence.
+
+## Historical contextual-help correction (#457)
 
 The HUD Menu button opens `OriginalPauseMenu`; Options renders `OriginalOptions`,
 whose Browser compatibility and help button reveals the supplied page content.

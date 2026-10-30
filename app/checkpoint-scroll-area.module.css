@@ -1,0 +1,29 @@
+.area { position: relative; width: 100%; height: 100%; pointer-events: auto; }
+.viewport { width: 100%; height: 100%; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+/* Equal gutters preserve centered native-size copy while the original 24px art
+   sits in the right gutter. Reserve them even during asset loading/failure. */
+.content { display: flex; flex-direction: column; gap: 6px; width: 368px; margin: 0 auto; }
+.viewport:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; }
+.area[data-scroll-art='true'] .viewport { scrollbar-width: none; }
+.area[data-scroll-art='true'] .viewport::-webkit-scrollbar { display: none; }
+.scrollbar { position: absolute; right: 0; top: 0; width: 24px; height: 100%; }
+.thumb { position: absolute; left: 0; width: 24px; }
+.scrollbar .cap { position: absolute; left: 0; width: 24px; min-width: 0; padding: 0; margin: 0; transform: none; display: block; border: 0; border-radius: 0; background: transparent; }
+.cap img { display: block; pointer-events: none; }
+.cap img, .drag { image-rendering: pixelated; image-rendering: crisp-edges; }
+.scrollbar .cap:focus-visible { outline: 1px solid #fff1bb; outline-offset: 1px; background: transparent; }
+.drag { position: absolute; top: 10px; left: 0; width: 24px; touch-action: none; background-repeat: repeat-y; }
+/* System high-contrast users retain the system scrollbar, never invisible art. */
+@media (forced-colors: active) {
+  .area[data-scroll-art='true'] .viewport { scrollbar-width: auto; }
+  .area[data-scroll-art='true'] .viewport::-webkit-scrollbar { display: block; }
+  .scrollbar { display: none; }
+}
+
+/* Failed loading owns a full-height browser recovery column, not the fixed
+   checkpoint copy width. Keep the original 24px art clear of text on the right
+   and the fullscreen control clear on the compact left. */
+.loadingContent { box-sizing: border-box; min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 20px; padding: 28px 32px; }
+@media (max-width: 680px) { .loadingContent { padding-left: 44px; } }
+.area[data-loading-scroll-area] .viewport:focus-visible { outline-offset: -2px; }
+.area[data-loading-scroll-area] .cap:focus-visible { outline-offset: -1px; }

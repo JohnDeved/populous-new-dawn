@@ -2,7 +2,51 @@ import { useEffect, useRef, useState } from 'react'
 import { selectorWorlds } from './world-selector-data'
 import { SelectorMotion, sceneStep } from './world-selector-motion'
 import { SelectorRenderer } from './world-selector-renderer'
+import frontend from './original-frontend.json'
 import styles from './world-selector.module.css'
+
+// Browser recovery is not a native menu. Use the original gold label bank on the
+// black failure clear, then the original pale highlight for the Retry action.
+// Keep readable text if art fails; this does not change native menu state mapping.
+function SceneRecoveryText({
+  text,
+  ready,
+  low = false,
+}: {
+  text: string
+  ready: boolean
+  low?: boolean
+}) {
+  if (!ready)
+    return (
+      <span className={styles.sceneRecoveryFallback} aria-hidden="true">
+        {text}
+      </span>
+    )
+  const bank = frontend.banks.felo33we
+  const scaled = (pixels: number) => `calc(var(--panel-width) * ${pixels} / 640)`
+  return (
+    <span className={styles.sceneRecoveryText} aria-hidden="true">
+      {[...text].map((letter, index) => {
+        const glyph = bank.rects[letter.charCodeAt(0) - 32]
+        return (
+          <i
+            key={index}
+            style={{
+              width: scaled(glyph.w),
+              height: scaled(glyph.h),
+              backgroundPosition: `${scaled(-glyph.x)} ${scaled(-glyph.y)}`,
+              backgroundSize: `${scaled(bank.width)} ${scaled(bank.height)}`,
+              backgroundImage: low
+                ? "url('/original/frontend/felo33we.png')"
+                : 'var(--selector-recovery-font)',
+            }}
+          />
+        )
+      })}
+    </span>
+  )
+}
 
 export function WorldSelectorScene({
   mission,
@@ -15,6 +59,7 @@ export function WorldSelectorScene({
   const selection = useRef({ mission, progressionMission })
   const [failed, setFailed] = useState(false)
   const [generation, setGeneration] = useState(0)
+  const [recoveryFonts, setRecoveryFonts] = useState<string[]>([])
   useEffect(() => {
     selection.current = { mission, progressionMission }
   }, [mission, progressionMission])
@@ -81,7 +126,7 @@ export function WorldSelectorScene({
     try {
       renderer = new SelectorRenderer(canvas)
       renderer
-        .load()
+        .load(generation > 0)
         .then(() => {
           loaded = true
           if (!disposed && !broken && !document.hidden) frame = requestAnimationFrame(draw)
@@ -108,9 +153,43 @@ export function WorldSelectorScene({
         style={{ visibility: failed ? 'hidden' : 'visible' }}
       />
       {failed && (
-        <div className={styles.sceneFailure} role="status">
-          <p>Star-system image unavailable. Mission controls still work.</p>
-          <button onClick={() => setGeneration(value => value + 1)}>Retry scene</button>
+        <div className={styles.sceneFailure}>
+          {['fehi33we', 'felo33we'].map(name => (
+            <img
+              key={name}
+              src={`/original/frontend/${name}.png`}
+              alt=""
+              hidden
+              onLoad={() =>
+                setRecoveryFonts(previous =>
+                  previous.includes(name) ? previous : [...previous, name]
+                )
+              }
+              onError={() => setRecoveryFonts(previous => previous.filter(font => font !== name))}
+            />
+          ))}
+          <p role="status">
+            <span className={styles.visuallyHidden}>
+              Star-system image unavailable. Mission controls still work.
+            </span>
+            {['Star-system image unavailable.', 'Mission controls still work.'].map(text => (
+              <span key={text} className={styles.sceneRecoveryLine}>
+                <SceneRecoveryText text={text} low ready={recoveryFonts.includes('felo33we')} />
+              </span>
+            ))}
+          </p>
+          <button
+            type="button"
+            className={styles.sceneRetry}
+            aria-label="Retry scene"
+            data-selector-recovery="true"
+            onClick={() => setGeneration(value => value + 1)}
+          >
+            <SceneRecoveryText
+              text="Retry scene"
+              ready={recoveryFonts.includes('felo33we') && recoveryFonts.includes('fehi33we')}
+            />
+          </button>
         </div>
       )}
     </div>

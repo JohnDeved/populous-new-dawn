@@ -1,8 +1,8 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { cast, command, tick } from '../app/model.ts'
-import { createGameStore } from '../app/game-store.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
 import { strikeLiveLightning } from '../app/live-people.ts'
@@ -14,9 +14,9 @@ const referenceId = scalableReferenceIds(3)
 const nativeDeaths = [303, 306, 309, 312, 516, 519, 589].map(referenceId),
   legacyDeaths = [303, 306, 507, 510, 513, 516, 589].map(referenceId)
 
-function pendingStrike() {
-  const store = createGameStore()
-  store.startMission(3)
+async function pendingStrike() {
+  const store = await createCampaignFixtureStore([3])
+  assert.equal(store.startMission(3), true)
   const world = finishLevelStart(store.getWorld()),
     ids = world.units
       .filter(unit => unit.team === 'blue' && unit.kind === 'brave')
@@ -60,8 +60,8 @@ function sourceDeaths(linked) {
     .toSorted((a, b) => a - b)
 }
 
-test('ordinary converging followers receive Lightning in retained cell order at the inclusive cap', () => {
-  const { world, ids, linked } = pendingStrike()
+test('ordinary converging followers receive Lightning in retained cell order at the inclusive cap', async () => {
+  const { world, ids, linked } = await pendingStrike()
   assert.deepEqual(sourceDeaths(linked), nativeDeaths)
   tick(world, 1 / 12)
   assert.deepEqual(deaths(world, ids), nativeDeaths)
@@ -79,7 +79,7 @@ test('ordinary converging followers receive Lightning in retained cell order at 
 })
 
 test('public Save/Load preserves pending Lightning recipient identities', async () => {
-  const { store, ids } = pendingStrike()
+  const { store, ids } = await pendingStrike()
   await store.saveCheckpoint()
   assert.equal(store.loadCheckpoint(), true)
   const world = store.getWorld()
@@ -87,9 +87,9 @@ test('public Save/Load preserves pending Lightning recipient identities', async 
   assert.deepEqual(deaths(world, ids), nativeDeaths)
 })
 
-test('Lightning keeps the unregistered fallback and excludes same-ID aliases', () => {
+test('Lightning keeps the unregistered fallback and excludes same-ID aliases', async () => {
   for (const mode of ['unregistered', 'partial', 'alias']) {
-    const { world, bolt, ids } = pendingStrike()
+    const { world, bolt, ids } = await pendingStrike()
     const people =
       mode === 'unregistered'
         ? [...world.objectCells.objects.values()]
@@ -114,8 +114,8 @@ test('Lightning keeps the unregistered fallback and excludes same-ID aliases', (
   }
 })
 
-test('immune people do not consume the Lightning cap and protected transitions still count', () => {
-  const { world, bolt, ids, linked } = pendingStrike()
+test('immune people do not consume the Lightning cap and protected transitions still count', async () => {
+  const { world, bolt, ids, linked } = await pendingStrike()
   linked[0].flags3 |= 0x20000
   linked[1].flags3 |= 0x8000
   linked[2].flags2 |= 0x100000
@@ -127,8 +127,8 @@ test('immune people do not consume the Lightning cap and protected transitions s
   assert.equal(linked[2].state, previousState)
 })
 
-test('Lightning snapshots ordering before its first victim callback can remove another owner', () => {
-  const { world, bolt, ids, linked } = pendingStrike(),
+test('Lightning snapshots ordering before its first victim callback can remove another owner', async () => {
+  const { world, bolt, ids, linked } = await pendingStrike(),
     [first, , later] = linked
   let flags = first.flags3,
     removed = false
@@ -152,9 +152,9 @@ test('Lightning snapshots ordering before its first victim callback can remove a
   assert.deepEqual(deaths(world, ids), nativeDeaths)
 })
 
-test('supplied malformed duplicate roster owners retain Lightning fallback tolerance', () => {
+test('supplied malformed duplicate roster owners retain Lightning fallback tolerance', async () => {
   for (const sameUnit of [true, false]) {
-    const { world, bolt, ids, linked } = pendingStrike(),
+    const { world, bolt, ids, linked } = await pendingStrike(),
       unit = world.units.find(candidate => candidate.id === linked[0].id)
     // No ordinary producer is established. Preserve the prior adapter's behavior,
     // including repeated entries, rather than inventing a deduplication policy.

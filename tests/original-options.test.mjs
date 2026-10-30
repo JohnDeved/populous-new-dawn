@@ -20,7 +20,7 @@ const optionsSource = ts.createSourceFile(
 const optionsFunction = optionsSource.statements.find(
   node => ts.isFunctionDeclaration(node) && node.name?.text === 'OriginalOptions'
 )
-const rowDeclarations = ['gameRows', 'rows'].map(name => {
+const rowDeclarations = ['browserLabel', 'gameRows', 'activeStorageNotice', 'storageRows', 'rows'].map(name => {
   const statement = optionsFunction.body.statements.find(
     node => ts.isVariableStatement(node) && node.declarationList.declarations.some(
       declaration => declaration.name.getText(optionsSource) === name
@@ -34,13 +34,17 @@ const declaration = name => optionsSource.statements.find(
     item => item.name.getText(optionsSource) === name
   )
 ).getText(optionsSource)
-const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories',
-  ts.transpileModule(`${declaration('unavailableRows')}\n${rowDeclarations}\nreturn rows;`, {
+const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories', 'ingame', 'skin', 'gameStorageNotice', 'storageNotice',
+  ts.transpileModule([
+    ...['unavailableRows', 'browserFallback', 'browserTitle', 'ingameStorageCopy'].map(declaration),
+    optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
+    'const compatibility = undefined;', rowDeclarations, 'return rows;',
+  ].join('\n'), {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None }
   }).outputText
 )
-const optionRows = (preferences, category = 'Game', browser = false) =>
-  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'])
+const optionRows = (preferences, category = 'Game', browser = false, notices = {}, skin = 'frontend') =>
+  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'], ingame, skin, notices.gameStorageNotice ?? '', notices.storageNotice ?? '')
 test('Options uses separate source-hashed original slider banks with unclipped thumb dimensions',()=>{
  assert.equal(artwork.inputs['data/fenew/feslider.spr'],'99dd18f3d07b7e8b36977b60f1543fe089972523c5f364db7fe19d85dc5667c8')
  assert.equal(artwork.inputs['data/fenew/igmslidr.spr'],'ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da')
@@ -95,7 +99,7 @@ test('Game publishes five native positions and the browser-only sixth row and on
     assert.notDeepEqual(actualPixels, frontendBackground(source, { x: 320, y: 240 }, false, null, base))
   }
   const preferences = { rotation: 'control-cursor', flipRotation: true }
-  assert.deepEqual(optionRows(preferences, 'Game', true), [])
+  assert.equal(optionRows(preferences, 'Game', true)[0].text, 'Browser compatibility and help')
   assert.equal(optionRows(preferences, 'Graphics').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
   assert.equal(optionRows(preferences, 'Sound').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
 })
@@ -127,7 +131,7 @@ test('Graphics and Direct3D publish the native no-gamma rows and full navigation
     const pixels = frontendBackground(source, { x: 320, y: 240 }, false, null, rows)
     assert.deepEqual(pixels, frontendBackground(source, { x: 320, y: 240 }, false, null, [...navigation, ...expected]))
     assert.notDeepEqual(pixels, frontendBackground(source, { x: 320, y: 240 }, false, null, navigation))
-    assert.deepEqual(optionRows(preferences, category, true), [])
+    assert.equal(optionRows(preferences, category, true)[0].text, 'Browser compatibility and help')
   }
   for (const category of ['Game', 'Sound']) {
     assert.equal(optionRows(preferences, category).some(row => /Direct3D/.test(row.text)), false)
@@ -141,13 +145,14 @@ const textFunction = optionsSource.statements.find(
 )
 const render = new Function('requestAnimationFrame', 'MenuTooltip', 'React', 'useEffect', 'useMemo', 'useRef', 'useState', 'frontend', 'ingame', 'styles', 'props',
   ts.transpileModule([
-    ...['categories', 'fontBanks', 'unavailableRows'].map(declaration),
+    ...['categories', 'fontBanks', 'unavailableRows', 'hudSizes', 'browserFallback', 'browserTitle', 'ingameStorageCopy'].map(declaration),
+    optionsSource.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'noticeLines').getText(optionsSource),
     textFunction.getText(optionsSource),
     optionsFunction.getText(optionsSource).replace(/^export /, ''),
     'const useLayoutEffect = useEffect; return OriginalOptions(props);',
   ].join('\n'), {compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React}}).outputText
 )
-function renderOptions(skin, category, highlight = null, browser = false) {
+function renderOptions(skin, category, highlight = null, browser = false, props = {}) {
   const state = [category, browser, highlight, skin, skin], nodes = [], effects = [], focus = [], changes = []
   let hook = 0
   const React = {
@@ -165,6 +170,7 @@ function renderOptions(skin, category, highlight = null, browser = false) {
       skin, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
       gamePreferences: {rotation: 'cursor', flipRotation: false},
       onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
+      ...props,
     })
   effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === category).run()
   return {nodes, focus, changes, effects}
@@ -176,12 +182,14 @@ test('browser help opens at its heading, not its trailing Back button, on every 
     const heading = help.nodes.find(node => 'data-browser-help-heading' in node.props)
     assert.equal(heading.type, 'h2')
     assert.equal(heading.props.tabIndex, -1, 'entry focus does not add a heading to the Tab order')
-    assert.deepEqual(heading.children, ['Browser compatibility and help'])
+    assert.equal(heading.props.style.top, skin === 'frontend' ? 139 : 79, 'frontend header clears the original logo at y10..111')
+    assert.equal(heading.props['aria-label'], 'Browser compatibility and help')
+    assert.match(heading.children[0].props.className, /text/)
     const entry = help.effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === true)
     entry.run()
     assert.equal(help.focus.at(-1), '[data-browser-help-heading]')
     assert.equal(help.focus.includes('[data-return-options]'), false)
-    const back = help.nodes.find(node => 'data-return-options' in node.props)
+    const back = help.nodes.find(node => node.props['data-return-options'])
     back.props.onClick()
     assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
     assert.equal(help.focus.at(-1), '[data-compatibility]', 'Back retains the original Options row focus')
@@ -303,7 +311,7 @@ test('Game browser row uses ordinary native highlight, activation and Back focus
     assert.equal(highlighted.children[0].props.style.opacity, 1)
     const help = renderOptions(skin, 'Game', null, true)
     assert.equal(help.nodes.some(node => node.props['data-compatibility']), false)
-    const back = help.nodes.find(node => 'data-return-options' in node.props)
+    const back = help.nodes.find(node => node.props['data-return-options'])
     back.props.onClick()
     assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
     assert.equal(help.focus.at(-1), '[data-compatibility]')
@@ -327,5 +335,142 @@ test('browser-only sixth Game row and hit target fit native frame uniformly at d
   }
   for (const category of ['Sound','Graphics','Direct3D']) {
     assert.equal(optionRows({rotation:'cursor',flipRotation:false}, category).some(row => row.text === text), false)
+  }
+})
+
+const storageNotices = {
+  gameStorageNotice: 'Game settings apply for this session; browser storage is unavailable.',
+  storageNotice: 'Volume changes apply for this session; browser storage is unavailable.',
+}
+const descendants = node => !node || typeof node !== 'object' ? [] :
+  [node, ...[node.children].flat(Infinity).flatMap(descendants)]
+
+test('Game and Sound storage failures retain the complete session-only disclosure in native glyph rows for both skins', () => {
+  const css = readFileSync(new URL('../app/original-options.module.css', import.meta.url), 'utf8')
+  const storageStyle = css.match(/\.storage\s*\{([^}]+)\}/)[1]
+  assert.match(storageStyle, /left: 0; top: 338px; width: 640px;/)
+  assert.doesNotMatch(storageStyle, /font:|sans-serif|text-shadow:|background:/)
+  assert.match(css, /\.noticeLine[^}]*height: 30px/)
+  const home = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+  for (const notice of Object.values(storageNotices)) assert.ok(home.includes(`'${notice}'`), 'cover the actual Home storage failure copy')
+  for (const skin of ['frontend', 'ingame']) for (const category of ['Game', 'Sound']) {
+    const expectedNotice = category === 'Game' ? storageNotices.gameStorageNotice : storageNotices.storageNotice
+    const {nodes} = renderOptions(skin, category, null, false, storageNotices)
+    const statuses = nodes.filter(node => node.props.role === 'status')
+    assert.equal(statuses.length, 1, 'only the active category announces its storage failure')
+    const status = statuses[0]
+    assert.equal(status.props.className, 'storage')
+    assert.equal(status.props['aria-label'], expectedNotice)
+    assert.equal(status.props.tabIndex, undefined, 'a passive status does not intercept keyboard navigation')
+    const announcement = descendants(status).find(node => node.props.className === 'game-a11y-status')
+    assert.deepEqual(announcement.children, [expectedNotice])
+    const rows = optionRows({rotation:'cursor',flipRotation:false}, category, false, storageNotices, skin).filter(row => row.y >= 338 && row.y < 420)
+    const visibleNotice = skin === 'ingame'
+      ? `Session-only ${category === 'Game' ? 'game settings' : 'volume changes'}; browser storage unavailable.` : expectedNotice
+    assert.equal(rows.map(row => row.text).join(' '), visibleNotice, 'Visible copy retains both session-only effect and unavailable browser storage')
+    assert.equal(rows.length, 2)
+    const lines = descendants(status).filter(node => node.props.className === 'noticeLine')
+    assert.equal(lines.length, rows.length)
+    const bank = skin === 'frontend' ? frontend.banks.feft33we : ingame
+    for (const [index, line] of lines.entries()) {
+      assert.equal(line.props['aria-hidden'], 'true', 'decorative glyphs do not duplicate the live announcement')
+      const text = line.children[0], glyphs = text.children.flat(Infinity)
+      const expectedGlyphs = [...rows[index].text].map(letter => bank.rects[letter.charCodeAt(0) - 32])
+      assert.equal(text.props.className, 'text')
+      assert.equal(text.props.style.opacity, skin === 'ingame' ? 2 / 3 : 1)
+      assert.equal(glyphs.length, expectedGlyphs.length)
+      for (const [letter, glyph] of glyphs.entries()) {
+        assert.equal(glyph.props.style.width, expectedGlyphs[letter].w)
+        assert.equal(glyph.props.style.height, expectedGlyphs[letter].h)
+        assert.match(glyph.props.style.backgroundImage, skin === 'frontend' ? /frontend\/feft33we/ : /pause-font/)
+      }
+      const width = expectedGlyphs.reduce((sum, glyph) => sum + glyph.w, 0)
+      assert.ok(width <= (skin === 'ingame' ? 432 : 600))
+      assert.deepEqual([rows[index].x, rows[index].y], [320, 338 + index * 30])
+      assert.ok(rows[index].y + Math.max(...expectedGlyphs.map(glyph => glyph.h)) < 420, 'actual glyphs clear category navigation and Back at y454')
+      for (const [vw,vh,dpr] of [[640,480,1],[1280,800,1],[3440,1440,1],[3840,2160,2],[800,600,2]]) {
+        const scale = Math.min(vw / 640, vh / 480), left = (vw - 640 * scale) / 2
+        assert.ok((left + (320 - width / 2) * scale) * dpr >= 0)
+        assert.ok((left + (320 + width / 2) * scale) * dpr <= vw * dpr)
+        assert.ok((338 + lines.length * 30) * scale * dpr < 420 * scale * dpr)
+      }
+    }
+  }
+})
+
+test('storage warnings preserve navigation and publish only current native shadow rows, including recovery and repeated category changes', () => {
+  for (const skin of ['frontend', 'ingame']) for (let visit = 0; visit < 2; visit++) {
+    for (const category of ['Game', 'Sound', 'Graphics', 'Direct3D']) for (const notices of [storageNotices, {}]) {
+      let back = 0
+      const publications = []
+      const ui = renderOptions(skin, category, null, false, {...notices, onBack: () => back++, onTextRowsChange: rows => publications.push(rows)})
+      const clean = renderOptions(skin, category)
+      const controls = nodes => nodes.filter(node => node.type === 'button' || node.type === 'input' || node.props.tabIndex === 0).map(node => node.props['aria-label'])
+      assert.deepEqual(controls(ui.nodes), controls(clean.nodes), 'warnings add no keyboard stops or replacement controls')
+      ui.nodes.find(node => node.props['data-panel-back']).props.onClick()
+      assert.equal(back, 1)
+      assert.deepEqual(ui.focus, [`[aria-current="page"][data-option-key="${category}"]`])
+      ui.effects.find(effect => effect.dependencies.length === 3 && typeof effect.dependencies[1] === 'function').run()
+      assert.deepEqual(publications[0], optionRows({rotation:'cursor',flipRotation:false}, category, false, notices, skin))
+      const visible = Object.keys(notices).length > 0 && ['Game', 'Sound'].includes(category)
+      assert.equal(ui.nodes.some(node => node.props.className === 'storage'), visible)
+      assert.equal(publications[0].some(row => row.y === 338), visible)
+      const help = renderOptions(skin, category, null, true, notices)
+      assert.equal(help.nodes.some(node => node.props.className === 'storage'), false, 'ordinary warning does not leak into the browser destination')
+      assert.deepEqual(optionRows({rotation:'cursor',flipRotation:false}, category, true, notices), optionRows({rotation:'cursor',flipRotation:false}, category, true))
+    }
+  }
+})
+
+test('unavailable font assets keep storage notices readable without publishing misleading bitmap shadows', () => {
+  for (const skin of ['frontend', 'ingame']) for (const category of ['Game', 'Sound']) {
+    const publications = []
+    const ui = renderOptions(skin, category, null, false, {
+      ...storageNotices,
+      preparedFrontend: {fonts: false, lowFont: false, sliders: true},
+      preparedIngame: {fonts: false, sliders: true},
+      onTextRowsChange: rows => publications.push(rows),
+    })
+    const status = ui.nodes.find(node => node.props.className === 'storage')
+    const fallback = descendants(status).filter(node => node.props.className === 'fallback')
+    assert.equal(fallback.map(node => node.children.join('')).join(' '), skin === 'ingame'
+      ? `Session-only ${category === 'Game' ? 'game settings' : 'volume changes'}; browser storage unavailable.` : status.props['aria-label'])
+    assert.equal(descendants(status).some(node => node.type === 'i'), false)
+    ui.effects.find(effect => effect.dependencies.length === 3 && typeof effect.dependencies[1] === 'function').run()
+    assert.deepEqual(publications, [[]])
+  }
+})
+
+
+test('in-game browser-only copy clears the HUD gutter without altering native rows, font or accessible names', () => {
+  for (const category of ['Game', 'Sound']) {
+    const rows = optionRows({ rotation: 'cursor', flipRotation: false }, category, false, storageNotices, 'ingame')
+    const browserRows = rows.filter(row => row.id === 'compatibility' || row.y === 338 || row.y === 368)
+    assert.equal(browserRows.length, category === 'Game' ? 3 : 2)
+    for (const row of browserRows) {
+      const glyphs = [...row.text].map(letter => ingame.rects[letter.charCodeAt(0) - 32])
+      const width = glyphs.reduce((sum, glyph) => sum + glyph.w, 0)
+      assert.equal(row.x, 320)
+      assert.ok(320 - (width >> 1) >= 104, 'Native occupied glyphs reserve the HUD-safe gutter')
+      assert.ok(row.y + Math.max(...glyphs.map(glyph => glyph.h)) < 420)
+    }
+    for (const fallback of [false, true]) {
+      const ui = renderOptions('ingame', category, null, false, { ...storageNotices,
+        preparedIngame: { fonts: !fallback, sliders: true } })
+      const status = ui.nodes.find(node => node.props['data-options-browser-copy'] === 'storage')
+      assert.equal(status.props['aria-label'], category === 'Game' ? storageNotices.gameStorageNotice : storageNotices.storageNotice)
+      const texts = descendants(status).filter(node => node.props['data-options-text'])
+      assert.equal(texts.length, 2)
+      assert.ok(texts.every(node => node.props['data-options-font'] === (fallback ? 'fallback' : 'glyphs')))
+      if (category === 'Game') {
+        const help = ui.nodes.find(node => node.props['data-compatibility'])
+        assert.equal(help.props['aria-label'], 'Browser compatibility and help')
+        assert.equal(help.props['data-options-browser-copy'], 'help')
+        assert.equal(help.children[0].props['data-options-text'], 'Browser controls and help')
+        assert.deepEqual(help.props.style, { left: 320, top: 289 })
+      }
+    }
+    const native = rows.filter(row => row.y < 289 && row.id !== 'compatibility')
+    assert.deepEqual(native, optionRows({ rotation: 'cursor', flipRotation: false }, category).filter(row => row.y < 289))
   }
 })

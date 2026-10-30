@@ -1,3 +1,4 @@
+import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { stagedCheckpointComparisonView, assertStagedCheckpointComparisonDomain } from './helpers/staged-checkpoint-comparison-view.mjs'
 import {
   seatedAttackOrigin,
@@ -9,7 +10,6 @@ import { vehicleReady } from '../app/vehicle-routing.ts'
 import { reachMission22FlightPoint } from './helpers/mission22-flight-phase.mjs'
 // Staged transport waypoint completion preserves the shared queue and seated owner.
 import test from 'node:test'
-import { createGameStore } from '../app/game-store.ts'
 import { loadHistoricalStaged } from './helpers/historical-mission22-staged.mjs'
 import { stepLiveOrderQueue } from '../app/live-movement.ts'
 import { boardLiveVehicle, vehicleExit } from '../app/live-vehicles.ts'
@@ -95,9 +95,9 @@ const freshPins = {
   },
 }
 
-function prepareFreshFlightPoint() {
-  const store = createGameStore()
-  store.startMission(22)
+async function prepareFreshFlightPoint() {
+  const store = await createCampaignFixtureStore([22])
+  assert.equal(store.startMission(22), true)
   let world = store.getWorld(),
     shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'),
     balloon = world.vehicles.find(vehicle => vehicle.model === 3),
@@ -159,7 +159,7 @@ function prepareFreshFlightPoint() {
   return { store, world, shaman, balloon }
 }
 
-async function assertStagedTransport({ store, world, shaman, balloon, createContinuationStore = createGameStore }, pins) {
+async function assertStagedTransport({ store, world, shaman, balloon, createContinuationStore = () => createCampaignFixtureStore([22]) }, pins) {
   assert.deepEqual([world.turn, shaman.native.counter], pins.input)
   const departureWorld = structuredClone(world),
     person = shaman.native,
@@ -258,7 +258,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
   assert.deepEqual([balloon.x & 511, balloon.y & 511], [256, 256])
 
   // Independent ordinary rest -> Ctrl28 input. No state/counter/terrain injection.
-  const idleStore = createContinuationStore()
+  const idleStore = await createContinuationStore()
   idleStore.startMission(22)
   const idle = idleStore.getWorld()
   Object.assign(idle, structuredClone(departureWorld))
@@ -369,7 +369,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
 
   // Independent public Shift departure from the same genuinely acquired state.
   // The destination is ordinary dry land; no terrain or passenger fields change.
-  const departureStore = createContinuationStore()
+  const departureStore = await createContinuationStore()
   departureStore.startMission(22)
   const departing = departureStore.getWorld()
   Object.assign(departing, structuredClone(departureWorld))
@@ -417,7 +417,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
   // Supplied second Brave/+71 phase on the genuine acquisition clone. This
   // successor handoff fills a vacated driver seat; the separate historical
   // regression proves the eligible-queue selector's physical seat swap.
-  const successorStore = createContinuationStore()
+  const successorStore = await createContinuationStore()
   successorStore.startMission(22)
   const successor = successorStore.getWorld()
   Object.assign(successor, structuredClone(departureWorld))
@@ -609,7 +609,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
 }
 
 test('fresh supplied-focus Mission22 staged transport retains queue, idle combat, Shift departure and successor through Save/Load', async () => {
-  await assertStagedTransport(prepareFreshFlightPoint(), freshPins)
+  await assertStagedTransport(await prepareFreshFlightPoint(), freshPins)
 })
 
 test('historical complete3566 research clone retains exact transport branches and selected-target acquisition', async () => {

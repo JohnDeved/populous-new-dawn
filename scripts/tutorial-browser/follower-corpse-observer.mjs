@@ -99,7 +99,7 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
           const height = Math.min(256, canvas.height - y, Math.ceil((bounds.height + 24) * scaleY))
           if (width <= 1 || height <= 1) throw Error('Corpse crop lies outside the live canvas')
           const clip = { x: rect.left + x / scaleX, y: rect.top + y / scaleY, width: width / scaleX, height: height / scaleY }
-          const overlays = [...document.querySelectorAll('.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+          const overlays = [...document.querySelectorAll('.native-hud,[data-original-pause-status],.campaign-messages summary,.campaign-messages details[open] [data-native-campaign-panel],.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
             .filter(element => { const s = getComputedStyle(element); return s.display !== 'none' && s.visibility !== 'hidden' && Number(s.opacity) !== 0 })
             .map(element => { const r = element.getBoundingClientRect(); return { className: element.className, x: r.x, y: r.y, width: r.width, height: r.height } })
             .filter(r => r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x && r.y < clip.y + clip.height && r.y + r.height > clip.y)
