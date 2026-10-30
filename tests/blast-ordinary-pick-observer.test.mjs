@@ -157,3 +157,85 @@ test('a changed wrapper descriptor is foreign ownership even when its function v
   assert.deepEqual(Object.getOwnPropertyDescriptor(scene.picking, 'pick'), changed)
   assert.equal(observer.read().cleanupVerified, false)
 })
+
+test('post-admission context drift does not certify a consumed call against the retained image', () => {
+  const mutations = [
+    ['camera', s => { s.cameraPosition.x++ }],
+    ['pose', s => { s.unitMeshes.get(19).position.x++ }],
+    ['renderer frame', s => { s.renderer.info.render.frame++ }],
+    ['scene frame', s => { s.frame++ }],
+    ['turn', s => { s.world.turn++ }],
+    ['projection', s => { s.view.projection.width++ }],
+    ['world identity', s => { s.world = { ...s.world } }],
+    ['target identity', s => { s.world.units = [{ ...s.world.units[0] }] }],
+    ['group identity', s => { s.unitMeshes.set(19, { ...s.unitMeshes.get(19) }) }],
+    ['canvas attachment', s => { s.renderer.domElement.isConnected = false }],
+  ]
+  for (const [name, mutate] of mutations) {
+    const { scene, log } = fixture(), observer = observeBlastPick(scene, { targetId: 19 })
+    scene.renderer.render(scene.scene, scene.camera); observer.beginSearch()
+    mutate(scene)
+    const event = { clientX: 210, clientY: 10 }
+    assert.equal(scene.picking.pick(event), null, name)
+    const report = observer.seal()
+    assert.equal(report.frameMatched, false, name)
+    assert.equal(report.calls[0].frameMatched, false, name)
+    assert.equal(report.calls[0].frameSequence, report.frame.sequence, name)
+    assert.equal(report.searchFrameMatched, true, name + ': admission remained unchanged')
+    assert.equal(report.cleanupVerified, true, name)
+    assert.deepEqual(report.errors, [], name)
+    assert.equal(log.filter(row => row.name === 'pick').length, 1, name)
+    assert.equal(log.filter(row => row.name === 'render').length, 1, name)
+    assert.equal(log.filter(row => row.name === 'readPixels').length, 1, name)
+    observer.dispose()
+  }
+})
+
+test('replacement of the retained natural image invalidates earlier calls without retaining extra images', () => {
+  const { scene, log } = fixture(), observer = observeBlastPick(scene, { targetId: 19 })
+  scene.renderer.render(scene.scene, scene.camera); observer.beginSearch()
+  scene.picking.pick({ clientX: 210, clientY: 10 })
+  const first = observer.read()
+  assert.equal(first.frameMatched, true)
+  // A separately rendered image is not interchangeable, even if renderer frame
+  // numbering is externally reset and every captured context value is identical.
+  scene.renderer.info.render.frame--
+  scene.renderer.render(scene.scene, scene.camera)
+  scene.picking.pick({ clientX: 211, clientY: 10 })
+  const report = observer.seal()
+  assert.equal(report.frameMatched, false)
+  assert.equal(report.searchFrameMatched, true)
+  assert.deepEqual(report.calls.map(row => row.frameMatched), [false, true])
+  assert.deepEqual(report.calls.map(row => row.frameSequence), [1, 2])
+  assert.equal(report.frame.sequence, 2)
+  assert.deepEqual(report.calls[0].context, report.frame.context)
+  assert.equal(first.frame.sequence, 1)
+  assert.equal(first.calls[0].frameMatched, true)
+  assert.equal(report.calls.some(row => 'frame' in row || 'png' in row), false)
+  assert.equal(report.cleanupVerified, true)
+  assert.deepEqual(report.errors, [])
+  assert.equal(log.filter(row => row.name === 'pick').length, 2)
+  assert.equal(log.filter(row => row.name === 'render').length, 2)
+  assert.equal(log.filter(row => row.name === 'readPixels').length, 2)
+  observer.dispose()
+})
+
+test('per-call frame bindings are detached, bounded metadata and do not certify an empty call set', () => {
+  const { scene, log } = fixture(), observer = observeBlastPick(scene, { targetId: 19 })
+  scene.renderer.render(scene.scene, scene.camera); observer.beginSearch()
+  assert.equal(observer.read().frameMatched, false)
+  for (const x of [210, 211]) scene.picking.pick({ clientX: x, clientY: 10 })
+  const report = observer.seal()
+  assert.equal(report.version, 2)
+  assert.equal(report.frameMatched, true)
+  assert.equal(report.searchFrameMatched, true)
+  assert.deepEqual(report.calls.map(row => [row.frameSequence, row.frameMatched]), [[1, true], [1, true]])
+  assert.equal(report.calls[0].context.sceneFrame, 9)
+  report.frame.sequence = 99; report.calls[0].frameSequence = 99; report.calls[0].frameMatched = false
+  assert.equal(observer.read().frame.sequence, 1)
+  assert.deepEqual(observer.read().calls.map(row => [row.frameSequence, row.frameMatched]), [[1, true], [1, true]])
+  assert.equal(log.filter(row => row.name === 'pick').length, 2)
+  assert.equal(log.filter(row => row.name === 'render').length, 1)
+  assert.equal(log.filter(row => row.name === 'readPixels').length, 1)
+  observer.dispose()
+})

@@ -19,7 +19,7 @@ export function observeBlastPick(scene, { targetId, frameLimit = 8, callLimit = 
   let active, selectedObject, searching = false, sealed = false, disposed = false, frameCount = 0, frame, searchContext
   const error = value => { if (errors.length < 16) errors.push(String(value?.message ?? value)) }
   const observe = callback => { try { return callback() } catch (failure) { error(failure); return null } }
-  const context = () => ({ turn: world.turn, renderFrame: renderer.info.render.frame,
+  const context = () => ({ turn: world.turn, sceneFrame: scene.frame, renderFrame: renderer.info.render.frame,
     sameWorld: scene.world === world, sameTarget: world.units.find(unit => unit.id === targetId) === target,
     sameGroup: scene.unitMeshes.get(targetId) === group, canvasConnected: canvas.isConnected,
     camera: { ...scene.cameraPosition }, view: { ...scene.viewPoint }, bearing: scene.cameraBearing,
@@ -56,7 +56,7 @@ export function observeBlastPick(scene, { targetId, frameLimit = 8, callLimit = 
       let row
       if (searching && kind === 'pick') observe(() => {
         if (calls.length >= callLimit) throw Error('Diagnostic pick call limit reached')
-        row = { event: fields(args[0], ['clientX', 'clientY']), context: context(), cacheBefore: cache(picking),
+        row = { event: fields(args[0], ['clientX', 'clientY']), context: context(), frameSequence: frame?.sequence ?? null, cacheBefore: cache(picking),
           bounds: null, personSource: null, personDepth: null, terrain: null, terrainSource: null }
         calls.push(row); active = row; selectedObject = null
       })
@@ -88,7 +88,7 @@ export function observeBlastPick(scene, { targetId, frameLimit = 8, callLimit = 
           frameCount++
           const capturedContext = context(), image = captureRenderedCanvas(scene)
           if (!image.pixels) throw Error('Natural rendered canvas has no retained pixels')
-          frame = { context: capturedContext, sceneFrame: scene.frame, ...image }
+          frame = { sequence: frameCount, context: capturedContext, sceneFrame: scene.frame, ...image }
         }
       })
       if (row) { active = null; selectedObject = null }
@@ -98,10 +98,17 @@ export function observeBlastPick(scene, { targetId, frameLimit = 8, callLimit = 
     Object.defineProperty(object, key, installed)
     hooks.push({ object, key, descriptor, installed, restored: false })
   }
-  const read = () => copy({ version: 1, targetId, frameLimit, callLimit, frameCount, searching, sealed, disposed, calls, errors, cleanup,
-    frame, searchContext, cleanupVerified: hooks.every(hook => hook.restored),
-    frameMatched: !!searchContext && !!frame && same(searchContext, frame.context),
-    scope: 'Diagnostic existing-call records and exact preceding natural-frame capture only. No cast, ordinary acceptance or directly captured full sorted hit stream. Any stream/order reconstruction must be labelled as reconstruction.' })
+  const read = () => {
+    // Only the latest natural image is retained. An older call cannot borrow a
+    // newer image, even if the surrounding context later returns to equal values.
+    const observedCalls = calls.map(row => ({ ...row,
+      frameMatched: !!frame && row.frameSequence === frame.sequence && same(row.context, frame.context) }))
+    return copy({ version: 2, targetId, frameLimit, callLimit, frameCount, searching, sealed, disposed, calls: observedCalls, errors, cleanup,
+      frame, searchContext, cleanupVerified: hooks.every(hook => hook.restored),
+      searchFrameMatched: !!searchContext && !!frame && same(searchContext, frame.context),
+      frameMatched: !errors.length && !!observedCalls.length && observedCalls.every(row => row.frameMatched),
+      scope: 'Diagnostic existing-call records and one retained natural-frame capture only. Per-call frameMatched binds that call to the retained preceding image; searchFrameMatched is admission-context comparison only. No cast, ordinary acceptance or directly captured full sorted hit stream. Any stream/order reconstruction must be labelled as reconstruction.' })
+  }
   return {
     status: () => ({ hasFrame: !!frame, frameCount, errors: [...errors] }),
     beginSearch() {
