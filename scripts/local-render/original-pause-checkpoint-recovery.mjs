@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
+import { observeStablePauseControls } from './pause-capture-controls.mjs'
 
 // Controlled failure/timing at the browser storage boundary. The retry opens a
 // real database; only delivery of its success event is held. No game/store state
@@ -217,14 +218,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   }
   async function capture(page, name) {
     const viewport = page.viewportSize()
-    for (const control of await modal(page).getByRole('button').all()) {
-      await control.scrollIntoViewIfNeeded()
-      const box = await control.boundingBox()
-      assert.ok(box && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1)
-      assert.equal(await control.evaluate(node => {
-        const box = node.getBoundingClientRect()
-        return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2))
-      }), true)
+    const controls = await modal(page).getByRole('button').evaluateAll(observeStablePauseControls)
+    assert.ok(controls.length > 0, `${name}: no visible modal buttons`)
+    for (const box of controls) {
+      assert.ok(box.width > 0 && box.height > 0 && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1, `${name}: offscreen button ${box.label}`)
+      assert.equal(box.hit, true, `${name}: obstructed button ${box.label}`)
     }
     await page.screenshot({ path: resolve(output, name) })
     screenshots.push({ name, viewport, dpr: await page.evaluate(() => devicePixelRatio) })
