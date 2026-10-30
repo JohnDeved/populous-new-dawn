@@ -155,6 +155,8 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       panel.remove()
       scene.buildingPanels.delete(id)
     } else if (
+      building.team !== 'blue' ||
+      !scene.visible(building) ||
       (trainingOwnsPanel(building, record) &&
         !((building.admission?.activity ?? 0) & 0x8000) &&
         (modal || !record || record.phase < 0)) ||
