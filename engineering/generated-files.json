@@ -169,6 +169,7 @@
         "scripts/import-hud.py",
         "scripts/import-worship-acquisition.py",
         "scripts/import-vault-knowledge.py",
+        "scripts/import-swamp-art.py",
         "scripts/import-temple-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
@@ -179,6 +180,8 @@
       ],
       "inputs": ["references/native-assets.md", "decomp/sections.tsv"],
       "outputs": [
+        { "path": "app/original-swamp.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-swamp-art.py" },
+        { "path": "public/original/swamp.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-swamp-art.py" },
         { "path": "app/original-tornado.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
         { "path": "public/original/tornado.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tornado.py" },
         { "path": "public/original/loading-mask.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-loading-art.py" },

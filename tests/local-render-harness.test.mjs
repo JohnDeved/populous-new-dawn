@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { launchOptions, parseOptions } from '../scripts/local-render/harness.mjs'
+import { waitForStartupMenu } from '../scripts/browser-new-game.mjs'
 test('local launch preserves sandbox and removes all unsafe Playwright defaults', () => {
   const options = launchOptions('/tmp/official-headless-shell')
   assert.equal(options.chromiumSandbox, true)
@@ -44,6 +45,14 @@ test('CLI rejects unknown flags, missing values and unbounded inputs', () => {
     assert.throws(() => parseOptions(args))
 })
 
+test('phase timing is explicitly opt-in and accepts only boolean CLI values', () => {
+  assert.equal(Object.hasOwn(parseOptions([]), 'phaseTimings'), false)
+  assert.equal(parseOptions(['--phase-timings', 'true']).phaseTimings, true)
+  assert.equal(parseOptions(['--phase-timings', 'false']).phaseTimings, false)
+  for (const value of ['1', 'yes', 'TRUE', ''])
+    assert.throws(() => parseOptions(['--phase-timings', value]))
+})
+
 import { EventEmitter } from 'node:events'
 import vm from 'node:vm'
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs'
@@ -54,6 +63,77 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { sourceReceipt } from '../scripts/local-render/harness.mjs'
 import { sourceReceipt as profileSourceReceipt } from '../scripts/local-render/owned-profile.mjs'
+
+// The real shared helper drives these supplied controls. A menu-only no-op
+// locator would hide a pre-scenario stall behind a blocked/failed opening logo.
+function startupControls({ initial = 'menu', skip = 'complete' } = {}) {
+  let visible = initial
+  const events = []
+  const pending = new Set()
+  const menuVisible = () => visible === 'menu' || visible === 'selector'
+  const logoVisible = () => visible.startsWith('logo-')
+  const menu = {
+    async waitFor(options) {
+      assert.deepEqual(options, { state: 'visible' })
+      events.push('menu-visible')
+      assert.ok(menuVisible(), 'Destination must actually be visible')
+    },
+    async isVisible() { return menuVisible() },
+    or(other) {
+      assert.equal(other, logo)
+      return {
+        filter(options) {
+          assert.deepEqual(options, { visible: true })
+          return {
+            first() {
+              return { async waitFor(options) {
+                assert.deepEqual(options, { state: 'visible' })
+                events.push('startup-visible')
+                assert.ok(menuVisible() || logoVisible())
+              } }
+            },
+          }
+        },
+      }
+    },
+  }
+  const logo = {
+    async isVisible() { return logoVisible() },
+    getByRole(role, options) {
+      assert.equal(role, 'button')
+      assert.deepEqual(options, { name: 'Skip logo', exact: true })
+      return { async click(options) {
+        assert.deepEqual(options, { timeout: 2500, noWaitAfter: true })
+        events.push('public-skip')
+        if (skip === 'pending') return new Promise((_, reject) => pending.add(reject))
+        if (skip === 'complete') { visible = 'menu'; return }
+        if (skip === 'ended-before-click' || skip === 'other-error') visible = 'menu'
+        if (skip === 'missing-destination') visible = 'none'
+        throw Object.assign(new Error('Supplied Skip failure'), {
+          name: skip === 'other-error' ? 'Error' : 'TimeoutError',
+        })
+      } }
+    },
+  }
+  return {
+    events,
+    get pendingCount() { return pending.size },
+    close() {
+      for (const reject of pending) reject(new Error('Supplied browser closed during pending Skip'))
+      pending.clear()
+    },
+    getByRole(role, options) {
+      assert.equal(role, 'dialog')
+      if (options.name === 'Opening logo') {
+        assert.deepEqual(options, { name: 'Opening logo', exact: true })
+        return logo
+      }
+      assert.equal(String(options.name), '/^(Main menu|Start game)$/')
+      assert.equal(options.exact, true)
+      return menu
+    },
+  }
+}
 
 test('harness preserves the exact side-effect-free source fingerprint export', () => {
   assert.equal(sourceReceipt, profileSourceReceipt)
@@ -89,13 +169,19 @@ test('source fingerprint catches dirty tracked and untracked byte drift with unc
 
 // Exercise the exact production function with runtime-only fakes. No browser,
 // network, process, or screenshot is real in these cancellation regression tests.
-async function lateScenarioResult(trigger) {
+async function lateScenarioResult(trigger, phaseTimings = false, deferredNavigation = false) {
   let persisted,
     scenarioStarted = false,
     scenarioCompleted = false,
     screenshotCalls = 0,
-    browserClosed = false
+    browserClosed = false,
+    navigationCompleted = false
   const timers = new Set()
+  const killed = []
+  let releaseNavigation
+  const navigationCompletion = new Promise(resolve => {
+    releaseNavigation = resolve
+  })
   let beginScreenshot
   const screenshotStarted = new Promise(resolve => {
     beginScreenshot = resolve
@@ -108,7 +194,8 @@ async function lateScenarioResult(trigger) {
   fakeProcess.env = {}
   fakeProcess.argv = []
   fakeProcess.cwd = () => '/fixture'
-  fakeProcess.kill = () => {
+  fakeProcess.kill = (pid, signal) => {
+    killed.push([pid, signal])
     server.exitCode = 0
     server.emit('exit', 0)
   }
@@ -123,8 +210,14 @@ async function lateScenarioResult(trigger) {
   const page = {
     on() {},
     setDefaultTimeout() {},
-    async goto() {},
-    getByRole: () => ({ async waitFor() {} }),
+    async goto() {
+      if (deferredNavigation) {
+        abortRun()
+        await navigationCompletion
+      }
+      navigationCompleted = true
+    },
+    getByRole: startupControls().getByRole,
     async screenshot() {
       screenshotCalls++
       beginScreenshot()
@@ -164,6 +257,7 @@ async function lateScenarioResult(trigger) {
       'const bindGame = async () => {}, showAllMissions = async () => {}'
     )
   const sandbox = {
+    waitForStartupMenu,
     // This VM supplies fixture filesystem bytes; dependency metadata is an explicit boundary stub.
     dependencyReceipt: () => ({ installedLockSha256: createHash('sha256').update('fixture bytes').digest('hex') }),
     sourceReceipt: () => ({ fingerprint: 'fixed-clean-identity' }),
@@ -176,6 +270,7 @@ async function lateScenarioResult(trigger) {
     AbortController,
     AbortSignal,
     structuredClone,
+    performance: { now: () => 0 },
     process: fakeProcess,
     setTimeout(fn, ms) {
       const timer = { fn, ms }
@@ -209,11 +304,7 @@ async function lateScenarioResult(trigger) {
     fetch: async () => ({ ok: true }),
   }
   vm.runInNewContext(source + '\nglobalThis.run = runLocalBrowser', sandbox)
-  const scenario = async ({ signal }) => {
-    scenarioStarted = true
-    const aborted = new Promise(resolve =>
-      signal.addEventListener('abort', resolve, { once: true })
-    )
+  const abortRun = () => {
     if (trigger === 'interrupt') fakeProcess.emit('SIGINT')
     else {
       // Readiness has finished and cleared its timer; only the run deadline remains.
@@ -222,6 +313,18 @@ async function lateScenarioResult(trigger) {
       timers.delete(deadlines[0])
       deadlines[0].fn()
     }
+  }
+  const scenario = async ({ signal }) => {
+    scenarioStarted = true
+    if (deferredNavigation) {
+      assert.equal(signal.aborted, true)
+      scenarioCompleted = true
+      return { completedAfterAbort: true }
+    }
+    const aborted = new Promise(resolve =>
+      signal.addEventListener('abort', resolve, { once: true })
+    )
+    abortRun()
     await aborted
     await screenshotStarted
     scenarioCompleted = true
@@ -234,6 +337,7 @@ async function lateScenarioResult(trigger) {
       browserPath: '/official-shell',
       port: 4188,
       timeout: 100,
+      phaseTimings,
     },
     scenario
   )
@@ -248,9 +352,17 @@ async function lateScenarioResult(trigger) {
       () => assert.fail('Harness rejected before failure diagnostics')
     ),
   ])
+  if (deferredNavigation) {
+    // Failure diagnostics start only after work-failed closed the work-phase
+    // stream. Resolve the earlier goto now, while that screenshot is still held.
+    assert.equal(navigationCompleted, false)
+    assert.equal(scenarioStarted, false)
+    releaseNavigation()
+  }
   // Drain the scenario's promise chain while the diagnostic screenshot is pending.
   await new Promise(resolve => setImmediate(resolve))
   assert.equal(scenarioCompleted, true)
+  assert.equal(navigationCompleted, true)
   assert.equal(persisted, undefined)
   assert.equal(browserClosed, false)
   releaseScreenshot()
@@ -262,6 +374,10 @@ async function lateScenarioResult(trigger) {
   assert.equal(Object.hasOwn(persisted, 'result'), false)
   assert.match(persisted.failure, trigger === 'timeout' ? /exceeded 100ms/ : /Interrupted/)
   assert.equal(timers.size, 0)
+  assert.deepEqual(killed, [[-100, 'SIGTERM'], [-100, 'SIGKILL']])
+  assert.equal(server.exitCode, 0)
+  assert.equal(fakeProcess.listenerCount('SIGINT') + fakeProcess.listenerCount('SIGTERM'), 0)
+  return persisted
 }
 test('active scenario completing during timeout diagnostics cannot turn failure into pass', () =>
   lateScenarioResult('timeout'))
@@ -293,6 +409,10 @@ async function startupFixture({
   signalDuringFetch,
   profile = false,
   beforeTimer = () => {},
+  startup = {},
+  phaseTimings,
+  phaseDurations = {},
+  phaseFailure,
 } = {}) {
   const calls = {
       mkdir: 0,
@@ -303,11 +423,17 @@ async function startupFixture({
       close: 0,
       finish: 0,
       killed: [],
+      scenario: 0,
+      clockReads: 0,
     },
     timers = [],
     scheduled = new Set()
   let persisted,
     now = 0
+  const step = phase => {
+    now += phaseDurations[phase] ?? 0
+    if (phaseFailure === phase) throw Error(`Supplied ${phase} failure`)
+  }
   const schedule = (fn, ms) => {
     timers.push(ms)
     const timer = { fn, ms, due: now + ms }
@@ -329,12 +455,14 @@ async function startupFixture({
     server.exitCode = 0
     server.emit('exit', 0)
   }
+  const controls = startupControls(startup)
   const page = {
     on() {},
     setDefaultTimeout() {},
-    async goto() {},
-    getByRole: () => ({ async waitFor() {} }),
+    async goto() { step('navigation') },
+    getByRole: controls.getByRole,
     isClosed: () => false,
+    async screenshot() {},
   }
   const context = {
     on() {},
@@ -344,22 +472,32 @@ async function startupFixture({
     browser: () => browser,
     async close() {
       calls.close++
+      controls.close()
+      step('close')
     },
   }
   const browser = {
     version: () => 'supplied fixture',
     isConnected: () => !calls.close,
-    newContext: async () => context,
+    newContext: async () => { step('context'); return context },
     contexts: () => [context],
     async close() {
       calls.close++
+      controls.close()
+      step('close')
     },
   }
   const launch = async () => {
     calls.launch++
+    step('launch')
     return browser
   }
-  const scenario = async () => ({ reached: true })
+  const scenario = async () => {
+    calls.scenario++
+    controls.events.push('scenario')
+    step('scenario')
+    return { reached: true }
+  }
   let source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
   source = source
     .slice(0, source.indexOf('\nif (process.argv[1]'))
@@ -392,6 +530,7 @@ async function startupFixture({
       : { version: 'supplied fixture' }
   require.resolve = () => '/fixture/package.json'
   const sandbox = {
+    waitForStartupMenu,
     // This VM supplies fixture filesystem bytes; dependency metadata is an explicit boundary stub.
     dependencyReceipt: () => ({ installedLockSha256: createHash('sha256').update('fixture bytes').digest('hex') }),
     resolve,
@@ -408,6 +547,7 @@ async function startupFixture({
       },
     },
     structuredClone,
+    performance: { now: () => { calls.clockReads++; return now } },
     console,
     process,
     Date: class extends Date {
@@ -445,8 +585,11 @@ async function startupFixture({
     readCommittedCheckpoint: async () => null,
     createRequire: () => require,
     suppliedScenario: scenario,
-    spawn() {
+    spawn(command, args, options) {
       calls.spawn++
+      calls.spawned = {
+        command, cwd: options.cwd, detached: options.detached, pid: server.pid,
+      }
       queueMicrotask(() => {
         if (listening) stdout.emit('data', `http://127.0.0.1:${port}`)
         if (exit) server.exitCode = 2
@@ -478,6 +621,7 @@ async function startupFixture({
         browserPath: '/official-shell',
         port,
         timeout,
+        phaseTimings,
         ...(profile ? { profile: '/fixture/profile', scenario: '/fixture/scenario.mjs' } : {}),
       },
       scenario
@@ -503,8 +647,216 @@ async function startupFixture({
     next.fn()
   }
   await run
-  return { calls, timers, persisted, failure, process }
+  return {
+    calls, timers, persisted, failure, process, startupEvents: controls.events,
+    elapsedMs: now, pendingStartupOperations: controls.pendingCount,
+    serverExitCode: server.exitCode, browserConnected: browser.isConnected(),
+  }
 }
+
+function assertOwnedStartupCleanup(result) {
+  assert.equal(result.calls.spawn, 1)
+  assert.equal(result.calls.launch, 1)
+  assert.deepEqual(result.calls.spawned, {
+    command: '/fixture/node_modules/.bin/vite', cwd: '/fixture', detached: true, pid: 100,
+  })
+  assert.deepEqual(result.calls.killed, [[-100, 'SIGTERM'], [-100, 'SIGKILL']])
+  assert.equal(result.serverExitCode, 0)
+  assert.equal(result.calls.close, 1)
+  assert.equal(result.browserConnected, false)
+  assert.equal(result.pendingStartupOperations, 0)
+  assert.equal(result.process.listenerCount('SIGINT') + result.process.listenerCount('SIGTERM'), 0)
+}
+
+test('phase diagnostics are absent and never read the clock unless opted in', async () => {
+  for (const phaseTimings of [undefined, false]) {
+    const result = await startupFixture({ phaseTimings })
+    assert.equal(result.failure, undefined)
+    assert.equal(Object.hasOwn(result.persisted, 'phaseTimings'), false)
+    assert.equal(result.calls.clockReads, 0)
+    assertOwnedStartupCleanup(result)
+  }
+})
+
+test('direct API rejects nonboolean phase timing before any resource acquisition', async () => {
+  for (const phaseTimings of ['true', 1, null]) {
+    const result = await startupFixture({ phaseTimings })
+    assert.match(String(result.failure), /Phase timings must be boolean/)
+    assert.equal(result.calls.mkdir + result.calls.spawn + result.calls.launch, 0)
+    assert.equal(result.persisted, undefined)
+    assert.equal(result.calls.clockReads, 0)
+  }
+})
+
+test('opt-in host phases distinguish startup work with one unchanged deadline', async () => {
+  const result = await startupFixture({
+    phaseTimings: true,
+    phaseDurations: { launch: 7, context: 11, navigation: 13, scenario: 17, close: 19 },
+  })
+  assert.equal(result.failure, undefined)
+  assert.equal(result.persisted.status, 'passed')
+  const timing = result.persisted.phaseTimings
+  assert.equal(timing.protocol, 'local-render-phases-v1')
+  assert.equal(timing.origin, 'work-entry')
+  assert.deepEqual(timing.events.map(event => event.phase), [
+    'work-start', 'profile-ready', 'server-spawned', 'server-ready',
+    'browser-launch-start', 'browser-launch-end', 'context-ready', 'page-ready',
+    'navigation-end', 'startup-menu-ready', 'checkpoint-ready', 'scenario-start',
+    'work-passed', 'cleanup-start', 'browser-cleanup-settled',
+    'server-cleanup-settled', 'receipt-finalizing',
+  ])
+  const times = Object.fromEntries(timing.events.map(event => [event.phase, event.elapsedMs]))
+  assert.equal(times['work-start'], 0)
+  assert.equal(times['server-ready'], 250)
+  assert.equal(times['browser-launch-end'] - times['browser-launch-start'], 7)
+  assert.equal(times['context-ready'] - times['browser-launch-end'], 11)
+  assert.equal(times['navigation-end'] - times['page-ready'], 13)
+  assert.equal(times['work-passed'] - times['scenario-start'], 17)
+  assert.equal(times['browser-cleanup-settled'] - times['cleanup-start'], 19)
+  assert.ok(timing.events.every((event, i, events) =>
+    Number.isFinite(event.elapsedMs) && event.elapsedMs >= (events[i - 1]?.elapsedMs ?? 0)))
+  assert.equal(result.calls.clockReads, 17)
+  assert.equal(result.timers.filter(ms => ms === 120000).length, 1)
+  assert.equal(result.timers.filter(ms => ms === 60000).length, 1)
+  assertOwnedStartupCleanup(result)
+})
+
+test('phase recording preserves navigation/scenario failures without invented completion', async () => {
+  for (const phaseFailure of ['navigation', 'scenario']) {
+    const result = await startupFixture({ phaseTimings: true, phaseFailure })
+    assert.match(String(result.failure), new RegExp(`Supplied ${phaseFailure} failure`))
+    assert.equal(result.persisted.status, 'failed')
+    assert.equal(Object.hasOwn(result.persisted, 'result'), false)
+    const phases = result.persisted.phaseTimings.events.map(event => event.phase)
+    assert.equal(phases.includes('work-passed'), false)
+    assert.equal(phases.filter(phase => phase === 'work-failed').length, 1)
+    assert.equal(phases.includes('navigation-end'), phaseFailure !== 'navigation')
+    assert.equal(phases.includes('scenario-start'), phaseFailure === 'scenario')
+    assert.equal(phases.at(-1), 'receipt-finalizing')
+    assertOwnedStartupCleanup(result)
+  }
+})
+
+test('pending startup phase retains the original global abort and owned cleanup', async () => {
+  const result = await startupFixture({
+    timeout: 1000, phaseTimings: true,
+    startup: { initial: 'logo-blocked', skip: 'pending' },
+  })
+  assert.match(String(result.failure), /Run exceeded 1000ms/)
+  assert.equal(result.elapsedMs, 1000)
+  assert.equal(result.calls.scenario, 0)
+  assert.equal(result.timers.filter(ms => ms === 1000).length, 2)
+  const phases = result.persisted.phaseTimings.events
+  assert.equal(phases.find(event => event.phase === 'work-failed').elapsedMs, 1000)
+  for (const name of ['startup-menu-ready', 'scenario-start', 'work-passed'])
+    assert.equal(phases.some(event => event.phase === name), false)
+  assert.equal(phases.at(-1).phase, 'receipt-finalizing')
+  assertOwnedStartupCleanup(result)
+})
+
+test('phase diagnostics cannot relabel a late scenario success during abort screenshots', async () => {
+  for (const trigger of ['timeout', 'interrupt']) {
+    const receipt = await lateScenarioResult(trigger, true)
+    const phases = receipt.phaseTimings.events.map(event => event.phase)
+    assert.equal(phases.includes('work-passed'), false)
+    assert.equal(phases.filter(phase => phase === 'work-failed').length, 1)
+    assert.equal(phases.at(-1), 'receipt-finalizing')
+  }
+})
+
+test('late pre-scenario completion cannot append work phases after outer failure', async () => {
+  for (const trigger of ['timeout', 'interrupt']) {
+    const receipt = await lateScenarioResult(trigger, true, true)
+    const phases = receipt.phaseTimings.events.map(event => event.phase)
+    assert.deepEqual(phases, [
+      'work-start', 'profile-ready', 'server-spawned', 'server-ready',
+      'browser-launch-start', 'browser-launch-end', 'context-ready', 'page-ready',
+      'work-failed', 'cleanup-start', 'browser-cleanup-settled',
+      'server-cleanup-settled', 'receipt-finalizing',
+    ])
+    // The deferred real harness work continued through the public startup helper
+    // and scenario dispatch. Without workPhasesClosed these four marks leak in.
+    for (const phase of ['navigation-end', 'startup-menu-ready', 'checkpoint-ready', 'scenario-start'])
+      assert.equal(phases.includes(phase), false)
+    assert.equal(receipt.status, 'failed')
+    assert.equal(Object.hasOwn(receipt, 'result'), false)
+  }
+})
+
+test('phase completion is not an acceptance claim when owned browser cleanup fails', async () => {
+  const result = await startupFixture({ phaseTimings: true, phaseFailure: 'close' })
+  assert.match(String(result.failure), /Supplied close failure/)
+  assert.equal(result.persisted.status, 'failed')
+  assert.equal(Object.hasOwn(result.persisted, 'result'), false)
+  const phases = result.persisted.phaseTimings.events.map(event => event.phase)
+  assert.equal(phases.includes('work-passed'), true, 'work settled before failed cleanup')
+  assert.equal(phases.at(-1), 'receipt-finalizing')
+  assertOwnedStartupCleanup(result)
+})
+
+test('harness reaches the scenario through public Skip for playing, blocked or failed logos', async () => {
+  for (const initial of ['logo-playing', 'logo-blocked', 'logo-failed']) {
+    const result = await startupFixture({ startup: { initial } })
+    assert.equal(result.failure, undefined)
+    assert.equal(result.persisted.status, 'passed')
+    assert.equal(result.calls.scenario, 1)
+    assert.deepEqual(result.startupEvents, [
+      'startup-visible', 'public-skip', 'menu-visible', 'scenario',
+    ])
+    assert.equal(result.calls.close, 1)
+  }
+})
+
+test('harness keeps already-visible menu and selector paths without a Skip click', async () => {
+  for (const initial of ['menu', 'selector']) {
+    const result = await startupFixture({ startup: { initial } })
+    assert.equal(result.failure, undefined)
+    assert.equal(result.calls.scenario, 1)
+    assert.deepEqual(result.startupEvents, ['startup-visible', 'menu-visible', 'scenario'])
+  }
+})
+
+test('harness accepts only a destination-observed natural logo completion race', async () => {
+  const result = await startupFixture({
+    startup: { initial: 'logo-playing', skip: 'ended-before-click' },
+  })
+  assert.equal(result.failure, undefined)
+  assert.equal(result.calls.scenario, 1)
+  assert.deepEqual(result.startupEvents, [
+    'startup-visible', 'public-skip', 'menu-visible', 'scenario',
+  ])
+})
+
+test('harness propagates incomplete or unrelated Skip failure without running the scenario', async () => {
+  for (const skip of ['still-logo', 'missing-destination', 'other-error']) {
+    const result = await startupFixture({ startup: { initial: 'logo-blocked', skip } })
+    assert.match(String(result.failure), /Supplied Skip failure/)
+    assert.equal(result.calls.scenario, 0)
+    assert.equal(result.persisted.status, 'failed')
+    assert.equal(Object.hasOwn(result.persisted, 'result'), false)
+    assert.deepEqual(result.startupEvents, ['startup-visible', 'public-skip'])
+    assertOwnedStartupCleanup(result)
+  }
+})
+
+test('pending logo Skip consumes the unchanged global deadline and still cleans owned resources', async () => {
+  const result = await startupFixture({
+    timeout: 1000, startup: { initial: 'logo-blocked', skip: 'pending' },
+  })
+  assert.match(String(result.failure), /Run exceeded 1000ms/)
+  assert.match(result.persisted.failure, /Run exceeded 1000ms/)
+  assert.equal(result.persisted.status, 'failed')
+  assert.equal(Object.hasOwn(result.persisted, 'result'), false)
+  assert.equal(result.calls.scenario, 0)
+  assert.deepEqual(result.startupEvents, ['startup-visible', 'public-skip'])
+  assert.equal(result.persisted.readiness.ready, true)
+  assert.equal(result.persisted.readiness.elapsedMs, 250)
+  assert.equal(result.elapsedMs, 1000)
+  // Readiness and overall timers are created once; readiness is cleared after
+  // HTTP success. No new budget starts at the menu/Skip/scenario boundary.
+  assert.equal(result.timers.filter(ms => ms === 1000).length, 2)
+  assertOwnedStartupCleanup(result)
+})
 test('direct API rejects blocked ports before output/profile/server or fetch acquisition', async () => {
   const result = await startupFixture({ port: 4190, profile: true })
   assert.match(String(result.failure), /blocked by Fetch/)

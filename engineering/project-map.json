@@ -1805,6 +1805,8 @@
         "app/tornado-runtime.ts"
       ],
       "researchPaths": [
+        "decomp/research/swamp-presentation.md",
+        "scripts/check-native-swamp-presentation.py",
         "decomp/research/hypnotise-artwork.md",
         "scripts/check-hypnotise-source.py",
         "decomp/research/erosion-actual-capture.md",

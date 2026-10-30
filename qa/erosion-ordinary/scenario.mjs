@@ -184,7 +184,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
         if (!current.mode && !current.selected.length && !current.orderCursor) break
         await input('key', { key: 'Escape' }, () => page.keyboard.press('Escape'))
       }
-      await button('Select and focus shaman')
+      await button('Select shaman')
       const selected = await read(); health(selected); assert.deepEqual(selected.selected, [actorId]); assert.equal(selected.mode, null)
       await viewHead(selected.shrine)
       let hit

@@ -1,0 +1,108 @@
+{
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "method": "read-only PE data; no execution/emulation",
+  "fields": {
+    "left": {
+      "address": "0x5caeef",
+      "value": 4853504,
+      "bytes": "000f4a00"
+    },
+    "right": {
+      "address": "0x5caef3",
+      "value": 4853776,
+      "bytes": "10104a00"
+    },
+    "x": {
+      "address": "0x5caefb",
+      "value": 33,
+      "bytes": "2100"
+    },
+    "y": {
+      "address": "0x5caefd",
+      "value": 114,
+      "bytes": "7200"
+    },
+    "width": {
+      "address": "0x5caf03",
+      "value": 30,
+      "bytes": "1e00"
+    },
+    "height": {
+      "address": "0x5caf05",
+      "value": 35,
+      "bytes": "2300"
+    },
+    "hfx": {
+      "address": "0x5caf07",
+      "value": 664,
+      "bytes": "98020000"
+    },
+    "draw": {
+      "address": "0x5caf0b",
+      "value": 4849264,
+      "bytes": "70fe4900"
+    },
+    "model": {
+      "address": "0x5caf19",
+      "value": 7,
+      "bytes": "07000000"
+    },
+    "refresh": {
+      "address": "0x5caf1d",
+      "value": 4854128,
+      "bytes": "70114a00"
+    }
+  },
+  "frameTables": {
+    "normal": {
+      "address": "0x5cac38",
+      "bytes": "c902cd02ca02cf02d102d002cb02ce02cc02",
+      "values": [
+        713,
+        717,
+        714,
+        719,
+        721,
+        720,
+        715,
+        718,
+        716
+      ]
+    },
+    "hover": {
+      "address": "0x5cac50",
+      "bytes": "db02df02dc02e102e302e202dd02e002de02",
+      "values": [
+        731,
+        735,
+        732,
+        737,
+        739,
+        738,
+        733,
+        736,
+        734
+      ]
+    },
+    "selected": {
+      "address": "0x5cac68",
+      "bytes": "d202d602d302d802da02d902d402d702d502",
+      "values": [
+        722,
+        726,
+        723,
+        728,
+        730,
+        729,
+        724,
+        727,
+        725
+      ]
+    }
+  },
+  "ordinaryGhostAlpha": {
+    "address": "0x5d570c",
+    "bytes": "55000000",
+    "value": 85
+  }
+}
