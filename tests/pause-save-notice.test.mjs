@@ -9,8 +9,11 @@ const source = readFileSync(new URL('../app/original-pause-menu.tsx', import.met
 const emitted = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
 }).outputText
-const tree = element => [element, ...[element?.props?.children].flat(Infinity)
-  .filter(child => typeof child === 'object' && child).flatMap(tree)]
+const tree = element => {
+  if (!element || typeof element !== 'object') return []
+  if (typeof element.type === 'function') return tree(element.type(element.props))
+  return [element, ...[element.props?.children].flat(Infinity).flatMap(tree)]
+}
 
 // Retain hook slots across renders, executing the shipped handlers and JSX.
 // Effects/DOM focus are outside this small component-state regression.
@@ -48,18 +51,18 @@ function fixture() {
   let output
   function render() { cursor = 0; output = component.exports.OriginalPauseMenu(props); return output }
   function row(label) {
-    const match = tree(output).find(node => node?.props?.label === label)
+    const match = tree(output).find(node => node?.type === 'button' && node.props['aria-label'] === label)
     assert.ok(match, `Menu row ${label}`)
-    match.props.action(); render()
+    match.props.onClick(); render()
   }
   function save() {
-    const button = tree(output).find(node => node?.type === 'button' && ['Save checkpoint', 'Saving…'].includes(node.props.children))
+    const button = tree(output).find(node => node?.type === 'button' && ['Save checkpoint', 'Saving…'].includes(node.props['aria-label']))
     assert.ok(button)
     button.props.onClick(); render()
     return button
   }
   function escape() { output.props.onCancel({ preventDefault() {} }); render() }
-  function statuses() { return tree(output).filter(node => node?.props?.role === 'status').map(node => node.props.children) }
+  function statuses() { return tree(output).filter(node => node?.props?.role === 'status').map(node => node.props.children[0].props.children) }
   async function settle(result) {
     if (result instanceof Error) reject(result)
     else resolve(result)
@@ -73,15 +76,15 @@ function fixture() {
 
 for (const [name, outcome, message] of [
   ['persisted', true, 'Checkpoint saved in this browser.'],
-  ['session-only', false, 'Checkpoint saved for this session only; browser storage is unavailable.'],
-  ['failure', new Error('Controlled save failure'), 'The checkpoint could not be saved. Your current world is still open.'],
+  ['session-only', false, 'Checkpoint saved for this session only.'],
+  ['failure', new Error('Controlled save failure'), 'Could not save. Current world unchanged.'],
 ]) {
   test(`${name} save completion cannot publish a notice in Load Game`, async () => {
     const ui = fixture()
     ui.row('Save Game'); ui.save(); ui.escape(); ui.row('Load Game')
     await ui.settle(outcome)
     assert.equal(ui.render().props['data-panel'], 'load')
-    assert.deepEqual(ui.statuses(), ['A checkpoint is available in this session.'])
+    assert.deepEqual(ui.statuses(), ['Checkpoint available in this session.'])
     assert.equal(ui.calls(), 1)
   })
   test(`${name} completion remains visible after reopening pending Save Game`, async () => {
@@ -93,7 +96,7 @@ for (const [name, outcome, message] of [
     assert.equal(ui.calls(), 1)
     await ui.settle(outcome)
     assert.deepEqual(ui.statuses(), [message])
-    const button = tree(ui.render()).find(node => node?.type === 'button' && node.props.children === 'Save checkpoint')
+    const button = tree(ui.render()).find(node => node?.type === 'button' && node.props['aria-label'] === 'Save checkpoint')
     assert.equal(button.props.disabled, false)
   })
 }

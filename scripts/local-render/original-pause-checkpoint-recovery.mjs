@@ -317,7 +317,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       await empty.evaluate(() => window.finishPauseLookup())
       await empty.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'read')
       if (!finishAtRoot) {
-        await modal(empty).getByRole('status').filter({ hasText: 'No usable saved checkpoint was found' }).waitFor()
+        await modal(empty).getByRole('status').filter({ hasText: 'No saved checkpoint in this browser.' }).waitFor()
         assert.equal(await focused(empty, 'Back'), true)
         await capture(empty, 'empty-load-dpr2.png')
         await empty.keyboard.press('Escape')

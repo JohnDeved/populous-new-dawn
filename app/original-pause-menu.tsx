@@ -47,6 +47,7 @@ function MenuText({
 
 function MenuRow({
   label,
+  text = label,
   y,
   action,
   disabled = false,
@@ -56,6 +57,7 @@ function MenuRow({
   setHighlight,
 }: {
   label: string
+  text?: string
   y: number
   action: () => void
   disabled?: boolean
@@ -71,7 +73,7 @@ function MenuRow({
       title={disabled ? unavailable : undefined}
       style={{
         top: y,
-        width: Math.max(200, textWidth(label) + 16),
+        width: Math.max(200, textWidth(text) + 16),
         height: label === 'Back' ? 26 : 29,
       }}
       onClick={action}
@@ -80,8 +82,44 @@ function MenuRow({
       onFocus={() => setHighlight(label)}
       onBlur={() => setHighlight(null)}
     >
-      <MenuText text={label} highlighted={!disabled && highlight === label} ready={ready} />
+      <MenuText text={text} highlighted={!disabled && highlight === label} ready={ready} />
     </button>
+  )
+}
+
+// Checkpoint wording is a browser adaptation, not a recovered native slot screen.
+// Wrap by the same F00T9 advances as menu rows, leaving 20 pixels at each edge.
+function PanelText({
+  text,
+  ready,
+  status = false,
+}: {
+  text: string
+  ready: boolean
+  status?: boolean
+}) {
+  if (![...text].every(letter => font.rects[letter.charCodeAt(0) - 32]))
+    return (
+      <p role={status ? 'status' : undefined}>
+        <span className={shared.fallback}>{text}</span>
+      </p>
+    )
+  const lines: string[] = []
+  for (const word of text.split(' ')) {
+    const last = lines.length - 1
+    const next = last < 0 ? word : `${lines[last]} ${word}`
+    if (last < 0 || textWidth(next) > 600) lines.push(word)
+    else lines[last] = next
+  }
+  return (
+    <p role={status ? 'status' : undefined}>
+      <span className={styles.visuallyHidden}>{text}</span>
+      {lines.map((line, index) => (
+        <span key={index} className={styles.warningLine} aria-hidden="true">
+          <MenuText text={line} highlighted={false} ready={ready} />
+        </span>
+      ))}
+    </p>
   )
 }
 
@@ -104,19 +142,19 @@ interface Props {
 function checkpointNotice(status: CheckpointReadStatus, hasCheckpoint: boolean) {
   switch (status) {
     case 'failed':
-      return 'Could not read browser storage. Your saved checkpoint may still be available.'
+      return 'Could not read browser storage. Try again.'
     case 'incompatible':
-      return 'This checkpoint is incompatible with the current development version. The stored save has not been changed.'
+      return 'Incompatible checkpoint. Stored save unchanged.'
     case 'pending':
-      return 'Checking browser storage…'
+      return 'Checking browser storage...'
     case 'unavailable':
-      return 'Browser storage is unavailable. You can still play and save for this session.'
+      return 'Browser storage unavailable.'
     case 'idle':
-      return 'Browser storage has not been checked yet.'
+      return 'Browser storage has not been checked.'
     case 'read':
       return hasCheckpoint
-        ? 'A checkpoint is available in this session.'
-        : 'No usable saved checkpoint was found in this browser.'
+        ? 'Checkpoint available in this session.'
+        : 'No saved checkpoint in this browser.'
   }
 }
 export function OriginalPauseMenu(props: Props) {
@@ -206,12 +244,10 @@ export function OriginalPauseMenu(props: Props) {
     try {
       const persisted = await props.onSave()
       setNotice(
-        persisted
-          ? 'Checkpoint saved in this browser.'
-          : 'Checkpoint saved for this session only; browser storage is unavailable.'
+        persisted ? 'Checkpoint saved in this browser.' : 'Checkpoint saved for this session only.'
       )
     } catch {
-      setNotice('The checkpoint could not be saved. Your current world is still open.')
+      setNotice('Could not save. Current world unchanged.')
     } finally {
       savingRef.current = false
       setSaving(false)
@@ -371,41 +407,67 @@ export function OriginalPauseMenu(props: Props) {
         {panel === 'options' && props.renderOptions(back)}
         {!confirmation && panel !== 'root' && panel !== 'options' && (
           <section className={styles.panel} aria-label={panelTitles[panel]}>
-            <h2>{panelTitles[panel]}</h2>
-            <p>
-              This browser version stores one checkpoint. Original multi-slot save files are not yet
-              supported.
-            </p>
+            <h2 aria-label={panelTitles[panel]}>
+              <MenuText text={panelTitles[panel]!} highlighted={false} ready={ready} />
+            </h2>
             {panel === 'save' ? (
               <>
-                <p>{props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}</p>
-                <button disabled={saving || !!props.saveDisabledReason} onClick={() => void save()}>
-                  {saving ? 'Saving…' : 'Save checkpoint'}
-                </button>
+                <PanelText text="One checkpoint per browser." ready={ready} />
+                <PanelText
+                  text={props.saveDisabledReason ?? 'Saving replaces the previous checkpoint.'}
+                  ready={ready}
+                />
+                <div className={`${shared.rows} ${styles.rows} ${styles.panelActions}`}>
+                  <MenuRow
+                    label={saving ? 'Saving…' : 'Save checkpoint'}
+                    text={saving ? 'Saving...' : 'Save checkpoint'}
+                    y={0}
+                    disabled={saving || !!props.saveDisabledReason}
+                    action={() => void save()}
+                    highlight={highlight}
+                    ready={ready}
+                    setHighlight={setHighlight}
+                  />
+                </div>
               </>
             ) : (
               <>
-                <p role="status">
-                  {checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
-                </p>
+                <PanelText
+                  text={checkpointNotice(props.checkpointReadStatus, props.hasCheckpoint)}
+                  ready={ready}
+                  status
+                />
                 {props.hasCheckpoint && props.checkpointReadStatus !== 'read' && (
-                  <p>A checkpoint is available in this session and can be loaded.</p>
+                  <PanelText text="Checkpoint available in this session." ready={ready} />
                 )}
                 {lookupAvailable && (
-                  <button
-                    disabled={props.checkpointReadStatus === 'pending'}
-                    onClick={retryCheckpoint}
-                  >
-                    Retry checkpoint lookup
-                  </button>
+                  <div className={`${shared.rows} ${styles.rows} ${styles.panelActions}`}>
+                    <MenuRow
+                      label="Retry checkpoint lookup"
+                      y={0}
+                      disabled={props.checkpointReadStatus === 'pending'}
+                      action={retryCheckpoint}
+                      highlight={highlight}
+                      ready={ready}
+                      setHighlight={setHighlight}
+                    />
+                  </div>
                 )}
-                <p>Loading replaces the current world and discards unsaved progress.</p>
-                <button disabled={!props.hasCheckpoint} onClick={() => once(props.onLoad)}>
-                  Load checkpoint
-                </button>
+                <PanelText text="Loading discards unsaved progress." ready={ready} />
+                <div className={`${shared.rows} ${styles.rows} ${styles.panelActions}`}>
+                  <MenuRow
+                    label="Load checkpoint"
+                    y={0}
+                    disabled={!props.hasCheckpoint}
+                    action={() => once(props.onLoad)}
+                    highlight={highlight}
+                    ready={ready}
+                    setHighlight={setHighlight}
+                  />
+                </div>
               </>
             )}
-            {panel === 'save' && notice && <p role="status">{notice}</p>}
+            {panel === 'save' && notice && <PanelText text={notice} ready={ready} status />}
           </section>
         )}
       </div>

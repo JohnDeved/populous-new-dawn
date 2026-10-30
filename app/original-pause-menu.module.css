@@ -6,9 +6,9 @@
 .question { position: absolute; top: 159px; left: 0; width: 640px; height: 30px; margin: 0; text-align: center; font-weight: normal; }
 .quitWarning { position: absolute; top: 262px; left: 0; width: 640px; margin: 0; text-align: center; }
 .warningLine { position: relative; display: block; height: 30px; }
-.panel { position: absolute; left: 70px; top: 60px; width: 500px; max-height: 365px; overflow: auto; padding: 20px; box-sizing: border-box; background: #10191ff5; border: 1px solid #b6a35c; color: #fff1bb; font: 15px/1.5 sans-serif; }
-.panel h2 { margin-top: 0; font: 25px Georgia,serif; }
-.panel button { padding: 8px 16px; background: #42391d; color: #fff1bb; border: 1px solid #b6a35c; font: inherit; }
-.panel button:focus-visible { outline: 2px solid #fff1bb; outline-offset: 2px; }
+.panel { position: absolute; left: 0; top: 69px; width: 640px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
+.panel h2 { position: relative; width: 100%; height: 30px; margin: 0; text-align: center; font-weight: normal; }
+.panel p { width: 100%; margin: 0; text-align: center; }
+.panelActions { position: relative; width: 100%; height: 30px; }
 
 .visuallyHidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
