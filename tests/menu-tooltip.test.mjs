@@ -97,6 +97,40 @@ test('keyboard tooltip and leave, blur, Escape, scrolling, resize and visibility
   }
 })
 
+test('pending dwell cancellation removes the timer before it can reveal a tooltip', () => {
+  for (const [owner,event,detail] of [['root','pointerleave'],['root','pointerdown'],['root','focusout'],['root','keydown',{key:'Escape'}],['win','resize'],['win','scroll'],['win','blur'],['doc','visibilitychange']]) {
+    const f=fixture(), a=new f.Element('Unavailable')
+    f.root.emit('focusin',{target:a}); f.render()
+    f.advance(250); assert.equal(f.render(),undefined)
+    assert.equal(f.timers.size,1)
+    f[owner].emit(event,detail); assert.equal(f.render(),undefined)
+    assert.equal(f.timers.size,0, `${event} cancels the pending dwell timer`)
+    f.advance(1000); assert.equal(f.render(),undefined)
+    f.unmount()
+  }
+})
+
+test('switching pending owners with identical text requires the new full dwell', () => {
+  const f=fixture(), a=new f.Element('Unavailable'), b=new f.Element('Unavailable')
+  f.root.emit('pointermove',{target:a,clientX:20,clientY:30}); f.render()
+  f.advance(400)
+  f.root.emit('pointermove',{target:b,clientX:40,clientY:50}); assert.equal(f.render(),undefined)
+  assert.equal(f.timers.size,1, 'old owner timer is replaced, not accumulated')
+  f.advance(101); assert.equal(f.render(),undefined, 'old owner deadline cannot reveal new owner')
+  f.advance(399); assert.equal(f.render(),undefined)
+  f.advance(1); assert.equal(f.render().target,b)
+  f.unmount(); assert.equal(f.timers.size,0)
+})
+
+test('pending tooltip unmount cancels its timer and removes every listener', () => {
+  const f=fixture(), a=new f.Element('Unavailable')
+  f.root.emit('focusin',{target:a}); f.render()
+  assert.equal(f.timers.size,1)
+  f.unmount(); assert.equal(f.timers.size,0)
+  for (const target of [f.root,f.win,f.doc]) for (const listeners of target.listeners.values()) assert.equal(listeners.size,0)
+  f.advance(1000); assert.equal(f.timers.size,0)
+})
+
 test('changed availability and detached owner cannot leave a stale tooltip', () => {
   for (const change of [a=>{a.value=undefined},a=>{a.isConnected=false}]) {
     const f=fixture(), a=new f.Element('Checking browser storage')

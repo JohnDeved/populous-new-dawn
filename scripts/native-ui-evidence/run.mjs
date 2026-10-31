@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, infrastructureInput, sha256 } from './identity.mjs'
 import { limits, acceptSeries } from './policy.mjs'
 import { artifactInventory } from './browser-owner.mjs'
+import { finalizeArtifactReceipt, recordArtifactFailure, artifactFailureText } from './receipt-finalization.mjs'
 import { supervise } from './supervise.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from './files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from './ledger.mjs'
@@ -74,7 +75,13 @@ finally {
   })
   report.inputsAfter = after.states
   if (after.failures.length) { report.inputFailures = after.failures; report.status = 'failed'; process.exitCode = 1 }
-  report.finishedAt = new Date().toISOString(); save()
-  try { report.artifacts = artifactInventory(output); save() }
-  catch (error) { report.status = 'failed'; report.artifactFailure = String(error); process.exitCode = 1; save() }
+  report.finishedAt = new Date().toISOString()
+  try { report.artifacts = finalizeArtifactReceipt(output, report) }
+  catch (error) {
+    delete report.artifacts; report.status = 'failed'; report.artifactFailure = artifactFailureText(error); process.exitCode = 1
+    try { recordArtifactFailure(output, report) }
+    catch (failure) { console.error('Native UI receipt NOT accepted:', report.artifactFailure,
+      'Failure receipt unavailable:', artifactFailureText(failure), 'Primary failure:', artifactFailureText(report.failure ?? 'none'),
+      'Input failures:', artifactFailureText(report.inputFailures ?? 'none')) }
+  }
 }
