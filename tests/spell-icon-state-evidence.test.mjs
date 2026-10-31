@@ -141,3 +141,104 @@ test('exact inventory rejects omitted, duplicate, renamed and extra rendered sta
     states.map((s, i) => i ? s : { ...s, state: 'renamed' }), states.slice(0, -1)])
     assert.throws(() => assertSpellIconInventory(wrong, spells), /Exact rendered state inventory/)
 })
+
+test('shared hosted browser cleanup closes only the episode contexts, preserving the runner browser', async () => {
+  const h = harness()
+  let browserCloses = 0, contextCloses = 0
+  h.browser.close = async () => { browserCloses++ }
+  h.browser.newContext = async () => {
+    const context = new EventEmitter()
+    context.close = async () => { contextCloses++; context.emit('close') }
+    return context
+  }
+  const result = await runSpellIconEvidence({ ...h.options, closeBrowser: false,
+    async run(browser, observed) { await observed.newContext(); await observed.newContext() } })
+  assert.equal(result.status, 'passed')
+  assert.equal(result.cleanupTarget, 'owned-contexts')
+  assert.equal(result.browserClosed, false)
+  assert.equal(result.contextsClosed, true)
+  assert.ok(result.contexts.every(c => c.closed))
+  assert.equal(browserCloses, 0)
+  assert.equal(contextCloses, 2)
+})
+
+test('shared scope cleanup attempts every owned context when one close fails', async () => {
+  const h = harness()
+  let count = 0, closes = 0
+  h.browser.close = async () => { throw Error('Shared browser must not be closed') }
+  h.browser.newContext = async () => {
+    const index = count++, context = new EventEmitter()
+    context.close = async () => { closes++; if (!index) throw Error('context close failed'); context.emit('close') }
+    return context
+  }
+  const result = await runSpellIconEvidence({ ...h.options, closeBrowser: false,
+    async run(browser, observed) { await observed.newContext(); await observed.newContext() } })
+  assert.equal(result.status, 'failed')
+  assert.match(result.cleanupError, /context cleanup failed/)
+  assert.equal(result.contextsClosed, false)
+  assert.equal(result.browserClosed, false)
+  assert.equal(closes, 2)
+  assert.equal(result.contexts[1].closed, true)
+})
+
+test('shared scope preserves close-time console errors and page crashes', async () => {
+  for (const type of ['console', 'crash']) {
+    const h = harness(), page = new EventEmitter()
+    h.browser.newContext = async () => {
+      const context = new EventEmitter()
+      context.close = async () => {
+        page.emit(type, { type: () => 'error', text: () => 'late context error' })
+        context.emit('close')
+      }
+      return context
+    }
+    const result = await runSpellIconEvidence({ ...h.options, closeBrowser: false,
+      async run(browser, observed) { (await observed.newContext()).emit('page', page) } })
+    assert.equal(result.status, 'failed')
+    assert.equal(result.errors[0].type, type)
+    assert.equal(result.contextsClosed, true)
+    assert.equal(result.browserClosed, false)
+  }
+})
+
+test('shared scope timeout closes owned contexts but never the runner browser', async () => {
+  const h = harness()
+  let browserCloses = 0, contextCloses = 0
+  h.browser.close = async () => { browserCloses++ }
+  h.browser.newContext = async () => {
+    const context = new EventEmitter()
+    context.close = async () => { contextCloses++; context.emit('close') }
+    return context
+  }
+  const result = await runSpellIconEvidence({ ...h.options, closeBrowser: false, timeout: 5,
+    async run(browser, observed) { await observed.newContext(); await new Promise(() => {}) } })
+  assert.equal(result.status, 'failed')
+  assert.equal(result.expired, true)
+  assert.match(result.error, /timed out/)
+  assert.equal(result.browserClosed, false)
+  assert.equal(result.contextsClosed, true)
+  assert.equal(browserCloses, 0)
+  assert.equal(contextCloses, 2)
+})
+
+test('hosted spell icon partitions form the exact 164-case inventory with no duplicates', async () => {
+  const { spellIconInventory, spellIconPartition } = await import('../scripts/spell-icon-state-evidence.mjs')
+  const { SPELLS } = await import('../app/world-rules.ts')
+  const tutorial = spellIconInventory(SPELLS, 'tutorial')
+  const frontend = spellIconInventory(SPELLS, 'frontend-held-escape')
+  assert.equal(tutorial.length, 84)
+  assert.equal(frontend.length, 80)
+  const combined = [...tutorial, ...frontend]
+  assert.equal(new Set(combined).size, 164)
+  assert.deepEqual(combined.sort(), spellIconInventory(SPELLS))
+  for (const episode of ['tutorial', 'frontend-held-escape']) {
+    const actual = spellIconInventory(SPELLS, episode).map(key => {
+      const [spell, state] = key.split('/')
+      return { spell, state }
+    })
+    assert.doesNotThrow(() => assertSpellIconInventory(actual, SPELLS, episode))
+    assert.throws(() => assertSpellIconInventory(actual.slice(1), SPELLS, episode))
+  }
+  for (const invalid of ['', 'unknown', null])
+    assert.throws(() => spellIconPartition(invalid), /Unknown spell icon episode/)
+})
