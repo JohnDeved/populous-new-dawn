@@ -144,7 +144,7 @@ jobs:
         run: git diff --exit-code HEAD --
       - name: Retain bounded raw receipts and screenshots
         if: ${{ always() && inputs.evidence_kind != 'material-lifecycle' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: native-ui-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -156,7 +156,7 @@ jobs:
 
       - name: Retain material qualification, raw receipts and screenshots
         if: ${{ always() && inputs.evidence_kind == 'material-lifecycle' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: material-lifecycle-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: outputs/material-lifecycle
