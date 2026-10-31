@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { deflateRawSync } from 'node:zlib'
-import { readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport, sha256,
   parseReport, compareReports, classify, comparableWork, maxReportBytes } from '../scripts/browser-performance/protocol.mjs'
 import { readReportArchive } from '../scripts/browser-performance/artifact.mjs'
@@ -13,7 +15,7 @@ import { recognizeReaderSources } from '../scripts/browser-performance/snapshot-
 import { readerImportSha256 } from '../scripts/browser-performance/snapshot-reader-proof.mjs'
 import { dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 import { BufferGeometry, BufferAttribute, InstancedMesh, Matrix4 } from 'three'
-import { reportRun, workflowPath } from '../scripts/browser-performance/reporter.mjs'
+import { emitReporterTrigger, main as reporterMain, reporterTriggerReceipt, reportRun, workflowPath } from '../scripts/browser-performance/reporter.mjs'
 
 const identity = { repository, prNumber: 42, baseSha: 'a'.repeat(40), headSha: 'b'.repeat(40), harnessSha: 'a'.repeat(40), runId: 1234, runAttempt: 1 }
 const protocol = 'c'.repeat(64)
@@ -866,4 +868,193 @@ test('combined CPU source proof is exact and ordered without reauthorizing sibli
       assert.equal(mock.state.calls.some(call => call.method), false); assert.equal(summaries.length, 0)
     }
   }
+})
+
+
+function triggerEvent(overrides = {}) {
+  return { workflow_run: { id: identity.runId, run_attempt: identity.runAttempt,
+    head_sha: identity.headSha, pull_requests: [{ number: identity.prNumber }], ...overrides } }
+}
+
+test('trigger receipt has a fixed event-only schema without claiming admission or execution base', () => {
+  const event = triggerEvent(), before = structuredClone(event)
+  const receipt = reporterTriggerReceipt(event)
+  assert.deepEqual(receipt, {
+    kind: 'populous-browser-performance-trigger', version: 1,
+    reporterRepository: repository, provenance: 'workflow-run-event', admission: 'not-established',
+    eventRunId: 1234, eventRunAttempt: 1, eventHeadSha: identity.headSha, eventPrNumber: 42,
+  })
+  assert.equal(JSON.stringify(receipt), JSON.stringify(reporterTriggerReceipt(event)))
+  assert.deepEqual(event, before)
+  assert.equal(Object.hasOwn(receipt, 'baseSha'), false)
+  assert.equal(Object.hasOwn(receipt, 'runAttempt'), false)
+})
+
+test('trigger receipt normalizes malformed JSON metadata without inventing identities', () => {
+  const blank = reporterTriggerReceipt(null)
+  assert.equal(blank.eventRunId, null); assert.equal(blank.eventRunAttempt, null)
+  assert.equal(blank.eventHeadSha, null); assert.equal(blank.eventPrNumber, null)
+  for (const event of [null, [], false, 4, 'event', {}, { workflow_run: null }, { workflow_run: [] }])
+    assert.deepEqual(reporterTriggerReceipt(event), blank)
+  for (const value of [null, false, 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, '1234', [], {}]) {
+    const receipt = reporterTriggerReceipt(triggerEvent({ id: value, run_attempt: value, pull_requests: [{ number: value }] }))
+    assert.equal(receipt.eventRunId, null); assert.equal(receipt.eventRunAttempt, null)
+    assert.equal(receipt.eventPrNumber, null)
+  }
+  for (const value of [null, 1234, [], {}, '', 'B'.repeat(40), 'a'.repeat(39), 'a'.repeat(41), 'a'.repeat(40) + '\n'])
+    assert.equal(reporterTriggerReceipt(triggerEvent({ head_sha: value })).eventHeadSha, null)
+  for (const value of [null, {}, [], [null], [42], [{ number: 42 }, { number: 43 }]])
+    assert.equal(reporterTriggerReceipt(triggerEvent({ pull_requests: value })).eventPrNumber, null)
+})
+
+test('trigger receipt stays bounded and excludes arbitrary event data', () => {
+  const secret = 'synthetic-sensitive-value'
+  const event = triggerEvent({ id: Number.MAX_SAFE_INTEGER, run_attempt: Number.MAX_SAFE_INTEGER,
+    head_sha: 'f'.repeat(40), pull_requests: [{ number: Number.MAX_SAFE_INTEGER, base: { sha: secret }, title: secret }],
+    url: 'https://example.invalid/' + secret, title: secret, token: secret, artifacts: [secret], error: secret })
+  event.token = secret
+  const before = structuredClone(event), lines = []
+  emitReporterTrigger(event, line => lines.push(line))
+  assert.equal(lines.length, 1); assert.ok(Buffer.byteLength(lines[0], 'utf8') <= 512)
+  assert.equal(lines[0].includes(secret), false)
+  assert.deepEqual(JSON.parse(lines[0]), reporterTriggerReceipt(event))
+  assert.deepEqual(event, before)
+  assert.doesNotThrow(() => emitReporterTrigger(event, () => { throw Error('diagnostic sink failure') }))
+})
+
+function productionReporterMock(reports = quietReports(2)) {
+  const mock = reportMock(2, reports)
+  const workflow = readFileSync(new URL('../.github/workflows/browser-performance.yml', import.meta.url), 'utf8')
+  mock.arguments.trustedWorkflow = workflow
+  mock.state.workflowText = workflow
+  return mock
+}
+
+// Exercise the existing main without a network connection or a new production
+// dependency seam. Top-level tests are serial; all process globals are restored.
+async function runReporterMain(mock, event, { failTrigger = false } = {}) {
+  const directory = mkdtempSync(join(tmpdir(), 'pnd-reporter-trigger-'))
+  const eventPath = join(directory, 'event.json'), summaryPath = join(directory, 'summary.md')
+  const environment = { GITHUB_REPOSITORY: repository, GITHUB_TOKEN: 'reporter-trigger-test-token',
+    GITHUB_EVENT_PATH: eventPath, GITHUB_STEP_SUMMARY: summaryPath }
+  const previousEnvironment = Object.fromEntries(Object.keys(environment).map(key => [key, process.env[key]]))
+  const previousFetch = globalThis.fetch, previousLog = console.log
+  const logs = [], downloads = []
+  let error, result
+  try {
+    writeFileSync(eventPath, JSON.stringify(event)); writeFileSync(summaryPath, '')
+    Object.assign(process.env, environment)
+    console.log = line => {
+      if (failTrigger && typeof line === 'string' && line.startsWith('{"kind":"populous-browser-performance-trigger"'))
+        throw Error('diagnostic sink failure')
+      logs.push(line)
+    }
+    globalThis.fetch = async (url, options) => {
+      const target = new URL(url)
+      if (target.origin === 'https://reporter-fixture.invalid') {
+        assert.equal(options.redirect, 'error'); assert.equal(options.headers, undefined)
+        assert.equal(target.search, '')
+        const match = /^\/archive\/([1-9]\d*)$/.exec(target.pathname)
+        assert.ok(match, 'Unexpected fixture download route')
+        const id = Number(match[1]); assert.ok(mock.state.archives.has(id), 'Unknown fixture archive')
+        downloads.push(id)
+        return new Response(mock.state.archives.get(id), { status: 200 })
+      }
+      assert.equal(target.origin, 'https://api.github.com', 'Unstubbed request refused')
+      assert.equal(options.headers.Authorization, 'Bearer reporter-trigger-test-token')
+      const archive = /^\/repos\/JohnDeved\/populous-new-dawn\/actions\/artifacts\/([1-9]\d*)\/zip$/.exec(target.pathname)
+      if (archive) {
+        assert.equal(target.search, ''); assert.equal(options.redirect, 'manual')
+        assert.ok(mock.state.archives.has(Number(archive[1])), 'Unknown fixture archive redirect')
+        return new Response(null, { status: 302,
+          headers: { location: 'https://reporter-fixture.invalid/archive/' + archive[1] } })
+      }
+      if (options.method !== 'GET') {
+        assert.ok(options.method === 'POST' || options.method === 'PATCH', 'Unstubbed method refused')
+        assert.equal(target.pathname, options.method === 'POST'
+          ? '/repos/JohnDeved/populous-new-dawn/issues/42/comments'
+          : '/repos/JohnDeved/populous-new-dawn/issues/comments/99')
+        assert.equal(target.search, '')
+      }
+      const apiOptions = options.method === 'GET' ? {} : { method: options.method, body: JSON.parse(options.body) }
+      const value = await mock.arguments.api(target.pathname + target.search, apiOptions)
+      return new Response(JSON.stringify(value), { status: 200 })
+    }
+    try { result = await reporterMain() } catch (caught) { error = caught }
+    return { result, error, logs, downloads, summary: readFileSync(summaryPath, 'utf8') }
+  } finally {
+    globalThis.fetch = previousFetch; console.log = previousLog
+    for (const [key, value] of Object.entries(previousEnvironment)) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+    rmSync(directory, { recursive: true })
+  }
+}
+
+test('production main records the trigger before its unchanged unassociated skip', { concurrency: false }, async () => {
+  const mock = productionReporterMock(), event = triggerEvent({ pull_requests: [] })
+  const actual = await runReporterMain(mock, event)
+  assert.equal(actual.error, undefined); assert.equal(actual.result, undefined)
+  assert.deepEqual(actual.logs, [JSON.stringify(reporterTriggerReceipt(event)), 'Skipped unassociated event'])
+  assert.deepEqual(mock.state.calls, []); assert.deepEqual(actual.downloads, []); assert.equal(actual.summary, '')
+})
+
+test('production main records pre-summary trust refusal without changing the rejection or accessing artifacts', { concurrency: false }, async () => {
+  const expected = productionReporterMock(), actualMock = productionReporterMock(), event = triggerEvent()
+  expected.state.workflowText = actualMock.state.workflowText = 'untrusted workflow'
+  let expectedError
+  try { await reportRun(expected.arguments) } catch (caught) { expectedError = caught }
+  assert.equal(expectedError?.message, 'Untrusted benchmark workflow revision')
+  const actual = await runReporterMain(actualMock, event)
+  assert.equal(actual.error?.name, expectedError.name); assert.equal(actual.error?.code, expectedError.code)
+  assert.equal(actual.error?.message, expectedError.message)
+  assert.deepEqual(actualMock.state.calls, expected.state.calls)
+  assert.deepEqual(actual.logs, [JSON.stringify(reporterTriggerReceipt(event))])
+  assert.deepEqual(actual.downloads, []); assert.equal(actual.summary, '')
+  assert.equal(actualMock.state.calls.some(call => call.method || call.path.includes('/artifacts')), false)
+})
+
+test('production main retains quiet and actionable API order, summaries, comments and terminal JSON', { concurrency: false }, async () => {
+  for (const mode of ['within-noise', 'regression']) {
+    const expected = productionReporterMock(quietReports(2, mode))
+    const actualMock = productionReporterMock(quietReports(2, mode)), expectedDownloads = []
+    const download = expected.arguments.download
+    expected.arguments.download = async id => { expectedDownloads.push(id); return download(id) }
+    const result = await reportRun(expected.arguments), event = triggerEvent()
+    assert.equal(result.status, mode === 'within-noise' ? 'skipped-no-signal' : 'created')
+    const actual = await runReporterMain(actualMock, event)
+    assert.equal(actual.error, undefined); assert.equal(actual.result, undefined)
+    assert.deepEqual(actualMock.state.calls, expected.state.calls)
+    assert.deepEqual(actual.downloads, expectedDownloads)
+    assert.equal(actual.summary, expected.summaries.map(summary => summary + '\n').join(''))
+    assert.deepEqual(actual.logs, [JSON.stringify(reporterTriggerReceipt(event)), JSON.stringify(result)])
+    assert.equal(actualMock.state.calls.filter(call => call.method).length, mode === 'within-noise' ? 0 : 1)
+  }
+})
+
+test('trigger event attempt remains separate from the API-current comparison attempt', { concurrency: false }, async () => {
+  const mock = productionReporterMock(), event = triggerEvent({ run_attempt: 9 })
+  const actual = await runReporterMain(mock, event)
+  assert.equal(actual.error, undefined)
+  const trigger = JSON.parse(actual.logs[0])
+  assert.equal(trigger.eventRunAttempt, 9); assert.equal(trigger.admission, 'not-established')
+  assert.equal(mock.state.run.run_attempt, 1)
+  assert.match(actual.summary, /actions\/runs\/1234\/attempts\/1/)
+  assert.deepEqual(JSON.parse(actual.logs[1]), { status: 'skipped-no-signal', complete: true, missing: [] })
+})
+
+test('synchronous trigger emission failure preserves the ordinary outcome and original API error object', { concurrency: false }, async () => {
+  const expected = productionReporterMock(), actualMock = productionReporterMock()
+  const result = await reportRun(expected.arguments)
+  const actual = await runReporterMain(actualMock, triggerEvent(), { failTrigger: true })
+  assert.equal(actual.error, undefined); assert.deepEqual(actual.logs, [JSON.stringify(result)])
+  assert.deepEqual(actualMock.state.calls, expected.state.calls)
+  assert.equal(actual.summary, expected.summaries.map(summary => summary + '\n').join(''))
+
+  const rejected = productionReporterMock(), failure = Error('original API failure')
+  rejected.arguments.api = async () => { throw failure }
+  const failed = await runReporterMain(rejected, triggerEvent(), { failTrigger: true })
+  assert.strictEqual(failed.error, failure)
+  assert.deepEqual(failed.logs, []); assert.deepEqual(failed.downloads, []); assert.equal(failed.summary, '')
 })
