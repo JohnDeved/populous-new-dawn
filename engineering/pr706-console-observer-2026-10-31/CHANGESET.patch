@@ -1,0 +1,163 @@
+--- baseline/compact-host-support.test.mjs
++++ candidate/compact-host-support.test.mjs
+@@ -37,19 +37,39 @@
+   assert.deepEqual(operations, ['closed']); assert.equal(errors.length, 2)
+ })
+ 
+-function fakeHarness({ failPrimary = false, failNewPage = false } = {}) {
++function fakeHarness({ failPrimary = false, failNewPage = false, failCloseCase = null, caseEvents = [] } = {}) {
+   const contexts = [], inputs = [], events = [], browser = {}
++  function emitCaseEvents(ctx, phase, target) {
++    for (const event of caseEvents.filter(event => event.caseIndex === contexts.indexOf(ctx) && event.phase === phase)) {
++      events.push(`emit-${event.kind}-${phase}-${contexts.indexOf(ctx)}`)
++      target.emit(event.kind, event.kind === 'console'
++        ? { type: () => event.type, text: () => event.text }
++        : new Error(event.text))
++    }
++  }
+   function context(options, initial = false) {
+-    const ctx = { options, initial, closed: false, page: null, browser: () => browser,
+-      pages() { return this.page ? [this.page] : [] },
+-      async close() { this.closed = true; events.push(initial ? 'close-unused' : `close-${contexts.indexOf(this)}`) },
++    const listeners = new Map()
++    const ctx = { options, initial, closed: false, closeCalls: 0, page: null, extraPages: [], browser: () => browser,
++      on(name, callback) { const callbacks = listeners.get(name) ?? []; callbacks.push(callback); listeners.set(name, callbacks) },
++      emit(name, value) { for (const callback of listeners.get(name) ?? []) callback(value) },
++      pages() { return this.page ? [this.page, ...this.extraPages] : [] },
++      async close() {
++        this.closeCalls++
++        if (!initial && this.page) emitCaseEvents(this, 'close', this.page)
++        if (!initial && contexts.indexOf(this) === failCloseCase) {
++          events.push(`close-rejected-${failCloseCase}`)
++          throw Error(`injected close failure case ${failCloseCase}`)
++        }
++        this.closed = true; events.push(initial ? 'close-unused' : `close-${contexts.indexOf(this)}`)
++      },
+       async newPage() {
+         if (failNewPage && !initial) throw Error('new page failed')
+-        assert.equal(this.page, null); this.page = page(this); return this.page
++        assert.equal(this.page, null); this.page = page(this); this.emit('page', this.page); return this.page
+       } }
+     contexts.push(ctx); return ctx
+   }
+   function page(ctx) {
++    const listeners = new Map()
+     let viewport = { ...ctx.options.viewport }, advisory = true, primaries = 0
+     const state = { selected: [1], camera: { x: 10, y: 20 }, turn: 7, paused: true, randomState: 123,
+       orders: [], soundSerial: 0, sounds: [], shaman: 2, people: [{ id: 1, x: 3, z: 4 }, { id: 2, x: 10, z: 12 }] }
+@@ -73,9 +93,18 @@
+       async evaluateAll(fn) { assert.equal(typeof fn, 'function'); return geometry(viewport) },
+     })
+     const p = { focused: null, context: () => ctx, isClosed: () => ctx.closed, viewportSize: () => viewport,
+-      setDefaultTimeout(value) { assert.equal(value, 20000) }, on() {},
++      setDefaultTimeout(value) { assert.equal(value, 20000) },
++      on(name, callback) { const callbacks = listeners.get(name) ?? []; callbacks.push(callback); listeners.set(name, callbacks) },
++      emit(name, value) { for (const callback of listeners.get(name) ?? []) callback(value) },
+       getByRole: (_, { name }) => locator(name), getByLabel: name => locator(name),
+-      async goto(url, options) { inputs.push(['goto', url, options]); p.currentUrl = url },
++      async goto(url, options) {
++        inputs.push(['goto', url, options]); p.currentUrl = url
++        emitCaseEvents(ctx, 'goto', p)
++        if (caseEvents.some(event => event.caseIndex === contexts.indexOf(ctx) && event.phase === 'popup')) {
++          const popup = page(ctx); ctx.extraPages.push(popup); ctx.emit('page', popup)
++          emitCaseEvents(ctx, 'popup', popup)
++        }
++      },
+       async setViewportSize(value) { inputs.push(['viewport', value]); viewport = { ...value } },
+       async waitForFunction() { inputs.push(['waitForFunction']) },
+       keyboard: { async press(key) {
+@@ -134,6 +163,67 @@
+   for (const category of ['startup', 'actions', 'observations', 'screenshots', 'report-writes', 'cleanup']) assert.ok(spans.some(s => s.category === category))
+   for (const s of spans.filter(s => s.phase === 'end')) { assert.equal(s.status, 'passed'); assert.ok(s.durationMs >= 0) }
+ }))
++for (const phase of ['goto', 'close']) for (const kind of ['console', 'pageerror'])
++  test(`actual case observers reject ${kind} errors during ${phase} in all four fresh contexts`, () => temporary(async dir => {
++    const caseEvents = [1, 2, 3, 4].map(caseIndex => ({ caseIndex, phase, kind, type: 'error', text: `injected ${kind} ${phase} case ${caseIndex}` }))
++    const result = await runScenario(current, dir, { caseEvents })
++    assert.ok(result.error); assert.equal(result.report.status, 'failed')
++    assert.equal(result.report.errors.length, 4)
++    for (const event of caseEvents) assert.ok(result.report.errors.some(error => error.includes(event.text)))
++    assert.equal(result.report.cases.flatMap(c => c.checks).length, 80)
++    assert.equal(result.report.cases.flatMap(c => c.captures).length, 20)
++    assert.equal(result.contexts.length, 5); assert.ok(result.contexts.every(c => c.closed))
++    assert.equal(result.result, undefined)
++    if (kind === 'console') assert.deepEqual(result.report.cases.map(c => c.consoleMessages), caseEvents.map(event => [{ type: 'error', text: event.text }]))
++    else assert.ok(result.report.cases.every(c => !Object.hasOwn(c, 'consoleMessages')))
++  }))
++test('case console warnings are retained without failing and ordinary console messages stay ignored', () => temporary(async dir => {
++  const caseEvents = [1, 2, 3, 4].flatMap(caseIndex => ['warning', 'log', 'info', 'debug'].map(type => ({
++    caseIndex, phase: 'goto', kind: 'console', type, text: `injected ${type} case ${caseIndex}`,
++  })))
++  const result = await runScenario(current, dir, { caseEvents })
++  assert.ifError(result.error); assert.equal(result.report.status, 'passed'); assert.deepEqual(result.report.errors, [])
++  assert.deepEqual(result.report.cases.map(c => c.consoleMessages), [1, 2, 3, 4].map(caseIndex => [{ type: 'warning', text: `injected warning case ${caseIndex}` }]))
++  assert.equal(result.report.cases.flatMap(c => c.checks).length, 80)
++  assert.equal(result.report.cases.flatMap(c => c.captures).length, 20)
++  assert.ok(result.contexts.every(c => c.closed))
++  const spans = readFileSync(join(dir, 'compact-portrait-campaign-timings.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
++  assert.equal(spans.filter(s => s.category === 'report-writes' && s.phase === 'end').length, 109)
++}))
++test('fresh-context ownership also observes a newly opened secondary page before its console event', () => temporary(async dir => {
++  const result = await runScenario(current, dir, { caseEvents: [{ caseIndex: 2, phase: 'popup', kind: 'console', type: 'error', text: 'secondary page console error' }] })
++  assert.ok(result.error); assert.equal(result.report.status, 'failed')
++  assert.deepEqual(result.report.errors, ['900x360/dpr1 console: secondary page console error'])
++  assert.deepEqual(result.report.cases[1].consoleMessages, [{ type: 'error', text: 'secondary page console error' }])
++  assert.equal(result.contexts[2].extraPages.length, 1)
++  assert.ok(result.contexts.every(c => c.closed)); assert.ok(result.contexts[2].extraPages[0].isClosed())
++  assert.equal(result.report.cases.flatMap(c => c.checks).length, 80)
++  assert.equal(result.report.cases.flatMap(c => c.captures).length, 20)
++}))
++test('rejected case cleanup retains simultaneous console diagnostics and prior evidence without claiming cleanup or continuing', () => temporary(async dir => {
++  const caseEvents = ['error', 'warning'].map(type => ({ caseIndex: 2, phase: 'close', kind: 'console', type, text: `cleanup ${type} before rejection` }))
++  const result = await runScenario(current, dir, { failCloseCase: 2, caseEvents })
++  assert.ok(result.error); assert.match(result.error.message, /injected close failure case 2/)
++  assert.equal(result.report.status, 'failed'); assert.match(result.report.failure, /injected close failure case 2/)
++  assert.equal(result.result, undefined)
++  assert.deepEqual(result.report.errors, ['900x360/dpr1 console: cleanup error before rejection'])
++  assert.deepEqual(result.report.cases[1].consoleMessages, [
++    { type: 'error', text: 'cleanup error before rejection' },
++    { type: 'warning', text: 'cleanup warning before rejection' },
++  ])
++  assert.equal(result.report.cases.length, 2)
++  assert.deepEqual(result.report.cases.map(c => c.checks.length), [20, 20])
++  assert.deepEqual(result.report.cases.map(c => c.captures.length), [5, 5])
++  assert.equal(result.contexts.length, 3)
++  assert.deepEqual(result.contexts.map(c => c.closeCalls), [1, 1, 1])
++  assert.deepEqual(result.contexts.map(c => c.closed), [true, true, false])
++  assert.equal(result.contexts[2].page.isClosed(), false)
++  assert.deepEqual(result.events.slice(-3), ['emit-console-close-2', 'emit-console-close-2', 'close-rejected-2'])
++  const spans = readFileSync(join(dir, 'compact-portrait-campaign-timings.jsonl'), 'utf8').trim().split('\n').map(JSON.parse)
++  const failedClose = spans.filter(s => s.category === 'cleanup' && s.label === '900x360/dpr1:close-case-context')
++  assert.deepEqual(failedClose.map(s => s.phase), ['begin', 'end'])
++  assert.equal(failedClose[1].status, 'failed'); assert.match(failedClose[1].error, /injected close failure case 2/)
++}))
+ for (const failure of ['failPrimary', 'failNewPage']) test(`failed ${failure} keeps earlier saved evidence and closes active context`, () => temporary(async dir => {
+   const result = await runScenario(current, dir, { [failure]: true })
+   assert.ok(result.error); assert.equal(result.report.status, 'failed'); assert.ok(result.contexts.every(c => c.closed))
+--- baseline/compact-portrait-campaign.mjs
++++ candidate/compact-portrait-campaign.mjs
+@@ -33,10 +33,23 @@
+       const item = { width, height, dpr, checks: [], captures: [] }; report.cases.push(item)
+       let page, observeActive = async () => ({ stage: 'Case page not initialized' })
+       try {
++        // The harness watches only its own initial context, which was closed above.
++        // Subscribe to owned page events before creating/navigating the case page.
++        context.on('page', ownedPage => {
++          ownedPage.on('pageerror', error => { report.errors.push(String(error)); save() })
++          ownedPage.on('console', message => {
++            const type = message.type()
++            if (type !== 'error' && type !== 'warning') return
++            const text = message.text()
++            item.consoleMessages ??= []
++            item.consoleMessages.push({ type, text })
++            if (type === 'error') report.errors.push(`${width}x${height}/dpr${dpr} console: ${text}`)
++            // Existing save/terminal paths persist diagnostics; no new I/O point.
++          })
++        })
+         save()
+         page = await measured('startup', 'new-page', () => context.newPage())
+         page.setDefaultTimeout(20000)
+-        page.on('pageerror', error => { report.errors.push(String(error)); save() })
+         const button = name => page.getByRole('button', { name, exact: true })
+         const portrait = button('Select shaman')
+         const snapshot = () => page.evaluate(async () => {

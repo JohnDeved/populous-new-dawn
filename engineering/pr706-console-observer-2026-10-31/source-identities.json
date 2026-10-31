@@ -1,0 +1,87 @@
+{
+  "kind": "external-supplied-control-source-preservation",
+  "sourceContextHead": "5c0cf6d51e4c148ed8e4fd73384d7a1f4dfe23f6",
+  "sourceContextTree": "3b73fb7665dc98f43d5d5351a0dea5b661ca6f86",
+  "sourceContextBase": "9abbb95024120487bdb1a0fd122d03cb7246ebf4",
+  "historicalAdapterHead": "0581184b17b4cec2d9ed47a8187d12c94f559c13",
+  "historicalAdapterBase": "c2db39ee2d459fb14c9387b385c33f7813910422",
+  "historicalRuntimeResultsNotTransferred": true,
+  "candidatePatchSha256": "3c4ed12bb787b10b67806ffbe3ee4bf0a2d2b9956ea549cee06f62f0e1c06360",
+  "sourceFiles": [
+    {
+      "file": "compact-host-support.mjs",
+      "baselineBytes": 3424,
+      "baselineSha256": "457561fd4046d2d590a9f8e76468a1828089d1f53b21e05e85327202fb2b09e5",
+      "candidateBytes": 3424,
+      "candidateSha256": "457561fd4046d2d590a9f8e76468a1828089d1f53b21e05e85327202fb2b09e5",
+      "changed": false
+    },
+    {
+      "file": "compact-host-support.test.mjs",
+      "baselineBytes": 13431,
+      "baselineSha256": "c413cece6840e79475072789d2957df5b0becc4a9201f31d4d4ae5d7f881bda1",
+      "candidateBytes": 20236,
+      "candidateSha256": "2d90047a59fbb8c5f300acf75245134f649a484f7814e862a41daf3489c04e4a",
+      "changed": true
+    },
+    {
+      "file": "compact-layout-observer.mjs",
+      "baselineBytes": 5508,
+      "baselineSha256": "d4870b96e2fd455fda353d08ea7858485b38feeeca9f409f6382a4e2bc4b1d90",
+      "candidateBytes": 5508,
+      "candidateSha256": "d4870b96e2fd455fda353d08ea7858485b38feeeca9f409f6382a4e2bc4b1d90",
+      "changed": false
+    },
+    {
+      "file": "compact-portrait-campaign.mjs",
+      "baselineBytes": 11750,
+      "baselineSha256": "9c3a1e8c675222ed89dc22004f6d125437b83c1188bbf1e44f3989c711bd5a7a",
+      "candidateBytes": 12461,
+      "candidateSha256": "6260c78f13f513d1b8f660e97ff689414377a574361827b9f4c91e6eb4750c34",
+      "changed": true
+    },
+    {
+      "file": "compact-portrait-campaign.v3-original.mjs",
+      "baselineBytes": 9074,
+      "baselineSha256": "6fccb02abb7b16500cb7b42450f595ccda487f033dd710b315de3e913a7030c4",
+      "candidateBytes": 9074,
+      "candidateSha256": "6fccb02abb7b16500cb7b42450f595ccda487f033dd710b315de3e913a7030c4",
+      "changed": false
+    }
+  ],
+  "sourceBytes": 50703,
+  "testedAt": "2026-10-31T00:28Z",
+  "testedRuntime": {
+    "node": "24.22.1",
+    "nodeSha256": "61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d"
+  },
+  "baseline": {
+    "total": 21,
+    "pass": 16,
+    "intendedAssertionFailures": 5,
+    "exit": 1
+  },
+  "candidate": {
+    "total": 21,
+    "pass": 21,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "exit": 0
+  },
+  "guardExit": 0,
+  "validationSha256": "a14c6628467c4d211fb5da39937b7377265b03ebe3cf23d0695fbf2770a4acc7",
+  "terminalSha256": "ca8ee6aa37a23438b0b126d0262537803cc6e069775e792b1d70dce9cbb63808",
+  "independentDecision": "accepted-for-preservation-of-exact-R2-external-adapter-candidate-only",
+  "rawPrivatePacket": {
+    "filename": "pr706-console-observer-20261031-private-evidence.zip",
+    "bytes": 154919,
+    "sha256": "07c6035a2de651624aa69c875c387dae8f0cdfd299d126b99cc5b697cb14b186",
+    "regularMembers": 71,
+    "publishedIdentity": null
+  },
+  "realBrowserAcceptance": "NOT RUN",
+  "mainIntegration": "NOT REQUESTED",
+  "executionGrant": false
+}
