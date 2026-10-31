@@ -206,6 +206,21 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
         out: 'test-output', dist: 'test-dist', m2Fixture: {},
         ...Object.fromEntries(scenarios.map(name => [name, name])),
         pathToFileURL: value => ({ href: value }),
+        closeCompletedPrimaryTutorial: async input => {
+          assert.equal(selectedScenario, 'tutorial')
+          assert.equal(input.browser, browser); assert.equal(input.context, context); assert.equal(input.page, page)
+          assert.equal(input.result, receipt.result); assert.equal(input.errors, receipt.errors)
+          calls.push('retirePrimaryTutorial')
+          await input.context.close()
+          input.persist({ status: 'passed', contextClosed: true })
+        },
+        resolve: (...parts) => parts.join('/'),
+        writeFileSync: (path, data) => {
+          assert.equal(path, 'test-output/primary-tutorial-context.json')
+          assert.deepEqual(JSON.parse(data), { status: 'passed', contextClosed: true })
+          calls.push('persistPrimaryTutorial')
+        },
+        save: () => calls.push('savePrimaryTutorial'),
         importScenario: async name => ({ default: async input => {
           calls.push(name)
           assert.equal(input.output, 'test-output')
@@ -220,7 +235,7 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
       assert.deepEqual(receipt, { frontendHeldEscape: { completed: 'frontendEscapeScenario' },
         spellTestMenu: { completed: 'spellTestScenario' }, spellConversion: { completed: 'spellConversionScenario' } })
     } else {
-      assert.deepEqual(calls, ['goto', 'scenario', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
+      assert.deepEqual(calls, ['goto', 'scenario', 'retirePrimaryTutorial', 'closeFrontendContext', 'persistPrimaryTutorial', 'savePrimaryTutorial', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
         'spellProjectionScenario', 'buildingIdentityScenario'])
       assert.equal('spellTestMenu' in receipt, false)
       assert.equal('spellConversion' in receipt, false)
