@@ -60,3 +60,61 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
     assert.deepEqual(state, { cheatsOpen: false, ready: false, error: '', startup: 'playing' })
   }
 })
+
+// Retained callbacks model a delayed caller at Home's handler boundary, not a
+// browser event delivered to an unmounted loading screen. This guards request
+// ownership independently of DOM cancellation and scene-resource disposal.
+function recoveryFixture() {
+  const store = createGameStore(), loadRequest = { current: null }, state = {}, calls = []
+  const bindings = {
+    store, loadRequest, OriginalLoadingScreen: 'OriginalLoadingScreen',
+    menuSession: { current: null }, pendingMenuCamera: { current: [] },
+    engine: { current: null }, audio: { current: { reset() { calls.push('audio reset') } } },
+    cancelNearbyInput() { calls.push('cancel nearby') },
+    ...Object.fromEntries(['CheatsOpen', 'SelectorOpen', 'Menu', 'Tab', 'Ready', 'Error', 'Startup', 'StartupCampaign']
+      .map(name => [`set${name}`, value => { state[name] = value; calls.push(name) }])),
+  }
+  const ownerNames = ['beginLoad', 'retryLoad', 'exitTutorial', 'quitLevel']
+  const bodies = ownerNames.map(name => pageNode(node =>
+    ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
+  const handlers = evaluatePage(`function(){${bodies};return {${ownerNames.join(',')}}}`, bindings)()
+  const retry = () => evaluatePage(loading.getText(pageSource), {
+    ...bindings, ...handlers, startup: 'playing', ready: false, error: 'Supplied load failure', pendingLoadingPhase: 'loading',
+  }).props.onRetry
+  return { store, loadRequest, state, calls, ...handlers, retry }
+}
+
+for (const [quit, campaign] of [['exitTutorial', false], ['quitLevel', true]]) {
+  test(`Home ${quit} retires the request before a retained Retry callback can act`, () => {
+    const ui = recoveryFixture()
+    ui.beginLoad({ kind: 'mission', mission: 2 })
+    const retry = ui.retry(), world = ui.store.getWorld()
+    ui[quit]()
+    assert.equal(ui.loadRequest.current, null)
+    assert.equal(ui.state.Startup, 'choice')
+    assert.equal(ui.state.StartupCampaign, campaign)
+    const state = structuredClone(ui.state), calls = [...ui.calls], savedWorld = structuredClone(world)
+    retry(); retry()
+    assert.equal(ui.store.getWorld(), world, 'retired request cannot replace the world')
+    assert.deepEqual(world, savedWorld, 'retired request cannot mutate the preserved world')
+    assert.deepEqual(ui.state, state, 'no loading/navigation state is republished')
+    assert.deepEqual(ui.calls, calls, 'no audio, input or setter side effects occur')
+  })
+}
+
+test('Home Retry reads the newest request instead of retaining an older mission', () => {
+  const ui = recoveryFixture(), firstRequest = { kind: 'mission', mission: 1 }
+  ui.beginLoad(firstRequest)
+  const retry = ui.retry(), firstWorld = ui.store.getWorld(), nextRequest = { kind: 'mission', mission: 2 }
+  ui.beginLoad(nextRequest)
+  const nextWorld = ui.store.getWorld(), expected = structuredClone(nextWorld)
+  nextWorld.shots.blast = 99
+  retry()
+  assert.equal(ui.loadRequest.current, nextRequest)
+  assert.equal(ui.store.getWorld().outcome.level, 2)
+  assert.notEqual(ui.store.getWorld(), firstWorld)
+  assert.notEqual(ui.store.getWorld(), nextWorld)
+  assert.deepEqual(ui.store.getWorld(), expected, 'Retry reconstructs the currently requested mission')
+  assert.equal(firstWorld.outcome.level, 1)
+  assert.equal(nextWorld.shots.blast, 99, 'discarded failed-world state is not overwritten')
+})

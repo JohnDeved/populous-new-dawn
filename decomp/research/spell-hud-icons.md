@@ -299,3 +299,70 @@ drift invalidates the result. Focused tests cover launch failure, failed later
 navigation, errors despite completed execution, cleanup failure, dependency drift
 and corrupted observation inventories. Exact passing source and accessible evidence
 are recorded in PR #491 after committed-source verification.
+
+## October 19, 2026: original-pixel oracle and shared hosted witness
+
+The audit resumes from main `55770f1a03478883e8d0b00a1fd518e222782c3b`, without
+repeating the already merged Shield/Bloodlust repair. The canonical archive was
+hash-verified and only the missing `data/hfx0-0.dat` was extracted as data. Neither
+the installer nor original executable was executed or emulated.
+
+[The static checker](../../scripts/check-static-spell-icon-pixels.py) reads the
+canonical PE's 62-byte descriptors at `005a80d0 + model*62` and the three little-endian
+icon words at offsets 16, 18 and 20. All 20 triples equal both the retained table
+and current runtime descriptors. It independently decodes the canonical HFX0 bank
+with palette 0-c, then compares every original RGBA byte with the shipped atlas:
+all 60 spell icons and the separate HFX1056 discovery placeholder match. This
+confirms Bloodlust 411/412/413 and Shield 408/409/410 remain correct. No demonstrated
+mapping or artwork mismatch exists in this input set, so no artwork, atlas
+rectangle, runtime policy, reward marker or world VFX is changed.
+
+The consumed [pixel fixture](../../tests/fixtures/spell-icon-pixels.json) retains
+only the canonical input hashes, decoder hash, descriptor identity and 61 small
+RGBA hashes/dimensions. It is not generated from the current atlas. Reproduce the
+read-only comparison with:
+
+```sh
+python3 -B scripts/check-static-spell-icon-pixels.py GAME_ROOT --report NEW_JSON
+```
+
+The existing 164-observation checker now uses a
+[shared matrix](../../scripts/spell-icon-state-browser.mjs). Before any rendered
+state comparison it decodes the served atlas in the browser and requires all 61
+RGBA hashes to match the original-source fixture. Its existing screenshot/canvas
+comparison then checks the actual CSS crop against that source-backed resource.
+The original eight presentation states per spell and four authored Mission 1/16
+placeholders are retained, including selected borders, disabled click rejection,
+stock-marker counts, charging fills and explicit synthetic-mode-2 limitations.
+
+The existing hosted runner invokes disjoint parts of the same witness using its
+existing browser and server: Tutorial observes normal/inactive/selected/selected-
+inactive states and all four authored placeholders (84 cases); frontend-held-Escape
+observes charging/hover/disabled/disabled-inactive states (80 cases), after its
+unchanged keyboard assertions. Their exact union is the original 164-case inventory.
+Tutorial uses two sequential mission contexts; the second job uses one Mission 16
+context. The witness never owns the runner browser. Cleanup errors, page crashes
+and close-time errors fail the receipt; source/dependency drift invalidates it.
+Each 75-second episode is nested inside its unchanged 180-second runner cap; the
+runner retains actual remaining budget before the episode. Screenshots and the source-bound
+`spell-icon-states.json` receipt use the existing artifact collection. No workflow,
+job, dependency, production test hook or timeout expansion is added.
+
+Static original-data comparison and portable regressions are distinct from a new
+hosted rendering pass. Exact candidate results belong in the linked PR; wiring
+this witness alone does not establish that it passed or that its combined hosted
+budget fits. Original raster execution, normal campaign acquisition for all 20
+spells, complete alternate-mode disabled semantics and hardware performance remain
+outside this evidence. The other spell, building and native-research boundaries
+above remain in force; no new parity credit is claimed.
+
+### Current-base integration, October 29, 2026
+
+The selective composition onto `7299ac87bc71917d5433f13420e2b3f0d130b3c9`
+preserves the current package-manager-aware dependency receipt profile and shared
+runner controls. The October 19 cap description above is historical: the current
+policy already allows 240 seconds for Tutorial and 180 for frontend-held-Escape.
+This composition changes neither policy nor the nested 75-second spell episode;
+it reuses the runner's existing monotonic start for remaining-budget reporting.
+A source regression protects those integration boundaries. Source composition is
+not evidence that the new rendered matrix fits either inherited budget.
