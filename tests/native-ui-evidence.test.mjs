@@ -1,3 +1,4 @@
+import './native-ui-receipt.test.mjs'
 import './native-ui-pause-acceptance.test.mjs'
 import test from 'node:test'
 import { createHash } from 'node:crypto'

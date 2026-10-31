@@ -226,6 +226,22 @@ test('authored tree picking reaches the native hover override through the actual
     assert.equal(highlight(mesh), 0)
     Object.assign(tree, original)
   }
+  // A cached submitted mesh can outlive its world record. The real frame caller
+  // must not highlight that stale identity; this supplied removal is not a
+  // claim that an ordinary gameplay disappearance has been rendered in-browser.
+  const treeIndex = world.trees.indexOf(tree)
+  assert.ok(treeIndex >= 0)
+  world.trees.splice(treeIndex, 1)
+  try {
+    frame()
+    assert.equal(scene.hoveredObject, tree.id, 'the retained mesh still supplies the stale pick')
+    assert.equal(highlight(mesh), 0, 'a removed tree cannot retain its hover highlight')
+    assert.equal(highlight(otherMesh), 0, 'removal cannot transfer the highlight to another tree')
+  } finally {
+    world.trees.splice(treeIndex, 0, tree)
+  }
+  frame()
+  assert.equal(highlight(mesh), 200, 'a restored eligible record can be highlighted again')
   // Existing owned/enemy-building and shrine consumers retain their descriptors
   // and modelHighlight eligibility. These are controlled render attachments.
   for (const record of [world.buildings[0], world.shrines[0]]) {

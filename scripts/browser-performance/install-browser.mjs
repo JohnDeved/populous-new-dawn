@@ -9,25 +9,114 @@ import { browserPath, packageName, loadBrowserPin, packageUrl, pinSha256, fileSh
 
 // Read one member as data, never extract a second browser tree or execute package
 // bytes before the full package's reviewed SHA-256 and metadata have matched.
-export async function packagedBrowserSha256(path) {
-  const archive = spawn('dpkg-deb', ['--fsys-tarfile', path], { stdio: ['ignore', 'pipe', 'pipe'] })
-  const member = spawn('tar', ['--extract', '--to-stdout', '--file', '-', './opt/google/chrome/chrome'], { stdio: ['pipe', 'pipe', 'pipe'] })
-  const hash = createHash('sha256'); let bytes = 0, failure
-  const fail = error => { failure ??= error; archive.kill('SIGKILL'); member.kill('SIGKILL') }
-  const timer = setTimeout(() => fail(Error('Packaged browser inspection timed out')), 60000)
-  archive.stdout.on('error', fail); member.stdin.on('error', fail)
-  // tar must consume the entire stream so a failed producer cannot be hidden.
-  archive.stdout.pipe(member.stdin)
-  member.stdout.on('data', data => { bytes += data.length; if (bytes > 1024 * 1024 * 1024) fail(Error('Oversized packaged browser')); else hash.update(data) })
-  archive.stderr.resume(); member.stderr.resume()
-  const closed = child => new Promise(done => { child.on('error', fail); child.on('close', (code, signal) => done({ code, signal })) })
-  try {
-    const results = await Promise.all([closed(archive), closed(member)])
-    if (failure) throw failure
-    assert.ok(results.every(result => result.code === 0 && result.signal === null), 'Packaged browser extraction failed')
-    assert.ok(bytes > 0, 'Packaged browser is missing')
-    return hash.digest('hex')
-  } finally { clearTimeout(timer) }
+export async function packagedBrowserSha256(path, overrides = {}) {
+  // Fixture-only seams; the CLI cannot change commands, byte limits or deadlines.
+  const operations = { spawn, setTimeout, clearTimeout, ...overrides }
+  return new Promise((resolveHash, rejectHash) => {
+    const hash = createHash('sha256'), children = [], listeners = []
+    let bytes = 0, state = 'running', reason, setup = true, tearingDown = false
+    let archive, member, inspectionTimer, teardownTimer
+    const listen = (target, event, callback) => {
+      target.on(event, callback); listeners.push({ target, event, callback })
+    }
+    const dispose = failed => {
+      for (const timer of [inspectionTimer, teardownTimer]) if (timer !== undefined) operations.clearTimeout(timer)
+      inspectionTimer = teardownTimer = undefined
+      // Late errors after failed teardown must remain harmless. Other owned
+      // listeners can go; never remove listeners belonging to another consumer.
+      for (const item of listeners) if (!failed || item.event !== 'error') item.target.removeListener(item.event, item.callback)
+    }
+    const finishFailure = (deadline = false) => {
+      if (state !== 'failing' || setup || tearingDown) return
+      if (!deadline && !children.every(item => item.spawnFailed || item.exited || item.closed)) return
+      state = 'settled'
+      const snapshot = Object.freeze({ reason, children: Object.freeze(children.map(item => Object.freeze({
+        name: item.name, spawned: item.spawned, spawnFailed: item.spawnFailed,
+        exitObserved: item.exited, closeObserved: item.closed !== null,
+        errorObserved: item.errored, kill: item.kill, streamTeardownFailed: item.streamTeardownFailed,
+      }))), descendantCleanup: 'not-established' })
+      const facts = snapshot.children.map(item => `${item.name}: exit=${item.exitObserved}, close=${item.closeObserved}, kill=${item.kill}`).join('; ')
+      const error = Error(`${reason}; ${facts || 'no child acquired'}; descendant cleanup not established`)
+      Object.defineProperty(error, 'inspection', { value: snapshot })
+      dispose(true); rejectHash(error)
+    }
+    const fail = failure => {
+      if (state !== 'running') return
+      state = 'failing'; reason = failure; tearingDown = true
+      if (inspectionTimer !== undefined) operations.clearTimeout(inspectionTimer)
+      inspectionTimer = undefined
+      // This non-sliding grace bounds helper settlement, not OS process-tree
+      // cleanup. Keep unreaped child handles referenced; do not hide them by unref.
+      teardownTimer = operations.setTimeout(() => finishFailure(true), 1000)
+      if (archive && member) {
+        try { archive.child.stdout.unpipe(member.child.stdin) } catch { archive.streamTeardownFailed = true }
+      }
+      for (const item of children) {
+        for (const stream of [item.child.stdin, item.child.stdout, item.child.stderr]) if (stream) {
+          try { stream.destroy() } catch { item.streamTeardownFailed = true }
+        }
+        if (!item.exited && !item.closed && !item.spawnFailed) {
+          try { item.kill = item.child.kill('SIGKILL') ? 'sent' : 'not-sent' } catch { item.kill = 'threw' }
+        }
+      }
+      tearingDown = false; finishFailure()
+    }
+    const maybeSuccess = () => {
+      if (setup || state !== 'running' || children.length !== 2 || children.some(item => !item.closed)) return
+      if (children.some(item => item.closed.code !== 0 || item.closed.signal !== null)) return fail('Packaged browser extraction failed')
+      if (bytes === 0) return fail('Packaged browser is missing')
+      let digest
+      try { digest = hash.digest('hex') } catch { return fail('Packaged browser hashing failed') }
+      state = 'settled'; dispose(false); resolveHash(digest)
+    }
+    const start = (name, file, args, stdio) => {
+      const child = operations.spawn(file, args, { stdio })
+      const item = { name, child, spawned: false, spawnFailed: false, exited: false, closed: null,
+        errored: false, kill: 'not-attempted', streamTeardownFailed: false }
+      children.push(item)
+      listen(child, 'spawn', () => { if (state !== 'settled') item.spawned = true })
+      listen(child, 'error', () => {
+        if (state === 'settled') return
+        item.errored = true
+        if (!item.spawned && child.pid == null) item.spawnFailed = true
+        fail('Packaged browser process failed'); finishFailure()
+      })
+      listen(child, 'exit', () => {
+        if (state === 'settled') return
+        item.exited = true; finishFailure()
+      })
+      listen(child, 'close', (code, signal) => {
+        if (state === 'settled') return
+        item.closed = { code, signal }
+        if (code !== 0 || signal !== null) fail('Packaged browser extraction failed')
+        maybeSuccess(); finishFailure()
+      })
+      for (const stream of [child.stdin, child.stdout, child.stderr]) if (stream) {
+        listen(stream, 'error', () => fail('Packaged browser stream failed'))
+      }
+      return item
+    }
+    try {
+      inspectionTimer = operations.setTimeout(() => fail('Packaged browser inspection timed out'), 60000)
+      archive = start('archive', 'dpkg-deb', ['--fsys-tarfile', path], ['ignore', 'pipe', 'pipe'])
+      if (state === 'running') member = start('member', 'tar', ['--extract', '--to-stdout', '--file', '-', './opt/google/chrome/chrome'], ['pipe', 'pipe', 'pipe'])
+      if (state === 'running') {
+        listen(member.child.stdout, 'data', data => {
+          if (state !== 'running') return
+          try {
+            bytes += data.length
+            if (bytes > 1024 * 1024 * 1024) fail('Oversized packaged browser')
+            else hash.update(data)
+          } catch { fail('Packaged browser hashing failed') }
+        })
+        // Consume the entire producer; an early consumer close cannot certify it.
+        archive.child.stdout.pipe(member.child.stdin)
+        if (state === 'running') archive.child.stderr.resume()
+        if (state === 'running') member.child.stderr.resume()
+      }
+    } catch { fail('Packaged browser setup failed') }
+    finally { setup = false; maybeSuccess(); finishFailure() }
+  })
 }
 
 // Injection is exclusively a Node fixture seam. The CLI has no user-selectable
