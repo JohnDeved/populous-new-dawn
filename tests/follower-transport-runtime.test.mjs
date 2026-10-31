@@ -5,6 +5,7 @@ import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle, leaveLiveVehicle, stepLiveVehicles } from '../app/live-vehicles.ts'
 import { hudTransports, selectFollowerTransport } from '../app/follower-transports-runtime.ts'
 import { hudTaskPeople } from '../app/follower-tasks-runtime.ts'
+import { markPersonSelected } from '../app/person-selection.ts'
 import { transportCounts, focusTransport } from '../app/hud-transports.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { canUnloadVehicle, unloadLiveVehicle } from '../app/vehicle-panel-runtime.ts'
@@ -62,6 +63,52 @@ test('destroyed last vehicle keeps presence during its visible wreck and cannot 
  assert.equal(counts(world)[1].present,true);assert.equal(counts(world)[1].counts[0],0)
  vehicle.destructionState=0
  assert.equal(counts(world)[1].present,false)
+})
+
+// Supporting live-state regression, not browser acquisition or native parity.
+// Keep the split apparent-owner wreck case above; this blue-owner control first
+// proves the same actual acquisition functions can act before destruction.
+test('destroyed Boat and Balloon reject passenger selection and focus after a positive live control',()=>{
+ for(const kind of [1,3]){
+  const {world,vehicle,add}=setup(kind),brave=add()
+  assert.ok(boardLiveVehicle(world,brave.native,vehicle))
+  assert.equal(focusTransport(hudTransports(world),hudTaskPeople(world,false),kind,2,vehicle,0),vehicle.id)
+  selectFollowerTransport(world,kind,2,vehicle,'single')
+  assert.deepEqual(world.selected,[brave.id])
+  const retainedPerson=brave.native
+  vehicle.life=1;stepLiveVehicles(world)
+  assert.equal(vehicle.active,false)
+  assert.equal(vehicle.passengerCount,0)
+  assert.equal(hudTransports(world).find(v=>v.id===vehicle.id).owner,0)
+  assert.ok(vehicle.passengers.every(id=>id===0),'destroyed roster contains no passenger identity')
+  assert.equal(counts(world)[kind].present,true)
+  assert.equal(counts(world)[kind].counts[0],0)
+  const effects=()=>structuredClone({rng:world.randomState,orders:world.buildingOrders,sounds:world.sounds,units:world.units,vehicle,retainedPerson})
+  const beforeFocus=effects(),selectedBefore=[...world.selected]
+  const people=hudTaskPeople(world,false),before=structuredClone(people)
+  assert.equal(focusTransport(hudTransports(world),people,kind,2,vehicle,vehicle.id),0)
+  assert.deepEqual(people,before,'focus does not mutate the supplied live-person projection')
+  assert.deepEqual(effects(),beforeFocus)
+  assert.deepEqual(world.selected,selectedBefore)
+  const beforeActions=effects()
+  for(const mode of ['single','five','all']){
+   selectFollowerTransport(world,kind,2,vehicle,mode)
+   assert.deepEqual(world.selected,selectedBefore,'an empty wreck does not clear an existing selection')
+   assert.deepEqual(effects(),beforeActions,'rejected acquisition preserves RNG/orders/sounds/person state')
+  }
+  // Explicit supplied deselection separates new acquisition from retaining the
+  // positive control's selected, still-living ejected passenger.
+  markPersonSelected(retainedPerson,false);world.selected=[]
+  assert.equal(retainedPerson.selectionFlags&128,0)
+  const deselectedEffects=effects()
+  for(const mode of ['single','five','all']){
+   selectFollowerTransport(world,kind,2,vehicle,mode)
+   assert.deepEqual(world.selected,[],'the empty wreck cannot reacquire ejected crew')
+   assert.deepEqual(effects(),deselectedEffects)
+  }
+  vehicle.destructionState=0
+  assert.equal(counts(world)[kind].present,false)
+ }
 })
 
 test('shipped disguise command aboard publishes apparent ownership through completion and countdown',()=>{
