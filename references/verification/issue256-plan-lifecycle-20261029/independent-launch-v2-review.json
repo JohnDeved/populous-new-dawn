@@ -1,0 +1,17 @@
+{
+  "reviewedAt": "2026-10-29T05:06:14.678239+00:00",
+  "finding": "ACCEPT conditional fresh serialized admission; no execution",
+  "supervisorSHA256": "6590b6278fcf62155816966fe9729b5b91ff7845da7afb199a44c0ac6d858129",
+  "testSHA256": "73fe240cefb66f0f183fe4d373458007d536dd707121701c83b54d9431f060d1",
+  "nodeSHA256": "61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d",
+  "sourceRowsRehashed": 5529,
+  "sourceMismatches": 0,
+  "priorFailure": "exit1 before test discovery; no TAP tests; exact dependency before/after hashes equal",
+  "materialChange": "cwd packet ROOT and relative lifecycle.test.mjs instead of baseline cwd and absolute file; separate attempt02 and fresh admission02; all permission grants and guards identical",
+  "staticEvidence": "Pinned Node embedded source extracted as data using strings: createTestFileList uses Glob; absolute pattern explicitly recurses through /; getDirentSync catches lstat errors and returns null; no match emits observed Could not find error. Relative single filename checks target under already granted cwd instead.",
+  "limits": [
+    "Exact runtime lstat denial not traced; ancestor-permission cause strongly supported inference, not executed diagnostic proof.",
+    "No expanded read grants, no retry by reviewer.",
+    "Three supplied-boundary tests only; no producer/full-turn/native parity/build/browser/CI claim."
+  ]
+}

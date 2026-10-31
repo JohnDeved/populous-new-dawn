@@ -1,0 +1,21 @@
+{
+  "reviewedAt": "2026-10-29T05:07:08.396084+00:00",
+  "finding": "ACCEPT narrow supplied-boundary regression evidence; suitable checkpoint, not formal approval",
+  "testSHA256": "73fe240cefb66f0f183fe4d373458007d536dd707121701c83b54d9431f060d1",
+  "supervisorSHA256": "6590b6278fcf62155816966fe9729b5b91ff7845da7afb199a44c0ac6d858129",
+  "sourceRowsRehashed": 5529,
+  "sourceMismatches": [],
+  "dependencyRowsRehashed": 22189,
+  "dependencyDigest": "b4d4424ac3721920452c13cdf28862818b0c2fdbb0ddb5ee1a87cb56a817be76",
+  "tap": "3 tests,3 pass,0 fail/skip/cancel/todo",
+  "stderrEmpty": true,
+  "wallSeconds": 0.8058784389977518,
+  "peakSampledRSS": 150937600,
+  "scope": "Real prepareBuildingSite imports with supplied completion/grade/departed worker boundaries for camp and tower; identity/cardinality retained; timeout removes target with unrelated-plan control. No product implementation changed.",
+  "checkpointAdvice": "Preserve fixture and reviewed static/source/research evidence with earlier failed attempt and v2 success; exact undefined author; adapt imports explicitly if moving fixture into repository and review that delta. Do not claim full producer/task/checkpoint/native-count parity, browser/build/CI/merge.",
+  "limits": [
+    "No rerun by reviewer",
+    "Sampled RSS lower bound on peak, not memory-pressure resolution",
+    "Path correction demonstrated useful for this fixture, exact prior denial remains untraced"
+  ]
+}
