@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { bindGame } from '../browser-game.mjs'
+import { assertWorshipFocusObservation, installWorshipFocusObserver } from './worship-focus-observer.mjs'
 
 export const worshipPanelLifecycleLimitMs = 35000
 export default async function worshipPanelLifecycle({ browser, url, output }) {
@@ -12,6 +13,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     'Panel opening and slot/follower setup supplied; single/group selection and right-click focus use actual browser pointer input',
     'Retained stale DOM callbacks use synthetic event dispatch after supplied identity/overview/disposal boundaries and actual store replacement; not trusted stale user input',
     'Focus/sound/change observers delegate actual consumers and are restored; no production hooks, native pixel parity, deployment or performance claim',
+    'Passive one-shot observation checks inspection synchronously after the production target handler; delayed inspection is diagnostic, while delayed person-panel retention remains required',
   ] }
   let page, failure
   const screenshot = async name => {
@@ -71,15 +73,20 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
       h.scene.onSound = function (...args) { h.events.push(['sound', ...args]); return h.soundOriginal.apply(this, args) }
       h.scene.onChange = function (...args) { h.events.push(['change']); return h.changeOriginal.apply(this, args) }
     })
+    await page.evaluate(installWorshipFocusObserver)
     await person.click({ button: 'right' })
     report.focus = await page.evaluate(() => {
-      const h = window.worshipLifecycle
-      return { events: h.events, inspected: h.scene.objectPanels.inspected, hasPersonPanel: h.scene.objectPanels.panels.has(h.units[0].id) }
+      const h = window.worshipLifecycle, panel = h.scene.objectPanels.panels.get(h.units[0].id)
+      h.stopWorshipFocusObservation()
+      return { events: h.events, synchronousObservation: h.worshipFocusObservation,
+        inspected: h.scene.objectPanels.inspected, inspectedTiming: 'after awaited input; diagnostic only',
+        hasPersonPanel: !!panel, personPanelKind: panel?.kind ?? null }
     })
+    assertWorshipFocusObservation(report.focus.synchronousObservation, report.setup.people[0])
     assert.equal(report.focus.events.filter(e => e[0] === 'focus').length, 1)
     assert.equal(report.focus.events.find(e => e[0] === 'focus')[2].animate, true)
     assert.deepEqual(report.focus.events.find(e => e[0] === 'focus')[1], report.setup.expectedFocus)
-    assert.equal(report.focus.inspected, report.setup.people[0]); assert.equal(report.focus.hasPersonPanel, true)
+    assert.equal(report.focus.hasPersonPanel, true); assert.equal(report.focus.personPanelKind, 'person')
     await screenshot('right-focus')
     report.stale = await page.evaluate(() => {
       const h = window.worshipLifecycle, results = h.staleResults = []
@@ -123,6 +130,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     try {
       if (page && !page.isClosed()) await page.evaluate(() => {
         const h = window.worshipLifecycle
+        h?.stopWorshipFocusObservation?.()
         if (h?.focusOriginal) h.scene.focus = h.focusOriginal
         if (h?.soundOriginal) h.scene.onSound = h.soundOriginal
         if (h?.changeOriginal) h.scene.onChange = h.changeOriginal
