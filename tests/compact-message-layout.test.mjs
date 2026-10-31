@@ -124,7 +124,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
     },
   })
   const layout = () => readLayout(overlay)
-  assert.equal(optional.length, 4)
+  assert.equal(optional.length, 7)
   assertCompactMessageWitness(layout(), good.witness, 900, 360)
   for (const damaged of [zero, box(427, 140, 654, 157), box(435, 140, 893, 157),
     box(435, 7, 654, 157), box(435, 140, 654, 318)]) {

@@ -70,6 +70,12 @@ export class FpsGraph {
           <div title="Native-edge cache misses caused only by a packed/sparse representation change, with unchanged position identity and cache key."><dt>Native repr.-only misses</dt><dd data-metric="pick-representation">--</dd></div>
         </dl>
         <p>Ordinary terrain instance paths after culling, not query or vertex counts. Unknown = incomplete sampling.</p>
+        <div class="fps-caption" title="Context from the latest accepted sample when readouts publish, not a window average. Change flags compare with the prior recorded pointer sample, which need not have been accepted into the timing window.">Latest accepted sample at publication</div>
+        <dl>
+          <div title="Recorded pointer/tooltip input route, not a separate hit-test."><dt>Recorded route</dt><dd data-metric="pick-route">--</dd></div>
+          <div title="Position changed since the prior recorded pointer sample. Unknown means no comparable pointer baseline."><dt>Pointer changed</dt><dd data-metric="pick-pointer-change">--</dd></div>
+          <div title="View invalidation inputs changed since the prior recorded pointer sample, including camera and viewport inputs; not camera motion alone. Unknown means a new recording baseline."><dt>View inputs changed</dt><dd data-metric="pick-view-change">--</dd></div>
+        </dl>
       </section>
       </div><div class="fps-secondary">
       <div class="fps-caption"><span>Rolling window</span><span data-metric="window">0 samples</span></div>
@@ -309,6 +315,9 @@ export class FpsGraph {
       'pick-packed',
       'pick-sparse',
       'pick-representation',
+      'pick-route',
+      'pick-pointer-change',
+      'pick-view-change',
     ])
       this.text(name, '--')
     this.text('state', state)
@@ -391,6 +400,23 @@ export class FpsGraph {
       ['pick-representation', picking.representationChanged],
     ] as const)
       this.text(name, value === null ? 'Unknown' : value.toFixed(2))
+    const interaction = metrics?.interaction
+    const route = interaction?.route
+    this.text(
+      'pick-route',
+      route === 'world'
+        ? 'World'
+        : route === 'hud'
+          ? 'HUD'
+          : route === 'outside'
+            ? 'Outside'
+            : 'Unknown'
+    )
+    for (const [name, value] of [
+      ['pick-pointer-change', interaction?.pointerMoved],
+      ['pick-view-change', interaction?.viewChanged],
+    ] as const)
+      this.text(name, value === true ? 'Yes' : value === false ? 'No' : 'Unknown')
     this.text('pointer', `${samples.pointerMs.toFixed(2)} ms`)
     this.text(
       'pointer-tail',
