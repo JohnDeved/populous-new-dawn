@@ -197,7 +197,7 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
   assert.match(workflow, /node scripts\/tutorial-browser\/run\.mjs/)
   const scenarios = ['snapshotScenario', 'frontendEscapeScenario', 'spellTestScenario', 'spellConversionScenario', 'gameplayScenario',
     'meleeScenario', 'm2Scenario', 'pauseRecoveryScenario', 'scenario', 'selectorScenario', 'sceneryScenario',
-    'spellProjectionScenario', 'buildingIdentityScenario']
+    'spellProjectionScenario', 'buildingIdentityScenario', 'worshipLifecycleScenario']
   for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
     const calls = [], receipt = {}, page = { goto: async () => calls.push('goto') },
       context = { close: async () => calls.push('closeFrontendContext') },
@@ -236,7 +236,7 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
         spellTestMenu: { completed: 'spellTestScenario' }, spellConversion: { completed: 'spellConversionScenario' } })
     } else {
       assert.deepEqual(calls, ['goto', 'scenario', 'retirePrimaryTutorial', 'closeFrontendContext', 'persistPrimaryTutorial', 'savePrimaryTutorial', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
-        'spellProjectionScenario', 'buildingIdentityScenario'])
+        'spellProjectionScenario', 'buildingIdentityScenario', 'worshipLifecycleScenario'])
       assert.equal('spellTestMenu' in receipt, false)
       assert.equal('spellConversion' in receipt, false)
     }
