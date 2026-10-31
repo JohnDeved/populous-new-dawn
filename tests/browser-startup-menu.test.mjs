@@ -131,6 +131,73 @@ function deliveryFixture(events) {
   }
 }
 
+// Building identity covers gameplay, not full boot-logo playback. Execute its
+// actual entry block with the real helper, preserving every later public click.
+const buildingSource = readFileSync(new URL('../scripts/tutorial-browser/building-panel-identity.mjs', import.meta.url), 'utf8')
+const buildingStart = "await page.goto(target.href, { waitUntil: 'domcontentloaded' })"
+const buildingEnd = "timing.mark('mission-start:clicked')"
+const buildingFrom = buildingSource.indexOf(buildingStart)
+const buildingTo = buildingSource.indexOf(buildingEnd, buildingFrom)
+assert.ok(buildingFrom >= 0 && buildingTo > buildingFrom, 'actual building entry boundaries exist')
+assert.match(buildingSource, /import \{ waitForStartupMenu \} from '\.\.\/browser-new-game\.mjs'/)
+const driveBuilding = new (Object.getPrototypeOf(async function () {}).constructor)(
+  'page', 'waitForStartupMenu', 'target', 'timing', buildingSource.slice(buildingFrom, buildingTo + buildingEnd.length))
+
+function buildingEntryFixture(options) {
+  const f = fixture(options), dialog = f.page.getByRole.bind(f.page)
+  f.page.goto = async (url, options) => {
+    assert.equal(url, 'http://fixture.invalid/?building-panel-identity=1')
+    assert.deepEqual(options, { waitUntil: 'domcontentloaded' })
+    f.events.push(['navigation'])
+  }
+  f.page.getByRole = (role, options) => {
+    if (role === 'dialog') return dialog(role, options)
+    assert.equal(role, 'button')
+    assert.equal(options.exact, true)
+    const previous = {
+      'New Game': ['wait', ['Main menu']],
+      'No': ['recommendation'],
+      'Start Mission 1': ['button', 'No'],
+    }[options.name]
+    assert.ok(previous, 'only the original public campaign controls are accepted')
+    return { async click() {
+      assert.deepEqual(f.events.at(-1), previous, 'public entry prerequisite must finish first')
+      f.events.push(['button', options.name])
+    } }
+  }
+  f.page.locator = selector => {
+    assert.equal(selector, '[data-original-tutorial-recommendation]')
+    return { async waitFor() {
+      assert.deepEqual(f.events.at(-1), ['button', 'New Game'])
+      f.events.push(['recommendation'])
+    } }
+  }
+  return f
+}
+
+for (const initial of ['Opening logo', 'Main menu']) {
+  test(`building identity observes public startup readiness before original campaign controls (${initial})`, async () => {
+    const f = buildingEntryFixture({ initial: 'loading', appears: initial }), marks = []
+    await driveBuilding(f.page, waitForStartupMenu,
+      { href: 'http://fixture.invalid/?building-panel-identity=1' }, { mark: value => marks.push(value) })
+    assert.deepEqual(f.events.slice(-4), [
+      ['button', 'New Game'], ['recommendation'], ['button', 'No'], ['button', 'Start Mission 1'],
+    ])
+    assert.equal(f.events.filter(e => e[0] === 'click').length, initial === 'Opening logo' ? 1 : 0)
+    assert.deepEqual(marks, ['navigation:complete', 'mission-start:clicked'])
+  })
+}
+
+test('building identity propagates failed logo Skip without beginning campaign entry', async () => {
+  const failure = Object.assign(new Error('Skip inaccessible'), { name: 'TimeoutError' })
+  const f = buildingEntryFixture({ clickError: failure }), marks = []
+  await assert.rejects(driveBuilding(f.page, waitForStartupMenu,
+    { href: 'http://fixture.invalid/?building-panel-identity=1' }, { mark: value => marks.push(value) }), error => error === failure)
+  assert.equal(f.events.filter(e => e[0] === 'click').length, 1)
+  assert.equal(f.events.some(e => e[0] === 'button'), false)
+  assert.deepEqual(marks, ['navigation:complete'])
+})
+
 for (const scenario of ['spy-source', 'spell-test-menu']) {
   const source = readFileSync(new URL(`../scripts/tutorial-browser/${scenario}.mjs`, import.meta.url), 'utf8'),
     spy = scenario === 'spy-source',
