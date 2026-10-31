@@ -241,3 +241,39 @@ test('published logo is the hash-bound 188-frame source-derived conversion', () 
   assert.deepEqual([provenance.frames, provenance.width, provenance.height, provenance.fps], [188, 640, 352, 25])
   assert.equal(provenance.sourceSha256, '65602921453014c11b079b95f664a29c89727fb0b2d0dce4c40fee94665a80fa')
 })
+
+test('visibility return cannot resume a logo while its pointer release is pending', () => {
+  const f = fixture()
+  f.tree.props.onPointerDown(event({
+    button: 0, pointerId: 7, currentTarget: { setPointerCapture() {} },
+  }))
+  assert.equal(f.media.plays, 1)
+  assert.equal(f.completions, 0)
+  f.document.hidden = true
+  f.listeners.get('visibilitychange')()
+  f.document.hidden = false
+  f.listeners.get('visibilitychange')()
+  assert.equal(f.media.plays, 1, 'visibility must not restart the pointer-paused clip')
+  assert.equal(f.completions, 0, 'visibility must not release the pending transition')
+  f.tree.props.onPointerUp(event({ pointerId: 7 }))
+  assert.equal(f.completions, 1)
+  f.cleanup()
+})
+
+test('late autoplay rejection while pointer-held cannot replace playback state or release the logo', async () => {
+  const f = fixture()
+  let reject
+  f.media.nextPlay = new Promise((_, no) => { reject = no })
+  f.listeners.get('visibilitychange')()
+  f.tree.props.onPointerDown(event({
+    button: 0, pointerId: 7, currentTarget: { setPointerCapture() {} },
+  }))
+  reject(new Error('play interrupted by pointer pause'))
+  await Promise.resolve()
+  assert.equal(f.states[0], 'playing', 'pending pointer release owns the transition')
+  assert.equal(f.completions, 0)
+  f.tree.props.onPointerCancel(event({ pointerId: 7 }))
+  assert.equal(f.completions, 1)
+  f.cleanup()
+})
+
