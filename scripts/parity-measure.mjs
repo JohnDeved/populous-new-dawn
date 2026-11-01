@@ -90,12 +90,16 @@ export function evaluateCheck(check, receipts, current) {
     .map(evidence => ({ ...evidence, receipt: receipt.path })))
   // Equal timestamps resolve conservatively. An older pass cannot hide a new failure.
   const priority = { failed: 0, invalidated: 1, blocked: 2, unknown: 3, 'not-run': 3, passed: 4 }
-  candidates.sort((a, b) => String(b.finishedAt ?? '').localeCompare(String(a.finishedAt ?? '')) ||
+  const completionTime = evidence => typeof evidence.finishedAt === 'string'
+    ? Date.parse(evidence.finishedAt) : NaN
+  // An unorderable attempt may be newer than a pass: never hide it.
+  candidates.sort((a, b) => Number(!Number.isFinite(completionTime(b))) - Number(!Number.isFinite(completionTime(a))) ||
+    (completionTime(b) - completionTime(a) || 0) ||
     (priority[a.status] ?? 3) - (priority[b.status] ?? 3) || a.receipt.localeCompare(b.receipt))
   const latest = candidates[0]
   if (!latest) return { id: check.id, status: 'unknown', reason: 'No measurement-capable receipt' }
   let status, reason
-  if (!latest.finishedAt || !Number.isFinite(Date.parse(latest.finishedAt))) {
+  if (!Number.isFinite(completionTime(latest))) {
     status = 'unknown'; reason = 'Missing valid completion time'
   } else if (latest.version !== 1 || latest.definitionHash !== current.definitionHash ||
     latest.inputFingerprint !== current.inputFingerprint ||

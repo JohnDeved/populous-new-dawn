@@ -390,4 +390,49 @@ class EvidenceArchiveTests(unittest.TestCase):
         self.assertEqual(self.events()[0]['ownershipReceipt'], result['ownershipReceipt'])
 
 
+    def test_pause_trace_exact_local_profile_indexes_opaque_members(self):
+        names = [f'pause-click-traces/archives/{mode}.zip' for mode in ('native', 'fallback')]
+        names += [f'pause-click-traces/work/pause-{mode}{suffix}'
+                  for mode in ('native', 'fallback')
+                  for suffix in ('.trace', '.network', '.stacks', '-pwnetcopy-1.network')]
+        payload = b'opaque partial trace; not parsed or accepted as a trace'
+        self.write_zip([(name, payload, REG) for name in names])
+        manifest = self.index()
+        self.assertEqual({row['name'] for row in manifest['members']}, set(names))
+        self.assertTrue(all(row['sha256'] == ea.sha(payload) for row in manifest['members']))
+        self.assertEqual(list(self.caches.iterdir()), [])
+
+    def test_pause_trace_nested_archive_remains_opaque_in_selected_cache(self):
+        inner = io.BytesIO()
+        with zipfile.ZipFile(inner, 'w') as archive:
+            archive.writestr('../../do-not-extract.py', 'raise RuntimeError("never execute")')
+        name = 'pause-click-traces/archives/native.zip'
+        raw = inner.getvalue(); self.write_zip([(name, raw, REG)])
+        result = self.make([name])
+        self.assertEqual((self.cache/name).read_bytes(), raw)
+        self.assertFalse(list(self.root.rglob('*.py')))
+        self.assertEqual(set(p.relative_to(self.cache).as_posix() for p in self.cache.rglob('*') if p.is_file()),
+                         {name, ea.CONTROL})
+        self.release(result)
+        self.assertTrue(self.archive.exists())
+
+    def test_pause_trace_profile_rejects_nearby_and_remote_names(self):
+        names = ['raw.zip', 'pause-click-traces/archives/other.zip',
+                 'pause-click-traces/archives/native.zip.tmp', 'pause-click-traces/work/pause-native.trace.zip',
+                 'pause-click-traces/work/pause-native-chunk1.trace', 'pause-click-traces/work/pause-native-pwnetcopy-2.network',
+                 'pause-click-traces/work/resources/arbitrary', 'pause-click-traces/work/other.trace',
+                 'elsewhere/pause-native.trace', 'pause-click-traces/archives/NATIVE.zip',
+                 'pause-click-traces/archives/../native.zip', '/pause-click-traces/archives/native.zip']
+        for name in names:
+            with self.subTest(name=name), self.assertRaises(ValueError): ea.safe_name(name)
+
+    def test_pause_trace_members_keep_existing_size_and_cache_limits(self):
+        name = 'pause-click-traces/archives/native.zip'; self.write_zip([(name, b'1234', REG)])
+        with patch.dict(ea.LIMITS, member_bytes=3), self.assertRaises(ValueError): self.index()
+        manifest = self.index()
+        with patch.dict(ea.LIMITS, cache_bytes=3), self.assertRaises(ValueError): self.make([name], manifest)
+        self.assertFalse(self.cache.exists())
+
+
+
 if __name__ == '__main__': unittest.main()

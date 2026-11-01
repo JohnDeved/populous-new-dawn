@@ -164,4 +164,23 @@ class CollectorTests(unittest.TestCase):
         self.assertFalse(Path(self.request['output']).exists())
 
 
+    def test_pause_trace_collection_is_metadata_only_and_failed_runtime_stays_failed(self):
+        self.members['pause-click-traces/archives/native.zip'] = b'opaque partial ZIP data'
+        self.members['pause-click-traces/work/pause-native.trace'] = b'opaque trace data'
+        self.members['receipt.json']['status'] = 'failed'
+        self.members['episodes.json']['episodes'][-2].update(status='failed', cleanupVerified=False)
+        self.write_archive(); before = ea.record(self.archive.stat())
+        result = collector.collect(self.request)
+        self.assertEqual(result['status'], 'collected')
+        self.assertEqual(result['runtimeStatus'], 'failed')
+        self.assertEqual(result['runtimeAcceptance'], 'not-performed')
+        self.assertEqual(result['extractedMembers'], [])
+        index = json.loads((self.root/'collected/archive-manifest.json').read_text())
+        self.assertEqual({row['name'] for row in index['members']}, set(self.members))
+        self.assertEqual(list(self.root.rglob('*.zip')), [self.archive])
+        self.assertEqual(list(self.root.rglob('*.trace')), [])
+        self.assertEqual(ea.record(self.archive.stat()), before)
+
+
+
 if __name__ == '__main__': unittest.main()
