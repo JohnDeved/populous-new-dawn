@@ -35,3 +35,39 @@ test('missing evidence, current pass and stale source preserve prior behavior', 
   assert.equal(evaluateCheck(check, [pass], current).status, 'verified')
   assert.equal(evaluateCheck(check, [pass], {...current,inputFingerprint:'changed'}).status, 'stale')
 })
+
+test('same-time declared pass with disagreeing exit cannot be hidden by another pass', () => {
+  for (const exitCode of [1, null, undefined, '0']) {
+    const invalid = receipt('passed', pass.measurements[0].finishedAt, 'z-invalid.json')
+    invalid.measurements[0].exitCode = exitCode
+    for (const inputs of [[pass,invalid],[invalid,pass]]) {
+      const result = evaluateCheck(check, inputs, current)
+      assert.equal(result.status, 'failed')
+      assert.equal(result.receipt, 'z-invalid.json')
+    }
+  }
+})
+test('mismatched exit tie priority honors declared nonzero expected success', () => {
+  const nonzero = {...check, expected:{exitCode:2}}
+  const valid = receipt('passed', pass.measurements[0].finishedAt, 'a-valid.json')
+  valid.measurements[0].exitCode = 2
+  const invalid = receipt('passed', pass.measurements[0].finishedAt, 'z-invalid.json')
+  invalid.measurements[0].exitCode = 0
+  assert.equal(evaluateCheck(nonzero, [valid,invalid], current).status, 'failed')
+})
+test('later valid pass recovers from older contradictory exit evidence', () => {
+  const invalid = receipt('passed', '2026-10-06T00:00:00Z', 'z-invalid.json')
+  invalid.measurements[0].exitCode = 1
+  assert.equal(evaluateCheck(check, [pass,invalid], current).status, 'verified')
+})
+test('contradictory browser exit does not bypass owned-server provenance', () => {
+  const invalid = receipt('passed', pass.measurements[0].finishedAt, 'z-invalid.json')
+  invalid.measurements[0].exitCode = 1
+  assert.equal(evaluateCheck({...check,kind:'browser'}, [invalid], current).status, 'unknown')
+})
+test('contradictory exit does not bypass source identity invalidation', () => {
+  const invalid = receipt('passed', pass.measurements[0].finishedAt, 'z-invalid.json')
+  invalid.measurements[0].exitCode = 1
+  invalid.measurements[0].inputFingerprint = 'other'
+  assert.equal(evaluateCheck(check, [invalid], current).status, 'stale')
+})
