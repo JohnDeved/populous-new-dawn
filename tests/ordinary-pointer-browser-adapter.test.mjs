@@ -13,7 +13,7 @@ function fixture(raw=false){
  const scene={fpsGraph:{samples:recorder},renderer:{domElement:canvas},world:{paused:true,turn:70,mode:null,inputMask:0,flyby:{flags:0}},
  cameraPosition:{x:1,y:2,angle:0},viewPoint:{x:3,z:4},cameraBearing:0,viewZoom:1,viewPreset:0,modalSuspended:false,
  viewTransition:null,overviewActive:false,overviewStage:0,globeMorph:{active:false},cameraMotion:{active:0},resultCamera:{active:0},keys:new Set(),
- navigationButtons(){return 0},pointerGesture:null,navigationPointer:null,pointerButtons:0,pointerScreen:{...point},hoveredObject:null,
+ navigationButtons(){return 0},pointerGesture:null,navigationPointer:{x:900,y:400,buttons:0},pointerButtons:0,pointerScreen:{...point},hoveredObject:null,
  tooltipInput:{pointer:{...point},route:'world',picked:null,cell:2,inspectionTarget:null}}
  const host={innerWidth:1440,innerHeight:1000,devicePixelRatio:1,testSceneRef:{current:scene},performance:{now:()=>time},
  document:{hidden:false,elementFromPoint:()=>canvas,addEventListener:(n,f)=>docListeners.set(n,f),removeEventListener:n=>docListeners.delete(n)},
@@ -23,7 +23,7 @@ function fixture(raw=false){
  host.__pndSnapshotGeometry=geometry
  const event=(type,x,y)=>({type,clientX:x,clientY:y,pointerId:1,pointerType:'mouse',isPrimary:true,isTrusted:true,buttons:0,
   target:canvas,timeStamp:time,getCoalescedEvents(){return [{isTrusted:true,isPrimary:true,pointerId:1,pointerType:'mouse',clientX:x,clientY:y,buttons:0,timeStamp:time}]}})
- const emit=e=>{listeners.get(e.type)?.(e);if(e.type==='pointermove'){scene.pointerScreen={clientX:e.clientX,clientY:e.clientY};scene.tooltipInput.pointer={...scene.pointerScreen}}}
+ const emit=e=>{listeners.get(e.type)?.(e);if(e.type==='pointermove'){scene.navigationPointer={x:e.clientX,y:e.clientY,buttons:e.buttons};scene.pointerScreen={clientX:e.clientX,clientY:e.clientY};scene.tooltipInput.pointer={...scene.pointerScreen}}}
  const move=(x,y)=>{if(raw)emit(event('pointerrawupdate',x,y));emit(event('pointermove',x,y))}
  let priorX=900,priorY=400
  const frame=()=>{
@@ -239,5 +239,34 @@ test('leaving raw neutral mode after installation remains terminal',()=>{
   const f=fixture();install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64))
   const api=f.host.__pndOrdinaryPointerObserver;api.arm();f.scene.world.mode=mode;f.frame()
   assert.match(api.status().error,/Scene\/recorder\/state changed/);assert.equal(api.stop(false).capture.status,'failed')
+ }
+})
+
+test('ordinary mouse navigation tracker is recorded, never fabricated as null',async()=>{
+ const f=fixture();const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true})
+ assert.equal(r.outcome.status,'completed',String(r.outcome.error));assert.equal(r.packet.width,133)
+ for(let i=0;i<r.packet.rows.length;i+=133){
+  assert.equal(r.packet.rows[i+129],r.packet.rows[i+3]);assert.equal(r.packet.rows[i+130],r.packet.rows[i+4])
+  assert.equal(r.packet.rows[i+131],0);assert.equal(r.packet.rows[i+132],0)
+ }
+ for(const [column,value] of [[129,899],[130,399],[131,1],[132,1]]){
+  const copy=structuredClone(r.packet);copy.rows[column]=value;assert.throws(()=>replayOrdinaryPointerBrowserPacket(copy))
+ }
+})
+test('active navigation and malformed tracker remain forbidden',()=>{
+ for(const change of [f=>f.scene.navigationButtons=()=>1,f=>f.scene.navigationPointer.buttons=1,f=>f.scene.navigationPointer=null,f=>f.scene.navigationPointer.x=NaN]){
+  const f=fixture();change(f);assert.throws(()=>install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64)));assert.equal(f.listeners.size,0)
+ }
+})
+test('tracker departure and stale coordinates after installation are terminal',()=>{
+ for(const change of [f=>f.scene.navigationButtons=()=>1,f=>f.scene.navigationPointer.buttons=1,f=>f.scene.navigationPointer.x=899]){
+  const f=fixture();install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64));change(f);f.frame()
+  const api=f.host.__pndOrdinaryPointerObserver;assert.ok(api.status().error);assert.equal(api.stop(false).capture.status,'failed')
+ }
+})
+
+test('stable rejection names the first failing predicate without suppressing rejection',()=>{
+ for(const [change,key] of [[f=>f.scene.world.paused=false,'!scene.world.paused'],[f=>f.scene.world.mode=1,'scene.world.mode !== null'],[f=>f.scene.navigationButtons=()=>1,'scene.navigationButtons()'],[f=>f.scene.pointerButtons=1,'scene.pointerButtons !== 0']]){
+  const f=fixture();change(f);assert.throws(()=>install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64)),e=>e.message==='Scene/recorder/state changed: '+key)
  }
 })

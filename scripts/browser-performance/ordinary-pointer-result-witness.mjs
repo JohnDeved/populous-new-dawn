@@ -6,7 +6,13 @@ export function ordinaryPointerResultWitness(snapshot, expectedPoint) {
   const coordinate = value => typeof value === 'number' && Number.isFinite(value)
   assert.ok(Array.isArray(expectedPoint) && expectedPoint.length === 2 && expectedPoint.every(coordinate), 'Invalid expected point')
   assert.equal(snapshot.mode, 0, 'Only ordinary mode is admitted')
-  assert.equal(snapshot.navigationPointer, null, 'Navigation pointer is not ordinary input')
+  // The production mouse tracker is populated even for ordinary center hover.
+  // Its existence is not camera navigation; retain and validate actual values.
+  const navigation = snapshot.navigationPointer
+  assert.ok(navigation && coordinate(navigation.x) && coordinate(navigation.y), 'Missing navigation tracker')
+  assert.deepEqual([navigation.x, navigation.y], expectedPoint, 'Stale navigation tracker')
+  assert.equal(navigation.buttons, 0, 'Pointer buttons are active')
+  assert.equal(snapshot.navigationButtons, 0, 'Effective camera navigation is active')
   const pointer = value => {
     assert.ok(value && coordinate(value.clientX) && coordinate(value.clientY), 'Missing pointer coordinates')
     assert.deepEqual([value.clientX, value.clientY], expectedPoint, 'Stale or mismatched tooltip pointer')

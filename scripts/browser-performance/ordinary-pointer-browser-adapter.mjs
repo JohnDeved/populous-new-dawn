@@ -136,8 +136,8 @@ export function replayOrdinaryPointerBrowserPacket(packet){
     assert.equal(packet.geometryAfter.fingerprintSha256,packet.initial.geometrySha256)
     assert.deepEqual(packet.geometryBefore.witness,packet.geometryWitness);assert.deepEqual(packet.geometryAfter.witness,packet.geometryWitness)
   }
-  const c=packet.capture;assert.equal(packet.width,129);assert.equal(packet.eventWidth,8)
-  assert.ok(packet.rows instanceof Float64Array&&packet.rows.length===c.frameCount*129)
+  const c=packet.capture;assert.equal(packet.width,133);assert.equal(packet.eventWidth,8)
+  assert.ok(packet.rows instanceof Float64Array&&packet.rows.length===c.frameCount*133)
   assert.ok(Array.isArray(packet.recent)&&packet.recent.length===c.initialSerial+c.frameCount)
   assert.ok(packet.events instanceof Float64Array&&packet.events.length===c.inputCount*8)
   assert.ok(packet.rawUpdates instanceof Float64Array)
@@ -162,13 +162,13 @@ export function replayOrdinaryPointerBrowserPacket(packet){
       anchorSerial:c.inputs[p+7],anchorTimestampMs:c.inputs[p+8]}
   })
   const frames=Array.from({length:c.frameCount},(_,rowIndex)=>{
-    const i=rowIndex*129,serial=packet.rows[i],timestampMs=packet.rows[i+1],observedCompletedAtMs=packet.rows[i+2]
+    const i=rowIndex*133,serial=packet.rows[i],timestampMs=packet.rows[i+1],observedCompletedAtMs=packet.rows[i+2]
     assert.equal(serial,c.initialSerial+rowIndex+1)
     for(let n=0;n<113;n++)assert.equal(packet.rows[i+16+n],packet.geometryWitness[n],'Recorded geometry row differs')
     const production=packet.recent[serial-1];assert.equal(production.timestampMs,timestampMs);assert.equal(production.state,'paused')
     const metrics=production.pointerBreakdown;assert.ok(metrics?.interaction&&metrics.ordinaryTerrain)
     const point=[packet.rows[i+3],packet.rows[i+4]],nullable=x=>x===-1?null:x
-    const resultWitness=ordinaryPointerResultWitness({mode:packet.rows[i+7],navigationPointer:null,
+    const resultWitness=ordinaryPointerResultWitness({mode:packet.rows[i+7],navigationPointer:{x:packet.rows[i+129],y:packet.rows[i+130],buttons:packet.rows[i+131]},navigationButtons:packet.rows[i+132],
       pointerScreen:{clientX:point[0],clientY:point[1]},hoveredObject:nullable(packet.rows[i+13]),
       tooltipInput:{pointer:{clientX:packet.rows[i+14],clientY:packet.rows[i+15]},
         route:['world','unmapped-cell','unmapped-object'][packet.rows[i+9]],picked:nullable(packet.rows[i+10]),
