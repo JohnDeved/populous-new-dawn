@@ -1,0 +1,19 @@
+{
+  "node_modules/playwright-core/package.json": "f061c58427e47e843e26d201f0a57076c734e57c734ecbbd87d4a23b7a20db9b",
+  "node_modules/playwright-core/browsers.json": "545d52f8382c391e605562c330e9c1c534a16045898203037a49bb8bd769a946",
+  "node_modules/playwright-core/index.js": "a58fb2cec4293e7dcf73c58a179898a4f3986666451a19da4e731fa3af63265b",
+  "node_modules/playwright-core/lib/bootstrap.js": "4637f4dbfef9cfc01baeb5f5d2cb63fa0901522c96915ea2227290558d27123e",
+  "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+  "node_modules/playwright-core/lib/utilsBundle.js": "2d1ccc01d21b7d54ca99a6305991d7fb6e072ea4e725d7fec5eb6184188c52c9",
+  "scripts/tutorial-browser/run.mjs": "8fc9842b425cf9a5bf4e2ddeae1aad5bea9108e5f39e8d1eecdc50b93a6b42d7",
+  "scripts/tutorial-browser/capture-descendant-environment.mjs": "ad1f0214d3850d102fc366121ecd39256acda44e45a6e367eab3dfe55f3c966d",
+  "scripts/tutorial-browser/capture-protocol-window.mjs": "720280e7ee6a7a2d9a57675598d89d07a13bb9cad2528ec1910b36585ab0594c",
+  "scripts/tutorial-browser/capture-protocol-collector.mjs": "a6df465cd6f576b052891ff0df34b6602cfa5efc19507a68fbdf7fa2a0ae7d46",
+  "package-lock.json": "3e14a05ec38c7dcacf521d5050651137138147dd2a2eadf9abdd5344fa314c71",
+  "pnpm-lock.yaml": "adeb685e8a68f2adc67d7e387080db4c2bb60030a495b7760d6e0556702464b5",
+  "scripts/performance-queue.mjs": "e31ea9d1c1bdce7481d5eaf7e93f5b4bcb83de2989980ba6f308dd9b7c851b4f",
+  "scripts/tutorial-browser/run-capture-protocol.mjs": "c7a63de91c29729dfc594e99fe9df66fff9a9aebdecdf329c1227bd149dfa533",
+  "scripts/tutorial-browser/integrated-capture-protocol.mjs": "db37223b55b7a22a70311a1c6737bc93f9c49c9f4c422c6e7e2f8948c8752fac",
+  "scripts/tutorial-browser/qualify-capture-inputs.mjs": "6bf99a631bd92658413746cd263b0b2d59dfad30d2e3cdcd1ea1a840db3b3bf9",
+  "scripts/orchestration/dependency-profile.mjs": "c1c563ebb6bdebafb52b55b78a4b747e6a80a889f83ffd1c39d3c94e340b4557"
+}

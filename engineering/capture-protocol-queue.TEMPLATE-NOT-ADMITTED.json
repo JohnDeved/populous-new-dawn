@@ -1,0 +1,51 @@
+{
+  "owner": "__REQUIRES_CURRENT_OWNING_TASK__",
+  "label": "opt-in Tutorial capture boundary diagnostic; not a timeout repair",
+  "cwd": "__REQUIRES_ABSOLUTE_PRIVATE_CHECKOUT__",
+  "command": [
+    "__REQUIRES_ABSOLUTE_QUALIFIED_NODE__",
+    "scripts/tutorial-browser/run-capture-protocol.mjs"
+  ],
+  "inputs": [
+    "node_modules/playwright-core/package.json",
+    "node_modules/playwright-core/browsers.json",
+    "node_modules/playwright-core/index.js",
+    "node_modules/playwright-core/lib/bootstrap.js",
+    "node_modules/playwright-core/lib/coreBundle.js",
+    "node_modules/playwright-core/lib/utilsBundle.js",
+    "scripts/tutorial-browser/run.mjs",
+    "scripts/tutorial-browser/capture-descendant-environment.mjs",
+    "scripts/tutorial-browser/capture-protocol-window.mjs",
+    "scripts/tutorial-browser/capture-protocol-collector.mjs",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "scripts/performance-queue.mjs",
+    "scripts/tutorial-browser/run-capture-protocol.mjs",
+    "scripts/tutorial-browser/integrated-capture-protocol.mjs",
+    "scripts/tutorial-browser/qualify-capture-inputs.mjs",
+    "scripts/tutorial-browser/capture-qualified-inputs.json",
+    "scripts/orchestration/dependency-profile.mjs",
+    "scripts/performance-queue-launcher.cjs",
+    "node_modules/.modules.yaml",
+    "node_modules/.pnpm/lock.yaml"
+  ],
+  "ports": [
+    5198
+  ],
+  "timeoutMs": 900000,
+  "cleanup": "receipt",
+  "env": {
+    "POPULOUS_URL": "http://127.0.0.1:5198",
+    "PND_CAPTURE_PROTOCOL_WINDOW": "1",
+    "PND_CAPTURE_NODE_SHA256": "__REQUIRES_INDEPENDENT_NODE_SHA256__",
+    "NODE_OPTIONS": "",
+    "NODE_PATH": "",
+    "NODE_COMPILE_CACHE": "",
+    "NODE_V8_COVERAGE": "",
+    "DEBUG": "",
+    "DEBUG_FILE": "",
+    "PWDEBUG": "",
+    "PW_INSTRUMENT_MODULES": "",
+    "PND_CAPTURE_MANIFEST_SHA256": "ac89122d38d9d2df350393735a7f6e8f08c6d7029b100ba69f911bce87d362a8"
+  }
+}
