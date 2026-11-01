@@ -21,6 +21,14 @@ from contextlib import ExitStack, contextmanager
 LIMITS = {'archive_bytes': 96 * 1024**2, 'members': 200, 'decoded_bytes': 128 * 1024**2,
           'member_bytes': 8 * 1024**2, 'selection_count': 6, 'cache_bytes': 32 * 1024**2,
           'chunk_bytes': 128 * 1024, 'seconds': 15, 'directory_bytes': 256 * 1024, 'path_depth': 8, 'path_bytes': 64 * 1024}
+# Opaque outer-archive members from the local Playwright 1.63.0 single-chunk
+# pause trace owner. No nested ZIP parsing, viewer, execution or trace acceptance.
+# Other trace names/resources, remote repacks and later chunks remain unsupported.
+PAUSE_TRACE_MEMBERS = frozenset(
+    [f'pause-click-traces/archives/{mode}.zip' for mode in ('native', 'fallback')] +
+    [f'pause-click-traces/work/pause-{mode}{suffix}'
+     for mode in ('native', 'fallback')
+     for suffix in ('.trace', '.network', '.stacks', '-pwnetcopy-1.network')])
 CONTROL = '.evidence-cache.json'
 NOFOLLOW = os.O_NOFOLLOW
 DIRECTORY = os.O_RDONLY | os.O_DIRECTORY | NOFOLLOW
@@ -61,7 +69,8 @@ def safe_name(value):
             'Noncanonical member name')
     require(len(p.parts) <= LIMITS['path_depth'] and all(part and not part.startswith('.') and ':' not in part
             and not any(ord(c) < 32 or ord(c) == 127 for c in part) for part in p.parts), 'Hidden/traversal member name')
-    require(p.suffix.lower() in ('.png', '.json', '.jsonl', '.log', '.txt'), 'Unsupported evidence member type')
+    require(p.suffix.lower() in ('.png', '.json', '.jsonl', '.log', '.txt') or value in PAUSE_TRACE_MEMBERS,
+            'Unsupported evidence member type')
     return p
 
 
