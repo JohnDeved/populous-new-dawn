@@ -167,7 +167,14 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
   const contains = (box, fragment, x = true, y = true) =>
     (!x || (fragment.left >= box.left - 0.5 && fragment.right <= box.right + 0.5)) &&
     (!y || (fragment.top >= box.top - 0.5 && fragment.bottom <= box.bottom + 0.5))
+  const visibleFragments = node =>
+    node.fragments.some(fragment => fragment.right > fragment.left && fragment.bottom > fragment.top)
   const assertFragment = (fragment, node, diagnostic) => {
+    assert.ok(
+      [fragment.left, fragment.top, fragment.right, fragment.bottom].every(Number.isFinite) &&
+        fragment.right >= fragment.left && fragment.bottom >= fragment.top,
+      'Text fragments must have finite, ordered bounds'
+    )
     assert.ok(contains({ left: 0, top: 0, right: width, bottom: height }, fragment), 'Text must fit viewport')
     if (diagnostic) assert.ok(contains(layout, fragment), 'Diagnostic text must fit F8')
     for (const clip of node.clips) {
@@ -181,7 +188,7 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
     ...strictBoxes,
     ...witness.diagnosticFields.filter(node => node.metric !== 'export-status' || node.text.trim()),
   ]) {
-    assert.ok(node.text.trim() && node.fragments.length, 'Visible text fragments are required')
+    assert.ok(node.text.trim() && visibleFragments(node), 'Positive-area visible text fragments are required')
     assert.equal(node.contentFits, true, 'Text must not overflow its own box')
     assert.ok(node.left >= 0 && node.top >= 0 && node.right <= width && node.bottom <= height)
     for (const fragment of node.fragments) {
@@ -194,7 +201,7 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
   }
   assert.ok(witness.diagnosticTextRuns.length, 'Distinct diagnostic text runs are required')
   for (const [index, run] of witness.diagnosticTextRuns.entries()) {
-    assert.ok(run.text.trim() && run.fragments.length, 'Diagnostic text runs must be visible')
+    assert.ok(run.text.trim() && visibleFragments(run), 'Diagnostic text runs require positive-area fragments')
     for (const fragment of run.fragments) {
       assertFragment(fragment, run, true)
       for (const other of witness.diagnosticTextRuns.slice(index + 1))

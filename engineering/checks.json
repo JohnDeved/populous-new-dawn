@@ -59,6 +59,7 @@
         "Exact candidate/infrastructure identities, dependency export resolution, cleanup and bounded episode accounting",
         "Effective sound pending state and focus/world/popup ownership rejection controls",
         "Finite, visible pending pointer targets owned by the sound control or its artwork",
+        "Final receipt self-size and complete artifact byte accounting with unchanged screenshot/byte budgets",
         "Owned pause tracing accounts intermediate and exported bytes, retains first failure and bounds stop observation before genuine context close; synthetic tests do not qualify browser flush."
       ],
       "knownLimits": [
@@ -79,6 +80,7 @@
         ".github/workflows/native-ui-evidence.yml",
         "engineering/native-ui-evidence.md",
         "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-receipt.test.mjs",
         "tests/native-ui-pause-trace.test.mjs"
       ],
       "inputs": [
@@ -98,6 +100,7 @@
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
         "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-receipt.test.mjs",
         "tests/native-ui-pause-trace.test.mjs"
       ],
       "prerequisites": [
