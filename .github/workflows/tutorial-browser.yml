@@ -11,6 +11,7 @@ on:
       - 'scripts/local-render/tutorial-recommendation.mjs'
       - 'scripts/local-render/frontend-held-escape.mjs'
       - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+      - 'scripts/local-render/pause-capture-controls.mjs'
       - 'scripts/local-render/campaign-profile-recovery.mjs'
       - 'scripts/checkpoint-readback.mjs'
       - 'scripts/local-render/checkpoint-observer.mjs'
@@ -166,7 +167,7 @@ jobs:
         run: git diff --exit-code HEAD --
       - name: Retain bounded validation receipts and screenshots
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ matrix.artifact }}-${{ github.sha }}
           path: |

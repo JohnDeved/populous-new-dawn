@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
+import { EventEmitter } from 'node:events'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
@@ -176,4 +177,254 @@ test('shared benchmark runners can be imported without initializing outputs or s
   execFileSync(process.execPath, ['--input-type=module', '-e', source], {
     cwd: root, env: { ...process.env, BENCHMARK_SHARD: 'invalid-import-must-not-run' }, timeout: 15000, stdio: 'pipe',
   })
+})
+
+// Deliberately independent lifecycle events: kill/destroy do not manufacture an
+// exit or close. These fakes cannot establish OS descendant cleanup.
+function inspectionFixture({ throwSpawn = 0, configure = () => {} } = {}) {
+  class Stream extends EventEmitter {
+    destroys = 0
+    resumes = 0
+    unpipes = 0
+    pipe(target) { this.target = target; this.onPipe?.(); return target }
+    unpipe(target) { assert.equal(target, this.target); this.unpipes++; this.onUnpipe?.(); this.target = null; return this }
+    destroy() { this.destroys++; this.onDestroy?.(); return this }
+    resume() { this.resumes++; return this }
+  }
+  class Child extends EventEmitter {
+    signals = []
+    unrefs = 0
+    constructor(index) {
+      super(); this.pid = 1000 + index
+      this.stdin = index === 0 ? null : new Stream()
+      this.stdout = new Stream(); this.stderr = new Stream()
+    }
+    kill(signal) { this.signals.push(signal); return this.onKill ? this.onKill() : true }
+    unref() { this.unrefs++; throw Error('Inspection must not unref owned children') }
+  }
+  const children = [], calls = [], timers = [], pending = new Map()
+  const operations = {
+    spawn: (file, args, options) => {
+      calls.push({ file, args, options })
+      if (calls.length === throwSpawn) throw Error('fixture spawn failure')
+      const child = new Child(children.length); configure(child, children.length)
+      children.push(child); return child
+    },
+    setTimeout: (callback, delay) => {
+      const timer = { callback, delay, cleared: false }; timers.push(timer); pending.set(timer, timer); return timer
+    },
+    clearTimeout: timer => { timer.cleared = true; pending.delete(timer) },
+  }
+  const fire = delay => {
+    const matches = [...pending.values()].filter(timer => timer.delay === delay)
+    assert.equal(matches.length, 1, `one pending ${delay}-ms timer`)
+    pending.delete(matches[0]); matches[0].callback(); return matches[0]
+  }
+  return { operations, children, calls, timers, pending, fire,
+    start: () => packagedBrowserSha256('/fixture/chrome.deb', operations),
+    spawned: () => children.forEach(child => child.emit('spawn')) }
+}
+
+async function inspectionFailure(promise) {
+  return promise.then(() => assert.fail('inspection unexpectedly succeeded'), error => error)
+}
+
+test('member hashing requires both successful closes and keeps exact command ownership', { timeout: 5000 }, async () => {
+  const f = inspectionFixture(), promise = f.start(); f.spawned()
+  const [archive, member] = f.children
+  member.stdout.emit('data', Buffer.from('first ')); member.stdout.emit('data', Buffer.from('second'))
+  archive.emit('exit', 0, null); member.emit('exit', 0, null)
+  assert.equal(f.pending.size, 1, 'exit is not close')
+  member.emit('close', 0, null); assert.equal(f.pending.size, 1, 'consumer alone cannot certify producer')
+  archive.emit('close', 0, null)
+  assert.equal(await promise, sha256('first second'))
+  assert.deepEqual(f.calls, [
+    { file: 'dpkg-deb', args: ['--fsys-tarfile', '/fixture/chrome.deb'], options: { stdio: ['ignore', 'pipe', 'pipe'] } },
+    { file: 'tar', args: ['--extract', '--to-stdout', '--file', '-', './opt/google/chrome/chrome'], options: { stdio: ['pipe', 'pipe', 'pipe'] } },
+  ])
+  assert.equal(f.pending.size, 0); assert.equal(f.timers.length, 1); assert.equal(f.timers[0].cleared, true)
+  f.timers[0].callback() // A cleared timer cannot signal or change the result.
+  assert.equal(await promise, sha256('first second'))
+  for (const child of f.children) {
+    assert.deepEqual(child.signals, []); assert.equal(child.unrefs, 0)
+    assert.equal(child.listenerCount('error'), 0); assert.equal(child.stdout.listenerCount('data'), 0)
+  }
+})
+
+test('early member close cannot hide producer failure, signal or error', { timeout: 5000 }, async () => {
+  for (const failure of ['code', 'signal', 'error']) {
+    const f = inspectionFixture(), promise = f.start(); f.spawned()
+    const [archive, member] = f.children
+    member.stdout.emit('data', Buffer.from('data')); member.emit('close', 0, null)
+    if (failure === 'error') { archive.emit('error', Error('producer failed')); f.fire(1000) }
+    else archive.emit('close', failure === 'code' ? 1 : null, failure === 'signal' ? 'SIGTERM' : null)
+    const error = await inspectionFailure(promise)
+    assert.match(error.message, failure === 'error' ? /process failed/ : /extraction failed/)
+    assert.equal(f.pending.size, 0); assert.deepEqual(member.signals, [])
+  }
+})
+
+test('two successful closes with no member data still fail closed', { timeout: 5000 }, async () => {
+  const f = inspectionFixture(), promise = f.start()
+  for (const child of f.children) child.emit('close', 0, null)
+  const error = await inspectionFailure(promise)
+  assert.match(error.message, /Packaged browser is missing/)
+  assert.equal(f.pending.size, 0)
+})
+
+test('held pipes after both direct exits cannot prevent timeout rejection', { timeout: 5000 }, async () => {
+  const f = inspectionFixture(), promise = f.start(); f.spawned()
+  f.children[1].stdout.emit('data', Buffer.from('unclosed data'))
+  for (const child of f.children) child.emit('exit', 0, null)
+  f.fire(60000)
+  const error = await inspectionFailure(promise)
+  assert.match(error.message, /inspection timed out/)
+  assert.match(error.message, /descendant cleanup not established/)
+  assert.equal(error.inspection.descendantCleanup, 'not-established')
+  for (const item of error.inspection.children) {
+    assert.equal(item.exitObserved, true); assert.equal(item.closeObserved, false); assert.equal(item.kill, 'not-attempted')
+  }
+  for (const child of f.children) {
+    assert.deepEqual(child.signals, []); assert.equal(child.unrefs, 0)
+    for (const stream of [child.stdin, child.stdout, child.stderr].filter(Boolean)) assert.equal(stream.destroys, 1)
+  }
+  assert.equal(f.pending.size, 0)
+})
+
+test('unknown direct termination gets bounded rejection and immutable late-event evidence', { timeout: 5000 }, async () => {
+  const f = inspectionFixture(), promise = f.start(); f.spawned()
+  const inspectionTimer = f.fire(60000), grace = [...f.pending.values()][0]
+  assert.equal(grace.delay, 1000)
+  f.children[0].emit('error', Error('late error')); f.children[0].emit('close', 0, null)
+  assert.equal([...f.pending.values()][0], grace, 'failure does not extend grace')
+  f.fire(1000)
+  const error = await inspectionFailure(promise), frozen = JSON.stringify(error.inspection)
+  assert.match(error.message, /inspection timed out/)
+  assert.ok(error.message.length < 512, 'fixed diagnostic cannot serialize arbitrary child output')
+  assert.equal(error.inspection.children[0].closeObserved, true)
+  assert.equal(error.inspection.children[1].closeObserved, false)
+  assert.equal(error.inspection.children.every(item => !item.exitObserved), true)
+  for (const child of f.children) {
+    assert.deepEqual(child.signals, ['SIGKILL']); assert.equal(child.unrefs, 0)
+    child.emit('error', Error('after rejection')); child.emit('exit', 0, null); child.emit('close', 0, null)
+    child.stdout.emit('error', Error('late stream error')); child.stdout.emit('data', Buffer.from('late bytes'))
+  }
+  inspectionTimer.callback(); grace.callback()
+  assert.equal(JSON.stringify(error.inspection), frozen)
+  assert.throws(() => { error.inspection.children[0].exitObserved = true }, TypeError)
+  assert.throws(() => error.inspection.children.push({}), TypeError)
+  assert.equal(f.pending.size, 0); assert.equal(f.timers.length, 2)
+  for (const child of f.children) assert.deepEqual(child.signals, ['SIGKILL'])
+})
+
+test('partial synchronous spawn failure tears down only acquired children', { timeout: 5000 }, async () => {
+  for (const throwSpawn of [1, 2]) {
+    const f = inspectionFixture({ throwSpawn }), promise = f.start()
+    if (throwSpawn === 2) f.fire(1000)
+    const error = await inspectionFailure(promise)
+    assert.match(error.message, /setup failed/)
+    assert.equal(f.calls.length, throwSpawn); assert.equal(error.inspection.children.length, throwSpawn - 1)
+    for (const child of f.children) assert.deepEqual(child.signals, ['SIGKILL'])
+    assert.equal(f.pending.size, 0)
+  }
+})
+
+test('spawn failure and post-spawn errors are distinct terminal observations', { timeout: 5000 }, async () => {
+  for (const index of [0, 1]) for (const spawned of [false, true]) {
+    const f = inspectionFixture(), promise = f.start(), child = f.children[index]
+    if (spawned) child.emit('spawn')
+    child.pid = undefined; child.emit('error', Error('fixture child error'))
+    f.fire(1000)
+    const error = await inspectionFailure(promise), item = error.inspection.children[index]
+    assert.match(error.message, /process failed/)
+    assert.equal(item.spawnFailed, !spawned); assert.equal(item.exitObserved, false)
+    assert.equal(item.kill, spawned ? 'sent' : 'not-attempted')
+    assert.equal(f.pending.size, 0)
+  }
+})
+
+test('every owned stdio error triggers sticky bounded teardown', { timeout: 5000 }, async () => {
+  for (const [index, stream] of [[0, 'stdout'], [0, 'stderr'], [1, 'stdin'], [1, 'stdout'], [1, 'stderr']]) {
+    const f = inspectionFixture(), promise = f.start(); f.spawned()
+    f.children[index][stream].emit('error', Error('fixture stream error')); f.fire(1000)
+    const error = await inspectionFailure(promise)
+    assert.match(error.message, /stream failed/)
+    for (const child of f.children) assert.deepEqual(child.signals, ['SIGKILL'])
+    assert.equal(f.pending.size, 0)
+  }
+})
+
+test('teardown exceptions and reentrant errors neither replace first cause nor skip other children', { timeout: 5000 }, async () => {
+  const f = inspectionFixture(), promise = f.start(); f.spawned()
+  const [archive, member] = f.children
+  archive.stdout.onUnpipe = () => { throw Error('unpipe failed') }
+  archive.stderr.onDestroy = () => { throw Error('destroy failed') }
+  archive.onKill = () => { archive.emit('error', Error('reentrant kill error')); return false }
+  member.onKill = () => { throw Error('kill failed') }
+  f.fire(60000); f.fire(1000)
+  const error = await inspectionFailure(promise)
+  assert.match(error.message, /inspection timed out/)
+  assert.equal(error.inspection.children[0].streamTeardownFailed, true)
+  assert.equal(error.inspection.children[0].errorObserved, true)
+  assert.equal(error.inspection.children[0].kill, 'not-sent')
+  assert.equal(error.inspection.children[1].kill, 'threw')
+  assert.equal(member.stdout.destroys, 1); assert.equal(member.stderr.destroys, 1)
+  for (const child of f.children) assert.deepEqual(child.signals, ['SIGKILL'])
+  assert.equal(f.pending.size, 0); assert.equal(f.timers.length, 2)
+})
+
+test('overflow, hashing exceptions and pipe setup exceptions fail before acceptance', { timeout: 5000 }, async () => {
+  for (const failure of ['overflow', 'hash', 'pipe']) {
+    const f = inspectionFixture({ configure: (child, index) => {
+      if (failure === 'pipe' && index === 0) child.stdout.onPipe = () => { throw Error('fixture pipe error') }
+    } }), promise = f.start()
+    if (failure !== 'pipe') {
+      // This is a mocked limit-branch notification, not a 1-GiB stress fixture.
+      // The non-Buffer overflow token must be rejected before hash.update.
+      f.children[1].stdout.emit('data', { length: failure === 'overflow' ? 1024 * 1024 * 1024 + 1 : 1 })
+    }
+    f.fire(1000)
+    const error = await inspectionFailure(promise)
+    assert.match(error.message, failure === 'overflow' ? /Oversized packaged browser/ : failure === 'hash' ? /hashing failed/ : /setup failed/)
+    assert.equal(f.pending.size, 0)
+  }
+})
+
+test('reentrant setup failure finishes all teardown bookkeeping and skips further setup', { timeout: 5000 }, async () => {
+  const f = inspectionFixture({ configure: (child, index) => {
+    child.onKill = () => { child.emit('exit', null, 'SIGKILL'); return true }
+    if (index === 0) child.stdout.onPipe = () => child.stdout.emit('error', Error('during pipe setup'))
+  } }), promise = f.start()
+  const error = await inspectionFailure(promise)
+  assert.match(error.message, /stream failed/)
+  assert.equal(f.calls.length, 2)
+  for (const item of error.inspection.children) {
+    assert.equal(item.exitObserved, true); assert.equal(item.kill, 'sent')
+  }
+  for (const child of f.children) {
+    assert.deepEqual(child.signals, ['SIGKILL']); assert.equal(child.stderr.resumes, 0)
+    assert.equal(child.stdout.destroys, 1); assert.equal(child.stderr.destroys, 1)
+  }
+  assert.equal(f.pending.size, 0)
+})
+
+test('held-pipe inspection failure reaches installer failed receipt and owned-download cleanup without sudo', { timeout: 5000 }, async t => {
+  const f = fixture(t), inspection = inspectionFixture(), keep = resolve(f.directory, 'keep.txt')
+  writeFileSync(keep, 'unrelated fixture data')
+  f.operations.packagedHash = path => {
+    assert.equal(path, f.calls.find(call => call.file === 'curl').args.at(-2))
+    return packagedBrowserSha256(path, inspection.operations)
+  }
+  const promise = installBenchmarkBrowser(f.directory, f.operations)
+  for (const child of inspection.children) child.emit('exit', 0, null)
+  inspection.fire(60000)
+  await assert.rejects(promise, /inspection timed out/)
+  assert.deepEqual(f.calls.map(call => call.file), ['dpkg-query', 'curl', 'dpkg-deb'])
+  const receipt = f.receipt(), download = f.calls[1].args
+  assert.equal(receipt.status, 'failed'); assert.ok(receipt.endedAt)
+  assert.match(receipt.failure, /descendant cleanup not established/)
+  assert.equal(receipt.packageSha256, pin.packageSha256); assert.equal(receipt.browserSha256, null)
+  assert.equal(existsSync(download[download.indexOf('--output') + 1]), false)
+  assert.equal(readFileSync(keep, 'utf8'), 'unrelated fixture data')
+  assert.equal(inspection.pending.size, 0)
 })

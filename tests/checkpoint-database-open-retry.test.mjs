@@ -8,7 +8,7 @@ async function withDatabase(run, { synchronousFailures = 0 } = {}) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB'),
     records = new Map(), requests = []
   let attempts = 0
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
       const transaction = new EventTarget()
@@ -27,7 +27,7 @@ async function withDatabase(run, { synchronousFailures = 0 } = {}) {
       setImmediate(() => transaction.dispatchEvent(new Event('complete')))
       return transaction
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {
