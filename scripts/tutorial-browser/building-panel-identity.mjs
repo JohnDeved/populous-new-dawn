@@ -3,6 +3,9 @@ import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { bindGame } from '../browser-game.mjs'
+import { waitForStartupMenu } from '../browser-new-game.mjs'
+import { createStageTiming } from './stage-timing.mjs'
+import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
 
 export const buildingPanelIdentityLimitMs = 35000
 
@@ -59,35 +62,72 @@ export async function finishBuildingPanelIdentity({ context, report, output, fai
   return report
 }
 
+// Serialized directly by Playwright. This observes eligibility and the next
+// ordinary painter submission; it never focuses, paints, or repairs either.
+export function readEligibleBuildingHit() {
+  const { scene, building } = window.buildingIdentity
+  if (building.team !== 'blue' || !scene.visible(building)) return false
+  const p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect(),
+    cx = rect.left + ((p.x + 1) * rect.width) / 2,
+    cy = rect.top + ((1 - p.y) * rect.height) / 2
+  for (const dy of [-40, -60, -20, -80, 0, -100, -120, -140, 20, 40, 60])
+    for (const dx of [0, -10, 10, -20, 20, -40, 40, -60, 60, -80, 80]) {
+      const event = { clientX: cx + dx, clientY: cy + dy }
+      if (document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement && scene.picking.pick(event) === building.id)
+        return { x: event.clientX, y: event.clientY }
+    }
+  return false
+}
+
+// Two independent transport/input operations, with a full settlement barrier.
+// A rejection (including a synchronous throw) stays fatal, and the other owned
+// operation must finish before any later pointer/visibility phase can start.
+export async function settleBuildingRestorePair(first, second) {
+  const results = await Promise.allSettled([
+    Promise.resolve().then(first),
+    Promise.resolve().then(second),
+  ])
+  const failures = results.filter(result => result.status === 'rejected').map(result => result.reason)
+  if (failures.length) throw new AggregateError(failures, 'Building identity restore command failed')
+  return results.map(result => result.value)
+}
+
 export default async function buildingPanelIdentity({ browser, url, output }) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 1,
   })
+  const timing = createStageTiming()
   const report = {
+    timing: timing.report,
     status: 'running',
     errors: [],
     screenshots: {},
     limits: [
       'Actual Home, visible DOM controls and ordinary renderer; supplied allocation-boundary buildings/person and camera setup',
       'Synchronous bounded real damage, retirement, entry and worker-turn batches under public pause; not naturally timed campaign acquisition',
+      'Ownership/camera-exclusion and focus/blur boundaries supplied; actual pointer hover, DOM focus, Scene.visible and render frames observed; not natural enemy capture, keyboard navigation or ordinary camera input',
       'No production hooks, gameplay deletion shortcut, native raster equivalence or performance claim',
     ],
   }
   let page, failure
   const screenshot = async (name, timeout = 10000) => {
     const path = resolve(output, `building-identity-${name}.png`)
+    timing.mark(`screenshot:${name}:start`)
     await page.screenshot({ path, timeout })
+    timing.mark(`screenshot:${name}:captured`)
     report.screenshots[name] = {
       file: `building-identity-${name}.png`,
       sha256: createHash('sha256').update(readFileSync(path)).digest('hex'),
     }
   }
   const timer = setTimeout(() => {
+    timing.mark('deadline:fired')
     report.timedOut = true
     void context.close().catch(error => report.errors.push(String(error)))
   }, buildingPanelIdentityLimitMs)
   try {
+    timing.mark('setup:start')
     page = await context.newPage()
     page.setDefaultTimeout(10000)
     page.on('pageerror', error => report.errors.push(String(error)))
@@ -97,13 +137,18 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     page.on('crash', () => report.errors.push('Building identity page crashed'))
     const target = new URL(url)
     target.searchParams.set('building-panel-identity', '1')
+    timing.mark('navigation:start')
     await page.goto(target.href, { waitUntil: 'domcontentloaded' })
+    timing.mark('navigation:complete')
     const button = name => page.getByRole('button', { name, exact: true })
+    await waitForStartupMenu(page)
     await button('New Game').click()
     await page.locator('[data-original-tutorial-recommendation]').waitFor()
     await button('No').click()
     await button('Start Mission 1').click()
+    timing.mark('mission-start:clicked')
     await bindGame(page)
+    timing.mark('game:bound')
     const startup = await page.waitForFunction(() => {
       const world = window.testStore.getWorld()
       if (!world.inputMask && world.levelStart.every(site => site.phase === 4)) return 'ready'
@@ -126,6 +171,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         )
       )
     })
+    timing.mark('startup:ready')
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     report.setup = await page.evaluate(() => {
@@ -165,6 +211,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     assert.equal(await panel.count(), 1)
     await panel.locator('.dismantle-control').focus()
     await screenshot('original')
+    timing.mark('replacement:start')
     report.replacement = await page.evaluate(() =>
       window.__pndBuildingPanelFixture.replaceBetweenPaints(window.buildingIdentity)
     )
@@ -190,6 +237,106 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       samePanel: true,
     })
     await screenshot('selected')
+    timing.mark('selection:complete')
+    // Supplied eligibility boundaries; actual DOM holds, projection eligibility
+    // and ordinary render frames must retire the stale UI without forced paint.
+    report.heldVisibility = []
+    async function revealCurrentPanel(label) {
+      // Require restored eligibility and an actual unobscured painter hit in the
+      // same ordinary-frame observation; neither condition substitutes for the other.
+      timing.mark(`${label}:eligible-hit:start`)
+      const targetHandle = await page.waitForFunction(readEligibleBuildingHit)
+      timing.mark(`${label}:eligible-hit:complete`)
+      // Serialize only the observed coordinates while performing the same real
+      // away movement. Neither operation forces eligibility or a rendered frame.
+      timing.mark(`${label}:pointer-away-start`)
+      const [target] = await settleBuildingRestorePair(
+        () => targetHandle.jsonValue(),
+        () => page.mouse.move(10, 10),
+      )
+      // The first pair fully settled, so return can never precede away. Dispose
+      // only the transport handle while issuing the unchanged real return input.
+      timing.mark(`${label}:pointer-return-start`)
+      await settleBuildingRestorePair(
+        () => targetHandle.dispose(),
+        () => page.mouse.move(target.x, target.y),
+      )
+      timing.mark(`${label}:visible-start`)
+      await panel.waitFor({ state: 'visible' })
+      timing.mark(`${label}:complete`)
+    }
+    for (const hold of ['pointer', 'focus']) {
+      for (const boundary of ['ownership', 'visibility']) {
+        // Selection or the prior actual restoration already opened this panel.
+        // Fail closed immediately instead of repeating an input-driven reopening.
+        timing.mark(`${hold}/${boundary}/reuse-precondition:start`)
+        assertCurrentBuildingPanel(await page.evaluate(readCurrentBuildingPanel))
+        timing.mark(`${hold}/${boundary}/reuse-precondition:complete`)
+        if (hold === 'pointer') {
+          await panel.hover()
+        } else {
+          await panel.locator('.dismantle-control').focus()
+          await page.mouse.move(10, 10)
+        }
+        const before = await page.evaluate(({ hold, boundary }) => {
+          // Keep the real blur, but observe its immediate result in the same command.
+          // The post-frame transition below revalidates before changing eligibility.
+          if (hold === 'pointer' && document.activeElement instanceof HTMLElement)
+            document.activeElement.blur()
+          const h = window.buildingIdentity, p = h.panel
+          const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
+          const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover')
+          if (!held || otherHold || !p.isConnected || p.hidden || h.scene.buildingPanels.get(h.building.id) !== p || h.building.team !== 'blue' || !h.scene.visible(h.building) || h.scene.navigationButtons() !== 0)
+            throw Error('Expected held, owned and visible positive control')
+          h.heldVisibilityBefore = { frame: h.scene.renderer.info.render.frame, viewPoint: { ...h.scene.viewPoint },
+            panel: p, building: h.building, scene: h.scene }
+          return { hold, boundary, held, frame: h.heldVisibilityBefore.frame }
+        }, { hold, boundary })
+        await page.waitForFunction(frame => window.testSceneRef.current.renderer.info.render.frame >= frame + 2, before.frame)
+        assert.equal(await panel.isVisible(), true, 'Eligible held panel remains visible across real frames')
+        const transition = await page.evaluate(({ hold, boundary }) => {
+          const h = window.buildingIdentity, p = h.panel
+          const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
+          if (!held || h.scene.navigationButtons() !== 0) throw Error('Hold lost or camera input active before eligibility boundary')
+          const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover'),
+            expected = h.heldVisibilityBefore
+          if (!expected || p !== expected.panel || h.building !== expected.building || h.scene !== expected.scene || otherHold || !p.isConnected || p.hidden || h.scene.buildingPanels.get(h.building.id) !== p || h.building.team !== 'blue' || !h.scene.visible(h.building))
+            throw Error('Panel identity or eligibility changed before boundary')
+          const frame = h.scene.renderer.info.render.frame
+          if (boundary === 'ownership') h.building.team = 'red'
+          else h.scene.focus({ x: h.scene.viewPoint.x + 128, z: h.scene.viewPoint.z })
+          return { held, frame, afterVisible: h.scene.visible(h.building), team: h.building.team }
+        }, { hold, boundary })
+        const witness = { ...before, transition, status: 'pending' }
+        report.heldVisibility.push(witness)
+        if (boundary === 'ownership') assert.equal(transition.team, 'red')
+        else assert.equal(transition.afterVisible, false, 'Real Scene visibility rejects camera-excluded building')
+        await page.waitForFunction(frame => {
+          const h = window.buildingIdentity
+          return h.scene.renderer.info.render.frame > frame && h.panel.hidden
+        }, transition.frame)
+        assert.equal(await panel.count(), 0, 'No visible tower panel after eligibility loss')
+        witness.hidden = true
+        timing.mark(`${hold}/${boundary}:hidden`)
+        if (hold === 'focus') await screenshot(`held-${boundary}-hidden`)
+        await page.evaluate(() => {
+          const h = window.buildingIdentity
+          h.building.team = 'blue'
+          h.scene.focus(h.heldVisibilityBefore.viewPoint)
+        })
+        await revealCurrentPanel(`${hold}/${boundary}/restore`)
+        assert.equal(await panel.isVisible(), true, 'Current eligible panel can reopen')
+        witness.reopened = true
+        witness.status = 'passed'
+      }
+    }
+    assert.deepEqual(await page.evaluate(() => {
+      const h = window.buildingIdentity
+      return { selected: [...h.world.selected], inside: h.unit.inside,
+        samePanel: h.scene.buildingPanels.get(h.building.id) === h.panel }
+    }), report.selection, 'Eligibility diagnostics preserve selection and occupant ownership')
+    await screenshot('held-restored')
+    timing.mark('dismantle:start')
     await panel.locator('.dismantle-control').click()
     report.partial = await page.evaluate(() =>
       window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, false)
@@ -209,7 +356,9 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       return !h.panel.isConnected && !h.scene.buildingMeshes.has(h.building.id)
     })
     await screenshot('completed')
+    timing.mark('episode:complete')
   } catch (error) {
+    timing.mark('episode:failure')
     failure = error
     if (page)
       try {
@@ -218,6 +367,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         report.diagnosticError = String(diagnostic)
       }
   } finally {
+    timing.mark('episode:finally')
     clearTimeout(timer)
   }
   return finishBuildingPanelIdentity({ context, report, output, failure })
