@@ -966,23 +966,29 @@ export class RenderView {
       const v = vNumerator / determinant,
         t = 1 - u - v
       if (v < 0 || t < 0) continue
-      const ids = [ia, ib, ic],
-        weights = [u / 1, v / 1, t / 1],
-        sum = weights.reduce((total, weight) => total + weight),
+      const wa = u / 1,
+        wb = v / 1,
+        wc = t / 1,
+        sum = wa + wb + wc,
         p = new THREE.Vector3(),
         source = new THREE.Vector3()
-      ids.forEach((id, j) => {
-        const offset = (slots[id] - 1) * 6
-        source.set(values[offset], values[offset + 1], values[offset + 2])
-        p.addScaledVector(source, weights[j] / sum)
-      })
+      // Preserve ordered slot reads and vector arithmetic without per-hit arrays.
+      let offset = (slots[ia] - 1) * 6
+      source.set(values[offset], values[offset + 1], values[offset + 2])
+      p.addScaledVector(source, wa / sum)
+      offset = (slots[ib] - 1) * 6
+      source.set(values[offset], values[offset + 1], values[offset + 2])
+      p.addScaledVector(source, wb / sum)
+      offset = (slots[ic] - 1) * 6
+      source.set(values[offset], values[offset + 1], values[offset + 2])
+      p.addScaledVector(source, wc / sum)
       if (!this.visible(p, true)) continue
       const wrap = (n: number) => ((((n + 128) % 256) + 256) % 256) - 128
       candidates.push({
         point: { x: wrap(p.x), z: wrap(p.z) },
         object,
         depth: u * az + v * bz + t * cz,
-        triangle: ids[0] / 3,
+        triangle: ia / 3,
         instance,
       })
     }
