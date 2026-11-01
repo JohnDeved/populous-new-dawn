@@ -7,6 +7,22 @@ import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
 import { observeStablePauseControls } from './pause-capture-controls.mjs'
 
+// A secondary browser-close rejection must not replace the scenario's failure.
+// The caller supplies an explicit flag because JavaScript permits falsey throws.
+export async function closePauseRecoveryContext(context, primaryFailed, receipt) {
+  try {
+    await context.close()
+  } catch (error) {
+    try {
+      receipt.errors.push(`Pause recovery context cleanup failed: ${String(error)}`)
+    } catch {
+      // Diagnostic recording is secondary too; preserve the actual failure.
+    }
+    if (!primaryFailed) throw error
+  }
+}
+
+
 // Controlled failure/timing at the browser storage boundary. The retry opens a
 // real database; only delivery of its success event is held. No game/store state
 // or checkpoint contents are supplied by the fixture.
@@ -295,6 +311,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   await page.close()
 
   const emptyContext = await browser.newContext({ viewport: { width: 800, height: 450 }, deviceScaleFactor: 2 })
+  let contextFailed = false
   try {
     await emptyContext.addInitScript(coldLookupFailure)
     const empty = await emptyContext.newPage()
@@ -329,8 +346,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       assert.equal(await empty.evaluate(() => window.testStore.getWorld().paused), false)
       passed(`empty retry restores usable root focus when completion occurs in ${finishAtRoot ? 'root' : 'Load panel'}`)
     }
+  } catch (error) {
+    contextFailed = true
+    throw error
   } finally {
-    await emptyContext.close()
+    await closePauseRecoveryContext(emptyContext, contextFailed, receipt)
   }
   return {
     checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,
