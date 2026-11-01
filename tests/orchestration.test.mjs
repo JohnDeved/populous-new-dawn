@@ -1033,7 +1033,7 @@ test('native UI checker changes select focused regressions without losing workfl
       .find(item => item.id === 'native-ui-evidence-tests')
     assert.ok(check)
     assert.equal(check.automation, 'safe')
-    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs'])
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs', 'tests/native-ui-pause-trace.test.mjs'])
     const paths = ['scripts/native-ui-evidence/hud-sound-control-style.mjs',
       'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
       '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
