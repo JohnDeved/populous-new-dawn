@@ -1,3 +1,4 @@
+import {previousHudFocusScene} from './helpers/hud-focus-scene-source.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -16,7 +17,7 @@ const cameraPath = 'app/scene-camera-runtime.ts'
 const priorCamera = readFileSync(resolve(root,cameraPath),'utf8')
   .replace('    scene.onSound(222)\n    if (scene.disposed) return\n', '    scene.onSound(222)\n')
 assert.equal(hash(priorCamera),'fd25b51f7adad35cc41584423d75bda5c9fbf71823c5515beaf02e8a2e223c08')
-const inspect = text => inspectDragSource(root,p=>p===path?text:p===cameraPath?priorCamera:readFileSync(resolve(root,p),'utf8'))
+const inspect = text => inspectDragSource(root,p=>p===path?text:p===cameraPath?priorCamera:(p === 'app/scene.ts' ? previousHudFocusScene(readFileSync(resolve(root,p),'utf8')) : readFileSync(resolve(root,p),'utf8')))
 function unique(text,id) {const r=inspect(text); assert.equal(r.profile,id); assert.equal(r.profiles.filter(p=>p.status==='admitted').length,1)}
 test('complete tooltip fix uniquely admits combined candidate',()=>{assert.equal(hash(source),'18b666b052772604505c6c130ad8b8d198b5bff3db6c6d862a77dce69e7e84bc');unique(source,'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1')})
 test('removing precisely both guards reconstructs admitted camera-only parent',()=>{assert.equal(hash(parent),'ad67e80f8232e4440bd2da53dad3979aa16834b18e282e1bf2d901b2df1d5cfb');unique(parent,'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-v1')})

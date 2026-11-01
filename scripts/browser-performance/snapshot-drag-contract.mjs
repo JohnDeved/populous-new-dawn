@@ -402,7 +402,7 @@ const tooltipRetirementSourceProfiles = Object.freeze([
   }),
 ])
 // Bookmark recall needs its own complete source identity; prior profiles remain intact.
-export const dragSourceProfiles = Object.freeze([
+const bookmarkRetirementSourceProfiles = Object.freeze([
   ...tooltipRetirementSourceProfiles,
   Object.freeze({
     id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1',
@@ -410,6 +410,19 @@ export const dragSourceProfiles = Object.freeze([
       'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1').slices.map(slice =>
       slice.id === 'camera-producers' ? Object.freeze({ ...slice,
         sha256: '88dc444b95035b03e4b2864759cef1049b07de85715d9f631ee076246930748b',
+      }) : slice)),
+  }),
+])
+// Direct HUD focus wrappers share one input boundary. This exact-source profile
+// does not broaden runtime admission; every prior profile remains unchanged.
+export const dragSourceProfiles = Object.freeze([
+  ...bookmarkRetirementSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-v1',
+    slices: Object.freeze(bookmarkRetirementSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1').slices.map(slice =>
+      slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
+        sha256: 'f9d0e31cc7baf0de2061bcbb513834cff6173827f558b389825c42791449c24a',
       }) : slice)),
   }),
 ])

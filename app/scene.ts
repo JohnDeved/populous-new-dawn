@@ -947,7 +947,18 @@ export class GameScene {
     focus = false,
     category?: FollowerTask
   ) {
-    chooseFollowers(this, model, modifiers, focus, category)
+    if (!focus) return chooseFollowers(this, model, modifiers, focus, category)
+    // Direct HUD focus resolves its target only after elapsed work; nested focus
+    // must share this input boundary rather than advancing a second time.
+    this.advanceInputTime()
+    if (this.disposed) return
+    this.inputDepth++
+    try {
+      chooseFollowers(this, model, modifiers, focus, category)
+    } finally {
+      this.inputDepth--
+      this.publishCameraInput()
+    }
   }
   chooseTransport(
     kind: TransportKind,
@@ -955,7 +966,16 @@ export class GameScene {
     modifiers: { shiftKey: boolean; ctrlKey: boolean },
     focusNext = false
   ) {
-    chooseTransport(this, kind, model, modifiers, focusNext)
+    if (!focusNext) return chooseTransport(this, kind, model, modifiers, focusNext)
+    this.advanceInputTime()
+    if (this.disposed) return
+    this.inputDepth++
+    try {
+      chooseTransport(this, kind, model, modifiers, focusNext)
+    } finally {
+      this.inputDepth--
+      this.publishCameraInput()
+    }
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     focus(this, p, { animate })

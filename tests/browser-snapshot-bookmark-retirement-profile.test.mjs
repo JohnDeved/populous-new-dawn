@@ -1,3 +1,4 @@
+import {previousHudFocusScene} from './helpers/hud-focus-scene-source.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
@@ -9,7 +10,7 @@ const source=readFileSync(resolve(root,path),'utf8'),marker='    scene.onSound(2
 assert.equal(source.split(marker+guard).length,2)
 const parent=source.replace(marker+guard,marker)
 const hash=s=>createHash('sha256').update(s).digest('hex')
-const inspect=text=>inspectDragSource(root,p=>p===path?text:readFileSync(resolve(root,p),'utf8'))
+const inspect=text=>inspectDragSource(root,p=>p===path?text:(p === 'app/scene.ts' ? previousHudFocusScene(readFileSync(resolve(root,p),'utf8')) : readFileSync(resolve(root,p),'utf8')))
 function unique(text,id){const r=inspect(text);assert.equal(r.profile,id);assert.equal(r.profiles.filter(p=>p.status==='admitted').length,1)}
 function unsupported(text){const r=inspect(text);assert.equal(r.status,'unsupported-source-contract');assert.equal(r.profile,null)}
 test('full bookmark fix uniquely admits combined exact source',()=>{assert.equal(hash(source),'88dc444b95035b03e4b2864759cef1049b07de85715d9f631ee076246930748b');unique(source,'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1')})

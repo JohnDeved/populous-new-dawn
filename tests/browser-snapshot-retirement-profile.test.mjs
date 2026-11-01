@@ -1,3 +1,4 @@
+import {previousHudFocusScene} from './helpers/hud-focus-scene-source.mjs'
 // Exact source admission only: no application module is imported or executed.
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -24,7 +25,7 @@ const priorTooltip = readFileSync(resolve(root, tooltipPath), 'utf8')
     '      scene.onSound(0x6a)\n')
 assert.equal(hash(priorTooltip), 'ad67e80f8232e4440bd2da53dad3979aa16834b18e282e1bf2d901b2df1d5cfb')
 const inspect = camera => inspectDragSource(root, file => file === path ? camera :
-  file === tooltipPath ? priorTooltip : readFileSync(resolve(root, file), 'utf8'))
+  file === tooltipPath ? priorTooltip : (file === 'app/scene.ts' ? previousHudFocusScene(readFileSync(resolve(root, file), 'utf8')) : readFileSync(resolve(root, file), 'utf8')))
 const guard = '  if (scene.disposed) return\n'
 const entries = ['skipIntroduction', 'focus', 'cameraBookmark', 'overview', 'zoom']
 const guardOffset = name => {
