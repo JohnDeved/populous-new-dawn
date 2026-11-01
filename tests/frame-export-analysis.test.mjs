@@ -439,3 +439,38 @@ test('p99 uses nearest rank independently for RAF, callback and measured CPU pha
   assert.equal(sparse.sampleCount, 50)
   assert.equal(sparse.p99, 50, 'missing pointer samples must not become zeroes or RAF samples')
 })
+
+for (const phase of ['callback', 'residual', 'nested pointer']) {
+  test(`rejects nonfinite derived mean from finite ${phase} samples`, () => {
+    const value = report()
+    for (const frame of value.frames) {
+      Object.assign(frame, { simulationCpuMs: 0, sceneRenderCpuMs: 0,
+        pointerTooltipCpuMs: 0, callbackCpuMs: 0, otherCallbackCpuMs: 0 })
+      if (phase === 'callback') {
+        frame.callbackCpuMs = Number.MAX_VALUE
+        frame.otherCallbackCpuMs = Number.MAX_VALUE
+      } else if (phase === 'residual') {
+        frame.simulationCpuMs = Number.MAX_VALUE / 2
+        frame.sceneRenderCpuMs = Number.MAX_VALUE / 2
+        frame.otherCallbackCpuMs = -Number.MAX_VALUE
+      } else frame.pointerBreakdown.objectPickMs = Number.MAX_VALUE
+    }
+    assert.throws(() => summarize(value), /nonfinite timing mean/)
+  })
+}
+
+test('large finite derived means remain accepted without a new timing ceiling', () => {
+  const value = report(), duration = Number.MAX_VALUE / 2
+  for (const frame of value.frames) {
+    Object.assign(frame, { simulationCpuMs: 0, sceneRenderCpuMs: 0,
+      pointerTooltipCpuMs: 0, callbackCpuMs: duration, otherCallbackCpuMs: duration })
+    frame.pointerBreakdown.objectPickMs = duration
+  }
+  const result = summarize(value)
+  assert.ok(Number.isFinite(result.callback.mean))
+  assert.ok(Math.abs(result.callback.mean / duration - 1) <= Number.EPSILON)
+  assert.ok(Number.isFinite(result.pointerPhases.find(row => row.phase === 'objectPickMs').mean))
+  assert.ok(Math.abs(result.pointerPhases.find(row => row.phase === 'objectPickMs').mean / duration - 1) <= Number.EPSILON)
+  assert.equal(result.callback.p99, duration)
+})
+
