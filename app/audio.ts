@@ -149,13 +149,17 @@ export function playWorldSounds(scene: GameScene) {
         dz = Math.round((event.z - scene.viewPoint.z) * 256)
       const screen = scene.screen(event)
       // Native distance curve and projected pan; the full native mixer is still unported.
-      const stop = scene.onSound(
+      let stop: ReturnType<GameScene['onSound']>
+      stop = scene.onSound(
         event.cue,
         soundAttenuation(dx * dx + dz * dz),
         screen.x,
         event.owner === undefined
           ? undefined
           : () => {
+              // WebAudio ended callbacks can arrive after a same-owner restart.
+              const current = scene.ownedSounds.get(event.owner!)
+              if (stop && current && current !== stop) return
               const fire = scene.world.effects.find(f => f.id === event.owner)?.fire
               if (fire) fire.soundPlaying = false
               const burn = scene.world.buildings.find(b => b.id === event.owner)?.burn
