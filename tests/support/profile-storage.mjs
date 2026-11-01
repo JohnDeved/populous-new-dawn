@@ -66,7 +66,7 @@ export async function withStorage(initial, run, { failFirstRestore = false } = {
     }
     queueMicrotask(step)
   }
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
       const transaction = new EventTarget(),
@@ -88,7 +88,7 @@ export async function withStorage(initial, run, { failFirstRestore = false } = {
       queueMicrotask(next)
       return transaction
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {

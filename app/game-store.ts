@@ -103,7 +103,14 @@ function openCheckpointDatabase() {
     request.addEventListener('upgradeneeded', () =>
       request.result.createObjectStore(CHECKPOINT_STORE)
     )
-    request.addEventListener('success', () => resolve(request.result))
+    request.addEventListener('success', () => {
+      const database = request.result
+      // Abnormal browser closure makes this connection unusable for later saves.
+      database.addEventListener('close', () => {
+        if (checkpointDatabase === pending) checkpointDatabase = null
+      })
+      resolve(database)
+    })
     request.addEventListener('error', () => reject(request.error))
   })
   checkpointDatabase = pending
