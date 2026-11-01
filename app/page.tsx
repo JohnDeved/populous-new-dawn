@@ -569,6 +569,7 @@ export default function Home() {
         SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
       if (s && !e.repeat) {
         store.change(w => {
+          if (spellHudVisibility(w, s) !== 'visible') return
           w.mode = w.mode === s.id ? null : s.id
         })
         setTab('spells')
