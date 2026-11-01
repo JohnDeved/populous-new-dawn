@@ -1125,6 +1125,7 @@ export default function Home() {
                   <p>{messageText(message!.stringId)}</p>
                   <button
                     onClick={() => {
+                      if (world.messages.slots[slot] !== message) return
                       removeMessage(world.messages, slot)
                       update()
                     }}
@@ -1251,12 +1252,14 @@ export default function Home() {
             className="portrait"
             aria-label="Select and focus shaman"
             title="Shaman · H"
-            onClick={() => {
-              select(world, 'shaman')
-              audio.current?.cue(0x18)
-              update()
-              engine.current?.focus(shaman ?? HOME, { animate: true })
-            }}
+            onClick={() =>
+              store.change(w => {
+                select(w, 'shaman')
+                audio.current?.cue(0x18)
+                const currentShaman = w.units.find(u => u.team === 'blue' && isShaman(u))
+                engine.current?.focus(currentShaman ?? HOME, { animate: true })
+              })
+            }
           >
             <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>

@@ -323,8 +323,13 @@ export class ObjectPanels {
               event.shiftKey
             )
           else if (head) {
-            selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
+            scene.advanceInputTime()
+            if (scene.disposed) return
+            const currentHead = scene.world.shrines.find(shrine => shrine.id === id)
+            if (!currentHead) return
+            selectWorshippers(scene.world, currentHead, Number(button.dataset.person), event.shiftKey)
             scene.onSound(0x6a)
+            if (scene.disposed) return
             scene.onChange()
           } else if (!event.detail) this.focusOrder(id, Number(button.dataset.order))
         })
@@ -639,6 +644,8 @@ export class ObjectPanels {
     }
   }
   vehicleAction(id: number, personId: number, unload: boolean, right: boolean, all: boolean) {
+    this.scene.advanceInputTime()
+    if (this.scene.disposed) return
     const { scene } = this,
       { world } = scene
     if (world.inputMask || scene.overviewActive) return
@@ -662,6 +669,7 @@ export class ObjectPanels {
       if (!unloadLiveVehicle(world, vehicle)) return
     } else return
     scene.onSound(0x6a)
+    if (scene.disposed) return
     scene.onChange()
   }
   focusWorshipper(headId: number, personId: number) {
@@ -672,7 +680,9 @@ export class ObjectPanels {
     const person = head && liveWorshippers(world, head).find(p => p.id === personId)
     if (!person) return
     scene.focus(browserPosition(person), { animate: true })
+    if (scene.disposed) return
     scene.onSound(0x6a)
+    if (scene.disposed) return
     this.open(personId, true)
   }
   focusOrder(person: number, id: number) {
@@ -708,7 +718,9 @@ export class ObjectPanels {
     )
     if (!point) return
     scene.focus(browserPosition(point), { animate: true })
+    if (scene.disposed) return
     scene.onSound(0x6a)
+    if (scene.disposed) return
     if (point.target) this.open(point.target, true)
     else {
       effect(world, 'orderMarker', browserPosition(point))

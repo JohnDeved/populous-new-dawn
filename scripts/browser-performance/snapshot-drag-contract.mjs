@@ -336,7 +336,7 @@ const combinedCameraHashes = {
   "frame-order": "498b022b8f7535ce6b1adbee7aea560b3649b534cb7533a7023b8fc8585f1cc9",
   "camera-producers": "c7669e423b1adb993dfb4049dbd532a852037d0d389648943c8a669abafa86df"
 }
-export const dragSourceProfiles = Object.freeze([
+const admittedCameraSourceProfiles = Object.freeze([
   ...mainDragSourceProfiles,
   originalChronologicalProfile,
   Object.freeze({ id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
@@ -374,6 +374,44 @@ export const dragSourceProfiles = Object.freeze([
   }
 ].map(slice => Object.freeze(slice)),
   ]) }),
+])
+// The five reviewed post-drain retirement guards form a new exact-source route.
+// Keep every prior profile unchanged; partial fixes and other camera edits must
+// still fail closed. This admits source, not runtime or timing equivalence.
+const cameraRetirementSourceProfiles = Object.freeze([
+  ...admittedCameraSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-v1',
+    slices: Object.freeze(admittedCameraSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-v1')
+      .slices.map(slice => slice.id === 'camera-producers' ? Object.freeze({ ...slice,
+        sha256: 'fd25b51f7adad35cc41584423d75bda5c9fbf71823c5515beaf02e8a2e223c08',
+      }) : slice)),
+  }),
+])
+// Exact combined retirement source. Earlier profiles remain unchanged.
+const tooltipRetirementSourceProfiles = Object.freeze([
+  ...cameraRetirementSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1',
+    slices: Object.freeze(cameraRetirementSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-v1').slices.map(slice =>
+      slice.id === 'tooltip-frame-owner' ? Object.freeze({ ...slice,
+        sha256: '18b666b052772604505c6c130ad8b8d198b5bff3db6c6d862a77dce69e7e84bc',
+      }) : slice)),
+  }),
+])
+// Bookmark recall needs its own complete source identity; prior profiles remain intact.
+export const dragSourceProfiles = Object.freeze([
+  ...tooltipRetirementSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1',
+    slices: Object.freeze(tooltipRetirementSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1').slices.map(slice =>
+      slice.id === 'camera-producers' ? Object.freeze({ ...slice,
+        sha256: '88dc444b95035b03e4b2864759cef1049b07de85715d9f631ee076246930748b',
+      }) : slice)),
+  }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {

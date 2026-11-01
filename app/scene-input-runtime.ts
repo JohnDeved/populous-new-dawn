@@ -656,6 +656,10 @@ export function chooseFollowers(
   focus = false,
   category?: FollowerTask
 ) {
+  if (!focus) {
+    scene.advanceInputTime()
+    if (scene.disposed) return
+  }
   const w = scene.world
   if (w.inputMask || scene.overviewStage) return
   if (!focus && (scene.overviewActive || w.manaWorld.gameFlags & 32)) return
@@ -688,6 +692,7 @@ export function chooseFollowers(
     const person = people.find(p => p.id === id)
     if (person) {
       scene.focus(browserPosition(person), { animate: true })
+      if (scene.disposed) return
       scene.objectPanels.open(id)
     }
   } else {
@@ -707,6 +712,10 @@ export function chooseTransport(
   modifiers: { shiftKey: boolean; ctrlKey: boolean },
   focus = false
 ) {
+  if (!focus) {
+    scene.advanceInputTime()
+    if (scene.disposed) return
+  }
   const w = scene.world
   if (w.inputMask || scene.overviewStage) return
   if (
@@ -729,6 +738,7 @@ export function chooseTransport(
     const vehicle = w.vehicles.find(v => v.id === id)
     if (vehicle) {
       scene.focus(browserPosition(vehicle), { animate: true })
+      if (scene.disposed) return
       scene.objectPanels.open(id)
     }
   } else {

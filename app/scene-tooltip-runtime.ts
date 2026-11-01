@@ -81,6 +81,7 @@ export function updateTooltipFrame(scene: GameScene, now: number, suspended = fa
       for (const cue of group.cues) scene.acquireForcedTooltip(cue.object, cue.duration)
     }
     scene.updateTooltipController(now)
+    if (scene.disposed) return
   }
 }
 
@@ -373,6 +374,7 @@ export function updateTooltipController(scene: GameScene, now: number) {
         browserPosition(buildingInsidePoint(buildingPose(building)))
       )
       scene.onSound(0x6a)
+      if (scene.disposed) return
     } else inspection.push('cancel-stale')
   }
   if (!blocked) scene.objectPanels.renewBuildingInspection(object?.id ?? null)

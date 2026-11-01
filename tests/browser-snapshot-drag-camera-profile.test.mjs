@@ -1,4 +1,4 @@
-// UNEXECUTED conditional controls. Requires the complete reviewed owner tree.
+// Exact-source controls. Requires the complete reviewed owner source closure.
 // Source reads only: no Scene/RenderView import, browser or runtime validation.
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 const root = resolve(import.meta.dirname, '..')
-const id = 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-v1'
+const id = 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1'
 const parentId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
 const originalId = 'owned-numeric-terrain-chronological-camera-v1'
 const profile = dragSourceProfiles.find(p => p.id === id)

@@ -246,6 +246,7 @@ export function captureCamera(scene: GameScene, interruptMotion = false) {
 
 export function skipIntroduction(scene: GameScene) {
   scene.advanceInputTime?.()
+  if (scene.disposed) return
   const state = scene.world.flyby,
     skipping = (state.flags & 17) === 17 && (!!state.warmup || !(state.flags & 64))
   withSimulationCamera(scene.world.cameras, () =>
@@ -495,6 +496,7 @@ export function cancelOverview(scene: GameScene) {
 
 export function focus(scene: GameScene, p: Point = HOME, { animate = false } = {}) {
   scene.advanceInputTime()
+  if (scene.disposed) return
   if (animate && scene.world.inputMask) return
   scene.captureCamera(true)
   withSimulationCamera(scene.world.cameras, () => {
@@ -517,6 +519,7 @@ export function focus(scene: GameScene, p: Point = HOME, { animate = false } = {
 
 export function cameraBookmark(scene: GameScene, slot: number, set: boolean) {
   scene.advanceInputTime()
+  if (scene.disposed) return
   if (set) {
     // Reading a bookmark must not commit a predicted focus step twice.
     const sample =
@@ -536,6 +539,7 @@ export function cameraBookmark(scene: GameScene, slot: number, set: boolean) {
   withSimulationCamera(scene.world.cameras, () => {
     scene.cancelOverview()
     scene.onSound(222)
+    if (scene.disposed) return
     requestCameraFocus(scene.cameraMotion, scene.cameraPosition, {
       x: (target.x & 0xfe00) | 0x100,
       y: (target.y & 0xfe00) | 0x100,
@@ -655,6 +659,7 @@ export function startGroundView(scene: GameScene, preset: number, bearing?: numb
 
 export function overview(scene: GameScene) {
   scene.advanceInputTime()
+  if (scene.disposed) return
   if (scene.world.inputMask || scene.overviewStage) return
   if (scene.overviewActive) {
     scene.leaveOverview(scene.overviewReturn.preset)
@@ -691,6 +696,7 @@ export function leaveOverview(scene: GameScene, preset: number) {
 
 export function zoom(scene: GameScene, inward: boolean) {
   scene.advanceInputTime()
+  if (scene.disposed) return
   if (scene.world.inputMask || scene.overviewStage) return
   const preset = zoomPreset(scene.overviewActive ? 4 : scene.viewPreset, inward)
   if (preset === 4) {

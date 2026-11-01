@@ -306,7 +306,14 @@ export function createGameStore() {
     change: (action: (world: World) => void) => {
       // HUD pause/speed/commands share the same input-time boundary as canvas
       // events. Retired Scene bindings cannot advance a replacement world.
-      if (inputClock?.token === presentationToken) inputClock?.advance()
+      const clock = inputClock,
+        inputWorld = world
+      if (clock && clock.token === presentationToken) {
+        clock.advance()
+        // A synchronous handoff can retire this HUD action while draining.
+        // Never apply it to a replacement world or presentation owner.
+        if (world !== inputWorld || inputClock !== clock || presentationToken !== clock.token) return
+      }
       action(world)
       update()
     },
