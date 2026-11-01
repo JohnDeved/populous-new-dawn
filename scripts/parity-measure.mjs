@@ -90,12 +90,14 @@ export function evaluateCheck(check, receipts, current) {
     .map(evidence => ({ ...evidence, receipt: receipt.path })))
   // Equal timestamps resolve conservatively. An older pass cannot hide a new failure.
   const priority = { failed: 0, invalidated: 1, blocked: 2, unknown: 3, 'not-run': 3, passed: 4 }
+  const outcomePriority = evidence => priority[evidence.status === 'passed' && evidence.exitCode !== check.expected.exitCode
+    ? 'failed' : evidence.status] ?? 3
   const completionTime = evidence => typeof evidence.finishedAt === 'string'
     ? Date.parse(evidence.finishedAt) : NaN
   // An unorderable attempt may be newer than a pass: never hide it.
   candidates.sort((a, b) => Number(!Number.isFinite(completionTime(b))) - Number(!Number.isFinite(completionTime(a))) ||
     (completionTime(b) - completionTime(a) || 0) ||
-    (priority[a.status] ?? 3) - (priority[b.status] ?? 3) || a.receipt.localeCompare(b.receipt))
+    outcomePriority(a) - outcomePriority(b) || a.receipt.localeCompare(b.receipt))
   const latest = candidates[0]
   if (!latest) return { id: check.id, status: 'unknown', reason: 'No measurement-capable receipt' }
   let status, reason
