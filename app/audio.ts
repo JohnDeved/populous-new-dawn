@@ -324,6 +324,8 @@ export class Soundscape {
       }
       await Promise.all([this.loading, music.loading])
     } catch (error) {
+      // A cancelled startup no longer owns playback or a reused Music instance.
+      if (this.disposed || generation !== this.generation) return false
       music.dispose()
       if (this.music === music) this.music = null
       throw error
