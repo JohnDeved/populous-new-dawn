@@ -110,6 +110,45 @@ test('successful mute and explicit re-enable reuse loaded audio without another 
 })
 
 for (const action of ['mute', 'dispose']) {
+  test(`${action} during startup suppresses a late context-resume failure`, async t => {
+    const { sound, state } = fixture(t), resume = deferred()
+    state.resume = () => resume.promise
+    const enabling = sound.enable()
+    const result = enabling.then(value => value, error => error)
+    await sound.music.loading
+    sound[action]()
+    resume.reject(new Error('cancelled resume failed'))
+    assert.equal(await result, false)
+    assert.equal(sound.enabled, false)
+    assert.equal(state.plays, 0)
+    assert.equal(state.starts, 0)
+    assert.equal(state.timers, 0)
+  })
+}
+
+test('a cancelled resume failure cannot dispose Music reused by a newer enable', async t => {
+  const { sound, state } = fixture(t), resume = deferred()
+  state.resume = () => resume.promise
+  const stale = sound.enable()
+  const result = stale.then(value => value, error => error)
+  await sound.music.loading
+  sound.mute()
+  state.resume = async () => {}
+  assert.equal(await sound.enable(), true)
+  const music = sound.music, loading = sound.loading
+  const buffers = [...sound.buffers], timer = sound.backgroundTimer
+  resume.reject(new Error('cancelled resume failed'))
+  assert.equal(await result, false)
+  assert.equal(sound.enabled, true)
+  assert.equal(sound.music, music)
+  assert.equal(music.disposed, false)
+  assert.equal(music.element.paused, false)
+  assert.equal(sound.loading, loading)
+  assert.deepEqual([...sound.buffers], buffers)
+  assert.equal(sound.backgroundTimer, timer)
+})
+
+for (const action of ['mute', 'dispose']) {
   test(`${action} during startup prevents delayed resume from starting sample work`, async t => {
     const { sound, state } = fixture(t), resume = deferred()
     state.resume = () => resume.promise
