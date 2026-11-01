@@ -177,7 +177,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   const { ObjectPanels } = await import('../app/object-panels.ts')
   const projections = []
   const draws = []
-  let screenOverride
+  let screenOverride, contextLosses = 0
   const element = (tagName = 'div') => ({
     tagName,
     children: [], style: {}, dataset: {}, classList: { add: nop },
@@ -209,6 +209,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
     visible: () => true, ownedSounds: new Map(), resize: { disconnect: nop },
     disposeListeners: [], scene: { remove: nop }, globe: { dispose: nop },
     releaseGroup: nop, waterMap: { dispose: nop }, terrainMap: { dispose: nop },
+    terrainUpload: {}, minimap: { revision: undefined },
     view: {
       dispose: nop,
       screen(point) {
@@ -216,7 +217,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
         return screenOverride ?? { x: point.x / 128, y: point.y / 32, z: 0 }
       },
     },
-    renderer: { dispose: nop, domElement: element() },
+    renderer: { dispose: nop, domElement: element(), forceContextLoss: () => { ++contextLosses } },
     cancelTooltipInspection: nop, tooltipElement: element(), pointerOutline: element(),
     spellPointer: element(), worshipPresentation: { dispose: nop },
   })
@@ -225,6 +226,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   assert.equal(scene.start(), true)
   t.after(() => {
     scene.dispose()
+    assert.equal(contextLosses, 1, 'each retired Scene reaches its supplied context-loss boundary once')
     for (const [name, descriptor] of globals) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
       else delete globalThis[name]

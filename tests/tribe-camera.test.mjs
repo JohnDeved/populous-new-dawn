@@ -120,7 +120,7 @@ test('flyby and interruption adapters share tribe pose across clone and synchron
   assert.equal(loaded.flyby.warmup, 5)
 })
 
-test('current checkpoint retains camera continuation and rejects malformed owners before replacement', async () => {
+test('current checkpoint retains camera continuation; validator rejects malformed owners', async () => {
   const store = createGameStore(), w = store.getWorld(), c = w.cameras
   c.tribes[0].x = 197
   c.held[0].x = 3

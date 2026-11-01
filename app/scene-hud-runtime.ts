@@ -74,6 +74,7 @@ export function updateHudFrame(scene: GameScene, now: number, dt: number) {
   scene.uiTimer += dt
   if (scene.uiTimer > 0.2) {
     scene.onChange()
+    if (scene.disposed) return
     scene.uiTimer = 0
   }
   scene.drawMinimap()

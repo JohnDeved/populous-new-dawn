@@ -63,7 +63,7 @@ import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
 import { changeLivePersonState, registerLivePerson } from './live-people.ts'
 import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
-import { guardShamanOrders } from './shaman-guard.ts'
+import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
@@ -244,6 +244,69 @@ function ordinaryGuardOwner(w: World, u: Unit) {
   return p.state !== 10 || ids.length > 0 || !!p.guardInputPending
 }
 
+// Only a consistent physical occupant of a normal school. This is not generic
+// entry/state21 support, and admission never creates or changes a person owner.
+function schoolGuardOwner(w: World, u: Unit) {
+  const p = u.entry?.person,
+    b = w.buildings.find(candidate => candidate.id === u.inside),
+    registeredRoute = w.pathfinding.people.get(u.id),
+    cell = w.objectCells.objects.get(u.id)
+  if (
+    !p ||
+    u.native ||
+    u.entry!.orders !== w.buildingOrders ||
+    p.id !== u.id ||
+    u.team !== 'blue' ||
+    u.hp <= 0 ||
+    u.ghost ||
+    p.class !== 1 ||
+    p.model < 2 ||
+    p.model > 6 ||
+    p.vehicle ||
+    p.flags2 & (1 | 0x80000 | 0x100000) ||
+    !(p.flags2 & 0x800000) ||
+    p.flags4 & 0x800 ||
+    u.flight ||
+    u.fight ||
+    u.fighting ||
+    u.casting ||
+    u.lift ||
+    u.builder ||
+    u.target !== null ||
+    u.tree !== null ||
+    u.harvest ||
+    u.delivery ||
+    u.vault ||
+    u.attackReservation ||
+    p.workFlags ||
+    (registeredRoute && registeredRoute !== p) ||
+    (cell && cell !== p) ||
+    !b ||
+    b.team !== 'blue' ||
+    b.hp <= 0 ||
+    b.progress !== 1 ||
+    b.burn ||
+    !['camp', 'temple', 'spyHut', 'firewarriorHut'].includes(b.kind) ||
+    u.work !== b.id ||
+    p.building !== b.id ||
+    b.admission?.class !== 2 ||
+    b.admission.occupants.filter(id => id === u.id).length !== 1
+  )
+    return null
+  const orders = [p.immediateCommand, ...p.commands]
+    .filter(Boolean)
+    .map(id => w.buildingOrders.records[id])
+  if (p.guardInputPending && (p.state === 21 || (p.state === 10 && p.substate === 13)))
+    return p.commandStatus === 0 && orders.every(order => order?.model === 30) ? p : null
+  if (p.state === 21) return p.commandStatus === 0 && !orders.length ? p : null
+  if (p.state !== 10 || p.substate !== 13) return null
+  return p.commandStatus === 8 &&
+    orders.length > 0 &&
+    orders.every(order => order?.model === 8 && order.a === b.id)
+    ? p
+    : null
+}
+
 export function guardShaman(w: World) {
   const shaman = w.units.find(u => u.team === 'blue' && canOrder(u) && isShaman(u))
   if (!shaman) return
@@ -254,10 +317,15 @@ export function guardShaman(w: World) {
     guards = w.units.filter(
       u => u.team === 'blue' && u.native?.state === 10 && u.native.commandStatus === 30
     ),
-    candidates = selected.length ? selected : guards
-  if (candidates.every(u => ordinaryGuardOwner(w, u))) {
-    const people = candidates.map(u => {
-      const p = u.native!
+    candidates = selected.length ? selected : guards,
+    admissions = candidates.map(u => ({
+      unit: u,
+      person: ordinaryGuardOwner(w, u) ? u.native : schoolGuardOwner(w, u),
+      legacy: canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman',
+    }))
+  if (admissions.every(({ person }) => person)) {
+    const people = admissions.map(({ unit: u, person }) => {
+      const p = person!
       p.selectionFlags = (p.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0)
       return p
     })
@@ -281,14 +349,28 @@ export function guardShaman(w: World) {
     )
     return
   }
-  // Busy/mixed groups and old boolean saves retain the existing whole-batch
-  // adapter until their controller handoffs are independently established.
-  for (const u of w.units.filter(
-    u => canOrder(u) && w.selected.includes(u.id) && u.kind !== 'shaman'
-  )) {
-    const guard = !u.guard
-    release(w, u)
-    u.guard = guard
+  // Busy owners retain their old adapter, without discarding an ordinary peer's
+  // native owner. Snapshot both admissions before cleanup, then preserve roster
+  // visit order: a busy release may free a slot for a later native allocation.
+  let shared = 0
+  for (const { unit: u, person, legacy } of selected.length ? admissions : []) {
+    if (person) {
+      person.selectionFlags |= 128
+      shared = replaceShamanGuardOrder(
+        w.buildingOrders,
+        person,
+        shaman.id,
+        shared,
+        orderEffects(w),
+        id => id
+      )
+      person.guardInputPending = true
+      u.guard = false
+    } else if (legacy) {
+      const guard = !u.guard
+      release(w, u)
+      u.guard = guard
+    }
   }
   tell(w, 'Selected followers will guard your shaman.')
 }

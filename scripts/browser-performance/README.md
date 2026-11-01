@@ -51,6 +51,96 @@ Those failed raw captures remain historical evidence. The revision-2 stable-hove
 repair subsequently passed [candidate smoke 39150561670](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39150561670)
 and the PR593 paired control. Neither result qualifies the new held-drag phase.
 
+## Pinned browser activation proposal (issue #654)
+
+This activation stage depends on reviewed passive support already present on the
+trusted exact base. The existing benchmark workflow explicitly selects
+`run-pinned.mjs`; direct `run.mjs`/`run-live.mjs` invocations retain their legacy
+defaults. The `run-pinned.mjs` and `run-live-pinned.mjs` entrypoints require a reviewed official
+`google-chrome-stable` Debian package pin from `browser-runtime.json`. Version `155.0.8059.84-1`, package size and SHA-256
+were read from [Google's package index](https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages)
+on 2026-10-19. The download URL is derived only from that version at Google's
+fixed repository. This is HTTPS repository provenance and a reviewed content pin,
+not an independently verified upstream signature or a reproducible-build claim.
+
+The installer requires the existing installed Chrome package, downloads into a
+fresh invocation-owned temporary directory, and verifies size, SHA-256, package
+name, version and architecture before installation. It streams the executable
+member from that verified package to derive its expected SHA-256 without creating
+a second browser tree. Ordinary `dpkg --install` replaces the existing package;
+there is no apt dependency repair/update, floating `latest`, shared browser cache,
+or system-browser fallback. Missing downloads, dependencies, package failures or
+wrong/corrupt executables fail closed and retain an installation receipt/log in
+the existing evidence artifact. Only the owned temporary download is removed.
+
+In pinned mode the launcher remains `/opt/google/chrome/chrome`, supplied
+explicitly to Playwright. Full Chrome, `chromiumSandbox: true`, `ignoreDefaultArgs: true`, existing
+arguments and all session/build/job limits are unchanged. No AppArmor/sysctl
+change, new helper configuration, headless-shell substitution or `--no-sandbox`
+is permitted. [Chromium's sandbox documentation](https://chromium.googlesource.com/chromium/src/+/main/docs/security/apparmor-userns-restrictions.md)
+explains why an arbitrary downloaded browser-cache path is not equivalent on
+Ubuntu 24.04. The package route preserves the installed Chrome path covered by
+the existing platform policy. Hosted proof of this particular update is pending;
+do not infer successful sandbox launch from a version probe or source tests.
+
+The checked-in Playwright lock currently selects 1.63.0. Its [official browser
+manifest](https://github.com/microsoft/playwright/blob/v1.63.0/packages/playwright-core/browsers.json)
+selects Chrome for Testing 153.0.8010.12/revision 1243, but a cache-path launch would
+need separate sandbox suitability evidence. [Playwright documents support for
+stable branded Chrome](https://playwright.dev/docs/browsers#google-chrome--microsoft-edge),
+so this proposal pins the normal stable package instead. Actual installed
+Playwright version must match the trusted lock; lock and manifest hashes are
+recorded and rechecked, not duplicated into browser release constants.
+
+Each pinned execution receipt binds the exact official package pin, package source,
+actual executable version/hash, absolute launcher path and installed Playwright
+identity. In pinned mode the executable is reverified before and after each arm and at final
+admission; the launched browser's reported version must also match. Browser pin
+identity joins the existing runtime hash. Kernel, runner image/version, CPU and
+renderer/GPU provenance and all comparison guards remain intact. Within each V2
+shard's six paired sessions, differing host/runtime identities still withhold that
+cell's timings. Independent shards own disjoint comparison cells, so different
+shard hosts do not invalidate each other's internally matched cells. V1 retains
+its existing global runtime guard. No cross-machine pairing or historical
+reclassification is introduced.
+
+Upgrade the release by reviewing Google's exact package-index stanza, changing
+the one version/size/SHA-256 manifest, running focused admission tests and obtaining
+fresh hosted same-runner paired evidence. Never resolve `latest` at execution or
+refresh a pin merely to turn a failed run green. Package withdrawal is a visible
+blocker, not permission to substitute a release. Dependency-lock upgrades still
+require their normal review and fresh runtime qualification.
+
+Rollout is deliberately staged; no package installation or browser launch has
+been performed for this source-only activation proposal:
+
+1. Merge reviewed passive support. Both workflow copies stay byte-identical to
+   the current main refresh base. Direct `run.mjs`/`run-live.mjs` invocations retain their
+   original browser configuration, version/hash receipt fields and no installation
+   receipt requirement. Their exported runners default to `pinned: false`.
+2. Review the separate dependent activation change against that merged support
+   base. In the same existing job, replace the existence probe with
+   `node scripts/browser-performance/install-browser.mjs`, select
+   `node scripts/browser-performance/run-pinned.mjs`, and retain the installation
+   receipt/log in the existing raw-evidence artifact. Both commands already exist
+   on the trusted exact base. Only the explicit pinned entrypoints select
+   `pinned: true`; they accept no CLI/environment override or legacy fallback.
+3. Inspect installation, package/executable/Playwright provenance and sandboxed
+   capture receipts from the activation run. Its deliberately changed workflow
+   still fails the trusted reporter's exact workflow-byte guard; that refusal is
+   not a reporting pass and the guard must not be relaxed.
+4. After reviewed activation merges, obtain a fresh complete matched run with
+   unchanged trusted workflow bytes before claiming complete rollout or closing
+   #654. A passed legacy run from stage 1 does not qualify the pinned runtime.
+
+Old run 39303586009 remains refused. Pinning alone does not fix host drift or the
+separate live-melee observation failure.
+
+Portable coverage: `pnpm run test:focus tests/browser-runtime.test.mjs
+tests/browser-performance.test.mjs tests/browser-snapshot-protocol.test.mjs`.
+Installer tests use injected commands and one inert data-only Debian fixture;
+they never install a package, launch a browser or change security policy.
+
 ## Fixed controlled workload
 
 - Exact-base production `createWorld(2)`, 140 `advanceGame` calls at 1/24 seconds,
@@ -390,3 +480,60 @@ observable. This is a narrow reviewed terrain contract, not arbitrary JavaScript
 equivalence. The old hash-only PR600 capture remains rejected: its exact differing
 bodies were not retained and no minifier cause has been proven retrospectively.
 No cohort, input, sample count, noise threshold, runner count or timeout changes.
+
+### Public menu recovery compatibility
+
+The snapshot recovery shard recognizes three source-backed public-control shapes:
+the old UI has one `Game settings` button in the native HUD's `top-actions` plus
+one `Menu` help-button in `shaman-controls`; the native-menu-only UI has only that
+`Menu` help-button. Both historical shapes use the exact title and no
+`aria-description`. The tooltip-cleaned native-menu-only shape instead has exactly
+`aria-description="Help and game menu"` and no title. Both old controls call
+`openMenu`. The historical dual shape selects `Game settings`, preserving its
+previous route; either native-menu-only shape selects `Menu`. A described Menu
+combined with Game settings, or any control with both title and description, is
+an undeclared mixed shape and fails before clicking.
+Every present control must have its exact shipped location and attributes, be unique,
+visible, accessibility-exposed, and enabled. Missing native Menu, duplicates,
+undeclared shapes, hidden or disabled alternatives fail before any click, rather
+than triggering fallback. The selected shape, exact controls, accessible name,
+and original Scene/World/canvas identity are recorded as
+unmeasured preparation. One ordinary click must open the accessible modal
+`Game menu` native root (`data-panel="root"` with `Continue Game`), and one real
+Escape must hide both that original dialog node and its public locator.
+
+This is the already-paused authored snapshot: no new pause or state injection is
+introduced. Original admission runs before and after the round trip; exact
+Scene/World/canvas identity, speed, logical state, camera, selection, and viewport
+must survive. Only modal input suspension may change while the root is open.
+Failure is terminal for the arm; there is no alternative click or close retry.
+The following fixed pointer workload, warmup, callbacks, metrics, source
+admissions, thresholds, and reporter acceptance remain unchanged. This measures
+subsequent pointer-input CPU, not first-post-close latency.
+
+The previous incompatible comparison is not performance or gameplay evidence:
+head `5e4ade6788d7a07056389d6736c17b31d352351b` used `Menu`; the trusted harness at
+`49f198df96d0f36a4067432db051b88c2a5b9498` selected only `Game settings` even though
+that baseline already also shipped the native `Menu` control.
+Run `39674637128`, artifact `12381886466`, ZIP SHA-256
+`acaebd0deff6a0d2227c8fa92dfd09776db3aad259fe388db3cc204c234dfe50` contains three
+head locator timeouts and three completed base sessions.
+
+Node control doubles in `tests/browser-snapshot-menu-recovery.test.mjs` are only
+unit coverage, not rendered old/new acceptance. Rendered acceptance must bind the
+actual build revisions and this common harness, including these historical source
+identities when reproducing those two routes:
+
+- Old `app/page.tsx` Git blob: `7a4174acfef0cafac42059e7af329738801b740b`.
+- New `app/page.tsx` Git blob: `19560bc6293f42befc06af01fc4a7a4b46aa5bf0`.
+- Both `app/original-pause-menu.tsx` blobs: `bf33edcc5fbd8ef37d65a23c2c834d4082cce9b4`.
+
+The tooltip-cleaned Menu declaration comes from UI commit
+`27654afd44f733dbc37ddc7760b00f48cd607064`, `app/page.tsx` Git blob
+`754e78e06e153fbca6962204f12f789030c89cbd`.
+The older identities above remain historical evidence, not acceptance for this
+additional shape. The recorded route distinguishes it as `native-menu-description-only`.
+
+Independent review and ordinary trusted-baseline adoption must precede any new
+comparison. This repair does not change a workflow pin or make a valid performance
+claim; full gates and actual rendered/comparative evidence remain separate.

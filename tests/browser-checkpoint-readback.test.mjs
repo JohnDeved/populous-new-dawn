@@ -141,16 +141,16 @@ for (const [file, variable, field] of [
 ]) test(`${file} committed predicate accepts the current envelope only with matching full state`, async () => {
   const { isDeepStrictEqual } = await import('node:util')
   const script = readFileSync(new URL(`../scripts/local-render/${file}`, import.meta.url), 'utf8'),
-    predicate = script.match(/return \(\s*\w+\.committed\?\.version === 3[\s\S]*?\n\s*\)/)?.[0]
+    predicate = script.match(/return \(\s*\w+\.committed\?\.version === CHECKPOINT_VERSION[\s\S]*?\n\s*\)/)?.[0]
   assert.ok(predicate, 'Exercise the maintained committed-readback predicate')
-  const check = new Function(variable, 'isDeepStrictEqual', predicate)
-  for (const version of [0, 1, 2, 3, 4]) {
+  const check = new Function(variable, 'isDeepStrictEqual', 'CHECKPOINT_VERSION', predicate)
+  for (const version of [0, 1, 2, 3, 4, CHECKPOINT_VERSION, 999]) {
     const snapshot = { turn: 73, owner: 1024, commands: [0, 1024] },
       boundary = variable === 'saved' ? { snapshot } : { saved: snapshot },
       value = { committed: { version, [field]: structuredClone(snapshot) }, boundary }
-    assert.equal(check(value, isDeepStrictEqual), version === 3)
+    assert.equal(check(value, isDeepStrictEqual, CHECKPOINT_VERSION), version === CHECKPOINT_VERSION)
     value.committed[field].commands[1]++
-    assert.equal(check(value, isDeepStrictEqual), false, 'Envelope compatibility cannot mask state drift')
+    assert.equal(check(value, isDeepStrictEqual, CHECKPOINT_VERSION), false, 'Envelope compatibility cannot mask state drift')
   }
 })
 

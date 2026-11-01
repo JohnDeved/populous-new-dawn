@@ -93,7 +93,7 @@ for (const [name, latest] of [
   })
 }
 
-for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classic', true], [2, 'classic', false], [2, 'scalable', false], [3, 'classic', false], [3, 'scalable', false], [CHECKPOINT_VERSION, 'classic', false], [CHECKPOINT_VERSION, 'scalable', false]])
+for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classic', true], [2, 'classic', false], [2, 'scalable', false], [3, 'classic', false], [3, 'scalable', false], [4, 'classic', false], [4, 'scalable', false], [CHECKPOINT_VERSION, 'classic', false], [CHECKPOINT_VERSION, 'scalable', false]])
   test(`v${version}/${mode}/missing=${missingPolicy} accepts only the current scalable contract`, async () => {
     const world = createWorld(1, mode), accepted = version === CHECKPOINT_VERSION && mode === 'scalable'
     world.turn = 217

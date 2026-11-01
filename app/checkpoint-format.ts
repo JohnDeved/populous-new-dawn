@@ -1,5 +1,6 @@
 // Current development format only. Database/campaign-profile versions are separate.
-// Provisional v4 for this camera branch: requires TribeCameras version1.
-// PR695 independently proposes Angel/Shield v4. These are different contracts;
-// integration must choose one final version and validate their combined owners.
-export const CHECKPOINT_VERSION = 4
+// v5 combines scalable/full-width ownership and scenery provenance with complete
+// TribeCameras v1 continuation. Present Angel latches retain current validation;
+// absent Angel presentation is not upgraded to PR695's stronger provisional policy.
+// Reject main v3 and both incompatible provisional v4 contracts without migration.
+export const CHECKPOINT_VERSION = 5

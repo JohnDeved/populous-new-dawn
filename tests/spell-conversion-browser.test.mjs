@@ -1,23 +1,25 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { readFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { isDeepStrictEqual } from 'node:util'
-import { conversionLimitMs, conversionObservationMs, validateConversionObservation,
+import spellConversion, { conversionLimitMs, conversionObservationMs, validateConversionObservation,
   installConversionObserver, closeConversionContext, readConversionStartup,
   waitForConversionIntroduction, setupConversionCamera, resumeArmedConversion } from '../scripts/tutorial-browser/spell-conversion.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { spellTestLimitMs } from '../scripts/tutorial-browser/spell-test-menu.mjs'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
-import { createWorld, tick, nativePosition } from '../app/model.ts'
+import { createWorld, effect, tick } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
-import { createCameraMotion } from '../app/camera-motion.ts'
 import { stepFlyby } from '../app/flyby.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import atlas from '../app/original-effects.json' with { type: 'json' }
 
 await loadSceneFixture()
-const { skipIntroduction, focus, captureCamera, cancelOverview, updateView } =
+const { skipIntroduction, preCameraVisit, postCameraVisit, previewGroundZoom } =
   await import('../app/scene-camera-runtime.ts')
+const { GameScene } = await import('../app/scene.ts')
 
 function startupScene() {
   return { world: createWorld(3, 'scalable'), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
@@ -137,17 +139,30 @@ test('conversion startup diagnostics tolerate missing bind aliases and do not mu
   assert.equal(JSON.stringify(scene.world), before)
 })
 
+// Actual GameScene camera accessors and methods, without constructing WebGL.
+// DOM/projection, raw navigation input and sky presentation are supplied leaves.
 function cameraScene(world) {
-  const context = { RENDERER: 1, getParameter: () => 'CPU camera-owner fixture, no GPU' },
-    scene = { world, cameraMotion: createCameraMotion(), cameraPreviewButtons: null,
-      viewPoint: { x: 34, z: 82 }, cameraBearing: 1144 * Math.PI / 1024, viewZoom: 0,
-      overviewActive: false, overviewStage: null, tooltip: { draw: 5 },
-      container: { clientWidth: 960, clientHeight: 720 }, view: { update() {} },
-      renderer: { getContext: () => context },
-      cancelOverview: () => cancelOverview(scene), captureCamera: () => captureCamera(scene),
-      updateView: () => updateView(scene), focus: point => focus(scene, point),
-      y: point => nativePosition(world, point).h / 45 }
-  return scene
+  const context = { RENDERER: 1, getParameter: () => 'CPU camera-owner fixture, no GPU',
+      isContextLost: () => false }, skyCalls = [],
+    scene = Object.assign(Object.create(GameScene.prototype), { world,
+      started: true, inputDepth: 0, modalSuspended: false, previous: 1000,
+      cameraPreviewButtons: null, tooltipCameraActive: false, skyRemainder: 0,
+      viewPoint: { x: 34, z: 82 }, cameraBearing: 1144 * Math.PI / 1024,
+      tooltip: { draw: 5 }, container: { clientWidth: 960, clientHeight: 720 },
+      view: { update() {} }, fxMeshes: new Map(),
+      renderer: { domElement: { isConnected: true }, info: { render: { frame: 0 } },
+        getContext: () => context },
+      navigationButtons: () => 0,
+      commitSky: (camera, remainder) => skyCalls.push({ camera: { ...camera }, remainder }),
+    })
+  scene.gameClock = { animationTime: 0, animationFrame: 0, afterTurn() {}, camera: {
+    pre: () => preCameraVisit(scene), post: zoom => postCameraVisit(scene, zoom),
+    zoom: () => scene.stepViewChange(), sampleZoom: () => previewGroundZoom(scene),
+    // This fixture has no rendered tooltip/sky elapsed work. The actual shared
+    // camera scheduler, pre/post controllers, shake and tick remain in use.
+    elapsed: seconds => { scene.skyRemainder += seconds },
+  } }
+  return { scene, skyCalls }
 }
 
 function pausedStartupWorld() {
@@ -160,60 +175,419 @@ function pausedStartupWorld() {
   return scene.world
 }
 
-test('actual focus changes only camera lightView at the failed Mission 3 startup boundary', t => {
-  browserGlobals(t, { document: { documentElement: { clientWidth: 960 } } })
-  const world = pausedStartupWorld(), scene = cameraScene(world)
-  scene.updateView()
-  const before = structuredClone(world)
+function cameraFixture(t, { elapsedMs = 0, held = true, playerTribe } = {}) {
+  const world = pausedStartupWorld()
+  if (playerTribe !== undefined) world.manaWorld.playerTribe = playerTribe
+  const { scene, skyCalls } = cameraScene(world),
+    pending = new Map(), globals = {}, player = world.manaWorld.playerTribe
+  // Supplied fixture readiness, never writes performed by the browser checker.
+  world.paused = false
+  world.lightView = { x: 123, y: 456, h: 789 }
+  Object.assign(world.cameras.tribes[player], { x: 10752, y: 42496, angle: 1144 })
+  if (held) {
+    Object.assign(world.cameras.held[player], { x: 3, y: -2, angle: 1 })
+    Object.assign(world.cameras.held[(player + 1) % 4], { x: -1, y: 2, angle: -1 })
+  }
+  world.cameras.navigationTime = 1 / 48
+  effect(world, 'blast', { x: 34, z: 82 }) // Real owner for light-mutation controls.
+  scene.previous = 1000 - elapsedMs
+  let serial = 0, observer
+  const values = {
+    window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+    document: { visibilityState: 'visible', documentElement: { clientWidth: 960 } },
+    performance: { now: () => 1000 },
+    requestAnimationFrame: fn => { pending.set(++serial, fn); return serial },
+    cancelAnimationFrame: id => pending.delete(id),
+  }
+  for (const [key, value] of Object.entries(values)) {
+    globals[key] = Object.getOwnPropertyDescriptor(globalThis, key)
+    Object.defineProperty(globalThis, key, { configurable: true, writable: true, value })
+  }
+  t.after(() => {
+    try { observer?.retain() }
+    finally {
+      for (const [key, descriptor] of Object.entries(globals)) {
+        if (descriptor) Object.defineProperty(globalThis, key, descriptor)
+        else delete globalThis[key]
+      }
+    }
+  })
+  installConversionObserver({ observationMs: 30000 })
+  observer = window.__pndConversionObservation
+  return { world, scene, skyCalls, observer, pending }
+}
+
+test('actual focus retains lightView and writes only exact logical-camera ownership at Mission 3 turn71', t => {
+  const { world, scene, skyCalls } = cameraFixture(t), player = world.manaWorld.playerTribe
+  world.mode = 'blast'
+  const before = structuredClone(world), expected = structuredClone(world)
+  expected.mode = null
+  expected.cameras.navigationTime = 0
+  for (let i = 0; i < 4; i++) Object.assign(expected.cameras.borrowed[i], expected.cameras.held[i])
+  Object.assign(expected.cameras.tribes[player], { x: (56064 - 3) & 65535, y: 21248 + 2 })
   scene.focus({ x: -45, z: -91 })
-  assert.equal(before.mode, null, 'world creation already initializes mode; undefined is not the defect')
-  assert.equal(world.mode, null)
-  assert.deepEqual(Object.keys(world).filter(key => !isDeepStrictEqual(before[key], world[key])), ['lightView'])
-  assert.deepEqual(before.lightView, { x: 10752, y: -23040, h: 128 })
-  assert.deepEqual(world.lightView, { x: -9472, y: 21248, h: 116 })
+  assert.deepEqual(world, expected, 'all gameplay, terrain, lighting and other cameras remain exact')
+  assert.deepEqual(Object.keys(world).filter(key => !isDeepStrictEqual(before[key], world[key])).sort(),
+    ['cameras', 'mode'])
+  assert.deepEqual(world.lightView, before.lightView)
   assert.deepEqual(scene.viewPoint, { x: -45, z: -91 })
+  assert.equal(scene.cameraBearing, 1145 * Math.PI / 1024)
   assert.equal(world.turn, 71)
   assert.equal(world.spellCasts[2][17], 0)
+  assert.equal(skyCalls.length, 1)
+  assert.equal(skyCalls[0].remainder, 0)
 })
 
-test('conversion camera permits exact focus-owned changes and rejects every other World mutation', t => {
-  browserGlobals(t, { window: {}, document: { documentElement: { clientWidth: 960 } } })
-  const baseline = pausedStartupWorld()
-  const run = (afterFocus = () => {}, mode = null) => {
-    const world = structuredClone(baseline), scene = cameraScene(world)
-    world.mode = mode
-    scene.updateView()
-    scene.focus = point => { focus(scene, point); afterFocus(world) }
-    window.testSceneRef = { current: scene }
-    window.testStore = { getWorld: () => world }
-    return setupConversionCamera(checkpointCodec)
+test('conversion checker observes one real timestamp drain and restores the exact method descriptor', t => {
+  const { world, scene, observer } = cameraFixture(t, { elapsedMs: 1000 / 12, held: false }),
+    actual = scene.advanceInputTime, calls = []
+  scene.advanceInputTime = function (...args) {
+    calls.push({ receiver: this, args })
+    return actual.apply(this, args)
   }
-  const report = run()
-  assert.equal(report.turn, 71)
+  const descriptor = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'),
+    callback = scene.gameClock.afterTurn, report = setupConversionCamera(checkpointCodec)
+  assert.equal(report.status, 'passed')
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].receiver, scene)
+  assert.deepEqual(calls[0].args, [])
+  assert.equal(report.drain.before.turn, 71)
+  assert.equal(report.drain.after.turn, 72)
+  assert.equal(world.turn, 72)
+  assert.equal(observer.result.observedTurns, 1, 'actual ordinary-turn observer was not suppressed')
+  assert.equal(scene.gameClock.afterTurn, callback)
+  assert.deepEqual(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), descriptor)
+  assert.deepEqual(report.restoration, { attempted: true, restored: true, error: null })
+  assert.deepEqual(report.cameraWorldChanges.lightView, {
+    before: { x: 123, y: 456, h: 789 }, after: { x: 123, y: 456, h: 789 },
+  })
   assert.equal(report.casts, 0)
   assert.equal(report.stock, 1)
-  assert.deepEqual(report.cameraWorldChanges.mode, { before: null, after: null })
-  assert.deepEqual(report.cameraWorldChanges.lightView.after, { x: -9472, y: 21248, h: 116 })
-  assert.deepEqual(run(undefined, 'blast').cameraWorldChanges.mode, { before: 'blast', after: null },
-    'ordinary focus may cancel a selected UI mode, never restore or inject it afterward')
-  for (const mutate of [
-    w => { w.turn++ },
-    w => { w.randomState++ },
-    w => { w.cosmeticRandom.randomState++ },
-    w => { w.units[0].hp-- },
-    w => { w.land.heights[0]++ },
-    w => { w.manaWorld.spells[2].stocks[17]++ },
-    w => { w.buildingFootprints.set(-1, { cells: new Set([123]) }) },
-    w => { w.addedUndefined = undefined },
-  ]) assert.throws(() => run(mutate), /non-camera world state/)
-  for (const mutate of [
-    w => { w.mode = 'blast' },
-    w => { w.lightView.x++ },
-    w => { w.lightView.h++ },
-    w => { w.lightView.unexpected = undefined },
-  ]) assert.throws(() => run(mutate), /expected mode\/light-view changes/)
-  assert.doesNotMatch(setupConversionCamera.toString(), /w\.(?:mode|lightView)\s*=(?!=)/,
-    'the checker cannot repair or hide a production camera mutation')
+  assert.equal(report.paused, false)
+  assert.throws(() => setupConversionCamera(checkpointCodec), /already attempted/)
+  assert.equal(window.__pndConversionCameraSetup, report, 'first receipt must not be overwritten')
+})
+
+test('conversion checker restores inherited drain and preserves selected-mode cancellation', t => {
+  const { world, scene } = cameraFixture(t)
+  world.mode = 'blast'
+  const inherited = scene.advanceInputTime, report = setupConversionCamera(checkpointCodec)
+  assert.equal(Object.hasOwn(scene, 'advanceInputTime'), false)
+  assert.equal(scene.advanceInputTime, inherited)
+  assert.deepEqual(report.cameraWorldChanges.mode, { before: 'blast', after: null })
+  assert.equal(report.cameraWorldChanges.tribe.after.x, 56061)
+  assert.equal(report.cameraWorldChanges.tribe.after.y, 21250)
+})
+
+test('conversion camera rejects every old gameplay/light mutation plus wrong logical-camera deltas', async t => {
+  const mutations = [
+    ['turn', w => { w.turn++ }],
+    ['gameplay RNG', w => { w.randomState++ }],
+    ['cosmetic RNG', w => { w.cosmeticRandom.randomState++ }],
+    ['unit HP', w => { w.units[0].hp-- }],
+    ['terrain', w => { w.land.heights[0]++ }],
+    ['stock', w => { w.manaWorld.spells[2].stocks[17]++ }],
+    ['Map/Set', w => { w.buildingFootprints.set(-1, { cells: new Set([123]) }) }],
+    ['undefined property', w => { w.addedUndefined = undefined }],
+    ['mode', w => { w.mode = 'blast' }],
+    ['lightView x', w => { w.lightView.x++ }],
+    ['lightView h', w => { w.lightView.h++ }],
+    ['lightView extra key', w => { w.lightView.unexpected = undefined }],
+    ['light contribution', w => { w.lights.find(Boolean).contributions[0]++ }],
+    ['terrain light cells', w => { w.land.buildingIds[0] += 1024 }],
+    ['light revision', w => { w.lightRevision++ }],
+    ['player pose', w => { w.cameras.tribes[w.manaWorld.playerTribe].x++ }],
+    ['missing correction', w => { w.cameras.tribes[w.manaWorld.playerTribe].x += 3 }],
+    ['doubled correction', w => { w.cameras.tribes[w.manaWorld.playerTribe].x -= 3 }],
+    ['wrong player', w => { w.manaWorld.playerTribe = (w.manaWorld.playerTribe + 1) % 4 }],
+    ['other tribe', w => { w.cameras.tribes[(w.manaWorld.playerTribe + 1) % 4].x++ }],
+    ['angle', w => { w.cameras.tribes[w.manaWorld.playerTribe].angle++ }],
+    ['camera height', w => { w.cameras.tribes[w.manaWorld.playerTribe].h++ }],
+    ['camera clock', w => { w.cameras.elapsed++ }],
+    ['input queue owner', w => { w.cameras.input.cursor++ }],
+    ['zoom', w => { w.cameras.viewZoom++ }],
+    ['result owner', w => { w.cameras.result.counter++ }],
+    ['held correction', w => { w.cameras.held[w.manaWorld.playerTribe].x++ }],
+  ]
+  for (const [name, mutate] of mutations) await t.test(name, t => {
+    const { world, scene } = cameraFixture(t), actual = scene.focus
+    scene.focus = function (...args) { actual.apply(this, args); mutate(world) }
+    assert.throws(() => setupConversionCamera(checkpointCodec), /exact post-drain focus ownership/)
+    assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
+  assert.doesNotMatch(setupConversionCamera.toString(), /w\.(?:mode|lightView|paused|speed)\s*=(?!=)/,
+    'the checker cannot repair gameplay/light state to satisfy itself')
+})
+
+test('conversion camera refuses unsupported post-drain owners before focus changes', async t => {
+  for (const [name, mutate] of [
+    ['animated focus', w => { w.cameras.motion.active = 1 }],
+    ['result', w => { w.cameras.result.active = 1 }],
+    ['pending result', w => { w.cameras.resultRequest++ }],
+    ['overview', w => { w.cameras.overviewActive = true }],
+    ['heading transition', w => { w.cameras.viewTransition = { angle: { target: 0, increment: 0 } } }],
+    ['flyby', w => { w.flyby.flags |= 1 }],
+    ['navigation', w => { w.cameras.input.buttons = 1 }],
+    ['stale terrain', w => { w.landVersion = -1 }],
+    ['held alias', w => { w.cameras.borrowed[0] = w.cameras.held[0] }],
+  ]) await t.test(name, t => {
+    const { world } = cameraFixture(t)
+    mutate(world)
+    const before = checkpointCodec(world)
+    assert.throws(() => setupConversionCamera(checkpointCodec), /unsupported/)
+    assert.deepEqual(checkpointCodec(world), before, 'no checker repair or focus after refusal')
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
+})
+
+test('conversion camera drain errors and callback loss fail closed with retained receipts', async t => {
+  for (const thrown of ['', undefined]) await t.test(`drain throws ${String(thrown)}`, t => {
+    const { world, scene } = cameraFixture(t), before = checkpointCodec(world)
+    scene.advanceInputTime = () => { throw thrown }
+    const descriptor = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+    let caught = false
+    try { setupConversionCamera(checkpointCodec) }
+    catch (error) { caught = true; assert.equal(error, thrown) }
+    assert.equal(caught, true)
+    assert.deepEqual(checkpointCodec(world), before)
+    assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+    assert.equal(window.__pndConversionCameraSetup.drain.error, String(thrown))
+    assert.deepEqual(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), descriptor)
+  })
+  await t.test('ordinary observer ownership loss', t => {
+    const { scene } = cameraFixture(t), actual = scene.advanceInputTime, foreign = () => {}
+    scene.advanceInputTime = function (...args) {
+      actual.apply(this, args)
+      this.gameClock.afterTurn = foreign
+    }
+    assert.throws(() => setupConversionCamera(checkpointCodec), /ordinary-turn observer/)
+    assert.equal(scene.gameClock.afterTurn, foreign, 'checker must not overwrite another callback')
+  })
+  await t.test('drain wrapper ownership loss', t => {
+    const { scene } = cameraFixture(t), actual = scene.advanceInputTime, foreign = () => {}
+    scene.advanceInputTime = function (...args) {
+      actual.apply(this, args)
+      this.advanceInputTime = foreign
+    }
+    assert.throws(() => setupConversionCamera(checkpointCodec), /wrapper ownership changed/)
+    assert.equal(scene.advanceInputTime, foreign)
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, false)
+  })
+  for (const count of [0, 2]) await t.test(`focus invokes drain ${count} times`, t => {
+    const { scene } = cameraFixture(t), actual = scene.focus
+    scene.focus = count === 0 ? () => {} : function (...args) {
+      actual.apply(this, args); this.advanceInputTime()
+    }
+    assert.throws(() => setupConversionCamera(checkpointCodec), /single drain|exactly once/)
+    assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+    assert.equal(window.__pndConversionCameraSetup.drain.calls, count)
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
+  await t.test('conversion becomes ineligible during the drain', t => {
+    const { world, scene } = cameraFixture(t), actual = scene.advanceInputTime
+    scene.advanceInputTime = function (...args) {
+      actual.apply(this, args)
+      world.spellCasts[2][17] = 1 // Supplied negative control, not natural conversion evidence.
+    }
+    const pose = structuredClone(world.cameras.tribes)
+    assert.throws(() => setupConversionCamera(checkpointCodec), /post-drain gameplay is not ready/)
+    assert.deepEqual(world.cameras.tribes, pose)
+    assert.equal(world.spellCasts[2][17], 1, 'checker must not rewind the failed drain')
+    assert.equal(window.__pndConversionCameraSetup.drain.after.casts, 1)
+  })
+})
+
+test('empty restoration failure cannot turn a successful focus into a passing setup', t => {
+  const { scene } = cameraFixture(t), original = scene.advanceInputTime
+  Object.defineProperty(scene, 'advanceInputTime', { configurable: true, writable: true,
+    enumerable: false, value: original })
+  const descriptor = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+  let definitions = 0, rejectRestore = true
+  const proxy = new Proxy(scene, { defineProperty(target, key, next) {
+    if (key === 'advanceInputTime' && ++definitions === 2 && rejectRestore) throw ''
+    return Reflect.defineProperty(target, key, next)
+  } })
+  window.testSceneRef.current = proxy
+  let caught = false
+  try { setupConversionCamera(checkpointCodec) }
+  catch (error) { caught = true; assert.equal(error, '') }
+  assert.equal(caught, true)
+  assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+  assert.equal(window.__pndConversionCameraSetup.restoration.error, '')
+  assert.equal(window.__pndConversionCameraSetup.restoration.restored, false)
+  rejectRestore = false
+  Object.defineProperty(proxy, 'advanceInputTime', descriptor) // Fixture cleanup only.
+})
+
+test('conversion checker uses the actual nonzero player owner', t => {
+  const { world } = cameraFixture(t, { playerTribe: 2 }),
+    other = structuredClone(world.cameras.tribes[0]), report = setupConversionCamera(checkpointCodec)
+  assert.equal(report.cameraWorldChanges.player, 2)
+  assert.equal(world.cameras.tribes[2].x, 56061)
+  assert.deepEqual(world.cameras.tribes[0], other)
+})
+
+test('conversion checker inspects a partially completed descriptor installation before cleanup', t => {
+  const { scene } = cameraFixture(t), descriptor = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+  let first = true
+  const proxy = new Proxy(scene, { defineProperty(target, key, next) {
+    const result = Reflect.defineProperty(target, key, next)
+    if (key === 'advanceInputTime' && first) { first = false; throw 'installed-then-threw' }
+    return result
+  } })
+  window.testSceneRef.current = proxy
+  let caught = false
+  try { setupConversionCamera(checkpointCodec) }
+  catch (error) { caught = true; assert.equal(error, 'installed-then-threw') }
+  assert.equal(caught, true)
+  assert.equal(window.__pndConversionCameraSetup.drain.calls, 0)
+  assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+  assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  assert.deepEqual(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), descriptor)
+})
+
+test('conversion checker catches World replacement and late restoration mutations', async t => {
+  await t.test('World replaced by the drain', t => {
+    const { world, scene } = cameraFixture(t), actual = scene.advanceInputTime,
+      replacement = structuredClone(world)
+    scene.advanceInputTime = function (...args) {
+      actual.apply(this, args); this.world = replacement
+    }
+    assert.throws(() => setupConversionCamera(checkpointCodec), /original Scene\/world\/clock/)
+    assert.equal(scene.world, replacement, 'checker must not repair a retired binding')
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
+  await t.test('restoration mutates gameplay', t => {
+    const { world, scene } = cameraFixture(t)
+    const proxy = new Proxy(scene, { deleteProperty(target, key) {
+      const result = Reflect.deleteProperty(target, key)
+      if (key === 'advanceInputTime') world.randomState++
+      return result
+    } })
+    window.testSceneRef.current = proxy
+    assert.throws(() => setupConversionCamera(checkpointCodec), /exact post-drain focus ownership/)
+    assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
+})
+
+// Fake page transport only: never launches a browser, imports an asset launcher
+// or certifies a real episode. Exercises the scenario's terminal failure writer.
+test('conversion scenario preserves empty and undefined errors as failed terminal reports', async t => {
+  for (const thrown of ['', undefined]) await t.test(`navigation rejects ${String(thrown)}`, async t => {
+    const output = mkdtempSync(join(tmpdir(), 'conversion-failure-control-')),
+      cameraSetupAttempt = { status: 'failed', error: String(thrown), drain: { error: String(thrown) } }
+    t.after(() => rmSync(output, { recursive: true, force: true }))
+    let closes = 0
+    const page = { setDefaultTimeout() {}, on() {}, isClosed: () => false,
+      goto: async () => { throw thrown },
+      evaluate: async fn => fn.toString().includes('__pndConversionCameraSetup') ? cameraSetupAttempt : null,
+    }, context = { newPage: async () => page, close: async () => { closes++ } },
+      browser = { newContext: async () => context }
+    let caught = false
+    try { await spellConversion({ browser, url: 'https://example.invalid/not-visited', output }) }
+    catch (error) { caught = true; assert.equal(error, thrown) }
+    assert.equal(caught, true)
+    assert.equal(closes, 1)
+    const report = JSON.parse(readFileSync(join(output, 'spell-conversion.json'), 'utf8'))
+    assert.equal(report.status, 'failed')
+    assert.equal(report.error, String(thrown))
+    assert.deepEqual(report.cameraSetupAttempt, cameraSetupAttempt)
+    assert.equal(report.capMs, conversionLimitMs)
+    assert.equal(report.observationCapMs, conversionObservationMs)
+  })
+})
+
+test('conversion camera pins its store reader and forwards that reader receiver', t => {
+  const { world } = cameraFixture(t), store = window.testStore, receivers = []
+  store.getWorld = function () { receivers.push(this); return world }
+  const reader = store.getWorld, report = setupConversionCamera(checkpointCodec)
+  assert.equal(report.status, 'passed')
+  assert.equal(window.testStore, store)
+  assert.equal(store.getWorld, reader)
+  assert.ok(receivers.length > 1)
+  assert.ok(receivers.every(receiver => receiver === store))
+})
+
+test('conversion camera rejects same-World store or reader replacement', async t => {
+  for (const replaceStore of [true, false]) await t.test(replaceStore ? 'store' : 'reader', t => {
+    const { world, scene } = cameraFixture(t), store = window.testStore, actual = scene.focus
+    let foreignCalls = 0
+    const foreign = () => { foreignCalls++; return world }
+    scene.focus = function (...args) {
+      actual.apply(this, args)
+      if (replaceStore) window.testStore = { getWorld: foreign }
+      else store.getWorld = foreign
+    }
+    assert.throws(() => setupConversionCamera(checkpointCodec), /store reader/)
+    assert.equal(foreignCalls, 0, 'do not invoke a replacement reader merely to compare its World')
+    assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
+})
+
+test('conversion camera validates every admitted logical alias after focus and again after restoration', async t => {
+  const aliases = [
+    ['cameraPosition', s => ({ ...s.cameraPosition })],
+    ['cameraMotion', s => ({ ...s.cameraMotion })],
+    ['resultCamera', s => ({ ...s.resultCamera })],
+    ['cameraVelocity', s => ({ ...s.cameraVelocity })],
+    ['keys', s => new Set(s.keys)],
+    ['overviewActive', () => true],
+    ['overviewStage', () => 'enter'],
+    ['viewTransition', () => ({})],
+    ['viewZoom', s => s.viewZoom + 1],
+    ['viewPreset', s => s.viewPreset + 1],
+  ]
+  for (const when of ['after-focus', 'during-restoration'])
+    for (const [key, value] of aliases) await t.test(`${when}: ${key}`, t => {
+      const { world, scene } = cameraFixture(t), actual = scene.focus
+      let focusedWorld
+      const detach = target => Object.defineProperty(target, key, {
+        configurable: true, value: value(target),
+      })
+      scene.focus = function (...args) {
+        actual.apply(this, args)
+        focusedWorld = checkpointCodec(world)
+        if (when === 'after-focus') detach(this)
+      }
+      if (when === 'during-restoration') {
+        const proxy = new Proxy(scene, { deleteProperty(target, name) {
+          const result = Reflect.deleteProperty(target, name)
+          if (name === 'advanceInputTime') detach(target)
+          return result
+        } })
+        window.testSceneRef.current = proxy
+      }
+      assert.throws(() => setupConversionCamera(checkpointCodec), /aliases do not share the logical owners/)
+      assert.deepEqual(checkpointCodec(world), focusedWorld, 'the fault detaches only Scene aliases, not World')
+      assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+      assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+    })
+})
+
+test('conversion camera rechecks display coordinates and bearing after exact method restoration', async t => {
+  for (const field of ['point', 'bearing']) await t.test(field, t => {
+    const { world, scene } = cameraFixture(t), actual = scene.focus
+    let focusedWorld
+    scene.focus = function (...args) {
+      actual.apply(this, args); focusedWorld = checkpointCodec(world)
+    }
+    const proxy = new Proxy(scene, { deleteProperty(target, key) {
+      const result = Reflect.deleteProperty(target, key)
+      if (key === 'advanceInputTime') {
+        if (field === 'point') target.viewPoint.x++
+        else target.cameraBearing += 0.25
+      }
+      return result
+    } })
+    window.testSceneRef.current = proxy
+    assert.throws(() => setupConversionCamera(checkpointCodec), /exact logical focus target/)
+    assert.deepEqual(checkpointCodec(world), focusedWorld, 'late display-only faults preserve World bytes')
+    assert.equal(window.__pndConversionCameraSetup.status, 'failed')
+    assert.equal(window.__pndConversionCameraSetup.restoration.restored, true)
+  })
 })
 
 function observation() {

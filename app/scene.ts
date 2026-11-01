@@ -421,15 +421,17 @@ export class GameScene {
   // Drain elapsed work before mutating an input. Input callbacks therefore
   // cannot retroactively affect earlier catch-up turns in the next RAF.
   advanceInputTime(timestamp = performance.now()) {
-    if (!this.started || this.inputDepth || this.world.cameras.phase !== 'idle') return
+    if (this.disposed || !this.started || this.inputDepth || this.world.cameras.phase !== 'idle') return
     if (this.previous === null || this.modalSuspended) return
     const now = Math.max(this.previous, timestamp)
     const seconds = (now - this.previous) / 1000
     this.previous = now
     advanceGame(this.world, this.gameClock, seconds)
+    if (this.disposed) return
     previewGroundZoom(this)
   }
   private publishCameraInput() {
+    if (this.disposed) return
     const input = this.world.cameras.input,
       buttons = this.navigationButtons()
     if (buttons !== input.buttons) this.captureCamera(!!(buttons & 15))
@@ -442,8 +444,10 @@ export class GameScene {
   cursorFrameBlocked = true
   modalSuspended = false
   setModalSuspended(suspended: boolean) {
+    if (this.disposed) return
     if (suspended && !this.modalSuspended) {
       this.advanceInputTime()
+      if (this.disposed) return
       this.updateTooltipFrame(this.previous ?? performance.now(), true)
     }
     this.modalSuspended = suspended
@@ -761,9 +765,9 @@ export class GameScene {
     this.onNearbyFollowersCancel?.()
   }
   start() {
+    if (this.disposed || this.terrainLoad.signal.aborted) return false
     if (this.presentationBinding && !this.presentationBinding.isCurrent()) return false
     if (this.started) return true
-    if (this.disposed || this.terrainLoad.signal.aborted) return false
     this.started = true
     this.releaseTrainingPanelRequests = bindTrainingPanelRequests(this.world, this.objectPanels)
     this.previous = null
@@ -785,10 +789,12 @@ export class GameScene {
   }
   listen(target: EventTarget, name: string, handler: EventListener) {
     const ordered: EventListener = event => {
+      if (this.disposed) return
       // Modern DOM event timestamps share performance.now()'s monotonic origin.
       // A synthetic event without that origin is observed at delivery time.
       const timestamp = event.timeStamp > 1e12 ? performance.now() : event.timeStamp
       this.advanceInputTime(timestamp)
+      if (this.disposed) return
       this.inputDepth++
       try {
         handler(event)
@@ -801,6 +807,7 @@ export class GameScene {
     this.disposeListeners.push(() => target.removeEventListener(name, ordered))
   }
   setSize() {
+    if (this.disposed) return
     const { width, height } = this.container.getBoundingClientRect()
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8))
     this.globe.stars.material.uniforms.pixelRatio.value = this.renderer.getPixelRatio()
@@ -992,6 +999,7 @@ export class GameScene {
     updateSpellHalo(this, frame)
   }
   drawMinimap() {
+    if (this.disposed) return
     if (this.terrainTextures)
       this.minimap.draw(
         this.mini,
@@ -1076,11 +1084,15 @@ export class GameScene {
     }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
+    // Synchronous UI/audio callbacks may retire this scene before the frame ends.
+    if (this.disposed) return
     const simulationStart = diagnostic ? performance.now() : 0
     advanceGame(this.world, this.gameClock, dt, simulationMetrics)
+    if (this.disposed) return
     const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
+    if (this.disposed) return
     const terrainStart = sceneUpdates ? performance.now() : 0
     this.updateTerrainFrame()
     if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
@@ -1100,6 +1112,7 @@ export class GameScene {
     if (this.cursorFrameBlocked) this.cancelTooltipInspection()
     if (!cameraOwnsFrame) this.updateView()
     this.updateTooltipFrame(now)
+    if (this.disposed) return
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip(pointerMetrics)
@@ -1130,6 +1143,7 @@ export class GameScene {
     const renderMs = diagnostic ? performance.now() - renderStart : 0
     const hudStart = sceneUpdates ? performance.now() : 0
     this.updateHudFrame(now, dt)
+    if (this.disposed) return
     if (sceneUpdates) sceneUpdates.hudCpuMs = performance.now() - hudStart
     this.frame = requestAnimationFrame(this.animate)
     // Synchronous game callback work, including HUD and scheduling; excludes
@@ -1239,5 +1253,19 @@ export class GameScene {
     this.objectPanels.dispose()
     this.spellPointer.remove()
     this.worshipPresentation.dispose()
+    // Disposal of Three textures releases GPU resources, not their CPU images.
+    // Drop every owned terrain alias, including the minimap's revision token.
+    // Replace references rather than changing buffers a caller may still hold.
+    const releasedImage = { data: new Uint8Array(0), width: 0, height: 0 }
+    this.terrainMap.image = releasedImage
+    this.terrainUpload.image = releasedImage
+    this.waterMap.image = releasedImage
+    this.terrainAtlasState = undefined
+    this.minimap.revision = undefined
+    this.terrainTextures = null
+    this.waves = null
+    // Each Scene owns its renderer/context. Retire it only after normal cleanup;
+    // shared cached textures and their images belong to future Scenes too.
+    this.renderer.forceContextLoss()
   }
 }

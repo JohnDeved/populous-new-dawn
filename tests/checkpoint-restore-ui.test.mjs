@@ -77,6 +77,25 @@ function startup(store) {
   return { states, cheatClosures, cleanup, navigation }
 }
 const settle = () => new Promise(resolve => setImmediate(resolve))
+
+test('combined current checkpoint contract is version 5', () => {
+  assert.equal(CHECKPOINT_VERSION, 5)
+})
+
+// Supplied nondefault continuation, not evidence of a natural gameplay trace.
+function retainedCamera(world) {
+  const camera = world.cameras
+  camera.tribes[0].x = 197
+  camera.held[0].x = 3
+  camera.time = 0.017
+  camera.navigationTime = 0.003
+  camera.elapsed = 0.5
+  camera.input = { time: 0.497, cursor: 8, buttons: 1,
+    pointer: { x: -0.5, y: 799.25, buttons: 0 } }
+  camera.keys.add('w')
+  return camera
+}
+
 let session = 0
 async function withStorage(run, initial = {}, { failWrite = false } = {}) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
@@ -119,7 +138,7 @@ async function withStorage(run, initial = {}, { failWrite = false } = {}) {
   }
   try {
     const { createGameStore } = await import(`../app/game-store.ts?restore-ui=${++session}`)
-    await run({ store: createGameStore(), open, read, records, writes, opens, reads, transactions: () => transactions })
+    await run({ store: createGameStore(), createStore: createGameStore, open, read, records, writes, opens, reads, transactions: () => transactions })
   } finally {
     if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
     else delete globalThis.indexedDB
@@ -314,3 +333,175 @@ test('successful explicit Save supersedes an older pending incompatible read sna
     assert.deepEqual(store.getCompletedMissions(), [1, 2])
   }, { latest: { version: 1, world: createWorld() }, profile: { version: 1, completed: [1, 2] } })
 })
+
+for (const version of [3, 4, 999]) {
+  test(`otherwise current world under incompatible envelope ${version} is never relabeled`, async () => {
+    assert.notEqual(CHECKPOINT_VERSION, version)
+    const saved = createWorld(1, 'scalable')
+    retainedCamera(saved)
+    await withStorage(async ({ store, open, read, records, writes }) => {
+      const active = store.getWorld(), before = structuredClone(records)
+      const home = startup(store)
+      await open(); await read()
+      assert.equal(store.getCheckpointReadStatus(), 'incompatible')
+      assert.equal(store.hasCheckpoint(), false)
+      assert.equal(store.loadCheckpoint(), false)
+      assert.equal(store.getWorld(), active)
+      assert.deepEqual(records, before)
+      assert.deepEqual(writes, [])
+      assert.deepEqual(store.getCompletedMissions(), [1, 2])
+      assert.deepEqual(home.states, ['choice'])
+      assert.match(text(menu(store)), /incompatible.*stored save has not been changed/)
+      home.cleanup()
+    }, { latest: { version, world: saved }, profile: { version: 1, completed: [1, 2] } })
+  })
+}
+
+for (const [name, damage] of [
+  ['missing cameras', world => { delete world.cameras }],
+  ['active camera phase', world => { world.cameras.phase = 'simulation' }],
+  ['missing pointer field', world => { delete world.cameras.input.pointer }],
+  ['nonfinite camera pose', world => { world.cameras.tribes[0].x = NaN }],
+  ['invalid scenery source', world => { world.scenerySource.sourceSha256 = '0'.repeat(64) }],
+  // Deliberately malformed supplied effect records; these test the store guard,
+  // not natural effect production or the complete effect-state contract.
+  ['present malformed Angel latch', world => { world.effects.push({ angel: { presentation: null } }) }],
+  ['malformed Tornado particle', world => { world.effects.push({ tornado: { particles: [{}] } }) }],
+]) {
+  test(`current envelope rejects ${name} without changing records or the active world`, async () => {
+    const saved = createWorld(1, 'scalable')
+    retainedCamera(saved)
+    damage(saved)
+    await withStorage(async ({ store, open, read, records, writes }) => {
+      const active = store.getWorld(), before = structuredClone(records)
+      const restoring = store.restoreCheckpoint()
+      assert.equal(restoring, store.restoreCheckpoint())
+      await open(); await read()
+      assert.equal(await restoring, false)
+      assert.equal(store.getCheckpointReadStatus(), 'incompatible')
+      assert.equal(store.loadCheckpoint(), false)
+      assert.equal(store.getWorld(), active)
+      assert.deepEqual(records, before)
+      assert.deepEqual(writes, [])
+      assert.deepEqual(store.getCompletedMissions(), [1, 2])
+    }, { latest: { version: CHECKPOINT_VERSION, world: saved }, profile: { version: 1, completed: [1, 2] } })
+  })
+}
+
+test('successful current Save survives fresh-store lookup and deliberate Load with exact camera continuation', async () => {
+  await withStorage(async ({ store, createStore, open, read, records, writes }) => {
+    const original = store.getWorld()
+    const camera = structuredClone(retainedCamera(original))
+    const saving = store.saveCheckpoint()
+    await open()
+    assert.equal(await saving, true)
+    assert.equal(records.get('latest').version, CHECKPOINT_VERSION)
+    assert.deepEqual(records.get('latest').world.cameras, camera)
+    const before = structuredClone(records), writeCount = writes.length
+    const fresh = createStore(), active = fresh.getWorld()
+    const restoring = fresh.restoreCheckpoint()
+    await settle(); await read()
+    assert.equal(await restoring, true)
+    assert.equal(fresh.getCheckpointReadStatus(), 'read')
+    assert.equal(fresh.getWorld(), active, 'lookup does not load or navigate')
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
+    assert.equal(fresh.loadCheckpoint(), true)
+    assert.notEqual(fresh.getWorld(), active)
+    assert.notEqual(fresh.getWorld(), original)
+    assert.deepEqual(fresh.getWorld().cameras, camera)
+    assert.deepEqual(fresh.getWorld().scenerySource, original.scenerySource)
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount, 'deliberate Load also leaves stored data unchanged')
+  })
+})
+
+test('rejected camera Save preserves the previous committed and session checkpoints', async () => {
+  await withStorage(async ({ store, open, records, writes }) => {
+    const camera = structuredClone(retainedCamera(store.getWorld()))
+    const saving = store.saveCheckpoint()
+    await open()
+    assert.equal(await saving, true)
+    const before = structuredClone(records), writeCount = writes.length
+    store.getWorld().cameras.input.pointer.x = NaN
+    await assert.rejects(store.saveCheckpoint(), RangeError)
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.deepEqual(store.getWorld().cameras, camera)
+    assert.deepEqual(records, before)
+  })
+})
+
+// Reuse the existing Angel public-cast fixture design: the arena/units are
+// supplied, but casting, projectile arrival and the partial strike are real.
+// Removing presentation below intentionally supplies the valid-absent policy
+// boundary; it does not claim a naturally produced absent latch at that turn.
+async function partialStrikeInStore(store) {
+  const { addUnit, cast } = await import('../app/model.ts')
+  const { retainFixtureUnits } = await import('./level-start-fixture.mjs')
+  const { syncLandscapeObjects } = await import('../app/world-terrain-runtime.ts')
+  const { createLivePerson, syncLivePersonCells } = await import('../app/live-people.ts')
+  const { advanceGame } = await import('../app/game-clock.ts')
+  const world = store.getWorld()
+  world.manaWorld.loadFlags |= 0x200
+  world.terrain.fill(3)
+  world.terrainVersion++
+  retainFixtureUnits(world, () => false)
+  world.buildings = []; world.trees = []; world.shrines = []
+  syncLandscapeObjects(world)
+  addUnit(world, 'blue', 'shaman', { x: 0, z: 8 })
+  const victim = addUnit(world, 'red', 'brave', { x: 0, z: 0 })
+  victim.native = createLivePerson(world, victim)
+  victim.native.damageAttacker = 255
+  syncLivePersonCells(world)
+  world.shots.angel = 1
+  assert.equal(cast(world, 'angel', { x: 0, z: 0 }), true)
+  const clock = {
+    get animationTime() { return world.cameras.animationTime },
+    set animationTime(value) { world.cameras.animationTime = value },
+    get animationFrame() { return world.cameras.animationFrame },
+    set animationFrame(value) { world.cameras.animationFrame = value },
+  }
+  for (let turn = 0; turn < 96; turn++) {
+    advanceGame(world, clock, 1 / 24)
+    const effect = world.effects.find(effect => effect.angel)
+    if (effect?.angel.phase === 'striking' &&
+        effect.angel.presentation?.transitionCounter > 0 &&
+        effect.angel.presentation.transitionCounter < 5) return effect
+  }
+  assert.fail('Public cast must reach an actual partial strike before saving')
+}
+
+for (const presentation of ['absent', 'present']) {
+  test(`fresh-store durable Load preserves valid ${presentation} Angel presentation policy`, async () => {
+    await withStorage(async ({ store, createStore, open, read, records, writes }) => {
+      const effect = await partialStrikeInStore(store)
+      if (presentation === 'absent') delete effect.angel.presentation
+      assert.equal(Object.hasOwn(effect.angel, 'presentation'), presentation === 'present')
+      const expected = structuredClone(effect.angel)
+      const saving = store.saveCheckpoint()
+      await open()
+      assert.equal(await saving, true)
+      const storedAngel = records.get('latest').world.effects.find(item => item.id === effect.id).angel
+      assert.deepEqual(storedAngel, expected)
+      assert.equal(Object.hasOwn(storedAngel, 'presentation'), presentation === 'present')
+      const before = structuredClone(records), writeCount = writes.length
+      const fresh = createStore(), active = fresh.getWorld()
+      const restoring = fresh.restoreCheckpoint()
+      await settle(); await read()
+      assert.equal(await restoring, true)
+      assert.equal(fresh.getCheckpointReadStatus(), 'read')
+      assert.equal(fresh.getWorld(), active, 'lookup must not replace the active world')
+      assert.deepEqual(records, before)
+      assert.equal(writes.length, writeCount)
+      assert.equal(fresh.loadCheckpoint(), true)
+      const loaded = fresh.getWorld().effects.find(item => item.id === effect.id).angel
+      assert.deepEqual(loaded, expected)
+      assert.equal(Object.hasOwn(loaded, 'presentation'), presentation === 'present',
+        'Load must neither fill genuine absence nor drop a valid existing latch')
+      assert.deepEqual(records, before)
+      assert.equal(writes.length, writeCount)
+    })
+  })
+}

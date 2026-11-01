@@ -283,8 +283,16 @@ export default async function scenario({ page, context, url, output, openMission
     report.status = 'passed'; flush()
     return report
   } catch (error) {
-    report.status = 'failed'; report.failure = error.stack ?? String(error)
-    try { report.lastState = await state(page) } catch (e) { report.lastStateError = String(e) }
-    flush(); throw error
+    // Diagnostics are best-effort: a falsey primary throw or failed report write
+    // must never become success or replace the original scenario rejection.
+    try {
+      report.status = 'failed'; report.failure = error?.stack ?? String(error)
+      try { report.lastState = await state(page) } catch (e) { report.lastStateError = String(e) }
+      flush()
+    } finally {
+      // A write failure can leave no durable report. Preserve the primary error
+      // even if formatting, last-state diagnostics or flush fails secondarily.
+      throw error
+    }
   }
 }

@@ -3,10 +3,11 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
-import { testGroupCommand } from '../scripts/orchestration/test-runner.mjs'
+import { testGroupCommand, planTestShard, runTestShard, productionFingerprint } from '../scripts/orchestration/test-runner.mjs'
+import { dependencyReceipt, portablePnpmRuntime } from '../scripts/orchestration/dependency-profile.mjs'
 import { candidateSnapshot, reportLines, QUALITY_STAGES, readEnvelopes, validateGate, validateShard } from '../scripts/orchestration/ci-gate.mjs'
 
 function fixture() {
@@ -170,4 +171,65 @@ test('gate accepts only exact legacy or fixed diagnostic commands, never timing 
   assert.throws(() => validate(failure))
   const drift = structuredClone(f); drift.envelopes[1].runtime.timingReporterSha256 = 'f'.repeat(64)
   assert.throws(() => validate(drift), /runtime drift/)
+})
+
+test('pnpm envelopes compare portable locks while binding each installation separately', () => {
+  const f = fixture()
+  f.snapshot.runtime = { ...f.snapshot.runtime, dependencyFormat: 'pnpm-isolated-v1', pnpmLockSha256: 'd'.repeat(64) }
+  f.snapshot.installation = { modulesMetadataSha256: '0'.repeat(64) }
+  f.envelopes.forEach((e, i) => { e.version = 2; e.runtime = { ...f.snapshot.runtime }; e.installation = { modulesMetadataSha256: String(i + 1).repeat(64) } })
+  for (const plan of f.plans) plan.dependencyFormat = 'pnpm-isolated-v1'
+  for (const e of f.envelopes.filter(e => e.shard)) {
+    e.shard.version = 2; e.shard.plan.dependencyFormat = 'pnpm-isolated-v1'
+    e.shard.installationBefore = { ...e.installation }; e.shard.installationAfter = { ...e.installation }
+  }
+  assert.equal(validate(f).version, 2)
+  for (const mutate of [
+    x => { delete x.envelopes[0].installation },
+    x => { x.envelopes[1].installation.modulesMetadataSha256 = 'not-a-hash' },
+    x => { x.envelopes[2].version = 1 },
+    x => { x.envelopes[3].runtime.pnpmLockSha256 = 'e'.repeat(64) },
+  ]) { const bad = structuredClone(f); mutate(bad); assert.throws(() => validate(bad)) }
+})
+
+
+test('real pnpm shard plans aggregate across distinct installs and reject within-worker mutation', async t => {
+  const roots = Array.from({ length: 5 }, (_, i) => {
+    const root = mkdtempSync(join(tmpdir(), 'pnd-pnpm-job-'))
+    t.after(() => rmSync(root, { recursive: true, force: true }))
+    const put = (name, bytes) => { mkdirSync(join(root, name, '..'), { recursive: true }); writeFileSync(join(root, name), bytes) }
+    put('package.json', '{"packageManager":"pnpm@11.25.0","type":"module"}')
+    for (const name of ['package-lock.json', 'tsconfig.json']) put(name, '{}')
+    put('pnpm-lock.yaml', 'lockfileVersion: 9\n'); put('node_modules/.pnpm/lock.yaml', 'lockfileVersion: 9\n')
+    put('pnpm-workspace.yaml', 'nodeLinker: isolated\n')
+    put('node_modules/.modules.yaml', `prunedAt: job-${i}\nstoreDir: /private/${i}\n`)
+    put('app/fixture.ts', 'export const answer = 42')
+    put('scripts/fixture.mjs', '// fixed source')
+    put('engineering/test-resources.json', JSON.stringify({ version: 1, helpersSha256: 'a'.repeat(64), productionSha256: 'b'.repeat(64), parallel: {} }))
+    for (let j = 0; j < 4; j++) put(`tests/a${j}.test.mjs`, 'import test from "node:test"; test("tiny actual child", () => {})')
+    return { root, put }
+  })
+  const aggregate = roots[4].root, local = portablePnpmRuntime(dependencyReceipt(aggregate))
+  const plans = [0, 1, 2, 3].map(i => planTestShard(aggregate, i))
+  const snapshot = { identity: { fixed: 'fixture source' }, runtime: local.runtime, installation: local.installation,
+    inventory: plans[0].discovered.map(file => ({ file, sha256: 'c'.repeat(64) })) }
+  const envelopes = [{ version: 2, kind: 'quality', ...snapshot, stages: [...QUALITY_STAGES], status: 'passed' }]
+  for (let i = 0; i < 4; i++) {
+    const root = roots[i].root, plan = planTestShard(root, i), installed = portablePnpmRuntime(dependencyReceipt(root))
+    assert.deepEqual(plan, plans[i]); assert.notEqual(productionFingerprint(root), productionFingerprint(aggregate))
+    const shard = await runTestShard(root, plan, { log: () => {} })
+    envelopes.push({ version: 2, kind: 'shard', ...snapshot, installation: installed.installation, shard, status: 'passed' })
+  }
+  assert.equal(validateGate(snapshot, envelopes, plans, { quality: 'success', 'test-shards': 'success' }).status, 'passed')
+  const bad = structuredClone(envelopes); bad[1].shard.installationAfter.modulesMetadataSha256 = 'e'.repeat(64)
+  assert.throws(() => validateGate(snapshot, bad, plans, { quality: 'success', 'test-shards': 'success' }), /metadata mutated/)
+  const driftPlan = planTestShard(roots[0].root, 0)
+  const drift = await runTestShard(roots[0].root, driftPlan, { log: () => {}, launch: (...args) => {
+    roots[0].put('node_modules/.modules.yaml', 'prunedAt: changed during actual child\n')
+    return spawn(...args)
+  } })
+  assert.equal(drift.result.status, 'failed'); assert.equal(drift.result.shardComplete, false)
+  roots[1].put('pnpm-lock.yaml', 'changed'); roots[1].put('node_modules/.pnpm/lock.yaml', 'changed')
+  assert.notDeepEqual(planTestShard(roots[1].root, 1), plans[1])
+  assert.throws(() => validateShard(envelopes[2].shard, planTestShard(roots[1].root, 1), envelopes[2].installation), /plan differs/)
 })

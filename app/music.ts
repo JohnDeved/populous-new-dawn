@@ -41,6 +41,7 @@ export class Music {
   context: AudioContext
   disposed = false
   loading: Promise<void>
+  private loadController = new AbortController()
   constructor(context: AudioContext, destination: AudioNode, rng: { randomState: number }) {
     this.context = context
     this.drone = (random(rng) & 3) + 2
@@ -54,16 +55,25 @@ export class Music {
     this.media = context.createMediaElementSource(this.element)
     this.media.connect(this.gain)
     // Stream the long drone. Only the chosen bank's short percussion clips decode.
+    const { signal } = this.loadController
     this.loading = Promise.all(
       data.drums[this.bank].map(async clip => {
         if (!clip.file) return null
-        const response = await fetch(`/original/audio/${clip.file}`)
+        const response = await fetch(`/original/audio/${clip.file}`, { signal })
+        if (signal.aborted) return null
         if (!response.ok) throw new Error(`Music sample failed: ${clip.file}`)
-        return context.decodeAudioData(await response.arrayBuffer())
+        const bytes = await response.arrayBuffer()
+        if (signal.aborted) return null
+        return context.decodeAudioData(bytes)
       })
-    ).then(clips => {
-      if (!this.disposed) this.clips = clips
-    })
+    )
+      .then(clips => {
+        if (!this.disposed) this.clips = clips
+      })
+      .catch(error => {
+        // Disposal owns cancellation; live loading failures still reach enable().
+        if (!signal.aborted) throw error
+      })
   }
   schedule() {
     const now = this.context.currentTime
@@ -101,6 +111,7 @@ export class Music {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.loadController.abort()
     this.reset()
     this.element.pause()
     this.element.removeAttribute('src')

@@ -965,6 +965,99 @@ test('protected held-drag owners add the cheap regression without changing exist
     assert.deepEqual(unrelated.feedback.command, ['npm', 'test'])
   }))
 
+// The Tornado regression must be selected explicitly: input fingerprints are not
+// dependency discovery, and the construction bundle does not execute this test.
+test('Tornado building wood owners select their standalone portable regression without broadening routing', () =>
+  withRepo(repo => {
+    const { checks } = validateRepository(ROOT)
+    const check = checks.checks.find(item => item.id === 'tornado-building-wood-portable')
+    assert.ok(check)
+    assert.equal(check.kind, 'portable')
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/tornado-building-wood.test.mjs'])
+    const paths = ['tests/tornado-building-wood.test.mjs', 'app/building-runtime.ts',
+      'app/tornado-runtime.ts', 'app/world-initialization.ts', 'app/scenery-provenance.ts']
+    assert.deepEqual(check.triggerPaths, paths)
+    assert.deepEqual(check.inputs, ['tests/tornado-building-wood.test.mjs', 'app',
+      'package.json', 'pnpm-lock.yaml', 'package-lock.json'])
+    assert.deepEqual(check.sideEffects, [])
+    for (const path of ['pnpm-lock.yaml', 'package-lock.json', ...paths]) put(repo, path, '// fixture\n')
+    // Exercise a narrow owner, a shared owner and conservative unknown owners.
+    const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))
+    mapping.subsystems[0].implementationPaths.push('app/building-runtime.ts')
+    mapping.subsystems[0].sharedPaths.push('app/world-initialization.ts')
+    put(repo, 'engineering/project-map.json', mapping)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'Tornado source owner fixtures')
+    const baseline = new Map()
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      baseline.set(path, planChanges(repo))
+      put(repo, path, '// fixture\n')
+    }
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check)
+    put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.')
+    run(repo, 'git', 'commit', '-qm', 'add Tornado portable triggers')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo), previous = baseline.get(path)
+      const selected = plan.checks.find(item => item.id === check.id)
+      assert.deepEqual(selected?.command, [check.executable, ...check.args], path)
+      assert.ok(selected.reasons.includes(`explicit check trigger changed: ${path}`), path)
+      assert.deepEqual(plan.checks.filter(item => item.id !== check.id), previous.checks, path)
+      assert.deepEqual(plan.unknownPaths, previous.unknownPaths, path)
+      assert.deepEqual(plan.affectedSubsystems, previous.affectedSubsystems, path)
+      assert.equal(plan.feedback.scope, previous.feedback.scope, path)
+      assert.equal(plan.feedback.finalGate, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.executesChecks, false)
+      if (plan.feedback.scope === 'focused') assert.ok(plan.feedback.command.includes('tests/tornado-building-wood.test.mjs'))
+      put(repo, path, '// fixture\n')
+    }
+    // Even files within the broad fingerprint directory must not become triggers.
+    appendFileSync(join(repo, 'app/a.ts'), '// unrelated mapped owner\n')
+    const mapped = planChanges(repo)
+    assert.ok(!mapped.checks.some(item => item.id === check.id))
+    put(repo, 'app/unmapped.ts', '// unrelated unknown owner\n')
+    const unknown = planChanges(repo)
+    assert.ok(!unknown.checks.some(item => item.id === check.id))
+    assert.ok(unknown.unknownPaths.includes('app/unmapped.ts'))
+    assert.deepEqual(unknown.feedback.command, ['npm', 'test'])
+  }))
+
+test('native UI checker changes select focused regressions without losing workflow gates', () =>
+  withRepo(repo => {
+    const check = JSON.parse(readFileSync(join(ROOT, 'engineering/checks.json'))).checks
+      .find(item => item.id === 'native-ui-evidence-tests')
+    assert.ok(check)
+    assert.equal(check.automation, 'safe')
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/native-ui-evidence.test.mjs'])
+    const paths = ['scripts/native-ui-evidence/hud-sound-control-style.mjs',
+      'scripts/native-ui-evidence/policy.mjs', 'tests/native-ui-evidence.test.mjs',
+      '.github/workflows/native-ui-evidence.yml', 'engineering/native-ui-evidence.md']
+    for (const input of check.inputs) {
+      if (input === 'scripts/native-ui-evidence') mkdirSync(join(repo, input), { recursive: true })
+      else put(repo, input, input === 'package.json' ? '{"type":"module"}\n' : '// fixture\n')
+    }
+    for (const path of paths) put(repo, path, '// fixture\n')
+    const manifest = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+    manifest.checks.push(check); put(repo, 'engineering/checks.json', manifest)
+    run(repo, 'git', 'add', '.'); run(repo, 'git', 'commit', '-qm', 'native UI checker routing')
+    for (const path of paths) {
+      appendFileSync(join(repo, path), '// changed\n')
+      const plan = planChanges(repo)
+      assert.deepEqual(plan.unknownPaths, [], path)
+      for (const id of [check.id, 'orchestration-tests', 'orchestration-structural', 'repository-check'])
+        assert.ok(plan.checks.some(item => item.id === id), `${path}: missing ${id}`)
+      assert.equal(plan.executesChecks, false)
+      assert.equal(plan.feedback.fullVerificationRequired, true)
+      assert.equal(plan.feedback.finalGate, false)
+      put(repo, path, '// fixture\n')
+    }
+  }))
+
 test('explicit check triggers reject unsafe, malformed and empty routes', () =>
   withRepo(repo => {
     const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
@@ -1228,7 +1321,7 @@ function configureAggregate(repo) {
   const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
     { automation: 'safe', executable, args })
   configure('repository-check', 'npm', ['run', 'check'])
-  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/receipt-streams.test.mjs', 'tests/workflow-policy.test.mjs', 'tests/research-evidence.test.mjs', 'tests/theme-reference-evidence.test.mjs', 'tests/test-runner.test.mjs'])
   configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
   checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
   put(repo, 'engineering/checks.json', checks)
@@ -1489,7 +1582,7 @@ function preflightCliFixture(t) {
   const repo = fixtureRepo()
   t.after(() => rmSync(repo, { recursive: true, force: true }))
   mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
-  for (const name of ['preflight', 'cli', 'research-evidence', 'review-bundle']) {
+  for (const name of ['preflight', 'cli', 'dependency-profile', 'research-evidence', 'review-bundle', 'receipt-streams']) {
     copyFileSync(new URL(`../scripts/orchestration/${name}.mjs`, import.meta.url),
       join(repo, `scripts/orchestration/${name}.mjs`))
   }

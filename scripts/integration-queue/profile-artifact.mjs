@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { isDeepStrictEqual } from 'node:util'
 import { readArtifactZip } from '../artifact-zip.mjs'
+import { composedContract, composedInventory, validateComposedArtifact } from './composed-profile-artifact.mjs'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 export const profileArchiveLimit = 16 * 1024 * 1024
 const required = {
@@ -70,20 +71,25 @@ function boundRecovery(files, read, json, host, receipt) {
   for (const shot of receipt.screenshots) read(shot.name, shot.sha256)
   return host.profileRecovery
 }
-export function resolveProfileCasesArtifact(archive, upload, receipt) {
+export function resolveProfileCasesArtifact(archive, upload, receipt, expected) {
   const allowed = new Set(['receipt.json', 'build.log', 'profile-recovery.json',
-    'malformed-profile-selector.png', 'ordinary-fresh-load.png'])
+    'malformed-profile-selector.png', 'ordinary-fresh-load.png', ...composedInventory(expected, 'profile')])
   const { files, read, json } = boundArchive(archive, upload, allowed)
   const host = boundHost(read, json, receipt)
   assert.equal(receipt.kind, 'profile-recovery-cases-browser')
   assert.equal(host.selectedScenario, 'profile-recovery')
   assert.equal(receipt.mission10, undefined, 'Recovery artifact cannot claim M10')
   assert.equal(host.mission10Profile, undefined, 'Recovery artifact cannot claim M10')
-  return boundRecovery(files, read, json, host, receipt)
+  const recovery = boundRecovery(files, read, json, host, receipt)
+  if (!composedContract(expected)) return recovery
+  assert.equal(validateComposedArtifact(files, host, expected, 'profile'), true, 'Unresolved composed Profile resolver')
+  return { recovery, composedVerified: true }
 }
-function resolveArtifact(archive, upload, receipt, standalone) {
+function resolveArtifact(archive, upload, receipt, standalone, expected) {
+  if (composedContract(expected)) assert.equal(standalone, true)
   const allowed = new Set(['receipt.json', 'build.log', 'mission10-profile.json', 'mission10-artifacts.json',
     ...(standalone ? [] : ['profile-recovery.json', 'malformed-profile-selector.png', 'ordinary-fresh-load.png']),
+    ...composedInventory(expected, 'mission10'),
     ...Object.entries(required).flatMap(([mode, names]) => names.map(name => `mission10-${mode}--${name}`))])
   const { files, read, json } = boundArchive(archive, upload, allowed)
   const host = boundHost(read, json, receipt), value = receipt.mission10
@@ -140,8 +146,10 @@ function resolveArtifact(archive, upload, receipt, standalone) {
     for (const shot of phase.screenshots) read(shot.name, shot.sha256)
     return result
   })
-  return rawPhases
+  if (!composedContract(expected)) return rawPhases
+  assert.equal(validateComposedArtifact(files, host, expected, 'mission10'), true, 'Unresolved composed Mission10 resolver')
+  return { phases: rawPhases, composedVerified: true }
 }
 
 export const resolveProfileArtifact = (archive, upload, receipt) => resolveArtifact(archive, upload, receipt, false)
-export const resolveMission10Artifact = (archive, upload, receipt) => resolveArtifact(archive, upload, receipt, true)
+export const resolveMission10Artifact = (archive, upload, receipt, expected) => resolveArtifact(archive, upload, receipt, true, expected)

@@ -11,6 +11,7 @@ on:
       - 'scripts/local-render/tutorial-recommendation.mjs'
       - 'scripts/local-render/frontend-held-escape.mjs'
       - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+      - 'scripts/local-render/pause-capture-controls.mjs'
       - 'scripts/local-render/campaign-profile-recovery.mjs'
       - 'scripts/checkpoint-readback.mjs'
       - 'scripts/local-render/checkpoint-observer.mjs'
@@ -19,6 +20,9 @@ on:
       - '.github/workflows/tutorial-browser.yml'
       - 'package.json'
       - 'package-lock.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'scripts/orchestration/dependency-profile.mjs'
       - 'tsconfig.json'
 
 permissions:
@@ -72,6 +76,11 @@ jobs:
             name: Gameplay frame recording browser
             artifact: gameplay-frame-recording-browser
             buildStep: Record live authored Level 2 frame exports and workload summaries
+          - scenario: gameplay-resources
+            timeoutMinutes: 15
+            name: Gameplay resource lifecycle browser
+            artifact: gameplay-resource-lifecycle-browser
+            buildStep: Observe full live Mission 2 workload and one same-document resource restart
           - scenario: snapshot-protocol
             timeoutMinutes: 6
             name: Controlled snapshot functional smoke
@@ -110,8 +119,20 @@ jobs:
           package-manager-cache: false
       - name: Install locked dependencies and verify supported Chrome
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           test -x /opt/google/chrome/chrome
           /opt/google/chrome/chrome --version
       - name: Record exact tested source
@@ -122,16 +143,31 @@ jobs:
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
           node --version
-          npm --version
-          sha256sum package-lock.json node_modules/playwright-core/browsers.json
-      - name: ${{ matrix.buildStep }}
-        run: node scripts/tutorial-browser/run.mjs
+          "$PND_PACKAGE_MANAGER" --version
+          if [ "$PND_PACKAGE_MANAGER" = pnpm ]; then
+            sha256sum package-lock.json pnpm-lock.yaml pnpm-workspace.yaml node_modules/.modules.yaml node_modules/.pnpm/lock.yaml node_modules/playwright-core/browsers.json
+          else
+            sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
+          fi
+      - name: ${{ matrix.scenario == 'gameplay-resources' && 'Observe three full live Mission 2 workloads and two same-document resource restarts' || matrix.buildStep }}
+        env:
+          POPULOUS_GAMEPLAY_OWNERSHIP: ${{ matrix.scenario == 'gameplay-resources' && contains(github.event.pull_request.labels.*.name, format('weak-v1:{0}', github.event.pull_request.head.sha)) && 'weak-v1' || '' }}
+        run: |
+          if [ "$POPULOUS_BROWSER_SCENARIO" = gameplay-resources ]; then
+            if [ "$POPULOUS_GAMEPLAY_OWNERSHIP" = weak-v1 ]; then
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1 --gameplay-ownership-probe=weak-v1
+            else
+              node scripts/tutorial-browser/run.mjs outputs/tutorial-browser --gameplay-resource-profile=three-cycle-v1
+            fi
+          else
+            node scripts/tutorial-browser/run.mjs
+          fi
       - name: Reject tracked input mutation
         if: ${{ always() && steps.checkout.outcome == 'success' }}
         run: git diff --exit-code HEAD --
       - name: Retain bounded validation receipts and screenshots
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: ${{ matrix.artifact }}-${{ github.sha }}
           path: |

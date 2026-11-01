@@ -511,3 +511,88 @@ The additional data-only closure is `spell-visuals-policy.mjs`,
 part of the prior closure. Independent synthetic tests exercise the actual
 synchronous GitHubReader pipeline and byte transports; they are not hosted browser,
 visual review, native parity, or activation evidence.
+
+## Passive composed eight-job artifact support
+
+The separately caller-selected `profileArtifactPolicy: "composed-spells-eight-v1"`
+requires `browserPolicy: "profile-split-v1"` and literal
+`browserCheckpointVersion: 3`. It requires **both** Tornado evidence in Profile
+and Spy evidence in Mission 10. The legacy default still rejects these additional
+paths. Jobs, archives and receipt versions never select or upgrade the contract;
+this route cannot select ninth-job/v4 support. It stages the PR691 producer at
+`403c2bbc0387a16704098f31c1dc7ed2690fe13e` on the PR707 support dependency
+`29bcefe4e7510c0fbd5a4db1dfb9d7a32a340b50`, without changing either producer.
+
+All existing eight-job, official Chrome, Actions app/check/suite/run/attempt,
+head/base/synthetic merge, workflow, upload-log and current-check reconciliation
+remain required. The Profile and Mission 10 downloads each retain their 16 MiB
+compressed cap, numeric repository-only endpoint and direct/current-run metadata
+binding. ZIP limits remain 128 entries, 32 MiB per file and 128 MiB expanded total.
+The explicit composed additions are:
+
+- Profile: `tornado-appearance.json`; land `spawn`, `active`, `first-tail`,
+  `last-tail`, `restart` normal PNGs; water `spawn`, `active`, `restart` normal PNGs;
+  and land/water diagnostic black/white PNGs. Names are exactly
+  `tornado-KIND-STAGE-normal.png` or `tornado-KIND-diagnostic-COLOR.png`.
+- Mission 10: `spy-source.json`, `spy-source-context.png`, and exactly two
+  `spy-source-frame-N.png` crops. Evidence version 3 requires genuine frame 0
+  and frame 1. Later second frames 2–11 are negative fixtures, not substitutes.
+  Historical ordinary-RAF receipts keep their original source and interpretation;
+  they are not silently upgraded to version 3. Historical controlled-capture v2 receipts likewise retain their original interpretation. Version 3 additionally requires delivery.version1 and unchanged capture.version2: exact source-bound, test-routed native ESM preflight before capture ownership, with explicit HTTP-cache disabling and owned-route cleanup. Extra, missing, duplicate,
+  cross-episode and failure-only paths fail closed.
+
+Filenames alone do not admit evidence. Raw child reports must deeply match the
+source-bound authenticated host. Only Tornado's documented raw-only `elapsedMs`
+field is removed for that comparison; it must independently be finite,
+nonnegative and within the retained budget, at most 90 seconds. Tornado checks
+both genuine cast/stock transitions, readiness, frame/UV/depth/scale evidence,
+original PSFB/palette pixels, paired black/white histograms with zero mismatches,
+tail deletion and restart cleanup. Diagnostic dimensions must match retained
+canvas/graphics and all diagnostic alpha must be opaque. Normal images are
+structurally decoded; retained data has no normal-frame framebuffer hash or
+absolute episode timestamps, so neither framebuffer equality nor direct outer
+host-deadline equality is claimed.
+
+Spy evidence version 3 checks literal v3 fixture/load digests, public action order, phase/entry/source
+136 and original frame ownership, both same-frame crop hashes and decoded color
+counts, paused actor/clock equality, resumed advance, cleanup and the original
+45-second budget. The controlled-elapsed full-Scene protocol also requires its
+transparent consecutive-turn ledger, exact next-visit entry, actual frame0/1
+crops, paused non-evidence timestamp handback and final owned-hook/RAF cleanup.
+It is not natural wall-clock timing or performance evidence; see
+[the versioned capture contract](../../engineering/spy-capture-v2.md). Ordering uses `endedAt` from both retained Mission 10 phase
+receipts. Crop bytes stay below 256 KiB and dimensions at most 256×256. Transfer
+bytes are not retained; the claim is source-bound producer/load digest agreement,
+not an independently reconstructed checkpoint. The context image is 1440×1000.
+Composed images retain the 16 MiB bound and permit at most 512 total chunks,
+including IHDR, IEND and metadata. This covers measured hosted Chrome output with
+346–365 IDAT chunks in normal screenshots and 445 in the Spy context image.
+The separate Angel/Shield 128-chunk limit is unchanged. The composed RGB8/RGBA8 parser checks
+CRC, chunk order, dimensions, DEFLATE length and filters; rejects APNG and tRNS;
+and permits only singleton pre-IDAT sRGB, standard sRGB gAMA and valid pHYs
+metadata. No arbitrary pixel-interpretation chunks are ignored.
+
+The complete candidate byte-input set is the explicit finite
+[`composed-source-inputs.json`](composed-source-inputs.json), derived by static
+inspection of that producer. It includes the Tornado adapter/fixture, native
+fixture data, transitive rendering and clock inputs, and both `tornado.png` and
+`unit-layers.png` atlases. The fixture's dynamic application loader conservatively
+binds every `app/` file. Package inputs are bound through `package-lock.json`;
+selected Profile/Mission 10 scenario roots and their local-render helpers are
+included. Other dispatch branches do not run in these selected scenarios. The
+reader hashes immutable Git blob bytes, never importing or executing candidate
+application code. Source reads are bounded at 32 MiB each and 128 MiB total.
+
+The trusted runtime closure rooted at `github.mjs` grows from 18 to **23 files**:
+four new modules (`composed-profile-artifact.mjs`, `composed-spy-evidence.mjs`,
+`composed-tornado-evidence.mjs`, `composed-png.mjs`) and the JSON inventory. Existing
+`github.mjs`, `policy.mjs` and `profile-artifact.mjs` change; their other dependencies
+remain part of the closure. Built-in assert/crypto/zlib and existing ZIP decoding
+stay synchronous. Resolvers, verifier methods and the actual caller require
+explicit non-thenable success before setting composed verification flags.
+
+This dependent support branch leaves PR707's head, both active workflows, the v3
+writer, round-robin Full planner and external trusted pins unchanged. The parent
+must review the complete diff/import closure before separately selecting any
+read-only trusted pins. Passing synthetic fixtures establish reader behavior,
+not hosted browser acceptance, native parity, activation, Ready or merge approval.

@@ -6,6 +6,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { readReceiptStreams, RECEIPT_PARSE_BYTES } from './orchestration/receipt-streams.mjs'
 import { fingerprintPaths, safeRepoPath } from './orchestration/cli.mjs'
 import { RECEIPT_ENTRY_LIMIT, DiscoveryLimitError, boundedDirectoryEntries, checkDiscoveryTime, createJsonBudget, readDiscoveryRecord, verifiedNodeCompileCache } from './parity-discovery.mjs'
 import { ORDINARY_M2, isOrdinaryCheckpointCandidate, readOrdinaryCheckpoint, selectOrdinaryCheckpoint } from './parity-owned-checkpoint.mjs'
@@ -166,11 +167,11 @@ export function buildReport(model, receipts, currentEvidence, source, adaptedRes
   }
 }
 
-export function discoverReceipts(repo) {
+export function discoverReceipts(repo, limits) {
   const receipts = [], warnings = []
   const root = resolve(repo, 'work/orchestration')
   let count = 0
-  const budget = createJsonBudget()
+  const budget = createJsonBudget(limits)
   function walk(directory) {
     for (const entry of boundedDirectoryEntries(directory, RECEIPT_ENTRY_LIMIT - count)) {
       checkDiscoveryTime(budget)
@@ -190,7 +191,28 @@ export function discoverReceipts(repo) {
         const value = record.value
         let measurements
         if (value.kind === 'pnd-command-receipt') {
-          measurements = value.parityMeasurements?.map(e => ({ ...e, status: value.status === e.status ? e.status : 'invalidated' }))
+          let streamsValid = true
+          if (Array.isArray(value.parityMeasurements) && value.version !== undefined && value.version !== 1) {
+            try {
+              assert(!record.projected, 'Projected receipt cannot verify raw streams')
+              // Charge before reading, including failed attempts. Raw evidence
+              // cannot bypass the existing cumulative discovery byte budget.
+              const bytes = ['stdout', 'stderr'].map(name => value.streams?.[name]?.bytes)
+              assert(bytes.every(size => Number.isSafeInteger(size) && size >= 0 && size <= RECEIPT_PARSE_BYTES), 'Invalid or oversized raw stream descriptor')
+              // Include each stream's one-byte growth probe.
+              const total = bytes.reduce((sum, size) => sum + size, 2)
+              if (total > budget.totalLimit - budget.bytesRead)
+                throw new DiscoveryLimitError('Receipt raw byte limit reached; no partial report written')
+              budget.bytesRead += total
+              readReceiptStreams(repo, local, value)
+              checkDiscoveryTime(budget)
+            } catch (error) {
+              if (error instanceof DiscoveryLimitError) throw error
+              streamsValid = false
+              warnings.push(`Invalid raw receipt (${error.message}): ${local}`)
+            }
+          }
+          measurements = value.parityMeasurements?.map(e => ({ ...e, status: streamsValid && value.status === e.status ? e.status : 'invalidated' }))
         } else if (value.identity && Array.isArray(value.verification?.results)) {
           measurements = value.verification.results.flatMap(result => (result.parityMeasurements ?? [])
             .map(e => ({ ...e, status: result.status === e.status ? e.status : 'invalidated' })))

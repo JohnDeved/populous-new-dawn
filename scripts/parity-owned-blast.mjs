@@ -1,3 +1,4 @@
+import { readReceiptStreams, requireVerifiedReceiptStreams } from './orchestration/receipt-streams.mjs'
 // Read-only bindings for reviewed ordinary Blast witnesses and a historical reference. Checker
 // bytes are pinned separately from full tested-tree freshness; no game code runs.
 import assert from 'node:assert/strict'
@@ -169,8 +170,10 @@ export function projectOrdinaryBlast({ binding, outer, inner, sidecar, sourceFil
   return result
 }
 
-export function readOrdinaryBlast(repo, { path, commandReceipt: outer }, current, binding) {
+export function readOrdinaryBlast(repo, { path, commandReceipt: supplied }, current, binding) {
+  let outer = supplied
   try {
+    outer = readReceiptStreams(repo, path, outer)
     const { output } = optionsFor(outer, binding)
     const inner = jsonFile(repo, `${output}/receipt.json`), sidecar = jsonFile(repo, `${output}/${binding.sidecar}`)
     assert(/^[a-f0-9]{40}$/.test(inner.source?.commit ?? ''), 'invalid tested commit')
@@ -221,6 +224,7 @@ export function isBlastReferenceCandidate(value) {
 export function projectBlastReference({ outer, manifest, manifestPath, sourceFiles, fixture, currentTree, currentClean, path }) {
   const result = referenceResult(outer, path)
   try {
+    requireVerifiedReceiptStreams(outer)
     assert(isBlastReferenceCandidate(outer), 'comparator not explicitly selected')
     const stages = manifest.stages?.filter(stage => stage.command?.includes(BLAST_REFERENCE.comparator))
     assert(stages?.length === 1 && stages[0].name === 'test-02' && same(outer.command,
@@ -267,8 +271,10 @@ export function projectBlastReference({ outer, manifest, manifestPath, sourceFil
   return result
 }
 
-export function readBlastReference(repo, { path, commandReceipt: outer }, current) {
+export function readBlastReference(repo, { path, commandReceipt: supplied }, current) {
+  let outer = supplied
   try {
+    outer = readReceiptStreams(repo, path, outer)
     assert(isBlastReferenceCandidate(outer), 'comparator not explicitly selected')
     const manifests = Object.keys(outer.source?.inputs ?? {}).filter(name => name.startsWith('work/orchestration/') && name.endsWith('/manifest.json'))
     assert(manifests.length === 1, 'missing/ambiguous shard manifest')

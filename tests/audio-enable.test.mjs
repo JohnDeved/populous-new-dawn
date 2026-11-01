@@ -10,13 +10,13 @@ function deferred() {
 }
 
 function fixture(t) {
-  const state = { resume: async () => {}, fetch: async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(0) }), requests: 0 }
+  const state = { resume: async () => {}, fetch: async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(0) }), requests: 0, decodes: 0, plays: 0, starts: 0, timers: 0 }
   const node = () => ({ connect() {}, disconnect() {} })
   const gain = () => ({ ...node(), gain: { value: 0, setValueAtTime() {} } })
   const globals = new Map(['Audio', 'AudioContext'].map(key => [key, Object.getOwnPropertyDescriptor(globalThis, key)]))
   globalThis.Audio = class {
     paused = true
-    play() { this.paused = false; return Promise.resolve() }
+    play() { state.plays++; this.paused = false; return Promise.resolve() }
     pause() { this.paused = true }
     removeAttribute() {}
     load() {}
@@ -30,15 +30,15 @@ function fixture(t) {
     createStereoPanner() { return { ...node(), pan: { value: 0 } } }
     createBufferSource() {
       let ended
-      return { ...node(), playbackRate: { value: 1 }, addEventListener(_event, callback) { ended = callback }, start() {}, stop() { ended?.() } }
+      return { ...node(), playbackRate: { value: 1 }, addEventListener(_event, callback) { ended = callback }, start() { state.starts++ }, stop() { ended?.() } }
     }
-    decodeAudioData() { return Promise.resolve({}) }
+    decodeAudioData() { state.decodes++; return Promise.resolve({}) }
     async resume() { await state.resume(); this.state = 'running' }
     async suspend() { this.state = 'suspended' }
     async close() { this.state = 'closed' }
   }
   t.mock.method(globalThis, 'fetch', (...args) => { state.requests++; return state.fetch(...args) })
-  t.mock.method(globalThis, 'setInterval', () => ({}))
+  t.mock.method(globalThis, 'setInterval', () => { state.timers++; return {} })
   t.mock.method(globalThis, 'clearInterval', () => {})
   const sound = new Soundscape()
   t.after(() => {
@@ -110,13 +110,47 @@ test('successful mute and explicit re-enable reuse loaded audio without another 
 })
 
 for (const action of ['mute', 'dispose']) {
-  test(`${action} during startup prevents delayed resume from enabling sound`, async t => {
+  test(`${action} during startup prevents delayed resume from starting sample work`, async t => {
     const { sound, state } = fixture(t), resume = deferred()
     state.resume = () => resume.promise
     const enabling = sound.enable()
+    // Music loads eagerly, before resume. Isolate the sample work started after it.
+    await sound.music.loading
+    const { requests, decodes } = state
     sound[action]()
     resume.resolve()
     assert.equal(await enabling, false)
+    assert.equal(state.requests, requests, 'cancelled startup must not start sample fetches')
+    assert.equal(state.decodes, decodes, 'cancelled startup must not start sample decodes')
+    assert.equal(sound.loading, null)
+    assert.equal(sound.buffers.size, 0)
     assert.equal(sound.enabled, false)
+    assert.equal(state.plays, 0)
+    assert.equal(state.starts, 0)
+    assert.equal(state.timers, 0)
+    assert.equal(sound.backgroundTimer, null)
   })
 }
+
+test('a muted startup leaves the newer enable and its loaded cache intact', async t => {
+  const { sound, state } = fixture(t), resume = deferred()
+  state.resume = () => resume.promise
+  const stale = sound.enable()
+  await sound.music.loading
+  sound.mute()
+  state.resume = async () => {}
+  assert.equal(await sound.enable(), true)
+  const music = sound.music, loading = sound.loading
+  const buffers = [...sound.buffers], { requests, decodes, plays, starts, timers } = state
+  resume.resolve()
+  assert.equal(await stale, false)
+  assert.equal(sound.enabled, true)
+  assert.equal(sound.music, music)
+  assert.equal(music.disposed, false)
+  assert.equal(sound.loading, loading)
+  assert.deepEqual([...sound.buffers], buffers)
+  assert.deepEqual(
+    { requests: state.requests, decodes: state.decodes, plays: state.plays, starts: state.starts, timers: state.timers },
+    { requests, decodes, plays, starts, timers }
+  )
+})

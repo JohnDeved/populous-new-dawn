@@ -1,10 +1,13 @@
+import { createReceiptArtifacts, readReceiptStreams } from '../scripts/orchestration/receipt-streams.mjs'
+import { writeSync, readFileSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { isOrdinaryCheckpointCandidate, projectOrdinaryCheckpoint, selectOrdinaryCheckpoint } from '../scripts/parity-owned-checkpoint.mjs'
+import { isOrdinaryCheckpointCandidate, projectOrdinaryCheckpoint, readOrdinaryCheckpoint, selectOrdinaryCheckpoint } from '../scripts/parity-owned-checkpoint.mjs'
 import { buildReport, discoverReceipts, renderHTML } from '../scripts/parity-measure.mjs'
 const sha = value => createHash('sha256').update(value).digest('hex')
 const scenario = 'scripts/local-render/early-missions.mjs'
@@ -128,4 +131,66 @@ test('an explicit Spy scenario is excluded despite pinning early-missions as a h
   const missing = structuredClone(real); missing.command.pop()
   assert.equal(isOrdinaryCheckpointCandidate(missing), true)
   assert.equal(projectOrdinaryCheckpoint({ ...fixture(), outer: missing }).status, 'unknown')
+})
+
+
+test('v2 raw-only receipt preserves the complete owned semantic result', t => {
+  const data = fixture(), root = mkdtempSync(join(tmpdir(), 'owned-v2-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const target = join(root, data.path), evidence = createReceiptArtifacts(target)
+  try {
+    // The final complete JSON line remains authoritative after a large log prefix.
+    writeSync(evidence.fd('stdout'), 'diagnostic\n'.repeat(4000) + data.outer.stdout)
+    writeSync(evidence.fd('stderr'), data.outer.stderr)
+    const raw = { ...data.outer, version: 2, streamFormat: 'raw-artifact-v1',
+      artifacts: { stdout: target + '.artifacts/stdout.log', stderr: target + '.artifacts/stderr.log' }, ...evidence.capture() }
+    delete raw.stdout
+    assert.equal(projectOrdinaryCheckpoint({ ...data, outer: raw }).status, 'unknown')
+    const hydrated = readReceiptStreams(root, data.path, raw)
+    assert.equal(projectOrdinaryCheckpoint({ ...data, outer: hydrated }).status, 'verified')
+    assert.equal(projectOrdinaryCheckpoint({ ...data, outer: JSON.parse(JSON.stringify(hydrated)) }).status, 'unknown')
+  } finally { evidence.close() }
+})
+
+
+test('live checkpoint reader verifies persisted v2 raw output, sidecars and Git source', t => {
+  const data = fixture(), root = mkdtempSync(join(tmpdir(), 'checkpoint-live-v2-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const put = (path, value) => {
+    mkdirSync(join(root, path, '..'), { recursive: true })
+    writeFileSync(join(root, path), typeof value === 'string' ? value : JSON.stringify(value))
+  }
+  for (const path of Object.keys(data.sourceFiles)) put(path, path)
+  put('.gitignore', '/work/\n')
+  const git = (...args) => execFileSync('git', args, { cwd: root, stdio: 'pipe' }).toString().trim()
+  git('init', '-q'); git('add', '.'); git('-c', 'user.name=Test', '-c', 'user.email=test@example.com', 'commit', '-qm', 'fixture')
+  data.inner.source.commit = git('rev-parse', 'HEAD')
+  data.inner.source.tree = git('rev-parse', 'HEAD^{tree}')
+  const { fingerprint, ...source } = data.inner.source
+  data.inner.source.fingerprint = sha(JSON.stringify(source))
+  data.inner.sourceAfter = structuredClone(data.inner.source)
+  data.outer.source.headOid = source.commit
+  data.outer.sourceAfter = structuredClone(data.outer.source)
+  sync(data)
+  put('work/orchestration/run/receipt.json', data.inner)
+  put('work/orchestration/run/journey.json', data.journey)
+  const target = join(root, data.path), artifacts = createReceiptArtifacts(target)
+  try {
+    writeSync(artifacts.fd('stdout'), 'diagnostic\n'.repeat(4000) + data.outer.stdout)
+    writeSync(artifacts.fd('stderr'), data.outer.stderr)
+    const raw = { ...data.outer, version: 2, streamFormat: 'raw-artifact-v1',
+      artifacts: { stdout: target + '.artifacts/stdout.log', stderr: target + '.artifacts/stderr.log' }, ...artifacts.capture() }
+    delete raw.stdout
+    artifacts.write(raw, true)
+    const pending = readOrdinaryCheckpoint(root, { path: data.path, commandReceipt: JSON.parse(readFileSync(target)) },
+      { tree: source.tree, clean: true })
+    assert.equal(pending.status, 'unknown'); assert.match(pending.reason, /publication is pending/)
+  } finally { artifacts.close() }
+  const supplied = { path: data.path, commandReceipt: JSON.parse(readFileSync(target)) }
+  const result = readOrdinaryCheckpoint(root, supplied, { tree: source.tree, clean: true })
+  assert.equal(result.status, 'verified', result.reason)
+  assert.deepEqual(result.observed, { savedTurn: 217, loadedTurn: 217, resumedTurn: 251 })
+  writeFileSync(target + '.artifacts/stdout.log', 'changed')
+  const rejected = readOrdinaryCheckpoint(root, supplied, { tree: source.tree, clean: true })
+  assert.equal(rejected.status, 'unknown'); assert.match(rejected.reason, /size differs from descriptor/)
 })

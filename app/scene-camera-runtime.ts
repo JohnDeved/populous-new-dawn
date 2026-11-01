@@ -30,6 +30,7 @@ import {
 import { stepGlobeMotion } from './globe.ts'
 import { teamForTribe, type TribeTeam } from './world-types.ts'
 import { missionData } from './mission-data.ts'
+import { syncNativeTerrain } from './world-terrain-runtime.ts'
 import { displayedTribeCamera, withSimulationCamera } from './tribe-camera.ts'
 
 export function makeSky(scene: GameScene) {
@@ -196,7 +197,8 @@ export function updateEnvironmentFrame(
 }
 
 export function updateView(scene: GameScene) {
-  scene.world.lightView = nativePosition(scene.world, scene.viewPoint)
+  syncNativeTerrain(scene.world)
+  // Display samples must not become a later logical lighting input.
   scene.view.globeBlend = scene.overviewActive ? scene.globeMorph.value : 0
   scene.view.globeFlatScale = scene.overviewStage === 'exit' ? 18 : 21
   scene.view.update(

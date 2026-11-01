@@ -22,6 +22,7 @@ import { terrainPointHeight } from './native-terrain.ts'
 import { short } from './native-math.ts'
 import { setAnimationObject } from './animation.ts'
 import { addTerrainLight, updateTerrainLights } from './terrain-light.ts'
+import { displayedTribeCamera } from './tribe-camera.ts'
 import { createSpellTrail } from './spell-trails.ts'
 import { stepBuildingDebris } from './building-debris.ts'
 import {
@@ -339,6 +340,7 @@ export function stepScenery(w: World) {
         if (!point) return false
         // Native scenery initialization snaps the allocated corner to its cell center.
         w.trees.push({
+          ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'replant' as const } : {}),
           ...browserPosition({ x: point.x + 256, y: point.y + 256 }),
           id: w.nextId++,
           model: request.model,
@@ -434,7 +436,7 @@ export function refreshTerrainLights(w: World) {
         const f = w.effects.find(f => f.id === id)
         return f && lightPosition(w, f)
       },
-      w.lightView,
+      displayedTribeCamera(w.cameras, w.manaWorld.playerTribe),
       w.randomState,
       true // Desktop rendering enables native dynamic landscape lighting.
     )

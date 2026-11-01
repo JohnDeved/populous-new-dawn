@@ -78,6 +78,11 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
   // Select route storage before any authored command can acquire ownership.
   // Keep classic initialization IDs/RNG; this is new-world setup, not save repair.
   if (capacityMode === 'scalable') w.motionRoutes = createMotionRoutes(true)
+  w.scenerySource = {
+    version: 1,
+    sourceSha256: level.sourceSha256,
+    headerSha256: level.headerSha256,
+  }
   function missionTwentyShrine(object: (typeof level.objects)[number]): Shrine {
     const settings = object.settings!,
       links = linkedObjects(object),
@@ -89,6 +94,8 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
       rewardSpell = SPELLS.find(spell => spell.id === rewards[0])
     return {
       ...worship,
+      triggerSlot: object.index,
+      verifiedDecorationSlot: null,
       nextSlot: 0,
       slotTimer: 0,
       range: settings[1],
@@ -118,7 +125,7 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
         .map(link => ({ x: link.x, z: link.z })),
       linkedTrees: links
         .filter(link => link.type === 5 && link.model <= 6)
-        .map(link => ({ x: link.x, z: link.z, model: link.model })),
+        .map(link => ({ x: link.x, z: link.z, model: link.model, authoredSlot: link.index })),
       ...(linkedHead ? { linkedShrine: missionTwentyShrine(linkedHead) } : {}),
       name: `${rewardSpell?.name ?? 'Linked'} stone head`,
       progress: 0,
@@ -192,7 +199,15 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
       } else w.vehicles.push(vehicle)
     }
     if (o.type === 5 && o.model <= 6 && !(missionNumber === 20 && linkedObjectIds.has(o.index + 1)))
-      w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
+      w.trees.push({
+        id: w.nextId++,
+        x: o.x,
+        z: o.z,
+        logs: 4,
+        model: o.model,
+        authoredSlot: o.index,
+        sceneryBirth: 'initial',
+      })
     if (o.type === 6 && o.model === 6) {
       if (linkedObjectIds.has(o.index + 1)) continue
       if (missionNumber === tutorialLevel && o.index === 2) {
@@ -201,6 +216,8 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
           linkedWorship = createWorship(linkedHead.settings!)
         w.shrines.push({
           ...worship,
+          triggerSlot: o.index,
+          verifiedDecorationSlot: null,
           nextSlot: 0,
           slotTimer: 0,
           range: o.settings![1],
@@ -215,6 +232,8 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
           kind: 'linkedEffects',
           linkedShrine: {
             ...linkedWorship,
+            triggerSlot: linkedHead.index,
+            verifiedDecorationSlot: null,
             enabled: true,
             nextSlot: 0,
             slotTimer: 0,
@@ -366,6 +385,8 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
           : undefined
       w.shrines.push({
         ...worship,
+        triggerSlot: o.index,
+        verifiedDecorationSlot: null,
         nextSlot: 0,
         slotTimer: 0,
         range: settings[1],
@@ -393,6 +414,8 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
               earthquakeTargets,
               linkedShrine: {
                 ...linkedWorship!,
+                triggerSlot: linkedHead.index,
+                verifiedDecorationSlot: null,
                 nextSlot: 0,
                 slotTimer: 0,
                 range: linkedHead.settings![1],

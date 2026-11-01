@@ -1,0 +1,29 @@
+{
+  "classification": "PUBLIC UPSTREAM TEST-ONLY CERTIFICATE; PUBLICLY KNOWN RECIPIENT; NEVER FOR REAL DATA",
+  "repository": "https://github.com/openssl/openssl",
+  "tag": "openssl-3.5.7",
+  "tag_object": "6ca677c395a4ae4472a12c5857c122ec33b36f66",
+  "commit": "8cf17aaeb4599f8af87fefd810b5b5fee90fe69e",
+  "tag_signature_verified": false,
+  "tag_signature_note": "GitHub API reports unknown_key; no signature validation claimed",
+  "license": "Apache-2.0, fixtures/LICENSE.txt",
+  "source_transport": "connected GitHub fetch_file at exact commit; base64 decoded; Git blob SHA1 recomputed",
+  "files": [
+    {
+      "path": "fixtures/ee-cert-3072.pem",
+      "upstream_path": "test/certs/ee-cert-3072.pem",
+      "upstream_url": "https://github.com/openssl/openssl/blob/8cf17aaeb4599f8af87fefd810b5b5fee90fe69e/test/certs/ee-cert-3072.pem",
+      "git_blob_sha1": "c018267e55eab26ffb8e9997de37129631e5d51d",
+      "bytes": 1318,
+      "sha256": "88ae70e2689a20dd5284dd40593c7070e1c7873296c7e5b4fd34630375f92820"
+    },
+    {
+      "path": "fixtures/LICENSE.txt",
+      "upstream_path": "LICENSE.txt",
+      "upstream_url": "https://github.com/openssl/openssl/blob/8cf17aaeb4599f8af87fefd810b5b5fee90fe69e/LICENSE.txt",
+      "git_blob_sha1": "49cc83d2ee29d13453188217f0e4edd70c7f842f",
+      "bytes": 10175,
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a"
+    }
+  ]
+}

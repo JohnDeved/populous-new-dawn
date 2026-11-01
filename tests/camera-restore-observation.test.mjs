@@ -117,3 +117,41 @@ test('committed IndexedDB observation uses the same lossless key normalization',
   assert.throws(() => assert.deepEqual(saved.cameras, changed.cameras), assert.AssertionError)
   assert.equal(closes, 2)
 })
+
+// Execute the actual complete scenario function with an early failing page and
+// supplied report sink. Never imports the launcher or starts a browser. These
+// prospective controls are NOT browser/storage durability evidence.
+const scenarioSource = find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'scenario')
+  .getText(source).replace(/^export default /, '')
+function failingScenario(writeFileSync) {
+  return new Function('writeFileSync', 'resolve', `return (${scenarioSource})`)(
+    writeFileSync, (...parts) => parts.join('/'))
+}
+for (const [label, primary] of [['undefined', undefined], ['null', null], ['empty', ''], ['zero', 0],
+  ['error', new Error('primary scenario fault')]]) {
+  for (const [flushLabel, flushFails, secondary] of [
+    ['success', false, null], ['Error failure', true, new Error('supplied write failure')],
+    ['undefined failure', true, undefined],
+  ]) test(`scenario preserves ${label} with report flush ${flushLabel}`, async () => {
+    const writes = []
+    const run = failingScenario((path, text) => {
+      writes.push({ path, value: JSON.parse(text) })
+      if (flushFails) throw secondary
+    })
+    const p = { setViewportSize: async () => { throw primary },
+      evaluate: async () => { throw undefined } }
+    let caught = false, observed
+    try { await run({ page: p, output: 'supplied-output' }) }
+    catch (error) { caught = true; observed = error }
+    assert.equal(caught, true, 'falsey thrown values remain a rejection')
+    assert.equal(observed, primary, 'diagnostic or write failure cannot replace the primary rejection')
+    assert.equal(writes.length, 1, 'one terminal report attempt')
+    assert.equal(writes[0].path, 'supplied-output/camera-report.json')
+    assert.equal(writes[0].value.status, 'failed')
+    assert.equal(writes[0].value.failure, primary?.stack ?? String(primary))
+    assert.equal(writes[0].value.lastStateError, 'undefined')
+    assert.deepEqual(writes[0].value.checks, [])
+    assert.deepEqual(writes[0].value.cases, [])
+    // A throwing sink is only an attempted write, never proof of persistence.
+  })
+}

@@ -338,13 +338,117 @@ function legacyGuard(w) {
   }
   w.message = 'Selected followers will guard your shaman.'; w.messageUntil = w.time + 9
 }
-for (const [name, makeBusy] of Object.entries(busy)) for (const mixed of [false, true]) test(`${name} ${mixed ? 'mixed' : 'single'} selection retains the entire legacy G operation`, () => {
-  const { w, units } = setup(mixed ? 2 : 1)
-  makeBusy(units[0], w)
-  const expected = structuredClone(w)
-  legacyGuard(expected); guardShaman(w)
-  assert.deepEqual(w, expected)
-  assert.ok(units.every(u => !(u.native?.guardInputPending)))
+for (const [name, makeBusy] of Object.entries(busy)) {
+  for (const count of [1, 2]) test(`${name} ${count}-person unsupported selection retains the entire legacy G operation`, () => {
+    const { w, units } = setup(count)
+    for (const u of units) makeBusy(u, w)
+    const expected = structuredClone(w)
+    legacyGuard(expected); guardShaman(w)
+    assert.deepEqual(w, expected)
+    assert.ok(units.every(u => !(u.native?.guardInputPending)))
+  })
+  test(`${name} mixed selection retains busy cleanup without discarding its ordinary peer`, () => {
+    const { w, units, shaman } = setup(2), ordinary = units[1], person = ordinary.native
+    makeBusy(units[0], w)
+    const before = phase(person), expected = structuredClone(w)
+    // Compare this member's unchanged legacy cleanup, not an old whole-batch
+    // release of its eligible peer (which can rebuild shared resting slots).
+    const expectedBusy = expected.units.find(u => u.id === units[0].id), guard = !expectedBusy.guard
+    release(expected, expectedBusy); expectedBusy.guard = guard
+    guardShaman(w)
+    assert.deepEqual(units[0], expectedBusy, 'unsupported unit retains its exact legacy cleanup result')
+    assert.equal(ordinary.native, person)
+    assert.deepEqual(phase(person), before)
+    assert.equal(person.guardInputPending, true)
+    assert.equal(ordinary.guard, false)
+    assert.equal(order(w, ordinary)?.model, 30)
+    assert.equal(order(w, ordinary)?.a, shaman.id)
+    assert.equal(order(w, ordinary)?.references, 1)
+    assert.equal(unitAnimationSource(ordinary), person)
+  })
+}
+
+
+test('native mixed dispatch does not eagerly rebuild a flight peer resting slot by releasing the ordinary owner', () => {
+  const { w, units } = setup(2)
+  busy.flight(units[0])
+  const p = units[0].flight, before = [p.assignment, p.anchorFlags], old = structuredClone(w)
+  assert.ok(units[1].native.assignment & 1)
+  legacyGuard(old)
+  const oldFlight = old.units.find(u => u.id === units[0].id).flight
+  assert.notDeepEqual([oldFlight.assignment, oldFlight.anchorFlags], before,
+    'old whole-batch ordinary release rebuilds the shared resting cell')
+  guardShaman(w)
+  assert.deepEqual([p.assignment, p.anchorFlags], before,
+    'native producer defers ordinary state transition; no synthetic eager peer release')
+  assert.equal(units[0].guard, true)
+  assert.equal(order(w, units[1])?.model, 30)
+})
+
+for (const repeat of [false, true]) test(`public training peer does not replace ordinary native ownership${repeat ? ' on repeated G' : ''}`, () => {
+  const { w, u, p, shaman } = setup()
+  if (repeat) { guardShaman(w); tick(w, 1 / 12) }
+  const trainee = addUnit(w, 'blue', 'brave', { x: 7, z: 8 }),
+    hut = addBuilding(w, 'blue', 'firewarriorHut', { x: 12, z: 8 }, true)
+  setSelection(w, [trainee.id])
+  assert.equal(command(w, hut), true)
+  const entry = trainee.entry.person, old = currentPersonOrder(w.buildingOrders, entry)
+  assert.equal(old.model, 8); assert.equal(old.a, hut.id)
+  assert.equal(trainee.work, hut.id)
+  const expected = structuredClone(w), expectedTrainee = expected.units.find(a => a.id === trainee.id)
+  release(expected, expectedTrainee); expectedTrainee.guard = true
+  setSelection(w, [trainee.id, u.id])
+  const before = phase(p), route = p.motionGroup
+  guardShaman(w)
+  assert.equal(u.native, p); assert.equal(p.motionGroup, route)
+  assert.deepEqual(phase(p), before)
+  assert.equal(unitAnimationSource(u), p); assert.equal(p.guardInputPending, true)
+  assert.equal(u.guard, false); assert.equal(order(w, u)?.a, shaman.id)
+  assert.equal(old.references, 0)
+  assert.deepEqual(trainee, expectedTrainee)
+  tick(w, 1 / 12)
+  assert.equal(u.native, p); assert.equal(p.commandStatus, 30)
+  assert.equal(unitAnimationSource(u), p)
+  const adopted = phase(p)
+  setSelection(w, [])
+  assert.deepEqual(phase(p), adopted)
+  assert.equal(unitAnimationSource(u), p)
+})
+
+for (const busyAt of [0, 1, 2]) test(`mixed allocation keeps roster ordering with busy owner at ${busyAt}`, () => {
+  const { w, units } = setup(3)
+  w.buildingOrders.records = Array.from({ length: 800 }, (_, i) => ({ ...emptyPersonOrder(), ...(i ? { model: 3, references: 1, a: 4096, b: 4096 } : {}) }))
+  w.buildingOrders.scalable = false
+  w.buildingOrders.cursor = 1; w.buildingOrders.active = 799
+  units.forEach((u, i) => { u.native.state = 10; u.native.commandStatus = 3; u.native.commands[0] = i + 1 })
+  units[busyAt].work = 123
+  w.selected.reverse()
+  guardShaman(w)
+  const expected = [[0, 1, 1], [0, 0, 1], [0, 1, 0]][busyAt]
+  assert.deepEqual(units.map(u => u.native.commands[0]), expected)
+  assert.equal(w.buildingOrders.records[1].model, 30)
+  assert.equal(w.buildingOrders.records[1].references, busyAt === 0 ? 2 : 1)
+  assert.equal(w.buildingOrders.records[0].references, busyAt === 0 ? 0 : 1)
+  assert.equal(w.buildingOrders.active, busyAt === 0 ? 797 : 798)
+  for (const [i, u] of units.entries()) {
+    assert.equal(u.guard, i === busyAt)
+    assert.equal(!!u.native.guardInputPending, i !== busyAt)
+    if (i !== busyAt) assert.equal(unitAnimationSource(u), u.native, 'even slot0 keeps native pending ownership')
+  }
+})
+
+for (const otherShaman of [false, true]) test(`${otherShaman ? 'other' : 'active'} selected Shaman does not veto an ordinary peer`, () => {
+  const { w, u, shaman } = setup(),
+    selectedShaman = otherShaman ? addUnit(w, 'blue', 'shaman', { x: 4, z: 8 }) : shaman
+  const before = structuredClone(selectedShaman)
+  setSelection(w, [selectedShaman.id, u.id])
+  guardShaman(w)
+  assert.equal(order(w, u)?.model, 30)
+  assert.equal(order(w, u)?.a, shaman.id)
+  assert.equal(u.native.guardInputPending, true)
+  assert.equal(u.guard, false)
+  assert.equal(selectedShaman.guard, before.guard)
+  assert.equal(selectedShaman.native?.commands.some(Boolean) ?? false, before.native?.commands.some(Boolean) ?? false)
 })
 
 test('native Brave guards do not fall into legacy automatic housing while near the Shaman', () => {
@@ -378,4 +482,45 @@ test('G replacement/cancellation have identical turn ownership at ordinary and i
   }
   const expected = run([1 / 60])
   for (const schedule of [[1 / 30], [1 / 120], [1 / 144], [.007, .021, .04]]) assert.deepEqual(run(schedule), expected)
+})
+
+test('mixed replacement releases a formerly shared guard once per owner and retains native sharing', async () => {
+  const { randomPersonSpeed } = await import('../app/person-state.ts')
+  const { w, units, shaman } = setup(3)
+  guardShaman(w); tick(w, 1 / 12)
+  const previous = order(w, units[0])
+  assert.equal(previous.references, 3)
+  assert.equal(w.manaTribes[0].shamanGuards, 3)
+  units[1].work = 123
+  shaman.native.speed = 1
+  const expected = structuredClone(w), expectedShaman = expected.units.find(u => u.id === shaman.id)
+  const expectedSpeed = randomPersonSpeed(expected, expectedShaman.native)
+  w.selected.reverse()
+  guardShaman(w)
+  assert.equal(previous.references, 0)
+  assert.equal(order(w, units[0]), order(w, units[2]))
+  assert.equal(order(w, units[0]).references, 2)
+  assert.equal(order(w, units[1]), undefined)
+  assert.equal(w.manaTribes[0].shamanGuards, 0)
+  assert.equal(w.manaTribes[0].shamanGuardChanged, 1)
+  assert.equal(w.randomState, expected.randomState, 'the final old guard release redraws Shaman speed exactly once')
+  assert.equal(shaman.native.speed, expectedSpeed)
+  assert.equal(units[1].guard, true)
+  assert.ok([units[0], units[2]].every(u => u.native.guardInputPending && !u.guard))
+})
+
+test('unsupported old boolean guards still toggle on the next mixed press', () => {
+  const { w, units } = setup(2)
+  units[0].native = null
+  const person = units[1].native
+  guardShaman(w)
+  assert.equal(units[0].guard, true)
+  const first = order(w, units[1])
+  guardShaman(w)
+  assert.equal(units[0].guard, false)
+  assert.equal(first.references, 0)
+  assert.equal(units[1].native, person)
+  assert.equal(person.guardInputPending, true)
+  assert.equal(units[1].guard, false)
+  assert.equal(order(w, units[1]).model, 30)
 })
