@@ -62,6 +62,36 @@ export async function finishBuildingPanelIdentity({ context, report, output, fai
   return report
 }
 
+// Serialized directly by Playwright. This observes eligibility and the next
+// ordinary painter submission; it never focuses, paints, or repairs either.
+export function readEligibleBuildingHit() {
+  const { scene, building } = window.buildingIdentity
+  if (building.team !== 'blue' || !scene.visible(building)) return false
+  const p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect(),
+    cx = rect.left + ((p.x + 1) * rect.width) / 2,
+    cy = rect.top + ((1 - p.y) * rect.height) / 2
+  for (const dy of [-40, -60, -20, -80, 0, -100, -120, -140, 20, 40, 60])
+    for (const dx of [0, -10, 10, -20, 20, -40, 40, -60, 60, -80, 80]) {
+      const event = { clientX: cx + dx, clientY: cy + dy }
+      if (document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement && scene.picking.pick(event) === building.id)
+        return { x: event.clientX, y: event.clientY }
+    }
+  return false
+}
+
+// Two independent transport/input operations, with a full settlement barrier.
+// A rejection (including a synchronous throw) stays fatal, and the other owned
+// operation must finish before any later pointer/visibility phase can start.
+export async function settleBuildingRestorePair(first, second) {
+  const results = await Promise.allSettled([
+    Promise.resolve().then(first),
+    Promise.resolve().then(second),
+  ])
+  const failures = results.filter(result => result.status === 'rejected').map(result => result.reason)
+  if (failures.length) throw new AggregateError(failures, 'Building identity restore command failed')
+  return results.map(result => result.value)
+}
+
 export default async function buildingPanelIdentity({ browser, url, output }) {
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
@@ -212,37 +242,25 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     // and ordinary render frames must retire the stale UI without forced paint.
     report.heldVisibility = []
     async function revealCurrentPanel(label) {
-      timing.mark(`${label}:eligibility-start`)
-      await page.waitForFunction(() => {
-        const h = window.buildingIdentity
-        return h.building.team === 'blue' && h.scene.visible(h.building)
-      })
-      timing.mark(`${label}:eligibility-complete`)
-      // Scene.visible updates on focus, but picking also needs the next ordinary
-      // painter submission. Wait for an actual unobscured hit, never force paint.
-      timing.mark(`${label}:hit-start`)
-      const targetHandle = await page.waitForFunction(() => {
-        const { scene, building } = window.buildingIdentity,
-          p = scene.screen(building), rect = scene.renderer.domElement.getBoundingClientRect(),
-          cx = rect.left + ((p.x + 1) * rect.width) / 2,
-          cy = rect.top + ((1 - p.y) * rect.height) / 2
-        for (const dy of [-40, -60, -20, -80, 0, -100, -120, -140, 20, 40, 60])
-          for (const dx of [0, -10, 10, -20, 20, -40, 40, -60, 60, -80, 80]) {
-            const event = { clientX: cx + dx, clientY: cy + dy }
-            if (document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement && scene.picking.pick(event) === building.id)
-              return { x: event.clientX, y: event.clientY }
-          }
-        return false
-      })
-      timing.mark(`${label}:hit-complete`)
-      const target = await targetHandle.jsonValue()
-      await targetHandle.dispose()
-      // Move into the interior sidebar, not (0,0), which requests camera edge motion.
-      // Moving away also makes a same-coordinate return produce a real hover.
+      // Require restored eligibility and an actual unobscured painter hit in the
+      // same ordinary-frame observation; neither condition substitutes for the other.
+      timing.mark(`${label}:eligible-hit:start`)
+      const targetHandle = await page.waitForFunction(readEligibleBuildingHit)
+      timing.mark(`${label}:eligible-hit:complete`)
+      // Serialize only the observed coordinates while performing the same real
+      // away movement. Neither operation forces eligibility or a rendered frame.
       timing.mark(`${label}:pointer-away-start`)
-      await page.mouse.move(10, 10)
+      const [target] = await settleBuildingRestorePair(
+        () => targetHandle.jsonValue(),
+        () => page.mouse.move(10, 10),
+      )
+      // The first pair fully settled, so return can never precede away. Dispose
+      // only the transport handle while issuing the unchanged real return input.
       timing.mark(`${label}:pointer-return-start`)
-      await page.mouse.move(target.x, target.y)
+      await settleBuildingRestorePair(
+        () => targetHandle.dispose(),
+        () => page.mouse.move(target.x, target.y),
+      )
       timing.mark(`${label}:visible-start`)
       await panel.waitFor({ state: 'visible' })
       timing.mark(`${label}:complete`)

@@ -133,6 +133,7 @@
         "args": ["scripts/check-native-<scope>.py", "$POPULOUS_EXE", "--record"]
       },
       "callers": [
+        "scripts/check-static-spell-icon-pixels.py",
         "scripts/check-native-drag-selection.py",
         "scripts/check-native-construction-order.py",
         "scripts/extract-shaman-guard-vectors.mjs",
@@ -142,7 +143,7 @@
       "outputs": [
         { "path": "tests/fixtures", "type": "directory", "tracked": true, "protected": true }
       ],
-      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally. Shaman Guard extraction writes only its named fixture from accepted hash-pinned raw results; --check is read-only."
+      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally. Shaman Guard extraction writes only its named fixture from accepted hash-pinned raw results; --check is read-only. Spell icon pixel extraction reads the canonical EXE/HFX/palette as data and writes only a new explicitly named --fixture-output; its default is read-only and never imports artwork."
     },
     {
       "id": "imported-runtime-data",

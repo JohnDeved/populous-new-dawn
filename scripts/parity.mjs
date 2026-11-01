@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { isAbsolute, relative, resolve } from 'node:path'
+import { existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import { isAbsolute, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
@@ -23,6 +23,11 @@ function validateEvidence(paths, required, subject, base) {
       `Evidence outside repository: ${path}`
     )
     assert(existsSync(resolve(base, path)), `Evidence not found: ${path}`)
+    const physical = relative(realpathSync(base), realpathSync(resolve(base, path)))
+    assert(
+      !isAbsolute(physical) && physical !== '..' && !physical.startsWith(`..${sep}`),
+      `Evidence outside repository: ${path}`
+    )
   }
 }
 
