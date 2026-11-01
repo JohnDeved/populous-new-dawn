@@ -1,6 +1,7 @@
 {
   "assertions": [
     "assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')",
+    "    assert.ok(policy.ordinaryPointerSmokeSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),",
     "if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact proposed merge required')",
     "assert.ok(existsSync(browserPath), 'Supported preinstalled official Chrome channel is required')",
     "function verifySource() { for (const [name, expected] of Object.entries(source.files)) assert.equal(hash(resolve(root, name)), expected, name) }",
