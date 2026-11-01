@@ -78,9 +78,12 @@ function finite(value: unknown, path: string, minimum = 0): number {
 
 function statistics(values: number[]) {
   const sorted = [...values].sort((a, b) => a - b)
+  const mean = values.reduce((sum, value) => sum + value / values.length, 0)
+  // Finite samples can still overflow during accumulation; never serialize Infinity as null.
+  if (!Number.isFinite(mean)) throw new Error('Invalid export: nonfinite timing mean')
   return {
     sampleCount: sorted.length,
-    mean: values.reduce((sum, value) => sum + value / values.length, 0),
+    mean,
     p50: sorted[Math.ceil(sorted.length * 0.5) - 1],
     p95: sorted[Math.ceil(sorted.length * 0.95) - 1],
     p99: sorted[Math.ceil(sorted.length * 0.99) - 1],
