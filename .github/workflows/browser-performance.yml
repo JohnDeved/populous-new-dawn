@@ -78,7 +78,7 @@ jobs:
         run: node scripts/browser-performance/run-pinned.mjs
       - name: Retain bounded reporter input separately from raw evidence
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: browser-performance-report-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
           path: harness/outputs/browser-performance/${{ matrix.shard }}/report.json
@@ -86,7 +86,7 @@ jobs:
           retention-days: 7
       - name: Retain raw captures, summaries and execution provenance
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: browser-performance-evidence-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.shard }}
           path: |

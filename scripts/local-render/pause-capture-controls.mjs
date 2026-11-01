@@ -6,7 +6,20 @@ export function observeStablePauseControls(nodes) {
     const dialog = nodes[0]?.closest('dialog, [role="dialog"]')
     if (!dialog || !nodes.length) return reject(Error('No modal controls'))
     let frame, previous, changed = false, finished = false
-    const mutations = new MutationObserver(() => { changed = true })
+    // The pause menu renders native buttons. Keep that exact ordered inventory;
+    // resizing may legitimately update the dialog's scale/style attributes.
+    const sameControls = () => {
+      const current = [...dialog.querySelectorAll('button')]
+      return current.length === nodes.length && current.every((node, i) => node === nodes[i])
+    }
+    const mutations = new MutationObserver(records => {
+      changed ||= !sameControls() || records.some(record => record.type === 'childList' && (
+        [...record.addedNodes].some(node => node.matches?.('button') || node.querySelector?.('button')) ||
+        [...record.removedNodes].some(removed => nodes.some(node => removed === node || removed.contains?.(node)))
+      ))
+      // Require two new stable frames after any mutation, without renewing the cap.
+      previous = undefined
+    })
     mutations.observe(dialog, { childList: true, subtree: true, attributes: true })
     const finish = (error, value) => {
       if (finished) return
@@ -21,7 +34,7 @@ export function observeStablePauseControls(nodes) {
     const timer = setTimeout(() => finish(Error('Modal geometry did not stabilize within5000ms')), 5000)
     const sample = () => {
       try {
-        if (changed || nodes.some(node => !node.isConnected || !dialog.contains(node)))
+        if (changed || !sameControls() || nodes.some(node => !node.isConnected || !dialog.contains(node)))
           throw Error('Modal control identity/count changed during capture')
         const boxes = nodes.map(node => {
           const box = node.getBoundingClientRect(), style = getComputedStyle(node)
