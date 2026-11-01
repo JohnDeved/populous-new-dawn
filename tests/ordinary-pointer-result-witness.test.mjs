@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { ordinaryPointerResultWitness as witness } from '../scripts/browser-performance/ordinary-pointer-result-witness.mjs'
 
 const point = [903, 400]
-const sample = () => ({ mode: 0, navigationPointer: null,
+const sample = () => ({ mode: 0, navigationPointer: {x:903,y:400,buttons:0}, navigationButtons:0,
   pointerScreen: { clientX: 903, clientY: 400 }, hoveredObject: null,
   tooltipInput: { pointer: { clientX: 903, clientY: 400 }, route: 'world',
     picked: null, cell: 0, inspectionTarget: null } })
@@ -46,4 +46,10 @@ test('returned witness is detached and immutable', () => {
 test('rejects nonfinite or malformed coordinate declaration', () => {
   for (const p of [[NaN, 400], [903], [903, 400, 0], ['903', 400]]) assert.throws(() => witness(sample(), p))
   const s = sample(); s.tooltipInput.pointer = null; assert.throws(() => witness(s, point))
+})
+
+test('requires exact tracker coordinates, zero raw buttons and zero effective navigation',()=>{
+ for(const change of [s=>s.navigationPointer=null,s=>s.navigationPointer.x++,s=>s.navigationPointer.buttons=1,s=>s.navigationButtons=1,s=>delete s.navigationButtons]){
+  const s=sample();change(s);assert.throws(()=>witness(s,point))
+ }
 })

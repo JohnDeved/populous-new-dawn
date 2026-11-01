@@ -9,7 +9,7 @@ export function installOrdinaryPointerBrowserObserver(host, createCapture, geome
   if(host.innerWidth!==1440||host.innerHeight!==1000||host.devicePixelRatio!==1)throw Error('Unsupported viewport')
   const writeWitness=geometry.writeWitness, captureBoundary=geometry.captureBoundary
   const baselineWitness=boundary.witness.slice()
-  const canvas = scene.renderer.domElement, width = 16 + 113, rows = new Float64Array(1200 * width)
+  const canvas = scene.renderer.domElement, width = 16 + 113 + 4, rows = new Float64Array(1200 * width)
   const eventRows = new Float64Array(55 * 8), rawRows = new Float64Array(55 * 8)
   const routes = ['world', 'unmapped-cell', 'unmapped-object']
   const offsets = [[3,0],[3,3],[0,3],[-3,0],[0,-3],[0,0]]
@@ -33,20 +33,50 @@ export function installOrdinaryPointerBrowserObserver(host, createCapture, geome
   const finite = n => typeof n === 'number' && Number.isFinite(n)
   const fail = message => { error ??= String(message).slice(0,512); capture.abort(); return false }
   const stable = () => {
-    if (host.__pndSnapshotGeometry!==geometry || geometry.writeWitness!==writeWitness || geometry.captureBoundary!==captureBoundary ||
-        host.innerWidth!==1440||host.innerHeight!==1000||host.devicePixelRatio!==1||scene !== host.testSceneRef.current || recorder !== scene.fpsGraph?.samples || recorder.gpuGeneration !== generation || recorder.recentFrames !== materialize ||
-        recorder.recentCursor !== recorder.recentCount || scene.disposed ||
-        !scene.world.paused || scene.world.turn !== 70 || scene.world.mode !== 0 || scene.world.inputMask ||
-        scene.modalSuspended || (scene.world.flyby.flags & 1) || scene.viewTransition !== null ||
-        scene.overviewActive || scene.overviewStage || scene.globeMorph.active || scene.cameraMotion.active ||
-        scene.resultCamera.active || scene.keys.size || scene.navigationButtons() || scene.pointerGesture !== null ||
-        scene.navigationPointer || scene.pointerButtons !== 0 || host.document.hidden ||
-        scene.cameraPosition.x !== pose[0] || scene.cameraPosition.y !== pose[1] || scene.cameraPosition.angle !== pose[2] ||
-        scene.viewPoint.x !== pose[3] || scene.viewPoint.z !== pose[4] || scene.cameraBearing !== pose[5] ||
-        scene.viewZoom !== pose[6] || scene.viewPreset !== pose[7]) throw Error('Scene/recorder/state changed')
+    // Same short-circuit guard order, with allocation-free failure keys on the live path.
+    const changed =
+      host.__pndSnapshotGeometry!==geometry ? "host.__pndSnapshotGeometry!==geometry" :
+      geometry.writeWitness!==writeWitness ? "geometry.writeWitness!==writeWitness" :
+      geometry.captureBoundary!==captureBoundary ? "geometry.captureBoundary!==captureBoundary" :
+      host.innerWidth!==1440 ? "host.innerWidth!==1440" :
+      host.innerHeight!==1000 ? "host.innerHeight!==1000" :
+      host.devicePixelRatio!==1 ? "host.devicePixelRatio!==1" :
+      scene !== host.testSceneRef.current ? "scene !== host.testSceneRef.current" :
+      recorder !== scene.fpsGraph?.samples ? "recorder !== scene.fpsGraph?.samples" :
+      recorder.gpuGeneration !== generation ? "recorder.gpuGeneration !== generation" :
+      recorder.recentFrames !== materialize ? "recorder.recentFrames !== materialize" :
+      recorder.recentCursor !== recorder.recentCount ? "recorder.recentCursor !== recorder.recentCount" :
+      scene.disposed ? "scene.disposed" :
+      !scene.world.paused ? "!scene.world.paused" :
+      scene.world.turn !== 70 ? "scene.world.turn !== 70" :
+      scene.world.mode !== null ? "scene.world.mode !== null" :
+      scene.world.inputMask ? "scene.world.inputMask" :
+      scene.modalSuspended ? "scene.modalSuspended" :
+      (scene.world.flyby.flags & 1) ? "(scene.world.flyby.flags & 1)" :
+      scene.viewTransition !== null ? "scene.viewTransition !== null" :
+      scene.overviewActive ? "scene.overviewActive" :
+      scene.overviewStage ? "scene.overviewStage" :
+      scene.globeMorph.active ? "scene.globeMorph.active" :
+      scene.cameraMotion.active ? "scene.cameraMotion.active" :
+      scene.resultCamera.active ? "scene.resultCamera.active" :
+      scene.keys.size ? "scene.keys.size" :
+      scene.navigationButtons() ? "scene.navigationButtons()" :
+      scene.pointerGesture !== null ? "scene.pointerGesture !== null" :
+      (!scene.navigationPointer || !Number.isFinite(scene.navigationPointer.x) || !Number.isFinite(scene.navigationPointer.y) || scene.navigationPointer.buttons !== 0) ? "(!scene.navigationPointer || !Number.isFinite(scene.navigationPointer.x) || !Number.isFinite(scene.navigationPointer.y) || scene.navigationPointer.buttons !== 0)" :
+      scene.pointerButtons !== 0 ? "scene.pointerButtons !== 0" :
+      host.document.hidden ? "host.document.hidden" :
+      scene.cameraPosition.x !== pose[0] ? "scene.cameraPosition.x !== pose[0]" :
+      scene.cameraPosition.y !== pose[1] ? "scene.cameraPosition.y !== pose[1]" :
+      scene.cameraPosition.angle !== pose[2] ? "scene.cameraPosition.angle !== pose[2]" :
+      scene.viewPoint.x !== pose[3] ? "scene.viewPoint.x !== pose[3]" :
+      scene.viewPoint.z !== pose[4] ? "scene.viewPoint.z !== pose[4]" :
+      scene.cameraBearing !== pose[5] ? "scene.cameraBearing !== pose[5]" :
+      scene.viewZoom !== pose[6] ? "scene.viewZoom !== pose[6]" :
+      scene.viewPreset !== pose[7] ? "scene.viewPreset !== pose[7]" : null
+    if (changed) throw Error('Scene/recorder/state changed: '+changed)
   }
   stable()
-  if (scene.pointerScreen?.clientX !== 900 || scene.pointerScreen?.clientY !== 400 ||
+  if (scene.pointerScreen?.clientX !== 900 || scene.pointerScreen?.clientY !== 400 || scene.navigationPointer.x !== 900 || scene.navigationPointer.y !== 400 ||
       host.document.elementFromPoint(900,400) !== canvas) throw Error('Origin is not the ordinary canvas pointer')
   if (!pose.every(Number.isFinite)) throw Error('Nonfinite camera pose')
   const initial = { serial: initialSerial, timestampMs: initialRaf, observedCompletedAtMs: initialObserved,
@@ -113,16 +143,19 @@ export function installOrdinaryPointerBrowserObserver(host, createCapture, geome
       stable()
       if (recorder.recentCount !== serial) {
         if (recorder.recentCount !== serial+1 || recorder.timestamp !== now || recorder.recentCount >= 1200 || count>=1200) throw Error('Callback identity/order/bound changed')
-        const p=scene.pointerScreen,t=scene.tooltipInput
-        if (!p || !t?.pointer || p.clientX!==t.pointer.clientX || p.clientY!==t.pointer.clientY) throw Error('Missing or stale tooltip pointer')
+        const p=scene.pointerScreen,t=scene.tooltipInput,navigation=scene.navigationPointer
+        if (!p || !t?.pointer || p.clientX!==t.pointer.clientX || p.clientY!==t.pointer.clientY || navigation.x!==p.clientX || navigation.y!==p.clientY) throw Error('Missing or stale tooltip pointer')
         let i=count*width
         rows[i++]=recorder.recentCount;rows[i++]=now;rows[i++]=0
-        rows[i++]=p.clientX;rows[i++]=p.clientY;rows[i++]=1;rows[i++]=scene.world.turn;rows[i++]=scene.world.mode;rows[i++]=scene.pointerButtons
+        rows[i++]=p.clientX;rows[i++]=p.clientY;rows[i++]=1;rows[i++]=scene.world.turn;rows[i++]=0; // Strict raw null was checked by stable(); contract mode is numeric zero.
+        rows[i++]=scene.pointerButtons
         rows[i++]=routes.indexOf(t.route);rows[i++]=encodeId(t.picked);rows[i++]=encodeId(t.cell)
         rows[i++]=encodeId(t.inspectionTarget);rows[i++]=encodeId(scene.hoveredObject)
         rows[i++]=t.pointer.clientX;rows[i++]=t.pointer.clientY
         writeWitness.call(geometry,rows,i,scene)
         for(let n=0;n<113;n++)if(rows[i+n]!==baselineWitness[n])throw Error('Geometry witness changed')
+        rows[count*width+129]=navigation.x;rows[count*width+130]=navigation.y
+        rows[count*width+131]=navigation.buttons;rows[count*width+132]=scene.navigationButtons()
         const at=host.performance.now();rows[count*width+2]=at
         if(!capture.frame(recorder.recentCount,now,at))throw Error('Capture rejected callback')
         count++;serial=recorder.recentCount;raf=now
