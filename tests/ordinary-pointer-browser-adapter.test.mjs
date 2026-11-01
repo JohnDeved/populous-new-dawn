@@ -10,7 +10,7 @@ function fixture(raw=false){
  const recent=[{timestampMs:99,state:'paused',pointerBreakdown:metrics(false)},{timestampMs:100,state:'paused',pointerBreakdown:metrics(false)}]
  const recorder={recentCount:2,recentCursor:2,gpuGeneration:1,timestamp:100,recentFrames(){return structuredClone(recent)}}
  const point={clientX:900,clientY:400}
- const scene={fpsGraph:{samples:recorder},renderer:{domElement:canvas},world:{paused:true,turn:70,mode:0,inputMask:0,flyby:{flags:0}},
+ const scene={fpsGraph:{samples:recorder},renderer:{domElement:canvas},world:{paused:true,turn:70,mode:null,inputMask:0,flyby:{flags:0}},
  cameraPosition:{x:1,y:2,angle:0},viewPoint:{x:3,z:4},cameraBearing:0,viewZoom:1,viewPreset:0,modalSuspended:false,
  viewTransition:null,overviewActive:false,overviewStage:0,globeMorph:{active:false},cameraMotion:{active:0},resultCamera:{active:0},keys:new Set(),
  navigationButtons(){return 0},pointerGesture:null,navigationPointer:null,pointerButtons:0,pointerScreen:{...point},hoveredObject:null,
@@ -214,5 +214,30 @@ test('cleanup deadline and falsey secondary cleanup error remain explicit',async
    assert.equal(r.outcome.status,'timed-out');assert.equal(r.cleanupFailed,true);assert.equal(r.cleanupConfirmed,false)
    if(kind==='falsey')assert.equal(r.cleanupError,null);else assert.match(String(r.cleanupError),/cleanup deadline/)
   }finally{globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;globalThis.performance=oldPerf;f.host.__pndOrdinaryPointerObserver?.stop(false)}
+ }
+})
+
+// Actual snapshot-setup admits raw mode null. Contract mode zero is an encoding,
+// not the scene's raw sentinel; never coerce arbitrary falsey values.
+test('raw neutral null maps to contract zero without mutating scene mode',async()=>{
+ const f=fixture();assert.equal(f.scene.world.mode,null)
+ const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true})
+ assert.equal(r.outcome.status,'completed',String(r.outcome.error))
+ assert.equal(f.scene.world.mode,null);assert.equal(r.packet.initial.mode,0)
+ for(let i=0;i<r.packet.rows.length;i+=r.packet.width)assert.equal(r.packet.rows[i+7],0)
+ assert.equal(r.outcome.value.evidence.measured.length,48)
+})
+test('raw active and malformed modes refuse installation rather than falsey normalization',()=>{
+ for(const mode of [0,1,2,20,-1,false,undefined,'',NaN]){
+  const f=fixture();f.scene.world.mode=mode
+  assert.throws(()=>install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64)),/Scene\/recorder\/state changed/)
+  assert.equal(f.listeners.size,0);assert.equal(f.callbacks.size,0)
+ }
+})
+test('leaving raw neutral mode after installation remains terminal',()=>{
+ for(const mode of [0,1,undefined,false]){
+  const f=fixture();install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64))
+  const api=f.host.__pndOrdinaryPointerObserver;api.arm();f.scene.world.mode=mode;f.frame()
+  assert.match(api.status().error,/Scene\/recorder\/state changed/);assert.equal(api.stop(false).capture.status,'failed')
  }
 })

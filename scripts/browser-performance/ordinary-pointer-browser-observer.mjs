@@ -36,7 +36,7 @@ export function installOrdinaryPointerBrowserObserver(host, createCapture, geome
     if (host.__pndSnapshotGeometry!==geometry || geometry.writeWitness!==writeWitness || geometry.captureBoundary!==captureBoundary ||
         host.innerWidth!==1440||host.innerHeight!==1000||host.devicePixelRatio!==1||scene !== host.testSceneRef.current || recorder !== scene.fpsGraph?.samples || recorder.gpuGeneration !== generation || recorder.recentFrames !== materialize ||
         recorder.recentCursor !== recorder.recentCount || scene.disposed ||
-        !scene.world.paused || scene.world.turn !== 70 || scene.world.mode !== 0 || scene.world.inputMask ||
+        !scene.world.paused || scene.world.turn !== 70 || scene.world.mode !== null || scene.world.inputMask ||
         scene.modalSuspended || (scene.world.flyby.flags & 1) || scene.viewTransition !== null ||
         scene.overviewActive || scene.overviewStage || scene.globeMorph.active || scene.cameraMotion.active ||
         scene.resultCamera.active || scene.keys.size || scene.navigationButtons() || scene.pointerGesture !== null ||
@@ -117,7 +117,8 @@ export function installOrdinaryPointerBrowserObserver(host, createCapture, geome
         if (!p || !t?.pointer || p.clientX!==t.pointer.clientX || p.clientY!==t.pointer.clientY) throw Error('Missing or stale tooltip pointer')
         let i=count*width
         rows[i++]=recorder.recentCount;rows[i++]=now;rows[i++]=0
-        rows[i++]=p.clientX;rows[i++]=p.clientY;rows[i++]=1;rows[i++]=scene.world.turn;rows[i++]=scene.world.mode;rows[i++]=scene.pointerButtons
+        rows[i++]=p.clientX;rows[i++]=p.clientY;rows[i++]=1;rows[i++]=scene.world.turn;rows[i++]=0; // Strict raw null was checked by stable(); contract mode is numeric zero.
+        rows[i++]=scene.pointerButtons
         rows[i++]=routes.indexOf(t.route);rows[i++]=encodeId(t.picked);rows[i++]=encodeId(t.cell)
         rows[i++]=encodeId(t.inspectionTarget);rows[i++]=encodeId(scene.hoveredObject)
         rows[i++]=t.pointer.clientX;rows[i++]=t.pointer.clientY
