@@ -636,8 +636,13 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
-        setAudioStartNotice('Audio could not start. Try the sound button again.')
-        tell(world, 'Audio could not start. Try the sound button again.')
+        setAudioStartNotice(
+          'Audio could not start. Retry Enable sound in Menu > Options > Game > Browser compatibility and help.'
+        )
+        tell(
+          world,
+          'Audio could not start. Retry Enable sound in Menu > Options > Game > Browser compatibility and help.'
+        )
         update()
       } finally {
         setSoundPending(false)
@@ -1466,15 +1471,6 @@ export default function Home() {
         </section>
         <div className="top-actions">
           <button
-            aria-label={sound ? 'Mute sound' : 'Enable sound'}
-            title={sound ? 'Mute sound' : 'Enable sound'}
-            onClick={toggleSound}
-            disabled={soundPending}
-            aria-busy={soundPending}
-          >
-            {sound ? '♪' : '♫'}
-          </button>
-          <button
             aria-label={world.paused ? 'Resume game' : 'Pause game'}
             title="Pause / resume · Space"
             onClick={() =>
@@ -1831,6 +1827,8 @@ export default function Home() {
                   <div className="audio-settings">
                     <button
                       className="secondary-button"
+                      data-option-key="audio"
+                      aria-label={sound ? '♪ Sound on' : '♫ Enable sound'}
                       onClick={toggleSound}
                       disabled={soundPending}
                       aria-busy={soundPending}
