@@ -1,0 +1,20 @@
+{
+  "assertions": [
+    "assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')",
+    "if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact proposed merge required')",
+    "assert.ok(existsSync(browserPath), 'Supported preinstalled official Chrome channel is required')",
+    "function verifySource() { for (const [name, expected] of Object.entries(source.files)) assert.equal(hash(resolve(root, name)), expected, name) }",
+    "    assert.ok(receipt.gameplayOwnershipSelection, 'Weak ownership probe requires exact-head Ready event label')",
+    "  save(); assert.equal(receipt.build.exitCode, 0, 'Build must pass'); assert.equal(receipt.build.timedOut, false)",
+    "    const target = resolve(dist, entry); assert.equal(existsSync(target), false, 'Public asset collision')",
+    "  assert.equal(receipt.browserTimedOut, undefined)",
+    "  assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')",
+    "  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }",
+    "      assert.equal(hash(resolve(out, 'm2-checkpoint-transfer.json')), m2Fixture.receipt.transferSha256)",
+    "      assert.equal(hash(resolve(out, 'm2-checkpoint.v8')), m2Fixture.receipt.checkpointSha256)"
+  ],
+  "timers": [
+    "    const timeout = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); force = setTimeout(() => child.kill('SIGKILL'), 5000) }, 120000)",
+    "  timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)"
+  ]
+}

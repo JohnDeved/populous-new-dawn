@@ -186,6 +186,30 @@ class EventReplayTests(unittest.TestCase):
         self.reject(lambda r, c: r['eventStream']['counts'].update(memoryWrites=1), 'independent contract')
         self.reject(lambda r, c: r.pop('eventStream'), 'independent contract')
 
+    def test_contract_metadata_rejects_numeric_equality_aliases(self):
+        # Python equality treats True == 1 and 17.0 == 17. Independent metadata
+        # must preserve the exact JSON integer schema, not just numeric value.
+        for field in ('schemaVersion', 'eventCount', 'firstOrdinal', 'lastOrdinal'):
+            receipt, contract = fixture()
+            original = contract['eventStream'][field]
+            for alias in ([float(original)] + ([bool(original)] if original in (0, 1) else [])):
+                with self.subTest(field=field, alias=alias):
+                    altered = copy.deepcopy(contract)
+                    altered['eventStream'][field] = alias
+                    with self.assertRaisesRegex(ValueError, 'independent contract'):
+                        run(receipt, altered)
+        for stream in replay.STREAMS:
+            receipt, contract = fixture()
+            contract['eventStream']['counts'][stream] = float(contract['eventStream']['counts'][stream])
+            with self.subTest(stream=stream), self.assertRaisesRegex(ValueError, 'independent contract'):
+                run(receipt, contract)
+
+    def test_contract_metadata_key_order_does_not_change_identity(self):
+        receipt, contract = fixture()
+        contract['eventStream'] = dict(reversed(list(contract['eventStream'].items())))
+        contract['eventStream']['counts'] = dict(reversed(list(contract['eventStream']['counts'].items())))
+        self.assertEqual(run(receipt, contract).counts, receipt['eventStream']['counts'])
+
     def test_changed_hash_and_passed_status_cannot_authorize(self):
         receipt, contract = fixture()
         original_hash, original_contract_hash = replay.digest(encoded(receipt)), replay.contract_digest(contract)

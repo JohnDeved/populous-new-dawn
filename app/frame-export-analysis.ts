@@ -83,6 +83,7 @@ function statistics(values: number[]) {
     mean: values.reduce((sum, value) => sum + value / values.length, 0),
     p50: sorted[Math.ceil(sorted.length * 0.5) - 1],
     p95: sorted[Math.ceil(sorted.length * 0.95) - 1],
+    p99: sorted[Math.ceil(sorted.length * 0.99) - 1],
     max: sorted[sorted.length - 1],
   }
 }

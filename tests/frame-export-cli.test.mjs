@@ -14,6 +14,8 @@ test('offline CLI prints a JSON summary for an explicitly supplied local export'
   assert.equal(summary.sampleCount, 2)
   assert.equal(summary.level, 2)
   assert.equal(summary.capturedSpanMs, 34)
+  assert.equal(summary.raf.p99, 18)
+  assert.equal(summary.callback.p99, 14)
   assert.ok(summary.warnings.length)
 })
 
