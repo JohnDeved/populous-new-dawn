@@ -1383,6 +1383,7 @@ export default function Home() {
                       onClick={() => {
                         if (!interactive) return
                         store.change(w => {
+                          if (spellHudVisibility(w, s) !== 'visible') return
                           w.mode = w.mode === s.id ? null : s.id
                         })
                       }}
@@ -1391,7 +1392,9 @@ export default function Home() {
                         if (undiscovered) return
                         if (canCharge)
                           store.change(w => {
-                            const bit = 1 << (s.model - 1)
+                            if (!spellHudPermanent(w, s) || !spellHudCanCharge(w, s)) return
+                            const player = w.manaWorld.playerTribe,
+                              bit = 1 << (s.model - 1)
                             w.manaWorld.spells[player].disabled ^= bit
                             if (s.id === 'blast')
                               w.charging = !(w.manaWorld.spells[player].disabled & bit)

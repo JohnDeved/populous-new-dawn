@@ -30,8 +30,9 @@ export function checkpointCodec(value, decode = false) {
       let result
       if (n.type === 'buffer') result = Uint8Array.from(n.bytes).buffer
       else if (n.type === 'view') {
+        if (typeof n.name !== 'string' || !Object.hasOwn(types, n.name))
+          throw Error('Unsupported typed array')
         const Type = types[n.name]
-        if (!Type) throw Error('Unsupported typed array')
         result = new Type(read(n.buffer), n.offset, n.length)
       } else if (n.type === 'map') result = new Map()
       else if (n.type === 'set') result = new Set()

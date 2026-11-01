@@ -159,7 +159,9 @@ def replay_receipt(raw, expected_sha256, contract, expected_contract_sha256):
     require(isinstance(receipt, dict), 'receipt must be an object')
     require(receipt.get('abortedInstructions') == [], 'aborted instructions are outside successful replay scope')
     metadata = receipt.get('eventStream')
-    require(metadata == contract['eventStream'], 'eventStream differs from independent contract')
+    # Canonical JSON preserves integer/float/bool distinctions that Python's
+    # ordinary dict equality collapses, without depending on object key order.
+    require(contract_digest(metadata) == contract_digest(contract['eventStream']), 'eventStream differs from independent contract')
     require(isinstance(metadata, dict) and set(metadata) == {'schemaVersion', 'ordering', 'eventCount', 'firstOrdinal', 'lastOrdinal', 'counts'}, 'invalid eventStream shape')
     require(type(metadata['schemaVersion']) is int and metadata['schemaVersion'] == 1 and metadata['ordering'] == 'observer', 'unsupported event ordering')
     total = integer(metadata['eventCount'], 'eventCount')
