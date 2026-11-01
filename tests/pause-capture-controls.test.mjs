@@ -7,7 +7,11 @@ import { observeStablePauseControls } from '../scripts/local-render/pause-captur
 function setup(t, count = 2) {
   let next = 1, mutation, observerActive = false, hitQueries = 0
   const frames = new Map(), timers = new Map(), nodes = []
-  const dialog = { contains: node => nodes.includes(node) && node.inDialog }
+  const controls = []
+  const dialog = {
+    contains: node => controls.includes(node) && node.inDialog,
+    querySelectorAll(selector) { assert.equal(selector, 'button'); return [...controls] },
+  }
   for (let i = 0; i < count; i++) nodes.push({
     isConnected: true, inDialog: true, visibility: 'visible', hasRects: true,
     box: { x: 10 + i * 30, y: 10, width: 20, height: 10 }, textContent: `Button ${i}`,
@@ -15,7 +19,10 @@ function setup(t, count = 2) {
     getBoundingClientRect() { return { ...this.box } },
     getClientRects() { return this.hasRects ? [this.box] : [] },
     contains(node) { return node === this },
+    matches(selector) { assert.equal(selector, 'button'); return true },
+    querySelector() { return null },
   })
+  controls.push(...nodes)
   const api = {
     MutationObserver: class {
       constructor(callback) { mutation = callback }
@@ -35,10 +42,10 @@ function setup(t, count = 2) {
     t.after(() => old ? Object.defineProperty(globalThis, key, old) : delete globalThis[key])
   }
   return {
-    nodes, api,
+    nodes, controls, dialog, api,
     frame() { const queued = [...frames.values()]; frames.clear(); for (const fn of queued) fn() },
     expire() { for (const fn of [...timers.values()]) fn() },
-    mutate() { mutation() },
+    mutate(records = [{ type: 'childList', removedNodes: [nodes[0]], addedNodes: [] }]) { mutation(records) },
     hitQueries: () => hitQueries,
     clean() { assert.equal(frames.size, 0); assert.equal(timers.size, 0); assert.equal(observerActive, false) },
   }
@@ -92,4 +99,73 @@ test('measurement exception preserves the primary error and cleans up',async t=>
 })
 test('empty inventory fails without allocating a scheduler or observer',async t=>{
   const f=setup(t,0);await assert.rejects(observeStablePauseControls(f.nodes),/No modal controls/);f.clean()
+})
+
+
+// Resize and unrelated visual attributes are not control identity changes.
+for (const target of ['dialog', 'control']) test(`benign ${target} attributes restart the stability pair`, async t => {
+  const f = setup(t), pending = observeStablePauseControls(f.nodes)
+  // Attach rejection handling before driving the supplied scheduler.
+  const result = pending.then(value => ({ value }), error => ({ error }))
+  f.frame()
+  f.mutate([{ type: 'attributes', target: target === 'dialog' ? f.dialog : f.nodes[0], attributeName: 'style' }])
+  f.frame()
+  assert.equal(f.hitQueries(), 0, 'mutation must invalidate the pre-mutation frame')
+  f.frame()
+  const settled = await result
+  assert.equal(settled.error, undefined)
+  assert.equal(settled.value.length, 2)
+  f.clean()
+})
+test('responsive geometry settles after an attribute mutation without altering the viewport evidence', async t => {
+  const f = setup(t), pending = observeStablePauseControls(f.nodes)
+  const result = pending.then(value => ({ value }), error => ({ error }))
+  f.frame()
+  f.nodes[0].box.x = 100
+  f.mutate([{ type: 'attributes', target: f.dialog, attributeName: 'style' }])
+  f.frame(); assert.equal(f.hitQueries(), 0)
+  f.frame()
+  const settled = await result
+  assert.equal(settled.error, undefined)
+  assert.equal(settled.value[0].x, 100)
+  f.clean()
+})
+test('unrelated child content restarts stability without changing the control inventory', async t => {
+  const f = setup(t), pending = observeStablePauseControls(f.nodes)
+  const result = pending.then(value => ({ value }), error => ({ error }))
+  f.frame()
+  const caption = { matches: () => false, querySelector: () => null, contains: () => false }
+  f.mutate([{ type: 'childList', addedNodes: [caption], removedNodes: [] }])
+  f.frame(); assert.equal(f.hitQueries(), 0)
+  f.frame()
+  assert.equal((await result).error, undefined)
+  f.clean()
+})
+for (const mode of ['added', 'removed', 'reordered', 'replaced']) test(`changed ${mode} button inventory fails without needing mutation delivery`, async t => {
+  const f = setup(t), pending = observeStablePauseControls(f.nodes)
+  const rejected = assert.rejects(pending, /identity\/count changed/)
+  f.frame()
+  if (mode === 'added') f.controls.push({ ...f.nodes[0] })
+  if (mode === 'removed') f.controls.pop()
+  if (mode === 'reordered') f.controls.reverse()
+  if (mode === 'replaced') f.controls[0] = { ...f.nodes[0] }
+  f.frame(); await rejected; f.clean()
+})
+test('transient added button remains an identity failure even after its removal', async t => {
+  const f = setup(t), pending = observeStablePauseControls(f.nodes)
+  const rejected = assert.rejects(pending, /identity\/count changed/)
+  f.frame()
+  f.mutate([{ type: 'childList', addedNodes: [{ ...f.nodes[0] }], removedNodes: [] }])
+  f.frame(); await rejected; f.clean()
+})
+test('continuous harmless attribute mutations cannot extend the fixed timeout', async t => {
+  const f = setup(t), pending = observeStablePauseControls(f.nodes)
+  const result = pending.then(value => ({ value }), error => ({ error }))
+  for (let i = 0; i < 4; i++) {
+    f.mutate([{ type: 'attributes', target: f.dialog, attributeName: 'style' }])
+    f.frame()
+  }
+  f.expire()
+  assert.match((await result).error.message, /within5000ms/)
+  f.clean()
 })

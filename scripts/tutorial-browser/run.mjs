@@ -1,3 +1,5 @@
+import { captureDescendantEnvironment } from './capture-descendant-environment.mjs'
+import { withCaptureProtocolWindow } from './capture-protocol-window.mjs'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import { spawn, execFileSync } from 'node:child_process'
@@ -16,6 +18,8 @@ import { runProfileEpisode } from './profile-episodes.mjs'
 import { closeCompletedPrimaryTutorial } from './primary-tutorial-lifecycle.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
+const captureProtocolEnabled = process.env.PND_CAPTURE_PROTOCOL_WINDOW === '1'
+const descendantEnv = captureDescendantEnvironment(process.env, captureProtocolEnabled)
 const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
@@ -35,6 +39,7 @@ const mission10ProfileScenario = resolve(root, 'scripts/tutorial-browser/mission
 const spySourceScenario = resolve(root, 'scripts/tutorial-browser/spy-source.mjs')
 const selectedScenario = process.env.POPULOUS_BROWSER_SCENARIO || 'tutorial'
 assert.ok(browserScenarios.includes(selectedScenario), 'Unknown browser scenario')
+if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
 const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
@@ -47,10 +52,10 @@ if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
 const dist = resolve(out, 'dist')
 const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
-const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
+const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', env: descendantEnv }).trim()
 const commit = git('rev-parse', 'HEAD')
 if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact proposed merge required')
-const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean)
+const files = execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8', env: descendantEnv }).split('\0').filter(Boolean)
 const source = { commit, files: Object.fromEntries(files.map(name => [name, hash(resolve(root, name))])),
   limits: ['Actual production Home component, store and scene through plain Vite hosting; excludes Vinext/Cloudflare/RSC hosting.'] }
 // The official Chrome channel has the hosted Ubuntu AppArmor profile.
@@ -59,7 +64,7 @@ const browserConfig = browserConfiguration(process.env.POPULOUS_BROWSER)
 const { browserPath } = browserConfig
 assert.ok(existsSync(browserPath), 'Supported preinstalled official Chrome channel is required')
 accessSync(browserPath, constants.X_OK)
-const browserBinaryVersion = execFileSync(browserPath, ['--version'], { encoding: 'utf8' }).trim()
+const browserBinaryVersion = execFileSync(browserPath, ['--version'], { encoding: 'utf8', env: descendantEnv }).trim()
 const dependencies = resolve(root, 'node_modules')
 function metadata(path, prefix = '') {
   const result = {}
@@ -127,7 +132,7 @@ receipt.dependenciesBeforeSha256 = createHash('sha256').update(JSON.stringify(be
 try {
   verifySource(); save()
   receipt.build = await new Promise((resolveBuild, reject) => {
-    const child = spawn(process.execPath, [resolve(dirname(import.meta.filename), 'build-home.mjs'), fixture, dist], { env: process.env, stdio: ['ignore', 'pipe', 'pipe'] })
+    const child = spawn(process.execPath, [resolve(dirname(import.meta.filename), 'build-home.mjs'), fixture, dist], { env: descendantEnv, stdio: ['ignore', 'pipe', 'pipe'] })
     const chunks = []; let timedOut = false, force
     child.stdout.on('data', b => chunks.push(b)); child.stderr.on('data', b => chunks.push(b))
     const timeout = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); force = setTimeout(() => child.kill('SIGKILL'), 5000) }, 120000)
@@ -154,7 +159,7 @@ try {
     verifySource(); save()
   }
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
-  browser = await chromium.launch(browserConfig.launch)
+  browser = await chromium.launch(captureProtocolEnabled ? { ...browserConfig.launch, env: descendantEnv } : browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   receipt.browserCapMs = browserCapMs(selectedScenario)
   const browserStartedMs = performance.now()
@@ -256,7 +261,10 @@ try {
   receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
-  if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out })
+  if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await withCaptureProtocolWindow(
+    captureProtocolEnabled, line => process.stderr.write(line),
+    async () => (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out }),
+  )
   if (selectedScenario === 'tutorial' || selectedScenario === 'frontend-held-escape') {
     const elapsedMs = performance.now() - browserStartedMs
     receipt.spellIconBudgetBefore = { elapsedMs, remainingMs: Math.max(0, receipt.browserCapMs - elapsedMs) }
@@ -317,3 +325,4 @@ try {
   }
   console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }
+
