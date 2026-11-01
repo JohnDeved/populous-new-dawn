@@ -10,6 +10,7 @@ import { cast, spellTargetError } from '../app/live-command.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { pageEffect, pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { withCaptureProtocolWindow } from '../scripts/tutorial-browser/capture-protocol-window.mjs'
 
 function readyStore() {
   const store = createGameStore(), world = store.getWorld()
@@ -204,6 +205,7 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
       context = { close: async () => calls.push('closeFrontendContext') },
       browser = {}, bindings = {
         selectedScenario, receipt, page, context, browser, url: 'test-url', root: 'test-root',
+        captureProtocolEnabled: false, withCaptureProtocolWindow,
         out: 'test-output', dist: 'test-dist', m2Fixture: {},
         browserStartedMs: 1000, performance: { now: () => 1250 },
         ...Object.fromEntries(scenarios.map(name => [name, name])),
