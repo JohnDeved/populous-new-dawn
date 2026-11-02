@@ -63,8 +63,14 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
       target.on('Tracing.tracingComplete',onComplete);target.on('Tracing.dataCollected',onData)
       retain('target',(await send(target,'Target.getTargetInfo')).targetInfo)
       retain('browser',await send(session,'Browser.getVersion'))
-      const available=await send(target,'Tracing.getCategories');assert.ok(Array.isArray(available.categories))
-      assert.ok(P.categories.every(c=>available.categories.includes(c)),'Required trace category unavailable')
+      const available=await send(target,'Tracing.getCategories'),categories=available?.categories
+      receipt.categoryInspection={returnedCount:Array.isArray(categories)?categories.length:null,retained:false}
+      metadata()
+      assert.ok(Array.isArray(categories)&&categories.length<=2048,'Trace category inventory bound')
+      assert.ok(Array.from(categories).every(c=>typeof c==='string'&&c.length>0&&c.length<=256),'Invalid bounded trace category name')
+      retain('categoryInspection',{returnedCount:categories.length,retained:true,
+        returnedCategories:[...categories],missingRequired:P.categories.filter(c=>!categories.includes(c))})
+      assert.ok(P.categories.every(c=>categories.includes(c)),'Required trace category unavailable')
       receipt.categoryAvailability=P.categories;metadata();await snapshot('processesBefore')
       traceStartRequested=true;receipt.traceStartRequested=true
       await send(target,'Tracing.start',{transferMode:'ReturnAsStream',streamFormat:'json',streamCompression:'none',
