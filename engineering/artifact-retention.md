@@ -65,6 +65,26 @@ retained as `collected-with-identity-errors` and exits nonzero. A genuine failed
 runtime may still be collected successfully, but collection is never a runtime,
 visual, Full, Ready, merge, native-parity or performance pass.
 
+The reader also admits a finite **opaque pause-trace member profile** for the
+local Playwright 1.63.0 single-chunk owner from #841: exact
+`pause-click-traces/archives/{native,fallback}.zip` and
+`pause-click-traces/work/pause-{native,fallback}` followed by `.trace`, `.network`,
+`.stacks`, or `-pwnetcopy-1.network`. These names derive from the fixed trace names,
+first chunk ordinal and local entries/write ZIP path, not arbitrary extensions.
+Remote repack `.tmp`/`.trace.zip`, later chunks, resource files and other names
+remain unsupported and fail closed. Existing ordinary text/image types are unchanged.
+
+Trace members are indexed/hashed as opaque bytes. Selected caches may restore one
+exact named opaque file under the same ownership rules; they never recursively
+unpack inner ZIPs, parse trace events, run embedded code, follow links or open a
+viewer. Partial or invalid inner ZIPs can be retained as evidence, not accepted as
+complete traces. No actual Playwright export or runtime has been qualified by this
+reader extension. Existing archive/member/cache budgets are unchanged; those
+reader limits do not independently prove the producer's sampled 8 MiB trace cap,
+128-file/16-directory acceptance or buffered-memory behavior. Raw trace API text
+can include DOM/world data and must not be published without inspection. Existing
+sealed collections and their physical-path readers remain untouched.
+
 For an explicitly requested view, use the indexed archive through
 `scripts/orchestration/evidence_archive.py materialize`: pass the manifest hash,
 one or more exact `--member` names and a fresh physical `--cache` outside the

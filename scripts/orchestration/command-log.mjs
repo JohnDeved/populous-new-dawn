@@ -157,7 +157,16 @@ export function writeLegacyLog(directory, name, text, { rawLogBudget = createRaw
 // workload deadline; verifier callers retain their explicit existing timeout.
 export async function captureOwnedCommand(command, { cwd, env, timeoutMs, rawLogBudget, writeChunk, stdin = 'pipe' }) {
   if (rawLogBudget.error) throw rawLogBudget.error
-  let captureError, spawnError, child, resolveClosing, timer, drainTimer, unsubscribe
+  let captureError, spawnError, child, resolveClosing, timer, drainTimer, unsubscribe, deadlineExpired = false
+  const armDrain = error => {
+    drainTimer ??= setTimeout(() => {
+      captureError ??= error
+      child?.stdin?.destroy(); child?.stdout?.destroy(); child?.stderr?.destroy()
+      child?.unref()
+      resolveClosing?.({ exitCode: child?.exitCode ?? null, timedOut: deadlineExpired,
+        drainIncomplete: true, ownedChildPid: child?.pid, ownedChildExited: child?.exitCode !== null || child?.signalCode !== null })
+    }, FAILED_DRAIN_MS)
+  }
   const failed = error => {
     if (captureError) return
     captureError = error
@@ -167,14 +176,7 @@ export async function captureOwnedCommand(command, { cwd, env, timeoutMs, rawLog
     }
     // A descendant may retain inherited pipes. Release only our read handles
     // after the failure drain deadline, never signal an unrelated process.
-    drainTimer ??= setTimeout(() => {
-      child?.stdin?.destroy(); child?.stdout?.destroy(); child?.stderr?.destroy()
-      child?.unref()
-      // A failed signal must not make the capture wait forever for process
-      // exit. Report observed state only; do not claim this producer stopped.
-      resolveClosing?.({ exitCode: child?.exitCode ?? null, timedOut: false,
-        drainIncomplete: true, ownedChildPid: child?.pid, ownedChildExited: child?.exitCode !== null || child?.signalCode !== null })
-    }, FAILED_DRAIN_MS)
+    armDrain(captureError)
   }
   unsubscribe = rawLogBudget.subscribe(failed)
   try { child = spawn(command[0], command.slice(1), { cwd, env, shell: false, stdio: [stdin, 'pipe', 'pipe'] }) }
@@ -185,7 +187,7 @@ export async function captureOwnedCommand(command, { cwd, env, timeoutMs, rawLog
     // close follows process exit and closure of its stdio, unlike exit alone.
     child.once('close', code => {
       clearTimeout(timer); clearTimeout(drainTimer)
-      resolveOutcome({ exitCode: spawnError ? 1 : code ?? 1, timedOut: spawnError || rawLogBudget.error ? false : code === null })
+      resolveOutcome({ exitCode: spawnError ? 1 : code ?? 1, timedOut: deadlineExpired || (spawnError || rawLogBudget.error ? false : code === null) })
     })
   })
   for (const name of names) {
@@ -197,7 +199,18 @@ export async function captureOwnedCommand(command, { cwd, env, timeoutMs, rawLog
     })
     child[name].on('error', failed)
   }
-  if (timeoutMs !== undefined) timer = setTimeout(() => { try { child.kill('SIGKILL') } catch (error) { failed(error) } }, timeoutMs)
+  if (timeoutMs !== undefined) timer = setTimeout(() => {
+    deadlineExpired = true
+    const error = new Error('Command deadline expired before owned pipes closed')
+    error.code = 'ERR_COMMAND_DRAIN_TIMEOUT'
+    // Direct exit does not imply pipe closure. Bound our read handles without
+    // acquiring ownership of, or signaling, any descendant process.
+    armDrain(error)
+    if (child.exitCode === null && child.signalCode === null) {
+      try { assert(child.kill('SIGKILL'), 'Owned child could not be signaled') }
+      catch (failure) { captureError ??= failure }
+    }
+  }, timeoutMs)
   const outcome = await closing
   clearTimeout(timer); clearTimeout(drainTimer); unsubscribe?.()
   return { ...outcome, signal: child.signalCode, childExitCode: child.exitCode, spawnError, captureError }

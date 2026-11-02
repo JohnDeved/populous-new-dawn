@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { readdirSync, lstatSync } from 'node:fs'
 import { resolve, relative } from 'node:path'
 import { limits } from './policy.mjs'
+import { createPauseTraceOwner, inspectPauseTraceStorage } from './pause-click-trace.mjs'
 
 export const pageActionTimeout = 25000
 
@@ -23,13 +24,17 @@ export function artifactInventory(root) {
   const screenshots = files.filter(file => file.path.endsWith('.png')).length
   assert.ok(bytes <= limits.artifactBytes, 'Artifact byte budget exceeded')
   assert.ok(screenshots <= limits.screenshots, 'Screenshot budget exceeded')
+  inspectPauseTraceStorage(root)
   return { bytes, screenshots, files }
 }
 
 // One browser, with all candidate-created contexts/pages inside the same owner.
 // Capture actual injected request URLs at route.abort/fulfill, not broad console
 // text filters. Runtime errors always fail, including inside fallback contexts.
-export function ownBrowser(browser, output, report) {
+export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) {
+  const traces = pauseTraceStorage ? createPauseTraceOwner(pauseTraceStorage) : null
+  if (traces) report.pauseClickTraces = traces.report
+  let episode
   const active = new Set(), expected = new Map(), routeHandlers = new WeakMap(), pendingContexts = new Set(), pendingPages = new Set()
   let closed = false, admitting = false, generation = 0
   const cleanupFailures = []
@@ -122,6 +127,13 @@ export function ownBrowser(browser, output, report) {
         instrumentPage(page)
       })
       context.on('close', () => active.delete(context))
+      if (traces) {
+        await traces.attach(context, episode)
+        if (closed || !admitting || epoch !== generation) {
+          try { await context.close() } catch (error) { cleanupFailures.push(error) }
+          throw Error('Late traced context closed after cleanup')
+        }
+      }
       return context
     })
     pendingContexts.add(pending)
@@ -133,7 +145,9 @@ export function ownBrowser(browser, output, report) {
     const value = target[key]; return typeof value === 'function' ? value.bind(target) : value
   } })
   return { browser: owned,
-    beginEpisode() { assert.equal(active.size + pendingContexts.size + pendingPages.size, 0); assert.equal(closed, false); expected.clear(); admitting = true },
+    beginEpisode(nextEpisode) { assert.equal(active.size + pendingContexts.size + pendingPages.size, 0); assert.equal(closed, false); expected.clear(); episode = nextEpisode; admitting = true },
+    assertTraceEpisode(current) { traces?.assertEpisode(current) },
+    finishTraces() { traces?.finish() },
     async closeContexts() {
       admitting = false; generation++
       const results = await Promise.allSettled([...active].map(context => context.close()))

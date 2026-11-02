@@ -114,6 +114,59 @@ with candidate SHA, viewport and browser/renderer. Obtain independent review,
 then complete the unchanged full synthetic-merge gate for the actual combined
 head/base. This head-only evidence never establishes full integration acceptance.
 
+## Bounded pause-context click tracing
+
+The main-owned browser worker reserves a fresh `pause-click-traces/` directory
+inside its output before Chrome launch. Public launch `tracesDir` points to its
+`work/` subdirectory, covering server trace/network files and client stack data;
+fixed native/fallback ZIP exports remain under `archives/`. Existing directories
+are refused, never reused or deleted. The ordinary official browser configuration,
+all nine cases, their order, real inputs, assertions, viewport/DPR, and existing
+episode/worker/job limits are unchanged. This infrastructure must be integrated
+into main before a hosted invocation can use it; a UI branch edit alone cannot
+change main-owned launch infrastructure.
+
+Only the two pause contexts are traced, once each, using public Playwright
+tracing with snapshots, screenshots, bundled sources and live mode disabled.
+This does not capture automatic DOM/ARIA snapshots, screencasts or HAR, but API
+parameters/results may contain evaluate function text and DOM/world-derived data.
+The diagnostic helps separate click stability/scroll/input/navigation stages; it
+does not establish hardware performance, a product cause or a timeout fix.
+Additional tracing RPCs and bookkeeping are not timing-neutral. Actual installed
+Playwright identity and its local launch path must be qualified before invocation;
+the storage contract was source-reviewed for Playwright1.63.0.
+
+Combined working files, exported ZIP copies, filesystem allocation and a64KiB
+receipt reserve have an8MiB sampled acceptance/stop threshold, inside the existing
+256MiB artifact budget, with at most128 regular files and16 directories. Links and
+special files are refused. The existing one-second parent inventory sampler checks
+this subtree; crossing a threshold fails the run, sends SIGTERM to its owned group,
+and retains the existing five-second SIGKILL escalation. Boundary checks also run
+before/after trace operations. Polling, asynchronous writes and termination can
+overshoot: this is not a filesystem quota. Disk accounting does not measure trace
+buffers; --max-old-space-size=768 limits V8 old space, not RSS/native Buffers or the
+whole process tree. No stronger memory or descendant-reaping guarantee is claimed.
+
+Each acquired context installs one idempotent trace-stop/close owner before start.
+Stop/export is given one non-sliding1000ms observation grace, then genuine context
+close proceeds even if tracing failed or stayed pending. This bounds only the new
+flush delay; the existing outer worker watchdog still governs uncooperative
+cleanup. Late start/stop rejection has an owned sink, and no late completion can
+erase the first trace failure. Trace errors do not replace primary episode or
+genuine context-close errors. An otherwise successful pause episode must also
+have completed trace export before close; partial files alone cannot qualify it.
+Unexpected browser closure/SIGTERM can leave partial working files, explicitly
+marked incomplete. Files are not deleted to hide overruns or while a writer may
+remain. Final inventory follows the existing worker-close observation and group
+SIGKILL send, not an independently observed reaping of every descendant.
+
+The complete `native-ui-pause-trace.test.mjs` fixture suite covers path/budget,
+start/stop/late-close ownership, first failure and registry contracts without
+Chrome or process fixtures. Passing it cannot qualify real trace flushing or
+browser cleanup. Trace ZIP/working metadata are raw data: collectors must index
+them safely without executing embedded function strings or opening arbitrary
+links; a collector that does not support these members must fail closed.
+
 ## Local collection without duplicate extraction
 
 After an authorized terminal artifact download, use the
