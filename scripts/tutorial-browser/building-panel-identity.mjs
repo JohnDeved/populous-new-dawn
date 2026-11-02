@@ -272,12 +272,15 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         timing.mark(`${hold}/${boundary}/reuse-precondition:start`)
         assertCurrentBuildingPanel(await page.evaluate(readCurrentBuildingPanel))
         timing.mark(`${hold}/${boundary}/reuse-precondition:complete`)
+        timing.mark(`${hold}/${boundary}/hold-input:start`)
         if (hold === 'pointer') {
           await panel.hover()
         } else {
           await panel.locator('.dismantle-control').focus()
           await page.mouse.move(10, 10)
         }
+        timing.mark(`${hold}/${boundary}/hold-input:complete`)
+        timing.mark(`${hold}/${boundary}/held-snapshot:start`)
         const before = await page.evaluate(({ hold, boundary }) => {
           // Keep the real blur, but observe its immediate result in the same command.
           // The post-frame transition below revalidates before changing eligibility.
@@ -292,8 +295,14 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
             panel: p, building: h.building, scene: h.scene }
           return { hold, boundary, held, frame: h.heldVisibilityBefore.frame }
         }, { hold, boundary })
+        timing.mark(`${hold}/${boundary}/held-snapshot:complete`)
+        timing.mark(`${hold}/${boundary}/positive-frames:start`)
         await page.waitForFunction(frame => window.testSceneRef.current.renderer.info.render.frame >= frame + 2, before.frame)
+        timing.mark(`${hold}/${boundary}/positive-frames:complete`)
+        timing.mark(`${hold}/${boundary}/positive-visible:start`)
         assert.equal(await panel.isVisible(), true, 'Eligible held panel remains visible across real frames')
+        timing.mark(`${hold}/${boundary}/positive-visible:complete`)
+        timing.mark(`${hold}/${boundary}/transition:start`)
         const transition = await page.evaluate(({ hold, boundary }) => {
           const h = window.buildingIdentity, p = h.panel
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
@@ -307,15 +316,20 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
           else h.scene.focus({ x: h.scene.viewPoint.x + 128, z: h.scene.viewPoint.z })
           return { held, frame, afterVisible: h.scene.visible(h.building), team: h.building.team }
         }, { hold, boundary })
+        timing.mark(`${hold}/${boundary}/transition:complete`)
         const witness = { ...before, transition, status: 'pending' }
         report.heldVisibility.push(witness)
         if (boundary === 'ownership') assert.equal(transition.team, 'red')
         else assert.equal(transition.afterVisible, false, 'Real Scene visibility rejects camera-excluded building')
+        timing.mark(`${hold}/${boundary}/hidden-frame:start`)
         await page.waitForFunction(frame => {
           const h = window.buildingIdentity
           return h.scene.renderer.info.render.frame > frame && h.panel.hidden
         }, transition.frame)
+        timing.mark(`${hold}/${boundary}/hidden-frame:complete`)
+        timing.mark(`${hold}/${boundary}/hidden-count:start`)
         assert.equal(await panel.count(), 0, 'No visible tower panel after eligibility loss')
+        timing.mark(`${hold}/${boundary}/hidden-count:complete`)
         witness.hidden = true
         timing.mark(`${hold}/${boundary}:hidden`)
         if (hold === 'focus') await screenshot(`held-${boundary}-hidden`)

@@ -119,7 +119,7 @@ test('terminal-only main receipt save failure preserves its cause for outer fail
   assert.equal(f.events.includes('next'), false); assert.equal(f.records.length, 2)
   assert.equal(f.receipt.primaryTutorial.status, 'failed')
   assert.ok(f.receipt.primaryTutorial.failures.includes(String(error)))
-  const catchStart = source.indexOf("  receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error.stack; process.exitCode = 1")
+  const catchStart = source.indexOf("  receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error?.stack; process.exitCode = 1")
   const catchEnd = source.indexOf('  if (page) {', catchStart)
   assert.ok(catchStart > 0 && catchEnd > catchStart)
   const receipt = {}, process = {}
