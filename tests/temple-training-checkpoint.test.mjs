@@ -321,6 +321,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
     Object.keys(saved).sort(),
     [
       'actorsSha256',
+      'cameraContinuationSha256',
       'checkpointSha256',
       'level',
       'stockSha256',
@@ -330,6 +331,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
       'version',
     ].sort()
   )
+  assert.match(saved.cameraContinuationSha256, /^[0-9a-f]{64}$/)
   const recordBefore = structuredClone(db.records),
     liveBefore = structuredClone(f.world),
     expected = await save.expectedLoadDigest()
