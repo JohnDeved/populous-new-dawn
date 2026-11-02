@@ -270,3 +270,92 @@ test('stable rejection names the first failing predicate without suppressing rej
   const f=fixture();change(f);assert.throws(()=>install(f.host,createOrdinaryPointerCaptureBuffer,f.geometry,f.boundary,'a'.repeat(64)),e=>e.message==='Scene/recorder/state changed: '+key)
  }
 })
+
+test('optional diagnostic boundary runs once after54 exact acknowledgments before final geometry/export',async()=>{
+ const f=fixture();let calls=0,geometryCalls=0
+ const original=f.host.__pndSnapshotGeometry.captureBoundary
+ f.host.__pndSnapshotGeometry.captureBoundary=async()=>{geometryCalls++;return original()}
+ const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true,afterInputCapture:async()=>{
+  calls++;assert.equal(f.disposed,54);assert.ok(f.listeners.size>0);assert.equal(geometryCalls,1)
+ }})
+ assert.equal(calls,1);assert.equal(r.outcome.status,'completed');assert.equal(r.cleanupConfirmed,true)
+ assert.equal(geometryCalls,2);assert.equal(r.outcome.value.evidence.measured.length,48)
+})
+test('falsey diagnostic boundary rejection remains primary and observer cleanup still occurs',async()=>{
+ const f=fixture();let calls=0
+ const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true,afterInputCapture:async()=>{calls++;throw null}})
+ assert.equal(calls,1);assert.equal(r.outcome.status,'failed');assert.equal(r.outcome.error,null)
+ assert.equal(r.observerCleanupConfirmed,true);assert.equal(f.listeners.size,0);assert.equal(f.disposed,54)
+})
+test('incomplete input sequence cannot invoke successful diagnostic boundary',async()=>{
+ const f=fixture();let calls=0;f.page.mouse.move=async()=>{throw 0}
+ const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true,afterInputCapture:async()=>{calls++}})
+ assert.equal(calls,0);assert.equal(r.outcome.status,'failed');assert.equal(r.outcome.error,0);assert.equal(f.listeners.size,0)
+})
+test('diagnostic hook remains inside original watchdog and late settlement cannot upgrade result',async()=>{
+ const f=fixture(),oldSet=globalThis.setTimeout,oldClear=globalThis.clearTimeout,oldPerf=globalThis.performance
+ let fire,time=0,release
+ try{
+  globalThis.performance={now:()=>time};globalThis.setTimeout=(fn,ms)=>{if(ms===90000)fire=fn;return 1};globalThis.clearTimeout=()=>{}
+  const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true,afterInputCapture:()=>{time=90000;fire();return new Promise(resolve=>{release=resolve})}})
+  assert.equal(r.outcome.status,'timed-out');assert.equal(r.operationSettled,false);assert.equal(r.cleanupConfirmed,false);assert.equal(f.disposed,54)
+  release();await Promise.resolve();await Promise.resolve();assert.equal(r.cleanupConfirmed,false)
+ }finally{globalThis.setTimeout=oldSet;globalThis.clearTimeout=oldClear;globalThis.performance=oldPerf;f.host.__pndOrdinaryPointerObserver?.stop(false)}
+})
+test('post-window final geometry rejection is not hidden by a successful diagnostic hook',async()=>{
+ const f=fixture();let calls=0
+ const r=await captureOrdinaryPointerBrowser({page:f.page,enabled:true,afterInputCapture:()=>{calls++;f.geometry.writeWitness=(a,p)=>{for(let n=0;n<113;n++)a[p+n]=2}}})
+ assert.equal(calls,1);assert.equal(r.outcome.status,'failed');assert.equal(f.disposed,54);assert.equal(f.listeners.size,0)
+})
+test('actual collector and adapter compose with54 acknowledgments before end and export afterward',async t=>{
+ const {captureOrdinaryPointerTraceDiagnostic:collect,ordinaryTracePolicy}=await import('../scripts/browser-performance/ordinary-pointer-trace-diagnostic.mjs')
+ const {EventEmitter}=await import('node:events'),{mkdtempSync,rmSync,readFileSync}=await import('node:fs'),{tmpdir}=await import('node:os'),{join}=await import('node:path')
+ const output=mkdtempSync(join(tmpdir(),'pnd-window-integration-'));t.after(()=>rmSync(output,{recursive:true,force:true}))
+ const f=fixture(),session=new EventEmitter(),browserSession=new EventEmitter();let ended=false,endCount=0,exportSeen=false
+ const evaluate=f.page.evaluate
+ f.page.evaluate=async(fn,arg)=>{if(fn.toString().includes('const p=api.stop(success)')){assert.equal(ended,true);exportSeen=true}return evaluate(fn,arg)}
+ session.send=async method=>{
+  if(method==='Tracing.getCategories')return {categories:ordinaryTracePolicy.categories}
+  if(method==='Target.getTargetInfo')return {targetInfo:{targetId:'supplied'}}
+  if(method==='Runtime.evaluate')return {result:{}}
+  if(method==='Tracing.end'){assert.equal(f.disposed,54);assert.equal(exportSeen,false);ended=true;endCount++;session.emit('Tracing.tracingComplete',{dataLossOccurred:false,stream:'owned'})}
+  if(method==='IO.read'){assert.equal(exportSeen,true);return {data:'{"traceEvents":[]}',eof:true}}
+  return {}
+ }
+ browserSession.send=async method=>method==='SystemInfo.getProcessInfo'?{processInfo:[]}:{}
+ session.detach=browserSession.detach=async()=>{}
+ f.page.context=()=>({newCDPSession:async()=>session})
+ const r=await collect({browser:{newBrowserCDPSession:async()=>browserSession},page:f.page,output,capture:captureOrdinaryPointerBrowser})
+ assert.equal(endCount,1);assert.equal(r.outcome.status,'completed');assert.equal(r.outcome.value.evidence.measured.length,48)
+ const receipt=JSON.parse(readFileSync(join(output,'ordinary-pointer-diagnostic/receipt.json')))
+ assert.equal(receipt.inputWindowCompleted,true);assert.equal(receipt.transportCleanupConfirmed,true);assert.equal(r.cleanupConfirmed,true)
+})
+test('actual adapter cannot swallow collector falsey end/marker failure or post-end geometry rejection',async t=>{
+ const {captureOrdinaryPointerTraceDiagnostic:collect,ordinaryTracePolicy}=await import('../scripts/browser-performance/ordinary-pointer-trace-diagnostic.mjs')
+ const {EventEmitter}=await import('node:events'),{mkdtempSync,rmSync,readFileSync}=await import('node:fs'),{tmpdir}=await import('node:os'),{join}=await import('node:path')
+ for(const stage of ['end','marker','geometry']){
+  const output=mkdtempSync(join(tmpdir(),'pnd-window-failure-'));t.after(()=>rmSync(output,{recursive:true,force:true}))
+  const f=fixture(),session=new EventEmitter(),browserSession=new EventEmitter();let endCount=0
+  session.send=async(method,args)=>{
+   if(method==='Tracing.getCategories')return {categories:ordinaryTracePolicy.categories}
+   if(method==='Target.getTargetInfo')return {targetInfo:{targetId:'supplied'}}
+   if(method==='Runtime.evaluate'){if(stage==='marker'&&args.expression.includes('capture-end'))throw false;return {result:{}}}
+   if(method==='Tracing.end'){
+    endCount++;if(stage==='end')throw null
+    if(stage==='geometry')f.geometry.writeWitness=(a,p)=>{for(let n=0;n<113;n++)a[p+n]=2}
+    session.emit('Tracing.tracingComplete',{dataLossOccurred:false,stream:'owned'})
+   }
+   if(method==='IO.read')return {data:'{"traceEvents":[]}',eof:true}
+   return {}
+  }
+  browserSession.send=async method=>method==='SystemInfo.getProcessInfo'?{processInfo:[]}:{}
+  session.detach=browserSession.detach=async()=>{};f.page.context=()=>({newCDPSession:async()=>session})
+  let rejected=false,error
+  try{await collect({browser:{newBrowserCDPSession:async()=>browserSession},page:f.page,output,capture:captureOrdinaryPointerBrowser,schedule:(fn,ms)=>setTimeout(fn,ms===2000?5:1000)})}catch(e){rejected=true;error=e}
+  assert.equal(rejected,true)
+  if(stage==='end')assert.equal(error,null);else if(stage==='marker')assert.equal(error,false);else assert.ok(error instanceof Error)
+  const receipt=JSON.parse(readFileSync(join(output,'ordinary-pointer-diagnostic/receipt.json')))
+  assert.equal(receipt.status,'failed');assert.equal(endCount,1);assert.equal(f.listeners.size,0)
+  if(stage!=='geometry')assert.equal(receipt.inputWindowFailed,true);else assert.equal(receipt.captureOutcome,'failed')
+ }
+})

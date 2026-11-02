@@ -11,8 +11,9 @@ import { ordinaryPointerResultWitness } from './ordinary-pointer-result-witness.
 
 // Called after the existing reviewed snapshot setup/geometry installation and
 // F8 preparation. It never loads worlds or mutates scene/picker state itself.
-export async function captureOrdinaryPointerBrowser({ page, enabled = false }) {
+export async function captureOrdinaryPointerBrowser({ page, enabled = false, afterInputCapture }) {
   assert.equal(enabled, true, 'Explicit functional adapter opt-in required')
+  assert.ok(afterInputCapture===undefined||typeof afterInputCapture==='function','Diagnostic boundary must be callable')
   const captureSource = readFileSync(new URL('./ordinary-pointer-capture-buffer.mjs', import.meta.url), 'utf8')
   assert.equal((captureSource.match(/export function createOrdinaryPointerCaptureBuffer/g) ?? []).length, 1)
   const epoch = randomBytes(32).toString('hex')
@@ -70,6 +71,9 @@ export async function captureOrdinaryPointerBrowser({ page, enabled = false }) {
       assertOrdinaryPointerCallbackAck(expected,status)
     }
     check()
+    // Optional diagnostic boundary only: all54 exact acknowledgments are complete.
+    // Final geometry, observer stop, export and replay remain mandatory afterward.
+    if(afterInputCapture){await afterInputCapture({completed:54});check()}
     const after=await page.evaluate(epoch=>{
       const api=window.__pndOrdinaryPointerObserver
       if(api?.epoch!==epoch)throw Error('Observer epoch changed before final geometry')
