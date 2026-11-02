@@ -997,6 +997,8 @@
         "app/scene-terrain-runtime.ts",
         "app/runtime-terrain-picking.ts",
         "app/neutral-cursor.ts",
+        "app/game-clock.ts",
+        "app/tribe-camera.ts",
         "scripts/browser-performance/snapshot-drag-contract.mjs",
         "scripts/browser-performance/snapshot-drag-observer.mjs",
         "tests/browser-snapshot-drag.test.mjs"

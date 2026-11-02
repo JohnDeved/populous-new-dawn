@@ -414,6 +414,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
     'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId,
+    "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1",
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
