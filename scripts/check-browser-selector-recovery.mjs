@@ -7,9 +7,10 @@ import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 // Use the real React effect, loader, deadline and public retry/mission controls.
 export async function checkSelectorRecovery({ browser, url, output }) {
   const context = await browser.newContext({ viewport: { width: 640, height: 480 } })
-  let page
+  let page, releasing = false
   const releases = [], handlers = []
   const releaseHeld = async () => {
+    releasing = true
     for (const release of releases.splice(0)) release()
     await Promise.all(handlers)
   }
@@ -27,7 +28,7 @@ export async function checkSelectorRecovery({ browser, url, output }) {
       held++
       heldAt ??= performance.now()
       const task = (async () => {
-        await new Promise(resolve => { releases.push(resolve) })
+        if (!releasing) await new Promise(resolve => { releases.push(resolve) })
         // The deadline disposes the image request. Do not fulfill canceled bytes.
         await route.abort('failed')
       })()
@@ -54,8 +55,8 @@ export async function checkSelectorRecovery({ browser, url, output }) {
     assert.equal(await page.locator('.world-viewport canvas').count(), 0)
     await page.screenshot({ path: resolve(output, 'selector-artwork-timeout.png') })
     checks.push('held artwork reaches actual 10-second fallback; locked/unlocked mission inspection remains usable')
-    await page.unroute(sun, hold)
     await releaseHeld()
+    await page.unrouteAll({ behavior: 'wait' })
     await retry.click()
     await ready()
     assert.equal(await retry.count(), 0)
@@ -97,8 +98,8 @@ export async function checkSelectorRecovery({ browser, url, output }) {
     return result
   } finally {
     try {
-      await page?.unroute('**/original/world-selector/globes/sun.png')
       await releaseHeld()
+      await page?.unrouteAll({ behavior: 'wait' })
     } finally { await context.close() }
   }
 }
