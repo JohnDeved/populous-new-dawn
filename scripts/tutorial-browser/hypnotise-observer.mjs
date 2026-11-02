@@ -3,15 +3,16 @@ import assert from 'node:assert/strict'
 export const hypnotiseLimitMs = 75000
 export const hypnotiseObservationMs = 12000
 
-// RAF artwork observation plus an owned, transparent afterTurn witness. No
+// RAF artwork observation plus owned, transparent before/afterTurn witnesses. No
 // forced ticks, hidden groups, changed frame/UV, stock injection or camera pursuit.
 export function installHypnotiseObserver({ observationMs }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock,
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
     result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], nonAdvancingCallbacks: 0, crops: [], bornTurn: null,
-      terminal: null, hook: { installed: false, restored: false, foreign: false } }
+      terminal: null, birthHook: { installed: false, restored: false, foreign: false }, hook: { installed: false, restored: false, foreign: false } }
   let raf, flash, stopped = false, lastKey, lastObservedTurn, originalDescriptor, ownedDescriptor, hookActive = false
+  let beforeDescriptor, ownedBeforeDescriptor, beforeActive = false
   const sameDescriptor = (a, b) => !!a && !!b &&
     ['value', 'writable', 'get', 'set', 'enumerable', 'configurable'].every(key => a[key] === b[key])
   const recordError = error => {
@@ -30,12 +31,27 @@ export function installHypnotiseObserver({ observationMs }) {
     result.hook.restored = sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), originalDescriptor)
     if (!result.hook.restored) throw Error('Hypnotise afterTurn restoration failed')
   }
+  const restoreBefore = () => {
+    if (!beforeActive) return
+    beforeActive = false
+    if (!sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'beforeTurn'), ownedBeforeDescriptor)) {
+      result.birthHook.foreign = true
+      throw Error('Hypnotise observer lost its owned beforeTurn descriptor')
+    }
+    if (beforeDescriptor) Object.defineProperty(clock, 'beforeTurn', beforeDescriptor)
+    else delete clock.beforeTurn
+    result.birthHook.restored = beforeDescriptor
+      ? sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'beforeTurn'), beforeDescriptor)
+      : !Object.hasOwn(clock, 'beforeTurn')
+    if (!result.birthHook.restored) throw Error('Hypnotise beforeTurn restoration failed')
+  }
   const stop = reason => {
     if (stopped) return
     stopped = true
     result.done = true
     try { cancelAnimationFrame(raf) } catch (error) { recordError(error) }
     try { restoreHook() } catch (error) { recordError(error) }
+    try { restoreBefore() } catch (error) { recordError(error) }
     try {
       result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame,
         elapsedMs: performance.now() - started, present: !!flash && world.effects.includes(flash),
@@ -46,12 +62,39 @@ export function installHypnotiseObserver({ observationMs }) {
     if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world ||
       scene.world !== world || scene.gameClock !== clock)
       throw Error('Hypnotise observer lost its original Scene/world/clock')
+    if (beforeActive && !sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'beforeTurn'), ownedBeforeDescriptor))
+      throw Error('Hypnotise observer lost its owned beforeTurn descriptor')
     if (hookActive && !sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), ownedDescriptor))
       throw Error('Hypnotise observer lost its owned afterTurn descriptor')
   }
   const reserveSample = () => {
     if (result.samples.length + result.turnSamples.length >= 2048)
       throw Error('Hypnotise sample storage exceeded')
+  }
+  const acquireBirth = boundary => {
+    if (flash) return
+    flash = world.effects.find(f => f.kind === 'hypnotise' && f.team === 'blue')
+    if (!flash) return
+    result.bornTurn = world.turn
+    lastObservedTurn = world.turn
+    result.birth = { boundary, id: flash.id, remaining: flash.turnsRemaining,
+      stock: world.shots.hypnotise, x: flash.x, z: flash.z,
+      cue: world.sounds.some(s => s.cue === 0x2a && s.turn === world.turn && s.x === flash.x && s.z === flash.z) }
+  }
+  function beforeTurn(...args) {
+    let returned, failure, threw = false
+    try { returned = beforeDescriptor?.value == null ? undefined : Reflect.apply(beforeDescriptor.value, this, args) }
+    catch (value) { failure = value; threw = true }
+    if (!stopped) {
+      try {
+        if (threw) throw failure
+        current()
+        // Observe actual birth before the next fixed turn can decrement it; never backdate RAF state.
+        acquireBirth('before-turn')
+      } catch (error) { recordError(error); stop('error') }
+    }
+    if (threw) throw failure
+    return returned
   }
   function afterTurn(...args) {
     let returned, failure, threw = false
@@ -63,7 +106,7 @@ export function installHypnotiseObserver({ observationMs }) {
         current()
         if (flash) {
           // Restore at logical expiry, but keep the existing post-render RAF terminal witness.
-          if (!world.effects.includes(flash)) restoreHook()
+          if (!world.effects.includes(flash)) { restoreHook(); restoreBefore() }
           else if (world.turn === lastObservedTurn) result.nonAdvancingCallbacks++
           else {
             if (world.turn !== lastObservedTurn + 1)
@@ -90,15 +133,8 @@ export function installHypnotiseObserver({ observationMs }) {
       if (!canvas.isConnected || document.visibilityState !== 'visible' || world.paused || world.speed !== 1)
         throw Error('Hypnotise observation must remain connected, visible and running at normal speed')
       if (scene.renderer.getContext().isContextLost()) throw Error('Hypnotise WebGL context lost')
-      if (!flash) {
-        flash = world.effects.find(f => f.kind === 'hypnotise' && f.team === 'blue')
-        if (!flash) { raf = requestAnimationFrame(visit); return }
-        result.bornTurn = world.turn
-        lastObservedTurn = world.turn
-        result.birth = { id: flash.id, remaining: flash.turnsRemaining,
-          stock: world.shots.hypnotise, x: flash.x, z: flash.z,
-          cue: world.sounds.some(s => s.cue === 0x2a && s.turn === world.turn && s.x === flash.x && s.z === flash.z) }
-      }
+      acquireBirth('raf')
+      if (!flash) { raf = requestAnimationFrame(visit); return }
       if (!world.effects.includes(flash)) { stop('logical-expiry'); return }
       const group = scene.fxMeshes.get(flash.id), sprite = group?.userData.sprite,
         animation = flash.animation, stamp = scene.renderer.info.render.frame,
@@ -171,6 +207,15 @@ export function installHypnotiseObserver({ observationMs }) {
     Object.defineProperty(clock, 'afterTurn', ownedDescriptor)
     hookActive = true
     result.hook.installed = true
+    beforeDescriptor = Object.getOwnPropertyDescriptor(clock, 'beforeTurn')
+    if ((!beforeDescriptor && 'beforeTurn' in clock) || (beforeDescriptor &&
+      (!Object.hasOwn(beforeDescriptor, 'value') || (beforeDescriptor.value != null && typeof beforeDescriptor.value !== 'function'))))
+      throw Error('Hypnotise beforeTurn must be an own data callback or absent')
+    ownedBeforeDescriptor = beforeDescriptor ? { ...beforeDescriptor, value: beforeTurn }
+      : { configurable: true, enumerable: true, writable: true, value: beforeTurn }
+    Object.defineProperty(clock, 'beforeTurn', ownedBeforeDescriptor)
+    beforeActive = true
+    result.birthHook.installed = true
     raf = requestAnimationFrame(visit)
   } catch (error) { recordError(error); stop('error') }
 }
@@ -185,6 +230,7 @@ export function validateHypnotiseObservation(observation, atlas) {
   assert.equal(observation.birth.remaining, 16)
   assert.equal(observation.birth.stock, 0)
   assert.equal(observation.birth.cue, true)
+  assert.deepEqual(observation.birthHook, { installed: true, restored: true, foreign: false })
   assert.deepEqual(observation.hook, { installed: true, restored: true, foreign: false })
   assert.ok(observation.samples.length + observation.turnSamples.length <= 2048)
   const visible = observation.samples.filter(s => s.visible)
