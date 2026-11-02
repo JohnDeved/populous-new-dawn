@@ -169,7 +169,7 @@ test('late preparation cannot overwrite a terminal receipt', async t => {
 })
 test('actual runner smoke cleanup branch avoids duplicate unbounded browser close', async () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
-  const start = source.indexOf("  if (selectedScenario === 'ordinary-pointer-smoke') {", source.indexOf('} finally {\n  clearTimeout(timer)'))
+  const start = source.indexOf("  if (selectedScenario === 'ordinary-pointer-calibration') {", source.indexOf('} finally {\n  clearTimeout(timer)'))
   assert.ok(start > 0)
   const end = source.indexOf('  // The original timer', start)
   const run = new (Object.getPrototypeOf(async function () {}).constructor)(
