@@ -1343,6 +1343,7 @@ export default function Home() {
                     view = spellHudButton(visibility, {
                       model: s.model,
                       permanent,
+                      mode2ChargingAllowed: !!(world.manaWorld.gameFlags & 256),
                       charging:
                         canCharge &&
                         !(world.manaWorld.spells[player].disabled & (1 << (s.model - 1))),
