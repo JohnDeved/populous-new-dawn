@@ -280,7 +280,7 @@ const historicalDragSourceProfiles = Object.freeze([
 // Historical routes remain byte-exact; no new-log/old-CPU mixtures are admitted.
 // Bind the shared queue resolver too, not just its new call-site submissions.
 // This is source admission only, not performance equivalence or a new benchmark.
-export const dragSourceProfiles = Object.freeze([
+const prePrefixDragSourceProfiles = Object.freeze([
   ...historicalDragSourceProfiles,
   Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
     ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
@@ -288,6 +288,23 @@ export const dragSourceProfiles = Object.freeze([
         sha256: '4c06971b6ece6c52eebc066fe594af406551cf362d9660db2c0e774d5bf9b344' } : slice)),
     Object.freeze({ id: 'resource-queue-owner', path: 'app/world-picking.ts', start: null, end: null,
       sha256: '45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611' }),
+  ]) }),
+])
+// The reviewed packed-index scan preserves subarray and observable read order.
+// Bind the actual import and complete helper alongside the changed query prefix;
+// all earlier routes remain exact. This is source admission, not a timing result.
+export const dragSourceProfiles = Object.freeze([
+  ...prePrefixDragSourceProfiles,
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-index-prefix-v1', slices: Object.freeze([
+    ...prePrefixDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
+      slice.id === 'query-inputs' ? { ...slice,
+        sha256: '24f5b777648c375b65881a98ddd1d3b821d90f58835a6a9d54a1a2db78d8ba75' } : slice)),
+    Object.freeze({ id: 'terrain-index-prefix-import', path: 'app/render-view.ts',
+      start: "import { terrainIndicesBelowCount } from './terrain-index-prefix.ts'",
+      end: "\nimport { OrdinaryNumericProjection } from './ordinary-numeric-projection.ts'",
+      sha256: '55c946c6005723ae61f5cddee8b73dcd848205964b49a911362c01873701de2a' }),
+    Object.freeze({ id: 'terrain-index-prefix-owner', path: 'app/terrain-index-prefix.ts', start: null, end: null,
+      sha256: '6bb91aae4c469e3d9a47e71aae6a1b11dde5e636b0b9335aef969807a048c38a' }),
   ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')

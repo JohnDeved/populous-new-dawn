@@ -343,6 +343,7 @@
   "app/swarm.ts",
   "app/temple-art.ts",
   "app/terrain-ambience.ts",
+  "app/terrain-index-prefix.ts",
   "app/terrain-light.ts",
   "app/terrain-notifications.ts",
   "app/terrain-submission-owner.ts",

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
@@ -8,6 +9,25 @@ import { installSnapshotDragObserver } from '../scripts/browser-performance/snap
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
 const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
+const prefixProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-index-prefix-v1'
+// Reconstruct only the exact reviewed predecessor for historical fixtures.
+// Production admission never normalizes source or weakens historical profiles.
+function prePrefixRead(path) {
+  let source = readFileSync(resolve(root, path), 'utf8')
+  if (path === 'app/render-view.ts') {
+    assert.equal(createHash('sha256').update(source).digest('hex'), 'fcecf7399a2ddc62737944a84bbd6e2bd3d95a81ccb14e071d24629152cc5eac')
+    for (const [current, previous] of [
+      ["import { terrainIndicesBelowCount } from './terrain-index-prefix.ts'\n", ''],
+      ["terrainIndicesBelowCount(index!.array.subarray(0, count) as Uint32Array, position)",
+        "index!.array.subarray(0, count).every((id: number) => id < position.count)"],
+    ]) {
+      assert.equal(source.split(current).length, 2, 'exact reviewed prefix inverse boundary')
+      source = source.replace(current, previous)
+    }
+    assert.equal(createHash('sha256').update(source).digest('hex'), '4988a6e4da0aa303b22b7014bfc03319ba1a61012d2436a2c7c696e23275e461')
+  }
+  return source
+}
 // Literal inverse of PR831's reviewed resource route, only for historical fixtures.
 // Production admission never strips or normalizes candidate source.
 const looseLogDeltas = [
@@ -62,7 +82,7 @@ const looseLogDeltas = [
         if (command.eligible && inHitBounds(point, command.bounds))
           result = { kind: 'person', id: command.id }`],
  ]
-function preLooseLogRead(path, read = name => readFileSync(resolve(root, name), 'utf8')) {
+function preLooseLogRead(path, read = prePrefixRead) {
   let source = read(path)
   for (const [owner, current, previous] of looseLogDeltas) if (path === owner) {
     assert.equal(source.split(current).length, 2, 'exact reviewed loose-log inverse boundary')
@@ -339,7 +359,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === prefixProfileId ? 21 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -392,7 +412,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, prefixProfileId].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -413,7 +433,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const candidate = dragSourceProfiles.find(profile => profile.id === newId)
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
-    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId,
+    'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, prefixProfileId,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -758,8 +778,8 @@ test('two fixed six-input observers retain one absolute recorder epoch and never
 
 
 test('loose-log source admission is additive and binds the exact shared queue owner', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
-  const current = inspectDragSource(root), previous = inspectDragSource(root, preLooseLogRead)
+  const read = prePrefixRead
+  const current = inspectDragSource(root, read), previous = inspectDragSource(root, preLooseLogRead)
   assert.equal(current.profile, looseLogProfileId)
   assert.equal(previous.profile, combinedCpuProfileId)
   for (const result of [current, previous]) {
