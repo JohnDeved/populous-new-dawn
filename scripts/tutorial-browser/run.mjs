@@ -48,6 +48,14 @@ if (selectedScenario === 'ordinary-pointer-smoke') {
     assert.ok(policy.ordinaryPointerSmokeSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
       process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Smoke requires exact-head Ready event label')
 }
+let ordinaryPointerCalibrationPolicy
+if (selectedScenario === 'ordinary-pointer-calibration') {
+  const policy = await import('../browser-performance/ordinary-pointer-calibration-policy.mjs')
+  ordinaryPointerCalibrationPolicy = policy.ordinaryPointerCalibrationPolicy
+  closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
+  assert.ok(policy.ordinaryPointerCalibrationSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+    process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario), 'Calibration requires exact trusted-main dispatch')
+}
 if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
 const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
@@ -168,8 +176,10 @@ try {
     verifySource(); save()
   }
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
+  if (selectedScenario !== 'ordinary-pointer-calibration') {
   browser = await chromium.launch(captureProtocolEnabled ? { ...browserConfig.launch, env: descendantEnv } : browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
+  }
   receipt.browserCapMs = browserCapMs(selectedScenario)
   const browserStartedMs = performance.now()
   browserDeadlineAt = Date.now() + receipt.browserCapMs
@@ -177,9 +187,10 @@ try {
   if (['gameplay-frames', 'gameplay-resources'].includes(selectedScenario)) receipt.gameplayResourceSplitBudget = gameplayResourceSplitBudget
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.browserBudget = ordinaryPointerSmokePolicy
+  else if (selectedScenario === 'ordinary-pointer-calibration') receipt.browserBudget = ordinaryPointerCalibrationPolicy
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -192,6 +203,15 @@ try {
   } else if (selectedScenario === 'ordinary-pointer-smoke') {
     receipt.ordinaryPointerSmoke = {}
     await (await import('../browser-performance/ordinary-pointer-smoke.mjs')).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist, receipt: receipt.ordinaryPointerSmoke })
+  } else if (selectedScenario === 'ordinary-pointer-calibration') {
+    receipt.ordinaryPointerCalibration = {}
+    await (await import('../browser-performance/ordinary-pointer-calibration.mjs')).default({
+      chromium, launch: browserConfig.launch, url, output: out, source,
+      expectedRevision: receipt.buildRevision, dist,
+      browserIdentity: { path: browserPath, sha256: receipt.browserSha256, version: browserBinaryVersion },
+      receipt: receipt.ordinaryPointerCalibration,
+    })
+    assert.equal(receipt.ordinaryPointerCalibration.status, 'passed', 'Calibration inconclusive or failed; inspect retained aggregate evidence')
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
     // Preserve the completed frontend episode, then use an independent context
@@ -295,11 +315,19 @@ try {
     try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
+  else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 
 } finally {
   clearTimeout(timer)
-  if (selectedScenario === 'ordinary-pointer-smoke') {
+  if (selectedScenario === 'ordinary-pointer-calibration') {
+    receipt.calibrationRunnerCleanup = {
+      aggregateConfirmed: receipt.ordinaryPointerCalibration?.cleanupVerified === true,
+      server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
+    }
+    receipt.cleanupVerified = receipt.calibrationRunnerCleanup.aggregateConfirmed && receipt.calibrationRunnerCleanup.server.confirmed
+    if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
+  } else if (selectedScenario === 'ordinary-pointer-smoke') {
     receipt.smokeRunnerCleanup = {
       browser: receipt.ordinaryPointerSmoke?.browserCleanup?.confirmed
         ? { confirmed: true, alreadyClosedBySmoke: true }

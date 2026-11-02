@@ -1,0 +1,116 @@
+name: Trusted ordinary pointer calibration
+'on':
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: Exact reviewed main SHA; must equal workflow ref SHA
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: ordinary-pointer-calibration-trusted-main
+  cancel-in-progress: false
+jobs:
+  ordinary-pointer-calibration:
+    name: Trusted same-source ordinary pointer calibration
+    if: ${{ github.ref == 'refs/heads/main' && inputs.expected_sha == github.sha }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      POPULOUS_BROWSER_SCENARIO: ordinary-pointer-calibration
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+    - name: Check out exact trusted main
+      id: checkout
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - name: Set up Node
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+      with:
+        node-version: 24.19.0
+        architecture: x64
+        package-manager-cache: false
+    - name: Install locked dependencies and verify supported Chrome
+      run: |
+        manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+        case "$manager" in
+          pnpm@11.25.0)
+            test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+            npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+            pnpm install --frozen-lockfile --ignore-scripts
+            ;;
+          npm@11.9.0)
+            npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+            npm ci --no-audit --no-fund
+            ;;
+        esac
+        printf 'Candidate package manager: %s\n' "$manager"
+        printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
+        test -x /opt/google/chrome/chrome
+        /opt/google/chrome/chrome --version
+    - name: Record exact tested source
+      run: |
+        test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        printf 'Trusted main: %s\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+        node --version
+        "$PND_PACKAGE_MANAGER" --version
+        if [ "$PND_PACKAGE_MANAGER" = pnpm ]; then
+          sha256sum package-lock.json pnpm-lock.yaml pnpm-workspace.yaml node_modules/.modules.yaml node_modules/.pnpm/lock.yaml node_modules/playwright-core/browsers.json
+        else
+          sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
+        fi
+    - name: Run fixed sequential calibration and held-out same-source control
+      run: timeout --signal=TERM --kill-after=5s 1500s node scripts/tutorial-browser/run.mjs
+    - name: Reject tracked input mutation
+      if: ${{ always() && steps.checkout.outcome == 'success' }}
+      run: git diff --exit-code HEAD --
+    - name: Bound all retained aggregate and session evidence
+      id: smoke-bounds
+      if: ${{ always() }}
+      run: |-
+        python3 - <<'PY'
+        import pathlib,stat
+        root=pathlib.Path('outputs/tutorial-browser')
+        sessions={'C1','C2','C3','P1-A1','P1-A2','P2-A2','P2-A1','P3-A1','P3-A2'}
+        totals={name:0 for name in sessions};aggregate=0
+        if root.exists():
+            selected=[root/'receipt.json',root/'build.log',root/'ordinary-pointer-calibration']
+            def visit(path):
+                global aggregate
+                if not path.exists() and not path.is_symlink(): return
+                mode=path.lstat().st_mode
+                assert not stat.S_ISLNK(mode), 'Artifact symlink forbidden'
+                if stat.S_ISDIR(mode):
+                    for child in path.iterdir(): visit(child)
+                    return
+                assert stat.S_ISREG(mode), 'Artifact must be regular'
+                size=path.stat().st_size
+                assert size<=8*1024*1024, 'Individual artifact cap'
+                rel=path.relative_to(root).parts
+                if len(rel)>=3 and rel[0]=='ordinary-pointer-calibration' and rel[1] in sessions:
+                    totals[rel[1]]+=size
+                else: aggregate+=size
+            for path in selected: visit(path)
+            assert all(size<=32*1024*1024 for size in totals.values()), 'Session evidence cap'
+            assert aggregate<=8*1024*1024, 'Aggregate including outer receipt/build log cap'
+            assert aggregate+sum(totals.values())<=296*1024*1024, 'Total evidence cap'
+        PY
+    - name: Retain bounded smoke and raw numeric evidence
+      if: ${{ always() && steps.smoke-bounds.outcome == 'success' }}
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+      with:
+        name: ordinary-pointer-calibration-${{ github.sha }}-${{ github.run_id }}
+        path: |
+          outputs/tutorial-browser/receipt.json
+          outputs/tutorial-browser/build.log
+          outputs/tutorial-browser/ordinary-pointer-calibration/
+        if-no-files-found: warn
+        retention-days: 7
