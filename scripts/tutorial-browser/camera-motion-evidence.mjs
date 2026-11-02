@@ -12,31 +12,43 @@ export const cameraMotionPolicy = Object.freeze({ routeMs:180000, operationMs:17
 
 // Overview evidence begins after ordinary public introduction dismissal. The two
 // flyby cases must instead observe the untouched natural gate and never dismiss it.
-export async function prepareCameraIntroduction({page,naturalFlyby,step,wait,receipt}) {
-  const read=()=>page.evaluate(()=>({flyby:!!(window.testScene.world.flyby.flags&1),inputMask:window.testScene.world.inputMask}))
+export async function prepareCameraIntroduction({page,naturalFlyby,step,wait,receipt,now=()=>performance.now()}) {
+  const start=now(),deadline=start+15000
+  let last=start
+  const remaining=()=>{const value=now();assert.ok(Number.isFinite(value)&&value>=last&&value<deadline,'Camera preparation deadline exceeded');last=value;return deadline-value}
+  const read=()=>page.evaluate(()=>({flyby:!!(window.testScene.world.flyby.flags&1),inputMask:window.testScene.world.inputMask,paused:!!window.testScene.world.paused,turn:window.testScene.world.turn??null,started:!!window.testScene.started,modalSuspended:!!window.testScene.modalSuspended}))
   const preparation={kind:naturalFlyby?'natural-flyby':'overview',stage:'observe-before',skipClicked:false}
   ;(receipt.preparations??=[]).push(preparation)
   preparation.before=await step(read)
+  // bindGame proves connected ownership, not that authored startup has begun.
+  // Retain the maintained openGame flyby-or-unmasked transition before branching.
+  if(!preparation.before.flyby&&preparation.before.inputMask) {
+    preparation.stage='await-startup'
+    await wait(page,()=>!!(window.testScene.world.flyby.flags&1)||!window.testScene.world.inputMask,undefined,remaining())
+    preparation.startup=await step(read)
+  }
+  const admitted=preparation.startup??preparation.before
   if(naturalFlyby) {
-    assert.equal(preparation.before.flyby&&!!preparation.before.inputMask,true,'Natural flyby gate missed; no retry')
+    assert.equal(admitted.flyby&&!!admitted.inputMask,true,'Natural flyby gate missed; no retry')
   } else {
-    if(preparation.before.flyby) {
+    if(admitted.flyby) {
       preparation.stage='public-skip'
-      await step(()=>page.locator('.skip-introduction').click())
+      await step(()=>page.locator('.skip-introduction').click({timeout:remaining()}))
       preparation.skipClicked=true
     }
     preparation.stage='await-ground'
-    await wait(page,()=>!(window.testScene.world.flyby.flags&1)&&!window.testScene.world.inputMask)
+    await wait(page,()=>!(window.testScene.world.flyby.flags&1)&&!window.testScene.world.inputMask,undefined,remaining())
   }
   preparation.stage='observe-after'
   preparation.after=await step(read)
   if(naturalFlyby) assert.equal(preparation.after.flyby&&!!preparation.after.inputMask,true,'Natural flyby gate missed; no retry')
+  remaining()
   preparation.stage='complete'
 }
 
 export async function runCameraMotionCases({ browser,url,check,write,receipt,ownContext,releaseContext }) {
   const step=async fn=>{check();const value=await fn();check();return value}
-  const wait=async(page,fn,arg)=>{const handle=await step(()=>page.waitForFunction(fn,arg,{timeout:15000}));await handle.dispose();check()}
+  const wait=async(page,fn,arg,timeout=15000)=>{const handle=await step(()=>page.waitForFunction(fn,arg,{timeout}));await handle.dispose();check()}
   const observe=page=>step(()=>page.evaluate(()=>window.__pndCameraMotion.read()))
   const mark=(page,phase)=>step(()=>page.evaluate(phase=>window.__pndCameraMotion.mark(phase),phase))
   const ready=async naturalFlyby=>{
