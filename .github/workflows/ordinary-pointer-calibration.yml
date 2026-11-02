@@ -1,5 +1,7 @@
 name: Trusted ordinary pointer calibration
 'on':
+  issue_comment:
+    types: [created]
   workflow_dispatch:
     inputs:
       expected_sha:
@@ -8,13 +10,21 @@ name: Trusted ordinary pointer calibration
         type: string
 permissions:
   contents: read
+  issues: read
+  pull-requests: read
 concurrency:
   group: ordinary-pointer-calibration-trusted-main
   cancel-in-progress: false
 jobs:
   ordinary-pointer-calibration:
     name: Trusted same-source ordinary pointer calibration
-    if: ${{ github.ref == 'refs/heads/main' && inputs.expected_sha == github.sha }}
+    if: >-
+      ${{ github.ref == 'refs/heads/main' &&
+      ((github.event_name == 'workflow_dispatch' && inputs.expected_sha == github.sha) ||
+      (github.event_name == 'issue_comment' && github.event.action == 'created' &&
+      github.event.issue.number == 895 && github.event.comment.user.id == 24187269 &&
+      github.event.sender.id == 24187269 && github.run_attempt == 1 &&
+      github.event.comment.body == format('/ordinary-pointer-calibration {0}', github.sha))) }}
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
@@ -38,6 +48,11 @@ jobs:
         node-version: 24.19.0
         architecture: x64
         package-manager-cache: false
+    - name: Verify owner comment and current trusted main before installation
+      if: ${{ github.event_name == 'issue_comment' }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: node scripts/browser-performance/ordinary-pointer-comment-admission.mjs
     - name: Install locked dependencies and verify supported Chrome
       run: |
         manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
@@ -68,6 +83,8 @@ jobs:
           sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
         fi
     - name: Run fixed sequential calibration and held-out same-source control
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: timeout --signal=TERM --kill-after=5s 1500s node scripts/tutorial-browser/run.mjs
     - name: Reject tracked input mutation
       if: ${{ always() && steps.checkout.outcome == 'success' }}

@@ -56,7 +56,7 @@ test('actual cleanup requires aggregate and server proof, never launches or clos
 test('aggregate bypasses generic context/timer; smoke budget and diagnostic runner pin remain exact',()=>{
  assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration'].includes(selectedScenario))"))
  assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else\s+timer = setTimeout/)
- assert.match(source,/ordinaryPointerCalibrationSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario\)/)
+ assert.match(source,/ordinaryPointerCalibrationSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env\)/)
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
  assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
 })
