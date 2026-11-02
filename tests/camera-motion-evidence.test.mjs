@@ -182,3 +182,39 @@ test('receipt fallback stays bounded even for oversized report and primary error
  assert.equal(r.disk.status,'failed');assert.equal(r.disk.detailsOmitted,true)
  assert.ok(Buffer.byteLength(JSON.stringify(r.disk))<1024*1024)
 })
+
+async function preparationCase({naturalFlyby=false,flyby=true,inputMask=64,clickFailure,clickThrows=false}={}) {
+ const source=readFileSync(new URL('../scripts/tutorial-browser/camera-motion-evidence.mjs',import.meta.url),'utf8')
+ const start=source.indexOf('    await step(()=>bindGame(page))')
+ const end=source.indexOf("    await step(()=>page.locator('.world-viewport canvas').focus())",start)
+ assert.ok(start>=0&&end>start)
+ const body=source.slice(start,end),helperStart=source.indexOf('export async function prepareCameraIntroduction(')
+ const helper=helperStart<0?'':source.slice(helperStart,source.indexOf('export async function runCameraMotionCases',helperStart)).replace('export ','')
+ const world={flyby:{flags:flyby?1:0},inputMask},calls=[],receipt={}
+ const page={evaluate:async fn=>runInNewContext('('+fn.toString()+')()',{window:{testScene:{world}}}),
+  locator:selector=>({click:async()=>{calls.push(selector);if(clickThrows)throw clickFailure;world.flyby.flags=0;world.inputMask=0}})}
+ const step=async fn=>fn(),wait=async(p,fn)=>{calls.push('wait-ground');if(!await p.evaluate(fn))throw Error('supplied gate remains active')}
+ const execute=runInNewContext(helper+'\n(async()=>{'+body+'})',{assert,page,naturalFlyby,receipt,step,wait,bindGame:async()=>calls.push('bind')})
+ let failed=false,error;try{await execute()}catch(e){failed=true;error=e}
+ return {failed,error,calls,receipt,world}
+}
+test('actual overview preparation dismisses active introduction through public locator before unchanged ground predicate',async()=>{
+ const r=await preparationCase();assert.equal(r.failed,false)
+ assert.deepEqual(r.calls,['bind','.skip-introduction','wait-ground'])
+ assert.equal(r.receipt.preparations[0].skipClicked,true)
+ assert.equal(r.receipt.preparations[0].stage,'complete')
+})
+test('actual natural flyby preparation remains untouched and missed gate fails without skip',async()=>{
+ const r=await preparationCase({naturalFlyby:true});assert.equal(r.failed,false);assert.deepEqual(r.calls,['bind']);assert.equal(r.world.flyby.flags,1)
+ const missed=await preparationCase({naturalFlyby:true,flyby:false,inputMask:0});assert.equal(missed.failed,true);assert.deepEqual(missed.calls,['bind'])
+})
+test('already grounded overview does not click and unrelated input mask is not bypassed',async()=>{
+ const r=await preparationCase({flyby:false,inputMask:0});assert.equal(r.failed,false);assert.deepEqual(r.calls,['bind','wait-ground'])
+ const blocked=await preparationCase({flyby:false,inputMask:64});assert.equal(blocked.failed,true);assert.deepEqual(blocked.calls,['bind','wait-ground'])
+ assert.equal(blocked.receipt.preparations[0].stage,'await-ground')
+ assert.equal(blocked.receipt.preparations[0].before.inputMask,64)
+})
+test('public skip falsey failure is retained with bounded stage attribution and no retry',async()=>{
+ const r=await preparationCase({clickThrows:true,clickFailure:null});assert.equal(r.failed,true);assert.equal(r.error,null)
+ assert.deepEqual(r.calls,['bind','.skip-introduction']);assert.equal(r.receipt.preparations[0].stage,'public-skip');assert.equal(r.receipt.preparations[0].skipClicked,false)
+})

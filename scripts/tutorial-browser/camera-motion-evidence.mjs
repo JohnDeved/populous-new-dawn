@@ -10,6 +10,30 @@ export const cameraMotionPolicy = Object.freeze({ routeMs:180000, operationMs:17
   cleanupMs:2000, artifactBytes:24*1024*1024, totalArtifactBytes:32*1024*1024, outerArtifactBytes:8*1024*1024, screenshotBytes:2*1024*1024,
   maximumScreenshots:9, maximumContexts:3, maximumFrames:12000, maximumEvents:2048 })
 
+// Overview evidence begins after ordinary public introduction dismissal. The two
+// flyby cases must instead observe the untouched natural gate and never dismiss it.
+export async function prepareCameraIntroduction({page,naturalFlyby,step,wait,receipt}) {
+  const read=()=>page.evaluate(()=>({flyby:!!(window.testScene.world.flyby.flags&1),inputMask:window.testScene.world.inputMask}))
+  const preparation={kind:naturalFlyby?'natural-flyby':'overview',stage:'observe-before',skipClicked:false}
+  ;(receipt.preparations??=[]).push(preparation)
+  preparation.before=await step(read)
+  if(naturalFlyby) {
+    assert.equal(preparation.before.flyby&&!!preparation.before.inputMask,true,'Natural flyby gate missed; no retry')
+  } else {
+    if(preparation.before.flyby) {
+      preparation.stage='public-skip'
+      await step(()=>page.locator('.skip-introduction').click())
+      preparation.skipClicked=true
+    }
+    preparation.stage='await-ground'
+    await wait(page,()=>!(window.testScene.world.flyby.flags&1)&&!window.testScene.world.inputMask)
+  }
+  preparation.stage='observe-after'
+  preparation.after=await step(read)
+  if(naturalFlyby) assert.equal(preparation.after.flyby&&!!preparation.after.inputMask,true,'Natural flyby gate missed; no retry')
+  preparation.stage='complete'
+}
+
 export async function runCameraMotionCases({ browser,url,check,write,receipt,ownContext,releaseContext }) {
   const step=async fn=>{check();const value=await fn();check();return value}
   const wait=async(page,fn,arg)=>{const handle=await step(()=>page.waitForFunction(fn,arg,{timeout:15000}));await handle.dispose();check()}
@@ -26,9 +50,7 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
     await step(()=>page.getByRole('button',{name:'Mission 1',exact:true}).focus())
     await step(()=>page.keyboard.press('Enter'))
     await step(()=>bindGame(page))
-    // Never skip, hold or manually step the ordinary introduction.
-    if(naturalFlyby) assert.equal(await step(()=>page.evaluate(()=>!!(window.testScene.world.flyby.flags&1)&&!!window.testScene.world.inputMask)),true,'Natural flyby gate missed; no retry')
-    else await wait(page,()=>!(window.testScene.world.flyby.flags&1)&&!window.testScene.world.inputMask)
+    await prepareCameraIntroduction({page,naturalFlyby,step,wait,receipt})
     await step(()=>page.locator('.world-viewport canvas').focus())
     await step(()=>page.mouse.move(720,500))
     return {context,page}
