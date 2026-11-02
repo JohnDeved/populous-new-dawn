@@ -91,3 +91,13 @@ to relax admission or rerun unchanged. Source-level Chromium documentation is no
 proof of the exact hosted binary's behavior. A green workflow means this narrowly
 specified procedure and envelope checks passed; it is not performance acceptance,
 a causal GC/scheduler diagnosis, a speedup, or authorization to activate a benchmark.
+
+## Metadata-only service initialization experiment
+
+The explicitly selected trace route first invokes the reviewed initializer once on the same exclusively owned browser/page, before target observation and ordinary collection. Its excluded-all trace still retains Chromium metadata; it is not event-free. Empty or partial post-initialization categories fail closed. The ordinary collector independently repeats its existing strict six-category admission; initialization is never a replacement for that guard.
+
+The initializer's inclusive ten-second limit consumes the existing smoke watchdog and 178-second active / 180-second total route budget. It does not grant an extra ten seconds or guarantee a fresh 90-second capture. Conservative 102-second route headroom is checked before initialization, with the existing 92-second collector headroom checked afterward. Every failure remains subject to the existing owned-browser cleanup; pending operations retain uncertainty.
+
+Both raw streams share the existing eight-MiB write allowance, enforced before writes. Initialization additionally retains its one-MiB individual stream cap. Both receipts and the outer logs share the existing one-MiB metadata limit; the 32-MiB session and 41-MiB aggregate limits are unchanged. Only the exact initialization artifact subdirectory is added to retention. No files from a prior attempt are overwritten or reused.
+
+This remains a source-backed experiment, not proof that cold registration caused the earlier empty inventory or that initialization repairs actual Chrome. Supplied controls do not admit a live run. Source review, ordinary hosted gates, trusted-main admission and separate authorization/reconciliation still precede any diagnostic selection. No automatic retry, performance comparison, schema/GC/stack qualification or causal interpretation is introduced.

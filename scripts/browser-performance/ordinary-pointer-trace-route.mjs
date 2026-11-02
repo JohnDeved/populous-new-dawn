@@ -1,8 +1,9 @@
 // One explicitly selected diagnostic. Import does not launch Chrome or collect data.
 import assert from 'node:assert/strict'
-import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync,openSync,readSync,closeSync} from 'node:fs'
+import {readFileSync,writeFileSync,mkdirSync,readdirSync,lstatSync,openSync,readSync,closeSync,writeSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {createHash} from 'node:crypto'
+import {initializeOrdinaryTraceService} from './ordinary-pointer-trace-initialization.mjs'
 import {captureOrdinaryPointerTraceDiagnostic} from './ordinary-pointer-trace-diagnostic.mjs'
 import {closeOrdinaryPointerSmokeOwner,ordinaryPointerSmokeArtifact} from './ordinary-pointer-smoke-policy.mjs'
 
@@ -17,10 +18,10 @@ export function ordinaryPointerTraceFiles(output){
   let sessionBytes=0,traceBytes=0,metadataBytes=0;const files=[]
   const visit=(path,group)=>{if(!lstatSync(path).isDirectory())throw Error('Diagnostic directory required');for(const name of readdirSync(path).sort()){
     const file=resolve(path,name),s=lstatSync(file);assert.ok(!s.isSymbolicLink(),'Diagnostic symlink forbidden')
-    if(s.isDirectory()){assert.equal(group,'session');assert.equal(name,'ordinary-pointer-diagnostic');visit(file,'diagnostic');continue}
+    if(s.isDirectory()){assert.equal(group,'session');assert.ok(['ordinary-pointer-diagnostic','ordinary-pointer-trace-initialization'].includes(name),'Unexpected artifact directory');visit(file,name==='ordinary-pointer-trace-initialization'?'initialization':'diagnostic');continue}
     assert.ok(s.isFile(),'Diagnostic regular artifact required');assert.ok(s.size<=P.traceBytes,'Individual artifact cap')
     const rel=file.slice(resolve(output).length+1)
-    if(group==='diagnostic'&&name==='trace.json.partial')traceBytes+=s.size
+    if((group==='diagnostic'||group==='initialization')&&name==='trace.json.partial'){if(group==='initialization')assert.ok(s.size<=1024*1024,'Initialization trace cap');traceBytes+=s.size}
     else if(group==='session')sessionBytes+=s.size
     else metadataBytes+=s.size
     files.push({path:rel,bytes:s.size,sha256:fileHash(file)})
@@ -40,7 +41,7 @@ export function ordinaryPointerTraceFiles(output){
 export default async function ordinaryPointerTraceRoute({chromium,launch,url,output,source,expectedRevision,dist,browserIdentity,admit,receipt={},
   runSmoke=async args=>(await import('./ordinary-pointer-smoke.mjs')).default(args),
   capture=async args=>(await import('./ordinary-pointer-browser-adapter.mjs')).captureOrdinaryPointerBrowser(args),
-  collector=captureOrdinaryPointerTraceDiagnostic,
+  collector=captureOrdinaryPointerTraceDiagnostic,initialize=initializeOrdinaryTraceService,
   observe=async send=>(await import('./ordinary-pointer-trace-qualification.mjs')).observeOrdinaryTraceTarget(send),
   qualify=async evidence=>(await import('./ordinary-pointer-trace-qualification.mjs')).qualifyOrdinaryTrace(evidence),
   closeOwner=closeOrdinaryPointerSmokeOwner,now=()=>performance.now(),schedule=setTimeout,cancel=clearTimeout}){
@@ -49,12 +50,14 @@ export default async function ordinaryPointerTraceRoute({chromium,launch,url,out
   Object.assign(receipt,{version:1,role:P.role,policy:P,status:'incomplete',comparisonEligible:false,interpretationEligible:false,
     sourceCommit:source.commit,expectedRevision,browserIdentity:{...browserIdentity}})
   let owner,metadataSession,timer,stopped=false,finalized=false,failed=false,primary,operationSettled=false,launchPending=false,
-    started,last,initialClockFailed=false,initialClockError,smokeReceipt={},captureSettled=false,captureTask
+    started,last,sharedTraceBytes=0,initialClockFailed=false,initialClockError,smokeReceipt={},captureSettled=false,captureTask
   const safeClose=async action=>{try{return await closeOwner(action)}catch(error){return {confirmed:false,error}}}
   const verifyBrowser=()=>assert.equal(fileHash(browserIdentity.path),browserIdentity.sha256,'Exact Chrome binary changed')
   const save=()=>{if(!finalized){const text=ordinaryPointerSmokeArtifact(receipt);assert.ok(Buffer.byteLength(text)<=P.metadataBytes);writeFileSync(resolve(root,'route.json'),text)}}
   try{started=now();assert.ok(Number.isFinite(started)&&started>=0);last=started}catch(e){initialClockFailed=true;initialClockError=e;receipt.initialClockFailed=true}
   const check=()=>{if(initialClockFailed)throw initialClockError;const t=now();assert.ok(Number.isFinite(t)&&t>=last,'Monotonic trace route clock');last=t;assert.ok(!stopped&&t-started<P.activeMs,'Trace route deadline/terminal')}
+  // Both raw streams share the existing cap; no extra allowance for initialization.
+  const traceWrite=(fd,bytes)=>{check();assert.ok(sharedTraceBytes+bytes.length<=P.traceBytes,'Shared trace output cap');const count=writeSync(fd,bytes);sharedTraceBytes+=count;return count}
   const execute=async()=>{
     try{
       check();verifyBrowser();receipt.admission=await admit();check();save()
@@ -66,6 +69,15 @@ export default async function ordinaryPointerTraceRoute({chromium,launch,url,out
           captureTask=(async()=>{
           check();let value,localFailed=false,localError
           try{
+            // This also consumes the unchanged smoke watchdog; it does not grant 90+10 seconds.
+            assert.ok(P.activeMs-(last-started)>=102000,'Insufficient remaining fixed route budget for initialization and trace owner')
+            const initialization=await initialize({browser:owner,page:args.page,output:sessionOutput,write:traceWrite});check()
+            assert.equal(initialization.status,'initialized-unqualified','Initialization status')
+            assert.equal(initialization.transportCleanupConfirmed,true,'Initialization cleanup')
+            assert.equal(initialization.operationSettled,true,'Initialization pending operation')
+            assert.equal(initialization.streamEof,true,'Initialization EOF');assert.equal(initialization.streamClosed,true,'Initialization stream close')
+            assert.equal(initialization.interpretationEligible,false);assert.equal(initialization.comparisonEligible,false)
+            receipt.initialization={status:initialization.status,bytes:initialization.bytes,transportCleanupConfirmed:true,interpretationEligible:false,comparisonEligible:false};save()
             metadataSession=await args.page.context().newCDPSession(args.page);check()
             const send=async(method,params)=>{check();const result=await metadataSession.send(method,params);check();return result}
             const before=await observe(send);check()
@@ -73,7 +85,7 @@ export default async function ordinaryPointerTraceRoute({chromium,launch,url,out
             const saveBinding=(value,first=false)=>{check();const text=ordinaryPointerSmokeArtifact(value);assert.ok(Buffer.byteLength(text)<=P.metadataBytes);writeFileSync(bindingPath,text,first?{flag:'wx'}:undefined)}
             saveBinding({status:'observed-before',before},true)
             assert.ok(P.activeMs-(last-started)>=92000,'Insufficient remaining fixed route budget for trace owner')
-            value=await collector({browser:owner,page:args.page,capture,output:sessionOutput});check()
+            value=await collector({browser:owner,page:args.page,capture,output:sessionOutput,write:traceWrite});check()
             const after=await observe(send);check();saveBinding({status:'observed-before-after',before,after})
             const collectorReceipt=boundedJson(resolve(sessionOutput,'ordinary-pointer-diagnostic/receipt.json'),P.metadataBytes)
             assert.equal(collectorReceipt.status,'raw-stream-only-unqualified');assert.equal(collectorReceipt.streamEof,true)
