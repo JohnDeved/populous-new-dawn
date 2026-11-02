@@ -63,7 +63,7 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
     await step(()=>page.keyboard.press('Enter'))
     await step(()=>bindGame(page))
     await prepareCameraIntroduction({page,naturalFlyby,step,wait,receipt})
-    await step(()=>page.locator('.world-viewport canvas').focus())
+    await step(()=>page.locator('.world-viewport canvas.battlefield').focus())
     await step(()=>page.mouse.move(720,500))
     return {context,page}
   }
