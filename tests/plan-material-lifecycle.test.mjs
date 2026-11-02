@@ -34,6 +34,7 @@ async function setup(t, count = 1) {
   // Only unrelated browser/audio/UI leaves are replaced in this Node fixture.
   Object.assign(scene, {
     disposed: false,
+    tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] },
     cancelNearbyFollowers: noop,
     ownedSounds: new Map(),
     terrainLoad: new AbortController(),

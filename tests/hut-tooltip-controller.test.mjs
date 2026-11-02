@@ -7,6 +7,163 @@ import { tooltipCallerFixture as callerFixture } from './support/tooltip-scene.m
 
 const nop = () => {}
 
+test('input-drained pause and resume between RAFs exclude paused tooltip time exactly once', async t => {
+  const { scene, world, hut, frame, tooltipApi } = await callerFixture(t)
+  scene.started = true
+  scene.acquireForcedTooltip(tooltipApi.worldTooltipObject(world, hut.id), 20)
+  frame(1 / 48)
+  assert.equal(scene.tooltip.remaining, 20)
+  const now = scene.previous, visits = [], original = scene.updateTooltipController.bind(scene)
+  scene.updateTooltipController = timestamp => { visits.push(timestamp); original(timestamp) }
+  scene.advanceInputTime(now + 1000 / 48)
+  world.paused = true
+  scene.advanceInputTime(now + 1000)
+  world.paused = false
+  frame(1 + 1 / 48)
+  assert.equal(scene.tooltip.remaining, 19, 'only the two unpaused input/RAF portions count')
+  assert.deepEqual(visits, [scene.previous], 'frontend observes the real RAF timestamp')
+  assert.ok(Math.abs(scene.tooltipFrame.remainder - 1 / 48) < 1e-8)
+  frame(0)
+  assert.equal(scene.tooltip.remaining, 19, 'input-drained time cannot be counted twice')
+  frame(1 / 48)
+  assert.equal(scene.tooltip.remaining, 18, 'the fractional visit survives pause')
+
+  // Opening and closing a menu without a paint must also discard drained time.
+  scene.advanceInputTime(scene.previous + 1000 / 24)
+  scene.setModalSuspended(true)
+  scene.setModalSuspended(false)
+  frame(0)
+  assert.equal(scene.tooltip.remaining, 18)
+  assert.equal(scene.tooltipCameraActive, false)
+})
+
+// Supplied post-warmup native event records isolate cue ownership; the fixture's
+// real authored opening above remains intact. This is not public browser play.
+async function cueTimeline(world, events) {
+  const { createFlyby, addFlybyEvent } = await import('../app/flyby.ts')
+  world.flyby = createFlyby()
+  for (const [object, start, duration] of events) {
+    addFlybyEvent(world.flyby, {
+      kind: 5, flags: 2,
+      value: ((Math.round(object.x + 8) & 255) | ((Math.round(-object.z - 8) & 255) << 8)),
+      start, duration,
+    })
+  }
+  Object.assign(world.flyby, { flags: 17, frameRate: 24, averageRate: 24 })
+}
+
+test('same-visit cues acquire in order and separate catch-up groups retain intervening lifetime visits', async t => {
+  const { scene, world, hut, frame, tooltipApi } = await callerFixture(t)
+  const other = world.buildings.find(b => b.kind === 'hut' && b.id !== hut.id && b.hp > 0)
+  assert.ok(other)
+  await cueTimeline(world, [[hut, 0, 5], [other, 0, 7], [hut, 1, 9]])
+  for (const [index, id] of [[0, hut.id], [1, other.id]])
+    assert.equal(tooltipApi.forcedTooltipObject(world, 2, world.flyby.events[index].value)?.id, id)
+  const trace = [], timestamps = [],
+    acquire = scene.acquireForcedTooltip.bind(scene),
+    visit = scene.updateTooltipController.bind(scene)
+  scene.acquireForcedTooltip = (object, duration) => {
+    trace.push(['cue', object?.id, duration]); acquire(object, duration)
+  }
+  scene.updateTooltipController = now => {
+    visit(now); trace.push(['visit', scene.tooltip.remaining]); timestamps.push(now)
+  }
+  frame(3 / 24)
+  assert.deepEqual(trace, [
+    ['cue', hut.id, 5], ['cue', other.id, 7], ['visit', 6],
+    ['cue', hut.id, 9], ['visit', 8], ['visit', 7],
+  ])
+  assert.deepEqual(timestamps, Array(3).fill(scene.previous))
+  assert.equal(world.flyby.flags & 1, 0, 'natural completion retains and delivers the final cue')
+  assert.equal(scene.tooltipFrame.cueGroups.length, 0)
+})
+
+test('multiple suppressed cue groups resume FIFO across a retained fractional frontend visit', async t => {
+  const { scene, world, hut, frame } = await callerFixture(t)
+  frame(1 / 48)
+  assert.ok(Math.abs(scene.tooltipFrame.remainder - 1 / 48) < 1e-8)
+  await cueTimeline(world, [[hut, 0, 5], [hut, 1, 7], [hut, 2, 9]])
+  const renderCamera = scene.updateCameraMotion,
+    acquire = scene.acquireForcedTooltip.bind(scene),
+    visit = scene.updateTooltipController.bind(scene),
+    trace = [], timestamps = []
+  scene.acquireForcedTooltip = (object, duration) => {
+    trace.push(['cue', duration]); acquire(object, duration)
+  }
+  scene.updateTooltipController = now => {
+    visit(now); trace.push(['visit', scene.tooltip.remaining]); timestamps.push(now)
+  }
+  scene.updateCameraMotion = () => { scene.tooltipCameraActive = true; return true }
+  frame(3 / 24)
+  scene.updateCameraMotion = renderCamera
+  assert.deepEqual(trace, [], 'blocked lifetime is not visited')
+  assert.equal(scene.tooltipFrame.cueGroups.length, 3, 'only nonempty groups are retained')
+  assert.ok(Math.abs(scene.tooltipFrame.remainder - 1 / 48) < 1e-8)
+  frame(1 / 48)
+  assert.deepEqual(trace, [['cue', 5], ['visit', 4]])
+  assert.equal(scene.tooltipFrame.cueGroups.length, 2, 'one group per eligible visit')
+  frame(2 / 24)
+  assert.deepEqual(trace, [
+    ['cue', 5], ['visit', 4], ['cue', 7], ['visit', 6], ['cue', 9], ['visit', 8],
+  ])
+  assert.equal(scene.tooltipFrame.cueGroups.length, 0)
+  assert.ok(timestamps[0] < timestamps[1])
+  assert.equal(timestamps[1], timestamps[2], 'catch-up visits use one actual RAF timestamp')
+})
+
+test('a same-frame focus defers the final cue, keeps emission identity, and validates death at delivery', async t => {
+  const { scene, world, hut, frame } = await callerFixture(t)
+  const { requestCameraFocus } = await import('../app/camera-motion.ts')
+  await cueTimeline(world, [[hut, 0, 5]])
+  const previousAfter = scene.gameClock.afterTurn
+  scene.gameClock.afterTurn = () => {
+    previousAfter?.()
+    requestCameraFocus(scene.cameraMotion, scene.cameraPosition, {
+      ...scene.cameraPosition, x: (scene.cameraPosition.x + 1) & 65535,
+    })
+  }
+  world.speed = 1
+  world.pendingTime = 1 / 24
+  frame(1 / 24)
+  world.speed = 0
+  scene.gameClock.afterTurn = previousAfter
+  assert.equal(scene.cameraMotion.active, 0, 'focus completes in this catch-up frame')
+  assert.equal(world.flyby.flags & 1, 0)
+  assert.equal(scene.tooltipFrame.cueGroups.length, 1)
+  const cue = scene.tooltipFrame.cueGroups[0].cues[0]
+  assert.equal(cue.object.id, hut.id)
+  const capturedModel = cue.object.model
+  scene.skipIntroduction()
+  assert.equal(scene.tooltipFrame.cueGroups.length, 1, 'skip after natural completion is a no-op')
+  hut.hp = 0 // Controlled target-lifetime boundary, not an earned gameplay witness.
+  const acquired = [], acquire = scene.acquireForcedTooltip.bind(scene)
+  scene.acquireForcedTooltip = (object, duration) => {
+    acquired.push([object.id, object.model]); acquire(object, duration)
+  }
+  frame(1 / 24)
+  assert.deepEqual(acquired, [[hut.id, capturedModel]])
+  assert.equal(scene.tooltip.remaining, 0, 'live target validation rejects the retained dead target')
+  assert.equal(scene.tooltipFrame.cueGroups.length, 0)
+})
+
+test('accepted intro skip discards pending cues without manufacturing a frontend visit', async t => {
+  const { scene, world, hut, frame, cameraOwns } = await callerFixture(t)
+  await cueTimeline(world, [[hut, 0, 5], [hut, 100, 9]])
+  // Emit normally, then suppress the composed drain in the same render callback.
+  const renderCamera = scene.updateCameraMotion
+  scene.updateCameraMotion = () => { scene.tooltipCameraActive = true; return true }
+  frame(1 / 24)
+  scene.updateCameraMotion = renderCamera
+  assert.equal(scene.tooltipFrame.cueGroups.length, 1)
+  const visits = scene.tooltipSession.visits
+  scene.skipIntroduction()
+  assert.equal(scene.tooltipFrame.cueGroups.length, 0)
+  assert.equal(scene.tooltipSession.visits, visits)
+  cameraOwns(false)
+  frame(0)
+  assert.equal(scene.tooltipSession.visits, visits)
+})
+
 test('actual Hut paint waits for admitted controller visits before its first display', async t => {
   const { scene, hut, frame } = await callerFixture(t)
   frame(0)

@@ -67,7 +67,7 @@ for(const mode of ['live','modal'])test(`${mode} shipped render call restores on
    const source=readFileSync(new URL('../app/scene.ts',import.meta.url),'utf8')
    const body=source.slice(source.indexOf('  animate = (now:'),source.indexOf('  private updateTerrainFrame()'))
    const owner=vm.runInNewContext(stripTypeScriptTypes(`new (class {${body}})()`),{document:{hidden:true},devicePixelRatio:1,requestAnimationFrame(){scheduled++}})
-   Object.assign(owner,{isCurrent:()=>true,renderer,view:{painter:f.painter},scene:f.scene,camera:f.camera,modalSuspended:true})
+   Object.assign(owner,{isCurrent:()=>true,renderer,view:{painter:f.painter},scene:f.scene,camera:f.camera,modalSuspended:true,updateTooltipFrame(now,suspended){assert.equal(now,10);assert.equal(suspended,true)}})
    assert.throws(()=>owner.animate(10),e=>e===error)
   }
   assert.strictEqual(f.mesh.geometry.groups,f.groups);assert.strictEqual(f.mesh.material,f.material)

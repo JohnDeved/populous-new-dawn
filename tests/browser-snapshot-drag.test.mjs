@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
@@ -8,6 +9,26 @@ import { installSnapshotDragObserver } from '../scripts/browser-performance/snap
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
 const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
+const cameraProfileId = 'owned-numeric-terrain-chronological-camera-v1'
+const combinedCameraProfileId = 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-v1'
+const retirementCameraProfileIds = [
+  'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-v1',
+  'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1',
+  'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1',
+  'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-v1',
+  'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-v1',
+  'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-v1',
+]
+// Pinned main source DATA for historical-only readers. Production admission and
+// current-route tests still read the actual tree; never normalize live owners.
+const preCameraFixtures = JSON.parse(readFileSync(resolve(root,
+  'tests/fixtures/snapshot-drag-pre-camera-owners.json'), 'utf8'))
+function preCameraRead(path) {
+  const fixture = preCameraFixtures[path]
+  if (!fixture) return readFileSync(resolve(root, path), 'utf8')
+  assert.equal(createHash('sha256').update(fixture.source).digest('hex'), fixture.sha256)
+  return fixture.source
+}
 // Literal inverse of PR831's reviewed resource route, only for historical fixtures.
 // Production admission never strips or normalizes candidate source.
 const looseLogDeltas = [
@@ -62,7 +83,7 @@ const looseLogDeltas = [
         if (command.eligible && inHitBounds(point, command.bounds))
           result = { kind: 'person', id: command.id }`],
  ]
-function preLooseLogRead(path, read = name => readFileSync(resolve(root, name), 'utf8')) {
+function preLooseLogRead(path, read = preCameraRead) {
   let source = read(path)
   for (const [owner, current, previous] of looseLogDeltas) if (path === owner) {
     assert.equal(source.split(current).length, 2, 'exact reviewed loose-log inverse boundary')
@@ -339,7 +360,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, [combinedCameraProfileId, ...retirementCameraProfileIds].includes(profile.id) ? 23 : profile.id === cameraProfileId ? 21 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -392,7 +413,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId, cameraProfileId, combinedCameraProfileId, ...retirementCameraProfileIds].includes(inspectDragSource(root).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -414,6 +435,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   const epoch = dragSourceProfiles.find(profile => profile.id === epochId)
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
     'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId,
+    cameraProfileId, combinedCameraProfileId, ...retirementCameraProfileIds,
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -690,8 +712,18 @@ test('production held-right pointer callback calls native object query before or
   scene.cameraPosition = { x: 40192, y: 23808, angle: 0 }; scene.cameraVelocity = { turn: 0, forward: 0, side: 0 }
   scene.pointerGesture = { pointerId: 1, button: 2 }; scene.dragLast = { x: point.clientX, y: point.clientY }
   scene.cameraMotion = { active: 0 }; scene.captureCamera = () => {}; scene.updateView = () => {}
+  const cameras = scene.world.cameras, player = scene.world.manaWorld.playerTribe
+  const pose = cameras.tribes[player], held = structuredClone(cameras.held)
+  const otherTribes = cameras.tribes.map((tribe, index) => index === player ? null : { ...tribe })
+  assert.equal(cameras.phase, 'idle')
+  assert.equal(scene.cameraPosition, pose, 'actual prototype alias uses the persisted player owner')
+  assert.equal(Object.hasOwn(scene, 'cameraPosition'), false, 'no fixture shadow pose')
   pointerMove(scene, { pointerId: 1, buttons: 2, clientX: point.clientX + 1, clientY: point.clientY })
   assert.equal(scene.cameraPosition.angle, 1); assert.deepEqual(scene.cameraVelocity, { turn: 0, forward: 0, side: 0 })
+  assert.equal(scene.cameraPosition, pose, 'held drag must retain the persisted pose object')
+  assert.equal(cameras.phase, 'idle', 'off-grid camera scope restores ownership')
+  assert.deepEqual(cameras.held, held, 'drag does not consume or replace held corrections')
+  assert.deepEqual(cameras.tribes.map((tribe, index) => index === player ? null : { ...tribe }), otherTribes)
   const first = createPointerFrameMetrics(true); updatePointerFrame(scene, 100, first)
   assert.deepEqual(calls, [['native', 'old'], ['ordinary', 'old']]); assert.equal(prefix, 'new')
   assert.equal(scene.hoveredObject, null); assert.equal(scene.tooltipInput.picked, unit.id)
@@ -758,8 +790,8 @@ test('two fixed six-input observers retain one absolute recorder epoch and never
 
 
 test('loose-log source admission is additive and binds the exact shared queue owner', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
-  const current = inspectDragSource(root), previous = inspectDragSource(root, preLooseLogRead)
+  const read = preCameraRead
+  const current = inspectDragSource(root, preCameraRead), previous = inspectDragSource(root, preLooseLogRead)
   assert.equal(current.profile, looseLogProfileId)
   assert.equal(previous.profile, combinedCpuProfileId)
   for (const result of [current, previous]) {

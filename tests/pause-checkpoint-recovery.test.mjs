@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -187,7 +188,7 @@ function homeProps(store) {
 test('actual Home retry binding recovers a stored checkpoint without replacing the active world', async () => {
   const saved = createWorld(2, 'scalable')
   saved.turn = 217
-  await withStorage({ latest: { version: 3, world: saved } }, async ({ freshStore, writes, drain }) => {
+  await withStorage({ latest: { version: CHECKPOINT_VERSION, world: saved } }, async ({ freshStore, writes, drain }) => {
     const store = await freshStore()
     assert.equal(await store.restoreCheckpoint(), false)
     store.startMission(1)
@@ -218,7 +219,7 @@ test('actual Home retry binding recovers a stored checkpoint without replacing t
 test('a newer in-session Save wins over a delayed lookup started through the pause UI', async () => {
   const saved = createWorld(2, 'scalable')
   saved.turn = 217
-  await withStorage({ latest: { version: 3, world: saved } }, async ({ freshStore, drain }) => {
+  await withStorage({ latest: { version: CHECKPOINT_VERSION, world: saved } }, async ({ freshStore, drain }) => {
     const store = await freshStore()
     await store.restoreCheckpoint()
     const ui = fixture(homeProps(store))

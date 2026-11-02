@@ -35,11 +35,26 @@ for (const stage of stages) test(`actual ${stage} marks bracket settled transpor
   }
 })
 
-test('only fourteen bounded marks are added; original trajectory, assertions, input and deadline bytes are identical', () => {
+test('fourteen bounded marks preserve the reviewed camera-settled trajectory and exact historical inverse', () => {
   const added = source.split('\n').filter(line => stages.some(stage => line.includes('/' + stage + ':')))
   assert.equal(added.length, 14)
   const original = source.split('\n').filter(line => !stages.some(stage => line.includes('/' + stage + ':'))).join('\n')
-  assert.equal(createHash('sha256').update(original).digest('hex'), 'f606d85cc8ae796502df9e3a1edf07a71adfc08d9bf652033b2de4c3da4cd7cf')
+  // The independently reviewed camera setup adds one pre-hover settlement gate.
+  // Pin its exact current bytes, then prove that reversing only that migration
+  // recovers the original trajectory. Never normalize arbitrary source changes.
+  assert.equal(createHash('sha256').update(original).digest('hex'), '5b01ad1723b4d6c80420f1f63b8c594db77168c8c1deb0d678312455ae2acf81')
+  const settledWait = `    // Camera controller time belongs to advanceGame, including ordinary pause.
+    // Wait for the requested view to settle before choosing a real hover target.
+    await page.waitForFunction(() => {
+      const scene = window.testSceneRef.current
+      return !scene.viewTransition && scene.buildingMeshes.has(window.buildingIdentity.old.id)
+    })`
+  const previousWait = `    await page.waitForFunction(() =>
+      window.testSceneRef.current.buildingMeshes.has(window.buildingIdentity.old.id)
+    )`
+  assert.equal(original.split(settledWait).length, 2, 'Exactly one reviewed pre-hover settlement gate')
+  const historical = original.replace(settledWait, previousWait)
+  assert.equal(createHash('sha256').update(historical).digest('hex'), 'f606d85cc8ae796502df9e3a1edf07a71adfc08d9bf652033b2de4c3da4cd7cf')
   // Four fixed cases: fourteen marks each, never dependent on polling counts.
   assert.equal(added.length * 4, 56)
   assert.ok(source.includes('buildingPanelIdentityLimitMs = 35000'))

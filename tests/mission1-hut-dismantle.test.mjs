@@ -141,6 +141,9 @@ test('authored Hut resident reaches shipped dismantle input, partial Save/Load a
     }
   }
   assert.equal(partial?.target.remaining, 200, 'observe the first actual 100-unit transfer')
+  assert.equal(scene.objectPanels.buildingRecords.has(hut.id), false,
+    'the post-simulation frontend retires the newly invalid partial-Hut inspection')
+  assert.equal(partial.reservations, 0, 'no transient panel reservation survives into Save')
   world.paused = true // Controlled store test supplies the public menu's paused state.
   const saved = snapshot()
   assertHutPartialCheckpoint(baseline, saved)

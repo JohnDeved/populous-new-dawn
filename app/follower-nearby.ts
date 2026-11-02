@@ -7,13 +7,15 @@ export class FollowerNearbyMode {
   private anchor: number | null = null
   private previous: number | null = null
   private visits = 0
+  private cancellation = 0
   private pending: { world: World; nearby: boolean; arrived: number } | null = null
 
   request(world: World, now: number, cue: (id: number) => void) {
     if (!Number.isFinite(now)) return false
-    const nearby = !(world.castingTribes[0].flags & 128)
+    const nearby = !(world.castingTribes[0].flags & 128),
+      cancellation = this.cancellation
     cue(nearby ? 0x6e : 0x6f)
-    if (this.pending) return false
+    if (this.cancellation !== cancellation || this.pending) return false
     this.pending = { world, nearby, arrived: now }
     return true
   }
@@ -45,6 +47,7 @@ export class FollowerNearbyMode {
   }
 
   cancel() {
+    this.cancellation++
     this.pending = null
   }
 

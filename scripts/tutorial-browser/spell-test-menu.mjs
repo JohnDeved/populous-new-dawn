@@ -59,11 +59,17 @@ export function startSpellTestDiagnostics(page, report) {
     } finally { pending = false }
   }
   const timer = setInterval(sample, 250)
+  function mark(stage) {
+    if (stopped) return
+    diagnostics.stage = stage
+    diagnostics.stages.push({ stage, elapsedMs: elapsed() })
+  }
   return {
+    // Attribution only: no extra page read or polling beyond existing stages.
+    mark,
     stage(stage) {
       if (stopped) return
-      diagnostics.stage = stage
-      diagnostics.stages.push({ stage, elapsedMs: elapsed() })
+      mark(stage)
       void sample()
     },
     stop() {
@@ -121,8 +127,17 @@ export default async function spellTestMenu({ browser, url, output }) {
       await bindGame(page)
       diagnostics.stage(`${phase}: await input or introduction`)
       const state = await page.waitForFunction(() => !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction'))
-      if (await page.locator('.skip-introduction').isVisible()) await page.locator('.skip-introduction').click()
+      diagnostics.mark(`${phase}: input or introduction predicate resolved`)
+      const skipVisible = await page.locator('.skip-introduction').isVisible()
+      diagnostics.mark(`${phase}: skip introduction visible=${skipVisible}`)
+      if (skipVisible) {
+        diagnostics.mark(`${phase}: skip introduction click pending`)
+        await page.locator('.skip-introduction').click()
+        diagnostics.mark(`${phase}: skip introduction click completed`)
+      }
+      diagnostics.mark(`${phase}: readiness handle disposal pending`)
       await state.dispose()
+      diagnostics.mark(`${phase}: readiness handle disposed`)
       diagnostics.stage(`${phase}: await unlocked input`)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }

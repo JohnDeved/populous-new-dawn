@@ -106,12 +106,16 @@ function createPanel(scene: GameScene, b: Building) {
     const button = document.createElement('button')
     button.type = 'button'
     button.addEventListener('click', event => {
+      scene.advanceInputTime()
+      if (scene.disposed) return
       const building = currentPanelBuilding(scene, panel),
         person = building && currentPanelOccupant(scene, building, Number(button.dataset.person))
       if (!building || !person) return
       selectBuildingOccupants(scene.world, building, person.id, event.shiftKey)
       scene.onSound(0x6a)
+      if (scene.disposed) return
       scene.onChange()
+      if (scene.disposed) return
       scene.renderBuildingPanels()
     })
     button.addEventListener('contextmenu', event => {
@@ -120,6 +124,7 @@ function createPanel(scene: GameScene, b: Building) {
         u = building && currentPanelOccupant(scene, building, Number(button.dataset.person))
       if (!u) return
       scene.focus(u, { animate: true })
+      if (scene.disposed) return
       scene.objectPanels.open(u.id, true)
       scene.onSound(0x6a)
     })
@@ -129,11 +134,15 @@ function createPanel(scene: GameScene, b: Building) {
   dismantle.type = 'button'
   dismantle.className = 'dismantle-control'
   dismantle.addEventListener('click', () => {
+    scene.advanceInputTime()
+    if (scene.disposed) return
     const building = currentPanelBuilding(scene, panel)
     if (!building) return
     dismantleBuilding(scene.world, building)
     scene.onSound(0x6a)
+    if (scene.disposed) return
     scene.onChange()
+    if (scene.disposed) return
     scene.renderBuildingPanels()
   })
   panel.appendChild(dismantle)

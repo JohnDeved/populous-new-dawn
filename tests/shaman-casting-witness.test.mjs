@@ -482,7 +482,7 @@ test('actual ordinary-readiness callback admits naturally resting Mission 1, not
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
   const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'window'),
     authored = createWorld(1), clock = { animationTime: 0, animationFrame: 0 },
-    scene = { world: authored, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} },
+    scene = { world: authored, tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] }, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} },
     stop = new Error('Captured production readiness callback')
   let world = authored, ready
   globalThis.window = { testStore: { getWorld: () => world, hasUsedCheats: () => false } }
@@ -553,7 +553,7 @@ test('ordinary Mission 1 casting retains native ground turning rather than a fix
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts'),
     w = createWorld(1), clock = { animationTime: 0, animationFrame: 0 },
-    scene = { world: w, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} }
+    scene = { world: w, tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] }, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} }
   while (!(w.flyby.flags & 1) && w.turn < 144) advanceGame(w, clock, 1 / 12)
   skipIntroduction(scene)
   while (w.turn < 164) advanceGame(w, clock, 1 / 12)

@@ -1,3 +1,4 @@
+import { prepareSnapshotCamera, snapshotFinalCamera } from './snapshot-camera-setup.mjs'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { restoreCapacityPolicy } from '../../app/capacity-policy.ts'
 // Test-only authored snapshot transport and public-Load setup. Never imported by app/.
@@ -68,6 +69,7 @@ export async function createSnapshotFixture({ output, source }) {
   const { loadSceneFixture } = await import('../../tests/support/bloodlust-scene.mjs')
   const { createWorld, advanceGame, migrateCheckpoint, cancelInteraction } = await loadSceneFixture()
   const { skipIntroduction } = await import('../../app/scene-camera-runtime.ts')
+  const { createTooltipFrame } = await import('../../app/scene-tooltip-runtime.ts')
   const world = createWorld(2, 'scalable'), clock = { animationTime: 0, animationFrame: 0 }
   assert.equal(world.inputMask, 128, 'Authored startup contract changed')
   for (let frame = 0; frame < snapshotAuthoring.frames; frame++)
@@ -77,7 +79,7 @@ export async function createSnapshotFixture({ output, source }) {
   // The genuine controller owns the skip decision and input-mask release. The
   // minimal authoring context supplies only presentation outputs, not fake ticks.
   let changed = 0
-  skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
+  skipIntroduction({ world, tooltipFrame: createTooltipFrame(world.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() { changed++ } })
   assert.equal(changed, 1); assert.equal(world.inputMask, 0); assert.equal(world.flyby.flags, 20)
   const checkpoint = { version: CHECKPOINT_VERSION, world }
   const expectedWorld = migrateCheckpoint(migrateCheckpoint(structuredClone(world)))
@@ -192,8 +194,7 @@ export function assertSnapshotAdmission(state, fixture, previous) {
   assert.equal(state.viewport.devicePixelRatio, 1)
   const c = state.camera
   assert.deepEqual(c.viewPoint, { x: fixture.receipt.focus.x, z: fixture.receipt.focus.z })
-  assert.deepEqual(c.position, { x: Math.round((fixture.receipt.focus.x + 8) * 256) & 65535,
-    y: Math.round((-fixture.receipt.focus.z - 8) * 256) & 65535, angle: 0 })
+  assert.deepEqual(c.position, snapshotFinalCamera(fixture))
   assert.equal(c.presetMatches, true)
   assert.deepEqual(c.projection, { width: Math.max(1, Math.round(state.viewport.canvas.width)),
     height: Math.max(1, Math.round(state.viewport.canvas.height)) })
@@ -267,23 +268,7 @@ export async function loadSnapshot({ page, url, fixture, expectedRevision }) {
       window.__snapshotPauseLatch.release()
       delete window.__snapshotPauseLatch
     })
-    // The saved selected Shaman is already at the constructor's ordinary exact
-    // focus. The public focus request is therefore idempotent, not a timed pan.
-    await page.locator('canvas.battlefield').focus()
-    await page.keyboard.press(snapshotAuthoring.focusKey)
-    await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active)
-    const point = await page.evaluate(() => {
-      const c = window.testSceneRef.current.renderer.domElement, r = c.getBoundingClientRect()
-      const x = Math.floor(r.left + r.width / 2), y = Math.floor(r.top + r.height / 2)
-      if (document.elementFromPoint(x, y) !== c || document.elementFromPoint(x + 32, y) !== c)
-        throw Error('Public camera drag path is not owned by battlefield')
-      return { x, y }
-    })
-    for (const dx of [snapshotAuthoring.dragPixels, -snapshotAuthoring.dragPixels]) {
-      await page.mouse.move(point.x, point.y); await page.mouse.down({ button: 'right' })
-      try { await page.mouse.move(point.x + dx, point.y) } finally { await page.mouse.up({ button: 'right' }) }
-    }
-    await page.mouse.click(point.x, point.y, { button: 'right' })
+    await prepareSnapshotCamera(page, fixture)
     const first = await page.evaluate(observeSnapshotState)
     assertSnapshotAdmission(first, fixture)
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))

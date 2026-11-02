@@ -38,6 +38,7 @@ test('authored tree picking reaches the native hover override through the actual
     { ScenePicking } = await import('../app/scene-picking.ts'),
     { RenderView } = await import('../app/render-view.ts'),
     { createTooltip, worldTooltipObject } = await import('../app/tooltips.ts'),
+    { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts'),
     { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts'),
     { nativeModel } = await import('../app/scene-assets.ts'),
     world = api.createWorld(1),
@@ -62,6 +63,7 @@ test('authored tree picking reaches the native hover override through the actual
     flybyTime: 0,
     flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     tooltip: createTooltip(),
+    tooltipFrame: createTooltipFrame(world.cameras.elapsed),
     renderer: {
       getPixelRatio: () => 1,
       domElement: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 600 }) },
@@ -118,7 +120,9 @@ test('authored tree picking reaches the native hover override through the actual
   // the controlled phase samples below do not claim startup or clock parity.
   for (let frames = 0; frames < 24 * 60 && world.inputMask; frames++) {
     api.advanceGame(world, scene.gameClock, 1 / 24)
+    scene.tooltipFrame.elapsed += 1 / 24
     scene.updateFlyby(1 / 24)
+    scene.updateTooltipFrame((frames + 1) * 1000 / 24)
   }
   assert.equal(world.inputMask, 0, 'the authored opening must release ordinary hover input')
   scene.makeDecorations()

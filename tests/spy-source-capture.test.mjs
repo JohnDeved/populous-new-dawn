@@ -15,6 +15,7 @@ function fixture(t) {
     __pndSpySourceObservation: { result: { spyId: 7 } } }
   const scene = { world, gameClock: clock, started: true, disposed: false,
     previous: performance.now(), frame: 10,
+    advanceInputTime() {},
     renderer: { domElement: { isConnected: true }, info: { render: { frame: 0 } },
       getContext: () => ({ isContextLost: () => false }) },
     animate(now) {
@@ -27,7 +28,8 @@ function fixture(t) {
   Object.defineProperty(globalThis, 'window', { configurable: true, writable: true, value: win })
   Object.defineProperty(globalThis, 'document', { configurable: true, writable: true, value: { hidden: false } })
   const raf = Object.getOwnPropertyDescriptor(win, 'requestAnimationFrame'),
-    cancel = Object.getOwnPropertyDescriptor(win, 'cancelAnimationFrame')
+    cancel = Object.getOwnPropertyDescriptor(win, 'cancelAnimationFrame'),
+    input = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
   t.after(() => {
     win.__pndSpyCapture?.abandon()
     for (const [k, descriptor] of saved)
@@ -40,6 +42,7 @@ function fixture(t) {
     restored() {
       assert.deepEqual(Object.getOwnPropertyDescriptor(win, 'requestAnimationFrame'), raf)
       assert.deepEqual(Object.getOwnPropertyDescriptor(win, 'cancelAnimationFrame'), cancel)
+      assert.deepEqual(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), input)
     } }
 }
 
@@ -133,3 +136,41 @@ for (const owner of ['world', 'clock', 'animate'])
     assert.throws(() => f.capture().release(), /original live/)
     f.capture().abandon(); f.restored(); assert.equal(f.scheduled.size, 0)
   })
+
+// Production input-clock body extracted as text; no Scene/model construction.
+import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
+const sceneSource=readFileSync(new URL('../app/scene.ts',import.meta.url),'utf8');
+const begin=sceneSource.indexOf('  advanceInputTime(timestamp ='),end=sceneSource.indexOf('  private publishCameraInput() {',begin);
+assert.ok(begin>=0&&end>begin);
+const ActualInput=runInNewContext(`(class Input { ${sceneSource.slice(begin,end)} })`,{performance:{now:()=>999999},advanceGame:(w,c,seconds)=>{w.turn+=Math.floor(seconds*12);c.animationFrame+=Math.floor(seconds*24)},previewGroundZoom:()=>{}}).prototype.advanceInputTime;
+
+test('controlled public input invokes original clock at held timestamp, not real-event catch-up',t=>{
+ const f=fixture(t);f.world.cameras={phase:'idle'};f.scene.advanceInputTime=ActualInput;const original=Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime');f.start();f.world.paused=false;
+ const before={turn:f.world.turn,previous:f.scene.previous,frame:f.clock.animationFrame};
+ f.scene.advanceInputTime(f.scene.previous+5000);
+ assert.deepEqual({turn:f.world.turn,previous:f.scene.previous,frame:f.clock.animationFrame},before);
+ assert.equal(f.capture().result.inputCalls,1);
+ f.world.paused=true;f.capture().release();assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime'),original);
+ f.world.paused=false;f.scene.advanceInputTime(f.scene.previous+1100);assert.equal(f.world.turn,before.turn+13,'original chronological method restored');
+});
+test('inherited input method restored by deleting only owned shadow',t=>{
+ const f=fixture(t);delete f.scene.advanceInputTime;const proto={advanceInputTime(){}};Object.setPrototypeOf(f.scene,proto);f.start();assert.ok(Object.hasOwn(f.scene,'advanceInputTime'));f.capture().abandon();assert.equal(Object.hasOwn(f.scene,'advanceInputTime'),false);assert.equal(f.scene.advanceInputTime,proto.advanceInputTime);assert.equal(f.capture().result.inputRestored,true);
+});
+test('foreign input accessor is not invoked or overwritten on abandonment',t=>{
+ const f=fixture(t);f.start();let reads=0;Object.defineProperty(f.scene,'advanceInputTime',{configurable:true,get(){reads++;throw Error('foreign')}});const foreign=Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime');assert.throws(()=>f.capture().release(),/owned/);f.capture().abandon();assert.equal(reads,0);assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime'),foreign);assert.equal(f.capture().result.inputRestored,false);assert.equal(f.capture().result.released,false);assert.equal(f.scheduled.size,0);
+});
+test('changed inherited predecessor blocks restart without overwriting it',t=>{
+ const f=fixture(t);delete f.scene.advanceInputTime;const proto={advanceInputTime(){}};Object.setPrototypeOf(f.scene,proto);f.start();const next=()=>{};proto.advanceInputTime=next;assert.throws(()=>f.capture().release(),/owned/);f.capture().abandon();assert.equal(proto.advanceInputTime,next);assert.equal(f.capture().result.foreign,true);assert.equal(f.capture().result.resumedRAF,false);
+});
+test('input method failure is preserved and restoration remains available',t=>{
+ const f=fixture(t);const failure={};f.scene.advanceInputTime=()=>{throw failure};const original=Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime');f.start();assert.throws(()=>f.scene.advanceInputTime(),e=>e===failure);f.capture().abandon();assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime'),original);assert.equal(f.capture().result.inputRestored,true);
+});
+
+for (const kind of ['accessor','fixed-data']) test(`input ownership acquisition rejects ${kind} without invoking or changing it`,t=>{
+ const f=fixture(t);let reads=0;Object.defineProperty(f.scene,'advanceInputTime',kind==='accessor'?{configurable:true,get(){reads++;throw Error('accessor')}}:{configurable:false,writable:false,value:()=>{}});const before=Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime');assert.throws(()=>f.start(),/replaceable input/);assert.equal(reads,0);assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene,'advanceInputTime'),before);assert.equal(f.canceled.length,0);assert.equal(f.capture().result.resumedRAF,false);
+});
+
+for (const kind of ['replacement-prototype','intermediate-method']) test(`inherited input ${kind} cannot be accepted as restored owner`,t=>{
+ const f=fixture(t);delete f.scene.advanceInputTime;const proto={advanceInputTime(){}};Object.setPrototypeOf(f.scene,proto);f.start();let reads=0;const foreign={};Object.defineProperty(foreign,'advanceInputTime',{configurable:true,get(){reads++;throw Error('foreign')}});if(kind==='intermediate-method')Object.setPrototypeOf(foreign,proto);Object.setPrototypeOf(f.scene,foreign);const descriptor=Object.getOwnPropertyDescriptor(foreign,'advanceInputTime');assert.throws(()=>f.capture().release(),/owned/);f.capture().abandon();assert.equal(reads,0);assert.deepEqual(Object.getOwnPropertyDescriptor(foreign,'advanceInputTime'),descriptor);assert.equal(Object.hasOwn(f.scene,'advanceInputTime'),false);assert.equal(f.capture().result.foreign,true);assert.equal(f.capture().result.inputRestored,false);assert.equal(f.capture().result.released,false);assert.equal(f.capture().result.resumedRAF,false);assert.equal(f.scheduled.size,0);
+});

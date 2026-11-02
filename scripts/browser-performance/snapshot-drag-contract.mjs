@@ -280,7 +280,7 @@ const historicalDragSourceProfiles = Object.freeze([
 // Historical routes remain byte-exact; no new-log/old-CPU mixtures are admitted.
 // Bind the shared queue resolver too, not just its new call-site submissions.
 // This is source admission only, not performance equivalence or a new benchmark.
-export const dragSourceProfiles = Object.freeze([
+const mainDragSourceProfiles = Object.freeze([
   ...historicalDragSourceProfiles,
   Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
     ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
@@ -289,6 +289,168 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'resource-queue-owner', path: 'app/world-picking.ts', start: null, end: null,
       sha256: '45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611' }),
   ]) }),
+])
+// Conditional exact-source union: preserve every historical main route and the
+// original head epoch ancestry. This is not runtime/browser validation.
+const chronologicalCameraHashes = {
+  "input-move": "dd414900157c8598d7357390ba18c9d4a2d135bdb3aef9c35a8557c04db4871b",
+  "frame-order": "6f40d04fb51b6b92bcf5ddb400f76da26cbc0635f48a53bfbf47d1a3edb9d79b",
+  "camera-producers": "0238ab16f54f0aaba1f05e8b06de89c2eaf603c61a8f2bcde05854f68093418e"
+}
+const originalChronologicalProfile = Object.freeze([
+  Object.freeze({ id: 'owned-numeric-terrain-chronological-camera-v1', slices: Object.freeze([
+    ...historicalDragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1').slices.map(slice => Object.freeze({
+      ...slice, sha256: chronologicalCameraHashes[slice.id] ?? slice.sha256,
+    })),
+    ...[
+  {
+    "id": "tribe-camera-owner",
+    "path": "app/tribe-camera.ts",
+    "start": null,
+    "end": null,
+    "sha256": "47bc2f2f4a92fa01a4e8245880a635581e929d4bf8ae49a6583efb1bcf1b68a9"
+  },
+  {
+    "id": "chronological-game-clock",
+    "path": "app/game-clock.ts",
+    "start": null,
+    "end": null,
+    "sha256": "524ed36f8d2b1d9d3d6dc8ec00ca102195cb4f034d58a22052f3a1e063e557c5"
+  },
+  {
+    "id": "scene-camera-wiring",
+    "path": "app/scene.ts",
+    "start": null,
+    "end": null,
+    "sha256": "b408e79ef082911297096b85718669c62dc9cb234f19f9d39a1b76b1be5fa040"
+  }
+,
+  {"id":"tooltip-frame-owner","path":"app/scene-tooltip-runtime.ts","start":null,"end":null,"sha256":"ad67e80f8232e4440bd2da53dad3979aa16834b18e282e1bf2d901b2df1d5cfb"}
+].map(slice => Object.freeze(slice)),
+  ]) }),
+])[0]
+const combinedCameraParent = mainDragSourceProfiles.find(profile => profile.id ===
+  'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1')
+const combinedCameraHashes = {
+  "input-move": "dd414900157c8598d7357390ba18c9d4a2d135bdb3aef9c35a8557c04db4871b",
+  "frame-order": "498b022b8f7535ce6b1adbee7aea560b3649b534cb7533a7023b8fc8585f1cc9",
+  "camera-producers": "c7669e423b1adb993dfb4049dbd532a852037d0d389648943c8a669abafa86df"
+}
+const admittedCameraSourceProfiles = Object.freeze([
+  ...mainDragSourceProfiles,
+  originalChronologicalProfile,
+  Object.freeze({ id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
+    ...combinedCameraParent.slices.map(slice => Object.freeze({
+      ...slice, sha256: combinedCameraHashes[slice.id] ?? slice.sha256,
+    })),
+    ...[
+  {
+    "id": "tribe-camera-owner",
+    "path": "app/tribe-camera.ts",
+    "start": null,
+    "end": null,
+    "sha256": "47bc2f2f4a92fa01a4e8245880a635581e929d4bf8ae49a6583efb1bcf1b68a9"
+  },
+  {
+    "id": "chronological-game-clock",
+    "path": "app/game-clock.ts",
+    "start": null,
+    "end": null,
+    "sha256": "55766c84091f05a4ce07e422d382d55809fcd1fdf9d884e90ebcbfcc1bc48b7e"
+  },
+  {
+    "id": "scene-camera-wiring",
+    "path": "app/scene.ts",
+    "start": null,
+    "end": null,
+    "sha256": "2593a57bc040d85f65fde882e29ff2e2e582cf1ccfdd0dfe191d2344bb28ba85"
+  },
+  {
+    "id": "tooltip-frame-owner",
+    "path": "app/scene-tooltip-runtime.ts",
+    "start": null,
+    "end": null,
+    "sha256": "ad67e80f8232e4440bd2da53dad3979aa16834b18e282e1bf2d901b2df1d5cfb"
+  }
+].map(slice => Object.freeze(slice)),
+  ]) }),
+])
+// The five reviewed post-drain retirement guards form a new exact-source route.
+// Keep every prior profile unchanged; partial fixes and other camera edits must
+// still fail closed. This admits source, not runtime or timing equivalence.
+const cameraRetirementSourceProfiles = Object.freeze([
+  ...admittedCameraSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-v1',
+    slices: Object.freeze(admittedCameraSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-v1')
+      .slices.map(slice => slice.id === 'camera-producers' ? Object.freeze({ ...slice,
+        sha256: 'fd25b51f7adad35cc41584423d75bda5c9fbf71823c5515beaf02e8a2e223c08',
+      }) : slice)),
+  }),
+])
+// Exact combined retirement source. Earlier profiles remain unchanged.
+const tooltipRetirementSourceProfiles = Object.freeze([
+  ...cameraRetirementSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1',
+    slices: Object.freeze(cameraRetirementSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-v1').slices.map(slice =>
+      slice.id === 'tooltip-frame-owner' ? Object.freeze({ ...slice,
+        sha256: '18b666b052772604505c6c130ad8b8d198b5bff3db6c6d862a77dce69e7e84bc',
+      }) : slice)),
+  }),
+])
+// Bookmark recall needs its own complete source identity; prior profiles remain intact.
+const bookmarkRetirementSourceProfiles = Object.freeze([
+  ...tooltipRetirementSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1',
+    slices: Object.freeze(tooltipRetirementSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-v1').slices.map(slice =>
+      slice.id === 'camera-producers' ? Object.freeze({ ...slice,
+        sha256: '88dc444b95035b03e4b2864759cef1049b07de85715d9f631ee076246930748b',
+      }) : slice)),
+  }),
+])
+// Direct HUD focus wrappers share one input boundary. This exact-source profile
+// does not broaden runtime admission; every prior profile remains unchanged.
+const hudFocusSourceProfiles = Object.freeze([
+  ...bookmarkRetirementSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-v1',
+    slices: Object.freeze(bookmarkRetirementSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1').slices.map(slice =>
+      slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
+        sha256: 'f9d0e31cc7baf0de2061bcbb513834cff6173827f558b389825c42791449c24a',
+      }) : slice)),
+  }),
+])
+// Modal suspension rejects gameplay input without suppressing lifecycle cleanup.
+// Append one exact route; all earlier routes remain byte-for-byte unchanged.
+const modalFreezeSourceProfiles = Object.freeze([
+  ...hudFocusSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-v1',
+    slices: Object.freeze(hudFocusSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-v1').slices.map(slice =>
+      slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
+        sha256: 'd0d9cf70775701b04d336ef7e419859cf16659c2590f73aaa9c0c53ff314039b',
+      }) : slice)),
+  }),
+])
+// Freeze the last drained native unit presentation before entering a modal.
+// Keep every historical exact route; never normalize live source admission.
+export const dragSourceProfiles = Object.freeze([
+  ...modalFreezeSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-v1',
+    slices: Object.freeze(modalFreezeSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-v1').slices.map(slice =>
+      slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
+        sha256: '38003b8e7e944366bcf8f788159f7a1f0cb81cc4a6a2606612f60efadb56f5da',
+      }) : slice)),
+  }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {

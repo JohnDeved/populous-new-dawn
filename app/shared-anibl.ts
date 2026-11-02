@@ -14,6 +14,7 @@ export interface PresentationBinding {
   isCurrent(): boolean
   advance(): void
   snapshot(): SharedAniblSnapshot | null
+  bindInputClock?(advance: () => void): void
   release(): void
 }
 

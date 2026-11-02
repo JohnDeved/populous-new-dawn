@@ -983,10 +983,12 @@
       "coveredBehavior": ["Exact source-owner admission", "Held-drag observer contract"],
       "knownLimits": ["Node-only regression; does not run a browser, admit new source profiles or establish rendering or hardware performance."],
       "executable": "node",
-      "args": ["--test", "tests/browser-snapshot-drag.test.mjs"],
+      "args": ["--test", "tests/browser-snapshot-drag.test.mjs", "tests/browser-snapshot-drag-camera-profile.test.mjs"],
       "cwd": ".",
       "env": [],
       "triggerPaths": [
+        "app/game-clock.ts",
+        "app/tribe-camera.ts",
         "app/scene-input-runtime.ts",
         "app/scene-tooltip-runtime.ts",
         "app/scene.ts",
@@ -999,9 +1001,12 @@
         "app/neutral-cursor.ts",
         "scripts/browser-performance/snapshot-drag-contract.mjs",
         "scripts/browser-performance/snapshot-drag-observer.mjs",
-        "tests/browser-snapshot-drag.test.mjs"
+        "tests/browser-snapshot-drag.test.mjs",
+        "tests/browser-snapshot-drag-camera-profile.test.mjs",
+        "tests/fixtures/snapshot-drag-camera-source-mixes.json",
+        "tests/fixtures/snapshot-drag-pre-camera-owners.json"
       ],
-      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "tests/browser-snapshot-drag-camera-profile.test.mjs", "tests/fixtures/snapshot-drag-camera-source-mixes.json", "tests/fixtures/snapshot-drag-pre-camera-owners.json", "package.json", "package-lock.json"],
       "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
       "sideEffects": [],
       "resources": [],

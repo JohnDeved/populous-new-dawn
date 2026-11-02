@@ -56,6 +56,8 @@ function fixture(failAt) {
     renderer: { dispose: record('renderer'), domElement: { remove: record('canvas') }, forceContextLoss: record('context-loss') },
     cancelTooltipInspection: record('tooltip-cancel'),
     tooltipInput: {},
+    tooltipFrame: { cueGroups: [{ cues: [] }] },
+    tooltipCameraActive: true,
     tooltipElement: { remove: record('tooltip') },
     pointerOutline: { remove: record('pointer') },
     buildingPanels: new Map([['panel', { remove: record('building-panel') }]]),
@@ -204,7 +206,7 @@ test('late terrain body completion cannot repopulate a disposed owner, even if f
 })
 
 const animateField = sceneClass.members.find(node => ts.isPropertyDeclaration(node) && node.name.getText(source) === 'animate')
-for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'hud', null]) {
+for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'tooltip', 'hud', null]) {
   test(`animation stops after retiring callback phase ${stopAt ?? '(live control)'}`, () => {
     const f = fixture(), phases = [], phase = name => {
       phases.push(name)
@@ -222,8 +224,8 @@ for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'hud', null]) {
       playWorldSounds: () => phase('sound'),
       updateTerrainFrame: () => phase('terrain'),
       updateDecorationsFrame: () => {}, updateCameraMotion: () => false,
-      updateFlyby: () => { phase('flyby'); return false },
-      updateView: () => {}, updateUnitsFrame: () => {}, renderTooltip: () => {},
+      updateFlyby: () => assert.fail('flyby belongs to the logical clock, not render time'),
+      updateView: () => {}, updateTooltipFrame: () => phase('tooltip'), updateUnitsFrame: () => {}, renderTooltip: () => {},
       updateBuildingsFrame: () => {}, updateEffectsFrame: () => {}, updateShrinesFrame: () => {},
       updatePointerFrame: () => {}, updatePlacement: () => {}, updateSpellPointerFrame: () => {},
       updateEnvironmentFrame: () => phase('water'), renderSceneFrame: () => phase('render'),
@@ -232,13 +234,16 @@ for (const stopAt of ['nearby', 'simulation', 'sound', 'flyby', 'hud', null]) {
     Object.assign(f.scene.renderer, { getPixelRatio: () => 1, info: { render: { calls: 0 } } })
     const makeAnimate = evaluate(`function () { return ${animateField.initializer.getText(source)} }`, {
       document: { hidden: false, querySelector: () => null }, devicePixelRatio: 1,
-      syncSecondaryReservations: () => {}, advanceGame: () => phase('simulation'),
+      syncSecondaryReservations: () => {}, advanceGame: () => {
+        phase('simulation')
+        if (!f.scene.disposed) phase('flyby')
+      },
       updateVehiclesFrame: () => {}, SPELLS: [],
       requestAnimationFrame: () => { phase('schedule'); return 77 },
     })
     const animate = makeAnimate.call(f.scene)
     animate(16)
-    const all = ['nearby', 'simulation', 'sound', 'terrain', 'flyby', 'water', 'render', 'hud', 'schedule']
+    const all = ['nearby', 'simulation', 'flyby', 'sound', 'terrain', 'tooltip', 'water', 'render', 'hud', 'schedule']
     assert.deepEqual(phases, stopAt ? all.slice(0, all.indexOf(stopAt) + 1) : all)
     if (stopAt) {
       assertCpuReferencesReleased(f.scene)
@@ -298,6 +303,8 @@ test('GameScene retires its context after every existing cleanup and repeated di
   assert.equal(f.scene.ownedSounds.size, 0)
   assert.equal(f.scene.fpsGraph, null)
   assert.equal(f.scene.tooltipInput, null)
+  assert.equal(f.scene.tooltipFrame.cueGroups.length, 0)
+  assert.equal(f.scene.tooltipCameraActive, false)
   assert.equal(f.scene.buildingPanels.size, 0)
   f.dispose()
   assert.deepEqual(f.calls, expected)
@@ -331,6 +338,8 @@ test('a terminal context-loss error propagates only after existing cleanup and i
   assert.deepEqual(f.calls, expected)
   assert.equal(f.scene.buildingPanels.size, 0)
   assert.equal(f.scene.tooltipInput, null)
+  assert.equal(f.scene.tooltipFrame.cueGroups.length, 0)
+  assert.equal(f.scene.tooltipCameraActive, false)
   f.dispose()
   assert.deepEqual(f.calls, expected)
 })
@@ -365,4 +374,77 @@ test('Scene cleanup keeps cached texture, image and geometry identities for late
   assert.equal(laterConsumer.map, texture)
   assert.equal(laterConsumer.map.image, image)
   laterConsumer.dispose()
+})
+
+// These controls execute selected production method bodies with supplied leaves.
+// They do not import GameScene or prove real simulation, DOM or GPU behavior.
+for (const mode of ['live', 'already-disposed', 'drain-retires', 'handler-retires', 'handler-throws']) {
+  test(`ordered Scene listener preserves ownership through ${mode}`, () => {
+    const calls = [], failure = new Error('handler failure'), input = { buttons: 0, time: 0, cursor: 7 }
+    let installed
+    const target = {
+      addEventListener(name, handler) { assert.equal(name, 'pointermove'); installed = handler },
+      removeEventListener(name, handler) { assert.equal(name, 'pointermove'); assert.equal(handler, installed); calls.push('remove') },
+    }
+    const scene = {
+      disposed: mode === 'already-disposed', inputDepth: 0, disposeListeners: [],
+      world: { cameras: { input, elapsed: 2 } },
+      advanceInputTime(timestamp) { calls.push('drain'); assert.equal(timestamp, 32); if (mode === 'drain-retires') this.disposed = true },
+      navigationButtons() { calls.push('publish'); return 0 },
+    }
+    scene.publishCameraInput = evaluate(`function () ${sceneMethod('publishCameraInput').body.getText(source)}`).bind(scene)
+    const listen = evaluate(`function (target, name, handler) ${sceneMethod('listen').body.getText(source)}`).bind(scene)
+    listen(target, 'pointermove', () => {
+      calls.push('handler')
+      assert.equal(scene.inputDepth, 1)
+      if (mode === 'handler-retires') scene.disposed = true
+      if (mode === 'handler-throws') throw failure
+    })
+    assert.equal(typeof installed, 'function')
+    if (mode === 'handler-throws') assert.throws(() => installed({ timeStamp: 32 }), error => error === failure)
+    else installed({ timeStamp: 32 })
+    const publishes = mode === 'live' || mode === 'handler-throws'
+    assert.deepEqual(calls,
+      mode === 'already-disposed' ? [] : mode === 'drain-retires' ? ['drain'] :
+        ['drain', 'handler', ...(publishes ? ['publish'] : [])])
+    assert.equal(scene.inputDepth, 0, 'finally restores nesting even on retirement or throw')
+    assert.deepEqual(input, { buttons: 0, time: publishes ? 2 : 0, cursor: publishes ? 8 : 7 })
+    assert.equal(scene.disposeListeners.length, 1)
+    scene.disposeListeners[0]()
+    assert.equal(calls.at(-1), 'remove')
+  })
+}
+
+for (const mode of ['live', 'already-disposed', 'drain-retires']) {
+  test(`input clock does not preview retired resources through ${mode}`, () => {
+    const calls = [], scene = {
+      disposed: mode === 'already-disposed', started: true, inputDepth: 0,
+      previous: 16, modalSuspended: false, world: { cameras: { phase: 'idle' } }, gameClock: {},
+    }
+    const advance = evaluate(`function (timestamp) ${sceneMethod('advanceInputTime').body.getText(source)}`, {
+      advanceGame(world, clock, seconds) {
+        assert.equal(world, scene.world); assert.equal(clock, scene.gameClock); assert.equal(seconds, 0.016)
+        calls.push('advance'); if (mode === 'drain-retires') scene.disposed = true
+      },
+      previewGroundZoom(owner) { assert.equal(owner, scene); calls.push('preview') },
+    }).bind(scene)
+    advance(32)
+    assert.deepEqual(calls, mode === 'already-disposed' ? [] : ['advance', ...(mode === 'live' ? ['preview'] : [])])
+    assert.equal(scene.previous, mode === 'already-disposed' ? 16 : 32)
+  })
+}
+
+test('modal input drain that retires the Scene does not resume owner cleanup or tooltip sampling', () => {
+  const calls = [], scene = {
+    disposed: false, modalSuspended: false,
+    advanceInputTime() { calls.push('drain'); this.disposed = true },
+    updateTooltipFrame() { assert.fail('retired modal transition must not sample tooltip frame') },
+    get neutralCursor() { assert.fail('retired modal transition must not resume owner cleanup') },
+  }
+  const suspend = evaluate(`function (suspended) ${sceneMethod('setModalSuspended').body.getText(source)}`).bind(scene)
+  suspend(true)
+  assert.deepEqual(calls, ['drain'])
+  assert.equal(scene.modalSuspended, false)
+  suspend(true)
+  assert.deepEqual(calls, ['drain'], 'already retired entry also returns immediately')
 })
