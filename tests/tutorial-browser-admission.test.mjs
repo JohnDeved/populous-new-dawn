@@ -64,10 +64,12 @@ test('Tutorial preserves exact merge, runtime readiness defense and validation, 
   assert.match(source, /test "\$\(git rev-parse HEAD\)" = "\$GITHUB_SHA"/)
   assert.match(source, /git diff --exit-code HEAD --/)
   assert.doesNotMatch(source, /Full check|continue-on-error|exit 0/)
-  const jobs = source.slice(source.indexOf('\njobs:\n'))
-  // No job-level draft skip: non-ready events are excluded before creating a run.
-  for (const header of jobs.split(/\n {2}[a-z][a-z0-9-]*:\n/).slice(1))
-    assert.doesNotMatch(header.slice(0, header.indexOf('    steps:')), /^ {4}if:/m)
+  const jobs = yaml.load(source).jobs
+  // Existing required matrix remains unconditional; only the new smoke is opt-in.
+  assert.equal(jobs['tutorial-browser'].if, undefined)
+  assert.deepEqual(Object.keys(jobs).sort(), ['ordinary-pointer-smoke', 'tutorial-browser'])
+  assert.equal(jobs['ordinary-pointer-smoke'].if, "${{ github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, format('op-smoke:{0}', github.event.pull_request.head.sha)) }}")
+  assert.equal(jobs['ordinary-pointer-smoke']['timeout-minutes'], 6)
 })
 
 test('required Full gate remains unconditional after dependencies and rejects skipped workers', () => {
@@ -153,8 +155,8 @@ test('candidate snapshot smoke is one read-only bounded functional case, never a
   assert.match(runner, /assert.ok\(browserScenarios.includes\(selectedScenario\)/)
   assert.match(runner, /snapshotScenarioSha256: hash\(snapshotScenario\)/)
   assert.match(runner, /receipt\.snapshotSmoke = await/)
-  assert.match(runner, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else\s+timer = setTimeout/)
-  assert.match(runner, /if \(error.code === 'SNAPSHOT_EPISODE_TIMEOUT'\) receipt.browserTimedOut = true/)
+  assert.match(runner, /if \(selectedScenario === 'snapshot-protocol'\) receipt\.browserBudget = snapshotSmokeBudget\s+else if \(selectedScenario === 'ordinary-pointer-smoke'\) receipt\.browserBudget = ordinaryPointerSmokePolicy\s+else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt\.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'building-icon-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 2 \}\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt\.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
+  assert.match(runner, /if \(error\?\.code === 'SNAPSHOT_EPISODE_TIMEOUT'\) receipt.browserTimedOut = true/)
   assert.match(runner, /if \(page\) \{/)
   assert.match(runner, /receipt.failureEvidence = 'candidate-snapshot-smoke.json'/)
   assert.equal(snapshotSmokeBudget.maxEpisodes * snapshotSmokeBudget.episodeMs, snapshotSmokeBudget.totalBrowserMs)
@@ -166,11 +168,11 @@ test('parsed hosted matrix grants only Tutorial aggregate headroom and preserves
   const workflow = readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8')
   const job = yaml.load(workflow).jobs['tutorial-browser'], items = job.strategy.matrix.include
   assert.equal(job['timeout-minutes'], '${{ matrix.timeoutMinutes }}')
-  assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => name !== 'm2-pointer-f8').sort())
+  assert.deepEqual(items.map(item => item.scenario).sort(), browserScenarios.filter(name => !['m2-pointer-f8', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'building-icon-evidence'].includes(name)).sort())
   assert.deepEqual(Object.fromEntries(browserScenarios.map(name => [name, browserCapMs(name)])), {
     tutorial: 240000, 'm2-pointer-f8': 180000, 'pause-checkpoint-recovery': 180000,
     'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 180000, 'gameplay-resources': 180000,
-    'snapshot-protocol': 90000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000,
+    'snapshot-protocol': 90000, 'ordinary-pointer-smoke': 90000, 'ordinary-pointer-calibration': 1200000, 'ordinary-pointer-trace': 180000, 'building-icon-evidence': 180000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000,
   })
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.equal((runner.match(/browserDeadlineAt = Date\.now\(\) \+ receipt\.browserCapMs/g) ?? []).length, 1)
