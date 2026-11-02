@@ -993,6 +993,7 @@
         "app/scene-picking.ts",
         "app/world-picking.ts",
         "app/render-view.ts",
+        "app/terrain-index-prefix.ts",
         "app/scene-camera-runtime.ts",
         "app/scene-terrain-runtime.ts",
         "app/runtime-terrain-picking.ts",
