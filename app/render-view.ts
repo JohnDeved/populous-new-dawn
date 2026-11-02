@@ -1,3 +1,4 @@
+import { terrainIndicesBelowCount } from './terrain-index-prefix.ts'
 import { OrdinaryNumericProjection } from './ordinary-numeric-projection.ts'
 import { runtimeTerrainPicking, releaseRuntimeTerrainPicking } from './runtime-terrain-picking.ts'
 import type {
@@ -659,7 +660,7 @@ export class RenderView {
           // entries packed; candidate triangle IDs stay original.
           const packedTerrain =
             shareTerrainCorners &&
-            index!.array.subarray(0, count).every((id: number) => id < position.count)
+            terrainIndicesBelowCount(index!.array.subarray(0, count) as Uint32Array, position)
           const reuse =
             nativeEdges &&
             cache?.key === cacheKey &&
