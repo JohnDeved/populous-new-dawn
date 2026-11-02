@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,symlinkSync,existsSync} from 'node:fs'
+import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,rmSync,symlinkSync,existsSync,openSync,closeSync} from 'node:fs'
 import {tmpdir} from 'node:os'
 import {join} from 'node:path'
 import {createHash} from 'node:crypto'
@@ -17,6 +17,7 @@ function fixture(t){
  browserIdentity:{path:binary,sha256:hash('supplied binary'),version:'supplied Chrome'},receipt,
  chromium:{launch:async config=>{assert.equal(config.timeout,30000);calls.push('launch');return browser}},
  admit:async()=>{calls.push('admit');return{sha,currentMainVerified:true}},
+ initialize:async({browser:actual,output,write})=>{assert.equal(actual,browser);calls.push('initialize');const dir=join(output,'ordinary-pointer-trace-initialization');mkdirSync(dir);const fd=openSync(join(dir,'trace.json.partial'),'wx');try{write(fd,Buffer.from('{}'))}finally{closeSync(fd)};const r={status:'initialized-unqualified',bytes:2,streamEof:true,streamClosed:true,transportCleanupConfirmed:true,operationSettled:true,interpretationEligible:false,comparisonEligible:false};writeFileSync(join(dir,'receipt.json'),JSON.stringify(r));return r},
  observe:async send=>{await send('supplied-observe');return{target:'same'}},
  collector:async({output,capture,page,browser:actual})=>{assert.equal(actual,browser);calls.push('collector');const dir=join(output,'ordinary-pointer-diagnostic');mkdirSync(dir);writeFileSync(join(dir,'receipt.json'),JSON.stringify({status:'raw-stream-only-unqualified',streamEof:true,transportCleanupConfirmed:true,operationSettled:true}));writeFileSync(join(dir,'trace.json.partial'),'{}');return capture({page,enabled:true})},
  capture:async({enabled})=>{assert.equal(enabled,true);calls.push('capture');return{packet:'supplied'}},
@@ -30,9 +31,9 @@ test('one admitted capture binds before/after target, binary and bounded artifac
  const f=fixture(t);const result=await route(f.args)
  assert.equal(result.status,'passed');assert.equal(result.cleanupVerified,true);assert.equal(result.operationSettled,true)
  assert.equal(result.interpretationEligible,false);assert.equal(result.comparisonEligible,false)
- assert.deepEqual(f.calls,['admit','launch','smoke','supplied-observe','collector','capture','supplied-observe','qualify','detach','close','cancel'])
+ assert.deepEqual(f.calls,['admit','launch','smoke','initialize','supplied-observe','collector','capture','supplied-observe','qualify','detach','close','cancel'])
  assert.equal(JSON.parse(readFileSync(join(f.args.output,'ordinary-pointer-trace/route.json'))).status,'passed')
- assert.equal(files(f.args.output).traceBytes,2);assert.equal(policy.routeMs,180000);assert.equal(policy.activeMs,178000)
+ assert.equal(files(f.args.output).traceBytes,4);assert.equal(policy.routeMs,180000);assert.equal(policy.activeMs,178000)
 })
 test('admission and binary refusal happen before launching any browser',async t=>{
  for(const kind of ['admission','binary']){const f=fixture(t);if(kind==='admission')f.args.admit=async()=>({sha:'b'.repeat(40),currentMainVerified:true});else writeFileSync(f.args.browserIdentity.path,'changed');await assert.rejects(route(f.args));assert.equal(f.calls.includes('launch'),false);assert.equal(f.receipt.cleanupVerified,false)}
@@ -97,4 +98,37 @@ test('backward clock between finalization checkpoints fails closed',async t=>{
  f.args.now=()=>!cancelled?0:existsSync(path)&&readFileSync(path,'utf8').includes('"artifacts"')?150:200
  await assert.rejects(route(f.args),/finalization deadline\/clock/)
  assert.equal(f.receipt.status,'failed');assert.equal(JSON.parse(readFileSync(path,'utf8')).status,'failed')
+})
+
+// New integration controls: all browser/CDP/workload leaves remain supplied.
+test('initializer integration precedes any target observation or workload, exactly once',async t=>{
+ const f=fixture(t);await route(f.args)
+ assert.equal(f.calls.filter(x=>x==='initialize').length,1)
+ assert.ok(f.calls.indexOf('initialize')<f.calls.indexOf('supplied-observe'))
+ assert.equal(f.receipt.initialization.status,'initialized-unqualified')
+ assert.equal(f.receipt.initialization.interpretationEligible,false)
+})
+test('initializer integration failure and unconfirmed cleanup refuse collector and preserve falsey primary',async t=>{
+ for(const primary of [null,false,0,undefined]){const f=fixture(t);f.args.initialize=async()=>{throw primary};let caught=false
+ await route(f.args).catch(e=>{caught=true;assert.equal(e,primary)});assert.ok(caught);assert.equal(f.calls.includes('collector'),false);assert.ok(f.calls.includes('close'))}
+ const f=fixture(t),init=f.args.initialize;f.args.initialize=async a=>({...await init(a),transportCleanupConfirmed:false})
+ await assert.rejects(route(f.args),/Initialization/);assert.equal(f.calls.includes('collector'),false)
+})
+test('initializer integration consumes existing route clock, no extra allowance',async t=>{
+ const f=fixture(t);f.args.runSmoke=async({capture})=>{f.setTime(76001);await capture({page:{}})}
+ await assert.rejects(route(f.args),/Insufficient remaining/);assert.equal(f.calls.includes('initialize'),false)
+ const g=fixture(t),init=g.args.initialize;g.args.initialize=async a=>{const r=await init(a);g.setTime(86001);return r}
+ await assert.rejects(route(g.args),/Insufficient remaining/);assert.equal(g.calls.includes('collector'),false)
+})
+test('initializer integration raw streams share the unchanged eight MiB write budget',async t=>{
+ const f=fixture(t);let written
+ f.args.collector=async({output,write})=>{const dir=join(output,'ordinary-pointer-diagnostic');mkdirSync(dir);const file=join(dir,'trace.json.partial'),fd=openSync(file,'wx');try{
+  write(fd,Buffer.alloc(policy.traceBytes-2));assert.throws(()=>write(fd,Buffer.from('x')),/Shared trace output cap/)
+ }finally{closeSync(fd)};written=readFileSync(file).length;throw Error('bounded fixture stop')}
+ await assert.rejects(route(f.args),/bounded fixture stop/);assert.equal(written,policy.traceBytes-2)
+ assert.equal(files(f.args.output).traceBytes,policy.traceBytes)
+})
+test('initializer integration artifact directory is fixed and its receipt shares metadata quota',async t=>{
+ const f=fixture(t);await route(f.args);const dir=join(f.args.output,'ordinary-pointer-trace/session/ordinary-pointer-trace-initialization')
+ assert.equal(files(f.args.output).traceBytes,4);writeFileSync(join(dir,'receipt.json'),Buffer.alloc(policy.metadataBytes));assert.throws(()=>files(f.args.output),/group cap/)
 })

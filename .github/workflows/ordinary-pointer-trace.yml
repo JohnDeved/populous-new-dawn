@@ -98,13 +98,14 @@ jobs:
                 assert not stat.S_ISLNK(mode), 'Artifact symlink forbidden'
                 rel=path.relative_to(root).parts
                 if stat.S_ISDIR(mode):
-                    assert rel in [('ordinary-pointer-trace',),('ordinary-pointer-trace','session'),('ordinary-pointer-trace','session','ordinary-pointer-diagnostic')], 'Unexpected artifact directory'
+                    assert rel in [('ordinary-pointer-trace',),('ordinary-pointer-trace','session'),('ordinary-pointer-trace','session','ordinary-pointer-diagnostic'),('ordinary-pointer-trace','session','ordinary-pointer-trace-initialization')], 'Unexpected artifact directory'
                     for child in path.iterdir(): visit(child)
                     return
                 assert stat.S_ISREG(mode), 'Artifact must be regular'
                 size=path.stat().st_size
                 assert size<=8*1024*1024, 'Individual artifact cap'
-                if rel==('ordinary-pointer-trace','session','ordinary-pointer-diagnostic','trace.json.partial'):
+                if rel in [('ordinary-pointer-trace','session','ordinary-pointer-diagnostic','trace.json.partial'),('ordinary-pointer-trace','session','ordinary-pointer-trace-initialization','trace.json.partial')]:
+                    if rel[2]=='ordinary-pointer-trace-initialization': assert size<=1024*1024, 'Initialization trace cap'
                     group='trace'
                 elif len(rel)==3 and rel[:2]==('ordinary-pointer-trace','session'):
                     group='session'
