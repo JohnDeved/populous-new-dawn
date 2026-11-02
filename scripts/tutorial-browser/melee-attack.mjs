@@ -156,11 +156,17 @@ export function installMeleeFrameObserver(input) {
   const result = { protocol: recoil ? 'running-native-recoil-entry-v1' : 'running-original-entry-v2', samples: [], crops: [], visits: [], visitLimit,
     error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null }
   let raf, stopped = false, firstPerson = null, firstEntry = null
-  const cropKeys = new Set(), copies = []
+  const cropKeys = new Set(), copies = [], buffers = []
+  const releaseUnusedBuffers = () => {
+    for (const buffer of buffers) if (!buffer.used) {
+      buffer.copy.width = 0; buffer.copy.height = 0
+    }
+  }
   const stop = (reason = 'stopped') => {
     if (!stopped) {
       result.terminal = { turn: world.turn, stamp: scene.renderer.info.render.frame, reason }
       stopped = true; cancelAnimationFrame(raf)
+      releaseUnusedBuffers()
     }
     return result
   }
@@ -193,7 +199,7 @@ export function installMeleeFrameObserver(input) {
         copy.width = 0; copy.height = 0
       }
     }
-    copies.length = 0
+    copies.length = 0; buffers.length = 0
     result.retention.durationMs = performance.now() - timestampMs
     result.retention.done = true
     return result
@@ -345,12 +351,12 @@ export function installMeleeFrameObserver(input) {
                 canvasRect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height }, bodyOwner: { tag: owner?.tagName, className: owner?.className }, clip, overlays }
               // Snapshot the current canvas in this callback, never from a
               // later render. Color scanning and PNG encoding wait until retain().
-              const started = performance.now(), copy = document.createElement('canvas')
-              let context
+              const started = performance.now(), buffer = buffers[result.crops.length]
+              if (!buffer || buffer.used) throw Error('Melee crop lacks its exclusive preallocated buffer')
+              const { copy, context } = buffer
+              buffer.used = true
               try {
                 copy.width = width; copy.height = height
-                context = copy.getContext('2d')
-                if (!context) throw Error('Melee crop lacks its 2D copy context')
                 context.drawImage(canvas, x, y, width, height, 0, 0, width, height)
               } catch (error) {
                 copy.width = 0; copy.height = 0
@@ -376,7 +382,23 @@ export function installMeleeFrameObserver(input) {
       diagnostic.observerMs = performance.now() - timestampMs
     }
   }
-  raf = requestAnimationFrame(visit)
+  // Allocate only four private canvas/context objects before the observed RAF.
+  // Exact variable crop dimensions and the same synchronous draw stay at the
+  // sample boundary; this does not claim that GPU/raster allocation is removed.
+  try {
+    for (let index = 0; index < 4; index++) {
+      const copy = document.createElement('canvas')
+      const buffer = { copy, context: null, used: false }
+      buffers.push(buffer)
+      copy.width = 0; copy.height = 0
+      buffer.context = copy.getContext('2d')
+      if (!buffer.context) throw Error('Melee crop lacks its 2D copy context')
+    }
+    raf = requestAnimationFrame(visit)
+  } catch (error) {
+    releaseUnusedBuffers(); buffers.length = 0
+    throw error
+  }
 }
 
 export default async function meleeAttack({ browser, url, output, expectedRevision, recoil = false }) {
