@@ -146,7 +146,8 @@ export async function runSpellIconMatrix({ browser, observedBrowser, open, url, 
     // This matrix explicitly supplies permission bit 256 above, including mode 2.
     const charging = !!state.charging && !!state.permanent && !state.hovered && !state.disabled
     assert.equal(await card.locator('.native-charge').count(), Number(charging))
-    if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), 12)
+    const expectedChargeWidth = Math.trunc((24 * Math.floor(rules.spellCharging[spell.model].cost / 2)) / rules.spellCharging[spell.model].cost)
+    if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), expectedChargeWidth)
     assert.equal(await card.locator('.hud-sprite').count(), rules.spellCharging[spell.model].normalLimit + 1)
     await capture(card, fixture.icons[spell.model][state.icon], state.name, spell.id, state.frame)
   }

@@ -40,12 +40,34 @@ test('mode-2 absent permission remains negative; granted fill leaves sprites and
   }
 })
 
-test('native crop equality, half-width and matrix inventory assertions remain required', () => {
+test('native crop equality, exact width and matrix inventory assertions remain required', () => {
   for (const line of [
     'assert.deepEqual(actual, expected, `Rendered atlas crop ${name}`)',
-    "if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), 12)",
+    "if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), expectedChargeWidth)",
     "assert.equal(await card.locator('.hud-sprite').count(), rules.spellCharging[spell.model].normalLimit + 1)",
     'assertSpellIconInventory(report.states, SPELLS, episode)',
     'assertOriginalSpellIconPixels(report.originalPixels, originalPixelFixture)',
   ]) assert.ok(source.includes(line), line)
+})
+
+
+test('actual matrix final width uses integer truncated supplied progress, including odd mode-2 costs', () => {
+  assert.ok(source.includes('progress: Math.floor(rules.spellCharging[spell.model].cost / 2)'))
+  const widthMatch = source.match(/^    const expectedChargeWidth = (.+)$/m)
+  assert.ok(widthMatch, 'exact arithmetic expectation, not universal half-width')
+  const width = new Function('rules', 'spell', `return (${widthMatch[1]})`)
+  for (const model of models) {
+    const cost = rules.spellCharging[model].cost
+    assert.ok(Number.isSafeInteger(cost) && cost > 0)
+    const expectedWidth = Number((24n * (BigInt(cost) / 2n)) / BigInt(cost))
+    assert.equal(width(rules, { model }), expectedWidth)
+    const state = fixture.states.find(state => state.name === 'charging')
+    const fills = spellButton({ model, ...state, mode2ChargingAllowed: true, progress: Math.floor(cost / 2) }).fills
+    assert.equal(fills.at(-1).width, expectedWidth)
+    assert.equal(expectedWidth, cost % 2 ? 11 : 12)
+  }
+  for (const model of [18, 20, 21]) {
+    assert.equal(rules.spellCharging[model].cost, 999999)
+    assert.equal(width(rules, { model }), 11)
+  }
 })
