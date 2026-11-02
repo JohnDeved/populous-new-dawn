@@ -186,7 +186,7 @@ test('receipt fallback stays bounded even for oversized report and primary error
 async function preparationCase({naturalFlyby=false,flyby=true,inputMask=64,clickFailure,clickThrows=false,startFlybyOnWait=false,clock=()=>0}={}) {
  const source=readFileSync(new URL('../scripts/tutorial-browser/camera-motion-evidence.mjs',import.meta.url),'utf8')
  const start=source.indexOf('    await step(()=>bindGame(page))')
- const end=source.indexOf("    await step(()=>page.locator('.world-viewport canvas').focus())",start)
+ const end=source.indexOf("    await step(()=>page.locator('.world-viewport canvas.battlefield').focus())",start)
  assert.ok(start>=0&&end>start)
  const body=source.slice(start,end),helperStart=source.indexOf('export async function prepareCameraIntroduction(')
  const helper=helperStart<0?'':source.slice(helperStart,source.indexOf('export async function runCameraMotionCases',helperStart)).replace('export ','')
