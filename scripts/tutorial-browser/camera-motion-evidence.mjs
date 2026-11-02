@@ -7,7 +7,7 @@ import { installCameraMotionObserver } from './camera-motion-observer.mjs'
 import { acceptCameraMotionCase, cameraMotionCases } from './camera-motion-acceptance.mjs'
 
 export const cameraMotionPolicy = Object.freeze({ routeMs:180000, operationMs:178000,
-  cleanupMs:2000, artifactBytes:24*1024*1024, totalArtifactBytes:32*1024*1024, outerArtifactBytes:8*1024*1024, screenshotBytes:2*1024*1024,
+  naturalReleaseMs:42000, cleanupMs:2000, artifactBytes:24*1024*1024, totalArtifactBytes:32*1024*1024, outerArtifactBytes:8*1024*1024, screenshotBytes:2*1024*1024,
   maximumScreenshots:9, maximumContexts:3, maximumFrames:12000, maximumEvents:2048 })
 
 // Overview evidence begins after ordinary public introduction dismissal. The two
@@ -77,8 +77,10 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
   const startPhase=async(page,phase)=>{
     await step(()=>page.evaluate(phase=>{window.__pndCameraMotion.mark(phase)},phase))
   }
-  const collectSettled=async(page,phase)=>{
-    await wait(page,()=>{const x=window.__pndCameraMotion.status();if(x.failed)throw Error(x.failure);return x.last&&!x.last.inputMask&&!x.last.overviewStage&&!x.last.flyby})
+  // Mission1: at most645 controller visits/24Hz (26.875s), rounded27s
+  // plus the existing15s readiness allowance. Whole-route deadline still wins.
+  const collectSettled=async(page,phase,releaseTimeout=15000)=>{
+    await wait(page,()=>{const x=window.__pndCameraMotion.status();if(x.failed)throw Error(x.failure);return x.last&&!x.last.inputMask&&!x.last.overviewStage&&!x.last.flyby},undefined,releaseTimeout)
     await startPhase(page,phase)
     await wait(page,()=>{const x=window.__pndCameraMotion.status();if(x.failed)throw Error(x.failure);return x.count>=x.phaseStart+6})
   }
@@ -141,7 +143,7 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
         await mark(page,'flyby')
         if(kind==='flyby-edge')await step(()=>page.mouse.move(0,500))
         else await step(()=>page.keyboard.down('ArrowLeft'))
-        await collectSettled(page,'released')
+        await collectSettled(page,'released',cameraMotionPolicy.naturalReleaseMs)
         if(kind==='flyby-edge')await capture(page,report)
       })
     } finally {if(owner)await release(owner.context)}
