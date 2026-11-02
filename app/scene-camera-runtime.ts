@@ -677,6 +677,7 @@ export function overview(scene: GameScene) {
       1024,
   }
   scene.overviewStage = 'enter'
+  scene.world.cameras.input.buttons = 0
   scene.globeMotion.dragging = false
   scene.globeMotion.velocity = { x: 0, y: 0 }
   scene.globeMotion.position = { x: scene.cameraPosition.x, y: scene.cameraPosition.y }
@@ -688,6 +689,7 @@ export function overview(scene: GameScene) {
 export function leaveOverview(scene: GameScene, preset: number) {
   scene.overviewReturn.preset = preset
   scene.overviewStage = 'exit'
+  scene.world.cameras.input.buttons = 0
   scene.globeMotion.dragging = false
   scene.globeMotion.velocity = { x: 0, y: 0 }
   beginGlobeMorph(scene.globeMorph, false)

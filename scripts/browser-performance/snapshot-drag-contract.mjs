@@ -441,7 +441,7 @@ const modalFreezeSourceProfiles = Object.freeze([
 ])
 // Freeze the last drained native unit presentation before entering a modal.
 // Keep every historical exact route; never normalize live source admission.
-export const dragSourceProfiles = Object.freeze([
+const modalSpriteSourceProfiles = Object.freeze([
   ...modalFreezeSourceProfiles,
   Object.freeze({
     id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-v1',
@@ -449,6 +449,18 @@ export const dragSourceProfiles = Object.freeze([
       'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-v1').slices.map(slice =>
       slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
         sha256: '38003b8e7e944366bcf8f788159f7a1f0cb81cc4a6a2606612f60efadb56f5da',
+      }) : slice)),
+  }),
+])
+// Gate-entry publication has one exact complete camera source identity.
+// Preserve every historical profile; live admission never rewrites source.
+export const dragSourceProfiles = Object.freeze([
+  ...modalSpriteSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1',
+    slices: Object.freeze(modalSpriteSourceProfiles.at(-1).slices.map(slice =>
+      slice.id === 'camera-producers' ? Object.freeze({ ...slice,
+        sha256: '44518e0567e5b37ff13af1385dee3a9b0794e929c917b74734295d8d10bae498',
       }) : slice)),
   }),
 ])

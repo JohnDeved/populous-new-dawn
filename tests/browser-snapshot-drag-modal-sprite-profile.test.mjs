@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {readFileSync} from 'node:fs'
+import {readPreviousOverviewCamera as readFileSync} from './helpers/overview-gate-camera-source.mjs'
 import {resolve} from 'node:path'
 import {createHash} from 'node:crypto'
 import {dragSourceProfiles,inspectDragSource} from '../scripts/browser-performance/snapshot-drag-contract.mjs'
@@ -15,13 +15,13 @@ const delta=`      if (this.disposed) return
 `
 test('sprite route adds only exact reviewed whole-Scene override',()=>{
  const previous=dragSourceProfiles.find(p=>p.id===parentId),next=dragSourceProfiles.find(p=>p.id===id)
- assert.ok(next);assert.equal(dragSourceProfiles.at(-1),next);assert.equal(previous.slices.length,23)
+ assert.ok(next);assert.equal(dragSourceProfiles.at(-2),next);assert.equal(previous.slices.length,23)
  assert.equal(hash(read('app/scene.ts')),'38003b8e7e944366bcf8f788159f7a1f0cb81cc4a6a2606612f60efadb56f5da')
  assert.deepEqual(next.slices,previous.slices.map(s=>s.id==='scene-camera-wiring'?{...s,sha256:hash(read('app/scene.ts'))}:s))
  assert.equal(previous.slices.find(s=>s.id==='scene-camera-wiring').sha256,'d0d9cf70775701b04d336ef7e419859cf16659c2590f73aaa9c0c53ff314039b')
 })
 test('actual composed Scene uniquely admits current sprite profile',()=>{
- const result=inspectDragSource(root);assert.equal(result.status,'admitted');assert.equal(result.profile,id)
+ const result=inspectDragSource(root,read);assert.equal(result.status,'admitted');assert.equal(result.profile,id)
  assert.equal(result.profiles.filter(p=>p.status==='admitted').length,1)
 })
 test('exact modal-only historical source remains separately admitted',()=>{

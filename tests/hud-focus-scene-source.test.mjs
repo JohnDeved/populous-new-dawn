@@ -23,6 +23,6 @@ test('source reconstruction never changes actual current-route admission',()=>{
  assert.equal(source,before)
  const admitted=inspectDragSource(root)
  assert.equal(admitted.status,'admitted')
- assert.equal(admitted.profile,'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-v1')
+ assert.equal(admitted.profile,'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1')
  assert.equal(admitted.profiles.filter(p=>p.status==='admitted').length,1)
 })

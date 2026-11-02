@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {readFileSync} from 'node:fs'
+import {readPreviousOverviewCamera as readFileSync} from './helpers/overview-gate-camera-source.mjs'
 import {resolve} from 'node:path'
 import {createHash} from 'node:crypto'
 import {dragSourceProfiles,inspectDragSource} from '../scripts/browser-performance/snapshot-drag-contract.mjs'

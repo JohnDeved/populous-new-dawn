@@ -121,6 +121,7 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
         if(kind==='overview-edge-away')await step(()=>page.mouse.move(720,500))
         await collectSettled(page,'entered')
         assert.equal((await observe(page)).overview,true)
+        await mark(page,'exit-transition')
         await step(()=>page.keyboard.press('Enter'))
         await wait(page,()=>!!window.__pndCameraMotion.status().last?.overviewStage)
         await collectSettled(page,'exited')

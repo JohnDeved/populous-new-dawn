@@ -2,7 +2,7 @@ import {previousHudFocusScene} from './helpers/hud-focus-scene-source.mjs'
 // Exact source admission only: no application module is imported or executed.
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { readFileSync } from 'node:fs'
+import {readPreviousOverviewCamera as readFileSync} from './helpers/overview-gate-camera-source.mjs'
 import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { dragSourceProfiles, inspectDragSource } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
