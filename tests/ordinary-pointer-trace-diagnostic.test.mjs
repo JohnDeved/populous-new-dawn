@@ -7,25 +7,28 @@ import {join} from 'node:path'
 import {captureOrdinaryPointerTraceDiagnostic as run,ordinaryTracePolicy as P} from '../scripts/browser-performance/ordinary-pointer-trace-diagnostic.mjs'
 function fixture(t,options={}){
  const output=mkdtempSync(join(tmpdir(),'pnd-trace-test-'));t.after(()=>rmSync(output,{recursive:true,force:true}))
- const calls=[],session=new EventEmitter(),target={}
+ const calls=[],browserSession=new EventEmitter(),target=new EventEmitter()
  let reads=0
- session.send=async(method,args)=>{calls.push([method,args]);if(options.send)return options.send(method,args,session,calls)
+ function sender(owner,label){return async(method,args)=>{calls.push([method,args,label]);
+  if(method==='Target.getTargetInfo')return {targetInfo:{targetId:'owned',type:'page',url:'http://fixture/'}}
+  if(method==='Runtime.evaluate')return {result:{}}
+  if(options.send)return options.send(method,args,owner,calls)
   if(method==='Tracing.getCategories')return {categories:P.categories}
   if(method==='Browser.getVersion')return {product:'supplied-browser',protocolVersion:'supplied'}
   if(method==='SystemInfo.getProcessInfo')return {processInfo:[{type:'renderer',id:42,cpuTime:1}]}
-  if(method==='Tracing.end'){session.emit('Tracing.tracingComplete',{dataLossOccurred:!!options.loss,stream:'owned'});return {}}
+  if(method==='Tracing.end'){owner.emit('Tracing.tracingComplete',{dataLossOccurred:!!options.loss,stream:'owned'});return {}}
   if(method==='IO.read')return options.chunk?.(reads++)??{data:'{"traceEvents":[]}',eof:true}
   if(method==='IO.close'&&options.closeError)throw options.closeError
   return {}
- }
- session.detach=async()=>{calls.push(['browser-detach']);if(options.detachPending)return new Promise(()=>{})}
- target.send=async(method,args)=>{calls.push([method,args]);if(method==='Target.getTargetInfo')return {targetInfo:{targetId:'owned',type:'page',url:'http://fixture/'}};return {result:{}}}
- target.detach=async()=>{calls.push(['target-detach'])}
- const browser={newBrowserCDPSession:async()=>session},page={context:()=>({newCDPSession:async()=>target})}
+ }}
+ browserSession.send=sender(browserSession,'browser');target.send=sender(target,'page')
+ browserSession.detach=async()=>{calls.push(['browser-detach'])}
+ target.detach=async()=>{calls.push(['target-detach']);if(options.detachPending)return new Promise(()=>{})}
+ const session=target,browser={newBrowserCDPSession:async()=>browserSession},page={context:()=>({newCDPSession:async()=>target})}
  const value={observerCleanupConfirmed:true,comparisonEligible:false}
  const capture=async()=>{calls.push(['capture']);if(options.capture)return options.capture(session);return value}
  const args={browser,page,capture,output,...options.args}
- return {args,calls,session,target,value,output,receipt:()=>JSON.parse(readFileSync(join(output,'ordinary-pointer-diagnostic/receipt.json'),'utf8'))}
+ return {args,calls,session,target,browserSession,value,output,receipt:()=>JSON.parse(readFileSync(join(output,'ordinary-pointer-diagnostic/receipt.json'),'utf8'))}
 }
 test('owned capture wrapper records explicit bounded settings and remains unqualified',async t=>{
  const f=fixture(t);assert.equal(await run(f.args),f.value)
@@ -122,4 +125,18 @@ test('unbounded stream handle is rejected and never used for IO',async t=>{
  const f=fixture(t),send=f.session.send
  f.session.send=async(m,a)=>{if(m==='Tracing.end'){f.session.emit('Tracing.tracingComplete',{dataLossOccurred:false,stream:'x'.repeat(257)});return {}}return send(m,a)}
  await assert.rejects(run(f.args));assert.equal(f.receipt().invalidStreamHandle,true);assert.equal(f.calls.some(x=>x[0].startsWith('IO.')),false)
+})
+test('frame metadata category is explicit and trace/IO belongs only to page CDP',async t=>{
+ const f=fixture(t);await run(f.args)
+ for(const row of f.calls.filter(x=>x[0].startsWith('Tracing.')||x[0].startsWith('IO.')))assert.equal(row[2],'page')
+ for(const row of f.calls.filter(x=>x[0].startsWith('Browser.')||x[0].startsWith('SystemInfo.')))assert.equal(row[2],'browser')
+ assert.ok(f.calls.find(x=>x[0]==='Tracing.start')[1].traceConfig.includedCategories.includes('disabled-by-default-devtools.timeline'))
+ assert.equal(f.receipt().version,2);assert.equal(f.receipt().traceOwner,'page-cdp');assert.equal(f.receipt().traceDataLossOccurred,false)
+})
+test('page trace capability rejection does not fall back to browser session',async t=>{
+ const f=fixture(t),send=f.target.send
+ f.target.send=async(m,a)=>{if(m==='Tracing.getCategories')throw Error('unsupported target tracing');return send(m,a)}
+ await assert.rejects(run(f.args),/unsupported target tracing/)
+ assert.equal(f.calls.some(x=>x[0]==='capture'),false)
+ assert.equal(f.calls.some(x=>x[0].startsWith('Tracing.')&&x[2]==='browser'),false)
 })
