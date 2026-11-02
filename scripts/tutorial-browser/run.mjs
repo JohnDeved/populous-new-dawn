@@ -21,7 +21,8 @@ import { arch, cpus, platform, release } from 'node:os'
 // Keep the admission token in the owner only, never in build/Chrome descendant environments.
 const calibrationCommentEnvironment = process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-calibration' &&
   process.env.GITHUB_EVENT_NAME === 'issue_comment' ? {...process.env} : null
-if (process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-calibration') delete process.env.GH_TOKEN
+const traceCommentEnvironment = process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-trace' ? {...process.env} : null
+if (['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(process.env.POPULOUS_BROWSER_SCENARIO)) delete process.env.GH_TOKEN
 const captureProtocolEnabled = process.env.PND_CAPTURE_PROTOCOL_WINDOW === '1'
 const descendantEnv = captureDescendantEnvironment(process.env, captureProtocolEnabled)
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -60,6 +61,14 @@ if (selectedScenario === 'ordinary-pointer-calibration') {
   closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
   assert.ok(policy.ordinaryPointerCalibrationSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env), 'Calibration requires exact trusted-main dispatch')
+}
+let verifyOrdinaryPointerTraceEnvironment
+if (selectedScenario === 'ordinary-pointer-trace') {
+  const policy = await import('../browser-performance/ordinary-pointer-trace-admission.mjs')
+  verifyOrdinaryPointerTraceEnvironment = policy.verifyOrdinaryPointerTraceEnvironment
+  closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
+  assert.ok(policy.ordinaryPointerTraceSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+    traceCommentEnvironment), 'Trace requires exact trusted-main owner selection')
 }
 if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
@@ -181,7 +190,7 @@ try {
     verifySource(); save()
   }
   server = await preview({ configFile: false, root: fixture, build: { outDir: dist }, preview: { host: '127.0.0.1', port, strictPort: true } })
-  if (selectedScenario !== 'ordinary-pointer-calibration') {
+  if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {
   browser = await chromium.launch(captureProtocolEnabled ? { ...browserConfig.launch, env: descendantEnv } : browserConfig.launch)
   receipt.browserVersion = browser.version(); save()
   }
@@ -193,9 +202,10 @@ try {
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.browserBudget = ordinaryPointerSmokePolicy
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.browserBudget = ordinaryPointerCalibrationPolicy
+  else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -219,6 +229,16 @@ try {
       receipt: receipt.ordinaryPointerCalibration,
     })
     assert.equal(receipt.ordinaryPointerCalibration.status, 'passed', 'Calibration inconclusive or failed; inspect retained aggregate evidence')
+  } else if (selectedScenario === 'ordinary-pointer-trace') {
+    receipt.ordinaryPointerTrace = {}
+    await (await import('../browser-performance/ordinary-pointer-trace-route.mjs')).default({
+      chromium, launch: browserConfig.launch, url, output: out, source,
+      expectedRevision: receipt.buildRevision, dist,
+      browserIdentity: { path: browserPath, sha256: receipt.browserSha256, version: browserBinaryVersion },
+      admit: () => verifyOrdinaryPointerTraceEnvironment(traceCommentEnvironment),
+      receipt: receipt.ordinaryPointerTrace,
+    })
+    assert.equal(receipt.ordinaryPointerTrace.status, 'passed', 'Trace diagnostic incomplete or failed; inspect retained evidence')
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
     // Preserve the completed frontend episode, then use an independent context
@@ -323,11 +343,19 @@ try {
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
+  else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 
 } finally {
   clearTimeout(timer)
-  if (selectedScenario === 'ordinary-pointer-calibration') {
+  if (selectedScenario === 'ordinary-pointer-trace') {
+    receipt.traceRunnerCleanup = {
+      routeConfirmed: receipt.ordinaryPointerTrace?.cleanupVerified === true,
+      server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
+    }
+    receipt.cleanupVerified = receipt.traceRunnerCleanup.routeConfirmed && receipt.traceRunnerCleanup.server.confirmed
+    if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
+  } else if (selectedScenario === 'ordinary-pointer-calibration') {
     receipt.calibrationRunnerCleanup = {
       aggregateConfirmed: receipt.ordinaryPointerCalibration?.cleanupVerified === true,
       server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),

@@ -3,9 +3,9 @@ import assert from 'node:assert/strict'
 import {mkdirSync,lstatSync,openSync,writeSync,closeSync,writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
-export const ordinaryTracePolicy=Object.freeze({version:1,role:'task-gc-stack-triage-not-performance',
+export const ordinaryTracePolicy=Object.freeze({version:2,role:'task-gc-stack-triage-not-performance',
   activeMs:90000,cleanupMs:2000,traceBytes:8*1024*1024,chunkBytes:64*1024,metadataBytes:1024*1024,
-  processes:32,errors:64,categories:Object.freeze(['devtools.timeline','v8','disabled-by-default-v8.gc',
+  processes:32,errors:64,categories:Object.freeze(['devtools.timeline','disabled-by-default-devtools.timeline','v8','disabled-by-default-v8.gc',
     'disabled-by-default-v8.cpu_profiler','blink.user_timing'])})
 const P=ordinaryTracePolicy
 const describe=e=>{try{return String(e).slice(0,256)}catch{return 'Unprintable error'}}
@@ -27,7 +27,7 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
   assert.equal(typeof capture,'function');assert.ok(lstatSync(output).isDirectory()&&!lstatSync(output).isSymbolicLink())
   const directory=resolve(output,'ordinary-pointer-diagnostic');mkdirSync(directory,{mode:0o700})
   const path=resolve(directory,'trace.json.partial'),fd=openSync(path,'wx',0o600)
-  const receipt={version:1,role:P.role,comparisonEligible:false,interpretationEligible:false,status:'incomplete',
+  const receipt={version:2,traceOwner:'page-cdp',role:P.role,comparisonEligible:false,interpretationEligible:false,status:'incomplete',
     policy:P,bytes:0,errors:[],pending:0,observerCleanupConfirmed:false,transportCleanupConfirmed:false,
     boundaries:'whole-capture marker envelope only; no projection span',schemaQualification:'not-performed'}
   let session,target,stream,complete,traceStarted=false,endRequested=false,completionInvalid=false,traceStartRequested=false,stopped=false,frozen=false,failed=false,primary,value,
@@ -47,7 +47,7 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
     if(complete===undefined){
       const valid=typeof row?.stream==='string'&&row.stream.length>0&&row.stream.length<=256
       if(!valid){completionInvalid=true;stopped=true;receipt.invalidStreamHandle=true;error('trace-complete','Invalid bounded stream handle')}
-      complete={dataLossOccurred:row?.dataLossOccurred};if(valid)stream=row.stream;resolveComplete(complete)
+      complete={dataLossOccurred:row?.dataLossOccurred};receipt.traceDataLossOccurred=row?.dataLossOccurred;if(valid)stream=row.stream;resolveComplete(complete)
     }
   }
   const onData=()=>{if(!frozen){receipt.unexpectedDataCollected=true;stopped=true;error('trace','Unexpected dataCollected; stream mode required')}}
@@ -58,15 +58,16 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
   const operation=Promise.resolve().then(async()=>{
     try{
       check();receipt.pending++;try{session=await browser.newBrowserCDPSession()}finally{if(!frozen)receipt.pending--}check()
-      session.on('Tracing.tracingComplete',onComplete);session.on('Tracing.dataCollected',onData)
+      
       receipt.pending++;try{target=await page.context().newCDPSession(page)}finally{if(!frozen)receipt.pending--}check()
+      target.on('Tracing.tracingComplete',onComplete);target.on('Tracing.dataCollected',onData)
       retain('target',(await send(target,'Target.getTargetInfo')).targetInfo)
       retain('browser',await send(session,'Browser.getVersion'))
-      const available=await send(session,'Tracing.getCategories');assert.ok(Array.isArray(available.categories))
+      const available=await send(target,'Tracing.getCategories');assert.ok(Array.isArray(available.categories))
       assert.ok(P.categories.every(c=>available.categories.includes(c)),'Required trace category unavailable')
       receipt.categoryAvailability=P.categories;metadata();await snapshot('processesBefore')
       traceStartRequested=true;receipt.traceStartRequested=true
-      await send(session,'Tracing.start',{transferMode:'ReturnAsStream',streamFormat:'json',streamCompression:'none',
+      await send(target,'Tracing.start',{transferMode:'ReturnAsStream',streamFormat:'json',streamCompression:'none',
         traceConfig:{recordMode:'recordUntilFull',traceBufferSizeInKb:8192,enableSampling:true,enableSystrace:false,includedCategories:P.categories}})
       traceStarted=true;receipt.traceStartConfirmed=true
       await mark('pnd-ordinary-diagnostic-capture-start')
@@ -87,20 +88,20 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
     const cleanup=Promise.resolve().then(async()=>{
       let drainFailed=false,drainError
       try{
-        if(traceStartRequested){endRequested=true;await send(session,'Tracing.end',{},true);await completion
+        if(traceStartRequested){endRequested=true;await send(target,'Tracing.end',{},true);await completion
           assert.equal(completionInvalid,false,'Invalid trace completion ordering')
           assert.ok(complete&&complete.dataLossOccurred===false&&typeof stream==='string','Trace incomplete/loss or missing stream')
           assert.equal(receipt.unexpectedDataCollected,undefined,'Unexpected trace transport')
-          while(true){const row=await send(session,'IO.read',{handle:stream,size:P.chunkBytes},true),bytes=decodedChunk(row)
+          while(true){const row=await send(target,'IO.read',{handle:stream,size:P.chunkBytes},true),bytes=decodedChunk(row)
             assert.equal(frozen,false);assert.ok(receipt.bytes+bytes.length<=P.traceBytes,'Trace output cap')
             const written=write(fd,bytes);assert.ok(Number.isInteger(written)&&written>=0&&written<=bytes.length,'Invalid write count');receipt.bytes+=written;assert.equal(written,bytes.length,'Short trace write');assert.equal(completionInvalid,false,'Invalid trace completion ordering');if(row.eof){assert.ok(receipt.bytes>0,'Empty trace stream');receipt.streamEof=true;break}}
         }
       }catch(e){drainFailed=true;drainError=e;error('trace-drain',e)}finally{
         let cleanupFailure=false,cleanupError
         const finish=async(stage,fn)=>{if(frozen)return;receipt.pending++;try{cleanupCheck();await fn();cleanupCheck()}catch(e){error(stage,e);if(!cleanupFailure){cleanupFailure=true;cleanupError=e}}finally{if(!frozen)receipt.pending--}}
-        if(stream&&session)await finish('stream-close',async()=>{await send(session,'IO.close',{handle:stream},true);if(!frozen)receipt.streamClosed=true})
-        if(target)await finish('target-detach',async()=>{await target.detach();if(!frozen)receipt.targetDetached=true})
-        if(session)await finish('session-detach',async()=>{session.off('Tracing.tracingComplete',onComplete);session.off('Tracing.dataCollected',onData);await session.detach();if(!frozen)receipt.sessionDetached=true})
+        if(stream&&target)await finish('stream-close',async()=>{await send(target,'IO.close',{handle:stream},true);if(!frozen)receipt.streamClosed=true})
+        if(target)await finish('target-detach',async()=>{target.off('Tracing.tracingComplete',onComplete);target.off('Tracing.dataCollected',onData);await target.detach();if(!frozen)receipt.targetDetached=true})
+        if(session)await finish('session-detach',async()=>{await session.detach();if(!frozen)receipt.sessionDetached=true})
         if(cleanupFailure&&!drainFailed){drainFailed=true;drainError=cleanupError}
       }
       if(drainFailed)throw drainError

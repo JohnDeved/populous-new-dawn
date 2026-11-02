@@ -16,8 +16,8 @@ test('aggregate is explicit with fixed cap; all original caps retained',()=>{
  assert.equal(browserCapMs('tutorial'),240000)
  for(const s of browserScenarios.filter(x=>!['ordinary-pointer-calibration','ordinary-pointer-smoke','snapshot-protocol','tutorial'].includes(x)))assert.equal(browserCapMs(s),180000)
 })
-test('actual launch branch skips initial browser only for aggregate',async()=>{
- const block=between("  if (selectedScenario !== 'ordinary-pointer-calibration') {","  receipt.browserCapMs")
+test('actual launch branch skips initial browser for aggregate and owned trace route',async()=>{
+ const block=between("  if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {","  receipt.browserCapMs")
  let launches=0;const chromium={launch:async()=>{launches++;return{version:()=> 'same-version'}}}
  const run=new AsyncFunction('selectedScenario','chromium','captureProtocolEnabled','browserConfig','descendantEnv','receipt','save','let browser;'+block+';return browser')
  const receipt={}
@@ -27,7 +27,7 @@ test('actual launch branch skips initial browser only for aggregate',async()=>{
  assert.equal(launches,1);assert.equal(receipt.browserVersion,'same-version')
 })
 test('actual aggregate dispatch binds browser identity and shared receipt',async()=>{
- let block=between("    receipt.ordinaryPointerCalibration = {}","  } else if (selectedScenario === 'frontend-held-escape')")
+ let block=between("    receipt.ordinaryPointerCalibration = {}","  } else if (selectedScenario === 'ordinary-pointer-trace')")
  block=block.replace("(await import('../browser-performance/ordinary-pointer-calibration.mjs')).default",'aggregate')
  assert.equal(block.includes('import('),false)
  const invoke=new AsyncFunction('assert','aggregate','chromium','browserConfig','url','out','source','dist','browserPath','browserBinaryVersion','receipt',block)
@@ -54,8 +54,8 @@ test('actual cleanup requires aggregate and server proof, never launches or clos
  }
 })
 test('aggregate bypasses generic context/timer; smoke budget and diagnostic runner pin remain exact',()=>{
- assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration'].includes(selectedScenario))"))
- assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else\s+timer = setTimeout/)
+ assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario))"))
+ assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
  assert.match(source,/ordinaryPointerCalibrationSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env\)/)
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
  assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
