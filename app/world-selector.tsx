@@ -39,18 +39,29 @@ export function WorldSelector({
   const container = useRef<HTMLElement>(null)
   const directHeading = useRef<HTMLHeadingElement>(null)
   const focusDirectHeading = useRef(false)
+  const focusCampaignPanel = useRef(false)
   const descriptionId = useId()
   const [selected, setSelected] = useState(() => openingRecommendedMission(completed))
   const [allMissions, setAllMissions] = useState(false)
   const [compatibility, setCompatibility] = useState(false)
   const [failedArt, setFailedArt] = useState<string[]>([])
   useLayoutEffect(() => {
-    if (!focusDirectHeading.current || compatibility || !allMissions) return
+    if (compatibility) return
+    if (focusCampaignPanel.current && !allMissions) {
+      focusCampaignPanel.current = false
+      // Campaign worlds also removes its switch. Return to a non-launch glyph
+      // even when the campaign view was already mounted.
+      container.current
+        ?.querySelector<HTMLButtonElement>(`[data-selector-mission="${selected}"]`)
+        ?.focus()
+      return
+    }
+    if (!focusDirectHeading.current || !allMissions) return
     focusDirectHeading.current = false
     // The activated switch disappears. Focus a non-action heading so a held
     // Enter/Space cannot follow it into a mission launch; Tab reaches the grid.
     directHeading.current?.focus({ preventScroll: true })
-  }, [allMissions, compatibility])
+  }, [allMissions, compatibility, selected])
   const panelArt = `/original/world-selector/panel/${selected}-`
   const artFailed = failedArt.includes(panelArt)
   const failArt = () =>
@@ -115,6 +126,7 @@ export function WorldSelector({
             <button
               aria-pressed={!allMissions}
               onClick={() => {
+                focusCampaignPanel.current = true
                 setAllMissions(false)
                 setCompatibility(false)
               }}

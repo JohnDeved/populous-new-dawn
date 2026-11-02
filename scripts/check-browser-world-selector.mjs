@@ -46,6 +46,21 @@ export async function checkSelectorKeyboardFocus({ page, output }) {
         await controls.click()
         await page.getByRole('button', {name: 'Campaign worlds', exact: true}).click()
         assert.equal(await select(1).getAttribute('aria-pressed'), 'true')
+        assert.equal(await select(1).evaluate(button => button === document.activeElement), true)
+        // The campaign subtree is already mounted: autoFocus cannot recover a
+        // removed compatibility switch on this same-view route.
+        await select(2).click()
+        await controls.click()
+        await page.getByRole('button', {name: 'Campaign worlds', exact: true}).focus()
+        await page.keyboard.press(activation)
+        assert.equal(await select(2).evaluate(button => button === document.activeElement), true)
+        await page.keyboard.press(activation)
+        assert.equal(await select(2).getAttribute('aria-pressed'), 'true')
+        assert.equal(await page.getByRole('button', {name: 'Start Mission 2', exact: true}).isDisabled(), true)
+        assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'same-view activation cannot launch a world')
+        checks.push({...size, activation, campaignSameViewFocus: 2, lockedInspection: true, noLaunch: true})
+        await page.keyboard.press('ArrowRight')
+        assert.equal(await select(1).evaluate(button => button === document.activeElement), true)
       }
     }
     return checks
