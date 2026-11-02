@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { writeFileSync } from 'node:fs'
-import { checkSelectorRecovery } from '../check-browser-selector-recovery.mjs'
 import { checkSelectorKeyboardFocus } from '../check-browser-world-selector.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 
@@ -109,9 +108,6 @@ export default async function ({ page, browser, url, root, output }) {
     passed('low-font-network-fallback-visible-and-cancelable')
   } finally { await fallback.close() }
 
-  await checkSelectorRecovery({ browser, url, output })
-  passed('selector-artwork-timeout-retry-and-context-restoration')
-
   // One fresh software-WebGL scene only; failure and Retry use the actual loader.
   const tutorial = await browser.newContext({ viewport: { width: 640, height: 480 } })
   try {
@@ -195,4 +191,5 @@ export default async function ({ page, browser, url, root, output }) {
   } finally { await tutorial.close() }
   return { checks: progress, limits: ['Browser-adapted wrapping/button positions and storage policy; no native callback/profile equivalence', 'Software rendering, no hardware FPS claim'] }
 }
+
 

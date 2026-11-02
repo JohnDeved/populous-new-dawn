@@ -331,6 +331,11 @@ try {
     save()
     receipt.spellIconStates = await (await import(pathToFileURL(spellIconScenario).href)).default({ browser, url, output: out, root, episode: selectedScenario })
   }
+  if (selectedScenario === 'frontend-held-escape') {
+    // Run after every existing frontend/spell assertion, inside the same 180s cap.
+    // The Tutorial aggregate keeps its original workload and unchanged 240s cap.
+    receipt.selectorRecovery = await (await import('../check-browser-selector-recovery.mjs')).checkSelectorRecovery({ browser, url, output: out })
+  }
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
@@ -413,4 +418,5 @@ try {
   }
   console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }
+
 
