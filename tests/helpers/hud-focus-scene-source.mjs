@@ -13,7 +13,29 @@ export const hudFocusBoundaries = [
     "    chooseTransport(this, kind, model, modifiers, focusNext)"
   ]
 ]
+// Historical source readers only. Production admission always sees actual bytes.
+// Reconstruct the exact reviewed HUD route from the current modal/sprite route;
+// both intermediate and final whole-source identities are mandatory.
+export function hudFocusScene(source) {
+  if (hash(source) === currentHudSceneHash) return source
+  assert.equal(hash(source), '38003b8e7e944366bcf8f788159f7a1f0cb81cc4a6a2606612f60efadb56f5da')
+  const sprite = `      if (this.disposed) return
+      // The input drain can advance native person animation before the next RAF.
+      // Freeze sprites at that drained state, not the previous rendered frame.
+      this.updateUnitsFrame()
+      if (this.disposed) return
+`
+  assert.equal(source.split(sprite).length, 2)
+  let prior = source.replace(sprite, '')
+  assert.equal(hash(prior), 'd0d9cf70775701b04d336ef7e419859cf16659c2590f73aaa9c0c53ff314039b')
+  const modal = 'if (this.disposed || this.modalSuspended) return'
+  assert.equal(prior.split(modal).length, 4)
+  prior = prior.split(modal).join('if (this.disposed) return')
+  assert.equal(hash(prior), currentHudSceneHash)
+  return prior
+}
 export function previousHudFocusScene(source) {
+  source = hudFocusScene(source)
   assert.equal(hash(source), currentHudSceneHash)
   let prior = source
   for (const [current, previous] of hudFocusBoundaries) {

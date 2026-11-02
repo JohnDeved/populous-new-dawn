@@ -86,7 +86,7 @@ export function setupConversionCamera(codec) {
   }
   const assertOwner = () => {
     if (window.__pndConversionCameraSetup !== receipt ||
-      !scene || !w || !clock || window.testSceneRef.current !== scene ||
+      !scene || scene.disposed || !scene.started || !w || !clock || window.testSceneRef.current !== scene ||
       window.testStore !== store || store.getWorld !== readWorld ||
       typeof readWorld !== 'function' || readWorld.call(store) !== w ||
       scene.world !== w || scene.gameClock !== clock)
@@ -103,13 +103,34 @@ export function setupConversionCamera(codec) {
       w.effects.some(f => f.startConversionLink !== undefined))
       throw Error('Conversion camera post-drain gameplay is not ready')
     // Conservative quiescent-owner admission, not a general camera predicate.
-    if (c.phase !== 'idle' || c.motion.active || c.result.active ||
-      c.resultRequest !== w.outcome.cameraRequest || c.overviewActive ||
-      c.overviewStage !== null || c.viewTransition !== null || w.flyby.flags & 1 ||
-      c.input.buttons || c.keys.size || c.input.pointer !== null ||
-      Object.values(c.velocity).some(Boolean) || w.landVersion !== w.terrainVersion ||
-      !Number.isInteger(player) || player < 0 || player >= c.tribes.length)
-      throw Error('Conversion camera post-drain owner is unsupported')
+    // The ordinary mouse tracker retains interior pointer coordinates after
+    // button release. Presence is not navigation; retain its real identity and
+    // values, and require both raw and effective input to be exactly neutral.
+    const neutralPointer = () => {
+      const pointer = c.input.pointer
+      return pointer === null || (pointer &&
+        ['x', 'y', 'buttons'].every(key => Object.hasOwn(pointer, key)) &&
+        Number.isFinite(pointer.x) && Number.isFinite(pointer.y) && pointer.buttons === 0)
+    }
+    let effectiveButtons
+    const ownerFailure = c.phase !== 'idle' ? 'phase' :
+      c.motion.active ? 'motion' : c.result.active ? 'result' :
+      c.resultRequest !== w.outcome.cameraRequest ? 'result-request' :
+      c.overviewActive ? 'overview' : c.overviewStage !== null ? 'overview-stage' :
+      c.viewTransition !== null ? 'view-transition' : w.flyby.flags & 1 ? 'flyby' :
+      c.input.buttons ? 'logical-buttons' : c.keys.size ? 'keys' :
+      !neutralPointer() ? 'raw-pointer' : Object.values(c.velocity).some(Boolean) ? 'velocity' :
+      w.landVersion !== w.terrainVersion ? 'terrain-version' :
+      !Number.isInteger(player) || player < 0 || player >= c.tribes.length ? 'player' :
+      (effectiveButtons = scene.navigationButtons()) !== 0 ? 'effective-buttons' : null
+    if (ownerFailure) {
+      // Only bounded failure evidence; no extra page round trip or clock work.
+      const pointer = c.input.pointer
+      receipt.ownerFailure = { predicate: ownerFailure,
+        pointer: pointer === null ? null : { x: pointer?.x, y: pointer?.y, buttons: pointer?.buttons },
+        effectiveButtons }
+      throw Error('Conversion camera post-drain owner is unsupported: ' + ownerFailure)
+    }
     if (scene.cameraPosition !== c.tribes[player] || scene.cameraMotion !== c.motion ||
       scene.resultCamera !== c.result || scene.cameraVelocity !== c.velocity ||
       scene.keys !== c.keys || scene.overviewActive !== c.overviewActive ||
@@ -128,7 +149,8 @@ export function setupConversionCamera(codec) {
       throw Error('Diagnostic camera changed state outside exact post-drain focus ownership')
     assertReady() // Recheck admitted aliases before the additional pinned identities.
     if (w.cameras !== owners.cameras || w.manaWorld.playerTribe !== owners.player ||
-      scene.cameraPosition !== owners.tribe || scene.cameraMotion !== owners.motion)
+      scene.cameraPosition !== owners.tribe || scene.cameraMotion !== owners.motion ||
+      w.cameras.input.pointer !== owners.pointer)
       throw Error('Diagnostic camera changed state outside exact post-drain focus ownership')
     if (encode(scene.viewPoint) !== encode(expectedPoint) || scene.cameraBearing !== expectedBearing)
       throw Error('Diagnostic camera did not display its exact logical focus target')
@@ -157,7 +179,7 @@ export function setupConversionCamera(codec) {
     const c = w.cameras, e = expected.cameras, player = w.manaWorld.playerTribe,
       held = c.held[player], targetX = Math.round((camera.x + 8) * 256) & 65535,
       targetY = Math.round((-camera.z - 8) * 256) & 65535
-    owners = { cameras: c, tribe: c.tribes[player], motion: c.motion, player }
+    owners = { cameras: c, tribe: c.tribes[player], motion: c.motion, player, pointer: c.input.pointer }
     expected.mode = null
     e.navigationTime = 0
     e.motion.active = 0
