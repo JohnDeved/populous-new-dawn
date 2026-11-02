@@ -76,6 +76,12 @@ if (selectedScenario === 'camera-motion-evidence') {
   assert.ok(policy.cameraMotionSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Camera evidence requires exact-head same-repository Ready label')
 }
+if (selectedScenario === 'snapshot-query-arm') {
+  const policy = await import('./snapshot-query-arm-selection.mjs')
+  closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
+  assert.ok(policy.snapshotQueryArmSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+    process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Query arm requires exact-head same-repository Ready label')
+}
 if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
 const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
@@ -212,7 +218,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'camera-motion-evidence'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'camera-motion-evidence', 'snapshot-query-arm'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -222,6 +228,34 @@ try {
   const url = `http://127.0.0.1:${port}`
   if (selectedScenario === 'snapshot-protocol') {
     receipt.snapshotSmoke = await (await import(pathToFileURL(snapshotScenario).href)).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist })
+  } else if (selectedScenario === 'snapshot-query-arm') {
+    receipt.snapshotQueryArm = {}
+    receipt.snapshotQueryArmSources = Object.fromEntries([
+      'scripts/browser-performance/snapshot-query-arm.mjs', 'scripts/browser-performance/snapshot-query-arm-core.mjs',
+      'scripts/browser-performance/snapshot-setup.mjs', 'scripts/tutorial-browser/checkpoint-codec.mjs',
+      'app/checkpoint-format.ts', 'scripts/tutorial-browser/snapshot-query-arm-selection.mjs',
+      'scripts/browser-performance/snapshot-query-witness.mjs', 'scripts/browser-performance/snapshot-query-witness-core.mjs',
+      'scripts/browser-performance/snapshot-geometry.mjs', 'scripts/browser-performance/snapshot-observer.mjs',
+      'scripts/browser-performance/snapshot-readers.mjs', 'scripts/browser-performance/snapshot-reader-proof.mjs',
+      'scripts/browser-performance/snapshot-protocol.mjs', 'scripts/browser-performance/reader-build.mjs',
+      'scripts/browser-performance/snapshot-drag-contract.mjs',
+    ].map(path => { assert.match(source.files[path] ?? '', /^[a-f0-9]{64}$/); return [path, source.files[path]] }))
+    // Admit source-only reader closure before importing fixture/model code.
+    const { inspectDragSource } = await import('../browser-performance/snapshot-drag-contract.mjs')
+    const { readerSourceEvidence } = await import('../browser-performance/reader-build.mjs')
+    const { readerImportSha256 } = await import('../browser-performance/snapshot-reader-proof.mjs')
+    receipt.snapshotQueryArmPreImport = readerSourceEvidence(root, inspectDragSource(root))
+    assert.ok(receipt.snapshotQueryArmPreImport.profile && receipt.snapshotQueryArmPreImport.importSha256 === readerImportSha256, 'Unadmitted query source before fixture import')
+    const runQueryArm = (await import('../browser-performance/snapshot-query-arm.mjs')).default
+    const { CHECKPOINT_VERSION } = await import('../../app/checkpoint-format.ts')
+    receipt.snapshotQueryArmEntered = true
+    await runQueryArm({ browser, url, output: out, dist, source, expectedRevision: receipt.buildRevision,
+      expectedGeneratorSha256: source.files['scripts/browser-performance/snapshot-setup.mjs'],
+      expectedCodecSha256: source.files['scripts/tutorial-browser/checkpoint-codec.mjs'],
+      expectedCheckpointVersion: CHECKPOINT_VERSION, receipt: receipt.snapshotQueryArm })
+    assert.equal(receipt.snapshotQueryArm.status, 'observed-unqualified')
+    assert.equal(receipt.snapshotQueryArm.comparisonEligible, false)
+    assert.equal(receipt.snapshotQueryArm.interpretationEligible, false)
   } else if (selectedScenario === 'ordinary-pointer-smoke') {
     receipt.ordinaryPointerSmoke = {}
     await (await import('../browser-performance/ordinary-pointer-smoke.mjs')).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist, receipt: receipt.ordinaryPointerSmoke })
@@ -359,6 +393,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'camera-motion-evidence') receipt.failureEvidence = 'camera-motion.json'
+  else if (selectedScenario === 'snapshot-query-arm') receipt.failureEvidence = 'arm-query-owner.json; arm-query-owner-finalization-failure.json if retained'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 
 } finally {
@@ -385,6 +420,16 @@ try {
       server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
     }
     receipt.cleanupVerified = receipt.smokeRunnerCleanup.browser.confirmed && receipt.smokeRunnerCleanup.server.confirmed
+    if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
+  } else if (selectedScenario === 'snapshot-query-arm') {
+    receipt.queryArmRunnerCleanup = {
+      routeConfirmed: receipt.snapshotQueryArm?.cleanupVerified === true && receipt.snapshotQueryArm?.operationSettled === true,
+      browser: receipt.snapshotQueryArmEntered === true
+        ? { confirmed: receipt.snapshotQueryArm?.browserDisconnected === true, ownedByScenario: true }
+        : await closeOrdinaryPointerSmokeOwner(() => browser?.close()),
+      server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
+    }
+    receipt.cleanupVerified = receipt.queryArmRunnerCleanup.routeConfirmed && receipt.queryArmRunnerCleanup.browser.confirmed && receipt.queryArmRunnerCleanup.server.confirmed
     if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
   } else if (selectedScenario === 'camera-motion-evidence') {
     receipt.cameraRunnerCleanup = {
