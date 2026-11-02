@@ -18,6 +18,10 @@ import { runProfileEpisode } from './profile-episodes.mjs'
 import { closeCompletedPrimaryTutorial } from './primary-tutorial-lifecycle.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
+// Keep the admission token in the owner only, never in build/Chrome descendant environments.
+const calibrationCommentEnvironment = process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-calibration' &&
+  process.env.GITHUB_EVENT_NAME === 'issue_comment' ? {...process.env} : null
+if (process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-calibration') delete process.env.GH_TOKEN
 const captureProtocolEnabled = process.env.PND_CAPTURE_PROTOCOL_WINDOW === '1'
 const descendantEnv = captureDescendantEnvironment(process.env, captureProtocolEnabled)
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -48,13 +52,14 @@ if (selectedScenario === 'ordinary-pointer-smoke') {
     assert.ok(policy.ordinaryPointerSmokeSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
       process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Smoke requires exact-head Ready event label')
 }
-let ordinaryPointerCalibrationPolicy
+let ordinaryPointerCalibrationPolicy, verifyOrdinaryPointerCommentEnvironment
 if (selectedScenario === 'ordinary-pointer-calibration') {
   const policy = await import('../browser-performance/ordinary-pointer-calibration-policy.mjs')
   ordinaryPointerCalibrationPolicy = policy.ordinaryPointerCalibrationPolicy
+  verifyOrdinaryPointerCommentEnvironment = (await import('../browser-performance/ordinary-pointer-comment-admission.mjs')).verifyOrdinaryPointerCommentEnvironment
   closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
   assert.ok(policy.ordinaryPointerCalibrationSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
-    process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario), 'Calibration requires exact trusted-main dispatch')
+    process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env), 'Calibration requires exact trusted-main dispatch')
 }
 if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
@@ -204,6 +209,8 @@ try {
     receipt.ordinaryPointerSmoke = {}
     await (await import('../browser-performance/ordinary-pointer-smoke.mjs')).default({ browser, url, output: out, source, expectedRevision: receipt.buildRevision, dist, receipt: receipt.ordinaryPointerSmoke })
   } else if (selectedScenario === 'ordinary-pointer-calibration') {
+    if (process.env.GITHUB_EVENT_NAME === 'issue_comment')
+      receipt.calibrationCommentAdmission = await verifyOrdinaryPointerCommentEnvironment(calibrationCommentEnvironment)
     receipt.ordinaryPointerCalibration = {}
     await (await import('../browser-performance/ordinary-pointer-calibration.mjs')).default({
       chromium, launch: browserConfig.launch, url, output: out, source,

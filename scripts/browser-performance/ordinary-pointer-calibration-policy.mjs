@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import {classify} from './protocol.mjs'
+import {ordinaryPointerCommentSelection} from './ordinary-pointer-comment-admission.mjs'
 
 export const ordinaryPointerCalibrationPolicy = Object.freeze({ version: 1,
   role: 'trusted-same-source-feasibility-not-performance', aggregateMs: 1200000,
@@ -11,7 +12,9 @@ export const ordinaryPointerCalibrationPolicy = Object.freeze({ version: 1,
   protocolSha256: 'e7272da5a19feb797c691e62b377b1de02e079b79871a0479b50e961616fa23c',
   bindingSha256: '12160689687abb8ac79aec8376df7e282e02af94f6fbd834b12174ae5db62382' })
 
-export function ordinaryPointerCalibrationSelection(event, eventName, ref, sha, scenario) {
+export function ordinaryPointerCalibrationSelection(event, eventName, ref, sha, scenario, context = {}) {
+  if (eventName === 'issue_comment') return scenario === 'ordinary-pointer-calibration' &&
+    ordinaryPointerCommentSelection(event, {...context, GITHUB_EVENT_NAME:eventName, GITHUB_REF:ref, GITHUB_SHA:sha})
   return eventName === 'workflow_dispatch' && ref === 'refs/heads/main' &&
     /^[a-f0-9]{40}$/.test(sha ?? '') && event?.inputs?.expected_sha === sha &&
     scenario === 'ordinary-pointer-calibration'
