@@ -431,7 +431,7 @@ export class GameScene {
     previewGroundZoom(this)
   }
   private publishCameraInput() {
-    if (this.disposed) return
+    if (this.disposed || this.modalSuspended) return
     const input = this.world.cameras.input,
       buttons = this.navigationButtons()
     if (buttons !== input.buttons) this.captureCamera(!!(buttons & 15))
@@ -449,6 +449,11 @@ export class GameScene {
       this.advanceInputTime()
       if (this.disposed) return
       this.updateTooltipFrame(this.previous ?? performance.now(), true)
+      if (this.disposed) return
+      // The input drain can advance native person animation before the next RAF.
+      // Freeze sprites at that drained state, not the previous rendered frame.
+      this.updateUnitsFrame()
+      if (this.disposed) return
     }
     this.modalSuspended = suspended
     this.neutralCursor?.reset()
@@ -789,12 +794,12 @@ export class GameScene {
   }
   listen(target: EventTarget, name: string, handler: EventListener) {
     const ordered: EventListener = event => {
-      if (this.disposed) return
+      if (this.disposed || this.modalSuspended) return
       // Modern DOM event timestamps share performance.now()'s monotonic origin.
       // A synthetic event without that origin is observed at delivery time.
       const timestamp = event.timeStamp > 1e12 ? performance.now() : event.timeStamp
       this.advanceInputTime(timestamp)
-      if (this.disposed) return
+      if (this.disposed || this.modalSuspended) return
       this.inputDepth++
       try {
         handler(event)

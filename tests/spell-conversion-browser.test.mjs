@@ -22,7 +22,7 @@ const { skipIntroduction, preCameraVisit, postCameraVisit, previewGroundZoom } =
 const { GameScene } = await import('../app/scene.ts')
 
 function startupScene() {
-  return { world: createWorld(3, 'scalable'), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
+  return { world: createWorld(3, 'scalable'), tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] }, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     renderer: { domElement: { isConnected: true } }, onChange() {} }
 }
 
@@ -148,7 +148,7 @@ function cameraScene(world) {
       started: true, inputDepth: 0, modalSuspended: false, previous: 1000,
       cameraPreviewButtons: null, tooltipCameraActive: false, skyRemainder: 0,
       viewPoint: { x: 34, z: 82 }, cameraBearing: 1144 * Math.PI / 1024,
-      tooltip: { draw: 5 }, container: { clientWidth: 960, clientHeight: 720 },
+      tooltip: { draw: 5 }, tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] }, container: { clientWidth: 960, clientHeight: 720 },
       view: { update() {} }, fxMeshes: new Map(),
       renderer: { domElement: { isConnected: true }, info: { render: { frame: 0 } },
         getContext: () => context },

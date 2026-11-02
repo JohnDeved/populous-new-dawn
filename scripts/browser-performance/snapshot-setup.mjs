@@ -1,3 +1,4 @@
+import { prepareSnapshotCamera, snapshotFinalCamera } from './snapshot-camera-setup.mjs'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import { restoreCapacityPolicy } from '../../app/capacity-policy.ts'
 // Test-only authored snapshot transport and public-Load setup. Never imported by app/.
@@ -193,8 +194,7 @@ export function assertSnapshotAdmission(state, fixture, previous) {
   assert.equal(state.viewport.devicePixelRatio, 1)
   const c = state.camera
   assert.deepEqual(c.viewPoint, { x: fixture.receipt.focus.x, z: fixture.receipt.focus.z })
-  assert.deepEqual(c.position, { x: Math.round((fixture.receipt.focus.x + 8) * 256) & 65535,
-    y: Math.round((-fixture.receipt.focus.z - 8) * 256) & 65535, angle: 0 })
+  assert.deepEqual(c.position, snapshotFinalCamera(fixture))
   assert.equal(c.presetMatches, true)
   assert.deepEqual(c.projection, { width: Math.max(1, Math.round(state.viewport.canvas.width)),
     height: Math.max(1, Math.round(state.viewport.canvas.height)) })
@@ -268,23 +268,7 @@ export async function loadSnapshot({ page, url, fixture, expectedRevision }) {
       window.__snapshotPauseLatch.release()
       delete window.__snapshotPauseLatch
     })
-    // The saved selected Shaman is already at the constructor's ordinary exact
-    // focus. The public focus request is therefore idempotent, not a timed pan.
-    await page.locator('canvas.battlefield').focus()
-    await page.keyboard.press(snapshotAuthoring.focusKey)
-    await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active)
-    const point = await page.evaluate(() => {
-      const c = window.testSceneRef.current.renderer.domElement, r = c.getBoundingClientRect()
-      const x = Math.floor(r.left + r.width / 2), y = Math.floor(r.top + r.height / 2)
-      if (document.elementFromPoint(x, y) !== c || document.elementFromPoint(x + 32, y) !== c)
-        throw Error('Public camera drag path is not owned by battlefield')
-      return { x, y }
-    })
-    for (const dx of [snapshotAuthoring.dragPixels, -snapshotAuthoring.dragPixels]) {
-      await page.mouse.move(point.x, point.y); await page.mouse.down({ button: 'right' })
-      try { await page.mouse.move(point.x + dx, point.y) } finally { await page.mouse.up({ button: 'right' }) }
-    }
-    await page.mouse.click(point.x, point.y, { button: 'right' })
+    await prepareSnapshotCamera(page, fixture)
     const first = await page.evaluate(observeSnapshotState)
     assertSnapshotAdmission(first, fixture)
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))

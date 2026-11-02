@@ -39,7 +39,7 @@ function admitted(kind = 'firewarriorHut', count = 1) {
   // Skip-introduction caller as mission6-natural-marker-bridge, not flag writes.
   const introduction = { inputMask: w.inputMask, flags: w.flyby.flags, warmup: w.flyby.warmup }
   if (w.flyby.flags & 1 && w.flyby.warmup > 0)
-    skipIntroduction({ world: w, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+    skipIntroduction({ world: w, tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] }, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
   assert.equal(w.inputMask, 0, `public introduction completion: ${JSON.stringify(introduction)}`)
   console.info(
     'school-introduction',

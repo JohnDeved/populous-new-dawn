@@ -33,6 +33,7 @@ test('hosted checker never imports unserved source URLs and adapter is opt-in fi
 
 test('actual production focus clears targeting, so checker must focus before HUD selection', async () => {
   const { requestCameraFocus } = await import('../app/camera-motion.ts')
+  const { createTribeCameras, withSimulationCamera } = await import('../app/tribe-camera.ts')
   const camera = source('app/scene-camera-runtime.ts'),
     start = camera.indexOf('export function focus('),
     end = camera.indexOf('export function cameraBookmark(', start)
@@ -50,15 +51,18 @@ test('actual production focus clears targeting, so checker must focus before HUD
     'nativePosition',
     'browserPosition',
     'HOME',
+    'withSimulationCamera',
     focusSource
   )(
     requestCameraFocus,
     (_world, p) => ({ x: p.x, y: p.z, angle: -1 }),
     p => ({ x: p.x, z: p.y }),
-    { x: 0, z: 0 }
+    { x: 0, z: 0 },
+    withSimulationCamera
   )
   const scene = {
-    world: { mode: 'tornado', inputMask: 0 },
+    world: { mode: 'tornado', inputMask: 0, cameras: createTribeCameras() },
+    advanceInputTime() {}, // supplied synchronous focus fixture has no elapsed input
     cameraMotion: { active: 0 },
     cameraPosition: { x: 0, y: 0, angle: 0 },
     tooltip: { draw: 1 },

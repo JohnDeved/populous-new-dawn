@@ -255,6 +255,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     await page.waitForTimeout(150)
     report.checkpoint.holdAfter = await page.evaluate(readFollowerCorpseHold, report.effectId)
     assert.deepEqual(report.checkpoint.holdAfter, report.checkpoint.holdBefore)
+    report.checkpoint.savedViewPreset = await page.evaluate(() => window.testSceneRef.current.viewPreset)
+    assert.equal(report.checkpoint.savedViewPreset, 2, 'The original one-step zoom-out setup must be retained at Save')
     await button('Game settings'); await button('Save Game'); await button('Save checkpoint')
     const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
     await menu.getByRole('status').filter({ hasText: 'Checkpoint saved in this browser.' }).waitFor()
@@ -294,6 +296,11 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     Object.assign(report.checkpoint, await pauseLoadedFollowerCorpse(page, report.effectId, button)); save()
     assert.equal(report.checkpoint.readyPaused.effect.corpse.phase, 1, 'Ready-scene setup must remain within the saved corpse phase')
     await settle()
+    // Check persisted ownership before restoring the original public-input framing sequence.
+    report.checkpoint.restoredViewPreset = await page.evaluate(() => window.testSceneRef.current.viewPreset)
+    assert.equal(report.checkpoint.restoredViewPreset, report.checkpoint.savedViewPreset,
+      'Actual Load must preserve the saved view preset')
+    await action('One public = zoom-in after verified restored preset', () => page.keyboard.press('=')); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out after actual Load checkpoint', () => page.keyboard.press('-')); await settle()
     await focus(report.effectId)

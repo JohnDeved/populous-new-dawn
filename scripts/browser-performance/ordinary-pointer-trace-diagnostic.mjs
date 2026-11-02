@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import {mkdirSync,lstatSync,openSync,writeSync,closeSync,writeFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 
-export const ordinaryTracePolicy=Object.freeze({version:2,role:'task-gc-stack-triage-not-performance',
+export const ordinaryTracePolicy=Object.freeze({version:3,role:'task-gc-stack-triage-not-performance',
   activeMs:90000,cleanupMs:2000,traceBytes:8*1024*1024,chunkBytes:64*1024,metadataBytes:1024*1024,
   processes:32,errors:64,categories:Object.freeze(['devtools.timeline','disabled-by-default-devtools.timeline','v8','disabled-by-default-v8.gc',
     'disabled-by-default-v8.cpu_profiler','blink.user_timing'])})
@@ -29,9 +29,9 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
   const path=resolve(directory,'trace.json.partial'),fd=openSync(path,'wx',0o600)
   const receipt={version:2,traceOwner:'page-cdp',role:P.role,comparisonEligible:false,interpretationEligible:false,status:'incomplete',
     policy:P,bytes:0,errors:[],pending:0,observerCleanupConfirmed:false,transportCleanupConfirmed:false,
-    boundaries:'whole-capture marker envelope only; no projection span',schemaQualification:'not-performed'}
+    boundaries:'capture setup through54 acknowledged inputs; excludes final geometry/export/replay; no projection span',schemaQualification:'not-performed'}
   let session,target,stream,complete,traceStarted=false,endRequested=false,completionInvalid=false,traceStartRequested=false,stopped=false,frozen=false,failed=false,primary,value,
-    activeTimer,cleanupTimer,cleanupStarted,operationSettled=false,fdClosed=false,last,start,clockFailed=false
+    activeTimer,cleanupTimer,cleanupStarted,operationSettled=false,fdClosed=false,last,start,clockFailed=false,windowRequested=false,windowCompleted=false,windowFailed=false,windowError
   const error=(stage,e)=>{if(frozen)return;if(receipt.errors.length<P.errors)receipt.errors.push({stage,message:describe(e)});else receipt.errorOverflow=true}
   const clock=()=>{const t=now();assert.ok(Number.isFinite(t)&&t>=0&&(last===undefined||t>=last),'Monotonic diagnostic clock');last=t;return t}
   const check=()=>{assert.equal(stopped,false,'Diagnostic terminal');assert.ok(clock()-start<P.activeMs,'Diagnostic active deadline')}
@@ -77,8 +77,40 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
         traceConfig:{recordMode:'recordUntilFull',traceBufferSizeInKb:8192,enableSampling:true,enableSystrace:false,includedCategories:P.categories}})
       traceStarted=true;receipt.traceStartConfirmed=true
       await mark('pnd-ordinary-diagnostic-capture-start')
-      check();receipt.pending++;try{value=await capture({page,enabled:true})}finally{if(!frozen)receipt.pending--}check()
-      await mark('pnd-ordinary-diagnostic-capture-end')
+      const afterInputCapture=async boundary=>{
+        try{
+        check();assert.equal(windowRequested,false,'Duplicate input-window boundary')
+        windowRequested=true;receipt.inputWindowRequested=true
+        assert.equal(boundary?.completed,54,'Incomplete input-window boundary')
+        await mark('pnd-ordinary-diagnostic-capture-end');check()
+        const endStarted=clock();let endTimer,endFailed=false,endError
+        receipt.inputWindowEndSettled=false
+        const ending=(async()=>{
+          try{
+          check();assert.equal(endRequested,false,'Trace end already requested')
+          endRequested=true;await send(target,'Tracing.end',{});receipt.pending++
+          try{await completion}finally{if(!frozen)receipt.pending--}check()
+          assert.ok(clock()-endStarted<P.cleanupMs,'Input-window end deadline')
+          assert.equal(completionInvalid,false,'Invalid trace completion ordering')
+          assert.ok(complete&&complete.dataLossOccurred===false&&typeof stream==='string','Trace incomplete/loss or missing stream')
+          }finally{if(!frozen)receipt.inputWindowEndSettled=true}
+        })()
+        try{
+          await Promise.race([ending,new Promise((_,reject)=>{endTimer=schedule(()=>reject(Error('Input-window end deadline')),P.cleanupMs)})])
+          check();assert.ok(clock()-endStarted<P.cleanupMs,'Input-window end deadline')
+          windowCompleted=true;receipt.inputWindowCompleted=true
+        }catch(e){endFailed=true;endError=e}
+        finally{try{cancel(endTimer)}catch(e){error('input-window-timer',e);if(!endFailed){endFailed=true;endError=e}}ending.catch(()=>{})}
+        if(endFailed)throw endError
+        }catch(e){windowFailed=true;windowError=e;if(!frozen){receipt.inputWindowFailed=true;error('input-window',e)}throw e}
+      }
+      check();receipt.pending++;try{value=await capture({page,enabled:true,afterInputCapture})}finally{if(!frozen)receipt.pending--}
+      if(windowFailed)throw windowError
+      check()
+      receipt.captureOutcome=value?.outcome?.status
+      assert.ok(['completed','failed','timed-out'].includes(receipt.captureOutcome),'Capture outcome unavailable')
+      if(receipt.captureOutcome!=='completed')throw value.outcome.error
+      assert.equal(windowCompleted,true,'Required input-window boundary missing')
       await snapshot('processesAfter');metadata()
     }finally{operationSettled=true}
   })
@@ -94,7 +126,7 @@ export async function captureOrdinaryPointerTraceDiagnostic({browser,page,captur
     const cleanup=Promise.resolve().then(async()=>{
       let drainFailed=false,drainError
       try{
-        if(traceStartRequested){endRequested=true;await send(target,'Tracing.end',{},true);await completion
+        if(traceStartRequested){if(!endRequested){endRequested=true;await send(target,'Tracing.end',{},true)}await completion
           assert.equal(completionInvalid,false,'Invalid trace completion ordering')
           assert.ok(complete&&complete.dataLossOccurred===false&&typeof stream==='string','Trace incomplete/loss or missing stream')
           assert.equal(receipt.unexpectedDataCollected,undefined,'Unexpected trace transport')

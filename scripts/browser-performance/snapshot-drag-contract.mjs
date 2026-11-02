@@ -415,7 +415,7 @@ const bookmarkRetirementSourceProfiles = Object.freeze([
 ])
 // Direct HUD focus wrappers share one input boundary. This exact-source profile
 // does not broaden runtime admission; every prior profile remains unchanged.
-export const dragSourceProfiles = Object.freeze([
+const hudFocusSourceProfiles = Object.freeze([
   ...bookmarkRetirementSourceProfiles,
   Object.freeze({
     id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-v1',
@@ -423,6 +423,32 @@ export const dragSourceProfiles = Object.freeze([
       'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-v1').slices.map(slice =>
       slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
         sha256: 'f9d0e31cc7baf0de2061bcbb513834cff6173827f558b389825c42791449c24a',
+      }) : slice)),
+  }),
+])
+// Modal suspension rejects gameplay input without suppressing lifecycle cleanup.
+// Append one exact route; all earlier routes remain byte-for-byte unchanged.
+const modalFreezeSourceProfiles = Object.freeze([
+  ...hudFocusSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-v1',
+    slices: Object.freeze(hudFocusSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-v1').slices.map(slice =>
+      slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
+        sha256: 'd0d9cf70775701b04d336ef7e419859cf16659c2590f73aaa9c0c53ff314039b',
+      }) : slice)),
+  }),
+])
+// Freeze the last drained native unit presentation before entering a modal.
+// Keep every historical exact route; never normalize live source admission.
+export const dragSourceProfiles = Object.freeze([
+  ...modalFreezeSourceProfiles,
+  Object.freeze({
+    id: 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-v1',
+    slices: Object.freeze(modalFreezeSourceProfiles.find(profile => profile.id ===
+      'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-v1').slices.map(slice =>
+      slice.id === 'scene-camera-wiring' ? Object.freeze({ ...slice,
+        sha256: '38003b8e7e944366bcf8f788159f7a1f0cb81cc4a6a2606612f60efadb56f5da',
       }) : slice)),
   }),
 ])

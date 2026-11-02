@@ -25,8 +25,8 @@ function fixture(t,options={}){
  browserSession.detach=async()=>{calls.push(['browser-detach'])}
  target.detach=async()=>{calls.push(['target-detach']);if(options.detachPending)return new Promise(()=>{})}
  const session=target,browser={newBrowserCDPSession:async()=>browserSession},page={context:()=>({newCDPSession:async()=>target})}
- const value={observerCleanupConfirmed:true,comparisonEligible:false}
- const capture=async()=>{calls.push(['capture']);if(options.capture)return options.capture(session);return value}
+ const value={observerCleanupConfirmed:true,comparisonEligible:false,outcome:{status:'completed'}}
+ const capture=async({afterInputCapture})=>{calls.push(['capture']);const result=options.capture?await options.capture(session):value;if(afterInputCapture)await afterInputCapture({completed:54});calls.push(['export']);return result}
  const args={browser,page,capture,output,...options.args}
  return {args,calls,session,target,browserSession,value,output,receipt:()=>JSON.parse(readFileSync(join(output,'ordinary-pointer-diagnostic/receipt.json'),'utf8'))}
 }
@@ -64,7 +64,7 @@ test('unexpected dataCollected fails closed without event accumulation',async t=
 })
 test('stalled trace end stops at independent cleanup boundary and remains unconfirmed',async t=>{
  const f=fixture(t,{send:async(method)=>{if(method==='Tracing.getCategories')return {categories:P.categories};if(method==='SystemInfo.getProcessInfo')return {processInfo:[]};if(method==='Tracing.end')return new Promise(()=>{});return {}},args:{schedule:(fn,ms)=>setTimeout(fn,ms===P.cleanupMs?5:1000)}})
- await assert.rejects(run(f.args),/cleanup deadline/);const r=f.receipt();assert.equal(r.transportCleanupConfirmed,false);assert.equal(r.cleanupFailed,true);assert.equal(r.pending,1)
+ await assert.rejects(run(f.args),/cleanup deadline|Input-window end deadline/);const r=f.receipt();assert.equal(r.transportCleanupConfirmed,false);assert.equal(r.cleanupFailed,true);assert.equal(r.pending,1)
 })
 test('missing category aborts before workload with no fallback',async t=>{
  const f=fixture(t,{send:async method=>method==='Tracing.getCategories'?{categories:[]}:{}})
@@ -166,4 +166,51 @@ test('malformed category names and oversized serialized inventory fail closed wi
   assert.deepEqual(f.receipt().categoryInspection,{returnedCount:categories.length,retained:false})
   assert.equal(f.calls.some(x=>x[0]==='Tracing.start'||x[0]==='capture'),false)
  }
+})
+
+test('trace ends exactly once before export and drains only after complete capture',async t=>{
+ const f=fixture(t);await run(f.args);const calls=f.calls.map(x=>x[0])
+ assert.equal(calls.filter(x=>x==='Tracing.end').length,1)
+ assert.ok(calls.indexOf('Tracing.end')<calls.indexOf('export'))
+ assert.ok(calls.indexOf('IO.read')>calls.indexOf('export'))
+ assert.equal(f.receipt().inputWindowCompleted,true)
+})
+test('missing boundary fails closed even when supplied capture claims success',async t=>{
+ const f=fixture(t);f.args.capture=async()=>f.value
+ await assert.rejects(run(f.args),/Required input-window boundary missing/)
+ assert.equal(f.calls.filter(x=>x[0]==='Tracing.end').length,1)
+ assert.equal(f.receipt().status,'failed')
+})
+test('duplicate boundary cannot issue a second end or become successful',async t=>{
+ const f=fixture(t);f.args.capture=async({afterInputCapture})=>{await afterInputCapture({completed:54});await afterInputCapture({completed:54});return f.value}
+ await assert.rejects(run(f.args),/Duplicate input-window/)
+ assert.equal(f.calls.filter(x=>x[0]==='Tracing.end').length,1)
+})
+test('post-window export failure remains primary and trace is not successful',async t=>{
+ const f=fixture(t);f.args.capture=async({afterInputCapture})=>{await afterInputCapture({completed:54});throw 0}
+ let seen=false;try{await run(f.args)}catch(e){seen=true;assert.equal(e,0)}assert.equal(seen,true)
+ assert.equal(f.receipt().inputWindowCompleted,true);assert.equal(f.receipt().status,'failed')
+ assert.equal(f.calls.filter(x=>x[0]==='Tracing.end').length,1)
+})
+test('incomplete boundary cannot end the successful input window',async t=>{
+ const f=fixture(t);f.args.capture=async({afterInputCapture})=>{await afterInputCapture({completed:53});return f.value}
+ await assert.rejects(run(f.args),/Incomplete input-window/)
+ assert.equal(f.receipt().inputWindowCompleted,undefined);assert.equal(f.calls.filter(x=>x[0]==='Tracing.end').length,1)
+})
+test('input-window end rejects exact monotonic2s even with timer withheld',async t=>{
+ let time=0;const f=fixture(t,{args:{now:()=>time,schedule:()=>1,cancel:()=>{}}}),send=f.target.send
+ f.target.send=async(m,a)=>{const r=await send(m,a);if(m==='Tracing.end')time=2000;return r}
+ await assert.rejects(run(f.args),/Input-window end deadline/)
+ assert.equal(f.receipt().inputWindowCompleted,undefined);assert.equal(f.calls.filter(x=>x[0]==='Tracing.end').length,1)
+})
+test('late end completion cannot mutate terminal receipt or send a second end',async t=>{
+ const f=fixture(t,{args:{schedule:(fn,ms)=>setTimeout(fn,ms===2000?5:1000)}}),send=f.target.send
+ f.target.send=async(m,a)=>{if(m==='Tracing.end'){f.calls.push([m,a,'page']);return {}}return send(m,a)}
+ await assert.rejects(run(f.args),/Input-window end deadline/)
+ const before=JSON.stringify(f.receipt()),count=f.calls.length
+ f.target.emit('Tracing.tracingComplete',{dataLossOccurred:false,stream:'late'})
+ await new Promise(r=>setTimeout(r,0))
+ assert.equal(JSON.stringify(f.receipt()),before);assert.equal(f.calls.length,count)
+ assert.equal(f.calls.filter(x=>x[0]==='Tracing.end').length,1);assert.equal(f.receipt().transportCleanupConfirmed,false)
+ assert.equal(f.receipt().inputWindowEndSettled,false);assert.equal(f.receipt().pending,1)
 })
