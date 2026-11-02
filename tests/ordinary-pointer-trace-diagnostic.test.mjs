@@ -13,7 +13,7 @@ function fixture(t,options={}){
   if(method==='Target.getTargetInfo')return {targetInfo:{targetId:'owned',type:'page',url:'http://fixture/'}}
   if(method==='Runtime.evaluate')return {result:{}}
   if(options.send)return options.send(method,args,owner,calls)
-  if(method==='Tracing.getCategories')return {categories:P.categories}
+  if(method==='Tracing.getCategories')return {categories:options.categories??P.categories}
   if(method==='Browser.getVersion')return {product:'supplied-browser',protocolVersion:'supplied'}
   if(method==='SystemInfo.getProcessInfo')return {processInfo:[{type:'renderer',id:42,cpuTime:1}]}
   if(method==='Tracing.end'){owner.emit('Tracing.tracingComplete',{dataLossOccurred:!!options.loss,stream:'owned'});return {}}
@@ -139,4 +139,31 @@ test('page trace capability rejection does not fall back to browser session',asy
  await assert.rejects(run(f.args),/unsupported target tracing/)
  assert.equal(f.calls.some(x=>x[0]==='capture'),false)
  assert.equal(f.calls.some(x=>x[0].startsWith('Tracing.')&&x[2]==='browser'),false)
+})
+
+
+test('category diagnostic retains exact missing names before unchanged strict refusal',async t=>{
+ const available=P.categories.filter(c=>c!=='disabled-by-default-v8.gc'),f=fixture(t,{categories:available})
+ await assert.rejects(run(f.args),/Required trace category unavailable/)
+ assert.deepEqual(f.receipt().categoryInspection,{returnedCount:available.length,retained:true,returnedCategories:available,missingRequired:['disabled-by-default-v8.gc']})
+ assert.equal(f.calls.some(x=>x[0]==='Tracing.start'||x[0]==='capture'),false)
+ assert.equal(f.receipt().transportCleanupConfirmed,true)
+})
+test('category diagnostic retains ordering and duplicates without interpreting coverage',async t=>{
+ const categories=[...P.categories].reverse();categories.push(P.categories[0]);const f=fixture(t,{categories})
+ await run(f.args);assert.deepEqual(f.receipt().categoryInspection,{returnedCount:categories.length,retained:true,returnedCategories:categories,missingRequired:[]})
+ assert.equal(f.receipt().interpretationEligible,false);assert.equal(f.receipt().schemaQualification,'not-performed')
+})
+test('category inventory overflow retains bounded count but never full payload or starts capture',async t=>{
+ const f=fixture(t,{categories:Array(2049).fill('x')})
+ await assert.rejects(run(f.args),/Trace category inventory bound/)
+ assert.deepEqual(f.receipt().categoryInspection,{returnedCount:2049,retained:false})
+ assert.equal(f.calls.some(x=>x[0]==='Tracing.start'||x[0]==='capture'),false)
+})
+test('malformed category names and oversized serialized inventory fail closed with summary',async t=>{
+ for(const categories of [[...P.categories,null],[...P.categories,'x'.repeat(257)],Array(2048).fill('x'.repeat(256))]){
+  const f=fixture(t,{categories});await assert.rejects(run(f.args),/Invalid bounded trace category name|Diagnostic metadata cap/)
+  assert.deepEqual(f.receipt().categoryInspection,{returnedCount:categories.length,retained:false})
+  assert.equal(f.calls.some(x=>x[0]==='Tracing.start'||x[0]==='capture'),false)
+ }
 })
