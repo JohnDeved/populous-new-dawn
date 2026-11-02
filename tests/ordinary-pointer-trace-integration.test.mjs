@@ -11,7 +11,7 @@ test('trace is explicit 180s, all other caps remain unchanged; runner pin exact'
  assert.ok(browserScenarios.includes('ordinary-pointer-trace'));assert.equal(browserCapMs('ordinary-pointer-trace'),180000)
  assert.equal(browserCapMs('ordinary-pointer-calibration'),1200000);assert.equal(browserCapMs('ordinary-pointer-smoke'),90000);assert.equal(browserCapMs('tutorial'),240000)
  assert.equal(JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
- assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)"))
+ assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence'].includes(selectedScenario)"))
  assert.match(source,/ordinaryPointerTraceSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*traceCommentEnvironment\)/)
  assert.match(source,/ordinary-pointer-trace\/route.json/)
 })
@@ -34,7 +34,7 @@ test('actual launch block creates no preliminary browser for trace, preserves sm
  await run('ordinary-pointer-smoke',chromium,false,{launch:{}},{},{},()=>{});assert.equal(launches,1)
 })
 test('actual trace dispatch retains identity/admission/receipt and rejects incomplete status or falsey failure',async()=>{
- let block=between('    receipt.ordinaryPointerTrace = {}',"  } else if (selectedScenario === 'frontend-held-escape')")
+ let block=between('    receipt.ordinaryPointerTrace = {}',"  } else if (selectedScenario === 'query-art-evidence')")
  block=block.replace("(await import('../browser-performance/ordinary-pointer-trace-route.mjs')).default",'route');assert.ok(!block.includes('import('))
  const run=new AsyncFunction('assert','route','chromium','browserConfig','url','out','source','dist','browserPath','browserBinaryVersion','receipt','verifyOrdinaryPointerTraceEnvironment','traceCommentEnvironment',block)
  const receipt={buildRevision:'exact',browserSha256:'hash'},env={GH_TOKEN:'owner-only'},launch={},chromium={},src={};let admissions=0
