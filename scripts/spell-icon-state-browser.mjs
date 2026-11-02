@@ -143,7 +143,8 @@ export async function runSpellIconMatrix({ browser, observedBrowser, open, url, 
       await page.mouse.move(500, 900)
       assert.equal(await page.evaluate(() => window.testStore.getWorld().mode), null)
     }
-    const charging = !!state.charging && rules.spellCharging[spell.model].mode !== 2
+    // This matrix explicitly supplies permission bit 256 above, including mode 2.
+    const charging = !!state.charging && !!state.permanent && !state.hovered && !state.disabled
     assert.equal(await card.locator('.native-charge').count(), Number(charging))
     if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), 12)
     assert.equal(await card.locator('.hud-sprite').count(), rules.spellCharging[spell.model].normalLimit + 1)
