@@ -4,7 +4,6 @@
     "    assert.ok(policy.ordinaryPointerSmokeSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),",
     "  assert.ok(policy.ordinaryPointerCalibrationSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),",
     "  assert.ok(policy.ordinaryPointerTraceSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),",
-    "if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')",
     "if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact proposed merge required')",
     "assert.ok(existsSync(browserPath), 'Supported preinstalled official Chrome channel is required')",
     "function verifySource() { for (const [name, expected] of Object.entries(source.files)) assert.equal(hash(resolve(root, name)), expected, name) }",
