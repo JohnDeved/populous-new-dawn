@@ -113,7 +113,7 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
       await step(()=>page.evaluate(installCameraMotionObserver))
       await episode(page,report,async()=>{
         await mark(page,'ground')
-        if(kind.includes('edge'))await step(()=>page.mouse.move(1,500))
+        if(kind.includes('edge'))await step(()=>page.mouse.move(0,500))
         else await step(()=>page.keyboard.down('ArrowLeft'))
         await step(()=>page.keyboard.press('Enter'))
         await wait(page,()=>!!window.__pndCameraMotion.status().last?.overviewStage)
@@ -139,7 +139,7 @@ export async function runCameraMotionCases({ browser,url,check,write,receipt,own
       await step(()=>page.evaluate(installCameraMotionObserver))
       await episode(page,report,async()=>{
         await mark(page,'flyby')
-        if(kind==='flyby-edge')await step(()=>page.mouse.move(1,500))
+        if(kind==='flyby-edge')await step(()=>page.mouse.move(0,500))
         else await step(()=>page.keyboard.down('ArrowLeft'))
         await collectSettled(page,'released')
         if(kind==='flyby-edge')await capture(page,report)

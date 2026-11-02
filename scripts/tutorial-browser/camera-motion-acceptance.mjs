@@ -19,7 +19,7 @@ export function acceptCameraMotionCase(report) {
   const events=observation.events
   assert.ok(events.length>0)
   for(const e of events) { assert.equal(e.trusted,true); assert.ok(e.before&&e.after,'Actual event boundary missing') }
-  const input=events.find(e=>report.kind.includes('edge') ? e.type==='pointermove'&&e.x===1 : e.type==='keydown'&&e.key==='ArrowLeft')
+  const input=events.find(e=>report.kind.includes('edge') ? e.type==='pointermove'&&e.x===0 : e.type==='keydown'&&e.key==='ArrowLeft')
   assert.ok(input,'Expected real held input missing')
   const positive=['overview-key','overview-edge','flyby-edge'].includes(report.kind)
   const frames=observation.frames, releases=[]
@@ -60,7 +60,7 @@ export function acceptCameraMotionCase(report) {
       'Input must finish while natural flyby is still gated')
     assert.ok(observation.frames.some(r=>r.observedAt>=input.after.observedAt&&r.flyby&&r.inputMask),
       'At least one completed gated frame must retain the dispatched input')
-    if(report.kind==='flyby-edge')assert.ok(observation.frames.filter(r=>r.observedAt>=input.after.observedAt).every(r=>r.navigationPointer?.x===1&&r.navigationPointer?.y===500&&r.navigationPointer?.buttons===0),'Same stationary edge pointer must survive gate release')
+    if(report.kind==='flyby-edge')assert.ok(observation.frames.filter(r=>r.observedAt>=input.after.observedAt).every(r=>r.navigationPointer?.x===0&&r.navigationPointer?.y===500&&r.navigationPointer?.buttons===0),'Same stationary edge pointer must survive gate release')
     assert.ok(observation.frames.some(r=>r.flyby&&r.inputMask))
     if(report.kind==='flyby-masked-key') assert.equal(input.after.keys.includes('arrowleft'),false,'Masked key must remain ignored')
   }

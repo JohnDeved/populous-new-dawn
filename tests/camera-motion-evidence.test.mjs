@@ -119,8 +119,8 @@ test('failed context close is retained, not retried, and browser owner is still 
 })
 test('natural flyby edge requires preserved pointer and masked key remains rejected',()=>{
  const r=validCase();r.kind='flyby-edge'
- r.observation.frames.forEach((row,i)=>{row.phase=i<2?'flyby':'released';row.overview=false;row.overviewStage=null;row.flyby=i<2;row.inputMask=i<2?64:0;row.inputButtons=i<2?0:1;row.navigationPointer={x:1,y:500,buttons:0}})
- r.observation.events=[{type:'pointermove',x:1,trusted:true,before:{flyby:true,inputMask:64},after:{observedAt:1,flyby:true,inputMask:64}}]
+ r.observation.frames.forEach((row,i)=>{row.phase=i<2?'flyby':'released';row.overview=false;row.overviewStage=null;row.flyby=i<2;row.inputMask=i<2?64:0;row.inputButtons=i<2?0:1;row.navigationPointer={x:0,y:500,buttons:0}})
+ r.observation.events=[{type:'pointermove',x:0,trusted:true,before:{flyby:true,inputMask:64},after:{observedAt:1,flyby:true,inputMask:64}}]
  assert.equal(acceptCameraMotionCase(r).status,'passed')
  r.observation.frames.at(-1).navigationPointer.x=2;assert.throws(()=>acceptCameraMotionCase(r))
  r.kind='flyby-masked-key';r.captures=[];r.observation.frames.forEach(row=>row.inputButtons=0)
@@ -146,8 +146,8 @@ test('validator rejects a missed input gate and stale first post-gate publicatio
  r.observation.frames.forEach((row,i)=>{row.frame=i+1;row.observedAt=i+1})
  assert.throws(()=>acceptCameraMotionCase(r),/First completed post-gate/)
  const flyby=validCase();flyby.kind='flyby-edge'
- flyby.observation.frames.forEach((row,i)=>{row.phase=i<2?'flyby':'released';row.overview=false;row.overviewStage=null;row.flyby=i<2;row.inputMask=i<2?64:0;row.inputButtons=i<2?0:1;row.navigationPointer={x:1,y:500,buttons:0}})
- flyby.observation.events=[{type:'pointermove',x:1,trusted:true,before:{flyby:true,inputMask:64},after:{observedAt:1,flyby:false,inputMask:0}}]
+ flyby.observation.frames.forEach((row,i)=>{row.phase=i<2?'flyby':'released';row.overview=false;row.overviewStage=null;row.flyby=i<2;row.inputMask=i<2?64:0;row.inputButtons=i<2?0:1;row.navigationPointer={x:0,y:500,buttons:0}})
+ flyby.observation.events=[{type:'pointermove',x:0,trusted:true,before:{flyby:true,inputMask:64},after:{observedAt:1,flyby:false,inputMask:0}}]
  assert.throws(()=>acceptCameraMotionCase(flyby),/Input must finish/)
 })
 
