@@ -14,7 +14,7 @@ async function withStorage(initial, run, { failRead = false } = {}) {
   const records = new Map(Object.entries(structuredClone(initial))),
     writes = [],
     previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB'),
-    database = {
+    database = Object.assign(new EventTarget(), {
       transaction(name, mode = 'readonly') {
         assert.equal(name, 'checkpoints')
         const transaction = new EventTarget()
@@ -42,7 +42,7 @@ async function withStorage(initial, run, { failRead = false } = {}) {
         })
         return transaction
       },
-    }
+    })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {

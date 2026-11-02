@@ -77,7 +77,7 @@ async function storage(t) {
     target.dispatchEvent(event)
     target[`on${type}`]?.call(target, event)
   }
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     objectStoreNames: { contains: name => name === 'checkpoints' },
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
@@ -115,7 +115,7 @@ async function storage(t) {
     close() {
       closed++
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {

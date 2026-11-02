@@ -101,7 +101,7 @@ async function withStorage(run, initial = {}, { failWrite = false } = {}) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
   const records = new Map(Object.entries(initial)), opens = [], reads = [], writes = []
   let transactions = 0
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
       transactions++
@@ -117,7 +117,7 @@ async function withStorage(run, initial = {}, { failWrite = false } = {}) {
       })
       return transaction
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: {
     open: () => { const request = new EventTarget(); opens.push(request); return request },
   } })

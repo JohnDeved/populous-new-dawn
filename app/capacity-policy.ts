@@ -118,4 +118,11 @@ export function restoreCapacityPolicy(world: World) {
     for (const object of objects)
       if (!Number.isSafeInteger(object.id) || object.id < 1 || object.id >= world.nextId)
         throw new RangeError('Invalid scalable checkpoint object ID')
+  // Units are simulated as array entries but resolved by ID in live registries.
+  // Registry/controller aliases are valid; a second unit slot with that ID is not.
+  const unitIds = new Set<number>()
+  for (const unit of world.units) {
+    if (unitIds.has(unit.id)) throw new RangeError('Duplicate scalable checkpoint unit ID')
+    unitIds.add(unit.id)
+  }
 }
