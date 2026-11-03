@@ -5,7 +5,7 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
-import { beginOrdinaryCastingWitness, waitForCastingWitness, waitForRunningCastingWitness, retainCastingWitness, castingAllocationAccepted, startCastingHostOperation } from './shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness, prepareCastingF9 } from './shaman-casting.mjs'
 import { installShamanCastingInputTiming } from './shaman-casting-observer.mjs'
 
 // Same-source hosted passes took 49.356s/50.327s; a 55s run still reached a
@@ -85,10 +85,11 @@ export default async function spellTestMenu({ browser, url, output }) {
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
-  let failure, castingRetentionAttempted = false
+  let failure, castingRetentionAttempted = false, castingDispatch
   const diagnostics = startSpellTestDiagnostics(page, report)
   const timer = setTimeout(() => {
-    report.timedOut = true; diagnostics.stop(); void context.close().catch(() => {})
+    report.timedOut = true; castingDispatch?.cancel(Error('F9 episode deadline expired'))
+    diagnostics.stop(); void context.close().catch(() => {})
   }, Math.max(0, spellTestLimitMs - (performance.now() - started)))
   page.setDefaultTimeout(12000)
   page.on('pageerror', error => report.errors.push(String(error)))
@@ -225,19 +226,9 @@ export default async function spellTestMenu({ browser, url, output }) {
         p = scene.screen({ x: shaman.x + 5, z: shaman.z + 5 }), rect = scene.renderer.domElement.getBoundingClientRect()
       return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2, before: w.stats.cast }
     })
-    let endOperation = startCastingHostOperation(report, 'pointer-click'), completed = false
-    try { await page.mouse.click(target.x, target.y); completed = true }
-    finally { endOperation(completed) }
-    endOperation = startCastingHostOperation(report, 'allocation-wait'); completed = false
-    try { await page.waitForFunction(castingAllocationAccepted, target.before); completed = true }
-    finally { endOperation(completed) }
-    // F9 freezes the cached Painter, so allocation alone cannot admit this hold.
-    endOperation = startCastingHostOperation(report, 'running-render-wait'); completed = false
-    try { await waitForRunningCastingWitness(page, 'subsequent'); completed = true }
-    finally { endOperation(completed) }
-    endOperation = startCastingHostOperation(report, 'keyboard-press'); completed = false
-    try { await page.keyboard.press('F9'); completed = true }
-    finally { endOperation(completed) }
+    castingDispatch = await prepareCastingF9(page, report, target.before, started + spellTestLimitMs)
+    await castingDispatch.click(target)
+    await castingDispatch.close()
     await menu.waitFor()
     const casting = await snapshot()
     assert.equal(casting.shots.blast, unlocked.shots.blast - 1, 'normal cast spent one real charge')
@@ -298,6 +289,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) }
     catch (error) { report.screenshotError = String(error) }
   } finally {
+    if (castingDispatch) {
+      castingDispatch.cancel(failure ?? Error('F9 episode cleanup'))
+      try { await castingDispatch.close() }
+      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+    }
     // Retain partial casting observations before context closure, with the same
     // absolute watchdog still active. Retention must never erase the first error.
     try {
