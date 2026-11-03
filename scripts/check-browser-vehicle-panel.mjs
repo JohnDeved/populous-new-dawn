@@ -3,6 +3,8 @@ import assert from 'node:assert/strict'
 import {resolve} from 'node:path'
 import {writeFileSync} from 'node:fs'
 import {bindGame} from './browser-game.mjs'
+import {waitForCheckpointReadback} from './checkpoint-readback.mjs'
+import {readCommittedCheckpoint} from './local-render/checkpoint-observer.mjs'
 import {vehiclePanel as nativePairedLayout} from '../app/vehicle-panel.ts'
 import hud from '../app/original-hud.json' with {type:'json'}
 
@@ -33,20 +35,47 @@ async function resizeViewport(page,viewport) {
   return{backing:[s.renderer.domElement.width,s.renderer.domElement.height],expected:[Math.floor(r.width*dpr),Math.floor(r.height*dpr)],dpr}
  })
 }
-async function save(page, id, airborne) {
- await page.getByRole('button',{name:'Menu',exact:true}).click();await page.getByRole('button',{name:'Save checkpoint',exact:true}).click()
- await page.waitForFunction(async ({id,airborne})=>{
-  const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
-  const saved=await new Promise((resolve,reject)=>{const r=db.transaction('checkpoints','readonly').objectStore('checkpoints').get('latest');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
-  db.close();const v=saved?.world?.vehicles.find(v=>v.id===id)
-  return airborne ? v?.passengerCount===0&&saved.world.units.some(u=>u.flight) : v?.passengerCount===2
- },{id,airborne})
- await page.getByRole('button',{name:'Close menu',exact:true}).click()
+async function save(page, id, roster, airborne, retain) {
+ const button=name=>page.getByRole('button',{name,exact:true})
+ await button('Menu').click();await button('Save Game').click();await button('Save checkpoint').click()
+ await page.getByText('Checkpoint saved in this browser.',{exact:true}).waitFor()
+ let state
+ const committed=await waitForCheckpointReadback(async()=>{
+  state=await page.evaluate(async({id,roster})=>{
+   const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
+   try {
+    const saved=await new Promise((resolve,reject)=>{const t=db.transaction('checkpoints','readonly'),r=t.objectStore('checkpoints').get('latest');t.oncomplete=()=>resolve(r.result);t.onerror=()=>reject(t.error);t.onabort=()=>reject(t.error??Error('Checkpoint read aborted'))})
+    const v=saved?.world?.vehicles.find(v=>v.id===id)
+    return {turn:saved?.world?.turn,count:v?.passengerCount,ids:v?.passengers,people:roster.map(({id})=>{
+     const u=saved?.world?.units.find(u=>u.id===id)
+     return u?{id,present:true,hp:u.hp,kind:u.kind,team:u.team,cargo:u.cargo,vehicle:u.native?.vehicle??0,flight:!!u.flight}:{id,present:false}
+    })}
+   } finally {db.close()}
+  },{id,roster})
+  return (airborne?state.count===0:state.count===2)&&state.people.every((u,i)=>u.present&&u.hp>0&&u.kind===roster[i].kind&&u.team===roster[i].team&&u.cargo===roster[i].cargo&&(airborne?u.flight&&!u.vehicle:u.vehicle===id))
+ },{pause:()=>page.waitForTimeout(100)})
+ retain(`vehicle${id}: committed ${airborne?'airborne':'occupied'} save`,{committed,state})
+ assert.equal(committed,true,JSON.stringify(state))
+ const readback=await readCommittedCheckpoint(page)
+ assert.ok(readback?.checkpointSha256)
+ await button('Back').click();await button('Continue Game').click()
+ return {state,readback}
 }
 async function restore(page) {
- await page.getByRole('button',{name:'Menu',exact:true}).click();await page.getByRole('button',{name:'Load checkpoint',exact:true}).click();await bindGame(page)
+ await page.getByRole('button',{name:'Menu',exact:true}).click();await page.getByRole('button',{name:'Load Game',exact:true}).click();await page.getByRole('button',{name:'Load checkpoint',exact:true}).click();await bindGame(page)
  await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld())
  await page.evaluate(()=>{const s=window.testSceneRef.current;s.world.speed=0;cancelAnimationFrame(s.frame)})
+}
+const rosterState=(page,id,roster)=>page.evaluate(async({id,roster})=>{
+ const {vehicleRosterSnapshot}=await import('/scripts/browser-vehicle-fixture.mjs'),w=window.testSceneRef.current.world
+ return vehicleRosterSnapshot(w,w.vehicles.find(v=>v.id===id),roster)
+},{id,roster})
+async function progressRoster(page,id,roster,phase) {
+ return page.evaluate(async({id,roster,phase})=>{
+  const {advanceVehicleRoster}=await import('/scripts/browser-vehicle-fixture.mjs'),s=window.testSceneRef.current,w=s.world
+  const result=advanceVehicleRoster(w,w.vehicles.find(v=>v.id===id),roster,phase)
+  s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame);return result
+ },{id,roster,phase})
 }
 async function sourcePixels(panel,model,people,ready,output,name,hover=-1,pressed=false) {
  const layout=nativePairedLayout(model,people,ready,hover,pressed), canvas=panel.locator('canvas')
@@ -69,7 +98,8 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
  const ids=await page.evaluate(()=>{const s=window.testSceneRef.current;s.world.speed=0;cancelAnimationFrame(s.frame);return s.world.vehicles.map(v=>({id:v.id,model:v.model}))})
  await page.keyboard.press('Escape')
  const graphics=await page.evaluate(()=>{const gl=window.testSceneRef.current.renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return{renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),devicePixelRatio,turn:window.testSceneRef.current.world.turn}})
- const result={graphics,method:'Actual authored Mission22 vehicle meshes and shipped world right-click/panel controls. Passenger population/location and deterministic turn advancement are supporting fixtures; no natural acquisition or hardware-performance claim.',vehicles:[],layouts:[],pixels:[]}
+ const result={graphics,method:'Authored Mission22 craft identities and shipped mesh/panel controls. Supplied Boat relocation to documented coast 6912/11520 on unchanged terrain, mixed-class crew at supported vehicleExit, and bounded direct ticks. No natural Mission22 voyage/acquisition, native execution or hardware-performance claim.',vehicles:[],layouts:[],pixels:[],checkpoints:[],diagnostics:[]}
+ const retain=(phase,state)=>{result.diagnostics.push({phase,state});writeFileSync(resolve(output,'vehicle-panel-results.json'),JSON.stringify(result,null,2)+'\n');return state}
  let priorCrew=[]
  for(const model of [1,3]){
   const id=ids.find(v=>v.model===model).id,p=await vehiclePoint(page,id)
@@ -80,21 +110,29 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
   await page.mouse.move(900,400);await render(page)
   result.pixels.push(await sourcePixels(panel,model,[],false,output,`vehicle-${model}-empty-pixels`))
   await page.screenshot({path:resolve(output,`vehicle-${model}-empty.png`)})
-  // Supporting mixed-class roster; subsequent boarding is an actual terrain/model click.
-  const roster=await page.evaluate(async ({id,remove})=>{
-   const s=window.testSceneRef.current,w=s.world,{addUnit,browserPosition}=await import('/app/model.ts'),v=w.vehicles.find(v=>v.id===id)
-   // Keep authored populations, Shamans and their routes; only replace the prior test crew.
-   w.units=w.units.filter(u=>!remove.includes(u.id));for(const id of remove)w.pathfinding.people.delete(id);w.selected=[];s.objectPanels.dispose()
-   const point=browserPosition(v),units=['brave','warrior'].map((kind,i)=>addUnit(w,'blue',kind,{x:point.x+0.2*i,z:point.z}))
-   s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
-   return units.map(u=>u.id)
+  const prepared=await page.evaluate(async({id,remove})=>{
+   const {prepareVehiclePanelFixture}=await import('/scripts/browser-vehicle-fixture.mjs'),s=window.testSceneRef.current,w=s.world
+   s.objectPanels.dispose()
+   const state=prepareVehiclePanelFixture(w,w.vehicles.find(v=>v.id===id),remove)
+   s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame);return state
   },{id,remove:priorCrew})
+  retain(`model${model}: staged supported crew`,prepared)
+  assert.deepEqual(prepared.errors,[],JSON.stringify(prepared))
+  assert.deepEqual(prepared.staged.errors,[],JSON.stringify(prepared))
+  const crew=prepared.roster,roster=crew.map(u=>u.id)
   priorCrew=roster
   await page.getByRole('button',{name:'Select follower',exact:true}).click({modifiers:['Shift']})
   assert.deepEqual((await selection(page)).toSorted(),roster.toSorted())
+  retain(`model${model}: before public boarding click`,await rosterState(page,id,crew))
   const boardingPoint=await vehiclePoint(page,id);await page.mouse.click(boardingPoint.x,boardingPoint.y)
-  const boarded=await page.evaluate(async({id,roster})=>{const s=window.testSceneRef.current,w=s.world,{tick}=await import('/app/model.ts'),v=w.vehicles.find(v=>v.id===id);for(let i=0;i<120&&v.passengerCount<roster.length;i++)tick(w,1/12);s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame);return{count:v.passengerCount,ids:[...v.passengers],units:roster.map(id=>{const u=w.units.find(u=>u.id===id);return{id,hp:u.hp,vehicle:u.native?.vehicle}})}},{id,roster})
-  assert.equal(boarded.count,2,JSON.stringify(boarded));await page.keyboard.press('Escape')
+  const clicked=retain(`model${model}: after public boarding click`,await rosterState(page,id,crew))
+  assert.deepEqual(clicked.errors,[],JSON.stringify(clicked))
+  const boarded=retain(`model${model}: bounded boarding`,await progressRoster(page,id,crew,'boarding'))
+  assert.deepEqual(boarded.errors,[],JSON.stringify(boarded))
+  assert.equal(boarded.count,2,JSON.stringify(boarded))
+  assert.deepEqual(boarded.ids,roster)
+  assert.ok(boarded.people.every(p=>p.present&&p.hp>0&&p.vehicle===id),JSON.stringify(boarded))
+  await page.keyboard.press('Escape')
   const focusPoint=await vehiclePoint(page,id);await page.mouse.click(focusPoint.x,focusPoint.y,{button:'right'});await render(page)
   await panel.waitFor({state:'visible'});assert.equal(await panel.getByRole('button',{name:'Unload all passengers',exact:true}).isEnabled(),true)
   await page.mouse.move(900,400);await render(page)
@@ -119,7 +157,8 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
    result.layouts.push({model,viewport,bounds,dimensions})
   }
   await resizeViewport(page,{width:1440,height:1000});await render(page)
-  await save(page,id,false);await restore(page)
+  result.checkpoints.push({model,phase:'occupied',...await save(page,id,crew,false,retain)});await restore(page)
+  const occupied=retain(`model${model}: restored occupied`,await rosterState(page,id,crew));assert.deepEqual(occupied.errors,[],JSON.stringify(occupied));assert.deepEqual(occupied.vehicle.ids,roster)
   assert.equal(await page.evaluate(id=>window.testSceneRef.current.world.vehicles.find(v=>v.id===id).passengerCount,id),2)
   await page.keyboard.press('Escape');let point=await vehiclePoint(page,id);await page.mouse.click(point.x,point.y,{button:'right'});await render(page)
   await panel.waitFor({state:'visible'});await panel.screenshot({path:resolve(output,`vehicle-${model}-checkpoint.png`)})
@@ -134,10 +173,12 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
   await page.evaluate(({index,flags})=>{window.testSceneRef.current.world.land.flags[index]=flags},cell);await render(page)
   await unload.click();await render(page)
   assert.equal(await page.evaluate(id=>window.testSceneRef.current.world.vehicles.find(v=>v.id===id).passengerCount,id),0)
-  await save(page,id,true);await restore(page)
+  result.checkpoints.push({model,phase:'airborne',...await save(page,id,crew,true,retain)});await restore(page)
+  const airborne=retain(`model${model}: restored airborne`,await rosterState(page,id,crew));assert.deepEqual(airborne.errors,[],JSON.stringify(airborne));assert.ok(airborne.people.every(p=>p.flight&&!p.vehicle),JSON.stringify(airborne))
   assert.equal(await page.evaluate(()=>window.testSceneRef.current.world.units.some(u=>u.flight)),true)
-  const landed=await page.evaluate(async roster=>{const s=window.testSceneRef.current,w=s.world,{tick}=await import('/app/model.ts');let turns=0;for(;turns<200&&w.units.some(u=>roster.includes(u.id)&&u.flight);turns++)tick(w,1/12);s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame);return{turns,people:roster.map(id=>{const u=w.units.find(u=>u.id===id);return{id,alive:!!u&&u.hp>0,flight:!!u?.flight,vehicle:u?.native?.vehicle??0}})}},roster)
-  assert.ok(landed.turns>1,JSON.stringify(landed));assert.ok(landed.people.every(p=>p.alive&&!p.flight&&!p.vehicle),JSON.stringify(landed))
+  const landed=retain(`model${model}: bounded landing`,await progressRoster(page,id,crew,'landing'))
+  assert.deepEqual(landed.errors,[],JSON.stringify(landed))
+  assert.ok(landed.turns>1,JSON.stringify(landed));assert.ok(landed.people.every(p=>p.present&&p.hp>0&&!p.flight&&!p.vehicle&&p.supported),JSON.stringify(landed))
   await page.keyboard.press('Escape');point=await vehiclePoint(page,id);await page.mouse.click(point.x,point.y,{button:'right'});await render(page)
   await panel.waitFor({state:'visible'});assert.equal(await unload.isDisabled(),true)
   await page.evaluate(()=>{window.testSceneRef.current.world.inputMask=1});await render(page);assert.equal(await panel.isVisible(),false)
