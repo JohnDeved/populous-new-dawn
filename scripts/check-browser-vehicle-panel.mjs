@@ -155,8 +155,18 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
   assert.equal(await panel.isVisible(),true,'passenger and vehicle panels coexist')
   for(const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]){
    const dimensions=await resizeViewport(page,viewport);assert.deepEqual(dimensions.backing,dimensions.expected);await vehiclePoint(page,id);await render(page)
-   const bounds=await panel.boundingBox();assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=viewport.width&&bounds.y+bounds.height<=viewport.height)
-   result.layouts.push({model,viewport,bounds,dimensions})
+   const bounds=await panel.boundingBox(),geometry=await panel.evaluate(element=>{
+    const s=window.testSceneRef.current,canvas=element.querySelector('canvas'),style=getComputedStyle(element),canvasStyle=getComputedStyle(canvas)
+    const rect=node=>{const r=node.getBoundingClientRect();return{x:r.x,y:r.y,left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}}
+    return{group:rect(element),canvas:rect(canvas),intrinsic:[canvas.width,canvas.height],offset:[element.offsetWidth,element.offsetHeight],
+     inline:{left:element.style.left,top:element.style.top,cssText:element.style.cssText},
+     computed:{left:style.left,top:style.top,width:style.width,height:style.height,hudScale:style.getPropertyValue('--hud-scale'),transform:style.transform,transformOrigin:style.transformOrigin,canvasDisplay:canvasStyle.display},
+     container:rect(s.container),renderer:rect(s.renderer.domElement),rendererBacking:[s.renderer.domElement.width,s.renderer.domElement.height],
+     viewport:{width:innerWidth,height:innerHeight,dpr:devicePixelRatio,rendererDpr:s.renderer.getPixelRatio()},
+     view:{config:{...s.view.config},cameraAspect:s.camera.aspect,cameraMotionActive:s.cameraMotion.active}}
+   })
+   const layout={model,id,viewport,bounds,dimensions,geometry};result.layouts.push(layout);retain(`model${model}: viewport ${viewport.width}x${viewport.height}`,layout)
+   assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=viewport.width&&bounds.y+bounds.height<=viewport.height,JSON.stringify(layout))
   }
   await resizeViewport(page,{width:1440,height:1000});await render(page)
   result.checkpoints.push({model,phase:'occupied',...await save(page,id,crew,false,retain)});await restore(page)

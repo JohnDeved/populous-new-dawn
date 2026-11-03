@@ -632,12 +632,12 @@ export class ObjectPanels {
           halfPanelWidth = (canvas.width * scale) / 2,
           panelHeight = canvas.height * scale
         element.style.left = `${Math.max(
-          rendererLeft + halfPanelWidth,
-          Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+          Math.ceil(rendererLeft + halfPanelWidth),
+          Math.min(Math.floor(rendererLeft + rendererRect.width - halfPanelWidth), anchorX)
         )}px`
         element.style.top = `${Math.max(
-          rendererTop + panelHeight,
-          Math.min(rendererTop + rendererRect.height, anchorY)
+          Math.ceil(rendererTop + panelHeight),
+          Math.min(Math.floor(rendererTop + rendererRect.height), anchorY)
         )}px`
       } else {
         element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`
