@@ -521,7 +521,7 @@ class WorkflowTests(unittest.TestCase):
     def test_existing_workflow_manual_readonly_default_unchanged(self):
         self.assertEqual(set(self.workflow['on']),{'workflow_dispatch'})
         mode=self.workflow['on']['workflow_dispatch']['inputs']['evidence_kind']
-        self.assertEqual(mode['default'],'native-ui');self.assertEqual(mode['options'],['native-ui','material-lifecycle'])
+        self.assertEqual(mode['default'],'native-ui');self.assertEqual(mode['options'],['native-ui','material-lifecycle','options-controls','tower-collection'])
         self.assertEqual(self.workflow['permissions'],{'contents':'read'})
         self.assertEqual(self.workflow['concurrency']['cancel-in-progress'],'false')
     def test_same_exact_action_pins_and_source_checkout(self):
@@ -535,11 +535,11 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(row['with']['ref'],setup.HELPER_COMMIT)
         self.assertEqual(row['with']['path'],'material-helper-source')
         self.assertEqual(row['with']['persist-credentials'],'false')
-        self.assertEqual(row['if'],"${{ inputs.evidence_kind == 'material-lifecycle' }}")
+        self.assertEqual(row['if'],"${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}")
         self.assertEqual(set(row['with']['sparse-checkout'].splitlines()),{'/scripts/orchestration/'+name for name in setup.HELPERS})
     def test_one_optin_entry_and_no_security_bypass(self):
         row=next(row for row in self.steps if row['name'].startswith('Qualify actual'))
-        self.assertEqual(row['if'],"${{ inputs.evidence_kind == 'material-lifecycle' }}")
+        self.assertEqual(row['if'],"${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}")
         self.assertEqual(self.text.count('hosted_setup.py" finalize'),1)
         for denied in ['--no-sandbox','sysctl','apparmor','sudo','apt-get','pull_request_target']:
             self.assertNotIn(denied,self.text)
@@ -551,7 +551,7 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn('pnpm@11.25.0',code);self.assertIn('npm install --global --ignore-scripts --no-audit --no-fund',code)
     def test_original_ui_episode_command_still_present_and_conditional(self):
         row=next(row for row in self.steps if row['name'].startswith('Build candidate Home'))
-        self.assertEqual(row['if'],"${{ inputs.evidence_kind != 'material-lifecycle' }}")
+        self.assertEqual(row['if'],"${{ env.PND_EVIDENCE_KIND == 'native-ui' }}")
         self.assertIn('scripts/native-ui-evidence/run.mjs',row['run'])
     def test_all_shell_blocks_parse_without_execution(self):
         for row in [*self.steps,{'name':'trusted install','run':(HERE/'hosted-install.sh').read_text()}]:
@@ -559,8 +559,12 @@ class WorkflowTests(unittest.TestCase):
                 process=subprocess.run(['/bin/bash','-n'],input=row['run'],text=True,capture_output=True,timeout=2)
                 self.assertEqual(process.returncode,0,row['name']+process.stderr)
     def test_all_material_evidence_retained_on_failure(self):
-        row=self.steps[-1]
+        rows=[row for row in self.steps if row.get('with',{}).get('path')=='outputs/material-lifecycle']
+        self.assertEqual(len(rows),1)
+        row=rows[0]
+        self.assertEqual(row['if'],"${{ always() && env.PND_EVIDENCE_KIND == 'material-lifecycle' }}")
         self.assertIn('always()',row['if']);self.assertEqual(row['with']['path'],'outputs/material-lifecycle')
         self.assertEqual(row['with']['include-hidden-files'],'true')
 
 if __name__=='__main__':unittest.main()
+

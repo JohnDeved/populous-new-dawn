@@ -5,7 +5,8 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
-import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness, prepareCastingF9 } from './shaman-casting.mjs'
+import { installShamanCastingInputTiming } from './shaman-casting-observer.mjs'
 
 // Same-source hosted passes took 49.356s/50.327s; a 55s run still reached a
 // normal, connected restart flyby. Allow the three world loads, interactions and
@@ -84,9 +85,10 @@ export default async function spellTestMenu({ browser, url, output }) {
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
-  let failure, castingRetentionAttempted = false
+  let failure, castingRetentionAttempted = false, castingDispatch
   const diagnostics = startSpellTestDiagnostics(page, report)
   const timer = setTimeout(() => {
+    castingDispatch?.cancel(Error('F9 episode deadline expired'))
     report.timedOut = true; diagnostics.stop(); void context.close().catch(() => {})
   }, Math.max(0, spellTestLimitMs - (performance.now() - started)))
   page.setDefaultTimeout(12000)
@@ -129,6 +131,7 @@ export default async function spellTestMenu({ browser, url, output }) {
   try {
     assertSpellTestDeadline(report, started)
     diagnostics.stage('start mission')
+    await page.addInitScript(installShamanCastingInputTiming)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await waitForStartupMenu(page)
     await button('New Game').click()
@@ -223,9 +226,9 @@ export default async function spellTestMenu({ browser, url, output }) {
         p = scene.screen({ x: shaman.x + 5, z: shaman.z + 5 }), rect = scene.renderer.domElement.getBoundingClientRect()
       return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2, before: w.stats.cast }
     })
-    await page.mouse.click(target.x, target.y)
-    await page.waitForFunction(before => window.testStore.getWorld().stats.cast === before + 1, target.before)
-    await page.keyboard.press('F9')
+    castingDispatch = await prepareCastingF9(page, report, target.before, started + spellTestLimitMs)
+    await castingDispatch.click(target)
+    await castingDispatch.close()
     await menu.waitFor()
     const casting = await snapshot()
     assert.equal(casting.shots.blast, unlocked.shots.blast - 1, 'normal cast spent one real charge')
@@ -286,6 +289,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) }
     catch (error) { report.screenshotError = String(error) }
   } finally {
+    if (castingDispatch) {
+      castingDispatch.cancel(failure ?? Error('F9 episode cleanup'))
+      try { await castingDispatch.close() }
+      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+    }
     // Retain partial casting observations before context closure, with the same
     // absolute watchdog still active. Retention must never erase the first error.
     try {
