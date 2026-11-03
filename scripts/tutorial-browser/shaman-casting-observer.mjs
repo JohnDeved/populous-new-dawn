@@ -55,14 +55,18 @@ export function installShamanCastingObserver() {
   }
   const subsequent = () => armed === 'subsequent' ||
     (active?.record.label === 'subsequent' && !active.record.done)
-  const beforeF9 = event => observe(() => {
-    if (!subsequent()) return
-    timing('trusted-f9-keydown', { key: event.key, repeat: event.repeat, isTrusted: event.isTrusted })
-  })
+  const beforeF9 = event => {
+    const at = performance.now()
+    observe(() => {
+      if (!subsequent()) return
+      timing('trusted-f9-keydown', { at, key: event.key, repeat: event.repeat, isTrusted: event.isTrusted })
+    })
+  }
   function modalWrapper(...args) {
+    const enteredAt = performance.now()
     let entry
     observe(() => {
-      if (subsequent()) entry = timing('modal-setter-entry', { suspendedArgument: args[0], receiverOwned: this === scene })
+      if (subsequent()) entry = timing('modal-setter-entry', { at: enteredAt, suspendedArgument: args[0], receiverOwned: this === scene })
     })
     let completed = false
     try {
@@ -70,8 +74,9 @@ export function installShamanCastingObserver() {
       completed = true
       return returned
     } finally {
+      const at = performance.now()
       observe(() => {
-        if (entry) timing('modal-setter-exit', { enteredAt: entry.at, completed })
+        if (entry) timing('modal-setter-exit', { at, enteredAt, completed })
       })
     }
   }
@@ -109,7 +114,7 @@ export function installShamanCastingObserver() {
   })
   const afterInput = event => observe(() => {
     if (!pending || event.target !== canvas || event.button !== 0) return
-    const after = read(), prior = new Set(pending.before.projectiles.map(shot => shot.id)),
+    const at = performance.now(), after = read(), prior = new Set(pending.before.projectiles.map(shot => shot.id)),
       shots = after.projectiles.filter(shot => !prior.has(shot.id))
     check(shots.length === 1 && after.casts === pending.before.casts + 1,
       'Real pointer input must allocate exactly one Blast')
@@ -118,7 +123,7 @@ export function installShamanCastingObserver() {
     active = { record, person: world.units.find(unit => unit.id === after.person.id).native,
       phases: new Set() }
     result.casts.push(record)
-    timing('allocation', {}, after)
+    timing('allocation', { at, shot: record.shot }, after)
     pending = null; armed = null
   })
   function turnWrapper(...args) {
@@ -191,11 +196,12 @@ export function installShamanCastingObserver() {
       const context = copy.getContext('2d')
       check(context, 'Cast crop requires 2D canvas')
       context.drawImage(canvas, x, y, width, height, 0, 0, width, height)
+      const copiedAt = performance.now()
       frame.cropFile = `shaman-casting-${record.label}-${record.crops.length}.png`
       const crop = { file: frame.cropFile, turn: state.turn, stamp, f2: state.person.f2,
         frame: frame.frame, clip: { x, y, width, height } }
       record.crops.push(crop); copies.push({ copy, context, crop })
-      timing('crop-complete', { file: crop.file, renderedAt: frame.at }, state)
+      timing('crop-complete', { at: copiedAt, file: crop.file, renderedAt: frame.at }, state)
     })
     return returned
   }
@@ -233,10 +239,11 @@ export function installShamanCastingObserver() {
   } catch (error) { restore(); throw error }
   window.shamanCastingObserver = {
     recordGate(gate, label) {
+      const at = performance.now()
       observe(() => {
         check(active?.record.label === label, 'Casting timing gate owner changed')
         if (!result.timing.events.some(row => row.event === 'gate-accepted' && row.gate === gate && row.label === label))
-          timing('gate-accepted', { gate, firstRunningStamp: firstRunningFrame(active.record)?.stamp ?? null })
+          timing('gate-accepted', { at, gate, firstRunningStamp: firstRunningFrame(active.record)?.stamp ?? null })
       })
     },
     arm(label) {
