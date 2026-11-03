@@ -290,6 +290,7 @@
   "app/projection.ts",
   "app/query-control.module.css",
   "app/query-control.tsx",
+  "app/queued-resource-search.ts",
   "app/reincarnation-wave-runtime.ts",
   "app/reincarnation.ts",
   "app/render-view.ts",
