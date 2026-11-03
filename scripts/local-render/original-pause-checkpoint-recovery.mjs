@@ -5,6 +5,23 @@ import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
+import { observeStablePauseControls } from './pause-capture-controls.mjs'
+
+// A secondary browser-close rejection must not replace the scenario's failure.
+// The caller supplies an explicit flag because JavaScript permits falsey throws.
+export async function closePauseRecoveryContext(context, primaryFailed, receipt) {
+  try {
+    await context.close()
+  } catch (error) {
+    try {
+      receipt.errors.push(`Pause recovery context cleanup failed: ${String(error)}`)
+    } catch {
+      // Diagnostic recording is secondary too; preserve the actual failure.
+    }
+    if (!primaryFailed) throw error
+  }
+}
+
 
 // Controlled failure/timing at the browser storage boundary. The retry opens a
 // real database; only delivery of its success event is held. No game/store state
@@ -217,14 +234,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   }
   async function capture(page, name) {
     const viewport = page.viewportSize()
-    for (const control of await modal(page).getByRole('button').all()) {
-      await control.scrollIntoViewIfNeeded()
-      const box = await control.boundingBox()
-      assert.ok(box && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1)
-      assert.equal(await control.evaluate(node => {
-        const box = node.getBoundingClientRect()
-        return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2))
-      }), true)
+    const controls = await modal(page).getByRole('button').evaluateAll(observeStablePauseControls)
+    assert.ok(controls.length > 0, `${name}: no visible modal buttons`)
+    for (const box of controls) {
+      assert.ok(box.width > 0 && box.height > 0 && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1, `${name}: offscreen button ${box.label}`)
+      assert.equal(box.hit, true, `${name}: obstructed button ${box.label}`)
     }
     await page.screenshot({ path: resolve(output, name) })
     screenshots.push({ name, viewport, dpr: await page.evaluate(() => devicePixelRatio) })
@@ -297,6 +311,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   await page.close()
 
   const emptyContext = await browser.newContext({ viewport: { width: 800, height: 450 }, deviceScaleFactor: 2 })
+  let contextFailed = false
   try {
     await emptyContext.addInitScript(coldLookupFailure)
     const empty = await emptyContext.newPage()
@@ -331,8 +346,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       assert.equal(await empty.evaluate(() => window.testStore.getWorld().paused), false)
       passed(`empty retry restores usable root focus when completion occurs in ${finishAtRoot ? 'root' : 'Load panel'}`)
     }
+  } catch (error) {
+    contextFailed = true
+    throw error
   } finally {
-    await emptyContext.close()
+    await closePauseRecoveryContext(emptyContext, contextFailed, receipt)
   }
   return {
     checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,

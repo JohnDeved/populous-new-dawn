@@ -1,3 +1,4 @@
+import { validSceneryProvenance } from './scenery-provenance.ts'
 import { validAngelPresentation } from './angel-presentation.ts'
 import { validTornadoAppearance } from './tornado-appearance.ts'
 import { applySpellTestCheat, CHEAT_SAVE_NOTICE, type SpellTestCheat } from './spell-test-cheats.ts'
@@ -72,6 +73,7 @@ function requireCurrentCheckpoint(world: World) {
     throw new RangeError('Checkpoint is incompatible with this development version')
   restoreCapacityPolicy(world)
   if (
+    !validSceneryProvenance(world) ||
     !(world.objectCells.heads instanceof Float64Array) ||
     !world.secondaryEffects ||
     !world.worshipAcquisition ||
@@ -101,7 +103,14 @@ function openCheckpointDatabase() {
     request.addEventListener('upgradeneeded', () =>
       request.result.createObjectStore(CHECKPOINT_STORE)
     )
-    request.addEventListener('success', () => resolve(request.result))
+    request.addEventListener('success', () => {
+      const database = request.result
+      // Abnormal browser closure makes this connection unusable for later saves.
+      database.addEventListener('close', () => {
+        if (checkpointDatabase === pending) checkpointDatabase = null
+      })
+      resolve(database)
+    })
     request.addEventListener('error', () => reject(request.error))
   })
   checkpointDatabase = pending

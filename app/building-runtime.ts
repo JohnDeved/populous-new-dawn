@@ -202,7 +202,13 @@ export function damageTornadoBuilding(
   b: Building,
   attacker: number,
   allocateLog: (point: NativePoint) => boolean = point => {
-    w.trees.push({ id: w.nextId++, ...browserPosition(point), logs: 1, model: 11 })
+    w.trees.push({
+      ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+      id: w.nextId++,
+      ...browserPosition(point),
+      logs: 1,
+      model: 11,
+    })
     return true // ponytail: existing unbounded scenery adapter; native pool exhaustion remains open.
   }
 ) {

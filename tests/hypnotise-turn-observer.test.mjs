@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { installHypnotiseObserver } from '../scripts/tutorial-browser/hypnotise-observer.mjs'
+import { installHypnotiseObserver, validateHypnotiseObservation } from '../scripts/tutorial-browser/hypnotise-observer.mjs'
 
 // Supplied browser/clock boundaries only. These tests acquire no World, DOM, GPU or pixels.
 function fixture(t, original) {
@@ -226,3 +226,56 @@ for (const exit of ['deadline', 'visibility', 'missing-callback'])
     else f.restored()
     assert.equal(f.frames.size, 0)
   })
+
+for (const turns of [1, 3]) test(`Hypnotise witnesses real birth before ${turns} catch-up turns preceding first RAF`, t => {
+  const f = fixture(t)
+  f.world.effects = []
+  f.start()
+  f.world.effects = [f.flash] // supplied public cast between presentation callbacks
+  for (let i = 0; i < turns; i++) { f.clock.beforeTurn?.(); f.advance(1) }
+  f.frame()
+  const { result } = f.observation()
+  assert.equal(result.bornTurn,20);assert.equal(result.birth.remaining,16);assert.equal(result.birth.cue,true)
+  assert.equal(result.samples[0].remaining,16-turns,'RAF is retained as actually late, not invented birth pixels')
+  for(let i=turns;i<16;i++){f.clock.beforeTurn?.();f.advance(1)}
+  f.frame();f.restored()
+  assert.equal(result.terminal.turn-result.bornTurn,16)
+  assert.equal(Object.hasOwn(f.clock,'beforeTurn'),false)
+  assert.deepEqual(result.birthHook,{installed:true,restored:true,foreign:false})
+  assert.equal(result.turnSamples.find(s=>s.remaining===12).turn,24)
+  assert.equal(result.turnSamples.find(s=>s.remaining===11).turn,25)
+})
+test('Hypnotise beforeTurn retains actual late birth rather than fabricating remaining or cue',t=>{
+ const f=fixture(t);f.flash.turnsRemaining=15;f.world.sounds=[];f.start();f.clock.beforeTurn?.();f.frame()
+ const r=f.observation().result;assert.equal(r.birth.remaining,15);assert.equal(r.birth.cue,false);assert.equal(r.bornTurn,20)
+ f.advance(15);f.frame();assert.equal(r.terminal.turn-r.bornTurn,15)
+ assert.throws(()=>validateHypnotiseObservation(r,{}),assert.AssertionError)
+})
+test('Hypnotise beforeTurn forwards own callback receiver/args/result and restores descriptor',t=>{
+ const f=fixture(t),calls=[],returned=Symbol('before-return'),receiver={},args=[{},Symbol('arg')]
+ Object.defineProperty(f.clock,'beforeTurn',{configurable:true,writable:false,enumerable:false,value:function(...a){calls.push({receiver:this,args:a});return returned}})
+ const descriptor=Object.getOwnPropertyDescriptor(f.clock,'beforeTurn');f.start()
+ assert.equal(Reflect.apply(f.clock.beforeTurn,receiver,args),returned);assert.deepEqual(calls,[{receiver,args}])
+ f.observation().retain();assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock,'beforeTurn'),descriptor);f.restored()
+})
+for(const failure of [null,undefined,false,0,'',new Error('before failure')])test(`Hypnotise beforeTurn preserves thrown ${String(failure)} and restores both hooks`,t=>{
+ const f=fixture(t);let calls=0;const callback=()=>{calls++;throw failure};f.clock.beforeTurn=callback;f.start()
+ let caught=false;try{f.clock.beforeTurn()}catch(e){caught=true;assert.equal(e,failure)}assert.ok(caught);assert.equal(calls,1)
+ assert.equal(f.clock.beforeTurn,callback);f.restored();assert.equal(f.observation().result.birth,undefined)
+ assert.equal(f.observation().result.terminal.reason,'error')
+})
+for(const kind of ['accessor','inherited','nonconfigurable'])test(`Hypnotise rejects unsupported ${kind} beforeTurn and rolls back installed afterTurn`,t=>{
+ const f=fixture(t);let reads=0
+ if(kind==='inherited')Object.setPrototypeOf(f.clock,{beforeTurn(){}})
+ else Object.defineProperty(f.clock,'beforeTurn',kind==='accessor'?{configurable:true,get(){reads++;throw Error('getter')}}:{configurable:false,writable:false,value:()=>{}})
+ const descriptor=Object.getOwnPropertyDescriptor(f.clock,'beforeTurn');f.start();f.restored()
+ assert.equal(reads,0);assert.equal(f.observation().result.done,true);assert.notEqual(f.observation().result.error,null)
+ assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock,'beforeTurn'),descriptor)
+})
+for(const foreign of ['beforeTurn','afterTurn'])test(`Hypnotise independently restores other hook while preserving foreign ${foreign}`,t=>{
+ const f=fixture(t);f.start();let reads=0
+ Object.defineProperty(f.clock,foreign,{configurable:true,get(){reads++;throw Error('foreign getter')}})
+ const descriptor=Object.getOwnPropertyDescriptor(f.clock,foreign);f.observation().retain()
+ assert.equal(reads,0);assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock,foreign),descriptor)
+ if(foreign==='beforeTurn')f.restored();else assert.equal(Object.hasOwn(f.clock,'beforeTurn'),false)
+})

@@ -58,7 +58,9 @@
       "coveredBehavior": [
         "Exact candidate/infrastructure identities, dependency export resolution, cleanup and bounded episode accounting",
         "Effective sound pending state and focus/world/popup ownership rejection controls",
-        "Finite, visible pending pointer targets owned by the sound control or its artwork"
+        "Finite, visible pending pointer targets owned by the sound control or its artwork",
+        "Final receipt self-size and complete artifact byte accounting with unchanged screenshot/byte budgets",
+        "Owned pause tracing accounts intermediate and exported bytes, retains first failure and bounds stop observation before genuine context close; synthetic tests do not qualify browser flush."
       ],
       "knownLimits": [
         "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
@@ -67,7 +69,8 @@
       "executable": "node",
       "args": [
         "--test",
-        "tests/native-ui-evidence.test.mjs"
+        "tests/native-ui-evidence.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -76,7 +79,9 @@
         "tests/native-ui-evidence.test.mjs",
         ".github/workflows/native-ui-evidence.yml",
         "engineering/native-ui-evidence.md",
-        "tests/native-ui-pause-acceptance.test.mjs"
+        "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-receipt.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
       ],
       "inputs": [
         "app/frontend-composition.ts",
@@ -94,7 +99,9 @@
         "package.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
-        "tests/native-ui-pause-acceptance.test.mjs"
+        "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-receipt.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0",
@@ -990,6 +997,8 @@
         "app/scene-terrain-runtime.ts",
         "app/runtime-terrain-picking.ts",
         "app/neutral-cursor.ts",
+        "app/game-clock.ts",
+        "app/tribe-camera.ts",
         "scripts/browser-performance/snapshot-drag-contract.mjs",
         "scripts/browser-performance/snapshot-drag-observer.mjs",
         "tests/browser-snapshot-drag.test.mjs"
@@ -4404,6 +4413,44 @@
         "app/world-turn.ts"
       ],
       "prerequisites": ["Installed locked dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "tornado-building-wood-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check live Tornado building damage and loose-log provenance through the existing controlled real-caller regression.",
+      "coveredBehavior": [
+        "Loose-log allocation, position, identity and dynamic provenance",
+        "Building work, stage, attribution, debris and normal retirement",
+        "Protected, rejected, unactivated and retired targets",
+        "Supplied allocation-failure bookkeeping"
+      ],
+      "knownLimits": [
+        "Controlled createWorld targets do not prove ordinary earned-stock/UI behavior or native allocator failure.",
+        "The app input directory binds the model facade's transitive imports; only explicit triggerPaths select this check."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/tornado-building-wood.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "tests/tornado-building-wood.test.mjs",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts",
+        "app/world-initialization.ts",
+        "app/scenery-provenance.ts"
+      ],
+      "inputs": [
+        "tests/tornado-building-wood.test.mjs",
+        "app",
+        "package.json",
+        "pnpm-lock.yaml",
+        "package-lock.json"
+      ],
+      "prerequisites": ["Maintained Node.js 24 toolchain"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }

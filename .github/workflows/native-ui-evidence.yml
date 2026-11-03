@@ -8,13 +8,14 @@ on:
         required: true
         type: string
       evidence_kind:
-        description: Existing UI episodes or reviewed exact PR722 material lifecycle
+        description: Full native UI, material lifecycle, or partial Options controls evidence
         required: true
         default: native-ui
         type: choice
         options:
           - native-ui
           - material-lifecycle
+          - options-controls
 
 permissions:
   contents: read
@@ -27,7 +28,7 @@ jobs:
   evidence:
     name: Native UI evidence (not Full check)
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.evidence_kind == 'material-lifecycle' && 30 || 20 }}
+    timeout-minutes: ${{ (inputs.evidence_kind || 'native-ui') == 'material-lifecycle' && 30 || 20 }}
     env:
       PND_EVIDENCE_KIND: ${{ inputs.evidence_kind || 'native-ui' }}
       PND_UI_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
@@ -38,6 +39,9 @@ jobs:
       NODE_V8_COVERAGE: ''
       WRANGLER_SEND_METRICS: 'false'
     steps:
+      - name: Validate normalized evidence kind before checkout or install
+        run: |
+          node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
       - name: Check out reviewed default-branch evidence infrastructure
         id: infrastructure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,6 +53,7 @@ jobs:
           sparse-checkout: |
             /scripts/native-ui-evidence/
             /scripts/material-lifecycle-evidence/
+            /scripts/options-controls-evidence/
             /scripts/orchestration/shared_execution.py
             /scripts/orchestration/shared_runtime.py
             /scripts/orchestration/shared_setup.py
@@ -68,7 +73,7 @@ jobs:
         run: |
           node --input-type=module -e "import { manualIdentity } from './evidence-infrastructure/scripts/native-ui-evidence/identity.mjs'; console.log(JSON.stringify(manualIdentity(process.env)))"
       - name: Check out pinned reviewed material containment helpers
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: JohnDeved/populous-new-dawn
@@ -83,7 +88,7 @@ jobs:
             /scripts/orchestration/shared_workspace.py
             /scripts/orchestration/state_serialization.py
       - name: Initialize exact material job using reviewed infrastructure
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         run: python3 -I -B evidence-infrastructure/scripts/material-lifecycle-evidence/hosted_setup.py initialize
       - name: Check out exact candidate (not a synthetic merge)
         id: candidate
@@ -122,18 +127,23 @@ jobs:
           node --version
           if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
       - name: Acquire pinned material browser data (no launch)
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         timeout-minutes: 3
         run: python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" acquire
       - name: Qualify actual material tools and run one reviewed lifecycle attempt
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         timeout-minutes: 13
         run: python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" finalize
       - name: Build candidate Home and run all nine mandatory UI episodes
-        if: ${{ inputs.evidence_kind != 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'native-ui' }}
         run: |
           node --max-old-space-size=768 evidence-infrastructure/scripts/native-ui-evidence/run.mjs \
             "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/native-ui-evidence" "$GITHUB_WORKSPACE/native-ui-dist"
+      - name: Build candidate Home and run partial Options controls evidence
+        if: ${{ env.PND_EVIDENCE_KIND == 'options-controls' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/options-controls-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/options-controls-evidence" "$GITHUB_WORKSPACE/options-controls-dist"
       - name: Reject candidate tracked input mutation
         if: ${{ always() && steps.candidate.outcome == 'success' }}
         working-directory: candidate
@@ -143,8 +153,8 @@ jobs:
         working-directory: evidence-infrastructure
         run: git diff --exit-code HEAD --
       - name: Retain bounded raw receipts and screenshots
-        if: ${{ always() && inputs.evidence_kind != 'material-lifecycle' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'native-ui' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: native-ui-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
@@ -155,11 +165,23 @@ jobs:
           retention-days: 7
 
       - name: Retain material qualification, raw receipts and screenshots
-        if: ${{ always() && inputs.evidence_kind == 'material-lifecycle' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: material-lifecycle-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: outputs/material-lifecycle
           include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Retain partial Options controls receipts and screenshots
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'options-controls' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: options-controls-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/options-controls-evidence/**/*.json
+            outputs/options-controls-evidence/**/*.log
+            outputs/options-controls-evidence/**/*.png
           if-no-files-found: warn
           retention-days: 7
