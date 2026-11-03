@@ -9,7 +9,7 @@ import { createLivePerson } from '../app/live-people.ts'
 import { cast } from '../app/live-command.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { readFileSync } from 'node:fs'
-import { beginOrdinaryCastingWitness } from '../scripts/tutorial-browser/shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForRunningCastingWitness } from '../scripts/tutorial-browser/shaman-casting.mjs'
 
 // Supplied observations exercise the evidence contract, not a browser pass.
 function evidence() {
@@ -334,6 +334,69 @@ test('a live allocation is observed synchronously and readback waits until detac
   } finally { f.cleanup() }
 })
 
+test('F9 readiness waits for this cast’s first running render without selecting artwork', async () => {
+  const f = observerFixture()
+  try {
+    installShamanCastingObserver()
+    const observer = f.win.shamanCastingObserver
+    let ready
+    await waitForRunningCastingWitness({ waitForFunction: async (callback, label) => {
+      ready = () => callback(label)
+    } }, 'subsequent')
+    assert.equal(ready(), false, 'No cast has rendered')
+    f.allocate()
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(ready(), false, 'The ordinary cast cannot admit the subsequent hold')
+    for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+    f.world.mode = 'blast'; f.world.projectiles = []
+    f.allocate('subsequent')
+    assert.equal(ready(), false, 'Synchronous allocation has not rendered')
+    f.world.paused = true
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(ready(), false, 'Paused rendering cannot admit the hold')
+    f.world.paused = false; f.scene.modalSuspended = true
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(ready(), false, 'Suspended rendering cannot admit the hold')
+    assert.throws(() => observer.beginHold(), /requires a running render/)
+    f.scene.modalSuspended = false
+    f.group.userData.frame = -1; f.group.userData.frameFlip = 'wrong'
+    const before = structuredClone(f.world), calls = f.calls.length
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(ready(), true, 'The first running render is admitted even with incorrect artwork')
+    const first = f.renderer.info.render.frame
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(observer.status().casts[1].runningFrameStamp, first)
+    assert.equal(f.calls.length, calls + 2, 'Readiness does not drive any callbacks')
+    assert.deepEqual(f.world, before)
+    f.scene.modalSuspended = true
+    observer.beginHold()
+    observer.endHold()
+    f.scene.modalSuspended = false
+    for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+    assert.equal(ready(), false, 'A completed cast cannot admit another hold')
+    const result = observer.finish(), frames = result.casts[1].frames
+    assert.deepEqual(frames.map(frame => [frame.paused, frame.suspended]),
+      [[true, false], [false, true], [false, false], [false, false]])
+    assert.equal(frames[2].frame, -1, 'Incorrect first-frame artwork remains evidence')
+    assert.equal(result.holds.length, 1)
+    const invalid = evidence()
+    invalid.casts[1].frames[0].frame = -1
+    assert.throws(() => validateShamanCastingEvidence(invalid), /Original VFRA frame\/flip/)
+  } finally { f.cleanup() }
+})
+
+test('running-cast readiness fails immediately on observer errors', async () => {
+  const f = observerFixture()
+  try {
+    installShamanCastingObserver(); f.allocate()
+    f.win.testSceneRef.current = {}
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    await assert.rejects(waitForRunningCastingWitness({
+      waitForFunction: async (callback, label) => callback(label),
+    }, 'subsequent'), /Casting Scene\/World/)
+  } finally { f.cleanup() }
+})
+
 test('observer failures preserve originals and fail closed on owner replacement or installation errors', () => {
   const bad = observerFixture({ installFailure: true })
   try {
@@ -385,6 +448,7 @@ test('active-cast hold markers observe existing suspension without changing Worl
     f.world.mode = 'blast'; f.person.state = 10; f.world.projectiles = []
     f.allocate('subsequent')
     assert.throws(() => observer.beginHold(), /F9 must suspend/)
+    f.renderer.render(f.scene.scene, f.scene.camera)
     f.scene.modalSuspended = true
     const world = structuredClone(f.world), calls = f.calls.length
     observer.beginHold()

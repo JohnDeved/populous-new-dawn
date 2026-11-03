@@ -5,7 +5,7 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
-import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForCastingWitness, waitForRunningCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
 
 // Same-source hosted passes took 49.356s/50.327s; a 55s run still reached a
 // normal, connected restart flyby. Allow the three world loads, interactions and
@@ -225,6 +225,8 @@ export default async function spellTestMenu({ browser, url, output }) {
     })
     await page.mouse.click(target.x, target.y)
     await page.waitForFunction(before => window.testStore.getWorld().stats.cast === before + 1, target.before)
+    // F9 freezes the cached Painter, so allocation alone cannot admit this hold.
+    await waitForRunningCastingWitness(page, 'subsequent')
     await page.keyboard.press('F9')
     await menu.waitFor()
     const casting = await snapshot()

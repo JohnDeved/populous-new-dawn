@@ -60,6 +60,15 @@ export async function waitForCastingWitness(page, label) {
   }, label)
 }
 
+export async function waitForRunningCastingWitness(page, label) {
+  await page.waitForFunction(label => {
+    const state = window.shamanCastingObserver.status()
+    if (state.errors.length) throw Error(state.errors.join('; '))
+    return state.casts.some(cast => cast.label === label && !cast.done &&
+      Number.isInteger(cast.runningFrameStamp))
+  }, label)
+}
+
 // Called before the existing context is disposed, including on failure. Raw
 // observations/copies are retained even if validation rejects the run.
 export async function retainCastingWitness(page, output, { validate = true } = {}) {

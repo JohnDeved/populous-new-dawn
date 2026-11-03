@@ -11,6 +11,8 @@ export function installShamanCastingObserver() {
   const result = { casts: [], holds: [], errors: [], closed: false, restored: false }, copies = []
   let armed = null, pending = null, active = null, closed = false
   const check = (condition, message) => { if (!condition) throw Error(message) }
+  const firstRunningFrame = record => record.frames.find(frame =>
+    frame.person.state === 22 && frame.person.casting && !frame.paused && !frame.suspended)
   const observe = callback => {
     if (closed || result.errors.length) return
     try { return callback() } catch (error) { result.errors.push(String(error)) }
@@ -173,6 +175,7 @@ export function installShamanCastingObserver() {
     status() {
       return { errors: [...result.errors], casts: result.casts.map(record => ({
         label: record.label, done: record.done, turn: record.after.turn, visits: record.logical.length,
+        runningFrameStamp: firstRunningFrame(record)?.stamp ?? null,
       })) }
     },
     beginHold() {
@@ -182,6 +185,7 @@ export function installShamanCastingObserver() {
       const state = read()
       check(state.person.state === 22 && state.person.casting && !state.paused && state.suspended,
         'F9 must suspend an active, otherwise unpaused cast')
+      check(firstRunningFrame(active.record), 'F9 hold requires a running render of this subsequent cast')
       result.holds.push({ label: active.record.label,
         before: { at: performance.now(), stamp: renderer.info.render.frame, state }, after: null })
     },
