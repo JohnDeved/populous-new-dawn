@@ -64,7 +64,7 @@ export async function waitForRunningCastingWitness(page, label) {
   await page.waitForFunction(label => {
     const state = window.shamanCastingObserver.status()
     if (state.errors.length) throw Error(state.errors.join('; '))
-    return state.casts.some(cast => cast.label === label && !cast.done &&
+    return state.casts.some(cast => cast.label === label && !cast.done && cast.running &&
       Number.isInteger(cast.runningFrameStamp))
   }, label)
 }

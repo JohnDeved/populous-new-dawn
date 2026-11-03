@@ -173,9 +173,12 @@ export function installShamanCastingObserver() {
       return read()
     },
     status() {
+      const current = active && !closed && !result.errors.length ? read() : null
       return { errors: [...result.errors], casts: result.casts.map(record => ({
         label: record.label, done: record.done, turn: record.after.turn, visits: record.logical.length,
         runningFrameStamp: firstRunningFrame(record)?.stamp ?? null,
+        running: active?.record === record && !record.done && current?.person.state === 22 &&
+          current.person.casting && !current.paused && !current.suspended,
       })) }
     },
     beginHold() {

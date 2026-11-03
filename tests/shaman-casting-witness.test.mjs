@@ -368,6 +368,10 @@ test('F9 readiness waits for this cast’s first running render without selectin
     assert.equal(observer.status().casts[1].runningFrameStamp, first)
     assert.equal(f.calls.length, calls + 2, 'Readiness does not drive any callbacks')
     assert.deepEqual(f.world, before)
+    f.world.units[0].casting = null
+    assert.equal(ready(), false, 'An expired windup cannot reuse its earlier running render')
+    f.world.units[0].casting = {}
+    assert.equal(ready(), true)
     f.scene.modalSuspended = true
     observer.beginHold()
     observer.endHold()
