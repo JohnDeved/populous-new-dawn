@@ -61,7 +61,7 @@ test('M2 functional acceptance rejects level, selection, order, clock and Scene 
 test('M2 has isolated selection and default append; legacy scenarios and bounds retained', () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(run, /POPULOUS_BROWSER_SCENARIO \|\| 'tutorial'/)
-  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'compact-message-layout', 'frontend-held-escape'])
+  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'compact-message-layout', 'frontend-held-escape', 'snapshot-arm-witness'])
   assert.equal(browserCapMs('m2-pointer-f8'), 180000)
   assert.equal(browserCapMs('ordinary-pointer-smoke'), 90000)
   assert.equal(browserCapMs('ordinary-pointer-calibration'), 1200000)
