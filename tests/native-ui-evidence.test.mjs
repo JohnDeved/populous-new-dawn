@@ -582,8 +582,8 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(job['runs-on'], 'ubuntu-24.04')
   assert.equal(job['timeout-minutes'], "${{ (inputs.evidence_kind || 'native-ui') == 'material-lifecycle' && 30 || 20 }}")
   assert.deepEqual(workflow.on.workflow_dispatch.inputs.evidence_kind, {
-    description: 'Full native UI, material lifecycle, or partial Options controls evidence',
-    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls'],
+    description: 'Full native UI, material lifecycle, partial Options controls, or Mission 4 Tower evidence',
+    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection'],
   })
   const checkouts = job.steps.filter(step => step.uses?.startsWith('actions/checkout@'))
   assert.equal(checkouts.length, 3); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
@@ -596,7 +596,7 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(checkouts[0].with.ref, '${{ github.workflow_sha }}'); assert.equal(checkouts[2].with.ref, '${{ inputs.candidate_sha }}')
   assert.equal(checkouts[2].with.repository, 'JohnDeved/populous-new-dawn')
   const sparse = checkouts[0].with['sparse-checkout'].trim().split(/\r?\n/).map(line => line.trim())
-  for (const path of ['/scripts/native-ui-evidence/', '/scripts/options-controls-evidence/', '/scripts/browser-options-audio.mjs',
+  for (const path of ['/scripts/native-ui-evidence/', '/scripts/options-controls-evidence/', '/scripts/tower-collection-evidence/', '/scripts/browser-options-audio.mjs',
     '/scripts/orchestration/dependency-profile.mjs', '/scripts/tutorial-browser/browser-config.mjs',
     '/.github/workflows/native-ui-evidence.yml']) assert.ok(sparse.includes(path), `Missing trusted import: ${path}`)
   assert.equal(checkouts[0].with['sparse-checkout-cone-mode'], false)
@@ -619,7 +619,7 @@ test('workflow validates normalized evidence kind before checkout and routes def
   const validate = value => execFileSync(process.execPath, ['--input-type=module', '-e', code], {
     env: { ...process.env, PND_EVIDENCE_KIND: value }, timeout: 5000, stdio: 'pipe',
   })
-  for (const value of ['native-ui', 'material-lifecycle', 'options-controls']) validate(value)
+  for (const value of ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection']) validate(value)
   for (const value of ['', 'unknown', 'native-ui ', 'OPTIONS-CONTROLS']) assert.throws(() => validate(value))
   for (const raw of [undefined, '', 'native-ui']) {
     const resolved = raw || 'native-ui'
