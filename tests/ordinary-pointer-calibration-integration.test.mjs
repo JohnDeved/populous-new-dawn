@@ -54,8 +54,8 @@ test('actual cleanup requires aggregate and server proof, never launches or clos
  }
 })
 test('aggregate bypasses generic context/timer; smoke budget and diagnostic runner pin remain exact',()=>{
- assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario))"))
- assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
+ assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'camera-motion-evidence'].includes(selectedScenario))"))
+ assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'camera-motion-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 3 \}\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
  assert.match(source,/ordinaryPointerCalibrationSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env\)/)
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
  assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))

@@ -212,6 +212,7 @@ test('the exact Spy checkpoint introduction outlasts 8s but the production publi
   world.paused = false
   let notifications = 0
   const scene = { world, wasFlying: true, flybyTime: 0,
+    tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] },
     flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     onChange: () => notifications++,
     updateTooltipController() {}, acquireForcedTooltip() {}, commitSky() {}, updateView() {},

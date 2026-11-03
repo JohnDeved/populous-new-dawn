@@ -105,6 +105,7 @@ test('public Page Brave contextmenu focuses home while preserving the actual sel
   api.select(world, 'shaman')
   Object.assign(scene, {
     hudFocus: Array(8).fill(0),
+    navigationButtons: () => 0, // supplied neutral navigation; focus/selection remain actual
     cameraMotion: createCameraMotion(),
     cameraPosition: { ...api.nativePosition(world, shaman), angle: 1148 },
     cameraBearing: (1148 * Math.PI) / 1024,

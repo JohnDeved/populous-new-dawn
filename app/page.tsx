@@ -494,7 +494,8 @@ export default function Home() {
         scene = created
         engine.current = created
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
-        if (world.drawMode === 2) created.overview()
+        // A restored overview already owns its phase; only a fresh globe request needs entry.
+        if (world.drawMode === 2 && !created.overviewActive) created.overview()
         return created.ready.then(() => {
           if (
             !disposed &&
@@ -568,6 +569,7 @@ export default function Home() {
         SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
       if (s && !e.repeat) {
         store.change(w => {
+          if (spellHudVisibility(w, s) !== 'visible') return
           w.mode = w.mode === s.id ? null : s.id
         })
         setTab('spells')
@@ -1124,6 +1126,7 @@ export default function Home() {
                   <p>{messageText(message!.stringId)}</p>
                   <button
                     onClick={() => {
+                      if (world.messages.slots[slot] !== message) return
                       removeMessage(world.messages, slot)
                       update()
                     }}
@@ -1250,12 +1253,14 @@ export default function Home() {
             className="portrait"
             aria-label="Select and focus shaman"
             title="Shaman · H"
-            onClick={() => {
-              select(world, 'shaman')
-              audio.current?.cue(0x18)
-              update()
-              engine.current?.focus(shaman ?? HOME, { animate: true })
-            }}
+            onClick={() =>
+              store.change(w => {
+                select(w, 'shaman')
+                audio.current?.cue(0x18)
+                const currentShaman = w.units.find(u => u.team === 'blue' && isShaman(u))
+                engine.current?.focus(currentShaman ?? HOME, { animate: true })
+              })
+            }
           >
             <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>
@@ -1379,6 +1384,7 @@ export default function Home() {
                       onClick={() => {
                         if (!interactive) return
                         store.change(w => {
+                          if (spellHudVisibility(w, s) !== 'visible') return
                           w.mode = w.mode === s.id ? null : s.id
                         })
                       }}
@@ -1387,7 +1393,9 @@ export default function Home() {
                         if (undiscovered) return
                         if (canCharge)
                           store.change(w => {
-                            const bit = 1 << (s.model - 1)
+                            if (!spellHudPermanent(w, s) || !spellHudCanCharge(w, s)) return
+                            const player = w.manaWorld.playerTribe,
+                              bit = 1 << (s.model - 1)
                             w.manaWorld.spells[player].disabled ^= bit
                             if (s.id === 'blast')
                               w.charging = !(w.manaWorld.spells[player].disabled & bit)

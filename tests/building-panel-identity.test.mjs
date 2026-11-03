@@ -89,6 +89,8 @@ function fixture(t, { repaint = true } = {}) {
   const rect = () => ({ left: 0, top: 0, width: 800, height: 600 })
   const scene = {
     world,
+    // This synchronous supplied Scene has no elapsed input time to drain.
+    advanceInputTime: nop,
     presentationBinding: store.bindPresentation(world),
     isCurrent() {
       return !this.disposed && this.presentationBinding.isCurrent()

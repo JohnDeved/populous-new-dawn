@@ -1,19 +1,38 @@
 // Version 2 is controlled-elapsed full-Scene capture, not natural RAF timing.
-// Only this Scene's RAF successor is held. Other browser callbacks are forwarded.
+// This Scene's RAF successor and input-clock boundary are owned together.
+// Unrelated browser callbacks are forwarded; input receives held Scene time,
+// not natural event/wall timing. Original input method is restored on release.
 export function installSpyCapture({ deadlineAt }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock, animate = scene.animate,
     originalRAF = Object.getOwnPropertyDescriptor(window, 'requestAnimationFrame'),
-    originalCancel = Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame')
+    originalCancel = Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame'),
+    originalInputOwn = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+  let inputOwner = scene, originalInput
+  while (inputOwner && !originalInput) {
+    originalInput = Object.getOwnPropertyDescriptor(inputOwner, 'advanceInputTime')
+    if (!originalInput) inputOwner = Object.getPrototypeOf(inputOwner)
+  }
   const result = { version: 2, method: 'controlled-full-scene', frameMs: 1000 / 24,
     maxFrames: 384, maxTurns: 192, frames: 0, turns: 0, startTurn: world.turn,
     deadlineAt, suppliedElapsedMilliseconds: 0, installed: false, released: false,
-    rafRestored: false, cancelRestored: false, foreign: false, resumedRAF: false,
+    rafRestored: false, cancelRestored: false, inputRestored: false,
+    inputTiming: 'held-scene-timestamp-not-wall-clock', inputCalls: 0, foreign: false, resumedRAF: false,
     handback: null, error: null }
-  let active = false, pending = null, nextHandle = -1, ownedRAF, ownedCancel
+  let active = false, pending = null, nextHandle = -1, ownedRAF, ownedCancel, ownedInput
   const installed = new Set()
   const same = (a, b) => !!a && !!b &&
     ['value', 'writable', 'get', 'set', 'enumerable', 'configurable'].every(k => a[k] === b[k])
+  const inheritedInputCurrent = () => {
+    if (originalInputOwn) return true
+    let owner = Object.getPrototypeOf(scene)
+    while (owner) {
+      const descriptor = Object.getOwnPropertyDescriptor(owner, 'advanceInputTime')
+      if (descriptor) return owner === inputOwner && same(descriptor, originalInput)
+      owner = Object.getPrototypeOf(owner)
+    }
+    return false
+  }
   const current = () => {
     if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world ||
       scene.world !== world || scene.gameClock !== clock || scene.animate !== animate ||
@@ -21,13 +40,24 @@ export function installSpyCapture({ deadlineAt }) {
       throw Error('Spy capture lost original live Scene/world/clock/animate')
   }
   const owns = () => same(Object.getOwnPropertyDescriptor(window, 'requestAnimationFrame'), ownedRAF) &&
-    same(Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame'), ownedCancel)
+    same(Object.getOwnPropertyDescriptor(window, 'cancelAnimationFrame'), ownedCancel) &&
+    same(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), ownedInput) &&
+    inheritedInputCurrent()
   const check = () => {
     current()
-    if (!active || !owns()) throw Error('Spy capture lost owned RAF descriptors')
+    if (!active || !owns()) throw Error('Spy capture lost owned RAF/input descriptors')
     if (Date.now() >= deadlineAt) throw Error('Spy capture exhausted existing episode deadline')
     if (document.hidden || world.speed !== 1) throw Error('Spy capture requires visible normal-speed gameplay')
     if (scene.renderer.getContext().isContextLost()) throw Error('Spy capture lost WebGL context')
+  }
+  function inputTime() {
+    check()
+    if (this !== scene || !Number.isFinite(scene.previous))
+      throw Error('Spy capture input lost controlled timestamp ownership')
+    result.inputCalls++
+    // Preserve the production input method, but supply the held controlled
+    // clock boundary. This is explicit synthetic timing, never natural input.
+    return Reflect.apply(originalInput.value, scene, [scene.previous])
   }
   function request(callback, ...args) {
     if (callback !== animate) return Reflect.apply(originalRAF.value, this, [callback, ...args])
@@ -63,9 +93,23 @@ export function installSpyCapture({ deadlineAt }) {
       Object.defineProperty(window, key, original)
       result[field] = same(Object.getOwnPropertyDescriptor(window, key), original)
     }
+    if (!inheritedInputCurrent()) result.foreign = true
+    if (!result.inputRestored) {
+      const descriptor = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+      if (!installed.has('advanceInputTime')) {
+        result.inputRestored = originalInputOwn ? same(descriptor, originalInputOwn) : descriptor === undefined && inheritedInputCurrent()
+        if (!result.inputRestored) result.foreign = true
+      } else if (!same(descriptor, ownedInput)) result.foreign = true
+      else {
+        if (originalInputOwn) Object.defineProperty(scene, 'advanceInputTime', originalInputOwn)
+        else delete scene.advanceInputTime
+        const after = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+        result.inputRestored = originalInputOwn ? same(after, originalInputOwn) : after === undefined && inheritedInputCurrent()
+      }
+    }
     active = false
     pending = null // Negative handles never represent real browser-scheduled callbacks.
-    result.released = result.rafRestored && result.cancelRestored && !result.foreign
+    result.released = result.rafRestored && result.cancelRestored && result.inputRestored && !result.foreign
   }
   const abandon = () => {
     if (!active && !installed.size) return result
@@ -139,6 +183,12 @@ export function installSpyCapture({ deadlineAt }) {
     if (!Number.isFinite(deadlineAt) || Date.now() >= deadlineAt) throw Error('Invalid existing Spy deadline')
     if (typeof originalRAF?.value !== 'function' || typeof originalCancel?.value !== 'function')
       throw Error('Spy capture requires own browser RAF data descriptors')
+    if (typeof originalInput?.value !== 'function' ||
+      (originalInputOwn && (!originalInputOwn.configurable || !originalInputOwn.writable)))
+      throw Error('Spy capture requires replaceable input method data ownership')
+    ownedInput = { configurable: true, enumerable: originalInputOwn?.enumerable ?? false, writable: true, value: inputTime }
+    Object.defineProperty(scene, 'advanceInputTime', ownedInput)
+    installed.add('advanceInputTime')
     ownedRAF = { ...originalRAF, value: request }; ownedCancel = { ...originalCancel, value: cancel }
     Object.defineProperty(window, 'requestAnimationFrame', ownedRAF)
     installed.add('requestAnimationFrame')

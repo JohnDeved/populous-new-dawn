@@ -5,6 +5,7 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 const api = await loadSceneFixture()
 const { pointerDown, pointerUp, updateDrag } = await import('../app/scene-input-runtime.ts')
 const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
 const { finishLevelStart } = await import('./level-start-fixture.mjs')
 
 // Actual authored World, pointerDown/pointerUp, selection and command callers.
@@ -28,7 +29,7 @@ for (const paused of [true, false]) for (const shiftKey of [false, true]) {
         if (descriptor) Object.defineProperty(globalThis, key, descriptor)
         else delete globalThis[key]
     })
-    const scene = { world, renderer: { domElement: { setPointerCapture() {} } },
+    const scene = { world, tooltipFrame: createTooltipFrame(world.cameras.elapsed), renderer: { domElement: { setPointerCapture() {} } },
       globeMotion: { dragging: false, velocity: { x: 0, y: 0 } },
       dragActive: { value: false }, selectionOverlay: { visible: false, update() {} }, view: { angle: 0 },
       flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },

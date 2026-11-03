@@ -32,7 +32,7 @@ test('ephemeral default stays opt-in; persistent launch keeps sandbox and explic
   assert.throws(() => parseOptions(['--profile-correspondence', '/tmp/review.json']), /requires --profile/)
   const launch = persistentLaunchOptions(launchOptions('/official-shell'), '/owned/browser')
   assert.equal(launch.chromiumSandbox, true); assert.equal(launch.ignoreDefaultArgs, true)
-  assert.deepEqual(launch.args, ['--remote-debugging-pipe', '--user-data-dir=/owned/browser', 'about:blank'])
+  assert.deepEqual(launch.args, ['--headless', '--remote-debugging-pipe', '--user-data-dir=/owned/browser', 'about:blank'])
   assert.equal(launch.acceptDownloads, false)
 })
 test('unknown personal, noncanonical, existing unmarked and symlink directories fail before adoption', () => fixture(args => {

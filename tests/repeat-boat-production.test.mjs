@@ -9,6 +9,7 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('an occupied Boat House produces again after its first craft leaves', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+  const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
   const store = createGameStore()
   store.startMission(15)
   const world = store.getWorld(),
@@ -16,7 +17,7 @@ test('an occupied Boat House produces again after its first craft leaves', async
   for (let n = 0; n < 82; n++) {
     tick(world, 1 / 12)
     if (world.flyby.flags & 1 && world.flyby.warmup > 0)
-      skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+      skipIntroduction({ world, tooltipFrame: createTooltipFrame(world.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
   }
   const empty = structuredClone(world)
   for (const id of [71, 76]) {

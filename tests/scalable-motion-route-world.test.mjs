@@ -28,7 +28,7 @@ test('500 distinct current route owners retain full graph aliases and determinis
   }
   assert.equal(world.motionRoutes.active, 500)
   const transported = checkpointCodec(JSON.parse(JSON.stringify(checkpointCodec({ version: CHECKPOINT_VERSION, world }))), true)
-  assert.equal(transported.version, 3)
+  assert.equal(transported.version, CHECKPOINT_VERSION)
   assert.ok(transported.world.motionRoutes.references instanceof Float64Array)
   assert.deepEqual(transported.world, world, 'JSON transport preserves full bytes, counts and aliases')
   const expected = migrateCheckpoint(transported.world)

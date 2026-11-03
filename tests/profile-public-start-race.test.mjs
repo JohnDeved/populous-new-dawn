@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { runInNewContext } from 'node:vm'
 import { readFileSync } from 'node:fs'
 import { createFlyby, flybyCommand, interruptFlyby } from '../app/flyby.ts'
+import { createTribeCameras, withSimulationCamera } from '../app/tribe-camera.ts'
 import {
   pauseStartupReady,
   recoverVisibleIntroduction,
@@ -19,6 +20,7 @@ function fixture() {
     outcome: { level: 1 },
     levelStart: [{ shaman: 30, phase: 2 }],
     flyby: createFlyby(),
+    cameras: createTribeCameras(),
     units: [
       {
         id: 30,
@@ -31,6 +33,7 @@ function fixture() {
   }
   const scene = {
     world,
+    tooltipFrame: { elapsed: 0, lastElapsed: 0, remainder: 0, cueGroups: [] },
     renderer: { domElement: { isConnected: true } },
     flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
     onChange() {},
@@ -49,13 +52,13 @@ function fixture() {
     body = camera
       .slice(
         camera.indexOf('export function skipIntroduction('),
-        camera.indexOf('export function updateCameraMotion(')
+        camera.indexOf('export function preCameraVisit(')
       )
       .replace(
         'export function skipIntroduction(scene: GameScene)',
         'return function skipIntroduction(scene)'
       )
-  const publicSkip = new Function('interruptFlyby', body)(interruptFlyby)
+  const publicSkip = new Function('interruptFlyby', 'withSimulationCamera', body)(interruptFlyby, withSimulationCamera)
   const page = {
     async evaluate(fn) {
       const before = structuredClone(world),

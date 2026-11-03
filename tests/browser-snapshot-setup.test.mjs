@@ -1,3 +1,4 @@
+import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { execFileSync } from 'node:child_process'
@@ -103,7 +104,7 @@ function readyState(f) {
     visibility: 'visible', inputMask: 0, flybyActive: false, modalSuspended: false,
     simulationSha256: f.receipt.admittedSimulationSha256, selected: [], mode: null,
     viewport: { width: 1440, height: 1000, devicePixelRatio: 1, canvas: { left: 0, top: 0, width: 1440, height: 1000 } },
-    camera: { position: { x: Math.round((focus.x + 8) * 256) & 65535, y: Math.round((-focus.z - 8) * 256) & 65535, angle: 0 },
+    camera: { position: { x: Math.round((focus.x + 8) * 256) & 65535, y: Math.round((-focus.z - 8) * 256) & 65535, angle: 0, h: 59, initialized: true },
       viewPoint: { x: focus.x, z: focus.z }, bearing: 0, preset: 0, zoom: 0, config: {}, presetMatches: true,
       projection: { width: 1440, height: 1000 }, transition: false, overview: false, pointerGesture: false,
       navigation: 0, motion: 0, resultMotion: 0, pointerButtons: 0, preview: null, keys: [],
@@ -114,6 +115,8 @@ test('stable-pose admission rejects transition, drift, wrong focus, active input
   assertSnapshotAdmission(next, f, first)
   for (const [field, value] of [['transition', true], ['navigation', 16], ['motion', 1], ['bearing', 0.01], ['presetMatches', false]])
     assert.throws(() => assertSnapshotAdmission({ ...next, camera: { ...next.camera, [field]: value } }, f, first))
+  for (const [field, value] of [['h', 60], ['initialized', false]])
+    assert.throws(() => assertSnapshotAdmission({ ...next, camera: { ...next.camera, position: { ...next.camera.position, [field]: value } } }, f, first))
   for (const [field, value] of [['latchRemoved', false], ['paused', false], ['inputMask', 64], ['sameScene', false]])
     assert.throws(() => assertSnapshotAdmission({ ...next, [field]: value }, f, first))
   assert.throws(() => assertSnapshotAdmission({ ...next, camera: { ...next.camera, viewPoint: { x: 0, z: 0 } } }, f, first))
@@ -199,7 +202,7 @@ test('cleanup uncertainty preserves the original load failure without throwing i
 test('generated current snapshot is admitted by a fresh real store without rewriting persisted input', async () => {
   const f = await getFixture(), record = checkpointCodec(f.transfer, true),
     { withStorage } = await import('./support/profile-storage.mjs')
-  assert.equal(record.version, 3)
+  assert.equal(record.version, CHECKPOINT_VERSION)
   await withStorage({ latest: record }, async ({ freshStore, records, writes }) => {
     const store = await freshStore(), active = store.getWorld(), before = structuredClone(records)
     assert.equal(await store.restoreCheckpoint(), true)

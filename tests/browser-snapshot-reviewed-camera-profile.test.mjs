@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import { dragSourceProfiles, inspectDragSource } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 test('all nine historical trusted-main profiles remain exact', () => {
-  assert.equal(dragSourceProfiles.length, 10)
+  assert.equal(dragSourceProfiles.length, 18)
   assert.equal(hash(dragSourceProfiles.slice(0, 9)), '82475e1af1f3f44c1bf7487ddee1071b912e565bee93c1dd31dce703245d5706')
 })
 test('only the exact reviewed complete camera profile is added and frozen', () => {
@@ -29,10 +29,12 @@ test('protected-owner trigger inventory retains exact maintained union and comma
   const check = checks.checks.find(item => item.id === 'snapshot-drag-portable')
   assert.ok(check)
   assert.equal(check.automation, 'safe')
-  assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs'])
+  assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs', 'tests/browser-snapshot-drag-camera-profile.test.mjs'])
   const owners = [...new Set(dragSourceProfiles.flatMap(profile => profile.slices.map(slice => slice.path)))]
   const paths = [...owners, 'scripts/browser-performance/snapshot-drag-contract.mjs',
-    'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
+    'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs',
+    'tests/browser-snapshot-drag-camera-profile.test.mjs', 'tests/fixtures/snapshot-drag-camera-source-mixes.json',
+    'tests/fixtures/snapshot-drag-pre-camera-owners.json']
   assert.deepEqual([...check.triggerPaths].sort(), [...paths].sort())
   for (const path of paths) assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)))
 })
