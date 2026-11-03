@@ -386,15 +386,20 @@ there were no reported page errors or inner 75-second expiry. The previous green
 Tower run completed 84 observations in 32.961 seconds after a 200.347-second
 prefix. The failed attempt remains failed and preserved.
 
-The same current run's frontend matrix passed in 20.292 seconds after a
-91.603-second prefix. Selector recovery from PR #882 remains after that matrix,
-not inside Tutorial: its historical passing run finished the matrix at
+The same recorded run's frontend matrix passed in 20.292 seconds after a
+91.603-second prefix. Separate historical evidence from PR #882 places selector
+recovery after the frontend matrix: that passing run finished the matrix at
 22:15:22.734 UTC and the complete runner at 22:15:35.519 UTC. That 12.785-second
-tail includes recovery and finalization, not isolated recovery duration. These
-separate samples motivate the small move; they do not prove combined new timing.
+tail includes recovery and finalization, not isolated recovery duration. PR #882
+remains unmerged and that continuation is absent from this candidate; its timing
+is a constraint for future composition. These separate samples motivate the
+small move; they do not prove combined new timing.
 
 Focused inventory and lifecycle controls verify 80 plus 84 unique observations,
 with no lost or duplicated cases and exact mission ownership. Required fresh
-hosted checks must still establish that both complete scenarios, including #882
-recovery, fit their unchanged 240/180-second outer and 75-second inner bounds.
+hosted checks must still establish that both complete scenarios fit their
+unchanged 240/180-second outer and 75-second inner bounds. Any later #882
+composition must also fit those bounds. The existing Tutorial workflow now
+includes the partition helper in its path filter so helper changes receive
+browser validation.
 No rendering or performance benefit is claimed from source-only tests.
