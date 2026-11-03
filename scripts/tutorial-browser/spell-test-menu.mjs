@@ -5,7 +5,8 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
-import { beginOrdinaryCastingWitness, waitForCastingWitness, waitForRunningCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForCastingWitness, waitForRunningCastingWitness, retainCastingWitness, castingAllocationAccepted, startCastingHostOperation } from './shaman-casting.mjs'
+import { installShamanCastingInputTiming } from './shaman-casting-observer.mjs'
 
 // Same-source hosted passes took 49.356s/50.327s; a 55s run still reached a
 // normal, connected restart flyby. Allow the three world loads, interactions and
@@ -129,6 +130,7 @@ export default async function spellTestMenu({ browser, url, output }) {
   try {
     assertSpellTestDeadline(report, started)
     diagnostics.stage('start mission')
+    await page.addInitScript(installShamanCastingInputTiming)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await waitForStartupMenu(page)
     await button('New Game').click()
@@ -223,11 +225,19 @@ export default async function spellTestMenu({ browser, url, output }) {
         p = scene.screen({ x: shaman.x + 5, z: shaman.z + 5 }), rect = scene.renderer.domElement.getBoundingClientRect()
       return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2, before: w.stats.cast }
     })
-    await page.mouse.click(target.x, target.y)
-    await page.waitForFunction(before => window.testStore.getWorld().stats.cast === before + 1, target.before)
+    let endOperation = startCastingHostOperation(report, 'pointer-click'), completed = false
+    try { await page.mouse.click(target.x, target.y); completed = true }
+    finally { endOperation(completed) }
+    endOperation = startCastingHostOperation(report, 'allocation-wait'); completed = false
+    try { await page.waitForFunction(castingAllocationAccepted, target.before); completed = true }
+    finally { endOperation(completed) }
     // F9 freezes the cached Painter, so allocation alone cannot admit this hold.
-    await waitForRunningCastingWitness(page, 'subsequent')
-    await page.keyboard.press('F9')
+    endOperation = startCastingHostOperation(report, 'running-render-wait'); completed = false
+    try { await waitForRunningCastingWitness(page, 'subsequent'); completed = true }
+    finally { endOperation(completed) }
+    endOperation = startCastingHostOperation(report, 'keyboard-press'); completed = false
+    try { await page.keyboard.press('F9'); completed = true }
+    finally { endOperation(completed) }
     await menu.waitFor()
     const casting = await snapshot()
     assert.equal(casting.shots.blast, unlocked.shots.blast - 1, 'normal cast spent one real charge')

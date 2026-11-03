@@ -64,9 +64,26 @@ export async function waitForRunningCastingWitness(page, label) {
   await page.waitForFunction(label => {
     const state = window.shamanCastingObserver.status()
     if (state.errors.length) throw Error(state.errors.join('; '))
-    return state.casts.some(cast => cast.label === label && !cast.done && cast.running &&
+    const accepted = state.casts.some(cast => cast.label === label && !cast.done && cast.running &&
       Number.isInteger(cast.runningFrameStamp))
+    if (accepted) window.shamanCastingObserver.recordGate('running-render', label)
+    return accepted
   }, label)
+}
+
+export function castingAllocationAccepted(before) {
+  const accepted = window.testStore.getWorld().stats.cast === before + 1
+  if (accepted) window.shamanCastingObserver.recordGate('allocation', 'subsequent')
+  return accepted
+}
+
+// Host timestamps stay separate from the observer's page clock.
+export function startCastingHostOperation(report, operation) {
+  const timing = report.castingHostTiming ??= { clock: 'host.performance.now', operations: [] }
+  assert.ok(timing.operations.length < 4, 'Casting host timing exceeded four operations')
+  const row = { operation, start: performance.now(), end: null, completed: false }
+  timing.operations.push(row)
+  return completed => { row.end = performance.now(); row.completed = completed }
 }
 
 // Called before the existing context is disposed, including on failure. Raw

@@ -1,15 +1,35 @@
 // Serialized into the existing campaign document. All writes below belong to
 // this observer, not World. Wrappers call the original callback exactly once and
 // preserve its receiver, result and thrown object. No clock/render is driven.
+export function installShamanCastingInputTiming() {
+  if (window.shamanCastingInputTiming) throw Error('Casting input timing already installed')
+  const listener = event => {
+    if (event.key === 'F9' && event.isTrusted) input.record?.(event)
+  }
+  const input = window.shamanCastingInputTiming = {
+    record: null, closed: false,
+    close(record = input.record) {
+      window.removeEventListener('keydown', listener, true)
+      if (input.record === record) input.record = null
+      input.closed = true
+    },
+  }
+  // Registered by addInitScript before Home's stopImmediatePropagation listener.
+  window.addEventListener('keydown', listener, true)
+}
+
 export function installShamanCastingObserver() {
   if (window.shamanCastingObserver) throw Error('Casting observer already installed')
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock, renderer = scene.renderer, canvas = renderer.domElement,
-    originalTurn = clock.afterTurn, originalRender = renderer.render,
+    originalTurn = clock.afterTurn, originalRender = renderer.render, originalModal = scene.setModalSuspended,
+    inputTiming = window.shamanCastingInputTiming,
     turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
-    renderDescriptor = Object.getOwnPropertyDescriptor(renderer, 'render')
-  const result = { casts: [], holds: [], errors: [], closed: false, restored: false }, copies = []
-  let armed = null, pending = null, active = null, closed = false
+    renderDescriptor = Object.getOwnPropertyDescriptor(renderer, 'render'),
+    modalDescriptor = Object.getOwnPropertyDescriptor(scene, 'setModalSuspended')
+  const result = { casts: [], holds: [], errors: [], closed: false, restored: false,
+    timing: { clock: 'page.performance.now', events: [] } }, copies = []
+  let armed = null, pending = null, active = null, closed = false, inputAttached = false
   const check = (condition, message) => { if (!condition) throw Error(message) }
   const firstRunningFrame = record => record.frames.find(frame =>
     frame.person.state === 22 && frame.person.casting && !frame.paused && !frame.suspended)
@@ -21,8 +41,39 @@ export function installShamanCastingObserver() {
     check(window.testSceneRef.current === scene && window.testStore.getWorld() === world &&
       scene.world === world && scene.gameClock === clock && scene.renderer === renderer &&
       renderer.domElement === canvas && canvas.isConnected, 'Casting Scene/World/clock/canvas changed')
-    check(clock.afterTurn === turnWrapper && renderer.render === renderWrapper,
+    check(clock.afterTurn === turnWrapper && renderer.render === renderWrapper &&
+      scene.setModalSuspended === modalWrapper && window.shamanCastingInputTiming === inputTiming &&
+      inputTiming.record === beforeF9 && !inputTiming.closed,
       'Casting observation callback ownership changed')
+  }
+  const timing = (event, details = {}, state = read()) => {
+    check(result.timing.events.length < 32, 'Casting timing observation exceeded 32 events')
+    const row = { event, at: performance.now(), label: armed ?? active?.record.label,
+      shot: armed ? null : active?.record.shot ?? null, stamp: renderer.info.render.frame, state, ...details }
+    result.timing.events.push(row)
+    return row
+  }
+  const subsequent = () => armed === 'subsequent' ||
+    (active?.record.label === 'subsequent' && !active.record.done)
+  const beforeF9 = event => observe(() => {
+    if (!subsequent()) return
+    timing('trusted-f9-keydown', { key: event.key, repeat: event.repeat, isTrusted: event.isTrusted })
+  })
+  function modalWrapper(...args) {
+    let entry
+    observe(() => {
+      if (subsequent()) entry = timing('modal-setter-entry', { suspendedArgument: args[0], receiverOwned: this === scene })
+    })
+    let completed = false
+    try {
+      const returned = originalModal.apply(this, args)
+      completed = true
+      return returned
+    } finally {
+      observe(() => {
+        if (entry) timing('modal-setter-exit', { enteredAt: entry.at, completed })
+      })
+    }
   }
   const read = () => {
     owner()
@@ -67,6 +118,7 @@ export function installShamanCastingObserver() {
     active = { record, person: world.units.find(unit => unit.id === after.person.id).native,
       phases: new Set() }
     result.casts.push(record)
+    timing('allocation', {}, after)
     pending = null; armed = null
   })
   function turnWrapper(...args) {
@@ -84,6 +136,7 @@ export function installShamanCastingObserver() {
     return returned
   }
   function renderWrapper(...args) {
+    const enteredAt = performance.now()
     const returned = originalRender.apply(this, args)
     if (args[0] !== scene.scene || args[1] !== scene.camera) return returned
     observe(() => {
@@ -101,6 +154,8 @@ export function installShamanCastingObserver() {
           frame: group?.userData.frame, flip: group?.userData.frameFlip,
           renderedDraw: group?.userData.draw, cropPlanned: false }
       record.frames.push(frame)
+      if (firstRunningFrame(record) === frame)
+        timing('first-running-render', { enteredAt, renderedAt: frame.at }, state)
       // Capture the first two distinct running phases per cast. Paused/modal
       // frames remain evidence but cannot replace an ordinary visible crop.
       if (state.person.state !== 22 || state.paused || state.suspended ||
@@ -140,6 +195,7 @@ export function installShamanCastingObserver() {
       const crop = { file: frame.cropFile, turn: state.turn, stamp, f2: state.person.f2,
         frame: frame.frame, clip: { x, y, width, height } }
       record.crops.push(crop); copies.push({ copy, context, crop })
+      timing('crop-complete', { file: crop.file, renderedAt: frame.at }, state)
     })
     return returned
   }
@@ -152,18 +208,37 @@ export function installShamanCastingObserver() {
       if (renderDescriptor) Object.defineProperty(renderer, 'render', renderDescriptor)
       else delete renderer.render
     }
+    if (scene.setModalSuspended === modalWrapper) {
+      if (modalDescriptor) Object.defineProperty(scene, 'setModalSuspended', modalDescriptor)
+      else delete scene.setModalSuspended
+    }
+    if (inputAttached) inputTiming.close(beforeF9)
     window.removeEventListener('pointerup', beforeInput, true)
     window.removeEventListener('pointerup', afterInput, false)
-    result.restored = clock.afterTurn === originalTurn && renderer.render === originalRender
+    result.restored = clock.afterTurn === originalTurn && renderer.render === originalRender &&
+      scene.setModalSuspended === originalModal && window.shamanCastingInputTiming === inputTiming &&
+      inputTiming?.closed === true && inputTiming.record === null
   }
   try {
+    check(inputTiming && !inputTiming.closed && inputTiming.record === null,
+      'Casting timing requires its early input listener')
+    inputTiming.record = beforeF9
+    inputAttached = true
     clock.afterTurn = turnWrapper
     renderer.render = renderWrapper
+    scene.setModalSuspended = modalWrapper
     owner()
     window.addEventListener('pointerup', beforeInput, true)
     window.addEventListener('pointerup', afterInput, false)
   } catch (error) { restore(); throw error }
   window.shamanCastingObserver = {
+    recordGate(gate, label) {
+      observe(() => {
+        check(active?.record.label === label, 'Casting timing gate owner changed')
+        if (!result.timing.events.some(row => row.event === 'gate-accepted' && row.gate === gate && row.label === label))
+          timing('gate-accepted', { gate, firstRunningStamp: firstRunningFrame(active.record)?.stamp ?? null })
+      })
+    },
     arm(label) {
       owner()
       check(!closed && !result.errors.length && !armed && !pending && (!active || active.record.done),

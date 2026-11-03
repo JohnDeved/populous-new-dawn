@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { installShamanCastingObserver } from '../scripts/tutorial-browser/shaman-casting-observer.mjs'
+import { installShamanCastingObserver, installShamanCastingInputTiming } from '../scripts/tutorial-browser/shaman-casting-observer.mjs'
 import { castingArtworkReference as reference, validateShamanCastingEvidence } from '../scripts/tutorial-browser/shaman-casting-evidence.mjs'
 import native from './fixtures/shaman-casting-native.json' with { type: 'json' }
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
@@ -9,7 +9,7 @@ import { createLivePerson } from '../app/live-people.ts'
 import { cast } from '../app/live-command.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { readFileSync } from 'node:fs'
-import { beginOrdinaryCastingWitness, waitForRunningCastingWitness } from '../scripts/tutorial-browser/shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForRunningCastingWitness, castingAllocationAccepted, startCastingHostOperation } from '../scripts/tutorial-browser/shaman-casting.mjs'
 
 // Supplied observations exercise the evidence contract, not a browser pass.
 function evidence() {
@@ -214,7 +214,7 @@ test('active-cast hold requires timed suspended renders, exact frozen state and 
 })
 
 // This fake browser checks observer transparency and cleanup, not real pixels.
-function observerFixture({ ownRender = false, installFailure = false } = {}) {
+function observerFixture({ ownRender = false, ownModal = false, installFailure = false } = {}) {
   const names = ['window', 'document', 'getComputedStyle'],
     saved = names.map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]),
     listeners = [], calls = [], person = { ...evidence().casts[0].before.person },
@@ -224,7 +224,13 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
       stats: { cast: 0 }, spellCasts: [[0, 0, 0]], projectiles: [], effects: [],
       units: [{ id: 4, hp: 100, team: 'blue', kind: 'shaman', native: person, heading: 0, lift: 0 }] }
   const returned = {}, thrown = new Error('original failure')
-  let failTurn = false, failRender = false, readbackCount = 0
+  let failTurn = false, failRender = false, failModal = false, readbackCount = 0
+  const modal = function (...args) {
+    calls.push(['modal', this, args])
+    if (failModal) throw thrown
+    this.modalSuspended = args[0]
+    return returned
+  }
   const turn = function (...args) {
     calls.push(['turn', this, args])
     if (failTurn) throw thrown
@@ -246,6 +252,8 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
       modalSuspended: false, cameraBearing: 0, unitMeshes: new Map([[4, group]]),
       view: { painter: { source: () => ({}) } },
       picking: { personBounds: () => ({ x: 100, y: 100, width: 30, height: 50 }) } }
+  Object.setPrototypeOf(scene, { setModalSuspended: modal })
+  if (ownModal) Object.defineProperty(scene, 'setModalSuspended', { value: modal, writable: true, configurable: true })
   const win = { testSceneRef: { current: scene }, testStore: { getWorld: () => world, hasUsedCheats: () => false },
     addEventListener(type, callback, capture) {
       if (installFailure && listeners.length === 1) throw Error('listener installation failed')
@@ -262,7 +270,8 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
       getContext: () => ({ drawImage() {}, getImageData: () => ({ data: [1, 2, 3, 255, 4, 5, 6, 255] }) }) }),
   }
   globalThis.getComputedStyle = () => ({ display: 'block', visibility: 'visible', opacity: '1' })
-  const dispatch = (capture, trusted = true) => listeners.find(row => row.capture === capture)?.callback({
+  installShamanCastingInputTiming()
+  const dispatch = (capture, trusted = true) => listeners.find(row => row.type === 'pointerup' && row.capture === capture)?.callback({
     target: canvas, button: 0, isTrusted: trusted, clientX: 110, clientY: 120,
   })
   const allocate = (label = 'ordinary') => {
@@ -277,12 +286,14 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
   }
   const cleanup = () => {
     win.shamanCastingObserver?.finish()
+    win.shamanCastingInputTiming.close()
     for (const [name, descriptor] of saved)
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
       else delete globalThis[name]
   }
   return { world, person, scene, renderer, group, canvas, win, calls, returned, thrown, listeners,
-    turn, render, allocate, dispatch, cleanup, readbacks: () => readbackCount,
+    turn, render, modal, allocate, dispatch, cleanup, readbacks: () => readbackCount,
+    failModal: () => { failModal = true },
     fail: () => { failTurn = true; failRender = true } }
 }
 
@@ -399,6 +410,190 @@ test('running-cast readiness fails immediately on observer errors', async () => 
       waitForFunction: async (callback, label) => callback(label),
     }, 'subsequent'), /Casting Scene\/World/)
   } finally { f.cleanup() }
+})
+
+function subsequentFixture(f) {
+  f.allocate()
+  for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+  f.world.mode = 'blast'; f.world.projectiles = []
+  f.allocate('subsequent')
+}
+
+test('page timing retains first render, successful crops and first gate acceptance without extra callbacks', async () => {
+  const f = observerFixture()
+  try {
+    installShamanCastingObserver(); subsequentFixture(f)
+    const before = structuredClone(f.world), calls = f.calls.length
+    assert.equal(castingAllocationAccepted(f.world.stats.cast), false)
+    assert.equal(castingAllocationAccepted(f.world.stats.cast - 1), true)
+    assert.equal(castingAllocationAccepted(f.world.stats.cast - 1), true)
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    await waitForRunningCastingWitness({ waitForFunction: async (callback, label) => {
+      assert.equal(callback(label), true); assert.equal(callback(label), true)
+    } }, 'subsequent')
+    f.person.f2++
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    before.units[0].native.f2++
+    const result = f.win.shamanCastingObserver.finish(), events = result.timing.events,
+      rows = events.filter(row => row.label === 'subsequent')
+    assert.equal(result.timing.clock, 'page.performance.now')
+    assert.deepEqual(rows.map(row => row.event),
+      ['allocation', 'gate-accepted', 'first-running-render', 'crop-complete', 'gate-accepted', 'crop-complete'])
+    assert.deepEqual(rows.filter(row => row.event === 'gate-accepted').map(row => row.gate), ['allocation', 'running-render'])
+    assert.equal(rows[4].firstRunningStamp, rows[2].stamp)
+    assert.ok(rows[2].enteredAt <= rows[2].renderedAt)
+    assert.ok(rows[2].renderedAt <= rows[3].at)
+    assert.ok(events.every((row, i) => i === 0 || row.at >= events[i - 1].at))
+    assert.ok(rows.every(row => row.state.person.sameOwner && row.shot === 200))
+    assert.equal(f.calls.length, calls + 2)
+    assert.deepEqual(f.world, before)
+    assert.deepEqual(result.errors, [])
+  } finally { f.cleanup() }
+})
+
+test('early trusted F9 timing precedes production immediate propagation stop and is removed at finish', () => {
+  const f = observerFixture()
+  try {
+    let handled = 0
+    const production = event => { handled++; event.stopImmediatePropagation() }
+    f.win.addEventListener('keydown', production, true)
+    const key = (isTrusted = true, key = 'F9') => {
+      let stopped = false
+      const event = { isTrusted, key, repeat: false, stopImmediatePropagation() { stopped = true } }
+      for (const row of [...f.listeners]) {
+        if (row.type !== 'keydown') continue
+        row.callback(event)
+        if (stopped) break
+      }
+    }
+    key()
+    installShamanCastingObserver(); f.allocate(); key()
+    for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+    f.world.mode = 'blast'; f.world.projectiles = []; f.allocate('subsequent')
+    const world = structuredClone(f.world), calls = f.calls.length
+    key(false); key(true, 'F8'); key()
+    const result = f.win.shamanCastingObserver.finish(), keys = result.timing.events.filter(row => row.event === 'trusted-f9-keydown')
+    assert.equal(keys.length, 1)
+    assert.deepEqual([keys[0].key, keys[0].repeat, keys[0].isTrusted, keys[0].label], ['F9', false, true, 'subsequent'])
+    assert.equal(keys[0].state.person.sameOwner, true)
+    assert.equal(handled, 5)
+    assert.deepEqual(f.world, world); assert.equal(f.calls.length, calls)
+    assert.equal(result.restored, true)
+    assert.deepEqual(f.listeners, [{ type: 'keydown', callback: production, capture: true }])
+    key(); assert.equal(handled, 6); assert.equal(keys.length, 1)
+    f.win.removeEventListener('keydown', production, true)
+  } finally { f.cleanup() }
+})
+
+test('modal timing calls the original once with exact receiver, arguments, result and thrown object, then restores descriptors', () => {
+  for (const ownModal of [false, true]) {
+    const f = observerFixture({ ownModal }), descriptor = Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended')
+    try {
+      installShamanCastingObserver(); subsequentFixture(f)
+      const world = structuredClone(f.world), receiver = { modalSuspended: false }, extra = {}
+      assert.equal(f.scene.setModalSuspended.call(receiver, true, extra), f.returned)
+      assert.equal(receiver.modalSuspended, true)
+      assert.equal(f.scene.modalSuspended, false)
+      assert.equal(f.scene.setModalSuspended(true), f.returned)
+      f.failModal()
+      assert.throws(() => f.scene.setModalSuspended(false), error => error === f.thrown)
+      const result = f.win.shamanCastingObserver.finish(), calls = f.calls.filter(row => row[0] === 'modal'),
+        rows = result.timing.events.filter(row => row.event.startsWith('modal-setter'))
+      assert.equal(calls.length, 3)
+      assert.equal(calls[0][1], receiver); assert.deepEqual(calls[0][2], [true, extra])
+      assert.equal(calls[1][1], f.scene); assert.deepEqual(calls[1][2], [true])
+      assert.deepEqual(rows.map(row => row.event), Array(3).fill(['modal-setter-entry', 'modal-setter-exit']).flat())
+      assert.deepEqual(rows.filter(row => row.event.endsWith('exit')).map(row => row.completed), [true, true, false])
+      assert.deepEqual(rows.filter(row => row.event.endsWith('entry')).map(row => row.receiverOwned), [false, true, true])
+      assert.equal(rows[2].state.suspended, false); assert.equal(rows[3].state.suspended, true)
+      assert.ok(rows.every((row, i) => i % 2 === 0 || row.at >= row.enteredAt))
+      assert.deepEqual(f.world, world); assert.deepEqual(result.errors, [])
+      assert.equal(result.restored, true)
+      assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended'), descriptor)
+      assert.equal(f.listeners.length, 0)
+    } finally { f.cleanup() }
+  }
+})
+
+test('timing ownership loss and bounded overflow retain failure without suppressing the original modal call', () => {
+  for (const failure of ['modal-owner', 'input-owner', 'overflow', 'crop']) {
+    const f = observerFixture(), replacement = () => 'replacement'
+    try {
+      installShamanCastingObserver(); subsequentFixture(f)
+      if (failure === 'modal-owner') f.scene.setModalSuspended = replacement
+      else if (failure === 'input-owner') f.win.shamanCastingInputTiming.record = replacement
+      else if (failure === 'overflow') {
+        const listener = f.listeners.find(row => row.type === 'keydown').callback
+        for (let i = 0; i < 40; i++) listener({ key: 'F9', isTrusted: true, repeat: true })
+      } else {
+        f.scene.picking.personBounds = () => null
+        f.renderer.render(f.scene.scene, f.scene.camera)
+      }
+      const world = structuredClone(f.world)
+      if (failure !== 'modal-owner') {
+        assert.equal(f.scene.setModalSuspended(true), f.returned)
+        assert.equal(f.calls.filter(row => row[0] === 'modal').length, 1)
+      }
+      const result = f.win.shamanCastingObserver.finish()
+      assert.ok(result.errors.length > 0)
+      assert.ok(result.timing.events.length <= 32)
+      assert.equal(result.casts.length, 2); assert.equal(result.closed, true)
+      assert.deepEqual(f.world, world)
+      if (failure === 'modal-owner') assert.equal(f.scene.setModalSuspended, replacement)
+      if (failure === 'input-owner') assert.equal(f.win.shamanCastingInputTiming.record, replacement)
+      if (failure === 'crop') {
+        assert.equal(result.casts[1].frames.length, 1)
+        assert.equal(result.casts[1].crops.length, 0)
+        assert.ok(result.timing.events.some(row => row.event === 'first-running-render'))
+        assert.ok(!result.timing.events.some(row => row.event === 'crop-complete'))
+      }
+      assert.equal(result.restored, failure !== 'modal-owner' && failure !== 'input-owner')
+    } finally { f.cleanup() }
+  }
+})
+
+test('failed modal wrapper installation restores previously installed callbacks and removes early input timing', () => {
+  const f = observerFixture()
+  try {
+    Object.defineProperty(f.scene, 'setModalSuspended', { value: f.modal, writable: false, configurable: false })
+    const descriptor = Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended')
+    assert.throws(installShamanCastingObserver, TypeError)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended'), descriptor)
+    assert.equal(f.scene.gameClock.afterTurn, f.turn); assert.equal(f.renderer.render, f.render)
+    assert.equal(f.listeners.length, 0); assert.deepEqual(f.calls, [])
+  } finally { f.cleanup() }
+})
+
+test('host operation timing retains unchanged awaited sequence and the first rejection without crossing page clocks', async () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
+    start = source.indexOf('    let endOperation ='), end = source.indexOf('\n    await menu.waitFor()', start),
+    body = source.slice(start, end), operations = ['pointer-click', 'allocation-wait', 'running-render-wait', 'keyboard-press']
+  assert.ok(start > 0 && end > start)
+  for (const failed of [null, ...operations]) {
+    const f = observerFixture(), report = {}, calls = [], thrown = new Error('host operation failed')
+    try {
+      installShamanCastingObserver()
+      const invoke = name => { calls.push(name); if (name === failed) throw thrown },
+        page = {
+          mouse: { click: async () => { invoke('pointer-click'); subsequentFixture(f); f.renderer.render(f.scene.scene, f.scene.camera) } },
+          waitForFunction: async (callback, value) => {
+            invoke(callback === castingAllocationAccepted ? 'allocation-wait' : 'running-render-wait')
+            assert.equal(callback(value), true)
+          },
+          keyboard: { press: async key => { assert.equal(key, 'F9'); invoke('keyboard-press') } },
+        },
+        run = new Function('page', 'report', 'target', 'startCastingHostOperation', 'castingAllocationAccepted', 'waitForRunningCastingWitness',
+          `return (async () => { ${body} })()`),
+        promise = run(page, report, { x: 1, y: 2, before: 1 }, startCastingHostOperation, castingAllocationAccepted, waitForRunningCastingWitness)
+      if (failed) await assert.rejects(promise, error => error === thrown)
+      else await promise
+      const expected = failed ? operations.slice(0, operations.indexOf(failed) + 1) : operations
+      assert.deepEqual(calls, expected)
+      assert.equal(report.castingHostTiming.clock, 'host.performance.now')
+      assert.deepEqual(report.castingHostTiming.operations.map(row => row.operation), expected)
+      assert.ok(report.castingHostTiming.operations.every(row => Number.isFinite(row.start) && row.end >= row.start && row.completed === (row.operation !== failed)))
+    } finally { f.cleanup() }
+  }
 })
 
 test('observer failures preserve originals and fail closed on owner replacement or installation errors', () => {
