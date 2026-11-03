@@ -366,3 +366,35 @@ This composition changes neither policy nor the nested 75-second spell episode;
 it reuses the runner's existing monotonic start for remaining-budget reporting.
 A source regression protects those integration boundaries. Source composition is
 not evidence that the new rendered matrix fits either inherited budget.
+
+### November 3, 2026: rebalance authored discovery checks
+
+The hosted partitions now keep the same 164 distinct observations but move the
+four authored Mission 1/16 placeholders to frontend-held-Escape. Tutorial retains
+all 80 normal/inactive/selected/selected-inactive matrix cases in one Mission 16
+context; frontend retains its 80 charging/hover/disabled/disabled-inactive cases
+and checks the four placeholders through sequential Mission 1/16 contexts.
+The standalone full matrix, all screenshot/reference comparisons, original-pixel
+checks, cleanup and source-integrity assertions are unchanged. No jobs, timeouts,
+workflow permissions or failed-evidence acceptance change.
+
+This addresses measured budget imbalance, not an icon-stability defect. In
+[run 41700867490](https://github.com/JohnDeved/populous-new-dawn/actions/runs/41700867490),
+Tutorial reached the matrix after 209.691 seconds with only 30.309 seconds left.
+Its outer 240-second deadline closed the browser after 70 of 84 observations;
+there were no reported page errors or inner 75-second expiry. The previous green
+Tower run completed 84 observations in 32.961 seconds after a 200.347-second
+prefix. The failed attempt remains failed and preserved.
+
+The same current run's frontend matrix passed in 20.292 seconds after a
+91.603-second prefix. Selector recovery from PR #882 remains after that matrix,
+not inside Tutorial: its historical passing run finished the matrix at
+22:15:22.734 UTC and the complete runner at 22:15:35.519 UTC. That 12.785-second
+tail includes recovery and finalization, not isolated recovery duration. These
+separate samples motivate the small move; they do not prove combined new timing.
+
+Focused inventory and lifecycle controls verify 80 plus 84 unique observations,
+with no lost or duplicated cases and exact mission ownership. Required fresh
+hosted checks must still establish that both complete scenarios, including #882
+recovery, fit their unchanged 240/180-second outer and 75-second inner bounds.
+No rendering or performance benefit is claimed from source-only tests.

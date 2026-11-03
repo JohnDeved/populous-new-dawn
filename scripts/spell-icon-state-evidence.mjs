@@ -12,8 +12,8 @@ export const spellIconStateNames = ['normal', 'inactive', 'selected', 'selected-
 // Disjoint presentation episodes share the existing hosted jobs. The local CLI
 // keeps the complete matrix; no case is dropped to fit a job's inherited cap.
 export const spellIconPartitions = Object.freeze({
-  tutorial: Object.freeze({ states: Object.freeze(spellIconStateNames.slice(0, 4)), missions: Object.freeze([1, 16]) }),
-  'frontend-held-escape': Object.freeze({ states: Object.freeze(spellIconStateNames.slice(4)), missions: Object.freeze([]) }),
+  tutorial: Object.freeze({ states: Object.freeze(spellIconStateNames.slice(0, 4)), missions: Object.freeze([]) }),
+  'frontend-held-escape': Object.freeze({ states: Object.freeze(spellIconStateNames.slice(4)), missions: Object.freeze([1, 16]) }),
 })
 
 export function spellIconPartition(episode = 'full') {
