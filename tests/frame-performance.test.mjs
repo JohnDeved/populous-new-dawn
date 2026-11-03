@@ -138,7 +138,7 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
   const source = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   const body = source.slice(source.indexOf('  animate = (now:'), source.indexOf('  private updateTerrainFrame()'))
   let clock = 0, reads = 0
-  const events = [], updates = []
+  const events = [], updates = [], tooltipCalls = []
   let gpuCalls = 0
   const step = name => () => { events.push(name); clock += 1 }
   const context = {
@@ -158,9 +158,15 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     renderer: { getPixelRatio: () => 1, render: step('render'), info: { render: { calls: 7 } } },
     fpsGraph: enabled ? { renderGpu(draw) { gpuCalls++; return draw() }, update(...args) { events.push('telemetry'); updates.push(args); clock += 100 }, reset: step('reset') } : null
   })
+  // The isolated callback fixture counts live frontend work; suspended observation
+  // only discards elapsed time and is recorded separately from controller cost.
+  scene.updateTooltipFrame = (now, suspended = false) => {
+    tooltipCalls.push({ now, suspended })
+    if (!suspended) step('updateTooltipFrame')()
+  }
   for (const name of ['cancelNearbyFollowers', 'dispatchNearbyFollowers', 'playWorldSounds',
     'updateTerrainFrame', 'updateDecorationsFrame', 'updateCameraMotion', 'cancelTooltipInspection',
-    'updateFlyby', 'updateView', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame',
+    'updateView', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame',
     'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement',
     'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame'])
     scene[name] = step(name)
@@ -173,11 +179,12 @@ function runCallback({ enabled = true, hidden = false, modal = false, current = 
     if (metrics) metrics.reasons |= waterReason
   }
   scene.animate(10)
-  return { scene, events, reads, updates, clock, gpuCalls }
+  return { scene, events, reads, updates, clock, gpuCalls, tooltipCalls }
 }
 
 test('live callback CPU includes preparation, HUD and scheduling, excluding overlay work', () => {
-  const { scene, events, reads, updates, clock } = runCallback()
+  const { scene, events, reads, updates, clock, tooltipCalls } = runCallback()
+  assert.deepEqual(tooltipCalls, [{ now: 10, suspended: false }])
   assert.equal(scene.frame, 42)
   assert.equal(reads, 12)
   assert.equal(updates.length, 1)
@@ -192,7 +199,8 @@ test('live callback CPU includes preparation, HUD and scheduling, excluding over
 })
 
 test('modal callback measures rendering and scheduling without simulation or HUD', () => {
-  const { events, updates, reads } = runCallback({ modal: true })
+  const { events, updates, reads, tooltipCalls } = runCallback({ modal: true })
+  assert.deepEqual(tooltipCalls, [{ now: 10, suspended: true }])
   assert.deepEqual(events, ['render', 'schedule', 'telemetry'])
   assert.equal(reads, 4)
   assert.deepEqual(JSON.parse(JSON.stringify(updates[0])), [10, 0, 1, 7, 'Menu · rendering', 2, 0, createPointerFrameMetrics(), 0, 0, { terrainCpuMs: 0, waterCpuMs: 0, hudCpuMs: 0 }])

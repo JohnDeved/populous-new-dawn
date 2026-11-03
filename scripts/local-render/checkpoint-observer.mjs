@@ -65,6 +65,7 @@ export async function checkpointObservation({ observationName } = {}) {
     return {
       version: record.version, level: w.outcome.level, turn: w.turn, time: w.time,
       checkpointSha256: await digest(record),
+      cameraContinuationSha256: w.cameras == null ? null : await digest(w.cameras),
       actorsSha256: await digest(w.units.map(u => [u.id, u.team, u.kind, u.hp, u.x, u.z])),
       terrainSha256: await digest(w.terrain),
       stockSha256: await digest({ mana: w.mana, wood: w.wood, shots: w.shots, giftCounts: w.giftCounts }),

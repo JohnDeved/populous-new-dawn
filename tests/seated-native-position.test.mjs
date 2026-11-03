@@ -104,6 +104,8 @@ test('retired route-map Balloon occupants launch from actual seats through publi
           {
             scene: {
               world,
+              // Simulation time is advanced explicitly by frame(), not this supplied panel.
+              advanceInputTime() {},
               overviewActive: false,
               onSound() {
                 sounds++

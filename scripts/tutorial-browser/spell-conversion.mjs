@@ -59,28 +59,193 @@ export async function resumeArmedConversion(page, report) {
 }
 
 export function setupConversionCamera(codec) {
-  const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
+  // One attempt per page. Never replace an earlier failed setup receipt.
+  if (Object.hasOwn(window, '__pndConversionCameraSetup'))
+    throw Error('Conversion camera setup was already attempted')
+  const receipt = { status: 'running', error: null, phase: 'bind',
+    drain: { calls: 0, before: null, after: null, error: null },
+    restoration: { attempted: false, restored: false, error: null } }
+  window.__pndConversionCameraSetup = receipt
+  const scene = window.testSceneRef?.current, store = window.testStore, readWorld = store?.getWorld,
+    w = typeof readWorld === 'function' ? readWorld.call(store) : undefined,
+    clock = scene?.gameClock, observation = window.__pndConversionObservation,
+    originalTurn = clock?.afterTurn, original = scene?.advanceInputTime,
+    descriptor = scene && Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'),
     camera = { x: -45, z: -91 }, encode = value => JSON.stringify(codec(value)),
-    identity = () => {
-      const { mode, lightView, ...rest } = w
-      return rest
-    },
-    before = encode(identity()), beforeMode = w.mode, beforeLightView = structuredClone(w.lightView),
-    expectedLightView = { x: (Math.round((camera.x + 8) * 256) << 16) >> 16,
-      y: (Math.round((-camera.z - 8) * 256) << 16) >> 16, h: Math.round(scene.y(camera) * 45) }
-  // Ordinary focus cancels UI mode; updateView stores its exact camera position
-  // for dynamic terrain lighting. Every other World field stays losslessly equal,
-  // including Map/Set contents, typed arrays, undefined values and shared references.
-  scene.focus(camera) // One fixed first-conversion point, not actor pursuit.
-  if (w.mode !== null || encode(w.lightView) !== encode(expectedLightView))
-    throw Error('Diagnostic camera did not apply only its expected mode/light-view changes')
-  if (scene.world !== w || window.testStore.getWorld() !== w || encode(identity()) !== before)
-    throw Error('Diagnostic camera changed non-camera world state')
-  return { level: w.outcome.level, turn: w.turn, paused: w.paused, speed: w.speed,
-    casts: w.spellCasts[2][17], stock: w.manaWorld.spells[2].stocks[17], camera,
-    cameraWorldChanges: { mode: { before: beforeMode, after: w.mode },
-      lightView: { before: beforeLightView, after: w.lightView } },
-    renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER) }
+    snapshot = () => ({ level: w?.outcome.level, turn: w?.turn, paused: w?.paused,
+      speed: w?.speed, casts: w?.spellCasts[2][17], stock: w?.manaWorld.spells[2].stocks[17],
+      pendingTime: w?.pendingTime, cameraElapsed: w?.cameras.elapsed,
+      inputCursor: w?.cameras.input.cursor }),
+    sameDescriptor = (a, b) => a === undefined || b === undefined ? a === b :
+      Reflect.ownKeys(a).length === Reflect.ownKeys(b).length &&
+      Reflect.ownKeys(a).every(key => Object.hasOwn(b, key) && a[key] === b[key])
+  let failed = false, failure, attemptedInstall = false, installed = false, expected, before, owners,
+    expectedBearing, expectedPoint
+  const fail = error => {
+    if (!failed) { failed = true; failure = error; receipt.error = String(error) }
+  }
+  const assertOwner = () => {
+    if (window.__pndConversionCameraSetup !== receipt ||
+      !scene || scene.disposed || !scene.started || !w || !clock || window.testSceneRef.current !== scene ||
+      window.testStore !== store || store.getWorld !== readWorld ||
+      typeof readWorld !== 'function' || readWorld.call(store) !== w ||
+      scene.world !== w || scene.gameClock !== clock)
+      throw Error('Conversion camera lost its original Scene/world/clock or store reader')
+    if (!observation || window.__pndConversionObservation !== observation ||
+      clock.afterTurn !== originalTurn || typeof originalTurn !== 'function' ||
+      observation.result.done || observation.result.error !== null)
+      throw Error('Conversion camera lost its live ordinary-turn observer')
+  }
+  const assertReady = () => {
+    const c = w.cameras, player = w.manaWorld.playerTribe
+    if (w.outcome.level !== 3 || w.paused || w.speed !== 1 || w.inputMask ||
+      w.spellCasts[2][17] !== 0 || w.manaWorld.spells[2].stocks[17] !== 1 ||
+      w.effects.some(f => f.startConversionLink !== undefined))
+      throw Error('Conversion camera post-drain gameplay is not ready')
+    // Conservative quiescent-owner admission, not a general camera predicate.
+    // The ordinary mouse tracker retains interior pointer coordinates after
+    // button release. Presence is not navigation; retain its real identity and
+    // values, and require both raw and effective input to be exactly neutral.
+    const neutralPointer = () => {
+      const pointer = c.input.pointer
+      return pointer === null || (pointer &&
+        ['x', 'y', 'buttons'].every(key => Object.hasOwn(pointer, key)) &&
+        Number.isFinite(pointer.x) && Number.isFinite(pointer.y) && pointer.buttons === 0)
+    }
+    let effectiveButtons
+    const ownerFailure = c.phase !== 'idle' ? 'phase' :
+      c.motion.active ? 'motion' : c.result.active ? 'result' :
+      c.resultRequest !== w.outcome.cameraRequest ? 'result-request' :
+      c.overviewActive ? 'overview' : c.overviewStage !== null ? 'overview-stage' :
+      c.viewTransition !== null ? 'view-transition' : w.flyby.flags & 1 ? 'flyby' :
+      c.input.buttons ? 'logical-buttons' : c.keys.size ? 'keys' :
+      !neutralPointer() ? 'raw-pointer' : Object.values(c.velocity).some(Boolean) ? 'velocity' :
+      w.landVersion !== w.terrainVersion ? 'terrain-version' :
+      !Number.isInteger(player) || player < 0 || player >= c.tribes.length ? 'player' :
+      (effectiveButtons = scene.navigationButtons()) !== 0 ? 'effective-buttons' : null
+    if (ownerFailure) {
+      // Only bounded failure evidence; no extra page round trip or clock work.
+      const pointer = c.input.pointer
+      receipt.ownerFailure = { predicate: ownerFailure,
+        pointer: pointer === null ? null : { x: pointer?.x, y: pointer?.y, buttons: pointer?.buttons },
+        effectiveButtons }
+      throw Error('Conversion camera post-drain owner is unsupported: ' + ownerFailure)
+    }
+    if (scene.cameraPosition !== c.tribes[player] || scene.cameraMotion !== c.motion ||
+      scene.resultCamera !== c.result || scene.cameraVelocity !== c.velocity ||
+      scene.keys !== c.keys || scene.overviewActive !== c.overviewActive ||
+      scene.overviewStage !== c.overviewStage || scene.viewTransition !== c.viewTransition ||
+      scene.viewZoom !== c.viewZoom || scene.viewPreset !== c.viewPreset)
+      throw Error('Conversion camera aliases do not share the logical owners')
+    const records = [...c.tribes, ...c.held, ...c.borrowed]
+    if (c.tribes.length !== 4 || c.held.length !== 4 || c.borrowed.length !== 4 ||
+      new Set(records).size !== 12 || c.held.some(p =>
+        Reflect.ownKeys(p).length !== 3 || !['x', 'y', 'angle'].every(key => Number.isInteger(p[key]) && p[key] >= -128 && p[key] <= 127)))
+      throw Error('Conversion camera held/borrowed ownership is unsupported')
+  }
+  const assertFocusResult = () => {
+    assertOwner()
+    if (!expected || encode(w) !== encode(expected))
+      throw Error('Diagnostic camera changed state outside exact post-drain focus ownership')
+    assertReady() // Recheck admitted aliases before the additional pinned identities.
+    if (w.cameras !== owners.cameras || w.manaWorld.playerTribe !== owners.player ||
+      scene.cameraPosition !== owners.tribe || scene.cameraMotion !== owners.motion ||
+      w.cameras.input.pointer !== owners.pointer)
+      throw Error('Diagnostic camera changed state outside exact post-drain focus ownership')
+    if (encode(scene.viewPoint) !== encode(expectedPoint) || scene.cameraBearing !== expectedBearing)
+      throw Error('Diagnostic camera did not display its exact logical focus target')
+  }
+  function drainWrapper(...args) {
+    receipt.drain.calls++
+    if (this !== scene || receipt.drain.calls !== 1 || scene.advanceInputTime !== drainWrapper)
+      throw Error('Conversion camera drain must retain its receiver and run exactly once')
+    assertOwner()
+    receipt.phase = 'drain'
+    receipt.drain.before = snapshot()
+    let returned
+    try { returned = original.apply(this, args) }
+    catch (error) { receipt.drain.error = String(error); throw error }
+    receipt.drain.after = snapshot()
+    if (returned && typeof returned.then === 'function')
+      throw Error('Conversion camera drain unexpectedly became asynchronous')
+    assertOwner()
+    if (scene.advanceInputTime !== drainWrapper)
+      throw Error('Conversion camera drain wrapper ownership changed')
+    assertReady()
+    // Only NOW is ordinary elapsed work complete. Never compare gameplay with
+    // the pre-drain world, call the drain twice, or replace it by a no-op.
+    before = structuredClone(w)
+    expected = structuredClone(w)
+    const c = w.cameras, e = expected.cameras, player = w.manaWorld.playerTribe,
+      held = c.held[player], targetX = Math.round((camera.x + 8) * 256) & 65535,
+      targetY = Math.round((-camera.z - 8) * 256) & 65535
+    owners = { cameras: c, tribe: c.tribes[player], motion: c.motion, player, pointer: c.input.pointer }
+    expected.mode = null
+    e.navigationTime = 0
+    e.motion.active = 0
+    for (let i = 0; i < e.borrowed.length; i++) Object.assign(e.borrowed[i], e.held[i])
+    e.tribes[player].x = (targetX - held.x) & 65535
+    e.tribes[player].y = (targetY - held.y) & 65535
+    expectedBearing = (((c.tribes[player].angle + held.angle) & 2047) * Math.PI) / 1024
+    expectedPoint = { x: (((targetX - 2048) << 16) >> 16) / 256,
+      z: -(((targetY + 2048) << 16) >> 16) / 256 }
+    receipt.phase = 'focus'
+    return returned
+  }
+  const wrapperDescriptor = { value: drainWrapper, configurable: true, writable: true,
+    enumerable: descriptor?.enumerable ?? false }
+  try {
+    assertOwner()
+    if (typeof original !== 'function' || !scene.started || scene.inputDepth ||
+      scene.modalSuspended || !Number.isFinite(scene.previous) ||
+      (descriptor && (!Object.hasOwn(descriptor, 'value') || !descriptor.configurable)))
+      throw Error('Conversion camera cannot observe the real timestamp drain')
+    attemptedInstall = true
+    Object.defineProperty(scene, 'advanceInputTime', wrapperDescriptor)
+    installed = true
+    scene.focus(camera) // Real public focus; its first action is the real drain.
+    assertOwner()
+    if (receipt.drain.calls !== 1 || !expected ||
+      !sameDescriptor(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), wrapperDescriptor))
+      throw Error('Conversion camera did not preserve its single drain boundary')
+    assertFocusResult()
+    Object.assign(receipt, snapshot(), { camera,
+      cameraWorldChanges: { mode: { before: before.mode, after: w.mode },
+        lightView: { before: before.lightView, after: structuredClone(w.lightView) },
+        player: owners.player,
+        tribe: { before: before.cameras.tribes[owners.player],
+          after: structuredClone(w.cameras.tribes[owners.player]) },
+        navigationTime: { before: before.cameras.navigationTime, after: w.cameras.navigationTime } },
+      renderer: scene.renderer.getContext().getParameter(scene.renderer.getContext().RENDERER) })
+  } catch (error) { fail(error) }
+  finally {
+    if (attemptedInstall) {
+      receipt.restoration.attempted = true
+      try {
+        const current = Object.getOwnPropertyDescriptor(scene, 'advanceInputTime')
+        if (sameDescriptor(current, wrapperDescriptor)) {
+          if (descriptor) Object.defineProperty(scene, 'advanceInputTime', descriptor)
+          else if (!Reflect.deleteProperty(scene, 'advanceInputTime'))
+            throw Error('Conversion camera inherited drain could not be restored')
+        } else if (installed || !sameDescriptor(current, descriptor)) {
+          throw Error('Conversion camera drain ownership changed before restoration')
+        }
+        // Also handles a descriptor trap that installed the wrapper and then
+        // threw: inspect the actual outcome rather than assume no installation.
+        receipt.restoration.restored = scene.advanceInputTime === original &&
+          sameDescriptor(Object.getOwnPropertyDescriptor(scene, 'advanceInputTime'), descriptor)
+        if (!receipt.restoration.restored) throw Error('Conversion camera drain restoration mismatch')
+      } catch (error) { receipt.restoration.error = String(error); fail(error) }
+    }
+    if (!failed) {
+      try { assertFocusResult() }
+      catch (error) { fail(error) }
+    }
+    receipt.status = failed ? 'failed' : 'passed'
+    receipt.phase = 'terminal'
+  }
+  if (failed) throw failure // Empty strings and undefined must still fail closed.
+  return receipt
 }
 
 // Logical records use the existing fixed-turn boundary; RAF owns only artwork
@@ -335,7 +500,7 @@ export default async function spellConversion({ browser, url, output }) {
         'Native depth/blend composition and wall-clock ratio remain existing adapters; no hardware performance claim.',
         'Display callbacks may skip artwork frames. Exhaustive eight-frame proof remains the independent source/CPU oracle.'] }
   const save = () => writeFileSync(resolve(output, 'spell-conversion.json'), JSON.stringify(report, null, 2) + '\n')
-  let failure
+  let failed = false, failure
   const retain = async () => {
     if (report.observation || page.isClosed()) return
     report.observation = await page.evaluate(() => window.__pndConversionObservation?.retain() ?? null)
@@ -389,22 +554,27 @@ export default async function spellConversion({ browser, url, output }) {
     validateConversionObservation(report.observation, atlas)
     assert.deepEqual(report.errors, [])
   } catch (error) {
-    failure = error; report.status = 'failed'; report.error = String(error)
-    report.errorStack = error.stack
+    failed = true; failure = error; report.status = 'failed'; report.error = String(error)
+    report.errorStack = error?.stack
+    try { report.cameraSetupAttempt = await page.evaluate(() => window.__pndConversionCameraSetup ?? null) }
+    catch (setupRetentionError) { report.setupRetentionError = String(setupRetentionError) }
     try { report.failureState = await page.evaluate(readConversionStartup) }
     catch (diagnosticError) { report.diagnosticError = String(diagnosticError) }
     try { await retain() } catch (retentionError) { report.retentionError = String(retentionError) }
   }
   finally {
     try { await closeConversionContext(context, report, started) }
-    catch (error) { failure ??= error; report.error ??= String(error) }
+    catch (error) {
+      if (!failed) { failed = true; failure = error }
+      report.error ??= String(error)
+    }
     finally {
       clearTimeout(timer)
       report.elapsedMs = performance.now() - started
-      report.status = failure ? 'failed' : 'passed'
+      report.status = failed ? 'failed' : 'passed'
       save()
     }
   }
-  if (failure) throw failure
+  if (failed) throw failure
   return report
 }

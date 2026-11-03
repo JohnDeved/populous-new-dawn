@@ -366,6 +366,7 @@
   "app/training-panel.ts",
   "app/training.ts",
   "app/tree-growth.ts",
+  "app/tribe-camera.ts",
   "app/tribe-turns.ts",
   "app/tutorial-recommendation.ts",
   "app/unit-animation-source.ts",

@@ -12,6 +12,7 @@ import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 test('ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoint continuity', async () => {
   await loadSceneFixture()
   const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
+  const { createTooltipFrame } = await import('../app/scene-tooltip-runtime.ts')
   const store = createGameStore()
   store.startMission(6)
   const world = store.getWorld(),
@@ -25,7 +26,7 @@ test('ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoin
     }
   while (!(world.flyby.flags & 1) && world.turn < 40) tick(world, 1 / 12)
   if (world.flyby.flags & 1 && world.flyby.warmup > 0)
-    skipIntroduction({ world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
+    skipIntroduction({ world, tooltipFrame: createTooltipFrame(world.cameras.elapsed), flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange() {} })
   assert.equal(world.inputMask, 0)
   const vault = world.shrines.find(s => s.reward === 'convertWild')
   selectShaman()

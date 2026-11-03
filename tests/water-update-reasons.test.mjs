@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { FramePerformance } from '../app/frame-performance.ts'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+import { createTribeCameras } from '../app/tribe-camera.ts'
 import * as THREE from 'three'
 
 function fixture() {
@@ -15,6 +16,7 @@ function fixture() {
     waves: new Uint8Array(65536),
     landIndex: () => 0,
     world: {
+      cameras: createTribeCameras(),
       turn: 0,
       landVersion: 0,
       lightRevision: 0,

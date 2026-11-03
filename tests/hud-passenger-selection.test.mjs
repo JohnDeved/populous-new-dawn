@@ -153,6 +153,7 @@ test('mounted Total/class Page controls reach Scene crew selection once and focu
     const scene = Object.assign(Object.create(GameScene.prototype), {
       world, cameraPosition: { x: vehicle.x, y: vehicle.y },
       overviewActive: false, overviewStage: null,
+      navigationButtons: () => 0, // supplied neutral DOM/navigation leaf
       hudFocus: Array(9).fill(0), hudTaskFocus: Array(54).fill(0),
       focus: (...args) => focused.push(args), objectPanels: { open: id => panels.push(id) },
       onChange: () => changes++,
@@ -195,11 +196,12 @@ test('mounted Total/class Page controls reach Scene crew selection once and focu
 
 test('mounted Shaman portrait retains its separate select-and-focus path, not crew propagation', async () => {
   const { pageSource, pageButton, evaluatePage } = await import('./support/follower-nearby-page.mjs')
-  const { select } = await import('../app/model.ts')
+  const { select, isShaman } = await import('../app/model.ts')
   const { world, add } = occupiedCrew()
   const shaman = add('shaman'), warrior = add('warrior'), focuses = [], cues = []
   const portrait = evaluatePage(pageButton(['portrait']).getText(pageSource), {
-    world, shaman: shaman.unit, select, portrait: { current: null }, HOME: {},
+    world, shaman: shaman.unit, select, isShaman,
+    store: { change: action => action(world) }, portrait: { current: null }, HOME: {},
     audio: { current: { cue: cue => cues.push(cue) } }, update() {},
     engine: { current: { focus: (...args) => focuses.push(args) } },
   })

@@ -914,10 +914,12 @@ test('protected held-drag owners add the cheap regression without changing exist
     const check = checks.checks.find(item => item.id === 'snapshot-drag-portable')
     assert.ok(check)
     assert.equal(check.automation, 'safe')
-    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs'])
+    assert.deepEqual([check.executable, ...check.args], ['node', '--test', 'tests/browser-snapshot-drag.test.mjs', 'tests/browser-snapshot-drag-camera-profile.test.mjs'])
     const owners = [...new Set(dragSourceProfiles.flatMap(profile => profile.slices.map(slice => slice.path)))]
     const paths = [...owners, 'scripts/browser-performance/snapshot-drag-contract.mjs',
-      'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
+      'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs',
+      'tests/browser-snapshot-drag-camera-profile.test.mjs', 'tests/fixtures/snapshot-drag-camera-source-mixes.json',
+      'tests/fixtures/snapshot-drag-pre-camera-owners.json']
     assert.deepEqual([...check.triggerPaths].sort(), [...paths].sort())
     for (const path of [...paths, 'tests/support/tooltip-scene.mjs', 'tests/support/bloodlust-scene.mjs',
       'tests/support/hut-smoke-scene.mjs', 'scripts/browser-performance/snapshot-capture.mjs', 'scripts/browser-game.mjs'])

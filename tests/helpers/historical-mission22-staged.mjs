@@ -3,7 +3,7 @@ import {readFileSync}from'node:fs'
 import {createHash}from'node:crypto'
 import {deserialize}from'node:v8'
 import {gunzipSync}from'node:zlib'
-import { createHistoricalFixtureHarness } from './historical-checkpoint.ts'
+import { createHistoricalFixtureHarness, initializeHistoricalCameras } from './historical-checkpoint.ts'
 const sha=v=>createHash('sha256').update(v).digest('hex')
 export function loadHistoricalStaged(){
  const metadata=readFileSync(new URL('../fixtures/mission22-historical-staged/input-provenance.json',import.meta.url));assert.equal(sha(metadata),'6ce53e81e6c92de805a93aea480b365ee2b6fcf32e5b55aad72ebb8018562e3f')
@@ -15,6 +15,7 @@ export function loadHistoricalStaged(){
  for(const key of Object.keys(store.getWorld()))if(!Object.hasOwn(historical,key))delete store.getWorld()[key]
  Object.assign(store.getWorld(),historical);assert.deepEqual(store.getWorld(),historical)
  // Raw historical archive restoration deliberately precedes the research-only reconstruction boundary.
+ initializeHistoricalCameras(store.getWorld())
  const world=store.getWorld(),shaman=world.units.find(u=>u.id===89),balloon=world.vehicles.find(v=>v.id===1)
  assert.equal(world.turn,3566);assert.equal(shaman.native.counter,238);assert.equal(shaman.native.vehicle,balloon.id);assert.deepEqual(balloon.passengers,[shaman.id]);assert.equal(world.objectCells.objects.get(shaman.id),shaman.native)
  return{store,world,shaman,balloon,createContinuationStore:createHistoricalFixtureHarness}

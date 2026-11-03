@@ -184,9 +184,12 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
       }
     })
-    await page.waitForFunction(() =>
-      window.testSceneRef.current.buildingMeshes.has(window.buildingIdentity.old.id)
-    )
+    // Camera controller time belongs to advanceGame, including ordinary pause.
+    // Wait for the requested view to settle before choosing a real hover target.
+    await page.waitForFunction(() => {
+      const scene = window.testSceneRef.current
+      return !scene.viewTransition && scene.buildingMeshes.has(window.buildingIdentity.old.id)
+    })
     // Projected candidates are observations; only an actual pointer event opens the panel.
     const point = await page.evaluate(() => {
       const { scene, old } = window.buildingIdentity,

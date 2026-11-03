@@ -42,7 +42,6 @@ export function createBoundary(scene) {
   const old = addBuilding(world, 'blue', 'tower', { x: -2, z: 32 }, true, { angle: Math.PI })
   scene.focus(old)
   scene.startGroundView(3)
-  for (let visit = 0; visit < 18; visit++) scene.updateCameraMotion(1 / 24)
   scene.onChange()
   return { scene, world, old }
 }

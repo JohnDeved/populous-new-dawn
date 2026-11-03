@@ -329,6 +329,8 @@ export default async function ({ browser, context: initialContext, page: initial
         await page.reload({ waitUntil: 'domcontentloaded' })
         await bindStartupStore(page)
         entry.publicLoad = await loadThroughUi(page, page.getByRole('button', { name: 'Load Game', exact: true }))
+        assert.match(saved.cameraContinuationSha256, /^[a-f0-9]{64}$/, 'Ordinary Save must retain a complete camera observation')
+        assert.equal(entry.publicLoad.loaded.cameraContinuationSha256, saved.cameraContinuationSha256, 'Fresh-page Load preserves complete camera continuation')
         for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256'])
           assert.deepEqual(entry.publicLoad.loaded[key], saved[key], `Ordinary fresh-page Load preserves ${key}`)
         entry.afterLoad = await page.evaluate(storedRecords)

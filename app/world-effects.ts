@@ -22,6 +22,7 @@ import { terrainPointHeight } from './native-terrain.ts'
 import { short } from './native-math.ts'
 import { setAnimationObject } from './animation.ts'
 import { addTerrainLight, updateTerrainLights } from './terrain-light.ts'
+import { displayedTribeCamera } from './tribe-camera.ts'
 import { createSpellTrail } from './spell-trails.ts'
 import { stepBuildingDebris } from './building-debris.ts'
 import {
@@ -435,7 +436,7 @@ export function refreshTerrainLights(w: World) {
         const f = w.effects.find(f => f.id === id)
         return f && lightPosition(w, f)
       },
-      w.lightView,
+      displayedTribeCamera(w.cameras, w.manaWorld.playerTribe),
       w.randomState,
       true // Desktop rendering enables native dynamic landscape lighting.
     )

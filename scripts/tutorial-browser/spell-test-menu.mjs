@@ -59,11 +59,17 @@ export function startSpellTestDiagnostics(page, report) {
     } finally { pending = false }
   }
   const timer = setInterval(sample, 250)
+  function mark(stage) {
+    if (stopped) return
+    diagnostics.stage = stage
+    diagnostics.stages.push({ stage, elapsedMs: elapsed() })
+  }
   return {
+    // Attribution only: no extra page read or polling beyond existing stages.
+    mark,
     stage(stage) {
       if (stopped) return
-      diagnostics.stage = stage
-      diagnostics.stages.push({ stage, elapsedMs: elapsed() })
+      mark(stage)
       void sample()
     },
     stop() {
@@ -121,8 +127,17 @@ export default async function spellTestMenu({ browser, url, output }) {
       await bindGame(page)
       diagnostics.stage(`${phase}: await input or introduction`)
       const state = await page.waitForFunction(() => !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction'))
-      if (await page.locator('.skip-introduction').isVisible()) await page.locator('.skip-introduction').click()
+      diagnostics.mark(`${phase}: input or introduction predicate resolved`)
+      const skipVisible = await page.locator('.skip-introduction').isVisible()
+      diagnostics.mark(`${phase}: skip introduction visible=${skipVisible}`)
+      if (skipVisible) {
+        diagnostics.mark(`${phase}: skip introduction click pending`)
+        await page.locator('.skip-introduction').click()
+        diagnostics.mark(`${phase}: skip introduction click completed`)
+      }
+      diagnostics.mark(`${phase}: readiness handle disposal pending`)
       await state.dispose()
+      diagnostics.mark(`${phase}: readiness handle disposed`)
       diagnostics.stage(`${phase}: await unlocked input`)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }
@@ -221,13 +236,19 @@ export default async function spellTestMenu({ browser, url, output }) {
       const scene = window.testSceneRef.current, w = window.testStore.getWorld(),
         shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
         p = scene.screen({ x: shaman.x + 5, z: shaman.z + 5 }), rect = scene.renderer.domElement.getBoundingClientRect()
-      return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2, before: w.stats.cast }
+      return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2, before: w.stats.cast, priorShotIds: w.projectiles.map(shot => shot.id) }
     })
     await page.mouse.click(target.x, target.y)
-    await page.waitForFunction(before => window.testStore.getWorld().stats.cast === before + 1, target.before)
     await page.keyboard.press('F9')
     await menu.waitFor()
     const casting = await snapshot()
+    assert.equal(casting.casts, target.before + 1, 'the pointer input must commit exactly one real cast before F9')
+    const newShots = casting.projectiles.filter(shot => !target.priorShotIds.includes(shot.id))
+    assert.equal(newShots.length, 1, 'the same F9 boundary must retain exactly one newly allocated projectile')
+    assert.equal(newShots[0].caster, casting.shaman.id)
+    assert.equal(newShots[0].spell, 'blast')
+    assert.equal(newShots[0].phase, 'windup')
+    assert.ok(newShots[0].remaining > 0)
     assert.equal(casting.shots.blast, unlocked.shots.blast - 1, 'normal cast spent one real charge')
     assert.ok(casting.shaman.casting?.remaining > 0, 'actual Shaman windup must still be active')
     assert.ok(casting.projectiles.some(projectile => projectile.spell === 'blast' &&

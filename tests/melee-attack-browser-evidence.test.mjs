@@ -522,11 +522,11 @@ test('private copy dimensions remain capped and out-of-canvas bodies still fail 
   withObserverFixture(({ scene, next, observation, copies }) => {
     scene.picking.personBounds = () => ({ x: 100, y: 80, width: 1000, height: 1000 })
     next()
-    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[256, 256]])
+    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[256, 256], [0, 0], [0, 0], [0, 0]])
     assert.deepEqual(observation.result.crops[0].clip, { x: 176, y: 136, width: 256, height: 256 })
     assert.equal(observation.result.samples[0].bodyInCanvas, false)
     observation.retain()
-    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[0, 0]])
+    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[0, 0], [0, 0], [0, 0], [0, 0]])
   })
 })
 
@@ -538,7 +538,7 @@ test('failed synchronous copy releases its buffer and records the error visit wi
     assert.equal(result.visits.length, 1); assert.equal(result.visits[0].stage, 'error')
     assert.ok(result.visits[0].observerMs >= result.visits[0].cropCopyMs && result.visits[0].cropCopyMs > 0)
     assert.deepEqual([result.samples.length, result.crops.length], [0, 0])
-    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[0, 0]])
+    assert.deepEqual(copies.map(copy => [copy.width, copy.height]), [[0, 0], [0, 0], [0, 0], [0, 0]])
     assert.deepEqual([...pending.keys()], [unrelated])
     observation.retain()
     assert.deepEqual(operations, []); assert.equal(result.retention.copyCount, 0)

@@ -228,7 +228,7 @@ function activeFixture(createGameStore) {
 
 async function typed(world) {
   const key = Symbol('test-only checkpoint'),
-    record = { version: 3, world }
+    record = { version: CHECKPOINT_VERSION, world }
   Object.defineProperty(globalThis, key, { configurable: true, value: record })
   try {
     return await checkpointObservation({ observationName: key })
@@ -321,6 +321,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
     Object.keys(saved).sort(),
     [
       'actorsSha256',
+      'cameraContinuationSha256',
       'checkpointSha256',
       'level',
       'stockSha256',
@@ -330,6 +331,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
       'version',
     ].sort()
   )
+  assert.match(saved.cameraContinuationSha256, /^[0-9a-f]{64}$/)
   const recordBefore = structuredClone(db.records),
     liveBefore = structuredClone(f.world),
     expected = await save.expectedLoadDigest()
@@ -394,7 +396,7 @@ for (const version of [CHECKPOINT_VERSION]) test(`fresh store restores v${versio
   ;(await db.transaction('readonly')).complete()
   const expected = await read
   assert.equal(expected.committed.version, version)
-  assert.equal(expected.expectedLoad.version, 3)
+  assert.equal(expected.expectedLoad.version, CHECKPOINT_VERSION)
   assert.deepEqual(expected.committed, committedBefore)
   assert.deepEqual(db.records, recordsBefore, 'detached restore/Load prediction cannot alter IDB')
   assert.notEqual(expected.expectedLoad.checkpointSha256, committedBefore.checkpointSha256)

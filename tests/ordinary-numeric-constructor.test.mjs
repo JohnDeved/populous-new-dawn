@@ -8,6 +8,8 @@ import { getEventListeners } from 'node:events'
 import { readFileSync, existsSync } from 'node:fs'
 import { registerHooks, stripTypeScriptTypes } from 'node:module'
 import * as THREE from 'three'
+import ts from 'typescript'
+import { pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
 const app = new URL('../app/', import.meta.url),
   threeURL = import.meta.resolve('three')
 const gpuURL = new URL('__constructor_gpu.mjs', app).href
@@ -167,7 +169,7 @@ class Renderer {
   forceContextLoss() { ++this.contextLosses }
 }
 
-test('real constructor owns first null-index query, production render and permanent disposal', async t => {
+async function constructorFixture(t) {
   const saved = new Map(),
     set = (name, value) => {
       saved.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
@@ -257,6 +259,11 @@ test('real constructor owns first null-index query, production render and perman
   })
 
   const { GameScene } = await import('../app/scene.ts')
+  return { GameScene, set, doc, scenes, requests, decodedCursors }
+}
+
+test('real constructor owns first null-index query, production render and permanent disposal', async t => {
+  const { GameScene, doc, scenes, requests, decodedCursors } = await constructorFixture(t)
   const BaselineScene = process.env.PND_NUMERIC_BASELINE_SCENE
     ? (await import(parentURL)).GameScene
     : GameScene
@@ -361,4 +368,260 @@ test('real constructor owns first null-index query, production render and perman
   assert.equal(scene.view.ordinaryNumericProjection, null)
   assert.equal(scene.view.ordinaryPickScratch, null)
   scenes.splice(scenes.indexOf(scene), 1)
+})
+
+// Execute the actual Home creation effect with only its async module-import leaf
+// supplied. GameScene construction, readiness, start, store and camera methods
+// are unchanged; DOM/GPU/file leaves use the constructor fixture above.
+async function homeConstructorFixture(t, suppliedStore) {
+  const f = await constructorFixture(t)
+  const { createGameStore } = await import('../app/game-store.ts')
+  const { advanceGame } = await import('../app/game-clock.ts')
+  const { browserPosition } = await import('../app/model.ts')
+  f.set('window', f.doc.defaultView)
+  window.innerWidth = 1200
+  f.doc.documentElement.clientWidth = 1200
+  f.set('addEventListener', window.addEventListener.bind(window))
+  f.set('removeEventListener', window.removeEventListener.bind(window))
+  f.set('requestAnimationFrame', () => 1)
+  // The supplied 2D canvas ignores transforms; no minimap pixels are asserted.
+  f.set('DOMMatrix', class { inverse() { return this } })
+  const effect = pageNode(node => ts.isCallExpression(node) &&
+    node.expression.getText(pageSource) === 'useEffect' &&
+    node.arguments[0]?.getText(pageSource).includes('const created = new GameScene'))
+  const source = effect.arguments[0].getText(pageSource)
+  assert.equal(source.split("import('./scene')").length, 2, 'one real module-import leaf')
+  const store = suppliedStore ?? createGameStore(), cleanups = []
+  t.after(() => { for (const cleanup of cleanups) cleanup() })
+  const mount = async (ownerStore = store) => {
+    const store = ownerStore
+    const world = store.getWorld(), engine = { current: null }, errors = []
+    let ready = false
+    const cleanup = evaluatePage(source.replace("import('./scene')", 'loadScene()'), {
+      startup: 'playing', world, store, engine, loadScene: async () => ({ GameScene: f.GameScene }),
+      viewport: { current: document.body.appendChild(new Element()) },
+      minimap: { current: new Element() }, portrait: { current: new Element() },
+      gamePreferencesRef: { current: { rotation: 'cursor', flipRotation: false } },
+      tooltipSession: { current: undefined }, audio: { current: null },
+      measureWorshipHud: noop, update: noop, flushSync: callback => callback(),
+      setTab: noop, setHover: noop, setHudCamera: noop,
+      setReady: value => { ready = value }, setError: error => errors.push(error),
+    })()
+    cleanups.push(cleanup)
+    for (let attempts = 0; !ready && !errors.length && attempts < 20; attempts++)
+      await new Promise(resolve => setImmediate(resolve))
+    assert.deepEqual(errors, [])
+    assert.equal(ready, true, 'Home readiness callback starts the replacement Scene')
+    const scene = engine.current
+    assert.equal(Object.getPrototypeOf(scene), f.GameScene.prototype)
+    assert.equal(scene.started, true)
+    f.scenes.push(scene)
+    return { scene, cleanup }
+  }
+  const pointer = (type, values = {}) => {
+    const event = new Event(type)
+    Object.defineProperties(event, Object.fromEntries(Object.entries({
+      pointerType: 'mouse', clientX: 0, clientY: 300, buttons: 0, relatedTarget: null, timeStamp: performance.now(), ...values,
+    }).map(([key, value]) => [key, { value }])))
+    window.dispatchEvent(event)
+  }
+  return { ...f, store, mount, pointer, advanceGame, browserPosition }
+}
+
+for (const mode of ['ground', 'stable-overview', 'overview-exit']) {
+  test(`Home fresh Scene retains ${mode} checkpoint at its first sub-tick preview and controller visit`, async t => {
+    const f = await homeConstructorFixture(t), world = f.store.getWorld()
+    world.speed = 0; world.inputMask = 0; world.flyby.flags = 0
+    const original = await f.mount(), scene = original.scene
+    if (mode !== 'ground') {
+      scene.overview()
+      for (let visits = 0; scene.overviewStage && visits < 80; visits++)
+        f.advanceGame(world, scene.gameClock, 1 / 24)
+      assert.equal(scene.overviewActive, true)
+      assert.equal(scene.overviewStage, null)
+      assert.equal(world.drawMode, 2)
+      if (mode === 'overview-exit') scene.leaveOverview(0)
+    }
+    f.pointer('pointermove')
+    assert.equal(world.cameras.input.buttons, mode === 'overview-exit' ? 0 : 4)
+    f.advanceGame(world, scene.gameClock, 1 / 96)
+    assert.ok(world.cameras.navigationTime > 0 && world.cameras.time < 1 / 24)
+    await f.store.saveCheckpoint()
+    const saved = structuredClone(world.cameras)
+    const preview = s => {
+      const before = structuredClone(s.world.cameras)
+      s.updateCameraMotion()
+      assert.deepEqual(s.world.cameras, before, 'render prediction cannot change pose, phase, cursor or time')
+      return { point: { ...s.viewPoint }, bearing: s.cameraBearing,
+        globe: s.view.globeBlend, flat: s.view.globeFlatScale }
+    }
+    const first = preview(scene)
+    if (mode === 'ground') assert.notDeepEqual(first.point,
+      f.browserPosition(scene.cameraPosition),
+      'saved stationary edge input must produce a fractional first preview')
+    f.advanceGame(world, scene.gameClock, 1 / 32)
+    const afterVisit = { preview: preview(scene), cameras: structuredClone(world.cameras) }
+    f.pointer('pointerout')
+    assert.equal(world.cameras.input.pointer, null)
+    assert.equal(world.cameras.input.buttons, 0)
+    const released = { preview: preview(scene), cameras: structuredClone(world.cameras) }
+    original.cleanup()
+    assert.equal(f.store.loadCheckpoint(), true)
+    const fresh = await f.mount(), loaded = fresh.scene.world
+    assert.deepEqual(loaded.cameras, saved, 'Home creation/start must retain the loaded camera phase')
+    assert.deepEqual(preview(fresh.scene), first, 'first fresh-Scene preview before any new input/controller visit')
+    f.advanceGame(loaded, fresh.scene.gameClock, 1 / 32)
+    assert.deepEqual({ preview: preview(fresh.scene), cameras: loaded.cameras }, afterVisit)
+    f.pointer('pointerout')
+    assert.deepEqual({ preview: preview(fresh.scene), cameras: loaded.cameras }, released)
+    fresh.cleanup()
+  })
+}
+
+test('Home still starts the fresh tutorial overview request', async t => {
+  const f = await homeConstructorFixture(t)
+  f.store.startMission(79)
+  const world = f.store.getWorld()
+  assert.equal(world.drawMode, 2)
+  assert.equal(world.cameras.overviewActive, false)
+  const { scene } = await f.mount()
+  assert.equal(scene.overviewStage, 'enter')
+})
+
+const durableSettle = () => new Promise(resolve => setImmediate(resolve))
+let durableSession = 0
+async function withDurableStorage(run, initial = {}, { failWrite = false } = {}) {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
+  const records = new Map(Object.entries(initial)), opens = [], reads = [], writes = []
+  let transactions = 0
+  const database = Object.assign(new EventTarget(), {
+    transaction(name, mode = 'readonly') {
+      assert.equal(name, 'checkpoints')
+      transactions++
+      const transaction = new EventTarget(), staged = []
+      transaction.objectStore = () => ({
+        get: key => ({ result: structuredClone(records.get(key)) }),
+        put: (value, key) => { writes.push(key); staged.push([key, structuredClone(value)]) },
+      })
+      if (mode === 'readonly') reads.push(transaction)
+      else queueMicrotask(() => {
+        if (failWrite) { transaction.error = new Error('Synthetic write abort'); transaction.dispatchEvent(new Event('abort')) }
+        else { for (const entry of staged) records.set(...entry); transaction.dispatchEvent(new Event('complete')) }
+      })
+      return transaction
+    },
+  })
+  Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: {
+    open: () => { const request = new EventTarget(); opens.push(request); return request },
+  } })
+  const open = async (fail = false) => {
+    const request = opens.shift()
+    assert.ok(request)
+    request.result = database
+    request.error = fail ? new Error('Synthetic open failure') : null
+    request.dispatchEvent(new Event(fail ? 'error' : 'success'))
+    await durableSettle()
+  }
+  const read = async (fail = false) => {
+    const transaction = reads.shift()
+    assert.ok(transaction)
+    transaction.error = fail ? new Error('Synthetic transaction abort') : null
+    transaction.dispatchEvent(new Event(fail ? 'abort' : 'complete'))
+    await durableSettle()
+  }
+  try {
+    const { createGameStore } = await import(`../app/game-store.ts?durable-constructor=${++durableSession}`)
+    await run({ store: createGameStore(), createStore: createGameStore, open, read, records, writes, opens, reads, transactions: () => transactions })
+  } finally {
+    if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
+    else delete globalThis.indexedDB
+  }
+}
+
+
+// Sequential reference/replay avoids delivering one event to two live Scenes.
+// Home, GameScene input handlers, input-time draining, store changes and fixed
+// simulation turns are real. Time, DOM, GPU and IndexedDB events are supplied.
+test('durable fresh-store Home continuation matches uninterrupted input and real turns', async t => {
+  await withDurableStorage(async ({ store, createStore, open, read, records, writes }) => {
+    const f = await homeConstructorFixture(t, store)
+    let now = 0
+    f.set('performance', { now: () => now })
+    const world = store.getWorld()
+    // Supplied playable-state boundary, not a natural campaign/flyby witness.
+    world.speed = 1; world.inputMask = 0; world.flyby.flags = 0
+    const original = await f.mount()
+    original.scene.animate(now) // Establish the real first-frame clock boundary.
+    f.pointer('pointermove')
+    assert.equal(world.cameras.input.buttons, 4)
+    now += 1000 / 96
+    original.scene.advanceInputTime(now)
+    assert.ok(world.cameras.navigationTime > 0 && world.cameras.time < 1 / 24)
+    const saving = store.saveCheckpoint()
+    await open()
+    assert.equal(await saving, true)
+    const savedAt = now, saved = structuredClone(records.get('latest').world)
+    assert.equal(records.get('latest').version, 5)
+    const before = structuredClone(records), writeCount = writes.length
+    const preview = scene => {
+      const camera = structuredClone(scene.world.cameras)
+      scene.updateCameraMotion()
+      assert.deepEqual(scene.world.cameras, camera, 'preview does not mutate saved owners')
+      return { point: { ...scene.viewPoint }, bearing: scene.cameraBearing,
+        globe: scene.view.globeBlend, flat: scene.view.globeFlatScale }
+    }
+    const firstPreview = preview(original.scene)
+    const continueFromSave = (owner, scene) => {
+      const snapshots = [], initialTurn = scene.world.turn
+      const capture = () => snapshots.push({ world: structuredClone(scene.world), preview: preview(scene) })
+      now += 12.5
+      f.pointer('pointermove', { clientX: 1199 }) // Actual ordered pointer handler drains elapsed work.
+      capture()
+      now += 23
+      owner.change(current => { current.speed = 2 }) // Actual bound HUD timing boundary.
+      capture()
+      now += 50
+      scene.advanceInputTime(now)
+      capture()
+      now += 11
+      f.pointer('pointerout')
+      assert.equal(scene.world.cameras.input.pointer, null)
+      assert.equal(scene.world.cameras.input.buttons, 0)
+      capture()
+      owner.change(current => { current.paused = true })
+      now += 20
+      scene.advanceInputTime(now)
+      capture()
+      owner.change(current => { current.paused = false })
+      now += 50
+      scene.advanceInputTime(now)
+      capture()
+      assert.ok(scene.world.turn > initialTurn, 'real fixed simulation turns must advance')
+      return snapshots
+    }
+    const expected = continueFromSave(store, original.scene)
+    original.cleanup()
+    const fresh = createStore(), active = fresh.getWorld()
+    const restoring = fresh.restoreCheckpoint()
+    await durableSettle(); await read()
+    assert.equal(await restoring, true)
+    assert.equal(fresh.getWorld(), active)
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
+    assert.equal(fresh.loadCheckpoint(), true)
+    assert.deepEqual(fresh.getWorld().cameras, saved.cameras)
+    // Replaying the same supplied wall-clock epoch is a fixture clock reset,
+    // not a mutation/rebase of the restored logical clocks or input cursor.
+    now = savedAt
+    const replacement = await f.mount(fresh)
+    assert.deepEqual(replacement.scene.world.cameras, saved.cameras)
+    replacement.scene.animate(now)
+    assert.deepEqual(replacement.scene.world.cameras, saved.cameras)
+    assert.deepEqual(preview(replacement.scene), firstPreview)
+    assert.deepEqual(continueFromSave(fresh, replacement.scene), expected,
+      'all world state and preview must agree after each identical real command/turn boundary')
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
+    replacement.cleanup()
+  })
 })
