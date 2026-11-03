@@ -70,6 +70,12 @@ if (selectedScenario === 'ordinary-pointer-trace') {
   assert.ok(policy.ordinaryPointerTraceSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     traceCommentEnvironment), 'Trace requires exact trusted-main owner selection')
 }
+if (selectedScenario === 'query-art-evidence') {
+  const policy = await import('./query-art-selection.mjs')
+  closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
+  assert.ok(policy.queryArtSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+    process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Query art evidence requires exact-head same-repository Ready label')
+}
 if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
 const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
@@ -202,10 +208,11 @@ try {
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.browserBudget = ordinaryPointerSmokePolicy
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.browserBudget = ordinaryPointerCalibrationPolicy
+  else if (selectedScenario === 'query-art-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -239,6 +246,13 @@ try {
       receipt: receipt.ordinaryPointerTrace,
     })
     assert.equal(receipt.ordinaryPointerTrace.status, 'passed', 'Trace diagnostic incomplete or failed; inspect retained evidence')
+  } else if (selectedScenario === 'query-art-evidence') {
+    receipt.queryArt = {}
+    const runQueryArt = (await import('./query-art-evidence.mjs')).default
+    receipt.queryArtEntered = true
+    await runQueryArt({ browser, url, output: out, source,
+      expectedRevision: receipt.buildRevision, receipt: receipt.queryArt })
+    assert.equal(receipt.queryArt.status, 'passed', 'Query art evidence incomplete or failed')
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
     // Preserve the completed frontend episode, then use an independent context
@@ -343,6 +357,7 @@ try {
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
+  else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 
@@ -370,6 +385,16 @@ try {
       server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
     }
     receipt.cleanupVerified = receipt.smokeRunnerCleanup.browser.confirmed && receipt.smokeRunnerCleanup.server.confirmed
+    if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
+  } else if (selectedScenario === 'query-art-evidence') {
+    receipt.queryArtRunnerCleanup = {
+      routeConfirmed: receipt.queryArt?.cleanupConfirmed === true && receipt.queryArt?.operationSettled === true,
+      browser: receipt.queryArtEntered === true
+        ? { confirmed: receipt.queryArt?.cleanupConfirmed === true, ownedByScenario: true }
+        : await closeOrdinaryPointerSmokeOwner(() => browser?.close()),
+      server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
+    }
+    receipt.cleanupVerified = receipt.queryArtRunnerCleanup.routeConfirmed && receipt.queryArtRunnerCleanup.browser.confirmed && receipt.queryArtRunnerCleanup.server.confirmed
     if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
   } else {
     try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
