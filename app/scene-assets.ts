@@ -83,6 +83,7 @@ export function loadTexture(kind: string) {
     kind === templeArt.sparkleAtlas ||
     kind === 'vault-knowledge' ||
     kind === 'vault-knowledge-camp' ||
+    kind === 'vault-knowledge-tower' ||
     kind === 'selection' ||
     kind === 'unit-health'
   ) {
