@@ -1,11 +1,14 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
-import { addUnit, command, tick } from '../app/model.ts'
-import { stepQueuedTreeOrder } from '../app/live-construction-runtime.ts'
+import { addBuilding, addUnit, command, tick } from '../app/model.ts'
+import { processBuilderWork, stepQueuedTreeOrder } from '../app/live-construction-runtime.ts'
 import { nativePosition } from '../app/world-terrain-runtime.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { SceneryPhase } from '../app/building-clearing.ts'
+import { BuilderTask } from '../app/building-workers.ts'
+import { treeSceneryOrigin, validSceneryProvenance } from '../app/scenery-provenance.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
 function scenario(capacity = 'scalable') {
@@ -331,3 +334,107 @@ test('exhausted resource search completes the staged head and releases the reach
   assert.equal(tail.references, 0)
   assert.ok(u.x > 10, continuationState(w))
 })
+
+// Supplied construction-deposit boundary: the live adapter must allocate the
+// log itself. This is not natural building assignment, harvesting or travel.
+// In particular, never add authoredSlot/sceneryBirth to the synthetic log in
+// scenario() and then describe that fixture as production provenance evidence.
+function depositedLogScenario(marked) {
+  const { w, u } = scenario()
+  w.trees = []
+  if (!marked) delete w.scenerySource
+  assert.equal(validSceneryProvenance(w), true)
+  const marker = structuredClone(w.scenerySource)
+  // Deposit's native cadence is even; advance ordinarily rather than rewriting
+  // the world turn or bypassing the campaign outcome controller.
+  if (w.turn & 1) tick(w, 1 / 12)
+  const building = addBuilding(w, 'blue', 'hut', { x: 20, z: 20 }, false, { plan: true }),
+    worker = addUnit(w, 'blue', 'brave', { x: 6, z: 0 }),
+    person = createLivePerson(w, worker)
+  worker.work = building.id
+  worker.cargo = 1
+  Object.assign(person, { cargo: 100, goalX: person.x, goalY: person.y, counter: 0 })
+  person.assignment &= ~16
+  worker.builder = {
+    task: BuilderTask.ClearScenery,
+    busy: 0,
+    phase: SceneryPhase.Deposit,
+    restart: false,
+    person,
+  }
+  const nextId = w.nextId
+  processBuilderWork(w, worker, building)
+  assert.equal(w.trees.length, 1, 'the actual construction adapter creates exactly one log')
+  const log = w.trees[0]
+  assert.equal(log.id, nextId)
+  assert.equal(w.nextId, nextId + 1)
+  assert.equal(log.model, 11)
+  assert.equal(log.logs, 1)
+  assert.equal(worker.cargo, 0)
+  assert.equal(person.cargo, 0)
+  // Observe the actual allocation boundary before cleanup or another world turn
+  // could repair/drop fields or obscure a changed source marker.
+  assertLogOrigin(w, log, marked, marker)
+  // Use the maintained owner-release fixture, not manual native/order deletion.
+  retainFixtureUnits(w, unit => unit !== worker)
+  tick(w, 1 / 12)
+  assert.equal(w.trees[0], log)
+  assert.equal(log.logs, 1)
+  assert.equal(w.buildingOrders.active, 0)
+  assert.equal(w.motionRoutes.active, 0)
+  return { w, u, log, marker }
+}
+
+function assertLogOrigin(world, log, marked, marker) {
+  assert.ok(log)
+  assert.equal(validSceneryProvenance(world), true)
+  if (marked) {
+    assert.deepEqual(world.scenerySource, marker)
+    assert.equal(log.authoredSlot, null)
+    assert.equal(log.sceneryBirth, 'loose-log')
+    assert.deepEqual(treeSceneryOrigin(world, log), { kind: 'dynamic', birth: 'loose-log' })
+  } else {
+    assert.equal('scenerySource' in world, false)
+    assert.equal('authoredSlot' in log, false)
+    assert.equal('sceneryBirth' in log, false)
+    assert.deepEqual(treeSceneryOrigin(world, log), { kind: 'unknown' })
+  }
+}
+
+for (const marked of [true, false]) {
+  test(`construction-deposit log preserves ${marked ? 'dynamic provenance' : 'unknown origin'} through staged checkpoint continuation`, () => {
+    const { w, u, log, marker } = depositedLogScenario(marked)
+    assertLogOrigin(w, log, marked, marker)
+    if (marked) {
+      const invalid = structuredClone(w)
+      delete invalid.scenerySource
+      assert.equal(validSceneryProvenance(invalid), false, 'tagged logs require their source marker')
+    }
+    command(w, log, { ctrlKey: true })
+    command(w, { x: 12, z: 0 })
+    assert.deepEqual(orders(w, u).map(order => order.model), [7, 3])
+    assert.equal(orders(w, u)[0].flags & 12, 8)
+    const ids = u.native.commands.filter(Boolean)
+    until(w, () => u.tree === log.id && u.path.length > 0)
+    assertLogOrigin(w, log, marked, marker)
+    // Canonical in-memory normalization, not public Save/Load or IndexedDB.
+    const restored = migrateCheckpoint(structuredClone(w)),
+      other = restored.units.find(person => person.id === u.id)
+    assert.ok(other)
+    assert.deepEqual(restored.trees, w.trees)
+    assert.deepEqual(other.native.commands, u.native.commands)
+    for (const [world, person] of [[w, u], [restored, other]]) {
+      const liveLog = world.trees.find(tree => tree.id === log.id)
+      assertLogOrigin(world, liveLog, marked, marker)
+      assert.equal(world.pathfinding.people.get(person.id), person.native)
+      assert.ok(ids.every(id => world.buildingOrders.records[id].references === 1))
+      until(world, () => world.buildingOrders.active === 0 && world.motionRoutes.active === 0)
+      assert.equal(person.cargo, 1, continuationState(world))
+      assert.ok(person.x > 10, continuationState(world))
+      assert.equal(liveLog.logs, 0)
+      assert.ok(ids.every(id => world.buildingOrders.records[id].references === 0))
+      assertLogOrigin(world, liveLog, marked, marker)
+    }
+    assert.deepEqual(restored.trees, w.trees)
+  })
+}
