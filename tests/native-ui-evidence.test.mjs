@@ -580,15 +580,15 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.deepEqual(Object.keys(workflow.jobs), ['evidence'])
   const job = workflow.jobs.evidence
   assert.equal(job['runs-on'], 'ubuntu-24.04')
-  assert.equal(job['timeout-minutes'], "${{ inputs.evidence_kind == 'material-lifecycle' && 30 || 20 }}")
+  assert.equal(job['timeout-minutes'], "${{ (inputs.evidence_kind || 'native-ui') == 'material-lifecycle' && 30 || 20 }}")
   assert.deepEqual(workflow.on.workflow_dispatch.inputs.evidence_kind, {
-    description: 'Existing UI episodes or reviewed exact PR722 material lifecycle',
-    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle'],
+    description: 'Full native UI, material lifecycle, or partial Options controls evidence',
+    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls'],
   })
   const checkouts = job.steps.filter(step => step.uses?.startsWith('actions/checkout@'))
   assert.equal(checkouts.length, 3); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
   const helper = checkouts[1]
-  assert.equal(helper.if, "${{ inputs.evidence_kind == 'material-lifecycle' }}")
+  assert.equal(helper.if, "${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}")
   assert.equal(helper.with.ref, 'a2e1cd1b2dbda79a75a79573ff6ff504ce46845d')
   assert.equal(helper.with.repository, 'JohnDeved/populous-new-dawn')
   assert.equal(helper.with.path, 'material-helper-source')
@@ -596,7 +596,7 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(checkouts[0].with.ref, '${{ github.workflow_sha }}'); assert.equal(checkouts[2].with.ref, '${{ inputs.candidate_sha }}')
   assert.equal(checkouts[2].with.repository, 'JohnDeved/populous-new-dawn')
   const sparse = checkouts[0].with['sparse-checkout'].trim().split(/\r?\n/).map(line => line.trim())
-  for (const path of ['/scripts/native-ui-evidence/', '/scripts/browser-options-audio.mjs',
+  for (const path of ['/scripts/native-ui-evidence/', '/scripts/options-controls-evidence/', '/scripts/browser-options-audio.mjs',
     '/scripts/orchestration/dependency-profile.mjs', '/scripts/tutorial-browser/browser-config.mjs',
     '/.github/workflows/native-ui-evidence.yml']) assert.ok(sparse.includes(path), `Missing trusted import: ${path}`)
   assert.equal(checkouts[0].with['sparse-checkout-cone-mode'], false)
@@ -606,6 +606,34 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.doesNotMatch(upload.with.path, /node_modules|dist|profile/)
   assert.doesNotMatch(read('.github/workflows/native-ui-evidence.yml'), /secrets:|secrets\.|continue-on-error|pull_request_target|\bdeploy\b/)
   for (const step of job.steps.filter(step => step.uses)) assert.match(step.uses, /@[a-f0-9]{40}$/)
+})
+test('workflow validates normalized evidence kind before checkout and routes defaults without bypass', () => {
+  const workflow = yaml.load(read('.github/workflows/native-ui-evidence.yml'))
+  const job = workflow.jobs.evidence
+  assert.equal(job.env.PND_EVIDENCE_KIND, "${{ inputs.evidence_kind || 'native-ui' }}")
+  const guard = job.steps[0]
+  assert.equal(guard.name, 'Validate normalized evidence kind before checkout or install')
+  assert.ok(job.steps.findIndex(step => step.uses?.startsWith('actions/checkout@')) > 0)
+  const code = guard.run.match(/^node --input-type=module -e "([^"]+)"\s*$/)?.[1]
+  assert.ok(code, 'Execute the actual inline guard, not a replacement implementation')
+  const validate = value => execFileSync(process.execPath, ['--input-type=module', '-e', code], {
+    env: { ...process.env, PND_EVIDENCE_KIND: value }, timeout: 5000, stdio: 'pipe',
+  })
+  for (const value of ['native-ui', 'material-lifecycle', 'options-controls']) validate(value)
+  for (const value of ['', 'unknown', 'native-ui ', 'OPTIONS-CONTROLS']) assert.throws(() => validate(value))
+  for (const raw of [undefined, '', 'native-ui']) {
+    const resolved = raw || 'native-ui'
+    assert.equal(resolved, 'native-ui'); validate(resolved)
+  }
+  for (const step of job.steps) assert.doesNotMatch(step.if ?? '', /inputs\.evidence_kind/)
+  for (const [kind, runner] of [['native-ui', 'native-ui-evidence'], ['options-controls', 'options-controls-evidence']]) {
+    const steps = job.steps.filter(step => step.run?.includes(`scripts/${runner}/run.mjs`))
+    assert.equal(steps.length, 1)
+    assert.equal(steps[0].if, "${{ env.PND_EVIDENCE_KIND == '" + kind + "' }}")
+    const uploads = job.steps.filter(step => step.with?.path?.includes(`outputs/${runner}/`))
+    assert.equal(uploads.length, 1)
+    assert.equal(uploads[0].if, "${{ always() && env.PND_EVIDENCE_KIND == '" + kind + "' }}")
+  }
 })
 test('normal PR source equality and existing main-only Ready triggers remain outside manual mode', () => {
   const source = read('scripts/tutorial-browser/run.mjs')
@@ -1411,4 +1439,5 @@ test('exact candidate source contract runs with candidate cwd before build and m
   assert.match(gate, /artifactInventory\(output\)/)
   assert.match(gate, /assert\.equal\(report\.candidateAudioSourceContract\.status, 'passed'/)
 })
+
 
