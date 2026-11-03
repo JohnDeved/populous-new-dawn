@@ -58,7 +58,10 @@ export async function checkSelectorKeyboardFocus({ page, output }) {
         assert.equal(await select(2).getAttribute('aria-pressed'), 'true')
         assert.equal(await page.getByRole('button', {name: 'Start Mission 2', exact: true}).isDisabled(), true)
         assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'same-view activation cannot launch a world')
-        checks.push({...size, activation, campaignSameViewFocus: 2, lockedInspection: true, noLaunch: true})
+        const screenshot = `selector-campaign-return-${activation}-${size.width}x${size.height}.png`
+        await page.screenshot({path: resolve(output, screenshot)})
+        assert.equal(await select(2).evaluate(button => button === document.activeElement), true, 'capture preserves restored focus')
+        checks.push({...size, activation, campaignSameViewFocus: 2, lockedInspection: true, noLaunch: true, screenshot})
         await page.keyboard.press('ArrowRight')
         assert.equal(await select(1).evaluate(button => button === document.activeElement), true)
       }
