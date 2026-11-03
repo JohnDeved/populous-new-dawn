@@ -256,7 +256,8 @@ export function installShamanCastingObserver() {
         notificationState(read())
         check(!state.paused && !state.suspended && frame.visible && frame.submittedLayers > 0,
           'Casting notification requires a submitted running render')
-        check(record.after.casts === notification.before + 1, 'Casting notification cast counter changed')
+        check(record.after.casts === notification.before + 1 && state.casts === notification.before + 1,
+          'Casting notification cast counter changed')
         const row = timing('first-render-notification', { firstRunningStamp: frame.stamp, copiedAt }, state)
         notification.sent = true
         sendNotification({ kind: 'ready', label: record.label, personId: state.person.id, shot: record.shot,

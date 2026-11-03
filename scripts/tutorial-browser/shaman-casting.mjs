@@ -74,7 +74,7 @@ export async function prepareCastingF9(page, report, before, deadline) {
     frame = page.mainFrame(), timing = report.castingNotification = { clock: 'host.performance.now', token,
       armedAt: performance.now(), receivedAt: null, clickCompletedAt: null, dispatchAt: null, closedAt: null }
   let active = true, clickStarted = false, clicked = false, received = null, dispatched = false, failure = null,
-    bindingHandle, subscription, closePromise, resolve, reject
+    bindingHandle, subscription, subscriptionAttempted = false, closePromise, resolve, reject
   const done = new Promise((yes, no) => { resolve = yes; reject = no })
   // A click may still be pending when the page rejects this observation.
   void done.catch(() => {})
@@ -128,7 +128,7 @@ export async function prepareCastingF9(page, report, before, deadline) {
     // No late callback may dispatch while protocol cleanup is in flight.
     reject(failure ?? Error('Casting F9 notification disarmed'))
     try {
-      if (subscription && !page.isClosed())
+      if (subscriptionAttempted && !page.isClosed())
         await page.evaluate(token => window.shamanCastingObserver.disarmFirstRunningCast(token), token)
     } catch (error) { cancel(error) }
     finally {
@@ -141,6 +141,7 @@ export async function prepareCastingF9(page, report, before, deadline) {
   try {
     bindingHandle = await page.exposeBinding(binding, receive)
     guard()
+    subscriptionAttempted = true
     subscription = await page.evaluate(options => window.shamanCastingObserver.subscribeFirstRunningCast(options),
       { binding, token, before })
     guard()

@@ -409,13 +409,14 @@ test('first-copy notification excludes prior, missing, paused and suspended rend
 })
 
 test('notification fails closed on stale owner, expired windup, first-copy failure or changed allocation', () => {
-  for (const failure of ['scene', 'person', 'shot', 'expired', 'crop', 'counter', 'binding', 'unsubmitted']) {
+  for (const failure of ['scene', 'person', 'shot', 'expired', 'crop', 'counter', 'late-counter', 'binding', 'unsubmitted']) {
     const f = observerFixture()
     try {
       installShamanCastingObserver(); armSubsequent(f)
       const { messages } = subscribeFixture(f)
       if (failure === 'counter') f.world.stats.cast++
       f.allocate('subsequent', false)
+      if (failure === 'late-counter') f.world.stats.cast++
       if (failure === 'scene') f.win.testSceneRef.current = {}
       if (failure === 'person') f.world.units[0].native = { ...f.person }
       if (failure === 'shot') f.world.projectiles[0] = { ...f.world.projectiles[0] }
@@ -461,6 +462,29 @@ test('page timing retains first completed copy and notification without driving 
     assert.deepEqual(f.world, before)
     assert.deepEqual(result.errors, [])
   } finally { f.cleanup() }
+})
+
+test('renderer never awaits binding delivery and retains a failed first copy without a replacement', async () => {
+  const f = observerFixture(), delivery = deferred(), messages = []
+  try {
+    installShamanCastingObserver(); armSubsequent(f)
+    f.win.firstRender = message => { messages.push(message); return delivery.promise }
+    f.win.shamanCastingObserver.subscribeFirstRunningCast({ binding: 'firstRender', token: 'pending', before: f.world.stats.cast })
+    f.allocate('subsequent', false)
+    const world = structuredClone(f.world)
+    assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), f.returned)
+    assert.equal(messages.length, 1)
+    assert.deepEqual(f.world, world)
+    delivery.reject(Error('binding failed'))
+    await Promise.resolve()
+    f.person.f2++
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    const result = f.win.shamanCastingObserver.finish()
+    assert.match(result.errors[0], /notification delivery failed/)
+    assert.equal(result.casts[1].crops.length, 1)
+    assert.equal(result.casts[1].frames.length, 1)
+    assert.equal(result.restored, true)
+  } finally { delivery.resolve(); f.cleanup() }
 })
 
 test('early trusted F9 timing precedes production immediate propagation stop and is removed at finish', () => {
@@ -651,15 +675,17 @@ test('prearmed first-copy notification dispatches exactly one public F9 only aft
 })
 
 test('duplicate, stale and invalidated notifications reject without a second or premature input', async () => {
-  for (const failure of ['duplicate', 'token', 'frame', 'person', 'expired', 'observer']) {
+  for (const failure of ['duplicate', 'token', 'frame', 'person', 'expired', 'observer', 'first-copy']) {
     const f = observerFixture(), click = deferred(), report = {}
     let dispatch
     try {
       installShamanCastingObserver(); armSubsequent(f)
       const p = notificationPage(f, { click: click.promise })
       dispatch = await prepareCastingF9(p.page, report, f.world.stats.cast, performance.now() + 12000)
+      if (failure === 'first-copy') f.scene.picking.personBounds = () => null
       const action = dispatch.click({ x: 1, y: 2 })
-      if (failure === 'expired') {
+      if (failure === 'first-copy') assert.equal(p.messages[0].kind, 'invalid')
+      else if (failure === 'expired') {
         f.world.units[0].casting = null; f.world.turn++; f.scene.gameClock.afterTurn()
       } else if (failure === 'observer') {
         f.win.testSceneRef.current = {}; f.renderer.render(f.scene.scene, f.scene.camera)
@@ -678,6 +704,27 @@ test('duplicate, stale and invalidated notifications reject without a second or 
       assert.ok(report.castingNotification.failure)
     } finally { click.resolve(); await dispatch?.close().catch(() => {}); f.cleanup() }
   }
+})
+
+test('partially acknowledged subscription setup is disarmed and disposed before propagating its original failure', async () => {
+  const f = observerFixture(), report = {}, thrown = Error('subscription reply lost')
+  try {
+    installShamanCastingObserver(); armSubsequent(f)
+    const p = notificationPage(f), evaluate = p.page.evaluate
+    let calls = 0
+    p.page.evaluate = async (callback, value) => {
+      const result = await evaluate(callback, value)
+      if (++calls === 1) throw thrown
+      return result
+    }
+    await assert.rejects(prepareCastingF9(p.page, report, f.world.stats.cast, performance.now() + 12000), error => error === thrown)
+    assert.equal(calls, 2)
+    assert.equal(p.disposed(), 1); assert.equal(p.listeners.size, 0)
+    f.allocate('subsequent', false)
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.deepEqual(p.calls, []); assert.deepEqual(p.messages, [])
+    assert.deepEqual(f.win.shamanCastingObserver.finish().errors, [])
+  } finally { f.cleanup() }
 })
 
 test('rejected click or keyboard preserves the first failure and closes notification ownership', async () => {

@@ -88,8 +88,8 @@ export default async function spellTestMenu({ browser, url, output }) {
   let failure, castingRetentionAttempted = false, castingDispatch
   const diagnostics = startSpellTestDiagnostics(page, report)
   const timer = setTimeout(() => {
-    report.timedOut = true; castingDispatch?.cancel(Error('F9 episode deadline expired'))
-    diagnostics.stop(); void context.close().catch(() => {})
+    castingDispatch?.cancel(Error('F9 episode deadline expired'))
+    report.timedOut = true; diagnostics.stop(); void context.close().catch(() => {})
   }, Math.max(0, spellTestLimitMs - (performance.now() - started)))
   page.setDefaultTimeout(12000)
   page.on('pageerror', error => report.errors.push(String(error)))
