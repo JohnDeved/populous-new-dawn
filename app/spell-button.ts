@@ -6,6 +6,8 @@ interface SpellButtonState {
   model: number
   permanent: boolean
   charging: boolean
+  // 0x4c2ca0: descriptor mode 2 needs game-state bit 0x100.
+  mode2ChargingAllowed?: boolean
   hovered: boolean
   selected: boolean
   stock: number
@@ -47,7 +49,7 @@ export function spellButton(s: SpellButtonState) {
     y: 21 - Math.trunc(iconRect.h / 2),
   })
   const fills =
-    s.permanent && s.charging && !s.hovered && rule.mode !== 2
+    s.permanent && s.charging && !s.hovered && (rule.mode !== 2 || s.mode2ChargingAllowed === true)
       ? chargeFills(s.progress, rule.cost, 24)
       : []
   const frame = `button${s.permanent ? '' : '-gift'}${['', '-selected', '-hover'][state]}`

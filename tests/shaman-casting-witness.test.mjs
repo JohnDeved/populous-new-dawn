@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { installShamanCastingObserver } from '../scripts/tutorial-browser/shaman-casting-observer.mjs'
+import { installShamanCastingObserver, installShamanCastingInputTiming } from '../scripts/tutorial-browser/shaman-casting-observer.mjs'
 import { castingArtworkReference as reference, validateShamanCastingEvidence } from '../scripts/tutorial-browser/shaman-casting-evidence.mjs'
 import native from './fixtures/shaman-casting-native.json' with { type: 'json' }
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
@@ -9,7 +9,7 @@ import { createLivePerson } from '../app/live-people.ts'
 import { cast } from '../app/live-command.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { readFileSync } from 'node:fs'
-import { beginOrdinaryCastingWitness } from '../scripts/tutorial-browser/shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, prepareCastingF9 } from '../scripts/tutorial-browser/shaman-casting.mjs'
 
 // Supplied observations exercise the evidence contract, not a browser pass.
 function evidence() {
@@ -214,7 +214,7 @@ test('active-cast hold requires timed suspended renders, exact frozen state and 
 })
 
 // This fake browser checks observer transparency and cleanup, not real pixels.
-function observerFixture({ ownRender = false, installFailure = false } = {}) {
+function observerFixture({ ownRender = false, ownModal = false, installFailure = false } = {}) {
   const names = ['window', 'document', 'getComputedStyle'],
     saved = names.map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]),
     listeners = [], calls = [], person = { ...evidence().casts[0].before.person },
@@ -224,7 +224,13 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
       stats: { cast: 0 }, spellCasts: [[0, 0, 0]], projectiles: [], effects: [],
       units: [{ id: 4, hp: 100, team: 'blue', kind: 'shaman', native: person, heading: 0, lift: 0 }] }
   const returned = {}, thrown = new Error('original failure')
-  let failTurn = false, failRender = false, readbackCount = 0
+  let failTurn = false, failRender = false, failModal = false, readbackCount = 0
+  const modal = function (...args) {
+    calls.push(['modal', this, args])
+    if (failModal) throw thrown
+    this.modalSuspended = args[0]
+    return returned
+  }
   const turn = function (...args) {
     calls.push(['turn', this, args])
     if (failTurn) throw thrown
@@ -246,6 +252,8 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
       modalSuspended: false, cameraBearing: 0, unitMeshes: new Map([[4, group]]),
       view: { painter: { source: () => ({}) } },
       picking: { personBounds: () => ({ x: 100, y: 100, width: 30, height: 50 }) } }
+  Object.setPrototypeOf(scene, { setModalSuspended: modal })
+  if (ownModal) Object.defineProperty(scene, 'setModalSuspended', { value: modal, writable: true, configurable: true })
   const win = { testSceneRef: { current: scene }, testStore: { getWorld: () => world, hasUsedCheats: () => false },
     addEventListener(type, callback, capture) {
       if (installFailure && listeners.length === 1) throw Error('listener installation failed')
@@ -262,11 +270,13 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
       getContext: () => ({ drawImage() {}, getImageData: () => ({ data: [1, 2, 3, 255, 4, 5, 6, 255] }) }) }),
   }
   globalThis.getComputedStyle = () => ({ display: 'block', visibility: 'visible', opacity: '1' })
-  const dispatch = (capture, trusted = true) => listeners.find(row => row.capture === capture)?.callback({
+  installShamanCastingInputTiming()
+  const dispatch = (capture, trusted = true) => listeners.find(row => row.type === 'pointerup' && row.capture === capture)?.callback({
     target: canvas, button: 0, isTrusted: trusted, clientX: 110, clientY: 120,
   })
-  const allocate = (label = 'ordinary') => {
-    win.shamanCastingObserver.arm(label); dispatch(true)
+  const allocate = (label = 'ordinary', arm = true) => {
+    if (arm) win.shamanCastingObserver.arm(label)
+    dispatch(true)
     Object.assign(world, { mode: null }); world.stats.cast++; world.spellCasts[0][2]++
     world.shots.blast--; world.manaWorld.spells[0].stocks[2]--
     world.castingTribes[0].cooldown = 12
@@ -277,12 +287,14 @@ function observerFixture({ ownRender = false, installFailure = false } = {}) {
   }
   const cleanup = () => {
     win.shamanCastingObserver?.finish()
+    win.shamanCastingInputTiming.close()
     for (const [name, descriptor] of saved)
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
       else delete globalThis[name]
   }
   return { world, person, scene, renderer, group, canvas, win, calls, returned, thrown, listeners,
-    turn, render, allocate, dispatch, cleanup, readbacks: () => readbackCount,
+    turn, render, modal, allocate, dispatch, cleanup, readbacks: () => readbackCount,
+    failModal: () => { failModal = true },
     fail: () => { failTurn = true; failRender = true } }
 }
 
@@ -332,6 +344,434 @@ test('a live allocation is observed synchronously and readback waits until detac
     assert.equal(f.win.shamanCastingObserver.finish(), result)
     assert.equal(f.readbacks(), 2)
   } finally { f.cleanup() }
+})
+
+function armSubsequent(f) {
+  f.allocate()
+  for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+  f.world.mode = 'blast'; f.world.projectiles = []
+  f.win.shamanCastingObserver.arm('subsequent')
+}
+
+function subscribeFixture(f) {
+  const messages = [], token = 'fixture-subsequent'
+  f.win.firstRender = message => { messages.push(message); return Promise.resolve() }
+  f.win.shamanCastingObserver.subscribeFirstRunningCast({ binding: 'firstRender', token, before: f.world.stats.cast })
+  return { messages, token }
+}
+
+function subsequentFixture(f) {
+  armSubsequent(f)
+  f.allocate('subsequent', false)
+}
+
+test('first-copy notification excludes prior, missing, paused and suspended renders without selecting artwork', () => {
+  const f = observerFixture()
+  try {
+    installShamanCastingObserver()
+    const observer = f.win.shamanCastingObserver
+    assert.throws(() => subscribeFixture(f), /pre-input subsequent/)
+    armSubsequent(f)
+    const { messages, token } = subscribeFixture(f)
+    assert.equal(messages.length, 0)
+    f.allocate('subsequent', false)
+    assert.equal(messages.length, 0, 'Allocation alone cannot notify')
+    f.world.paused = true
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    f.world.paused = false; f.scene.modalSuspended = true
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(messages.length, 0, 'Paused/suspended frames cannot notify')
+    assert.throws(() => observer.beginHold(), /requires a running render/)
+    f.scene.modalSuspended = false
+    f.group.userData.frame = -1; f.group.userData.frameFlip = 'wrong'
+    const before = structuredClone(f.world), calls = f.calls.length
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(messages.length, 1, 'The first completed copy notifies even with incorrect artwork')
+    const first = f.renderer.info.render.frame
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.equal(messages.length, 1, 'The ordinary next render cannot notify twice')
+    assert.equal(observer.status().casts[1].runningFrameStamp, first)
+    assert.equal(f.calls.length, calls + 2)
+    assert.deepEqual(f.world, before)
+    observer.disarmFirstRunningCast(token)
+    f.scene.modalSuspended = true; observer.beginHold(); observer.endHold()
+    f.scene.modalSuspended = false
+    for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+    const result = observer.finish(), frames = result.casts[1].frames
+    assert.deepEqual(frames.map(frame => [frame.paused, frame.suspended]),
+      [[true, false], [false, true], [false, false], [false, false]])
+    assert.equal(frames[2].frame, -1, 'Incorrect first-frame artwork remains evidence')
+    assert.equal(result.holds.length, 1)
+    const invalid = evidence()
+    invalid.casts[1].frames[0].frame = -1
+    assert.throws(() => validateShamanCastingEvidence(invalid), /Original VFRA frame\/flip/)
+  } finally { f.cleanup() }
+})
+
+test('notification fails closed on stale owner, expired windup, first-copy failure or changed allocation', () => {
+  for (const failure of ['scene', 'person', 'shot', 'expired', 'crop', 'counter', 'late-counter', 'binding', 'unsubmitted']) {
+    const f = observerFixture()
+    try {
+      installShamanCastingObserver(); armSubsequent(f)
+      const { messages } = subscribeFixture(f)
+      if (failure === 'counter') f.world.stats.cast++
+      f.allocate('subsequent', false)
+      if (failure === 'late-counter') f.world.stats.cast++
+      if (failure === 'scene') f.win.testSceneRef.current = {}
+      if (failure === 'person') f.world.units[0].native = { ...f.person }
+      if (failure === 'shot') f.world.projectiles[0] = { ...f.world.projectiles[0] }
+      if (failure === 'expired') f.world.units[0].casting = null
+      if (failure === 'crop') f.scene.picking.personBounds = () => null
+      if (failure === 'binding') f.win.firstRender = () => Promise.resolve()
+      if (failure === 'unsubmitted') f.group.userData.layers = []
+      assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), f.returned)
+      const result = f.win.shamanCastingObserver.finish()
+      assert.equal(messages.length, 1, failure)
+      assert.equal(messages[0].kind, 'invalid', failure)
+      assert.ok(result.errors.length > 0, failure)
+      assert.ok(!result.timing.events.some(row => row.event === 'first-render-notification'), failure)
+      if (failure === 'crop') assert.equal(result.casts[1].crops.length, 0)
+    } finally { f.cleanup() }
+  }
+})
+
+test('page timing retains first completed copy and notification without driving callbacks or replacing crops', () => {
+  const f = observerFixture()
+  try {
+    installShamanCastingObserver(); armSubsequent(f)
+    const { token, messages } = subscribeFixture(f)
+    f.allocate('subsequent', false)
+    const before = structuredClone(f.world), calls = f.calls.length
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    f.person.f2++
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    before.units[0].native.f2++
+    f.win.shamanCastingObserver.disarmFirstRunningCast(token)
+    const result = f.win.shamanCastingObserver.finish(), events = result.timing.events,
+      rows = events.filter(row => row.label === 'subsequent')
+    assert.equal(result.timing.clock, 'page.performance.now')
+    assert.deepEqual(rows.map(row => row.event),
+      ['notification-armed', 'allocation', 'first-running-render', 'crop-complete', 'first-render-notification', 'crop-complete'])
+    assert.equal(rows[4].firstRunningStamp, rows[2].stamp)
+    assert.equal(rows[4].copiedAt, rows[3].at)
+    assert.ok(rows[2].enteredAt <= rows[2].renderedAt)
+    assert.ok(rows[2].renderedAt <= rows[3].at && rows[3].at <= rows[4].at)
+    assert.ok(events.every((row, i) => i === 0 || row.at >= events[i - 1].at))
+    assert.equal(messages[0].pageAt, rows[4].at)
+    assert.equal(f.calls.length, calls + 2)
+    assert.deepEqual(f.world, before)
+    assert.deepEqual(result.errors, [])
+  } finally { f.cleanup() }
+})
+
+test('renderer never awaits binding delivery and retains a failed first copy without a replacement', async () => {
+  const f = observerFixture(), delivery = deferred(), messages = []
+  try {
+    installShamanCastingObserver(); armSubsequent(f)
+    f.win.firstRender = message => { messages.push(message); return delivery.promise }
+    f.win.shamanCastingObserver.subscribeFirstRunningCast({ binding: 'firstRender', token: 'pending', before: f.world.stats.cast })
+    f.allocate('subsequent', false)
+    const world = structuredClone(f.world)
+    assert.equal(f.renderer.render(f.scene.scene, f.scene.camera), f.returned)
+    assert.equal(messages.length, 1)
+    assert.deepEqual(f.world, world)
+    delivery.reject(Error('binding failed'))
+    await Promise.resolve()
+    f.person.f2++
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    const result = f.win.shamanCastingObserver.finish()
+    assert.match(result.errors[0], /notification delivery failed/)
+    assert.equal(result.casts[1].crops.length, 1)
+    assert.equal(result.casts[1].frames.length, 1)
+    assert.equal(result.restored, true)
+  } finally { delivery.resolve(); f.cleanup() }
+})
+
+test('early trusted F9 timing precedes production immediate propagation stop and is removed at finish', () => {
+  const f = observerFixture()
+  try {
+    let handled = 0
+    const production = event => { handled++; event.stopImmediatePropagation() }
+    f.win.addEventListener('keydown', production, true)
+    const key = (isTrusted = true, key = 'F9') => {
+      let stopped = false
+      const event = { isTrusted, key, repeat: false, stopImmediatePropagation() { stopped = true } }
+      for (const row of [...f.listeners]) {
+        if (row.type !== 'keydown') continue
+        row.callback(event)
+        if (stopped) break
+      }
+    }
+    key()
+    installShamanCastingObserver(); f.allocate(); key()
+    for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+    f.world.mode = 'blast'; f.world.projectiles = []; f.allocate('subsequent')
+    const world = structuredClone(f.world), calls = f.calls.length
+    key(false); key(true, 'F8'); key()
+    const result = f.win.shamanCastingObserver.finish(), keys = result.timing.events.filter(row => row.event === 'trusted-f9-keydown')
+    assert.equal(keys.length, 1)
+    assert.deepEqual([keys[0].key, keys[0].repeat, keys[0].isTrusted, keys[0].label], ['F9', false, true, 'subsequent'])
+    assert.equal(keys[0].state.person.sameOwner, true)
+    assert.equal(handled, 5)
+    assert.deepEqual(f.world, world); assert.equal(f.calls.length, calls)
+    assert.equal(result.restored, true)
+    assert.deepEqual(f.listeners, [{ type: 'keydown', callback: production, capture: true }])
+    key(); assert.equal(handled, 6); assert.equal(keys.length, 1)
+    f.win.removeEventListener('keydown', production, true)
+  } finally { f.cleanup() }
+})
+
+test('modal timing calls the original once with exact receiver, arguments, result and thrown object, then restores descriptors', () => {
+  for (const ownModal of [false, true]) {
+    const f = observerFixture({ ownModal }), descriptor = Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended')
+    try {
+      installShamanCastingObserver(); subsequentFixture(f)
+      const world = structuredClone(f.world), receiver = { modalSuspended: false }, extra = {}
+      assert.equal(f.scene.setModalSuspended.call(receiver, true, extra), f.returned)
+      assert.equal(receiver.modalSuspended, true)
+      assert.equal(f.scene.modalSuspended, false)
+      assert.equal(f.scene.setModalSuspended(true), f.returned)
+      f.failModal()
+      assert.throws(() => f.scene.setModalSuspended(false), error => error === f.thrown)
+      const result = f.win.shamanCastingObserver.finish(), calls = f.calls.filter(row => row[0] === 'modal'),
+        rows = result.timing.events.filter(row => row.event.startsWith('modal-setter'))
+      assert.equal(calls.length, 3)
+      assert.equal(calls[0][1], receiver); assert.deepEqual(calls[0][2], [true, extra])
+      assert.equal(calls[1][1], f.scene); assert.deepEqual(calls[1][2], [true])
+      assert.deepEqual(rows.map(row => row.event), Array(3).fill(['modal-setter-entry', 'modal-setter-exit']).flat())
+      assert.deepEqual(rows.filter(row => row.event.endsWith('exit')).map(row => row.completed), [true, true, false])
+      assert.deepEqual(rows.filter(row => row.event.endsWith('entry')).map(row => row.receiverOwned), [false, true, true])
+      assert.equal(rows[2].state.suspended, false); assert.equal(rows[3].state.suspended, true)
+      assert.ok(rows.every((row, i) => i % 2 === 0 || row.at >= row.enteredAt))
+      assert.deepEqual(f.world, world); assert.deepEqual(result.errors, [])
+      assert.equal(result.restored, true)
+      assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended'), descriptor)
+      assert.equal(f.listeners.length, 0)
+    } finally { f.cleanup() }
+  }
+})
+
+test('timing ownership loss and bounded overflow retain failure without suppressing the original modal call', () => {
+  for (const failure of ['modal-owner', 'input-owner', 'overflow', 'crop']) {
+    const f = observerFixture(), replacement = () => 'replacement'
+    try {
+      installShamanCastingObserver(); subsequentFixture(f)
+      if (failure === 'modal-owner') f.scene.setModalSuspended = replacement
+      else if (failure === 'input-owner') f.win.shamanCastingInputTiming.record = replacement
+      else if (failure === 'overflow') {
+        const listener = f.listeners.find(row => row.type === 'keydown').callback
+        for (let i = 0; i < 40; i++) listener({ key: 'F9', isTrusted: true, repeat: true })
+      } else {
+        f.scene.picking.personBounds = () => null
+        f.renderer.render(f.scene.scene, f.scene.camera)
+      }
+      const world = structuredClone(f.world)
+      if (failure !== 'modal-owner') {
+        assert.equal(f.scene.setModalSuspended(true), f.returned)
+        assert.equal(f.calls.filter(row => row[0] === 'modal').length, 1)
+      }
+      const result = f.win.shamanCastingObserver.finish()
+      assert.ok(result.errors.length > 0)
+      assert.ok(result.timing.events.length <= 32)
+      assert.equal(result.casts.length, 2); assert.equal(result.closed, true)
+      assert.deepEqual(f.world, world)
+      if (failure === 'modal-owner') assert.equal(f.scene.setModalSuspended, replacement)
+      if (failure === 'input-owner') assert.equal(f.win.shamanCastingInputTiming.record, replacement)
+      if (failure === 'crop') {
+        assert.equal(result.casts[1].frames.length, 1)
+        assert.equal(result.casts[1].crops.length, 0)
+        assert.ok(result.timing.events.some(row => row.event === 'first-running-render'))
+        assert.ok(!result.timing.events.some(row => row.event === 'crop-complete'))
+      }
+      assert.equal(result.restored, failure !== 'modal-owner' && failure !== 'input-owner')
+    } finally { f.cleanup() }
+  }
+})
+
+test('failed modal wrapper installation restores previously installed callbacks and removes early input timing', () => {
+  const f = observerFixture()
+  try {
+    Object.defineProperty(f.scene, 'setModalSuspended', { value: f.modal, writable: false, configurable: false })
+    const descriptor = Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended')
+    assert.throws(installShamanCastingObserver, TypeError)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(f.scene, 'setModalSuspended'), descriptor)
+    assert.equal(f.scene.gameClock.afterTurn, f.turn); assert.equal(f.renderer.render, f.render)
+    assert.equal(f.listeners.length, 0); assert.deepEqual(f.calls, [])
+  } finally { f.cleanup() }
+})
+
+function deferred() {
+  let resolve, reject
+  const promise = new Promise((yes, no) => { resolve = yes; reject = no })
+  return { promise, resolve, reject }
+}
+
+function notificationPage(f, { click = Promise.resolve(), keyboard = Promise.resolve(), renderOnClick = true } = {}) {
+  const frame = {}, calls = [], callbacks = [], messages = [], listeners = new Map()
+  let closed = false, disposed = 0, bindingName
+  const page = {
+    mainFrame: () => frame, isClosed: () => closed,
+    on(name, callback) { listeners.set(name, callback) },
+    off(name, callback) { if (listeners.get(name) === callback) listeners.delete(name) },
+    evaluate: async (callback, value) => callback(value),
+    async exposeBinding(name, callback) {
+      bindingName = name; callbacks.push(callback)
+      f.win[name] = message => {
+        messages.push(message)
+        try { return Promise.resolve(callback({ page, frame }, message)) }
+        catch (error) { return Promise.reject(error) }
+      }
+      return { async dispose() { disposed++; delete f.win[name] } }
+    },
+    mouse: { click(x, y) {
+      calls.push(['click', x, y]); f.allocate('subsequent', false)
+      if (renderOnClick) f.renderer.render(f.scene.scene, f.scene.camera)
+      return click
+    } },
+    keyboard: { press(key) {
+      calls.push(['key', key])
+      f.listeners.find(row => row.type === 'keydown').callback({ key, isTrusted: true, repeat: false })
+      return keyboard
+    } },
+  }
+  return { page, frame, calls, messages, callbacks, listeners,
+    binding: () => bindingName, disposed: () => disposed,
+    close() { closed = true; listeners.get('close')?.() },
+    navigate() { listeners.get('framenavigated')?.(frame) },
+  }
+}
+
+test('prearmed first-copy notification dispatches exactly one public F9 only after click completion', async () => {
+  for (const notificationFirst of [true, false]) {
+    const f = observerFixture(), click = deferred(), report = {}
+    let dispatch
+    try {
+      installShamanCastingObserver(); armSubsequent(f)
+      const p = notificationPage(f, { click: click.promise, renderOnClick: notificationFirst })
+      dispatch = await prepareCastingF9(p.page, report, f.world.stats.cast, performance.now() + 12000)
+      assert.deepEqual(p.calls, [])
+      const action = dispatch.click({ x: 110, y: 120 })
+      assert.deepEqual(p.calls, [['click', 110, 120]])
+      if (notificationFirst) assert.equal(p.messages[0].kind, 'ready')
+      click.resolve(); await Promise.resolve()
+      if (!notificationFirst) {
+        assert.deepEqual(p.calls, [['click', 110, 120]])
+        f.renderer.render(f.scene.scene, f.scene.camera)
+        assert.deepEqual(p.calls, [['click', 110, 120], ['key', 'F9']], 'Dispatch starts in the notification callback')
+      }
+      await action
+      await dispatch.close()
+      assert.deepEqual(p.calls, [['click', 110, 120], ['key', 'F9']])
+      assert.equal(p.disposed(), 1); assert.equal(p.listeners.size, 0)
+      const host = report.castingNotification, operations = report.castingHostTiming.operations
+      assert.equal(host.clock, 'host.performance.now')
+      assert.equal(host.pageNotification.clock, 'page.performance.now')
+      assert.ok(host.dispatchAt >= host.clickCompletedAt && host.dispatchAt >= host.receivedAt)
+      assert.deepEqual(operations.map(row => [row.operation, row.completed]), [['pointer-click', true], ['keyboard-press', true]])
+      assert.ok(operations[1].start >= operations[0].end)
+      assert.deepEqual(f.win.shamanCastingObserver.finish().errors, [])
+    } finally { await dispatch?.close().catch(() => {}); f.cleanup() }
+  }
+})
+
+test('duplicate, stale and invalidated notifications reject without a second or premature input', async () => {
+  for (const failure of ['duplicate', 'token', 'frame', 'person', 'expired', 'observer', 'first-copy']) {
+    const f = observerFixture(), click = deferred(), report = {}
+    let dispatch
+    try {
+      installShamanCastingObserver(); armSubsequent(f)
+      const p = notificationPage(f, { click: click.promise })
+      dispatch = await prepareCastingF9(p.page, report, f.world.stats.cast, performance.now() + 12000)
+      if (failure === 'first-copy') f.scene.picking.personBounds = () => null
+      const action = dispatch.click({ x: 1, y: 2 })
+      if (failure === 'first-copy') assert.equal(p.messages[0].kind, 'invalid')
+      else if (failure === 'expired') {
+        f.world.units[0].casting = null; f.world.turn++; f.scene.gameClock.afterTurn()
+      } else if (failure === 'observer') {
+        f.win.testSceneRef.current = {}; f.renderer.render(f.scene.scene, f.scene.camera)
+      } else {
+        const message = { ...p.messages[0] }, source = { page: p.page, frame: p.frame }
+        if (failure === 'token') message.token += '-stale'
+        if (failure === 'frame') source.frame = {}
+        if (failure === 'person') message.personId++
+        assert.throws(() => p.callbacks[0](source, message))
+      }
+      click.resolve()
+      await assert.rejects(action)
+      await assert.rejects(dispatch.close())
+      assert.deepEqual(p.calls, [['click', 1, 2]])
+      assert.equal(p.disposed(), 1); assert.equal(p.listeners.size, 0)
+      assert.ok(report.castingNotification.failure)
+    } finally { click.resolve(); await dispatch?.close().catch(() => {}); f.cleanup() }
+  }
+})
+
+test('partially acknowledged subscription setup is disarmed and disposed before propagating its original failure', async () => {
+  const f = observerFixture(), report = {}, thrown = Error('subscription reply lost')
+  try {
+    installShamanCastingObserver(); armSubsequent(f)
+    const p = notificationPage(f), evaluate = p.page.evaluate
+    let calls = 0
+    p.page.evaluate = async (callback, value) => {
+      const result = await evaluate(callback, value)
+      if (++calls === 1) throw thrown
+      return result
+    }
+    await assert.rejects(prepareCastingF9(p.page, report, f.world.stats.cast, performance.now() + 12000), error => error === thrown)
+    assert.equal(calls, 2)
+    assert.equal(p.disposed(), 1); assert.equal(p.listeners.size, 0)
+    f.allocate('subsequent', false)
+    f.renderer.render(f.scene.scene, f.scene.camera)
+    assert.deepEqual(p.calls, []); assert.deepEqual(p.messages, [])
+    assert.deepEqual(f.win.shamanCastingObserver.finish().errors, [])
+  } finally { f.cleanup() }
+})
+
+test('rejected click or keyboard preserves the first failure and closes notification ownership', async () => {
+  for (const fails of ['click', 'keyboard']) {
+    const f = observerFixture(), click = deferred(), keyboard = deferred(), report = {}, thrown = Error(fails)
+    let dispatch
+    try {
+      installShamanCastingObserver(); armSubsequent(f)
+      const p = notificationPage(f, { click: click.promise, keyboard: keyboard.promise })
+      dispatch = await prepareCastingF9(p.page, report, f.world.stats.cast, performance.now() + 12000)
+      const action = dispatch.click({ x: 1, y: 2 })
+      if (fails === 'click') click.reject(thrown)
+      else { click.resolve(); await Promise.resolve(); keyboard.reject(thrown) }
+      await assert.rejects(action, error => error === thrown)
+      await assert.rejects(dispatch.close(), error => error === thrown)
+      assert.deepEqual(p.calls, fails === 'click' ? [['click', 1, 2]] : [['click', 1, 2], ['key', 'F9']])
+      assert.equal(report.castingHostTiming.operations.at(-1).completed, false)
+      assert.equal(p.disposed(), 1)
+    } finally { click.resolve(); keyboard.resolve(); await dispatch?.close().catch(() => {}); f.cleanup() }
+  }
+})
+
+test('timeout, close, navigation and cleanup suppress late notifications and pending-click dispatch', async () => {
+  for (const stop of ['timeout', 'close', 'navigation', 'cleanup', 'deadline']) {
+    const f = observerFixture(), click = deferred(), report = {}
+    let dispatch
+    try {
+      installShamanCastingObserver(); armSubsequent(f)
+      const p = notificationPage(f, { click: click.promise })
+      dispatch = await prepareCastingF9(p.page, report, f.world.stats.cast,
+        stop === 'deadline' ? performance.now() - 1 : performance.now() + 12000).catch(error => {
+        assert.equal(stop, 'deadline'); return null
+      })
+      if (!dispatch) { assert.deepEqual(p.calls, []); assert.equal(p.disposed(), 1); continue }
+      const action = dispatch.click({ x: 1, y: 2 })
+      if (stop === 'timeout') { report.timedOut = true; dispatch.cancel(Error('watchdog')) }
+      if (stop === 'close') p.close()
+      if (stop === 'navigation') p.navigate()
+      if (stop === 'cleanup') await dispatch.close()
+      click.resolve()
+      await assert.rejects(action)
+      await dispatch.close().catch(() => {})
+      assert.throws(() => p.callbacks[0]({ page: p.page, frame: p.frame }, p.messages[0]), /cancelled|closed|deadline/)
+      assert.deepEqual(p.calls, [['click', 1, 2]])
+      assert.equal(p.disposed(), 1); assert.equal(p.listeners.size, 0)
+    } finally { click.resolve(); await dispatch?.close().catch(() => {}); f.cleanup() }
+  }
 })
 
 test('observer failures preserve originals and fail closed on owner replacement or installation errors', () => {
@@ -385,6 +825,7 @@ test('active-cast hold markers observe existing suspension without changing Worl
     f.world.mode = 'blast'; f.person.state = 10; f.world.projectiles = []
     f.allocate('subsequent')
     assert.throws(() => observer.beginHold(), /F9 must suspend/)
+    f.renderer.render(f.scene.scene, f.scene.camera)
     f.scene.modalSuspended = true
     const world = structuredClone(f.world), calls = f.calls.length
     observer.beginHold()
@@ -592,7 +1033,8 @@ test('actual F9 episode retains grant/input/hold/refill/save order and existing 
       'report.unpausedHoldAndResume = true', 'await beginOrdinaryCastingWitness(page)',
       "await button('Unlock + refill all spells').click()", "await button('Refill mana').click()",
       'await button(`Test Blast, ${unlocked.shots.blast} shots`).click()',
-      "window.shamanCastingObserver.arm('subsequent')", 'await page.mouse.click(target.x, target.y)',
+      "window.shamanCastingObserver.arm('subsequent')", 'await prepareCastingF9(page, report, target.before, started + spellTestLimitMs)',
+      'await castingDispatch.click(target)',
       'const casting = await snapshot()', 'window.shamanCastingObserver.beginHold()',
       'await page.waitForTimeout(350)', 'window.shamanCastingObserver.endHold()',
       "await button('Refill available charges').click()", 'const refilled = await snapshot()',
@@ -630,7 +1072,7 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
   for (const expired of [false, true]) for (const attempted of [false, true]) for (const retentionFails of [false, true]) {
     const calls = [], original = new Error('original F9 failure'), report = { status: 'failed' },
       page = { isClosed: () => false },
-      bindings = { started: performance.now() - (expired ? 75001 : 0), assertSpellTestDeadline, closeSpellTestContext, clearTimeout: () => calls.push('clearTimer'), timer: 1, page, output: 'output', report,
+      bindings = { castingDispatch: undefined, started: performance.now() - (expired ? 75001 : 0), assertSpellTestDeadline, closeSpellTestContext, clearTimeout: () => calls.push('clearTimer'), timer: 1, page, output: 'output', report,
         diagnostics: { stop: () => calls.push('stopDiagnostics') },
         context: { close: async () => calls.push('closeContext') },
         retainCastingWitness: async (actualPage, output, options) => {
