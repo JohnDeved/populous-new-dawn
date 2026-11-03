@@ -40,7 +40,9 @@ async function save(page, id, roster, airborne, retain) {
  await button('Menu').click();await button('Save Game').click();await button('Save checkpoint').click()
  await page.getByText('Checkpoint saved in this browser.',{exact:true}).waitFor()
  let state
+ const readbackDeadline=performance.now()+45000
  const committed=await waitForCheckpointReadback(async()=>{
+  if(performance.now()>=readbackDeadline)throw Error('Vehicle checkpoint readback exceeded existing 45000ms timeout')
   state=await page.evaluate(async({id,roster})=>{
    const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('populous-new-dawn',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})
    try {
@@ -53,7 +55,7 @@ async function save(page, id, roster, airborne, retain) {
    } finally {db.close()}
   },{id,roster})
   return (airborne?state.count===0:state.count===2)&&state.people.every((u,i)=>u.present&&u.hp>0&&u.kind===roster[i].kind&&u.team===roster[i].team&&u.cargo===roster[i].cargo&&(airborne?u.flight&&!u.vehicle:u.vehicle===id))
- },{pause:()=>page.waitForTimeout(100)})
+ },{attempts:450,pause:()=>page.waitForTimeout(Math.max(0,Math.min(100,readbackDeadline-performance.now())))})
  retain(`vehicle${id}: committed ${airborne?'airborne':'occupied'} save`,{committed,state})
  assert.equal(committed,true,JSON.stringify(state))
  const readback=await readCommittedCheckpoint(page)
