@@ -140,6 +140,21 @@ test('exact image-dimension failure clears article and caller can retry without 
     assert.equal((await owner.present(input(patch))).status, 'unavailable')
 })
 
+test('mounted asset failure invalidates cached readiness before retrying the same article', async t => {
+  const f = fixture(t), owner = f.create()
+  await ready(owner)
+  f.state.wrongDimensions = true
+  owner.invalidate('explicit-host-hide')
+  await ready(owner) // Ordinary hiding must not discard verified asset readiness.
+  owner.invalidate('help-article-asset-failed')
+  const failed = await owner.present(input())
+  assert.equal(failed.status, 'unavailable')
+  assert.match(failed.reason, /dimensions differ/)
+  f.state.wrongDimensions = false
+  await ready(owner)
+  owner.dispose()
+})
+
 test('mount replay is not terminal; real unmount and scene cleanup are terminal and failure-isolated', async t => {
   const f = fixture(t), owner = f.create()
   const release = owner.mount(); release()

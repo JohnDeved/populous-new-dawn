@@ -81,6 +81,9 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
   function invalidate(reason: string) {
     if (!source) return state
     ++revision
+    // A failed mounted image invalidates its earlier decode readiness too.
+    // Retrying the same article must revalidate assets before publishing it.
+    if (reason === 'help-article-asset-failed') readyAssets = null
     attempt('help-article-clear-preview', preview.clear)
     scrollController.reset()
     publish(unavailable(reason))
