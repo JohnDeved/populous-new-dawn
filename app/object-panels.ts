@@ -301,7 +301,8 @@ export class ObjectPanels {
         button.hidden = true
         button.addEventListener('contextmenu', event => {
           event.preventDefault()
-          if (vehicle)
+          if (vehicle) {
+            if (!scene.isCurrent() || !scene.world.vehicles.includes(vehicle)) return
             this.vehicleAction(
               id,
               Number(button.dataset.person),
@@ -309,7 +310,7 @@ export class ObjectPanels {
               true,
               event.shiftKey
             )
-          else if (head) {
+          } else if (head) {
             if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
               return
             this.focusWorshipper(id, Number(button.dataset.person))
@@ -318,7 +319,8 @@ export class ObjectPanels {
         })
         // Person order icons use right-click; keyboard activation also exposes focus.
         button.addEventListener('click', event => {
-          if (vehicle)
+          if (vehicle) {
+            if (!scene.isCurrent() || !scene.world.vehicles.includes(vehicle)) return
             this.vehicleAction(
               id,
               Number(button.dataset.person),
@@ -326,7 +328,7 @@ export class ObjectPanels {
               false,
               event.shiftKey
             )
-          else if (head) {
+          } else if (head) {
             if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
               return
             selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
