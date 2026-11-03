@@ -288,6 +288,7 @@
   "app/preacher-conversion.ts",
   "app/projectile-motion.ts",
   "app/projection.ts",
+  "app/queued-resource-search.ts",
   "app/reincarnation-wave-runtime.ts",
   "app/reincarnation.ts",
   "app/render-view.ts",
