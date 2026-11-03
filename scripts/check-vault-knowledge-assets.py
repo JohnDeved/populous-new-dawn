@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Validate the dedicated Vault atlas, reproducibility and preservation guards.
-python -B scripts/check-vault-knowledge-assets.py GAME_ROOT --base COMMIT [--mission 1|3]
+python -B scripts/check-vault-knowledge-assets.py GAME_ROOT --base COMMIT [--mission 1|3|4]
 Only temporary files are written. Native CPU and render/device code are not run.
 """
 import argparse
@@ -37,6 +37,9 @@ CAMP_RGBA = [
 ]
 
 
+# Independently decoded from the pinned Mission 4 bank-d inputs.
+TOWER_RGBA = ['78d0c0eceec0c731c15fda9aa152ea7f0cb92114913504fe2120d21d93ac94a3', '9c0400e5744c4bc87acc0fe219f683110702b60b937940013f5987f4a43f9e31', '994e50f48375a046b94493672e63514e93e7eb137f364c617c0df39d227f38eb', '3abe60a7595596e6fba22642c81adfaae4187f7f66b05a387b66c28308eb29c2', '13e017a03ecffbed74f7fde9b0ef1f217484688be7f642c8cd6c3b488c29e43f', 'b8b8009bf4ea833f971d2d9a78774ae0e4db87770ab3e689a28bdcd611aa6be7', '648629c3d06067d07c4e82eb7a685b4829c512d84c90a06838d4d44249fe6cac', '5dfd6a9fd0c3e745f2825d05c025004405ea90165227b09fdb8898aa86baa120', '5b2c6500bd114ea3b22c77059edfb62765dfac082945c3b988ad6e811c9c0397', 'b2bf23dfeda17ed1b0fc69f8e6ca46ee5c184e16630affd698e63345934f4f80', 'c09063a2c5904abb5a4ad8945bd0731da9d99d66f2c4123c760d3518cb7e748c', '7ea03304e2d2980b5abf422c894e13f51bcd5ac2ead79df0974c2ce74e7cb35c', '097acff087da2cf037bdd41663e18f9ebdf3b7eb9909d05c744d5f7abd06443a', '6c197dff6750092cf8aa9381765c89bbc7001351f79a3a2e60e241bb5e5d0d55', '2bee93dea4505dd2140f2730bc317903a93eb0376c63a7bf6f9489cb670504a1']
+
 def write(project, files):
     for name, data in files.items():
         path = project / name
@@ -48,10 +51,11 @@ def check(source, base, mission=3):
     atlas = importer.PRESETS[mission]['atlas']
     files = (f'app/original-{atlas}.json', f'public/original/{atlas}.png')
     installed = {name: (ROOT / name).read_bytes() for name in files}
-    if mission == 1:
+    if mission in (1, 4):
+        expected_frames = CAMP_RGBA if mission == 1 else TOWER_RGBA
         metadata = json.loads(installed[files[0]])
         with Image.open(ROOT / files[1]) as image:
-            for frame, expected in zip([metadata['body'], *metadata['glow']['frames']], CAMP_RGBA, strict=True):
+            for frame, expected in zip([metadata['body'], *metadata['glow']['frames']], expected_frames, strict=True):
                 pixels = image.crop((frame['x'], frame['y'], frame['x'] + frame['w'], frame['y'] + frame['h'])).convert('RGBA')
                 assert importer.sha(pixels.tobytes()) == frame['rgbaSha256'] == expected
     for checking in (True, False):
@@ -59,6 +63,9 @@ def check(source, base, mission=3):
         assert not receipt['changed'] and outputs is None
     preserved = {}
     names = PRESERVED + (('app/original-vault-knowledge.json', 'public/original/vault-knowledge.png') if mission == 1 else ())
+    if mission == 4:
+        names += ('app/original-vault-knowledge.json', 'public/original/vault-knowledge.png',
+                  'app/original-vault-knowledge-camp.json', 'public/original/vault-knowledge-camp.png')
     for name in names:
         old = subprocess.run(['git', 'show', f'{base}:{name}'], cwd=ROOT,
                              check=True, capture_output=True).stdout
