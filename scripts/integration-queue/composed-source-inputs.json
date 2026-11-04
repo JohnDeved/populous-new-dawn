@@ -195,6 +195,7 @@
   "app/original-bloodlust.json",
   "app/original-camera.json",
   "app/original-constants.json",
+  "app/original-credits-content.ts",
   "app/original-effects.json",
   "app/original-fire.json",
   "app/original-follower-tasks.json",
