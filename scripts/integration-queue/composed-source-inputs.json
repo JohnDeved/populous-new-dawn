@@ -263,6 +263,7 @@
   "app/painter-order.ts",
   "app/painter-vertices.ts",
   "app/painter.ts",
+  "app/panel-viewport-clamp.ts",
   "app/path-geometry.ts",
   "app/path-search.ts",
   "app/path-solver.ts",
