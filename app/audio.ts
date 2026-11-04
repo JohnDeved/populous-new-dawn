@@ -1,3 +1,4 @@
+import { short } from './native-math.ts'
 import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
 import { DEFAULT_AUDIO_PREFERENCES } from './audio-preferences.ts'
@@ -145,8 +146,8 @@ export function playWorldSounds(scene: GameScene) {
         scene.onSound(event.cue, 1, 0)
         continue
       } // Native notification and defeat-sky cues are not positional.
-      const dx = Math.round((event.x - scene.viewPoint.x) * 256),
-        dz = Math.round((event.z - scene.viewPoint.z) * 256)
+      const dx = short(Math.round((event.x - scene.viewPoint.x) * 256)),
+        dz = short(Math.round((event.z - scene.viewPoint.z) * 256))
       const screen = scene.screen(event)
       // Native distance curve and projected pan; the full native mixer is still unported.
       let stop: ReturnType<GameScene['onSound']>
