@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
+import { short } from '../app/native-math.ts'
 
 // Execute only these two actual pure function bodies, never the audio/model imports.
 const source = readFileSync(new URL('../app/audio.ts', import.meta.url), 'utf8')
@@ -11,9 +12,9 @@ const functions = ['soundAttenuation', 'playWorldSounds'].map(name => {
   assert.equal(nodes.length, 1)
   return nodes[0].getText(ast).replace(/^export /, '')
 }).join('\n')
-const { playWorldSounds } = new Function(ts.transpileModule(functions, {
+const { playWorldSounds } = new Function('short', ts.transpileModule(functions, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None },
-}).outputText + ';return { playWorldSounds }')()
+}).outputText + ';return { playWorldSounds }')(short)
 
 function fixture({ synchronous = false } = {}) {
   const owner = 17, voices = []
