@@ -50,6 +50,19 @@ export default async function buildingPanelEdges({ browser, url, output }) {
       return !world.inputMask && window.__pndBuildingPanelFixture && world.levelStart.every(site =>
         site.phase === 4 && !site.wave && !site.carriers.length && site.stoneTurns.every(turn => turn === null || world.turn - turn >= 20))
     })
+    report.renderer = await page.evaluate(() => {
+      const gl = window.testSceneRef.current.renderer.getContext()
+      const debug = gl.getExtension('WEBGL_debug_renderer_info')
+      return {
+        vendor: gl.getParameter(gl.VENDOR), renderer: gl.getParameter(gl.RENDERER),
+        version: gl.getParameter(gl.VERSION), shadingLanguageVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
+        unmaskedVendor: debug ? gl.getParameter(debug.UNMASKED_VENDOR_WEBGL) : null,
+        unmaskedRenderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : null,
+        debugRendererInfoAvailable: debug !== null,
+      }
+    })
+    assert.ok(typeof report.renderer.vendor === 'string' && report.renderer.vendor.length > 0)
+    assert.ok(typeof report.renderer.renderer === 'string' && report.renderer.renderer.length > 0)
     await button('Pause game').click(); await page.waitForFunction(() => window.testStore.getWorld().paused)
     await page.evaluate(() => { window.buildingIdentity = window.__pndBuildingPanelFixture.createBoundary(window.testSceneRef.current) })
     await page.waitForFunction(() => window.testSceneRef.current.buildingMeshes.has(window.buildingIdentity.old.id))
