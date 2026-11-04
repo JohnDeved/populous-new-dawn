@@ -73,7 +73,7 @@ test('right-focus remains distinct and Ctrl-primary contextmenu stays suppressed
   assert.equal(t.calls.length, 1); assert.equal(t.calls[0].args[2], true); assert.equal(t.prevented(), 2)
 })
 test('Scene cleanup releases its own retained press without clearing another owner', () => {
-  const cleanup = source.match(/return \(\) => \{\n      disposed = true\n([\s\S]*?)\n    \}\n  \}, \[world, update, store, startup, measureWorshipHud\]\)/)
+  const cleanup = source.match(/return \(\) => \{\n {6}disposed = true\n([\s\S]*?)\n {4}\}\n {2}\}, \[world, update, store, startup, measureWorshipHud\]\)/)
   assert.ok(cleanup, 'Actual Scene effect cleanup must be found')
   const run = new Function('scene', 'engine', 'followerPress', cleanup[1])
   let disposals = 0
