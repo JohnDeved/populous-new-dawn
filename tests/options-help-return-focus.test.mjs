@@ -166,6 +166,6 @@ test('Escape listener is removed when Options unmounts', () => {
 })
 
 test('return focus uses the layout phase and no delayed focus owner', () => {
-  assert.match(source, /useLayoutEffect\(\(\) => \{\n    \/\/ Help can overflow\./)
+  assert.match(source, /useLayoutEffect\(\(\) => \{\n {4}\/\/ Help can overflow\./)
   assert.doesNotMatch(returnBody + listenerBody, /requestAnimationFrame/)
 })
