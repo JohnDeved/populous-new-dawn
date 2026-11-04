@@ -13,7 +13,7 @@ const declaration = name => {
 }
 const grant = declaration('grant')
 assert.ok(grant, 'the actual grant handler must exist')
-const selection = source.match(/aria-label=\{\`Test \$\{spell.name\}, \$\{stock\} shots\`\}\s+onClick=\{([^]*?)\}\s*>/)
+const selection = source.match(/aria-label=\{`Test \$\{spell.name\}, \$\{stock\} shots`\}\s+onClick=\{([^]*?)\}\s*>/)
 assert.ok(selection, 'the actual spell-button click must be captured')
 const handlers = stripTypeScriptTypes(
   declaration('isCurrent') + '\n' + grant
