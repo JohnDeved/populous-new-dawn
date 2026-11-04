@@ -83,7 +83,6 @@ export default async function buildingPanelEdges({ browser, url, output }) {
     // transition finish in real frames; close-ground sky cannot prove a top edge.
     await page.evaluate(() => window.buildingIdentity.scene.startGroundView(2))
     await page.waitForFunction(() => !window.buildingIdentity.scene.viewTransition)
-    const origin = await page.evaluate(() => ({ ...window.buildingIdentity.scene.viewPoint }))
     for (const edge of buildingEdgeCases) {
       timing.mark(`${edge.name}:start`)
       const boundary = await page.evaluate(focusBuildingAtEdge, edge)
@@ -95,15 +94,25 @@ export default async function buildingPanelEdges({ browser, url, output }) {
       assertBuildingEdgeWitness(witness, edge.name)
       timing.mark(`${edge.name}:passed`)
     }
-    await page.evaluate(origin => window.buildingIdentity.scene.focus(origin), origin)
-    await panel.getByRole('button', { name: 'Occupant 1: brave', exact: true }).click()
+    const clickControl = async (name, control) => {
+      const hit = await control.evaluate(button => {
+        const r = button.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2
+        const target = document.elementFromPoint(x, y)
+        return { x, y, width: r.width, height: r.height, ownsCenter: target !== null && button.contains(target) }
+      })
+      report.controlHits ??= {}
+      report.controlHits[name] = hit
+      assert.ok(hit.width > 0 && hit.height > 0 && hit.ownsCenter, name + ' must own its actual pointer center')
+      await control.click()
+    }
+    await clickControl('occupant', panel.getByRole('button', { name: 'Occupant 1: brave', exact: true }))
     report.selection = await page.evaluate(() => {
       const h = window.buildingIdentity
       return { selected: [...h.world.selected], expected: h.unit.id, inside: h.unit.inside, building: h.building.id }
     })
     assert.deepEqual(report.selection.selected, [report.selection.expected]); assert.equal(report.selection.inside, report.selection.building)
     await capture('selected')
-    await panel.locator('.dismantle-control').click()
+    await clickControl('dismantle', panel.locator('.dismantle-control'))
     report.completed = await page.evaluate(() => window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, true))
     assertCompletion(report.completed)
     await capture('completed'); timing.mark('episode:complete')
