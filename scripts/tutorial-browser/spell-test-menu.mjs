@@ -201,9 +201,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Unlock + refill all spells').click()
     const unlocked = await snapshot()
     assert.equal(unlocked.cheatsUsed, true)
-    for (const spell of SPELLS) {
+    const enabled = await Promise.all(SPELLS.map(spell =>
+      button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled()))
+    for (const [index, spell] of SPELLS.entries()) {
       assert.ok(unlocked.shots[spell.id] >= rules.spellCharging[spell.model].normalLimit)
-      assert.equal(await button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled(), true)
+      assert.equal(enabled[index], true)
     }
     await button('Refill mana').click()
     assert.ok((await snapshot()).manaTribes[0].available >= 1_000_000)
