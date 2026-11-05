@@ -100,6 +100,12 @@ export default async function ({ browser, page, url, root, output, receipt, sign
               })),
             }
           })
+          const name = `checkpoint-${panel}-${fallback ? 'fallback-dpr2' : 'native'}-${width}x${height}`
+          // Retain the actual first failing layout before assertions or context cleanup.
+          writeFileSync(resolve(output, 'checkpoint-style-current.json'), JSON.stringify({
+            viewport: { width, height }, fallback, blockedFontRequests, layout,
+          }, null, 2))
+          await page.screenshot({ path: resolve(output, `${name}.png`) })
           assert.equal(layout.panel, panel)
           assert.equal(layout.background, 'rgba(0, 0, 0, 0)')
           assert.equal(layout.border, '0px')
@@ -112,7 +118,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             : 'Loading replaces the current world and discards unsaved progress.')))
           if (panel === 'load') assert.ok(layout.body.paragraphs.some(paragraph => paragraph.copy === 'Checkpoint available in this session.'))
           for (const text of [layout.title, ...layout.body.paragraphs, ...layout.buttons]) {
-            assert.equal(text.glyphs > 0, !fallback)
+            assert.equal(text.glyphs > 0, !fallback, `${name}: bitmap glyphs for ${text.copy ?? text.label}`)
             if (fallback) {
               assert.equal(text.fallback.text, text.copy ?? text.label)
               assert.notEqual(text.fallback.display, 'none')
@@ -129,8 +135,6 @@ export default async function ({ browser, page, url, root, output, receipt, sign
             assert.ok(control.box.x >= -1 && control.box.y >= -1 && control.box.x + control.box.width <= width + 1 && control.box.bottom <= height + 1)
             assert.equal(control.reachable, true)
           }
-          const name = `checkpoint-${panel}-${fallback ? 'fallback-dpr2' : 'native'}-${width}x${height}`
-          await page.screenshot({ path: resolve(output, `${name}.png`) })
           screenshots.push(`${name}.png`)
           if (layout.body.overflow) {
             await page.keyboard.press('End')
