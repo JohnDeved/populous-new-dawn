@@ -261,6 +261,8 @@ try {
     receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
     // Separate natural Mission3 context, after F9, within the unchanged global cap.
     receipt.spellConversion = await (await import(pathToFileURL(spellConversionScenario).href)).default({ browser, url, output: out })
+  } else if (selectedScenario === 'globe-held-enter') {
+    receipt.globeHeldEnter = await (await import('./globe-held-enter.mjs')).default({ page, url, output: out, source })
   } else if (selectedScenario === 'gameplay-resources') {
     // Separate job owns the complete five-phase workload and mandatory restart.
     // No melee/corpse work is moved or removed from the original gameplay job.
