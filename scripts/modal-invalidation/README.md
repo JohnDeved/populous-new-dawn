@@ -1,7 +1,7 @@
 # Modal invalidation acquisition driver
 
-This dedicated scenario and its opt-in hosted route are proposed, not executed
-browser evidence. The new `modal-invalidation-browser.yml` workflow requires a
+This dedicated scenario and its opt-in hosted route acquire real browser evidence;
+source review and synthetic controls alone do not establish a passing capture. The new `modal-invalidation-browser.yml` workflow requires a
 same-repository open nondraft `ready_for_review` event and the exact head label
 `modal-v1:<head SHA>`. It checks out the exact proposed merge, uses the existing
 locked install and production Home builder, and retains read-only permissions.
@@ -37,7 +37,12 @@ the in-page build revision and GitHub head/base/tested-merge identities are kept
 in the evidence. The source-bound Home builder is reused without modification.
 
 `runModalInvalidation({ browser, url, candidateRoot, output, head, signal })`
-uses one fresh context and normal Mission 1 startup. It waits for the authored
+uses one fresh context and normal Mission 1 startup. Its dedicated public startup
+uses the candidate campaign/scene-binding helpers and one visible Skip introduction
+click, with a cumulative 2500 ms click-plus-unlock budget and same-world/scene
+checks. Natural completion may remove the control; only an observed same-owner
+unlock inside that budget can excuse a click timeout. Other dispatch errors fail
+without retry. The unrelated native-ui evidence v2 key contract is not used. It waits for the authored
 Shaman, uses ordinary stock and the shipped Blast controls, then presses F9 while
 a real windup is alive. A missed windup fails rather than reseeding an entity or
 advancing/rewinding a clock. No gameplay performance or native pixel parity is
@@ -77,6 +82,8 @@ The Node controls are synthetic tests of the actual acquisition code and evidenc
 validator. They are not browser captures. Run the three top-level
 `tests/modal-invalidation-*.test.mjs` files through the repository's focused runner
 when integrated; direct Node execution is useful only for this isolated proposal.
-No full check/build, real browser result, screenshot or performance measurement
-exists for this proposal yet. The hosted route has not been executed or admitted. An independent review and
-normal exact-candidate gates are required before integration or claims.
+The first hosted run (42112339794) built and launched the sandboxed browser, but
+failed before mission entry because an unrelated helper required a missing v2
+startup contract. Its raw failure receipts are retained. This scoped startup
+repair still requires independent review and a new exact-candidate hosted result.
+No screenshot, passing invalidation result or performance measurement is claimed.

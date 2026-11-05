@@ -7,6 +7,7 @@ import { installModalInvalidationObserver } from './observer.mjs'
 import { holdSkyResponse } from './response-gate.mjs'
 import { validateModalInvalidationEvidence } from './evidence.mjs'
 import { contextDeadline, settleWithin } from './deadline.mjs'
+import { enterModalMission } from './mission-entry.mjs'
 
 async function prepareHeldCast(page) {
   const button = name => page.getByRole('button', { name, exact: true })
@@ -105,9 +106,10 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
       await page.goto(target.href, { waitUntil: 'domcontentloaded' })
       await page.waitForFunction(() => !!window.__pndModalInvalidationFixture)
       assert.equal(await page.evaluate(() => window.__pndModalInvalidationFixture.buildRevision), head)
-      const { ordinaryMission } = await load('scripts/native-ui-evidence/ordinary-mission.mjs')
+      const { openCampaignFromMainMenu } = await load('scripts/browser-new-game.mjs')
+      const { bindGame } = await load('scripts/browser-game.mjs')
       evidence.entry = {}
-      await ordinaryMission(page, candidateRoot, { signal: signal ?? new AbortController().signal,
+      await enterModalMission(page, { openCampaignFromMainMenu, bindGame, signal: signal ?? new AbortController().signal,
         deadlineAt: Date.now() + 30000, trace: evidence.entry })
       evidence.castTarget = await prepareHeldCast(page)
       evidence.runtime = await page.evaluate(() => {

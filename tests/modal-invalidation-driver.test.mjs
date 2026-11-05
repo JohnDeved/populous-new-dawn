@@ -168,3 +168,82 @@ test('hung context close is reported unknown within bound, not certified cleanup
   assert.equal((await settleWithin(() => owner.close(), 10)).status, 'timed-out')
   owner.cancelTimer()
 })
+
+const { finishModalIntroduction, publicStartupReady, readBoundStartup, enterModalMission } =
+  await import('../scripts/modal-invalidation/mission-entry.mjs')
+function startupPage({ before = {}, after = {}, clickError, clickMs = 1000, unlockMs = 1000 } = {}) {
+  let now = 0, reads = 0
+  const calls = [], state = { ownerUnchanged: true, inputMask: 64, level: 1, cheats: false, skipVisible: true }
+  const page = {
+    async evaluate() { calls.push('read'); return { ...state, ...(reads++ ? { inputMask: 0, ...after } : before) } },
+    getByRole(role, options) {
+      assert.equal(role, 'button'); assert.equal(String(options.name), '/^Skip introduction/')
+      return { async click(options) { calls.push(['click', options]); now += clickMs; if (clickError) throw clickError } }
+    },
+    async waitForFunction(fn, owners, options) { calls.push(['wait', options]); now += unlockMs },
+  }
+  return { page, calls, trace: {}, now: () => now }
+}
+test('ordinary startup uses one public click and one cumulative click/unlock budget', async () => {
+  const f = startupPage(); await finishModalIntroduction(f.page, {}, f.trace, f.now)
+  assert.equal(f.trace.outcome, 'public-click-unlocked'); assert.equal(f.trace.attempts, 1)
+  assert.equal(f.trace.elapsedMs, 2000)
+  assert.deepEqual(f.calls.filter(x => Array.isArray(x)), [
+    ['click', { timeout: 2500, noWaitAfter: true }], ['wait', { timeout: 1500 }],
+  ])
+})
+test('natural introduction completion before activation sends no click', async () => {
+  const f = startupPage({ before: { inputMask: 0, skipVisible: false } })
+  await finishModalIntroduction(f.page, {}, f.trace, f.now)
+  assert.equal(f.trace.outcome, 'natural-before-click'); assert.equal(f.trace.attempts, 0)
+  assert.deepEqual(f.calls, ['read'])
+})
+test('only a timeout with same-owner natural unlock inside budget excuses delivery rejection', async () => {
+  const error = Object.assign(Error('control disappeared'), { name: 'TimeoutError' })
+  const f = startupPage({ clickError: error }); await finishModalIntroduction(f.page, {}, f.trace, f.now)
+  assert.equal(f.trace.outcome, 'natural-during-click'); assert.equal(f.trace.delivery, 'rejected')
+  assert.equal(f.calls.filter(x => Array.isArray(x)).length, 1)
+  for (const after of [{ inputMask: 64 }, { ownerUnchanged: false }, { level: 2 }, { cheats: true }]) {
+    const f = startupPage({ clickError: error, after })
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now)); assert.equal(f.trace.outcome, 'failed')
+  }
+})
+test('non-timeout input dispatch failure is retained even if the mission could unlock', async () => {
+  const failure = Error('input delivery disconnected'), f = startupPage({ clickError: failure })
+  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), error => error === failure)
+  assert.equal(f.trace.attempts, 1); assert.equal(f.calls.filter(x => x === 'read').length, 1)
+})
+test('over-budget click or unlock cannot pass and never gets a second activation', async () => {
+  const timeout = Object.assign(Error('timeout'), { name: 'TimeoutError' })
+  for (const options of [{ clickMs: 2501, unlockMs: 0 }, { clickMs: 1500, unlockMs: 1001 }, { clickMs: 2501, clickError: timeout }]) {
+    const f = startupPage(options)
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), /budget expired/)
+    assert.equal(f.trace.attempts, 1); assert.equal(f.trace.outcome, 'failed')
+  }
+})
+test('missing visible Skip, changed owner or wrong mission cannot authorize input', async () => {
+  for (const before of [{ skipVisible: false }, { ownerUnchanged: false }, { level: 2 }, { cheats: true }]) {
+    const f = startupPage({ before }); await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now))
+    assert.equal(f.trace.attempts, 0)
+  }
+  const changed = startupPage({ after: { ownerUnchanged: false } })
+  await assert.rejects(finishModalIntroduction(changed.page, {}, changed.trace, changed.now), /owner changed/)
+})
+test('startup predicates read real owners and public visibility without changing them', () => {
+  const world = { inputMask: 64, outcome: { level: 1 } }, scene = { world }, store = { getWorld: () => world, hasUsedCheats: () => false }
+  const skip = { getClientRects: () => [1], disabled: false }, window = { testStore: store, testSceneRef: { current: scene } }
+  const owners = { store, world, scene }, context = { window, document: { querySelector: () => skip }, getComputedStyle: () => ({ visibility: 'visible' }), owners }
+  assert.equal(vm.runInNewContext(`(${publicStartupReady})()`, context), true)
+  assert.equal(vm.runInNewContext(`(${readBoundStartup})(owners)`, context).ownerUnchanged, true)
+  skip.disabled = true; assert.equal(vm.runInNewContext(`(${publicStartupReady})()`, context), false)
+  window.testSceneRef.current = { world }
+  assert.equal(vm.runInNewContext(`(${readBoundStartup})(owners)`, context).ownerUnchanged, false)
+  assert.equal(world.inputMask, 64)
+})
+test('entry wall deadline rejects a stuck campaign helper without later setup actions', async () => {
+  const trace = {}, page = { getByRole() { assert.fail('No later input after expired startup') } }
+  await assert.rejects(enterModalMission(page, { openCampaignFromMainMenu: () => new Promise(() => {}),
+    bindGame: () => assert.fail('No binding after expired startup'), signal: new AbortController().signal,
+    deadlineAt: Date.now() + 10, trace }), /entry deadline expired/)
+  assert.equal(trace.status, 'failed'); assert.equal(trace.ownerHandleCleanup, 'fulfilled')
+})

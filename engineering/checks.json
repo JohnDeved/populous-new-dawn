@@ -9,7 +9,8 @@
       "coveredBehavior": [
         "Exact original texture bytes, RAF freeze observations, real renderer forwarding and trusted context-event requirements",
         "Deadline-safe context cleanup and detached descendant control-group limits",
-        "Exact-head same-repository opt-in admission and build/browser identity binding"
+        "Exact-head same-repository opt-in admission and build/browser identity binding",
+        "One ordinary visible introduction click with cumulative unlock budget and same-owner evidence"
       ],
       "knownLimits": [
         "Synthetic controls do not launch systemd, browsers or builds and do not establish rendered outcomes.",
@@ -40,11 +41,12 @@
         "scripts/native-ui-evidence/identity.mjs",
         "scripts/native-ui-evidence/files.mjs",
         "scripts/native-ui-evidence/build-home.mjs",
-        "scripts/native-ui-evidence/ordinary-mission.mjs",
         ".github/workflows/modal-invalidation-browser.yml",
         "tests/modal-invalidation-driver.test.mjs",
         "tests/modal-invalidation-evidence.test.mjs",
-        "tests/modal-invalidation-hosted.test.mjs"
+        "tests/modal-invalidation-hosted.test.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-game.mjs"
       ],
       "prerequisites": [
         "Node.js >=22.13.0"
