@@ -3,6 +3,8 @@
 .dialog, .dialog button { cursor: url('/original/frontend/pointer.png') 0 0, auto; }
 .frame { position: absolute; width: 640px; height: 480px; left: 50%; top: 50%; transform: translate(-50%,-50%) scale(var(--frontend-scale)); }
 .rows button:disabled { opacity: .5; }
+/* Back ends at the native frame edge; keep its keyboard outline inside it. */
+.rows button[aria-label="Back"]:focus-visible { outline-offset: -1px; }
 .question { position: absolute; top: 159px; left: 0; width: 640px; height: 30px; margin: 0; text-align: center; font-weight: normal; }
 .quitWarning { position: absolute; top: 262px; left: 0; width: 640px; margin: 0; text-align: center; }
 .warningLine { position: relative; display: block; height: 30px; }
