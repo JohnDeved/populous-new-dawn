@@ -35,4 +35,11 @@ if (new URLSearchParams(location.search).get('hypnotise-fixture') === '1') {
 import { createRoot } from 'react-dom/client'
 import Home from '../../../app/page'
 import '../../../app/globals.css'
-createRoot(document.getElementById('root')!).render(<Home />)
+// Separate component-only scroll evidence. Home is imported but never mounted on this route.
+if (new URLSearchParams(location.search).get('pause-checkpoint-scroll-stress') === '1') {
+  void import('./pause-checkpoint-scroll-stress').then(({ default: Stress }) => {
+    createRoot(document.getElementById('root')!).render(<Stress />)
+  })
+} else {
+  createRoot(document.getElementById('root')!).render(<Home />)
+}

@@ -15,6 +15,7 @@ test('retains current layout and pixels before the first layout assertion and cl
 test('glyph failure identifies the failing text while preserving all strict checks', () => {
   assert.match(source, /assert\.equal\(text\.glyphs > 0, !fallback, `\$\{name\}: bitmap glyphs for \$\{text\.copy \?\? text\.label\}`\)/)
   assert.ok(source.indexOf('screenshots.push(`${name}.png`)') > source.indexOf('assert.equal(control.reachable, true)'))
-  assert.match(source, /assert\.ok\(records\.some\(record => record\.body\.overflow\)/)
+  assert.match(source, /assertStyleCoverage\(records, stressRecords\)/)
+  assert.match(source, /assert\.ok\(record\.start\.overflow && record\.end\.overflow && record\.home\.overflow/)
   assert.match(source, /assert\.equal\(await page\.evaluate\(\(\) => JSON\.stringify\(window\.testStore\.getWorld\(\)\)\), frozen\)/)
 })
