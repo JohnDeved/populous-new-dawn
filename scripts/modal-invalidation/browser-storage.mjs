@@ -1,27 +1,13 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { openSync, readSync, closeSync, statSync, statfsSync, readlinkSync } from 'node:fs'
+import { statSync, statfsSync, readlinkSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { browserMounts, limits } from './hosted-policy.mjs'
+import { readTextBounded } from './telemetry-reader.mjs'
+export { readTextBounded } from './telemetry-reader.mjs'
+import { captureMountVisibility, visibleMounts } from './mount-visibility.mjs'
 import { capacityPolicy } from './capacity.mjs'
 
-// Short reads are not EOF on procfs. Bound allocation and cumulative reads,
-// but continue until zero bytes or maximum + 1 establishes overflow.
-export function readTextBounded(path, maximum, reader = readSync) {
-  assert.ok(Number.isSafeInteger(maximum) && maximum > 0)
-  const fd = openSync(path, 'r')
-  try {
-    const data = Buffer.alloc(maximum + 1); let count = 0
-    while (count < data.length) {
-      const bytes = reader(fd, data, count, data.length - count, count)
-      assert.ok(Number.isSafeInteger(bytes) && bytes >= 0 && bytes <= data.length - count)
-      if (bytes === 0) break
-      count += bytes
-    }
-    return { text: data.subarray(0, Math.min(count, maximum)).toString('utf8'), bytes: Math.min(count, maximum),
-      complete: count <= maximum, truncated: count > maximum }
-  } finally { closeSync(fd) }
-}
 function textFile(path, maximum) {
   const value = readTextBounded(path, maximum)
   assert.ok(value.complete, `Owned telemetry exceeds its bound: ${path}`)
@@ -34,7 +20,9 @@ export function parseMountInfo(text) {
   const lines = text.trim().split('\n'); assert.ok(lines.length > 0 && lines.length <= 256)
   return lines.map(line => {
     const fields = line.split(' '), divider = fields.indexOf('-'); assert.ok(divider >= 6)
-    return { target: unescape(fields[4]), options: fields[5].split(','), type: fields[divider + 1] }
+    const id = Number(fields[0]), parent = Number(fields[1])
+    assert.ok(Number.isSafeInteger(id) && id > 0 && Number.isSafeInteger(parent) && parent >= 0)
+    return { id, parent, target: unescape(fields[4]), options: fields[5].split(','), type: fields[divider + 1] }
   })
 }
 export function fileSizeLimit(text) {
@@ -48,7 +36,7 @@ const apiMount = row => (row.type === 'proc' && (row.target === '/proc' || row.t
   (['devtmpfs', 'tmpfs'].includes(row.type) && row.target === '/dev') ||
   (row.type === 'devpts' && row.target === '/dev/pts') || (row.type === 'mqueue' && row.target === '/dev/mqueue')
 export function validateBrowserStorage(snapshot, { temporary, output, root, dist, uid, gid }) {
-  const mounts = browserMounts(temporary, uid, gid), runtime = mounts[0].path
+  const mounts = browserMounts(temporary, uid, gid), runtime = mounts[0].path, effective = visibleMounts(snapshot)
   assert.match(snapshot.systemdVersion, /^systemd [0-9]+\b/)
   assert.match(snapshot.namespace, /^mnt:\[[0-9]+\]$/); assert.match(snapshot.parentNamespace, /^mnt:\[[0-9]+\]$/)
   assert.notEqual(snapshot.namespace, snapshot.parentNamespace, 'Service filesystem namespace must be private')
@@ -66,20 +54,20 @@ export function validateBrowserStorage(snapshot, { temporary, output, root, dist
     const actual = snapshot.mounts.find(mount => mount.path === expected.path); assert.ok(actual)
     for (const key of ['bytes', 'inodes', 'uid', 'gid', 'mode']) assert.equal(actual[key], expected[key], `${expected.path} ${key}`)
     assert.equal(actual.filesystemType, 0x01021994)
-    const row = snapshot.mountInfo.find(row => row.target === expected.path)
+    const row = effective.find(row => row.target === expected.path)
     assert.equal(row?.type, 'tmpfs'); assert.ok(['rw', 'nosuid', 'nodev'].every(option => row.options.includes(option)))
   }
   assert.ok(snapshot.devOwnership.uid === 0 && (snapshot.devOwnership.mode & 0o022) === 0,
     'Writable /dev API mount must not permit ordinary file creation by the service user')
   const writable = new Set([...mounts.map(mount => mount.path), output])
-  assert.ok(snapshot.mountInfo.some(row => row.target === output && row.options.includes('rw')))
-  for (const row of snapshot.mountInfo) {
+  assert.ok(effective.some(row => row.target === output && row.options.includes('rw')))
+  for (const row of effective) {
     assert.ok(row.options.includes('ro') || row.options.includes('rw'))
     if (row.options.includes('rw')) assert.ok(writable.has(row.target) || apiMount(row), `Unexpected ordinary writable mount: ${row.target}`)
   }
   for (const path of [root, dist]) {
     assert.ok(!writable.has(path) && !path.startsWith(output + '/'))
-    const mounted = snapshot.mountInfo.filter(row => path === row.target || path.startsWith(row.target === '/' ? '/' : row.target + '/'))
+    const mounted = effective.filter(row => path === row.target || path.startsWith(row.target === '/' ? '/' : row.target + '/'))
       .sort((a, b) => b.target.length - a.target.length)[0]
     assert.ok(mounted?.options.includes('ro'), `Source/build must be read-only inside browser service: ${path}`)
   }
@@ -99,6 +87,9 @@ export function captureBrowserStorage({ temporary, output, root, dist, superviso
     snapshot.rawMountInfo = readTextBounded('/proc/self/mountinfo', 256 * 1024)
     assert.ok(snapshot.rawMountInfo.complete, 'Mount telemetry exceeds its bound')
     snapshot.mountInfo = parseMountInfo(snapshot.rawMountInfo.text)
+    snapshot.visibility = captureMountVisibility(snapshot.mountInfo)
+    snapshot.rawMountInfoAfter = readTextBounded('/proc/self/mountinfo', 256 * 1024)
+    snapshot.namespaceAfter = readlinkSync('/proc/self/ns/mnt')
     snapshot.rawLimits = readTextBounded('/proc/self/limits', 16 * 1024)
     assert.ok(snapshot.rawLimits.complete, 'Limit telemetry exceeds its bound')
     snapshot.fileLimit = fileSizeLimit(snapshot.rawLimits.text)

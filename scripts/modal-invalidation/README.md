@@ -129,7 +129,8 @@ Sparse logical lengths and allocated blocks are distinct. MemoryMax remains
 4 GiB and MemorySwapMax is explicitly zero, including for memfd/shared memory
 that does not use the visible /dev/shm mount.
 
-ProtectSystem=strict makes ordinary filesystems read-only except the owned
+ProtectSystem=strict together with ProtectHome=read-only makes ordinary
+filesystems read-only except the owned
 persistent evidence directory and those private runtime mounts. There are no
 global mounts, profile changes or browser flag overrides. Sandbox behavior,
 executable temporary-file semantics, existing deadlines and capture acceptance
@@ -169,3 +170,43 @@ References: [systemd execution isolation](https://www.freedesktop.org/software/s
 [cgroup v2 memory/swap](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html),
 [RLIMIT_FSIZE](https://man7.org/linux/man-pages/man2/getrlimit.2.html),
 and [memfd](https://man7.org/linux/man-pages/man2/memfd_create.2.html).
+
+
+## Effective mount containment
+
+Run 42126523977 rejected the live storage policy before launching Chrome. Its
+complete proof showed the expected private tmpfs sizes and finite limits, but
+systemd 255 leaves /home, /root and /run/user writable under ProtectSystem=strict.
+This correction adds browser-only ProtectHome=read-only and ReadOnlyPaths for
+the observed nonrequired API submounts, including hugepages and binfmt_misc.
+Missing host-specific API paths are optional; any present unanticipated writable
+mount still blocks. Normal /proc, required cgroup telemetry and browser sandbox
+flags remain unchanged. Explicit evidence and runtime child mounts remain writable.
+
+Systemd's remount helper changes accessible/topmost mounts, not necessarily
+covered rows. The retained graph included covered autofs ID400 under binfmt_misc
+ID401, and covered /run/user/1001 ID414 under the later ID423 parent and ID424
+child. Raw order or larger mount IDs do not establish reachability.
+
+The worker retains every raw ID/parent/path and obtains the kernel-resolved mount
+ID for each unique target using the verified Linux/x64 O_PATH ABI, O_NOFOLLOW and O_CLOEXEC plus its
+own bounded /proc/self/fdinfo record. It never opens target contents or falls back
+to a read-capable descriptor; all descriptors close in finally. Symlinks, failed
+lookups, unknown IDs, malformed graphs and inconsistent selections block launch.
+Each selected mount must contain the probed path and resolve to itself at its own
+target. All covered rows remain recorded with the resolving ID. The unchanged
+writable-mount policy and source/build read-only checks apply only to this
+kernel-proven effective set, with no new writable allowance.
+
+Full bounded mountinfo and namespace identity must match before and after the
+probes. This is a point-in-time stability check, not an atomic freeze or proof
+against later host mount propagation. Unknown or changed state fails closed.
+The synthetic controls include both retained covered-mount examples, reversed
+raw order, hidden descendants, lookup/read/close failures and actual own-FD proof.
+No new browser result is established by these source controls.
+
+Version-matched sources: [systemd 255 home and path controls](https://www.freedesktop.org/software/systemd/man/255/systemd.exec.html#ProtectHome=),
+[v255.4 namespace ordering](https://github.com/systemd/systemd-stable/blob/v255.4/src/core/namespace.c#L1992-L2007),
+[v255.4 topmost remount behavior](https://github.com/systemd/systemd-stable/blob/v255.4/src/shared/mount-util.c#L143-L357),
+[Linux O_PATH](https://man7.org/linux/man-pages/man2/open.2.html),
+and [proc fdinfo mount identity](https://man7.org/linux/man-pages/man5/proc_pid_fdinfo.5.html).

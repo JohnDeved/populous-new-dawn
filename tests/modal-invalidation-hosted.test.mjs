@@ -1,10 +1,10 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readSync, mkdtempSync, writeFileSync, symlinkSync, rmSync } from 'node:fs'
+import { readFileSync, readSync, readdirSync, closeSync, mkdtempSync, writeFileSync, symlinkSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { admitModal, serviceArguments, serviceName, limits, parseProperties, durationMilliseconds,
-  validateSupervisor } from '../scripts/modal-invalidation/hosted-policy.mjs'
+  validateSupervisor, browserReadOnlyPaths } from '../scripts/modal-invalidation/hosted-policy.mjs'
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
 const workflow = read('.github/workflows/modal-invalidation-browser.yml')
 function admission() {
@@ -42,7 +42,7 @@ function proof() {
   const unit = 'pnd-modal-123-1-browser.service'
   return { properties: { Id: unit, MainPID: '1234', User: '1001', KillMode: 'control-group', SendSIGKILL: 'yes',
     ControlGroup: `/system.slice/${unit}`, RuntimeMaxUSec: '1min 5s', TimeoutStopUSec: '5s', MemoryMax: '4294967296', TasksMax: '256', LimitFSIZE: '4294967296', LimitFSIZESoft: '4294967296',
-    MemorySwapMax: '0', ProtectSystem: 'strict', PrivateMounts: 'yes' },
+    MemorySwapMax: '0', ProtectSystem: 'strict', PrivateMounts: 'yes', ProtectHome: 'read-only', ReadOnlyPaths: browserReadOnlyPaths.map(path => '-' + path).join(' ') },
   expected: { unit, stage: 'browser', pid: 1234, uid: 1001, cgroup: `0::/system.slice/${unit}\n` } }
 }
 test('worker proves its actual kernel control group and systemd settings before running', () => {
@@ -258,6 +258,10 @@ test('actual evidence writes retain exact bytes and reject links or exclusive re
     }
   } finally { rmSync(directory, { recursive: true, force: true }) }
 })
+function fdProof(mountId) {
+  const text = `mnt_id:\t${mountId}\n`
+  return { text, bytes: Buffer.byteLength(text), complete: true, truncated: false }
+}
 function storageFixture() {
   const policy = { temporary: '/owned/tmp', output: '/owned/evidence', root: '/repo', dist: '/owned/dist', uid: 1001, gid: 1001 }
   const mounts = browserMounts(policy.temporary, policy.uid, policy.gid)
@@ -270,6 +274,12 @@ function storageFixture() {
     mountInfo: [{ target: '/', type: 'ext4', options: ['ro'] }, { target: policy.output, type: 'ext4', options: ['rw'] },
       { target: '/proc', type: 'proc', options: ['rw'] }, { target: '/dev', type: 'devtmpfs', options: ['rw'] },
       ...mounts.map(mount => ({ target: mount.path, type: 'tmpfs', options: ['rw', 'nosuid', 'nodev'] }))] }
+  snapshot.mountInfo = snapshot.mountInfo.map((row, i) => ({ id: i + 1, parent: i === 0 ? 0 : 1, ...row }))
+  snapshot.namespaceAfter = snapshot.namespace
+  snapshot.rawMountInfo = { text: 'synthetic stable mount graph', complete: true }
+  snapshot.rawMountInfoAfter = { ...snapshot.rawMountInfo }
+  snapshot.visibility = { method: 'linux-O_PATH-own-fdinfo-mnt_id', platform: 'linux', architecture: 'x64',
+    targets: snapshot.mountInfo.map(row => ({ target: row.target, status: 'read', mountId: row.id, rawFdinfo: fdProof(row.id) })) }
   return { snapshot, policy }
 }
 test('finite browser storage proves private mounts, both file limits, zero swap and actual memory/disk admission', () => {
@@ -304,7 +314,7 @@ test('browser storage changes only its service and does not weaken sandbox flags
   const mounts = browser.find(arg => arg.startsWith('--property=TemporaryFileSystem='))
   assert.equal((mounts.match(/size=1073741824/g) ?? []).length, 4); assert.equal((mounts.match(/nr_inodes=10000/g) ?? []).length, 4)
   assert.ok(build.includes('--property=LimitFSIZE=67108864')); assert.ok(build.includes('--setenv=HOME=/home/runner'))
-  assert.equal(build.some(arg => /TemporaryFileSystem|ProtectSystem|MemorySwapMax|PrivateMounts/.test(arg)), false)
+  assert.equal(build.some(arg => /TemporaryFileSystem|ProtectSystem|ProtectHome|ReadOnlyPaths|MemorySwapMax|PrivateMounts/.test(arg)), false)
   assert.equal(browser.some(arg => /noexec|NoNewPrivileges|PrivateUsers|PrivateDevices|no-sandbox|unsafe-swiftshader/.test(arg)), false)
   assert.throws(() => serviceArguments({ ...options, stage: 'browser', output: '/tmp/evidence' }))
   assert.match(read('scripts/modal-invalidation/browser-worker.mjs'), /captureBrowserStorage/)
@@ -391,4 +401,86 @@ test('rejected storage admission retains the captured raw proof before worker as
   assert.equal(result.rawMountInfo.text, 'captured raw mount proof'); assert.equal(result.rawLimits.text, 'captured raw limits')
   const worker = read('scripts/modal-invalidation/browser-worker.mjs')
   assert.match(worker, /report.storage = captureBrowserStorage[^\n]+; save\(\)\n {2}assert.equal\(report.storage.acceptance.status/)
+})
+
+const { visibleMounts, probeMountTarget } = await import('../scripts/modal-invalidation/mount-visibility.mjs')
+function stackedMountFixture() {
+  const mountInfo = [
+    { id: 1, parent: 0, target: '/', type: 'ext4', options: ['ro'] },
+    { id: 2, parent: 1, target: '/proc', type: 'proc', options: ['rw'] },
+    { id: 3, parent: 2, target: '/proc/sys/fs/binfmt_misc', type: 'autofs', options: ['rw'] },
+    { id: 4, parent: 3, target: '/proc/sys/fs/binfmt_misc', type: 'binfmt_misc', options: ['ro'] },
+    { id: 5, parent: 1, target: '/run', type: 'tmpfs', options: ['ro'] },
+    { id: 6, parent: 5, target: '/run/user/1001', type: 'tmpfs', options: ['rw'] },
+    { id: 7, parent: 5, target: '/run/user', type: 'tmpfs', options: ['ro'] },
+    { id: 8, parent: 7, target: '/run/user/1001', type: 'tmpfs', options: ['ro'] },
+  ]
+  return { namespace: 'mnt:[1]', namespaceAfter: 'mnt:[1]',
+    rawMountInfo: { text: 'synthetic stacked graph', complete: true }, rawMountInfoAfter: { text: 'synthetic stacked graph', complete: true }, mountInfo,
+    visibility: { method: 'linux-O_PATH-own-fdinfo-mnt_id', platform: 'linux', architecture: 'x64', targets: [1, 2, 4, 5, 7, 8].map(id => ({ target: mountInfo.find(row => row.id === id).target, status: 'read', mountId: id, rawFdinfo: fdProof(id) })) } }
+}
+test('kernel mount IDs distinguish covered stacks and children hidden by a later parent without raw order assumptions', () => {
+  const snapshot = stackedMountFixture()
+  assert.deepEqual(visibleMounts(snapshot).map(row => row.id), [1, 2, 4, 5, 7, 8])
+  assert.deepEqual(snapshot.visibility.resolved.filter(row => !row.visible).map(row => [row.id, row.resolvedMountId]), [[3, 4], [6, 8]])
+  snapshot.mountInfo.reverse(); assert.deepEqual(visibleMounts(snapshot).map(row => row.id).sort(), [1, 2, 4, 5, 7, 8])
+  const ancestor = stackedMountFixture(); ancestor.mountInfo = ancestor.mountInfo.filter(row => row.id !== 8)
+  Object.assign(ancestor.visibility.targets.find(row => row.mountId === 8), { mountId: 7, rawFdinfo: fdProof(7) })
+  assert.deepEqual(visibleMounts(ancestor).map(row => row.id), [1, 2, 4, 5, 7])
+})
+test('effective mount proof rejects unknown, changed, inconsistent and malformed graphs', () => {
+  for (const mutate of [
+    x => { x.visibility.architecture = 'arm64' }, x => { x.namespaceAfter = 'mnt:[2]' }, x => { x.rawMountInfoAfter.text += ' changed' }, x => { x.rawMountInfoAfter.complete = false },
+    x => { x.visibility.targets[0].status = 'unavailable' }, x => { x.visibility.targets[0].mountId = 999 },
+    x => { x.visibility.targets.find(row => row.mountId === 8).mountId = 2 },
+    x => { x.visibility.targets.find(row => row.mountId === 8).mountId = 6; x.visibility.targets.find(row => row.mountId === 7).mountId = 8 },
+    x => { x.visibility.targets.pop() }, x => { x.visibility.targets.push(x.visibility.targets[0]) },
+    x => { x.mountInfo[1].id = 1 }, x => { x.mountInfo[1].parent = 999 },
+    x => { x.mountInfo[2].parent = 4 }, x => { x.mountInfo[5].parent = 2 },
+  ]) { const snapshot = stackedMountFixture(); mutate(snapshot); for (const row of snapshot.visibility.targets) row.rawFdinfo = fdProof(row.mountId); assert.throws(() => visibleMounts(snapshot)) }
+  const mismatch = stackedMountFixture(); mismatch.visibility.targets[0].rawFdinfo = fdProof(999)
+  assert.throws(() => visibleMounts(mismatch), /contradicts retained raw proof/)
+})
+test('unexpected effective writable mounts still fail even when a lower raw row is read-only', () => {
+  const { snapshot, policy } = storageFixture(), last = snapshot.mountInfo.length + 1
+  snapshot.mountInfo.push({ id: last, parent: 1, target: '/dev/hugepages', type: 'hugetlbfs', options: ['rw'] })
+  snapshot.visibility.targets.push({ target: '/dev/hugepages', status: 'read', mountId: last, rawFdinfo: fdProof(last) })
+  assert.throws(() => validateBrowserStorage(snapshot, policy), /Unexpected ordinary writable mount/)
+  snapshot.mountInfo.push({ id: last + 1, parent: last, target: '/dev/hugepages', type: 'hugetlbfs', options: ['ro'] })
+  Object.assign(snapshot.visibility.targets.at(-1), { mountId: last + 1, rawFdinfo: fdProof(last + 1) })
+  assert.equal(validateBrowserStorage(snapshot, policy).status, 'passed')
+  snapshot.mountInfo[last - 1].options = ['ro']; snapshot.mountInfo[last].options = ['rw']
+  assert.throws(() => validateBrowserStorage(snapshot, policy), /Unexpected ordinary writable mount/)
+})
+test('actual O_PATH proof reads only own fd metadata, rejects symlinks, and closes descriptors on read failure', { skip: process.platform !== 'linux' || process.arch !== 'x64' }, () => {
+  const directory = mkdtempSync(join(tmpdir(), 'pnd-modal-mount-control-'))
+  try {
+    const before = readdirSync('/proc/self/fd').length, proof = probeMountTarget(directory)
+    assert.equal(proof.status, 'read'); assert.ok(proof.mountId > 0); assert.equal(proof.rawFdinfo.complete, true)
+    assert.ok(parseMountInfo(readFileSync('/proc/self/mountinfo', 'utf8')).some(row => row.id === proof.mountId))
+    assert.equal(probeMountTarget(directory, () => { throw Error('controlled read failure') }).status, 'unavailable')
+    assert.throws(() => probeMountTarget(directory, undefined, fd => { closeSync(fd); throw Error('controlled close failure') }), /controlled close failure/)
+    symlinkSync(directory, join(directory, 'link')); assert.equal(probeMountTarget(join(directory, 'link')).status, 'unavailable')
+    assert.equal(readdirSync('/proc/self/fd').length, before)
+  } finally { rmSync(directory, { recursive: true, force: true }) }
+})
+test('browser-only read-only home and API restrictions preserve explicit child exceptions and unchanged allowances', () => {
+  const { event, env } = admission(), identity = admitModal(event, env)
+  const options = { identity, stage: 'browser', uid: 1001, gid: 1001, root: '/repo', node: '/node', args: ['worker.mjs'], home: '/home/runner', temporary: '/owned/tmp', output: '/owned/evidence', parentMountNamespace: 'mnt:[1]' }
+  const args = serviceArguments(options)
+  assert.ok(args.includes('--property=ProtectHome=read-only'))
+  assert.ok(args.includes(`--property=ReadOnlyPaths=${browserReadOnlyPaths.map(path => '-' + path).join(' ')}`))
+  assert.ok(args.includes('--property=ReadWritePaths=/owned/evidence')); assert.ok(args.includes('--property=LimitFSIZE=4294967296'))
+  assert.ok(browserReadOnlyPaths.includes('/dev/hugepages')); assert.ok(browserReadOnlyPaths.includes('/proc/sys/fs/binfmt_misc'))
+  assert.equal(browserReadOnlyPaths.includes('/proc'), false); assert.equal(browserReadOnlyPaths.includes('/sys/fs/cgroup'), false)
+  const x = proof(); x.properties.ProtectHome = 'no'; assert.throws(() => validateSupervisor(x.properties, x.expected))
+  const y = proof(); y.properties.ReadOnlyPaths = '-/dev/hugepages'; assert.throws(() => validateSupervisor(y.properties, y.expected))
+})
+
+test('retained systemd 255 graph IDs resolve both actual covered-mount examples with kernel observations', () => {
+  const snapshot = stackedMountFixture(), ids = new Map([[0, 62], [1, 393], [2, 399], [3, 400], [4, 401], [5, 412], [6, 414], [7, 423], [8, 424]])
+  for (const row of snapshot.mountInfo) { row.id = ids.get(row.id); row.parent = ids.get(row.parent) }
+  for (const row of snapshot.visibility.targets) { row.mountId = ids.get(row.mountId); row.rawFdinfo = fdProof(row.mountId) }
+  assert.deepEqual(visibleMounts(snapshot).map(row => row.id), [393, 399, 401, 412, 423, 424])
+  assert.deepEqual(snapshot.visibility.resolved.filter(row => !row.visible).map(row => [row.id, row.resolvedMountId]), [[400, 401], [414, 424]])
 })

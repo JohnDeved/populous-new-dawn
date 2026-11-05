@@ -3,6 +3,11 @@ export const limits = Object.freeze({
   buildRuntimeSeconds: 115, browserRuntimeSeconds: 65, stopSeconds: 5,
   memoryBytes: 4 * 1024 ** 3, browserFileBytes: 4 * 1024 ** 3, runtimeMountBytes: 1024 ** 3, runtimeMountInodes: 10000, tasks: 256, logBytes: 16 * 1024 ** 2, artifactBytes: 64 * 1024 ** 2,
 })
+export const browserReadOnlyPaths = Object.freeze([
+  '/dev/hugepages', '/proc/sys/fs/binfmt_misc', '/sys/kernel/security', '/sys/fs/pstore',
+  '/sys/firmware/efi/efivars', '/sys/fs/bpf', '/sys/kernel/debug', '/sys/kernel/tracing',
+  '/sys/kernel/config', '/sys/fs/fuse/connections',
+])
 export function admitModal(event, env) {
   const sha = value => assert.match(value ?? '', /^[a-f0-9]{40}$/)
   assert.equal(env.GITHUB_ACTIONS, 'true'); assert.equal(env.GITHUB_EVENT_NAME, 'pull_request')
@@ -39,7 +44,8 @@ export function serviceArguments({ identity, stage, uid, gid, root, node, args, 
     for (const path of [root, node, temporary, output]) assert.ok(!['/tmp', '/var/tmp', '/dev/shm'].some(mount => path === mount || path.startsWith(mount + '/')), 'Required persistent paths cannot be hidden by private runtime mounts')
     assert.ok(!/\s/.test(temporary)); assert.match(parentMountNamespace ?? '', /^mnt:\[[0-9]+\]$/)
     const mounts = browserMounts(temporary, uid, gid).map(mount => `${mount.path}:rw,nosuid,nodev,size=${mount.bytes},nr_inodes=${mount.inodes},uid=${mount.uid},gid=${mount.gid},mode=${mount.mode.toString(8)}`)
-    storage = ['--property=MemorySwapMax=0', '--property=PrivateMounts=yes', '--property=ProtectSystem=strict',
+    storage = ['--property=ProtectHome=read-only', `--property=ReadOnlyPaths=${browserReadOnlyPaths.map(path => '-' + path).join(' ')}`,
+      '--property=MemorySwapMax=0', '--property=PrivateMounts=yes', '--property=ProtectSystem=strict',
       `--property=ReadWritePaths=${output}`, `--property=TemporaryFileSystem=${mounts.join(' ')}`,
       `--setenv=PND_MODAL_PARENT_MOUNT_NS=${parentMountNamespace}`, `--setenv=PND_MODAL_RUNTIME=${runtimeHome}`,
       `--setenv=XDG_CONFIG_HOME=${runtimeHome}/config`, `--setenv=XDG_RUNTIME_DIR=${runtimeHome}/run`]
@@ -80,6 +86,8 @@ export function validateSupervisor(properties, { unit, stage, pid, uid, cgroup }
   const fileBytes = stage === 'browser' ? limits.browserFileBytes : limits.artifactBytes
   assert.equal(Number(properties.LimitFSIZE), fileBytes); assert.equal(Number(properties.LimitFSIZESoft), fileBytes)
   if (stage === 'browser') {
+    assert.equal(properties.ProtectHome, 'read-only')
+    assert.deepEqual(properties.ReadOnlyPaths?.split(' ').sort(), browserReadOnlyPaths.map(path => '-' + path).sort())
     assert.equal(properties.MemorySwapMax, '0'); assert.equal(properties.ProtectSystem, 'strict'); assert.equal(properties.PrivateMounts, 'yes')
   }
   return { kind: 'systemd-control-group', unit, stage, pid, uid, runtimeMs: runtime * 1000,

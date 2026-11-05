@@ -7,7 +7,7 @@ export function supervisorProof(stage) {
   assert.match(unit ?? '', /^pnd-modal-[1-9][0-9]*-[1-9][0-9]*-(build|browser)\.service$/)
   assert.ok(unit.endsWith(`-${stage}.service`))
   const properties = parseProperties(execFileSync('systemctl', ['show', unit,
-    '--property=Id,MainPID,User,KillMode,SendSIGKILL,ControlGroup,RuntimeMaxUSec,TimeoutStopUSec,MemoryMax,TasksMax,LimitFSIZE,LimitFSIZESoft,MemorySwapMax,ProtectSystem,PrivateMounts'],
+    '--property=Id,MainPID,User,KillMode,SendSIGKILL,ControlGroup,RuntimeMaxUSec,TimeoutStopUSec,MemoryMax,TasksMax,LimitFSIZE,LimitFSIZESoft,MemorySwapMax,ProtectSystem,PrivateMounts,ProtectHome,ReadOnlyPaths'],
   { encoding: 'utf8', timeout: 5000 }))
   const proof = validateSupervisor(properties, { unit, stage, pid: process.pid,
     uid: process.getuid(), cgroup: readFileSync('/proc/self/cgroup', 'utf8') })
