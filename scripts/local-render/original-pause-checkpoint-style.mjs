@@ -93,7 +93,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
                   copy: node.firstElementChild.textContent, ...text(node),
                   pitches: [...node.querySelectorAll(':scope > [aria-hidden="true"]')].filter(line => line.querySelector('i')).map(line => line.offsetHeight),
                 })) },
-              buttons: [...dialog.querySelectorAll('button')].map(node => ({
+              buttons: [...dialog.querySelectorAll('nav[aria-label="Game menu choices"] button, section button')].map(node => ({
                 label: node.getAttribute('aria-label'), top: node.offsetTop, box: box(node), ...text(node),
                 reachable: node.contains(document.elementFromPoint(node.getBoundingClientRect().x + node.getBoundingClientRect().width / 2,
                   node.getBoundingClientRect().y + node.getBoundingClientRect().height / 2)),
@@ -107,6 +107,8 @@ export default async function ({ browser, page, url, root, output, receipt, sign
           }, null, 2))
           await page.screenshot({ path: resolve(output, `${name}.png`) })
           assert.equal(layout.panel, panel)
+          assert.deepEqual(layout.buttons.map(control => control.label),
+            ['Back', panel === 'save' ? 'Save checkpoint' : 'Load checkpoint'])
           assert.equal(layout.background, 'rgba(0, 0, 0, 0)')
           assert.equal(layout.border, '0px')
           assert.equal(layout.titleTop, 39)
