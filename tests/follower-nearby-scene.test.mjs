@@ -17,6 +17,7 @@ async function fixture(t) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
     { RenderView } = await import('../app/render-view.ts'),
+    { sceneTextureRevision } = await import('../app/scene-assets.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     store = createGameStore(), logs = [], globals = new Map()
   let arrival = 1, modal = false
@@ -49,9 +50,15 @@ async function fixture(t) {
       onChange: () => logs.push(['change', world.castingTribes[0].flags]),
       updateCameraMotion: () => true,
     })
+    // Object.create skips class field initialization; use the actual expressions.
+    for (const name of ['modalRenderVersion', 'modalRenderedVersion', 'modalTextureVersion']) {
+      const field = declaration.members.find(node => node.name?.getText(source) === name)
+      assert.ok(field?.initializer, `production modal field: ${name}`)
+      scene[name] = execute(field.initializer.getText(source), {}, scene)
+    }
     for (const name of ['playWorldSounds', 'updateTerrainFrame', 'updateDecorationsFrame', 'cancelTooltipInspection', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement', 'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame']) scene[name] = noOp
     scene.animate = execute(animateSource, {
-      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
+      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp, sceneTextureRevision,
       advanceGame: (w, clock, seconds) => { logs.push(['advanceGame', w.castingTribes[0].flags]); api.advanceGame(w, clock, seconds) },
     }, scene)
     const page = pageNearby(scene)
@@ -228,7 +235,10 @@ test('actual Scene modal boundary freezes game clock and rendering consumers, th
   scene.renderer.render = () => renders++
   scene.animate(1000)
   scene.animate(100000)
-  assert.equal(renders,2)
+  assert.equal(renders,1,'unchanged modal retains its drawn frame')
+  scene.invalidateModalRender()
+  scene.animate(150000)
+  assert.equal(renders,2,'explicit invalidation redraws without advancing simulation')
   assert.deepEqual(world,before)
   assert.deepEqual(scene.gameClock,clock)
   assert.equal(logs.filter(item=>item[0]==='advanceGame').length,0)
