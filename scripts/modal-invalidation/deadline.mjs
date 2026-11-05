@@ -15,19 +15,22 @@ export async function settleWithin(operation, timeoutMs) {
 
 // The close attempt is independent of a renderer evaluation or route drain.
 // Contexts created after timeout are closed before the worker may use them.
-export function contextDeadline({ timeoutMs, onFailure }) {
+export function contextDeadline({ timeoutMs, onFailure, onCloseAttempt = () => {} }) {
   let context, closePromise, stopping = false, timer, rejectDeadline
   const expired = new Promise((_, reject) => { rejectDeadline = reject })
   void expired.catch(() => {})
-  const close = () => {
+  const close = (reason = 'explicit-cleanup') => {
     stopping = true
     if (!context) return Promise.resolve(false)
-    closePromise ??= Promise.resolve().then(() => context.close()).then(() => true)
+    if (!closePromise) {
+      try { onCloseAttempt(reason) } catch { /* Diagnostics must never prevent independent closure. */ }
+      closePromise = Promise.resolve().then(() => context.close({ reason })).then(() => true)
+    }
     void closePromise.catch(error => onFailure(error))
     return closePromise
   }
   const abort = error => {
-    onFailure(error); rejectDeadline(error); void close()
+    onFailure(error); rejectDeadline(error); void close('deadline-or-abort')
   }
   timer = setTimeout(() => abort(Error('Modal acquisition exceeded its 60 second deadline')), timeoutMs)
   return {
@@ -35,7 +38,7 @@ export function contextDeadline({ timeoutMs, onFailure }) {
     async create(create) {
       const acquired = await create()
       context = acquired
-      if (stopping) { void close(); throw Error('Late-created context closed after cancellation') }
+      if (stopping) { void close('late-context-after-cancellation'); throw Error('Late-created context closed after cancellation') }
       return acquired
     },
     guard() { if (stopping) throw Error('Modal acquisition cancelled') },

@@ -135,3 +135,60 @@ test('capacity gates precede install and each heavy service; logs reserve both s
   assert.match(host, /maxBuffer: limits.logBytes \/ 2/)
   assert.match(host, /error.code === 'PND_RESOURCE_ADMISSION' \? 'blocked'/)
 })
+
+const { boundedTimeline, captureOwnedCgroup } = await import('../scripts/modal-invalidation/diagnostics.mjs')
+test('lifecycle diagnostics cap event count and message lengths with explicit truncation counts', () => {
+  const t = boundedTimeline()
+  for (let i = 0; i < 140; i++) t.record('event', 'x'.repeat(1000))
+  assert.equal(t.report.events.length, 128); assert.equal(t.report.dropped, 12)
+  assert.equal(t.report.events[0].detail.length, 512)
+  assert.ok(t.report.events.every((x, i) => x.sequence === i + 1 && Number.isFinite(x.monotonicMs) && !Number.isNaN(Date.parse(x.at))))
+})
+test('cgroup diagnostics read only the proven worker and retain absent counters as unknown', () => {
+  const unit = 'pnd-modal-123-1-browser.service', proof = { unit, controlGroup: `/system.slice/${unit}` }, reads = []
+  const snapshot = captureOwnedCgroup(proof, path => {
+    reads.push(path)
+    if (path === '/proc/self/cgroup') return { status: 'read', text: `0::${proof.controlGroup}`, truncated: false }
+    if (path.endsWith('/pids.peak')) return { status: 'unavailable', code: 'ENOENT' }
+    return { status: 'read', text: '0', truncated: false }
+  })
+  assert.equal(snapshot.status, 'partial'); assert.equal(snapshot.files['pids.peak'].status, 'unavailable')
+  assert.equal(reads.length, 12)
+  assert.ok(reads.every(path => path === '/proc/self/cgroup' || path === '/proc/self/limits' || path.startsWith(`/sys/fs/cgroup${proof.controlGroup}/`)))
+  assert.ok(snapshot.files['memory.events']); assert.ok(snapshot.files['pids.events']); assert.ok(snapshot.processLimits)
+  assert.throws(() => captureOwnedCgroup({ ...proof, controlGroup: '/unrelated' }))
+})
+test('unknown or changed worker membership prevents all cgroup inspection', () => {
+  const unit = 'pnd-modal-123-1-browser.service', proof = { unit, controlGroup: `/system.slice/${unit}` }
+  for (const value of [{ status: 'unavailable', code: 'ENOENT' }, { status: 'read', text: '0::/unrelated', truncated: false },
+    { status: 'read', text: `0::${proof.controlGroup}`, truncated: true }]) {
+    let reads = 0
+    const snapshot = captureOwnedCgroup(proof, path => { reads++; assert.equal(path, '/proc/self/cgroup'); return value })
+    assert.equal(snapshot.status, 'owner-unverified'); assert.equal(reads, 1); assert.deepEqual(snapshot.files, {})
+  }
+})
+test('diagnostic revision enables browser launch/exit logging without protocol or relaxed limits', () => {
+  const { event, env } = admission(), identity = admitModal(event, env)
+  for (const stage of ['build', 'browser']) {
+    const args = serviceArguments({ identity, stage, uid: 1001, gid: 1001, root: '/repo', node: '/node', args: ['worker.mjs'], home: '/home/runner', temporary: '/tmp/owned' })
+    assert.ok(args.includes(`--setenv=DEBUG=${stage === 'browser' ? 'pw:browser' : ''}`)); assert.ok(args.includes('--setenv=DEBUG_COLORS=0'))
+    assert.ok(args.includes('--property=LimitFSIZE=67108864')); assert.ok(args.includes('--property=TasksMax=256'))
+    assert.equal(args.some(arg => arg.includes('pw:protocol') || arg.includes('unsafe-swiftshader')), false)
+  }
+  const worker = read('scripts/modal-invalidation/browser-worker.mjs')
+  assert.match(worker, /checkpoint\('before-cleanup'\)/); assert.match(worker, /checkpoint\('browser-disconnected'\)/)
+  assert.match(worker, /record\('browser-close-requested'/)
+  assert.match(read('scripts/modal-invalidation/diagnostics.mjs'), /fileLimit = 4096/)
+})
+
+test('missing or truncated inherited process limits cannot report complete telemetry', () => {
+  const unit = 'pnd-modal-123-1-browser.service', proof = { unit, controlGroup: `/system.slice/${unit}` }
+  for (const value of [{ status: 'unavailable', code: 'ENOENT' }, { status: 'read', text: 'partial', truncated: true }]) {
+    const snapshot = captureOwnedCgroup(proof, path => {
+      if (path === '/proc/self/cgroup') return { status: 'read', text: `0::${proof.controlGroup}`, truncated: false }
+      if (path === '/proc/self/limits') return value
+      return { status: 'read', text: '0', truncated: false }
+    })
+    assert.equal(snapshot.status, 'partial'); assert.deepEqual(snapshot.processLimits, value)
+  }
+})

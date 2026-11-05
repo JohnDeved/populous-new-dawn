@@ -8,6 +8,7 @@ import { holdSkyResponse } from './response-gate.mjs'
 import { validateModalInvalidationEvidence } from './evidence.mjs'
 import { contextDeadline, settleWithin } from './deadline.mjs'
 import { enterModalMission } from './mission-entry.mjs'
+import { lifecycleRecorder } from './diagnostics.mjs'
 
 async function prepareHeldCast(page) {
   const button = name => page.getByRole('button', { name, exact: true })
@@ -70,16 +71,19 @@ export function comparePixels(before, after, triggerAt, { changed }) {
 // Admission is deliberately external: this module cannot launch a browser,
 // build, server, workflow or fallback. Call only from a separately reviewed
 // dedicated route, with its owned browser and exact candidate fixture build.
-export async function runModalInvalidation({ browser, url, candidateRoot, output, head, signal }) {
+export async function runModalInvalidation({ browser, url, candidateRoot, output, head, signal, recordLifecycle = () => {} }) {
   const git = (...args) => execFileSync('git', ['-C', candidateRoot, ...args], { encoding: 'utf8' }).trim()
   assert.match(head, /^[0-9a-f]{40}$/); assert.equal(git('rev-parse', 'HEAD'), head)
   assert.equal(git('status', '--porcelain'), '', 'Candidate source must be clean')
   const assetBlob = git('rev-parse', `${head}:public/original/sky.png`)
   const evidence = { kind: 'modal-invalidation-browser-v1', head, status: 'failed',
     browserErrors: [], browserWarnings: [], episodes: [], cleanupVerified: false, sceneOwnerUnchanged: false }
+  const timeline = lifecycleRecorder(recordLifecycle); evidence.lifecycle = timeline.report
+  const record = timeline.record
+  record('driver-start')
   let context, page, gate, work, primaryError, observerCleanup, gateCleanup, contextClosed = false
-  const fail = error => { primaryError ??= error }
-  const lifetime = contextDeadline({ timeoutMs: 60000, onFailure: fail })
+  const fail = error => { if (!primaryError) record('driver-failure', String(error)); primaryError ??= error }
+  const lifetime = contextDeadline({ timeoutMs: 60000, onFailure: fail, onCloseAttempt: reason => record('context-close-requested', reason) })
   const abort = () => lifetime.abort(signal.reason ?? Error('Modal capture aborted'))
   if (signal?.aborted) { lifetime.cancelTimer(); signal.throwIfAborted() }
   signal?.addEventListener('abort', abort, { once: true })
@@ -87,9 +91,11 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
   try {
     work = (async () => {
     context = await lifetime.create(() => browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1, serviceWorkers: 'block' }))
-    page = await context.newPage(); lifetime.guard(); page.setDefaultTimeout(15000); page.setDefaultNavigationTimeout(20000)
+    record('context-created'); context.on('close', () => record('context-closed'))
+    page = await context.newPage(); lifetime.guard();
+    record('page-created'); page.on('close', () => record('page-closed')); page.setDefaultTimeout(15000); page.setDefaultNavigationTimeout(20000)
     page.on('pageerror', error => evidence.browserErrors.push(String(error)))
-    page.on('crash', () => evidence.browserErrors.push('Page crashed'))
+    page.on('crash', () => { record('page-crashed'); evidence.browserErrors.push('Page crashed') })
     page.on('console', message => {
       if (message.type() === 'error') evidence.browserErrors.push(message.text())
       if (message.type() === 'warning') evidence.browserWarnings.push(message.text())
@@ -103,15 +109,16 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
         }, true)
       })
       const target = new URL(url); target.searchParams.set('modal-invalidation', '1')
-      await page.goto(target.href, { waitUntil: 'domcontentloaded' })
+      record('navigate'); await page.goto(target.href, { waitUntil: 'domcontentloaded' })
       await page.waitForFunction(() => !!window.__pndModalInvalidationFixture)
       assert.equal(await page.evaluate(() => window.__pndModalInvalidationFixture.buildRevision), head)
       const { openCampaignFromMainMenu } = await load('scripts/browser-new-game.mjs')
       const { bindGame } = await load('scripts/browser-game.mjs')
       evidence.entry = {}
-      await enterModalMission(page, { openCampaignFromMainMenu, bindGame, signal: signal ?? new AbortController().signal,
+      record('mission-entry-start'); await enterModalMission(page, { openCampaignFromMainMenu, bindGame, signal: signal ?? new AbortController().signal,
         deadlineAt: Date.now() + 30000, trace: evidence.entry })
-      evidence.castTarget = await prepareHeldCast(page)
+      record('mission-entry-passed'); evidence.castTarget = await prepareHeldCast(page)
+      record('held-cast-bound')
       evidence.runtime = await page.evaluate(() => {
         const gl = window.testSceneRef.current.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
         return { buildRevision: window.__pndModalInvalidationFixture.buildRevision,
@@ -172,7 +179,7 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
     await Promise.race([work, lifetime.expired])
   } catch (error) { fail(error) }
   finally {
-    lifetime.cancelTimer(); signal?.removeEventListener('abort', abort)
+    record('driver-cleanup-start'); lifetime.cancelTimer(); signal?.removeEventListener('abort', abort)
     // Even if the renderer never answers cleanup, independently attempt context
     // closure. The external hard supervisor is still required if close hangs.
     const emergencyClose = setTimeout(() => { void lifetime.close() }, 3000)
@@ -200,6 +207,7 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
       try { evidence.acceptance = validateModalInvalidationEvidence(evidence); evidence.status = 'passed' } catch (error) { fail(error) }
     }
     if (primaryError) evidence.failure = String(primaryError)
+    record('driver-finish', primaryError ? 'failed' : 'passed')
     writeFileSync(resolve(output, 'modal-invalidation.json'), JSON.stringify(evidence, null, 2) + '\n', { flag: 'wx' })
   }
   if (primaryError) throw primaryError

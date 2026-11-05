@@ -247,3 +247,30 @@ test('entry wall deadline rejects a stuck campaign helper without later setup ac
     deadlineAt: Date.now() + 10, trace }), /entry deadline expired/)
   assert.equal(trace.status, 'failed'); assert.equal(trace.ownerHandleCleanup, 'fulfilled')
 })
+
+test('closure diagnostics distinguish requested cleanup from abort without delaying close', async () => {
+  const attempts = [], reasons = [], owner = contextDeadline({ timeoutMs: 1000, onFailure() {}, onCloseAttempt: reason => attempts.push(reason) })
+  await owner.create(async () => ({ async close(options) { reasons.push(options.reason) } }))
+  await owner.close(); await owner.close(); owner.cancelTimer()
+  assert.deepEqual(attempts, ['explicit-cleanup']); assert.deepEqual(reasons, ['explicit-cleanup'])
+  let closed = 0
+  const broken = contextDeadline({ timeoutMs: 1000, onFailure() {}, onCloseAttempt() { throw Error('diagnostic sink failed') } })
+  await broken.create(async () => ({ async close() { closed++ } })); broken.abort(Error('cancelled'))
+  await broken.close(); broken.cancelTimer(); assert.equal(closed, 1)
+})
+
+test('throwing lifecycle sink cannot replace primary failure or prevent abort cleanup', async () => {
+  const { lifecycleRecorder } = await import('../scripts/modal-invalidation/diagnostics.mjs')
+  for (const thrown of [Error('sink broke'), { toString() { throw Error('unprintable') } }]) {
+    const recorder = lifecycleRecorder(() => { throw thrown })
+    let closed = 0, primary
+    const original = Error('original acquisition failure')
+    const owner = contextDeadline({ timeoutMs: 1000,
+      onFailure(error) { recorder.record('failure', String(error)); primary ??= error },
+      onCloseAttempt(reason) { recorder.record('close-requested', reason) } })
+    await owner.create(async () => ({ async close() { closed++ } }))
+    owner.abort(original); await owner.close(); owner.cancelTimer()
+    assert.equal(closed, 1); assert.equal(primary, original); assert.ok(recorder.report.sinkFailure)
+    assert.deepEqual(recorder.report.events.map(x => x.kind), ['failure', 'close-requested'])
+  }
+})

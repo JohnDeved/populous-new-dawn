@@ -34,6 +34,7 @@ export function serviceArguments({ identity, stage, uid, gid, root, node, args, 
     `--setenv=HOME=${home}`, `--setenv=TMPDIR=${temporary}`, `--setenv=XDG_CACHE_HOME=${temporary}/cache`,
     `--setenv=PND_MODAL_UNIT=${unit}`, '--setenv=NODE_OPTIONS=', '--setenv=NODE_PATH=',
     '--setenv=NODE_COMPILE_CACHE=', '--setenv=NODE_V8_COVERAGE=', '--setenv=CI=true',
+    `--setenv=DEBUG=${stage === 'browser' ? 'pw:browser' : ''}`, '--setenv=DEBUG_COLORS=0',
     node, '--max-old-space-size=768', ...args]
 }
 export function parseProperties(text) {

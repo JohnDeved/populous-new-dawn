@@ -87,3 +87,22 @@ failed before mission entry because an unrelated helper required a missing v2
 startup contract. Its raw failure receipts are retained. This scoped startup
 repair still requires independent review and a new exact-candidate hosted result.
 No screenshot, passing invalidation result or performance measurement is claimed.
+
+## Closure diagnostics
+
+The second run (42115098785) reached real Mission 1 setup but the target closed
+before scene binding, with no established cause. Both failed runs remain retained.
+The next diagnostic revision adds bounded page/context/browser lifecycle and
+explicit-close timestamps, Playwright browser-process launch/exit logs and owned
+worker cgroup counters before cleanup. It enables only `pw:browser`, never the
+protocol namespace. Child exit/signal comes from those raw launcher logs when
+available, not an inference from a generic target-closed error.
+
+Lifecycle events are capped at 128 and details at 512 characters. At most eight
+owned-cgroup snapshots read up to 4096 bytes per fixed telemetry file; missing
+metrics remain unknown. Snapshots verify current membership and never inspect
+sibling commands, environments, unrelated processes or a global journal. They
+include memory/pid events and peaks plus this worker's inherited resource limits.
+The 64 MiB per-file limit, cgroup/time caps, per-stream log caps and total artifact
+cap are unchanged. Diagnostic callbacks cannot prevent independent context close.
+These observations do not relax any gameplay, pixel or cleanup acceptance gate.
