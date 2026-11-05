@@ -990,6 +990,8 @@
         "app/scene-input-runtime.ts",
         "app/scene-tooltip-runtime.ts",
         "app/scene.ts",
+        "app/fps-graph.ts",
+        "app/scene-assets.ts",
         "app/scene-picking.ts",
         "app/world-picking.ts",
         "app/render-view.ts",
@@ -1003,7 +1005,7 @@
         "scripts/browser-performance/snapshot-drag-observer.mjs",
         "tests/browser-snapshot-drag.test.mjs"
       ],
-      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "tests/fixtures/snapshot-drag-pre-modal-scene.json", "package.json", "package-lock.json"],
       "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
       "sideEffects": [],
       "resources": [],
