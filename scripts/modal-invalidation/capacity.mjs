@@ -3,15 +3,16 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync, statfsSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { admitModal } from './hosted-policy.mjs'
+import { admitModal, limits } from './hosted-policy.mjs'
+import { writeEvidence, evidenceReserves } from './evidence-writer.mjs'
 const GiB = 1024 ** 3, MiB = 1024 ** 2
 export const capacityPolicy = Object.freeze({
-  workerBytes: 4 * GiB, hostReserveBytes: GiB,
+  workerBytes: 4 * GiB, hostReserveBytes: GiB, browserTmpfsBytes: 4 * limits.runtimeMountBytes,
   // This isolated hosted job owns all planned writes. No source/assets are copied.
   preparation: { toolchain: 256 * MiB, runtime: 2 * GiB, cache: 2 * GiB, evidence: 64 * MiB, scratch: GiB, rollback: 256 * MiB },
   execution: { toolchain: 0, runtime: 0, cache: 256 * MiB, evidence: 64 * MiB, scratch: GiB, rollback: 256 * MiB },
   preparationInodes: 200000, executionInodes: 50000,
-  rationale: 'Declared conservative hosted-only reserves for one locked install, two sequential 4GiB-capped stages and bounded artifacts; not measured workload demand or a universal platform threshold.',
+  rationale: 'Four private 1GiB browser tmpfs mounts add a separate 4GiB memory reserve; equal partition and limits are policy, not measured minimum Chrome demand. Declared conservative hosted-only reserves for one locked install, two sequential 4GiB-capped stages and bounded artifacts; not measured workload demand or a universal platform threshold.',
 })
 const read = path => { try { return readFileSync(path, 'utf8').trim() } catch { return null } }
 const numbers = text => text === null ? null : Object.fromEntries(text.split('\n').map(line => {
@@ -46,7 +47,7 @@ export function assessCapacity(snapshot) {
     if (group.freeInodes < inodeReserve) reasons.push(`Filesystem ${device} has ${group.freeInodes} inodes; ${inodeReserve} required`)
     if (group.tmpfs) tmpfsReserve += group.requiredBytes
   }
-  const minimum = capacityPolicy.workerBytes + capacityPolicy.hostReserveBytes + tmpfsReserve
+  const minimum = capacityPolicy.workerBytes + capacityPolicy.hostReserveBytes + capacityPolicy.browserTmpfsBytes + tmpfsReserve
   if (!Number.isSafeInteger(snapshot.memory?.MemAvailable) || snapshot.memory.MemAvailable < minimum)
     reasons.push(`MemAvailable is ${snapshot.memory?.MemAvailable ?? 'unknown'}; ${minimum} required including tmpfs writes`)
   if (!snapshot.cgroups.length || snapshot.cgroups.some(group =>
@@ -98,7 +99,11 @@ export function captureCapacity({ root, workspace, stage, identity }) {
 }
 export function requireCapacity({ root, workspace, output, stage, identity }) {
   const snapshot = captureCapacity({ root, workspace, stage, identity })
-  writeFileSync(resolve(output, `${stage}-capacity.json`), JSON.stringify(snapshot, null, 2) + '\n')
+  const bytes = JSON.stringify(snapshot, null, 2) + '\n'
+  if (stage === 'preparation') {
+    assert.ok(Buffer.byteLength(bytes) <= evidenceReserves.preparation)
+    writeFileSync(resolve(output, `${stage}-capacity.json`), bytes, { flag: 'wx' })
+  } else writeEvidence(output, `${stage}-capacity.json`, bytes)
   if (!snapshot.decision.admitted) {
     const error = Error(`Resource admission blocked before ${stage}: ${snapshot.decision.reasons.join('; ')}`)
     error.code = 'PND_RESOURCE_ADMISSION'; throw error

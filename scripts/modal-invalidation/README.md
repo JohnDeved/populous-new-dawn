@@ -16,7 +16,8 @@ Before installing dependencies, and again after source/dependency hashing and
 before each service, timestamped capacity receipts measure destination mounts,
 user-available bytes/inodes, MemAvailable/Shmem/swap, process RSS/threads, parent
 cgroup limits/usage/events and available OOM counters. The hosted-only policy
-requires 4 GiB worker plus 1 GiB host memory headroom, adds planned tmpfs writes,
+requires 4 GiB worker plus 1 GiB host memory headroom and a separate 4 GiB
+private-browser-tmpfs reserve (9 GiB before other tmpfs writes),
 and groups declared positive install/cache/output/log/rollback reserves per
 filesystem. Insufficient or unknown required capacity blocks launch; these
 measurements are not reservations. Owned npm/pnpm caches use the measured job path.
@@ -84,15 +85,15 @@ validator. They are not browser captures. Run the three top-level
 when integrated; direct Node execution is useful only for this isolated proposal.
 The first hosted run (42112339794) built and launched the sandboxed browser, but
 failed before mission entry because an unrelated helper required a missing v2
-startup contract. Its raw failure receipts are retained. This scoped startup
-repair still requires independent review and a new exact-candidate hosted result.
+startup contract. Its raw failure receipts are retained. That scoped startup
+repair was independently reviewed and exercised in the later runs below.
 No screenshot, passing invalidation result or performance measurement is claimed.
 
 ## Closure diagnostics
 
 The second run (42115098785) reached real Mission 1 setup but the target closed
 before scene binding, with no established cause. Both failed runs remain retained.
-The next diagnostic revision adds bounded page/context/browser lifecycle and
+The third run used the independently reviewed diagnostic revision with bounded page/context/browser lifecycle and
 explicit-close timestamps, Playwright browser-process launch/exit logs and owned
 worker cgroup counters before cleanup. It enables only `pw:browser`, never the
 protocol namespace. Child exit/signal comes from those raw launcher logs when
@@ -103,6 +104,68 @@ owned-cgroup snapshots read up to 4096 bytes per fixed telemetry file; missing
 metrics remain unknown. Snapshots verify current membership and never inspect
 sibling commands, environments, unrelated processes or a global journal. They
 include memory/pid events and peaks plus this worker's inherited resource limits.
-The 64 MiB per-file limit, cgroup/time caps, per-stream log caps and total artifact
-cap are unchanged. Diagnostic callbacks cannot prevent independent context close.
+That diagnostic revision kept the 64 MiB per-file limit unchanged; the separately
+reviewed runtime-storage policy below now distinguishes logical runtime files
+from artifact output. Cgroup/time, per-stream log and total artifact caps remain. Diagnostic callbacks cannot prevent independent context close.
 These observations do not relax any gameplay, pixel or cleanup acceptance gate.
+
+## Finite Chrome runtime storage
+
+Run 42119105744 proved Chrome exited with SIGXFSZ before cleanup. It did not
+identify the offending file/syscall or establish minimum Chrome storage demand.
+RLIMIT_FSIZE limits a file's logical length, including memory-backed files; it is
+not an artifact quota or aggregate disk bound. The telemetry short-reader repair
+retains only bytes actually read, with real file-boundary controls.
+
+Only the browser service now uses a finite 4 GiB soft/hard file-size ceiling,
+chosen to match its existing 4 GiB memory ceiling. This is declared policy, not
+measured demand, proof of sufficiency or a license to increase it after failure.
+The build retains its 64 MiB limit. Ordinary browser runtime allocations are
+confined to four private tmpfs mounts: owned HOME/XDG storage, /tmp, /var/tmp and
+/dev/shm. Each has a 1 GiB allocated-block limit and 10,000 inodes. The equal
+partition totals the existing 4 GiB worker envelope; 40,000 runtime inodes fit
+inside the existing 50,000 execution-inode allowance, leaving room for evidence.
+Sparse logical lengths and allocated blocks are distinct. MemoryMax remains
+4 GiB and MemorySwapMax is explicitly zero, including for memfd/shared memory
+that does not use the visible /dev/shm mount.
+
+ProtectSystem=strict makes ordinary filesystems read-only except the owned
+persistent evidence directory and those private runtime mounts. There are no
+global mounts, profile changes or browser flag overrides. Sandbox behavior,
+executable temporary-file semantics, existing deadlines and capture acceptance
+remain unchanged. No noexec, NoNewPrivileges, PrivateUsers, PrivateDevices or
+unrelated syscall filter is added. Runtime caches are disposable on service exit;
+raw evidence stays outside these mounts.
+
+Before Chrome launches, the worker records the systemd version and proves an
+actual distinct mount namespace, exact tmpfs mountpoints/sizes/inodes/ownership,
+both inherited file limits, memory.max and memory.swap.max. It rejects unexpected
+ordinary writable mounts, unknown telemetry, non-read-only source/build paths,
+and insufficient host memory or evidence disk headroom. /dev's API mount cannot
+permit ordinary file creation by the service user. The existing outer capacity
+guards also add all 4 GiB of private tmpfs to admission before preparation and
+each stage, then remeasure after hashing. These are conservative reservations,
+not evidence that full use of all limits can coexist. Unsupported isolation
+blocks launch with retained partial proof; there is no weaker fallback. Raw mount
+and limit text is kept even on rejected admission. Bounded reads continue through
+short procfs reads to EOF, or explicitly reject the byte limit plus one.
+
+All reviewed artifact producers now check the aggregate allowance before writing.
+The 64 MiB upload ceiling reserves four 8 MiB raw streams, 1 MiB for the final
+receipt, and 1 MiB for the standalone preparation receipt, leaving 30 MiB for
+other evidence. Existing receipts are replaced without temporary-file coexistence.
+Screenshots return a buffer which is checked before writing. File identity/link
+checks protect owned outputs. The final receipt accounts for actual uploaded
+preparation bytes too. This is a serial application-producer bound, not a claim
+that the evidence directory has an OS quota. An unexpected producer or exhausted
+allowance fails rather than silently truncating evidence or weakening acceptance.
+If a process capture exceeds its unchanged 8 MiB stream allowance, only a labeled
+raw prefix is retained, with captured/retained/discarded sizes and hashes; the
+stage fails. Targeted unit stop and independent cgroup/parent-namespace checks
+precede log retention and cannot be skipped by log or receipt write failures.
+
+References: [systemd execution isolation](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html),
+[Linux tmpfs](https://www.kernel.org/doc/html/latest/filesystems/tmpfs.html),
+[cgroup v2 memory/swap](https://www.kernel.org/doc/html/latest/admin-guide/cgroup-v2.html),
+[RLIMIT_FSIZE](https://man7.org/linux/man-pages/man2/getrlimit.2.html),
+and [memfd](https://man7.org/linux/man-pages/man2/memfd_create.2.html).

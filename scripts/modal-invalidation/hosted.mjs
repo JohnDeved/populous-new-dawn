@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, existsSync, readFileSync, writeFileSync, readdirSync, lstatSync, symlinkSync } from 'node:fs'
+import { mkdirSync, existsSync, readFileSync, readdirSync, lstatSync, symlinkSync, readlinkSync, statfsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { sourceManifest, verifyManifest, sha256, git } from '../native-ui-evidence/identity.mjs'
 import { directoryManifest } from '../native-ui-evidence/files.mjs'
 import { requireCapacity } from './capacity.mjs'
 import { serializeReceipt } from './receipt.mjs'
+import { completeStage } from './stage-completion.mjs'
+import { writeEvidence } from './evidence-writer.mjs'
 import { admitModal, limits, serviceName, serviceArguments, parseProperties } from './hosted-policy.mjs'
 const identity = admitModal(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')), process.env)
 const root = resolve(import.meta.dirname, '../..')
@@ -17,53 +19,55 @@ assert.equal(preparation.decision.admitted, true); assert.equal(preparation.iden
 assert.equal(preparation.identity.runId, identity.runId); assert.equal(preparation.identity.runAttempt, identity.runAttempt)
 const output = resolve(workspace, 'evidence'), dist = resolve(workspace, 'dist'), temporary = resolve(workspace, 'tmp')
 for (const path of [output, dist, temporary]) { assert.equal(existsSync(path), false); mkdirSync(path) }
-mkdirSync(resolve(temporary, 'cache'))
+mkdirSync(resolve(temporary, 'cache')); mkdirSync(resolve(temporary, 'chrome-runtime'))
 const report = { status: 'running', identity, limits, startedAt: new Date().toISOString(), stages: [],
+  preparationArtifact: { bytes: lstatSync(resolve(workspace, 'preparation-capacity.json')).size,
+    sha256: sha256(resolve(workspace, 'preparation-capacity.json')) },
   scope: 'Production Home through isolated plain Vite hosting; not deployed Vinext/Cloudflare, native pixel parity or hardware performance.' }
-const json = (name, value) => writeFileSync(resolve(output, name), JSON.stringify(value, null, 2) + '\n')
+const json = (name, value) => writeEvidence(output, name, JSON.stringify(value, null, 2) + '\n')
 const save = () => json('receipt.json', report)
 json('preparation-capacity.json', preparation)
 function runStage(stage, args) {
   requireCapacity({ root, workspace, output, stage: `before-${stage}`, identity })
-  const unit = serviceName(identity, stage)
+  const unit = serviceName(identity, stage), parentMountNamespace = readlinkSync('/proc/self/ns/mnt')
+  const parentStorage = () => ({ namespace: readlinkSync('/proc/self/ns/mnt'),
+    device: statSync(resolve(temporary, 'chrome-runtime')).dev, type: statfsSync(resolve(temporary, 'chrome-runtime')).type })
+  const storageBefore = parentStorage()
   const command = serviceArguments({ identity, stage, uid: process.getuid(), gid: process.getgid(),
-    root, node: process.execPath, args, home: process.env.HOME, temporary })
-  const row = { stage, unit, command: ['sudo', ...command], status: 'running' }
+    root, node: process.execPath, args, home: process.env.HOME, temporary, output, parentMountNamespace })
+  const row = { stage, unit, command: ['sudo', ...command], status: 'running', parentStorageBefore: storageBefore }
   report.stages.push(row); save()
   const runtime = stage === 'build' ? limits.buildRuntimeSeconds : limits.browserRuntimeSeconds
-  const result = spawnSync('sudo', command, { cwd: root, timeout: (runtime + limits.stopSeconds + 20) * 1000,
-    maxBuffer: limits.logBytes / 2, encoding: 'buffer' })
-  row.logs = {}
-  for (const stream of ['stdout', 'stderr']) {
-    const path = resolve(output, `${stage}.${stream}.log`), bytes = result[stream] ?? Buffer.alloc(0)
-    writeFileSync(path, bytes); row.logs[stream] = { bytes: bytes.length, sha256: sha256(path) }
-  }
-  row.exitCode = result.status; row.signal = result.signal; row.launchError = result.error ? String(result.error) : null
-  // Successful transient units may already be unloaded. A missing unit is
-  // accepted only with the known service's successful wait and absent cgroup.
   const show = () => {
     const response = spawnSync('systemctl', ['show', unit,
-      '--property=Id,LoadState,Result,ActiveState,SubState,ExecMainStatus,ExecMainCode,ControlGroup'], { timeout: 5000, encoding: 'utf8' })
+      '--property=Id,LoadState,Result,ActiveState,SubState,ExecMainStatus,ExecMainCode,ControlGroup'],
+    { timeout: 5000, maxBuffer: 16384, encoding: 'utf8' })
     if (response.error) throw response.error
     const properties = parseProperties(response.stdout)
     assert.ok(response.status === 0 || properties.LoadState === 'not-found')
     assert.equal(properties.Id, unit)
     return properties
   }
-  row.afterWait = show()
-  if (row.afterWait.LoadState !== 'not-found') {
-    const stop = spawnSync('sudo', ['--non-interactive', 'systemctl', 'stop', unit], { timeout: 10000, encoding: 'utf8' })
-    row.stop = { exitCode: stop.status, error: stop.error ? String(stop.error) : null, stderr: stop.stderr }
-    row.final = show()
-    assert.ok(stop.status === 0 || row.final.LoadState === 'not-found')
-  } else row.final = row.afterWait
-  const events = `/sys/fs/cgroup/system.slice/${unit}/cgroup.events`
-  row.cgroupEvents = existsSync(events) ? readFileSync(events, 'utf8') : 'removed'
-  assert.ok(row.cgroupEvents === 'removed' || /^populated 0$/m.test(row.cgroupEvents), 'Owned control group is not empty')
-  const unloaded = row.final.LoadState === 'not-found'
-  row.status = result.status === 0 && !result.signal && !result.error &&
-    (unloaded || (row.final.Result === 'success' && row.final.ActiveState === 'inactive' && row.final.ExecMainStatus === '0')) ? 'passed' : 'failed'
-  save(); assert.equal(row.status, 'passed', `${stage} service failed; retain its exact result and log`)
+  completeStage(row, {
+    launch: () => spawnSync('sudo', command, { cwd: root, timeout: (runtime + limits.stopSeconds + 20) * 1000,
+      maxBuffer: limits.logBytes / 2, encoding: 'buffer' }),
+    show,
+    stop: () => {
+      const result = spawnSync('sudo', ['--non-interactive', 'systemctl', 'stop', unit],
+        { timeout: 10000, maxBuffer: 16384, encoding: 'utf8' })
+      return { exitCode: result.status, error: result.error ? String(result.error) : null,
+        stdout: result.stdout?.slice(0, 512), stderr: result.stderr?.slice(0, 512) }
+    },
+    cgroupEvents: () => {
+      const path = `/sys/fs/cgroup/system.slice/${unit}/cgroup.events`
+      return existsSync(path) ? readFileSync(path, 'utf8') : 'removed'
+    },
+    parentStorage,
+    retain: (stream, bytes) => writeEvidence(output, `${stage}.${stream}.log`, bytes),
+    save,
+  })
+  assert.equal(row.status, 'passed', `${stage} service failed; retain its exact result and log`)
+
 }
 let source, dependencies, servedBuild
 try {
@@ -109,5 +113,5 @@ finally {
   })
   const serialized = serializeReceipt(report, files)
   if (report.status !== 'passed') process.exitCode = 1
-  writeFileSync(resolve(output, 'receipt.json'), serialized)
+  writeEvidence(output, 'receipt.json', serialized)
 }

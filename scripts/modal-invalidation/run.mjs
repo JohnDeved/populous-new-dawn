@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { installModalInvalidationObserver } from './observer.mjs'
@@ -9,6 +8,7 @@ import { validateModalInvalidationEvidence } from './evidence.mjs'
 import { contextDeadline, settleWithin } from './deadline.mjs'
 import { enterModalMission } from './mission-entry.mjs'
 import { lifecycleRecorder } from './diagnostics.mjs'
+import { writeEvidence } from './evidence-writer.mjs'
 
 async function prepareHeldCast(page) {
   const button = name => page.getByRole('button', { name, exact: true })
@@ -173,7 +173,8 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
           observedLost: events[0].contextLost, observedRestored: !events[1].contextLost, lostAt: events[0].at, restoredAt: events[1].at },
         raw: { before: restoreBeforeDraw, after: restoreAfterDraw } })
       assert.equal(restoreAfterDraw.errors.length, 0)
-      await page.screenshot({ path: resolve(output, 'modal-restored.png') })
+      const screenshot = await page.screenshot()
+      writeEvidence(output, 'modal-restored.png', screenshot, { exclusive: true })
       delete evidence.partial
     })()
     await Promise.race([work, lifetime.expired])
@@ -208,7 +209,7 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
     }
     if (primaryError) evidence.failure = String(primaryError)
     record('driver-finish', primaryError ? 'failed' : 'passed')
-    writeFileSync(resolve(output, 'modal-invalidation.json'), JSON.stringify(evidence, null, 2) + '\n', { flag: 'wx' })
+    writeEvidence(output, 'modal-invalidation.json', JSON.stringify(evidence, null, 2) + '\n', { exclusive: true })
   }
   if (primaryError) throw primaryError
   return evidence

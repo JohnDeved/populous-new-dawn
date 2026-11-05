@@ -20,12 +20,12 @@ export function lifecycleRecorder(sink = () => {}) {
     }
   } }
 }
-function readBounded(path) {
+export function readBounded(path) {
   let fd
   try {
     fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW)
     const buffer = Buffer.alloc(fileLimit + 1), bytes = readSync(fd, buffer, 0, buffer.length, 0)
-    return { status: 'read', text: buffer.subarray(0, fileLimit).toString('utf8').trim(), truncated: bytes > fileLimit }
+    return { status: 'read', text: buffer.subarray(0, Math.min(bytes, fileLimit)).toString('utf8').trim(), truncated: bytes > fileLimit }
   } catch (error) { return { status: 'unavailable', code: String(error.code ?? error.name).slice(0, 80) } }
   finally { if (fd !== undefined) closeSync(fd) }
 }

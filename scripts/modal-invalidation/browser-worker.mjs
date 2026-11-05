@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { readFileSync, writeFileSync, accessSync, constants } from 'node:fs'
+import { readFileSync, accessSync, constants, mkdirSync, statfsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 import { candidateDependency, candidateDependencyExport, git, sha256 } from '../native-ui-evidence/identity.mjs'
@@ -9,14 +9,18 @@ import { runModalInvalidation } from './run.mjs'
 import { supervisorProof } from './supervisor-proof.mjs'
 import { settleWithin } from './deadline.mjs'
 import { boundedTimeline, captureOwnedCgroup } from './diagnostics.mjs'
+import { writeEvidence } from './evidence-writer.mjs'
+import { captureBrowserStorage } from './browser-storage.mjs'
 const [root, output, dist, revision] = process.argv.slice(2)
 const report = { status: 'failed', revision, supervisor: supervisorProof('browser') }
 const timeline = boundedTimeline(); report.lifecycle = timeline.report; report.cgroupSnapshots = []
 let browser, server, failure
-const save = () => writeFileSync(resolve(output, 'browser-identity.json'), JSON.stringify(report, null, 2) + '\n')
+const save = () => writeEvidence(output, 'browser-identity.json', JSON.stringify(report, null, 2) + '\n')
 const checkpoint = label => {
   if (report.cgroupSnapshots.length >= 8) return
-  try { report.cgroupSnapshots.push({ label, ...captureOwnedCgroup(report.supervisor) }) }
+  try { report.cgroupSnapshots.push({ label, ...captureOwnedCgroup(report.supervisor),
+    runtimeMounts: report.storage?.mounts?.map(mount => { const fs = statfsSync(mount.path); return { path: mount.path,
+      allocatedBytes: (fs.blocks - fs.bfree) * fs.bsize, availableBytes: fs.bavail * fs.bsize, availableInodes: fs.ffree } }) }) }
   catch (error) { report.cgroupSnapshots.push({ label, status: 'diagnostic-error', error: String(error).slice(0, 512) }) }
 }
 const record = (kind, detail) => {
@@ -25,6 +29,9 @@ const record = (kind, detail) => {
 }
 record('worker-start'); checkpoint('worker-start')
 try {
+  report.storage = captureBrowserStorage({ temporary: resolve(output, '../tmp'), output, root, dist, supervisor: report.supervisor }); save()
+  assert.equal(report.storage.acceptance.status, 'passed', report.storage.acceptance.error)
+  for (const key of ['HOME', 'XDG_CACHE_HOME', 'XDG_CONFIG_HOME', 'XDG_RUNTIME_DIR']) mkdirSync(process.env[key], { mode: 0o700 })
   assert.equal(git(root, 'rev-parse', 'HEAD'), revision)
   assert.deepEqual(directoryManifest(dist), JSON.parse(readFileSync(resolve(output, 'served-build.json'), 'utf8')))
   const { preview } = await import(candidateDependency(root, 'vite'))

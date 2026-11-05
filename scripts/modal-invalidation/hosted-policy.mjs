@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 export const limits = Object.freeze({
   buildRuntimeSeconds: 115, browserRuntimeSeconds: 65, stopSeconds: 5,
-  memoryBytes: 4 * 1024 ** 3, tasks: 256, logBytes: 16 * 1024 ** 2, artifactBytes: 64 * 1024 ** 2,
+  memoryBytes: 4 * 1024 ** 3, browserFileBytes: 4 * 1024 ** 3, runtimeMountBytes: 1024 ** 3, runtimeMountInodes: 10000, tasks: 256, logBytes: 16 * 1024 ** 2, artifactBytes: 64 * 1024 ** 2,
 })
 export function admitModal(event, env) {
   const sha = value => assert.match(value ?? '', /^[a-f0-9]{40}$/)
@@ -21,17 +21,37 @@ export function serviceName(identity, stage) {
   for (const value of [identity.runId, identity.runAttempt]) assert.match(value, /^[1-9][0-9]*$/)
   return `pnd-modal-${identity.runId}-${identity.runAttempt}-${stage}.service`
 }
-export function serviceArguments({ identity, stage, uid, gid, root, node, args, home, temporary }) {
+export function browserMounts(temporary, uid, gid) {
+  return [
+    { path: `${temporary}/chrome-runtime`, bytes: limits.runtimeMountBytes, inodes: limits.runtimeMountInodes, uid, gid, mode: 0o700 },
+    ...['/tmp', '/var/tmp', '/dev/shm'].map(path => ({ path, bytes: limits.runtimeMountBytes,
+      inodes: limits.runtimeMountInodes, uid: 0, gid: 0, mode: 0o1777 })),
+  ]
+}
+export function serviceArguments({ identity, stage, uid, gid, root, node, args, home, temporary, output, parentMountNamespace }) {
   for (const id of [uid, gid]) assert.ok(Number.isInteger(id) && id > 0, 'Service must run as the unprivileged runner user')
   for (const value of [root, node, home, temporary]) assert.ok(value.startsWith('/') && !/[\n\0]/.test(value))
   const unit = serviceName(identity, stage), runtime = stage === 'build' ? limits.buildRuntimeSeconds : limits.browserRuntimeSeconds
+  const browser = stage === 'browser', runtimeHome = `${temporary}/chrome-runtime`
+  let storage = []
+  if (browser) {
+    assert.ok(output?.startsWith('/') && !/\s|\0/.test(output))
+    for (const path of [root, node, temporary, output]) assert.ok(!['/tmp', '/var/tmp', '/dev/shm'].some(mount => path === mount || path.startsWith(mount + '/')), 'Required persistent paths cannot be hidden by private runtime mounts')
+    assert.ok(!/\s/.test(temporary)); assert.match(parentMountNamespace ?? '', /^mnt:\[[0-9]+\]$/)
+    const mounts = browserMounts(temporary, uid, gid).map(mount => `${mount.path}:rw,nosuid,nodev,size=${mount.bytes},nr_inodes=${mount.inodes},uid=${mount.uid},gid=${mount.gid},mode=${mount.mode.toString(8)}`)
+    storage = ['--property=MemorySwapMax=0', '--property=PrivateMounts=yes', '--property=ProtectSystem=strict',
+      `--property=ReadWritePaths=${output}`, `--property=TemporaryFileSystem=${mounts.join(' ')}`,
+      `--setenv=PND_MODAL_PARENT_MOUNT_NS=${parentMountNamespace}`, `--setenv=PND_MODAL_RUNTIME=${runtimeHome}`,
+      `--setenv=XDG_CONFIG_HOME=${runtimeHome}/config`, `--setenv=XDG_RUNTIME_DIR=${runtimeHome}/run`]
+  }
   return ['--non-interactive', 'systemd-run', `--unit=${unit}`, '--wait', '--pipe',
     `--uid=${uid}`, `--gid=${gid}`, `--working-directory=${root}`, '--service-type=exec',
     `--property=RuntimeMaxSec=${runtime}s`, `--property=TimeoutStopSec=${limits.stopSeconds}s`,
     '--property=KillMode=control-group', '--property=SendSIGKILL=yes',
     `--property=MemoryMax=${limits.memoryBytes}`, `--property=TasksMax=${limits.tasks}`,
-    '--property=LimitCORE=0', '--property=LimitFSIZE=67108864',
-    `--setenv=HOME=${home}`, `--setenv=TMPDIR=${temporary}`, `--setenv=XDG_CACHE_HOME=${temporary}/cache`,
+    '--property=LimitCORE=0', `--property=LimitFSIZE=${browser ? limits.browserFileBytes : limits.artifactBytes}`, ...storage,
+    `--setenv=HOME=${browser ? `${runtimeHome}/home` : home}`, `--setenv=TMPDIR=${browser ? '/tmp' : temporary}`,
+    `--setenv=XDG_CACHE_HOME=${browser ? `${runtimeHome}/cache` : `${temporary}/cache`}`,
     `--setenv=PND_MODAL_UNIT=${unit}`, '--setenv=NODE_OPTIONS=', '--setenv=NODE_PATH=',
     '--setenv=NODE_COMPILE_CACHE=', '--setenv=NODE_V8_COVERAGE=', '--setenv=CI=true',
     `--setenv=DEBUG=${stage === 'browser' ? 'pw:browser' : ''}`, '--setenv=DEBUG_COLORS=0',
@@ -57,7 +77,12 @@ export function validateSupervisor(properties, { unit, stage, pid, uid, cgroup }
   assert.equal(durationMilliseconds(properties.RuntimeMaxUSec), runtime * 1000)
   assert.equal(durationMilliseconds(properties.TimeoutStopUSec), limits.stopSeconds * 1000)
   assert.equal(Number(properties.MemoryMax), limits.memoryBytes); assert.equal(Number(properties.TasksMax), limits.tasks)
+  const fileBytes = stage === 'browser' ? limits.browserFileBytes : limits.artifactBytes
+  assert.equal(Number(properties.LimitFSIZE), fileBytes); assert.equal(Number(properties.LimitFSIZESoft), fileBytes)
+  if (stage === 'browser') {
+    assert.equal(properties.MemorySwapMax, '0'); assert.equal(properties.ProtectSystem, 'strict'); assert.equal(properties.PrivateMounts, 'yes')
+  }
   return { kind: 'systemd-control-group', unit, stage, pid, uid, runtimeMs: runtime * 1000,
     killAfterMs: limits.stopSeconds * 1000, hardCapMs: (runtime + limits.stopSeconds) * 1000,
-    controlGroup: properties.ControlGroup, memoryBytes: limits.memoryBytes, tasks: limits.tasks }
+    controlGroup: properties.ControlGroup, memoryBytes: limits.memoryBytes, tasks: limits.tasks, fileBytes }
 }

@@ -52,7 +52,7 @@
         "Node.js >=22.13.0"
       ],
       "sideEffects": [
-        "Synthetic in-process callbacks, short owned timers and read-only source checks only. No process launch, network, browser or persistent writes."
+        "Synthetic callbacks, short owned timers, read-only source checks and bounded owned temporary-file controls with cleanup. No process launch, network, browser or persistent writes."
       ],
       "resources": [],
       "expected": {
