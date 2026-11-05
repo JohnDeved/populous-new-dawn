@@ -83,3 +83,12 @@ test('capture manifest binds new runner without changing other trusted input che
   assert.equal(pins['scripts/tutorial-browser/run.mjs'], createHash('sha256').update(runner).digest('hex'))
   assert.match(runner, /if \(captureProtocolEnabled\) assert.equal\(selectedScenario, 'tutorial'/)
 })
+
+// The legacy dev scenario used a removed button. Verify the current shipped
+// entry path, without replacing gameplay input with a scene method invocation.
+test('both overview setup entries use the shipped gameplay Enter shortcut', () => {
+  const page = read('app/page.tsx')
+  assert.ok(page.includes("if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))\n        engine.current?.overview()"))
+  assert.equal((route.match(/await page\.locator\('\.world-viewport canvas'\)\.focus\(\)\n {2}await page\.keyboard\.press\('Enter'\)/g) ?? []).length, 2)
+  assert.doesNotMatch(route, /name: ?'Planet overview'|testScene\.overview\(/)
+})
