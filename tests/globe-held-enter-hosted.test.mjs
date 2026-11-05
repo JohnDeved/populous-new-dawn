@@ -89,7 +89,7 @@ test('capture manifest binds new runner without changing other trusted input che
 test('both overview setup entries use the shipped gameplay Enter shortcut', () => {
   const page = read('app/page.tsx')
   assert.ok(page.includes("if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))\n        engine.current?.overview()"))
-  assert.equal((route.match(/await page\.locator\('\.world-viewport canvas'\)\.focus\(\)\n {2}await page\.keyboard\.press\('Enter'\)/g) ?? []).length, 2)
+  assert.equal((route.match(/await page\.locator\('\.world-viewport canvas\.battlefield'\)\.focus\(\)\n {2}await page\.keyboard\.press\('Enter'\)/g) ?? []).length, 2)
   assert.doesNotMatch(route, /name: ?'Planet overview'|testScene\.overview\(/)
 })
 
@@ -116,4 +116,13 @@ test('startup waits for actionable public Skip and also accepts natural unmaskin
   assert.match(route, /if \(report\.startup\.action === 'skip'\)/)
   assert.match(route, /await startup\.dispose\(\)/)
   assert.doesNotMatch(route, /skip\.isVisible\(\)/)
+})
+
+test('focus targets the shipped battlefield, not its aria-hidden tooltip canvas', () => {
+  const scene = read('app/scene.ts')
+  assert.ok(scene.includes("this.renderer.domElement.className = 'battlefield'"))
+  assert.ok(scene.includes('this.renderer.domElement.tabIndex = 0'))
+  assert.ok(scene.includes("this.tooltipCanvas.setAttribute('aria-hidden', 'true')"))
+  assert.equal((route.match(/page\.locator\('\.world-viewport canvas\.battlefield'\)\.focus\(\)/g) ?? []).length, 2)
+  assert.doesNotMatch(route, /page\.locator\('\.world-viewport canvas'\)|\.first\(\)/)
 })

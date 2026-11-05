@@ -64,7 +64,7 @@ export default async function runGlobeHeldEnter({ page, url, output, source }) {
     s.animate(s.previous);cancelAnimationFrame(s.frame)
   },n)
   const original=await state()
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas.battlefield').focus()
   await page.keyboard.press('Enter')
   let s=await state()
   assert.equal(s.stage,'enter');assert.equal(s.overview,false);assert.equal(s.remaining,18)
@@ -109,7 +109,7 @@ export default async function runGlobeHeldEnter({ page, url, output, source }) {
   })
   report.heldEnter = heldEnter
   // A forced focus interrupts the view sequence without leaving a stuck blend.
-  await page.locator('.world-viewport canvas').focus()
+  await page.locator('.world-viewport canvas.battlefield').focus()
   await page.keyboard.press('Enter');await frame(4)
   await page.evaluate(()=>window.testScene.focus({x:8,z:30}));await frame()
   s=await state();assert.equal(s.stage,null);assert.equal(s.overview,false);assert.equal(s.morph.active,false)
