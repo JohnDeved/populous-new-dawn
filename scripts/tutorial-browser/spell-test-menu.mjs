@@ -147,7 +147,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await page.getByText('Checkpoint saved in this browser.', { exact: true }).waitFor()
     await button('Back').click()
     await button('Continue Game').click()
-    const saved = await storage(), beforeOpen = await snapshot()
+    const [saved, beforeOpen] = await Promise.all([storage(), snapshot()])
     diagnostics.stage('read-only menu and keyboard controls')
     await button('Resume game').focus()
     await page.keyboard.down('F9')
@@ -165,9 +165,14 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     await page.keyboard.down('Escape')
     await page.keyboard.up('Escape')
-    assert.equal(await page.locator('[data-original-pause-menu]').count(), 0)
-    assert.equal(await button('Resume game').evaluate(element => element === document.activeElement), true)
-    assert.deepEqual(await snapshot(), beforeOpen)
+    const [pauseMenus, resumeFocused, afterClose] = await Promise.all([
+      page.locator('[data-original-pause-menu]').count(),
+      button('Resume game').evaluate(element => element === document.activeElement),
+      snapshot(),
+    ])
+    assert.equal(pauseMenus, 0)
+    assert.equal(resumeFocused, true)
+    assert.deepEqual(afterClose, beforeOpen)
     await page.keyboard.press('Shift+F9')
     assert.equal(await menu.count(), 0)
     report.openCloseWithoutMutation = true
@@ -267,8 +272,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Load Game').click()
     await button('Load checkpoint').click()
     await waitReady('checkpoint load')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const loaded = await snapshot()
+    assert.equal(loaded.cheatsUsed, false)
+    assert.equal(loaded.shots.teleport, 0)
     diagnostics.stage('grant and restart')
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -278,8 +284,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Restart Level').click()
     await button('Yes').click()
     await waitReady('restart')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const restarted = await snapshot()
+    assert.equal(restarted.cheatsUsed, false)
+    assert.equal(restarted.shots.teleport, 0)
     report.savePreservedAndLoadRestartReset = true
     assert.deepEqual(report.errors, [])
     diagnostics.stage('completed')
