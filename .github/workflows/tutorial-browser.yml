@@ -11,6 +11,7 @@ on:
       - 'scripts/local-render/tutorial-recommendation.mjs'
       - 'scripts/local-render/frontend-held-escape.mjs'
       - 'scripts/local-render/original-pause-checkpoint-recovery.mjs'
+      - 'scripts/local-render/original-pause-checkpoint-style.mjs'
       - 'scripts/local-render/pause-capture-controls.mjs'
       - 'scripts/local-render/campaign-profile-recovery.mjs'
       - 'scripts/checkpoint-readback.mjs'
@@ -62,6 +63,11 @@ jobs:
             name: Pause checkpoint recovery browser
             artifact: pause-checkpoint-recovery-browser
             buildStep: Build plain production Home and validate pause checkpoint recovery
+          - scenario: pause-checkpoint-style
+            timeoutMinutes: 15
+            name: Pause checkpoint style browser
+            artifact: pause-checkpoint-style-browser
+            buildStep: Validate native and fallback checkpoint scrolling and layout
           - scenario: profile-recovery
             timeoutMinutes: 15
             name: Profile recovery browser

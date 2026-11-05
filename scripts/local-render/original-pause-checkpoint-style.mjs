@@ -154,6 +154,8 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), false)
     } finally { await context.close() }
   }
+  assert.ok(records.some(record => record.body.overflow),
+    'Checkpoint presentation must exercise at least one real overflow and End-key case')
   return { records, screenshots, limits: [
     'Controlled unavailable IndexedDB and a separately blocked font request. Saves and menus use shipped controls; no game world is injected.',
     'This supplements the durable-save, retry-race and save-failure scenarios; it does not replace them.',
