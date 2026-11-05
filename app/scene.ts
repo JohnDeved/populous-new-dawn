@@ -644,9 +644,9 @@ export class GameScene {
   updateSky() {
     updateSky(this)
   }
-  listen(target: EventTarget, name: string, handler: EventListener) {
-    target.addEventListener(name, handler)
-    this.disposeListeners.push(() => target.removeEventListener(name, handler))
+  listen(target: EventTarget, name: string, handler: EventListener, capture = false) {
+    target.addEventListener(name, handler, capture)
+    this.disposeListeners.push(() => target.removeEventListener(name, handler, capture))
   }
   setSize() {
     if (this.disposed) return
