@@ -92,3 +92,28 @@ test('both overview setup entries use the shipped gameplay Enter shortcut', () =
   assert.equal((route.match(/await page\.locator\('\.world-viewport canvas'\)\.focus\(\)\n {2}await page\.keyboard\.press\('Enter'\)/g) ?? []).length, 2)
   assert.doesNotMatch(route, /name: ?'Planet overview'|testScene\.overview\(/)
 })
+
+test('startup waits for actionable public Skip and also accepts natural unmasking', async () => {
+  const { m2StartupReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
+  const { runInNewContext } = await import('node:vm')
+  const world = { inputMask: 4, flyby: { flags: 1 }, outcome: { level: 1 } }
+  let button = null
+  const observe = runInNewContext(`(${m2StartupReady.toString()})`, {
+    window: { testStore: { getWorld: () => world } },
+    document: { querySelector: () => button },
+    getComputedStyle: () => ({ visibility: 'visible' }),
+  })
+  assert.equal(observe(), false, 'flyby flags alone do not prove React Skip is actionable')
+  button = { disabled: false, getClientRects: () => [{}] }
+  assert.equal(observe().action, 'skip')
+  assert.equal(observe().level, 1)
+  button.disabled = true
+  assert.equal(observe(), false)
+  world.inputMask = 0
+  button = null
+  assert.equal(observe().action, 'ready')
+  assert.match(route, /await page\.waitForFunction\(m2StartupReady\)/)
+  assert.match(route, /if \(report\.startup\.action === 'skip'\)/)
+  assert.match(route, /await startup\.dispose\(\)/)
+  assert.doesNotMatch(route, /skip\.isVisible\(\)/)
+})

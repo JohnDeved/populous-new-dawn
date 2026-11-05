@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { showAllMissions, bindGame } from '../browser-game.mjs'
 import { verifyHeldEnter } from '../globe-held-enter-witness.mjs'
+import { m2StartupReady } from './m2-pointer-f8.mjs'
 
 // Hosted production Home scenario. The runner owns Chrome, the page, the single
 // 180s browser deadline and cleanup. No dev server or independent browser launch.
@@ -27,10 +28,15 @@ export default async function runGlobeHeldEnter({ page, url, output, source }) {
     await page.getByRole('button', { name: 'Mission 1', exact: true }).focus()
     await page.keyboard.press('Enter')
     await bindGame(page)
-    await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
-    const skip = page.locator('.skip-introduction')
-    if (await skip.isVisible()) await skip.click()
-    await page.waitForFunction(() => !window.testScene.world.inputMask)
+    // Scene binding can precede React's public Skip control. Reuse the existing
+    // actionable startup observer rather than sampling visibility once.
+    const startup = await page.waitForFunction(m2StartupReady)
+    report.startup = await startup.jsonValue()
+    await startup.dispose()
+    assert.equal(report.startup.level, 1)
+    if (report.startup.action === 'skip')
+      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
     await page.evaluate(() => { window.testScene = window.testSceneRef.current })
     report.renderer = await page.evaluate(() => {
