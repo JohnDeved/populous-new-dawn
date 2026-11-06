@@ -137,7 +137,18 @@ jobs:
           printf 'Candidate package manager: %s\n' "$manager"
           printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           test -x /opt/google/chrome/chrome
-          /opt/google/chrome/chrome --version
+          if [ "$PND_EVIDENCE_KIND" = hud-preference-ssr ]; then
+            chrome_version="$(/opt/google/chrome/chrome --version)"
+            printf '%s\n' "$chrome_version"
+            case "$chrome_version" in
+              'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ')
+                printf 'PND_HUD_CHROME_VERSION=%s\n' 'Google Chrome 156.0.8078.79' >> "$GITHUB_ENV"
+                ;;
+              *) printf 'Unreviewed Chrome version presentation\n' >&2; exit 1 ;;
+            esac
+          else
+            /opt/google/chrome/chrome --version
+          fi
           node --version
           if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
       - name: Acquire pinned material browser data (no launch)
