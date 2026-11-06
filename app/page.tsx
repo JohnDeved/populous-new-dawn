@@ -1064,8 +1064,14 @@ export default function Home() {
           e.stopPropagation()
           return
         }
-        if (e.detail > 0 && (e.target as Element).closest('.native-hud'))
-          (e.target as Element).closest('button')?.blur()
+        const button = (e.target as Element).closest('button')
+        // Dialogs remember their focused opener; keep it through the opening click.
+        if (
+          e.detail > 0 &&
+          (e.target as Element).closest('.native-hud') &&
+          button?.getAttribute('aria-haspopup') !== 'dialog'
+        )
+          button?.blur()
       }}
     >
       <FullscreenControl />
@@ -1269,6 +1275,7 @@ export default function Home() {
           <button
             className="help-button"
             aria-label="Menu"
+            aria-haspopup="dialog"
             title="Help and game menu"
             onClick={openMenu}
           >
@@ -1484,7 +1491,7 @@ export default function Home() {
           >
             {world.paused ? '▷' : 'Ⅱ'}
           </button>
-          <button aria-label="Game settings" title="Game settings" onClick={openMenu}>
+          <button aria-label="Game settings" aria-haspopup="dialog" title="Game settings" onClick={openMenu}>
             ☰
           </button>
         </div>
