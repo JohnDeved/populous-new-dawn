@@ -67,9 +67,9 @@ test('Failed screenshot attempts cannot reset the capture budget', async () => {
 
 test('New route preserves original dispatch modes and source/receipt gates', () => {
   const workflow = read('.github/workflows/native-ui-evidence.yml')
-  for (const kind of ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection'])
+  for (const kind of ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection', 'melee-capture-diagnostic'])
     assert.ok(workflow.includes('          - ' + kind + '\n'))
-  assert.ok(workflow.includes("['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection']"))
+  assert.ok(workflow.includes("['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection', 'melee-capture-diagnostic']"))
   assert.ok(workflow.includes("steps.tower-bounds.outcome == 'success'"))
   assert.ok(workflow.includes('node --max-old-space-size=768 evidence-infrastructure/scripts/tower-collection-evidence/run.mjs'))
   assert.ok(workflow.includes('persist-credentials: false'))

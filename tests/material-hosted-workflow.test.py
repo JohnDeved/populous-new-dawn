@@ -521,7 +521,7 @@ class WorkflowTests(unittest.TestCase):
     def test_existing_workflow_manual_readonly_default_unchanged(self):
         self.assertEqual(set(self.workflow['on']),{'workflow_dispatch'})
         mode=self.workflow['on']['workflow_dispatch']['inputs']['evidence_kind']
-        self.assertEqual(mode['default'],'native-ui');self.assertEqual(mode['options'],['native-ui','material-lifecycle','options-controls','tower-collection'])
+        self.assertEqual(mode['default'],'native-ui');self.assertEqual(mode['options'],['native-ui','material-lifecycle','options-controls','tower-collection','melee-capture-diagnostic'])
         self.assertEqual(self.workflow['permissions'],{'contents':'read'})
         self.assertEqual(self.workflow['concurrency']['cancel-in-progress'],'false')
     def test_same_exact_action_pins_and_source_checkout(self):
