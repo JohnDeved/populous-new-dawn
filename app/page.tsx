@@ -115,6 +115,39 @@ type LoadRequest =
   | { kind: 'restart' }
   | { kind: 'continue'; mission: number }
 
+function createHudPreferenceStore() {
+  let value = 'auto',
+    initialized = false
+  const listeners = new Set<() => void>()
+  const set = (next: string) => {
+    initialized = true
+    if (value === next) return
+    value = next
+    for (const listener of listeners) listener()
+  }
+  return {
+    getSnapshot: () => value,
+    getServerSnapshot: () => 'auto',
+    set,
+    subscribe(listener: () => void) {
+      listeners.add(listener)
+      if (!initialized) {
+        initialized = true
+        let saved: string | null = null
+        try {
+          saved = localStorage.getItem('hud-size')
+        } catch {
+          // Storage can be disabled; the size control still works for this session.
+        }
+        if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) set(saved)
+      }
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+  }
+}
+
 export default function Home() {
   const [store] = useState(createGameStore)
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
@@ -134,7 +167,13 @@ export default function Home() {
   const gamePreferencesRef = useRef(gamePreferences)
   const [gameStorageNotice, setGameStorageNotice] = useState('')
   const [soundPending, setSoundPending] = useState(false)
-  const [hudSize, setHudSize] = useState('auto')
+  const [hudPreference] = useState(createHudPreferenceStore)
+  const hudSize = useSyncExternalStore(
+    hudPreference.subscribe,
+    hudPreference.getSnapshot,
+    hudPreference.getServerSnapshot
+  )
+  const setHudSize = hudPreference.set
   const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
   const [nearbyPressed, setNearbyPressed] = useState(false)
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
@@ -143,15 +182,6 @@ export default function Home() {
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   const [startupLogoDone, setStartupLogoDone] = useState(false)
   const finishStartupLogo = useCallback(() => setStartupLogoDone(true), [])
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('hud-size')
-      // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.
-      if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)
-    } catch {
-      // Storage can be disabled; the size control still works for this session.
-    }
-  }, [])
   const [menu, setMenu] = useState(false)
   const [cheatsOpen, setCheatsOpen] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
