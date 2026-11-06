@@ -116,7 +116,7 @@ export async function runModalInvalidation({ browser, url, candidateRoot, output
       const { bindGame } = await load('scripts/browser-game.mjs')
       evidence.entry = {}
       record('mission-entry-start'); await enterModalMission(page, { openCampaignFromMainMenu, bindGame, signal: signal ?? new AbortController().signal,
-        deadlineAt: Date.now() + 30000, trace: evidence.entry })
+        deadlineAt: Date.now() + 30000, trace: evidence.entry, onUncertainInput: error => lifetime.abort(error) })
       record('mission-entry-passed'); evidence.castTarget = await prepareHeldCast(page)
       record('held-cast-bound')
       evidence.runtime = await page.evaluate(() => {

@@ -10,7 +10,7 @@ export function observeStartup(owners) {
     return { pageNowMs: performance.now(), ownerUnchanged: store === owners.store && world === owners.world && scene === owners.scene && scene.world === world,
       inputMask: world.inputMask, level: world.outcome.level, cheats: store.hasUsedCheats(), paused: world.paused,
       skipVisible: !!skip && skip.getClientRects().length > 0 && getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled,
-      controlUnchanged: skip === control, documentVisibility: document.visibilityState, modalSuspended: scene.modalSuspended,
+      controlUnchanged: skip === control, controlPresent: !!skip, boundControlConnected: control?.isConnected === true, documentVisibility: document.visibilityState, modalSuspended: scene.modalSuspended,
       flyby: flyby ? { flags: number(flyby.flags), warmup: number(flyby.warmup), frameRate: number(flyby.frameRate),
         frame: number(flyby.frame), cursor: number(flyby.cursor), eventCount: flyby.events?.length ?? null,
         tracks: [1, 2, 3].map(index => { const track = flyby.tracks?.[index]; return track ?
@@ -26,9 +26,10 @@ export function observeStartup(owners) {
   }
   const events = new WeakMap()
   const capture = event => {
-    if (report.closed || event.target?.closest?.('button.skip-introduction') !== control || !control) return
+    if (report.closed) return
     if (report.clicks.length >= 4) { report.extraClicks++; return }
-    const click = { sequence: report.clicks.length + 1, trusted: event.isTrusted === true, eventTimeStampMs: number(event.timeStamp),
+    const click = { sequence: report.clicks.length + 1, targetMatched: !!control && event.target?.closest?.('button.skip-introduction') === control, trusted: event.isTrusted === true, eventTimeStampMs: number(event.timeStamp),
+      button: number(event.button), detail: number(event.detail), clientX: number(event.clientX), clientY: number(event.clientY),
       capture: sample('click-capture'), bubble: null }
     report.clicks.push(click); events.set(event, click)
   }
@@ -46,6 +47,17 @@ export function observeStartup(owners) {
   window.addEventListener('click', capture, { capture: true, passive: true }); report.listeners++
   window.addEventListener('click', bubble, { capture: false, passive: true }); report.listeners++
   const initial = sample('initial'); report.initial = initial
+  if (initial?.inputMask) {
+    const rect = control?.getBoundingClientRect(), x = (rect?.left + rect?.right) / 2, y = (rect?.top + rect?.bottom) / 2
+    const inViewport = Number.isFinite(x) && Number.isFinite(y) && x >= 0 && y >= 0 && x < innerWidth && y < innerHeight
+    const hit = inViewport ? document.elementFromPoint(x, y) : null
+    initial.publicClickTarget = { x: number(x), y: number(y), inViewport,
+      positiveArea: !!rect && rect.width > 0 && rect.height > 0,
+      finiteGeometry: !!rect && [rect.left, rect.right, rect.top, rect.bottom, rect.width, rect.height].every(Number.isFinite),
+      notInert: !!control && !control.closest('[inert]'),
+      unique: document.querySelectorAll('button.skip-introduction').length === 1,
+      connected: control?.isConnected === true, hitMatchesControl: !!control && hit?.closest?.('button.skip-introduction') === control }
+  }
   if (!initial) throw Error('Initial bound startup observation unavailable')
   return initial
 }

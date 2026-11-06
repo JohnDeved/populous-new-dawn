@@ -252,3 +252,38 @@ These observations support the next actual player-facing gate: one ordinary
 Mission 1 Blast windup and F9 modal followed by late-texture/restoration pixel
 proof, screenshot and cleanup. They do not themselves establish modal acceptance
 or authorize a further heavy run.
+
+
+## Verified public pointer entry
+
+Run 42134505305 proved a trusted locator click reached the actual Skip handler
+and started its normal 46-frame camera blend. The last poll reached frame 40 and
+the final observation frame 42, with the same unpaused owners still input-locked.
+Observation and locator delivery used 893.8 ms, leaving 1606.1 ms of the existing
+2500 ms cap. That run remains failed, with no modal episode or screenshot.
+
+The dedicated adapter now issues one ordinary `page.mouse.click` at the bound
+button's current viewport CSS center. The initial observation, inside the same
+cumulative cap, must prove a unique, connected, visible, enabled, non-inert control,
+finite positive geometry, an in-viewport center and an exact-control hit-test
+(including a child hit). It performs no extra move, scroll, locator trial, forced
+click, synthetic activation, fallback or retry. Observation and dispatch are not
+atomic; a changed or missed target must fail the later delivery proof.
+
+The passive probe retains all clicks during this attempt, including mismatches.
+Acceptance requires exactly one trusted primary click at the admitted point, on
+the bound control, with same-owner capture and matching window bubble. Native
+warmup interruption, a freshly started authored blend, an already-finishing
+blend and prior natural completion are distinguished. React-like button removal
+is allowed only after observed native completion; replacement is rejected. The
+world must actually unlock before the original cumulative deadline, including
+the final proof read. Sufficient runtime headroom has not been demonstrated.
+
+Unlike locator timeout, a raw mouse timeout cannot mean the control disappeared.
+An unsettled or rejected input command remains failed/uncertain and immediately
+requests the independent owner's context closure before diagnostic cleanup.
+The late promise is observed without another input or success rescue. A zero-input
+natural-before-click outcome remains supported. Dispatch errors stay primary even
+if cancellation or diagnostics also fail. The existing 30-second entry, 60-second
+driver, externally supervised 70-second browser, resource, pixel and cleanup gates
+are unchanged. Focused mocked controls are not actual modal visual acceptance.

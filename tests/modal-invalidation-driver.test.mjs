@@ -169,65 +169,66 @@ test('hung context close is reported unknown within bound, not certified cleanup
   owner.cancelTimer()
 })
 
-const { finishModalIntroduction, publicStartupReady, readBoundStartup, enterModalMission } =
+const { finishModalIntroduction, publicStartupReady, readBoundStartup, enterModalMission, validatePublicDelivery } =
   await import('../scripts/modal-invalidation/mission-entry.mjs')
-function startupPage({ before = {}, after = {}, clickError, clickMs = 1000, unlockMs = 1000, initialMs = 0, waitError } = {}) {
+function startupPage({ before = {}, after = {}, clickError, clickMs = 1000, unlockMs = 1000, initialMs = 0, proofMs = 0, waitError } = {}) {
   let now = 0, reads = 0
-  const calls = [], state = { ownerUnchanged: true, inputMask: 64, level: 1, cheats: false, skipVisible: true }
+  const calls = [], state = { ownerUnchanged: true, inputMask: 64, level: 1, cheats: false, skipVisible: true,
+    controlUnchanged: true, controlPresent: true, boundControlConnected: true, paused: false, modalSuspended: false, documentVisibility: 'visible' }
+  const target = { x: 400, y: 300, inViewport: true, positiveArea: true, finiteGeometry: true, notInert: true, unique: true, connected: true, hitMatchesControl: true }
+  const activation = { count: 1, extraClicks: 0, click: { targetMatched: true, trusted: true, button: 0, detail: 1, clientX: 400, clientY: 300,
+    capture: { ...state, flyby: { flags: 21, warmup: 2 } }, bubble: { ...state, inputMask: 0, flyby: { flags: 20, warmup: 2 } } } }
   const page = {
-    async evaluate() { calls.push('read'); if (reads === 0) now += initialMs; return { ...state, ...(reads++ ? { inputMask: 0, ...after } : before) } },
-    getByRole(role, options) {
-      assert.equal(role, 'button'); assert.equal(String(options.name), '/^Skip introduction/')
-      return { async click(options) { calls.push(['click', options]); now += clickMs; if (clickError) throw clickError } }
-    },
+    async evaluate() { calls.push('read'); if (reads === 0) now += initialMs; else now += proofMs; return { ...state, ...(reads++ ? { inputMask: 0, activation, ...after } : { publicClickTarget: target, ...before }) } },
+    getByRole() { assert.fail('No locator activation in the pointer adapter') },
+    mouse: { async click(x, y, options) { calls.push(['click', { x, y, ...options }]); now += clickMs; if (clickError) throw clickError } },
     async waitForFunction(fn, owners, options) { calls.push(['wait', options]); now += unlockMs; if (waitError) throw waitError },
   }
   return { page, calls, trace: {}, now: () => now }
 }
 test('ordinary startup uses one public click and one cumulative click/unlock budget', async () => {
-  const f = startupPage(); await finishModalIntroduction(f.page, {}, f.trace, f.now)
+  const f = startupPage(); await finishModalIntroduction(f.page, {}, f.trace, f.now, () => {})
   assert.equal(f.trace.outcome, 'public-click-unlocked'); assert.equal(f.trace.attempts, 1)
   assert.equal(f.trace.elapsedMs, 2000)
   assert.deepEqual(f.calls.filter(x => Array.isArray(x)), [
-    ['click', { timeout: 2500, noWaitAfter: true }], ['wait', { timeout: 1500 }],
+    ['click', { x: 400, y: 300, button: 'left', clickCount: 1 }], ['wait', { timeout: 1500 }],
   ])
 })
 test('natural introduction completion before activation sends no click', async () => {
   const f = startupPage({ before: { inputMask: 0, skipVisible: false } })
-  await finishModalIntroduction(f.page, {}, f.trace, f.now)
+  await finishModalIntroduction(f.page, {}, f.trace, f.now, () => {})
   assert.equal(f.trace.outcome, 'natural-before-click'); assert.equal(f.trace.attempts, 0)
   assert.deepEqual(f.calls, ['read'])
 })
-test('only a timeout with same-owner natural unlock inside budget excuses delivery rejection', async () => {
-  const error = Object.assign(Error('control disappeared'), { name: 'TimeoutError' })
-  const f = startupPage({ clickError: error }); await finishModalIntroduction(f.page, {}, f.trace, f.now)
-  assert.equal(f.trace.outcome, 'natural-during-click'); assert.equal(f.trace.delivery, 'rejected')
-  assert.equal(f.calls.filter(x => Array.isArray(x)).length, 1)
-  for (const after of [{ inputMask: 64 }, { ownerUnchanged: false }, { level: 2 }, { cheats: true }]) {
+test('raw pointer timeout is uncertain dispatch and cannot be rescued by natural unlock', async () => {
+  const error = Object.assign(Error('pointer delivery timeout'), { name: 'TimeoutError' })
+  for (const after of [{ inputMask: 0 }, { inputMask: 64 }, { ownerUnchanged: false }, { level: 2 }, { cheats: true }]) {
     const f = startupPage({ clickError: error, after })
-    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now)); assert.equal(f.trace.outcome, 'failed')
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}), value => value === error)
+    assert.equal(f.trace.outcome, 'failed'); assert.equal(f.trace.attempts, 1)
+    assert.equal(f.calls.filter(x => x === 'read').length, 1)
   }
 })
 test('non-timeout input dispatch failure is retained even if the mission could unlock', async () => {
   const failure = Error('input delivery disconnected'), f = startupPage({ clickError: failure })
-  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), error => error === failure)
+  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}), error => error === failure)
   assert.equal(f.trace.attempts, 1); assert.equal(f.calls.filter(x => x === 'read').length, 1)
 })
 test('over-budget click or unlock cannot pass and never gets a second activation', async () => {
   const timeout = Object.assign(Error('timeout'), { name: 'TimeoutError' })
   for (const options of [{ clickMs: 2501, unlockMs: 0 }, { clickMs: 1500, unlockMs: 1001 }, { clickMs: 2501, clickError: timeout }]) {
     const f = startupPage(options)
-    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), /budget expired/)
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}), /budget expired|timeout/)
     assert.equal(f.trace.attempts, 1); assert.equal(f.trace.outcome, 'failed')
   }
 })
 test('missing visible Skip, changed owner or wrong mission cannot authorize input', async () => {
   for (const before of [{ skipVisible: false }, { ownerUnchanged: false }, { level: 2 }, { cheats: true }]) {
-    const f = startupPage({ before }); await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now))
+    const f = startupPage({ before }); await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}))
     assert.equal(f.trace.attempts, 0)
   }
   const changed = startupPage({ after: { ownerUnchanged: false } })
-  await assert.rejects(finishModalIntroduction(changed.page, {}, changed.trace, changed.now), /owner changed/)
+  await assert.rejects(finishModalIntroduction(changed.page, {}, changed.trace, changed.now, () => {}), /owner changed/)
 })
 test('startup predicates read real owners and public visibility without changing them', () => {
   const world = { inputMask: 64, outcome: { level: 1 } }, scene = { world }, store = { getWorld: () => world, hasUsedCheats: () => false }
@@ -243,7 +244,7 @@ test('startup predicates read real owners and public visibility without changing
 test('entry wall deadline rejects a stuck campaign helper without later setup actions', async () => {
   const trace = {}, page = { getByRole() { assert.fail('No later input after expired startup') } }
   await assert.rejects(enterModalMission(page, { openCampaignFromMainMenu: () => new Promise(() => {}),
-    bindGame: () => assert.fail('No binding after expired startup'), signal: new AbortController().signal,
+    bindGame: () => assert.fail('No binding after expired startup'), onUncertainInput: () => {}, signal: new AbortController().signal,
     deadlineAt: Date.now() + 10, trace }), /entry deadline expired/)
   assert.equal(trace.status, 'failed'); assert.equal(trace.ownerHandleCleanup, 'fulfilled')
 })
@@ -275,7 +276,7 @@ test('throwing lifecycle sink cannot replace primary failure or prevent abort cl
   }
 })
 
-const deferred = () => { let resolve; const promise = new Promise(done => { resolve = done }); return { promise, resolve } }
+const deferred = () => { let resolve, reject; const promise = new Promise((done, fail) => { resolve = done; reject = fail }); return { promise, resolve, reject } }
 function strictRoutePage({ fetchPending, bodyPending, fulfillPending, abortError, fulfillError, fetchError, unrouteError, unroutePending } = {}) {
   let handler, active, terminal, removed = 0
   const calls = [], response = { status: () => 200, url: () => 'http://localhost/original/sky.png',
@@ -363,17 +364,18 @@ function startupObservation() {
   const tracks = Array.from({ length: 7 }, () => ({ frame: 0, duration: 0, active: false }))
   const world = { inputMask: 64, paused: false, outcome: { level: 1 }, flyby: { flags: 17, warmup: 6, frameRate: 0, frame: 0, cursor: 0, events: [], tracks } }
   const scene = { world, modalSuspended: false }, store = { getWorld: () => world, hasUsedCheats: () => false }
-  const control = { getClientRects: () => [1], disabled: false }, handlers = new Map()
+  const control = { getClientRects: () => [1], disabled: false, isConnected: true, closest: () => null,
+    getBoundingClientRect: () => ({ left: 300, right: 500, top: 280, bottom: 320, width: 200, height: 40 }) }, handlers = new Map()
   const window = { testStore: store, testSceneRef: { current: scene },
     addEventListener(name, fn, options) { assert.equal(name, 'click'); assert.equal(options.passive, true); handlers.set(options.capture, fn) },
     removeEventListener(name, fn, capture) { assert.equal(name, 'click'); assert.equal(handlers.get(capture), fn); handlers.delete(capture) } }
-  const document = { querySelector: () => control, visibilityState: 'visible' }, owners = { store, world, scene }
-  const context = { window, document, owners, getComputedStyle: () => ({ visibility: 'visible' }), performance: { now: () => time, timeOrigin: 1000 } }
+  const document = { querySelector: () => control, querySelectorAll: () => [control], elementFromPoint: () => ({ closest: () => control }), visibilityState: 'visible' }, owners = { store, world, scene }
+  const context = { window, document, owners, innerWidth: 1440, innerHeight: 1000, getComputedStyle: () => ({ visibility: 'visible' }), performance: { now: () => time, timeOrigin: 1000 } }
   const read = () => vm.runInNewContext(`(${observeStartup})(owners)`, context)
   const close = () => vm.runInNewContext(`(${closeStartupProbe})(owners)`, context)
-  return { world, scene, window, owners, handlers, read, close, context, tick(ms) { time += ms },
+  return { world, scene, window, owners, control, document, handlers, read, close, context, tick(ms) { time += ms },
     click({ trusted = true, wrongTarget = false, bubble = true, handler = () => {} } = {}) {
-      const event = { isTrusted: trusted, timeStamp: time, target: { closest: () => wrongTarget ? {} : control } }
+      const event = { isTrusted: trusted, timeStamp: time, button: 0, detail: 1, clientX: 400, clientY: 300, target: { closest: () => wrongTarget ? {} : control } }
       handlers.get(true)?.(event); handler(); if (bubble) handlers.get(false)?.(event)
     } }
 }
@@ -395,9 +397,10 @@ test('passive capture and window bubble distinguish warmup skip from native blen
   }
 })
 test('wrong targets, untrusted clicks and missing bubble remain explicit rather than inferred handler success', () => {
-  const f = startupObservation(); f.read(); f.click({ wrongTarget: true }); assert.equal(f.owners.startupProbe.report.clicks.length, 0)
+  const f = startupObservation(); f.read(); f.click({ wrongTarget: true }); assert.equal(f.owners.startupProbe.report.clicks.length, 1)
+  assert.equal(f.owners.startupProbe.report.clicks[0].targetMatched, false)
   f.click({ trusted: false, bubble: false }); const report = f.close()
-  assert.equal(report.clicks.length, 1); assert.equal(report.clicks[0].trusted, false); assert.equal(report.clicks[0].bubble, null)
+  assert.equal(report.clicks.length, 2); assert.equal(report.clicks[1].trusted, false); assert.equal(report.clicks[1].bubble, null)
 })
 test('same-owner latest polling exposes paused or stalled tracks, late unlock and replaced owners without new timers', () => {
   const f = startupObservation(); f.read(); f.world.flyby.warmup = 0; f.world.flyby.frameRate = 23; f.world.paused = true
@@ -430,7 +433,7 @@ test('startup diagnostic storage stays bounded and cleanup is idempotent', () =>
 })
 test('unchanged click deadline fails despite a later diagnostic unlock and retains operation timestamps', async () => {
   const f = startupPage({ clickMs: 1238, unlockMs: 1333 })
-  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), /budget expired/)
+  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}), /budget expired/)
   assert.equal(f.trace.elapsedMs, 2571); assert.equal(f.trace.attempts, 1); assert.equal(f.trace.outcome, 'failed')
   assert.equal(f.trace.operations.find(x => x.phase === 'click-fulfilled').elapsedMs, 1238)
   assert.equal(f.trace.operations.find(x => x.phase === 'unlock-wait-start').elapsedMs, 1238)
@@ -439,8 +442,9 @@ test('unchanged click deadline fails despite a later diagnostic unlock and retai
 
 test('initial passive observation remains inside the existing cumulative introduction budget', async () => {
   const f = startupPage({ initialMs: 2000, clickMs: 1000, unlockMs: 0 })
-  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), /budget expired/)
-  assert.equal(f.calls.find(x => Array.isArray(x) && x[0] === 'click')[1].timeout, 500)
+  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}), /budget expired/)
+  assert.deepEqual(f.calls.find(x => Array.isArray(x) && x[0] === 'click')[1], { x: 400, y: 300, button: 'left', clickCount: 1 })
+  assert.equal(f.calls.some(x => Array.isArray(x) && x[0] === 'wait'), false)
   assert.equal(f.trace.operations.find(x => x.phase === 'initial-observation-complete').elapsedMs, 2000)
   assert.equal(f.trace.elapsedMs, 3000)
 })
@@ -460,7 +464,7 @@ function entryPage(options = {}, cleanup = {}) {
   }
   return { ...f, disposals: () => disposals,
     enter: () => enterModalMission(f.page, { openCampaignFromMainMenu: async () => {}, bindGame: async () => {},
-      signal: new AbortController().signal, deadlineAt: Date.now() + 5000, trace: f.trace }) }
+      signal: new AbortController().signal, deadlineAt: Date.now() + 5000, trace: f.trace, onUncertainInput: cleanup.cancel ?? (() => {}) }) }
 }
 test('entry closes passive listeners and disposes owner under the existing cleanup step', async () => {
   const f = entryPage(); await f.enter()
@@ -476,4 +480,125 @@ test('post-failure observation cannot rescue a late unlock or replace primary di
   await assert.rejects(failed.enter(), error => error === original)
   assert.equal(failed.trace.ownerHandleCleanup, 'rejected'); assert.equal(failed.disposals(), 1)
   assert.match(failed.trace.error, /original dispatch failure/)
+})
+
+test('pointer target is current viewport CSS center and permits a child hit without game writes', () => {
+  const f = startupObservation(), before = JSON.stringify(f.world), initial = f.read()
+  assert.deepEqual(JSON.parse(JSON.stringify(initial.publicClickTarget)), { x: 400, y: 300, inViewport: true,
+    positiveArea: true, finiteGeometry: true, notInert: true, unique: true, connected: true, hitMatchesControl: true })
+  assert.equal(JSON.stringify(f.world), before); f.close()
+})
+test('pointer preflight retains and rejects obstructed, offscreen, zero, nonfinite, inert or detached targets', async () => {
+  const changes = [
+    f => { f.document.elementFromPoint = () => ({ closest: () => null }) },
+    f => { f.control.getBoundingClientRect = () => ({ left: -400, right: -200, top: 1, bottom: 41, width: 200, height: 40 }) },
+    f => { f.control.getBoundingClientRect = () => ({ left: 400, right: 400, top: 1, bottom: 41, width: 0, height: 40 }) },
+    f => { f.control.getBoundingClientRect = () => ({ left: 300, right: 500, top: 280, bottom: 320, width: Infinity, height: 40 }) },
+    f => { f.control.closest = () => ({ inert: true }) },
+    f => { f.control.isConnected = false },
+    f => { f.document.querySelectorAll = () => [f.control, {}] },
+    f => { f.control.disabled = true },
+  ]
+  for (const change of changes) {
+    const f = startupObservation(); change(f); const initial = f.read(), page = startupPage({ before: initial })
+    await assert.rejects(finishModalIntroduction(page.page, {}, page.trace, page.now, () => {}))
+    assert.equal(page.trace.attempts, 0); assert.equal(page.calls.some(x => Array.isArray(x) && x[0] === 'click'), false)
+    f.close()
+  }
+})
+function deliveryFromProbe(f) {
+  const report = f.owners.startupProbe.report
+  return { count: report.clicks.length, extraClicks: report.extraClicks, click: report.clicks[0] }
+}
+test('trusted warmup handler removal is accepted but same-position replacement is not', () => {
+  for (const replacement of [false, true]) {
+    const f = startupObservation(), initial = f.read()
+    f.click({ handler() {
+      f.world.flyby.flags &= ~1; f.world.inputMask = 0; f.control.isConnected = false
+      f.document.querySelector = () => replacement ? { getClientRects: () => [1], disabled: false } : null
+    } })
+    const activation = deliveryFromProbe(f)
+    if (replacement) assert.throws(() => validatePublicDelivery(activation, initial.publicClickTarget), /replaced or removed/)
+    else assert.equal(validatePublicDelivery(activation, initial.publicClickTarget), 'warmup-unlocked')
+    f.close()
+  }
+})
+test('real observed native blend and already-finishing branches are accepted without a second input', () => {
+  for (const finishing of [false, true]) {
+    const f = startupObservation(); f.world.flyby.warmup = 0; f.world.flyby.frameRate = 23
+    if (finishing) { f.world.flyby.flags |= 0x48; for (const index of [1, 2, 3]) Object.assign(f.world.flyby.tracks[index], { active: true, frame: 12, duration: 46 }) }
+    const initial = f.read()
+    f.click({ handler() {
+      if (finishing) return
+      f.world.flyby.flags |= 0x48
+      for (const index of [1, 2, 3]) Object.assign(f.world.flyby.tracks[index], { active: true, frame: 0, duration: 46 })
+    } })
+    assert.equal(validatePublicDelivery(deliveryFromProbe(f), initial.publicClickTarget), finishing ? 'already-finishing' : 'native-blend-started')
+    f.close()
+  }
+})
+test('matched natural completion at dispatch is explicit and is not a missing-target exception', () => {
+  const f = startupObservation(), initial = f.read(); f.world.inputMask = 0; f.world.flyby.flags &= ~1
+  f.click(); assert.equal(validatePublicDelivery(deliveryFromProbe(f), initial.publicClickTarget), 'natural-before-dispatch'); f.close()
+})
+test('missing handler effect, mismatched, duplicate, untrusted or incomplete delivery cannot pass on later unlock', async () => {
+  for (const kind of ['effect', 'wrong', 'duplicate', 'untrusted', 'bubble', 'owner', 'coordinates']) {
+    const f = startupObservation(), initial = f.read()
+    f.click({ wrongTarget: kind === 'wrong', trusted: kind !== 'untrusted', bubble: kind !== 'bubble', handler() {
+      if (kind === 'effect') return
+      f.world.inputMask = 0; f.world.flyby.flags &= ~1
+      if (kind === 'owner') f.window.testSceneRef.current = { world: f.world }
+    } })
+    if (kind === 'duplicate') f.click()
+    const activation = deliveryFromProbe(f)
+    if (kind === 'coordinates') activation.click.clientX += 50
+    const page = startupPage({ before: initial, after: { activation, inputMask: 0 } })
+    await assert.rejects(finishModalIntroduction(page.page, {}, page.trace, page.now, () => {}))
+    assert.equal(page.trace.outcome, 'failed'); assert.equal(page.trace.attempts, 1)
+    f.close()
+  }
+})
+test('delivery proof read and unlock both remain charged to the cumulative pointer response cap', async () => {
+  for (const options of [{ initialMs: 200, clickMs: 200, unlockMs: 2000, proofMs: 101 }, { initialMs: 200, clickMs: 200, unlockMs: 2101 }]) {
+    const f = startupPage(options)
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, () => {}), /budget expired/)
+    assert.equal(f.trace.attempts, 1); assert.equal(f.trace.outcome, 'failed')
+  }
+})
+test('hung pointer dispatch requests independent cancellation before cleanup and consumes late rejection', async () => {
+  for (const rejects of [false, true]) {
+    const f = startupPage({ initialMs: 2490 }), pending = deferred(), order = []
+    f.page.mouse.click = async () => { order.push('input'); await pending.promise }
+    let cancellation
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, error => { cancellation = error; order.push('close-requested') }), /uncertain outcome/)
+    assert.equal(f.trace.delivery, 'uncertain'); assert.equal(f.trace.deliveryUncertain, true)
+    assert.equal(f.trace.uncertainCancellationRequested, true); assert.ok(cancellation)
+    assert.deepEqual(order, ['input', 'close-requested']); assert.equal(f.calls.some(x => Array.isArray(x) && x[0] === 'wait'), false)
+    if (rejects) pending.reject(Error('late input rejection')); else pending.resolve()
+    await flush(); assert.deepEqual(order, ['input', 'close-requested']); assert.equal(f.trace.outcome, 'failed')
+  }
+})
+test('rejected dispatch preserves its primary error when independent cancellation and diagnostic cleanup fail', async () => {
+  const original = Error('native mouse transport failure'), order = []
+  const f = entryPage({ clickError: original }, { cancel() { order.push('cancel'); throw Error('close request failed') }, error: Error('diagnostic unavailable') })
+  await assert.rejects(f.enter(), error => error === original)
+  assert.deepEqual(order, ['cancel']); assert.equal(f.trace.deliveryUncertain, true)
+  assert.match(f.trace.uncertainCancellationError, /close request failed/)
+  assert.equal(f.trace.ownerHandleCleanup, 'rejected'); assert.equal(f.disposals(), 1)
+})
+test('public pointer adapter requires an explicit independent context owner', async () => {
+  const f = startupPage()
+  await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now), /independent owned-context/)
+  assert.deepEqual(f.calls, [])
+})
+test('uncertain input uses the real deadline owner to close its context independently', async () => {
+  const f = startupPage({ initialMs: 2490 }), pending = deferred(), events = []
+  const owner = contextDeadline({ timeoutMs: 60000, onFailure: error => events.push(error.message) })
+  try {
+    await owner.create(async () => ({ async close() { events.push('context-closed') } }))
+    f.page.mouse.click = () => pending.promise
+    await assert.rejects(finishModalIntroduction(f.page, {}, f.trace, f.now, error => owner.abort(error)), /uncertain outcome/)
+    await flush(); assert.equal(events.at(-1), 'context-closed')
+    assert.equal(await owner.close(), true); assert.equal(events.filter(x => x === 'context-closed').length, 1)
+  } finally { pending.resolve(); owner.cancelTimer() }
 })
