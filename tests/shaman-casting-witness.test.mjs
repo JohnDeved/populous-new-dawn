@@ -62,7 +62,7 @@ function evidence() {
   frozen.suspended = true
   frozen.person.f2 = casts[1].frames[2].person.f2
   return { casts, closed: true, restored: true, errors: [],
-    holds: [{ label: 'subsequent', before: { at: 160, stamp: 131, state: frozen },
+    holds: [{ label: 'subsequent', samples: [160, 510].map(at => ({ at, frameTime: at, stamp: 131, state: structuredClone(frozen) })), before: { at: 160, stamp: 131, state: frozen },
       after: { at: 510, stamp: 133, state: structuredClone(frozen) } }] }
 }
 
@@ -81,7 +81,7 @@ test('two complete observations distinguish logical callbacks from submitted ren
   assert.deepEqual(result.casts.map(c => [c.label, c.projectileVisits, c.personVisits, c.cooldownVisits]),
     [['ordinary', 6, 10, 12], ['subsequent', 6, 10, 12]])
   assert.deepEqual(result.activeCastPauseHold, { status: 'passed', kind: 'F9 presentation suspension',
-    durationMs: 350, renderedFrames: 2 })
+    durationMs: 350, renderedFrames: 2, retainedRenderedFrames: 0, rafStateSamples: 2, rafStateSpanMs: 350 })
   assert.deepEqual(supplied, before)
 })
 
@@ -190,7 +190,7 @@ test('rejects stale/wrong rendered source, render-clock drift, obscured or swapp
   }
 })
 
-test('active-cast hold requires timed suspended renders, exact frozen state and rendered resume', () => {
+test('active-cast hold requires timed RAF state samples, exact frozen state and rendered resume', () => {
   const corruptions = [
     r => { delete r.holds }, r => { r.holds = [] }, r => { r.holds[0].label = 'ordinary' },
     r => { r.holds[0].after = null }, r => { r.holds[0].after.at-- },
@@ -198,8 +198,8 @@ test('active-cast hold requires timed suspended renders, exact frozen state and 
     r => { r.holds[0].after.state.projectiles[0].remaining-- },
     r => { for (const edge of ['before', 'after']) r.holds[0][edge].state.person.state = 10 },
     r => { for (const edge of ['before', 'after']) r.holds[0][edge].state.person.casting = false },
-    r => { r.casts[1].frames = r.casts[1].frames.filter(f => !f.suspended) },
-    r => { r.casts[1].frames.splice(3, 1) },
+    r => { r.holds[0].samples = [] },
+    r => { r.holds[0].samples.pop() },
     r => { r.casts[1].frames[2].suspended = false },
     r => { r.casts[1].frames[2].person.state = 10 },
     r => { r.casts[1].frames[2].person.timer-- },
@@ -215,7 +215,7 @@ test('active-cast hold requires timed suspended renders, exact frozen state and 
 
 // This fake browser checks observer transparency and cleanup, not real pixels.
 function observerFixture({ ownRender = false, ownModal = false, installFailure = false } = {}) {
-  const names = ['window', 'document', 'getComputedStyle'],
+  const names = ['window', 'document', 'getComputedStyle', 'performance'],
     saved = names.map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)]),
     listeners = [], calls = [], person = { ...evidence().casts[0].before.person },
     world = { turn: 100, paused: false, speed: 1, outcome: { level: 1 }, inputMask: 0,
@@ -254,7 +254,11 @@ function observerFixture({ ownRender = false, ownModal = false, installFailure =
       picking: { personBounds: () => ({ x: 100, y: 100, width: 30, height: 50 }) } }
   Object.setPrototypeOf(scene, { setModalSuspended: modal })
   if (ownModal) Object.defineProperty(scene, 'setModalSuspended', { value: modal, writable: true, configurable: true })
-  const win = { testSceneRef: { current: scene }, testStore: { getWorld: () => world, hasUsedCheats: () => false },
+  let offset = 0, rafId = 0
+  const realPerformance = globalThis.performance, rafs = new Map()
+  globalThis.performance = { now: () => realPerformance.now() + offset }
+  const win = { requestAnimationFrame(callback) { rafs.set(++rafId, callback); return rafId },
+    cancelAnimationFrame(id) { rafs.delete(id) }, testSceneRef: { current: scene }, testStore: { getWorld: () => world, hasUsedCheats: () => false },
     addEventListener(type, callback, capture) {
       if (installFailure && listeners.length === 1) throw Error('listener installation failed')
       listeners.push({ type, callback, capture })
@@ -293,7 +297,9 @@ function observerFixture({ ownRender = false, ownModal = false, installFailure =
       else delete globalThis[name]
   }
   return { world, person, scene, renderer, group, canvas, win, calls, returned, thrown, listeners,
-    turn, render, modal, allocate, dispatch, cleanup, readbacks: () => readbackCount,
+    turn, render, modal, allocate, dispatch, cleanup,
+    rafs, rafStep(ms = 1) { offset += ms; const entries = [...rafs]; rafs.clear(); for (const [, callback] of entries) callback(performance.now()) },
+    readbacks: () => readbackCount,
     failModal: () => { failModal = true },
     fail: () => { failTurn = true; failRender = true } }
 }
@@ -394,7 +400,7 @@ test('first-copy notification excludes prior, missing, paused and suspended rend
     assert.equal(f.calls.length, calls + 2)
     assert.deepEqual(f.world, before)
     observer.disarmFirstRunningCast(token)
-    f.scene.modalSuspended = true; observer.beginHold(); observer.endHold()
+    f.scene.modalSuspended = true; observer.beginHold(); f.rafStep(); f.rafStep(351); observer.endHold()
     f.scene.modalSuspended = false
     for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
     const result = observer.finish(), frames = result.casts[1].frames
@@ -832,6 +838,7 @@ test('active-cast hold markers observe existing suspension without changing Worl
     assert.equal(f.calls.length, calls, 'Starting a hold cannot drive callbacks')
     f.renderer.render(f.scene.scene, f.scene.camera)
     f.renderer.render(f.scene.scene, f.scene.camera)
+    f.rafStep(); f.rafStep(351)
     observer.endHold()
     assert.throws(() => observer.endHold(), /must be open/)
     const result = observer.finish()
@@ -1125,5 +1132,133 @@ test('successful casting retention checks the same absolute deadline before admi
     assert.equal(result.castingRetentionAttempted, expectedCalls === 1)
     if (fails) assert.match(String(result.error), /absolute deadline/)
     else { assert.equal(result.error, undefined); assert.equal(report.shamanCasting, retained) }
+  }
+})
+
+
+test('retained modal frame accepts independent RAF observations without fabricating rendered samples', () => {
+  const result = evidence()
+  result.casts[1].frames = result.casts[1].frames.filter(frame => !frame.suspended)
+  const accepted = validateShamanCastingEvidence(result).activeCastPauseHold
+  assert.equal(accepted.renderedFrames, 0)
+  assert.equal(accepted.rafStateSamples, 2)
+  assert.equal(accepted.rafStateSpanMs, 350)
+})
+
+test('RAF hold evidence rejects missing, duplicate, brief, out-of-bounds or advanced observations', () => {
+  for (const mutate of [
+    r => { delete r.holds[0].samples },
+    r => { r.holds[0].samples[1].at = r.holds[0].samples[0].at },
+    r => { r.holds[0].samples[1].frameTime = r.holds[0].samples[0].frameTime },
+    r => { r.holds[0].samples[1].at-- },
+    r => { r.holds[0].samples[0].at-- },
+    r => { r.holds[0].samples[1].at++ },
+    r => { r.holds[0].samples[0].stamp-- },
+    r => { r.holds[0].samples[1].stamp = r.holds[0].after.stamp + 1 },
+    r => { r.holds[0].samples[1].frameTime = r.holds[0].samples[1].at + 1 },
+    r => { r.holds[0].samples[1].state.turn++ },
+    r => { r.holds[0].samples[1].state.person.f2++ },
+    r => { r.holds[0].samples[1].state.person.sameOwner = false },
+    r => { r.holds[0].samples[1].state.projectiles[0].remaining-- },
+    r => { r.holds[0].samples[1].state.suspended = false },
+  ]) {
+    const result = evidence(); mutate(result)
+    assert.throws(() => validateShamanCastingEvidence(result), undefined, String(mutate))
+  }
+})
+
+test('owned hold RAF sampler observes without drawing and cancels on completion, error and finish', () => {
+  for (const end of ['success', 'finish', 'owner', 'person', 'shot', 'missing', 'end-owner']) {
+    const f = observerFixture()
+    try {
+      installShamanCastingObserver()
+      const observer = f.win.shamanCastingObserver
+      f.allocate()
+      for (let i = 0; i < 12; i++) { f.world.turn++; f.scene.gameClock.afterTurn() }
+      f.world.mode = 'blast'; f.person.state = 10; f.world.projectiles = []
+      f.allocate('subsequent'); f.renderer.render(f.scene.scene, f.scene.camera)
+      f.scene.modalSuspended = true
+      const world = structuredClone(f.world), calls = f.calls.length, stamp = f.renderer.info.render.frame
+      observer.beginHold()
+      if (end === 'missing') assert.throws(() => observer.endHold(), /RAF state observations/)
+      else {
+        f.rafStep()
+        if (end === 'owner' || end === 'end-owner') f.win.testSceneRef.current = {}
+        if (end === 'person') f.world.units[0].native = { ...f.person }
+        if (end === 'shot') f.world.projectiles[0] = { ...f.world.projectiles[0] }
+        if (end === 'end-owner') {
+          assert.throws(() => observer.endHold(), /changed/)
+          assert.equal(f.rafs.size, 0, 'Ownership failure at end also cancels pending sampler')
+        } else f.rafStep(351)
+        if (end === 'success') observer.endHold()
+      }
+      const result = observer.finish()
+      assert.equal(f.rafs.size, 0)
+      f.rafStep(400)
+      assert.equal(f.calls.length, calls, 'Sampler never submits rendering or advances simulation')
+      assert.equal(f.renderer.info.render.frame, stamp)
+      assert.deepEqual(f.world, world)
+      if (['owner', 'person', 'shot', 'end-owner'].includes(end)) assert.ok(result.errors.length)
+      else assert.deepEqual(result.errors, [])
+      assert.equal(result.restored, true)
+      assert.equal(result.closed, true)
+      assert.equal(Object.keys(result.holds[0]).includes('person'), false)
+    } finally { f.cleanup() }
+  }
+})
+
+
+test('RAF coverage wait belongs only to the installed active-cast hold and retains its order and bound', async () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
+    start = source.indexOf('    await page.evaluate(() => window.shamanCastingObserver.beginHold())'),
+    endLine = '    await page.evaluate(() => window.shamanCastingObserver.endHold())',
+    end = source.indexOf(endLine, start) + endLine.length,
+    prefix = source.slice(0, source.indexOf('await beginOrdinaryCastingWitness(page)'))
+  assert.ok(start > 0 && end > start)
+  assert.equal(prefix.includes('holdRafCoverageMs'), false, 'Initial live hold has no installed casting observer')
+  assert.equal(source.split('holdRafCoverageMs').length - 1, 1)
+  const calls = [], saved = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  let open = false
+  globalThis.window = { shamanCastingObserver: {
+    beginHold() { open = true; calls.push('begin') },
+    status() { assert.equal(open, true); calls.push('sample'); return { errors: [], holdRafCoverageMs: 350 } },
+    endHold() { assert.equal(open, true); open = false; calls.push('end') },
+  } }
+  const page = {
+    evaluate: async callback => callback(),
+    waitForTimeout: async ms => { assert.equal(open, true); assert.equal(ms, 350); calls.push('wait350') },
+    waitForFunction: async (predicate, argument, options) => {
+      assert.equal(open, true); assert.equal(argument, null)
+      assert.deepEqual(options, { polling: 'raf', timeout: 1000 })
+      assert.equal(predicate(), true); calls.push('coverage')
+    },
+  }
+  try {
+    await new Function('page', `return (async () => { ${source.slice(start, end)} })()`)(page)
+    assert.deepEqual(calls, ['begin', 'wait350', 'sample', 'coverage', 'end'])
+  } finally {
+    if (saved) Object.defineProperty(globalThis, 'window', saved)
+    else delete globalThis.window
+  }
+})
+
+
+test('RAF hold accepts the exact failed-artifact shape: last suspended render precedes hold with unchanged stamp', () => {
+  const result = evidence(), hold = result.holds[0], frames = result.casts[1].frames
+  frames[2].at = 155
+  frames.splice(3, 1)
+  hold.before.stamp = 132; hold.after.stamp = 132
+  for (const sample of hold.samples) sample.stamp = 132
+  const accepted = validateShamanCastingEvidence(result).activeCastPauseHold
+  assert.equal(accepted.renderedFrames, 0)
+  assert.equal(accepted.retainedRenderedFrames, 1)
+  assert.equal(accepted.rafStateSpanMs, 350)
+  for (const corrupt of [
+    r => { r.casts[1].frames[2].person.timer-- },
+    r => { r.casts[1].frames[2].stamp-- },
+    r => { r.casts[1].frames[2].at = 511 },
+  ]) {
+    const invalid = structuredClone(result); corrupt(invalid)
+    assert.throws(() => validateShamanCastingEvidence(invalid))
   }
 })
