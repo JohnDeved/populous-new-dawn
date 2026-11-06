@@ -18,6 +18,8 @@ def good():
         'browserVersion':'observed','elapsedMs':1000}
     owner={'status':'passed-awaiting-evidence-review','exitCode':0,'stopReason':None,'failures':[],
         'cleanupComplete':True,'laneReleasePermitted':True,'inputStability':True,'remainingOwned':{},'unreadableProcessIdentities':[],
+        'processCleanupComplete':True,'runtimeTemporary':{'retired':True,'outsidePathAbsent':True,'socketPathBytes':62,
+            'identity':{'device':1,'inode':2,'uid':1000,'mode':0o700},'retiredIdentity':{'device':1,'inode':2,'uid':1000,'mode':0o700}},
         'streams':{'stdout':{'overflow':False},'stderr':{'overflow':False}}}
     return report,owner,binding
 
@@ -39,6 +41,12 @@ class FinalConsumerTests(unittest.TestCase):
                           ('unreadableProcessIdentities',[12]),('status','failed')]:
             report,owner,binding=good();owner[key]=value
             with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+    def test_temp_retirement_cannot_substitute_for_process_absence_or_failed_retirement(self):
+        for key,value in [('retired',False),('outsidePathAbsent',False),('retiredIdentity',{}),('socketPathBytes',108)]:
+            report,owner,binding=good();owner['runtimeTemporary'][key]=value
+            with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+        report,owner,binding=good();owner['processCleanupComplete']=False
+        with self.assertRaises(AssertionError):validate_result(report,owner,binding)
     def test_pending_timeout_and_wrong_composition_fail(self):
         for key,value in [('observation',3001),('release',4001),('reason','cleanup'),('status',500)]:
             report,owner,binding=good();report['cases'][2]['pendingEvents'][key]=value

@@ -50,6 +50,28 @@ numeric PID/PPID/start-time ancestry and PIDfd signaling. Unknown coverage, miss
 APIs, survivors or changed identities fail; only owned descendants may be signaled.
 The shared process-group-only supervisor is deliberately not used.
 
+Chrome's singleton socket needs a short temporary root. Hosted run 42293876447
+failed at launch because its output/runtime-tmp singleton pathname was 133 ASCII
+bytes, exceeding Linux's 107-byte pathname budget (108 including the NUL).
+Only TMPDIR now uses a freshly exclusive `/tmp/pnd-hud-<8 random characters>`
+directory, with current uid, mode 0700, canonical parents and recorded device/inode.
+The observed `/com.google.Chrome.<6 characters>/SingletonSocket` suffix yields
+62 bytes at that root; the actual generated root is checked before launch.
+HOME, evidence output, Chrome version, arguments and mandatory sandbox are unchanged.
+
+The existing sampled 512 MiB profile budget follows the live short root. After
+independent descendant-absence proof, the same supervisor atomically renames that
+exact directory back to output/runtime-tmp, retaining raw files outside the upload
+payload. Same-filesystem `/tmp`/output and Linux no-replace rename support are new
+fail-closed prerequisites, not facts established by the prior failed run. The
+retirement validates device/inode/uid/mode, unchanged canonical parents, an absent
+destination and old-path absence; it never overwrites a racing destination or
+recursively copies/deletes files. Process absence and temp retirement are separate
+receipt facts, both required for success and lane release. Setup, marker-write,
+launch and finalization failures retain the same ownership/cleanup requirement.
+Unknown ownership, survivors, expired cleanup or failed retirement stay nonpassing
+with the recorded short path for investigation. No generic retry is authorized.
+
 One monotonic 240-second supervisor acceptance deadline covers prelaunch input
 verification,230-second work cutoff, cleanup, post-input verification, final consumer,
 payload retention and final success check. Late failure reporting may occur after

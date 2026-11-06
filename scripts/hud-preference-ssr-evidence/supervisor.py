@@ -3,10 +3,74 @@ Tracks detached descendants via subreaper ancestry and PID/start-time identity.
 Never reads process environment/command lines or signals unrelated processes.
 """
 from pathlib import Path
-import ctypes, hashlib, json, os, resource, selectors, signal, subprocess, time, sys
-from finalizer import bounded_hash, finalize_payload, verify_binding, failure_payload, authoritative_return
+import ctypes, hashlib, json, os, resource, selectors, signal, stat, subprocess, tempfile, time, sys
+from finalizer import bounded_hash, check_time, finalize_payload, verify_binding, failure_payload, authoritative_return
 
 WALL=240; WORK=230; RSS=1536*1024**2; PROFILE=512*1024**2; STREAM=2*1024**2
+TEMP_PARENT=Path('/tmp')
+# Chrome 156's observed branded singleton suffix; Linux sun_path has 108 bytes,
+# including its terminating NUL. Do not use the long evidence-output path here.
+SOCKET_SUFFIX='/com.google.Chrome.XXXXXX/SingletonSocket'
+
+def socket_path_bytes(path):return len(os.fsencode(str(path)+SOCKET_SUFFIX))
+
+def directory_identity(path):
+    info=path.lstat()
+    assert stat.S_ISDIR(info.st_mode) and path.is_absolute() and path==path.resolve(),'Aliased runtime directory'
+    return {'device':info.st_dev,'inode':info.st_ino,'uid':info.st_uid,'mode':stat.S_IMODE(info.st_mode)}
+
+class RuntimeTemp:
+    """Own one short root, then retain it under output without recursive copying.
+
+    Allocation and retirement belong to the supervisor's existing try/finally.
+    A failed/unknown retirement never releases the lane or accepts evidence.
+    """
+    def __init__(self,root):
+        self.root=root;self.path=None;self.identity=None;self.retired_identity=None
+        self.destination=root/'runtime-tmp';self.retired=False;self.outside_absent=False
+
+    def create(self,deadline):
+        check_time(deadline)
+        assert self.path is None,'Runtime temp already allocated'
+        self.parent_identity=directory_identity(TEMP_PARENT);self.output_identity=directory_identity(self.root)
+        assert self.output_identity['uid']==os.geteuid(),'Foreign output owner'
+        assert self.parent_identity['device']==self.output_identity['device'],'Short temp retirement requires the same filesystem'
+        assert not os.path.lexists(self.destination),'Runtime temp destination already exists'
+        # Linux no-replace rename cannot silently overwrite a late destination.
+        self.libc=ctypes.CDLL(None,use_errno=True)
+        assert hasattr(self.libc,'renameat2'),'No-replace temp retirement unavailable'
+        self.path=Path(tempfile.mkdtemp(prefix='pnd-hud-',dir=TEMP_PARENT))
+        self.identity=directory_identity(self.path)
+        self.verify()
+        assert socket_path_bytes(self.path)<=107,'Chrome singleton socket path too long'
+        check_time(deadline)
+        return self.path
+
+    def verify(self):
+        assert directory_identity(TEMP_PARENT)==self.parent_identity,'Temp parent changed'
+        assert directory_identity(self.root)==self.output_identity,'Output parent changed'
+        assert directory_identity(self.path)==self.identity,'Owned temp identity changed'
+        assert self.identity['uid']==os.geteuid() and self.identity['mode']==0o700,'Unsafe owned temp permissions'
+
+    def retire(self,processes_absent,deadline):
+        if self.path is None:return True
+        assert processes_absent,'Owned processes must be absent before temp retirement'
+        check_time(deadline);self.verify()
+        assert not os.path.lexists(self.destination),'Runtime temp destination already exists'
+        if self.libc.renameat2(-100,os.fsencode(self.path),-100,os.fsencode(self.destination),1)!=0:
+            code=ctypes.get_errno();raise OSError(code,os.strerror(code))
+        self.retired_identity=directory_identity(self.destination)
+        self.outside_absent=not os.path.lexists(self.path)
+        assert self.retired_identity==self.identity and self.outside_absent,'Temp retirement identity/absence not proved'
+        self.retired=True
+        check_time(deadline)
+        return True
+
+    def record(self):
+        return {'path':None if self.path is None else str(self.path),'retainedPath':str(self.destination),
+                'identity':self.identity,'retiredIdentity':self.retired_identity,
+                'socketPathBytes':None if self.path is None else socket_path_bytes(self.path),
+                'retired':self.retired,'outsidePathAbsent':self.outside_absent}
 
 def parse_stat(text):
     fields=text[text.rfind(')')+2:].split()
@@ -84,18 +148,23 @@ def main():
     libc=ctypes.CDLL(None,use_errno=True)
     assert libc.prctl(36,1,0,0,0)==0,('PR_SET_CHILD_SUBREAPER failed',ctypes.get_errno())
     observed=ctypes.c_int();assert libc.prctl(37,ctypes.byref(observed),0,0,0)==0 and observed.value==1
-    (root/'runtime-attempt.json').write_text(json.dumps({'scope':'one fixed-preview adapter','bindingSha256':sha(binding_path),'reservedAt':time.time(),'retry':False})+'\n')
-    temp=root/'runtime-tmp';home=root/'runtime-home';temp.mkdir();home.mkdir()
+    attempt={'scope':'one fixed-preview adapter','bindingSha256':sha(binding_path),'reservedAt':time.time(),'retry':False}
+    (root/'runtime-attempt.json').write_text(json.dumps(attempt)+'\n')
+    home=root/'runtime-home'
     mem=int(next(l.split()[1] for l in Path('/proc/meminfo').read_text().splitlines() if l.startswith('MemAvailable:')))*1024;fs=os.statvfs(root)
     assert mem>=4*1024**3 and fs.f_bavail*fs.f_frsize>=2*1024**3,'Fresh resource guard failed'
     command=[binding['node'],'--max-old-space-size=256',str(Path(__file__).resolve().parent/'adapter.mjs'),str(root)]
-    env={'PATH':'/usr/local/bin:/usr/bin:/bin','HOME':str(home),'TMPDIR':str(temp),'LC_ALL':'C','PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD':'1','PYTHONDONTWRITEBYTECODE':'1'}
     def limits():
         os.setsid();resource.setrlimit(resource.RLIMIT_CORE,(0,0));resource.setrlimit(resource.RLIMIT_FSIZE,(64*1024**2,64*1024**2));resource.setrlimit(resource.RLIMIT_CPU,(230,230))
     owners=Owners(os.getpid());stop=None;term_at=None;peak=0;signals=[];failures=[];streams={};selector=selectors.DefaultSelector()
     receipt={'command':command,'bindingSha256':sha(binding_path),'subreaper':True,'hostMemAvailable':mem,'diskFree':fs.f_bavail*fs.f_frsize,'cgroup':'unknown','limits':{'wallSeconds':WALL,'workSeconds':WORK,'sampledOwnedRssBytes':RSS,'sampledProfileBytes':PROFILE,'retainedBytesPerStream':STREAM,'perFileRlimitBytes':64*1024**2,'nodeHeapMiB':256,'coreBytes':0},'ownership':'Only numeric PID/PPID/start-time/RSS; detached descendants adopted by local subreaper.'}
-    proc=None
+    proc=None;temporary=RuntimeTemp(root)
     try:
+        temp=temporary.create(deadline)
+        attempt['runtimeTemporary']=temporary.record()
+        (root/'runtime-attempt.json').write_text(json.dumps(attempt)+'\n')
+        home.mkdir()
+        env={'PATH':'/usr/local/bin:/usr/bin:/bin','HOME':str(home),'TMPDIR':str(temp),'LC_ALL':'C','PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD':'1','PYTHONDONTWRITEBYTECODE':'1'}
         assert time.monotonic()-start<WORK,'Prelaunch admission exceeded work budget'
         proc=subprocess.Popen(command,cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.DEVNULL,preexec_fn=limits)
         for label,pipe in [('stdout',proc.stdout),('stderr',proc.stderr)]:
@@ -106,6 +175,7 @@ def main():
             if unreadable:failures.append({'unreadableProcessIdentities':unreadable,'knownOwned':unreadable_owned});stop=stop or 'process ownership coverage unknown'
             code=proc.poll()
             if not stop:
+                temporary.verify()
                 stop=stop_reason(elapsed,current,profile_size(temp))
                 if not stop and (root/'evidence').exists() and profile_size(root/'evidence')>48*1024**2:stop='evidence size limit'
                 elif not stop and code is not None and any(pid!=proc.pid and row['state']!='Z' for pid,row in live.items()):stop='adapter exited with owned descendants still live'
@@ -154,14 +224,20 @@ def main():
             try:os.waitpid(pid,os.WNOHANG)
             except ChildProcessError:pass
         rows,unreadable=snapshot();remaining=owners.update(rows)
-        cleanup_complete=cleanup_proven(remaining,unreadable)
-        if not cleanup_complete:failures.append({'cleanupIncomplete':list(remaining),'unreadableOwned':[pid for pid in unreadable if pid in owners.known]})
+        process_cleanup=cleanup_proven(remaining,unreadable)
+        if not process_cleanup:failures.append({'cleanupIncomplete':list(remaining),'unreadableOwned':[pid for pid in unreadable if pid in owners.known]})
+        temp_cleanup=False
+        try:temp_cleanup=temporary.retire(process_cleanup,deadline)
+        except Exception as error:failures.append({'tempRetirementError':repr(error)})
+        cleanup_complete=process_cleanup and temp_cleanup
         stability=True
         try: verify_binding(binding,deadline)
         except Exception as error:
             stability=False;failures.append({'inputVerificationError':repr(error)})
-        receipt.update(remainingOwned=remaining,unreadableProcessIdentities=unreadable,exitCode=None if proc is None else proc.returncode,stopReason=stop,failures=failures,elapsedSeconds=time.monotonic()-start,sampledOwnedPeakRss=peak,ownedProcesses=owners.known,signals=signals,cleanupComplete=cleanup_complete,laneReleasePermitted=cleanup_complete,inputStability=stability,streams={name:{'bytes':state['kept'],'overflow':state['overflow']} for name,state in streams.items()})
+        receipt.update(remainingOwned=remaining,unreadableProcessIdentities=unreadable,exitCode=None if proc is None else proc.returncode,stopReason=stop,failures=failures,elapsedSeconds=time.monotonic()-start,sampledOwnedPeakRss=peak,ownedProcesses=owners.known,signals=signals,processCleanupComplete=process_cleanup,runtimeTemporary=temporary.record(),cleanupComplete=cleanup_complete,laneReleasePermitted=cleanup_complete,inputStability=stability,streams={name:{'bytes':state['kept'],'overflow':state['overflow']} for name,state in streams.items()})
         receipt['status']='passed-awaiting-evidence-review' if proc is not None and proc.returncode==0 and stop is None and not failures and cleanup_complete and stability else 'failed'
+        # Retain process and temp disposition even if later finalization fails.
+        (root/'supervisor-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
         finalize_payload(root,binding,receipt,deadline)
         print(json.dumps({'status':receipt['status'],'cleanupComplete':cleanup_complete,'laneReleasePermitted':cleanup_complete}))
     return authoritative_return(root,receipt,deadline)

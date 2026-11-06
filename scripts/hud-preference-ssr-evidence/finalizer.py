@@ -36,6 +36,11 @@ def validate_result(report,owner,binding):
     assert owner['status']=='passed-awaiting-evidence-review'
     assert owner['exitCode']==0 and owner['stopReason'] is None and owner['failures']==[]
     assert owner['cleanupComplete'] is True and owner['laneReleasePermitted'] is True and owner['inputStability'] is True
+    assert owner['processCleanupComplete'] is True
+    temporary=owner['runtimeTemporary']
+    assert temporary['retired'] is True and temporary['outsidePathAbsent'] is True
+    assert temporary['identity']==temporary['retiredIdentity'] and temporary['identity']['mode']==0o700
+    assert 0<temporary['socketPathBytes']<=107
     assert owner['remainingOwned']=={} and owner['unreadableProcessIdentities']==[]
     assert all(not stream['overflow'] for stream in owner['streams'].values())
     assert report['status']=='passed-awaiting-pixel-review'
@@ -162,7 +167,7 @@ def compact_failure_facts(root):
         try:
             assert path.is_file() and not path.is_symlink() and path.stat().st_size<=1024**2
             owner=json.loads(path.read_text())
-            keys=['cleanupComplete','laneReleasePermitted','inputStability','exitCode','stopReason',
+            keys=['cleanupComplete','laneReleasePermitted','processCleanupComplete','runtimeTemporary','inputStability','exitCode','stopReason',
                   'remainingOwned','unreadableProcessIdentities','bindingSha256','elapsedSeconds']
             recorded={key:owner[key] for key in keys if key in owner}
             assert len(json.dumps(recorded).encode())<=16384
