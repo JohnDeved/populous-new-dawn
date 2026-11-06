@@ -1,0 +1,159 @@
+name: Help discovery hosted scope (no tests)
+run-name: Help discovery scope infrastructure ${{ github.event.pull_request.head.sha }}
+
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled]
+
+permissions:
+  contents: read
+  actions: read
+  pull-requests: read
+
+concurrency:
+  group: help943-hosted-scope-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: false
+
+jobs:
+  observe:
+    name: Observe hosted scope (no tests)
+    if: >-
+      ${{ github.event.pull_request.state == 'open' &&
+      github.event.pull_request.draft == true &&
+      github.event.pull_request.number != 943 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.repo.full_name == github.repository &&
+      github.repository == 'JohnDeved/populous-new-dawn' &&
+      github.event.sender.id == 24187269 &&
+      github.run_attempt == 1 &&
+      github.event.label.name == format('h943-env:{0}', github.event.pull_request.head.sha) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+    steps:
+      - name: Acquire only four pinned infrastructure text files
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUNNER_KIND: ${{ runner.environment }}
+          WORKFLOW_SOURCE_SHA: ${{ github.workflow_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ulimit -c 0
+          test "$RUNNER_KIND" = github-hosted
+          test "$RUNNER_OS" = Linux
+          test "$RUNNER_ARCH" = X64
+          test "$WORKFLOW_SOURCE_SHA" = "$GITHUB_SHA"
+          python3 -I -B - <<'PYTHON'
+          import base64, hashlib, json, os, pathlib, re, resource, signal, subprocess, sys
+          def require(ok, why):
+              if not ok: raise ValueError(why)
+          run = os.environ['GITHUB_RUN_ID']; attempt = os.environ['GITHUB_RUN_ATTEMPT']
+          commit = os.environ['GITHUB_SHA']
+          require(run.isdecimal() and attempt == '1' and re.fullmatch('[0-9a-f]{40}', commit), 'Invalid identity')
+          root = pathlib.Path(os.environ['GITHUB_WORKSPACE']) / 'infrastructure'
+          out = pathlib.Path(os.environ['RUNNER_TEMP']) / f'help943-scope-{run}-{attempt}'
+          for path in (root.parent, out.parent):
+              fs = os.statvfs(path)
+              require(fs.f_bavail * fs.f_frsize >= 130 * 1024**2 and fs.f_favail >= 128,
+                      'Insufficient bounded metadata bootstrap reserve')
+          root.mkdir(mode=0o700); out.mkdir(mode=0o700)
+          config = out / 'empty-gh'; config.mkdir(mode=0o700)
+          env = dict(os.environ, GH_CONFIG_DIR=str(config), GH_PROMPT_DISABLED='1', GH_HOST='github.com',
+                     GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null')
+          sources = {
+              # Recomputed from the frozen helper source, never from target PR input.
+              'scripts/help-discovery-evidence/observe.py': '532853f7fad367a368ed4303caafa084191759487d3992a4e49719c993aa713c',
+              'scripts/help-discovery-evidence/collect-remote.sh': '1216388cefce899250e76bf736ae3f5eb5513b1638f288b721691054ffa1c5f6',
+              'scripts/help-discovery-evidence/discovery-manifest.json': 'c099fe6530f5e4ba148493bbfb65d398d482b52dae761259a19c72acaef2dd59',
+              '.github/workflows/help-discovery-evidence.yml': None,
+          }
+          journal = dict(status='blocked', tests='not-run', infrastructureCommit=commit,
+                         transportFileCapBytes=4*128*1024, stderrFileCapBytes=4*128*1024,
+                         decodedCapBytes=4*64*1024, files={})
+          def limits():
+              resource.setrlimit(resource.RLIMIT_FSIZE, (128*1024, 128*1024))
+              resource.setrlimit(resource.RLIMIT_CPU, (8, 10))
+              resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+          try:
+              for index, (name, expected) in enumerate(sources.items()):
+                  raw = out / f'acquisition-{index}.transport'; error = out / f'acquisition-{index}.stderr'
+                  endpoint = f'repos/JohnDeved/populous-new-dawn/contents/{name}?ref={commit}'
+                  command = ['timeout', '--signal=TERM', '--kill-after=2s', '12s', 'gh', 'api',
+                             '--hostname', 'github.com', endpoint]
+                  with raw.open('xb') as stdout, error.open('xb') as stderr:
+                      child = subprocess.Popen(command, env=env, stdin=subprocess.DEVNULL,
+                          stdout=stdout, stderr=stderr, start_new_session=True, preexec_fn=limits)
+                      try:
+                          code = child.wait(timeout=15)
+                      except subprocess.TimeoutExpired:
+                          os.killpg(child.pid, signal.SIGKILL); child.wait(timeout=2)
+                          raise ValueError('Infrastructure read exceeded deadline')
+                  journal['lastRead'] = dict(path=name, exitCode=code,
+                      stderrBytes=error.stat().st_size, stderrSha256=hashlib.sha256(error.read_bytes()).hexdigest())
+                  if code != 0:
+                      # Actions masks its own token in logs; raw stderr is not uploaded.
+                      print(error.read_text(errors='replace')[:4096], file=sys.stderr)
+                  require(code == 0, 'Infrastructure read failed; no retry')
+                  data = raw.read_bytes(); require(len(data) <= 128*1024, 'Transport cap')
+                  item = json.loads(data)
+                  require(item['type'] == 'file' and item['path'] == name and
+                          item['encoding'] == 'base64' and item['size'] <= 64*1024, 'Unexpected source object')
+                  content = base64.b64decode(''.join(item['content'].split()), validate=True)
+                  actual = hashlib.sha256(content).hexdigest()
+                  blob = hashlib.sha1(b'blob ' + str(len(content)).encode() + b'\0' + content).hexdigest()
+                  require(len(content) == item['size'] and blob == item['sha'] and
+                          (expected is None or actual == expected), 'Source identity mismatch')
+                  target = root / name; target.parent.mkdir(parents=True, exist_ok=True)
+                  with target.open('xb') as stream: stream.write(content)
+                  journal['files'][name] = dict(gitBlob=blob, sha256=actual, bytes=len(content))
+              journal['status'] = 'acquired'
+          except BaseException as error:
+              journal['error'] = type(error).__name__ + ': ' + str(error)[:200]
+              raise
+          finally:
+              with (out / 'bootstrap.json').open('x') as stream: json.dump(journal, stream, indent=2)
+              config.rmdir()
+          PYTHON
+      - name: Collect bounded public identities
+        id: remote
+        timeout-minutes: 3
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PND_INFRA_PR: ${{ github.event.pull_request.number }}
+          PND_INFRA_HEAD: ${{ github.event.pull_request.head.sha }}
+          PND_INFRA_BASE: ${{ github.event.pull_request.base.sha }}
+          PND_RUNNER_CONTEXT: ${{ toJSON(runner) }}
+          PND_JOB_CONTEXT: ${{ toJSON(job) }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ulimit -c 0
+          test -f "$RUNNER_TEMP/help943-scope-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT/bootstrap.json"
+          timeout --signal=TERM --kill-after=3s 165s bash \
+            infrastructure/scripts/help-discovery-evidence/collect-remote.sh \
+            "$RUNNER_TEMP/help943-scope-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+      - name: Observe host without project execution or memory admission
+        if: ${{ always() && steps.remote.outcome != 'skipped' }}
+        timeout-minutes: 1
+        shell: bash
+        run: |
+          set -euo pipefail
+          ulimit -c 0
+          ulimit -f 8192
+          output="$RUNNER_TEMP/help943-scope-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          test -d "$output"
+          timeout --signal=TERM --kill-after=2s 10s python3 -I -B \
+            infrastructure/scripts/help-discovery-evidence/observe.py "$output"
+      - name: Retain bounded public metadata only
+        if: ${{ always() }}
+        timeout-minutes: 2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: help943-hosted-scope-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/help943-scope-${{ github.run_id }}-${{ github.run_attempt }}/*.json
+            ${{ runner.temp }}/help943-scope-${{ github.run_id }}-${{ github.run_attempt }}/*.sha256
+          if-no-files-found: warn
+          retention-days: 7
