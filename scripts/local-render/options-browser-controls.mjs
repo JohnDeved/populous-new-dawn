@@ -22,6 +22,31 @@ export function observeCapture() {
     canvas: canvas ? { width: canvas.width, height: canvas.height, clientWidth: canvas.clientWidth, clientHeight: canvas.clientHeight } : null }
 }
 
+export function observeFullscreenDismissal({ world, scene, menu }) {
+  const canvas = document.querySelector('.world-viewport canvas.battlefield')
+  const focused = document.activeElement
+  return {
+    sameWorldScene: window.testStore.getWorld() === world && window.testSceneRef.current === scene && scene.world === world,
+    ownedCanvas: !!canvas && canvas === scene.renderer.domElement,
+    fullscreen: document.fullscreenElement === null ? 'none'
+      : document.fullscreenElement === document.documentElement ? 'document' : 'other',
+    openDialogs: document.querySelectorAll('dialog[open]').length,
+    visibleHosts: document.querySelectorAll('[data-fullscreen-control]').length,
+    connectedFocus: !!focused?.isConnected,
+    focusOwner: focused === canvas ? 'canvas' : focused === menu ? 'menu' : 'other',
+  }
+}
+
+export function assertFullscreenDismissal(observation, fullscreen) {
+  assert.equal(observation.sameWorldScene, true, 'Dismissal must retain World and Scene')
+  assert.equal(observation.ownedCanvas, true, 'Focus fallback must belong to the retained Scene')
+  assert.equal(observation.fullscreen, fullscreen ? 'document' : 'none', 'Portal placement must not change the fullscreen session')
+  assert.equal(observation.openDialogs, 0)
+  assert.equal(observation.visibleHosts, 0, 'No detached fullscreen control may remain in the document')
+  assert.equal(observation.connectedFocus, true)
+  assert.ok(['canvas', 'menu'].includes(observation.focusOwner), 'Dismissal must restore the Menu trigger or retained battlefield canvas')
+}
+
 export async function captureOptions(page, output, name, budget, captures, metadata = []) {
   assert.match(name, /^[a-z0-9-]+\.png$/)
   assert.ok(captures.length < 8, 'Options episode PNG limit')
@@ -38,7 +63,7 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
   const cleanupErrors = [], captures = [], captureMetadata = [], checks = []
   const budget = createAudioOptionsBudget({ signal, deadlineAt, cleanupErrors })
   const report = { status: 'running', revision, requestedViewport: { width: 1280, height: 960 }, captures, captureMetadata, checks, cleanupErrors,
-    limits: ['Partial #885 only: no held-stream/retry, loading or focus-restoration acceptance', 'Only simulation turn/pending time, animation and camera position are frozen; legitimate paused presentation may advance', 'No native pixel equivalence, acoustic quality or performance claim'] }
+    limits: ['Partial #885 only: no held-stream/retry or loading acceptance; ordinary menu dismissal does not force a focused-portal removal race', 'Only simulation turn/pending time, animation and camera position are frozen; legitimate paused presentation may advance', 'No native pixel equivalence, acoustic quality or performance claim'] }
   const save = () => writeFileSync(resolve(output, 'options-controls-episode.json'), JSON.stringify(report, null, 2) + '\n')
   const button = name => page.getByRole('button', { name, exact: true })
   const step = budget.step, observe = () => step(() => page.evaluate(observeFrozen))
@@ -54,7 +79,8 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     await shot('options-battlefield-before.png')
     await step(timeout => button('Pause game').click({ timeout }))
     await wait(() => window.testStore.getWorld().paused)
-    await step(async () => { owner = await page.evaluateHandle(() => ({ world: window.testStore.getWorld(), scene: window.testSceneRef.current })) })
+    await step(async () => { owner = await page.evaluateHandle(() => ({ world: window.testStore.getWorld(), scene: window.testSceneRef.current,
+      menu: document.querySelector('button[aria-label="Menu"]') })) })
     const before = await observe()
     report.before = before
     await setSoundThroughOptions(page, true, { signal, deadlineAt, cleanupErrors })
@@ -76,15 +102,37 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     checks.push('trusted-fullscreen-entry-and-native-escape-retain-paused-menu')
     const closing = entry; entry = null
     await closeAudioOptions(page, closing)
-    assert.equal(await step(() => page.locator('[data-fullscreen-control]').count()), 0)
+    await wait(() => document.querySelectorAll('[data-fullscreen-control]').length === 0)
+    assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
     await setSoundThroughOptions(page, false, { signal, deadlineAt, cleanupErrors })
     assertFrozen(before, await observe())
     entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
     await wait(observeOptionsAudio, { enabled: false, paused: true, context: 'suspended' })
     await shot('options-sound-muted.png')
+    await step(timeout => button('Fullscreen').click({ timeout }))
+    await wait(() => document.fullscreenElement === document.documentElement)
+    assertFrozen(before, await observe())
     const closingMuted = entry; entry = null
     await closeAudioOptions(page, closingMuted)
+    await wait(() => document.querySelectorAll('[data-fullscreen-control]').length === 0)
+    const fullscreenDismissal = await step(() => page.evaluate(observeFullscreenDismissal, owner))
+    assertFullscreenDismissal(fullscreenDismissal, true)
+    report.fullscreenDismissal = fullscreenDismissal
+    await shot('options-fullscreen-detached.png')
+    checks.push('menu-dismissal-detaches-fullscreen-control-and-restores-live-focus-without-exiting-fullscreen')
+    await step(() => page.keyboard.press('Escape'))
+    await wait(() => document.fullscreenElement === null)
+    assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
     assertFrozen(before, await observe())
+    entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
+    assert.equal(await step(() => button('Fullscreen').getAttribute('aria-pressed')), 'false')
+    await wait(observeOptionsAudio, { enabled: false, paused: true, context: 'suspended' })
+    const reopened = entry; entry = null
+    await closeAudioOptions(page, reopened)
+    await wait(() => document.querySelectorAll('[data-fullscreen-control]').length === 0)
+    assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
+    assertFrozen(before, await observe())
+    checks.push('native-fullscreen-exit-while-portal-detached-and-muted-options-reopen')
     assert.equal(await step(() => page.evaluate(({ world, scene }) => window.testStore.getWorld() === world && window.testSceneRef.current === scene && scene.world === world, owner)), true)
     checks.push('public-options-mute-preserves-world-scene-identity-and-paused-simulation')
     await shot('options-battlefield-paused.png')

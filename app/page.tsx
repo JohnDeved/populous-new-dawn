@@ -1,5 +1,7 @@
 'use client'
 
+import { QueryControlArt } from './query-control.tsx'
+
 import { FullscreenControl } from './fullscreen-control'
 import { OriginalOptions } from './original-options'
 import { BrowserHelpTips } from './browser-help-tips'
@@ -1270,7 +1272,7 @@ export default function Home() {
             title="Help and game menu"
             onClick={openMenu}
           >
-            ?
+            <QueryControlArt />
           </button>
           <ShamanHealth health={shaman?.hp ?? 0} maximum={maxHp('shaman')} />
           {enemies.map(enemy => (
@@ -1348,6 +1350,7 @@ export default function Home() {
                     view = spellHudButton(visibility, {
                       model: s.model,
                       permanent,
+                      mode2ChargingAllowed: !!(world.manaWorld.gameFlags & 256),
                       charging:
                         canCharge &&
                         !(world.manaWorld.spells[player].disabled & (1 << (s.model - 1))),

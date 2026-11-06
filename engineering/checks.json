@@ -2,6 +2,65 @@
   "version": 1,
   "checks": [
     {
+      "id": "modal-invalidation-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate source-bound modal acquisition, evidence rejection and hard-supervisor admission controls.",
+      "coveredBehavior": [
+        "Exact original texture bytes, RAF freeze observations, real renderer forwarding and trusted context-event requirements",
+        "Deadline-safe context cleanup and detached descendant control-group limits",
+        "Exact-head same-repository opt-in admission and build/browser identity binding",
+        "One ordinary visible introduction click with cumulative unlock budget and same-owner evidence"
+      ],
+      "knownLimits": [
+        "Synthetic controls do not launch systemd, browsers or builds and do not establish rendered outcomes.",
+        "Real hosted service receipts, pixels and unchanged full checks remain required."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/modal-invalidation-driver.test.mjs",
+        "tests/modal-invalidation-evidence.test.mjs",
+        "tests/modal-invalidation-hosted.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/modal-invalidation",
+        "scripts/tutorial-browser/fixture/main.tsx",
+        ".github/workflows/modal-invalidation-browser.yml",
+        "tests/modal-invalidation-driver.test.mjs",
+        "tests/modal-invalidation-evidence.test.mjs",
+        "tests/modal-invalidation-hosted.test.mjs"
+      ],
+      "inputs": [
+        "scripts/modal-invalidation",
+        "scripts/tutorial-browser/fixture/main.tsx",
+        "scripts/tutorial-browser/browser-config.mjs",
+        "scripts/native-ui-evidence/identity.mjs",
+        "scripts/native-ui-evidence/files.mjs",
+        "scripts/native-ui-evidence/build-home.mjs",
+        ".github/workflows/modal-invalidation-browser.yml",
+        "tests/modal-invalidation-driver.test.mjs",
+        "tests/modal-invalidation-evidence.test.mjs",
+        "tests/modal-invalidation-hosted.test.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-game.mjs"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "Synthetic callbacks, short owned timers, read-only source checks and bounded owned temporary-file controls with cleanup. No process launch, network, browser or persistent writes."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "evidence-archive-tests",
       "kind": "portable",
       "automation": "safe",
@@ -990,6 +1049,8 @@
         "app/scene-input-runtime.ts",
         "app/scene-tooltip-runtime.ts",
         "app/scene.ts",
+        "app/fps-graph.ts",
+        "app/scene-assets.ts",
         "app/scene-picking.ts",
         "app/world-picking.ts",
         "app/render-view.ts",
@@ -1003,7 +1064,7 @@
         "scripts/browser-performance/snapshot-drag-observer.mjs",
         "tests/browser-snapshot-drag.test.mjs"
       ],
-      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "tests/fixtures/snapshot-drag-pre-modal-scene.json", "package.json", "package-lock.json"],
       "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
       "sideEffects": [],
       "resources": [],

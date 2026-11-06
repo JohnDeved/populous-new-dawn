@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import vm from 'node:vm'
+import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { inspectDragSource, dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
@@ -8,6 +9,16 @@ import { installSnapshotDragObserver } from '../scripts/browser-performance/snap
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
 const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
+// Historical inverse readers use pinned source data, not evolving live owners.
+// Current-route admission below continues to inspect the actual repository tree.
+const preModalFixtures = JSON.parse(readFileSync(resolve(root,
+  'tests/fixtures/snapshot-drag-pre-modal-scene.json'), 'utf8'))
+function preModalRead(path) {
+  const fixture = preModalFixtures[path]
+  if (!fixture) return readFileSync(resolve(root, path), 'utf8')
+  assert.equal(createHash('sha256').update(fixture.source).digest('hex'), fixture.sha256)
+  return fixture.source
+}
 // Literal inverse of PR831's reviewed resource route, only for historical fixtures.
 // Production admission never strips or normalizes candidate source.
 const looseLogDeltas = [
@@ -62,7 +73,7 @@ const looseLogDeltas = [
         if (command.eligible && inHitBounds(point, command.bounds))
           result = { kind: 'person', id: command.id }`],
  ]
-function preLooseLogRead(path, read = name => readFileSync(resolve(root, name), 'utf8')) {
+function preLooseLogRead(path, read = preModalRead) {
   let source = read(path)
   for (const [owner, current, previous] of looseLogDeltas) if (path === owner) {
     assert.equal(source.split(current).length, 2, 'exact reviewed loose-log inverse boundary')
@@ -339,7 +350,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, profile.id === "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1" ? 22 : profile.id === "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1" ? 23 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -415,6 +426,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
   assert.deepEqual(dragSourceProfiles.map(profile => profile.id), [
     'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId,
     "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1",
+    "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1",
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -759,8 +771,8 @@ test('two fixed six-input observers retain one absolute recorder epoch and never
 
 
 test('loose-log source admission is additive and binds the exact shared queue owner', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
-  const current = inspectDragSource(root), previous = inspectDragSource(root, preLooseLogRead)
+  const read = preModalRead
+  const current = inspectDragSource(root, read), previous = inspectDragSource(root, preLooseLogRead)
   assert.equal(current.profile, looseLogProfileId)
   assert.equal(previous.profile, combinedCpuProfileId)
   for (const result of [current, previous]) {
@@ -793,4 +805,46 @@ test('loose-log source admission is additive and binds the exact shared queue ow
   // Preserve the historical boundary: an unused new helper was not hashed there.
   assert.equal(inspectDragSource(root, path => path === 'app/scene-picking.ts'
     ? preLooseLogRead(path) : read(path)).profile, combinedCpuProfileId)
+})
+
+
+test('modal render demand admission preserves historical routes and binds every new owner atomically', () => {
+  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const old = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
+  const next = dragSourceProfiles.at(-1)
+  assert.equal(next.id, looseLogProfileId.replace(/-v1$/, '-modal-render-demand-v1'))
+  assert.equal(inspectDragSource(root).profile, next.id)
+  assert.equal(inspectDragSource(root, preModalRead).profile, old.id)
+  assert.equal(next.slices.length, old.slices.length + 3)
+  for (let i = 0; i < old.slices.length; i++) {
+    const before = old.slices[i], after = next.slices[i]
+    if (['frame-order', 'view-facade'].includes(before.id)) {
+      assert.notEqual(after.sha256, before.sha256)
+      assert.deepEqual({ ...after, sha256: before.sha256 }, before)
+    } else assert.deepEqual(after, before)
+  }
+  assert.deepEqual(next.slices.slice(-3).map(slice => [slice.id, slice.path]), [
+    ['modal-scene-owner', 'app/scene.ts'],
+    ['modal-texture-revision-owner', 'app/scene-assets.ts'],
+    ['modal-gpu-poll-owner', 'app/fps-graph.ts'],
+  ])
+  for (const owner of next.slices.slice(-3)) {
+    const changed = inspectDragSource(root, path => path === owner.path ? `${read(path)}\n` : read(path))
+    assert.equal(changed.status, 'unsupported-source-contract', owner.id)
+    const missing = inspectDragSource(root, path => {
+      if (path === owner.path) throw Object.assign(new Error('missing'), { code: 'ENOENT' })
+      return read(path)
+    })
+    assert.equal(missing.status, 'unsupported-source-contract', owner.id)
+  }
+  for (const id of ['frame-order', 'view-facade']) {
+    const slice = old.slices.find(owner => owner.id === id)
+    const historic = preModalRead(slice.path), current = read(slice.path)
+    const oldPart = historic.slice(historic.indexOf(slice.start), historic.indexOf(slice.end))
+    const currentPart = current.slice(current.indexOf(slice.start), current.indexOf(slice.end))
+    const mixed = current.replace(currentPart, oldPart)
+    assert.notEqual(mixed, current)
+    assert.equal(inspectDragSource(root, path => path === slice.path ? mixed : read(path)).status,
+      'unsupported-source-contract', `mixed historical ${id}`)
+  }
 })

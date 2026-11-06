@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       evidence_kind:
-        description: Full native UI, material lifecycle, or partial Options controls evidence
+        description: Full native UI, material lifecycle, partial Options controls, or Mission 4 Tower evidence
         required: true
         default: native-ui
         type: choice
@@ -16,6 +16,7 @@ on:
           - native-ui
           - material-lifecycle
           - options-controls
+          - tower-collection
 
 permissions:
   contents: read
@@ -41,7 +42,7 @@ jobs:
     steps:
       - name: Validate normalized evidence kind before checkout or install
         run: |
-          node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
+          node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
       - name: Check out reviewed default-branch evidence infrastructure
         id: infrastructure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -54,6 +55,7 @@ jobs:
             /scripts/native-ui-evidence/
             /scripts/material-lifecycle-evidence/
             /scripts/options-controls-evidence/
+            /scripts/tower-collection-evidence/
             /scripts/orchestration/shared_execution.py
             /scripts/orchestration/shared_runtime.py
             /scripts/orchestration/shared_setup.py
@@ -144,6 +146,11 @@ jobs:
         run: |
           node --max-old-space-size=768 evidence-infrastructure/scripts/options-controls-evidence/run.mjs \
             "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/options-controls-evidence" "$GITHUB_WORKSPACE/options-controls-dist"
+      - name: Build candidate Home and verify Mission 4 Tower collection and checkpoint
+        if: ${{ env.PND_EVIDENCE_KIND == 'tower-collection' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/tower-collection-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/tower-collection-evidence" "$GITHUB_WORKSPACE/tower-collection-dist"
       - name: Reject candidate tracked input mutation
         if: ${{ always() && steps.candidate.outcome == 'success' }}
         working-directory: candidate
@@ -185,3 +192,26 @@ jobs:
             outputs/options-controls-evidence/**/*.png
           if-no-files-found: warn
           retention-days: 7
+
+      - name: Bound Tower evidence before upload
+        id: tower-bounds
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'tower-collection' && steps.infrastructure.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync } from 'node:fs'
+          import { artifactInventory } from './evidence-infrastructure/scripts/tower-collection-evidence/policy.mjs'
+          const output = 'outputs/tower-collection-evidence'
+          if (existsSync(output)) artifactInventory(output)
+          NODE
+      - name: Retain bounded Tower collection receipts and screenshots
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'tower-collection' && steps.tower-bounds.outcome == 'success' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: tower-collection-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/tower-collection-evidence/**/*.json
+            outputs/tower-collection-evidence/**/*.log
+            outputs/tower-collection-evidence/**/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
