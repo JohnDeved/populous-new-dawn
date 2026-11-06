@@ -1,0 +1,422 @@
+{
+  "inline": [
+    1598,
+    1599,
+    1601,
+    1602,
+    1600,
+    1595,
+    1596,
+    1597,
+    1594,
+    1603,
+    1604,
+    1605,
+    1606,
+    1607,
+    1608,
+    1609,
+    1609,
+    1611,
+    1612,
+    1613,
+    1614
+  ],
+  "frames": {
+    "normal": [
+      821,
+      825,
+      822,
+      827,
+      829,
+      828,
+      823,
+      826,
+      824
+    ],
+    "held": [
+      839,
+      843,
+      840,
+      845,
+      847,
+      846,
+      841,
+      844,
+      842
+    ],
+    "hover": [
+      830,
+      834,
+      831,
+      836,
+      838,
+      837,
+      832,
+      835,
+      833
+    ]
+  },
+  "icons": {
+    "821": {
+      "url": "/original/help-article/hfx-821.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "ed98fcf78c4466078babfb1cff621df50df5ca054a8555aebafaf51df45d3b8b",
+      "pngSha256": "f9bc119f8d4620bb01ce113d4239a90d0e08955248ac57bb850818782946e9b0"
+    },
+    "822": {
+      "url": "/original/help-article/hfx-822.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "59beaafec336d869dc722766f58131b7f59fa72697ae51b79327e8299c851edf",
+      "pngSha256": "2469f0ad23badd52b3652630d554291ee598aa55aa3ae56e72343c2732b7938b"
+    },
+    "823": {
+      "url": "/original/help-article/hfx-823.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "5e6957a2a65eea1c8f086f11826a2eae0868304e0c0c049476147b21ae955108",
+      "pngSha256": "72738d29774003d8354823aabd229b97c00ff3e4625ba449d1269b30f908ae11"
+    },
+    "824": {
+      "url": "/original/help-article/hfx-824.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "c6438ebe55806b74defc5a57b71052f0a1babde2d7038b6b9e76f3acb056a4da",
+      "pngSha256": "48a65052ce635e70ba9daff1e230021d3a3a34e83a9b5caa6a723b3d320288e7"
+    },
+    "825": {
+      "url": "/original/help-article/hfx-825.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "601556d207f1b420799ebe7471065924270656fa75b1fb5bab66bda1a4d74114",
+      "pngSha256": "16f65fa610acf90776475200f99f2d1b13b2a45ef9dc71b7e36b6852fb125d07"
+    },
+    "826": {
+      "url": "/original/help-article/hfx-826.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "87887b30ac09ead024d03aaffa9e8075a0561fb94f56b9054701f0b2cb703869",
+      "pngSha256": "da34bec8a6e4d2c0385084b3103132b928038bf26ec6f14113f8dcc00bd5f5c9"
+    },
+    "827": {
+      "url": "/original/help-article/hfx-827.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "ce4b0510c27f93f02765b59cc0c1780557ea3af726ca766c79f8b661452c626a",
+      "pngSha256": "87eb76c61f99aa650da28c667cc82812ca8ad02a2cb1ba5de351b8a8c799160d"
+    },
+    "828": {
+      "url": "/original/help-article/hfx-828.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "f3ace9c1512d47280a817882bd6a41a95a79d4949b923bfb62aa52fc4eae38db",
+      "pngSha256": "5d490978a4e093a1e1b1794ba47e1504bc8a07c81703a170de0583dabf9db77e"
+    },
+    "829": {
+      "url": "/original/help-article/hfx-829.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "2695aaa8280343740d071971245bbfa457dfae7d18916d164906925250572119",
+      "pngSha256": "01fee501b815cbb7865844687dae71898f3cb66a4f73465aa96ce3f8c83c67c5"
+    },
+    "830": {
+      "url": "/original/help-article/hfx-830.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "24e761840be7f08c4a10ef2d74cbe815e05598f54275d5ea2f74fcced14a8a49",
+      "pngSha256": "c05f1f587b2e67ff9629a03d97354dbef0c1cb6d4609a11e697d9aeefe3fcae1"
+    },
+    "831": {
+      "url": "/original/help-article/hfx-831.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "86f17d6fba3d37029e16dffe869588d70fcf193aa51efa358009ed6573b91541",
+      "pngSha256": "b5ef5ff8af18cd2863ffb8ae89c8eddabcda26897bac5715c816226b34e2ae3a"
+    },
+    "832": {
+      "url": "/original/help-article/hfx-832.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "8db1b28fb9423746bab58560c0c1a93f927f91fc2011c77727f9da378520c3d3",
+      "pngSha256": "41108a0dc63aa327ffa0f534098176b15839c63db5466a4fc09e3ffc9107e4b5"
+    },
+    "833": {
+      "url": "/original/help-article/hfx-833.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "9f65694750d0cc8055160cf1f01e9f86404a5e645e567f3cc312eaee2b7c1254",
+      "pngSha256": "b1abf8bae29ed63eb2ab572ee207393f499b5fa5b4d68fdfa06e7e6adc03cb05"
+    },
+    "834": {
+      "url": "/original/help-article/hfx-834.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "77e2110e4e1f9301ecf97ea8cf7de5c027263ee4a7a005ae86bd8cb07cfc07bb",
+      "pngSha256": "3978e1074bd7ab60e61580d69aab108af65eea5c686c609f30255411d6e1bb16"
+    },
+    "835": {
+      "url": "/original/help-article/hfx-835.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "091e4b4b7cac366838af027caa05cc3c5419aef70459c4e717bb51dd2b8dd964",
+      "pngSha256": "7413c716500c84232729d9e9f7c7420b7cbc8cd40e0f99578c2cd45844b0fd22"
+    },
+    "836": {
+      "url": "/original/help-article/hfx-836.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "2ea2f48aa2b0de8229f4d07ca0c8273d0e7b5c43d185bbd6b932a45fd8567ee3",
+      "pngSha256": "35e1c444d05d84dd877784f24ea4b8a2ad5ea264df834cfac51ff5b377a67500"
+    },
+    "837": {
+      "url": "/original/help-article/hfx-837.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "0796de8a6c229efa1e169156a2fe8eca6d5b831fd23f438a833bc4112add48de",
+      "pngSha256": "476c850a9d47605da50abd3b3fe89f9ff62754593ab4147336f6c510f7fa3bdc"
+    },
+    "838": {
+      "url": "/original/help-article/hfx-838.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "2b72d2447e7042aa2e5d922b5bfba1551b8dc1506a8ce1657ddc265dcb3a1571",
+      "pngSha256": "86d903948e8f585c5cbb488f0029b52ec452ef81d3bd038e6d4b7145aff8839b"
+    },
+    "839": {
+      "url": "/original/help-article/hfx-839.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "e8e93a4e055d809b0142f0137c8d674aa1a797abc0a1052df7d33af20303603f",
+      "pngSha256": "0eaacd04b2373626efa08a04be97b93f388f65eeb7f4231dd8597498d9571a2a"
+    },
+    "840": {
+      "url": "/original/help-article/hfx-840.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "a413e48bd13412b6d94ca191c3b54796bc0dbd5d7ced35e4b7aa7a8520cb4846",
+      "pngSha256": "fa17ffffee963dd91e5217b25e7d115a86358db7a1be41e1d580c656d780ca65"
+    },
+    "841": {
+      "url": "/original/help-article/hfx-841.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "fde1d003e0c1d15d852b9eb036ef9832c09504c8bc1e844e4ed95310a4f003b4",
+      "pngSha256": "ab8d6c2f256036f83f5acdacbe68e4b361e3e62aeecf1d68f5a268fcb5a6ec80"
+    },
+    "842": {
+      "url": "/original/help-article/hfx-842.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "a1423955b1215fadaaf8463cc9b005d72991d6f178ba603c52c5257aee92934d",
+      "pngSha256": "caf1946b09061b580c2379b51bc15462f3305d9b404bd613a404606293eca927"
+    },
+    "843": {
+      "url": "/original/help-article/hfx-843.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "02339637504d6333d9062badadd1c6ccd4b66c05f17612772acf1f316818b5c7",
+      "pngSha256": "c07c79d9558785bbcd8c7b3ee5aac10e18955f7d1073a0aaecc4ab36675d0ecb"
+    },
+    "844": {
+      "url": "/original/help-article/hfx-844.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "2b72d2447e7042aa2e5d922b5bfba1551b8dc1506a8ce1657ddc265dcb3a1571",
+      "pngSha256": "86d903948e8f585c5cbb488f0029b52ec452ef81d3bd038e6d4b7145aff8839b"
+    },
+    "845": {
+      "url": "/original/help-article/hfx-845.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "15998e87cfaef99393119fc0aae937729ca5fb651229bf83edca7dae9322de96",
+      "pngSha256": "70eba10e81009c4b83c00502a0de6842295a7cc18f8e425f63644a96eea42683"
+    },
+    "846": {
+      "url": "/original/help-article/hfx-846.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "2b72d2447e7042aa2e5d922b5bfba1551b8dc1506a8ce1657ddc265dcb3a1571",
+      "pngSha256": "86d903948e8f585c5cbb488f0029b52ec452ef81d3bd038e6d4b7145aff8839b"
+    },
+    "847": {
+      "url": "/original/help-article/hfx-847.png",
+      "width": 8,
+      "height": 8,
+      "rgbaSha256": "2b72d2447e7042aa2e5d922b5bfba1551b8dc1506a8ce1657ddc265dcb3a1571",
+      "pngSha256": "86d903948e8f585c5cbb488f0029b52ec452ef81d3bd038e6d4b7145aff8839b"
+    },
+    "1594": {
+      "url": "/original/help-article/hfx-1594.png",
+      "width": 16,
+      "height": 24,
+      "rgbaSha256": "5e736476bafa80c8c96d535e101313ad5f3aca0207cc6a7aef6d4fc62affa952",
+      "pngSha256": "999d303f6d2c50b173e0aa9c8192e693fe00e58394147d09edeb7caf963635b6"
+    },
+    "1595": {
+      "url": "/original/help-article/hfx-1595.png",
+      "width": 48,
+      "height": 24,
+      "rgbaSha256": "b61b430c999bcfec3a103ccd11183dcf9b9eb96baaede36ecaee6c3e618c05b4",
+      "pngSha256": "01cfefcb95127249faa0a3d6ab91c60edcd9ffeef993fb72a959b148cd520624"
+    },
+    "1596": {
+      "url": "/original/help-article/hfx-1596.png",
+      "width": 64,
+      "height": 24,
+      "rgbaSha256": "8a9f43be87e50ad2b84d55a702100a5987b5a988091ac83046533956ba5bea5a",
+      "pngSha256": "9ac2c9625e791481fc196b28979e4850a6718e9e08d031698fa11712dd17eb12"
+    },
+    "1597": {
+      "url": "/original/help-article/hfx-1597.png",
+      "width": 80,
+      "height": 24,
+      "rgbaSha256": "79228d5177fe56611d9b2d958b8385c07c79ae7702111975e4aa9d3947a9d29a",
+      "pngSha256": "e4ea28b965965145080538f834ab7b1f1496959546a6334214d62052fbdac816"
+    },
+    "1598": {
+      "url": "/original/help-article/hfx-1598.png",
+      "width": 51,
+      "height": 15,
+      "rgbaSha256": "464ebd9e77ad063f4d7c3875e9ec4454b00d1d1873fb4370302d9efc5a77d4b9",
+      "pngSha256": "ba5e78a7f25dd3defe129e02f277fbac104ed969ca1cd89052f04d25360a1adc"
+    },
+    "1599": {
+      "url": "/original/help-article/hfx-1599.png",
+      "width": 68,
+      "height": 30,
+      "rgbaSha256": "616b9cfe520380334444921892c84c4b9f6f5e0facb60e0abffcf38c875f66bc",
+      "pngSha256": "3ed6d46cced3f7eeef4ad620d8c761f8facb1ba008f1f51846cadfaff2d43b32"
+    },
+    "1600": {
+      "url": "/original/help-article/hfx-1600.png",
+      "width": 68,
+      "height": 30,
+      "rgbaSha256": "5b5c045f0b9c4aa7ab085800b7588db608b5baaf3ab9a97a540865b37f933485",
+      "pngSha256": "a4a0bd1de60eb3d983a8cbbb638d2dea98fca0a20ac83be54e71d6becd4ac7da"
+    },
+    "1601": {
+      "url": "/original/help-article/hfx-1601.png",
+      "width": 67,
+      "height": 30,
+      "rgbaSha256": "ac8927369d80c26ce8bf3a1cb0e4c6f852e26d86ce55e59c21ae0ad8b84434ea",
+      "pngSha256": "4990f2f9668e20ed1260501c2e289bb0a80513a752dee35b1f2e92f82a820d8e"
+    },
+    "1602": {
+      "url": "/original/help-article/hfx-1602.png",
+      "width": 68,
+      "height": 45,
+      "rgbaSha256": "beb368ba2417edb683b8aa3a58ec26593db5e4e309b9399568810b47f57521e1",
+      "pngSha256": "0c7fc965a726eaa0c0c04ef95bb4d62c818ea75dcf9de7b4d76917764174fe4f"
+    },
+    "1603": {
+      "url": "/original/help-article/hfx-1603.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "76406fe609514a4e306505920837383615e75e8059d538034026ed0064b7fa97",
+      "pngSha256": "2cc8f8a075e0b45a4b85b3f46d39ceae85c2121aeabca79a7aa6a85e5f29a96a"
+    },
+    "1604": {
+      "url": "/original/help-article/hfx-1604.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "e4fe53557f16552207ba74d8f1845761cd578f4817c57fbb504eca07a85d37ff",
+      "pngSha256": "9055f5e3e0c06cc1438540a589cd9b739cb16ca7065d59f286067f85d6b83aa0"
+    },
+    "1605": {
+      "url": "/original/help-article/hfx-1605.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "2888e709781c7dcd076a2f4b0fa38ef0095e37c781f01239292a8ef9782b9277",
+      "pngSha256": "04a4d2af001249edb21b3c2e71f4635bb0bfeb1d184d1a48de77ae5fb90a8bb5"
+    },
+    "1606": {
+      "url": "/original/help-article/hfx-1606.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "4f0ab234af5efbb1384875d43134a359f9090b6921b476bacf7deb2a49ac8cbf",
+      "pngSha256": "3fd79b72450fa94e0b99bc78e04a40a65ae99c1c1db7e0e3545cc23097929ae7"
+    },
+    "1607": {
+      "url": "/original/help-article/hfx-1607.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "8d881860e0e244d74077f42fcf61494ca7bf988985d296cace6cb691a998631c",
+      "pngSha256": "1adc9a04f39170bc254585d3e11fa6a1e596d9b83474c64a89dd26fb4256b1a8"
+    },
+    "1608": {
+      "url": "/original/help-article/hfx-1608.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "024c2b4a5b93b3ae9c9b17eab8a6dd4c72f686c9e8109098c8ffc77ebe3d4247",
+      "pngSha256": "2e3f39bb4a0bcf3377ad079730fca7ad259937704228a9090ed9ec414da56beb"
+    },
+    "1609": {
+      "url": "/original/help-article/hfx-1609.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "acfc7aa0e8d8e3e64e287a05223990d3682d91365970ab3e899c58ca801c0834",
+      "pngSha256": "25cd35a590246dda71b1536d03f1b2fafdddbd80788e0ae42c91ede376315bf8"
+    },
+    "1611": {
+      "url": "/original/help-article/hfx-1611.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "acfd67fd3be4c858b4ca0aaba065351247887c30e0a0fa5f84061a31748dccfb",
+      "pngSha256": "e3136c62bf7f2e304555d74010ebcf61f677fb7857b534732fb576a303597a48"
+    },
+    "1612": {
+      "url": "/original/help-article/hfx-1612.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "0f57550b69544da763f77870a476c0899048977c075a76292c6cd3b7d4dc47fe",
+      "pngSha256": "176257af16a08bc475dcf923ac0d4ef76296532f565755c53d9de375175d3d2f"
+    },
+    "1613": {
+      "url": "/original/help-article/hfx-1613.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "77484a35284d5ed70cb7982575b785f999ae2d7df52c4d0700c2546819b50b64",
+      "pngSha256": "ac35ed347a878bd1fd5bb8c5674ce3149b0e6e731c9e110b0380c53ca229a445"
+    },
+    "1614": {
+      "url": "/original/help-article/hfx-1614.png",
+      "width": 104,
+      "height": 10,
+      "rgbaSha256": "c41a744fbc371c199956d647516cb96118509466deaf9055a8a8ff105c61b99a",
+      "pngSha256": "7198ebed59ee84a498823d1ec4015a4e0e4fb15e950a9b3797cf10553ce89b64"
+    }
+  },
+  "provenance": {
+    "inputs": {
+      "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+      "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf"
+    },
+    "decoders": {
+      "png": "109f4d27182a34ec7f2c4d5b2e0686787b748a02656b6e3719a57e78889eecef",
+      "sprites": "d1c1ec8830fbf0e4339288d6514350b852e73c67c2361e580bae699766bf6892"
+    },
+    "addressedTables": {
+      "inline": {
+        "address": "0059bdc0",
+        "hex": "3e0600003f0600004106000042060000400600003b0600003c0600003d0600003a06000043060000440600004506000046060000470600004806000049060000490600004b0600004c0600004d0600004e060000"
+      },
+      "normal": {
+        "address": "005cacc8",
+        "hex": "3503390336033b033d033c0337033a033803"
+      },
+      "held": {
+        "address": "005cace0",
+        "hex": "47034b0348034d034f034e0349034c034a03"
+      },
+      "hover": {
+        "address": "005cacf8",
+        "hex": "3e0342033f03440346034503400343034103"
+      }
+    },
+    "originalExecuted": false,
+    "boundary": "Original indexed pixels, not original-runtime captures; hover cadence requires native counter 00897981 bit 0x04."
+  }
+}
