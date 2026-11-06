@@ -2,6 +2,8 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { createAudioOptionsBudget, setSoundThroughOptions, openAudioOptions, closeAudioOptions, waitForAudioObservation, observeOptionsAudio } from '../browser-options-audio.mjs'
+import { captureAudioFrame } from './options-audio-framing.mjs'
+import { browserNativeEscape } from './options-native-escape.mjs'
 
 export function assertFrozen(before, after) {
   assert.equal(before.paused, true)
@@ -60,15 +62,23 @@ export async function captureOptions(page, output, name, budget, captures, metad
 // The main-only adapter owns browser errors, process cleanup and artifact limits.
 // This episode uses public controls only; reads of World/Scene are observations.
 export default async function optionsBrowserControls({ page, output, deadlineAt, signal, revision }) {
-  const cleanupErrors = [], captures = [], captureMetadata = [], checks = []
+  const cleanupErrors = [], captures = [], captureMetadata = [], audioFrames = [], nativeEscapes = [], checks = []
   const budget = createAudioOptionsBudget({ signal, deadlineAt, cleanupErrors })
-  const report = { status: 'running', revision, requestedViewport: { width: 1280, height: 960 }, captures, captureMetadata, checks, cleanupErrors,
-    limits: ['Partial #885 only: no held-stream/retry or loading acceptance; ordinary menu dismissal does not force a focused-portal removal race', 'Only simulation turn/pending time, animation and camera position are frozen; legitimate paused presentation may advance', 'No native pixel equivalence, acoustic quality or performance claim'] }
+  const report = { status: 'running', revision, requestedViewport: { width: 1280, height: 960 }, captures, captureMetadata, audioFrames, nativeEscapes, checks, cleanupErrors,
+    limits: ['Partial #885 only: no held-stream/retry or loading acceptance; ordinary menu dismissal does not force a focused-portal removal race', 'Only simulation turn/pending time, animation and camera position are frozen; legitimate paused presentation may advance', 'Escape uses browser-native handling via reviewed CDP native keycode, not OS keyboard input', 'No native pixel equivalence, acoustic quality or performance claim'] }
   const save = () => writeFileSync(resolve(output, 'options-controls-episode.json'), JSON.stringify(report, null, 2) + '\n')
   const button = name => page.getByRole('button', { name, exact: true })
   const step = budget.step, observe = () => step(() => page.evaluate(observeFrozen))
   const wait = (fn, arg) => waitForAudioObservation(budget, timeout => page.waitForFunction(fn, arg, { timeout }))
   const shot = name => captureOptions(page, output, name, budget, captures, captureMetadata)
+  const audioShot = (name, label) => captureAudioFrame({ page, owner, label, name, captures, budget,
+    capture: () => shot(name), metadata: audioFrames })
+  const nativeEscape = async (dialogs, hosts) => {
+    assert.ok(nativeEscapes.length < 2, 'Only the two existing native exit boundaries are admitted')
+    const trace = { boundary: dialogs ? 'paused-menu' : 'detached-portal' }
+    nativeEscapes.push(trace)
+    await browserNativeEscape({ page, owner, budget, signal, deadlineAt, trace, dialogs, hosts })
+  }
   let entry, owner, primary, failed = false
   try {
     assert.equal(await step(() => page.locator('dialog[open]').count()), 0)
@@ -88,14 +98,15 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     checks.push('public-options-enable-preserves-manual-pause')
     entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
     await wait(observeOptionsAudio, { enabled: true, paused: true, context: 'suspended' })
-    await shot('options-sound-enabled.png')
+    assertFrozen(before, await observe())
+    await audioShot('options-sound-enabled.png', '♪ Sound on')
+    assertFrozen(before, await observe())
     await step(timeout => button('Fullscreen').click({ timeout }))
     await wait(() => document.fullscreenElement === document.documentElement)
     assert.equal(await step(() => button('Exit fullscreen').getAttribute('aria-pressed')), 'true')
     assertFrozen(before, await observe())
     await shot('options-fullscreen-entered.png')
-    await step(() => page.keyboard.press('Escape'))
-    await wait(() => document.fullscreenElement === null)
+    await nativeEscape(1, 1)
     assert.equal(await step(() => page.locator('dialog[data-original-pause-menu][open]').count()), 1, 'Native Escape exit must not dismiss the menu')
     assertFrozen(before, await observe())
     await shot('options-fullscreen-escaped.png')
@@ -108,7 +119,9 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     assertFrozen(before, await observe())
     entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
     await wait(observeOptionsAudio, { enabled: false, paused: true, context: 'suspended' })
-    await shot('options-sound-muted.png')
+    assertFrozen(before, await observe())
+    await audioShot('options-sound-muted.png', '♫ Enable sound')
+    assertFrozen(before, await observe())
     await step(timeout => button('Fullscreen').click({ timeout }))
     await wait(() => document.fullscreenElement === document.documentElement)
     assertFrozen(before, await observe())
@@ -120,8 +133,7 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     report.fullscreenDismissal = fullscreenDismissal
     await shot('options-fullscreen-detached.png')
     checks.push('menu-dismissal-detaches-fullscreen-control-and-restores-live-focus-without-exiting-fullscreen')
-    await step(() => page.keyboard.press('Escape'))
-    await wait(() => document.fullscreenElement === null)
+    await nativeEscape(0, 0)
     assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
     assertFrozen(before, await observe())
     entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
