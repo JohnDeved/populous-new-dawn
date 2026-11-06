@@ -210,3 +210,45 @@ Version-matched sources: [systemd 255 home and path controls](https://www.freede
 [v255.4 topmost remount behavior](https://github.com/systemd/systemd-stable/blob/v255.4/src/shared/mount-util.c#L143-L357),
 [Linux O_PATH](https://man7.org/linux/man-pages/man2/open.2.html),
 and [proc fdinfo mount identity](https://man7.org/linux/man-pages/man5/proc_pid_fdinfo.5.html).
+
+
+## Public introduction and request diagnostics
+
+Run 42130070119 passed real storage admission and reached Mission 1, but failed
+the existing 2500 ms cumulative public click/unlock gate. The public Skip can
+start the authored camera blend rather than unlock immediately. Its receipt did
+not establish the clicked phase or native dispatch time; it also retained a
+secondary already-handled route error. Neither failure is reclassified as a pass.
+
+The first existing startup evaluation now installs a passive, driver-owned
+observation and returns its initial state inside that same cumulative budget.
+Up to four exact-button click events retain window capture/bubble snapshots,
+trusted status and browser timestamps. Bound scalar flyby phase and three blend
+tracks distinguish warmup, handler effect and subsequent progression. Window
+bubble is correlated to the same native event, not a microtask guessed to run
+after React. Missing bubble remains unknown; no input or game method is wrapped,
+repeated, forced or injected. The existing unlock polling overwrites one bounded last-poll
+snapshot instead of creating another polling loop. That snapshot is retained
+separately from the final diagnostic observation. Node operation offsets and
+browser clock values remain separate.
+
+Listener removal, a final diagnostic state and owner-handle disposal share the
+existing 500 ms cleanup step. Late unlock is evidence only and cannot rescue an
+expired result. A diagnostic cleanup failure cannot replace the original failure.
+The 2500 ms response, 30-second entry, 60-second driver and external 70-second
+browser owner caps remain unchanged, as do every gameplay and pixel assertion.
+
+Each owned sky route now reserves exactly one abort or fulfill action before
+calling Playwright. Rejection or uncertain completion never causes a second
+terminal action. Bounded timestamps retain fetch/hold, terminal dispatch,
+drain and handler-removal ordering, plus an available request failure reason.
+Normal cleanup drains before removing its exact handler. A 1000 ms drain and
+250 ms independently attempted removal fit within the existing 1500 ms cleanup
+step; either timeout or rejection remains a failed cleanup, never successful
+cancellation. The original fetch error and secondary cancellation error remain
+separate. Existing source-byte verification and late-texture release are unchanged.
+
+These observations support the next actual player-facing gate: one ordinary
+Mission 1 Blast windup and F9 modal followed by late-texture/restoration pixel
+proof, screenshot and cleanup. They do not themselves establish modal acceptance
+or authorize a further heavy run.

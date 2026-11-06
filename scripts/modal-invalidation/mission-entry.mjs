@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { settleWithin } from './deadline.mjs'
+import { observeStartup, closeStartupProbe } from './startup-probe.mjs'
 
 export function publicStartupReady() {
   const world = window.testStore.getWorld(), skip = document.querySelector('button.skip-introduction')
@@ -7,6 +8,7 @@ export function publicStartupReady() {
     getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled)
 }
 export function readBoundStartup(owners) {
+  if (owners.startupProbe) { const state = owners.startupProbe.sample('bound-state'); if (state) return state }
   const world = window.testStore.getWorld(), skip = document.querySelector('button.skip-introduction')
   return { ownerUnchanged: window.testStore === owners.store && world === owners.world &&
     window.testSceneRef.current === owners.scene && owners.scene.world === world,
@@ -29,29 +31,37 @@ export async function finishModalIntroduction(page, owners, trace, now = () => p
     assert.ok(value > 0, 'Public introduction click/unlock budget expired')
     return value
   }
+  trace.operations = []
+  const mark = phase => { if (trace.operations.length < 16) trace.operations.push({ phase, elapsedMs: now() - start, at: new Date().toISOString() }) }
   let primary
   try {
-    trace.before = await page.evaluate(readBoundStartup, owners); remaining(); validateState(trace.before)
+    mark('initial-observation-start')
+    trace.before = await page.evaluate(observeStartup, owners); mark('initial-observation-complete'); remaining(); validateState(trace.before)
     if (!trace.before.inputMask) { trace.outcome = 'natural-before-click'; return }
     assert.equal(trace.before.skipVisible, true, 'Only an observed visible Skip control may be activated')
     trace.attempts = 1
     try {
+      mark('click-start')
       await page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: remaining(), noWaitAfter: true })
-      trace.delivery = 'fulfilled'
+      mark('click-fulfilled'); trace.delivery = 'fulfilled'
     } catch (error) {
-      trace.delivery = 'rejected'; trace.deliveryError = String(error)
+      mark('click-rejected'); trace.delivery = 'rejected'; trace.deliveryError = String(error)
       // Preserve every non-timeout delivery failure, even if the world later unlocks.
       if (error.name !== 'TimeoutError') throw error
       trace.after = await page.evaluate(readBoundStartup, owners); remaining(); validateState(trace.after)
       if (trace.after.inputMask) throw error
       trace.outcome = 'natural-during-click'; return
     }
-    await page.waitForFunction(owners => window.testStore !== owners.store ||
-      window.testStore.getWorld() !== owners.world || window.testSceneRef.current !== owners.scene ||
-      owners.scene.world !== owners.world || !owners.world.inputMask, owners, { timeout: remaining() })
+    mark('unlock-wait-start')
+    await page.waitForFunction(owners => {
+      owners.startupProbe?.sample('unlock-poll')
+      return window.testStore !== owners.store || window.testStore.getWorld() !== owners.world ||
+        window.testSceneRef.current !== owners.scene || owners.scene.world !== owners.world || !owners.world.inputMask
+    }, owners, { timeout: remaining() })
+    mark('unlock-wait-fulfilled')
     trace.after = await page.evaluate(readBoundStartup, owners); remaining(); validateState(trace.after)
     assert.equal(trace.after.inputMask, 0); trace.outcome = 'public-click-unlocked'
-  } catch (error) { primary = error; trace.outcome = 'failed'; trace.error = String(error); throw error }
+  } catch (error) { primary = error; mark('failed'); trace.outcome = 'failed'; trace.error = String(error); throw error }
   finally {
     trace.elapsedMs = now() - start
     if (!primary) assert.ok(trace.elapsedMs <= 2500, 'Public introduction response exceeded its cumulative budget')
@@ -84,7 +94,13 @@ export async function enterModalMission(page, { openCampaignFromMainMenu, bindGa
   finally {
     clearTimeout(timer)
     // The driver's independent context owner closes any timed-out setup work.
-    const disposed = await settleWithin(() => owners?.dispose(), 500)
+    const disposed = await settleWithin(async () => {
+      if (!owners) return
+      try {
+        trace.observations = await page.evaluate(closeStartupProbe, owners)
+        assert.equal(trace.observations.closed, true); assert.equal(trace.observations.listeners, 0)
+      } finally { await owners.dispose() }
+    }, 500)
     trace.ownerHandleCleanup = disposed.status
     if (disposed.status !== 'fulfilled') primary ??= Error('Mission owner handle cleanup failed')
   }
