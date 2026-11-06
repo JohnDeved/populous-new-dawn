@@ -3,7 +3,6 @@ import font from './original-pause-font.json'
 import type { IngameMenuAssets } from './frontend-assets'
 import type { CheckpointReadStatus } from './game-store'
 import { frontendScale } from './frontend-composition'
-import { continuePauseMenu } from './pause-menu-continuation'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
 
@@ -120,6 +119,13 @@ function checkpointNotice(status: CheckpointReadStatus, hasCheckpoint: boolean) 
         : 'No usable saved checkpoint was found in this browser.'
   }
 }
+/** Close while the dialog is still modal and connected, so the browser can
+ * restore its opener before the parent removes the menu from the document. */
+function continuePauseMenu(dialog: HTMLDialogElement | null, onContinue: () => void) {
+  dialog?.close()
+  onContinue()
+}
+
 export function OriginalPauseMenu(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [panel, setPanel] = useState<Panel>('root')

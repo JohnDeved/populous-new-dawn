@@ -1,7 +1,16 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { continuePauseMenu } from '../app/pause-menu-continuation.ts'
+import ts from 'typescript'
+
+const source = readFileSync(new URL('../app/original-pause-menu.tsx', import.meta.url), 'utf8')
+const syntax = ts.createSourceFile('original-pause-menu.tsx', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
+const helpers = syntax.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === 'continuePauseMenu')
+assert.equal(helpers.length, 1, 'Exercise the single actual component helper, not a test copy')
+const emitted = ts.transpileModule(helpers[0].getText(syntax), {
+  compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS },
+}).outputText
+const continuePauseMenu = new Function(emitted + '\nreturn continuePauseMenu')()
 
 // A focused lifecycle model, not a browser test. Chromium's close restoration
 // checks was_modal or a still-focused descendant. Removal clears modal state
@@ -105,8 +114,7 @@ test('missing dialog preserves the parent callback; close or callback errors are
 })
 
 test('shipped root Back and Continue Game use the helper; navigation actions retain their own callbacks', () => {
-  const source = readFileSync(new URL('../app/original-pause-menu.tsx', import.meta.url), 'utf8')
-  assert.match(source, /import \{ continuePauseMenu \} from '\.\/pause-menu-continuation'/)
+  assert.doesNotMatch(source, /from '\.\/pause-menu-continuation'/)
   assert.match(source, /if \(panel === 'root'\) continuePauseMenu\(dialog\.current, props\.onContinue\)/)
   assert.match(source, /if \(label === 'Continue Game'\) continuePauseMenu\(dialog\.current, props\.onContinue\)/)
   assert.equal(source.match(/continuePauseMenu\(dialog\.current, props\.onContinue\)/g)?.length, 2)
