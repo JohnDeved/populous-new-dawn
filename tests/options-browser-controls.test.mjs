@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { mkdtempSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import optionsBrowserControls, { assertFrozen, captureOptions, observeFullscreenDismissal, assertFullscreenDismissal } from '../scripts/local-render/options-browser-controls.mjs'
+import optionsBrowserControls, { assertFrozen, captureOptions, observeFullscreenDismissal, assertFullscreenDismissal, recordFullscreenDismissal } from '../scripts/local-render/options-browser-controls.mjs'
 import { createAudioOptionsBudget } from '../scripts/browser-options-audio.mjs'
 
 test('frozen observation rejects running state and observed simulation/camera/clock drift', () => {
@@ -61,18 +61,38 @@ test('fullscreen dismissal rejects lost owners, stale focus, visible portals and
   assert.throws(() => assertFullscreenDismissal({ ...valid, fullscreen: 'other' }, false))
 })
 
+test('failed dismissal observations are retained without weakening strict focus or fullscreen gates', () => {
+  const valid = Object.freeze({ sameWorldScene: true, ownedCanvas: true, fullscreen: 'none', openDialogs: 0,
+    visibleHosts: 0, connectedFocus: true, focusOwner: 'menu' })
+  const records = []
+  recordFullscreenDismissal(valid, false, records, 'after-first-native-exit')
+  assert.deepEqual(records, [{ boundary: 'after-first-native-exit', expectedFullscreen: 'none', observation: valid }])
+  for (const change of [{ focusOwner: 'other', focusTag: 'BODY', focusIsBody: true },
+    { fullscreen: 'other' }, { currentMenuMatchesRetained: false, focusOwner: 'other', focusIsCurrentMenu: true }]) {
+    const invalid = Object.freeze({ ...valid, ...change })
+    assert.throws(() => recordFullscreenDismissal(invalid, false, records, 'failure'))
+    assert.equal(records.at(-1).observation, invalid)
+  }
+  assert.equal(records.length, 4)
+  assert.throws(() => recordFullscreenDismissal(valid, false, records, 'fifth'), /four existing/)
+  assert.equal(records.length, 4)
+})
+
 test('dismissal observation reads exact World, Scene, canvas and trigger identities without writing them', () => {
   const previous = ['document', 'window'].map(name => [name, Object.getOwnPropertyDescriptor(globalThis, name)])
   const canvas = Object.freeze({ isConnected: true }), menu = Object.freeze({ isConnected: true })
   const world = Object.freeze({ paused: true })
   const scene = Object.freeze({ world, renderer: Object.freeze({ domElement: canvas }) })
-  let currentWorld = world, currentScene = scene, currentCanvas = canvas, focused = menu, hosts = [], dialogs = []
-  const html = {}
+  let currentWorld = world, currentScene = scene, currentCanvas = canvas, currentMenu = menu, focused = menu, hosts = [], dialogs = []
+  const html = {}, body = Object.freeze({ isConnected: true, nodeName: 'BODY', getAttribute: () => null })
   let fullscreenElement = html
-  const document = Object.freeze({ documentElement: html,
+  const document = Object.freeze({ documentElement: html, body,
     get fullscreenElement() { return fullscreenElement },
     get activeElement() { return focused },
-    querySelector(selector) { assert.equal(selector, '.world-viewport canvas.battlefield'); return currentCanvas },
+    querySelector(selector) {
+      assert.ok(['.world-viewport canvas.battlefield', 'button[aria-label="Menu"]'].includes(selector))
+      return selector === '.world-viewport canvas.battlefield' ? currentCanvas : currentMenu
+    },
     querySelectorAll(selector) {
       assert.ok(['dialog[open]', '[data-fullscreen-control]'].includes(selector))
       return selector === 'dialog[open]' ? dialogs : hosts
@@ -85,6 +105,23 @@ test('dismissal observation reads exact World, Scene, canvas and trigger identit
       Object.defineProperty(globalThis, name, { configurable: true, value })
     const owner = { world, scene, menu }
     assertFullscreenDismissal(observeFullscreenDismissal(owner), true)
+    assert.equal(observeFullscreenDismissal(owner).currentMenuMatchesRetained, true)
+    assert.equal(observeFullscreenDismissal(owner).retainedMenuConnected, true)
+    focused = body
+    assert.equal(observeFullscreenDismissal(owner).focusTag, 'BODY')
+    assert.equal(observeFullscreenDismissal(owner).focusLabel, null)
+    assert.equal(observeFullscreenDismissal(owner).focusIsBody, true)
+    assert.throws(() => assertFullscreenDismissal(observeFullscreenDismissal(owner), true))
+    currentMenu = Object.freeze({ isConnected: true, nodeName: 'BUTTON', getAttribute: () => 'a'.repeat(200) })
+    focused = currentMenu
+    assert.equal(observeFullscreenDismissal(owner).focusLabel.length, 120, 'diagnostic text is bounded')
+    assert.equal(observeFullscreenDismissal(owner).focusIsCurrentMenu, true)
+    assert.equal(observeFullscreenDismissal(owner).currentMenuMatchesRetained, false)
+    assert.equal(observeFullscreenDismissal(owner).focusOwner, 'other', 'replacement triggers remain rejected')
+    assert.throws(() => assertFullscreenDismissal(observeFullscreenDismissal(owner), true))
+    currentMenu = null
+    assert.equal(observeFullscreenDismissal({ ...owner, menu: null }).currentMenuMatchesRetained, false)
+    currentMenu = menu; focused = menu
     fullscreenElement = canvas
     assert.equal(observeFullscreenDismissal(owner).fullscreen, 'other')
     assert.throws(() => assertFullscreenDismissal(observeFullscreenDismissal(owner), false))

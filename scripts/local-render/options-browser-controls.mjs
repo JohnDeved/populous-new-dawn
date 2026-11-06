@@ -27,6 +27,7 @@ export function observeCapture() {
 export function observeFullscreenDismissal({ world, scene, menu }) {
   const canvas = document.querySelector('.world-viewport canvas.battlefield')
   const focused = document.activeElement
+  const currentMenu = document.querySelector('button[aria-label="Menu"]')
   return {
     sameWorldScene: window.testStore.getWorld() === world && window.testSceneRef.current === scene && scene.world === world,
     ownedCanvas: !!canvas && canvas === scene.renderer.domElement,
@@ -36,6 +37,13 @@ export function observeFullscreenDismissal({ world, scene, menu }) {
     visibleHosts: document.querySelectorAll('[data-fullscreen-control]').length,
     connectedFocus: !!focused?.isConnected,
     focusOwner: focused === canvas ? 'canvas' : focused === menu ? 'menu' : 'other',
+    focusTag: focused?.nodeName?.slice(0, 32) ?? null,
+    focusLabel: focused?.getAttribute?.('aria-label')?.slice(0, 120) ?? null,
+    focusIsBody: focused === document.body,
+    focusIsDocument: focused === document.documentElement,
+    retainedMenuConnected: menu?.isConnected === true,
+    currentMenuMatchesRetained: !!menu && currentMenu === menu,
+    focusIsCurrentMenu: !!currentMenu && focused === currentMenu,
   }
 }
 
@@ -47,6 +55,13 @@ export function assertFullscreenDismissal(observation, fullscreen) {
   assert.equal(observation.visibleHosts, 0, 'No detached fullscreen control may remain in the document')
   assert.equal(observation.connectedFocus, true)
   assert.ok(['canvas', 'menu'].includes(observation.focusOwner), 'Dismissal must restore the Menu trigger or retained battlefield canvas')
+}
+
+export function recordFullscreenDismissal(observation, fullscreen, records, boundary) {
+  assert.ok(records.length < 4, 'Only the four existing dismissal observations are admitted')
+  records.push({ boundary, expectedFullscreen: fullscreen ? 'document' : 'none', observation })
+  // Retain failed observations too; diagnostics never change the acceptance oracle.
+  assertFullscreenDismissal(observation, fullscreen)
 }
 
 export async function captureOptions(page, output, name, budget, captures, metadata = []) {
@@ -62,9 +77,9 @@ export async function captureOptions(page, output, name, budget, captures, metad
 // The main-only adapter owns browser errors, process cleanup and artifact limits.
 // This episode uses public controls only; reads of World/Scene are observations.
 export default async function optionsBrowserControls({ page, output, deadlineAt, signal, revision }) {
-  const cleanupErrors = [], captures = [], captureMetadata = [], audioFrames = [], nativeEscapes = [], checks = []
+  const cleanupErrors = [], captures = [], captureMetadata = [], audioFrames = [], nativeEscapes = [], dismissals = [], checks = []
   const budget = createAudioOptionsBudget({ signal, deadlineAt, cleanupErrors })
-  const report = { status: 'running', revision, requestedViewport: { width: 1280, height: 960 }, captures, captureMetadata, audioFrames, nativeEscapes, checks, cleanupErrors,
+  const report = { status: 'running', revision, requestedViewport: { width: 1280, height: 960 }, captures, captureMetadata, audioFrames, nativeEscapes, dismissals, checks, cleanupErrors,
     limits: ['Partial #885 only: no held-stream/retry or loading acceptance; ordinary menu dismissal does not force a focused-portal removal race', 'Only simulation turn/pending time, animation and camera position are frozen; legitimate paused presentation may advance', 'Escape uses browser-native handling via reviewed CDP native keycode, not OS keyboard input', 'No native pixel equivalence, acoustic quality or performance claim'] }
   const save = () => writeFileSync(resolve(output, 'options-controls-episode.json'), JSON.stringify(report, null, 2) + '\n')
   const button = name => page.getByRole('button', { name, exact: true })
@@ -114,7 +129,7 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     const closing = entry; entry = null
     await closeAudioOptions(page, closing)
     await wait(() => document.querySelectorAll('[data-fullscreen-control]').length === 0)
-    assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
+    recordFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false, dismissals, 'after-first-native-exit')
     await setSoundThroughOptions(page, false, { signal, deadlineAt, cleanupErrors })
     assertFrozen(before, await observe())
     entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
@@ -129,12 +144,12 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     await closeAudioOptions(page, closingMuted)
     await wait(() => document.querySelectorAll('[data-fullscreen-control]').length === 0)
     const fullscreenDismissal = await step(() => page.evaluate(observeFullscreenDismissal, owner))
-    assertFullscreenDismissal(fullscreenDismissal, true)
+    recordFullscreenDismissal(fullscreenDismissal, true, dismissals, 'while-fullscreen')
     report.fullscreenDismissal = fullscreenDismissal
     await shot('options-fullscreen-detached.png')
     checks.push('menu-dismissal-detaches-fullscreen-control-and-restores-live-focus-without-exiting-fullscreen')
     await nativeEscape(0, 0)
-    assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
+    recordFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false, dismissals, 'after-detached-native-exit')
     assertFrozen(before, await observe())
     entry = await openAudioOptions(page, { signal, deadlineAt, cleanupErrors })
     assert.equal(await step(() => button('Fullscreen').getAttribute('aria-pressed')), 'false')
@@ -142,7 +157,7 @@ export default async function optionsBrowserControls({ page, output, deadlineAt,
     const reopened = entry; entry = null
     await closeAudioOptions(page, reopened)
     await wait(() => document.querySelectorAll('[data-fullscreen-control]').length === 0)
-    assertFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false)
+    recordFullscreenDismissal(await step(() => page.evaluate(observeFullscreenDismissal, owner)), false, dismissals, 'after-muted-reopen')
     assertFrozen(before, await observe())
     checks.push('native-fullscreen-exit-while-portal-detached-and-muted-options-reopen')
     assert.equal(await step(() => page.evaluate(({ world, scene }) => window.testStore.getWorld() === world && window.testSceneRef.current === scene && scene.world === world, owner)), true)

@@ -3,6 +3,7 @@ import font from './original-pause-font.json'
 import type { IngameMenuAssets } from './frontend-assets'
 import type { CheckpointReadStatus } from './game-store'
 import { frontendScale } from './frontend-composition'
+import { continuePauseMenu } from './pause-menu-continuation'
 import shared from './original-main-menu.module.css'
 import styles from './original-pause-menu.module.css'
 
@@ -191,7 +192,7 @@ export function OriginalPauseMenu(props: Props) {
     props.onRetryCheckpoint()
   }
   function back() {
-    if (panel === 'root') props.onContinue()
+    if (panel === 'root') continuePauseMenu(dialog.current, props.onContinue)
     else setPanel('root')
   }
   function open(next: Panel, label: string) {
@@ -257,7 +258,7 @@ export function OriginalPauseMenu(props: Props) {
       'Quit Level': 'quit-level',
       'Quit Game': 'quit-game',
     }
-    if (label === 'Continue Game') props.onContinue()
+    if (label === 'Continue Game') continuePauseMenu(dialog.current, props.onContinue)
     else if (label === 'Yes' && confirmation) once(confirmation.action)
     else if (label === 'No') setPanel('root')
     else if (targets[label]) open(targets[label], label)
@@ -368,7 +369,7 @@ export function OriginalPauseMenu(props: Props) {
             />
           )}
         </nav>
-        {panel === 'options' && props.renderOptions(back)}
+        {panel === 'options' && props.renderOptions(() => setPanel('root'))}
         {!confirmation && panel !== 'root' && panel !== 'options' && (
           <section className={styles.panel} aria-label={panelTitles[panel]}>
             <h2>{panelTitles[panel]}</h2>
