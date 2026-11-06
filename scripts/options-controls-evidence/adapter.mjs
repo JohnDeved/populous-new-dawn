@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { artifactInventory as commonInventory, ownBrowser } from '../native-ui-evidence/browser-owner.mjs'
 import { boundedEpisode } from '../native-ui-evidence/policy.mjs'
-import { ordinaryMission } from '../native-ui-evidence/ordinary-mission.mjs'
+import { enterOptionsMission } from './mission-entry.mjs'
 import { git, fullSha } from '../native-ui-evidence/identity.mjs'
 
 export const optionsLimits = Object.freeze({ browserMs: 180000, screenshots: 8, artifactBytes: 64 * 1024 * 1024 })
@@ -32,7 +32,7 @@ export async function runOptionsControlsEvidence({ browser, candidateRoot, outpu
       const context = await owner.browser.newContext({ viewport: { width: 1280, height: 960 } })
       const page = await context.newPage()
       await page.goto(url, { waitUntil: 'domcontentloaded' })
-      await ordinaryMission(page, candidateRoot, { signal: episodeSignal, deadlineAt, trace: report.setup })
+      await enterOptionsMission(page, candidateRoot, { signal: episodeSignal, deadlineAt, trace: report.setup })
       const { default: episode } = await import(pathToFileURL(resolve(candidateRoot, 'scripts/local-render/options-browser-controls.mjs')).href)
       const result = await episode({ page, output, deadlineAt, signal: episodeSignal, revision })
       assert.equal(result.status, 'passed')

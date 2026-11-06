@@ -18,7 +18,7 @@ function fixture({ runtimeError = false, cleanupError = false, abortedAfterClean
   const boundedEpisode = async (run,{close}) => { try { return await run(new AbortController().signal, Date.now()+1000) } finally { await close() } }
   const signal = { throwIfAborted() { if (abortedAfterCleanup && browserClosed) throw Error('late abort') } }
   const injectedImport = async () => ({ default: async () => { if(runtimeError) report.errors.push({kind:'runtime',text:'broken'}); return {status:'passed'} } })
-  const names = ['assert','writeFileSync','resolve','pathToFileURL','commonInventory','ownBrowser','boundedEpisode','ordinaryMission','git','fullSha','injectedImport']
+  const names = ['assert','writeFileSync','resolve','pathToFileURL','commonInventory','ownBrowser','boundedEpisode','enterOptionsMission','git','fullSha','injectedImport']
   const factory = new Function(...names, compiled + '; return { runOptionsControlsEvidence, assertOptionsArtifactInventory };')
   const api = factory(assert,writeFileSync,resolve,pathToFileURL,()=>inventory,ownBrowser,boundedEpisode,async()=>{},()=> 'b'.repeat(40),x=>x,injectedImport)
   return {api,output,run:()=>api.runOptionsControlsEvidence({browser,candidateRoot:'/candidate',output,url:'http://127.0.0.1',signal}),counts:()=>[contextsClosed,browserClosed]}
