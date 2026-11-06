@@ -583,7 +583,7 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(job['timeout-minutes'], "${{ (inputs.evidence_kind || 'native-ui') == 'material-lifecycle' && 30 || 20 }}")
   assert.deepEqual(workflow.on.workflow_dispatch.inputs.evidence_kind, {
     description: 'Full native UI, material lifecycle, partial Options controls, Tower, or finite melee capture diagnostic',
-    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection', 'melee-capture-diagnostic'],
+    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls', 'hud-preference-ssr', 'tower-collection', 'melee-capture-diagnostic'],
   })
   const checkouts = job.steps.filter(step => step.uses?.startsWith('actions/checkout@'))
   assert.equal(checkouts.length, 3); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
@@ -619,7 +619,7 @@ test('workflow validates normalized evidence kind before checkout and routes def
   const validate = value => execFileSync(process.execPath, ['--input-type=module', '-e', code], {
     env: { ...process.env, PND_EVIDENCE_KIND: value }, timeout: 5000, stdio: 'pipe',
   })
-  for (const value of ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection', 'melee-capture-diagnostic']) validate(value)
+  for (const value of ['native-ui', 'material-lifecycle', 'options-controls', 'hud-preference-ssr', 'tower-collection', 'melee-capture-diagnostic']) validate(value)
   for (const value of ['', 'unknown', 'native-ui ', 'OPTIONS-CONTROLS']) assert.throws(() => validate(value))
   for (const raw of [undefined, '', 'native-ui']) {
     const resolved = raw || 'native-ui'
