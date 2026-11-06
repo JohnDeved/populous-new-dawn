@@ -2,6 +2,54 @@
   "version": 1,
   "checks": [
     {
+      "id": "hud-preference-ssr-evidence-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate fixed-preview HUD/SSR hosted admission, transport and bounded evidence acceptance without browser execution.",
+      "coveredBehavior": [
+        "Exact approved infrastructure/application and first-attempt admission",
+        "No-follow HTML transport, pending restore deadlines and finite case/artifact limits",
+        "Detached ancestry/PID identity, cleanup and complete final payload rejection controls"
+      ],
+      "knownLimits": [
+        "Synthetic fixtures only; hosted static ELF closure, API availability, Chrome sandbox, SSR responses and rendered pixels remain unverified."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/hud-preference-ssr-evidence.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/hud-preference-ssr-evidence",
+        "tests/hud-preference-ssr-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml",
+        "engineering/hud-preference-ssr-evidence.md"
+      ],
+      "inputs": [
+        "scripts/hud-preference-ssr-evidence",
+        "scripts/native-ui-evidence/identity.mjs",
+        "scripts/native-ui-evidence/files.mjs",
+        "scripts/orchestration/dependency-profile.mjs",
+        "tests/hud-preference-ssr-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "/usr/bin/python3 with Python 3.12+ standard library on Linux"
+      ],
+      "sideEffects": [
+        "One serial Python synthetic-fixture child capped at 25 seconds and 2 MiB output, forwarded to outer raw streams. Owned synthetic package/file fixtures are removed; sparse overflow files require a separate >=64 MiB per-file allowance, not the stream cap. Only synthetic package exports are imported. No browser, build, network, prctl, /proc read, signal or installed-dependency import."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "modal-invalidation-tests",
       "kind": "portable",
       "automation": "safe",
