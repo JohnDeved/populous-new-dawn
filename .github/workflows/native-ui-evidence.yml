@@ -8,7 +8,7 @@ on:
         required: true
         type: string
       evidence_kind:
-        description: Full native UI, material lifecycle, partial Options controls, or Mission 4 Tower evidence
+        description: Full native UI, material lifecycle, partial Options controls, Tower, or finite melee capture diagnostic
         required: true
         default: native-ui
         type: choice
@@ -17,6 +17,7 @@ on:
           - material-lifecycle
           - options-controls
           - tower-collection
+          - melee-capture-diagnostic
 
 permissions:
   contents: read
@@ -42,7 +43,7 @@ jobs:
     steps:
       - name: Validate normalized evidence kind before checkout or install
         run: |
-          node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
+          node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection', 'melee-capture-diagnostic'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
       - name: Check out reviewed default-branch evidence infrastructure
         id: infrastructure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -56,6 +57,7 @@ jobs:
             /scripts/material-lifecycle-evidence/
             /scripts/options-controls-evidence/
             /scripts/tower-collection-evidence/
+            /scripts/melee-capture-evidence/
             /scripts/orchestration/shared_execution.py
             /scripts/orchestration/shared_runtime.py
             /scripts/orchestration/shared_setup.py
@@ -151,6 +153,11 @@ jobs:
         run: |
           node --max-old-space-size=768 evidence-infrastructure/scripts/tower-collection-evidence/run.mjs \
             "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/tower-collection-evidence" "$GITHUB_WORKSPACE/tower-collection-dist"
+      - name: Build candidate Home and run one finite melee capture diagnostic
+        if: ${{ env.PND_EVIDENCE_KIND == 'melee-capture-diagnostic' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/melee-capture-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/melee-capture-diagnostic" "$GITHUB_WORKSPACE/melee-capture-dist"
       - name: Reject candidate tracked input mutation
         if: ${{ always() && steps.candidate.outcome == 'success' }}
         working-directory: candidate
@@ -215,3 +222,25 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+
+      - name: Bound melee capture evidence before upload
+        id: capture-bounds
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'melee-capture-diagnostic' && steps.infrastructure.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync } from 'node:fs'
+          import { artifactInventory } from './evidence-infrastructure/scripts/melee-capture-evidence/policy.mjs'
+          const output = 'outputs/melee-capture-diagnostic'
+          if (existsSync(output)) artifactInventory(output)
+          NODE
+      - name: Retain bounded melee capture receipts and images
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'melee-capture-diagnostic' && steps.capture-bounds.outcome == 'success' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: melee-capture-diagnostic-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/melee-capture-diagnostic/**/*.json
+            outputs/melee-capture-diagnostic/**/*.log
+            outputs/melee-capture-diagnostic/**/*.png
+          if-no-files-found: warn
+          retention-days: 7

@@ -31,13 +31,83 @@ export function artifactInventory(root) {
 // One browser, with all candidate-created contexts/pages inside the same owner.
 // Capture actual injected request URLs at route.abort/fulfill, not broad console
 // text filters. Runtime errors always fail, including inside fallback contexts.
-export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) {
+export function ownBrowser(browser, output, report, { pauseTraceStorage, singleBufferScreenshot } = {}) {
   const traces = pauseTraceStorage ? createPauseTraceOwner(pauseTraceStorage) : null
   if (traces) report.pauseClickTraces = traces.report
   let episode
   const active = new Set(), expected = new Map(), routeHandlers = new WeakMap(), pendingContexts = new Set(), pendingPages = new Set()
   let closed = false, admitting = false, generation = 0
-  const cleanupFailures = []
+  const cleanupFailures = [], pendingBufferScreenshots = new Set()
+  let screenshotClock = performance.now(), pendingBufferOperations = 0
+  const bufferPolicy = singleBufferScreenshot
+  if (bufferPolicy !== undefined) {
+    assert.deepEqual(Object.keys(bufferPolicy).sort(), ['deadlineMs', 'signal'])
+    assert.equal(typeof bufferPolicy.signal?.throwIfAborted, 'function')
+    assert.ok(Number.isFinite(bufferPolicy.deadlineMs) && bufferPolicy.deadlineMs > screenshotClock)
+    report.bufferScreenshot = { attempted: 0, succeeded: 0, pending: false, status: 'unused', bytes: 0, errors: [] }
+  }
+  function bufferGuard(context, page, epoch) {
+    const now = performance.now()
+    assert.ok(Number.isFinite(now) && now >= screenshotClock, 'Screenshot clock must not move backward')
+    screenshotClock = now
+    bufferPolicy.signal.throwIfAborted()
+    assert.ok(now < bufferPolicy.deadlineMs, 'Original screenshot deadline exhausted')
+    assert.ok(!closed && admitting && epoch === generation && active.has(context) &&
+      context.pages().includes(page) && !page.isClosed(), 'Buffer screenshot lost owned page')
+    assert.deepEqual(report.bufferScreenshot.errors, [], 'Earlier screenshot failure remains fatal')
+    return bufferPolicy.deadlineMs - now
+  }
+  async function bufferScreenshot(page, context, epoch, screenshot, options) {
+    const accounting = report.bufferScreenshot
+    let ownsPending = false
+    accounting.attempted++ // Reserve before validation or any asynchronous boundary.
+    try {
+      assert.equal(accounting.attempted, 1, 'Only one buffer screenshot attempt is admitted')
+      const remaining = bufferGuard(context, page, epoch)
+      assert.ok(options && Object.getPrototypeOf(options) === Object.prototype)
+      assert.deepEqual(Reflect.ownKeys(options), ['timeout'], 'Only a timeout is admitted for the fixed viewport PNG')
+      assert.ok(Number.isFinite(options.timeout) && options.timeout > 0 &&
+        options.timeout <= 10000 && options.timeout <= remaining, 'Screenshot timeout exceeds the original allowance')
+      assert.ok(artifactInventory(output).screenshots < limits.screenshots, 'Screenshot budget exceeded')
+      const actionDeadline = screenshotClock + options.timeout
+      const actionGuard = () => {
+        const routeRemaining = bufferGuard(context, page, epoch)
+        const remaining = Math.min(routeRemaining, actionDeadline - screenshotClock)
+        assert.ok(remaining > 0, 'Original screenshot action deadline exhausted')
+        return remaining
+      }
+      accounting.status = 'observing'; ownsPending = true
+      pendingBufferOperations++; accounting.pending = true
+      const observation = await page.evaluate(() => ({ viewport: { width: innerWidth, height: innerHeight },
+        dpr: devicePixelRatio, userAgent: navigator.userAgent,
+        renderers: [...document.querySelectorAll('.world-viewport canvas, canvas[data-world-scene]')].map(canvas => {
+          const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
+          if (!gl) return { kind: 'unavailable' }
+          const debug = gl.getExtension('WEBGL_debug_renderer_info')
+          return { kind: 'WebGL', renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
+            vendor: gl.getParameter(debug ? debug.UNMASKED_VENDOR_WEBGL : gl.VENDOR), version: gl.getParameter(gl.VERSION) }
+        }) }))
+      const nativeRemaining = actionGuard()
+      assert.deepEqual(observation.viewport, { width: 960, height: 720 }, 'Fixed screenshot viewport required')
+      assert.equal(observation.dpr, 1, 'Fixed screenshot DPR required')
+      report.observations.push({ screenshot: 'owned-buffer', ...observation })
+      accounting.status = 'capturing'
+      const result = await screenshot({ type: 'png', fullPage: false,
+        timeout: Math.min(options.timeout, 10000, nativeRemaining) })
+      actionGuard()
+      assert.ok(Buffer.isBuffer(result) && result.length > 0 && result.length <= 8 * 1024 * 1024,
+        'Owned screenshot must be a nonempty bounded PNG buffer')
+      assert.equal(result.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', 'Expected native PNG buffer')
+      artifactInventory(output)
+      actionGuard()
+      accounting.succeeded = 1; accounting.bytes = result.length; accounting.status = 'succeeded'
+      return result
+    } catch (error) {
+      accounting.status = 'failed'; accounting.errors.push(String(error))
+      report.errors.push({ kind: 'buffer-screenshot', text: String(error) })
+      throw error
+    } finally { if (ownsPending) pendingBufferOperations--; accounting.pending = pendingBufferOperations > 0 }
+  }
   const pageCount = () => [...active].reduce((n, context) => n + context.pages().length, 0)
   function instrumentRoutes(target) {
     const original = target.route.bind(target), unroute = target.unroute.bind(target)
@@ -63,7 +133,7 @@ export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) 
     }
     target.unroute = (pattern, handler) => unroute(pattern, handler ? routeHandlers.get(handler) ?? handler : undefined)
   }
-  function instrumentPage(page) {
+  function instrumentPage(page, context, epoch) {
     assert.ok(pageCount() <= limits.maxPages, 'Page budget exceeded')
     page.setDefaultTimeout(pageActionTimeout); page.setDefaultNavigationTimeout(30000)
     instrumentRoutes(page)
@@ -79,6 +149,11 @@ export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) 
     })
     const screenshot = page.screenshot.bind(page)
     page.screenshot = async options => {
+      if (bufferPolicy !== undefined) {
+        const pending = bufferScreenshot(page, context, epoch, screenshot, options)
+        pendingBufferScreenshots.add(pending)
+        try { return await pending } finally { pendingBufferScreenshots.delete(pending) }
+      }
       assert.ok(!closed && admitting, 'No screenshot after cleanup')
       assert.ok(options?.path && resolve(options.path).startsWith(resolve(output) + '/'), 'Screenshot must remain in evidence output')
       assert.ok(artifactInventory(output).screenshots < limits.screenshots, 'Screenshot budget exceeded')
@@ -124,7 +199,7 @@ export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) 
       }
       context.on('page', page => {
         if (closed || !admitting || epoch !== generation) { void page.close().catch(error => cleanupFailures.push(error)); return }
-        instrumentPage(page)
+        instrumentPage(page, context, epoch)
       })
       context.on('close', () => active.delete(context))
       if (traces) {
@@ -152,6 +227,7 @@ export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) 
       admitting = false; generation++
       const results = await Promise.allSettled([...active].map(context => context.close()))
       await Promise.allSettled([...pendingContexts, ...pendingPages])
+      if (bufferPolicy !== undefined) await Promise.allSettled([...pendingBufferScreenshots])
       assert.equal(active.size, 0)
       const failure = results.find(result => result.status === 'rejected'); if (failure) throw failure.reason
       if (cleanupFailures.length) throw cleanupFailures[0]
@@ -161,6 +237,7 @@ export function ownBrowser(browser, output, report, { pauseTraceStorage } = {}) 
       await browser.close()
       await Promise.allSettled([...pendingContexts, ...pendingPages])
       for (const context of [...active]) await context.close()
+      if (bufferPolicy !== undefined) await Promise.allSettled([...pendingBufferScreenshots])
       if (cleanupFailures.length) throw cleanupFailures[0]
     },
   }
