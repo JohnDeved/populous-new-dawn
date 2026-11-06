@@ -11,6 +11,7 @@ import { separateRoots, sourceManifest, sha256 } from '../native-ui-evidence/ide
 import { directoryManifest } from '../native-ui-evidence/files.mjs'
 import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 const identity = hostedAdmission(process.env)
+assert.equal(process.env.PND_HUD_CHROME_VERSION, 'Google Chrome 156.0.8078.79', 'Unreviewed Chrome toolkit resource policy')
 const here = dirname(fileURLToPath(import.meta.url))
 const { candidateRoot, infrastructureRoot } = separateRoots(resolve(process.argv[2]), resolve(here, '../..'))
 const output = resolve(process.argv[3])
@@ -44,6 +45,7 @@ try {
     publicationResultZipSha256: '297916a546f6a4ed18c40da05336402b9da36e950a2625ca513c8f1e088d6d94',
     publicationZipMeaning: '429-byte publication-result ZIP, not an application source/build ZIP',
     sourceBuildRun: '42236689124', sourceBuildAttempt: 1,
+    chromeVersion: process.env.PND_HUD_CHROME_VERSION,
     node: realpathSync(process.execPath), python: '/usr/bin/python3', browser: '/opt/google/chrome/chrome',
     playwrightEntry, tooling: { ...tooling, node: process.version, platform: process.platform, architecture: process.arch,
       scope: 'Actual hosted binding, not historical local runtime. Static ELF dependencies do not attest late dlopen driver selection.' },
