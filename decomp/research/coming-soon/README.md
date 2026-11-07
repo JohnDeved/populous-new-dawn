@@ -50,14 +50,54 @@ existing-Worker stream route. Actual Worker/browser/resource acceptance remains
 necessary before publication.
 
 Audio is EA ADPCM decoded and transcoded to stereo Opus, not bit-exact audio parity.
-FFmpeg 7.1.5 reports an invalid-sample decoder diagnostic. A separate FFprobe decode
-mapped every one of the 2,424 source audio packet positions to an emitted frame.
-The final packet declares 1,015 samples; the decoder emits 1,008 because its EA
-ADPCM path rounds to blocks of 28. The invalid-sample diagnostic's exact origin is
-**not established**. The earlier `conversion.json` phrase "flush error" is a
-superseded inference, not proved native or decoder behavior. The proposed importer
-changes only that diagnostic wording after the retained second conversion; its
-encoding/comparison commands are unchanged. No acoustic playback was measured.
+All 2,424 source audio packet positions map to emitted frames. Source parsing and
+four independently replayed FFmpeg 7.1.5 controls explain the retained sample-count
+diagnostics at the source/reproduction level:
+
+- Only the final audio chunk is anomalous: chunk offset 32,316,736, payload offset
+  32,316,744, and payload length 1,124 bytes. It declares 1,015 samples per channel.
+- The EA ADPCM decoder rounds that declaration to 1,008 samples (36 blocks), while
+  the payload has capacity for 1,036 samples (37 blocks). This produces
+  `mismatch in coded sample count`.
+- The decoder consumes the 12-byte header, 36 × 30-byte stereo blocks, and its
+  two-byte terminal skip: 1,094 bytes. The remaining 30 bytes are all zero.
+  The generic decoder retains that tail for another decode call. Its zero sample
+  count is rejected, producing `invalid number of samples in packet`.
+
+The source trace is FFmpeg n7.1.5
+[`adpcm.c`](https://github.com/FFmpeg/FFmpeg/blob/n7.1.5/libavcodec/adpcm.c)
+(lines 917–924, 1065–1089, 1101–1104, 1651–1723, and 2287–2299) and
+[`decode.c`](https://github.com/FFmpeg/FFmpeg/blob/n7.1.5/libavcodec/decode.c)
+(lines 438–440 and 505–510). The ADPCM decoder has no delay capability, so the
+generic decoder does not pass it a null drain packet. This replaces the earlier
+`conversion.json` inference of a "flush error" and the later uncertainty about the
+diagnostic's origin. It is not an instrumented trace of Debian's decoder binary.
+
+The controls use the exact original 40-byte SCHl header and 1,072-byte first pIQT
+chunk, one synthetic SCDl chunk, and an empty SCEl chunk. The video header is needed
+for demux initialization; only audio is decoded to signed 16-bit little-endian PCM:
+
+1. Unmodified final payload: exit 0, both sample-count diagnostics, 1,008 samples.
+2. Its consumed 1,094-byte prefix: exit 0, neither sample-count diagnostic,
+   byte-identical 1,008-sample PCM.
+3. Full payload with only the declared count set to 1,036: exit 0, neither
+   sample-count diagnostic, 1,036 samples.
+4. The 30-byte zero remainder alone: expected exit 69, invalid-sample diagnostic,
+   no PCM output.
+
+All emitted PCM in these final-packet controls is zero, including the additional
+block in control 3. The controls still log the guessed stereo channel layout.
+Independent verification checked all 39 retained evidence-file hashes, the original
+input and decoder hashes, every packet/frame position and size, and the four
+control outcomes. Inputs stayed unchanged. Raw receipts, PCM and stderr are
+retained outside the repository.
+
+Total declared samples are 2,138,115 per channel; total emitted samples are
+2,138,108. The seven-sample difference is about 0.317 ms at 22,050 Hz. This arithmetic
+and silent final-packet output do not establish acoustic acceptance or original-game
+decoder equivalence. No importer, historical conversion receipt, source media,
+converted WebM, or byte part was changed for this diagnostic correction. No
+acoustic playback was measured, and the Opus transcode remains lossy.
 
 ## Proposed browser path
 
