@@ -1075,9 +1075,6 @@ export default function Home() {
             className="primary-button"
             onClick={() => {
               setDesktopNotice(false)
-              store.change(w => {
-                w.paused = false
-              })
             }}
           >
             Continue anyway <span>↗</span>
