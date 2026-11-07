@@ -238,7 +238,7 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
     assert.equal(report.initial.vault[0].uses, 0)
     input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
     await clear()
-    await input.button('Select and focus shaman')
+    await input.button('Select shaman')
     await input.view(report.initial.vault[0])
     report.vaultOrder = await input.clickEntity('shrines', report.initial.vault[0].id, 33, false, [
       shamanId,
@@ -275,7 +275,7 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
       deadlineAt: readinessDeadline,
     })
     await clear(readinessInput)
-    await readinessInput.button('Select and focus shaman')
+    await readinessInput.button('Select shaman')
     // One ordinary move replaces the continuing Vault route. Its existing
     // native-arrival witness proves completion; this is not a cast idle gate.
     const stagingPoint = missionThreeSwarmStagingPoint
