@@ -106,6 +106,7 @@ test('single ranges cover first, middle, cross-part, suffix, open and clipped en
     ['bytes=0-0', 0, 0], ['bytes=3-5', 3, 5], ['bytes=7-10', 7, 10],
     ['bytes=31-', 31, 31], ['bytes=-3', 29, 31], ['bytes=30-999', 30, 31],
     ['bytes=-999', 0, 31], ['bytes=8-', 8, 31],
+    ['bytes=-9007199254740993', 0, 31], ['bytes=31-9007199254740993', 31, 31],
   ]) {
     const f = fixture(), response = f.serve({ Range: range })
     assert.equal(response.status, 206, range)

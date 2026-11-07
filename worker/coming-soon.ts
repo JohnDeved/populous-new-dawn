@@ -32,12 +32,12 @@ function byteRange(value: string | null, bytes: number) {
   if (!match[1]) {
     const suffix = BigInt(match[2])
     if (!suffix) return false
-    return { start: Number(suffix >= size ? 0n : size - suffix), end: bytes - 1 }
+    return { start: Number(suffix >= size ? BigInt(0) : size - suffix), end: bytes - 1 }
   }
   const start = BigInt(match[1])
-  const end = match[2] ? BigInt(match[2]) : size - 1n
+  const end = match[2] ? BigInt(match[2]) : size - BigInt(1)
   if (start >= size || start > end) return false
-  return { start: Number(start), end: Number(end >= size ? size - 1n : end) }
+  return { start: Number(start), end: Number(end >= size ? size - BigInt(1) : end) }
 }
 
 function validManifest(media: ComingSoonMedia) {
