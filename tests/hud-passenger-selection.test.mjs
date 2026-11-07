@@ -159,7 +159,7 @@ test('mounted Total/class Page controls reach Scene crew selection once and focu
     })
     const followerPress = { current: null }
     const makeControl = evaluatePage(pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'followerControl').getText(pageSource), {
-      engine: { current: scene }, followerPress,
+      engine: { current: scene }, followerPress, store: { getWorld: () => world },
     })
     const mounted = model === 0 ? pageButton(['population-button']) : classButton
     const control = evaluatePage(mounted.getText(pageSource), {
