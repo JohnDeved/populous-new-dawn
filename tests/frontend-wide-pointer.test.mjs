@@ -27,7 +27,7 @@ function fixture(width, height, reduced = false) {
   let next = 0, draws = 0, hovered = 'Options'
   const context = {
     frame: { current: { getBoundingClientRect: () => ({ left: (width - 640 * scale) / 2, top: (height - 480 * scale) / 2 }) } },
-    scale, pointer, pointerMode, animation, glowFrame,
+    scale, pointer, pointerMode, animation, glowFrame, trailerOpen: false,
     requestAnimationFrame: fn => { pending.set(++next, fn); return next },
     cancelAnimationFrame: id => pending.delete(id), draw: () => draws++, setHovered: value => { hovered = value },
     document: { hidden: false },
@@ -116,4 +116,14 @@ test('resize listener has symmetric ownership across menu remounts', () => {
     cleanup(); assert.equal(listeners.size, 0)
   }
   assert.equal(opens, closes)
+})
+
+test('the retained menu does not animate behind an open Coming Soon movie', () => {
+  const timerEffect = effects.find(node => node.getText(parsed).includes('setInterval'))
+  const f = fixture(1920, 1080)
+  f.context.trailerOpen = true
+  const cleanup = compile(timerEffect, f.context)()
+  assert.equal(f.timers.size, 0)
+  cleanup()
+  assert.equal(f.pending.size, 0)
 })

@@ -1,0 +1,59 @@
+{
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "movieSha256": "ee3d455f715a9b35a1d974c3918bc3600e98d43d64ec87124a3460e2848b9dfe",
+  "codedSize": [
+    320,
+    240
+  ],
+  "frameCount": 2425,
+  "wrapperFlags": "0x0ba4265c",
+  "surfaceSize": [
+    640,
+    480
+  ],
+  "movieRect": [
+    0,
+    0,
+    640,
+    480
+  ],
+  "ranges": {
+    "complete-caller": [
+      "0x4c3540",
+      "0x4c35f4"
+    ],
+    "wrapper": [
+      "0x49cc80",
+      "0x49cf3c"
+    ],
+    "geometry": [
+      "0x57c750",
+      "0x57c7df"
+    ],
+    "geometry-caller": [
+      "0x57c1e0",
+      "0x57c221"
+    ],
+    "packet-dimensions": [
+      "0x57d000",
+      "0x57d02e"
+    ],
+    "packet-type": [
+      "0x579f49",
+      "0x579f5d"
+    ],
+    "packet-type-call": [
+      "0x579fcd",
+      "0x579fe2"
+    ],
+    "dimension-dispatch": [
+      "0x57cf90",
+      "0x57cfb8"
+    ],
+    "surface-dimensions": [
+      "0x57bb30",
+      "0x57bb74"
+    ]
+  },
+  "limits": "Static geometry for this wrapper configuration, not observed native display/driver output."
+}

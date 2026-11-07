@@ -42,6 +42,7 @@ function fixture(overrides = {}) {
     if (name === './frontend-badges') return frontendBadges
     // Tooltip lifecycle has its own production-hook tests; this fixture owns recovery.
     if (name === './menu-tooltip') return { MenuTooltip: () => null }
+    if (name === './coming-soon') return { ComingSoon: () => null }
     if (name === './frontend-composition.ts') return {
       frontendScale: () => 1, frontendRowY: index => index * 30,
       frontendTextWidth: text => text.length * 10, frontendQuitRows: [],
