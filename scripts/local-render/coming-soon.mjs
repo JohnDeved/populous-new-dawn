@@ -94,6 +94,41 @@ export default async function comingSoon({ page, context, url, output, receipt }
   assert.ok(expectedFailureErrors.every(error => /404/.test(error)))
   assert.equal(errorsBefore, 0)
   checks.push('Labelled 404 failure remains truthful and exit-capable')
+  for (const key of ['Enter', 'Space']) {
+    let receiveRequest, pendingRequest, keyHeld = false
+    const request = new Promise(resolve => { receiveRequest = resolve })
+    const failWhileHeld = route => receiveRequest(route)
+    await context.route('**/original/coming-soon/trailer.webm', failWhileHeld)
+    const heldErrorsBefore = receipt.errors.length
+    try {
+      await row.click()
+      await trailer.waitFor()
+      pendingRequest = await request
+      await page.keyboard.press('Tab')
+      const control = trailer.getByRole('button', { name: 'Enable trailer sound', exact: true })
+      assert.equal(await control.evaluate(node => node === document.activeElement), true)
+      await page.keyboard.down(key)
+      keyHeld = true
+      await pendingRequest.fulfill({ status: 404, body: '' })
+      pendingRequest = null
+      await trailer.getByText('The original trailer could not be played. You can return to the menu.', { exact: true }).waitFor()
+      assert.equal(await trailer.evaluate(node => node === document.activeElement), true)
+      await screenshot(`trailer-injected-media-failure-held-${key.toLowerCase()}`)
+      await page.keyboard.up(key)
+      keyHeld = false
+      assert.equal(await trailer.count(), 1)
+      await trailer.getByRole('button', { name: 'Skip trailer', exact: true }).click()
+      await returned()
+      const heldErrors = receipt.errors.slice(heldErrorsBefore)
+      assert.ok(heldErrors.every(error => /404/.test(error)))
+      expectedFailureErrors.push(...heldErrors)
+    } finally {
+      if (keyHeld) await page.keyboard.up(key)
+      if (pendingRequest) await pendingRequest.abort()
+      await context.unroute('**/original/coming-soon/trailer.webm', failWhileHeld)
+    }
+  }
+  checks.push('Labelled 404 while Enter/Space is held retains release focus and returns once after explicit Skip')
   const result = { checks, expectedFailureErrors, url, limits: [
     'Local browser output is not native runtime, acoustic or hardware performance acceptance',
     'High-DPI, actual hidden/resume and browser-autoplay-refusal checks remain separate required gates',

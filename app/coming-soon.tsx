@@ -5,6 +5,7 @@ import styles from './coming-soon.module.css'
 export function ComingSoon({ onComplete }: { onComplete: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const video = useRef<HTMLVideoElement>(null)
+  const playbackControl = useRef<HTMLButtonElement>(null)
   const session = useRef<ReturnType<typeof createComingSoonSession> | null>(null)
   const complete = useRef(onComplete)
   const [playback, setPlayback] = useState<TrailerPlayback>('playing')
@@ -21,7 +22,12 @@ export function ComingSoon({ onComplete }: { onComplete: () => void }) {
     const playbackSession = createComingSoonSession(
       media,
       () => document.hidden,
-      setPlayback,
+      state => {
+        // Keep key releases inside the modal before removing the focused control.
+        if (state === 'failed' && document.activeElement === playbackControl.current)
+          modal.focus()
+        setPlayback(state)
+      },
       () => complete.current()
     )
     session.current = playbackSession
@@ -125,6 +131,7 @@ export function ComingSoon({ onComplete }: { onComplete: () => void }) {
         <p role="status">{status}</p>
         {playback !== 'failed' && (
           <button
+            ref={playbackControl}
             type="button"
             onClick={() => {
               if (playback === 'blocked') session.current?.play()

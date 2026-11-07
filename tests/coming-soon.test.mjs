@@ -25,14 +25,17 @@ function events() {
 function fixture() {
   const refs = [], states = [], effects = []
   let refIndex = 0, stateIndex = 0, completions = 0
-  const document = { ...events(), hidden: false }, window = events()
+  const document = { ...events(), hidden: false, body: {}, activeElement: null }, window = events()
+  document.activeElement = document.body
   const media = {
     muted: true, error: null, plays: 0, pauses: 0, loads: 0,
-    play() { this.plays++; return Promise.resolve() },
+    play() { this.plays++; if (this.throw) throw this.throw; return this.next ?? Promise.resolve() },
     pause() { this.pauses++ }, load() { this.loads++ },
     removeAttribute(name) { assert.equal(name, 'src'); delete this.src },
   }
-  const modal = { open: false, showModal() { this.open = true }, close() { this.open = false }, focus() {} }
+  const modal = { open: false, showModal() { this.open = true }, close() { this.open = false },
+    focus() { document.activeElement = this } }
+  const control = { closest: () => control, focus() { document.activeElement = this } }
   const module = { exports: {} }
   new Function('require', 'module', 'exports', 'document', 'window', emitted)(name => {
     if (name === 'react') return {
@@ -53,14 +56,17 @@ function fixture() {
     refIndex = stateIndex = 0
     effects.length = 0
     const tree = module.exports.ComingSoon({ onComplete: () => completions++ })
-    refs[0].current = modal
-    refs[1].current = media
+    tree.props.ref.current = modal
+    nodes(tree).find(node => node.type === 'video').props.ref.current = media
+    const playbackButton = nodes(tree).find(node => node.type === 'button' && node.props.ref)
+    if (playbackButton) playbackButton.props.ref.current = control
+    else if (document.activeElement === control) document.activeElement = document.body
     return tree
   }
   const tree = render()
   effects[0]()
   const cleanup = effects[1]()
-  return { tree, render, media, modal, document, window, cleanup, states, get completions() { return completions } }
+  return { tree, render, media, modal, control, document, window, cleanup, states, get completions() { return completions } }
 }
 function nodes(node) {
   if (Array.isArray(node)) return node.flatMap(nodes)
@@ -162,4 +168,60 @@ test('decode failure retains truthful message and explicit exit', () => {
   buttons[0].props.onClick()
   assert.equal(f.completions, 1)
   f.cleanup()
+})
+
+for (const [key, code] of [['Enter', 'Enter'], [' ', 'Space']]) {
+  for (const failDuring of ['media error', 'synchronous play failure', 'asynchronous play failure']) {
+    test(`${failDuring} preserves ${code} release ownership when removing its focused control`, async () => {
+      const f = fixture()
+      f.control.focus()
+      const down = event({ key, code, target: f.control })
+      f.tree.props.onKeyDown(down)
+      assert.equal(down.prevented, false)
+      if (failDuring === 'media error') nodes(f.tree).find(node => node.type === 'video').props.onError()
+      else {
+        f.states[0] = 'blocked'
+        const blocked = f.render()
+        f.media.error = { code: 3 }
+        if (failDuring === 'synchronous play failure') f.media.throw = new Error('decode')
+        else f.media.next = Promise.reject(new Error('decode'))
+        nodes(blocked).find(node => node.type === 'button').props.onClick()
+        await Promise.resolve()
+      }
+      // Focus must move before React removes the button. No window blur occurs.
+      assert.equal(f.document.activeElement, f.modal)
+      const tree = f.render()
+      assert.equal(f.document.activeElement, f.modal)
+      assert.equal(f.completions, 0)
+      assert.equal(nodes(tree).filter(node => node.type === 'button').length, 1)
+      const up = event({ key, code, target: f.document.activeElement })
+      tree.props.onKeyUp(up)
+      assert.equal(up.stopped, true)
+      assert.equal(f.completions, 0)
+      nodes(tree).find(node => node.type === 'button').props.onClick()
+      assert.equal(f.completions, 1)
+      tree.props.onKeyUp(event({ key, code }))
+      assert.equal(f.completions, 1)
+      f.cleanup()
+    })
+  }
+}
+
+test('failure does not clear held inputs or steal focus from a surviving target', () => {
+  for (const focus of ['control', 'modal', 'other']) {
+    const f = fixture(), other = {}
+    if (focus === 'control') f.control.focus()
+    else if (focus === 'other') f.document.activeElement = other
+    f.tree.props.onKeyDown(event({ key: ' ', code: 'Space', target: f.control }))
+    nodes(f.tree).find(node => node.type === 'video').props.onError()
+    const tree = f.render()
+    assert.equal(f.document.activeElement, focus === 'other' ? other : f.modal)
+    nodes(tree).find(node => node.type === 'button').props.onClick()
+    assert.equal(f.completions, 0)
+    tree.props.onKeyUp(event({ key: 'Enter', code: 'Enter' }))
+    assert.equal(f.completions, 0)
+    tree.props.onKeyUp(event({ key: ' ', code: 'Space' }))
+    assert.equal(f.completions, 1)
+    f.cleanup()
+  }
 })
