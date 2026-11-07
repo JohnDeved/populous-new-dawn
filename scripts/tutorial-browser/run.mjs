@@ -35,6 +35,7 @@ const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotis
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
 const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-conversion.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
+const buildingEdgesScenario = resolve(root, 'scripts/tutorial-browser/building-panel-edges.mjs')
 const spellIconScenario = resolve(root, 'scripts/tutorial-browser/spell-icon-states.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
@@ -144,6 +145,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   spellTestScenarioSha256: hash(spellTestScenario),
   spellConversionScenarioSha256: hash(spellConversionScenario),
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
+  buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -212,7 +214,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-panel-edges'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -253,6 +255,8 @@ try {
     await runQueryArt({ browser, url, output: out, source,
       expectedRevision: receipt.buildRevision, receipt: receipt.queryArt })
     assert.equal(receipt.queryArt.status, 'passed', 'Query art evidence incomplete or failed')
+  } else if (selectedScenario === 'building-panel-edges') {
+    receipt.buildingPanelEdges = await (await import(pathToFileURL(buildingEdgesScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
     // Preserve the completed frontend episode, then use an independent context
@@ -358,6 +362,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
+  else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = 'building-panel-edges.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 
