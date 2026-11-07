@@ -1,0 +1,57 @@
+{
+  "sourceBase": "2c0cb8933f623b819869ce7e35e200dcae450076",
+  "productionBase": "4754e12d3590bde18656416514871b033de164be",
+  "staticReportSha256": "c2baca97c15acd3fb42df93de7144934f8b058709e5bdf7ef89a981e11934ccb",
+  "staticReviewSha256": "1c54e9e78edeb1a8ba20800dfef883a2019424f1c5b89a0ebf55ed10f4c22231",
+  "dependencyIdentity": {
+    "realpath": "/workspace/scratch/69fd8163d94e/populous-recovery-20261009b/node_modules",
+    "device": 27,
+    "inode": 538212
+  },
+  "sourceInputs": {
+    "tests/raid-member-order-continuation.test.mjs": "9057a6351db9cf9026aba75e4d23cfc099ee042c2b736d02faea0d013ba38d8d",
+    "app/world-state.ts": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+    "app/live-building-combat.ts": "da6d3bb16903a741ac9d4ce925d7e188ec1113071fd46d5791d7d163c0b1cb30",
+    "app/live-people.ts": "2ff72ddb1fd4448b5afc8bde03fc50ce625eb75768f184c746988609aa86527b",
+    "app/live-combat.ts": "f4849f9e46f7b10fba1ba0e0989451e2a3a5715eda978b317a850c04266ffdf3",
+    "app/live-resting.ts": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515",
+    "app/live-pathfinding.ts": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+    "app/person-routes.ts": "9ede023ac1ff1e3fcc1cdba0ff0beed9146f56003600a9ffce689048baa4f500",
+    "app/person-orders.ts": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+    "app/combat-orders.ts": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03",
+    "app/combat-targets.ts": "612426f1c80ee4813e3c69f097059b6778f19a8801a716b31c69c0ea6bf2e591",
+    "app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+    "app/computer-runtime.ts": "96b148458340f9803c5342c605a0294b615a03d7e06276185bf212bf0ce17ea8",
+    "app/computer.ts": "d35abab3a7adb5e6a6092dcba96921180d33b91b42c1b182bec48b4a7d958f2d",
+    "app/campaign-runtime.ts": "b8c23bacf9a3310b541091864b68623a6641734f81c4a4265894dbc0919176e8",
+    "app/unit-animation-source.ts": "9b1ec3617b5db4fa6672f0ba75e5a85afe7c425cdf76bbf300a2ffebe2a736cd",
+    "app/object-cells.ts": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/game-store.ts": "9f3095fe6f351011e03124899e5693a21eb172855e61e11cd3d50bd5bf32c612",
+    "package.json": "3b8a837c172a783bc9517ee15d9d5eba0abaaeadcfebbdab6fd9e2dfa0052304",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "tests/raid-member-admission.test.mjs": "95420d98dceb5a149f11b730ea9aa82ad7d6d01cf1d08778ec72e6dfc5205c18",
+    "qa/issue248-raid-member-admission-20261010/receipt.json": "217da873021e1854b3cde25fac38baddd1f04b3d000009c0c9fe721a3f0156dd",
+    "tests/raid-phase6-settlement.test.mjs": "8c46f6620fccb87e5805681b83de9e757fe10fd8f17d58344e166b131c81506c",
+    "decomp/research/raid-phase6-settlement/captured-combat-timeout/fixture.json": "29ab6fd7cc29d93633d5d7bfc4d3bd19ec26901ca0d6837a180cc58862775130",
+    "decomp/research/raid-phase6-settlement/captured-moving-not-settled/fixture.json": "3f596d308d96c7e5ae11d7698b3bea66fa48e2f2819fa61c81c42aa0ddedf8d4"
+  },
+  "proposedCommand": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "55s",
+    "node",
+    "--test",
+    "tests/raid-member-order-continuation.test.mjs"
+  ],
+  "outerMaximumSeconds": 60,
+  "expected": {
+    "pass": 2,
+    "fail": 1,
+    "reason": "sole-native case reaches successful response then fails the final labeled ownership continuation assertion; both retained owner controls pass"
+  }
+}
