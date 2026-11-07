@@ -70,7 +70,7 @@ function fixture(overrides = {}) {
     render()
   }
   function back() { output.props.onCancel({ preventDefault() {} }); render() }
-  function statuses() { return nodes.filter(node => node.props?.role === 'status').map(node => node.props.children) }
+  function statuses() { return nodes.filter(node => node.props?.role === 'status').map(node => node.props.children[0].props.children) }
   render()
   return { render, button, click, back, statuses, keyDown: event => output.props.onKeyDown(event), retries: () => retries, loads: () => loads }
 }
@@ -125,7 +125,7 @@ test('a lookup completion cannot navigate out of the current pause subpanel', ()
   assert.equal(ui.loads(), 0)
   ui.back()
   ui.click('Load Game')
-  assert.deepEqual(ui.statuses(), ['A checkpoint is available in this session.'])
+  assert.deepEqual(ui.statuses(), ['Checkpoint available in this session.'])
 })
 
 test('empty retry result stays explained in Load until Back; a failed retry remains retryable', () => {
@@ -138,7 +138,7 @@ test('empty retry result stays explained in Load until Back; a failed retry rema
   assert.equal(ui.retries(), 2)
   ui.render({ checkpointReadStatus: 'read' })
   assert.equal(ui.render().props['data-panel'], 'load')
-  assert.deepEqual(ui.statuses(), ['No usable saved checkpoint was found in this browser.'])
+  assert.deepEqual(ui.statuses(), ['No saved checkpoint in this browser.'])
   assert.equal(ui.button('Load checkpoint').props.disabled, true)
   ui.back()
   assert.equal(ui.button('Load Game').props.disabled, true)
@@ -430,7 +430,7 @@ test('incompatible checkpoint remains inspectable in Load panel without enabling
   ui.click('Load Game')
   assert.equal(ui.render().props['data-panel'], 'load')
   assert.equal(ui.button('Load checkpoint').props.disabled, true)
-  assert.match(ui.statuses()[0], /incompatible.*stored save has not been changed/)
+  assert.match(ui.statuses()[0], /Incompatible checkpoint.*Stored save unchanged/)
   assert.throws(() => ui.button('Retry checkpoint lookup'), /Button/)
   assert.equal(ui.loads(), 0)
   assert.equal(ui.retries(), 0)
