@@ -2,6 +2,7 @@ import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
 import { DEFAULT_AUDIO_PREFERENCES } from './audio-preferences.ts'
 import { SELECTION_CUES } from './person-selection.ts'
+import { SPELL_CAST_CUES } from './spell-audio-cues.ts'
 import {
   ambientLayers,
   ambientWeights,
@@ -10,9 +11,16 @@ import {
   type SoundEnvironment,
 } from './ambient-sound.ts'
 import type { GameScene } from './scene.ts'
-// First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
+// Load the live cue samples before enabling playback so gameplay never waits on a fetch.
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
+  ...SPELL_CAST_CUES,
+  0x15, // Earthquake fissure.
+  0xa3, // Tornado.
+  0xa9, // Erosion.
+  0xad, // Earthquake rumble.
+  0xaf, // Volcano rumble.
+  0xb0, // Volcano eruption.
   5, // 0x4d7fd0: opening Wildman conversion
   0x9e, // 0x50c780: opening terrain wave
   0x6a,
