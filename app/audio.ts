@@ -121,8 +121,18 @@ export function soundEnvironment(scene: GameScene): SoundEnvironment {
 }
 
 export function orderSound(scene: GameScene, selected = scene.world.selected) {
-  const units = scene.world.units.filter(u => selected.includes(u.id))
-  if (units.length) scene.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
+  if (!selected.length) return
+  const selectedIds = new Set(selected)
+  let cue: number | undefined
+  for (const unit of scene.world.units) {
+    if (!selectedIds.has(unit.id)) continue
+    cue = 0x37
+    if (unit.kind === 'shaman') {
+      cue = 0x19
+      break
+    }
+  }
+  if (cue !== undefined) scene.onSound(cue)
 }
 
 export function playWorldSounds(scene: GameScene) {
