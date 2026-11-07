@@ -1,6 +1,7 @@
 """Supplied controls only. Does not observe /proc, call gh or import discovery code."""
 import copy
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -24,7 +25,7 @@ def fixture():
                'event': {'pull_request': infra, 'action': 'labeled', 'sender': {'id': observer.OWNER},
                          'label': {'name': observer.LABEL_PREFIX + head}},
                'runner': {'environment': 'github-hosted', 'os': 'Linux', 'arch': 'X64'}, 'job': {}}
-    run = {'id': run_id, 'run_attempt': 1, 'event': 'pull_request', 'head_sha': head,
+    run = {'id': run_id, 'run_attempt': 1, 'event': 'pull_request', 'status': 'in_progress', 'head_sha': head,
            'path': '.github/workflows/help-discovery-evidence.yml',
            'actor': {'id': observer.OWNER}, 'triggering_actor': {'id': observer.OWNER}}
     docs = {'infrastructure': copy.deepcopy(infra), 'main': {'sha': base},
@@ -38,8 +39,245 @@ def fixture():
                      'runner_name': 'supplied-fixture-runner'}]}}
     for status in observer.STATUSES:
         docs['active-' + status] = {'total_count': 0, 'workflow_runs': []}
-    docs['active-in_progress'] = {'total_count': 1, 'workflow_runs': [{'id': run_id}]}
+    docs['active-in_progress'] = {'total_count': 1, 'workflow_runs': [copy.deepcopy(run)]}
     return context, docs
+
+
+def write_complete_fixture(root, context, docs):
+    (root / 'context.json').write_text(json.dumps(context))
+    raw = {name: json.dumps(docs[name]).encode() for name in observer.REMOTE_NAMES}
+    for name, data in raw.items():
+        (root / f'round-0-{name}.json').write_bytes(data)
+    identities = {name: {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+                  for name, data in raw.items()}
+    (root / 'round-0-decision.json').write_text(json.dumps({'status': 'complete', 'round': 0,
+        'calls': len(observer.REMOTE_NAMES), 'contextSha256': hashlib.sha256((root / 'context.json').read_bytes()).hexdigest(),
+        'files': identities}))
+    return observer.publish_collection(root, context,
+        {'round': 0, 'raw': raw, 'calls': len(observer.REMOTE_NAMES)}, 100.0)
+
+
+class SuppliedClock:
+    def __init__(self):
+        self.now = 0.0
+        self.delays = []
+
+    def __call__(self):
+        return self.now
+
+    def pause(self, seconds):
+        self.delays.append(seconds)
+        self.now += seconds
+
+
+class ResamplingControls(unittest.TestCase):
+    def collect(self, context, snapshots, mutate_fetch=None):
+        self.calls, self.records, self.clock = [], [], SuppliedClock()
+        def fetch(round_number, name, seconds):
+            self.calls.append((round_number, name, seconds))
+            self.clock.now += 0.01
+            if mutate_fetch is not None:
+                value = mutate_fetch(round_number, name, self.clock)
+                if value is not None:
+                    return value
+            return json.dumps(snapshots[round_number][name]).encode()
+        def record(number, decision, raw):
+            self.records.append({'round': number, 'decision': copy.deepcopy(decision), 'raw': copy.deepcopy(raw)})
+        return observer.collect_guard_sets(context, fetch, record, self.clock, self.clock.pause)
+
+    def test_inconsistent_then_complete_uses_only_new_full_round(self):
+        context, first = fixture()
+        first['active-in_progress']['total_count'] = 2
+        second = copy.deepcopy(first)
+        second['active-in_progress']['total_count'] = 1
+        second['jobs']['jobs'][0]['runner_name'] = 'new-full-round'
+        before = copy.deepcopy(first)
+        result = self.collect(context, [first, second])
+        self.assertEqual(result['round'], 1)
+        self.assertEqual(result['calls'], 26)
+        self.assertEqual([name for round_number, name, _ in self.calls if round_number == 1], list(observer.REMOTE_NAMES))
+        self.assertEqual(result['documents'], second)
+        self.assertEqual(first, before)
+        self.assertEqual(self.records[0]['raw']['active-in_progress'], json.dumps(first['active-in_progress']).encode())
+        self.assertEqual(self.records[0]['decision']['status'], 'resample-inconsistent-counts')
+        self.assertEqual(self.records[1]['decision']['status'], 'complete')
+        self.assertEqual(self.clock.delays, [0.5])
+
+    def test_three_inconsistent_rounds_exhaust(self):
+        context, docs = fixture()
+        docs['active-in_progress']['total_count'] = 2
+        with self.assertRaisesRegex(ValueError, 'exhausted'):
+            self.collect(context, [copy.deepcopy(docs) for _ in range(3)])
+        self.assertEqual(len(self.calls), 39)
+        self.assertEqual(len(self.records), 3)
+        self.assertTrue(all(r['decision']['status'] == 'resample-inconsistent-counts' for r in self.records))
+        self.assertEqual(self.clock.delays, [0.5, 0.5])
+
+    def test_hard_failures_dominate_any_count_mismatch(self):
+        def foreign(d):
+            row = copy.deepcopy(d['run']); row.update(id=124, head_sha='4' * 40, status='queued')
+            d['active-queued'] = {'total_count': 1, 'workflow_runs': [row]}
+        def replay(d):
+            row = copy.deepcopy(d['run']); row['id'] = 122
+            d['ledger'] = {'total_count': 3, 'workflow_runs': [d['run'], row]}
+        edits = [foreign, replay,
+                 lambda d: d['main'].update(sha='3' * 40),
+                 lambda d: d['ledger'].update(total_count=3, workflow_runs=[d['run'], copy.deepcopy(d['run'])]),
+                 lambda d: d['active-queued'].update(total_count=True),
+                 lambda d: d['active-queued'].update(total_count=101),
+                 lambda d: d['ledger'].update(total_count=1, workflow_runs=[]),
+                 lambda d: d['active-in_progress']['workflow_runs'][0].update(status='queued'),
+                 lambda d: d['active-in_progress']['workflow_runs'][0].update(head_sha=None),
+                 lambda d: d['jobs'].update(total_count=2),
+                 lambda d: d['ledger']['workflow_runs'][0].update(status='completed')]
+        for index, edit in enumerate(edits):
+            with self.subTest(index=index):
+                context, docs = fixture()
+                docs['active-in_progress']['total_count'] = 2
+                edit(docs)
+                with self.assertRaises((ValueError, KeyError, TypeError)):
+                    self.collect(context, [docs, fixture()[1]])
+                self.assertEqual(len(self.calls), 13)
+                self.assertEqual({row[0] for row in self.calls}, {0})
+                self.assertEqual(self.records[0]['decision']['status'], 'blocked')
+                self.assertEqual(self.clock.delays, [])
+
+    def test_required_provenance_schema_is_terminal_even_with_mismatch(self):
+        edits = []
+        for value in (True, 1.0):
+            edits += [lambda c, d, v=value: d['jobs'].update(total_count=v),
+                      lambda c, d, v=value: d['run'].update(run_attempt=v),
+                      lambda c, d, v=value: d['jobs']['jobs'][0].update(run_attempt=v),
+                      lambda c, d, v=value: d['ledger']['workflow_runs'][0].update(run_attempt=v),
+                      lambda c, d, v=value: d['active-in_progress']['workflow_runs'][0].update(run_attempt=v)]
+        edits += [lambda c, d: d['jobs'].update(jobs={'unexpected': 'mapping'}),
+                  lambda c, d: d['jobs'].update(jobs=[[]]),
+                  lambda c, d: d['jobs']['jobs'][0].update(labels='ubuntu-24.04'),
+                  lambda c, d: d['jobs']['jobs'][0].update(labels=['ubuntu-24.04', 1]),
+                  lambda c, d: d['jobs']['jobs'][0].update(labels=['ubuntu-24.04', '']),
+                  lambda c, d: d['jobs']['jobs'][0].update(runner_name=1),
+                  lambda c, d: d['jobs']['jobs'][0].update(runner_name=True),
+                  lambda c, d: d['jobs']['jobs'][0].update(runner_name=['runner']),
+                  lambda c, d: d['jobs']['jobs'][0].update(runner_name=' '),
+                  lambda c, d: d['jobs']['jobs'][0].update(run_id=123.0),
+                  lambda c, d: d['run'].update(id=123.0),
+                  lambda c, d: d['run']['actor'].update(id=float(observer.OWNER)),
+                  lambda c, d: d['run']['triggering_actor'].update(id=float(observer.OWNER)),
+                  lambda c, d: c['event']['sender'].update(id=float(observer.OWNER)),
+                  lambda c, d: c.update(runId=123),
+                  lambda c, d: d['infrastructure'].update(number=945.0),
+                  lambda c, d: c['event']['pull_request'].update(number=945.0),
+                  lambda c, d: d['target'].update(number=943.0),
+                  lambda c, d: c.update(job=[])]
+        for index, edit in enumerate(edits):
+            with self.subTest(index=index):
+                context, docs = fixture(); edit(context, docs)
+                with self.assertRaises((ValueError, KeyError, TypeError)):
+                    observer.validate_remote(context, docs)
+                docs['active-in_progress']['total_count'] = 2
+                with self.assertRaises((ValueError, KeyError, TypeError)):
+                    self.collect(context, [docs, fixture()[1]])
+                self.assertEqual(len(self.calls), 13)
+                self.assertEqual(self.records[0]['decision']['status'], 'blocked')
+                self.assertEqual(self.clock.delays, [])
+
+    def test_foreign_active_run_cannot_be_erased_by_later_idle(self):
+        context, first = fixture()
+        first['ledger']['total_count'] = 2
+        row = copy.deepcopy(first['run']); row.update(id=999, head_sha='5' * 40)
+        first['active-in_progress']['workflow_runs'].append(row)
+        first['active-in_progress']['total_count'] = 2
+        with self.assertRaisesRegex(ValueError, 'Another repository run'):
+            self.collect(context, [first, fixture()[1]])
+        self.assertEqual(len(self.calls), 13)
+        self.assertEqual(self.clock.delays, [])
+
+    def test_http_auth_and_transport_failures_never_resample(self):
+        for reason in ('HTTP 403', 'HTTP 401', 'transport timeout', 'file cap'):
+            with self.subTest(reason=reason):
+                context, docs = fixture()
+                def fail(_, name, __):
+                    if name == 'run':
+                        raise OSError(reason)
+                with self.assertRaises(OSError):
+                    self.collect(context, [docs, docs], fail)
+                self.assertEqual(len(self.calls), 6)
+                self.assertEqual(len(self.records), 1)
+                self.assertEqual(self.clock.delays, [])
+
+    def test_parse_and_projected_byte_caps_never_resample(self):
+        for payload in (b'{', b'x' * (observer.MAX_PROJECTED + 1)):
+            with self.subTest(bytes=len(payload)):
+                context, docs = fixture()
+                with self.assertRaises(ValueError):
+                    self.collect(context, [docs, docs], lambda _, name, __: payload if name == 'target' else None)
+                self.assertEqual(len(self.calls), 4)
+                self.assertEqual(self.clock.delays, [])
+
+    def test_deadline_failure_stops_without_another_request(self):
+        context, docs = fixture()
+        def overdue(_, __, clock):
+            clock.now = observer.COLLECTION_SECONDS + 1
+        with self.assertRaisesRegex(ValueError, 'deadline'):
+            self.collect(context, [docs, docs], overdue)
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.clock.delays, [])
+
+    def test_strict_validation_does_not_accept_resampling_candidate(self):
+        context, docs = fixture()
+        docs['active-in_progress']['total_count'] = 2
+        before = copy.deepcopy(docs)
+        self.assertEqual(observer.classify_remote_snapshot(context, docs)['status'], 'resample-inconsistent-counts')
+        with self.assertRaisesRegex(ValueError, 'Incomplete run list'):
+            observer.validate_remote(context, docs)
+        self.assertEqual(docs, before)
+
+    def test_valid_complete_collection_marker_and_exact_round(self):
+        context, docs = fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            write_complete_fixture(root, context, docs)
+            with patch.dict(observer.os.environ, {'PND_COLLECTOR_OUTCOME': 'success'}):
+                self.assertEqual(observer.verified_collection(root, context, 100.0), docs)
+
+    def test_missing_partial_stale_tampered_or_wrong_marker_never_observes_host(self):
+        edits = [lambda root: (root / 'collection.json').unlink(),
+                 lambda root: (root / 'collection.json').write_text('{'),
+                 lambda root: (root / 'main.json').write_text('{}'),
+                 lambda root: (root / 'round-0-main.json').write_text('{}'),
+                 lambda root: self.edit_marker(root, round=1),
+                 lambda root: self.edit_marker(root, finishedAt=0),
+                 lambda root: self.edit_marker(root, head='8' * 40),
+                 lambda root: self.edit_marker(root, calls=1)]
+        for index, edit in enumerate(edits):
+            with self.subTest(index=index), tempfile.TemporaryDirectory() as directory:
+                context, docs = fixture(); root = Path(directory)
+                write_complete_fixture(root, context, docs); edit(root)
+                with patch.object(observer.sys, 'argv', ['observe.py', directory]), \
+                     patch.dict(observer.os.environ, {'PND_COLLECTOR_OUTCOME': 'success'}), \
+                     patch.object(observer.time, 'time', return_value=100.0), \
+                     patch.object(observer, 'source_identities', return_value={'supplied': 'stable'}), \
+                     patch.object(observer, 'observe_host') as host:
+                    self.assertEqual(observer.main(), 3)
+                    host.assert_not_called()
+                self.assertEqual(json.loads((root / 'observation.json').read_text())['status'], 'blocked')
+
+    def edit_marker(self, root, **updates):
+        path = root / 'collection.json'; value = json.loads(path.read_text()); value.update(updates)
+        path.write_text(json.dumps(value))
+
+    def test_collector_non_success_never_uses_a_complete_looking_marker(self):
+        for outcome in ('failure', 'cancelled', 'skipped', ''):
+            with self.subTest(outcome=outcome), tempfile.TemporaryDirectory() as directory:
+                context, docs = fixture(); root = Path(directory)
+                write_complete_fixture(root, context, docs)
+                with patch.object(observer.sys, 'argv', ['observe.py', directory]), \
+                     patch.dict(observer.os.environ, {'PND_COLLECTOR_OUTCOME': outcome}), \
+                     patch.object(observer.time, 'time', return_value=100.0), \
+                     patch.object(observer, 'source_identities', return_value={'supplied': 'stable'}), \
+                     patch.object(observer, 'observe_host') as host:
+                    self.assertEqual(observer.main(), 3)
+                    host.assert_not_called()
 
 
 MOUNT = '29 22 0:27 / /sys/fs/cgroup rw,nosuid,nodev,noexec,relatime - cgroup2 cgroup rw\n'
@@ -198,9 +436,10 @@ class ObservationControls(unittest.TestCase):
         context, docs = fixture()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / 'context.json').write_text(json.dumps(context))
-            for name, value in docs.items(): (root / (name + '.json')).write_text(json.dumps(value))
+            write_complete_fixture(root, context, docs)
             with patch.object(observer.sys, 'argv', ['observe.py', directory]), \
+                 patch.dict(observer.os.environ, {'PND_COLLECTOR_OUTCOME': 'success'}), \
+                 patch.object(observer.time, 'time', return_value=100.0), \
                  patch.object(observer, 'source_identities', return_value={'supplied': 'stable'}), \
                  patch.object(observer, 'observe_host', return_value={'expectedLayoutObserved': True,
                      'effectiveAvailableBytes': None, 'memoryQualification': 'unqualified'}):
@@ -214,9 +453,10 @@ class ObservationControls(unittest.TestCase):
         context, docs = fixture()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / 'context.json').write_text(json.dumps(context))
-            for name, value in docs.items(): (root / (name + '.json')).write_text(json.dumps(value))
+            write_complete_fixture(root, context, docs)
             with patch.object(observer.sys, 'argv', ['observe.py', directory]), \
+                 patch.dict(observer.os.environ, {'PND_COLLECTOR_OUTCOME': 'success'}), \
+                 patch.object(observer.time, 'time', return_value=100.0), \
                  patch.object(observer, 'source_identities', side_effect=[{'a': 1}, {'a': 2}]), \
                  patch.object(observer, 'observe_host', return_value={'expectedLayoutObserved': True}):
                 self.assertEqual(observer.main(), 4)

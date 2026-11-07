@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 from pathlib import Path, PurePosixPath
 import re
@@ -20,6 +21,14 @@ MANIFEST_SHA256 = 'c099fe6530f5e4ba148493bbfb65d398d482b52dae761259a19c72acaef2d
 STATUSES = ('queued', 'in_progress', 'waiting', 'pending', 'requested')
 MAX_RECEIPT = 2 * 1024 * 1024
 MAX_SOURCE = 128 * 1024
+MAX_PROJECTED = 64 * 1024
+MAX_COLLECTION_ROUNDS = 3
+COLLECTION_SECONDS = 150
+COLLECTION_FRESH_SECONDS = 30
+REMOTE_NAMES = ('main', 'infrastructure', 'infrastructureMerge', 'target',
+                'targetCommit', 'run', 'jobs', 'ledger',
+                *('active-' + status for status in STATUSES))
+WORKFLOW_PATH = '.github/workflows/help-discovery-evidence.yml'
 LABEL_PREFIX = 'h943-env:'
 SHA = re.compile(r'[0-9a-f]{40}\Z')
 
@@ -214,28 +223,40 @@ def observe_host():
                       'This observer never admits tests or treats matching namespace IDs as proof.'}
 
 
-def complete_runs(value):
-    require(type(value.get('total_count')) is int and
+def run_rows(value):
+    require(isinstance(value, dict) and type(value.get('total_count')) is int and
             0 <= value['total_count'] <= 100 and
             isinstance(value.get('workflow_runs'), list) and
-            len(value['workflow_runs']) == value['total_count'], 'Incomplete run list')
-    ids = [row['id'] for row in value['workflow_runs']]
-    require(len(ids) == len(set(ids)), 'Duplicate run identity')
-    return value['workflow_runs']
+            len(value['workflow_runs']) <= 100, 'Malformed or oversized run list')
+    rows = value['workflow_runs']
+    require(all(isinstance(row, dict) and type(row.get('id')) is int and row['id'] > 0
+                for row in rows), 'Malformed run identity')
+    require(len({row['id'] for row in rows}) == len(rows), 'Duplicate run identity')
+    return rows
 
 
-def validate_remote(context, documents):
+def complete_runs(value):
+    rows = run_rows(value)
+    require(len(rows) == value['total_count'], 'Incomplete run list')
+    return rows
+
+
+def validate_remote_identity(context, documents):
     event = context['event']
     infra = event['pull_request']
     head, base = infra['head']['sha'], infra['base']['sha']
     merge = context['sha']
+    require(isinstance(context['runId'], str) and context['runId'].isdecimal() and
+            int(context['runId']) > 0, 'Malformed context run identity')
     run_id = int(context['runId'])
     require(all(SHA.fullmatch(s) for s in (head, base, merge)), 'Invalid source SHA')
     require(context['repository'] == REPO and context['eventName'] == 'pull_request' and
-            event['action'] == 'labeled' and event['sender']['id'] == OWNER and
+            event['action'] == 'labeled' and type(event['sender']['id']) is int and event['sender']['id'] == OWNER and
             event['label']['name'] == LABEL_PREFIX + head and
             context['attempt'] == '1', 'Unapproved event or replay attempt')
     for pr in (infra, documents['infrastructure']):
+        require(isinstance(pr, dict) and type(pr.get('number')) is int and pr['number'] > 0,
+                'Malformed infrastructure PR identity')
         require(pr['number'] == infra['number'] and pr['state'] == 'open' and pr['draft'] is True and
                 pr['head']['sha'] == head and pr['base']['sha'] == base and
                 pr['base']['ref'] == 'main' and pr['head']['repo']['full_name'] == REPO and
@@ -246,7 +267,7 @@ def validate_remote(context, documents):
     require(commit['sha'] == merge and [p['sha'] for p in commit['parents']] == [base, head],
             'Infrastructure merge parents differ')
     target = documents['target']
-    require(target['number'] == 943 and target['state'] == 'open' and target['draft'] is True and
+    require(type(target['number']) is int and target['number'] == 943 and target['state'] == 'open' and target['draft'] is True and
             target['head']['sha'] == TARGET and target['base']['ref'] == 'main' and
             SHA.fullmatch(target['base']['sha']) is not None and
             target['head']['repo']['full_name'] == REPO and
@@ -255,33 +276,179 @@ def validate_remote(context, documents):
     require(target_commit['sha'] == TARGET and target_commit['tree']['sha'] == TREE and
             [p['sha'] for p in target_commit['parents']] == [PARENT], 'Help commit identity drift')
     run = documents['run']
-    require(run['id'] == run_id and run['run_attempt'] == 1 and
-            run['event'] == 'pull_request' and run['head_sha'] == head and
+    require(isinstance(run, dict) and type(run.get('id')) is int and
+            type(run.get('run_attempt')) is int and run['id'] == run_id and run['run_attempt'] == 1 and
+            run['event'] == 'pull_request' and run['status'] == 'in_progress' and run['head_sha'] == head and
             run['path'] == '.github/workflows/help-discovery-evidence.yml' and
-            run['actor']['id'] == OWNER and run['triggering_actor']['id'] == OWNER,
+            type(run['actor']['id']) is int and run['actor']['id'] == OWNER and
+            type(run['triggering_actor']['id']) is int and run['triggering_actor']['id'] == OWNER,
             'Wrong observed run identity')
     jobs = documents['jobs']
-    require(jobs['total_count'] == 1 and len(jobs['jobs']) == 1,
-            'Incomplete or unexpected job inventory')
+    require(isinstance(jobs, dict) and type(jobs.get('total_count')) is int and
+            jobs['total_count'] == 1 and isinstance(jobs.get('jobs'), list) and len(jobs['jobs']) == 1,
+            'Incomplete, malformed or unexpected job inventory')
     job = jobs['jobs'][0]
+    require(isinstance(job, dict) and type(job.get('run_id')) is int and
+            type(job.get('run_attempt')) is int and
+            isinstance(job.get('labels'), list) and
+            all(isinstance(label, str) and label for label in job['labels']) and
+            isinstance(job.get('runner_name'), str) and job['runner_name'].strip() and
+            isinstance(context.get('job'), dict), 'Malformed required job provenance')
     require(job['run_id'] == run_id and job['run_attempt'] == 1 and
             job['name'] == 'Observe hosted scope (no tests)' and
-            'ubuntu-24.04' in job['labels'] and job['runner_name'] and
+            'ubuntu-24.04' in job['labels'] and
             context['runner']['environment'] == 'github-hosted' and
             context['runner']['os'] == 'Linux' and context['runner']['arch'] == 'X64' and
             not context['job'].get('container') and not context['job'].get('services'),
             'Unexpected runner or container job provenance')
-    ledger = complete_runs(documents['ledger'])
-    require(sum(row['id'] == run_id for row in ledger) == 1, 'Current run absent from ledger')
-    require(not any(row['id'] != run_id and row['head_sha'] == head for row in ledger),
-            'Another workflow attempt already exists for this infrastructure head')
-    for status in STATUSES:
-        rows = complete_runs(documents['active-' + status])
-        require(all(row['id'] == run_id for row in rows), 'Another repository run is active: ' + status)
     return {'head': head, 'base': base, 'merge': merge, 'infrastructurePr': infra['number'],
             'helpHead': TARGET, 'helpTree': TREE, 'helpParent': PARENT,
-            'helpReportedBase': target['base']['sha'], 'runId': run_id,
-            'firstMatchingRun': True, 'otherActiveRuns': 0}
+            'helpReportedBase': target['base']['sha'], 'runId': run_id}
+
+
+def inspect_remote_lists(identity, documents):
+    # Inspect every returned security-relevant row before considering mismatches.
+    # No synthetic count, merged page or inferred missing row is constructed.
+    head, run_id = identity['head'], identity['runId']
+    mismatches = []
+    for name in ('ledger', *('active-' + status for status in STATUSES)):
+        value = documents[name]
+        rows = run_rows(value)
+        for row in rows:
+            require(type(row.get('run_attempt')) is int and row['run_attempt'] > 0 and
+                    isinstance(row.get('head_sha'), str) and SHA.fullmatch(row['head_sha']) and
+                    isinstance(row.get('path'), str) and
+                    row.get('status') in (*STATUSES, 'completed'), 'Malformed returned run row')
+            if name == 'ledger':
+                require(row['path'] == WORKFLOW_PATH, 'Wrong workflow in replay ledger')
+                require(row['id'] == run_id or row['head_sha'] != head,
+                        'Another workflow attempt already exists for this infrastructure head')
+            else:
+                require(row['status'] == name.removeprefix('active-'), 'Wrong active-run status')
+                require(row['id'] == run_id, 'Another repository run is active: ' + name)
+                require(row['head_sha'] == head and row['path'] == WORKFLOW_PATH and
+                        row['status'] == documents['run']['status'] and row['run_attempt'] == 1,
+                        'Current active-run source differs')
+        if name == 'ledger':
+            require(sum(row['id'] == run_id for row in rows) == 1,
+                    'Current run absent from ledger')
+            own = next(row for row in rows if row['id'] == run_id)
+            require(own['head_sha'] == head and own['status'] == documents['run']['status'] and
+                    own['run_attempt'] == 1,
+                    'Current ledger source or status differs')
+        if len(rows) != value['total_count']:
+            mismatches.append({'name': name, 'total_count': value['total_count'], 'returned': len(rows)})
+    return mismatches
+
+
+def classify_remote_snapshot(context, documents):
+    identity = validate_remote_identity(context, documents)
+    mismatches = inspect_remote_lists(identity, documents)
+    if mismatches:
+        return {'status': 'resample-inconsistent-counts', 'mismatches': mismatches}
+    return {'status': 'complete', 'mismatches': [],
+            'identity': identity | {'firstMatchingRun': True, 'otherActiveRuns': 0}}
+
+
+def validate_remote(context, documents):
+    result = classify_remote_snapshot(context, documents)
+    require(result['status'] == 'complete', 'Incomplete run list')
+    return result['identity']
+
+
+def collect_guard_sets(context, fetch, record_round, clock, pause):
+    """Pure bounded coordinator. Transport, retention and time are injected controls."""
+    started = clock()
+    deadline = started + COLLECTION_SECONDS
+    calls = 0
+    for round_number in range(MAX_COLLECTION_ROUNDS):
+        raw, documents = {}, {}
+        try:
+            for name in REMOTE_NAMES:
+                remaining = deadline - clock()
+                require(remaining >= 3, 'Collector deadline reached')
+                calls += 1
+                data = fetch(round_number, name, min(12, remaining - 2))
+                require(isinstance(data, bytes) and len(data) <= MAX_PROJECTED,
+                        'Projected response cap exceeded')
+                raw[name] = data
+                documents[name] = json.loads(data)
+                require(clock() <= deadline, 'Collector deadline reached')
+            verdict = classify_remote_snapshot(context, documents)
+        except Exception as error:
+            record_round(round_number, {'status': 'blocked', 'error': type(error).__name__,
+                         'reason': str(error)[:300], 'calls': calls}, raw)
+            raise
+        decision = verdict | {'calls': calls, 'elapsedSeconds': clock() - started}
+        record_round(round_number, decision, raw)
+        require(clock() <= deadline, 'Collector deadline reached')
+        if verdict['status'] == 'complete':
+            return {'round': round_number, 'raw': raw, 'documents': documents,
+                    'calls': calls, 'elapsedSeconds': clock() - started}
+        require(round_number + 1 < MAX_COLLECTION_ROUNDS, 'Collector resampling exhausted')
+        require(deadline - clock() >= 3.5, 'Collector deadline reached')
+        pause(0.5)
+    raise ValueError('No complete guard collection')
+
+
+def publish_collection(output, context, result, finished_at):
+    require(type(result['round']) is int and 0 <= result['round'] < MAX_COLLECTION_ROUNDS,
+            'Invalid collection round')
+    require(set(result['raw']) == set(REMOTE_NAMES), 'Incomplete final collection')
+    documents = {name: json.loads(data) for name, data in result['raw'].items()}
+    identity = validate_remote(context, documents)
+    identities = {}
+    for name in REMOTE_NAMES:
+        data = result['raw'][name]
+        require(len(data) <= MAX_PROJECTED and
+                read_regular(output / f"round-{result['round']}-{name}.json", MAX_PROJECTED) == data,
+                'Final round source differs')
+        with (output / (name + '.json')).open('xb') as stream:
+            stream.write(data)
+        identities[name] = {'bytes': len(data), 'sha256': digest(data)}
+    marker = {'version': 1, 'status': 'complete', 'round': result['round'],
+              'runId': identity['runId'], 'attempt': 1, 'head': identity['head'],
+              'base': identity['base'], 'merge': identity['merge'],
+              'finishedAt': finished_at, 'calls': result['calls'],
+              'contextSha256': digest(read_regular(output / 'context.json', MAX_RECEIPT)),
+              'files': identities}
+    with (output / 'collection.json').open('x') as stream:
+        json.dump(marker, stream, indent=2)
+        stream.write('\n')
+    return marker
+
+
+def verified_collection(output, context, now):
+    require(os.environ.get('PND_COLLECTOR_OUTCOME') == 'success',
+            'Collector did not complete successfully')
+    marker = json.loads(read_regular(output / 'collection.json', MAX_PROJECTED))
+    require(type(marker['version']) is int and marker['version'] == 1 and marker['status'] == 'complete' and
+            type(marker['round']) is int and 0 <= marker['round'] < MAX_COLLECTION_ROUNDS and
+            marker['calls'] == (marker['round'] + 1) * len(REMOTE_NAMES), 'Invalid final collection marker')
+    infra = context['event']['pull_request']
+    require(type(marker['runId']) is int and marker['runId'] == int(context['runId']) and
+            type(marker['attempt']) is int and marker['attempt'] == 1 and
+            marker['head'] == infra['head']['sha'] and marker['base'] == infra['base']['sha'] and
+            marker['merge'] == context['sha'] and set(marker['files']) == set(REMOTE_NAMES),
+            'Collection marker source differs')
+    require(type(marker['finishedAt']) in (int, float) and math.isfinite(marker['finishedAt']) and
+            0 <= now - marker['finishedAt'] <= COLLECTION_FRESH_SECONDS, 'Stale collection marker')
+    require(marker['contextSha256'] == digest(read_regular(output / 'context.json', MAX_RECEIPT)),
+            'Collection context changed')
+    decision = json.loads(read_regular(output / f"round-{marker['round']}-decision.json", MAX_PROJECTED))
+    require(decision['status'] == 'complete' and decision['round'] == marker['round'] and
+            decision['calls'] == marker['calls'] and decision['contextSha256'] == marker['contextSha256'] and
+            decision['files'] == marker['files'],
+            'Final round decision differs')
+    documents = {}
+    for name in REMOTE_NAMES:
+        data = read_regular(output / (name + '.json'), MAX_PROJECTED)
+        require(marker['files'][name] == {'bytes': len(data), 'sha256': digest(data)} and
+                read_regular(output / f"round-{marker['round']}-{name}.json", MAX_PROJECTED) == data,
+                'Final collection bytes changed')
+        documents[name] = json.loads(data)
+    validate_remote(context, documents)
+    return documents
 
 
 def source_identities(root):
@@ -309,10 +476,7 @@ def main():
     try:
         receipt['sourceBefore'] = source_identities(root)
         context = json.loads(read_regular(output / 'context.json', MAX_RECEIPT))
-        documents = {name: json.loads(read_regular(output / (name + '.json'), MAX_RECEIPT))
-                     for name in ('main', 'infrastructure', 'infrastructureMerge', 'target',
-                                  'targetCommit', 'run', 'jobs', 'ledger',
-                                  *('active-' + s for s in STATUSES))}
+        documents = verified_collection(output, context, time.time())
         receipt['remoteGuard'] = validate_remote(context, documents)
         receipt['githubContext'] = {k: context[k] for k in ('runner', 'job')}
         receipt['githubProvenance'] = {'run': documents['run'], 'jobs': documents['jobs']}

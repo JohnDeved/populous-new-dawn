@@ -64,8 +64,8 @@ jobs:
                      GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL='/dev/null')
           sources = {
               # Recomputed from the frozen helper source, never from target PR input.
-              'scripts/help-discovery-evidence/observe.py': '532853f7fad367a368ed4303caafa084191759487d3992a4e49719c993aa713c',
-              'scripts/help-discovery-evidence/collect-remote.sh': '1216388cefce899250e76bf736ae3f5eb5513b1638f288b721691054ffa1c5f6',
+              'scripts/help-discovery-evidence/observe.py': 'cde2cac1ada7ea17bc0a02d8bbc672eb1887fa609d1cf36aebce974112ec2d18',
+              'scripts/help-discovery-evidence/collect-remote.sh': 'c94c337fc564721a4855dd249fa2fa6b874cae0adf7b7ab8122a3125c777d834',
               'scripts/help-discovery-evidence/discovery-manifest.json': 'c099fe6530f5e4ba148493bbfb65d398d482b52dae761259a19c72acaef2dd59',
               '.github/workflows/help-discovery-evidence.yml': None,
           }
@@ -137,6 +137,8 @@ jobs:
       - name: Observe host without project execution or memory admission
         if: ${{ always() && steps.remote.outcome != 'skipped' }}
         timeout-minutes: 1
+        env:
+          PND_COLLECTOR_OUTCOME: ${{ steps.remote.outcome }}
         shell: bash
         run: |
           set -euo pipefail

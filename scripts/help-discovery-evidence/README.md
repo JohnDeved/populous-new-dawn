@@ -10,7 +10,7 @@ separate supported executor, but its runner label, environment strings, matching
 namespace IDs and root-looking cgroup mount are not enough to prove complete
 scope. This stage preserves raw observations and actual run/job provenance for
 independent review. It never modifies a mount, cgroup, permission or namespace.
-No known denial is bypassed; failed reads are retained and not retried.
+No known denial is bypassed; failed reads are retained and not retried. Only a successful, structurally valid but count-inconsistent run-list collection may be sampled again under the bounded protocol below.
 
 ## Source and activation
 
@@ -59,11 +59,49 @@ outer wait, inherited 8/10-second CPU limits and 128 KiB file-size limits. No fa
 read is retried. A partial failure retains `bootstrap.json`. Token-bearing gh
 configuration is never copied; the private empty config is removed only if empty.
 
-The fixed public-API collector makes 13 read-only requests, each capped by a 12-second
-timeout plus2-second grace, under a 165-second outer envelope. Static jq projections
-retain only source/run/job identities. Lists exceeding 100 rows or inconsistent
-counts fail closed. A 1 MiB shell file-size bound also applies. Collector admission reserves 32 MiB of outputs plus 128 MiB of free space and 128 inodes before its writes. These trusted gh
-reads are not a general command/process containment facility.
+The collector takes a complete set of 13 fixed read-only public-API projections in
+each round. It makes at most three rounds (39 reads), with at most two 0.5-second
+pauses, within a 150-second internal budget and the unchanged 165-second outer
+timeout plus 3-second kill grace. Each read retains its 12-second maximum timeout
+plus 2-second grace, reduced to remaining budget when needed. Three rounds are a
+maximum, not a promise: the aggregate deadline can stop an earlier round.
+
+Only successful run-list responses with valid required schema and a disagreement
+between total_count and returned length may request a new full round. All source,
+actor, job, replay and returned-row checks run before that classification. HTTP,
+authentication, transport, parse, byte-cap and deadline failures stop immediately.
+So do malformed/boolean/oversized counts, duplicate IDs, a missing current ledger
+run, wrong source/status, any returned replay, or any explicit foreign active run.
+A foreign run seen earlier cannot be erased by a later idle response. The collector
+never lowers a count, invents or ignores a missing row, splices pages or combines
+rounds. Strict direct observer validation still rejects incomplete lists.
+
+Every attempted response has a fresh flat `round-N-NAME.json` file. Decisions and
+bounded transport diagnostics are retained per round. Canonical documents are
+published only from one complete final round. `collection.json` binds its round,
+run/attempt/head/base/merge, context and every exact name/byte count/SHA-256. Before
+host sampling, the observer requires the workflow's collector outcome to be
+`success`, a complete marker at most 30 seconds old, matching canonical/round bytes,
+a matching complete round decision, and fresh strict validation. A missing,
+partial, stale or changed marker or a non-success outcome blocks host access.
+
+Projected stdout and stderr files have 64 KiB written-file caps before JSON
+parsing. This does not meter HTTP traffic or gh's internal memory. Raw stderr is
+not uploaded; its bounded hash/length and the masked Actions error log remain.
+The existing 160 MiB free-space and 128-inode admission covers the bounded output.
+At most 62 flat metadata names are eligible for retention: 39 round responses,
+three round decisions, 13 final documents, bootstrap/context/tools, collection and
+collector-error markers, and observation JSON/hash. At most 60 non-observation
+JSON files are 64 KiB each; observation JSON is at most 2 MiB and its hash line is
+small, for less than 6 MiB retained data. The top-level artifact glob already
+retains the round files. A future offline extractor must explicitly admit this
+new allowlist and budget; the prior 18-file extractor is not silently reused.
+
+Run 42315481514 on consumed head 6bc884fb correctly stopped before host sampling
+when an in-progress response reported two rows but returned only its own one.
+Its responses and failure are preserved. This revised collector is a material
+source change for a separately reviewed future observation, not a rerun or label
+reapplication to that consumed head. No missing-row identity or API cause is inferred.
 
 The observer has a 10-second timeout plus2-second grace. It reads fixed bounded
 kernel metadata and walks only the observed own service-to-root cgroup ancestors,
@@ -82,11 +120,11 @@ effective cap or free-memory budget has been qualified.
 
 ## Checks and remaining gates
 
-`tests/help-discovery-hosted-observer.test.mjs` invokes 29 supplied Python controls
+`tests/help-discovery-hosted-observer.test.mjs` invokes 41 supplied Python controls
 only. They use hand-built API records, fake host results and temporary small files;
 they never read host /proc or call gh. The controls cover identity, replay, all-five
 run guards, namespace mapping, read caps, symlinks and terminal failure/drift receipts.
-Their source alone is not a test pass. Execute only after separate bounded admission.
+Additional supplied controls cover full-round replacement, exhaustion, hard-failure precedence, transport/parse/cap/deadline stops, manifest freshness/integrity and non-success host blocking. The new coordinator uses injected transport and clocks in these controls, with no subprocess, network or host reads. Required provenance types are also checked directly and together with a count mismatch, including boolean/float attempts and job counts, malformed job inventories/labels/runner names and non-integer identities. Their source alone is not a test pass. Execute only after separate bounded admission.
 
 These new paths are not added to existing source/generated ownership maps. Review
 all resulting unknown planner paths explicitly rather than treating them as an empty

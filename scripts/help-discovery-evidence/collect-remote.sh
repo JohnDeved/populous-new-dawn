@@ -2,7 +2,7 @@
 # Fixed read-only GitHub projections. No project command or test can run here.
 set -euo pipefail
 ulimit -c 0
-ulimit -f 1024
+ulimit -f 64
 test "$#" = 1
 output="$1"
 test -d "$output"
@@ -19,7 +19,7 @@ export GH_CONFIG_DIR="$RUNNER_TEMP/help943-empty-gh-$GITHUB_RUN_ID-$GITHUB_RUN_A
 mkdir -m 700 "$GH_CONFIG_DIR"
 trap 'rmdir "$GH_CONFIG_DIR" 2>/dev/null || true' EXIT
 
-python3 -I -B - "$output" <<'PY'
+python3 -I -S -B - "$output" <<'PY'
 import json, os, pathlib
 out = pathlib.Path(os.sys.argv[1])
 fs = os.statvfs(out)
@@ -44,30 +44,8 @@ with (out / 'context.json').open('x') as stream:
     stream.write('\n')
 PY
 
-api() {
-  local name="$1" endpoint="$2" projection="$3"
-  test ! -e "$output/$name.json"
-  # Fixed GNU timeout owns this trusted gh read. There is no automatic retry.
-  timeout --signal=TERM --kill-after=2s 12s gh api --hostname github.com "$endpoint" \
-    --jq "$projection" > "$output/$name.json"
-}
-repo=repos/JohnDeved/populous-new-dawn
-pr_projection='{number,state,draft,head:{sha:.head.sha,ref:.head.ref,repo:{full_name:.head.repo.full_name}},base:{sha:.base.sha,ref:.base.ref,repo:{full_name:.base.repo.full_name}}}'
-runs_projection='{total_count,workflow_runs:[.workflow_runs[]|{id,run_attempt,event,head_sha,head_branch,status,conclusion,workflow_id,path}]}'
-api main "$repo/git/ref/heads/main" '{sha:.object.sha}'
-api infrastructure "$repo/pulls/$PND_INFRA_PR" "$pr_projection"
-api infrastructureMerge "$repo/git/commits/$GITHUB_SHA" '{sha,tree:{sha:.tree.sha},parents:[.parents[]|{sha}]}'
-api target "$repo/pulls/943" "$pr_projection"
-api targetCommit "$repo/git/commits/a1f506f82e8c95b55ca1b1c7dde1b5217f266466" '{sha,tree:{sha:.tree.sha},parents:[.parents[]|{sha}]}'
-api run "$repo/actions/runs/$GITHUB_RUN_ID" '{id,run_attempt,event,head_sha,head_branch,status,workflow_id,path,actor:{id:.actor.id},triggering_actor:{id:.triggering_actor.id}}'
-api jobs "$repo/actions/runs/$GITHUB_RUN_ID/attempts/1/jobs?per_page=100" '{total_count,jobs:[.jobs[]|{id,run_id,run_attempt,name,status,conclusion,runner_id,runner_name,runner_group_id,runner_group_name,labels,started_at,completed_at}]}'
-api ledger "$repo/actions/workflows/help-discovery-evidence.yml/runs?per_page=100" "$runs_projection"
-for status in queued in_progress waiting pending requested; do
-  api "active-$status" "$repo/actions/runs?status=$status&per_page=100" "$runs_projection"
-done
-
 # Only these public projections are retained; never copy gh config or credentials.
-python3 -I -B - "$output" <<'PY'
+python3 -I -S -B - "$output" <<'PY'
 import hashlib, json, os, pathlib, shutil, sys
 out = pathlib.Path(sys.argv[1]); rows = {}
 for name in ('python3', 'gh', 'git', 'timeout'):
@@ -83,3 +61,73 @@ with (out / 'tools.json').open('x') as stream:
     json.dump(rows, stream, indent=2)
     stream.write('\n')
 PY
+
+
+# Every round is a fresh full guard set. Only valid inconsistent run-list counts
+# may resample; the observer classifier gives every hard failure precedence.
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+python3 -I -S -B - "$output" "$script_dir/observe.py" <<'PYTHON'
+import hashlib, importlib.util, json, os, pathlib, subprocess, sys, time
+out = pathlib.Path(sys.argv[1])
+spec = importlib.util.spec_from_file_location('help_hosted_observer', sys.argv[2])
+observer = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(observer)
+context = json.loads(observer.read_regular(out / 'context.json', observer.MAX_RECEIPT))
+repo = 'repos/JohnDeved/populous-new-dawn'
+pr_projection = '{number,state,draft,head:{sha:.head.sha,ref:.head.ref,repo:{full_name:.head.repo.full_name}},base:{sha:.base.sha,ref:.base.ref,repo:{full_name:.base.repo.full_name}}}'
+runs_projection = '{total_count,workflow_runs:[.workflow_runs[]|{id,run_attempt,event,head_sha,head_branch,status,conclusion,workflow_id,path}]}'
+requests = {
+    'main': ('/git/ref/heads/main', '{sha:.object.sha}'),
+    'infrastructure': ('/pulls/' + os.environ['PND_INFRA_PR'], pr_projection),
+    'infrastructureMerge': ('/git/commits/' + os.environ['GITHUB_SHA'], '{sha,tree:{sha:.tree.sha},parents:[.parents[]|{sha}]}'),
+    'target': ('/pulls/943', pr_projection),
+    'targetCommit': ('/git/commits/' + observer.TARGET, '{sha,tree:{sha:.tree.sha},parents:[.parents[]|{sha}]}'),
+    'run': ('/actions/runs/' + os.environ['GITHUB_RUN_ID'], '{id,run_attempt,event,head_sha,head_branch,status,workflow_id,path,actor:{id:.actor.id},triggering_actor:{id:.triggering_actor.id}}'),
+    'jobs': ('/actions/runs/' + os.environ['GITHUB_RUN_ID'] + '/attempts/1/jobs?per_page=100', '{total_count,jobs:[.jobs[]|{id,run_id,run_attempt,name,status,conclusion,runner_id,runner_name,runner_group_id,runner_group_name,labels,started_at,completed_at}]}'),
+    'ledger': ('/actions/workflows/help-discovery-evidence.yml/runs?per_page=100', runs_projection),
+}
+for status in observer.STATUSES:
+    requests['active-' + status] = ('/actions/runs?status=' + status + '&per_page=100', runs_projection)
+assert set(requests) == set(observer.REMOTE_NAMES)
+transport = {}
+
+def fetch(round_number, name, seconds):
+    endpoint, projection = requests[name]
+    raw = out / f'round-{round_number}-{name}.json'
+    error = out / f'round-{round_number}-{name}.stderr'
+    command = ['timeout', '--signal=TERM', '--kill-after=2s', str(seconds) + 's',
+               'gh', 'api', '--hostname', 'github.com', repo + endpoint, '--jq', projection]
+    started = time.monotonic()
+    with raw.open('xb') as stdout, error.open('xb') as stderr:
+        result = subprocess.run(command, stdin=subprocess.DEVNULL, stdout=stdout, stderr=stderr)
+    stderr_data = observer.read_regular(error, observer.MAX_PROJECTED)
+    transport.setdefault(round_number, []).append(dict(name=name, exitCode=result.returncode,
+        timeoutSeconds=seconds, elapsedSeconds=time.monotonic() - started,
+        stdoutBytes=raw.stat().st_size, stderrBytes=len(stderr_data),
+        stderrSha256=hashlib.sha256(stderr_data).hexdigest()))
+    if result.returncode:
+        print(stderr_data.decode(errors='replace')[:4096], file=sys.stderr)
+        raise ValueError('API transport failed; no resampling: ' + name + ' exit ' + str(result.returncode))
+    return observer.read_regular(raw, observer.MAX_PROJECTED)
+
+
+def record_round(number, decision, raw):
+    record = decision | {'round': number,
+        'contextSha256': hashlib.sha256(observer.read_regular(out / 'context.json', observer.MAX_RECEIPT)).hexdigest(),
+        'files': {name: dict(bytes=len(data), sha256=hashlib.sha256(data).hexdigest())
+                  for name, data in raw.items()}, 'transport': transport.get(number, [])}
+    with (out / f'round-{number}-decision.json').open('x') as stream:
+        json.dump(record, stream, indent=2)
+        stream.write('\n')
+
+
+try:
+    result = observer.collect_guard_sets(context, fetch, record_round, time.monotonic, time.sleep)
+    marker = observer.publish_collection(out, context, result, time.time())
+    print(json.dumps({'status': 'complete', 'round': marker['round'], 'calls': marker['calls']}))
+except Exception as error:
+    with (out / 'collector-error.json').open('x') as stream:
+        json.dump({'status': 'blocked', 'error': type(error).__name__, 'reason': str(error)[:300]}, stream)
+        stream.write('\n')
+    raise
+PYTHON

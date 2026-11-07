@@ -12,6 +12,6 @@ test('hosted Help metadata guards use supplied controls and cannot admit discove
   assert.ifError(result.error)
   assert.equal(result.signal, null, result.stderr)
   assert.equal(result.status, 0, result.stderr)
-  assert.match(result.stderr, /Ran 29 tests/)
+  assert.match(result.stderr, /Ran 41 tests/)
   assert.match(result.stderr, /\nOK\s*$/)
 })
