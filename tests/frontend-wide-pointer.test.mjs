@@ -21,13 +21,13 @@ function compile(node, context) {
   const code = ts.transpileModule(`return ${node.getText(parsed)}`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText
   return new Function(...Object.keys(context), code)(...Object.values(context))
 }
-function fixture(width, height, reduced = false) {
+function fixture(width, height, reduced = false, panel = 'main') {
   const scale = frontendScale(width, height), pending = new Map(), timers = new Map()
   const pointer = { current: { x: 320, y: 240 } }, pointerMode = { current: false }, animation = { current: 0 }, glowFrame = { current: 0 }
   let next = 0, draws = 0, hovered = 'Options'
   const context = {
     frame: { current: { getBoundingClientRect: () => ({ left: (width - 640 * scale) / 2, top: (height - 480 * scale) / 2 }) } },
-    scale, pointer, pointerMode, animation, glowFrame,
+    panel, scale, pointer, pointerMode, animation, glowFrame,
     requestAnimationFrame: fn => { pending.set(++next, fn); return next },
     cancelAnimationFrame: id => pending.delete(id), draw: () => draws++, setHovered: value => { hovered = value },
     document: { hidden: false },
@@ -116,4 +116,44 @@ test('resize listener has symmetric ownership across menu remounts', () => {
     cleanup(); assert.equal(listeners.size, 0)
   }
   assert.equal(opens, closes)
+})
+
+
+test('Credits owns pointer motion and suspends the menu glow until returning to main', () => {
+  const timerEffect = effects.find(node => node.getText(parsed).includes('setInterval'))
+  for (const reduced of [false, true]) {
+    const f = fixture(1920, 1080, reduced)
+    let cleanup = compile(timerEffect, f.context)()
+    f.move({ clientX: 10, clientY: 540 })
+    assert.equal(f.pending.size, 1)
+    cleanup()
+    assert.equal(f.pending.size, 0)
+    assert.equal(f.timers.size, 0)
+
+    // A panel change creates a new React closure; keep the same refs across renders.
+    f.context.panel = 'credits'
+    const moveCredits = compile(handlers.get('onPointerMove').fn, f.context)
+    cleanup = compile(timerEffect, f.context)()
+    f.pointerMode.current = false
+    const pointer = { ...f.pointer.current }, draws = f.draws
+    for (const clientX of [10, 960, 1910]) moveCredits({ clientX, clientY: 540 })
+    assert.deepEqual(f.pointer.current, pointer, 'Credits motion must not update menu coordinates')
+    assert.equal(f.pointerMode.current, false, 'Credits motion must not restore menu pointer mode')
+    assert.equal(f.pending.size, 0, 'Credits motion must not request menu drawing')
+    assert.equal(f.timers.size, 0, 'Credits must suspend the menu glow even without reduced motion')
+    assert.equal(f.draws, draws)
+    cleanup()
+
+    f.context.panel = 'main'
+    const moveMain = compile(handlers.get('onPointerMove').fn, f.context)
+    cleanup = compile(timerEffect, f.context)()
+    assert.equal(f.timers.size, reduced ? 0 : 1)
+    moveMain({ clientX: 1910, clientY: 540 })
+    assert.notDeepEqual(f.pointer.current, pointer)
+    assert.equal(f.pointerMode.current, true)
+    assert.equal(f.pending.size, 1)
+    cleanup()
+    assert.equal(f.pending.size, 0)
+    assert.equal(f.timers.size, 0)
+  }
 })
