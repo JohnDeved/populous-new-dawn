@@ -553,15 +553,21 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     }
   })
   scene.listen(window, 'keydown', scene.keyDown)
-  scene.listen(window, 'keyup', e => {
-    const event = e as KeyboardEvent
-    scene.keys.delete(event.key.toLowerCase())
-    scene.keys.delete(event.code.toLowerCase())
-    if (event.ctrlKey) scene.keys.add('control')
-    else scene.keys.delete('control')
-    if (event.shiftKey) scene.keys.add('shift')
-    else scene.keys.delete('shift')
-  })
+  // Releases must reach held camera state even when an overlay isolates its input.
+  scene.listen(
+    window,
+    'keyup',
+    e => {
+      const event = e as KeyboardEvent
+      scene.keys.delete(event.key.toLowerCase())
+      scene.keys.delete(event.code.toLowerCase())
+      if (event.ctrlKey) scene.keys.add('control')
+      else scene.keys.delete('control')
+      if (event.shiftKey) scene.keys.add('shift')
+      else scene.keys.delete('shift')
+    },
+    true
+  )
   const trackNavigation = (event: Event) => {
     const p = event as PointerEvent
     scene.navigationPointer =
