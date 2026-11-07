@@ -9,6 +9,9 @@ death/building/reward/final-snapshot leaves. Static research only; UI rows remai
 
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
 
+[Swamp presentation](research/swamp-presentation.md) traces the original nine terrain
+sprites, five variant-positioned plants, independent animation clock and painter.
+
 ## Building-completion feedback ownership
 
 [Bounded original completion-owner comparison](research/building-completion-feedback.md)
@@ -4939,6 +4942,10 @@ result does not justify a separate TS classifier. Run
 `python scripts/check-native-hud-selection.py EXE [--record]` for complete native
 selection/focus and actual callback comparisons. Vehicles, category ownership and
 priority-field lifecycle writers remain open.
+
+The [Shaman portrait binding](research/shaman-portrait.md) confirms the separate
+model7 descriptor's exact PE bytes, left selection/right focus callbacks and
+bounded mounted integration. It retains native shared-ring/death-timing limits.
 
 ## 2026-09-11 — mixed painter hit ownership
 

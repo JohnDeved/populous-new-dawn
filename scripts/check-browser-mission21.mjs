@@ -136,7 +136,7 @@ try {
     }, person)
     await page
       .getByRole('button', {
-        name: index < 2 ? 'Select brave' : 'Select and focus shaman',
+        name: index < 2 ? 'Select brave' : 'Select shaman',
         exact: true,
       })
       .click()

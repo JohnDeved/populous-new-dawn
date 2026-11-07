@@ -370,7 +370,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       await worshipRoute('opening-Land-Bridge', report.initial.bridgeHead.id)]; save()
     assert.equal(report.initialRoutes[0].routeFound, false)
     assert.ok(report.initialRoutes[1].eligibility.canOrder && report.initialRoutes[1].eligibility.accepts27 && report.initialRoutes[1].routeFound)
-    await button('Select and focus shaman')
+    await button('Select shaman')
     await view(report.initial.bridgeHead)
     await clickEntity('shrines', report.initial.bridgeHead.id, 27, false, [shamanId])
     await page.waitForFunction(({ headId, actorId }) => {
@@ -380,7 +380,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     }, { headId: report.initial.bridgeHead.id, actorId: shamanId }, { timeout: 180000 })
     report.bridgeReward = await read(); save()
     assert.ok(report.bridgeReward.bridgeGifts > report.initial.bridgeGifts)
-    await button('Select and focus shaman')
+    await button('Select shaman')
     const shoreDestination = { x: 0.5, z: 19 } // Interior of the already demonstrated native shore cell.
     await view(shoreDestination)
     await prepareDispatch()
@@ -420,7 +420,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     report.completedBridge = await read()
     report.lightningRouteAfterBridge = await worshipRoute('completed-Bridge-to-Lightning', headId); save()
     assert.equal(report.lightningRouteAfterBridge.routeFound, true)
-    await button('Select and focus shaman')
+    await button('Select shaman')
     await view(report.initial.head)
     await clickEntity('shrines', headId, 27, false, [shamanId])
     await page.waitForFunction(({ headId, actorId }) => {
@@ -434,7 +434,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     const hut = report.reward.huts.find(hut => hut.progress === 1 && hut.hp > 0 && !hut.burning)
     assert.ok(hut, 'No completed authored Blue hut after actual reward acquisition')
     report.hut = hut; save()
-    await button('Select and focus shaman')
+    await button('Select shaman')
     await view(hut)
     await prepareDispatch()
     const ground = await groundNear(hut)
@@ -470,7 +470,11 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         scene.buildingMeshes.get(id)?.userData.hutOccupancySmoke?.group.visible
     }, { id: hut.id, actorId: shamanId }, { timeout: 180000 })
     await pause()
-    await button('Select and focus shaman')
+    await action('clear-housing-cohort-before-Shaman', () => page.keyboard.press('Escape'))
+    report.clearedHousingSelection = await read(); save()
+    assert.deepEqual(report.clearedHousingSelection.selected, [])
+    assert.equal(report.clearedHousingSelection.mode, null)
+    await button('Select shaman')
     await view(hut)
     report.beforeLightningSelection = await read(); save()
     assert.deepEqual(report.beforeLightningSelection.selected, [shamanId])

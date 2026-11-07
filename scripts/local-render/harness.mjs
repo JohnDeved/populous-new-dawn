@@ -1,10 +1,11 @@
 import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
-import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { spawn } from 'node:child_process'
 import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
+import { performance } from 'node:perf_hooks'
 import {
   acquireProfile,
   persistentLaunchOptions,
@@ -60,13 +61,17 @@ export function parseOptions(args) {
     '--scenario': 'scenario',
     '--profile': 'profile',
     '--profile-correspondence': 'profileCorrespondence',
+    '--phase-timings': 'phaseTimings',
   }
   for (let i = 0; i < args.length; i += 2) {
     const key = keys[args[i]],
       value = args[i + 1]
     if (!key || !value || value.startsWith('--'))
       throw Error(`Unknown or missing option: ${args[i]}`)
-    options[key] = ['port', 'mission', 'timeout'].includes(key) ? Number(value) : value
+    if (key === 'phaseTimings') {
+      if (!['true', 'false'].includes(value)) throw Error('Phase timings must be true or false')
+      options[key] = value === 'true'
+    } else options[key] = ['port', 'mission', 'timeout'].includes(key) ? Number(value) : value
   }
   validatePort(options.port)
   if (!Number.isInteger(options.mission) || options.mission < 1 || options.mission > 25)
@@ -117,6 +122,8 @@ async function stopServer(server) {
 }
 export async function runLocalBrowser(options, scenario) {
   validatePort(options.port)
+  if (options.phaseTimings !== undefined && typeof options.phaseTimings !== 'boolean')
+    throw Error('Phase timings must be boolean')
   const root = resolve(options.gameRoot),
     output = resolve(options.output)
   if (options.profile) {
@@ -154,6 +161,22 @@ export async function runLocalBrowser(options, scenario) {
     checkpointIdentityVerified = false
   const log = createWriteStream(resolve(output, 'server.log'))
   const abort = new AbortController()
+  // Fixed phase boundaries only: no extra I/O, timers, awaited work or browser
+  // observations. These host wall intervals include scheduling, not CPU/GPU cost.
+  // Keep the private marks away from scenario-owned receipt references until finalization.
+  const phaseTimings = options.phaseTimings
+    ? { protocol: 'local-render-phases-v1', origin: 'work-entry', events: [] }
+    : null
+  let phaseOrigin, workPhasesClosed = false
+  const markPhase = phase => {
+    if (!phaseTimings) return
+    const now = performance.now()
+    phaseOrigin ??= now
+    phaseTimings.events.push({ phase, elapsedMs: now - phaseOrigin })
+  }
+  const markWorkPhase = phase => {
+    if (!workPhasesClosed) markPhase(phase)
+  }
   const onSignal = () => abort.abort(Error('Interrupted'))
   process.once('SIGINT', onSignal)
   process.once('SIGTERM', onSignal)
@@ -178,6 +201,7 @@ export async function runLocalBrowser(options, scenario) {
     return structuredClone(observed)
   }
   const work = async () => {
+    markWorkPhase('work-start')
     if (options.profile) {
       if (!options.scenario)
         throw Error('Persistent runs must name their scenario source with --scenario')
@@ -202,6 +226,7 @@ export async function runLocalBrowser(options, scenario) {
       receipt.profile = lease.profile
       receipt.launch = persistentLaunchOptions(receipt.launch, lease.dataDir)
     }
+    markWorkPhase('profile-ready')
     readinessStarted = Date.now()
     receipt.readiness = {
       timeoutMs: Math.min(60000, options.timeout),
@@ -248,6 +273,7 @@ export async function runLocalBrowser(options, scenario) {
         },
       }
     )
+    markWorkPhase('server-spawned')
     server.stdout.pipe(log)
     server.stderr.pipe(log)
     let listening = false
@@ -312,11 +338,14 @@ export async function runLocalBrowser(options, scenario) {
       readiness.elapsedMs = Date.now() - readinessStarted
     }
     abort.signal.throwIfAborted()
+    markWorkPhase('server-ready')
     launchAttempted = true
+    markWorkPhase('browser-launch-start')
     launchPromise = lease
       ? chromium.launchPersistentContext(lease.dataDir, receipt.launch)
       : chromium.launch(receipt.launch)
     const launched = await launchPromise
+    markWorkPhase('browser-launch-end')
     if (lease) {
       context = launched
       browser = context.browser()
@@ -325,6 +354,7 @@ export async function runLocalBrowser(options, scenario) {
       context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
     }
     abort.signal.throwIfAborted()
+    markWorkPhase('context-ready')
     receipt.browserVersion = browser.version()
     if (lease) {
       // Persistent state belongs solely to this game's loopback origin.
@@ -349,10 +379,11 @@ export async function runLocalBrowser(options, scenario) {
     for (const existing of context.pages()) watchPage(existing)
     page = context.pages()[0] ?? (await context.newPage())
     page.setDefaultTimeout(45000)
+    markWorkPhase('page-ready')
     await page.goto(url, { waitUntil: 'domcontentloaded' })
-    await page
-      .getByRole('dialog', { name: /^(Main menu|Start game)$/ })
-      .waitFor({ state: 'visible' })
+    markWorkPhase('navigation-end')
+    await waitForStartupMenu(page, { allowSelector: true })
+    markWorkPhase('startup-menu-ready')
     if (lease) {
       receipt.profile.checkpointAtStart = await readCommittedCheckpoint(page)
       const previous = receipt.profile.previousRun
@@ -368,6 +399,7 @@ export async function runLocalBrowser(options, scenario) {
         throw Error('New task profile unexpectedly contains a checkpoint')
       checkpointIdentityVerified = true
     }
+    markWorkPhase('checkpoint-ready')
     const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
     const openMission = async mission => {
       const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
@@ -385,6 +417,7 @@ export async function runLocalBrowser(options, scenario) {
         window.testScene = window.testSceneRef.current
       })
     }
+    markWorkPhase('scenario-start')
     return scenario({
       browser,
       context,
@@ -412,8 +445,12 @@ export async function runLocalBrowser(options, scenario) {
     // Work never owns the terminal outcome. Late scenario completion after an
     // abort cannot overwrite failure while screenshots or cleanup are pending.
     outcome = { status: 'passed', result }
+    markWorkPhase('work-passed')
+    workPhasesClosed = true
   } catch (error) {
     outcome = { status: 'failed', failure: error.stack ?? String(error) }
+    markWorkPhase('work-failed')
+    workPhasesClosed = true
     if (browser)
       for (const [index, page] of browser
         .contexts()
@@ -424,6 +461,7 @@ export async function runLocalBrowser(options, scenario) {
           .catch(() => {})
       }
   } finally {
+    markPhase('cleanup-start')
     clearTimeout(timer)
     clearTimeout(startupTimer)
     if (receipt.readiness && !receipt.readiness.ready) {
@@ -484,11 +522,13 @@ export async function runLocalBrowser(options, scenario) {
     } catch (error) {
       outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure }
     }
+    markPhase('browser-cleanup-settled')
     try {
       await stopServer(server)
     } catch (error) {
       outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure }
     }
+    markPhase('server-cleanup-settled')
     log.end()
     process.removeListener('SIGINT', onSignal)
     process.removeListener('SIGTERM', onSignal)
@@ -537,9 +577,11 @@ export async function runLocalBrowser(options, scenario) {
         }
     }
     // Detach nested arrays/results from scenario-owned references before writing.
+    markPhase('receipt-finalizing')
     finalReceipt = structuredClone({
       ...receipt,
       ...outcome,
+      ...(phaseTimings ? { phaseTimings } : {}),
       finishedAt: new Date().toISOString(),
       sourceAfter,
     })

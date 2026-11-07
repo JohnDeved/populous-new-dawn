@@ -463,7 +463,7 @@ test('maintained helper provenance pins the current bytes and public controls st
     assert.equal(createHash('sha256').update(read(path)).digest('hex'), sha256, path)
   const page = read('app/page.tsx').toString()
   for (const name of [
-    'Select and focus shaman',
+    'Select shaman',
     'Save checkpoint',
     'Close menu',
     'Pause game',
