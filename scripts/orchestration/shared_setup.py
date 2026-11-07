@@ -135,6 +135,18 @@ def storage_plan(source, shared_root, reserve_bytes, allocation_bytes, *, post_i
     require(not kinds.intersection(('tmpfs', 'ramfs')), 'Shared storage must not be RAM-backed')
     kind = filesystem_type(parents[1])
     spaces = [os.statvfs(p) for p in parents]
+    # Capacity on a read-only mount cannot admit a later installation. Check each
+    # actual destination or nearest existing ancestor, including nested mounts.
+    # This is still a snapshot, not proof that permission or later writes succeed.
+    readonly_flag = getattr(os, 'ST_RDONLY', None)
+    require(type(readonly_flag) is int and readonly_flag > 0,
+            'Read-only filesystem flag is unavailable for storage admission')
+    for parent, space in zip(parents[1:], spaces[1:]):
+        flags = getattr(space, 'f_flag', None)
+        require(type(flags) is int and flags >= 0,
+                f'Filesystem flags are unavailable for storage admission path: {parent}')
+        require(not flags & readonly_flag,
+                f'Read-only filesystem at storage admission path: {parent}')
     available = min(s.f_bavail * s.f_frsize for s in spaces)
     require(available >= allocation_bytes + reserve_bytes,
             'Insufficient capacity for allocation budget plus unchanged reserve')
