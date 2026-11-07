@@ -37,6 +37,7 @@ const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-co
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
 const spellIconScenario = resolve(root, 'scripts/tutorial-browser/spell-icon-states.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
+const pauseStyleScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-style.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const tornadoScenario = resolve(root, 'scripts/check-browser-tornado-appearance.mjs')
@@ -130,6 +131,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
     merge: process.env.GITHUB_SHA ?? null, runId: process.env.GITHUB_RUN_ID ?? null,
     runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null, runnerImage: process.env.ImageOS ?? null,
     runnerImageVersion: process.env.ImageVersion ?? null },
+  pauseStyleScenarioSha256: hash(pauseStyleScenario),
   frontendEscapeScenarioSha256: hash(frontendEscapeScenario),
   recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
   compactMessageScenarioSha256: hash(resolve(root, 'scripts/tutorial-browser/compact-message-layout.mjs')),
@@ -313,6 +315,8 @@ try {
     receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
+  } else if (selectedScenario === 'pause-checkpoint-style') {
+    receipt.pauseCheckpointStyle = await (await import(pathToFileURL(pauseStyleScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
     receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })

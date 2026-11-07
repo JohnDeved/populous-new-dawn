@@ -65,14 +65,23 @@ function entry() {
     review: { reviewer: 'independent', decision: 'ACCEPT', head: oid(2), base: oid(3), sha256: h, file: '/review' },
     workflowHashes: Object.fromEntries(GATES.map(g => [g.workflow, h])), deployment: { kind: 'unverified', reason: 'fixture' } }
 }
-test('parsed resource-nine matrix preserves legacy split allowances without changing other caps or permissions', () => {
+test('current hosted matrix adds only pause style to the historical resource-nine contract', () => {
   const workflow = yaml.load(readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'))
   const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
-  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), GAMEPLAY_RESOURCE_BROWSER_JOBS)
+  const styleJob = ['pause-checkpoint-style', 'Pause checkpoint style browser',
+    'pause-checkpoint-style-browser', 'Validate native and fallback checkpoint scrolling and layout', 15]
+  const pauseIndex = GAMEPLAY_RESOURCE_BROWSER_JOBS.findIndex(([scenario]) => scenario === 'pause-checkpoint-recovery')
+  assert.ok(pauseIndex >= 0)
+  // Historical queue policy remains nine jobs; the current workflow adds exactly this one row.
+  assert.equal(GAMEPLAY_RESOURCE_BROWSER_JOBS.length, 9)
+  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), [
+    ...GAMEPLAY_RESOURCE_BROWSER_JOBS.slice(0, pauseIndex + 1), styleJob,
+    ...GAMEPLAY_RESOURCE_BROWSER_JOBS.slice(pauseIndex + 1),
+  ])
   assert.deepEqual(workflow.on.pull_request.types, ['ready_for_review'])
   assert.deepEqual(workflow.permissions, { contents: 'read' })
   assert.equal(workflow.jobs['tutorial-browser']['runs-on'], 'ubuntu-24.04')
-  assert.equal(new Set(items.map(x => x.artifact)).size, 9)
+  assert.equal(new Set(items.map(x => x.artifact)).size, 10)
   assert.deepEqual(profileSplitBudget, { version: 1, recoveryMs: 180000, mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
   assert.equal(browserCapMs('profile-recovery'), profileSplitBudget.recoveryMs)
   assert.equal(browserCapMs('mission10-profile'), profileSplitBudget.mission10Ms)

@@ -48,11 +48,11 @@ function fixture(skin, panel, count = 3) {
     `return ${sources[skin]}`)(panel, dialog, document, { current: true }, () => {}, () => backs++)
   return {
     buttons, document, outside,
-    press(key, { repeat = false, formControl = false, button = false } = {}) {
+    press(key, { repeat = false, formControl = false, scrollRegion = false, button = false } = {}) {
       keydown({ key, repeat, target: { closest(selector) {
         if (selector === 'button') return button ? outside : null
-        assert.equal(selector, 'input,select,textarea')
-        return formControl ? outside : null
+        assert.equal(selector, skin === 'pause' ? 'input,select,textarea,[tabindex="0"]' : 'input,select,textarea')
+        return formControl || (scrollRegion && selector.includes('[tabindex="0"]')) ? outside : null
       } }, preventDefault() { prevented++ } })
     },
     counts: () => ({ queries, prevented, backs }),
@@ -111,3 +111,14 @@ test('pause form controls retain their native arrow/Home/End behavior', () => {
     assert.deepEqual(ui.counts(), { queries: 0, prevented: 0, backs: 0 })
   }
 })
+
+test('pause checkpoint details retain scrolling keys without row navigation or Back', () => {
+  for (const panel of ['save', 'load'])
+    for (const key of ['ArrowUp', 'ArrowDown', 'Home', 'End']) {
+      const ui = fixture('pause', panel)
+      ui.press(key, { scrollRegion: true })
+      assert.equal(ui.document.activeElement, ui.outside)
+      assert.deepEqual(ui.counts(), { queries: 0, prevented: 0, backs: 0 })
+    }
+})
+

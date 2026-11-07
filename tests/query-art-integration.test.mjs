@@ -57,7 +57,7 @@ test('separate fixed six-minute workflow preserves default matrix and exact uplo
  assert.match(workflow,/metadata <= 8 \* MiB && total <= 24 \* MiB/)
  assert.match(workflow,/screenshots <= 8/);assert.match(workflow,/stat.isFile\(\) && !stat.isSymbolicLink\(\)/)
  assert.match(workflow,/steps.query-bounds.outcome == 'success'/)
- assert.equal((normal.match(/^          - scenario:/gm)||[]).length,9);assert.ok(!normal.includes('query-art-evidence'))
+ assert.equal((normal.match(/^          - scenario:/gm)||[]).length,10);assert.ok(!normal.includes('query-art-evidence'))
 })
 test('actual workflow bounder rejects oversize, extra screenshots, unknown files and symlinks without large allocation',async()=>{
  const {runInNewContext}=await import('node:vm')
