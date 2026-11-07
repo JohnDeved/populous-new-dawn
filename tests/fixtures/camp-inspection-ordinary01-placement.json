@@ -1,0 +1,1299 @@
+{
+  "provenance": {
+    "reportSha256": "dcdd2a379f38ce78c5dea741fe69f7daec5026b2fed57e7df40ec67d90a229b2",
+    "product": "4e8356ef043d9963abd16a840c3246abc972fe48",
+    "qa": "a342caf5a83def163e707376ff7f852554f56593",
+    "phase": "place-camp",
+    "projection": "Exact input fields, construction snapshots and first 30 order records. Commands absent in the recorded construction workers remain absent; no recovered or invented per-worker queues."
+  },
+  "ground": {
+    "x": 816,
+    "y": 405,
+    "anchor": {
+      "x": 41984,
+      "y": 24576
+    }
+  },
+  "records": [
+    {
+      "ordinal": 897,
+      "phase": "place-camp",
+      "kind": "input",
+      "type": "pointerdown",
+      "trusted": true,
+      "canvasTarget": true,
+      "canvasOwned": true,
+      "button": 0,
+      "x": 816,
+      "y": 405,
+      "modifiers": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "before": {
+        "turn": 443,
+        "selected": [
+          54,
+          278,
+          319,
+          281,
+          284,
+          170,
+          173,
+          176,
+          275,
+          1247
+        ],
+        "mode": "camp",
+        "construction": {
+          "camps": [],
+          "workers": []
+        },
+        "orders": {
+          "records": [
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 25344,
+              "b": 33024
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 40192,
+              "b": 23808
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 22,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 6,
+              "flags": 0,
+              "references": 2,
+              "object": 0,
+              "a": 1023,
+              "b": 33844
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 72,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            }
+          ]
+        }
+      },
+      "after": {
+        "turn": 443,
+        "selected": [
+          54,
+          278,
+          319,
+          281,
+          284,
+          170,
+          173,
+          176,
+          275,
+          1247
+        ],
+        "mode": "camp",
+        "construction": {
+          "camps": [],
+          "workers": []
+        },
+        "orders": {
+          "records": [
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 25344,
+              "b": 33024
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 40192,
+              "b": 23808
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 22,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 6,
+              "flags": 0,
+              "references": 2,
+              "object": 0,
+              "a": 1023,
+              "b": 33844
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 72,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "ordinal": 899,
+      "phase": "place-camp",
+      "kind": "input",
+      "type": "pointerup",
+      "trusted": true,
+      "canvasTarget": true,
+      "canvasOwned": true,
+      "button": 0,
+      "x": 816,
+      "y": 405,
+      "modifiers": [
+        false,
+        false,
+        false,
+        false
+      ],
+      "before": {
+        "turn": 443,
+        "selected": [
+          54,
+          278,
+          319,
+          281,
+          284,
+          170,
+          173,
+          176,
+          275,
+          1247
+        ],
+        "mode": "camp",
+        "construction": {
+          "camps": [],
+          "workers": []
+        },
+        "orders": {
+          "records": [
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 25344,
+              "b": 33024
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 40192,
+              "b": 23808
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 22,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 6,
+              "flags": 0,
+              "references": 2,
+              "object": 0,
+              "a": 1023,
+              "b": 33844
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 72,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            }
+          ]
+        }
+      },
+      "after": {
+        "turn": 443,
+        "selected": [
+          54,
+          278,
+          319,
+          281,
+          284,
+          170,
+          173,
+          176,
+          275,
+          1247
+        ],
+        "mode": null,
+        "construction": {
+          "camps": [
+            {
+              "id": 1022,
+              "identity": 900,
+              "kind": "camp",
+              "team": "blue",
+              "x": -99.296875,
+              "z": -104.921875,
+              "anchor": {
+                "x": 41984,
+                "y": 24576
+              },
+              "hp": 260,
+              "progress": 0,
+              "preparation": {
+                "model": 7,
+                "counter": 0,
+                "dirty": true,
+                "revalidate": false,
+                "timeout": 0,
+                "height": 128,
+                "alternateHeight": 0,
+                "work": 0
+              },
+              "builders": [
+                173,
+                176,
+                170,
+                275,
+                278,
+                284,
+                281,
+                319,
+                1247,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "workers": [
+            {
+              "id": 278,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 319,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 281,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 284,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 170,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 173,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 176,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 275,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            },
+            {
+              "id": 1247,
+              "kind": "brave",
+              "team": "blue",
+              "hp": 50,
+              "work": 1022,
+              "inside": null,
+              "cargo": 0,
+              "tree": null,
+              "builder": {
+                "task": 1,
+                "phase": 0,
+                "busy": 0,
+                "restart": true
+              }
+            }
+          ]
+        },
+        "orders": {
+          "records": [
+            {
+              "model": 0,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 0,
+              "b": 0
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 25344,
+              "b": 33024
+            },
+            {
+              "model": 18,
+              "flags": 32,
+              "references": 0,
+              "object": 0,
+              "a": 40192,
+              "b": 23808
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 22,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 6,
+              "flags": 0,
+              "references": 2,
+              "object": 0,
+              "a": 1023,
+              "b": 33844
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 71,
+              "b": 0
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 3,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 72,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 8,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 2,
+              "b": 0
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 0,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 15360,
+              "b": 34304
+            },
+            {
+              "model": 25,
+              "flags": 0,
+              "references": 3,
+              "object": 0,
+              "a": 14848,
+              "b": 35840
+            },
+            {
+              "model": 6,
+              "flags": 0,
+              "references": 9,
+              "object": 0,
+              "a": 1022,
+              "b": 0
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
