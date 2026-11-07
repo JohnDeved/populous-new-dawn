@@ -41,6 +41,12 @@ def validate_metadata(row):
     if 'blobSha'in row:require(type(row['blobSha'])is str and re.fullmatch('[a-f0-9]{40}',row['blobSha']),'Malformed Git OID')
 
 def verify_file(path,row,checkpoint,anchor=None,target=False):
+    """Authenticate bytes and recheck the named parent at completion.
+
+    This is a snapshot, not atomic pathname authentication against concurrent
+    writers. Callers must keep paths stable under their ownership or bind later
+    consumption to the verified descriptor/content instead of reopening the path.
+    """
     validate_metadata(row)
     parent,name=open_parent(path)
     try:
