@@ -10,6 +10,7 @@ import {
 import assets from './original-frontend.json'
 import { frontendBadges, frontendBadgeBounds, frontendBadgePixels } from './frontend-badges'
 import { MenuTooltip } from './menu-tooltip'
+import { ComingSoon } from './coming-soon'
 import type { FrontendAssets } from './frontend-assets'
 import styles from './original-main-menu.module.css'
 import type { CheckpointReadStatus } from './game-store.ts'
@@ -158,6 +159,8 @@ export function OriginalMainMenu({
   const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>(
     'main'
   )
+  const [trailerOpen, setTrailerOpen] = useState(false)
+  const finishTrailer = useCallback(() => setTrailerOpen(false), [])
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
   const [vectorFailures, setVectorFailures] = useState(
@@ -236,26 +239,28 @@ export function OriginalMainMenu({
     draw()
   }, [draw])
   useEffect(() => {
-    const timer = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? undefined
-      : window.setInterval(() => {
-          if (!pointerMode.current || document.hidden) return
-          glowFrame.current = (glowFrame.current + 1) % 8
-          draw()
-        }, 101)
+    const timer =
+      trailerOpen || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? undefined
+        : window.setInterval(() => {
+            if (!pointerMode.current || document.hidden) return
+            glowFrame.current = (glowFrame.current + 1) % 8
+            draw()
+          }, 101)
     return () => {
       if (timer !== undefined) window.clearInterval(timer)
       cancelAnimationFrame(animation.current)
     }
-  }, [draw])
+  }, [draw, trailerOpen])
   useEffect(() => {
+    if (trailerOpen) return
     if (panel === 'main') {
       const previous = [
         ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
       ].find(button => button.getAttribute('aria-label') === returnFocus.current)
       ;(previous ?? first.current)?.focus()
     } else dialog.current?.querySelector<HTMLButtonElement>('[data-panel-back]')?.focus()
-  }, [panel])
+  }, [panel, trailerOpen])
   function back() {
     setPanel('main')
   }
@@ -313,7 +318,7 @@ export function OriginalMainMenu({
     },
     { label: 'Rolling Demo', unavailable: 'Original demo playback is not yet available' },
     { label: 'Credits', unavailable: 'Original credits are not yet restored' },
-    { label: 'Coming Soon', unavailable: 'Original preview is not yet restored' },
+    { label: 'Coming Soon', action: () => setTrailerOpen(true) },
     { label: 'Quit', action: () => setPanel('quit') },
   ]
   return (
@@ -586,6 +591,7 @@ export function OriginalMainMenu({
           </section>
         )}
       </div>
+      {trailerOpen && <ComingSoon onComplete={finishTrailer} />}
     </dialog>
   )
 }

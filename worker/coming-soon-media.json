@@ -1,0 +1,26 @@
+{
+  "bytes": 80054836,
+  "sha256": "60b08ae8032065f01ff4d1f31a88f64df6114675ec5e0bd99f24dcb98f375e60",
+  "parts": [
+    {
+      "path": "/original/coming-soon/trailer-60b08ae8032065f01ff4d1f31a88f64df6114675ec5e0bd99f24dcb98f375e60-00.bin",
+      "bytes": 20971520,
+      "sha256": "351e84f9fdc7da593fa9f409e03df44b675f21b9824a86b6ba4c850438039cbb"
+    },
+    {
+      "path": "/original/coming-soon/trailer-60b08ae8032065f01ff4d1f31a88f64df6114675ec5e0bd99f24dcb98f375e60-01.bin",
+      "bytes": 20971520,
+      "sha256": "ce2bc3247a47a610f688e55348bbf47c7fde54441a116cf965568085b59a26c8"
+    },
+    {
+      "path": "/original/coming-soon/trailer-60b08ae8032065f01ff4d1f31a88f64df6114675ec5e0bd99f24dcb98f375e60-02.bin",
+      "bytes": 20971520,
+      "sha256": "8d7051dc542bfb3261696c2953a9bcd25939fa510d03e7002c2d1464b5676e8f"
+    },
+    {
+      "path": "/original/coming-soon/trailer-60b08ae8032065f01ff4d1f31a88f64df6114675ec5e0bd99f24dcb98f375e60-03.bin",
+      "bytes": 17140276,
+      "sha256": "c103f95386d2ed6430426d4aae8f999a2043dd23296c5c3c462614bf26bec77b"
+    }
+  ]
+}
