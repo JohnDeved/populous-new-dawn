@@ -42,8 +42,9 @@ function fixture(options = {}) {
         request.signal.addEventListener('abort', () => reject(request.signal.reason), { once: true })
       })
     }
-    const bytes = new TextEncoder().encode(options.truncated === index ? parts[index].slice(0, -1) : parts[index])
-    let at = 0, active = true
+    const bytes = new TextEncoder().encode(options.truncated === index ? parts[index].slice(0, -1) :
+      options.overflow === index ? parts[index] + 'X' : parts[index])
+    let at = 0, active = true, emptyTail = options.emptyTail === index
     metrics.active++
     metrics.maxActive = Math.max(metrics.maxActive, metrics.active)
     const finish = () => { if (active) { active = false; metrics.active-- } }
@@ -52,7 +53,13 @@ function fixture(options = {}) {
         metrics.reads++
         if (options.onRead) await options.onRead({ index, at, request })
         if (!active) return
-        if (at === bytes.length) { finish(); controller.close(); return }
+        if (at === bytes.length) {
+          if (emptyTail) { emptyTail = false; controller.enqueue(new Uint8Array()); return }
+          finish()
+          if (options.lateError === index) controller.error(new Error('late part error'))
+          else controller.close()
+          return
+        }
         const end = Math.min(at + (options.chunkSize ?? 2), bytes.length)
         const chunk = bytes.slice(at, end)
         metrics.bytes += chunk.byteLength
@@ -312,4 +319,101 @@ test('invalid importer manifests fail before any upstream URL can be requested',
     assert.throws(() => serveComingSoon(f.request(), f.assets, f.context, f.manifest, f.fixedStream), /Invalid Coming Soon/)
     assert.equal(f.requests.length, 0)
   }
+})
+
+test('full GET rejects final-part surplus regardless of chunk boundaries', async () => {
+  for (const chunkSize of [2, 8, 9]) {
+    const f = fixture({ overflow: 3, chunkSize })
+    await assert.rejects(f.serve().text(), /Trailer part exceeds its declared size/)
+    await f.settled()
+    assert.equal(f.metrics.active, 0)
+    assert.ok(f.bodies.every(body => !body.locked))
+  }
+})
+
+test('part-boundary ranges validate EOF before completing the response', async () => {
+  for (const [range, overflow] of [
+    ['bytes=0-7', 0], ['bytes=4-15', 1], ['bytes=-8', 3], ['bytes=31-', 3],
+  ]) {
+    const f = fixture({ overflow, chunkSize: 8 })
+    await assert.rejects(f.serve({ Range: range }).text(), /Trailer part exceeds its declared size/, range)
+    await f.settled()
+    assert.equal(f.metrics.active, 0)
+    assert.ok(f.bodies.every(body => !body.locked))
+  }
+})
+
+test('interior ranges cancel without consuming an unrequested tail', async () => {
+  for (const chunkSize of [2, 8]) {
+    const f = fixture({ overflow: 0, chunkSize })
+    assert.equal(await f.serve({ Range: 'bytes=0-0' }).text(), 'a')
+    await f.settled()
+    assert.equal(f.metrics.reads, 1)
+    assert.equal(f.metrics.cancelled, 1)
+    assert.equal(f.metrics.active, 0)
+  }
+})
+
+test('empty final chunks are accepted but a late source error rejects completion', async () => {
+  const exact = fixture({ emptyTail: 3 })
+  assert.equal(await exact.serve().text(), exact.full)
+  await exact.settled()
+  assert.equal(exact.metrics.active, 0)
+  const failed = fixture({ lateError: 3 })
+  await assert.rejects(failed.serve().text(), /late part error/)
+  await failed.settled()
+  assert.equal(failed.metrics.active, 0)
+  assert.ok(failed.bodies.every(body => !body.locked))
+})
+
+test('incoming abort cancels a pending terminal EOF read without reporting completion', async () => {
+  let entered
+  const reached = new Promise(resolve => { entered = resolve })
+  const abort = new AbortController()
+  const f = fixture({ parts: ['abcdefgh'], chunkSize: 8,
+    onRead({ at, request }) {
+      if (at !== 8) return
+      entered()
+      return new Promise((resolve, reject) => {
+        if (request.signal.aborted) reject(request.signal.reason)
+        else request.signal.addEventListener('abort', () => reject(request.signal.reason), { once: true })
+      })
+    },
+  })
+  const response = f.serve({}, 'GET', abort.signal)
+  const rejected = assert.rejects(response.text(), /stop terminal read/)
+  await reached
+  abort.abort(new Error('stop terminal read'))
+  await rejected
+  await f.settled()
+  assert.equal(f.metrics.active, 0)
+  assert.equal(f.requests.length, 1)
+  assert.equal(f.requests[0].signal.aborted, true)
+  assert.ok(f.bodies.every(body => !body.locked))
+})
+
+test('Node downstream cancellation releases a pending terminal EOF read', async () => {
+  let entered
+  const reached = new Promise(resolve => { entered = resolve })
+  const f = fixture({ parts: ['abcdefgh'], chunkSize: 8,
+    onRead({ at, request }) {
+      if (at !== 8) return
+      entered()
+      return new Promise((resolve, reject) => {
+        if (request.signal.aborted) reject(request.signal.reason)
+        else request.signal.addEventListener('abort', () => reject(request.signal.reason), { once: true })
+      })
+    },
+  })
+  const response = f.serve()
+  const reader = response.body.getReader()
+  const reading = reader.read()
+  await reached
+  await reader.cancel('consumer stopped before EOF')
+  assert.deepEqual(await reading, { done: true, value: undefined })
+  reader.releaseLock()
+  await f.settled()
+  assert.equal(f.metrics.active, 0)
+  assert.equal(f.requests[0].signal.aborted, true)
+  assert.ok(f.bodies.every(body => !body.locked))
 })

@@ -196,8 +196,22 @@ export function serveComingSoon(
               continue
             }
             const chunk = result.value.subarray(skip, skip + remaining)
+            const reachesPartEnd =
+              consumed === part.bytes && chunk.byteLength === result.value.byteLength - skip
             skip = 0
             remaining -= chunk.byteLength
+            if (!remaining && reachesPartEnd) {
+              // Withhold the final output chunk until a fully consumed part has
+              // ended. Otherwise surplus bytes in a later chunk escape the
+              // size check when successful completion cancels its reader.
+              while (true) {
+                const tail = await reader.read()
+                if (finished) return
+                if (tail.done) break
+                if (tail.value.byteLength)
+                  throw new Error('Trailer part exceeds its declared size')
+              }
+            }
             target.enqueue(chunk)
             if (!remaining) {
               await dispose()
