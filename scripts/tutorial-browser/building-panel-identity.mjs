@@ -6,6 +6,7 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
 import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
+import { observeBuildingPanelPointerTarget } from './building-panel-pointer-target.mjs'
 
 export const buildingPanelIdentityLimitMs = 35000
 
@@ -276,7 +277,9 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
         timing.mark(`${hold}/${boundary}/reuse-precondition:complete`)
         timing.mark(`${hold}/${boundary}/hold-input:start`)
         if (hold === 'pointer') {
-          await panel.hover()
+          const target = await page.evaluate(observeBuildingPanelPointerTarget)
+          assert.ok(target && Number.isFinite(target.x) && Number.isFinite(target.y), 'Expected observed pointer coordinates')
+          await page.mouse.move(target.x, target.y)
         } else {
           await panel.locator('.dismantle-control').focus()
           await page.mouse.move(10, 10)
@@ -289,6 +292,22 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
           if (hold === 'pointer' && document.activeElement instanceof HTMLElement)
             document.activeElement.blur()
           const h = window.buildingIdentity, p = h.panel
+          if (hold === 'pointer') {
+            const expected = h.pointerTargetBefore
+            delete h.pointerTargetBefore
+            if (expected) expected.stop()
+            if (!expected || h !== expected.identity || p !== expected.panel || h.building !== expected.building || h.building.id !== expected.buildingId || h.scene !== expected.scene)
+              throw Error('Observed pointer target identity changed before hold')
+            if (expected.received !== true)
+              throw Error(`Observed pointer target did not receive the expected trusted mouse move: ${expected.eventError ?? 'No matching event was observed'}`)
+            const rect = p.getBoundingClientRect()
+            if (['left', 'top', 'width', 'height'].some(key => rect[key] !== expected[key]) ||
+                window.innerWidth !== expected.viewportWidth || window.innerHeight !== expected.viewportHeight)
+              throw Error('Observed pointer target moved or viewport changed before hold')
+            const hit = document.elementFromPoint(expected.x, expected.y)
+            if (!hit || (hit !== p && !p.contains(hit)))
+              throw Error('Observed pointer target became occluded before hold')
+          }
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
           const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover')
           if (!held || otherHold || !p.isConnected || p.hidden || h.scene.buildingPanels.get(h.building.id) !== p || h.building.team !== 'blue' || !h.scene.visible(h.building) || h.scene.navigationButtons() !== 0)

@@ -3,15 +3,32 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from '../scripts/tutorial-browser/building-panel-precondition.mjs'
+import { observeBuildingPanelPointerTarget } from '../scripts/tutorial-browser/building-panel-pointer-target.mjs'
 
 function fixture() {
+  const rect = { left: 100, top: 100, width: 20, height: 30 }, listeners = new Set()
   const panel = { isConnected: true, hidden: false, style: { display: 'block', visibility: 'visible' },
-    getClientRects: () => [{ width: 20, height: 30 }] }
+    getClientRects: () => [rect], getBoundingClientRect: () => ({ ...rect }) }
   const scene = { buildingPanels: new Map([[7, panel]]) }, building = { id: 7 }
-  const context = { window: { buildingIdentity: { panel, scene, building } },
-    document: { querySelectorAll: () => panel.hidden ? [] : [panel] },
+  const context = { window: { buildingIdentity: { panel, scene, building }, innerWidth: 1440, innerHeight: 1000 },
+    document: { querySelectorAll: () => panel.hidden ? [] : [panel], elementFromPoint: () => panel,
+      addEventListener: (type, callback, options) => {
+        assert.equal(type, 'pointermove')
+        assert.deepEqual({ ...options }, { capture: true, once: true })
+        listeners.add(callback)
+      },
+      removeEventListener: (type, callback, capture) => {
+        assert.equal(type, 'pointermove'); assert.equal(capture, true); listeners.delete(callback)
+      } },
     getComputedStyle: element => element.style, HTMLElement: class {} }
-  return { panel, scene, context }
+  const observePointer = () => {
+    const point = runInNewContext(`(${observeBuildingPanelPointerTarget.toString()})()`, context)
+    for (const listener of [...listeners]) {
+      listeners.delete(listener)
+      listener({ isTrusted: true, pointerType: 'mouse', clientX: point.x, clientY: point.y, target: panel })
+    }
+  }
+  return { panel, scene, context, observePointer }
 }
 function snapshot(context) {
   // Execute the actual serialized reader, not a separately reimplemented predicate.
@@ -57,7 +74,9 @@ test('actual before-hold snapshot rejects identity changing after the initial pr
     renderer: { info: { render: { frame: 9 } } }, viewPoint: { x: 1, z: 2 } })
   assertCurrentBuildingPanel(snapshot(f.context))
   const run = () => runInNewContext(`(${source.slice(start, end)})({hold:'pointer',boundary:'ownership'})`, f.context)
+  f.observePointer()
   assert.equal(run().held, true)
+  f.observePointer()
   f.scene.buildingPanels.set(7, { ...f.panel })
   assert.throws(run, /Expected held, owned and visible positive control/)
 })
@@ -80,7 +99,7 @@ test('scenario checks preconditions before holds and preserves all restoration a
 
 // These execute the actual serialized callbacks. Browser scheduling, input and
 // rendering remain separate hosted gates; queued effects below are supplied.
-function holdFixture() {
+function holdFixture(hold = 'pointer') {
   const f = fixture(), h = f.context.window.buildingIdentity
   const calls = [], focused = new f.context.HTMLElement()
   focused.blur = () => { calls.push('blur'); f.context.document.activeElement = null }
@@ -90,6 +109,7 @@ function holdFixture() {
   h.building.team = 'blue'
   Object.assign(f.scene, { visible: () => true, navigationButtons: () => 0,
     renderer: { info: { render: { frame: 9 } } }, viewPoint: { x: 1, z: 2 } })
+  if (hold === 'pointer') f.observePointer()
   return { ...f, h, calls, focused }
 }
 function actualHoldCallback(name, context, hold = 'pointer', boundary = 'ownership') {
@@ -121,7 +141,7 @@ test('pointer snapshot performs the real blur before reading current identity an
 })
 
 test('focus snapshot does not blur and a failed pointer blur cannot certify a hold', () => {
-  const f = holdFixture()
+  const f = holdFixture('focus')
   f.panel.matches = () => false
   assert.equal(actualHoldCallback('before', f.context, 'focus').held, true)
   assert.deepEqual(f.calls, [])
@@ -164,7 +184,7 @@ test('post-frame callback rejects deferred identity and eligibility effects befo
 
 test('valid post-frame pointer and focus controls still apply the requested ownership boundary', () => {
   for (const hold of ['pointer', 'focus']) {
-    const f = holdFixture()
+    const f = holdFixture(hold)
     f.panel.matches = () => hold === 'pointer'
     actualHoldCallback('before', f.context, hold)
     f.scene.renderer.info.render.frame += 2
@@ -177,7 +197,7 @@ test('valid post-frame pointer and focus controls still apply the requested owne
 
 
 test('focus-hold gaining pointer hover is rejected before the visibility boundary', () => {
-  const f = holdFixture()
+  const f = holdFixture('focus')
   f.panel.matches = () => false
   actualHoldCallback('before', f.context, 'focus')
   f.scene.renderer.info.render.frame += 2
@@ -191,7 +211,7 @@ test('focus-hold gaining pointer hover is rejected before the visibility boundar
 
 test('valid pointer and focus controls apply the supplied visibility boundary without changing ownership', () => {
   for (const hold of ['pointer', 'focus']) {
-    const f = holdFixture(), focusCalls = []
+    const f = holdFixture(hold), focusCalls = []
     let visible = true
     f.panel.matches = () => hold === 'pointer'
     f.scene.visible = () => visible
