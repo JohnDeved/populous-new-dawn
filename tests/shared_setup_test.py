@@ -262,17 +262,78 @@ class SharedSetupTests(unittest.TestCase):
 
     def test_exact_capacity_boundary_includes_reserve_and_allocation(self):
         enough = SimpleNamespace(f_frsize=4096, f_bavail=(RESERVE + ALLOCATION) // 4096,
-                                 f_favail=10000, f_files=10000)
+                                 f_favail=10000, f_files=10000, f_flag=0)
         short = SimpleNamespace(**{**vars(enough), 'f_bavail': enough.f_bavail - 1})
         with mock.patch.object(setup.os, 'statvfs', return_value=short):
             self.assert_unchanged(self.plan, ValueError)
         with mock.patch.object(setup.os, 'statvfs', return_value=enough):
             self.assert_unchanged(self.plan)
 
+    def test_storage_flags_must_be_available_and_unambiguous(self):
+        for flags in (None, '0', False, -1):
+            with self.subTest(flags=flags):
+                space = SimpleNamespace(f_bavail=10**12, f_frsize=4096, f_flag=flags)
+                with mock.patch.object(setup.os, 'statvfs', return_value=space):
+                    self.assert_unchanged(self.plan, ValueError)
+        space = SimpleNamespace(f_bavail=10**12, f_frsize=4096)
+        with mock.patch.object(setup.os, 'statvfs', return_value=space):
+            self.assert_unchanged(self.plan, ValueError)
+        with mock.patch.object(setup.os, 'ST_RDONLY', None):
+            self.assert_unchanged(self.plan, ValueError)
+        with mock.patch.object(setup.os, 'statvfs', return_value=SimpleNamespace(
+                f_bavail=10**12, f_frsize=4096, f_flag=0)):
+            self.assertIsInstance(self.assert_unchanged(self.plan), dict)
+
+    def test_read_only_source_or_higher_ancestor_does_not_block_writable_destinations(self):
+        self.store.mkdir(parents=True)
+        (self.shared / 'pnpm-cache').mkdir()
+        original = os.statvfs
+        queried = []
+
+        def writable_destinations(path):
+            queried.append(path)
+            value = original(path)
+            return SimpleNamespace(f_bavail=10**12, f_frsize=value.f_frsize,
+                                   f_flag=os.ST_RDONLY if path in (self.source, self.root) else 0)
+
+        with mock.patch.object(setup.os, 'statvfs', side_effect=writable_destinations):
+            result = self.assert_unchanged(self.plan)
+        self.assertFalse(result['allocates'])
+        self.assertIn(self.source, queried)
+        self.assertNotIn(self.root, queried)
+        self.assertEqual(set(queried),
+                         {self.source, self.shared, self.store, self.shared / 'pnpm-cache'})
+
+    def test_read_only_destination_or_missing_root_ancestor_is_rejected(self):
+        # Existing source and absent shared root are on the same synthetic device.
+        # A large byte budget must not hide a read-only nearest existing ancestor.
+        original = os.statvfs
+        for existing in (False, True):
+            if existing:
+                self.store.mkdir(parents=True)
+                (self.shared / 'pnpm-cache').mkdir()
+            targets = ((self.root,) if not existing else
+                       (self.shared, self.store, self.shared / 'pnpm-cache'))
+            for target in targets:
+                for post_install in (False, True):
+                    with self.subTest(existing=existing, target=target, post=post_install):
+                        def readonly(path):
+                            value = original(path)
+                            return SimpleNamespace(f_bavail=10**12, f_frsize=value.f_frsize,
+                                                   f_flag=os.ST_RDONLY if path == target else 0)
+                        operation = lambda: setup.storage_plan(
+                            self.source, self.shared, RESERVE,
+                            0 if post_install else ALLOCATION, post_install=post_install)
+                        before = snapshot(self.root)
+                        with mock.patch.object(setup.os, 'statvfs', side_effect=readonly):
+                            with self.assertRaisesRegex(ValueError, 'Read-only filesystem'):
+                                operation()
+                        self.assertEqual(snapshot(self.root), before)
+
     def test_post_install_admission_charges_remaining_reserve_not_spent_allocation(self):
         self.install_fixture()
         enough = SimpleNamespace(f_frsize=4096, f_bavail=RESERVE // 4096,
-                                 f_favail=10000, f_files=10000)
+                                 f_favail=10000, f_files=10000, f_flag=0)
         short = SimpleNamespace(**{**vars(enough), 'f_bavail': enough.f_bavail - 1})
         postcheck = lambda: setup.storage_plan(self.source, self.shared, RESERVE, 0, post_install=True)
         with mock.patch.object(setup.os, 'statvfs', return_value=enough):

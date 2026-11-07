@@ -214,7 +214,12 @@ without refreshing the Git index or lazily fetching missing Git objects. Unrelat
 edits are preserved, not certified as a clean source tree. No pnpm executable, asset
 scan or dependency installation is required. `plan` additionally checks physical,
 nonnested roots, actual/nearest existing filesystem devices, available bytes and
-positive caller-declared allocation and remaining-reserve budgets. Known Linux
+positive caller-declared allocation and remaining-reserve budgets. A read-only
+filesystem flag on any shared/store/cache destination or its nearest existing ancestor
+refuses admission even when free bytes are sufficient. Missing or invalid filesystem
+flags also refuse admission rather than assume writability. This snapshot does not
+prove write permission or reserve capacity against subsequent changes. The source is
+read-only input, and higher ancestors do not override a selected writable mount. Known Linux
 tmpfs/ramfs destinations are refused; an unknown mount type is reported, not treated
 as proof of persistent storage.
 
