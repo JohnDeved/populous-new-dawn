@@ -574,7 +574,7 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
+      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
         if (store.getWorld().outcome.level === tutorialLevel) {
