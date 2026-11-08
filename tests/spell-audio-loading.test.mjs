@@ -105,6 +105,43 @@ test('enable loads and plays the emitted Earthquake, Tornado, Erosion and Volcan
   for (const cue of effectCues) assertEveryVariant(sound, state, cue)
 })
 
+test('literal sound calls in audited effect and building emitters stay loadable', async t => {
+  const { sound, state } = fixture(t)
+  assert.equal(await sound.enable(), true)
+  // This bounded source contract covers literal cue calls, not dynamic callbacks
+  // or live mission reachability. Shared samples need not repeat their cue row.
+  for (const file of ['world-effects.ts', 'spell-effects-runtime.ts',
+    'building-runtime.ts', 'live-building-combat.ts']) {
+    const source = readFileSync(new URL(`../app/${file}`, import.meta.url), 'utf8')
+    const calls = [...source.matchAll(/\bsound\s*\(\s*w,\s*(0x[0-9a-f]+|\d+)\s*,/g)]
+    assert.ok(calls.length, `${file}: expected literal sound emitters`)
+    for (const cue of new Set(calls.map(call => Number(call[1])))) {
+      assertEveryVariant(sound, state, cue)
+    }
+  }
+})
+
+test('new effect samples survive pause and are released on disposal', async t => {
+  const { sound, state } = fixture(t)
+  assert.equal(await sound.enable(), true)
+  const buffer = sound.buffers.get('sound-357'), requests = state.requests.length
+  assert.ok(buffer, 'Swarm effect sample is loaded')
+  await sound.setPaused(true)
+  assert.equal(sound.context.state, 'suspended')
+  assert.equal(sound.buffers.get('sound-357'), buffer)
+  await sound.setPaused(false)
+  assert.equal(sound.context.state, 'running')
+  assert.equal(state.requests.length, requests, 'resume does not reload samples')
+  assertEveryVariant(sound, state, 0xa4)
+  const before = state.starts.length
+  sound.dispose()
+  assert.equal(sound.buffers.size, 0)
+  assert.equal(sound.active.size, 0)
+  assert.ok(state.requests.every(request => request.signal.aborted))
+  assert.equal(sound.cue(0xa4), undefined)
+  assert.equal(state.starts.length, before, 'disposed owner cannot restart an effect')
+})
+
 test('intentionally empty native Shield voice rows stay silent without consuming RNG', async t => {
   const { sound, state } = fixture(t)
   assert.equal(await sound.enable(), true)
@@ -119,15 +156,17 @@ test('intentionally empty native Shield voice rows stay silent without consuming
   }
 })
 
-test('a newly covered sample failure remains visible and a later explicit retry recovers', async t => {
-  const { sound, state, music } = fixture(t)
-  state.failedKey = 'sound-226'
-  await assert.rejects(sound.enable(), /Sound sample failed: sound-226/)
-  assert.equal(sound.enabled, false)
-  assert.equal(sound.loading, null)
-  assert.equal(sound.music, null)
-  state.failedKey = null
-  sound.music = music()
-  assert.equal(await sound.enable(), true)
-  assertEveryVariant(sound, state, SPELL_CAST_VOICES.blue.convertWild)
-})
+for (const [key, cue] of [['sound-226', SPELL_CAST_VOICES.blue.convertWild], ['sound-357', 0xa4]]) {
+  test(`new sample ${key} failure remains visible and an explicit retry recovers`, async t => {
+    const { sound, state, music } = fixture(t)
+    state.failedKey = key
+    await assert.rejects(sound.enable(), { message: `Sound sample failed: ${key}` })
+    assert.equal(sound.enabled, false)
+    assert.equal(sound.loading, null)
+    assert.equal(sound.music, null)
+    state.failedKey = null
+    sound.music = music()
+    assert.equal(await sound.enable(), true)
+    assertEveryVariant(sound, state, cue)
+  })
+}

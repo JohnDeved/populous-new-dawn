@@ -15,12 +15,23 @@ import type { GameScene } from './scene.ts'
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
   ...SPELL_CAST_CUES,
+  0x12, // Building damage and demolition.
   0x15, // Earthquake fissure.
+  0x2a, // Hypnotise effect.
+  0x31, // Invisibility application.
+  0x35, // Invisibility reveal.
+  0x36, // Spy ignition action.
+  0x55, // Firestorm water impact.
   0xa3, // Tornado.
+  0xa4, // Swarm effect.
+  0xa8, // Ghost Army effect.
   0xa9, // Erosion.
+  0xaa, // Swamp effect.
   0xad, // Earthquake rumble.
   0xaf, // Volcano rumble.
   0xb0, // Volcano eruption.
+  0xb4, // Convert Wild effect.
+  0xb6, // Firestorm land impact.
   5, // 0x4d7fd0: opening Wildman conversion
   0x9e, // 0x50c780: opening terrain wave
   0x6a,
