@@ -426,7 +426,8 @@ export function campaignCommand(
       maximum,
       target.id,
       taskSpells,
-      missionSixAttack ? { staging: level.markers[options[1]], spell: options[2] } : {}
+      missionSixAttack ? { staging: level.markers[options[1]], spell: options[2] } : {},
+      id => id
     )
     return
   }
