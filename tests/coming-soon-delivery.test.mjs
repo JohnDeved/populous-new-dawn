@@ -417,3 +417,35 @@ test('Node downstream cancellation releases a pending terminal EOF read', async 
   assert.equal(f.requests[0].signal.aborted, true)
   assert.ok(f.bodies.every(body => !body.locked))
 })
+
+for (const [label, cleanupError] of [
+  ['undefined', undefined], ['null', null], ['false', false], ['zero', 0],
+  ['NaN', NaN], ['empty string', ''], ['Error', new Error('secondary cancel failed')],
+]) for (const range of [undefined, 'bytes=0-3']) {
+  test(`part-integrity failure retains ${label} cleanup rejection (${range ?? 'full GET'})`, async () => {
+    const f = fixture({ parts: ['abcd'], overflow: 0, chunkSize: 5,
+      onCancel() { throw cleanupError },
+    })
+    await assert.rejects(f.serve(range ? { Range: range } : {}).text(), error => {
+      assert.ok(error instanceof AggregateError)
+      assert.equal(error.errors.length, 2)
+      assert.equal(error.errors[0].message, 'Trailer part exceeds its declared size')
+      assert.ok(Object.is(error.errors[1], cleanupError))
+      return true
+    })
+    await f.settled()
+    assert.equal(f.requests.length, 1)
+    assert.equal(f.requests[0].signal.aborted, true)
+    assert.equal(f.metrics.active, 0)
+    assert.ok(f.bodies.every(body => !body.locked))
+  })
+}
+
+test('unexpected cleanup failure after an otherwise valid interior range stays fatal', async () => {
+  const cleanupError = new Error('valid-range cancel failed')
+  const f = fixture({ onCancel() { throw cleanupError } })
+  await assert.rejects(f.serve({ Range: 'bytes=0-0' }).text(), error => error === cleanupError)
+  await f.settled()
+  assert.equal(f.metrics.active, 0)
+  assert.ok(f.bodies.every(body => !body.locked))
+})

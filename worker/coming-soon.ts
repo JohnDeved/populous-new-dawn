@@ -220,8 +220,16 @@ export function serveComingSoon(
             return
           }
         } catch (error) {
-          await dispose(error)
-          target.error(error)
+          let failure = error
+          try {
+            await dispose(error)
+          } catch (cleanupError) {
+            failure = new AggregateError(
+              [error, cleanupError],
+              'Trailer stream failed and upstream cleanup also failed'
+            )
+          }
+          target.error(failure)
         }
       },
       cancel: dispose,
