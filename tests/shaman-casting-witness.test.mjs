@@ -1072,9 +1072,13 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
   const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
     marker = '\n  } finally {\n',
     start = source.lastIndexOf(marker) + marker.length,
-    end = source.indexOf('\n  if (failure) throw failure', start),
-    body = source.slice(start, end).replace(/\n {2}}\s*$/, '')
+    end = source.indexOf('\n  if (failed) throw failure', start),
+    body = source.slice(start, end).replace(/\n {2}}\s*$/, ''),
+    failureStart = source.indexOf('  const recordFailure = error => {'),
+    failureEnd = source.indexOf('\n  const diagnostics =', failureStart),
+    failureOwner = source.slice(failureStart, failureEnd)
   assert.ok(start > 0 && end > start)
+  assert.ok(failureStart >= 0 && failureEnd > failureStart)
   const { assertSpellTestDeadline, closeSpellTestContext } = await import('../scripts/tutorial-browser/spell-test-menu.mjs')
   for (const expired of [false, true]) for (const attempted of [false, true]) for (const retentionFails of [false, true]) {
     const calls = [], original = new Error('original F9 failure'), report = { status: 'failed' },
@@ -1093,7 +1097,7 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
         writeFileSync: (path, bytes) => { assert.equal(path, 'output/f9-cheats.json'); assert.ok(JSON.parse(bytes).contextClosed); calls.push('writeReceipt') },
       }
     const run = new Function(...Object.keys(bindings), 'failure', 'castingRetentionAttempted',
-      `return (async () => { ${body}\nreturn { failure, castingRetentionAttempted } })()`)
+      `return (async () => { let failed = true; ${failureOwner}\n${body}\nreturn { failure, castingRetentionAttempted } })()`)
     const result = await run(...Object.values(bindings), original, attempted)
     assert.equal(result.failure, original)
     assert.equal(result.castingRetentionAttempted, attempted || !expired)
