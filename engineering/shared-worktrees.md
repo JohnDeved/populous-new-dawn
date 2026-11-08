@@ -65,6 +65,18 @@ also fails rather than returning a pass if other allocation consumed the reserve
 partial output is retained. Caller-supplied reserves, output budgets and runtime
 free-space/memory floors are not reduced by the reuse calculation.
 
+Before pool/lock creation and again under the publication lock, `prepare` rejects
+read-only filesystem flags at actual write destinations: the runtime parent, the
+pool for its lock, the blob store when content is missing or new tree hardlinks are
+needed, and the versioned trees directory when a new asset tree is needed. Each check resolves the nearest existing
+parent afresh, including roots appearing while the lock is acquired. Missing or
+invalid flags also refuse admission. Fully reused blob/tree directories and source
+mounts are read-only inputs; a read-only higher ancestor does not override a selected
+writable destination mount. This is a snapshot, not a write-permission probe or
+protection against a later remount. No mount settings are changed, and a refusal
+after lock acquisition retains the newly created pool without materializing runtime
+or CAS files.
+
 Example with explicitly chosen, fresh destinations:
 
 ```sh

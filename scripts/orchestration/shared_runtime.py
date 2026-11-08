@@ -268,6 +268,34 @@ def allocation_budget(state, pool, runtime, scope, records, reused, reserve_byte
             'reserveBytes': reserve_bytes, 'measuredAt': time.time()}
 
 
+def check_allocation_filesystems(pool, runtime, asset_tree, missing_blobs):
+    """Reject read-only destinations without writing a probe or changing mounts."""
+    readonly_flag = getattr(os, 'ST_RDONLY', None)
+    require(type(readonly_flag) is int and readonly_flag > 0,
+            'Read-only filesystem flag is unavailable for allocation admission')
+    # Warm CAS and tree directories are only read. The pool still receives the
+    # writer lock, while an absent directory allocates in its nearest parent.
+    roots = [runtime.parent, pool]
+    new_tree = not (pool / ASSET_TREES / asset_tree).exists()
+    # Publishing another tree adds hardlinks even when all content is reused.
+    if missing_blobs or new_tree:
+        roots.append(pool / 'blobs')
+    if new_tree:
+        roots.append(pool / ASSET_TREES)
+    checked = set()
+    for root in roots:
+        path = physical(root, absent=True)
+        while not path.exists():
+            path = path.parent
+        if path in checked:
+            continue
+        checked.add(path)
+        flags = getattr(os.statvfs(path), 'f_flag', None)
+        require(type(flags) is int and flags >= 0,
+                f'Filesystem flags are unavailable for allocation path: {path}')
+        require(not flags & readonly_flag, f'Read-only allocation filesystem: {path}')
+
+
 def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     state = source_state(source, revision)
     source = Path(state['source'])
@@ -303,6 +331,8 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
         reader.close()
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
     reused = asset_reuse(pool, assets)
+    missing_blobs = any(entry['sha256'] not in reused for entry in assets)
+    check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
     budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
     require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
             'Insufficient destination capacity for new allocations and unchanged reserve')
@@ -321,6 +351,7 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
             physical(path)
             require((path.stat().st_dev, path.stat().st_ino) == identity, 'Allocation filesystem root changed')
         require(asset_reuse(pool, assets) == reused, 'CAS inventory changed during allocation planning')
+        check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
         locked_budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
         require(locked_budget['allocations'] == budget['allocations'] and
                 locked_budget['allocationBlockBytes'] == budget['allocationBlockBytes'],
