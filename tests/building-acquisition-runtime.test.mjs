@@ -172,3 +172,50 @@ test('building start cues use existing preloaded samples through the audio owner
     assert.equal(cueVariant(cue, 1).key, key)
   }
 })
+
+test('authored M4 Tower keeps pending and active current-format checkpoint continuation', () => {
+  const world = createWorld(4), head = vault(world)
+  // Completion fixture enters the existing live Vault caller, not ordinary input.
+  head.reset = false
+  head.forced = true
+  tick(world, 1 / 12)
+  const gift = world.gifts.find(candidate => candidate.reward === 'tower')
+  assert.ok(gift)
+  assert.deepEqual(gift.buildingAcquisition, {
+    mission: 4, head: 1, reward: 0, slot: 0, rewardClass: 2, model: 4,
+    completedTurn: world.turn, serial: gift.id,
+  })
+  assert.equal(gift.frame, 1076, 'the delivered world artwork remains separate')
+  for (let visit = 0; visit < 3; visit++) tick(world, 1 / 12)
+  const pending = migrateCheckpoint(structuredClone(world))
+  assert.equal(pending.gifts.find(candidate => candidate.id === gift.id).phase, 3)
+  for (const current of [world, pending]) for (let visit = 0; visit < 3; visit++) tick(current, 1 / 12)
+  assert.deepEqual(pending.worshipAcquisition.requests, [gift.id])
+  const towerGeometry = { ...geometry, target: { x: 71, y: 232 },
+    targetRect: { x: 48, y: 206, width: 46, height: 52 }, targetHud: { x: 71, y: 232 } }
+  let cues = 0
+  const bridge = { geometry: () => towerGeometry, cue: () => cues++, failed: () => assert.fail() }
+  for (const current of [world, pending]) startPendingWorshipAcquisitions(current, bridge)
+  assert.equal(cues, 4)
+  assert.equal(world.worshipAcquisition.controllers.building.model, 79)
+  for (let ui = 0; ui < 95; ui++) for (const current of [world, pending]) visitWorshipAcquisition(current, () => {})
+  assert.deepEqual(pending.worshipAcquisition, world.worshipAcquisition)
+  const restored = migrateCheckpoint(structuredClone(world))
+  startPendingWorshipAcquisitions(restored, bridge)
+  assert.equal(cues, 4, 'restoring active controllers must not replay the handoff')
+  for (let ui = 0; ui < 150; ui++) {
+    world.paused = restored.paused = ui < 3
+    for (const current of [world, restored]) visitWorshipAcquisition(current, () => {})
+    assert.deepEqual(restored.worshipAcquisition, world.worshipAcquisition)
+    assert.deepEqual(restored.cosmeticRandom, world.cosmeticRandom)
+  }
+  assert.equal(gift.remaining, 76)
+  for (let visit = 7; visit <= 82; visit++) for (const current of [world, restored]) tick(current, 1 / 12)
+  assert.equal(world.unlockedTower, true)
+  assert.equal(restored.unlockedTower, true)
+  assert.equal(restored.gifts.some(candidate => candidate.id === gift.id), false)
+  const restarted = createWorld(4)
+  assert.equal(restarted.unlockedTower, false)
+  assert.equal(restarted.worshipAcquisition.controllers.building, null)
+  assert.deepEqual(restarted.worshipAcquisition.requests, [])
+})

@@ -6,6 +6,7 @@ import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
 import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
 import { templeArt } from './temple-art.ts'
+import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
@@ -456,6 +457,10 @@ export class GameScene {
               name => [name, retryFailedTexture(name), true] as const
             )
           : [],
+      towerAssets =
+        world.outcome.level === towerArt.mission
+          ? [[towerArt.modelAtlas, retryFailedTexture(towerArt.modelAtlas), true] as const]
+          : [],
       preload = (
         [
           ['effects', loadTexture('effects'), false],
@@ -468,6 +473,7 @@ export class GameScene {
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
           ...templeAssets,
+          ...towerAssets,
         ] as const
       ).map(([name, asset, required]) =>
         asset.ready.then(loaded => {
