@@ -51,8 +51,15 @@ export function OriginalCreditsScreen({ screen, presentation, onReturn }: Props)
     })
     playback.current = owner
     returnToMenu.current = back
-    const visibility = () => owner.setPaused(document.hidden || !document.hasFocus())
-    const blur = () => owner.setPaused(true)
+    const heldKeys = new Set<string>()
+    let paused = false
+    const setPaused = (value: boolean) => {
+      if (paused !== value) heldKeys.clear()
+      paused = value
+      owner.setPaused(value)
+    }
+    const visibility = () => setPaused(document.hidden || !document.hasFocus())
+    const blur = () => setPaused(true)
     window.addEventListener('blur', blur)
     window.addEventListener('focus', visibility)
     document.addEventListener('visibilitychange', visibility)
@@ -63,10 +70,15 @@ export function OriginalCreditsScreen({ screen, presentation, onReturn }: Props)
       if (insideBack(event) && event.code !== 'Escape') return
       event.stopPropagation()
       if (event.code === 'Space' || event.code === 'Escape') event.preventDefault()
-      if (!event.repeat) owner.enqueue({ device: 'keyboard', code: event.code, down: true })
+      if (!event.repeat && !paused) {
+        heldKeys.add(event.code)
+        owner.enqueue({ device: 'keyboard', code: event.code, down: true })
+      }
     }
     const keyUp = (event: KeyboardEvent) => {
-      if (insideBack(event) && event.code !== 'Escape') return
+      // A key pressed on Credits still belongs to it after focus moves to Back.
+      const held = heldKeys.delete(event.code)
+      if (insideBack(event) && event.code !== 'Escape' && !held) return
       event.stopPropagation()
       owner.enqueue({ device: 'keyboard', code: event.code, down: false })
     }
@@ -84,8 +96,8 @@ export function OriginalCreditsScreen({ screen, presentation, onReturn }: Props)
       owner.enqueue({ device: 'mouse', code: event.button as 0 | 1 | 2, down: false })
     }
     const pointerCancel = () => {
-      owner.setPaused(true)
-      owner.setPaused(document.hidden || !document.hasFocus())
+      setPaused(true)
+      setPaused(document.hidden || !document.hasFocus())
     }
     const contextMenu = (event: Event) => event.preventDefault()
     host?.addEventListener('keydown', keyDown)
