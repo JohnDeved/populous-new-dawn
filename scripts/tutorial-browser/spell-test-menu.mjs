@@ -85,7 +85,14 @@ export default async function spellTestMenu({ browser, url, output }) {
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
-  let failure, castingRetentionAttempted = false, castingDispatch
+  let failed = false, failure, castingRetentionAttempted = false, castingDispatch
+  const recordFailure = error => {
+    if (failed) return
+    failed = true
+    failure = error
+    report.failure = String(error)
+    report.stack = error?.stack
+  }
   const diagnostics = startSpellTestDiagnostics(page, report)
   const timer = setTimeout(() => {
     castingDispatch?.cancel(Error('F9 episode deadline expired'))
@@ -296,17 +303,15 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.deepEqual(report.errors, [])
     diagnostics.stage('completed')
   } catch (error) {
-    failure = error
-    report.failure = String(error)
-    report.stack = error.stack
+    recordFailure(error)
     report.status = 'failed'
     try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) }
     catch (error) { report.screenshotError = String(error) }
   } finally {
     if (castingDispatch) {
-      castingDispatch.cancel(failure ?? Error('F9 episode cleanup'))
+      castingDispatch.cancel(failed ? failure : Error('F9 episode cleanup'))
       try { await castingDispatch.close() }
-      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+      catch (error) { recordFailure(error) }
     }
     // Retain partial casting observations before context closure, with the same
     // absolute watchdog still active. Retention must never erase the first error.
@@ -319,21 +324,19 @@ export default async function spellTestMenu({ browser, url, output }) {
       }
     } catch (error) {
       report.castingRetentionError = String(error)
-      failure ??= error
-      report.failure ??= String(error)
-      report.stack ??= error.stack
+      recordFailure(error)
     }
     try { await closeSpellTestContext(context, report, started) }
-    catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+    catch (error) { recordFailure(error) }
     finally {
       clearTimeout(timer)
       diagnostics.stop()
       try { assertSpellTestDeadline(report, started) }
-      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
-      report.status = failure ? 'failed' : 'passed'
+      catch (error) { recordFailure(error) }
+      report.status = failed ? 'failed' : 'passed'
       writeFileSync(resolve(output, 'f9-cheats.json'), JSON.stringify(report, null, 2) + '\n')
     }
   }
-  if (failure) throw failure
+  if (failed) throw failure
   return report
 }

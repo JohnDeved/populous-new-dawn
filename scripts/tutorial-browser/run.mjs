@@ -401,7 +401,20 @@ try {
     receipt.cleanupVerified = receipt.queryArtRunnerCleanup.routeConfirmed && receipt.queryArtRunnerCleanup.browser.confirmed && receipt.queryArtRunnerCleanup.server.confirmed
     if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
   } else {
-    try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+    const cleanupErrors = []
+    for (const [owner, close] of [
+      ['context', () => context?.close()],
+      ['browser', () => browser?.close()],
+      ['server', () => server?.close()],
+    ]) {
+      try { await close() } catch (error) { cleanupErrors.push({ owner, error: String(error) }) }
+    }
+    receipt.cleanupVerified = cleanupErrors.length === 0
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = cleanupErrors[0].error
+      receipt.cleanupErrors = cleanupErrors
+      receipt.status = 'failed'; process.exitCode = 1
+    }
   }
   // The original timer is already cleared. Report actual remaining time, even
   // negative, without claiming an independently enforced cleanup deadline.

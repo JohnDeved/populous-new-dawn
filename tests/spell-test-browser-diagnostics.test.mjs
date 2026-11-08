@@ -76,7 +76,7 @@ test('F9 uses one absolute measured-headroom cap without changing readiness or t
   assert.match(source, /try \{ await closeSpellTestContext\(context, report, started\) \}[\s\S]+clearTimeout\(timer\)/,
     'the existing watchdog remains active throughout final cleanup')
   assert.match(source, /page\.setDefaultTimeout\(12000\)/)
-  assert.match(source, /report\.status = failure \? 'failed' : 'passed'/)
+  assert.match(source, /report\.status = failed \? 'failed' : 'passed'/)
   assert.doesNotMatch(source, /report\.status = 'passed'/, 'no success before final cleanup validation')
   for (const phase of ['new game', 'checkpoint load', 'restart'])
     assert.ok(source.includes(`await waitReady('${phase}')`))
