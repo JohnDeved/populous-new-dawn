@@ -135,14 +135,17 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
       const row = cells.get(cell)
       if (!row) return []
       const ordered: CombatTarget[] = []
+      let members: Set<CombatTarget> | undefined
       // Combat scans use dense landscape indices; the native chain API takes
       // packed even-byte X/Y coordinates instead.
       const packedCell = ((cell & 127) << 1) | ((cell >>> 7) << 9)
       for (const indexed of objectsInCell(w.objectCells, packedCell)) {
         const object = objects.get(indexed.id)
-        if (object && row.includes(object)) ordered.push(object)
+        if (object && (members ??= new Set(row)).has(object)) ordered.push(object)
       }
-      return ordered.length ? [...ordered, ...row.filter(o => !ordered.includes(o))] : row
+      if (!ordered.length) return row
+      const included = new Set(ordered)
+      return [...ordered, ...row.filter(o => !included.has(o))]
     },
     buildingAt: cell => {
       const id = w.land.buildingIds[cell] & 1023
