@@ -3,13 +3,18 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { dragSourceProfiles, inspectDragSource } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
+const cameraId = 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1'
+const modalId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1'
 test('all nine historical trusted-main profiles remain exact', () => {
-  assert.equal(dragSourceProfiles.length, 10)
+  assert.equal(dragSourceProfiles.length, 11)
   assert.equal(hash(dragSourceProfiles.slice(0, 9)), '82475e1af1f3f44c1bf7487ddee1071b912e565bee93c1dd31dce703245d5706')
 })
-test('only the exact reviewed complete camera profile is added and frozen', () => {
-  assert.equal(hash(dragSourceProfiles.at(-1)), 'f6c4e97ed81f6ac6fb92cb25c5dd7e5cf0ded8ef73efe6a41e55fb0b72e71e96')
-  assert.equal(dragSourceProfiles.at(-1).slices.length, 23)
+test('the exact reviewed complete camera profile remains at its historical position and frozen', () => {
+  const camera = dragSourceProfiles.find(profile => profile.id === cameraId)
+  assert.ok(camera)
+  assert.strictEqual(camera, dragSourceProfiles[9])
+  assert.equal(hash(camera), 'f6c4e97ed81f6ac6fb92cb25c5dd7e5cf0ded8ef73efe6a41e55fb0b72e71e96')
+  assert.equal(camera.slices.length, 23)
   assert.ok(Object.isFrozen(dragSourceProfiles))
   for (const profile of dragSourceProfiles) {
     assert.ok(Object.isFrozen(profile)); assert.ok(Object.isFrozen(profile.slices))
@@ -35,4 +40,12 @@ test('protected-owner trigger inventory retains exact maintained union and comma
     'scripts/browser-performance/snapshot-drag-observer.mjs', 'tests/browser-snapshot-drag.test.mjs']
   assert.deepEqual([...check.triggerPaths].sort(), [...paths].sort())
   for (const path of paths) assert.ok(check.inputs.some(input => path === input || path.startsWith(`${input}/`)))
+})
+
+test('the exact reviewed modal profile is the sole additive successor', () => {
+  const modal = dragSourceProfiles.find(profile => profile.id === modalId)
+  assert.ok(modal)
+  assert.strictEqual(modal, dragSourceProfiles[10])
+  assert.equal(modal.slices.length, 22)
+  assert.equal(hash(modal), '194a4e3460fa33f3d2ad523da7ebf180a4dde3b3cbd0d02a4a10fc7d14ad9082')
 })
