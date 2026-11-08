@@ -14,6 +14,8 @@ export async function checkSelectorRecovery({ browser, url, output }) {
     for (const release of releases.splice(0)) release()
     await Promise.all(handlers)
   }
+  let result, failed = false, failure
+  const cleanupErrors = []
   try {
     page = await context.newPage()
     page.setDefaultTimeout(15000)
@@ -71,6 +73,7 @@ export async function checkSelectorRecovery({ browser, url, output }) {
       extension.loseContext()
       return extension
     })
+    let extensionFailed = false
     try {
       await retry.waitFor({ state: 'visible' })
       assert.equal(await scene.getAttribute('data-ready'), null)
@@ -83,7 +86,16 @@ export async function checkSelectorRecovery({ browser, url, output }) {
       assert.equal(await scene.evaluate(canvas => getComputedStyle(canvas).visibility), 'visible')
       await page.screenshot({ path: resolve(output, 'selector-context-restored.png') })
       checks.push('actual WebGL loss presents fallback; context restoration recreates the React-owned renderer/effect')
-    } finally { await extension.dispose() }
+    } catch (error) {
+      extensionFailed = true
+      throw error
+    } finally {
+      try { await extension.dispose() }
+      catch (error) {
+        if (extensionFailed) cleanupErrors.push(error)
+        else throw error
+      }
+    }
     await page.keyboard.press('Escape')
     await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
     await openCampaignFromMainMenu(page)
@@ -92,14 +104,26 @@ export async function checkSelectorRecovery({ browser, url, output }) {
     assert.equal(await page.locator('.world-viewport canvas').count(), 0)
     assert.deepEqual(errors, [])
     checks.push('Escape and public New Game reopen a healthy selector without launching gameplay')
-    const result = { status: 'passed', heldRequests: held, pendingMilliseconds, checks,
+    result = { status: 'passed', heldRequests: held, pendingMilliseconds, checks,
       limits: ['Controlled network stall and WEBGL_lose_context fixture', 'Software browser evidence; not hardware performance or native-game timing'] }
-    writeFileSync(resolve(output, 'selector-recovery.json'), JSON.stringify(result, null, 2) + '\n')
-    return result
+  } catch (error) {
+    failed = true
+    failure = error
+    throw error
   } finally {
     try {
       await releaseHeld()
       await page?.unrouteAll({ behavior: 'wait' })
-    } finally { await context.close() }
+    } catch (error) { cleanupErrors.push(error) }
+    try { await context.close() }
+    catch (error) { cleanupErrors.push(error) }
+    if (cleanupErrors.length) {
+      if (failed) throw new AggregateError([failure, ...cleanupErrors],
+        'Selector recovery failed; cleanup also failed', { cause: failure })
+      if (cleanupErrors.length === 1) throw cleanupErrors[0]
+      throw new AggregateError(cleanupErrors, 'Selector recovery cleanup failed', { cause: cleanupErrors[0] })
+    }
   }
+  writeFileSync(resolve(output, 'selector-recovery.json'), JSON.stringify(result, null, 2) + '\n')
+  return result
 }
