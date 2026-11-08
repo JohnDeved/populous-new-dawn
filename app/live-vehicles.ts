@@ -1,5 +1,5 @@
 import { vehicleOrdinaryVisitDeferred } from './vehicle-allocation.ts'
-import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
+import { fillVehicleDriverSeat, seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
 import {
   teamForTribe,
@@ -126,8 +126,9 @@ export function leaveLiveVehicle(
   if (slot < 0) return
   v.apparentTribe ??= tribeForTeam(v.team)
   v.team = teamForTribe(p.tribe)
-  v.passengers.splice(slot, 1)
+  v.passengers[slot] = 0
   v.passengerCount = v.passengers.filter(Boolean).length
+  fillVehicleDriverSeat(v)
   if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
   p.flags2 = (p.flags2 & ~0x4000) >>> 0
@@ -160,8 +161,9 @@ export function removeMissingVehiclePassengers(w: World) {
   for (const vehicle of w.vehicles) {
     // Linked reward templates are detached from ordinary object processing.
     if (!vehicle.active || vehicleOrdinaryVisitDeferred(w, vehicle)) continue
-    vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
-    vehicle.passengerCount = vehicle.passengers.length
+    vehicle.passengers = vehicle.passengers.map(id => people.has(id) ? id : 0)
+    vehicle.passengerCount = vehicle.passengers.filter(Boolean).length
+    fillVehicleDriverSeat(vehicle)
     if (!vehicle.passengerCount) vehicle.speed = -1
   }
 }
@@ -280,13 +282,7 @@ export function selectLiveVehicleDrivers(w: World) {
         v.passengerCount = (v.passengerCount - 1) & 255
       } else if (p.slowTurn) v.navigationFlags |= 2
     }
-    if (!v.passengers[0]) {
-      const slot = v.passengers.findIndex((id, i) => i > 0 && i < capacity && !!id)
-      if (slot !== -1) {
-        v.passengers[0] = v.passengers[slot]
-        v.passengers[slot] = 0
-      }
-    }
+    fillVehicleDriverSeat(v)
     for (let slot = 0; slot < capacity; slot++) {
       const p = person(v.passengers[slot])
       if (!p) continue
