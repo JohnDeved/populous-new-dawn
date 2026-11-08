@@ -437,7 +437,7 @@ test('Options audio preserves actual modal, focus, pause, clock, camera and popu
 test('failed audio ownership preserves the exact evaluated phase snapshot before throwing', async t => {
   const root = fixture(t), file = resolve(root, 'options-audio.json')
   const source = read('scripts/native-ui-evidence/options-audio-control-style.mjs')
-  const match = source.match(/const preserved = (async \(phase, options = \{\}\) => \{[\s\S]+?\n        \})/)
+  const match = source.match(/const preserved = (async \(phase, options = \{\}\) => \{[\s\S]+?\n {8}\})/)
   assert.ok(match, 'Execute the shipped observation callback, not a reconstructed recorder')
   for (const failure of ['focus', 'world', 'popup', 'modal']) {
     const f = audioOwnershipFixture(), before = f.snapshot()
@@ -582,8 +582,8 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(job['runs-on'], 'ubuntu-24.04')
   assert.equal(job['timeout-minutes'], "${{ (inputs.evidence_kind || 'native-ui') == 'material-lifecycle' && 30 || 20 }}")
   assert.deepEqual(workflow.on.workflow_dispatch.inputs.evidence_kind, {
-    description: 'Full native UI, material lifecycle, partial Options controls, or Mission 4 Tower evidence',
-    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection'],
+    description: 'Full native UI, material lifecycle, partial Options controls, Tower, or finite melee capture diagnostic',
+    required: true, default: 'native-ui', type: 'choice', options: ['native-ui', 'material-lifecycle', 'options-controls', 'hud-preference-ssr', 'tower-collection', 'melee-capture-diagnostic'],
   })
   const checkouts = job.steps.filter(step => step.uses?.startsWith('actions/checkout@'))
   assert.equal(checkouts.length, 3); assert.ok(checkouts.every(step => step.with['persist-credentials'] === false))
@@ -596,7 +596,7 @@ test('workflow is isolated read-only manual evidence with default two and opt-in
   assert.equal(checkouts[0].with.ref, '${{ github.workflow_sha }}'); assert.equal(checkouts[2].with.ref, '${{ inputs.candidate_sha }}')
   assert.equal(checkouts[2].with.repository, 'JohnDeved/populous-new-dawn')
   const sparse = checkouts[0].with['sparse-checkout'].trim().split(/\r?\n/).map(line => line.trim())
-  for (const path of ['/scripts/native-ui-evidence/', '/scripts/options-controls-evidence/', '/scripts/tower-collection-evidence/', '/scripts/browser-options-audio.mjs',
+  for (const path of ['/scripts/native-ui-evidence/', '/scripts/options-controls-evidence/', '/scripts/tower-collection-evidence/', '/scripts/melee-capture-evidence/', '/scripts/browser-options-audio.mjs',
     '/scripts/orchestration/dependency-profile.mjs', '/scripts/tutorial-browser/browser-config.mjs',
     '/.github/workflows/native-ui-evidence.yml']) assert.ok(sparse.includes(path), `Missing trusted import: ${path}`)
   assert.equal(checkouts[0].with['sparse-checkout-cone-mode'], false)
@@ -619,7 +619,7 @@ test('workflow validates normalized evidence kind before checkout and routes def
   const validate = value => execFileSync(process.execPath, ['--input-type=module', '-e', code], {
     env: { ...process.env, PND_EVIDENCE_KIND: value }, timeout: 5000, stdio: 'pipe',
   })
-  for (const value of ['native-ui', 'material-lifecycle', 'options-controls', 'tower-collection']) validate(value)
+  for (const value of ['native-ui', 'material-lifecycle', 'options-controls', 'hud-preference-ssr', 'tower-collection', 'melee-capture-diagnostic']) validate(value)
   for (const value of ['', 'unknown', 'native-ui ', 'OPTIONS-CONTROLS']) assert.throws(() => validate(value))
   for (const raw of [undefined, '', 'native-ui']) {
     const resolved = raw || 'native-ui'
@@ -760,7 +760,7 @@ test('Options resize readiness follows both menus frontendScale for compact, des
 
 test('Options capture waits for rendered resize and persists original failed geometry before assertions', async t => {
   const source = read('scripts/native-ui-evidence/options-storage-notice-style.mjs')
-  const match = source.match(/const capture = (async category => \{[\s\S]+?\n        \})\n        await capture/)
+  const match = source.match(/const capture = (async category => \{[\s\S]+?\n {8}\})\n {8}await capture/)
   assert.ok(match, 'Retain the shipped capture callback, not a reconstructed helper')
   const file = resolve(fixture(t), 'options-storage.json'), report = { samples: [], measurements: [] }
   const sample = { copy: 'Storage unavailable', glyphs: 1,

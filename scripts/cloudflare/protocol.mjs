@@ -40,7 +40,7 @@ export function currentPreview(run, pr) {
 }
 export function fixedConfig() {
   return { name: worker, account_id: account, main: './worker/index.js',
-    compatibility_date: '2026-09-17', compatibility_flags: ['nodejs_compat'],
+    compatibility_date: '2026-09-17', compatibility_flags: ['nodejs_compat', 'enable_request_signal'],
     workers_dev: true, preview_urls: true, no_bundle: true,
     rules: [{ type: 'ESModule', globs: ['**/*.js', '**/*.mjs'] }],
     assets: { directory: './client', binding: 'ASSETS' }, images: { binding: 'IMAGES' },
