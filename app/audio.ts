@@ -30,6 +30,7 @@ export const AUDIO_CUES = [
   0xad, // Earthquake rumble.
   0xaf, // Volcano rumble.
   0xb0, // Volcano eruption.
+  0xb3, // Firestorm projectile launch.
   0xb4, // Convert Wild effect.
   0xb6, // Firestorm land impact.
   5, // 0x4d7fd0: opening Wildman conversion

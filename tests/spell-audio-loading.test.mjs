@@ -111,7 +111,7 @@ test('literal sound calls in audited effect and building emitters stay loadable'
   // This bounded source contract covers literal cue calls, not dynamic callbacks
   // or live mission reachability. Shared samples need not repeat their cue row.
   for (const file of ['world-effects.ts', 'spell-effects-runtime.ts',
-    'building-runtime.ts', 'live-building-combat.ts']) {
+    'building-runtime.ts', 'live-building-combat.ts', 'world-turn.ts']) {
     const source = readFileSync(new URL(`../app/${file}`, import.meta.url), 'utf8')
     const calls = [...source.matchAll(/\bsound\s*\(\s*w,\s*(0x[0-9a-f]+|\d+)\s*,/g)]
     assert.ok(calls.length, `${file}: expected literal sound emitters`)
@@ -156,7 +156,8 @@ test('intentionally empty native Shield voice rows stay silent without consuming
   }
 })
 
-for (const [key, cue] of [['sound-226', SPELL_CAST_VOICES.blue.convertWild], ['sound-357', 0xa4]]) {
+for (const [key, cue] of [['sound-226', SPELL_CAST_VOICES.blue.convertWild],
+  ['sound-357', 0xa4], ['sound-9', 0xb3]]) {
   test(`new sample ${key} failure remains visible and an explicit retry recovers`, async t => {
     const { sound, state, music } = fixture(t)
     state.failedKey = key
