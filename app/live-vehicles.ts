@@ -145,6 +145,7 @@ export function leaveLiveVehicle(
 
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
   for (const [slot, id] of v.passengers.entries()) {
+    if (id === 0) continue
     const unit = w.units.find(u => u.id === id),
       // Retiring a route removes its map entry, not the seated native owner.
       p = w.pathfinding.people.get(id) ?? unit?.native

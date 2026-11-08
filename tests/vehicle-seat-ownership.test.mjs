@@ -237,3 +237,89 @@ for (const [label, expected] of [
     ] })), expected)
   })
 }
+
+for (const model of [1, 3]) {
+  test(`model${model} zero seats do not search the unrelated unit roster`, () => {
+    const { w, v, people, capacity } = fixture(model)
+    const id = v.passengers.at(-1), p = people.get(id)
+    v.passengers = Array(capacity).fill(0)
+    v.passengers[0] = id
+    v.passengerCount = 1
+    const unit = { id, native: p, hp: 50 }
+    w.units = [...Array.from({ length: 999 }, (_, i) => ({ id: 5000 + i })), unit]
+    let reads = 0
+    for (const u of w.units) {
+      const value = u.id
+      Object.defineProperty(u, 'id', { get: () => { reads++; return value } })
+    }
+    const lookups = []
+    w.pathfinding.people = { get: key => { lookups.push(key); return key === id ? p : undefined } }
+    const slots = [...v.passengers], position = seats.vehicleSeat(v, 0)
+    live.syncLiveVehiclePassengers(w, v)
+    assert.equal(reads, 1000, 'only the occupied seat searches the roster')
+    assert.deepEqual(lookups, [id], 'empty slots do not request a person')
+    assert.deepEqual({ x: p.x, y: p.y, h: p.h }, position)
+    assert.deepEqual({ x: unit.x, z: unit.z }, ports.browserPosition(position))
+    assert.deepEqual(v.passengers, slots)
+    assert.equal(v.passengerCount, 1)
+  })
+
+  test(`model${model} zero-only seat publication leaves the roster untouched`, () => {
+    const { w, v, capacity } = fixture(model)
+    v.passengers = Array(capacity).fill(0)
+    v.passengerCount = 0
+    let reads = 0, lookups = 0
+    const unit = { get id() { reads++; return 11 }, x: 9, z: 8 }
+    w.units = [unit]
+    w.pathfinding.people = { get: () => { lookups++; return undefined } }
+    live.syncLiveVehiclePassengers(w, v)
+    assert.equal(reads, 0)
+    assert.equal(lookups, 0)
+    assert.deepEqual([unit.x, unit.z], [9, 8])
+    assert.deepEqual(v.passengers, Array(capacity).fill(0))
+    assert.equal(v.passengerCount, 0)
+  })
+
+  test(`model${model} repeated sparse publication retains route fallback and seat index`, () => {
+    const { w, v, people, capacity } = fixture(model)
+    const id = v.passengers.at(-1), unit = w.units.find(u => u.id === id)
+    const original = people.get(id), slots = Array(capacity).fill(0)
+    slots[capacity - 1] = id
+    v.passengers = [...slots]
+    v.passengerCount = 1
+    for (const source of ['route', 'retired', 'replaced']) {
+      if (source === 'retired') w.pathfinding.people.delete(id)
+      if (source === 'replaced') unit.native = { ...original, angle: 123 }
+      v.x += 17
+      v.y -= 11
+      v.heading += 0.1
+      const p = w.pathfinding.people.get(id) ?? unit.native
+      const position = seats.vehicleSeat(v, capacity - 1)
+      live.syncLiveVehiclePassengers(w, v)
+      assert.deepEqual({ x: p.x, y: p.y, h: p.h }, position)
+      assert.deepEqual({ x: unit.x, z: unit.z }, ports.browserPosition(position))
+      assert.equal(unit.heading, Math.PI - (p.angle * Math.PI) / 1024)
+      assert.deepEqual(v.passengers, slots)
+      assert.equal(v.passengerCount, 1)
+      assert.equal(unit.native, source === 'replaced' ? p : original)
+    }
+  })
+
+  test(`model${model} absent nonzero seats still perform their normal lookup`, () => {
+    const { w, v, people, capacity } = fixture(model)
+    const id = v.passengers[0], absent = 90000
+    v.passengers = Array(capacity).fill(0)
+    v.passengers[0] = id
+    v.passengers[capacity - 1] = absent
+    v.passengerCount = 2
+    const lookups = []
+    w.pathfinding.people = { get: key => { lookups.push(key); return people.get(key) } }
+    const slots = [...v.passengers]
+    live.syncLiveVehiclePassengers(w, v)
+    assert.deepEqual(lookups.filter(key => key !== 0), [id, absent])
+    assert.deepEqual(v.passengers, slots)
+    assert.equal(v.passengerCount, 2)
+    const p = people.get(id), position = seats.vehicleSeat(v, 0)
+    assert.deepEqual({ x: p.x, y: p.y, h: p.h }, position)
+  })
+}
