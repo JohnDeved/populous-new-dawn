@@ -925,6 +925,9 @@ test('protected held-drag owners add the cheap regression without changing exist
     for (const path of ['scripts', 'tests/support']) mkdirSync(join(repo, path), { recursive: true })
     put(repo, 'package-lock.json', '{}\n')
     for (const path of paths) put(repo, path, '// fixture\n')
+    const pinnedFixture = 'tests/fixtures/snapshot-drag-pre-modal-scene.json'
+    assert.ok(check.inputs.includes(pinnedFixture), 'Historical source data is fingerprinted')
+    put(repo, pinnedFixture, readFileSync(join(ROOT, pinnedFixture), 'utf8'))
     // One explicit narrow owner and one shared owner; all other owners stay
     // unknown here so their conservative fallback is checked independently too.
     const mapping = JSON.parse(readFileSync(join(repo, 'engineering/project-map.json')))

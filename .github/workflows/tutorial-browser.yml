@@ -16,6 +16,7 @@ on:
       - 'scripts/checkpoint-readback.mjs'
       - 'scripts/local-render/checkpoint-observer.mjs'
       - 'scripts/tutorial-browser/**'
+      - 'scripts/spell-icon-state-evidence.mjs'
       - 'scripts/browser-performance/**'
       - '.github/workflows/tutorial-browser.yml'
       - 'package.json'

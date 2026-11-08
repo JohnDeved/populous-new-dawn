@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Import the authored Mission 1 camp or Mission 3 Temple knowledge body/glow.
+"""Import the authored Mission 1 camp, Mission 3 Temple or Mission 4 Tower knowledge body/glow.
 
-python -B scripts/import-vault-knowledge.py GAME_ROOT [--mission 1|3] [--project-root PROJECT] [--check]
+python -B scripts/import-vault-knowledge.py GAME_ROOT [--mission 1|3|4] [--project-root PROJECT] [--check]
 Owns a dedicated atlas and metadata; never edits an existing shared atlas.
 --check validates canonical decoded pixels and metadata without writing files.
 """
@@ -30,6 +30,12 @@ PRESETS = {
             header='219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0',
             palette='f246c0c22c835208167ae4ad8a4c1f1303691c610a1ff8560edeaf1f7d095f74',
             alpha='d6bb76a8ba8c2613376132fa7b0eec58277254fee4b786129746ed0c96890357'),
+    4: dict(atlas='vault-knowledge-tower', bank=13, suffix='d', model=4,
+            trigger=1, reward=0, body=1076, size=(22, 24), tint=[229, 220, 214],
+            level='82a3511c1b5669ba5b44d8ca9eceeefef51c9c6fa7151f650d96d8870f61abad',
+            header='28423b5c46f3db542852b2a3059b343b255886697f335c38515ad20ffc812e3b',
+            palette='baadb5c8fb8a31d64835db3ddccf85857d11f3cdc8f67e3ae233b4d919967a4f',
+            alpha='853e30988ccffe1d5961888d05f05e7b4c215dba91075fe92f3a4305eaa62489'),
 }
 
 

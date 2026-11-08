@@ -143,11 +143,57 @@ export async function runSpellIconMatrix({ browser, observedBrowser, open, url, 
       await page.mouse.move(500, 900)
       assert.equal(await page.evaluate(() => window.testStore.getWorld().mode), null)
     }
-    const charging = !!state.charging && rules.spellCharging[spell.model].mode !== 2
+    // This matrix explicitly supplies permission bit 256 above, including mode 2.
+    const charging = !!state.charging && !!state.permanent && !state.hovered && !state.disabled
     assert.equal(await card.locator('.native-charge').count(), Number(charging))
-    if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), 12)
+    const expectedChargeWidth = Math.trunc((24 * Math.floor(rules.spellCharging[spell.model].cost / 2)) / rules.spellCharging[spell.model].cost)
+    if (charging) assert.equal(await card.locator('.native-charge > i').last().evaluate(el => parseFloat(el.style.width)), expectedChargeWidth)
     assert.equal(await card.locator('.hud-sprite').count(), rules.spellCharging[spell.model].normalLimit + 1)
+    // Whole-card evidence for the three already-supplied mode-2 charging cases.
+    if (state.name === 'charging' && rules.spellCharging[spell.model].mode === 2) {
+      assert.ok([18, 20, 21].includes(spell.model))
+      assert.ok(charging)
+      const readCard = element => {
+        const rect = node => {
+          const r = node.getBoundingClientRect()
+          return { x: r.x, y: r.y, width: r.width, height: r.height }
+        }
+        return {
+          card: rect(element),
+          fills: [...element.querySelectorAll('.native-charge > i')].map(node => ({
+            box: rect(node), width: node.style.width, color: getComputedStyle(node).backgroundColor,
+          })),
+          disabled: element.getAttribute('aria-disabled'),
+          pressed: element.getAttribute('aria-pressed'),
+        }
+      }
+      await card.scrollIntoViewIfNeeded()
+      assert.equal(report.viewport.dpr, 1, 'Whole-card pixel binding requires the existing DPR1 matrix')
+      const before = await card.evaluate(readCard)
+      assert.ok(before.card.width > 0 && before.card.height > 0)
+      assert.ok(before.fills.length > 0)
+      const cards = report.mode2ChargeCards ??= []
+      assert.ok(cards.length < 3 && !cards.some(entry => entry.model === spell.model))
+      const png = await card.screenshot()
+      assert.ok(png.length >= 24 && png.length <= 256 * 1024, 'Mode-2 whole-card PNG byte cap')
+      assert.ok(cards.reduce((total, entry) => total + entry.bytes, 0) + png.length <= 768 * 1024)
+      assert.equal(png.subarray(0, 8).toString('hex'), '89504e470d0a1a0a')
+      assert.equal(png.subarray(12, 16).toString('ascii'), 'IHDR')
+      const width = png.readUInt32BE(16), height = png.readUInt32BE(20)
+      assert.ok(width > 0 && height > 0 && width <= 512 && height <= 512)
+      assert.equal(width, Math.ceil(before.card.x + before.card.width) - Math.floor(before.card.x))
+      assert.equal(height, Math.ceil(before.card.y + before.card.height) - Math.floor(before.card.y))
+      const after = await card.evaluate(readCard)
+      assert.deepEqual(after, before, 'Mode-2 card geometry/fill state changed during capture')
+      const filename = `spell-mode2-charge-card-${spell.model}.png`
+      writeFileSync(join(output, filename), png, { flag: 'wx' })
+      cards.push({ model: spell.model, spell: spell.id, state: state.name, filename,
+        bytes: png.length, sha256: sha256(png), width, height, before, after })
+      save()
+    }
     await capture(card, fixture.icons[spell.model][state.icon], state.name, spell.id, state.frame)
   }
+  if (partition.states.includes('charging'))
+    assert.deepEqual(report.mode2ChargeCards?.map(entry => entry.model).sort((a, b) => a - b), [18, 20, 21])
   assertSpellIconInventory(report.states, SPELLS, episode)
 }

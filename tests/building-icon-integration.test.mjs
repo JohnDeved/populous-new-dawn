@@ -22,7 +22,7 @@ test('exact-head Ready same-repository selection rejects stale labels, forks and
 test('icon is a fixed180s scenario with no initial context or generic timer, existing launch remains owned',()=>{
  assert.ok(browserScenarios.includes('building-icon-evidence'));assert.equal(browserCapMs('building-icon-evidence'),180000)
  assert.ok(source.includes("else if (selectedScenario === 'building-icon-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }"))
- assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'building-icon-evidence'].includes(selectedScenario)"))
+ assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence'].includes(selectedScenario)"))
  assert.ok(source.includes("if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {"))
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'));assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
 })

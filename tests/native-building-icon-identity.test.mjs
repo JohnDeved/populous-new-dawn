@@ -40,9 +40,9 @@ test('only icon rendering changes: page handlers, roster and geometry retain exa
   assert.equal(page.split('<BuildingIcon kind={b.id} />').length, 2)
   const restored = page.replace("import { BuildingIcon } from './building-icon'\n\n", '')
     .replace('<BuildingIcon kind={b.id} />', "<HudSprite\n                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}\n                  />")
-  assert.equal(hash(restored), '4a8b46602486e8ad3bce5663b1310e3652b32f22fc3a580dcf21c4ebac743934')
+  assert.equal(hash(restored), '12b2bdca7afce4061eb507ccc86286a9962b9d8b320c5abe50d056b7385d3c1f')
   assert.equal(hash(read('app/world-rules.ts')), '5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a')
-  assert.equal(hash(read('app/globals.css')), '8c8a1ea5fd12a90e48db70cc89c3b9e08aa9522d92c8d26f7db9bb2cf733ebe9')
+  assert.equal(hash(read('app/globals.css')), 'd8c1d463c3e21f19311336bcec94ca9d9a42fd8867772447c1a19c6e80c8bb2d')
 })
 
 test('unsupported prison has no fabricated icon or state fallback', () => {

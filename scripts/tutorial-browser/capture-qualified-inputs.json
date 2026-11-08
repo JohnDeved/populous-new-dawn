@@ -5,7 +5,7 @@
   "node_modules/playwright-core/lib/bootstrap.js": "4637f4dbfef9cfc01baeb5f5d2cb63fa0901522c96915ea2227290558d27123e",
   "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
   "node_modules/playwright-core/lib/utilsBundle.js": "2d1ccc01d21b7d54ca99a6305991d7fb6e072ea4e725d7fec5eb6184188c52c9",
-  "scripts/tutorial-browser/run.mjs": "996610d617446303af520efbd1bc1ee315bbc0c807c84ef2dfc5d66388c5f170",
+  "scripts/tutorial-browser/run.mjs": "fd2030f9d62e1fb55d6ab190b0ab3ca685c7f0da2869014250f545e9289e95e9",
   "scripts/tutorial-browser/capture-descendant-environment.mjs": "ad1f0214d3850d102fc366121ecd39256acda44e45a6e367eab3dfe55f3c966d",
   "scripts/tutorial-browser/capture-protocol-window.mjs": "720280e7ee6a7a2d9a57675598d89d07a13bb9cad2528ec1910b36585ab0594c",
   "scripts/tutorial-browser/capture-protocol-collector.mjs": "a6df465cd6f576b052891ff0df34b6602cfa5efc19507a68fbdf7fa2a0ae7d46",

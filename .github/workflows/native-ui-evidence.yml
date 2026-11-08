@@ -7,14 +7,22 @@ on:
         description: Exact reviewed same-repository UI candidate commit (40 lowercase hex characters)
         required: true
         type: string
+      infrastructure_sha:
+        description: Exact approved main infrastructure SHA (required for hud-preference-ssr only)
+        required: false
+        type: string
       evidence_kind:
-        description: Existing UI episodes or reviewed exact PR722 material lifecycle
+        description: Full native UI, material lifecycle, partial Options controls, Tower, or finite melee capture diagnostic
         required: true
         default: native-ui
         type: choice
         options:
           - native-ui
           - material-lifecycle
+          - options-controls
+          - hud-preference-ssr
+          - tower-collection
+          - melee-capture-diagnostic
 
 permissions:
   contents: read
@@ -27,10 +35,11 @@ jobs:
   evidence:
     name: Native UI evidence (not Full check)
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.evidence_kind == 'material-lifecycle' && 30 || 20 }}
+    timeout-minutes: ${{ (inputs.evidence_kind || 'native-ui') == 'material-lifecycle' && 30 || 20 }}
     env:
       PND_EVIDENCE_KIND: ${{ inputs.evidence_kind || 'native-ui' }}
       PND_UI_CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+      PND_HUD_INFRASTRUCTURE_SHA: ${{ inputs.infrastructure_sha }}
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,6 +47,9 @@ jobs:
       NODE_V8_COVERAGE: ''
       WRANGLER_SEND_METRICS: 'false'
     steps:
+      - name: Validate normalized evidence kind before checkout or install
+        run: |
+          node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls', 'hud-preference-ssr', 'tower-collection', 'melee-capture-diagnostic'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
       - name: Check out reviewed default-branch evidence infrastructure
         id: infrastructure
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -49,6 +61,10 @@ jobs:
           sparse-checkout: |
             /scripts/native-ui-evidence/
             /scripts/material-lifecycle-evidence/
+            /scripts/options-controls-evidence/
+            /scripts/hud-preference-ssr-evidence/
+            /scripts/tower-collection-evidence/
+            /scripts/melee-capture-evidence/
             /scripts/orchestration/shared_execution.py
             /scripts/orchestration/shared_runtime.py
             /scripts/orchestration/shared_setup.py
@@ -67,8 +83,11 @@ jobs:
       - name: Require this workflow on main with an exact separate candidate
         run: |
           node --input-type=module -e "import { manualIdentity } from './evidence-infrastructure/scripts/native-ui-evidence/identity.mjs'; console.log(JSON.stringify(manualIdentity(process.env)))"
+      - name: Admit exact hosted HUD infrastructure before candidate setup
+        if: ${{ env.PND_EVIDENCE_KIND == 'hud-preference-ssr' }}
+        run: node evidence-infrastructure/scripts/hud-preference-ssr-evidence/admission.mjs
       - name: Check out pinned reviewed material containment helpers
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: JohnDeved/populous-new-dawn
@@ -83,7 +102,7 @@ jobs:
             /scripts/orchestration/shared_workspace.py
             /scripts/orchestration/state_serialization.py
       - name: Initialize exact material job using reviewed infrastructure
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         run: python3 -I -B evidence-infrastructure/scripts/material-lifecycle-evidence/hosted_setup.py initialize
       - name: Check out exact candidate (not a synthetic merge)
         id: candidate
@@ -118,22 +137,60 @@ jobs:
           printf 'Candidate package manager: %s\n' "$manager"
           printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           test -x /opt/google/chrome/chrome
-          /opt/google/chrome/chrome --version
+          if [ "$PND_EVIDENCE_KIND" = hud-preference-ssr ]; then
+            chrome_version="$(/opt/google/chrome/chrome --version)"
+            printf '%s\n' "$chrome_version"
+            case "$chrome_version" in
+              'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ')
+                printf 'PND_HUD_CHROME_VERSION=%s\n' 'Google Chrome 156.0.8078.79' >> "$GITHUB_ENV"
+                ;;
+              *) printf 'Unreviewed Chrome version presentation\n' >&2; exit 1 ;;
+            esac
+          else
+            /opt/google/chrome/chrome --version
+          fi
           node --version
           if [ "$manager" = pnpm@11.25.0 ]; then pnpm --version; else npm --version; fi
       - name: Acquire pinned material browser data (no launch)
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         timeout-minutes: 3
         run: python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" acquire
       - name: Qualify actual material tools and run one reviewed lifecycle attempt
-        if: ${{ inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         timeout-minutes: 13
         run: python3 -I -B "$PND_MATERIAL_TOOLS/material/hosted_setup.py" finalize
       - name: Build candidate Home and run all nine mandatory UI episodes
-        if: ${{ inputs.evidence_kind != 'material-lifecycle' }}
+        if: ${{ env.PND_EVIDENCE_KIND == 'native-ui' }}
         run: |
           node --max-old-space-size=768 evidence-infrastructure/scripts/native-ui-evidence/run.mjs \
             "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/native-ui-evidence" "$GITHUB_WORKSPACE/native-ui-dist"
+      - name: Build candidate Home and run partial Options controls evidence
+        if: ${{ env.PND_EVIDENCE_KIND == 'options-controls' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/options-controls-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/options-controls-evidence" "$GITHUB_WORKSPACE/options-controls-dist"
+      - name: Bind exact hosted HUD source and runtime without launching Chrome
+        if: ${{ env.PND_EVIDENCE_KIND == 'hud-preference-ssr' }}
+        timeout-minutes: 4
+        run: |
+          node --max-old-space-size=256 evidence-infrastructure/scripts/hud-preference-ssr-evidence/prepare.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/hud-preference-ssr"
+      - name: Run one bounded sandboxed fixed-preview HUD and SSR attempt
+        if: ${{ env.PND_EVIDENCE_KIND == 'hud-preference-ssr' }}
+        timeout-minutes: 5
+        run: |
+          /usr/bin/python3 -I -S -B evidence-infrastructure/scripts/hud-preference-ssr-evidence/launch.py \
+            "$GITHUB_WORKSPACE/outputs/hud-preference-ssr"
+      - name: Build candidate Home and verify Mission 4 Tower collection and checkpoint
+        if: ${{ env.PND_EVIDENCE_KIND == 'tower-collection' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/tower-collection-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/tower-collection-evidence" "$GITHUB_WORKSPACE/tower-collection-dist"
+      - name: Build candidate Home and run one finite melee capture diagnostic
+        if: ${{ env.PND_EVIDENCE_KIND == 'melee-capture-diagnostic' }}
+        run: |
+          node --max-old-space-size=768 evidence-infrastructure/scripts/melee-capture-evidence/run.mjs \
+            "$GITHUB_WORKSPACE/candidate" "$GITHUB_WORKSPACE/outputs/melee-capture-diagnostic" "$GITHUB_WORKSPACE/melee-capture-dist"
       - name: Reject candidate tracked input mutation
         if: ${{ always() && steps.candidate.outcome == 'success' }}
         working-directory: candidate
@@ -143,7 +200,7 @@ jobs:
         working-directory: evidence-infrastructure
         run: git diff --exit-code HEAD --
       - name: Retain bounded raw receipts and screenshots
-        if: ${{ always() && inputs.evidence_kind != 'material-lifecycle' }}
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'native-ui' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: native-ui-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
@@ -155,11 +212,83 @@ jobs:
           retention-days: 7
 
       - name: Retain material qualification, raw receipts and screenshots
-        if: ${{ always() && inputs.evidence_kind == 'material-lifecycle' }}
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'material-lifecycle' }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: material-lifecycle-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: outputs/material-lifecycle
           include-hidden-files: true
           if-no-files-found: warn
+          retention-days: 7
+
+      - name: Retain partial Options controls receipts and screenshots
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'options-controls' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: options-controls-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/options-controls-evidence/**/*.json
+            outputs/options-controls-evidence/**/*.log
+            outputs/options-controls-evidence/**/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Bound Tower evidence before upload
+        id: tower-bounds
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'tower-collection' && steps.infrastructure.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync } from 'node:fs'
+          import { artifactInventory } from './evidence-infrastructure/scripts/tower-collection-evidence/policy.mjs'
+          const output = 'outputs/tower-collection-evidence'
+          if (existsSync(output)) artifactInventory(output)
+          NODE
+      - name: Retain bounded Tower collection receipts and screenshots
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'tower-collection' && steps.tower-bounds.outcome == 'success' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: tower-collection-evidence-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/tower-collection-evidence/**/*.json
+            outputs/tower-collection-evidence/**/*.log
+            outputs/tower-collection-evidence/**/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+
+      - name: Bound melee capture evidence before upload
+        id: capture-bounds
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'melee-capture-diagnostic' && steps.infrastructure.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { existsSync } from 'node:fs'
+          import { artifactInventory } from './evidence-infrastructure/scripts/melee-capture-evidence/policy.mjs'
+          const output = 'outputs/melee-capture-diagnostic'
+          if (existsSync(output)) artifactInventory(output)
+          NODE
+      - name: Retain bounded melee capture receipts and images
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'melee-capture-diagnostic' && steps.capture-bounds.outcome == 'success' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: melee-capture-diagnostic-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/melee-capture-diagnostic/**/*.json
+            outputs/melee-capture-diagnostic/**/*.log
+            outputs/melee-capture-diagnostic/**/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Bound complete HUD artifact payload before upload
+        id: hud-bounds
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'hud-preference-ssr' && steps.infrastructure.outcome == 'success' }}
+        run: |
+          /usr/bin/python3 -I -S -B evidence-infrastructure/scripts/hud-preference-ssr-evidence/launch.py \
+            "$GITHUB_WORKSPACE/outputs/hud-preference-ssr" --inventory-only
+      - name: Retain bounded HUD HTML, PNG and source-bound receipts
+        if: ${{ always() && env.PND_EVIDENCE_KIND == 'hud-preference-ssr' && steps.hud-bounds.outputs.upload_safe == 'true' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: hud-preference-ssr-${{ inputs.candidate_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: outputs/hud-preference-ssr/payload
+          if-no-files-found: error
           retention-days: 7

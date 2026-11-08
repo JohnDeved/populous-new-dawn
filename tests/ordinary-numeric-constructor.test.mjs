@@ -181,6 +181,7 @@ test('real constructor owns first null-index query, production render and perman
   const doc = new DomEventTarget()
   doc.defaultView = new DomEventTarget()
   set('document', doc)
+  set('window', doc.defaultView)
   Object.assign(doc, {
     createElement: () => new Element(doc),
     createElementNS: () => new Element(doc),
@@ -249,6 +250,7 @@ test('real constructor owns first null-index query, production render and perman
     for (const name of ['pointerover', 'pointermove', 'pointerdown', 'pointerup', 'focusin', 'visibilitychange', 'keydown'])
       assert.equal(getEventListeners(doc, name).length, 0, `Disposed document listener: ${name}`)
     assert.equal(getEventListeners(doc.defaultView, 'blur').length, 0)
+    assert.equal(getEventListeners(doc.defaultView, 'focus').length, 0)
     THREE.TextureLoader.prototype.load = oldLoad
     for (const [name, descriptor] of saved) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
