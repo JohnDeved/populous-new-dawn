@@ -16,7 +16,7 @@
     "    assert.equal(receipt.queryArt.status, 'passed', 'Query art evidence incomplete or failed')",
     "  assert.equal(receipt.browserTimedOut, undefined)",
     "  assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')",
-    "  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }",
+    "  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = failureMessage(e); receipt.status = 'failed'; process.exitCode = 1 }",
     "      assert.equal(hash(resolve(out, 'm2-checkpoint-transfer.json')), m2Fixture.receipt.transferSha256)",
     "      assert.equal(hash(resolve(out, 'm2-checkpoint.v8')), m2Fixture.receipt.checkpointSha256)"
   ],

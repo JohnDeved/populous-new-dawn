@@ -9,9 +9,13 @@ const end = source.lastIndexOf('\n  }\n', boundary)
 assert.ok(start > source.indexOf('} finally {') && end > start && boundary > end)
 // Execute the actual ordinary-owner cleanup block with supplied close ports.
 // No browser, server, runner import or full lifecycle acceptance is implied.
+const helperStart = source.indexOf('function failureMessage(')
+const helperEnd = source.indexOf('// Keep the admission token', helperStart)
+const helpers = helperStart < 0 ? '' : source.slice(helperStart, helperEnd)
+assert.ok(helperStart < 0 || helperEnd > helperStart)
 const cleanup = new (Object.getPrototypeOf(async function () {}).constructor)(
   'context', 'browser', 'server', 'receipt', 'process',
-  source.slice(start + '  } else {\n'.length, end),
+  helpers + source.slice(start + '  } else {\n'.length, end),
 )
 const owners = ['context', 'browser', 'server']
 const reasons = [undefined, null, false, 0, NaN, '', 0n, Symbol('close'), new Error('close'), { detail: 'close' }]
