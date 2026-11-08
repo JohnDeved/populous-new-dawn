@@ -12,7 +12,11 @@ import { StartupLogo } from './startup-logo'
 import { hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
 import { flushSync } from 'react-dom'
-import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
+import type {
+  WorshipAcquisitionFamily,
+  WorshipAcquisitionGeometry,
+  WorshipTargetModel,
+} from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
 
 import { MinimapFrame } from './minimap-frame-view'
@@ -163,10 +167,12 @@ export default function Home() {
   const hudPanel = useRef<HTMLElement>(null)
   const spellButtons = useRef(new Map<number, HTMLButtonElement>())
   const campButton = useRef<HTMLButtonElement>(null),
-    templeButton = useRef<HTMLButtonElement>(null)
+    templeButton = useRef<HTMLButtonElement>(null),
+    towerButton = useRef<HTMLButtonElement>(null)
   const buildingButtonRefs = new Map([
     ['camp', campButton],
     ['temple', templeButton],
+    ['tower', towerButton],
   ])
   const followerPress = useRef<EventTarget | null>(null)
   const nearbyPress = useRef<{
@@ -317,11 +323,16 @@ export default function Home() {
   const measureWorshipHud = useCallback(
     (
       model: WorshipTargetModel,
+      family: WorshipAcquisitionFamily,
       fallback?: WorshipAcquisitionGeometry
     ): WorshipHudGeometry | null => {
-      let button: HTMLButtonElement | null | undefined = spellButtons.current.get(model)
-      if (model === 7) button = campButton.current
+      // Building and spell IDs overlap. Select within the source family even
+      // while its allocated control is knowledge-disabled or its tab is detached.
+      let button: HTMLButtonElement | null | undefined
+      if (family === 'spell') button = spellButtons.current.get(model)
+      else if (model === 4) button = towerButton.current
       else if (model === 5) button = templeButton.current
+      else if (model === 7) button = campButton.current
       const root = shell.current,
         panel = hudPanel.current,
         view = viewport.current
@@ -447,16 +458,16 @@ export default function Home() {
     if (startup !== 'playing') return
     let disposed = false,
       scene: GameScene | null = null
-    const selectAcquisitionPanel = (model: WorshipTargetModel) => {
+    const selectAcquisitionPanel = (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => {
       if (disposed || store.getWorld() !== world) return null
       // The scene task owns this synchronous commit; React does not call it
       // during render. Automatic native selection preserves spell/build mode.
       flushSync(() => {
-        setTab(model === 7 || model === 5 ? 'buildings' : 'spells')
+        setTab(family === 'building' ? 'buildings' : 'spells')
         setHover(null)
         update()
       })
-      return measureWorshipHud(model)
+      return measureWorshipHud(model, family)
     }
     if (window.innerWidth < 900)
       store.change(w => {

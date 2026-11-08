@@ -80,7 +80,7 @@ export interface WorshipPulse extends DrawBinding {
   remaining: number
 }
 interface DrawBinding {
-  family?: WorshipAcquisitionFamily
+  family: WorshipAcquisitionFamily
   giftId?: number
   model: WorshipTargetModel
   geometry: WorshipAcquisitionGeometry

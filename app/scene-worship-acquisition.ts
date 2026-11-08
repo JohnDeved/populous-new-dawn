@@ -15,6 +15,7 @@ import {
 import {
   getWorshipAcquisitionDrawCommands,
   type WorshipAcquisitionDrawCommand,
+  type WorshipAcquisitionFamily,
   type WorshipAcquisitionGeometry,
   type WorshipPoint,
   type WorshipRect,
@@ -30,15 +31,22 @@ import effects from './original-effects.json'
 import bodyArt from './original-worship-acquisition.json'
 
 export interface WorshipHudBridge {
-  select: (model: WorshipTargetModel) => WorshipHudGeometry | null
+  select: (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => WorshipHudGeometry | null
   measure: (
     model: WorshipTargetModel,
+    family: WorshipAcquisitionFamily,
     fallback: WorshipAcquisitionGeometry
   ) => WorshipHudGeometry | null
 }
 
 export class WorshipAcquisitionPresentation {
-  readonly diagnostics: { gift: number; model: number; turn: number; reason: string }[] = []
+  readonly diagnostics: {
+    gift: number
+    model: number
+    family: WorshipAcquisitionFamily
+    turn: number
+    reason: string
+  }[] = []
   private anchors = new Map<
     number,
     { point: WorshipPoint; viewport: WorshipRect; valid: boolean }
@@ -65,9 +73,9 @@ export class WorshipAcquisitionPresentation {
     scene.container.parentElement!.appendChild(this.canvas)
   }
 
-  private failed(gift: number, model: number, reason: string) {
+  private failed(gift: number, model: number, family: WorshipAcquisitionFamily, reason: string) {
     if (this.diagnostics.some(entry => entry.gift === gift && entry.reason === reason)) return
-    this.diagnostics.push({ gift, model, turn: this.scene.world.turn, reason })
+    this.diagnostics.push({ gift, model, family, turn: this.scene.world.turn, reason })
     this.canvas.dataset.worshipFaults = String(this.diagnostics.length)
   }
 
@@ -76,7 +84,8 @@ export class WorshipAcquisitionPresentation {
       cue: cue => this.scene.onSound(cue),
       geometry: gift => {
         const current = this.bridge?.select(
-          (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model
+          (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model,
+          gift.buildingAcquisition ? 'building' : 'spell'
         )
         return current ? worshipHandoffGeometry(current, this.anchors.get(gift.id)) : null
       },
@@ -84,24 +93,26 @@ export class WorshipAcquisitionPresentation {
         this.failed(
           gift.id,
           (gift.buildingAcquisition ?? gift.ordinaryWorship)!.model,
+          gift.buildingAcquisition ? 'building' : 'spell',
           'handoff geometry'
         ),
     })
   }
 
   visit() {
-    visitWorshipAcquisition(this.scene.world, model => {
+    visitWorshipAcquisition(this.scene.world, (model, family) => {
       try {
-        if (this.bridge?.select(model)) return
+        if (this.bridge?.select(model, family)) return
       } catch {
         // The gift clamp still belongs to this visit when its HUD is detached.
       }
       this.failed(
-        (model === 7 || model === 5
+        (family === 'building'
           ? this.scene.world.worshipAcquisition.controllers.building
           : this.scene.world.worshipAcquisition.controllers.spell
         )?.giftId ?? -1,
         model,
+        family,
         'arrival geometry'
       )
     })
@@ -235,7 +246,10 @@ export class WorshipAcquisitionPresentation {
     const layouts = new Map<WorshipAcquisitionGeometry, WorshipHudGeometry | null>()
     for (const command of commands) {
       if (!layouts.has(command.geometry))
-        layouts.set(command.geometry, this.bridge?.measure(command.model, command.geometry) ?? null)
+        layouts.set(
+          command.geometry,
+          this.bridge?.measure(command.model, command.family, command.geometry) ?? null
+        )
       const current = layouts.get(command.geometry)
       if (!current) continue
       if (command.kind === 'sprite') {

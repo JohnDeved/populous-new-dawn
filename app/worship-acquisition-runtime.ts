@@ -6,6 +6,7 @@ import {
   type WorshipAcquisitionGeometry,
   type WorshipAcquisitionState,
   type WorshipAcquisitionDrawCommand,
+  type WorshipAcquisitionFamily,
   type WorshipTargetModel,
 } from './worship-acquisition.ts'
 import { random } from './native-math.ts'
@@ -103,7 +104,7 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
 
 export function visitWorshipAcquisition(
   world: World,
-  reselectPanel: (model: WorshipTargetModel) => void
+  reselectPanel: (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => void
 ) {
   const state = world.worshipAcquisition,
     paused = world.paused || !!(world.land.landFlags & 2)
@@ -113,10 +114,10 @@ export function visitWorshipAcquisition(
     paused,
     random: () => random(world.cosmeticRandom),
   })
-  if (result.buildingPanel) reselectPanel(result.buildingPanel)
+  if (result.buildingPanel) reselectPanel(result.buildingPanel, 'building')
   for (const arrival of result.arrivals) {
     // Native panel reopening precedes the arrival flag/handle/timer checks.
-    reselectPanel(arrival.model)
+    reselectPanel(arrival.model, 'spell')
     if (world.land.landFlags & 8) continue
     const gift = world.gifts.find(candidate => candidate.id === arrival.giftId)
     if (gift?.ordinaryWorship && gift.remaining > 1) gift.remaining = 1
