@@ -64,26 +64,27 @@ export function nearestLiveBoat(
   minimum: number,
   maximum: number
 ) {
-  return w.vehicles
-    .filter(v => {
-      if (
-        !v.active ||
-        v.model !== 1 ||
-        v.passengerCount >= rules.vehicleCapacity[v.model] ||
-        !vehicleReady(w.land, v) ||
-        (w.manaTribes[p.tribe].playerType === 1 && v.reservation)
-      )
-        return false
-      const driver = v.passengerCount && w.pathfinding.people.get(v.passengers[0])
-      if (driver && driver.tribe !== p.tribe) return false
-      const distance = Math.hypot(short(v.x - center.x), short(v.y - center.y))
-      return distance >= minimum && distance < maximum
-    })
-    .sort(
-      (a, b) =>
-        Math.hypot(short(a.x - center.x), short(a.y - center.y)) -
-        Math.hypot(short(b.x - center.x), short(b.y - center.y))
-    )[0]
+  let nearest: Vehicle | undefined,
+    nearestDistance = Infinity
+  for (const v of w.vehicles) {
+    if (
+      !v.active ||
+      v.model !== 1 ||
+      v.passengerCount >= rules.vehicleCapacity[v.model] ||
+      !vehicleReady(w.land, v) ||
+      (w.manaTribes[p.tribe].playerType === 1 && v.reservation)
+    )
+      continue
+    const driver = v.passengerCount && w.pathfinding.people.get(v.passengers[0])
+    if (driver && driver.tribe !== p.tribe) continue
+    const distance = Math.hypot(short(v.x - center.x), short(v.y - center.y))
+    // Strict comparison preserves the first roster entry when distances tie.
+    if (distance >= minimum && distance < maximum && distance < nearestDistance) {
+      nearest = v
+      nearestDistance = distance
+    }
+  }
+  return nearest
 }
 
 export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
