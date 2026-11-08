@@ -121,6 +121,37 @@ test('literal sound calls in audited effect and building emitters stay loadable'
   }
 })
 
+test('airborne and landing cue arguments stay loaded across pause and disposal', async t => {
+  const source = readFileSync(new URL('../app/person-physics.ts', import.meta.url), 'utf8')
+  // Inspect the actual cue arguments, including both Shaman ownership branches.
+  // This is a bounded source contract, not execution of the physics controller.
+  const arguments_ = [...source.matchAll(/\beffects\.sound\(([^)\n]+)\)/g)].map(call => call[1])
+  assert.deepEqual(arguments_, ['p.tribe === w.playerTribe ? 0x1a : 0x89', '0xc4', '0x1b', '9'])
+  const cues = arguments_.flatMap(argument => [...argument.matchAll(/\b(?:0x[0-9a-f]+|\d+)\b/g)]
+    .map(match => Number(match[0])))
+  assert.deepEqual(cues, [0x1a, 0x89, 0xc4, 0x1b, 9])
+  const { sound, state } = fixture(t)
+  assert.equal(await sound.enable(), true)
+  for (const cue of cues) assertEveryVariant(sound, state, cue)
+  const buffers = new Map(cues.flatMap(cue => native.cues[cue].samples
+    .map(sample => `${native.cues[cue].bank}-${sample}`)).map(key => [key, sound.buffers.get(key)]))
+  const requests = state.requests.length
+  await sound.setPaused(true)
+  assert.equal(sound.context.state, 'suspended')
+  for (const [key, buffer] of buffers) assert.equal(sound.buffers.get(key), buffer)
+  await sound.setPaused(false)
+  assert.equal(sound.context.state, 'running')
+  assert.equal(state.requests.length, requests, 'resume does not reload airborne samples')
+  for (const cue of cues) assertEveryVariant(sound, state, cue)
+  const before = state.starts.length
+  sound.dispose()
+  assert.equal(sound.buffers.size, 0)
+  assert.equal(sound.active.size, 0)
+  assert.ok(state.requests.every(request => request.signal.aborted))
+  for (const cue of cues) assert.equal(sound.cue(cue), undefined)
+  assert.equal(state.starts.length, before, 'disposed owner cannot restart an airborne cue')
+})
+
 test('new effect samples survive pause and are released on disposal', async t => {
   const { sound, state } = fixture(t)
   assert.equal(await sound.enable(), true)
@@ -157,7 +188,8 @@ test('intentionally empty native Shield voice rows stay silent without consuming
 })
 
 for (const [key, cue] of [['sound-226', SPELL_CAST_VOICES.blue.convertWild],
-  ['sound-357', 0xa4], ['sound-9', 0xb3]]) {
+  ['sound-357', 0xa4], ['sound-9', 0xb3], ['sound-38', 0x1a],
+  ['sound-394', 0xc4], ['sound-34', 0x1b], ['sound-123', 9]]) {
   test(`new sample ${key} failure remains visible and an explicit retry recovers`, async t => {
     const { sound, state, music } = fixture(t)
     state.failedKey = key

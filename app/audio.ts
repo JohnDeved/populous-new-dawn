@@ -15,8 +15,11 @@ import type { GameScene } from './scene.ts'
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
   ...SPELL_CAST_CUES,
+  9, // Follower landing.
   0x12, // Building damage and demolition.
   0x15, // Earthquake fissure.
+  0x1a, // Player Shaman airborne voice.
+  0x1b, // Shaman landing.
   0x2a, // Hypnotise effect.
   0x31, // Invisibility application.
   0x35, // Invisibility reveal.
@@ -33,6 +36,7 @@ export const AUDIO_CUES = [
   0xb3, // Firestorm projectile launch.
   0xb4, // Convert Wild effect.
   0xb6, // Firestorm land impact.
+  0xc4, // Follower airborne voice.
   5, // 0x4d7fd0: opening Wildman conversion
   0x9e, // 0x50c780: opening terrain wave
   0x6a,
