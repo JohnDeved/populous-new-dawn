@@ -126,7 +126,7 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   // Dry Boat acquisition is later; retain all 105 rejections and one admission.
   assert.deepEqual(
     attempts,
-    Array.from({ length: 106 }, (_, index) => 3451 + index)
+    Array.from({ length: 106 }, (_, index) => 3455 + index)
   )
   const worship = currentPersonOrder(world.buildingOrders, shaman.native)
   assert.equal(worship.model, 27)
@@ -159,9 +159,9 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   }
   assert.equal(landings, 1)
   assert.equal(rewards, 1)
-  assert.equal(landed, 3599)
+  assert.equal(landed, 3603)
   // Worship checks its standing phase on even person counters.
-  assert.equal(rewarded, 3802)
+  assert.equal(rewarded, 3806)
   assert.equal(north.uses, 1)
   assert.equal(worship.references, 0)
   assert.equal(shaman.native.vehicle, 0)

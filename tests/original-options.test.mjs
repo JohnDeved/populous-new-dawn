@@ -167,8 +167,30 @@ function renderOptions(skin, category, highlight = null, browser = false) {
       onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
     })
   effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === category).run()
-  return {nodes, focus, changes}
+  return {nodes, focus, changes, effects}
 }
+
+test('browser help opens at its heading, not its trailing Back button, on every visit', () => {
+  for (const skin of ['frontend', 'ingame']) for (let visit = 0; visit < 3; visit++) {
+    const help = renderOptions(skin, 'Game', null, true)
+    const heading = help.nodes.find(node => 'data-browser-help-heading' in node.props)
+    assert.equal(heading.type, 'h2')
+    assert.equal(heading.props.tabIndex, -1, 'entry focus does not add a heading to the Tab order')
+    assert.deepEqual(heading.children, ['Browser compatibility and help'])
+    const entry = help.effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === true)
+    entry.run()
+    assert.equal(help.focus.at(-1), '[data-browser-help-heading]')
+    assert.equal(help.focus.includes('[data-return-options]'), false)
+    const back = help.nodes.find(node => 'data-return-options' in node.props)
+    back.props.onClick()
+    assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
+    assert.equal(help.focus.at(-1), '[data-compatibility]', 'Back retains the original Options row focus')
+    const options = renderOptions(skin, 'Game')
+    const before = [...options.focus]
+    options.effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === false).run()
+    assert.deepEqual(options.focus, before, 'a closed help panel never takes focus')
+  }
+})
 test('both skins render unsupported rows as inert notes and focus the full selected Direct3D label by its stable key', () => {
   for (const skin of ['frontend', 'ingame']) for (const [category, expected] of [['Graphics', graphics], ['Direct3D', direct3D]]) {
     const {nodes, focus} = renderOptions(skin, category)

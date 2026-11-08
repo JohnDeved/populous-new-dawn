@@ -1,4 +1,6 @@
 import { assignVehicleAllocationCounter } from './vehicle-allocation.ts'
+import { createCapacityPolicy, type CapacityMode } from './capacity-policy.ts'
+import { createMotionRoutes } from './person-routes.ts'
 import { initializeAuthoredBoat } from './vehicle-initialization.ts'
 import { initializeLevelStart } from './level-start-runtime.ts'
 import type { Point, Shrine, Vehicle, World } from './world-types.ts'
@@ -24,7 +26,9 @@ import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
-export function createWorld(missionNumber = 1): World {
+// Direct callers default to the classic/native contract. The shipped store
+// explicitly selects scalable for new games; checkpoints carry their own mode.
+export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'classic'): World {
   const mission = missionData(missionNumber),
     level = mission.level
   const linkedObjects = (object: (typeof level.objects)[number]) =>
@@ -62,12 +66,22 @@ export function createWorld(missionNumber = 1): World {
                   ? 'balloonHut'
                   : undefined
   }
+  // Keep authored object IDs and initialization RNG identical to classic. The
+  // scalable general-ID reservation is installed before exposing the world.
   const w = createWorldState(missionNumber),
     linkedObjectIds = new Set(
       level.objects
         .filter(object => object.type === 6 && object.model === 6)
         .flatMap(object => linkedObjects(object).map(linked => linked.index + 1))
     )
+  // Select route storage before any authored command can acquire ownership.
+  // Keep classic initialization IDs/RNG; this is new-world setup, not save repair.
+  if (capacityMode === 'scalable') w.motionRoutes = createMotionRoutes(true)
+  w.scenerySource = {
+    version: 1,
+    sourceSha256: level.sourceSha256,
+    headerSha256: level.headerSha256,
+  }
   function missionTwentyShrine(object: (typeof level.objects)[number]): Shrine {
     const settings = object.settings!,
       links = linkedObjects(object),
@@ -79,6 +93,8 @@ export function createWorld(missionNumber = 1): World {
       rewardSpell = SPELLS.find(spell => spell.id === rewards[0])
     return {
       ...worship,
+      triggerSlot: object.index,
+      verifiedDecorationSlot: null,
       nextSlot: 0,
       slotTimer: 0,
       range: settings[1],
@@ -108,7 +124,7 @@ export function createWorld(missionNumber = 1): World {
         .map(link => ({ x: link.x, z: link.z })),
       linkedTrees: links
         .filter(link => link.type === 5 && link.model <= 6)
-        .map(link => ({ x: link.x, z: link.z, model: link.model })),
+        .map(link => ({ x: link.x, z: link.z, model: link.model, authoredSlot: link.index })),
       ...(linkedHead ? { linkedShrine: missionTwentyShrine(linkedHead) } : {}),
       name: `${rewardSpell?.name ?? 'Linked'} stone head`,
       progress: 0,
@@ -182,7 +198,15 @@ export function createWorld(missionNumber = 1): World {
       } else w.vehicles.push(vehicle)
     }
     if (o.type === 5 && o.model <= 6 && !(missionNumber === 20 && linkedObjectIds.has(o.index + 1)))
-      w.trees.push({ id: w.nextId++, x: o.x, z: o.z, logs: 4, model: o.model })
+      w.trees.push({
+        id: w.nextId++,
+        x: o.x,
+        z: o.z,
+        logs: 4,
+        model: o.model,
+        authoredSlot: o.index,
+        sceneryBirth: 'initial',
+      })
     if (o.type === 6 && o.model === 6) {
       if (linkedObjectIds.has(o.index + 1)) continue
       if (missionNumber === tutorialLevel && o.index === 2) {
@@ -191,6 +215,8 @@ export function createWorld(missionNumber = 1): World {
           linkedWorship = createWorship(linkedHead.settings!)
         w.shrines.push({
           ...worship,
+          triggerSlot: o.index,
+          verifiedDecorationSlot: null,
           nextSlot: 0,
           slotTimer: 0,
           range: o.settings![1],
@@ -205,6 +231,8 @@ export function createWorld(missionNumber = 1): World {
           kind: 'linkedEffects',
           linkedShrine: {
             ...linkedWorship,
+            triggerSlot: linkedHead.index,
+            verifiedDecorationSlot: null,
             enabled: true,
             nextSlot: 0,
             slotTimer: 0,
@@ -356,6 +384,8 @@ export function createWorld(missionNumber = 1): World {
           : undefined
       w.shrines.push({
         ...worship,
+        triggerSlot: o.index,
+        verifiedDecorationSlot: null,
         nextSlot: 0,
         slotTimer: 0,
         range: settings[1],
@@ -383,6 +413,8 @@ export function createWorld(missionNumber = 1): World {
               earthquakeTargets,
               linkedShrine: {
                 ...linkedWorship!,
+                triggerSlot: linkedHead.index,
+                verifiedDecorationSlot: null,
                 nextSlot: 0,
                 slotTimer: 0,
                 range: linkedHead.settings![1],
@@ -503,5 +535,10 @@ export function createWorld(missionNumber = 1): World {
   if ([1, 2, 3].includes(missionNumber))
     for (const ai of w.campaignAIs) if (ai) ai.constructionRadius = 0
   rebuildConstructionBuildings(w)
+  w.capacityPolicy = createCapacityPolicy(capacityMode)
+  if (capacityMode === 'scalable') {
+    w.nextId = Math.max(1024, w.nextId)
+    w.buildingOrders.scalable = true
+  }
   return w
 }

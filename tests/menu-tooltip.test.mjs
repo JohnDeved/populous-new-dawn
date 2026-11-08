@@ -58,7 +58,7 @@ test('shared selector geometry stays inside native frame at viewport edges, wide
 })
 
 test('native tooltip font covers every main-menu reason without widening the frame', () => {
-  const reasons = [...main.slice(main.indexOf('  const rows = ['), main.indexOf('  return (\n    <dialog')).matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/g)].map(match => match[1])
+  const reasons = [...main.slice(main.indexOf('  const checkpointDescriptions = {'), main.indexOf('  return (\n    <dialog')).replace(/  const checkpointRecoveryNotices = \{[\s\S]*?\n  \}/, '').matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/gi)].map(match => match[1])
   assert.ok(reasons.length >= 7)
   for (const reason of reasons) {
     const glyphs = [...reason].map(c => provenance.fonts.tooltip.glyphs[c.charCodeAt(0)-32])
@@ -97,6 +97,40 @@ test('keyboard tooltip and leave, blur, Escape, scrolling, resize and visibility
   }
 })
 
+test('pending dwell cancellation removes the timer before it can reveal a tooltip', () => {
+  for (const [owner,event,detail] of [['root','pointerleave'],['root','pointerdown'],['root','focusout'],['root','keydown',{key:'Escape'}],['win','resize'],['win','scroll'],['win','blur'],['doc','visibilitychange']]) {
+    const f=fixture(), a=new f.Element('Unavailable')
+    f.root.emit('focusin',{target:a}); f.render()
+    f.advance(250); assert.equal(f.render(),undefined)
+    assert.equal(f.timers.size,1)
+    f[owner].emit(event,detail); assert.equal(f.render(),undefined)
+    assert.equal(f.timers.size,0, `${event} cancels the pending dwell timer`)
+    f.advance(1000); assert.equal(f.render(),undefined)
+    f.unmount()
+  }
+})
+
+test('switching pending owners with identical text requires the new full dwell', () => {
+  const f=fixture(), a=new f.Element('Unavailable'), b=new f.Element('Unavailable')
+  f.root.emit('pointermove',{target:a,clientX:20,clientY:30}); f.render()
+  f.advance(400)
+  f.root.emit('pointermove',{target:b,clientX:40,clientY:50}); assert.equal(f.render(),undefined)
+  assert.equal(f.timers.size,1, 'old owner timer is replaced, not accumulated')
+  f.advance(101); assert.equal(f.render(),undefined, 'old owner deadline cannot reveal new owner')
+  f.advance(399); assert.equal(f.render(),undefined)
+  f.advance(1); assert.equal(f.render().target,b)
+  f.unmount(); assert.equal(f.timers.size,0)
+})
+
+test('pending tooltip unmount cancels its timer and removes every listener', () => {
+  const f=fixture(), a=new f.Element('Unavailable')
+  f.root.emit('focusin',{target:a}); f.render()
+  assert.equal(f.timers.size,1)
+  f.unmount(); assert.equal(f.timers.size,0)
+  for (const target of [f.root,f.win,f.doc]) for (const listeners of target.listeners.values()) assert.equal(listeners.size,0)
+  f.advance(1000); assert.equal(f.timers.size,0)
+})
+
 test('changed availability and detached owner cannot leave a stale tooltip', () => {
   for (const change of [a=>{a.value=undefined},a=>{a.isConnected=false}]) {
     const f=fixture(), a=new f.Element('Checking browser storage')
@@ -128,13 +162,13 @@ test('visible tooltip typography is settled across late decode success and failu
 
 test('rendered native glyph widths equal advances and longest unavailable reason fits with padding', () => {
   for (const glyph of provenance.fonts.tooltip.glyphs) assert.equal(glyph.width, glyph.advance)
-  const rows = main.slice(main.indexOf('  const rows = ['), main.indexOf('  return (\n    <dialog'))
-  const reasons = [...rows.matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/g)].map(match => match[1])
+  const rows = main.slice(main.indexOf('  const checkpointDescriptions = {'), main.indexOf('  return (\n    <dialog'))
+  const reasons = [...rows.replace(/  const checkpointRecoveryNotices = \{[\s\S]*?\n  \}/, '').matchAll(/(?:unavailable: |\? |: )'([^'\n]*(?:available|restored|storage|checkpoint)[^'\n]*)'/gi)].map(match => match[1])
   const measured = reasons.map(text => ({ text, width: [...text].reduce((sum,c)=>sum+provenance.fonts.tooltip.glyphs[c.charCodeAt(0)-32].width,0) }))
   const longest = measured.sort((a,b)=>b.width-a.width)[0]
-  assert.deepEqual(longest, { text:'Multiplayer is not available in this single-player remake', width:298 })
-  assert.equal(4*(Math.floor(longest.width/4)+3),308)
-  assert.ok(308 < 640)
+  assert.deepEqual(longest, { text:'Checkpoint is incompatible with this development version', width:300 })
+  assert.equal(4*(Math.floor(longest.width/4)+3),312)
+  assert.ok(312 < 640)
 })
 
 test('prepared tooltip rendering never decodes again on category changes or reopen', () => {

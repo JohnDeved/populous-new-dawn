@@ -10,7 +10,7 @@ function keyboard(overrides = {}) {
   const world = createWorld(1), listeners = new Map(), tabs = []
   world.inputMask = 0 // Ordinary play after the authored introduction.
   const bindings = {
-    world, ready: true, menu: false, SPELLS, spellHudVisibility,
+    world, ready: true, menu: false, cheatsOpen: false, SPELLS, spellHudVisibility,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn),
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
@@ -60,6 +60,7 @@ for (const [label, event, bindings] of [
   ['numpad', { code: 'Numpad1' }], ['different key', { key: '!' }],
   ['input or dialog', { target: { closest: selector => selector === 'input,dialog' } }],
   ['not ready', {}, { ready: false }], ['menu open', {}, { menu: true }],
+  ['testing menu open', {}, { cheatsOpen: true }],
 ]) test(`spell shortcut preserves ${label} exclusion`, () => {
   const k = keyboard(bindings)
   k.key(event)

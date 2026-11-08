@@ -4,7 +4,7 @@ import constants from '../app/original-constants.json' with { type: 'json' }
 import { addUnit, cast, createWorld, shieldFollowers, stepUnitShields, tick } from '../app/model.ts'
 import { createLivePerson, syncLivePersonCells } from '../app/live-people.ts'
 import { damagePerson } from '../app/person-update.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 
 test('Magical Shield protects six nearby followers for the native lifetime', () => {
   const w = createWorld()
@@ -47,7 +47,7 @@ test('Magical Shield protects six nearby followers for the native lifetime', () 
   assert.ok(braves.some(u => u.shield))
 })
 
-test('old checkpoints default new Shield stock without disturbing their world', () => {
+test('historical fixtures default new Shield stock without disturbing their world', () => {
   const w = createWorld()
   const unit = w.units.find(unit => unit.kind === 'brave')
   assert.ok(unit)
@@ -56,7 +56,7 @@ test('old checkpoints default new Shield stock without disturbing their world', 
   unit.native.flags3 = (unit.native.flags3 & ~0x8000) | 0x80000
   delete w.shots.shield
   delete w.giftCounts.shield
-  assert.equal(migrateCheckpoint(w), w)
+  assert.equal(normalizeHistoricalFixture(w), w)
   assert.equal(w.shots.shield, 0)
   assert.equal(w.giftCounts.shield, 0)
   assert.equal(unit.native.flags3 & 0x88000, 0x8000)

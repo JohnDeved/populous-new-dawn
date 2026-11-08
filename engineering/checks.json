@@ -2,6 +2,228 @@
   "version": 1,
   "checks": [
     {
+      "id": "hud-preference-ssr-evidence-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate fixed-preview HUD/SSR hosted admission, transport and bounded evidence acceptance without browser execution.",
+      "coveredBehavior": [
+        "Exact approved infrastructure/application and first-attempt admission",
+        "No-follow HTML transport, pending restore deadlines and finite case/artifact limits",
+        "Detached ancestry/PID identity, cleanup and complete final payload rejection controls"
+      ],
+      "knownLimits": [
+        "Synthetic fixtures only; hosted static ELF closure, API availability, Chrome sandbox, SSR responses and rendered pixels remain unverified."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/hud-preference-ssr-evidence.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/hud-preference-ssr-evidence",
+        "tests/hud-preference-ssr-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml",
+        "engineering/hud-preference-ssr-evidence.md"
+      ],
+      "inputs": [
+        "scripts/hud-preference-ssr-evidence",
+        "scripts/native-ui-evidence/identity.mjs",
+        "scripts/native-ui-evidence/files.mjs",
+        "scripts/orchestration/dependency-profile.mjs",
+        "tests/hud-preference-ssr-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "/usr/bin/python3 with Python 3.12+ standard library on Linux"
+      ],
+      "sideEffects": [
+        "One serial Python synthetic-fixture child capped at 25 seconds and 2 MiB output, forwarded to outer raw streams. Owned synthetic package/file fixtures are removed; sparse overflow files require a separate >=64 MiB per-file allowance, not the stream cap. Only synthetic package exports are imported. No browser, build, network, prctl, /proc read, signal or installed-dependency import."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "modal-invalidation-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate source-bound modal acquisition, evidence rejection and hard-supervisor admission controls.",
+      "coveredBehavior": [
+        "Exact original texture bytes, RAF freeze observations, real renderer forwarding and trusted context-event requirements",
+        "Deadline-safe context cleanup and detached descendant control-group limits",
+        "Exact-head same-repository opt-in admission and build/browser identity binding",
+        "One ordinary visible introduction click with cumulative unlock budget and same-owner evidence"
+      ],
+      "knownLimits": [
+        "Synthetic controls do not launch systemd, browsers or builds and do not establish rendered outcomes.",
+        "Real hosted service receipts, pixels and unchanged full checks remain required."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/modal-invalidation-driver.test.mjs",
+        "tests/modal-invalidation-evidence.test.mjs",
+        "tests/modal-invalidation-hosted.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/modal-invalidation",
+        "scripts/tutorial-browser/fixture/main.tsx",
+        ".github/workflows/modal-invalidation-browser.yml",
+        "tests/modal-invalidation-driver.test.mjs",
+        "tests/modal-invalidation-evidence.test.mjs",
+        "tests/modal-invalidation-hosted.test.mjs"
+      ],
+      "inputs": [
+        "scripts/modal-invalidation",
+        "scripts/tutorial-browser/fixture/main.tsx",
+        "scripts/tutorial-browser/browser-config.mjs",
+        "scripts/native-ui-evidence/identity.mjs",
+        "scripts/native-ui-evidence/files.mjs",
+        "scripts/native-ui-evidence/build-home.mjs",
+        ".github/workflows/modal-invalidation-browser.yml",
+        "tests/modal-invalidation-driver.test.mjs",
+        "tests/modal-invalidation-evidence.test.mjs",
+        "tests/modal-invalidation-hosted.test.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-game.mjs"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "Synthetic callbacks, short owned timers, read-only source checks and bounded owned temporary-file controls with cleanup. No process launch, network, browser or persistent writes."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "evidence-archive-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate archive-first native UI collection and bounded identity-owned selected cache lifetimes.",
+      "coveredBehavior": [
+        "API raw archive/source identity separation and complete member indexing without default extraction",
+        "Bounded ZIP parsing, exact selected restoration, persistent ownership journals and fail-closed cache release",
+        "Failed/interrupted evidence preservation without runtime or visual acceptance"
+      ],
+      "knownLimits": [
+        "Synthetic archives only; no original retirement authorization or claim of real archive drill completion.",
+        "Hosted runtime/visual acceptance and build/runtime archive formats remain separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/evidence-archive.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py",
+        "engineering/artifact-retention.md"
+      ],
+      "inputs": [
+        "scripts/orchestration/evidence_archive.py",
+        "scripts/orchestration/collect_native_ui_archive.py",
+        "tests/evidence-archive.test.mjs",
+        "tests/test_evidence_archive.py",
+        "tests/test_collect_native_ui_archive.py"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Python 3.12 standard library on Linux"
+      ],
+      "sideEffects": [
+        "Runs two serial Python fixture processes, each capped at 30 seconds and 4 MiB captured output; two collector CLI fixtures each launch one additional Python child with a 5-second timeout. Creates/removes only owned synthetic temporary data; retains partial output on failure. No network, browser, installed-package writes or real archive use."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "native-ui-evidence-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Validate bounded native-style UI evidence, trusted checker ownership and source-bound acceptance guards.",
+      "coveredBehavior": [
+        "Exact candidate/infrastructure identities, dependency export resolution, cleanup and bounded episode accounting",
+        "Effective sound pending state and focus/world/popup ownership rejection controls",
+        "Finite, visible pending pointer targets owned by the sound control or its artwork",
+        "Final receipt self-size and complete artifact byte accounting with unchanged screenshot/byte budgets",
+        "Owned pause tracing accounts intermediate and exported bytes, retains first failure and bounds stop observation before genuine context close; synthetic tests do not qualify browser flush."
+      ],
+      "knownLimits": [
+        "Synthetic Node fixtures validate checker rejection behavior, not rendered UI or original-game pixel parity.",
+        "Exact-candidate screenshots, real AudioContext recovery and unchanged full integration gates remain required."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/native-ui-evidence.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/native-ui-evidence",
+        "tests/native-ui-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml",
+        "engineering/native-ui-evidence.md",
+        "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-receipt.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
+      ],
+      "inputs": [
+        "app/frontend-composition.ts",
+        "app/original-main-menu.tsx",
+        "app/original-pause-menu.tsx",
+        "scripts/native-ui-evidence",
+        "scripts/tutorial-browser/browser-config.mjs",
+        "scripts/tutorial-browser/run.mjs",
+        "scripts/orchestration/dependency-profile.mjs",
+        "tests/native-ui-evidence.test.mjs",
+        ".github/workflows/native-ui-evidence.yml",
+        ".github/workflows/tutorial-browser.yml",
+        ".github/workflows/ready-pr-check.yml",
+        "engineering/native-ui-evidence.md",
+        "package.json",
+        "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
+        "tests/native-ui-pause-acceptance.test.mjs",
+        "tests/native-ui-receipt.test.mjs",
+        "tests/native-ui-pause-trace.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Installed project dependencies including js-yaml and @playwright/test"
+      ],
+      "sideEffects": [
+        "Creates and removes owned temporary Git/filesystem fixtures; imports installed Playwright without browser launch. No network, persistent source edits or fixed ports."
+      ],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
       "id": "neutral-canvas-cursor",
       "kind": "portable",
       "automation": "safe",
@@ -68,6 +290,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-blast.mjs",
         "scripts/parity-owned-checkpoint.mjs",
@@ -114,6 +338,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-blast.mjs",
         "scripts/parity-owned-checkpoint.mjs",
@@ -152,6 +378,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-blast.mjs",
         "scripts/parity-owned-checkpoint.mjs",
@@ -244,6 +472,8 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        "scripts/orchestration/receipt-streams.mjs",
+        "scripts/orchestration/command-receipt-v1.mjs",
         "scripts/parity-measure.mjs",
         "scripts/parity-owned-checkpoint.mjs",
         "scripts/parity-owned-blast.mjs",
@@ -251,6 +481,7 @@
         "tests/parity-owned-checkpoint.test.mjs",
         "scripts/orchestration/command-receipt.mjs",
         "scripts/orchestration/verify.mjs",
+        "scripts/orchestration/command-log.mjs",
         "scripts/orchestration/cli.mjs",
         "tests/parity-measure.test.mjs",
         "engineering/parity-capabilities.json",
@@ -866,17 +1097,22 @@
         "app/scene-input-runtime.ts",
         "app/scene-tooltip-runtime.ts",
         "app/scene.ts",
+        "app/fps-graph.ts",
+        "app/scene-assets.ts",
         "app/scene-picking.ts",
+        "app/world-picking.ts",
         "app/render-view.ts",
         "app/scene-camera-runtime.ts",
         "app/scene-terrain-runtime.ts",
         "app/runtime-terrain-picking.ts",
         "app/neutral-cursor.ts",
+        "app/game-clock.ts",
+        "app/tribe-camera.ts",
         "scripts/browser-performance/snapshot-drag-contract.mjs",
         "scripts/browser-performance/snapshot-drag-observer.mjs",
         "tests/browser-snapshot-drag.test.mjs"
       ],
-      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "package.json", "package-lock.json"],
+      "inputs": ["app", "scripts", "tests/support", "tests/browser-snapshot-drag.test.mjs", "tests/fixtures/snapshot-drag-pre-modal-scene.json", "package.json", "package-lock.json"],
       "prerequisites": ["Node.js >=22.13.0", "Installed project dependencies"],
       "sideEffects": [],
       "resources": [],
@@ -894,13 +1130,16 @@
         "Contract audit",
         "Portable review bundle integrity",
         "Source-bound raw command receipts",
+        "Raw-only verification capture and allowance-bounded on-demand diagnostics",
         "Hash-linked research navigation and finite claim bindings"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs",
+        "tests/receipt-streams.test.mjs", "tests/receipt-raw-budget.test.mjs",
+        "tests/receipt-budget-failures.test.mjs", "tests/command-log.test.mjs", "tests/workflow-policy.test.mjs", "tests/research-evidence.test.mjs", "tests/theme-reference-evidence.test.mjs", "tests/test-runner.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -929,6 +1168,24 @@
       ],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "shared-setup-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check read-only shared pnpm setup admission and measured inode reuse.",
+      "coveredBehavior": ["Committed dependency metadata identity", "Source-only zero allocation", "Physical same-filesystem capacity admission", "Actual shared versus copied package-file accounting", "Drift rejection and private mutable caches"],
+      "knownLimits": ["Synthetic Git/filesystem fixtures only; no real pnpm install, dependency compatibility, allocation savings or RAM acceptance."],
+      "executable": "node",
+      "args": ["--test", "tests/shared-setup.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "engineering/shared-worktrees.md", "README.md", "pnpm-workspace.yaml", "pnpm-lock.yaml"],
+      "inputs": ["scripts/orchestration/shared_setup.py", "scripts/orchestration/shared_runtime.py", "tests/shared_setup_test.py", "tests/shared-setup.test.mjs", "package.json", "package-lock.json", "pnpm-lock.yaml", "pnpm-workspace.yaml"],
+      "prerequisites": ["Node.js >=22.13.0", "Python 3", "Git", "Filesystem supports symlinks and hardlinks"],
+      "sideEffects": ["Creates and removes owned tiny temporary fixtures; never invokes pnpm, network, browser or game assets."],
+      "resources": [],
+      "expected": {"exitCode": 0, "artifacts": []}
     },
     {
       "id": "orchestration-structural",
@@ -975,11 +1232,14 @@
       "knownLimits": [
         "Does not run native executable, browser integration, or hardware performance checks."
       ],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "check"],
       "cwd": ".",
       "env": [],
       "inputs": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package-lock.json",
         ".codex/config.toml",
         ".github/workflows/ready-pr-check.yml",
         "package.json",
@@ -991,7 +1251,7 @@
         "parity-history.json",
         "PARITY.md"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": ["May update ignored tool caches", "Runs every top-level tests/*.test.mjs file through the bounded Node runner; resource-sensitive/unreviewed files are serial."],
       "resources": ["Serialize with other full test runs"],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1003,12 +1263,15 @@
       "purpose": "Build the production browser application.",
       "coveredBehavior": ["Bundling", "server/client module boundaries", "production transforms"],
       "knownLimits": ["A successful build does not establish browser behavior or native parity."],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "build"],
       "cwd": ".",
       "env": [],
-      "inputs": ["package.json", "app", "build"],
-      "prerequisites": ["Installed npm dependencies"],
+      "inputs": [
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "package-lock.json", "package.json", "app", "build"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": ["Writes ignored dist/ and Wrangler logs"],
       "resources": ["Shared build directories; run serially"],
       "expected": { "exitCode": 0, "artifacts": ["dist/server/index.js", "dist/client/.vite/manifest.json"] }
@@ -1047,7 +1310,7 @@
         "tests/fixtures/drag-occupants.json",
         "tests/fixtures/selection-raster.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1158,7 +1421,7 @@
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1222,7 +1485,7 @@
         "app/world-initialization.ts",
         "app/original-rules.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -1723,7 +1986,7 @@
       "prerequisites": [
         "Documented Unicorn Python environment",
         "Hash-verified user-supplied executable with adjacent constant.dat",
-        "Installed npm dependencies"
+        "Installed locked dependencies"
       ],
       "sideEffects": [],
       "resources": ["External executable is read-only"],
@@ -2929,21 +3192,35 @@
         "Legacy Mission 5 checkpoint insertion of the previously omitted authored head"
       ],
       "knownLimits": [
+        "Initial model 69 and proved strike-triggered model 62 transitions are covered; pursuit preparation/mode ownership, tilt and roll remain unported.",
         "The browser check bounds cleanup after combat; model-91's exact sprite presentation remains deferred.",
         "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
       ],
       "executable": "node",
-      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs"],
+      "args": ["--experimental-strip-types", "--test", "tests/mission5-angel.test.mjs", "tests/angel-presentation.test.mjs", "tests/angel-strike-presentation.test.mjs",
+        "tests/angel-painter-order.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
         "tests/mission5-angel.test.mjs",
-        "app/angel.ts",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-strike-presentation.test.mjs",
+        "tests/angel-painter-order.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "app/painter.ts",
+        "app/scene-effects.ts",
+        "app/angel-presentation.ts",
+        "app/original-angel-presentation.json",
+        "app/original-angel-strike.json",
+        "app/world-turn.ts",
         "app/game-store.ts",
+        "app/game-clock.ts",
+        "app/model-resources.ts",
+        "app/angel.ts",
         "app/live-worship.ts",
         "app/world-effects.ts",
         "app/world-initialization.ts",
-        "app/world-turn.ts",
         "app/world-types.ts",
         "app/worship.ts",
         "app/level-five.ts"
@@ -2962,7 +3239,8 @@
         "Mission 5 launch and ordinary introduction skip",
         "Rendered warrior selection and stone-head command",
         "Live prayer completion and linked Angel reward",
-        "Angel GPU pixels, movement, enemy targeting, lethal strike, and audio"
+        "Angel GPU pixels, movement, enemy targeting, lethal strike, and audio",
+        "Partial strike checkpoint, original model 62 UV/material switch, return to 69, and owned resource disposal"
       ],
       "knownLimits": [
         "An existing warrior is positioned at the worship ring to bound travel; no head, Angel, enemy, or completion state is injected.",
@@ -2975,6 +3253,7 @@
       "env": [],
       "inputs": [
         "scripts/check-browser-mission5-angel.mjs",
+        "scripts/angel-strike-witness.mjs",
         "scripts/browser-game.mjs",
         "app/angel.ts",
         "app/audio.ts",
@@ -4242,7 +4521,45 @@
         "app/live-construction-runtime.ts",
         "app/world-turn.ts"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "tornado-building-wood-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check live Tornado building damage and loose-log provenance through the existing controlled real-caller regression.",
+      "coveredBehavior": [
+        "Loose-log allocation, position, identity and dynamic provenance",
+        "Building work, stage, attribution, debris and normal retirement",
+        "Protected, rejected, unactivated and retired targets",
+        "Supplied allocation-failure bookkeeping"
+      ],
+      "knownLimits": [
+        "Controlled createWorld targets do not prove ordinary earned-stock/UI behavior or native allocator failure.",
+        "The app input directory binds the model facade's transitive imports; only explicit triggerPaths select this check."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/tornado-building-wood.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "tests/tornado-building-wood.test.mjs",
+        "app/building-runtime.ts",
+        "app/tornado-runtime.ts",
+        "app/world-initialization.ts",
+        "app/scenery-provenance.ts"
+      ],
+      "inputs": [
+        "tests/tornado-building-wood.test.mjs",
+        "app",
+        "package.json",
+        "pnpm-lock.yaml",
+        "package-lock.json"
+      ],
+      "prerequisites": ["Maintained Node.js 24 toolchain"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4273,7 +4590,7 @@
         "tests/fixtures/building-fetch.json",
         "tests/fixtures/timber-search.json"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4437,7 +4754,7 @@
         "app/original-tooltips.json",
         "scripts/import-messages.py"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -4544,7 +4861,7 @@
         "app/original-rules.json"
       ],
       "prerequisites": [
-        "Installed npm dependencies"
+        "Installed locked dependencies"
       ],
       "sideEffects": [],
       "resources": [],
@@ -4661,7 +4978,7 @@
         "app/terrain-visibility.ts",
         "app/painter-order.ts"
       ],
-      "prerequisites": ["Installed npm dependencies"],
+      "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
@@ -5017,7 +5334,7 @@
       "knownLimits": [
         "Browser pixels and native instruction comparisons run separately."
       ],
-      "executable": "npm",
+      "executable": "pnpm",
       "args": ["run", "test:level-start"],
       "inputs": [
         "package.json",
@@ -5777,6 +6094,68 @@
       ],
       "resources": [
         "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "scene-fixture-precompilation-tests",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Preserve exact fixture compiler semantics and explicit precompiled-output/preparer boundaries.",
+      "coveredBehavior": [
+        "Unchanged TypeScript emission and generated-level literal contract",
+        "Pinned source/tool/output validation without importing the compiler in reader-only paths",
+        "Five in-process preparer guard exceptions, complete output consumption, and first-write failure without a usable completed bundle"
+      ],
+      "knownLimits": [
+        "Portable preparer cases evaluate the real module sequentially in-process, not separate CLI exit observations or OS-crash durability.",
+        "These tests do not run the application scene or establish a memory gain; exact-source serial preparation/consumer qualification and broad integration remain separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "--test-concurrency=1",
+        "tests/scene-fixture-precompiled.test.mjs",
+        "tests/scene-fixture-preparer.test.mjs",
+        "tests/scene-fixture-source.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "scripts/prepare-scene-fixture.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/scene-fixture-precompiled.test.mjs",
+        "tests/scene-fixture-preparer.test.mjs",
+        "tests/scene-fixture-source.test.mjs",
+        "engineering/scene-fixture-precompilation.md",
+        "engineering/generated-files.json"
+      ],
+      "inputs": [
+        "scripts/prepare-scene-fixture.mjs",
+        "tests/support/scene-fixture-source.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "tests/scene-fixture-precompiled.test.mjs",
+        "tests/scene-fixture-preparer.test.mjs",
+        "tests/scene-fixture-source.test.mjs",
+        "app",
+        "package.json",
+        "pnpm-lock.yaml",
+        "package-lock.json",
+        "engineering/generated-files.json"
+      ],
+      "prerequisites": [
+        "Maintained Node.js 24 toolchain and frozen installed TypeScript",
+        "Both PND_SCENE_FIXTURE_PRECOMPILED settings unset; native per-file test isolation"
+      ],
+      "sideEffects": [
+        "Runs test files serially with native file isolation; imports the TypeScript compiler only in preparer/compiler-contract processes. Creates/removes owned temporary synthetic files. In-process argv, environment and fs export changes are restored. No app scene, browser, network or package writes."
+      ],
+      "resources": [
+        "Compiler tests allocate compiler/AST memory; serialize with the existing resource lane."
       ],
       "expected": {
         "exitCode": 0,

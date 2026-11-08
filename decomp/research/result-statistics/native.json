@@ -1,0 +1,191 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "imageBase": "00400000",
+  "spans": [
+    {
+      "name": "descriptor",
+      "start": "005add30",
+      "end": "005add5c",
+      "sha256": "7d5f66cf80fd5500463f540d24eb5930f8cbbac7be8a0b8185593edbfa8d2523",
+      "hex": "e5020001e6020100e7020201e8020300e9020400ea020500eb020601ec020700ed020800ee02090100000000"
+    },
+    {
+      "name": "reset",
+      "start": "0041b520",
+      "end": "0041b545",
+      "sha256": "29d8f2e88136dfbefe489f6d27c8347421237e138311418e6169a185eb1a7229",
+      "hex": "57b90c0000000fbe442408c1e0048dbc40c69d960033c0f3abe832c610005fa3c29d9600c3"
+    },
+    {
+      "name": "add",
+      "start": "0041b550",
+      "end": "0041b571",
+      "sha256": "f73af4fc86d12fcc494ce9cbc7c2568b4c5e5f14433098a6160f157324d8e5c3",
+      "hex": "8a4424043cff74180fbec88b4424088d14498d0c908b54240c01148dc69d9600c3"
+    },
+    {
+      "name": "knowledge",
+      "start": "0041b580",
+      "end": "0041b5c0",
+      "sha256": "0a7ba050c289dedc8a29d829d226c60fe0c6b2b15cbbe6170a8c0ecae55b36b0",
+      "hex": "8a44240456573cff74330fbef88b4424108d0c7f8d1488b8010000008a4c24148d3495c69d9600d3e08b1685d0750ec1e7040bd08916ff847fea9d96005f5ec3"
+    },
+    {
+      "name": "clock",
+      "start": "0041b5c0",
+      "end": "0041b5d1",
+      "sha256": "c7a93def14805fcf3e9e29f28b8fbd38f78ba1f7d47b652f17422ae44f8612e9",
+      "hex": "e8abc510002b05c29d9600a3c29d9600c3"
+    },
+    {
+      "name": "resetCaller",
+      "start": "0042cb7d",
+      "end": "0042cb96",
+      "sha256": "0adf26e279cb75ecdb5ddc8513510954548fd8f0783af01629311a18452caa33",
+      "hex": "57e89de9feff83c4044733c0a0c0ea96003bc70f8f17ffffff"
+    },
+    {
+      "name": "rendererIndex",
+      "start": "005245e3",
+      "end": "005245f1",
+      "sha256": "579365105f32cda21706cb70d77924b07009b7e072303374096ecdfff81b2a1a",
+      "hex": "8b4424148d0440c1e00289442438"
+    },
+    {
+      "name": "rendererRead",
+      "start": "00524653",
+      "end": "00524675",
+      "sha256": "d0784681f75d16298a1f86c981c960776312ce1b4702975a19304f0573bd6fcd",
+      "hex": "0fbe4702034424388d9424580100008b0c85c69d9600516800cd590052e82bf3f2ff"
+    },
+    {
+      "name": "rendererClock",
+      "start": "005243c3",
+      "end": "00524414",
+      "sha256": "a93b4b2df1765ce676e146d1c35018a07899a502e6901b3ceebe1a797f11f202",
+      "hex": "f60564c68900067409f60561c68900087417f60566c6890002750ef60561c6890002b801000000740233c085c0741c6a00e8c771efff83c4048b3dc29d96006a00e8b771efff83c404eb068b3dc29d9600"
+    },
+    {
+      "name": "buildingRemoval",
+      "start": "00403820",
+      "end": "00403856",
+      "sha256": "d02364a6bdaa2c9ccc5fc10894b16fc81f118d28a1eb064084fb09c194aa0812",
+      "hex": "568b742408f6461440752056e82f00000083c4048a86af0000003cff740d6a016a0450e8087d010083c40c56e89fa40e0083c4045ec3"
+    },
+    {
+      "name": "buildingPairRemoval",
+      "start": "0040b130",
+      "end": "0040b16e",
+      "sha256": "a35acd07b87dc41ddeb9b5116fc7c16f2d8465e59ee8ff85e9b1439e90c9b273",
+      "hex": "568b74240885f6741256e8f100000083c40456e838400e0083c4048b74240c85f674196a018a462f6a0750e8f003010083c40c56e817400e0083c4045ec3"
+    },
+    {
+      "name": "fightRelease",
+      "start": "00519c90",
+      "end": "00519d02",
+      "sha256": "f451740ed0374077bc332657846b218955cefb7be16df0b6662e46d84ea0b6bf",
+      "hex": "53568b74240c570fbe7e685585ff7e3b8d5e70bd0100000033d2668b0b33c0663bc874160fb7c98b0c8d9003890085690c750738512a74028bc185c074076689909d00000083c3024f75cf8a466b33c98ac883f9ff740d6a016a0050e85f18f0ff83c40c56e8f63ffdff83c4045d5f5e5bc3"
+    },
+    {
+      "name": "rewardDelivery",
+      "start": "004fb028",
+      "end": "004fb15f",
+      "sha256": "26892579da010cd7f5e7e3c18c47827025a64561d7987b9d47fc9b0344c60789",
+      "hex": "668b467a66486689467a6685c07f4bc64424100133c08a467c83f802744483f806747783f80b0f84a40000008b7c2414807c241000741a80be800000000175118b46748a4e7e505751e80a05f2ff83c40c56e80141ffff83c4045d5f5e5b83c414c380be8000000003bf0b00000075166a0133c08a467e8b4e745051e8e7ddf0ff83c40cebaa33c08b4e748a467e5051e873ddf0ff83c408eb968a467e33db8ad88bfb8d0c9bc6442410008d1c4f8b4e708d14db51508d2cd7e81af4f1ff66c784afcddb8900000083c408e95cffffffbf0a0000008b46748bc8c1e1062bc82bc86683b9d0805a0002750950e8a77efcff83c40480be8000000003752b6a0133c08a467e8b4e745051e89a7bfcff83c40c8b4e7433c0518a467e50e85879fcff83c408e908ffffff33c08b4e748a467e5051e8e17afcff"
+    },
+    {
+      "name": "tribeElimination",
+      "start": "00418f15",
+      "end": "00418f7a",
+      "sha256": "f5a7b5a0b0520951b3ef7d6faa96b28461ccc96586ce6adc0146021241e4f690",
+      "hex": "8b8f4909000085c9754332c0833e007502b00184c074344153c744241401000000898f49090000e86f29000083c404803df0c68900ff74150fbe05f0c68900c1e004ff8440ce9d9600eb0233ed81c6650c00004381c7650c000033c0a0c0ea96003bc37f9b"
+    }
+  ],
+  "directCallCandidates": [
+    {
+      "address": "00403843",
+      "target": "0041b550",
+      "precedingHex": "048a86af0000003cff740d6a016a0450e8087d0100"
+    },
+    {
+      "address": "00405235",
+      "target": "0041b550",
+      "precedingHex": "048a87af0000003cff740d6a016a0450e816630100"
+    },
+    {
+      "address": "00407042",
+      "target": "0041b550",
+      "precedingHex": "048a86af0000003cff740d6a016a0450e809450100"
+    },
+    {
+      "address": "004070cc",
+      "target": "0041b550",
+      "precedingHex": "048a86af0000003cff740d6a016a0450e87f440100"
+    },
+    {
+      "address": "00408c64",
+      "target": "0041b550",
+      "precedingHex": "0083c40485db743d6a018a432f6a0750e8e7280100"
+    },
+    {
+      "address": "004094c8",
+      "target": "0041b550",
+      "precedingHex": "0083c40485f674196a018a462f6a0750e883200100"
+    },
+    {
+      "address": "0040b15b",
+      "target": "0041b550",
+      "precedingHex": "8b74240c85f674196a018a462f6a0750e8f0030100"
+    },
+    {
+      "address": "0042cb7e",
+      "target": "0041b520",
+      "precedingHex": "090083c4045753e8c660090083c40857e89de9feff"
+    },
+    {
+      "address": "004a3a80",
+      "target": "0041b550",
+      "precedingHex": "1066837e6e007f1a6a018a462f6a0150e8cb7af7ff"
+    },
+    {
+      "address": "004a3aa1",
+      "target": "0041b550",
+      "precedingHex": "0866837f6e007f1a6a018a472f6a0150e8aa7af7ff"
+    },
+    {
+      "address": "004d5f29",
+      "target": "0041b550",
+      "precedingHex": "e8c200000083c4048a472f6a016a0850e82256f4ff"
+    },
+    {
+      "address": "004d5f3c",
+      "target": "0041b550",
+      "precedingHex": "f4ff83c40c8a87b00000006a016a0550e80f56f4ff"
+    },
+    {
+      "address": "004d5f8c",
+      "target": "0041b550",
+      "precedingHex": "8a472f3cff742484db75206a016a0650e8bf55f4ff"
+    },
+    {
+      "address": "004d5f9f",
+      "target": "0041b550",
+      "precedingHex": "f4ff83c40c8a87b00000006a016a0350e8ac55f4ff"
+    },
+    {
+      "address": "004fb071",
+      "target": "0041b580",
+      "precedingHex": "800000000175118b46748a4e7e505751e80a05f2ff"
+    },
+    {
+      "address": "005199b2",
+      "target": "0041b550",
+      "precedingHex": "456b33c98ac883f9ff740d6a016a0050e8991bf0ff"
+    },
+    {
+      "address": "00519cec",
+      "target": "0041b550",
+      "precedingHex": "466b33c98ac883f9ff740d6a016a0050e85f18f0ff"
+    }
+  ]
+}

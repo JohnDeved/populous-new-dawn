@@ -7,7 +7,7 @@ import { FULL_WORKFLOW } from './admission.mjs'
 export function normalizeAdmission(entry, grant, raw, requiredChecks) {
   assert(raw.complete && raw.consistent, raw.error || 'Incomplete observation')
   assert(raw.state === 'open' && !raw.merged && raw.mergeable === true, 'Open conflict-free PR required')
-  assert(!raw.refreshOnly && raw.synthetic, 'Exact current synthetic required; no refresh authority')
+  assert(!raw.refreshOnly && !raw.baseMetadataRefreshOnly && raw.synthetic, 'Exact current synthetic required; no refresh authority')
   assert.deepEqual(raw.synthetic.parents, [raw.base, raw.head])
   assert.equal(raw.reviewDigest, entry.review.sha256)
   assert(reviewedWorkflows(entry, raw), 'Reviewed workflows differ')

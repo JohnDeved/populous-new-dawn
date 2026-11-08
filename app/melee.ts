@@ -25,14 +25,18 @@ export function meleeAnimationObject(kind: UnitKind, action: MeleeAttack | 'reco
   return rules.personAnimationObjects[animationRows[action] * 9 + nativeUnitModel(kind)]
 }
 
-// 0x518fb0 substates 2/3/4 reset the original attack pose on entry. The
+// 0x518fb0 substates 2..6 reset the original attack/recoil pose on entry. The
 // controller's existing duration/damage owner is independent of these frames.
-export function startMeleeAttackAnimation(
+export function startMeleeActionAnimation(
   person: StatefulPerson & Animation,
-  action: MeleeAttack,
+  action: MeleeAttack | 'recoil',
   setAnimation: (person: StatefulPerson, object: number) => void
 ) {
-  setPersonAnimationRow(person, animationRows[action], setAnimation)
+  // Recoil cases5/6 call the upper-body setter directly, without the airborne
+  // row substitution used by attack cases2/3/4 through 0x4d3ff0.
+  if (action === 'recoil')
+    setAnimation(person, rules.personAnimationObjects[animationRows.recoil * 9 + person.model])
+  else setPersonAnimationRow(person, animationRows[action], setAnimation)
   person.f1 = 1
   person.f2 = 0
 }

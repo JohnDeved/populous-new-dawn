@@ -1,0 +1,199 @@
+{
+  "provenance": {
+    "url": "https://github.com/JohnDeved/populous-new-dawn/actions/runs/39344305071/job/118373096117",
+    "jobId": 118373096117,
+    "logSha256": "5a9bbfb9daeb02cefe39060fa1e7c526a66b431289a06ddad9c180764ee47e7f",
+    "compactJsonSha256": "2caafb2e9a227dcceb7f0650812ddfa787903109071d96a6b9142032a9ef2357",
+    "rawHostSha256": "1ceabd0ebd58712f5d1b8fcc9e086f183c87ee7d0c7e1173e2c9b18e7bb034c6",
+    "scope": "Retained hosted compact receipt. All13 screenshot hashes verified against original bytes; binary files are not part of this bounded fixture. This historical run is not new-candidate acceptance."
+  },
+  "receipt": {
+    "version": 1,
+    "kind": "pause-recovery-browser",
+    "status": "passed",
+    "identity": {
+      "repository": "JohnDeved/populous-new-dawn",
+      "runId": "39344305071",
+      "runAttempt": "1",
+      "workflowRef": "JohnDeved/populous-new-dawn/.github/workflows/tutorial-browser.yml@refs/pull/647/merge",
+      "mergeSha": "8c9bc8ab4108fdcf1b6d5eb137cc8ac06a348087",
+      "headSha": "ec6e4081e9995dc8b48770b622209a50b86250a1",
+      "baseSha": "322499f3f53c53f126ce6191050e5103595faa3a"
+    },
+    "inputs": {
+      "scripts/tutorial-browser/run.mjs": "3db87202460d3b5551ff4ec47702224a746b5724ca2bfdef2481a457a51bfef9",
+      "scripts/tutorial-browser/recovery-receipt.mjs": "a3aba92b76cb4e55721fa07273250f4430d8e50cd7eb8ff3ddf73252e59de16c",
+      "scripts/tutorial-browser/browser-config.mjs": "e8ace43300cc6de093abb412187c8a121c8de3b221b138e678af79ae5ba12f38",
+      "scripts/tutorial-browser/build-home.mjs": "ed9bfffa71926a2275e68c626e508cee083d91767a46ce9f3171fec3cf0d7a49",
+      "scripts/tutorial-browser/fixture/main.tsx": "e6738a27bea60f59d595b7fa456c0c11ed466d7003a6d1c2e3286ad05ad5a7fa",
+      "scripts/tutorial-browser/fixture/index.html": "4b628f3fe6dd1e6a6d809182355e39ff14254e2b8792797d2813a16d4bc5b01d",
+      "scripts/local-render/original-pause-checkpoint-recovery.mjs": "465bb051df0a8892ed46a0f1ebc2d384f31129213e86185f7554c74705f33681",
+      "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "scripts/browser-game.mjs": "e284b818e6d3184dd5afd898be05d2fefee64a213ab778334f6b53308f845db0",
+      "scripts/browser-new-game.mjs": "ea279470fd5f84b8ab44e59c503e4c6289572c905cc21ca51efb7d77bfe679f2",
+      "app/original-pause-menu.tsx": "895d4f7b1b065f22c7c50d971e5e6c8433ce4fdd2b1cad1c9abb5af97242fe49",
+      "app/page.tsx": "4c4ce8e24dfa0d5c07db1b09524785558bb40b7a50a15b82ddf164cde08024b6",
+      "app/game-store.ts": "e40bd9a35d1b8ebe3d0cb37f6c3907dadb8d6fdbfe47ee9272e06165266a63dd",
+      "package-lock.json": "3e14a05ec38c7dcacf521d5050651137138147dd2a2eadf9abdd5344fa314c71"
+    },
+    "receiptSha256": "1ceabd0ebd58712f5d1b8fcc9e086f183c87ee7d0c7e1173e2c9b18e7bb034c6",
+    "selectedScenario": "pause-checkpoint-recovery",
+    "build": {
+      "pid": 2573,
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "capMs": 120000
+    },
+    "sourceAfter": "identical",
+    "cleanupVerified": true,
+    "errors": [],
+    "dependencyChanges": [],
+    "dependenciesBeforeSha256": "d4d93a9163bb4220fd1b6bd4564d6a5cfa9fe369df2e04871f3bfd12bf660fff",
+    "dependenciesAfterSha256": "d4d93a9163bb4220fd1b6bd4564d6a5cfa9fe369df2e04871f3bfd12bf660fff",
+    "browserCapMs": 180000,
+    "browserTimedOut": false,
+    "browserPath": "/opt/google/chrome/chrome",
+    "launch": {
+      "channel": "chrome",
+      "headless": true,
+      "chromiumSandbox": true,
+      "ignoreDefaultArgs": true,
+      "args": [
+        "--headless",
+        "--remote-debugging-pipe"
+      ],
+      "timeout": 30000
+    },
+    "checks": [
+      "checkpoint created and persisted by ordinary Save Game UI",
+      "native held Escape cancels each subpanel once without resuming; a fresh press resumes",
+      "frontend Retry preserves keyboard focus through Enter repeats/release and successful lookup",
+      "frontend Retry preserves keyboard focus through Space repeats/release and successful lookup",
+      "frontend Retry preserves keyboard focus through Enter repeats/release and late Options completion",
+      "retry ignores held/repeated activation, freezes world and clock, and cannot steal focus or navigate from Save",
+      "only explicit Load checkpoint replaces the world with the persisted checkpoint",
+      "empty retry restores usable root focus when completion occurs in Load panel",
+      "empty retry restores usable root focus when completion occurs in root"
+    ],
+    "screenshots": [
+      {
+        "name": "frontend-retry-enter.png",
+        "viewport": {
+          "width": 800,
+          "height": 600
+        },
+        "dpr": 1,
+        "sha256": "f2d028de01548a5965be8ff3168be432025051e267e1a43d518383530d9320d2"
+      },
+      {
+        "name": "frontend-retry-space.png",
+        "viewport": {
+          "width": 800,
+          "height": 600
+        },
+        "dpr": 1,
+        "sha256": "f2d028de01548a5965be8ff3168be432025051e267e1a43d518383530d9320d2"
+      },
+      {
+        "name": "frontend-retry-enter-options.png",
+        "viewport": {
+          "width": 800,
+          "height": 600
+        },
+        "dpr": 1,
+        "sha256": "a0fb9faa48a1acf4f2e5ea07f2b8fa3616112bf58575d0e955b7795ef77829cb"
+      },
+      {
+        "name": "failed-root-640x480.png",
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "dpr": 1,
+        "sha256": "d30e9f485d928e43075ac8c7ae2e3ca5bb3bc69ab27e874b3edc8e3ad9fd252f"
+      },
+      {
+        "name": "failed-root-1920x1080.png",
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "dpr": 1,
+        "sha256": "09693f0d7184e2e926e1bb954d8759f61d0adac20c4d8f89aae4d56a278c8eee"
+      },
+      {
+        "name": "failed-load-640x480.png",
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "dpr": 1,
+        "sha256": "1efa97b50ff2bfaf4fbc7ddfc4d65390fbf93328d9c4f8275ceeaf883c8997c1"
+      },
+      {
+        "name": "failed-load-1920x1080.png",
+        "viewport": {
+          "width": 1920,
+          "height": 1080
+        },
+        "dpr": 1,
+        "sha256": "835ef33ce23491574d3044702a2e34684b696dba3469513ad9537aef6096c55b"
+      },
+      {
+        "name": "failed-load-800x450.png",
+        "viewport": {
+          "width": 800,
+          "height": 450
+        },
+        "dpr": 1,
+        "sha256": "73589c2d656bc69e0e99eeb2d0b129c0e891f4c55a7e706154b12daaeda689f7"
+      },
+      {
+        "name": "pending-load.png",
+        "viewport": {
+          "width": 800,
+          "height": 450
+        },
+        "dpr": 1,
+        "sha256": "761e07324755be1dcf4a658d02fc2fd4125416822b222af63e6c86204862ed4c"
+      },
+      {
+        "name": "recovered-load-640x480.png",
+        "viewport": {
+          "width": 640,
+          "height": 480
+        },
+        "dpr": 1,
+        "sha256": "1511149deb519452293f5b8d2090c9a7598a48c42211f7545cde53fa4037a1ab"
+      },
+      {
+        "name": "empty-failed-dpr2-panel.png",
+        "viewport": {
+          "width": 800,
+          "height": 450
+        },
+        "dpr": 2,
+        "sha256": "26ea9da0277c05cec5be66701e43e91cdbf4de55b0a3380dc5e73469181f9c28"
+      },
+      {
+        "name": "empty-load-dpr2.png",
+        "viewport": {
+          "width": 800,
+          "height": 450
+        },
+        "dpr": 2,
+        "sha256": "56dc6160c33ebc74c4184a5ac5fe33575a59a743f46977610e2829497b3b27f4"
+      },
+      {
+        "name": "empty-failed-dpr2-root.png",
+        "viewport": {
+          "width": 800,
+          "height": 450
+        },
+        "dpr": 2,
+        "sha256": "715d167e1811bb356a1c964163708d1ce81c6848eaa61286f39155e87b10deb7"
+      }
+    ]
+  }
+}

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { mission10ReceiptFixture, compactMission10Fixture, mission10EvidenceFixture } from './support/mission10-profile-receipt.mjs'
 import {
   PROFILE_JOB,
   PROFILE_STEPS,
@@ -39,6 +40,7 @@ function fixture() {
     baseSha: oid(3),
   }
   const inputs = Object.fromEntries(PROFILE_INPUTS.map(p => [p, sha256(p)]))
+  const mission10 = mission10ReceiptFixture(identity.mergeSha)
   const receipt = {
     version: 1,
     kind: 'profile-recovery-browser',
@@ -65,6 +67,7 @@ function fixture() {
       args: ['--headless', '--remote-debugging-pipe'],
       timeout: 30000,
     },
+    mission10: compactMission10Fixture(mission10),
     scenarioStatus: 'passed',
     runtimeUnchanged: true,
     cases: PROFILE_CASES.map(([kind, status, fixture]) => ({ kind, status, fixture })),
@@ -75,7 +78,7 @@ function fixture() {
       sha256: h,
     })),
   }
-  return { receipt, expected: { identity, inputs } }
+  return { receipt, expected: { identity, inputs, mission10Evidence: mission10EvidenceFixture(mission10) } }
 }
 function entry() {
   return {
@@ -324,6 +327,7 @@ function adapter() {
           status: 'completed',
           conclusion: 'success',
         }
+  reader.profileEvidence = () => mission10EvidenceFixture(mission10ReceiptFixture(oid(4)))
   reader.workflow = () => ({ sha256: h })
   reader.gitOutput = (_, ref) => ref.slice(ref.indexOf(':') + 1)
   return { reader, args: [e, pr, synthetic, exact, jobs, row] }
@@ -539,6 +543,11 @@ test('both recovery scenarios and storage observer changes require browser accep
     'scripts/local-render/original-pause-checkpoint-recovery.mjs',
     'scripts/local-render/checkpoint-observer.mjs',
     'scripts/checkpoint-readback.mjs',
+    'scripts/local-render/mission10-boat-checkpoint.mjs',
+    'scripts/local-render/mission1-vault-input.mjs',
+    'scripts/local-render/owned-profile.mjs',
+    'qa/erosion-ordinary/input.mjs',
+    'qa/erosion-ordinary/minimap-input.mjs',
   ])
     assert.equal(browserRequired([path]), true)
 })

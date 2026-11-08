@@ -42,6 +42,25 @@ export function readerImportAdmission(source, read = path => readFileSync(resolv
     return sha256(readerImport)
   } catch { return null }
 }
+// Preserve the legacy common-install contract. Declared pnpm sources also
+// bind their real dependency graph and isolation policy, not only the old lock.
+function regularSource(root, name) {
+  const path = resolve(root, name)
+  assert.ok(lstatSync(path).isFile(), 'Dependency source input must be a regular file')
+  return readFileSync(path)
+}
+export function readerDependencyPolicy(root) {
+  const manager = JSON.parse(regularSource(root, 'package.json')).packageManager ?? 'npm@11.9.0'
+  assert.ok(['npm@11.9.0', 'pnpm@11.25.0'].includes(manager), 'Unsupported dependency source policy')
+  return manager === 'pnpm@11.25.0' ? { packageManager: manager,
+    pnpmLockSha256: sha256(regularSource(root, 'pnpm-lock.yaml')),
+    workspaceSha256: sha256(regularSource(root, 'pnpm-workspace.yaml')) } : null
+}
+export function commonDependencyInputsEqual(base, head) {
+  if (!['package.json', 'package-lock.json'].every(name => regularSource(base, name).equals(regularSource(head, name)))) return false
+  if (!readerDependencyPolicy(base)) return true
+  return ['pnpm-lock.yaml', 'pnpm-workspace.yaml'].every(name => regularSource(base, name).equals(regularSource(head, name)))
+}
 // Hash all installed dependency bytes, including the browser's actual Three
 // build entry/core and the compiler's consumed tools, not just source references.
 export function readerDependencyManifest(root) {
@@ -53,7 +72,7 @@ export function readerDependencyManifest(root) {
       assert.ok(entries.length < 100000 && bytes < 4 * 1024 ** 3, 'Dependency evidence exceeds bound')
       if (stat.isSymbolicLink()) {
         const target = readlinkSync(path), resolved = resolve(folder, target)
-        assert.ok(resolved.startsWith(directory + '/'), 'External dependency link unsupported')
+        assert.ok(resolved.startsWith(directory + '/') && realpathSync(path).startsWith(directory + '/'), 'External dependency link unsupported')
         entries.push([rel, 'link', target]); continue
       }
       if (stat.isDirectory()) { visit(path); continue }
@@ -65,12 +84,29 @@ export function readerDependencyManifest(root) {
     }
   }
   visit(directory)
-  const three = JSON.parse(readFileSync(resolve(directory, 'three/package.json')))
-  assert.equal(three.version, '0.185.1', 'Reader contract requires reviewed Three version')
   const required = ['three/package.json', 'three/build/three.module.js', 'three/build/three.core.js',
     'three/src/core/BufferGeometry.js', 'three/src/core/BufferAttribute.js', 'three/src/objects/InstancedMesh.js', 'three/src/math/Matrix4.js', 'three/src/math/MathUtils.js']
   const byPath = new Map(entries.map(entry => [entry[0], entry]))
-  for (const path of required) assert.equal(byPath.get(path)?.[1], 'file', 'Reader dependency source missing')
+  // Inventory the physical store once; do not recursively duplicate package
+  // aliases. Resolve every consumed logical path back to an inventoried regular
+  // file and recheck its actual bytes, including the browser's build entries.
+  const readerSources = required.map(logical => {
+    const path = realpathSync(resolve(directory, logical))
+    assert.ok(path.startsWith(directory + '/'), 'External reader dependency source unsupported')
+    const physical = relative(directory, path).replaceAll('\\', '/'), entry = byPath.get(physical)
+    assert.equal(entry?.[1], 'file', 'Reader dependency source missing')
+    const actual = readFileSync(path)
+    assert.equal(actual.length, entry[2]); assert.equal(sha256(actual), entry[3], 'Reader dependency changed during inventory')
+    return [logical, physical, entry[2], entry[3]]
+  })
+  const three = JSON.parse(readFileSync(resolve(directory, readerSources[0][1])))
+  assert.equal(three.version, '0.185.1', 'Reader contract requires reviewed Three version')
+  const sourcePolicy = readerDependencyPolicy(root)
+  if (sourcePolicy || readerSources.some(([logical, physical]) => logical !== physical)) {
+    return { version: 2, sha256: sha256(JSON.stringify({ entries, readerSources, sourcePolicy })), files: entries.length, bytes,
+      threeSha256: sha256(JSON.stringify(readerSources)), entries, readerSources, sourcePolicy }
+  }
+  // The legacy flat npm inventory and digests retain their exact schema.
   return { version: 1, sha256: sha256(JSON.stringify(entries)), files: entries.length, bytes,
     threeSha256: sha256(JSON.stringify(required.map(path => byPath.get(path)))), entries }
 }

@@ -1,6 +1,6 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
 Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --balloon-huts-only | --hut-smoke-only]
---units-only appends Shaman, Firewarrior and Preacher sermon artwork and writes only
+--units-only appends original person-table, Shaman, Firewarrior and Preacher artwork and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
@@ -166,7 +166,7 @@ def building_shapes(data, objects, smoke_offsets=b''):
     return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})
 
 def append_unit_families(source, project):
-    """Append original Shaman, Firewarrior and Preacher sermon artwork.
+    """Append original person-table, Shaman, Firewarrior and Preacher artwork.
 
     This bounded mode writes only original-units.json, unit-layers.png and its
     provenance.json. The normal full importer calls it after producing that same
@@ -334,7 +334,9 @@ def append_unit_families(source, project):
                              {piece['source'] for piece in units['pieces'][:4122]})
     assert len(preaching_pieces) == 48
     append_sources(preaching_sources)
-    assert len(units['frames']) == 5256 and len(units['pieces']) == 4170
+    # A repeated bounded append may already contain the later person-table
+    # additions. All established bytes/indices were verified above.
+    assert len(units['frames']) >= 5256 and len(units['pieces']) >= 4170
     for offset, source_piece in enumerate(preaching_pieces):
         index = piece_index[source_piece]
         assert index == 4122 + offset
@@ -356,6 +358,52 @@ def append_unit_families(source, project):
     for team in ['blue', 'red']:
         for index, source in enumerate(preaching_sources, 1):
             units['animations'][team + '-preacher'][f'preachGesture{index}'] = directions(source)
+
+    # The native setters use source IDs, not the historical browser state names.
+    # Cover every nonempty model1..6 person-table row. The direct sermon objects
+    # are selected by 0043a4d0; 004d73e0 selects resting objects161/162/163.
+    # 004d3ea0 and 004d6e40 select wild-person objects2/3/4. Importing their
+    # artwork does not claim that the corresponding live controllers are ported.
+    follower_objects = {
+        obj for i, obj in enumerate(rules['personAnimationObjects'])
+        if 1 <= i % 9 <= 6 and obj >= 0
+    } | {2, 3, 4, 95, 97, 98, 99, 161, 162, 163}
+    follower_starts = sorted({rules['animationObjects'][obj][0] for obj in follower_objects})
+    first_follower_piece = len(units['pieces'])
+    append_sources(follower_starts)
+
+    # Retain the 2048x8192 atlas and every established rectangle. Old 64px cells
+    # have unused 32px subslots; reserve whole subslots against actual rectangles,
+    # then place appended pieces only in disjoint, previously empty rectangles.
+    slot = 32
+    atlas_height = 8192
+    occupied = set()
+    def slots(x, y, width, height):
+        return {(col, row)
+                for row in range(y // slot, (y + height + slot - 1) // slot)
+                for col in range(x // slot, (x + width + slot - 1) // slot)}
+    for index, piece in enumerate(units['pieces'][:first_follower_piece]):
+        x = piece.get('atlasX', (index % units['columns']) * units['cell'])
+        y = piece.get('atlasY', (index // units['columns']) * units['cell'])
+        assert 0 <= x and x + piece['w'] <= old_width
+        assert 0 <= y and y + piece['h'] <= atlas_height
+        occupied.update(slots(x, y, piece['w'], piece['h']))
+    for piece in units['pieces'][first_follower_piece:]:
+        location = next(
+            ((x, y) for y in range(0, atlas_height - piece['h'] + 1, slot)
+             for x in range(0, old_width - piece['w'] + 1, slot)
+             if occupied.isdisjoint(slots(x, y, piece['w'], piece['h']))),
+            None,
+        )
+        assert location is not None, 'No disjoint atlas rectangle for original person artwork'
+        x, y = location
+        for row in range(piece['h']):
+            if y + row < old_height:
+                at = ((y + row) * old_width + x) * 4
+                assert not any(old_pixels[at:at + piece['w'] * 4]), 'Person destination must be empty'
+        piece.update(atlasX=x, atlasY=y)
+        occupied.update(slots(x, y, piece['w'], piece['h']))
+    units['followerSources'] = {str(start): directions(start) for start in follower_starts}
     assert units['frames'][:len(old_frames)] == old_frames
     assert units['pieces'][:len(old_pieces)] == old_pieces
     assert all(units['animations'][name][state] == value
@@ -382,6 +430,7 @@ def append_unit_families(source, project):
     units_path.write_text(json.dumps(units, separators=(',', ':')))
     provenance['animationFrames'] = len(units['frames'])
     provenance['spritePieces'] = len(units['pieces'])
+    provenance['followerAnimationSources'] = follower_starts
     provenance['unitAtlasSha256'] = hashlib.sha256((output / 'unit-layers.png').read_bytes()).hexdigest()
     provenance_path.write_text(json.dumps(provenance, indent=2) + '\n')
     print(f"Appended {len(units['frames']) - len(old_frames)} original unit frames and "

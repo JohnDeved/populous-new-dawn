@@ -24,6 +24,51 @@ are listed in [native research](native-research.md). Search those and the curren
 workspace before downloading. A failed checksum must stop use of that file; preserve
 it for diagnosis rather than silently replacing it.
 
+## Share existing research data without copying it
+
+Research checks accept an explicit executable or game-root argument. Reuse one
+physical, verified extraction on persistent disk; do not copy it into each checkout
+or replace tracked `public/original` assets. For selected inputs, the standard-library
+helper creates only file symlinks beneath the checkout's ignored
+`work/native-inputs/game`. Example from an owned checkout:
+
+```sh
+revision=$(git rev-parse HEAD)
+game_root=/path/to/existing/verified/game
+python3 -B scripts/orchestration/shared_native_inputs.py prepare \
+  --checkout "$PWD" --revision "$revision" --source "$game_root" \
+  --file d3dpoptb.exe --file data/pal0-c.dat
+python3 -B scripts/orchestration/shared_native_inputs.py verify \
+  --checkout "$PWD" --revision "$revision" --source "$game_root" \
+  --file d3dpoptb.exe --file data/pal0-c.dat
+export POPULOUS_EXE="$PWD/work/native-inputs/game/d3dpoptb.exe"
+```
+
+Select every adjacent file required by the actual reader with repeated `--file`.
+The selected set must match on each invocation; changing it requires a separate owned
+checkout or explicit review of the old links, not automatic pruning. This is a
+partial research view, not a complete game installation. Missing members still need
+scoped recovery from the existing verified archive. Unknown/unpinned files are refused.
+
+Hashes come from the exact checkout commit's `decomp/tools.json`,
+`public/original/provenance.json` and `scripts/authored-environment-inputs.json`.
+The JSON result binds the selected bytes, source root, commit, provenance documents,
+and retained archive/installer provenance. It does not re-verify an archive that was
+not supplied. Save stdout outside the linked game tree when retaining a receipt.
+
+Preparation preflights all selected bytes and existing paths before creating links;
+it never replaces, deletes, downloads, executes, chmods or copies an input. Verification
+is read-only and rejects wrong targets even when their bytes match, changed source
+bytes, source/ancestor symlinks, tracked or nonignored destinations, and extra entries.
+Keep source inputs immutable by ownership convention and serialize changes with all
+consumers. Symlinks are not write protection or a concurrent-writer security sandbox.
+Reverify immediately before and after a research check; keep its mutable outputs in
+a separate private directory. A sharing receipt is not native execution, gameplay,
+or full-check evidence. Existing historical links are left untouched.
+
+Focused safety regression: `node --test tests/shared-native-inputs.test.mjs`.
+No package installation, original binary execution, browser or build is needed.
+
 ## Fresh Linux x86-64 setup
 
 Requires Bash, curl, Python 3 with venv, unzip, and tar. Check `uname -sm`; the JDK

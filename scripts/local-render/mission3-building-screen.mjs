@@ -326,7 +326,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
         signal.throwIfAborted()
         saved.committed = await page.evaluate(readM3Committed)
         return (
-          saved.committed?.version === 1 &&
+          saved.committed?.version === 3 &&
           isDeepStrictEqual(saved.committed.snapshot, saved.boundary.snapshot)
         )
       })

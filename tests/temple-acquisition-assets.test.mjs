@@ -44,10 +44,20 @@ test('original c textures and pre-existing model values stay intact while p pres
     hash(read('public/original/atlas.png')),
     'fdb5c2af7ca43debb5d943036969df29949773b6b94c0b7ce99ffc5d946b27b0'
   )
+  // Hypnotise appends rows, so PNG container identity legitimately changes.
+  // Pin every original decoded pixel and frame value instead, independently
+  // of the appended native-frame oracle. Never rebaseline this old prefix.
+  const effectAtlas = png('effects')
+  assert.deepEqual([effectAtlas.width, effectAtlas.height], [2048, 7168])
   assert.equal(
-    hash(read('public/original/effects.png')),
-    'dabd1d661b2b7cfe82d3f717f045bccbaa082a34ae0e2b0abf812c7744052a97'
+    hash(effectAtlas.pixels.subarray(0, 2048 * 6656 * 4)),
+    '123d0f355757e31cd51fd3ed081d1b05d6165702b38224e26863218c2e18282b'
   )
+  const oldEffects = structuredClone(effects)
+  oldEffects.height = 6656
+  delete oldEffects.animations.hypnotise
+  assert.equal(hash(JSON.stringify(oldEffects)),
+    '8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb')
   // The authenticated Balloon Hut append adds only87–90; every prior model
   // remains identical in value while the whole JSON file necessarily changes.
   const previousModels = Object.fromEntries(

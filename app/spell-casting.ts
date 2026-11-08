@@ -1,5 +1,5 @@
 import { currentPersonOrder } from './person-orders.ts'
-import { changeLivePersonState } from './live-people.ts'
+import { beginLiveCasting } from './live-people.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { ManaTribe, ManaWorld, SpellStock } from './mana.ts'
 import { cellDistanceSquared, positionDistance } from './native-math.ts'
@@ -191,6 +191,12 @@ export type TargetCaster = SpellCaster & {
   casting: TribeCasting
   playerType: number
 }
+// Normal-mode 0x4c24f0: any vehicle link blocks Land Bridge unless the
+// tribe has unlimited casting. The destination must remain dry in either case.
+export function landBridgeTargetAllowed(tribeFlags: number, vehicle: number, terrainFlags: number) {
+  return !(terrainFlags & 2) && (!!(tribeFlags & 0x80000) || !vehicle)
+}
+
 // 0x4c24f0. Results: 1 valid, -1 unavailable, -2 range, -3 bridge placement.
 // Cursor blocking and the alternate-mode bridge anchor are native UI inputs.
 export function validateSpellTarget(
@@ -224,13 +230,13 @@ export function validateSpellTarget(
       return -2
   }
   if (model !== 12) return 1
-  if (tribeFlags & 0x80000) return terrainFlags & 2 ? -3 : 1
+  if (tribeFlags & 0x80000) return landBridgeTargetAllowed(tribeFlags, 0, terrainFlags) ? 1 : -3
   // A valid normal-mode shaman is guaranteed by the checks above.
   if (notify) {
     if (terrainFlags & 2) effects.notify(0x8000, 0x255)
     if (caster!.landIndex && caster!.flags4 & 0x2000000) effects.notify(0x8000000, 0x261)
   }
-  return !caster!.landIndex && !(terrainFlags & 2) ? 1 : -3
+  return landBridgeTargetAllowed(tribeFlags, caster!.landIndex, terrainFlags) ? 1 : -3
 }
 
 // 0x4d1340. Entry mode selects defense (nonzero) or offense (zero). The
@@ -458,11 +464,12 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point, personId?: 
   }
   u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }
   castVoice(w, u, spell)
-  // 0x4c1b80 enters cast state22 even while the Shaman owns a vehicle seat.
-  // Retain the existing opening-order handoff and other legacy cast owners.
+  // 0x4c1b80 hands ordinary grounded casters to native state 22 too.
+  // Forced/script airborne casts retain their existing admission boundary;
+  // their interruption/landing ownership has not yet been traced.
   if (
-    u.native &&
-    (u.native.vehicle || currentPersonOrder(w.buildingOrders, u.native)?.model === 18)
+    (!u.flight && !u.lift) ||
+    (u.native && (u.native.vehicle || currentPersonOrder(w.buildingOrders, u.native)?.model === 18))
   )
-    changeLivePersonState(w, u, 22)
+    beginLiveCasting(w, u, nativePosition(w, target))
 }

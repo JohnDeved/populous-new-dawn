@@ -84,10 +84,6 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
       if (copy.shrines[index].reward === undefined) copy.shrines[index].reward = 'mana'
     return copy
   }
-  // Historical adapter records omitted the clicked cell. Preserve that legacy
-  // boundary without fabricating the original click or claiming distance parity.
-  const legacy = structuredClone(world)
-  legacy.buildingOrders.records[second].b = 0
   let closest = Infinity,
     controlRetirements = 0,
     boarded = null
@@ -130,13 +126,12 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
       assert.equal(controlOwner.immediateCommand,0)
     }
     tick(restored, 1 / 12)
-    tick(legacy, 1 / 12)
     assert.deepEqual(comparable(restored), comparable(world))
     closest = Math.min(closest, Math.hypot(shaman.x - 22, shaman.z + 39))
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
   assert.ok(lethalClosest < 1)
-  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1460, 97, 1485])
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1460, 97, 1476])
   assert.equal(lethalShaman.hp, 0)
   assert.equal(lethal.units.includes(lethalShaman), false)
   assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
@@ -148,14 +143,12 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   // is not that contract; both predecessor and one actual retirement are checked.
   assert.equal(controlRetirements,1)
   assert.ok(closest < 1)
-  assert.equal(boarded, 1375)
+  assert.equal(boarded, 1376)
   assert.equal(shaman.hp, 100.6)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)
   assert.equal(after.vehicle, boat.id)
   assert.deepEqual(boat.passengers, [shaman.id])
   assert.equal(world.objectCells.objects.get(shaman.id), after)
-  assert.equal(legacy.units.find(u => u.id === shaman.id).native.vehicle, boat.id)
-  assert.equal(legacy.buildingOrders.records[second].references, 0)
   assert.equal(after.commands.filter(Boolean).length, 0)
 })

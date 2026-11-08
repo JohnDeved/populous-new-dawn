@@ -1,3 +1,4 @@
+import { scalableReferenceIds } from './helpers/scalable-reference-ids.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { cast, command, tick } from '../app/model.ts'
@@ -8,8 +9,10 @@ import { strikeLiveLightning } from '../app/live-people.ts'
 import { strikeLightning } from '../app/lightning.ts'
 import { random } from '../app/native-math.ts'
 
-const nativeDeaths = [303, 306, 309, 312, 516, 519, 589],
-  legacyDeaths = [303, 306, 507, 510, 513, 516, 589]
+const referenceId = scalableReferenceIds(3)
+
+const nativeDeaths = [303, 306, 309, 312, 516, 519, 589].map(referenceId),
+  legacyDeaths = [303, 306, 507, 510, 513, 516, 589].map(referenceId)
 
 function pendingStrike() {
   const store = createGameStore()
@@ -38,7 +41,7 @@ function pendingStrike() {
     linked = [...objectsInCell(world.objectCells, cell)].filter(person => ids.includes(person.id))
   assert.deepEqual(
     linked.map(person => person.id),
-    [306, 303, 312, 516, 309, 519, 589, 510, 507, 513]
+    [306, 303, 312, 516, 309, 519, 589, 510, 507, 513].map(referenceId)
   )
   return { world, store, bolt, ids, linked }
 }
@@ -90,7 +93,7 @@ test('Lightning keeps the unregistered fallback and excludes same-ID aliases', (
     const people =
       mode === 'unregistered'
         ? [...world.objectCells.objects.values()]
-        : [world.objectCells.objects.get(312)]
+        : [world.objectCells.objects.get(referenceId(312))]
     for (const person of people) {
       if (mode === 'alias') world.objectCells.objects.set(person.id, structuredClone(person))
       else {
@@ -105,7 +108,7 @@ test('Lightning keeps the unregistered fallback and excludes same-ID aliases', (
     assert.equal(world.randomState, expectedRng.randomState)
     assert.deepEqual(
       deaths(world, ids),
-      mode === 'unregistered' ? legacyDeaths : [303, 306, 309, 510, 516, 519, 589],
+      mode === 'unregistered' ? legacyDeaths : [303, 306, 309, 510, 516, 519, 589].map(referenceId),
       mode
     )
   }
@@ -118,7 +121,7 @@ test('immune people do not consume the Lightning cap and protected transitions s
   linked[2].flags2 |= 0x100000
   const expected = sourceDeaths(linked),
     previousState = linked[2].state
-  assert.deepEqual(expected, [309, 312, 507, 510, 516, 519, 589])
+  assert.deepEqual(expected, [309, 312, 507, 510, 516, 519, 589].map(referenceId))
   strikeLiveLightning(world, bolt.target, 0)
   assert.deepEqual(deaths(world, ids), expected)
   assert.equal(linked[2].state, previousState)
@@ -159,7 +162,7 @@ test('supplied malformed duplicate roster owners retain Lightning fallback toler
     assert.doesNotThrow(() => strikeLiveLightning(world, bolt.target, 0))
     assert.deepEqual(
       deaths(world, ids),
-      sameUnit ? [303, 306, 306, 507, 510, 513, 589] : [303, 306, 507, 510, 513, 589]
+      sameUnit ? [303, 306, 306, 507, 510, 513, 589].map(referenceId) : [303, 306, 507, 510, 513, 589].map(referenceId)
     )
   }
 })

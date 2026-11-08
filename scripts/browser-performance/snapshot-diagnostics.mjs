@@ -63,8 +63,8 @@ function explanation(status, report, phase, reports) {
     return `Shard report ${report?.status ?? 'missing'}. ${presence(report, phase)}. All six runs and the shard report must be complete; each run must contain this phase. Failure cause is not recorded in this schema.`
   const phases = report.runs.map(run => run.phases.find(item => item.name === phase))
   if (status === 'environment-mismatch') {
-    const runtime = shardHashMismatch(reports, 'runtimeSha256', 'Runtime SHA-256')
-    if (runtime) return runtime
+    // The comparator admits independent runtimes for disjoint shards. Diagnose
+    // only this cell's six sessions, never another shard's runtime identity.
     return mismatch(report.runs, run => run.environmentSha256, 'Browser environment SHA-256', true)
   }
   if (status === 'geometry-input-mismatch') return blockMismatch(phases, 'geometry')

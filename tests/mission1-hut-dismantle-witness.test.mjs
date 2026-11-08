@@ -70,6 +70,7 @@ function pageLoad(store) {
       pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
+      setCheatsOpen: value => assert.equal(value, false, 'actual Page Load closes the testing menu'),
       setSelectorOpen: noop,
       audio: { current: { reset: noop } },
       setMenu: noop,
@@ -96,7 +97,7 @@ function ownGlobal(t, name, value) {
 }
 
 test('Hut witness follows real input, partial Save/Load and a fresh Scene before its first RAF', async t => {
-  const fixture = await tooltipCallerFixture(t),
+  const fixture = await tooltipCallerFixture(t, { capacityMode: 'scalable' }),
     { scene, hut, api, frame } = fixture,
     { GameScene } = await import('../app/scene.ts'),
     { ObjectPanels } = await import('../app/object-panels.ts'),

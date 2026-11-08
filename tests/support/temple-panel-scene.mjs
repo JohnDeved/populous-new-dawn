@@ -50,8 +50,8 @@ async function buildEmptyTemple({ api, world, scene, frame }) {
   return temple
 }
 
-export async function templePanelFixture(t) {
-  const fixture = await tooltipCallerFixture(t, { level: 3, prepareTarget: buildEmptyTemple }),
+export async function templePanelFixture(t, capacityMode = 'classic') {
+  const fixture = await tooltipCallerFixture(t, { level: 3, prepareTarget: buildEmptyTemple, capacityMode }),
     { renderBuildingPanels } = await import('../../app/building-panels.ts')
   supplyPanelDom(t, fixture.scene)
   const paint = () => renderBuildingPanels(fixture.scene, { complete: true, naturalWidth: 2048 })

@@ -1,0 +1,183 @@
+{
+  "atlas": "tornado",
+  "width": 2048,
+  "height": 128,
+  "frames": [
+    {
+      "source": 1136,
+      "x": 0,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "9c48da814e3fadb611f3de7fd3e52aad10e68bb23ce92606d7a3c20a110cf3ef"
+    },
+    {
+      "source": 1137,
+      "x": 128,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "aa8176a780764d3d8f8cad6e299a4ec9998cfb713ecfeebec45cd452ae026c32"
+    },
+    {
+      "source": 1138,
+      "x": 256,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "56b40fd6c5b77d4c4dcd37005aa435f3fa8a21f8dad7479b0faa5dce44f06429"
+    },
+    {
+      "source": 1139,
+      "x": 384,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "56cb094d8ddb0289f8687fc8245c102867bd992c800208593745d3ce94283c00"
+    },
+    {
+      "source": 1140,
+      "x": 512,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "4067d5ca457f9098422200edb6dda303e943192d5844fcb094dfc44dc5acb3ca"
+    },
+    {
+      "source": 1141,
+      "x": 640,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "2f1a387d86043a7554412ccb912b07c315c1e9c890e55dfb26b438501ebcecc1"
+    },
+    {
+      "source": 1142,
+      "x": 768,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "5a9b430a166a10e00ec4320a92d60960782f6b717d4cdc4f012de0ed90629899"
+    },
+    {
+      "source": 1143,
+      "x": 896,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "1b82ec6d64876bec7acf27489bc26d4b187e27d83ea275110ef620797510e002"
+    },
+    {
+      "source": 1144,
+      "x": 1024,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "ed009a1a4a73ea190a2b4e60182ce94862cca55086d48381377084e173314585"
+    },
+    {
+      "source": 1145,
+      "x": 1152,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "8c7471b25075d6613874e819c05f8479caedba9052b247cb4a0f4cd4b4b794b6"
+    },
+    {
+      "source": 1146,
+      "x": 1280,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "76f4bb6c4c3dcd970f1639410cc9eae10ab54acafbacdd53c0fabe4917049ac6"
+    },
+    {
+      "source": 1147,
+      "x": 1408,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "5e9cacf70c951f111870009087d1a48fc95949df46bd127e96026a193aa2e235"
+    },
+    {
+      "source": 1148,
+      "x": 1536,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "16497184288946621ffe5f6754dd3daca9e8ffe342111873eb4c2fdf87cded36"
+    },
+    {
+      "source": 1149,
+      "x": 1664,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "1b4f19e3a831b79183442e014981217de59ef4e23c3c863bea5c7b6757d88fd0"
+    },
+    {
+      "source": 1150,
+      "x": 1792,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "c8ba393c74e9759975c9db52d6b9b855c84138dde733f5b43ee00b66b903e3b5"
+    },
+    {
+      "source": 1151,
+      "x": 1920,
+      "y": 0,
+      "w": 80,
+      "h": 50,
+      "rgbaSHA256": "1407ffeaed8a9422e01a861f78f6eaf2115f3c1e69c084587ce7479ceffe30f8"
+    }
+  ],
+  "inputSHA256": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/al0-c.dat": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310"
+  },
+  "pngSHA256": "6241bbe06be6384d46aba5b185a9da5730c1a3083b00d895ada16d22d46c7a75",
+  "executableSHA256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "renderer": "0046ae97 scaled HFX; 0050f270 fixed birth variant, width-only taper",
+  "descriptor34": [
+    17,
+    0,
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    4,
+    0
+  ],
+  "paletteColors": {
+    "-2": [
+      255,
+      75,
+      22
+    ],
+    "-1": [
+      223,
+      155,
+      31
+    ],
+    "3": [
+      226,
+      212,
+      72
+    ],
+    "4": [
+      147,
+      111,
+      79
+    ],
+    "5": [
+      181,
+      206,
+      231
+    ]
+  }
+}

@@ -45,7 +45,7 @@ import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
 import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
+import { loadTexture, releaseGroup, retryFailedTexture, sceneTextureRevision, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -331,8 +331,15 @@ export class GameScene {
   neutralCursorRosterSelected = true
   cursorFrameBlocked = true
   modalSuspended = false
+  private modalRenderVersion = 0
+  private modalRenderedVersion = -1
+  private modalTextureVersion = -1
+  private invalidateModalRender() {
+    if (!this.disposed) this.modalRenderVersion++
+  }
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    this.invalidateModalRender()
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
@@ -578,6 +585,9 @@ export class GameScene {
       this.focus(browserPosition(camera))
     } else this.focus(shaman ?? HOME)
     this.drawMinimap()
+    this.listen(this.renderer.domElement, 'webglcontextrestored', () => this.invalidateModalRender())
+    this.listen(document, 'visibilitychange', () => this.invalidateModalRender())
+    this.listen(window, 'focus', () => this.invalidateModalRender())
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
@@ -622,9 +632,9 @@ export class GameScene {
     this.onNearbyFollowersCancel?.()
   }
   start() {
+    if (this.disposed || this.terrainLoad.signal.aborted) return false
     if (this.presentationBinding && !this.presentationBinding.isCurrent()) return false
     if (this.started) return true
-    if (this.disposed || this.terrainLoad.signal.aborted) return false
     this.started = true
     this.releaseTrainingPanelRequests = bindTrainingPanelRequests(this.world, this.objectPanels)
     this.previous = null
@@ -649,6 +659,7 @@ export class GameScene {
     this.disposeListeners.push(() => target.removeEventListener(name, handler))
   }
   setSize() {
+    if (this.disposed) return
     const { width, height } = this.container.getBoundingClientRect()
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.8))
     this.globe.stars.material.uniforms.pixelRatio.value = this.renderer.getPixelRatio()
@@ -670,6 +681,7 @@ export class GameScene {
     g.userData.nativeHeading = Math.round((angle * 1024) / Math.PI) & 2047
   }
   updateView() {
+    this.invalidateModalRender()
     updateView(this)
   }
   currentPreset() {
@@ -837,6 +849,7 @@ export class GameScene {
     updateSpellHalo(this, frame)
   }
   drawMinimap() {
+    if (this.disposed) return
     if (this.terrainTextures)
       this.minimap.draw(
         this.mini,
@@ -897,18 +910,31 @@ export class GameScene {
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
       this.neutralCursor?.reset()
-      const renderStart = diagnostic ? performance.now() : 0
-      if (diagnostic)
-        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
-      else this.view.painter.render(this.renderer, this.scene, this.camera)
-      const renderMs = diagnostic ? performance.now() - renderStart : 0
+      const version = this.modalRenderVersion,
+        textures = sceneTextureRevision(),
+        redraw =
+          version !== this.modalRenderedVersion ||
+          textures !== this.modalTextureVersion ||
+          !!this.view.painter.pendingSoundEnvironment
+      let renderMs = 0
+      if (redraw) {
+        const renderStart = diagnostic ? performance.now() : 0
+        if (diagnostic)
+          diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+        else this.view.painter.render(this.renderer, this.scene, this.camera)
+        renderMs = diagnostic ? performance.now() - renderStart : 0
+        // A throw leaves the request dirty. Capture before rendering so an
+        // invalidation raised during a draw cannot be accidentally consumed.
+        this.modalRenderedVersion = version
+        this.modalTextureVersion = textures
+      } else diagnostic?.pollGpu()
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
         now,
         0,
         renderMs,
-        this.renderer.info.render.calls,
-        'Menu · rendering',
+        redraw ? this.renderer.info.render.calls : 0,
+        redraw ? 'Menu · rendering' : 'Menu · holding frame',
         performance.now() - callbackStart,
         0,
         pointerMetrics,
@@ -920,11 +946,15 @@ export class GameScene {
     }
     syncSecondaryReservations(this)
     this.dispatchNearbyFollowers(now)
+    // Synchronous UI/audio callbacks may retire this scene before the frame ends.
+    if (this.disposed) return
     const simulationStart = diagnostic ? performance.now() : 0
     advanceGame(this.world, this.gameClock, dt, simulationMetrics)
+    if (this.disposed) return
     const simulationMs = diagnostic ? performance.now() - simulationStart : 0
     this.templeResourceSnapshot = this.presentationBinding?.snapshot() ?? null
     this.playWorldSounds()
+    if (this.disposed) return
     const terrainStart = sceneUpdates ? performance.now() : 0
     this.updateTerrainFrame()
     if (sceneUpdates) sceneUpdates.terrainCpuMs = performance.now() - terrainStart
@@ -942,7 +972,11 @@ export class GameScene {
       document.querySelector('dialog[open]')
     )
     if (this.cursorFrameBlocked) this.cancelTooltipInspection()
-    if (!cameraOwnsFrame && !this.updateFlyby(dt)) this.updateView()
+    if (!cameraOwnsFrame) {
+      const flying = this.updateFlyby(dt)
+      if (this.disposed) return
+      if (!flying) this.updateView()
+    }
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip(pointerMetrics)
@@ -973,6 +1007,7 @@ export class GameScene {
     const renderMs = diagnostic ? performance.now() - renderStart : 0
     const hudStart = sceneUpdates ? performance.now() : 0
     this.updateHudFrame(now, dt)
+    if (this.disposed) return
     if (sceneUpdates) sceneUpdates.hudCpuMs = performance.now() - hudStart
     this.frame = requestAnimationFrame(this.animate)
     // Synchronous game callback work, including HUD and scheduling; excludes
@@ -1080,5 +1115,19 @@ export class GameScene {
     this.objectPanels.dispose()
     this.spellPointer.remove()
     this.worshipPresentation.dispose()
+    // Disposal of Three textures releases GPU resources, not their CPU images.
+    // Drop every owned terrain alias, including the minimap's revision token.
+    // Replace references rather than changing buffers a caller may still hold.
+    const releasedImage = { data: new Uint8Array(0), width: 0, height: 0 }
+    this.terrainMap.image = releasedImage
+    this.terrainUpload.image = releasedImage
+    this.waterMap.image = releasedImage
+    this.terrainAtlasState = undefined
+    this.minimap.revision = undefined
+    this.terrainTextures = null
+    this.waves = null
+    // Each Scene owns its renderer/context. Retire it only after normal cleanup;
+    // shared cached textures and their images belong to future Scenes too.
+    this.renderer.forceContextLoss()
   }
 }

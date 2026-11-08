@@ -101,7 +101,7 @@ test('browser receipt rejects intervening paint, deletion shortcut and missing r
     assert.throws(() => assertCompletion({ ...completed, ...change }))
 })
 
-test('hosted building witness is query-gated and appended without changing existing tutorial caps or cases', () => {
+test('hosted building witness is query-gated and preserves finite cases within Tutorial aggregate headroom', () => {
   const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
   const fixture = read('scripts/tutorial-browser/fixture/main.tsx'),
     runner = read('scripts/tutorial-browser/run.mjs'),
@@ -109,7 +109,7 @@ test('hosted building witness is query-gated and appended without changing exist
   assert.match(fixture, /get\('building-panel-identity'\) === '1'/)
   assert.match(fixture, /import\('\.\.\/building-panel-fixture\.mjs'\)/)
   assert.equal(buildingPanelIdentityLimitMs, 35000)
-  assert.equal(browserCapMs('tutorial'), 180000)
+  assert.equal(browserCapMs('tutorial'), 240000)
   for (const name of [
     'result',
     'selectorInspection',

@@ -59,10 +59,26 @@ jobs:
           python-version: '3.12.14'
           architecture: x64
 
+      - name: Record read-only sandbox host metadata
+        timeout-minutes: 1
+        run: timeout --signal=TERM --kill-after=2s 5s python -I -B scripts/material-lifecycle-evidence/host_metadata.py
+
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -71,16 +87,20 @@ jobs:
           node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
 
       - name: Typecheck
-        run: npm run typecheck
+        run: $PND_PACKAGE_MANAGER run typecheck
 
       - name: Parity check
-        run: npm run parity:check
+        run: $PND_PACKAGE_MANAGER run parity:check
 
       - name: Orchestration check
-        run: npm run orchestration:check
+        run: $PND_PACKAGE_MANAGER run orchestration:check
 
       - name: Production build
-        run: npm run build
+        run: $PND_PACKAGE_MANAGER run build
+
+      - name: Qualify generated-only CMS encryption
+        timeout-minutes: 1
+        run: timeout --signal=TERM --kill-after=3s 35s python -I -B scripts/cms-interop/run.py
 
       - name: Reject tracked input mutation
         run: |
@@ -88,10 +108,20 @@ jobs:
           node scripts/orchestration/ci-gate.mjs quality work/ci/before.json work/ci/receipt.json
 
       - name: Upload quality receipt
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: full-check-${{ github.run_id }}-${{ github.run_attempt }}-quality
           path: work/ci/receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload generated-only CMS interoperability fixture
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: cms-interop-${{ github.run_id }}-${{ github.run_attempt }}-quality
+          path: |
+            ${{ runner.temp }}/pnd-cms-interop-${{ github.run_id }}-${{ github.run_attempt }}-quality/envelope.cms
+            ${{ runner.temp }}/pnd-cms-interop-${{ github.run_id }}-${{ github.run_attempt }}-quality/summary.json
           if-no-files-found: error
           retention-days: 7
 
@@ -141,8 +171,20 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -160,7 +202,7 @@ jobs:
           node scripts/orchestration/ci-gate.mjs shard work/ci/before.json work/ci/receipt.json work/ci/shard.json
 
       - name: Upload shard receipt
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: full-check-${{ github.run_id }}-${{ github.run_attempt }}-shard-${{ matrix.label }}
           path: work/ci/receipt.json
@@ -171,7 +213,7 @@ jobs:
       - name: Upload optional per-file timing diagnostics
         if: ${{ always() && (steps.shard.outcome == 'success' || steps.shard.outcome == 'failure') }}
         continue-on-error: true
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: test-timings-${{ github.run_id }}-${{ github.run_attempt }}-shard-${{ matrix.label }}
           path: |
@@ -222,8 +264,20 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -238,7 +292,7 @@ jobs:
         run: test "$QUALITY_RESULT" = success && test "$SHARDS_RESULT" = success
 
       - name: Download current attempt receipts
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           pattern: full-check-${{ github.run_id }}-${{ github.run_attempt }}-*
           path: work/ci/receipts
@@ -295,8 +349,20 @@ jobs:
 
       - name: Install locked dependencies
         run: |
-          npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
-          npm ci --no-audit --no-fund
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
           python -m pip install --disable-pip-version-check --no-cache-dir --only-binary=:all: --require-hashes -r engineering/ci-python-requirements.txt
 
       - name: Verify and record candidate identity
@@ -305,7 +371,7 @@ jobs:
           node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
 
       - name: Legacy full test suite
-        run: npm test
+        run: $PND_PACKAGE_MANAGER test
 
       - name: Reject tracked input mutation
         run: |

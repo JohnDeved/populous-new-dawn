@@ -11,7 +11,7 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import test from 'node:test'
+import test, { after } from 'node:test'
 import { stripVTControlCharacters } from 'node:util'
 import {
   REPO,
@@ -40,6 +40,21 @@ import {
   productionOnlyProposal,
 } from '../scripts/integration-queue/resources.mjs'
 import { helperFingerprint, productionFingerprint } from '../scripts/orchestration/test-runner.mjs'
+
+// Synthetic resource inventories model an uncustomized Node runtime. Keep this
+// isolation inside the test process; production preflight must still fail closed
+// to serial execution for each customization exercised below.
+const inheritedRuntime = Object.fromEntries(
+  ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE']
+    .map(key => [key, process.env[key]])
+)
+for (const key of Object.keys(inheritedRuntime)) process.env[key] = ''
+after(() => {
+  for (const [key, value] of Object.entries(inheritedRuntime)) {
+    if (value === undefined) delete process.env[key]
+    else process.env[key] = value
+  }
+})
 
 const id = n => n.toString(16).padStart(40, '0')
 const h = 'a'.repeat(64)
@@ -893,6 +908,19 @@ test('resource preflight reports serial fallback without changing policy or runn
       /Resource approval/
     )
     assert.equal(readFileSync(join(dir, 'engineering/test-resources.json'), 'utf8'), before)
+    for (const key of Object.keys(inheritedRuntime)) {
+      process.env[key] = key === 'NODE_OPTIONS' ? '--no-warnings' : '/fixture-runtime'
+      try {
+        const customized = resourcePreflight(dir, git)
+        assert.equal(customized.status, 'observed')
+        assert.equal(customized.fullSuite, true)
+        assert.equal(customized.parallelEligibility, 'runtime-customization')
+        assert.deepEqual(customized.groups, [{ concurrency: 1, files: 1 }])
+        assert.equal(readFileSync(join(dir, 'engineering/test-resources.json'), 'utf8'), before)
+      } finally {
+        process.env[key] = ''
+      }
+    }
     put('file.txt', 'dirty\n')
     assert.equal(resourcePreflight(dir, git).status, 'blocked')
   } finally {

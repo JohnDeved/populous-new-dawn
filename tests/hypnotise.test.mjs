@@ -13,7 +13,7 @@ import {
   stepUnitHypnotise,
   tick,
 } from '../app/model.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 
 const personOf = u =>
   u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -189,7 +189,7 @@ test('Hypnotise uses the native footprint, temporary ownership, expiry, and AI t
 
   delete w.shots.hypnotise
   delete w.giftCounts.hypnotise
-  migrateCheckpoint(w)
+  normalizeHistoricalFixture(w)
   assert.equal(w.shots.hypnotise, 0)
   assert.equal(w.giftCounts.hypnotise, 0)
 })

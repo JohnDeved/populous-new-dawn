@@ -82,6 +82,12 @@ export function mutationArguments(pr, action) {
   )
   const api = ['api', '--hostname', 'github.com', '--method', 'PUT']
   const target = `repos/${REPO}/pulls/${pr}`
+  if (action.kind === 'refresh-base') {
+    ensure(action.baseRef === 'main' && typeof action.headRef === 'string' && action.headRef.trim() &&
+      oid(action.previousBase) && action.previousBase !== action.base && oid(action.merge) && oid(action.tree),
+    'Base metadata refresh requires the unchanged main target and exact reviewed identities')
+    return ['api', '--hostname', 'github.com', '--method', 'PATCH', target, '-f', 'base=main']
+  }
   if (action.kind === 'refresh') {
     ensure(oid(action.tree), 'Refresh requires its reviewed deterministic tree')
     return [...api, `${target}/update-branch`, '-f', `expected_head_sha=${action.head}`]

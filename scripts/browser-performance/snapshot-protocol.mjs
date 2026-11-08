@@ -37,7 +37,9 @@ export const eligibility = (phase, stratum, metric) => {
   return metricEligibility[metric]
 }
 export const classificationPolicy = Object.freeze(Object.fromEntries(['pairs', 'baselineSpread', 'minimumEffect', 'absoluteFloorMs', 'noiseMultiplier'].map(key => [key, policy[key]])))
-export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, metricEligibility, warmupMetrics, dragSourceProfiles, readerProofContract }))
+// A policy revision prevents historical reports from being silently reclassified.
+export const comparisonEnvironmentPolicy = 'one-runtime-per-shard-six-sessions-v1'
+export const protocolHash = () => sha256(JSON.stringify({ plan, shards, order, metrics, workMetrics, queryCounters, classificationPolicy, comparisonEnvironmentPolicy, metricEligibility, warmupMetrics, dragSourceProfiles, readerProofContract }))
 const keys = (value, names) => { assert.ok(value && typeof value === 'object' && !Array.isArray(value)); assert.deepEqual(Object.keys(value).sort(), [...names].sort()) }
 const number = (value, max = 1e9, integer = false) => assert.ok(typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= max && (!integer || Number.isSafeInteger(value)))
 const digest = value => assert.match(value, /^[a-f0-9]{64}$/)
@@ -374,10 +376,10 @@ export function comparableWork(phases, readerContexts = null) {
 }
 export function compareReports(reports, identity, trustedProtocol = protocolHash()) {
   const map = new Map()
-  for (const report of reports) { validateReport(report); assert.deepEqual(report.identity, identity); assert.equal(report.protocolSha256, trustedProtocol); assert.ok(!map.has(report.shard)); map.set(report.shard, report) }
+  for (const report of reports) { validateReport(report); assert.deepEqual(report.identity, identity); assert.equal(report.protocolSha256, trustedProtocol); assert.ok(!map.has(report.shard), 'One report per shard; never combine same-cell evidence across reports'); map.set(report.shard, report) }
   const missing = Object.keys(shards).filter(shard => !map.has(shard))
-  const runtime = new Set(reports.map(r => r.runtimeSha256).filter(Boolean)), snapshots = new Set(reports.map(r => r.snapshotSha256).filter(Boolean))
-  const complete = !missing.length && runtime.size === 1 && snapshots.size === 1 && reports.every(r => r.status === 'complete')
+  const snapshots = new Set(reports.map(r => r.snapshotSha256).filter(Boolean))
+  const complete = !missing.length && snapshots.size === 1 && reports.every(r => r.status === 'complete')
   // No per-shard escape: each arm's raw readers, emitted bundle and complete
   // source binding must also be identical across all present shard receipts.
   const readerShardsStable = ['base', 'head'].every(side => new Set(reports.flatMap(r => r.runs.filter(run => run.side === side)
@@ -385,6 +387,9 @@ export function compareReports(reports, identity, trustedProtocol = protocolHash
   const rows = []
   for (const [shard, names] of Object.entries(shards)) for (const phase of names) {
     const report = map.get(shard), phases = report?.runs.map(run => run.phases.find(p => p.name === phase)) ?? []
+    // Each cell is owned by exactly one validated shard report. Its runtime is
+    // fixed by that report, and all six sessions must share one environment.
+    // Other shards have disjoint phases; their timings are never pooled here.
     const environments = new Set(report?.runs.map(run => run.environmentSha256))
     const workMatches = phases.length === 6 && phases.every(p => p && !p.unsupported) && comparableWork(phases, readerShardsStable ? report.runs.map(run => ({ side: run.side, evidence: run.readers })) : null)
     for (const stratum of strata) for (const metric of Object.keys(metrics)) {
@@ -393,7 +398,7 @@ export function compareReports(reports, identity, trustedProtocol = protocolHash
         let result
         if (!report || report.status !== 'complete' || phases.some(p => !p)) result = { status: report?.status === 'incompatible-dependencies' ? report.status : 'incomplete' }
         else if (phases.some(p => p.unsupported)) result = { status: phases.some(p => p.unsupported === 'capture-incomplete') ? 'incomplete-cohort' : 'unsupported-source-contract' }
-        else if (runtime.size !== 1 || environments.size !== 1 || environments.has(null)) result = { status: 'environment-mismatch' }
+        else if (!report.runtimeSha256 || environments.size !== 1 || environments.has(null)) result = { status: 'environment-mismatch' }
         else if (snapshots.size !== 1 || !workMatches) result = { status: phases.some(p => p.blocks.some((b, i) => b.geometrySha256 !== phases[0].blocks[i].geometrySha256 || b.geometryAfterSha256 !== phases[0].blocks[i].geometryAfterSha256)) ? 'geometry-input-mismatch' : 'workload-mismatch' }
         else {
           const get = side => report.runs.filter(r => r.side === side).map(r => r.phases.find(p => p.name === phase).timings[stratum][metric][queryCounters[metric] ? 'perQuery' : 'all']?.[statistic] ?? null)

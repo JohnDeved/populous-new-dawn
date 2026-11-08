@@ -54,13 +54,15 @@ function nextFollower(people: HudPerson[], model: number, center: Point, nearby:
 }
 
 // HUD commands 0x7d / 0x53 / 0x48 / 0x72. All add to the existing group.
-// Vehicle/passenger propagation belongs to the future live transport owner.
+// The live caller propagates each acquired passenger to its occupied crew before
+// the next nearest search, preserving the original command loop.
 export function selectHudPeople(
   people: HudPerson[],
   model: number,
   point: Point,
   mode: HudSelectionMode,
-  nearby = false
+  nearby = false,
+  mark: (person: HudPerson, selected: boolean) => void = markPersonSelected
 ) {
   const center = centerCell(point)
   let speaker: HudPerson | undefined
@@ -68,7 +70,7 @@ export function selectHudPeople(
     for (const p of people) {
       if ((model ? p.model !== model : p.model === 7) || !available(p, true)) continue
       if (nearby && p.model !== 7 && positionDistanceSquared(center, p) >= 0x2400000) continue
-      markPersonSelected(p, true)
+      mark(p, true)
       speaker = p
     }
     return {
@@ -80,12 +82,12 @@ export function selectHudPeople(
   }
   if (model === 7 && mode === 'single') {
     speaker = people.find(p => p.model === 7 && available(p, false))
-    if (speaker) markPersonSelected(speaker, true)
+    if (speaker) mark(speaker, true)
   } else {
     for (let i = 0; i < (mode === 'five' ? constants.MULTIPLE_SELECT_NUM : 1); i++) {
       const p = nextFollower(people, model, center, nearby)
       if (!p) break
-      markPersonSelected(p, true)
+      mark(p, true)
       speaker = p
     }
   }

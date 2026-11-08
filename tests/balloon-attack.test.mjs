@@ -219,16 +219,16 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
 // The historical case below still requires Tower destruction and Warrior11 interception.
 test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
   await assertTowerContinuation(prepareEarnedFlight(), {
-    inputPhase: [3531, 203],
-    cancel: 3551,
+    inputPhase: [3535, 207],
+    cancel: 3555,
     cancelRest: [16640, 32512],
-    departure: 3820,
-    fight: 3828,
-    opponent: 10,
+    departure: 3824,
+    fight: 3832,
+    opponent: 11,
     targetHp: 260,
     targetDeath: 0,
-    retired: 3996,
-    death: 3996,
+    retired: 3921,
+    death: 3921,
   })
 })
 

@@ -13,8 +13,7 @@ import {
 } from '../app/live-people.ts'
 import { browserPosition, wrappedDistance } from '../app/world-coordinates.ts'
 import { advanceGame } from '../app/game-clock.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
-import { withStorage } from './support/profile-storage.mjs'
+import { normalizeHistoricalFixture, createHistoricalFixtureHarness } from './helpers/historical-checkpoint.ts'
 const cell = p => ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
 function linked(w, p) {
   assert.equal(w.objectCells.objects.get(p.id), p)
@@ -107,7 +106,7 @@ test('combat admission reconciles only ordinary reused native poses, preserving 
   }
 })
 
-test('genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load', async () => {
+test('genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after historical clone/normalization', async () => {
   const bytes = gunzipSync(
     readFileSync(
       new URL('../references/fixtures/m17-combat-pose/before-encounter.v8.gz', import.meta.url)
@@ -117,11 +116,14 @@ test('genuine M17 arena walk publishes current pose before encounter adoption an
     createHash('sha256').update(bytes).digest('hex'),
     '908e458d89e5bfcff568b7b36254e4da3e688d9928b4f980ec05933e3948fe5f'
   )
-  await withStorage({}, async ({ freshStore }) => {
-    const store = await freshStore()
+  {
+    const store = createHistoricalFixtureHarness()
     store.startMission(17)
     const w = store.getWorld()
-    Object.assign(w, migrateCheckpoint(deserialize(bytes)))
+    const historical = normalizeHistoricalFixture(deserialize(bytes))
+    for (const key of Object.keys(w)) if (!Object.hasOwn(historical, key)) delete w[key]
+    Object.assign(w, historical)
+    assert.deepEqual(w, historical, 'no fresh-world fields may leak into the archive')
     assert.equal(w.turn, 6619)
     assert.ok(await store.saveCheckpoint())
     assert.ok(store.loadCheckpoint())
@@ -150,5 +152,5 @@ test('genuine M17 arena walk publishes current pose before encounter adoption an
     }
     assert.ok(seen, 'actual participant1586 enters an encounter')
     assert.equal(w.status, 'playing')
-  })
+  }
 })

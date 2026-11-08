@@ -193,7 +193,7 @@ test('original failure and timeout survive successful cleanup', () =>
     await assert.rejects(finishSpellProjection(options), AggregateError)
     assert.equal(options.report.failures.length, 2)
   }))
-test('hosted runner preserves old episodes, aggregate cap and source-bound new scenario', () => {
+test('hosted runner preserves old episodes, Tutorial aggregate headroom and source-bound new scenario', () => {
   const source = readFileSync(
     new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
     'utf8'
@@ -219,7 +219,7 @@ test('hosted runner preserves old episodes, aggregate cap and source-bound new s
   )
   const spellIndex = source.indexOf('receipt.spellProjection =')
   assert.ok(m2Index >= 0 && spellIndex >= 0 && m2Index < spellIndex)
-  assert.equal(browserCapMs('tutorial'), 180000)
+  assert.equal(browserCapMs('tutorial'), 240000)
   assert.match(source, /}, receipt.browserCapMs\)/)
   assert.match(builder, /sourcemap: true/)
   assert.match(scenario, /callCount:\s*true,\s*detailed:\s*false/)

@@ -1,3 +1,4 @@
+import { restoreHistoricalSecondaryEffects } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { fullHutScene, makeHutSmokeScene } from './support/hut-smoke-scene.mjs'
@@ -185,7 +186,7 @@ test('paused restore retires historically saved burning roots while preserving c
     closeFixture(restoredFixture)
     restoredFixture = undefined
     delete restored.secondaryEffects
-    restoreSecondaryEffects(restored)
+    restoreHistoricalSecondaryEffects(restored)
     restoredFixture = await makeHutSmokeScene(restored)
     restoredFixture.render()
     assert.equal(roots(restored, hut).length, 0)

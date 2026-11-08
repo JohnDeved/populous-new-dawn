@@ -1,4 +1,4 @@
-import { openCampaignFromMainMenu } from './browser-new-game.mjs'
+import { openCampaignFromMainMenu, waitForStartupMenu } from './browser-new-game.mjs'
 // Explicit public-UI setup for checks that start an arbitrary mission.
 // Campaign progression acceptance uses native panel selection + Start instead.
 export async function showSelectorControls(page) {
@@ -7,7 +7,7 @@ export async function showSelectorControls(page) {
 }
 
 export async function showAllMissions(page) {
-  await page.getByRole('dialog', { name: /^(Main menu|Start game)$/ }).waitFor({ state: 'visible' })
+  await waitForStartupMenu(page, { allowSelector: true })
   const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
   if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
   const startup = page.getByRole('dialog', { name: 'Start game', exact: true })

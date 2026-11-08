@@ -19,6 +19,7 @@ async function fixture(run) {
 
 test('selector saves success only after observation and context cleanup finish', async () => {
   await fixture(async ({ options, events, receipt }) => {
+    options.helpEntry = [{ exit: 'Back', scrollTop: 0 }]
     options.context.close = async () => {
       assert.equal(existsSync(join(options.output, 'selector-inspection.json')), false)
       events.push('close')
@@ -27,6 +28,8 @@ test('selector saves success only after observation and context cleanup finish',
     assert.deepEqual(events, ['disconnect', 'close'])
     assert.deepEqual(receipt(), terminal)
     assert.equal(terminal.status, 'passed')
+    assert.deepEqual(terminal.episodes, [{ initiallyPaused: true }], 'Help evidence does not change selector episode shape/count')
+    assert.deepEqual(terminal.helpEntry, options.helpEntry)
     assert.deepEqual(terminal.cleanup, { observationDisconnected: true, contextClosed: true, errors: [] })
   })
 })

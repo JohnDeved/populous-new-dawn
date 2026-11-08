@@ -341,18 +341,48 @@ cannot establish running advancement, and this run is not retroactively passed.
 
 #### Maintained running-artwork contract
 
-The only maintained browser acceptance is `running-original-artwork-v1` in
-`melee-attack.mjs` and `validateMeleeRunningFrames` in
-`melee-attack-running-evidence.mjs`. It removes the timing-sensitive in-attack
-Space round trip rather than broadening legal pause/successor predicates.
-Public setup Pause/Resume and the real command route above remain unchanged.
-After the attack command, no input interrupts observation. A read-only ordinary
-post-render RAF observes the half-open logical interval
-`[firstObservedAttackTurn, firstObservedAttackTurn + 10)`. It terminates on the
-first visit reaching the boundary, even outside an attack, never upon finding a
-passing pair. Attack/strike/special samples throughout that interval are retained
-and all must pass; successor artwork is not an acceptance claim. Unexpected pause,
-Scene/world replacement, document hiding or actor death fails closed.
+The maintained browser acceptance is `running-original-entry-v2` in
+`melee-attack.mjs` and `validateMeleeRunningObservation` in
+`melee-attack-running-evidence.mjs`. This is an explicit correction of the former
+v1 ten-turn survival contract, not a retroactive pass for its failed receipts.
+Public setup Pause/Resume, real command delivery, all per-render attack artwork
+and crop checks remain unchanged. After the attack command no input interrupts
+observation. The first observed attack/strike/special anchors one immutable
+actor/action/start/group/opponent entry and the original physical person.
+Independent original tables, passed to the observer before Resume, set duration
+`D = (descriptor.step + 1) * nativeFrameCount`; the endpoint is
+`entry.started + D - 1`, never first-observed-turn plus a chosen grace period.
+The observer retains every attack render before that endpoint and must observe
+its exact logical turn while the same actor is still alive. Neither an advancing
+pair nor the fourth crop ends the episode. A missing/changed entry, early action
+change, death, or skipped endpoint fails even after a valid cropped pair. A later
+entry cannot replace the first or provide more favorable evidence.
+
+The endpoint follows `melee.ts` and `combat-runtime.ts`, both now source-hashed:
+entry initializes `remaining = D - 1`; later visits decrement it, and expiry
+changes to `approach`, clears the countdown and continues without same-turn
+re-entry. For Shaman special, object 552/draw 14 has step 0 and five mapped
+frames. An entry at turn 402 therefore has four live attack poses at 402–405,
+remaining 4/3/2/1, f2 0/1/2/3. At 406, f2 4 is the fifth native frame but the
+action is already `approach`, not a fifth live attack sample. The v2 endpoint
+records that exact transition, retained entry/person identity and native phase,
+not a successor-artwork or extended combat-survival claim.
+
+The separately named `entry`, `endpoint`, protocol and schema-version fields
+prevent old ten-turn receipts from being interpreted as v2. Acceptance requires
+an `entry-complete` terminal with the exact endpoint turn/stamp, later than every
+retained sample, plus alive actor, physical state/phase and unchanged running,
+Scene/world/canvas/document guards. Deferred crop failures still fail acceptance.
+Later death cannot alter an already completed episode, but actor loss before or
+at its endpoint fails. Supplied-observer tests are not browser evidence; fresh
+source-bound hosted evidence is required for this revised contract.
+
+Run [39406765707](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39406765707)
+remains failed under v1. It retained valid-looking special crops at 402–405 and a
+diagnostic alive `approach` visit at 406, then Shaman54 disappeared at 411 inside
+its [402,412) window. Its failure screenshot shows the reincarnation message.
+That diagnostic supports the endpoint rationale but is not a v2 terminal receipt;
+no stored failure, HP, enemy setup, game timing or runtime code is changed.
 
 The first four distinct native poses reserve the only crop slots, before
 visibility or bounds eligibility is decided. Pose identity includes actor,
@@ -362,19 +392,14 @@ crop fails acceptance and cannot be replaced by a later eligible duplicate.
 All planned crops are required, with at least two forming a same-direction,
 same-sequence pair whose logical turn, native f2 and actual mapped frame advance.
 The observed fight must retain the same actor, original physical person and group.
-One attack entry (actor/group/start turn) must retain its action and actual
-opponent; natural interception is not forced to target 20. A later entry may
-select a different roster opponent, but its start must advance and be at least
-the previous start plus that attack's original mapped duration. This follows
-`combat-runtime.ts`: `processBattles` continues after the expiry turn before
-selecting a fresh target, and `meleeExchange` writes opponent/action/start
-together while retaining the physical person and group. An altered action or
-opponent cannot silently split one entry into several valid sequences. Sequence
-and crop identities still include the opponent, and a later sequence cannot
-substitute for either endpoint of the advancing pair. A fixed
-window may contain multiple sequences; it is not extended or restarted to seek
-one that passes. Sparse rendering that never supplies a cropped advancing pair
+The first entry retains its action and actual opponent; natural interception
+is not forced to target 20. Sequence and crop identities include that opponent,
+and no later sequence can substitute for either endpoint of the advancing pair.
+Sparse rendering that supplies only one pose or misses the exact native endpoint
 still fails. This is not a guarantee against arbitrary scheduler starvation.
+The standalone supplied-frame validator still exercises historical multi-entry
+identity constraints; maintained browser acceptance additionally requires that
+all retained samples belong to its immutable first entry.
 
 The earlier global-opponent assertion rejected the normal special entry at turn
 395 against person 13 followed by an attack entry at turn 400 against person
@@ -392,16 +417,69 @@ submitted layers. Idle object 424 cannot satisfy attack object 456 even with a
 forged ownership marker. Source ownership remains a reviewed-source inference
 plus independent mapped artwork, not a private getter-return observation.
 
-The viewport remains 1440×1000 at DPR 1. Full cropped body bounds must fit the
+This functional artwork context uses a fixed 960×720 viewport at DPR 1;
+the separate performance frame-recording context remains 1440×1000. The smaller
+raster workload is intended to improve acquisition of short native attack poses,
+not to slow gameplay, extend the native entry or relax artwork/crop requirements.
+The failed PR #666 1440×1000 attempt retained only one attack pose and remains a
+failure. Actual viewport, canvas and WebGL drawing-buffer sizes are recorded,
+alongside every observer/RAF timestamp and crop-copy cost; improved acquisition
+must be verified in the hosted run, not assumed. Full cropped body bounds must fit the
 canvas; actual DOM ownership at its center and non-overlap with shipped
 HUD/pause/message/dialog rectangles remain required. Canvas readback excludes
 HTML overlays, so these checks cannot be inferred from nonblank PNGs. Copies
 are synchronous with samples, with source/frame/turn/renderer binding, crop
 coordinates and PNG hashes retained in `melee-attack.json`. No hidden-body redraw,
 replacement rendering method or game-state mutation is used. Bounds reads may
-touch renderer/picker metadata; readback perturbs rendering. Crops require visual
+touch renderer/picker metadata; copying perturbs rendering. Crops require visual
 review and are not pixel-perfect or hardware-performance evidence. A later
 paused context screenshot is separate, not an advancing-pose substitute.
+
+The observer now draws each eligible crop exactly once into a private 2D canvas
+in the same sample callback. At most four copies, each at most 256×256 pixels,
+are retained. Neither pixel readback/color scanning nor PNG encoding runs during
+any observer RAF, including the terminal callback. Explicit `retain()` stops the
+observer if necessary and processes only those immutable copies, never the live
+game canvas. Retention releases all copied backing stores even after a readback
+or encoding failure. Failed crops and their timing remain in the report, other
+copies are still retained, and repeated stop/retention cannot change the terminal
+record, retry a failed crop or replace a missing slot. An early stop remains an
+incomplete witness; a retention failure cannot pass acceptance.
+
+Every observer RAF records its performance timestamp, supplied RAF timestamp,
+logical turn, renderer stamp, animation clock, pause state, action/entry, actor
+life and observed pose, including pre-attack approach, held and non-attack visits.
+Pre-inspection error rows set `actorInspected: false` with null actor/action
+fields. The exact native endpoint is inspected and retains its alive actor,
+entry and phase evidence before completion. Each row records observer-body and synchronous
+copy elapsed milliseconds separately. Copies record later readback/color-scan
+and encoding elapsed milliseconds, with the retention timestamp/duration kept
+separately. These measurements include their own perturbation and do not measure
+GPU completion, full Scene cost, original-game timing or hardware smoothness.
+The all-visit diagnostic bound is 18,000 rows (75 seconds at 240 callbacks/second),
+separate from the unchanged 1,200 attack-sample bound. Exhaustion fails explicitly
+at its terminal row, without silently dropping visits or extending the case cap.
+
+The union hosted run [39303586144](https://github.com/JohnDeved/populous-new-dawn/actions/runs/39303586144)
+retained only attack turn 491, entry 490, renderer stamp 304, native f2=1,
+direction 6 and frame 1007, followed by a window-complete terminal at turn 502,
+stamp 310. It correctly failed the advancing-pair requirement. Its absent
+non-attack visits and copy/encoding timings cannot establish why intermediate
+attack frames were missed. `scene.ts` advances the elapsed game clock before
+rendering, and `game-clock.ts` consumes chronological fixed turns; a rendered
+frame can therefore legitimately follow several logical turns. Deferred work is
+a candidate reduction of in-window observer work, not proof of the earlier
+failure's cause or a performance improvement. Historical failures remain failed.
+
+Paused target-hover preparation is source-feasible: ordinary paused Scene frames
+still call `updatePointerFrame`, and public `pointerMove`/hover are not blocked by
+ordinary pause. That is distinct from a suspended modal. However, the current
+public Resume button moves the pointer, so a paused hover cannot replace a fresh
+post-Resume public hover check. This candidate leaves setup unchanged to avoid
+confounding the sampling diagnosis. In the failed union receipt, paused setup
+was turn 125, after Resume 133, before attack 148, and the public order turn 152.
+No gameplay/RNG/health edit, private hit query or setup-timing guarantee follows
+from those source observations.
 
 The case retains its 75-second bound, 1,200-sample storage bound and the unchanged
 180-second aggregate browser cap. No workflow, dependency, browser route, game
@@ -480,3 +558,91 @@ On deadline it closes only its runner-owned page to interrupt pending actions;
 the existing runner owns final context/browser/server cleanup and failure receipts.
 This is frontend navigation regression coverage, not native-game input parity,
 deployed hydration, exhaustive display acceptance or a performance measurement.
+
+### Grounded Shaman casting artwork in the existing F9 episode
+
+The same `frontend-held-escape` job already runs the independent F9 Mission 1
+episode after its frontend context closes. Casting coverage reuses that F9 Scene
+and its current absolute 75-second bound, inside the unchanged 180-second browser cap.
+It adds no world, context, workflow, grant, driven simulation turn or production
+test hook. All existing F9 input, grant, charge, cooldown, save/load and restart
+assertions remain in order.
+
+Before any testing grant, ordinary public Resume waits for the authored Shaman's
+native rest state and completion of opening order18. Public Pause, Select and
+focus shaman, the ordinary HUD Blast card, Resume and a real terrain pointer
+click spend naturally available stock. The existing post-grant F9 Blast is the
+subsequent cast, not a second claim of naturally acquired stock. Both allocations
+must synchronously debit one charge, preserve the mana pool and set cooldown12.
+
+Pass-through callbacks preserve their original receiver, return and exception.
+`afterTurn` observes each completed controller visit before that visit's logical
+animation: projectile launch6, native pose expiry10 and cooldown expiry12 are
+separate obligations. After the real `renderer.render` returns, the observer
+records submitted frame, draw, flip, direction and person phase. The raw original
+PE/VSTART/VFRA fixture supplies expected source520/frame identities; imported
+indices are only bridged back to their original VFRA identities. Two reserved,
+unobscured same-direction crops per cast must positively pass original artwork
+validation. Readback and PNG encoding happen only after observers are detached.
+
+During the existing second cast's active windup, public F9 suspends presentation
+for 350ms before its original refill-preservation assertions. At least two actual
+suspended renders must retain identical person, projectile, cooldown and turn
+state, followed by a running rendered native-phase advance after public F9 close.
+This proves modal suspension, not the separate world-pause control. Empty paused
+coverage, static screenshots or only advancing logical samples cannot substitute.
+
+`shaman-casting.json` and at most four `shaman-casting-*.png` files retain the
+observations, original-input hashes and source identities. Partial failures are
+retained before the existing context closes; a failed retention is never retried.
+These are functional browser/artwork checks, not original executable execution,
+pixel-perfect composition, every-tribe/direction coverage or hardware performance.
+
+## Hypnotise artwork in the compact lane
+
+After the unchanged compact-message layout and picking-path episodes, the existing
+`compact-message-layout` lane runs one independent Hypnotise context. Its absolute
+allowance is the smaller of 75 seconds and the remaining existing 180-second outer
+browser deadline, including context creation and cleanup. No job, workflow or cap
+is added. PR680's exact compact receipt at merge `5136c6f2` completed in88.520s
+including preparation/build/cleanup; adding the full75s conservatively totals
+163.520s. This is prior budget evidence, not a guarantee that the new run passes.
+
+The test-only Vite entry imports `hypnotise-fixture.mjs` only with query
+`hypnotise-fixture=1`. The production Home entry does not import it. Preparation
+uses accelerated ordinary Mission22 mana charging and movement with the existing
+mana-focus adapter, not real-time earning or campaign-unlock proof. It does not
+supply stock, actors, callbacks or animation state. Preparation itself is bounded
+by25s and checks elapsed time after batches/yields and before returning.
+
+The episode saves the earned pre-cast state through the public menu and loads it
+normally. A read-only subscription checks exact saved content at the synchronous
+resumed notification; the public Pause button then allows reframing before the
+HUD/pointer cast. Normal-speed RAF observation binds actual source frames,
+materials/UVs and painter submission to synchronous canvas crops, checks the
+fifth-visit target replacement and16-visit expiry, and records terminal hiding.
+Display callbacks can skip frames; exhaustive16-frame proof remains in the
+independent original-byte/pixel oracle and CPU tests. In-progress effect checkpoint
+continuation remains separate CPU coverage, not a claim of this pre-cast episode.
+
+The runner retains all five helper hashes and the opt-in fixture entry hash.
+`spell-hypnotise.json` and `spell-hypnotise-frame-*.png` are written directly into
+the existing artifact root, covered by its unchanged JSON/PNG upload globs. No
+hidden subgroup, recreated artwork, raw production `/app/*.ts` import, new output
+subdirectory or second checkpoint allowance is used. Any timeout is a failed
+witness; a late-created context is closed without admitting the episode.
+
+Hypnotise preparation preserves the public startup's initial mana allocation.
+At turn zero M22 has 30,000 unallocated mana; after one ordinary turn it has
+2,142 progress in each of 14 enabled spells. The old turn-zero-only test focused
+before that allocation and earned stock in 5,948 visits (6,172 including walking),
+which did not justify the former 6,100 charging ceiling after public startup.
+The bounded charging ceiling is now 9,195 visits: ceil(85,000 / 37) * 4 + 3,
+using the native model-7 charge cost, this authored idle cohort's observed
+37 mana per four-turn scan, and at most three alignment visits. No credit is
+assumed for the initial allocation; no mana/stock or actors are injected. The
+initial turn, available mana, all spell progress, mask, actual charged turn and
+visit count are retained. Failure retains the initial state and includes final
+state in its error. CPU regressions include 0, 1, 20 and 60 ordinary startup
+visits. The unchanged 25s preparation, 75s episode and remaining 180s outer
+wall deadlines still reject overruns regardless of visit budget.

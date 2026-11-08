@@ -11,7 +11,7 @@ import { launchFirewarriorPoint } from '../app/firewarrior-point.ts'
 import { effect, sound } from '../app/world-effects.ts'
 import { browserPosition, nativeStep3D } from '../app/world-coordinates.ts'
 import { terrainPointHeight } from '../app/native-terrain.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { advanceGame } from '../app/game-clock.ts'
 
 test('explicit celebration pair preserves native point height, support offset, allocation sides and non-damaging arrival', () => {
@@ -82,7 +82,7 @@ test('explicit celebration pair preserves native point height, support offset, a
   }
 })
 
-test('genuine M17 won6784 passes prior celebration throw with physical sky shots and Save/Load twins', () => {
+test('genuine M17 won6784 passes prior celebration throw with physical sky shots and historical clone/normalization twins', () => {
   const bytes = gunzipSync(
     readFileSync(
       new URL('../references/fixtures/m17-celebration/won-terminal.v8.gz', import.meta.url)
@@ -92,8 +92,8 @@ test('genuine M17 won6784 passes prior celebration throw with physical sky shots
     createHash('sha256').update(bytes).digest('hex'),
     '446756fc1241f1a0a52f2a87f096788321e6022b15ec48d4c4e181c191dc0538'
   )
-  const w = migrateCheckpoint(deserialize(bytes)),
-    twin = migrateCheckpoint(structuredClone(w))
+  const w = normalizeHistoricalFixture(deserialize(bytes)),
+    twin = normalizeHistoricalFixture(structuredClone(w))
   assert.equal(w.turn, 6784)
   assert.equal(w.status, 'won')
   const clock = () => ({

@@ -1,4 +1,4 @@
-import { buildingPose } from './building-shapes.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
 import { sound } from './world-effects.ts'
 import { browserPosition, nativePosition, type World, type Unit } from './model.ts'
 import {
@@ -42,7 +42,7 @@ function restingWorld(w: World): RestingWorld {
     slotOffsets: slots,
     // The retained cell registry currently contains live people only.
     cellObjects: cell => objectsInCell(w.objectCells, cell) as Iterable<LivePerson>,
-    outside: id => buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === id)!)),
+    outside: id => buildingOutsidePoint(liveBuildingShape(w, id)!),
   }
 }
 function collision(w: World, p: { x: number; y: number }) {
@@ -81,8 +81,7 @@ export function initializeLiveIdleApproach(
       const cell = (p.y >> 9) * 128 + (p.x >> 9)
       return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
     },
-    buildingPoint: id =>
-      buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!)),
+    buildingPoint: id => buildingOutsidePoint(liveBuildingShape(w, id)!),
     prepareOrder: (id, model, to) =>
       Object.assign(w.buildingOrders.records[id], {
         model,
@@ -188,7 +187,13 @@ export function stepLiveRestingState(w: World, u: Unit, p: LivePerson) {
         height: to => terrainPointHeight(w.land, to),
         allocateLog: () => {
           // ponytail: scenery allocation uses the existing unbounded live pool.
-          w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+          w.trees.push({
+            ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+            id: w.nextId++,
+            ...browserPosition(p),
+            logs: 1,
+            model: 11,
+          })
           return true
         },
         sound: cue => sound(w, cue, u),

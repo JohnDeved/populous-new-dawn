@@ -18,8 +18,11 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
   and delivery status. Continue the assigned issue; do not duplicate that board in
   local timers, chat watchers, or status files. `parity.json` measures verified
   gameplay coverage, not task status; `PARITY.md` is generated, never hand-edited.
-- Use one writer per isolated branch/worktree. The parent coordinates up to six
-  workers, reviews finished PRs, and owns integration and authorized main merges.
+- Use one writer per isolated branch/worktree. The current operating budget is at
+  most four active AI workers across the entire delegation tree, including nested
+  workers and reviewers, plus the coordinating parent (five active agents total).
+  This is a usage budget, not a platform ceiling. The parent reviews finished PRs
+  and owns integration and authorized main merges.
   Workers push their feature branches and open draft PRs; never push main directly.
 - Give specialists a bounded question, exact base/head, relevant sources, permitted
   writes, acceptance, and a stop condition. Use an internal fresh reviewer for
@@ -36,6 +39,9 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
 
 - Trace the shipped UI/campaign/system entry point through changed code and tests.
   Isolated helpers and injected entities do not complete a playable feature.
+- Follow [the development save contract](README.md#development-save-contract):
+  current-format saves only, clear incompatible-save rejection without stored-data
+  changes, and correct current new-game/restart/save/load continuation.
 - Reuse `decomp/research/`, `decomp/exports.json`, reviewed exports, and native probes.
   Follow `engineering/native-research.md` for executable hashes, tool provenance,
   local input recovery, scoped exports, intercepted boundaries, and durable findings.
@@ -45,11 +51,11 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
   Leave `.openai/hosting.json` untouched. Deployment, parity recording, credentials,
   paid services, and additional GitHub Actions need explicit authorization. The
   approved ready-PR full gate is documented in `engineering/continuous-integration.md`.
-- Select checks with `orchestration:plan -- --base <actual-base>` and inspect their
+- Select checks with `pnpm run orchestration:plan --base <actual-base>` and inspect their
   commands/side effects. Unknown changed paths require explicit review, never an
   empty check set. Context/contract/audit helpers are optional aids, not a second
   project-management system; see `engineering/contracts.md` when using them.
-- Keep `npm run check` and `npm run build` as standard code-change gates. Add
+- Keep `pnpm run check` and `pnpm run build` as standard code-change gates. Add
   affected native, local rendered browser, performance, and TypeScript quality
   checks. Docs-only work may use focused structural checks with a stated rationale.
   Never weaken assertions, expected pixels, or parity scope to obtain a pass.

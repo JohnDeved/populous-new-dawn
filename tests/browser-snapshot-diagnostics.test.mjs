@@ -91,16 +91,42 @@ test('geometry priority, first differing field and truncated hash collisions pre
   assert.ok(!reason.includes(digest) && !reason.includes(other))
 })
 
-test('runtime, per-session environment and authored snapshot mismatches explain the original classification', () => {
-  for (const [field, label, status] of [['runtimeSha256', 'Runtime SHA-256', 'environment-mismatch'], ['snapshotSha256', 'Authored snapshot SHA-256', 'workload-mismatch']]) {
-    const input = reports(); input[1][field] = other
-    const reason = diagnose(input)[0].diagnosis
-    assert.ok(reason.startsWith(`${status}: ${label}: world=cccccccccccc; recovery=dddddddddddd.`))
-    assert.match(reason, /Exact full SHA-256 equality required across available shards/)
-    assert.equal(section(render(input)).match(new RegExp(status, 'g')).length, 1)
+test('authored snapshot equality remains global across independent shards', () => {
+  const input = reports(); input[1].snapshotSha256 = other
+  const reason = diagnose(input)[0].diagnosis
+  assert.ok(reason.startsWith('workload-mismatch: Authored snapshot SHA-256: world=cccccccccccc; recovery=dddddddddddd.'))
+  assert.match(reason, /Exact full SHA-256 equality required across available shards/)
+  assert.equal(section(render(input)).match(/workload-mismatch/g).length, 1)
+})
+
+test('independent runtime differences produce no false environment diagnosis', () => {
+  const input = reports(), baseline = diagnose(input)
+  input[1].runtimeSha256 = other
+  for (const run of input[1].runs) run.environmentSha256 = other
+  assert.deepEqual(diagnose(input), baseline)
+  const body = render(input)
+  assert.doesNotMatch(body, /environment-mismatch|Runtime SHA-256:/)
+  assert.match(body, /Runtime equality is required across all six sessions within each shard/)
+  assert.match(body, /No cross-runner timing comparison or summed speedup/)
+})
+
+test('real session drift is diagnosed in its own shard despite unrelated runtime differences', () => {
+  for (const [index, shard] of ['world', 'recovery'].entries()) {
+    const input = reports()
+    input[1].runtimeSha256 = other
+    for (const run of input[1].runs) run.environmentSha256 = other
+    input[index].runs[4].environmentSha256 = 'e'.repeat(64)
+    const diagnostics = diagnose(input)
+    for (const item of diagnostics) {
+      if (item.shard !== shard) { assert.equal(item.diagnosis, null); continue }
+      assert.match(item.diagnosis, /^environment-mismatch: Browser environment SHA-256:.*pair 1\/base != pair 3\/base/)
+      assert.doesNotMatch(item.diagnosis, /Runtime SHA-256:|across available shards/)
+    }
+    const body = section(render(input), shards[shard][0])
+    assert.equal(body.match(/environment-mismatch/g).length, 1)
+    assert.match(body, /Timing comparisons withheld/)
+    assert.doesNotMatch(body, /Session p50|possible-improvement|possible-regression/)
   }
-  const input = reports(); input[0].runs[4].environmentSha256 = other
-  assert.match(diagnose(input)[0].diagnosis, /^environment-mismatch: Browser environment SHA-256:.*pair 1\/base != pair 3\/base/)
 })
 
 test('incomplete capture names exact pair/arm presence, never inventing a browser failure', () => {

@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 // Actual primary effect factories/frame/transforms/resources in a Node Scene.
 // Controlled producer populations/transitions; no browser/native allocator claim.
 import assert from 'node:assert/strict'
@@ -231,7 +232,7 @@ test('same-array edits, current/legacy checkpoint replacement, empty worlds and 
     delete legacy.secondaryEffects
     delete legacy.campaignAIs
     delete legacy.levelStart
-    const restored = api.migrateCheckpoint(legacy)
+    const restored = normalizeHistoricalFixture(legacy)
     fixture.scene.world = restored
     assertFrame(fixture, restored)
     assertFrame(fixture, restored)

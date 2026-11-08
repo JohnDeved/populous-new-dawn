@@ -12,7 +12,7 @@ import {
 for (const firstId of [10000, 32768, 65536, 287375]) {
   test(`public training queue preserves browser handles from ${firstId}`, async () => {
     await withStorage({}, async ({ freshStore }) => {
-      const w = createStartedWorld()
+      const w = createStartedWorld(1, 'scalable')
       w.manaWorld.gameFlags = 32 // Supplied fixture freezes conversion, retaining a full queue.
       retainFixtureUnits(w, u => u.kind === 'shaman')
       w.terrain.fill(3)

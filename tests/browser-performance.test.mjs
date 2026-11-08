@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { deflateRawSync } from 'node:zlib'
-import { readFileSync } from 'node:fs'
-import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport,
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { repository, shards, order, metrics, workMetrics, statistics, summarizeMetrics, summarizeTimings, validateReport, sha256,
   parseReport, compareReports, classify, comparableWork, maxReportBytes } from '../scripts/browser-performance/protocol.mjs'
 import { readReportArchive } from '../scripts/browser-performance/artifact.mjs'
 import { renderComment, commentMarker } from '../scripts/browser-performance/render.mjs'
@@ -13,7 +15,7 @@ import { recognizeReaderSources } from '../scripts/browser-performance/snapshot-
 import { readerImportSha256 } from '../scripts/browser-performance/snapshot-reader-proof.mjs'
 import { dragSourceProfiles } from '../scripts/browser-performance/snapshot-drag-contract.mjs'
 import { BufferGeometry, BufferAttribute, InstancedMesh, Matrix4 } from 'three'
-import { reportRun, workflowPath } from '../scripts/browser-performance/reporter.mjs'
+import { emitReporterTrigger, main as reporterMain, reporterTriggerReceipt, reportRun, workflowPath } from '../scripts/browser-performance/reporter.mjs'
 
 const identity = { repository, prNumber: 42, baseSha: 'a'.repeat(40), headSha: 'b'.repeat(40), harnessSha: 'a'.repeat(40), runId: 1234, runAttempt: 1 }
 const protocol = 'c'.repeat(64)
@@ -109,6 +111,19 @@ test('missing per-section metrics remain unknown while matched known metrics are
   assert.equal(comparableWork(phases), false)
 })
 
+test('pinning the browser does not admit different runner images, kernels or real browser mismatches', () => {
+  const environment = { browserVersion: 'Google Chrome 155.0.8059.84', browserSha256: '1'.repeat(64),
+    browserPinSha256: '2'.repeat(64), release: '7.0.0-1017-azure', runnerVersion: '20261018.339.1' }
+  const make = (shard, change = {}) => ({ ...fixture(shard), runtimeSha256: sha256(JSON.stringify({ ...environment, ...change })) })
+  assert.equal(compareReports([make('world'), make('recovery')], identity, protocol).complete, true)
+  for (const change of [{ release: '6.17.0-1022-azure' }, { runnerVersion: '20261012.334.1' },
+    { browserVersion: 'Google Chrome 155.0.8059.39' }, { browserSha256: '3'.repeat(64) }, { browserPinSha256: '4'.repeat(64) }]) {
+    const result = compareReports([make('world'), make('recovery', change)], identity, protocol)
+    assert.equal(result.complete, false)
+    assert.ok(result.rows.every(row => row.p50.status === 'environment-mismatch' && row.p95.status === 'environment-mismatch'))
+  }
+})
+
 test('comment is informational, section-specific, explicit about uncertainty and links only trusted run metadata', () => {
   const reports = [fixture(), fixture('recovery')]
   const text = renderComment(compareReports(reports, identity, protocol), identity, reports, { harnessChanged: true })
@@ -124,8 +139,8 @@ test('artifact reader accepts only one bounded regular report.json and rejects c
   for (const name of ['../report.json', 'report.mjs', '/report.json', 'report.json\0']) assert.throws(() => readReportArchive(zip('{}', { name })))
   assert.throws(() => readReportArchive(zip('{}', { mode: 0xa1ff })))
   assert.throws(() => readReportArchive(zip('x'.repeat(maxReportBytes + 1))))
-  const corrupt = zip('{}'); corrupt[14] ^= 1 // local CRC is not authoritative; central remains valid
-  assert.equal(readReportArchive(corrupt), '{}')
+  const corrupt = zip('{}'); corrupt[14] ^= 1 // Both headers must bind the same CRC.
+  assert.throws(() => readReportArchive(corrupt))
   corrupt[corrupt.length - 22 - 10 - 46 + 16] ^= 1
   assert.throws(() => readReportArchive(corrupt))
   const extra = Buffer.concat([zip('{}'), Buffer.from('comment')]); assert.throws(() => readReportArchive(extra))
@@ -165,6 +180,20 @@ test('trusted reporter verifies metadata, creates once and updates only its iden
   state.calls.length = 0
   assert.equal((await reportRun(args)).status, 'skipped-unchanged'); assert.equal(state.calls.some(call => call.method), false)
   assert.ok(state.calls.filter(call => call.method).every(call => /issues\/(?:42\/comments|comments\/99)$/.test(call.path)))
+})
+
+test('pin and browser provisioner changes retain the trusted-base harness warning', async () => {
+  for (const name of ['run-live.mjs', 'run-pinned.mjs', 'run-live-pinned.mjs', 'browser-runtime.json', 'browser-runtime.mjs', 'install-browser.mjs']) {
+    const mock = apiFixture(), original = mock.arguments.api
+    mock.arguments.api = async (path, options) => {
+      const result = await original(path, options)
+      if (path.endsWith(`/contents/scripts/browser-performance/${name}?ref=${identity.headSha}`))
+        return { ...result, size: 7, content: Buffer.from('changed').toString('base64') }
+      return result
+    }
+    assert.equal((await reportRun(mock.arguments)).status, 'created')
+    assert.match(mock.state.calls.find(call => call.method).body.body, /changes the harness/)
+  }
 })
 
 test('stale PRs, old attempts, wrong workflows/identities, duplicate artifacts and forged metrics never write', async () => {
@@ -686,4 +715,346 @@ test('inactive-helper-only fallback qualifies five stable cohorts without admitt
   for (const run of reports[1].runs) if (run.side === 'head') run.readers.provenance.bundleSha256 = 'f'.repeat(64)
   const drifted = snapshot.compareReports(reports, identity)
   assert.ok(drifted.rows.filter(row => row.phase !== 'native-view-drag-warm').every(row => row.p50.status === 'geometry-input-mismatch'))
+})
+
+
+test('historical v2 protocol cannot publish a summary or mutate comments through the production default', async () => {
+  const historicalProtocol = '6697351a369a029e19401a6a10e0a20763bcd4379a9b6fa02c2fd465503a5c51'
+  // Otherwise-valid synthetic fixtures, not a replay or reinterpretation of old measurements.
+  for (const explicitHistoricalOverride of [false, true]) {
+    const reports = [snapshotFixture(), snapshotFixture('recovery')]
+    for (const report of reports) {
+      report.protocolSha256 = historicalProtocol
+      snapshot.validateReport(report)
+    }
+    const mock = apiFixture(reports), summaries = []
+    mock.arguments.protocolVersion = 2
+    mock.arguments.publishSummary = text => summaries.push(text)
+    // apiFixture supplies a legacy test override; remove it to exercise the real default.
+    delete mock.arguments.trustedProtocol
+    if (explicitHistoricalOverride) mock.arguments.trustedProtocol = historicalProtocol
+    else assert.equal(Object.hasOwn(mock.arguments, 'trustedProtocol'), false)
+    // Even an explicit old comparator override cannot bypass the renderer's trusted default.
+    await assert.rejects(reportRun(mock.arguments), error => {
+      assert.equal(error.name, 'AssertionError')
+      assert.equal(error.code, 'ERR_ASSERTION')
+      assert.equal(error.actual, historicalProtocol)
+      assert.equal(error.expected, snapshot.protocolHash())
+      return true
+    })
+    assert.equal(summaries.length, 0)
+    assert.equal(mock.state.calls.filter(call => call.method).length, 0)
+  }
+})
+
+
+test('trusted snapshot reader evidence admits RenderView CPU leases and rejects mixed or stale profiles', async () => {
+  const reports = readerReports()
+  const previousId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const currentId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+  for (const report of reports) for (const run of report.runs) {
+    const id = run.side === 'base' ? previousId : currentId
+    const profile = dragSourceProfiles.find(profile => profile.id === id)
+    assert.ok(profile)
+    run.readers.source = { profile: id, importSha256: readerImportSha256,
+      slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  const historical = dragSourceProfiles.find(profile => profile.id === previousId)
+  for (const mutate of [
+    run => { run.readers.source.profile = 'unknown-render-cpu-leases' },
+    run => { run.readers.source.slices = run.readers.source.slices.filter(slice => slice.id !== 'pick-operation-leases') },
+    ...['submission-key', 'query-entry', 'owned-terrain-entry'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+    run => { const slice = run.readers.source.slices.find(slice => slice.id === 'pick-operation-leases'); slice.expectedSha256 = slice.actualSha256 = '0'.repeat(64) },
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed)
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+  // Registry changes have a new trusted protocol identity, not retrospective
+  // authority to compare or publish reports captured under an older protocol.
+  const stale = structuredClone(reports); stale[0].protocolSha256 = '0'.repeat(64)
+  const mock = readerMock(stale)
+  await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+})
+
+test('trusted snapshot reader evidence admits the reviewed CPU route and rejects mixed or unknown routes', async () => {
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) {
+    const id = run.side === 'base' ? 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+      : 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
+    const profile = dragSourceProfiles.find(profile => profile.id === id)
+    assert.ok(profile)
+    run.readers.source = { profile: id, importSha256: readerImportSha256,
+      slices: profile.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  const historical = dragSourceProfiles.find(profile => profile.id === 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1')
+  for (const mutate of [
+    run => { run.readers.source.profile = 'unknown-disposed-cpu' },
+    ...['frame-order', 'terrain-producers'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed)
+    await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+  }
+  // Newly registered source profiles change the trusted protocol identity;
+  // an older or arbitrary protocol cannot be relabelled as current evidence.
+  const stale = structuredClone(reports); stale[0].protocolSha256 = '0'.repeat(64)
+  const mock = readerMock(stale)
+  await assert.rejects(reportRun(mock.arguments)); assert.equal(mock.state.calls.some(call => call.method), false)
+})
+
+test('combined CPU source proof is exact and ordered without reauthorizing sibling reports', async () => {
+  const previousId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1'
+  const cpuId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1'
+  const renderId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1'
+  const combinedId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-v1'
+  const profile = dragSourceProfiles.find(profile => profile.id === combinedId)
+  const historical = dragSourceProfiles.find(profile => profile.id === previousId)
+  assert.equal(profile.slices.length, 18)
+  const reports = readerReports()
+  for (const report of reports) for (const run of report.runs) {
+    const selected = run.side === 'base' ? historical : profile
+    run.readers.source = { profile: selected.id, importSha256: readerImportSha256,
+      slices: selected.slices.map(slice => ({ id: slice.id, expectedSha256: slice.sha256,
+        actualSha256: slice.sha256, reason: null })) }
+  }
+  for (const report of reports) snapshot.parseReport(JSON.stringify(report))
+  assert.equal((await reportRun(readerMock(reports).arguments)).status, 'created')
+  for (const mutate of [
+    ...[cpuId, renderId, 'unknown-combined-cpu'].map(id => run => { run.readers.source.profile = id }),
+    run => { run.readers.source.slices.reverse() },
+    run => { run.readers.source.slices.push({ ...run.readers.source.slices[0] }) },
+    run => { run.readers.source.slices[1] = { ...run.readers.source.slices[0] } },
+    run => { run.readers.source.slices = run.readers.source.slices.filter(slice => slice.id !== 'pick-operation-leases') },
+    ...['frame-order', 'terrain-producers', 'submission-key', 'query-entry', 'owned-terrain-entry'].map(id => run => {
+      const slice = run.readers.source.slices.find(slice => slice.id === id)
+      slice.expectedSha256 = slice.actualSha256 = historical.slices.find(slice => slice.id === id).sha256
+    }),
+    run => { const slice = run.readers.source.slices.find(slice => slice.id === 'pick-operation-leases'); slice.expectedSha256 = slice.actualSha256 = '0'.repeat(64) },
+    run => { run.readers.source.slices.at(-1).reason = 'source-changed' },
+  ]) {
+    const changed = structuredClone(reports); mutate(changed[0].runs.find(run => run.side === 'head'))
+    const mock = readerMock(changed), summaries = []
+    mock.arguments.publishSummary = text => summaries.push(text)
+    await assert.rejects(reportRun(mock.arguments))
+    assert.equal(mock.state.calls.some(call => call.method), false); assert.equal(summaries.length, 0)
+  }
+  // Exact protocol identities from the authenticated 786 and 789 sibling heads.
+  // Neither defaults nor an explicit historical override permit old reports to
+  // publish through the current trusted renderer after registry composition.
+  for (const staleProtocol of ['e23fb4d7efbfbbcce230ecfc06697c978c7fd77b97e2b2f7136b7680bd87e4f6',
+    'cb1e6458406a25fce2e9c3dbab4b74fa9d47abb36f11d8bc8f1b5ec16ee3900f']) {
+    assert.notEqual(staleProtocol, snapshot.protocolHash())
+    for (const explicitHistoricalOverride of [false, true]) {
+      const stale = structuredClone(reports)
+      for (const report of stale) report.protocolSha256 = staleProtocol
+      const mock = readerMock(stale), summaries = []
+      delete mock.arguments.trustedProtocol
+      if (explicitHistoricalOverride) mock.arguments.trustedProtocol = staleProtocol
+      mock.arguments.publishSummary = text => summaries.push(text)
+      await assert.rejects(reportRun(mock.arguments))
+      assert.equal(mock.state.calls.some(call => call.method), false); assert.equal(summaries.length, 0)
+    }
+  }
+})
+
+
+function triggerEvent(overrides = {}) {
+  return { workflow_run: { id: identity.runId, run_attempt: identity.runAttempt,
+    head_sha: identity.headSha, pull_requests: [{ number: identity.prNumber }], ...overrides } }
+}
+
+test('trigger receipt has a fixed event-only schema without claiming admission or execution base', () => {
+  const event = triggerEvent(), before = structuredClone(event)
+  const receipt = reporterTriggerReceipt(event)
+  assert.deepEqual(receipt, {
+    kind: 'populous-browser-performance-trigger', version: 1,
+    reporterRepository: repository, provenance: 'workflow-run-event', admission: 'not-established',
+    eventRunId: 1234, eventRunAttempt: 1, eventHeadSha: identity.headSha, eventPrNumber: 42,
+  })
+  assert.equal(JSON.stringify(receipt), JSON.stringify(reporterTriggerReceipt(event)))
+  assert.deepEqual(event, before)
+  assert.equal(Object.hasOwn(receipt, 'baseSha'), false)
+  assert.equal(Object.hasOwn(receipt, 'runAttempt'), false)
+})
+
+test('trigger receipt normalizes malformed JSON metadata without inventing identities', () => {
+  const blank = reporterTriggerReceipt(null)
+  assert.equal(blank.eventRunId, null); assert.equal(blank.eventRunAttempt, null)
+  assert.equal(blank.eventHeadSha, null); assert.equal(blank.eventPrNumber, null)
+  for (const event of [null, [], false, 4, 'event', {}, { workflow_run: null }, { workflow_run: [] }])
+    assert.deepEqual(reporterTriggerReceipt(event), blank)
+  for (const value of [null, false, 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1, '1234', [], {}]) {
+    const receipt = reporterTriggerReceipt(triggerEvent({ id: value, run_attempt: value, pull_requests: [{ number: value }] }))
+    assert.equal(receipt.eventRunId, null); assert.equal(receipt.eventRunAttempt, null)
+    assert.equal(receipt.eventPrNumber, null)
+  }
+  for (const value of [null, 1234, [], {}, '', 'B'.repeat(40), 'a'.repeat(39), 'a'.repeat(41), 'a'.repeat(40) + '\n'])
+    assert.equal(reporterTriggerReceipt(triggerEvent({ head_sha: value })).eventHeadSha, null)
+  for (const value of [null, {}, [], [null], [42], [{ number: 42 }, { number: 43 }]])
+    assert.equal(reporterTriggerReceipt(triggerEvent({ pull_requests: value })).eventPrNumber, null)
+})
+
+test('trigger receipt stays bounded and excludes arbitrary event data', () => {
+  const secret = 'synthetic-sensitive-value'
+  const event = triggerEvent({ id: Number.MAX_SAFE_INTEGER, run_attempt: Number.MAX_SAFE_INTEGER,
+    head_sha: 'f'.repeat(40), pull_requests: [{ number: Number.MAX_SAFE_INTEGER, base: { sha: secret }, title: secret }],
+    url: 'https://example.invalid/' + secret, title: secret, token: secret, artifacts: [secret], error: secret })
+  event.token = secret
+  const before = structuredClone(event), lines = []
+  emitReporterTrigger(event, line => lines.push(line))
+  assert.equal(lines.length, 1); assert.ok(Buffer.byteLength(lines[0], 'utf8') <= 512)
+  assert.equal(lines[0].includes(secret), false)
+  assert.deepEqual(JSON.parse(lines[0]), reporterTriggerReceipt(event))
+  assert.deepEqual(event, before)
+  assert.doesNotThrow(() => emitReporterTrigger(event, () => { throw Error('diagnostic sink failure') }))
+})
+
+function productionReporterMock(reports = quietReports(2)) {
+  const mock = reportMock(2, reports)
+  const workflow = readFileSync(new URL('../.github/workflows/browser-performance.yml', import.meta.url), 'utf8')
+  mock.arguments.trustedWorkflow = workflow
+  mock.state.workflowText = workflow
+  return mock
+}
+
+// Exercise the existing main without a network connection or a new production
+// dependency seam. Top-level tests are serial; all process globals are restored.
+async function runReporterMain(mock, event, { failTrigger = false } = {}) {
+  const directory = mkdtempSync(join(tmpdir(), 'pnd-reporter-trigger-'))
+  const eventPath = join(directory, 'event.json'), summaryPath = join(directory, 'summary.md')
+  const environment = { GITHUB_REPOSITORY: repository, GITHUB_TOKEN: 'reporter-trigger-test-token',
+    GITHUB_EVENT_PATH: eventPath, GITHUB_STEP_SUMMARY: summaryPath }
+  const previousEnvironment = Object.fromEntries(Object.keys(environment).map(key => [key, process.env[key]]))
+  const previousFetch = globalThis.fetch, previousLog = console.log
+  const logs = [], downloads = []
+  let error, result
+  try {
+    writeFileSync(eventPath, JSON.stringify(event)); writeFileSync(summaryPath, '')
+    Object.assign(process.env, environment)
+    console.log = line => {
+      if (failTrigger && typeof line === 'string' && line.startsWith('{"kind":"populous-browser-performance-trigger"'))
+        throw Error('diagnostic sink failure')
+      logs.push(line)
+    }
+    globalThis.fetch = async (url, options) => {
+      const target = new URL(url)
+      if (target.origin === 'https://reporter-fixture.invalid') {
+        assert.equal(options.redirect, 'error'); assert.equal(options.headers, undefined)
+        assert.equal(target.search, '')
+        const match = /^\/archive\/([1-9]\d*)$/.exec(target.pathname)
+        assert.ok(match, 'Unexpected fixture download route')
+        const id = Number(match[1]); assert.ok(mock.state.archives.has(id), 'Unknown fixture archive')
+        downloads.push(id)
+        return new Response(mock.state.archives.get(id), { status: 200 })
+      }
+      assert.equal(target.origin, 'https://api.github.com', 'Unstubbed request refused')
+      assert.equal(options.headers.Authorization, 'Bearer reporter-trigger-test-token')
+      const archive = /^\/repos\/JohnDeved\/populous-new-dawn\/actions\/artifacts\/([1-9]\d*)\/zip$/.exec(target.pathname)
+      if (archive) {
+        assert.equal(target.search, ''); assert.equal(options.redirect, 'manual')
+        assert.ok(mock.state.archives.has(Number(archive[1])), 'Unknown fixture archive redirect')
+        return new Response(null, { status: 302,
+          headers: { location: 'https://reporter-fixture.invalid/archive/' + archive[1] } })
+      }
+      if (options.method !== 'GET') {
+        assert.ok(options.method === 'POST' || options.method === 'PATCH', 'Unstubbed method refused')
+        assert.equal(target.pathname, options.method === 'POST'
+          ? '/repos/JohnDeved/populous-new-dawn/issues/42/comments'
+          : '/repos/JohnDeved/populous-new-dawn/issues/comments/99')
+        assert.equal(target.search, '')
+      }
+      const apiOptions = options.method === 'GET' ? {} : { method: options.method, body: JSON.parse(options.body) }
+      const value = await mock.arguments.api(target.pathname + target.search, apiOptions)
+      return new Response(JSON.stringify(value), { status: 200 })
+    }
+    try { result = await reporterMain() } catch (caught) { error = caught }
+    return { result, error, logs, downloads, summary: readFileSync(summaryPath, 'utf8') }
+  } finally {
+    globalThis.fetch = previousFetch; console.log = previousLog
+    for (const [key, value] of Object.entries(previousEnvironment)) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+    rmSync(directory, { recursive: true })
+  }
+}
+
+test('production main records the trigger before its unchanged unassociated skip', { concurrency: false }, async () => {
+  const mock = productionReporterMock(), event = triggerEvent({ pull_requests: [] })
+  const actual = await runReporterMain(mock, event)
+  assert.equal(actual.error, undefined); assert.equal(actual.result, undefined)
+  assert.deepEqual(actual.logs, [JSON.stringify(reporterTriggerReceipt(event)), 'Skipped unassociated event'])
+  assert.deepEqual(mock.state.calls, []); assert.deepEqual(actual.downloads, []); assert.equal(actual.summary, '')
+})
+
+test('production main records pre-summary trust refusal without changing the rejection or accessing artifacts', { concurrency: false }, async () => {
+  const expected = productionReporterMock(), actualMock = productionReporterMock(), event = triggerEvent()
+  expected.state.workflowText = actualMock.state.workflowText = 'untrusted workflow'
+  let expectedError
+  try { await reportRun(expected.arguments) } catch (caught) { expectedError = caught }
+  assert.equal(expectedError?.message, 'Untrusted benchmark workflow revision')
+  const actual = await runReporterMain(actualMock, event)
+  assert.equal(actual.error?.name, expectedError.name); assert.equal(actual.error?.code, expectedError.code)
+  assert.equal(actual.error?.message, expectedError.message)
+  assert.deepEqual(actualMock.state.calls, expected.state.calls)
+  assert.deepEqual(actual.logs, [JSON.stringify(reporterTriggerReceipt(event))])
+  assert.deepEqual(actual.downloads, []); assert.equal(actual.summary, '')
+  assert.equal(actualMock.state.calls.some(call => call.method || call.path.includes('/artifacts')), false)
+})
+
+test('production main retains quiet and actionable API order, summaries, comments and terminal JSON', { concurrency: false }, async () => {
+  for (const mode of ['within-noise', 'regression']) {
+    const expected = productionReporterMock(quietReports(2, mode))
+    const actualMock = productionReporterMock(quietReports(2, mode)), expectedDownloads = []
+    const download = expected.arguments.download
+    expected.arguments.download = async id => { expectedDownloads.push(id); return download(id) }
+    const result = await reportRun(expected.arguments), event = triggerEvent()
+    assert.equal(result.status, mode === 'within-noise' ? 'skipped-no-signal' : 'created')
+    const actual = await runReporterMain(actualMock, event)
+    assert.equal(actual.error, undefined); assert.equal(actual.result, undefined)
+    assert.deepEqual(actualMock.state.calls, expected.state.calls)
+    assert.deepEqual(actual.downloads, expectedDownloads)
+    assert.equal(actual.summary, expected.summaries.map(summary => summary + '\n').join(''))
+    assert.deepEqual(actual.logs, [JSON.stringify(reporterTriggerReceipt(event)), JSON.stringify(result)])
+    assert.equal(actualMock.state.calls.filter(call => call.method).length, mode === 'within-noise' ? 0 : 1)
+  }
+})
+
+test('trigger event attempt remains separate from the API-current comparison attempt', { concurrency: false }, async () => {
+  const mock = productionReporterMock(), event = triggerEvent({ run_attempt: 9 })
+  const actual = await runReporterMain(mock, event)
+  assert.equal(actual.error, undefined)
+  const trigger = JSON.parse(actual.logs[0])
+  assert.equal(trigger.eventRunAttempt, 9); assert.equal(trigger.admission, 'not-established')
+  assert.equal(mock.state.run.run_attempt, 1)
+  assert.match(actual.summary, /actions\/runs\/1234\/attempts\/1/)
+  assert.deepEqual(JSON.parse(actual.logs[1]), { status: 'skipped-no-signal', complete: true, missing: [] })
+})
+
+test('synchronous trigger emission failure preserves the ordinary outcome and original API error object', { concurrency: false }, async () => {
+  const expected = productionReporterMock(), actualMock = productionReporterMock()
+  const result = await reportRun(expected.arguments)
+  const actual = await runReporterMain(actualMock, triggerEvent(), { failTrigger: true })
+  assert.equal(actual.error, undefined); assert.deepEqual(actual.logs, [JSON.stringify(result)])
+  assert.deepEqual(actualMock.state.calls, expected.state.calls)
+  assert.equal(actual.summary, expected.summaries.map(summary => summary + '\n').join(''))
+
+  const rejected = productionReporterMock(), failure = Error('original API failure')
+  rejected.arguments.api = async () => { throw failure }
+  const failed = await runReporterMain(rejected, triggerEvent(), { failTrigger: true })
+  assert.strictEqual(failed.error, failure)
+  assert.deepEqual(failed.logs, []); assert.deepEqual(failed.downloads, []); assert.equal(failed.summary, '')
 })

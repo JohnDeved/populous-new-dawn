@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, nativePosition, tick } from '../app/model.ts'
@@ -45,7 +46,7 @@ test('Mission 1 nonzero marker cursor survives checkpoint while legacy state ini
   assert.deepEqual(restored.knowledgeGlow, vault.knowledgeGlow)
   const legacy = structuredClone(world), before = [legacy.turn, legacy.nextId, legacy.randomState]
   delete source(legacy).knowledgeGlow
-  const migrated = migrateCheckpoint(legacy)
+  const migrated = normalizeHistoricalFixture(legacy)
   assert.equal(source(migrated).knowledgeGlow.f1, 0)
   assert.deepEqual([migrated.turn, migrated.nextId, migrated.randomState], before)
   assert.equal(migrated.unlockedCamp, false)
@@ -71,7 +72,7 @@ test('camp gift presentation preserves the existing hide and unlock timers witho
   delete old.sprite
   old.height = (ground + 800) / 45
   const remaining = old.remaining, phase = old.phase, nextId = legacy.nextId
-  const loaded = migrateCheckpoint(legacy).gifts.find(entry => entry.id === gift.id)
+  const loaded = normalizeHistoricalFixture(legacy).gifts.find(entry => entry.id === gift.id)
   assert.deepEqual([loaded.frame, loaded.remaining, loaded.phase], [1077, remaining, phase])
   assert.equal(legacy.nextId, nextId)
   assert.equal(Math.round(loaded.height * 45) - ground, 1072)

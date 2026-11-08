@@ -1,5 +1,5 @@
 import { moveObjectInCells } from './object-cells.ts'
-import { buildingPose } from './building-shapes.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
 import {
   nativePosition,
   browserPosition,
@@ -244,9 +244,9 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     )
   const routeEffects: RouteEffects = {
     outside: id => {
-      const b = w.buildings.find(b => b.id === id)
-      if (!b) throw new Error(`Missing native route building ${id}`)
-      return buildingOutsidePoint(buildingPose(b))
+      const shape = liveBuildingShape(w, id)
+      if (!shape) throw new Error(`Missing native route building ${id}`)
+      return buildingOutsidePoint(shape)
     },
     buildingBlocks: cell =>
       !!pathCellBlocked(
@@ -294,6 +294,21 @@ export function buildLiveRecoveryRoute(w: World, u: Unit, p: LivePerson, option:
   const { planner, routeEffects } = routeContext(w, u, p, option)
   const from = { x: p.x >>> 8, y: p.y >>> 8 },
     to = { x: p.goalX >>> 8, y: p.goalY >>> 8 }
+  correctRouteEndpoints(planner, p, from, to, routeEffects)
+  return routeEffects.build(p, from, to)
+}
+
+// 004a74e0 uses the raw endpoint/build pair for its chosen resource. It does
+// not replace the person's goal or use the broader destination planner.
+export function buildLiveResourceRoute(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  target: { x: number; y: number }
+) {
+  const { planner, routeEffects } = routeContext(w, u, p, 0)
+  const from = { x: (p.x >>> 8) & 255, y: (p.y >>> 8) & 255 },
+    to = { x: (target.x >>> 8) & 255, y: (target.y >>> 8) & 255 }
   correctRouteEndpoints(planner, p, from, to, routeEffects)
   return routeEffects.build(p, from, to)
 }

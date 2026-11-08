@@ -130,11 +130,16 @@ test('load exception after forced-unpause cleans the setup latch in finally', as
     store.replace(checkpointCodec(f.expected, true)); store.change(w => { w.paused = false })
     throw Error('public click failed after replacement')
   } }
+  let menuWaits = 0
+  const menu = { getByRole: () => button, waitFor: async () => { menuWaits++ },
+    or: () => menu, filter: () => menu, first: () => menu }
   const page = { goto: async () => {}, reload: async () => {}, waitForFunction: async () => {},
-    getByRole: () => ({ getByRole: () => button }), isClosed: () => false,
+    getByRole: (_role, { name }) => name === 'Opening logo' ? { isVisible: async () => false } : menu,
+    isClosed: () => false,
     evaluate: async (fn, arg) => ++evaluations === 1 ? JSON.stringify(f.transfer) : fn(arg) }
   try {
     await assert.rejects(loadSnapshot({ page, url: 'http://localhost', fixture: f, expectedRevision: source.commit }), /public click failed/)
+    assert.equal(menuWaits, 2, 'public Load follows observed menu readiness')
     assert.equal(store.listeners(), 0); assert.equal(window.__snapshotPauseLatch, undefined)
     assert.deepEqual(Object.getOwnPropertyDescriptor(store.getWorld(), 'paused'), { value: true, writable: true, enumerable: true, configurable: true })
   } finally {
@@ -189,4 +194,43 @@ test('cleanup uncertainty preserves the original load failure without throwing i
     return true
   })
   assert.equal(evaluations, 1)
+})
+
+test('generated current snapshot is admitted by a fresh real store without rewriting persisted input', async () => {
+  const f = await getFixture(), record = checkpointCodec(f.transfer, true),
+    { withStorage } = await import('./support/profile-storage.mjs')
+  assert.equal(record.version, 3)
+  await withStorage({ latest: record }, async ({ freshStore, records, writes }) => {
+    const store = await freshStore(), active = store.getWorld(), before = structuredClone(records)
+    assert.equal(await store.restoreCheckpoint(), true)
+    assert.equal(store.getCheckpointReadStatus(), 'read')
+    assert.equal(store.getWorld(), active)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.deepEqual(store.getWorld(), checkpointCodec(f.expected, true))
+    assert.deepEqual(records, before)
+    assert.deepEqual(writes, [])
+  })
+})
+
+test('snapshot admission validates current route sidecars even when transport hashes are recomputed', async () => {
+  const f = await getFixture()
+  for (const change of [
+    r => { r.version = 2 },
+    r => { delete r.world.motionRoutes.references },
+    r => { r.world.motionRoutes.references = new Uint16Array(401) },
+    r => { r.world.motionRoutes.references = new Float64Array(400) },
+    r => { r.world.motionRoutes.references[1]++ },
+    r => { r.world.motionRoutes.references[1] = Number.MAX_SAFE_INTEGER },
+    r => { r.world.motionRoutes.references = new Float64Array(r.world.motionRoutes.records.buffer, 0, 401) },
+  ]) {
+    const r = checkpointCodec(f.transfer, true)
+    change(r)
+    const transfer = checkpointCodec(r)
+    assert.throws(() => validateSnapshotFixture({ ...f, transfer, receipt: { ...f.receipt,
+      snapshotSha256: sha(JSON.stringify(transfer)) } }))
+  }
+  const w = checkpointCodec(f.expected, true), before = JSON.stringify(checkpointCodec(snapshotSimulationIdentity(w)))
+  w.motionRoutes.references[1]++
+  assert.notEqual(JSON.stringify(checkpointCodec(snapshotSimulationIdentity(w))), before,
+    'admission identity binds authoritative route ownership, not only actor handles')
 })

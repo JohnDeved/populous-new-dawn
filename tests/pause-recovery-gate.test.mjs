@@ -1,3 +1,7 @@
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { createHash } from 'node:crypto'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -10,7 +14,7 @@ import {
   pauseRecoveryLog,
   validatePauseRecovery,
 } from '../scripts/integration-queue/pause-recovery.mjs'
-import { recoveryReceiptLog } from '../scripts/tutorial-browser/recovery-receipt.mjs'
+import { recoveryReceipt, recoveryReceiptLog } from '../scripts/tutorial-browser/recovery-receipt.mjs'
 import {
   GATES,
   RECOVERY_BROWSER_GATE,
@@ -543,4 +547,66 @@ test('producer hashes actual evidence files and forwards real child close/build 
     )
   rmSync(join(dir, proof.screenshots[0].name))
   assert.throws(() => recoveryReceipt(raw, dir, env), /ENOENT/)
+})
+
+
+test('retained historical capture validates captured source and rejects the current scenario', () => {
+  const captured = JSON.parse(readFileSync(new URL('./fixtures/pause-recovery-current-receipt.json', import.meta.url))),
+    { receipt } = captured, expected = { identity: receipt.identity, inputs: receipt.inputs }
+  assert.equal(sha256(JSON.stringify(receipt)), captured.provenance.compactJsonSha256)
+  assert.equal(receipt.receiptSha256, captured.provenance.rawHostSha256)
+  assert.equal(receipt.checks.length, 9); assert.equal(receipt.screenshots.length, 13)
+  assert.equal(Object.keys(receipt.inputs).length, 14)
+  const source = JSON.parse(readFileSync(new URL('./fixtures/pause-recovery-historical/source.json', import.meta.url))),
+    snapshot = readFileSync(new URL('./fixtures/pause-recovery-historical/scenario.mjs.txt', import.meta.url))
+  assert.equal(source.commit, receipt.identity.mergeSha)
+  assert.equal(source.captureRunId, receipt.identity.runId)
+  assert.equal(source.path, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
+  assert.equal(snapshot.length, source.bytes)
+  assert.equal(createHash('sha1').update(`blob ${snapshot.length}\0`).update(snapshot).digest('hex'), source.blob)
+  assert.equal(sha256(snapshot), source.sha256)
+  assert.equal(source.sha256, receipt.inputs[source.path])
+  assert.equal(validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(receipt)), expected), true)
+  // Keep the historical run identity fixed so only today's changed scenario
+  // input can cause rejection. Historical success is never current admission.
+  const currentHash = sha256(readFileSync(new URL(`../${source.path}`, import.meta.url))),
+    currentScenario = { ...expected, inputs: { ...expected.inputs, [source.path]: currentHash } }
+  assert.notEqual(currentHash, source.sha256)
+  assert.throws(() => validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(receipt)), currentScenario),
+    /Git input hashes differ/)
+  // Captured facts, not policy constants, feed the actual compact producer.
+  // Temporary pixel bytes exercise hashing only; they are not browser evidence.
+  const output = mkdtempSync(join(tmpdir(), 'historical-pause-receipt-'))
+  try {
+    const { identity, inputs, checks, screenshots, ...hostFields } = receipt
+    const host = { ...hostFields, source: { commit: identity.mergeSha, files: inputs },
+      pauseCheckpointRecovery: { checks, screenshots: screenshots.map(({ sha256, ...shot }) => {
+        assert.match(sha256, /^[a-f0-9]{64}$/); return shot
+      }) } }
+    writeFileSync(join(output, 'receipt.json'), JSON.stringify(host))
+    for (const shot of screenshots) writeFileSync(join(output, shot.name), `synthetic producer bytes: ${shot.name}`)
+    const env = { GITHUB_REPOSITORY: identity.repository, GITHUB_RUN_ID: identity.runId, GITHUB_RUN_ATTEMPT: identity.runAttempt,
+      GITHUB_WORKFLOW_REF: identity.workflowRef, PR_HEAD_SHA: identity.headSha, PR_BASE_SHA: identity.baseSha }
+    const produced = recoveryReceipt(host, output, env)
+    assert.deepEqual(produced.checks, checks)
+    assert.deepEqual(produced.screenshots.map(({ name, viewport, dpr }) => ({ name, viewport, dpr })), host.pauseCheckpointRecovery.screenshots)
+    assert.notEqual(produced.receiptSha256, receipt.receiptSha256)
+    for (const shot of produced.screenshots) assert.equal(shot.sha256, sha256(readFileSync(join(output, shot.name))))
+    assert.equal(validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(produced)), expected), true)
+  } finally { rmSync(output, { recursive: true, force: true }) }
+  for (const field of ['checks', 'screenshots']) {
+    for (let index = 0; index < receipt[field].length; index++) {
+      for (const action of ['missing', 'duplicate', 'extra', 'reordered']) {
+        const bad = structuredClone(receipt)
+        if (action === 'missing') bad[field].splice(index, 1)
+        if (action === 'duplicate') bad[field].splice(index, 0, bad[field][index])
+        if (action === 'extra') bad[field].push(field === 'checks' ? 'unexpected check' : { ...bad[field][0], name: 'unexpected.png' })
+        if (action === 'reordered') bad[field].reverse()
+        assert.throws(() => validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(bad)), expected))
+      }
+    }
+  }
+  const legacy = structuredClone(receipt); legacy.checks.splice(1, 4); legacy.screenshots.splice(0, 3)
+  assert.equal(legacy.checks.length, 5); assert.equal(legacy.screenshots.length, 10)
+  assert.throws(() => validatePauseRecovery(pauseRecoveryLog(recoveryReceiptLog(legacy)), expected), /assertion inventory/)
 })

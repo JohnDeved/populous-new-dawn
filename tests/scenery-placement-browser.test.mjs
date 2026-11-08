@@ -74,7 +74,7 @@ test('original failure, cleanup failure and deadline remain terminal failures', 
     assert.match(result.failures[1].message, /close failed/)
     assert.match(result.failures[2].message, /60-second/)
   }))
-test('existing hosted runner keeps prior scenarios, bounded timing and source identity', () => {
+test('existing hosted runner keeps prior scenarios, Tutorial aggregate headroom and source identity', () => {
   const source = readFileSync(
     new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
     'utf8'
@@ -85,7 +85,7 @@ test('existing hosted runner keeps prior scenarios, bounded timing and source id
     source.indexOf('receipt.selectorInspection =') < source.indexOf('receipt.sceneryPlacement =')
   )
   assert.match(source, /sceneryScenarioSha256: hash\(sceneryScenario\)/)
-  assert.equal(browserCapMs('tutorial'), 180000)
+  assert.equal(browserCapMs('tutorial'), 240000)
   assert.match(source, /}, receipt.browserCapMs\)/)
   assert.match(source, /120000\)/)
   assert.match(source, /receipt\.status = 'passed'/)

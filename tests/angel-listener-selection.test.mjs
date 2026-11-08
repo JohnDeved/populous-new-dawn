@@ -1,3 +1,4 @@
+import { retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addUnit, cast, tick, command, setSelection, HOME } from '../app/model.ts'
@@ -8,11 +9,11 @@ import { createGameStore } from '../app/game-store.ts'
 // Supplied field, people and stock. Sermon acquisition, casting, projectile
 // arrival and Angel visits are ordinary live producers; no state23 is assigned.
 function field() {
-  const w = createWorld()
+  const w = createWorld(1, 'scalable')
   w.manaWorld.loadFlags |= 0x200
   w.terrain.fill(3)
   w.terrainVersion++
-  w.units = []
+  retainFixtureUnits(w, () => false)
   w.buildings = []
   w.trees = []
   w.shrines = []

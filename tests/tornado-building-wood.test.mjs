@@ -8,6 +8,7 @@ import { buildingStage, syncLandscapeObjects } from '../app/world-terrain-runtim
 import rules from '../app/original-rules.json' with { type: 'json' }
 
 // Controlled real-caller cases. Ordinary earned-stock/UI evidence is separate.
+// createWorld retains its source marker, so newly released logs carry dynamic provenance.
 function setup() {
   const world = createWorld()
   world.units = []
@@ -63,7 +64,7 @@ test('live Tornado releases one loose log at the damaged building before debris 
 
   assert.deepEqual(world.trees, [
     untouched,
-    { id: beforeId, ...position, logs: 1, model: 11 },
+    { id: beforeId, ...position, logs: 1, model: 11, authoredSlot: null, sceneryBirth: 'loose-log' },
   ])
   assert.equal(untouched.logs, 2)
   assert.ok(world.nextId >= beforeId + 1, 'Debris may allocate later effect IDs')
@@ -97,6 +98,8 @@ test('live Tornado reuses plan work and retires exhausted buildings through norm
       ...browserPosition(nativePosition(world, building)),
       logs: 1,
       model: 11,
+      authoredSlot: null,
+      sceneryBirth: 'loose-log',
     })
   }
   assert.equal(building.hp, 0)
@@ -191,7 +194,7 @@ test('Tornado compares final stage with the saved stage before emitting debris',
   assert.equal(state.stage, 2)
   assert.equal(state.plan.remaining, 200)
   assert.deepEqual(world.trees, [{ id: before.id, ...browserPosition(nativePosition(world, building)),
-    logs: 1, model: 11 }])
+    logs: 1, model: 11, authoredSlot: null, sceneryBirth: 'loose-log' }])
   assert.equal(world.nextId, before.id + 1)
   assert.equal(world.randomState, before.random)
   assert.equal(world.effects.length, before.effects)

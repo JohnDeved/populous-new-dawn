@@ -62,7 +62,7 @@ the rows' layout. The original main-menu order is:
 | Multiplayer | 307 | `004c3600`→menu4 | Record original presence; multiplayer implementation remains excluded. |
 | Options | 326 | Menu13 | Original shared navigation/controls missing. |
 | Rolling Demo | 334 | `004c5a80` | Original recording path is known; browser playback is not supplied by this menu work. |
-| Credits | 445 | `004c5af0` | No equivalent original action/content established in current startup. |
+| Credits | 445 | `004c5af0` | [Later static recovery](original-credits/README.md) binds state12, original content and bounded controller behavior; font/art/input/return proof still gates implementation. |
 | Coming Soon | 447 | `004c3540` | Original row exists; content/backend behavior remains untraced. |
 | Quit | 308 | Confirmation menu1 | Browser cannot be assumed to close an arbitrary tab like a native executable. |
 

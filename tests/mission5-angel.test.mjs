@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { browserPosition, command, createWorld, nativePosition, tick } from '../app/model.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
 import { worshipPositions } from '../app/worship.ts'
 
@@ -140,7 +140,7 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
   assert.ok(world.sounds.some(sound => sound.cue === 0xb2))
 })
 
-test('Mission 5 checkpoint migration upgrades an explicit mode-5 legacy Angel without changing gameplay state', () => {
+test('Mission 5 historical fixture reconstruction upgrades an explicit mode-5 legacy Angel without changing gameplay state', () => {
   const world = createWorld(5),
     angel = world.shrines.find(shrine => shrine.kind === 'angel')
   angel.model = 45
@@ -153,16 +153,16 @@ test('Mission 5 checkpoint migration upgrades an explicit mode-5 legacy Angel wi
   angel.rewardDelay = 9
   const before = preservedAngelState(world, angel)
 
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.equal(angel.mode, 5)
   assert.equal(angel.model, 157)
   assert.deepEqual(preservedAngelState(world, angel), before)
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.equal(angel.model, 157)
   assert.deepEqual(preservedAngelState(world, angel), before)
 })
 
-test('Mission 5 checkpoint migration recovers an absent authored mode before upgrading the Angel model', () => {
+test('Mission 5 historical fixture reconstruction recovers an absent authored mode before upgrading the Angel model', () => {
   const world = createWorld(5),
     angel = world.shrines.find(shrine => shrine.kind === 'angel')
   angel.model = 45
@@ -176,16 +176,16 @@ test('Mission 5 checkpoint migration recovers an absent authored mode before upg
   angel.rewardDelay = 13
   const before = preservedAngelState(world, angel)
 
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.equal(angel.mode, 5)
   assert.equal(angel.model, 157)
   assert.deepEqual(preservedAngelState(world, angel), before)
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.equal(angel.model, 157)
   assert.deepEqual(preservedAngelState(world, angel), before)
 })
 
-test('Mission 5 checkpoint migration adds only the previously omitted Angel head', () => {
+test('Mission 5 historical fixture reconstruction adds only the previously omitted Angel head', () => {
   const world = createWorld(5),
     angel = world.shrines.find(shrine => shrine.kind === 'angel'),
     other = world.shrines.find(shrine => shrine !== angel),
@@ -194,7 +194,7 @@ test('Mission 5 checkpoint migration adds only the previously omitted Angel head
   other.progress = 7
   const before = structuredClone(other)
 
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   const restored = world.shrines.filter(shrine => shrine.kind === 'angel')
   assert.equal(restored.length, 1)
   assert.deepEqual(
@@ -209,6 +209,6 @@ test('Mission 5 checkpoint migration adds only the previously omitted Angel head
   )
   assert.equal(world.nextId, oldId + 1)
   assert.deepEqual(other, before)
-  migrateCheckpoint(world)
+  normalizeHistoricalFixture(world)
   assert.equal(world.shrines.filter(shrine => shrine.kind === 'angel').length, 1)
 })

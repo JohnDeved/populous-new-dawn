@@ -99,24 +99,30 @@ test('native slot comparison retains signed-word semantics without the live adap
 test('wide live cell heads preserve full handles, native order and checkpoint continuation', async () => {
   const { insertObjectIntoCell, removeObjectFromCell, moveObjectInCells, cellObjectOrder } =
     await import('../app/object-cells.ts')
-  const { createGameStore, migrateCheckpoint } = await import('../app/game-store.ts')
+  const { createGameStore } = await import('../app/game-store.ts')
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const store = createGameStore()
   store.startMission(1)
   const w = store.getWorld()
   tick(w, 1 / 12)
-  // Controlled intact legacy representation, before any high-handle allocation.
-  w.objectCells.heads = new Uint16Array(w.objectCells.heads)
   const order = cellObjectOrder(w.objectCells),
     heads = [...w.objectCells.heads]
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
-  const restoredLegacy = store.getWorld()
-  assert.ok(restoredLegacy.objectCells.heads instanceof Float64Array)
-  migrateCheckpoint(w)
-  assert.deepEqual(restoredLegacy, w)
-  assert.ok(w.objectCells.heads instanceof Float64Array)
-  assert.deepEqual([...w.objectCells.heads], heads)
-  assert.deepEqual(cellObjectOrder(w.objectCells), order)
+  const restored = store.getWorld()
+  assert.ok(restored.objectCells.heads instanceof Float64Array)
+  assert.deepEqual(restored, w)
+  // Obsolete head widths are research data, never a public Save/Load upgrade.
+  restored.objectCells.heads = new Uint16Array(restored.objectCells.heads)
+  const obsolete = structuredClone(restored)
+  await assert.rejects(store.saveCheckpoint(), /incompatible/)
+  assert.deepEqual(restored, obsolete, 'rejected Save must not change the world')
+  assert.ok(store.loadCheckpoint(), 'the previous current session checkpoint survives')
+  assert.deepEqual(store.getWorld(), w)
+  const reconstructed = normalizeHistoricalFixture(obsolete)
+  assert.ok(reconstructed.objectCells.heads instanceof Float64Array)
+  assert.deepEqual([...reconstructed.objectCells.heads], heads)
+  assert.deepEqual(cellObjectOrder(reconstructed.objectCells), order)
   const cells = { heads: new Float64Array(16384), objects: new Map() }
   const pair = [33332, 98868, 65536, 4294967296].map(id => ({
     id,

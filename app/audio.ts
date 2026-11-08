@@ -149,13 +149,17 @@ export function playWorldSounds(scene: GameScene) {
         dz = Math.round((event.z - scene.viewPoint.z) * 256)
       const screen = scene.screen(event)
       // Native distance curve and projected pan; the full native mixer is still unported.
-      const stop = scene.onSound(
+      let stop: ReturnType<GameScene['onSound']>
+      stop = scene.onSound(
         event.cue,
         soundAttenuation(dx * dx + dz * dz),
         screen.x,
         event.owner === undefined
           ? undefined
           : () => {
+              // WebAudio ended callbacks can arrive after a same-owner restart.
+              const current = scene.ownedSounds.get(event.owner!)
+              if (stop && current && current !== stop) return
               const fire = scene.world.effects.find(f => f.id === event.owner)?.fire
               if (fire) fire.soundPlaying = false
               const burn = scene.world.buildings.find(b => b.id === event.owner)?.burn
@@ -175,6 +179,7 @@ export class Soundscape {
   master: GainNode | null = null
   buffers = new Map<string, AudioBuffer>()
   loading: Promise<void> | null = null
+  private loadController = new AbortController()
   active = new Set<AudioBufferSourceNode>()
   enabled = false
   disposed = false
@@ -293,27 +298,38 @@ export class Soundscape {
     void music.loading.catch(() => {})
     try {
       await ctx.resume()
+      // Mute or disposal can cancel startup while the context is resuming.
+      if (this.disposed || generation !== this.generation) return false
       if (!this.loading) {
+        // Cue loads are shared across mute/re-enable and retries, until disposal.
+        const { signal } = this.loadController
         const samples = new Set(
           AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
         )
         this.loading = Promise.all(
           [...samples].map(async key => {
             if (this.buffers.has(key)) return
-            const response = await fetch(`/original/audio/${key}.wav`)
+            const response = await fetch(`/original/audio/${key}.wav`, { signal })
+            if (signal.aborted) return
             if (!response.ok) throw new Error(`Sound sample failed: ${key}`)
-            const buffer = await ctx.decodeAudioData(await response.arrayBuffer())
-            if (!this.disposed) this.buffers.set(key, buffer)
+            const bytes = await response.arrayBuffer()
+            if (signal.aborted) return
+            const buffer = await ctx.decodeAudioData(bytes)
+            if (!signal.aborted) this.buffers.set(key, buffer)
           })
         )
           .then(() => {})
           .catch(e => {
+            // Only disposal cancels this owner; live failures still reach enable().
+            if (signal.aborted) return
             this.loading = null
             throw e
           })
       }
       await Promise.all([this.loading, music.loading])
     } catch (error) {
+      // A cancelled startup no longer owns playback or a reused Music instance.
+      if (this.disposed || generation !== this.generation) return false
       music.dispose()
       if (this.music === music) this.music = null
       throw error
@@ -408,6 +424,8 @@ export class Soundscape {
   }
   dispose() {
     this.disposed = true
+    this.loadController.abort()
+    this.loading = null
     this.mute()
     this.music?.dispose()
     this.music = null

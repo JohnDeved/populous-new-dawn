@@ -21,6 +21,7 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
   const screen = useRef<HTMLDivElement>(null)
   const retry = useRef<HTMLButtonElement>(null)
   const retried = useRef(false)
+  const retrySpacePressed = useRef(false)
   const [maskFailed, setMaskFailed] = useState(false)
   const [labelReady, setLabelReady] = useState(false)
   const [labelFailed, setLabelFailed] = useState(false)
@@ -38,6 +39,11 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
     if (phase === 'failed') retry.current?.focus()
     else screen.current?.focus()
   }, [phase])
+  function requestRetry() {
+    if (retried.current) return
+    retried.current = true
+    onRetry()
+  }
   return (
     <div
       ref={screen}
@@ -109,11 +115,25 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
           </details>
           <button
             ref={retry}
-            onClick={() => {
-              if (retried.current) return
-              retried.current = true
-              onRetry()
+            onKeyDown={event => {
+              if (event.key === 'Enter' && event.repeat) event.preventDefault()
+              if (event.key !== ' ') return
+              // Space activates on release, but only a fresh press on this
+              // presentation owns that release. Loading may replace the button.
+              event.preventDefault()
+              if (!event.repeat) retrySpacePressed.current = true
             }}
+            onKeyUp={event => {
+              if (event.key !== ' ') return
+              event.preventDefault()
+              const pressed = retrySpacePressed.current
+              retrySpacePressed.current = false
+              if (pressed) requestRetry()
+            }}
+            onBlur={() => {
+              retrySpacePressed.current = false
+            }}
+            onClick={requestRetry}
           >
             Try again
           </button>

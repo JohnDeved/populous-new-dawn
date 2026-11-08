@@ -287,14 +287,17 @@ export function stepLevelStarts(w: World) {
       p.flags2 &= ~0x4000
       continue
     }
-    site.counter = (site.counter + 1) & 255
-    p.counter = site.counter
     if (p.state !== 10) {
       // 0x4c1b80 may enter cast state22 without clearing command18. Its return
       // goes through 0x432260, which reinitializes the command at substate0.
+      // The replacement person controller owns this turn's counter/physics.
       site.suspended = true
       continue
     }
+    // 0x4ec6f0 advances the actual person once, including suspended cast visits.
+    // Resume from that owner, not the opening controller's stale snapshot.
+    site.counter = (p.counter + 1) & 255
+    p.counter = site.counter
     if (site.suspended) {
       site.suspended = false
       site.phase = 0

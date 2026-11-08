@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 
+export const meleeRunningProtocol = 'running-original-entry-v2'
 const attacks = new Set(['attack', 'strike', 'special'])
 const integer = value => Number.isSafeInteger(value) && value >= 0
 const sequenceKey = sample => JSON.stringify([sample.id, sample.action, sample.started, sample.fightGroup, sample.opponent])
@@ -63,6 +64,68 @@ function validateAttack(sample, mapping, label) {
   assert.equal(sample.personSpeed, 0, `${label}: attack physical person must be stopped`)
   assert.equal(sample.nativeAttackAnimation, true, `${label}: native attack ownership marker required`)
   validateAttackPhase(sample, mapping, label)
+}
+
+// Require the first entry's actual, alive, exact-expiry callback, never a later
+// snapshot, favorable replacement entry or merely an advancing pair. The v1
+// ten-turn survival window is a different contract, not accepted by this one.
+// PNG/public-command checks remain separate.
+export function validateMeleeRunningObservation(result, originalMapping) {
+  assert.ok(result && typeof result === 'object', 'Running melee observation required')
+  assert.equal(result.protocol, meleeRunningProtocol, 'First-entry melee protocol required')
+  assert.equal(result.done, true, 'Running melee observation must finish')
+  assert.equal(result.error, null, 'Running melee observation must not fail')
+  assert.ok(integer(result.firstAttackTurn), 'First observed attack turn required')
+  const { terminal, firstAttackTurn, entry, endpoint } = result
+  assert.ok(entry && typeof entry === 'object', 'Immutable first melee entry required')
+  assert.ok(endpoint && typeof endpoint === 'object', 'Observed native expiry endpoint required')
+  assert.ok(terminal && typeof terminal === 'object', 'Exact melee terminal record required')
+  assert.equal(terminal.reason, 'entry-complete', 'Melee observation must reach its native entry completion')
+  assert.ok(integer(terminal.stamp), 'Exact melee terminal renderer stamp required')
+  const acceptance = validateMeleeRunningFrames(result.samples, originalMapping)
+  const first = result.samples[0], mapping = originalMapping[`${first.kind}:${first.action}`]
+  assert.equal(firstAttackTurn, first.turn, 'Episode must start with the first retained attack sample')
+  assert.deepEqual(entry, { id: first.id, kind: first.kind, action: first.action, started: first.started,
+    fightGroup: first.fightGroup, opponent: first.opponent, duration: mapping.duration,
+    endExclusive: first.started + mapping.duration - 1 },
+  'First entry and expiry must come from its original mapped duration')
+  for (const sample of result.samples) {
+    assert.equal(sequenceKey(sample), sequenceKey(first), 'Every sample must belong to the immutable first entry')
+    assert.ok(sample.turn < entry.endExclusive, 'Attack samples must precede the first entry native expiry')
+  }
+  assert.equal(terminal.turn, entry.endExclusive, 'Exact native expiry turn must be observed, never skipped')
+  assert.deepEqual([endpoint.turn, endpoint.stamp], [terminal.turn, terminal.stamp],
+    'Native expiry evidence must belong to the actual terminal callback')
+  assert.ok(terminal.stamp > result.samples.at(-1).stamp,
+    'Melee terminal renderer stamp must follow every retained sample')
+  for (const key of ['id', 'kind', 'started', 'fightGroup', 'opponent'])
+    assert.equal(endpoint[key], first[key], `Native expiry must retain first entry ${key}`)
+  assert.equal(endpoint.team, 'blue')
+  assert.equal(endpoint.alive, true, 'First-entry actor must remain alive through completion')
+  assert.ok(Number.isFinite(endpoint.hp) && endpoint.hp > 0, 'Live actor HP required at native expiry')
+  assert.equal(endpoint.action, 'approach', 'Exact expiry must be the source-owned approach transition')
+  assert.equal(endpoint.remaining, null, 'Exact expiry clears the native attack countdown')
+  assert.equal(endpoint.animation, first.action)
+  assert.equal(endpoint.nativeAttackAnimation, true)
+  for (const key of ['personId', 'personState', 'personModel', 'personClass', 'workFlags', 'object', 'draw'])
+    assert.equal(endpoint[key], first[key], `Native expiry must retain original physical ${key}`)
+  assert.equal(endpoint.personIdentityMatch, true)
+  assert.equal(endpoint.logicalStamp, endpoint.turn)
+  assert.deepEqual([endpoint.f1, endpoint.f2], [0, (endpoint.turn - entry.started) % mapping.frameCount],
+    'Exact expiry must retain the original logical native phase')
+  assert.ok(integer(endpoint.animationFrame) && endpoint.animationFrame >= result.samples.at(-1).animationFrame)
+  assert.equal(endpoint.flight, false)
+  for (const [key, mask] of [['personFlags2', 0x80000], ['personFlags4', 0x400]]) {
+    assert.ok(integer(endpoint[key]))
+    assert.equal(endpoint[key] & mask, 0, 'Native expiry cannot use an airborne override')
+  }
+  assert.equal(endpoint.paused, false)
+  for (const key of ['canvasConnected', 'sceneStoreMatch', 'documentVisible'])
+    assert.equal(endpoint[key], true, `Native expiry requires ${key}`)
+  acceptance.protocol = meleeRunningProtocol
+  acceptance.obligations.firstEntry = { status: 'passed', firstAttackTurn, ...entry,
+    terminal: { turn: terminal.turn, stamp: terminal.stamp, reason: terminal.reason } }
+  return acceptance
 }
 
 // Pure supplied-observation validation, not a browser receipt. The caller owns

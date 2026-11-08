@@ -4,7 +4,7 @@ import { createConvertWild, stepConvertWild } from '../app/convert-wild.ts'
 import { processComputerSpells } from '../app/computer-spells.ts'
 import { createTribeCasting } from '../app/spell-casting.ts'
 import { addUnit, cast, command, createWorld, population, selectUnit, tick } from '../app/model.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 
 test('Convert Wild scans, converts, animates, and casts through player and computer paths', () => {
   const center = { x: 0x8000, y: 0x8000, h: 100 },
@@ -55,7 +55,10 @@ test('Convert Wild scans, converts, animates, and casts through player and compu
   assert.equal(population(w, 'blue'), 2)
   assert.equal(w.shots.convertWild, 0)
   assert.ok([0x85, 0xb4, 5].every(cue => w.sounds.some(sound => sound.cue === cue)))
-  assert.ok(w.effects.some(effect => effect.kind === 'birth'))
+  assert.ok(w.effects.some(effect => effect.sprite?.sequence === 'startConversion' &&
+    effect.animation?.object === 1240 && effect.animation.draw === 45 &&
+    effect.turnsRemaining === 8 && effect.startConversionLink === converted.id))
+  assert.ok(!w.effects.some(effect => effect.kind === 'birth'))
   selectUnit(w, converted.id, false)
   assert.deepEqual(w.selected, [converted.id])
   assert.ok(command(w, { x: 2, z: 14 }))
@@ -122,7 +125,7 @@ test('Convert Wild scans, converts, animates, and casts through player and compu
 
   delete w.shots.convertWild
   delete w.giftCounts.convertWild
-  migrateCheckpoint(w)
+  normalizeHistoricalFixture(w)
   assert.equal(w.shots.convertWild, 0)
   assert.equal(w.giftCounts.convertWild, 0)
 })

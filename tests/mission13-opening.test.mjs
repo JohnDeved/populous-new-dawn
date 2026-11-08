@@ -145,7 +145,7 @@ test('Mission 13 Land Bridge uses native surface categories at low shore', () =>
 })
 
 test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', async () => {
-  let world = createWorld(13)
+  let world = createWorld(13, 'scalable')
   createGift(
     world,
     'balloonHut',

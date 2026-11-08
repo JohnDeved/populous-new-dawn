@@ -5,11 +5,13 @@ import { setAnimationObject, type AnimatedUnit } from './animation.ts'
 import type { Gift, Point, Shrine, World } from './world-types.ts'
 import temple from './original-vault-knowledge.json' with { type: 'json' }
 import camp from './original-vault-knowledge-camp.json' with { type: 'json' }
+import tower from './original-vault-knowledge-tower.json' with { type: 'json' }
 import { vaultShapePose } from './vault-geometry.ts'
 
 const knowledgeVaults = [
   { ...camp, reward: 'camp' as const },
   { ...temple, reward: 'temple' as const },
+  { ...tower, reward: 'tower' as const },
 ]
 export type VaultKnowledgeAppearance = (typeof knowledgeVaults)[number]
 

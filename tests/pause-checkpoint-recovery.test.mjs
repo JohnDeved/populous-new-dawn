@@ -5,6 +5,7 @@ import { createRequire } from 'node:module'
 import test from 'node:test'
 import ts from 'typescript'
 import { createWorld } from '../app/model.ts'
+import { CHEAT_SAVE_NOTICE } from '../app/spell-test-cheats.ts'
 import { withStorage } from './support/profile-storage.mjs'
 import { evaluatePage, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
@@ -100,7 +101,7 @@ for (const [state, reason] of [
 }
 
 test('an available memory checkpoint stays loadable through every storage-read state', () => {
-  for (const checkpointReadStatus of ['idle', 'pending', 'failed', 'read', 'unavailable']) {
+  for (const checkpointReadStatus of ['idle', 'pending', 'failed', 'read', 'unavailable', 'incompatible']) {
     const ui = fixture({ checkpointReadStatus, hasCheckpoint: true })
     ui.click('Load Game')
     assert.equal(ui.button('Load checkpoint').props.disabled, false)
@@ -176,7 +177,7 @@ test('holding an activation key cannot follow retry focus into Back; fresh press
 const pauseUse = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText(pageSource) === 'OriginalPauseMenu')
 function homeProps(store) {
   return evaluatePage(pauseUse.getText(pageSource), {
-    OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined,
+    OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, CHEAT_SAVE_NOTICE,
     world: store.getWorld(), tutorialLevel: 0, store,
     closeMenu() {}, saveCheckpoint: () => store.saveCheckpoint(),
     loadCheckpoint: () => store.loadCheckpoint(), restart() {}, quitLevel() {}, exitTutorial() {},
@@ -184,9 +185,9 @@ function homeProps(store) {
 }
 
 test('actual Home retry binding recovers a stored checkpoint without replacing the active world', async () => {
-  const saved = createWorld(2)
+  const saved = createWorld(2, 'scalable')
   saved.turn = 217
-  await withStorage({ latest: { version: 1, world: saved } }, async ({ freshStore, writes, drain }) => {
+  await withStorage({ latest: { version: 3, world: saved } }, async ({ freshStore, writes, drain }) => {
     const store = await freshStore()
     assert.equal(await store.restoreCheckpoint(), false)
     store.startMission(1)
@@ -215,9 +216,9 @@ test('actual Home retry binding recovers a stored checkpoint without replacing t
 })
 
 test('a newer in-session Save wins over a delayed lookup started through the pause UI', async () => {
-  const saved = createWorld(2)
+  const saved = createWorld(2, 'scalable')
   saved.turn = 217
-  await withStorage({ latest: { version: 1, world: saved } }, async ({ freshStore, drain }) => {
+  await withStorage({ latest: { version: 3, world: saved } }, async ({ freshStore, drain }) => {
     const store = await freshStore()
     await store.restoreCheckpoint()
     const ui = fixture(homeProps(store))
@@ -402,21 +403,35 @@ test('actual Home quit callbacks retain different destinations and clear obsolet
     let cancelled = 0, reset = 0
     const bindings = { menuSession, pendingMenuCamera, loadRequest,
       cancelNearbyInput() { cancelled++ }, engine: { current: {} }, audio: { current: { reset() { reset++ } } },
-      ...Object.fromEntries(['Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
+      ...Object.fromEntries(['CheatsOpen', 'Menu', 'Ready', 'Error', 'StartupCampaign', 'Startup', 'SelectorOpen'].map(key => [`set${key}`, value => { states[key] = value }])) }
     const node = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
     const action = evaluatePage(node.getText(pageSource), bindings)
     const props = evaluatePage(pauseUse.getText(pageSource), {
-      OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, world: { outcome: { level: 1 } }, tutorialLevel: 0,
-      store: { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read' },
+      OriginalPauseMenu: 'OriginalPauseMenu', frontendAssets: undefined, CHEAT_SAVE_NOTICE, world: { outcome: { level: 1 } }, tutorialLevel: 0,
+      store: { hasCheckpoint: () => true, getCheckpointReadStatus: () => 'read', hasUsedCheats: () => false },
       closeMenu() {}, saveCheckpoint() {}, loadCheckpoint() {}, restart() {}, quitLevel: action, exitTutorial: action,
     }).props
     const ui = fixture(props)
     ui.click(callback === 'onQuitGame' ? 'Quit Game' : 'Quit Level')
     assert.equal(cancelled, 0)
+    assert.equal(states.CheatsOpen, undefined, 'confirmation alone does not close the testing menu')
     ui.click('Yes')
+    assert.equal(states.CheatsOpen, false)
     assert.equal(states.Startup, 'choice'); assert.equal(states.StartupCampaign, campaign)
     assert.equal(states.Menu, false); assert.equal(states.Ready, false)
     assert.equal(menuSession.current, null); assert.deepEqual(pendingMenuCamera.current, [])
     assert.equal(loadRequest.current, null); assert.equal(cancelled, 1); assert.equal(reset, 1)
   }
+})
+
+// Rejection is visible without pretending that an incompatible record is absent.
+test('incompatible checkpoint remains inspectable in Load panel without enabling load or retry', () => {
+  const ui = fixture({ checkpointReadStatus: 'incompatible' })
+  ui.click('Load Game')
+  assert.equal(ui.render().props['data-panel'], 'load')
+  assert.equal(ui.button('Load checkpoint').props.disabled, true)
+  assert.match(ui.statuses()[0], /incompatible.*stored save has not been changed/)
+  assert.throws(() => ui.button('Retry checkpoint lookup'), /Button/)
+  assert.equal(ui.loads(), 0)
+  assert.equal(ui.retries(), 0)
 })

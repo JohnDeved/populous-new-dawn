@@ -17,6 +17,7 @@ async function fixture(t) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
     { RenderView } = await import('../app/render-view.ts'),
+    { sceneTextureRevision } = await import('../app/scene-assets.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     store = createGameStore(), logs = [], globals = new Map()
   let arrival = 1, modal = false
@@ -49,9 +50,15 @@ async function fixture(t) {
       onChange: () => logs.push(['change', world.castingTribes[0].flags]),
       updateCameraMotion: () => true,
     })
+    // Object.create skips class field initialization; use the actual expressions.
+    for (const name of ['modalRenderVersion', 'modalRenderedVersion', 'modalTextureVersion']) {
+      const field = declaration.members.find(node => node.name?.getText(source) === name)
+      assert.ok(field?.initializer, `production modal field: ${name}`)
+      scene[name] = execute(field.initializer.getText(source), {}, scene)
+    }
     for (const name of ['playWorldSounds', 'updateTerrainFrame', 'updateDecorationsFrame', 'cancelTooltipInspection', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement', 'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame']) scene[name] = noOp
     scene.animate = execute(animateSource, {
-      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
+      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp, sceneTextureRevision,
       advanceGame: (w, clock, seconds) => { logs.push(['advanceGame', w.castingTribes[0].flags]); api.advanceGame(w, clock, seconds) },
     }, scene)
     const page = pageNearby(scene)
@@ -197,18 +204,21 @@ test('actual Save clones committed mode without flushing; ordinary menu cancels 
 
 test('actual Scene disposal cancels pending input and the elapsed phase', async t => {
   const f = await fixture(t), disposable = () => ({ dispose: noOp, remove: noOp })
+  let contextLosses = 0
   f.scene.animate(0)
   f.at(1); release(f.page)
   f.page.render().props.onPointerDown(nearbyEvent())
   Object.assign(f.scene, {
     ownedSounds: new Map(), terrainLoad: new AbortController(), resize: { disconnect: noOp },
     disposeListeners: [], scene: { remove: noOp }, globe: disposable(), waterMap: disposable(),
-    terrainMap: disposable(), view: disposable(), renderer: { ...f.scene.renderer, dispose: noOp, domElement: disposable() },
+    terrainMap: disposable(), view: disposable(), renderer: { ...f.scene.renderer, dispose: noOp, domElement: disposable(), forceContextLoss: () => { ++contextLosses } },
+    terrainUpload: {}, minimap: { revision: undefined },
     tooltipElement: disposable(), pointerOutline: disposable(), spellPointer: disposable(),
     objectPanels: disposable(), worshipPresentation: disposable(), releaseGroup: noOp,
   })
   f.scene.dispose()
   f.scene.dispose()
+  assert.equal(contextLosses, 1, 'repeated disposal retires the supplied renderer boundary only once')
   assert.equal(f.page.pressed, false)
   f.scene.animate(1000)
   assert.equal(mode(f.world), false)
@@ -225,7 +235,10 @@ test('actual Scene modal boundary freezes game clock and rendering consumers, th
   scene.renderer.render = () => renders++
   scene.animate(1000)
   scene.animate(100000)
-  assert.equal(renders,2)
+  assert.equal(renders,1,'unchanged modal retains its drawn frame')
+  scene.invalidateModalRender()
+  scene.animate(150000)
+  assert.equal(renders,2,'explicit invalidation redraws without advancing simulation')
   assert.deepEqual(world,before)
   assert.deepEqual(scene.gameClock,clock)
   assert.equal(logs.filter(item=>item[0]==='advanceGame').length,0)

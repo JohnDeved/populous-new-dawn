@@ -8,6 +8,7 @@ export async function makeShrineScene(world) {
     { releaseGroup } = await import('../../app/scene-assets.ts'),
     { scene, api } = fixture
   scene.shrineMeshes = new Map()
+  scene.waveFrames = new WeakMap()
   scene.y = GameScene.prototype.y
   scene.locate = GameScene.prototype.locate
   scene.orientModel = GameScene.prototype.orientModel

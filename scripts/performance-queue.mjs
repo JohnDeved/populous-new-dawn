@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // One local measurement lane with an optional owner for browser-check descendants.
+import { packageScriptCommand } from './orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { spawn, spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
@@ -269,6 +270,8 @@ export async function superviseBrowserCheck({
   serverCommand,
   readinessTimeoutMs = 45_000,
   checkerStdio = 'inherit',
+  serverMode = 'managed',
+  observeChecker,
 }) {
   assert(process.platform !== 'win32', 'Browser supervisor requires POSIX process groups')
   argv(checkerCommand, 'checkerCommand')
@@ -287,17 +290,16 @@ export async function superviseBrowserCheck({
   assert(['127.0.0.1', 'localhost'].includes(host), 'POPULOUS_URL must use loopback')
   assert(Number.isInteger(port) && port > 0 && port < 65536, 'POPULOUS_URL has an invalid port')
   assert.deepEqual(declaredPorts, [port], 'Queue job must declare the POPULOUS_URL port only')
-  serverCommand ??= [
-    'npm',
-    'run',
-    'dev',
-    '--',
-    '--port',
-    String(port),
-    '--hostname',
-    host,
-  ]
-  argv(serverCommand, 'serverCommand')
+  assert(['managed', 'checker'].includes(serverMode), 'Unknown browser server ownership mode')
+  if (serverMode === 'checker') {
+    assert.equal(serverCommand, undefined, 'Checker-owned server cannot also have an external server command')
+    assert.equal(checkerStdio, 'inherit', 'Observed checker owns exclusive pipes, not caller-selected stdio')
+    assert.equal(typeof observeChecker, 'function', 'Checker-owned mode requires an exclusive observer')
+  } else {
+    assert.equal(observeChecker, undefined, 'Managed server defaults do not attach a new observer')
+    serverCommand ??= packageScriptCommand(cwd, 'dev', ['--port', String(port), '--hostname', host])
+    argv(serverCommand, 'serverCommand')
+  }
 
   const ownedProcesses = new Map(),
     ownedGroups = new Map(),
@@ -365,10 +367,11 @@ export async function superviseBrowserCheck({
     process.once(signalName, handler)
   }
 
-  let failure = null
+  let failure = null, observation, observationResult
   try {
     let server, serverResult
-    try {
+    if (serverMode === 'checker') assert(await portFree(port), `Refusing to start over occupied port ${port}`)
+    else try {
       assert(await portFree(port), `Refusing to start over occupied port ${port}`)
       const serverLog = fs.openSync(path.join(env.PND_QUEUE_OUTPUT, 'server.log'), 'wx', 0o600)
       try {
@@ -414,13 +417,14 @@ export async function superviseBrowserCheck({
     }
 
     try {
+      if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
       const checkerEnv = { ...env, POPULOUS_URL: url.toString() }
       delete checkerEnv.PND_QUEUE_CLEANUP
       const checker = spawn(checkerCommand[0], checkerCommand.slice(1), {
         cwd,
         detached: true,
         env: checkerEnv,
-        stdio: checkerStdio,
+        stdio: serverMode === 'checker' ? ['ignore', 'pipe', 'pipe'] : checkerStdio,
       })
       const checkerResult = childOutcome(checker)
       if (!checker.pid) {
@@ -428,14 +432,27 @@ export async function superviseBrowserCheck({
         throw result.error ?? new Error('Checker did not report a PID')
       }
       rememberRoot(checker, 'Checker')
+      if (serverMode === 'checker') {
+        // Attach synchronously before any pipe can be consumed elsewhere. Catch
+        // rejection now, but settle only AFTER descendant cleanup below: a live
+        // orphan may otherwise hold these pipes open after the leader exits.
+        try {
+          observation = Promise.resolve(observeChecker(checker)).then(
+            value => ({ ok: true, value }), () => ({ ok: false }))
+        } catch {
+          // Observer failures may contain raw protocol input; retain only the
+          // bounded diagnostic category, never its thrown payload/cause.
+          throw new Error('Exclusive checker observer could not attach')
+        }
+      }
       const checkerEvent = checkerResult.then(result => ({ source: 'checker', result })),
-        serverEvent = serverResult.then(result => ({ source: 'server', result }))
+        serverEvent = serverResult?.then(result => ({ source: 'server', result }))
       let event
       while (!event) {
         captureDescendants()
         event = await Promise.race([
           checkerEvent,
-          serverEvent,
+          ...(serverEvent ? [serverEvent] : []),
           sleep(250).then(() => null),
         ])
         if (terminationSignal) throw new Error(`termination requested: ${terminationSignal}`)
@@ -497,7 +514,24 @@ export async function superviseBrowserCheck({
     for (const [signalName, handler] of signalHandlers)
       process.removeListener(signalName, handler)
   }
+  // Diagnostic settlement never delays owned group cleanup, and is bounded
+  // separately from the unchanged gameplay/checker deadlines.
+  if (observation) {
+    let observationTimer, settled
+    try {
+      settled = await Promise.race([observation, new Promise(resolve => {
+        observationTimer = setTimeout(() => resolve({ ok: false }), 1000)
+      })])
+    } finally {
+      clearTimeout(observationTimer)
+    }
+    if (!settled.ok) {
+      const diagnosticFailure = new Error('Exclusive checker observation did not settle successfully')
+      failure = failure ? new AggregateError([failure, diagnosticFailure], 'Browser check and observation failed') : diagnosticFailure
+    } else observationResult = settled.value
+  }
   if (failure) throw failure
+  if (serverMode === 'checker') return { observation: observationResult, resourcesReleased: true }
 }
 function kick(dir) {
   // Paused submissions do not need idle controllers. Besides wasting processes,

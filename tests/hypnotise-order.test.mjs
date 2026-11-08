@@ -163,6 +163,10 @@ test('earned M22 Hypnotise binds replacement allocation to actual cell callback 
     center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [5888, 5888])
   assert.equal(w.turn, 6185)
+  assert.equal(effect.sprite.sequence, 'hypnotise')
+  assert.equal(effect.animation.draw, 44)
+  assert.equal(effect.animation.object, 1264)
+  assert.ok(w.sounds.some(s => s.cue === 0x2a && s.x === effect.x && s.z === effect.z))
   const discovered = []
   for (const dy of [-2, 0, 2])
     for (const dx of [-2, 0, 2])
