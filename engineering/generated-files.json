@@ -57,6 +57,18 @@
       "recording": "Canonical API archives, source-bound collection maps and external ownership/release journals remain held. Default collection never extracts all members. Only an explicitly selected completed cache may be released by exact ownership token and journal after its consumer ends; unknown/partial caches and historical evidence are not disposable. No automatic prune or original retirement."
     },
     {
+      "id": "coming-soon-trailer",
+      "kind": "imported-assets",
+      "generator": { "executable": "python3", "args": ["scripts/split-coming-soon.py", "<verified-lossless-webm>", "<new-output-directory>"] },
+      "callers": ["scripts/import-coming-soon.py", "scripts/split-coming-soon.py", "app/coming-soon.tsx", "worker/coming-soon.ts"],
+      "inputs": ["decomp/research/coming-soon/conversion.json"],
+      "outputs": [
+        { "path": "public/original/coming-soon", "type": "directory", "tracked": true, "protected": true },
+        { "path": "worker/coming-soon-media.json", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Only hash-verified TRAILER.TGQ. All 2425 decoded frames must equal the both-axis expanded source; retain conversion identity and audio decoder limitations. Split only the verified lossless WebM into four exact byte parts, verify reassembly, and copy the emitted manifest unchanged. Do not put the intact 80054836-byte file into static assets. Worker/browser acceptance remains required. Never regenerate BLOGO or other assets."
+    },
+    {
       "id": "startup-logo",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/import-startup-logo.py", "<verified-game-root>", "<new-output-directory>"] },
