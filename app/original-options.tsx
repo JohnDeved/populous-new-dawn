@@ -114,6 +114,7 @@ export function OriginalOptions({
     : textSkin === skin
   const slidersReady = prepared ? prepared.sliders : sliderSkin === skin
   const root = useRef<HTMLElement>(null)
+  const returningFromBrowser = useRef(false)
   const audioHelp =
     skin === 'frontend'
       ? 'Enable audio from the battlefield menu.'
@@ -200,11 +201,15 @@ export function OriginalOptions({
       ?.querySelector<HTMLElement>(`[aria-current="page"][data-option-key="${category}"]`)
       ?.focus()
   }, [category])
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Help can overflow. Focusing its trailing Back button scrolls past the
     // heading and first controls before the player has had a chance to read them.
     if (browser)
       root.current?.querySelector<HTMLHeadingElement>('[data-browser-help-heading]')?.focus()
+    else if (returningFromBrowser.current) {
+      returningFromBrowser.current = false
+      root.current?.querySelector<HTMLButtonElement>('[data-compatibility]')?.focus()
+    }
   }, [browser])
   useEffect(() => {
     if (!browser) return
@@ -213,10 +218,8 @@ export function OriginalOptions({
       if (browser && event.key === 'Escape' && element?.closest('dialog')?.open) {
         event.preventDefault()
         event.stopPropagation()
+        returningFromBrowser.current = true
         setBrowser(false)
-        requestAnimationFrame(() =>
-          element?.querySelector<HTMLButtonElement>('[data-compatibility]')?.focus()
-        )
       }
     }
     // Async disabled controls can leave focus on body rather than inside this panel.
@@ -224,10 +227,8 @@ export function OriginalOptions({
     return () => document.removeEventListener('keydown', keydown, true)
   }, [browser])
   function returnFromBrowser() {
+    returningFromBrowser.current = true
     setBrowser(false)
-    requestAnimationFrame(() =>
-      root.current?.querySelector<HTMLButtonElement>('[data-compatibility]')?.focus()
-    )
   }
   function select(next: Category) {
     setCategory(next)
