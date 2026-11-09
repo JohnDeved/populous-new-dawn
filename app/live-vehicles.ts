@@ -159,11 +159,15 @@ export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
 }
 
 export function removeMissingVehiclePassengers(w: World) {
-  const people = new Set(w.units.map(unit => unit.id))
+  // Most turns have no occupied craft. Build a call-local roster only when an
+  // eligible nonempty slot needs membership, and share it across those craft.
+  let people: Set<number> | undefined
   for (const vehicle of w.vehicles) {
     // Linked reward templates are detached from ordinary object processing.
     if (!vehicle.active || vehicleOrdinaryVisitDeferred(w, vehicle)) continue
-    vehicle.passengers = vehicle.passengers.map(id => people.has(id) ? id : 0)
+    vehicle.passengers = vehicle.passengers.map(id =>
+      id === 0 || (people ??= new Set(w.units.map(unit => unit.id))).has(id) ? id : 0
+    )
     vehicle.passengerCount = vehicle.passengers.filter(Boolean).length
     fillVehicleDriverSeat(vehicle)
     if (!vehicle.passengerCount) vehicle.speed = -1
