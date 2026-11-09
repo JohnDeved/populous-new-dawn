@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { settlePauseStyleViewport } from './pause-style-resize.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { waitForPauseStartup, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
 
@@ -59,11 +60,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
         }
         for (const [width, height] of [[640, 480], [1920, 1080], [800, 450]]) {
           signal.throwIfAborted()
-          await page.setViewportSize({ width, height })
-          const details = modal.locator('[aria-label="Checkpoint details"]')
-          await details.focus()
-          await page.keyboard.press('Home')
-          await page.waitForFunction(() => document.querySelector('[aria-label="Checkpoint details"]').scrollTop === 0)
+          const details = await settlePauseStyleViewport(page, modal, { width, height }, signal)
           const layout = await modal.evaluate(dialog => {
             const panel = dialog.querySelector('section'), body = panel.querySelector('[aria-label="Checkpoint details"]')
             const box = node => {

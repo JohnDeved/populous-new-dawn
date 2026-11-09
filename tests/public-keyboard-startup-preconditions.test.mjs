@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import ts from 'typescript'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8')
@@ -57,7 +58,42 @@ test('both pause callers use the shared bounded public startup path', () => {
 test('Escape fixtures retain assertions and establish exact public message ownership first', () => {
   const mission = read('scripts/local-render/mission10-boat-checkpoint.mjs')
   const corpse = read('scripts/tutorial-browser/follower-corpse.mjs')
-  assert.ok(mission.indexOf('collapseObservedCampaignMessages(page') < mission.indexOf("page.keyboard.press('Escape')"))
+  const parsed = ts.createSourceFile('mission10.mjs', mission, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS)
+  const declaration = name => {
+    const matches = parsed.statements.filter(node => ts.isFunctionDeclaration(node) && node.name?.text === name)
+    assert.equal(matches.length, 1, `Exact function owner required: ${name}`)
+    return matches[0]
+  }
+  const checker = declaration('checkMission10FollowerStrip')
+  const clear = declaration('clearMission10Selection')
+  const awaitedCall = statement => ts.isExpressionStatement(statement) &&
+    ts.isAwaitExpression(statement.expression) && ts.isCallExpression(statement.expression.expression)
+      ? statement.expression.expression : null
+  const actionCalling = (statement, target) => {
+    const call = awaitedCall(statement)
+    if (!call || call.expression.getText(parsed) !== 'input.action') return false
+    const callback = call.arguments[1]
+    return callback && ts.isArrowFunction(callback) && ts.isCallExpression(callback.body) &&
+      callback.body.expression.getText(parsed) === target && callback.body.arguments[0]?.getText(parsed) === 'page'
+  }
+  const statements = checker.body.statements
+  const setup = statements.filter(statement => actionCalling(statement, 'collapseObservedCampaignMessages'))
+  assert.equal(setup.length, 1, 'Checker must await its exact public owner setup')
+  const outer = statements.filter(ts.isForOfStatement)
+  assert.equal(outer.length, 1, 'Retain the checker control loop')
+  const inner = outer[0].statement.statements.filter(ts.isForOfStatement)
+  assert.equal(inner.length, 1, 'Retain the checker modifier loop')
+  const clearing = inner[0].statement.statements.filter(statement => actionCalling(statement, 'clearMission10Selection'))
+  assert.equal(clearing.length, 1, 'Each control must await the actual clearing helper')
+  assert.ok(setup[0].end < outer[0].pos, 'Public owner setup must precede the control loops')
+  const clearingScope = clear.body.statements.filter(ts.isTryStatement)
+  assert.equal(clearingScope.length, 1, 'Retain the clearing helper ownership/cleanup scope')
+  const escapes = clearingScope[0].tryBlock.statements.filter(statement => {
+    const call = awaitedCall(statement)
+    return call?.expression.getText(parsed) === 'page.keyboard.press' &&
+      ts.isStringLiteral(call.arguments[0]) && call.arguments[0].text === 'Escape'
+  })
+  assert.equal(escapes.length, 1, 'The actual clearing helper must retain its trusted Escape')
   assert.ok(corpse.indexOf('collapseObservedCampaignMessages(page') < corpse.indexOf("page.keyboard.press('Escape')"))
   assert.match(mission, /assert.deepEqual\(cleared.selected, \[\], 'Escape must clear the existing crew first'\)/)
   assert.match(corpse, /assert.deepEqual\(await page.evaluate\(\(\) => window.testStore.getWorld\(\).selected\), \[\]\)/)
