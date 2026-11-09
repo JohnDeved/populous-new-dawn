@@ -188,6 +188,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   assert.equal(target.hp, 55)
   assert.equal(world.units.includes(target), true)
   assert.equal(world.objectCells.objects.has(target.id), true)
-  assert.deepEqual(balloon.passengers, [])
+  assert.equal(balloon.active, true)
+  assert.deepEqual(balloon.passengers, [0])
   assert.equal(balloon.passengerCount, 0)
 })

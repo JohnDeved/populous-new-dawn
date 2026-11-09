@@ -186,6 +186,11 @@ class SharedWorkspaceTests(unittest.TestCase):
         self.binding['roots']['store']['device'] += 1
         self.bind()
         original_stat = Path.stat
+        original_filesystem_type = w.setup.filesystem_type
+        store_filesystem_type = original_filesystem_type(store)
+        def other_device_filesystem(path):
+            # Keep the existing filesystem evidence consistent with the invented device.
+            return store_filesystem_type if path == store else original_filesystem_type(path)
         def other_device(path, *args, **kwargs):
             value = original_stat(path, *args, **kwargs)
             if path == store:
@@ -193,7 +198,8 @@ class SharedWorkspaceTests(unittest.TestCase):
                 fields[2] += 1
                 return os.stat_result(fields)
             return value
-        with patch.object(Path, 'stat', other_device):
+        with patch.object(Path, 'stat', other_device), \
+                patch.object(w.setup, 'filesystem_type', side_effect=other_device_filesystem):
             with self.assertRaisesRegex(ValueError, 'share a filesystem'):
                 self.run_workspace()
 

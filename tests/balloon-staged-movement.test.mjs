@@ -363,8 +363,9 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
     assert.equal(idle.units.includes(idleUnit), false)
     assert.equal(idle.objectCells.objects.has(idleUnit.id), false)
     assert.equal(idleOrder.references, 0)
+    assert.equal(idleCraft.active, true)
     assert.equal(idleCraft.passengerCount, 0)
-    assert.deepEqual(idleCraft.passengers, [])
+    assert.deepEqual(idleCraft.passengers, [0])
   }
 
   // Independent public Shift departure from the same genuinely acquired state.

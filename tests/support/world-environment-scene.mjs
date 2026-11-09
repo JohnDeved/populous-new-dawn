@@ -22,8 +22,9 @@ export async function preloadScene(scene, terrain) {
   const { default: nativeUnits } = await import('../../app/original-units.json')
   const { vaultKnowledgeAtlas } = await import('../../app/vault-appearance.ts')
   const { templeArt } = await import('../../app/temple-art.ts')
+  const { default: towerArt } = await import('../../app/original-tower-acquisition.json')
   execute(`${preload.getText(source)}\n${assignment('ready').getText(source)}`, scene, {
-    world: scene.world, terrain, nativeUnits, vaultKnowledgeAtlas, templeArt,
+    world: scene.world, terrain, nativeUnits, vaultKnowledgeAtlas, templeArt, towerArt,
     ...await import('../../app/scene-assets.ts'),
   })
   return scene.ready

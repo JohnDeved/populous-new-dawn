@@ -1,0 +1,148 @@
+{
+  "original_path": "d3dpoptb.exe (canonical original data identified by full_file_identity_authority)",
+  "full_file_identity_authority": "Existing decomp/research/ordinary-hud-controls/native.json; expected SHA256 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f; not rehashed in this task",
+  "read_mode": "O_RDONLY | O_NOATIME, selected pread only; never executed",
+  "ranges": [
+    {
+      "start": "0x419480",
+      "end_exclusive": "0x4194f0",
+      "file_offset": "0x18880",
+      "bytes": 112,
+      "sha256": "6789c495fc4709262ad1f5980cd49de98152ffa7c448b868b978257b5e64126b"
+    },
+    {
+      "start": "0x489300",
+      "end_exclusive": "0x489470",
+      "file_offset": "0x88700",
+      "bytes": 368,
+      "sha256": "eceeca7d92f93c41812bcbc39d41dad440f84b958f559eec2229d9f881a7eb1c"
+    },
+    {
+      "start": "0x489470",
+      "end_exclusive": "0x489520",
+      "file_offset": "0x88870",
+      "bytes": 176,
+      "sha256": "3c4ead8fb0da1af6ab004d6696451ad1c1d9657b6b49e803e6a2999768915c4e"
+    },
+    {
+      "start": "0x4999d0",
+      "end_exclusive": "0x499a10",
+      "file_offset": "0x98dd0",
+      "bytes": 64,
+      "sha256": "fb25675df47c86a26349919a4dccd3ef4e17ac5d1d96094958af4dcca35bf8bf"
+    },
+    {
+      "start": "0x4aa1c0",
+      "end_exclusive": "0x4aa4e0",
+      "file_offset": "0xa95c0",
+      "bytes": 800,
+      "sha256": "50fb33bfbb9c451f12674bf621fca5a9bd94bc54b878f11b5b446ea02ce3928c"
+    },
+    {
+      "start": "0x4f1820",
+      "end_exclusive": "0x4f18e7",
+      "file_offset": "0xf0c20",
+      "bytes": 199,
+      "sha256": "ecaa4208da389f5505c51fe236eb6b50d67d870689241cd128469e93b091e1ca"
+    },
+    {
+      "start": "0x4ff480",
+      "end_exclusive": "0x4ff4b0",
+      "file_offset": "0xfe880",
+      "bytes": 48,
+      "sha256": "fd397c7fd1b876ec6dc7c5f9d88368b299a11381fef79af0039ab1371d709b9d"
+    },
+    {
+      "start": "0x5d6544",
+      "end_exclusive": "0x5d6580",
+      "file_offset": "0x1d4344",
+      "bytes": 60,
+      "sha256": "c133d61908347755d266613b2e675286fa3afb4ccb32055eb5dc40dc938373f0"
+    },
+    {
+      "start": "0x5a7f18",
+      "end_exclusive": "0x5a7f32",
+      "file_offset": "0x1a5d18",
+      "bytes": 26,
+      "sha256": "2e794d1fc8464701939ac590d900ce04a47f2212511e6acc629a48c291bb4f60"
+    },
+    {
+      "start": "0x5d6514",
+      "end_exclusive": "0x5d6580",
+      "file_offset": "0x1d4314",
+      "bytes": 108,
+      "sha256": "1534bf571165b6c1605e1718a01eeeb35780c679ab3b547f61a0b1eaa05800ca"
+    },
+    {
+      "start": "0x4a3960",
+      "end_exclusive": "0x4a39c0",
+      "file_offset": "0xa2d60",
+      "bytes": 96,
+      "sha256": "4840734fb1172643dfe5c5c43c0815e94a98d7af9a8c60f39aa48741aab7384e",
+      "extracted_from": "second bounded .text scan; no additional original read"
+    },
+    {
+      "start": "0x4d5f7c",
+      "end_exclusive": "0x4d5fd5",
+      "file_offset": "0xd537c",
+      "bytes": 89,
+      "sha256": "a46a3e88a71b0a5487b6e27eba933253abf92577cf7324e9715752c8f53d98a3",
+      "extracted_from": "second bounded .text scan; no additional original read"
+    },
+    {
+      "start": "0x437719",
+      "end_exclusive": "0x437743",
+      "file_offset": "0x36b19",
+      "bytes": 42,
+      "sha256": "b66432227d3d45d6a5543ff2b2d483a42da23e3ea2ae419be4eac6c054b09a94",
+      "extracted_from": "second bounded .text scan; no additional original read"
+    },
+    {
+      "start": "0x47a7f0",
+      "end_exclusive": "0x47a809",
+      "file_offset": "0x79bf0",
+      "bytes": 25,
+      "sha256": "fe9e8379038f38e0b3cdfe7a96e419ae3c824d4a9ad02c5700b4816c40ea59f9",
+      "extracted_from": "second bounded .text scan; no additional original read"
+    },
+    {
+      "start": "0x4ec6f0",
+      "end_exclusive": "0x4ec738",
+      "file_offset": "0xebaf0",
+      "bytes": 72,
+      "sha256": "1f5ecdf0e2b27369e57cfe3c5965b969ccc7efe15c21662aa032a11b4fc60440",
+      "extracted_from": "second bounded .text scan; no additional original read"
+    }
+  ],
+  "discovery_scans": [
+    {
+      "va_start": "0x401000",
+      "va_end_exclusive": "0x585c00",
+      "file_offset": "0x400",
+      "bytes": 1592320,
+      "sha256": "d920f4a9258f74b084600993baed8e61ceb4c7f80c461034a2fa322947304aa4",
+      "purpose": "Find xrefs to 0098ce6c and command descriptor mask"
+    },
+    {
+      "va_start": "0x598000",
+      "va_end_exclusive": "0x5f0600",
+      "file_offset": "0x195e00",
+      "bytes": 361984,
+      "sha256": "a8c0c23de6b48e79cdcc44ee14be6caba51e9093c979c6d018884dd0aa070cd1",
+      "purpose": "Find default action 0x7e/0x7f records"
+    }
+  ],
+  "header": {
+    "file_offset": 0,
+    "bytes": 4096,
+    "sha256": "2f135120b90b6c796cab5b26dad963a5134e9b94f197ab8b0dd8728cc8ae1fcb"
+  },
+  "read_budget": "Combined extensions <3,592,320 original bytes requested; no full-file hash.",
+  "second_extension": {
+    "scan": "repeat .text range401000\u2013585c00, file400,1592320 bytes",
+    "purpose": "Find absolute89ddec/c24 writes,4a3960 direct callers and loadFlags references",
+    "sha256": "d920f4a9258f74b084600993baed8e61ceb4c7f80c461034a2fa322947304aa4",
+    "method": "O_RDONLY|O_NOATIME pread; static data only",
+    "combined_read_bound": "Previous extension <2,000,000 bytes plus1592320; cumulative <3,592,320, within original4MiB limit"
+  }
+}
