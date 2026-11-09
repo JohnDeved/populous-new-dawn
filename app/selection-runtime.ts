@@ -105,6 +105,15 @@ export function canOrder(u: Unit) {
   return u.hp > 0 && !((unitAnimationSource(u)?.flags2 ?? 0) & 0x100000)
 }
 
+// Called after object-turn retirement. Presence in the surviving roster is the
+// policy; retain order/duplicates and the previous strict numeric-ID equality.
+export function removeMissingSelectedPeople(w: World) {
+  let people: Set<number> | undefined
+  w.selected = w.selected.filter(
+    id => !Number.isNaN(id) && (people ??= new Set(w.units.map(unit => unit.id))).has(id)
+  )
+}
+
 export function select(w: World, kind: UnitKind | 'all') {
   setSelection(
     w,

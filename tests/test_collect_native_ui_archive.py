@@ -3,6 +3,8 @@ import copy
 import hashlib
 import importlib.util
 import json
+import os
+import signal
 from pathlib import Path
 import stat
 import subprocess
@@ -124,6 +126,33 @@ class CollectorTests(unittest.TestCase):
     def test_partial_episode_ledger_not_full_coverage(self):
         self.members['episodes.json']['episodes'].pop(); self.write_archive()
         result = collector.collect(self.request); self.assertEqual(result['episodes'], []); self.assertTrue(result['identityErrors'])
+
+
+    def test_fifo_bound_inputs_refused_before_archive_or_output(self):
+        before = ea.record(self.archive.stat())
+        original = dict(self.request)
+        for key in ('run', 'artifacts', 'expectedCandidate', 'expectedInfrastructure'):
+            with self.subTest(input=key):
+                fifo = self.inputs/(key+'.fifo')
+                os.mkfifo(fifo, 0o600)
+                identity = ea.record(fifo.lstat())
+                self.request = {**original, key: {'path': str(fifo), 'sha256': '0'*64}}
+                previous = signal.getsignal(signal.SIGALRM)
+                self.assertEqual(signal.getitimer(signal.ITIMER_REAL), (0.0, 0.0))
+                def deadline(signum, frame):
+                    raise AssertionError('Collector FIFO open waited for a writer')
+                signal.signal(signal.SIGALRM, deadline)
+                try:
+                    signal.setitimer(signal.ITIMER_REAL, 1.0)
+                    with patch.object(ea, 'Archive') as archive, self.assertRaisesRegex(ValueError, 'bounded regular JSON'):
+                        collector.collect(self.request)
+                    archive.assert_not_called()
+                finally:
+                    signal.setitimer(signal.ITIMER_REAL, 0)
+                    signal.signal(signal.SIGALRM, previous)
+                self.assertEqual(ea.record(fifo.lstat()), identity)
+                self.assertEqual(ea.record(self.archive.stat()), before)
+                self.assertFalse(Path(self.request['output']).exists())
 
     def test_api_digest_required_not_archive_self_claim(self):
         self.artifacts['artifacts'][0]['digest'] = 'sha256:'+'0'*64; self.request['artifacts'] = self.binding('artifacts', self.artifacts)

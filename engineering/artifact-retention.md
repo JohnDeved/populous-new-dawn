@@ -102,6 +102,14 @@ views rather than accumulating full extracted trees.
 The current qualified pilot reader is intentionally narrower than the producer's
 256 MiB maximum: at most 96 MiB raw ZIP, 200 members, 128 MiB decoded total,
 8 MiB/member, bounded path/header metadata and supported regular-file ZIP formats.
+
+Archive, manifest, ownership-receipt, cached-member and collector-bound JSON
+leaf reads open with `O_NONBLOCK` before checking the pinned descriptor.
+Readerless FIFOs are
+rejected without waiting for a writer, including before any cache-release
+journal or unlink. This does not make regular-file or filesystem I/O
+preemptible; the operation deadlines remain cooperative checks.
+
 An artifact outside that profile fails closed and needs separately reviewed
 support, not automatic extraction or larger hidden limits. Build/runtime archives
 and depth-one raw-range storage recipes are separate contracts. A virtual raw

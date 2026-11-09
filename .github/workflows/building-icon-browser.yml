@@ -1,0 +1,125 @@
+name: Opt-in building icon evidence
+
+on:
+  pull_request:
+    branches: [main]
+    types: [ready_for_review, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: building-icon-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  building-icon-evidence:
+    name: Opt-in building icon evidence
+    if: ${{ github.event.pull_request.draft == false && github.event.pull_request.state == 'open' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.base.repo.full_name == github.repository && contains(github.event.pull_request.labels.*.name, format('icon-v1:{0}', github.event.pull_request.head.sha)) && (github.event.action != 'labeled' || github.event.label.name == format('icon-v1:{0}', github.event.pull_request.head.sha)) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      POPULOUS_BROWSER_SCENARIO: building-icon-evidence
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out exact proposed merge
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Record resource snapshot before-preparation
+        timeout-minutes: 1
+        run: timeout --signal=TERM --kill-after=2s 10s node scripts/tutorial-browser/building-icon-resource-snapshot.mjs before-preparation
+      - name: Install locked dependencies and verify supported Chrome
+        run: |
+          manager="$(node --input-type=module -e 'import fs from "node:fs"; const manager = JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager ?? "npm@11.9.0"; if (!["npm@11.9.0", "pnpm@11.25.0"].includes(manager)) throw Error("Unsupported source package-manager policy"); console.log(manager)')"
+          case "$manager" in
+            pnpm@11.25.0)
+              test -f pnpm-lock.yaml && test -f pnpm-workspace.yaml
+              npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+              pnpm install --frozen-lockfile --ignore-scripts
+              ;;
+            npm@11.9.0)
+              npm install --global --ignore-scripts --no-audit --no-fund npm@11.9.0
+              npm ci --no-audit --no-fund
+              ;;
+          esac
+          printf 'Candidate package manager: %s\n' "$manager"
+          printf 'PND_PACKAGE_MANAGER=%s\n' "${manager%@*}" >> "$GITHUB_ENV"
+          test -x /opt/google/chrome/chrome
+          /opt/google/chrome/chrome --version
+      - name: Record exact tested source
+        env:
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          printf 'PR head: %s\nBase: %s\nTested merge: %s\n' "$PR_HEAD_SHA" "$PR_BASE_SHA" "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          node --version
+          "$PND_PACKAGE_MANAGER" --version
+          if [ "$PND_PACKAGE_MANAGER" = pnpm ]; then
+            sha256sum package-lock.json pnpm-lock.yaml pnpm-workspace.yaml node_modules/.modules.yaml node_modules/.pnpm/lock.yaml node_modules/playwright-core/browsers.json
+          else
+            sha256sum package-lock.json node_modules/.package-lock.json node_modules/playwright-core/browsers.json
+          fi
+      - name: Record resource snapshot before-launch
+        timeout-minutes: 1
+        run: timeout --signal=TERM --kill-after=2s 10s node scripts/tutorial-browser/building-icon-resource-snapshot.mjs before-launch
+      - name: Run one exact-head icon acceptance scenario
+        run: node scripts/tutorial-browser/run.mjs
+      - name: Reject tracked input mutation
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: git diff --exit-code HEAD --
+      - name: Bound icon receipts and real screenshots
+        id: icon-bounds
+        if: ${{ always() }}
+        run: |
+          node --input-type=module <<'NODE'
+          import { readdirSync, lstatSync, existsSync } from 'node:fs'
+          import assert from 'node:assert/strict'
+          const dir = 'outputs/tutorial-browser', MiB = 1024 * 1024
+          const images = ['building-icon-m1-scale1.png', 'building-icon-m1-scale1-5.png', 'building-icon-m1-scale2.png', 'building-icon-m16-scale1.png', 'building-icon-m16-scale1-5.png', 'building-icon-m16-scale2.png', 'building-icon-selected-hut.png', 'building-icon-keyboard-focus-balloon.png']
+          if (existsSync(dir)) {
+            let metadata = 0, screenshots = 0, total = 0
+            for (const name of readdirSync(dir)) {
+              const isOuter = ['receipt.json', 'build.log'].includes(name)
+              if (!isOuter && !name.startsWith('building-icon')) continue
+              const stat = lstatSync(`${dir}/${name}`)
+              assert.ok(stat.isFile() && !stat.isSymbolicLink(), 'Artifact must be a regular file')
+              const image = images.includes(name)
+              assert.ok(isOuter || image || name === 'building-icon-evidence.json', 'Unexpected icon artifact')
+              assert.ok(stat.size <= (image ? 2 : isOuter ? 8 : 1) * MiB, 'Icon file exceeds fixed cap')
+              if (image) screenshots++
+              else metadata += stat.size
+              total += stat.size
+            }
+            assert.ok(screenshots <= 8, 'Screenshot count exceeds fixed cap')
+            assert.ok(metadata <= 8 * MiB && total <= 24 * MiB, 'Icon artifact quota exceeded')
+          }
+          NODE
+      - name: Retain bounded icon evidence
+        if: ${{ always() && steps.icon-bounds.outcome == 'success' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: building-icon-evidence-${{ github.sha }}
+          path: |
+            outputs/tutorial-browser/receipt.json
+            outputs/tutorial-browser/build.log
+            outputs/tutorial-browser/building-icon-evidence.json
+            outputs/tutorial-browser/building-icon-*.png
+          if-no-files-found: warn
+          retention-days: 7

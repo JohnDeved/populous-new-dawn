@@ -1,5 +1,7 @@
 'use client'
 
+import { BuildingIcon } from './building-icon'
+
 import { QueryControlArt } from './query-control.tsx'
 
 import { FullscreenControl } from './fullscreen-control'
@@ -168,7 +170,7 @@ export default function Home() {
     ['camp', campButton],
     ['temple', templeButton],
   ])
-  const followerPress = useRef<EventTarget | null>(null)
+  const followerPress = useRef<{ target: EventTarget; scene: GameScene } | null>(null)
   const nearbyPress = useRef<{
     scene: GameScene
     pointer?: number
@@ -515,6 +517,7 @@ export default function Home() {
       })
     return () => {
       disposed = true
+      if (followerPress.current?.scene === scene) followerPress.current = null
       scene?.dispose()
       if (engine.current === scene) engine.current = null
     }
@@ -574,7 +577,7 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
+      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
         if (store.getWorld().outcome.level === tutorialLevel) {
@@ -611,11 +614,19 @@ export default function Home() {
     return () => window.removeEventListener('keydown', key)
   }, [world, update, store, ready, openMenu, menu, cheatsOpen])
   useEffect(() => {
-    void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
-      audio.current?.mute()
-      setSound(false)
-    })
-  }, [world.paused])
+    const sound = audio.current
+    if (!sound) return
+    const refresh = () => {
+      void sound.setPaused(world.paused || document.hidden).catch(() => {
+        if (audio.current !== sound) return
+        sound.mute()
+        setSound(false)
+      })
+    }
+    refresh()
+    document.addEventListener('visibilitychange', refresh)
+    return () => document.removeEventListener('visibilitychange', refresh)
+  }, [world, world.paused])
   useEffect(() => {
     const refresh = () => {
       if (audio.current?.enabled && engine.current)
@@ -654,7 +665,9 @@ export default function Home() {
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
-        followerPress.current = event.button === 0 ? event.currentTarget : null
+        const scene = engine.current
+        followerPress.current =
+          event.button === 0 && scene ? { target: event.currentTarget, scene } : null
       },
       onPointerCancel: () => {
         followerPress.current = null
@@ -665,7 +678,14 @@ export default function Home() {
       // macOS emits contextmenu instead of click for Ctrl + primary button.
       // Handle its release once; retain native button activation for keyboard users.
       onPointerUp: (event: MouseEvent<HTMLButtonElement>) => {
-        if (event.button === 0 && event.ctrlKey && followerPress.current === event.currentTarget) {
+        const press = followerPress.current
+        if (
+          event.button === 0 &&
+          event.ctrlKey &&
+          press?.target === event.currentTarget &&
+          press.scene === engine.current &&
+          press.scene.world === store.getWorld()
+        ) {
           choose(event)
           event.currentTarget.blur()
         }
@@ -745,6 +765,7 @@ export default function Home() {
   function beginLoad(request: LoadRequest) {
     setCheatsOpen(false)
     if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
+    followerPress.current = null
     menuSession.current = null
     pendingMenuCamera.current = []
     cancelNearbyInput()
@@ -887,7 +908,7 @@ export default function Home() {
                     },
                     {
                       text: 'Board followers onto the Boat',
-                      done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
+                      done: world.vehicles.some(vehicle => vehicle.passengerCount > 0),
                     },
                     { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
                   ]
@@ -941,7 +962,7 @@ export default function Home() {
                             {
                               text: 'Send a Brave inside to launch and board a Boat',
                               done: world.vehicles.some(
-                                vehicle => vehicle.active && vehicle.passengers.length
+                                vehicle => vehicle.active && vehicle.passengerCount
                               ),
                             },
                           ]
@@ -950,7 +971,7 @@ export default function Home() {
                               {
                                 text: 'Board two followers onto the provided Boat',
                                 done: world.vehicles.some(
-                                  vehicle => vehicle.passengers.length >= 2
+                                  vehicle => vehicle.passengerCount >= 2
                                 ),
                               },
                               {
@@ -1115,9 +1136,17 @@ export default function Home() {
                 <summary
                   aria-label="Read campaign message"
                   onClick={event => {
+                    if (
+                      store.getWorld() !== world ||
+                      world.messages.slots[slot] !== message
+                    ) {
+                      event.preventDefault()
+                      return
+                    }
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    if (!details.open && target && engine.current?.world === world)
+                      engine.current.focus(target, { animate: true })
                   }}
                 >
                   <img src={messageIcon(message!)} alt="" />
@@ -1126,6 +1155,8 @@ export default function Home() {
                   <p>{messageText(message!.stringId)}</p>
                   <button
                     onClick={() => {
+                      if (store.getWorld() !== world || world.messages.slots[slot] !== message)
+                        return
                       removeMessage(world.messages, slot)
                       update()
                     }}
@@ -1441,9 +1472,7 @@ export default function Home() {
                   onFocus={() => setHover(b.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <HudSprite
-                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
-                  />
+                  <BuildingIcon kind={b.id} />
                 </button>
               ))}
             </div>

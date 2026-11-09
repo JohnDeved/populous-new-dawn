@@ -20,6 +20,15 @@ The caller still supplies live memory/disk/inode admission, process ownership an
 
 `shared_payloads.verify_file(path, descriptor, checkpoint, anchor=None, target=False)` reads no more than 64 KiB per iteration. Descriptors contain `bytes`, `sha256`, `mode` and optional Git blob `blobSha`. A source anchor contains an exact nine-field inode key and SHA-256. The verifier checks identity before/after reading, byte length, SHA-256, optional Git OID, and target mode when requested. It rejects symlinks through any parent or final path and never writes the payload.
 
+Before returning, it reopens the named parent without following symlinks and checks
+that it still identifies the held parent and verified leaf. This detects parent
+replacement, disappearance and inserted parent symlinks observed at that final
+check. It is not atomic pathname authentication against concurrent writers:
+another rename can occur after the reopening. Callers must retain stable ownership
+of the paths or use a descriptor-bound/content-bound consumption design rather than
+reopen a mutable pathname on the strength of this result. This helper closes its
+descriptors and does not return a handle for later consumption.
+
 `verify_inline` authenticates one bounded inline descriptor at a time, rather than materializing a complete source bundle. It can additionally require `shared_shim.rebase_shim` to reproduce an exact transformation with independently pinned source/result hashes and old-prefix occurrence offsets. The caller must authenticate the shim source identity before passing its bytes. These helpers do not discover or trust hashes from failed output.
 
 ## Focused checks and remaining gates
