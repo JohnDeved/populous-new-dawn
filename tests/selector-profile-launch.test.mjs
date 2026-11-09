@@ -67,7 +67,7 @@ test('fresh Home restores independent progress and selector Start launches Missi
         assert.deepEqual(store.getCompletedMissions(), [1, 2])
         assert.equal(store.hasCheckpoint(), true)
         const startMission = evaluatePage(`function(){${launchSource}; return startMission}`, {
-          store, loadRequest, menuSession: { current: null }, pendingMenuCamera: { current: [] },
+          store, loadRequest, followerPress: { current: null }, menuSession: { current: null }, pendingMenuCamera: { current: [] },
           engine: { current: null }, audio: { current: null }, cancelNearbyInput: () => {},
           setStartup: state => states.push(state),
           ...Object.fromEntries(['CheatsOpen', 'SelectorOpen', 'Menu', 'Ready', 'Error', 'Tab'].map(name =>

@@ -3,7 +3,11 @@ import type { Building, Unit, World } from './world-types.ts'
 
 // Passive storage never supplies an animation, simulation or cell-list owner.
 // Require the physical slot, including during death/destruction cleanup.
-export function residentPerson(w: Pick<World, 'buildings'>, u: Unit) {
+export function residentPerson(
+  w: Pick<World, 'buildings'>,
+  u: Unit,
+  building?: (id: number) => Building | undefined
+) {
   const { resident } = u,
     p = resident?.person
   if (
@@ -50,7 +54,11 @@ export function residentPerson(w: Pick<World, 'buildings'>, u: Unit) {
     ].every(Number.isFinite)
   )
     return
-  const admission = w.buildings.find(building => building.id === resident.building)?.admission
+  const admission = (
+    building
+      ? building(resident.building)
+      : w.buildings.find(building => building.id === resident.building)
+  )?.admission
   if (
     !admission ||
     admission.id !== resident.building ||
@@ -79,4 +87,27 @@ export function retainHutResident(w: World, u: Unit, b: Building, p: LivePerson)
 
 export function discardInvalidResident(w: Pick<World, 'buildings'>, u: Unit) {
   if (u.resident !== undefined && !residentPerson(w, u)) delete u.resident
+}
+
+// Own only across a read-only building-roster pass. Admission/slot checks remain
+// live; discard before any building insertion, removal, ID change or reordering.
+export function prepareResidentPeople(w: Pick<World, 'buildings'>) {
+  let buildings: Map<number, Building> | undefined
+  const building = (id: number) => {
+    if (!buildings) {
+      buildings = new Map()
+      for (const value of w.buildings) {
+        const id = value.id
+        if (!buildings.has(id)) buildings.set(id, value)
+      }
+    }
+    return Number.isNaN(id) ? undefined : buildings.get(id)
+  }
+  return (u: Unit) => residentPerson(w, u, building)
+}
+
+export function discardInvalidResidents(w: Pick<World, 'buildings' | 'units'>) {
+  const person = prepareResidentPeople(w)
+  for (const u of w.units)
+    if (u.resident !== undefined && !person(u)) delete u.resident
 }

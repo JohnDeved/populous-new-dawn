@@ -29,7 +29,7 @@ export function installShamanCastingObserver() {
     modalDescriptor = Object.getOwnPropertyDescriptor(scene, 'setModalSuspended')
   const result = { casts: [], holds: [], errors: [], closed: false, restored: false,
     timing: { clock: 'page.performance.now', events: [] } }, copies = []
-  let armed = null, pending = null, active = null, closed = false, inputAttached = false, notification = null
+  let armed = null, pending = null, active = null, closed = false, inputAttached = false, notification = null, holdRaf = null
   const check = (condition, message) => { if (!condition) throw Error(message) }
   const firstRunningFrame = record => record.frames.find(frame =>
     frame.person.state === 22 && frame.person.casting && !frame.paused && !frame.suspended)
@@ -37,6 +37,7 @@ export function installShamanCastingObserver() {
     if (closed || result.errors.length) return
     try { return callback() } catch (error) {
       result.errors.push(String(error))
+      stopHoldSampling()
       invalidateNotification(String(error))
     }
   }
@@ -267,7 +268,27 @@ export function installShamanCastingObserver() {
     })
     return returned
   }
+  const stopHoldSampling = () => {
+    if (holdRaf !== null) window.cancelAnimationFrame(holdRaf)
+    holdRaf = null
+  }
+  const sampleHold = frameTime => {
+    holdRaf = null
+    observe(() => {
+      const hold = result.holds[0]
+      check(hold && !hold.after, 'Casting hold sampling requires an open hold')
+      const state = read(), record = active?.record,
+        shot = world.projectiles.find(shot => shot.id === record?.shot)
+      check(record === hold.record && active.person === hold.person && state.person.sameOwner && shot === hold.shot,
+        'Casting hold person/shot/record ownership changed')
+      check(!state.paused && state.suspended, 'Casting hold lost presentation suspension')
+      check(hold.samples.length < 120, 'Casting hold exceeded 120 RAF state observations')
+      hold.samples.push({ at: performance.now(), frameTime, stamp: renderer.info.render.frame, state })
+      holdRaf = window.requestAnimationFrame(sampleHold)
+    })
+  }
   const restore = () => {
+    stopHoldSampling()
     if (clock.afterTurn === turnWrapper) {
       if (turnDescriptor) Object.defineProperty(clock, 'afterTurn', turnDescriptor)
       else delete clock.afterTurn
@@ -326,7 +347,9 @@ export function installShamanCastingObserver() {
     },
     status() {
       const current = active && !closed && !result.errors.length ? read() : null
-      return { errors: [...result.errors], casts: result.casts.map(record => ({
+      const samples = result.holds[0]?.samples ?? []
+      return { holdRafCoverageMs: samples.length < 2 ? 0 : samples.at(-1).at - samples[0].at,
+        errors: [...result.errors], casts: result.casts.map(record => ({
         label: record.label, done: record.done, turn: record.after.turn, visits: record.logical.length,
         runningFrameStamp: firstRunningFrame(record)?.stamp ?? null,
         running: active?.record === record && !record.done && current?.person.state === 22 &&
@@ -341,14 +364,26 @@ export function installShamanCastingObserver() {
       check(state.person.state === 22 && state.person.casting && !state.paused && state.suspended,
         'F9 must suspend an active, otherwise unpaused cast')
       check(firstRunningFrame(active.record), 'F9 hold requires a running render of this subsequent cast')
-      result.holds.push({ label: active.record.label,
-        before: { at: performance.now(), stamp: renderer.info.render.frame, state }, after: null })
+      const hold = { label: active.record.label, samples: [],
+        before: { at: performance.now(), stamp: renderer.info.render.frame, state }, after: null }
+      // Identity references are observer-private and never serialized into evidence.
+      Object.defineProperties(hold, {
+        record: { value: active.record }, person: { value: active.person },
+        shot: { value: world.projectiles.find(shot => shot.id === active.record.shot) },
+      })
+      result.holds.push(hold)
+      holdRaf = window.requestAnimationFrame(sampleHold)
     },
     endHold() {
-      owner()
-      const hold = result.holds[0]
-      check(!closed && hold && !hold.after, 'Active cast hold must be open')
-      hold.after = { at: performance.now(), stamp: renderer.info.render.frame, state: read() }
+      try {
+        owner()
+        const hold = result.holds[0]
+        check(!closed && hold && !hold.after, 'Active cast hold must be open')
+        check(!result.errors.length && hold.samples.length >= 2 &&
+          hold.samples.at(-1).at - hold.samples[0].at >= 350,
+        'Casting hold requires at least 350ms of repeated RAF state observations')
+        hold.after = { at: performance.now(), stamp: renderer.info.render.frame, state: read() }
+      } finally { stopHoldSampling() }
     },
     finish() {
       if (!closed) {

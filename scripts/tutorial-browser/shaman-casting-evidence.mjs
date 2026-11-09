@@ -164,8 +164,28 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
   assert.ok(frozen.projectiles.some(shot => shot.id === record.shot && shot.phase === 'windup' && shot.remaining > 0))
   const heldFrames = record.frames.filter(frame => frame.stamp > hold.before.stamp &&
     frame.stamp <= hold.after.stamp && frame.at >= hold.before.at && frame.at <= hold.after.at)
-  assert.ok(heldFrames.length >= 2, 'Empty/single paused-frame coverage cannot prove freezing')
-  for (const frame of heldFrames) {
+  assert.ok(Array.isArray(hold.samples) && hold.samples.length >= 2 && hold.samples.length <= 120,
+    'Repeated independent RAF state observations are required')
+  let previous = null
+  for (const sample of hold.samples) {
+    assert.ok(Number.isFinite(sample.at) && Number.isFinite(sample.frameTime) &&
+      sample.at >= hold.before.at && sample.at <= hold.after.at &&
+      sample.frameTime >= 0 && sample.frameTime <= sample.at &&
+      integer(sample.stamp) && sample.stamp >= hold.before.stamp && sample.stamp <= hold.after.stamp &&
+      (!previous || sample.stamp >= previous.stamp) &&
+      (!previous || sample.at > previous.at && sample.frameTime > previous.frameTime),
+    'Hold RAF observations must have distinct increasing callback times within the hold')
+    equal(sample.state, frozen, 'Each RAF observation freezes the complete owned native state')
+    previous = sample
+  }
+  assert.ok(hold.samples.at(-1).at - hold.samples[0].at >= 350,
+    'Independent RAF state observations must span at least 350ms')
+  const retainedFrames = record.frames.filter(frame => frame.suspended &&
+    frame.stamp === hold.before.stamp && frame.at <= hold.before.at)
+  assert.ok(retainedFrames.length <= 1, 'Only the latest pre-hold submitted frame may be retained')
+  assert.equal(record.frames.filter(frame => frame.suspended).length, heldFrames.length + retainedFrames.length,
+    'Suspended renders must belong to the hold or its latest retained pre-hold frame')
+  for (const frame of [...retainedFrames, ...heldFrames]) {
     equal([frame.paused, frame.suspended, frame.turn, frame.person, frame.projectiles, frame.cooldown],
       [false, true, frozen.turn, frozen.person, frozen.projectiles, frozen.cooldown],
       'Each actual suspended render must retain the frozen native pose and windup')
@@ -175,7 +195,8 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
   'Actual rendered native cast phase must advance after public F9 close')
   return { casts: accepted,
     activeCastPauseHold: { status: 'passed', kind: 'F9 presentation suspension',
-      durationMs: hold.after.at - hold.before.at, renderedFrames: heldFrames.length },
+      durationMs: hold.after.at - hold.before.at, renderedFrames: heldFrames.length, retainedRenderedFrames: retainedFrames.length,
+      rafStateSamples: hold.samples.length, rafStateSpanMs: hold.samples.at(-1).at - hold.samples[0].at },
     limits: [
     'Original static tables plus actual browser rendering, not original executable execution or pixel-perfect composition.',
     'Logical callbacks observe before logical animation; completed-render samples observe after it. Neither is a driven clock.',

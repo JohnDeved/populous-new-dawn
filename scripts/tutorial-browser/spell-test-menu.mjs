@@ -245,6 +245,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.ok(casting.castingTribes[0].cooldown > 0, 'native cooldown remains active')
     await page.evaluate(() => window.shamanCastingObserver.beginHold())
     await page.waitForTimeout(350)
+    await page.waitForFunction(() => {
+      const state = window.shamanCastingObserver.status()
+      if (state.errors.length) throw Error(state.errors.join('; '))
+      return state.holdRafCoverageMs >= 350
+    }, null, { polling: 'raf', timeout: 1000 })
     await page.evaluate(() => window.shamanCastingObserver.endHold())
     assert.deepEqual(await snapshot(), casting, 'active cast and its windup freeze while F9 is open')
     await button('Refill available charges').click()
