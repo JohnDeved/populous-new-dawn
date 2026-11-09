@@ -70,7 +70,7 @@ test('scenario checks preconditions before holds and preserves all restoration a
   assert.doesNotMatch(source, /revealCurrentPanel\(`\$\{hold\}\/\$\{boundary\}\/initial`\)/)
   assert.match(source, /await revealCurrentPanel\(`\$\{hold\}\/\$\{boundary\}\/restore`\)/)
   assert.match(source, /!p\.isConnected \|\| p\.hidden \|\| h\.scene\.buildingPanels\.get\(h\.building\.id\) !== p/)
-  for (const preserved of ['buildingPanelIdentityLimitMs = 35000', 'assertReplacement(report.replacement)',
+  for (const preserved of ['buildingPanelIdentityLimitMs = 45000', 'assertReplacement(report.replacement)',
     'assertCompletion(report.completed)', "await screenshot('original')", "await screenshot('selected')",
     'await screenshot(`held-${boundary}-hidden`)', "await screenshot('held-restored')",
     "await screenshot('dismantling')", "await screenshot('completed')", 'clearTimeout(timer)',
