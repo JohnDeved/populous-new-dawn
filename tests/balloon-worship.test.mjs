@@ -166,7 +166,8 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   assert.equal(worship.references, 0)
   assert.equal(shaman.native.vehicle, 0)
   assert.equal(shaman.hp, 100.6)
-  assert.deepEqual(balloon.passengers, [])
+  assert.equal(balloon.active, true)
+  assert.deepEqual(balloon.passengers, [0])
   assert.equal(balloon.passengerCount, 0)
 })
 

@@ -23,6 +23,7 @@ function fixture() {
   const renderer = { disposeCalls: 0, load: () => pending, dispose() { this.disposeCalls++ } }
   const scope = {
     canvasRef: { current: canvas }, generation: 0, selection: { current: { mission: 1, progressionMission: 1 } },
+    retryControl: { current: null }, sceneContainer: { current: null },
     setFailed: value => failures.push(value), setGeneration: () => {},
     SelectorMotion: class {}, SelectorRenderer: class { constructor() { return renderer } },
     selectorWorlds: [], sceneStep: 1 / 120,

@@ -243,7 +243,8 @@ test('actual graph keeps a startup spike, auto scale and 120 FPS guide consisten
     samples: new FramePerformance(),
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
       'render', 'calls', 'heap', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak',
-      'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'].map(name => [name, sink()])),
+      'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation',
+      'pick-route', 'pick-pointer-change', 'pick-view-change'].map(name => [name, sink()])),
     line: sink(),
     budget: sink(),
   })
@@ -255,6 +256,8 @@ test('actual graph keeps a startup spike, auto scale and 120 FPS guide consisten
   }
   graph.update(0, 1, 2, 3, 'Live', 4)
   graph.update(1020, 1, 2, 3, 'Live', 4)
+  for (const name of ['pick-route', 'pick-pointer-change', 'pick-view-change'])
+    assert.equal(metric(name), 'Unknown', 'missing optional pointer observations stay unknown')
   assert.equal(graph.samples.frame(0), 1020)
   assert.equal(graph.samples.frameMs, 1020)
   assert.equal(graph.samples.fps, 1000 / 1020)

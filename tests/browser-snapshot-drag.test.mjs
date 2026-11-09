@@ -9,12 +9,22 @@ import { installSnapshotDragObserver } from '../scripts/browser-performance/snap
 import { RenderView } from '../app/render-view.ts'
 const root = resolve(import.meta.dirname, '..')
 const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
-// Historical inverse readers use pinned source data, not evolving live owners.
-// Current-route admission below continues to inspect the actual repository tree.
+// Historical readers use pinned source data, not evolving live owners.
+// A separate live-source check below keeps current unreviewed owners fail-closed.
 const preModalFixtures = JSON.parse(readFileSync(resolve(root,
   'tests/fixtures/snapshot-drag-pre-modal-scene.json'), 'utf8'))
 function preModalRead(path) {
   const fixture = preModalFixtures[path]
+  if (!fixture) return readFileSync(resolve(root, path), 'utf8')
+  assert.equal(createHash('sha256').update(fixture.source).digest('hex'), fixture.sha256)
+  return fixture.source
+}
+// Exact already-admitted modal owners from public merge 6da6813d. Tests may
+// supply these historical sources; the production reader remains unchanged.
+const modalFixtures = JSON.parse(readFileSync(resolve(root,
+  'tests/fixtures/snapshot-drag-modal-owners.json'), 'utf8'))
+function modalRead(path) {
+  const fixture = modalFixtures[path]
   if (!fixture) return readFileSync(resolve(root, path), 'utf8')
   assert.equal(createHash('sha256').update(fixture.source).digest('hex'), fixture.sha256)
   return fixture.source
@@ -344,9 +354,32 @@ function preRenderCpuRead(path, read = preLooseLogRead) {
 
 const preBothCpuRead = path => preCpuRead(path, preRenderCpuRead)
 
+test('unreviewed live modal owners remain outside the historical source profile', () => {
+  assert.deepEqual(Object.keys(modalFixtures).sort(),
+    ['app/fps-graph.ts', 'app/scene-assets.ts', 'app/scene.ts'])
+  const result = inspectDragSource(root)
+  const profile = dragSourceProfiles.at(-1)
+  const current = result.profiles.find(candidate => candidate.id === profile.id)
+  const changed = Object.keys(modalFixtures).filter(path =>
+    createHash('sha256').update(readFileSync(resolve(root, path), 'utf8')).digest('hex')
+      !== modalFixtures[path].sha256)
+  assert.ok(changed.length > 0, 'live owners are distinct from the reviewed historical fixture')
+  assert.equal(current.status, 'unsupported-source-contract')
+  assert.equal(result.status, 'unsupported-source-contract')
+  assert.equal(result.profile, null)
+  for (const path of changed) {
+    const owner = profile.slices.find(slice => slice.path === path && slice.start === null)
+    assert.ok(owner, path)
+    const actual = current.slices.find(slice => slice.id === owner.id)
+    assert.equal(actual.reason, 'source-changed', owner.id)
+    assert.equal(actual.actualSha256,
+      createHash('sha256').update(readFileSync(resolve(root, path), 'utf8')).digest('hex'), owner.id)
+  }
+})
+
 test('source-owner admission selects one exact bounded route; projection kernel remains changeable', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
-  const admitted = inspectDragSource(root)
+  const read = modalRead
+  const admitted = inspectDragSource(root, read)
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
@@ -374,7 +407,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
 
 test('atomic route profiles cache both source reads and failures; only ENOENT establishes helper absence', () => {
   const calls = new Map(), helper = 'app/runtime-terrain-picking.ts'
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = modalRead
   const result = inspectDragSource(root, path => { calls.set(path, (calls.get(path) ?? 0) + 1); return read(path) })
   assert.equal(result.status, 'admitted'); assert.ok([...calls.values()].every(count => count === 1))
   assert.equal(calls.size, new Set(dragSourceProfiles.flatMap(p => p.slices.map(s => s.path))).size)
@@ -395,7 +428,8 @@ test('atomic route profiles cache both source reads and failures; only ENOENT es
 })
 
 test('route admission binds numeric lease gates, actual constructor order and helper lifecycle, not just query signatures', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = modalRead
+  assert.equal(inspectDragSource(root, read).status, 'admitted')
   const checks = [
     ['app/render-view.ts', '          const scratch =\n            !nativeEdges &&', '          const scratch =\n            nativeEdges &&'],
     ['app/scene.ts', '    this.cursor.visible = false\n    this.range.visible = false', '    this.range.visible = false\n    this.cursor.visible = false'],
@@ -403,7 +437,7 @@ test('route admission binds numeric lease gates, actual constructor order and he
     ['app/neutral-cursor.ts', '!scene.pointerButtons &&', 'true &&'],
     ['app/scene.ts', '    this.updatePointerFrame(now, pointerMetrics)\n    this.neutralCursor?.update()', '    this.neutralCursor?.update()\n    this.updatePointerFrame(now, pointerMetrics)'],
   ]
-  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId].includes(inspectDragSource(root).profile)) checks.push(
+  if (['owned-numeric-terrain-v1', 'owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId, renderCpuProfileId, combinedCpuProfileId].includes(inspectDragSource(root, read).profile)) checks.push(
     ['app/render-view.ts', 'owned && scratch && runtimeTerrainPicking(this, object)', 'owned && scratch'],
     ['app/runtime-terrain-picking.ts', 'if (released.has(scene.view)) return', 'if (false) return'],
     ['app/scene-terrain-runtime.ts', '    rebindRuntimeTerrainPicking(scene)', '    /* omitted rebind */'])
@@ -809,11 +843,11 @@ test('loose-log source admission is additive and binds the exact shared queue ow
 
 
 test('modal render demand admission preserves historical routes and binds every new owner atomically', () => {
-  const read = path => readFileSync(resolve(root, path), 'utf8')
+  const read = modalRead
   const old = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
   const next = dragSourceProfiles.at(-1)
   assert.equal(next.id, looseLogProfileId.replace(/-v1$/, '-modal-render-demand-v1'))
-  assert.equal(inspectDragSource(root).profile, next.id)
+  assert.equal(inspectDragSource(root, read).profile, next.id)
   assert.equal(inspectDragSource(root, preModalRead).profile, old.id)
   assert.equal(next.slices.length, old.slices.length + 3)
   for (let i = 0; i < old.slices.length; i++) {

@@ -73,6 +73,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
     { loadTexture, retryFailedTexture } = await import('../app/scene-assets.ts'),
     { vaultKnowledgeAtlas } = await import('../app/vault-appearance.ts'),
     { templeArt } = await import('../app/temple-art.ts'),
+    { default: towerArt } = await import('../app/original-tower-acquisition.json'),
     { default: nativeUnits } = await import('../app/original-units.json'),
     { syncSecondaryReservations } = await import('../app/scene-secondary-effects.ts')
   const originalLoad = THREE.TextureLoader.prototype.load,
@@ -215,6 +216,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
         nativeUnits,
         vaultKnowledgeAtlas,
         templeArt,
+        towerArt,
         loadTexture,
         retryFailedTexture,
         terrain: { ready: Promise.resolve() },
