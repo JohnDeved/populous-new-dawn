@@ -6,7 +6,7 @@ import {
   startPendingWorshipAcquisitions,
   visitWorshipAcquisition,
 } from '../app/worship-acquisition-runtime.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
 import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { missionData } from '../app/mission-data.ts'
 import { AUDIO_CUES, cueVariant } from '../app/audio.ts'
@@ -173,7 +173,7 @@ test('building start cues use existing preloaded samples through the audio owner
   }
 })
 
-test('authored M4 Tower keeps pending and active current-format checkpoint continuation', () => {
+test('authored M4 Tower keeps pending and active classic world clone continuation', () => {
   const world = createWorld(4), head = vault(world)
   // Completion fixture enters the existing live Vault caller, not ordinary input.
   head.reset = false
@@ -218,4 +218,101 @@ test('authored M4 Tower keeps pending and active current-format checkpoint conti
   assert.equal(restarted.unlockedTower, false)
   assert.equal(restarted.worshipAcquisition.controllers.building, null)
   assert.deepEqual(restarted.worshipAcquisition.requests, [])
+})
+
+test('M4 Tower survives scalable in-session Save/Load and active Restart through the shipping store', async () => {
+  // The shipping store retains an in-session checkpoint without IndexedDB.
+  // This exercises its current-format guard and replacement owners, not disk persistence or UI.
+  assert.equal(typeof indexedDB, 'undefined')
+  const store = createGameStore()
+  store.startMission(4)
+  const uninterrupted = store.getWorld(), head = vault(uninterrupted)
+  assert.equal(uninterrupted.capacityPolicy.mode, 'scalable')
+  assert.equal(uninterrupted.unlockedTower, false)
+  // Completion fixture enters the full Vault/object turn; worship input is not supplied here.
+  head.reset = false
+  head.forced = true
+  tick(uninterrupted, 1 / 12)
+  const gift = uninterrupted.gifts.find(candidate => candidate.reward === 'tower')
+  assert.ok(gift?.buildingAcquisition)
+  for (let visit = 0; visit < 3; visit++) tick(uninterrupted, 1 / 12)
+  assert.equal(gift.phase, 3)
+  assert.equal(gift.remaining, 79)
+  const pendingBinding = store.bindPresentation(uninterrupted)
+  assert.equal(pendingBinding.isCurrent(), true)
+  assert.equal(await store.saveCheckpoint(), false, 'no IndexedDB write is claimed')
+  assert.equal(store.hasCheckpoint(), true)
+  assert.equal(store.loadCheckpoint(), true)
+  assert.equal(pendingBinding.isCurrent(), false, 'the replaced world loses presentation authority')
+  let resumed = store.getWorld()
+  assert.notEqual(resumed, uninterrupted)
+  assert.equal(resumed.capacityPolicy.mode, 'scalable')
+  assert.deepEqual(resumed.worshipAcquisition, uninterrupted.worshipAcquisition)
+  assert.deepEqual(resumed.cosmeticRandom, uninterrupted.cosmeticRandom)
+  assert.equal(resumed.gifts.find(candidate => candidate.id === gift.id).phase, 3)
+  for (let visit = 0; visit < 3; visit++)
+    for (const world of [uninterrupted, resumed]) tick(world, 1 / 12)
+  assert.deepEqual(resumed.worshipAcquisition.requests, [gift.id])
+  const towerGeometry = {
+    ...geometry, target: { x: 71, y: 232 },
+    targetRect: { x: 48, y: 206, width: 46, height: 52 }, targetHud: { x: 71, y: 232 },
+  }
+  let cues = 0
+  const bridge = { geometry: () => towerGeometry, cue: () => cues++, failed: () => assert.fail() }
+  for (const world of [uninterrupted, resumed]) startPendingWorshipAcquisitions(world, bridge)
+  assert.equal(cues, 4)
+  assert.equal(resumed.worshipAcquisition.controllers.building.model, 79)
+  for (let ui = 0; ui < 95; ui++)
+    for (const world of [uninterrupted, resumed]) visitWorshipAcquisition(world, () => {})
+  assert.deepEqual(resumed.worshipAcquisition, uninterrupted.worshipAcquisition)
+
+  assert.equal(await store.saveCheckpoint(), false)
+  const activeBinding = store.bindPresentation(resumed), activeBeforeRestart = structuredClone(resumed)
+  store.restart()
+  assert.equal(activeBinding.isCurrent(), false)
+  assert.deepEqual(resumed, activeBeforeRestart, 'Restart never mutates the abandoned active world')
+  assert.equal(store.getWorld().capacityPolicy.mode, 'scalable')
+  assert.equal(store.getWorld().outcome.level, 4)
+  assert.equal(store.getWorld().unlockedTower, false)
+  assert.equal(store.getWorld().worshipAcquisition.controllers.building, null)
+  assert.equal(store.getWorld().worshipAcquisition.controllers.companion, null)
+  assert.deepEqual(store.getWorld().worshipAcquisition.requests, [])
+  assert.equal(store.loadCheckpoint(), true)
+  resumed = store.getWorld()
+  assert.deepEqual(resumed.worshipAcquisition, uninterrupted.worshipAcquisition)
+  assert.deepEqual(resumed.cosmeticRandom, uninterrupted.cosmeticRandom)
+  startPendingWorshipAcquisitions(resumed, bridge)
+  assert.equal(cues, 4, 'Load does not replay the active handoff')
+  const panels = [[], []]
+  for (let ui = 0; ui < 150; ui++) {
+    uninterrupted.paused = resumed.paused = ui < 3
+    for (const [index, world] of [uninterrupted, resumed].entries())
+      visitWorshipAcquisition(world, (...args) => panels[index].push(args))
+    assert.deepEqual(resumed.worshipAcquisition, uninterrupted.worshipAcquisition)
+    assert.deepEqual(resumed.cosmeticRandom, uninterrupted.cosmeticRandom)
+  }
+  assert.deepEqual(panels[1], panels[0])
+  assert.deepEqual(panels, [[], []], 'active Load does not replay panel selection')
+  for (const world of [uninterrupted, resumed]) {
+    assert.equal(world.worshipAcquisition.controllers.building.active, false)
+    assert.equal(world.worshipAcquisition.controllers.companion.active, false)
+    assert.deepEqual(world.worshipAcquisition.controllers.drawCommands, [])
+  }
+  assert.equal(gift.remaining, 76, 'screen completion cannot accelerate building payout')
+  assert.equal(resumed.gifts.find(candidate => candidate.id === gift.id).remaining, 76)
+  for (let visit = 7; visit < 82; visit++)
+    for (const world of [uninterrupted, resumed]) tick(world, 1 / 12)
+  for (const world of [uninterrupted, resumed]) {
+    assert.equal(world.unlockedTower, false, 'grant is still pending after visit 81')
+    assert.equal(world.gifts.find(candidate => candidate.id === gift.id).remaining, 1)
+    tick(world, 1 / 12)
+    assert.equal(world.unlockedTower, true)
+    assert.equal(world.gifts.some(candidate => candidate.id === gift.id), false)
+  }
+  const grantedBinding = store.bindPresentation(resumed)
+  store.startMission(4)
+  assert.equal(grantedBinding.isCurrent(), false)
+  assert.equal(store.getWorld().unlockedTower, false)
+  assert.equal(store.getWorld().worshipAcquisition.controllers.building, null)
+  assert.deepEqual(store.getWorld().worshipAcquisition.requests, [])
 })
