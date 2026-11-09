@@ -77,6 +77,7 @@ import {
   builderActivity,
   unitAnimationSource,
   selectionBuilding,
+  removeMissingSelectedPeople,
   canOrder,
 } from './selection-runtime.ts'
 import {
@@ -1881,7 +1882,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   w.buildings = w.buildings.filter(b => b.hp > 0)
   // The next tribe visit observes this completed object turn's membership.
   rebuildConstructionBuildings(w)
-  w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
+  removeMissingSelectedPeople(w)
   syncLivePersonCells(w)
   syncLandscapeObjects(w)
   cleanBattles(w)
