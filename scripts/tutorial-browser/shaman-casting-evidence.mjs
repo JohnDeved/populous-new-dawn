@@ -16,6 +16,16 @@ export const castingArtworkReference = {
 
 const equal = (actual, expected, label) => assert.deepEqual(actual, expected, label)
 const integer = value => Number.isSafeInteger(value) && value >= 0
+// RAF and performance.now can round the same instant to adjacent binary64 values.
+// Admit only the immediate successor, without altering either recorded timestamp.
+function frameNotAfterCallback(frameTime, at) {
+  if (frameTime <= at) return true
+  if (!Number.isFinite(at) || at < 0) return false
+  const bits = new DataView(new ArrayBuffer(8))
+  bits.setFloat64(0, at === 0 ? 0 : at)
+  bits.setBigUint64(0, bits.getBigUint64(0) + 1n)
+  return frameTime === bits.getFloat64(0)
+}
 function grounded(state) {
   for (const key of ['turn', 'stock', 'storedStock', 'casts', 'nativeCasts', 'cooldown'])
     assert.ok(integer(state[key]), `Missing/invalid ${key}`)
@@ -170,7 +180,7 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
   for (const sample of hold.samples) {
     assert.ok(Number.isFinite(sample.at) && Number.isFinite(sample.frameTime) &&
       sample.at >= hold.before.at && sample.at <= hold.after.at &&
-      sample.frameTime >= 0 && sample.frameTime <= sample.at &&
+      sample.frameTime >= 0 && frameNotAfterCallback(sample.frameTime, sample.at) &&
       integer(sample.stamp) && sample.stamp >= hold.before.stamp && sample.stamp <= hold.after.stamp &&
       (!previous || sample.stamp >= previous.stamp) &&
       (!previous || sample.at > previous.at && sample.frameTime > previous.frameTime),

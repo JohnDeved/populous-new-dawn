@@ -1262,3 +1262,68 @@ test('RAF hold accepts the exact failed-artifact shape: last suspended render pr
     assert.throws(() => validateShamanCastingEvidence(invalid))
   }
 })
+
+
+// Supplied evidence retains every full-validator assertion. Shift its time axis
+// and use 351ms coverage to avoid a separate 350ms-boundary rounding issue.
+function holdAtCallbackTime(at, frameTime) {
+  const result = evidence(), hold = result.holds[0], offset = at - hold.before.at
+  for (const record of result.casts) for (const frame of record.frames) frame.at += offset
+  for (const edge of [hold.before, hold.after]) edge.at += offset
+  for (const sample of hold.samples) { sample.at += offset; sample.frameTime += offset }
+  hold.after.at += 1
+  hold.samples.at(-1).at += 1
+  hold.samples.at(-1).frameTime += 1
+  assert.equal(hold.before.at, at)
+  assert.equal(hold.samples[0].at, at)
+  hold.samples[0].frameTime = frameTime
+  return result
+}
+
+test('RAF hold accepts only adjacent timestamp rounding without changing raw evidence', () => {
+  for (const [at, frameTime] of [
+    [27357.699999999997, 27357.7], // Exact failed official artifact pair, one successor.
+    [27357.7, 27357.7], // Equal clocks remain accepted.
+    [27357.7, 27357.699999999997], // Earlier RAF time remains accepted.
+    [16384, 16384.000000000004], // Successor just above a power of two.
+    [16383.999999999998, 16384], // Successor reaching a power of two.
+  ]) {
+    const result = holdAtCallbackTime(at, frameTime), before = structuredClone(result)
+    assert.doesNotThrow(() => validateShamanCastingEvidence(result), `${at}/${frameTime}`)
+    assert.deepEqual(result, before, 'Do not clamp, round or rewrite observed timestamps')
+  }
+})
+
+test('RAF hold rejects values beyond the immediate binary64 successor', () => {
+  for (const [at, frameTime] of [
+    [27357.699999999997, 27357.700000000004], // Two successors, not a millisecond tolerance.
+    [27357.699999999997, 27358.699999999997], // Existing material future-time refusal.
+    [16384, 16384.000000000007],
+    [16383.999999999998, 16384.000000000004],
+    [27357.699999999997, Infinity],
+    [27357.699999999997, NaN],
+    [27357.699999999997, -1],
+  ]) {
+    const result = holdAtCallbackTime(at, frameTime)
+    assert.throws(() => validateShamanCastingEvidence(result),
+      /Hold RAF observations must have distinct increasing callback times within the hold/)
+  }
+})
+
+test('adjacent clock rounding never permits duplicate, backward, out-of-hold or changed-state samples', () => {
+  for (const mutate of [
+    hold => { hold.samples[1].at = hold.samples[0].at },
+    hold => { hold.samples[1].at = hold.samples[0].at - 1 },
+    hold => { hold.samples[1].frameTime = hold.samples[0].frameTime },
+    hold => { hold.samples[1].frameTime = hold.samples[0].frameTime - 1 },
+    hold => { hold.samples[0].at = hold.before.at - 1 },
+    hold => { hold.samples[1].at = hold.after.at + 1 },
+    hold => { hold.samples[1].state.turn++ },
+    hold => { hold.samples[1].state.person.sameOwner = false },
+    hold => { hold.samples[1].state.projectiles[0].remaining-- },
+  ]) {
+    const result = holdAtCallbackTime(27357.699999999997, 27357.7)
+    mutate(result.holds[0])
+    assert.throws(() => validateShamanCastingEvidence(result))
+  }
+})
