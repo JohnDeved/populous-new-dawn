@@ -17,6 +17,22 @@ The caller owns the stdout destination; ordinary shell redirection can truncate
 that destination before a failure, so use a new output path. No generated output
 or original binary is added to application assets or the repository.
 
+## CLI input admission
+
+The CLI opens each fixed member read-only with a nonblocking flag, then checks
+that the opened descriptor is a regular file of its exact expected length before
+allocating a read buffer. Reads are limited to that length; early EOF or a changed
+final descriptor size is rejected, and the descriptor is closed on success and
+failure. SHA-256 validation still happens before any manifest is produced.
+
+The exported `readRecordingMember(root, member)` helper accepts only the known
+member names and performs this size/type admission. It does not authenticate the
+bytes on its own; the manifest builder supplies the unchanged digest checks.
+The nonblocking flag prevents a FIFO open from waiting for a writer on supported
+filesystems. It is not a timeout for arbitrary filesystem or storage I/O, a
+universal platform guarantee, a root/symlink confinement policy or a memory
+benchmark. The manifest builder's custom reader callback remains caller-owned.
+
 ## Output and deliberate limits
 
 - Ordered recording IDs are 1, 5, 2, 6, 3, followed by restart to entry 0. All five
@@ -49,7 +65,8 @@ renderer and replay equivalence remain separate work before any live-entry chang
 
 Maintained tests use synthetic byte buffers for framing, pairing and refusal
 controls, and bind the copied identity table to the unchanged research checkers.
-They do not include the original binary corpus. Actual-data generation and all
+Additional tests use small owned regular files and controlled allocation-boundary
+truncation/growth. They do not include the original binary corpus. Actual-data generation and all
 member corruption/missing-input controls are separate source-bound review evidence.
 No whole-application quality, browser, native execution, save/persistence,
 performance, startup-parity or issue-completion claim follows from this tool.

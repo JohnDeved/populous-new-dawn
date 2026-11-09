@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { closeSync, constants, fstatSync, openSync, readSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -271,6 +271,35 @@ export function buildRecordingManifest(readMember) {
   }
 }
 
+/** Read a known member through one bounded regular-file descriptor.
+ * Size checks are admission, not authentication; buildRecordingManifest still
+ * checks every digest. Nonblocking open prevents waiting for a FIFO writer on
+ * supported filesystems, but is not a timeout for arbitrary filesystem I/O.
+ */
+export function readRecordingMember(root, member) {
+  if (typeof member !== 'string' || !Object.hasOwn(inputIdentities, member))
+    throw new Error('Unknown recording member')
+  const [expectedBytes] = inputIdentities[member]
+  const fd = openSync(resolve(root, member), constants.O_RDONLY | constants.O_NONBLOCK)
+  try {
+    const before = fstatSync(fd)
+    if (!before.isFile() || before.size !== expectedBytes)
+      throw new Error(`Recording member is not a regular file of expected size: ${member}`)
+    const bytes = Buffer.alloc(expectedBytes)
+    let offset = 0
+    while (offset < expectedBytes) {
+      const count = readSync(fd, bytes, offset, expectedBytes - offset, null)
+      if (count === 0) throw new Error(`Recording member ended early: ${member}`)
+      offset += count
+    }
+    if (fstatSync(fd).size !== expectedBytes)
+      throw new Error(`Recording member size changed while reading: ${member}`)
+    return bytes
+  } finally {
+    closeSync(fd)
+  }
+}
+
 // Explicit CLI only. Imports perform no filesystem reads, native execution or
 // output writes. The caller owns stdout destination; the original files are read-only.
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
@@ -280,7 +309,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   } else {
     try {
       const root = resolve(process.argv[2])
-      const manifest = buildRecordingManifest(path => readFileSync(resolve(root, path)))
+      const manifest = buildRecordingManifest(path => readRecordingMember(root, path))
       process.stdout.write(`${JSON.stringify(manifest, null, 2)}\n`)
     } catch (error) {
       process.stderr.write(`Recording manifest failed: ${error.message}\n`)

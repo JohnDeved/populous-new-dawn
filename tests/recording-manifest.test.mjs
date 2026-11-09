@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import test from 'node:test'
-import { buildRecordingManifest, inspectRecordingPair, inspectRecordingStream } from '../scripts/recording-manifest.mjs'
+import { buildRecordingManifest, inspectRecordingPair, inspectRecordingStream, readRecordingMember } from '../scripts/recording-manifest.mjs'
 
 const header = (counter, size = 0, type = 0, auxiliary = 0) => {
   const data = Buffer.alloc(8)
@@ -170,4 +172,109 @@ test('snapshot, sidecar version and counter requirements remain narrow', () => {
   wrongCounter.gm.writeInt32LE(-1, 16)
   assert.throws(() => inspectRecordingPair(wrongCounter), /Invalid snapshot simulation counter/)
   assert.throws(() => inspectRecordingPair({ ...pair(), recordingId: 1.5 }), /Invalid recording ID/)
+})
+
+// These tests exercise real small regular files. FIFO open behavior has a
+// separate bounded process witness; no shell or child process is launched here.
+function memberRoot(t) {
+  const root = mkdtempSync(join(tmpdir(), 'pnd-recording-reader-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  mkdirSync(join(root, 'rddata'))
+  return root
+}
+const firstMember = 'rddata/rdmn001.dat'
+
+test('member reader returns exactly the known regular-file length', t => {
+  const root = memberRoot(t)
+  const bytes = Buffer.alloc(286, 42)
+  writeFileSync(join(root, firstMember), bytes)
+  assert.deepEqual(readRecordingMember(root, firstMember), bytes)
+})
+
+test('unknown members are rejected before any filesystem lookup', () => {
+  for (const member of ['../outside', 'rddata/other.dat', '', '__proto__', null, 1])
+    assert.throws(() => readRecordingMember(null, member), /Unknown recording member/)
+})
+
+test('missing members preserve their filesystem error', t => {
+  const root = memberRoot(t)
+  assert.throws(() => readRecordingMember(root, firstMember), { code: 'ENOENT' })
+})
+
+test('wrong-sized regular members fail before allocating the read buffer', t => {
+  const root = memberRoot(t)
+  const alloc = Buffer.alloc
+  const allocations = []
+  t.mock.method(Buffer, 'alloc', (...args) => {
+    allocations.push(args[0])
+    return alloc(...args)
+  })
+  for (const size of [0, 285, 287, 4096]) {
+    writeFileSync(join(root, firstMember), new Uint8Array(size))
+    assert.throws(() => readRecordingMember(root, firstMember), /not a regular file of expected size/)
+    assert.deepEqual(allocations, [], 'size admission precedes read-buffer allocation')
+  }
+})
+
+test('directories cannot supply recording bytes', t => {
+  const root = memberRoot(t)
+  mkdirSync(join(root, firstMember))
+  assert.throws(() => readRecordingMember(root, firstMember), error =>
+    error.code === 'EISDIR' || /not a regular file of expected size/.test(error.message))
+})
+
+test('size-admitted corrupt bytes still fail the existing identity check', t => {
+  const root = memberRoot(t)
+  writeFileSync(join(root, firstMember), Buffer.alloc(286))
+  const read = []
+  assert.throws(() => buildRecordingManifest(member => {
+    read.push(member)
+    return readRecordingMember(root, member)
+  }), /Recording identity mismatch: rddata\/rdmn001.dat/)
+  assert.deepEqual(read, [firstMember])
+})
+
+test('returned bytes are a read snapshot rather than an alias to later file contents', t => {
+  const root = memberRoot(t)
+  const target = join(root, firstMember)
+  writeFileSync(target, Buffer.alloc(286, 1))
+  const first = readRecordingMember(root, firstMember)
+  writeFileSync(target, Buffer.alloc(286, 2))
+  const second = readRecordingMember(root, firstMember)
+  assert.deepEqual(first, Buffer.alloc(286, 1))
+  assert.deepEqual(second, Buffer.alloc(286, 2))
+})
+
+test('a member truncated after admission is rejected at descriptor EOF', t => {
+  const root = memberRoot(t)
+  const target = join(root, firstMember)
+  writeFileSync(target, new Uint8Array(286))
+  const alloc = Buffer.alloc
+  let changed = false
+  t.mock.method(Buffer, 'alloc', (...args) => {
+    if (!changed && args[0] === 286) {
+      changed = true
+      writeFileSync(target, new Uint8Array(0))
+    }
+    return alloc(...args)
+  })
+  assert.throws(() => readRecordingMember(root, firstMember), /Recording member ended early/)
+  assert.equal(changed, true)
+})
+
+test('a member grown after admission is rejected by the final descriptor size', t => {
+  const root = memberRoot(t)
+  const target = join(root, firstMember)
+  writeFileSync(target, new Uint8Array(286))
+  const alloc = Buffer.alloc
+  let changed = false
+  t.mock.method(Buffer, 'alloc', (...args) => {
+    if (!changed && args[0] === 286) {
+      changed = true
+      writeFileSync(target, new Uint8Array(287))
+    }
+    return alloc(...args)
+  })
+  assert.throws(() => readRecordingMember(root, firstMember), /Recording member size changed while reading/)
+  assert.equal(changed, true)
 })
