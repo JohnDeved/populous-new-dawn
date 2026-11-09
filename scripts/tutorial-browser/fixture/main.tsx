@@ -32,6 +32,14 @@ if (new URLSearchParams(location.search).get('hypnotise-fixture') === '1') {
     })
   })
 }
+// Dedicated modal evidence only. No production entry or existing scenario changes.
+if (new URLSearchParams(location.search).get('modal-invalidation') === '1') {
+  void import('../../modal-invalidation/fixture.mjs').then(fixture => {
+    Object.defineProperty(globalThis, '__pndModalInvalidationFixture', {
+      value: Object.freeze({ ...fixture }), writable: false, configurable: false,
+    })
+  })
+}
 import { createRoot } from 'react-dom/client'
 import Home from '../../../app/page'
 import '../../../app/globals.css'

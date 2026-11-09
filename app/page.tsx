@@ -574,7 +574,7 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
+      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
         if (store.getWorld().outcome.level === tutorialLevel) {
@@ -1115,9 +1115,17 @@ export default function Home() {
                 <summary
                   aria-label="Read campaign message"
                   onClick={event => {
+                    if (
+                      store.getWorld() !== world ||
+                      world.messages.slots[slot] !== message
+                    ) {
+                      event.preventDefault()
+                      return
+                    }
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    if (!details.open && target && engine.current?.world === world)
+                      engine.current.focus(target, { animate: true })
                   }}
                 >
                   <img src={messageIcon(message!)} alt="" />
@@ -1126,6 +1134,8 @@ export default function Home() {
                   <p>{messageText(message!.stringId)}</p>
                   <button
                     onClick={() => {
+                      if (store.getWorld() !== world || world.messages.slots[slot] !== message)
+                        return
                       removeMessage(world.messages, slot)
                       update()
                     }}

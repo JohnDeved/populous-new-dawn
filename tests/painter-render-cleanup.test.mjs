@@ -66,7 +66,7 @@ for(const mode of ['live','modal'])test(`${mode} shipped render call restores on
   }else{
    const source=readFileSync(new URL('../app/scene.ts',import.meta.url),'utf8')
    const body=source.slice(source.indexOf('  animate = (now:'),source.indexOf('  private updateTerrainFrame()'))
-   const owner=vm.runInNewContext(stripTypeScriptTypes(`new (class {${body}})()`),{document:{hidden:true},devicePixelRatio:1,requestAnimationFrame(){scheduled++}})
+   const owner=vm.runInNewContext(stripTypeScriptTypes(`new (class {${body}})()`),{sceneTextureRevision:()=>0,document:{hidden:true},devicePixelRatio:1,requestAnimationFrame(){scheduled++}})
    Object.assign(owner,{isCurrent:()=>true,renderer,view:{painter:f.painter},scene:f.scene,camera:f.camera,modalSuspended:true})
    assert.throws(()=>owner.animate(10),e=>e===error)
   }

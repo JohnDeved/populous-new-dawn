@@ -9,7 +9,7 @@ import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import { createWorld, syncLandscapeObjects, type World } from './model.ts'
 import { missionNumbers } from './mission-data.ts'
 import { initializeVaultKnowledge } from './vault-appearance.ts'
-import { discardInvalidResident } from './building-resident.ts'
+import { discardInvalidResidents } from './building-resident.ts'
 import { initializeVaultKnowledgeGift } from './world-effects.ts'
 import { createSharedAniblResource, type PresentationBinding } from './shared-anibl.ts'
 
@@ -34,7 +34,7 @@ export type CheckpointReadStatus =
 // boundaries require the current envelope and scalable schema before calling it.
 export function migrateCheckpoint(world: World) {
   restoreCapacityPolicy(world)
-  for (const unit of world.units) discardInvalidResident(world, unit)
+  discardInvalidResidents(world)
   restoreSecondaryEffects(world)
   for (const shrine of world.shrines)
     if (

@@ -459,9 +459,48 @@ const reviewedCameraProfile = {
     }
   ]
 }
-export const dragSourceProfiles = Object.freeze([...historicalMainProfiles, Object.freeze({
-  ...reviewedCameraProfile, slices: Object.freeze(reviewedCameraProfile.slices.map(slice => Object.freeze(slice))),
-})])
+// Add the exact modal-demand route without changing any historical admission.
+// Its texture revision and GPU polling dependencies are part of the same owner.
+const modalDemandHashes = {
+  "frame-order": "cff2d260d109dfc5824d601c9bfa3fe446375f3adb9ea90f47e9593386f24ab3",
+  "view-facade": "592f9bb45f42e432efb92eb3d1f620103dc31289a82422739074e29c1fd9d8ab"
+}
+const reviewedModalDemandProfile = {
+  id: "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1",
+  slices: [
+    ...historicalMainProfiles.at(-1).slices.map(slice => ({
+      ...slice, sha256: modalDemandHashes[slice.id] ?? slice.sha256,
+    })),
+    ...[
+  {
+    "id": "modal-scene-owner",
+    "path": "app/scene.ts",
+    "start": null,
+    "end": null,
+    "sha256": "46dc13f8b6be3b92204b10437a061e5261cb7b0c0a898a55aff222c71ead7e90"
+  },
+  {
+    "id": "modal-texture-revision-owner",
+    "path": "app/scene-assets.ts",
+    "start": null,
+    "end": null,
+    "sha256": "a928460b203f02f5a265b2b3e4f2db9214e652723e218cb8345ce628357a10de"
+  },
+  {
+    "id": "modal-gpu-poll-owner",
+    "path": "app/fps-graph.ts",
+    "start": null,
+    "end": null,
+    "sha256": "43f4d60b6d31be6bc63c07b2c9c746c58240b46759ac5cfdc780cb059ebd1e41"
+  }
+],
+  ],
+}
+export const dragSourceProfiles = Object.freeze([...historicalMainProfiles, ...[
+  reviewedCameraProfile, reviewedModalDemandProfile,
+].map(profile => Object.freeze({
+  ...profile, slices: Object.freeze(profile.slices.map(slice => Object.freeze(slice))),
+}))])
 
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
   // Cache success AND failure once across all profile attempts. A missing path is not

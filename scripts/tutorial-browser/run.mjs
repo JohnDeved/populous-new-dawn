@@ -133,6 +133,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
     runnerImageVersion: process.env.ImageVersion ?? null },
   frontendEscapeScenarioSha256: hash(frontendEscapeScenario),
   recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
+  campaignMessageOwnershipSha256: hash(resolve(root, 'scripts/tutorial-browser/campaign-message-ownership.mjs')),
   compactMessageScenarioSha256: hash(resolve(root, 'scripts/tutorial-browser/compact-message-layout.mjs')),
   checkpointCodecSha256: hash(resolve(root, 'scripts/tutorial-browser/checkpoint-codec.mjs')),
   checkpointGeneratorSha256: hash(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')), status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
@@ -265,6 +266,8 @@ try {
     receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
     // Separate natural Mission3 context, after F9, within the unchanged global cap.
     receipt.spellConversion = await (await import(pathToFileURL(spellConversionScenario).href)).default({ browser, url, output: out })
+  } else if (selectedScenario === 'globe-held-enter') {
+    receipt.globeHeldEnter = await (await import('./globe-held-enter.mjs')).default({ page, url, output: out, source })
   } else if (selectedScenario === 'gameplay-resources') {
     // Separate job owns the complete five-phase workload and mandatory restart.
     // No melee/corpse work is moved or removed from the original gameplay job.
@@ -315,6 +318,7 @@ try {
     // Existing compact layout and picking assertions finish unchanged first.
     await context.close(); context = undefined; page = undefined
     receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
+    receipt.campaignMessageOwnership = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, campaignCallbacks: true })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
@@ -348,6 +352,11 @@ try {
     receipt.spellIconBudgetBefore = { elapsedMs, remainingMs: Math.max(0, receipt.browserCapMs - elapsedMs) }
     save()
     receipt.spellIconStates = await (await import(pathToFileURL(spellIconScenario).href)).default({ browser, url, output: out, root, episode: selectedScenario })
+  }
+  if (selectedScenario === 'frontend-held-escape') {
+    // Run after every existing frontend/spell assertion, inside the same 180s cap.
+    // The Tutorial aggregate keeps its original workload and unchanged 240s cap.
+    receipt.selectorRecovery = await (await import('../check-browser-selector-recovery.mjs')).checkSelectorRecovery({ browser, url, output: out })
   }
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
