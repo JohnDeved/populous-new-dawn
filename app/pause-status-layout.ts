@@ -15,4 +15,3 @@ export function pauseStatusLayout(width: number, height: number) {
     glyphs: [...label].map(character => glyph(font, character)),
   }
 }
-
