@@ -22,12 +22,12 @@ test('exact-head Ready same-repository selection rejects stale labels, forks and
 test('icon is a fixed180s scenario with no initial context or generic timer, existing launch remains owned',()=>{
  assert.ok(browserScenarios.includes('query-art-evidence'));assert.equal(browserCapMs('query-art-evidence'),180000)
  assert.ok(source.includes("else if (selectedScenario === 'query-art-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }"))
- assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-panel-edges'].includes(selectedScenario)"))
+ assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)"))
  assert.ok(source.includes("if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {"))
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'));assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
 })
 test('actual dispatch binds identity and entered ownership, rejects incomplete status and preserves falsey rejection',async()=>{
- let block=between('    receipt.queryArt = {}',"  } else if (selectedScenario === 'building-panel-edges')")
+ let block=between('    receipt.queryArt = {}',"  } else if (selectedScenario === 'building-icon-evidence')")
  block=block.replace("(await import('./query-art-evidence.mjs')).default",'scenario')
  const run=new AsyncFunction('assert','scenario','receipt','browser','url','out','source',block)
  const receipt={buildRevision:'revision'},browser={},src={}
@@ -36,7 +36,7 @@ test('actual dispatch binds identity and entered ownership, rejects incomplete s
  for(const error of [null,false,undefined]){let caught=false;await run(assert,async()=>{throw error},receipt,browser,'url','out',src).catch(e=>{caught=true;assert.equal(e,error)});assert.ok(caught)}
 })
 test('actual cleanup never duplicates entered route close and requires route settlement plus bounded server',async()=>{
- const block=between('    receipt.queryArtRunnerCleanup = {','  } else {\n    try { await context?.close();')
+ const block=between('    receipt.queryArtRunnerCleanup = {',"  } else if (selectedScenario === 'building-icon-evidence') {")
  const run=new AsyncFunction('receipt','browser','server','closeOrdinaryPointerSmokeOwner','process',block)
  for(const confirmed of [true,false])for(const settled of [true,false]){
   let bc=0,sc=0;const receipt={status:'passed',queryArtEntered:true,queryArt:{cleanupConfirmed:confirmed,operationSettled:settled}},process={}

@@ -71,6 +71,12 @@ if (selectedScenario === 'ordinary-pointer-trace') {
   assert.ok(policy.ordinaryPointerTraceSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     traceCommentEnvironment), 'Trace requires exact trusted-main owner selection')
 }
+if (selectedScenario === 'building-icon-evidence') {
+  const policy = await import('./building-icon-selection.mjs')
+  closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
+  assert.ok(policy.buildingIconSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+    process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Building icon evidence requires exact-head same-repository Ready label')
+}
 if (selectedScenario === 'query-art-evidence') {
   const policy = await import('./query-art-selection.mjs')
   closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
@@ -212,10 +218,11 @@ try {
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.browserBudget = ordinaryPointerSmokePolicy
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.browserBudget = ordinaryPointerCalibrationPolicy
   else if (selectedScenario === 'query-art-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }
+  else if (selectedScenario === 'building-icon-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-panel-edges'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -256,6 +263,13 @@ try {
     await runQueryArt({ browser, url, output: out, source,
       expectedRevision: receipt.buildRevision, receipt: receipt.queryArt })
     assert.equal(receipt.queryArt.status, 'passed', 'Query art evidence incomplete or failed')
+  } else if (selectedScenario === 'building-icon-evidence') {
+    receipt.buildingIcon = {}
+    const runBuildingIcon = (await import('./building-icon-evidence.mjs')).default
+    receipt.buildingIconEntered = true
+    await runBuildingIcon({ browser, url, output: out, source,
+      expectedRevision: receipt.buildRevision, receipt: receipt.buildingIcon })
+    assert.equal(receipt.buildingIcon.status, 'passed', 'Building icon evidence incomplete or failed')
   } else if (selectedScenario === 'building-panel-edges') {
     receipt.buildingPanelEdges = await (await import(pathToFileURL(buildingEdgesScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'frontend-held-escape') {
@@ -371,6 +385,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
+  else if (selectedScenario === 'building-icon-evidence') receipt.failureEvidence = 'building-icon-evidence.json'
   else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = 'building-panel-edges.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
@@ -409,6 +424,16 @@ try {
       server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
     }
     receipt.cleanupVerified = receipt.queryArtRunnerCleanup.routeConfirmed && receipt.queryArtRunnerCleanup.browser.confirmed && receipt.queryArtRunnerCleanup.server.confirmed
+    if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
+  } else if (selectedScenario === 'building-icon-evidence') {
+    receipt.buildingIconRunnerCleanup = {
+      routeConfirmed: receipt.buildingIcon?.cleanupConfirmed === true && receipt.buildingIcon?.operationSettled === true,
+      browser: receipt.buildingIconEntered === true
+        ? { confirmed: receipt.buildingIcon?.cleanupConfirmed === true, ownedByScenario: true }
+        : await closeOrdinaryPointerSmokeOwner(() => browser?.close()),
+      server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
+    }
+    receipt.cleanupVerified = receipt.buildingIconRunnerCleanup.routeConfirmed && receipt.buildingIconRunnerCleanup.browser.confirmed && receipt.buildingIconRunnerCleanup.server.confirmed
     if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
   } else {
     try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
