@@ -105,7 +105,7 @@ test('terminal receipt waits for cleanup settlement and preserves its rejection'
 })
 
 for (const [boundary, message] of [
-  [{ timedOut: true }, /35-second bound/],
+  [{ timedOut: true }, /45-second bound/],
   [{ errors: ['runtime failure'] }, /Runtime errors/],
 ]) test(`terminal writer independently rejects ${message}`, async t => {
   const f = fixture(t)
@@ -119,4 +119,59 @@ for (const [boundary, message] of [
   })
   assert.equal(f.receipt().status, 'failed')
   assert.equal(f.receipt().contextClosed, true)
+})
+
+// Virtual time exercises the actual owner, not a replacement timeout helper.
+// These supplied context outcomes do not establish browser completion or speed.
+test('actual episode expires once at 45 seconds and retains timeout plus cleanup', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const f = fixture(t), cancelled = Error('context closed by deadline')
+  let entered, rejectPage, closed = 0
+  const started = new Promise(resolve => { entered = resolve })
+  const browser = { newContext: async () => ({
+    newPage: () => new Promise((_, reject) => { rejectPage = reject; entered() }),
+    close: async () => { closed++; rejectPage(cancelled) },
+  }) }
+  const result = buildingPanelIdentity({ browser, url: 'http://invalid.test/', output: f.output })
+    .then(value => ({ value }), error => ({ error }))
+  await started
+  t.mock.timers.tick(44999)
+  assert.equal(closed, 0, 'No premature context close')
+  assert.equal(existsSync(f.path), false, 'Pending owner cannot publish success')
+  t.mock.timers.tick(1)
+  const { error } = await result
+  assert.ok(error instanceof AggregateError)
+  assert.equal(error.errors.length, 2)
+  assert.equal(error.errors[0], cancelled, 'Original transport rejection survives')
+  assert.match(String(error.errors[1]), /45-second bound/)
+  assert.equal(closed, 2, 'Deadline closes the context and final cleanup still settles')
+  const receipt = f.receipt()
+  assert.equal(receipt.status, 'failed')
+  assert.equal(receipt.timedOut, true)
+  assert.equal(receipt.contextClosed, true)
+  assert.equal(receipt.completed, undefined)
+  assert.equal(receipt.timing.entries.filter(mark => mark.stage === 'deadline:fired').length, 1)
+  t.mock.timers.tick(45000)
+  assert.equal(closed, 2, 'No repeating deadline after settlement')
+})
+
+test('an earlier episode failure cancels the 45-second owner timer', async t => {
+  t.mock.timers.enable({ apis: ['setTimeout'] })
+  const f = fixture(t)
+  let entered, rejectPage, closed = 0
+  const started = new Promise(resolve => { entered = resolve })
+  const browser = { newContext: async () => ({
+    newPage: () => new Promise((_, reject) => { rejectPage = reject; entered() }),
+    close: async () => { closed++ },
+  }) }
+  const result = rejectedBy(buildingPanelIdentity({ browser, url: 'http://invalid.test/', output: f.output }), [false])
+  await started
+  t.mock.timers.tick(1234)
+  rejectPage(false)
+  await result
+  assert.equal(closed, 1)
+  assert.equal(f.receipt().timedOut, undefined)
+  assert.deepEqual(f.receipt().failures.map(value => value.message), ['false'])
+  t.mock.timers.tick(45000)
+  assert.equal(closed, 1, 'The cleared timer must not close an already-settled context')
 })

@@ -37,7 +37,7 @@ for (const stage of stages) test(`actual ${stage} marks bracket settled transpor
 test('stage marks stay bounded and retain the witness deadline', () => {
   const added = source.split('\n').filter(line => stages.some(stage => line.includes('/' + stage + ':')))
   assert.equal(added.length, 14)
-  assert.ok(source.includes('buildingPanelIdentityLimitMs = 35000'))
+  assert.ok(source.includes('buildingPanelIdentityLimitMs = 45000'))
 })
 
 // These supplied transport outcomes exercise the actual diagnostic-only blocks.
@@ -83,5 +83,5 @@ for (const stage of dismantleStages) test(`dismantle ${stage} marks wait for set
 test('dismantle diagnostics add only six marks and retain the episode deadline', () => {
   const added = source.split('\n').filter(line => line.includes("timing.mark('dismantle/"))
   assert.equal(added.length, 6)
-  assert.ok(source.includes('buildingPanelIdentityLimitMs = 35000'))
+  assert.ok(source.includes('buildingPanelIdentityLimitMs = 45000'))
 })
