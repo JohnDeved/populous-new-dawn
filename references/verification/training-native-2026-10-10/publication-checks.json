@@ -1,0 +1,24 @@
+{
+  "sourceBase": "50aefe1d49f70057380bf9a5fa8f0b319c8ad441",
+  "scope": "research documentation, indexed findings and frozen receipts only; no production/test/fixture/parity edits",
+  "checks": [
+    {
+      "command": "node scripts/orchestration/cli.mjs check",
+      "status": "passed",
+      "exitCode": 0,
+      "checks": 135,
+      "rawSha256": "0a3bfa25348bf6fb93c9303ec135d8c6efe0b82126c2e0a1d404ef42927830e2"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed",
+      "exitCode": 0
+    },
+    {
+      "command": "npm run check; npm run build; rendered gameplay",
+      "status": "not-run",
+      "reason": "no production changes in this research publication; existing guard rejection and ordinary witness remain unchanged"
+    }
+  ],
+  "planReview": "Broad campaign/native selections arise from research index paths; consciously not run for docs-only publication. Unknown verification archive paths manually reviewed as preserved research evidence."
+}
