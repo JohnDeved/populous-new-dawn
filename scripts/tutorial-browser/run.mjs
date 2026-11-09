@@ -34,6 +34,7 @@ const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-pr
 const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotise.mjs')
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
 const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-conversion.mjs')
+const worshipLifecycleScenario = resolve(root, 'scripts/tutorial-browser/worship-panel-lifecycle.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
 const buildingEdgesScenario = resolve(root, 'scripts/tutorial-browser/building-panel-edges.mjs')
 const spellIconScenario = resolve(root, 'scripts/tutorial-browser/spell-icon-states.mjs')
@@ -153,6 +154,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   spellConversionScenarioSha256: hash(spellConversionScenario),
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
+  worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -361,6 +363,7 @@ try {
     captureProtocolEnabled, line => process.stderr.write(line),
     async () => (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out }),
   )
+  if (selectedScenario === 'tutorial') receipt.worshipPanelLifecycle = await (await import(pathToFileURL(worshipLifecycleScenario).href)).default({ browser, url, output: out })
   if (selectedScenario === 'tutorial' || selectedScenario === 'frontend-held-escape') {
     const elapsedMs = performance.now() - browserStartedMs
     receipt.spellIconBudgetBefore = { elapsedMs, remainingMs: Math.max(0, receipt.browserCapMs - elapsedMs) }
@@ -477,4 +480,5 @@ try {
   }
   console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }
+
 

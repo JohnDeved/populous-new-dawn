@@ -107,6 +107,7 @@ export function stepLiveWorship(w: World, u: Unit) {
 export function selectWorshippers(w: World, head: Shrine, clicked: number, group: boolean) {
   if (w.inputMask || w.land.landFlags & 0x800) return
   const people = liveWorshippers(w, head)
+  if (!people.some(person => person.id === clicked)) return
   selectTrainingOccupants(people, clicked, group)
   const selected = new Set(w.selected)
   for (const p of people) {
