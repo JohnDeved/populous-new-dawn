@@ -173,20 +173,26 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal((await snapshot(page))[19].count, beforeGuard[19].count + guardIds.length)
   const guarded = await snapshot(page), savedSelection = await selection(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  // Successful saves have no success banner. Verify the completed IndexedDB
-  // transaction directly before the shipped load action, without a second save.
+  // Verify the completed IndexedDB transaction directly before the shipped
+  // load action, without relying on the notice or performing a second save.
   await page.waitForFunction(async selected => {
     const db=await new Promise((resolve,reject)=>{const request=indexedDB.open('populous-new-dawn',1);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})
     const saved=await new Promise((resolve,reject)=>{const request=db.transaction('checkpoints','readonly').objectStore('checkpoints').get('latest');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})
     db.close()
     return JSON.stringify(saved?.world?.selected)===JSON.stringify(selected) && selected.every(id=>saved.world.units.find(u=>u.id===id)?.guard)
   }, savedSelection)
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
+  await menu.waitFor({ state: 'hidden' })
   await button(page, 0, 1).click({ modifiers: ['Shift'] })
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  await menu.getByRole('button', { name: 'Load Game', exact: true }).click()
+  await menu.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  await menu.waitFor({ state: 'hidden' })
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await freeze(page)
@@ -271,9 +277,15 @@ export default async function followerTasks({ browser, page, url, output, openMi
   for (const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]) {
     await page.setViewportSize(viewport)
     for (const size of ['auto','1','2','4']) {
-      await page.getByRole('button',{name:'Menu',exact:true}).click()
-      await page.getByRole('combobox',{name:'HUD size',exact:true}).selectOption(size)
-      await page.getByRole('button',{name:'Close menu',exact:true}).click()
+      await page.getByRole('button', { name: 'Menu', exact: true }).click()
+      const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+      await menu.getByRole('button', { name: 'Options', exact: true }).click()
+      await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+      await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(size)
+      await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
+      await menu.getByRole('button', { name: 'Back', exact: true }).click()
+      await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
+      await menu.waitFor({ state: 'hidden' })
       const rects=await page.locator('.follower-tasks button').evaluateAll(buttons=>buttons.map(b=>{const r=b.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}))
       for(const r of rects){assert.ok(r.x>=0&&r.y>=0&&r.x+r.w<=viewport.width&&r.y+r.h<=viewport.height);assert.ok(Math.abs(r.w/r.h-15/34)<0.001)}
       assert.equal(rects.length,24);layouts.push({viewport,size,first:rects[0],last:rects.at(-1)})

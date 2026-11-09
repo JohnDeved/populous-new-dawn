@@ -149,7 +149,8 @@ const render = new Function('requestAnimationFrame', 'MenuTooltip', 'React', 'us
 )
 function renderOptions(skin, category, highlight = null, browser = false) {
   const state = [category, browser, highlight, skin, skin], nodes = [], effects = [], focus = [], changes = []
-  let hook = 0
+  const refs = [], frames = []
+  let hook = 0, refHook = 0
   const React = {
     Fragment: 'fragment',
     createElement(type, props, ...children) {
@@ -159,15 +160,25 @@ function renderOptions(skin, category, highlight = null, browser = false) {
       return element
     },
   }
-  render(run => run(), () => null, React, (run, dependencies) => effects.push({run, dependencies}), make => make(),
-    () => ({current: {querySelector: selector => ({focus: () => focus.push(selector)})}}),
-    () => { const index = hook++; return [state.shift(), value => changes.push({index, value})] }, frontend, ingame, new Proxy({}, {get: (_, key) => key}), {
+  function commit() {
+    hook = 0; refHook = 0; nodes.length = 0; effects.length = 0
+    render(run => { frames.push(run); return frames.length }, () => null, React, (run, dependencies) => effects.push({run, dependencies}), make => make(),
+    initial => refs[refHook++] ??= {current: initial === null ? {querySelector: selector => ({focus: () => focus.push(selector)})} : initial},
+    () => { const index = hook++; return [state[index], value => { state[index] = value; changes.push({index, value}) }] }, frontend, ingame, new Proxy({}, {get: (_, key) => key}), {
       skin, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
       gamePreferences: {rotation: 'cursor', flipRotation: false},
       onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
     })
+  }
+  commit()
   effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === category).run()
-  return {nodes, focus, changes, effects}
+  return {nodes, focus, changes, effects,
+    commitBrowser() {
+      commit()
+      effects.find(effect => effect.dependencies.length === 1 && effect.dependencies[0] === state[1]).run()
+    },
+    flushFrames() { for (const run of frames.splice(0)) run() },
+  }
 }
 
 test('browser help opens at its heading, not its trailing Back button, on every visit', () => {
@@ -184,6 +195,7 @@ test('browser help opens at its heading, not its trailing Back button, on every 
     const back = help.nodes.find(node => 'data-return-options' in node.props)
     back.props.onClick()
     assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
+    help.commitBrowser(); help.flushFrames()
     assert.equal(help.focus.at(-1), '[data-compatibility]', 'Back retains the original Options row focus')
     const options = renderOptions(skin, 'Game')
     const before = [...options.focus]
@@ -306,6 +318,7 @@ test('Game browser row uses ordinary native highlight, activation and Back focus
     const back = help.nodes.find(node => 'data-return-options' in node.props)
     back.props.onClick()
     assert.deepEqual(help.changes.at(-1), {index: 1, value: false})
+    help.commitBrowser(); help.flushFrames()
     assert.equal(help.focus.at(-1), '[data-compatibility]')
   }
 })

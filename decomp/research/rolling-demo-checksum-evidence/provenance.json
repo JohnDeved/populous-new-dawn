@@ -1,0 +1,61 @@
+{
+  "executable_sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "executable_bytes": 2275840,
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "objdump_sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "python_version": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "python_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+  "checker_sha256": "72490f2800d683462e265c26a250c0ff56db67dc0c64ef9df5471983b44dca65",
+  "evidence": {
+    "consumer_absence_proved": false,
+    "error_literal_operand_addresses": [
+      "004b2c8c",
+      "004b2f01",
+      "004b3657",
+      "004b368a",
+      "004b3af3",
+      "004b3e39",
+      "004b421b"
+    ],
+    "error_literal_store_addresses": [
+      "004b2c8a",
+      "004b2eff",
+      "004b3655",
+      "004b3688",
+      "004b3af1",
+      "004b3e37",
+      "004b4219"
+    ],
+    "executable_bytes": 2275840,
+    "executable_sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "instruction_anchors": 18,
+    "live_checksum_evaluated": false,
+    "original_execution": false,
+    "windows": [
+      {
+        "bytes": 361,
+        "end_exclusive": "00443b39",
+        "sha256": "46e301fb421c8f39e25f32fdccc7d0f6b887c39b2d60cd5a97e544b63ce85126",
+        "start": "004439d0"
+      },
+      {
+        "bytes": 270,
+        "end_exclusive": "004b3b43",
+        "sha256": "0cc1aa97aae497e73bdcfce63734dc9eaef9c429c5a472bf795af6f126d45a96",
+        "start": "004b3a35"
+      },
+      {
+        "bytes": 50,
+        "end_exclusive": "004b26f2",
+        "sha256": "47ea2263145e975f1c84cb9c49da76216bbf8bcf3969e13faa94fb505fa24cdd",
+        "start": "004b26c0"
+      }
+    ]
+  },
+  "listing_sha256": {
+    "checksum.asm": "1c03aefaf86294dc56285b78da354f1abb556f97a09a47edc47ed425f506959e",
+    "gp-reader.asm": "dc5a3b8758eb3f6628a989ced0fe6e83447cff5205614716c55ccbd953c20d88",
+    "initialization.asm": "fbe2191fb0e5ed54aea7dba56a556cbca87d734d938d0f2ca91af04ca23b1ce1"
+  },
+  "limits": "Static bytes only; no original instruction or checksum execution."
+}

@@ -1,5 +1,11 @@
 # Default149 Stone Head: bounded implementation prerequisite
 
+**Historical proposal.** Read the [current implementation boundaries and corrected
+prerequisites](stone-head-149-current.md) before using this note. Static model149
+is now present. The generic 24 Hz suggestion, simplified hold table, single-count
+presence, old-save fallback proposal and missing-base-asset statements below are
+not current implementation guidance. The original observations remain preserved.
+
 **18 September 2026; inspected main `bb5980c2bc85fdfc9bd91d5bdc58eb9866b3bebb`.**
 This note scopes the default149/150/151 family after the accepted model45 and
 orientation work. It does not implement that family, modify Worker5's active
