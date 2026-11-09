@@ -614,11 +614,19 @@ export default function Home() {
     return () => window.removeEventListener('keydown', key)
   }, [world, update, store, ready, openMenu, menu, cheatsOpen])
   useEffect(() => {
-    void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
-      audio.current?.mute()
-      setSound(false)
-    })
-  }, [world.paused])
+    const sound = audio.current
+    if (!sound) return
+    const refresh = () => {
+      void sound.setPaused(world.paused || document.hidden).catch(() => {
+        if (audio.current !== sound) return
+        sound.mute()
+        setSound(false)
+      })
+    }
+    refresh()
+    document.addEventListener('visibilitychange', refresh)
+    return () => document.removeEventListener('visibilitychange', refresh)
+  }, [world, world.paused])
   useEffect(() => {
     const refresh = () => {
       if (audio.current?.enabled && engine.current)
