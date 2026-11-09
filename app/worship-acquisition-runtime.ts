@@ -71,11 +71,23 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       second.serial - first.serial
     )
   })
+  // Notification failures must not abandon the already-detached request batch.
+  // Finish its ordered handoffs, then preserve the first thrown value verbatim.
+  let notificationFailed = false
+  let notificationFailure: unknown
+  const notify = (callback: () => void) => {
+    try {
+      callback()
+    } catch (error) {
+      if (!notificationFailed) notificationFailure = error
+      notificationFailed = true
+    }
+  }
   for (const gift of gifts) {
     if (gift.buildingAcquisition) {
-      bridge.cue(0xcc)
-      bridge.cue(0xcb)
-    } else bridge.cue(0x71)
+      notify(() => bridge.cue(0xcc))
+      notify(() => bridge.cue(0xcb))
+    } else notify(() => bridge.cue(0x71))
     let geometry: WorshipAcquisitionGeometry | null = null
     try {
       geometry = bridge.geometry(gift)
@@ -83,7 +95,7 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       // A detached/failed HUD must not throw out of the clock or defer a handoff.
     }
     if (!geometry) {
-      bridge.failed(gift)
+      notify(() => bridge.failed(gift))
       continue
     }
     if (gift.buildingAcquisition) {
@@ -100,6 +112,7 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       geometry,
     })
   }
+  if (notificationFailed) throw notificationFailure
 }
 
 export function visitWorshipAcquisition(
