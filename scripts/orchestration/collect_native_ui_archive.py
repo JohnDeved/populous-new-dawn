@@ -46,7 +46,7 @@ def bound_json(binding, stack):
     archive_reader.digest(binding['sha256'])
     path = Path(binding['path'])
     parent, verify_parent = stack.enter_context(archive_reader.parent_chain(path.parent))
-    fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
+    fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
     stream = stack.enter_context(os.fdopen(fd, 'rb'))
     before = archive_reader.record(os.fstat(fd))
     require(stat.S_ISREG(before['mode']) and before['bytes'] <= INPUT_LIMIT, 'Input must be a bounded regular JSON file')

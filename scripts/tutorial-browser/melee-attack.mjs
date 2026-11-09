@@ -458,7 +458,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
     await button('Pause game')
-    await button('Select and focus shaman')
+    await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' }))
     const settle = () => page.waitForFunction(() => {
       const scene = window.testSceneRef.current
       return !scene.cameraMotion.active && !scene.resultCamera.active && !scene.viewTransition

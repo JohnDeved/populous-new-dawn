@@ -301,7 +301,8 @@ export class ObjectPanels {
         button.hidden = true
         button.addEventListener('contextmenu', event => {
           event.preventDefault()
-          if (vehicle)
+          if (vehicle) {
+            if (!scene.isCurrent() || !scene.world.vehicles.includes(vehicle)) return
             this.vehicleAction(
               id,
               Number(button.dataset.person),
@@ -309,12 +310,16 @@ export class ObjectPanels {
               true,
               event.shiftKey
             )
-          else if (head) this.focusWorshipper(id, Number(button.dataset.person))
-          else this.focusOrder(id, Number(button.dataset.order))
+          } else if (head) {
+            if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
+              return
+            this.focusWorshipper(id, Number(button.dataset.person))
+          } else this.focusOrder(id, Number(button.dataset.order))
         })
         // Person order icons use right-click; keyboard activation also exposes focus.
         button.addEventListener('click', event => {
-          if (vehicle)
+          if (vehicle) {
+            if (!scene.isCurrent() || !scene.world.vehicles.includes(vehicle)) return
             this.vehicleAction(
               id,
               Number(button.dataset.person),
@@ -322,7 +327,9 @@ export class ObjectPanels {
               false,
               event.shiftKey
             )
-          else if (head) {
+          } else if (head) {
+            if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
+              return
             selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
             scene.onSound(0x6a)
             scene.onChange()
@@ -625,12 +632,12 @@ export class ObjectPanels {
           halfPanelWidth = (canvas.width * scale) / 2,
           panelHeight = canvas.height * scale
         element.style.left = `${Math.max(
-          rendererLeft + halfPanelWidth,
-          Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+          Math.ceil(rendererLeft + halfPanelWidth),
+          Math.min(Math.floor(rendererLeft + rendererRect.width - halfPanelWidth), anchorX)
         )}px`
         element.style.top = `${Math.max(
-          rendererTop + panelHeight,
-          Math.min(rendererTop + rendererRect.height, anchorY)
+          Math.ceil(rendererTop + panelHeight),
+          Math.min(Math.floor(rendererTop + rendererRect.height), anchorY)
         )}px`
       } else {
         element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`

@@ -187,3 +187,34 @@ can then cover entry failure, GP completion with early CP EOF, restart, key/butt
 down versus release, mode 3 suppression and consumed exit input. No runtime
 acceptance, parity increase, U08 claim, whole-content scope decision or closure
 of issue 16 follows from this static contract.
+
+## Data-only adapter follow-up
+
+The inactive [recording-manifest tool](recording-manifest.md) now authenticates the
+21 known inputs and exposes ordered recording/frame metadata, null source-map
+identity and separate GP/CP completion. It does not execute payloads, run a replay
+state machine, decode a GM save or enable the menu. The source and live-acceptance
+gaps above remain unchanged.
+
+## Live-state checksum follow-up
+
+[The checksum follow-up](rolling-demo-checksum.md) now binds the exact six-nibble
+live-state calculation at `004439d0`, its ordered linked-list inputs and the
+pre-command comparison. It is not payload/file integrity or replay execution.
+The error-byte literal scan finds only writes, but does not prove there is no
+indirect consumer; error handling remains unresolved.
+
+## CP camera application follow-up
+
+[The CP camera note](rolling-demo-camera.md) binds type-10 staging to the actual
+camera helper: the auxiliary low nibble gates an all-field commit, playback
+bypasses ordinary input damping/clamps, and CP EOF clears staging without zeroing
+the previously committed tribe camera on that service call. Downstream view
+configuration and replay execution remain open; the manifest is unchanged.
+
+## Deferred input service follow-up
+
+[The deferred input follow-up](rolling-demo-input.md) now binds the callback-batch
+return boundary, shared pending owner mask, acquire-before-release ordering and
+cleanup's forced release(1) request. It remains a conditional static contract, not
+OS focus restoration, an executed replay or a complete frontend transition.

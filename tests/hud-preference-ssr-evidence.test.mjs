@@ -1,4 +1,5 @@
 import '../scripts/hud-preference-ssr-evidence/policy.test.mjs'
+import '../scripts/hud-preference-ssr-evidence/bounded-hash.test.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync, mkdirSync, mkdtempSync, symlinkSync, rmSync } from 'node:fs'

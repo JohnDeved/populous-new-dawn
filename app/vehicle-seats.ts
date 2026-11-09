@@ -1,4 +1,5 @@
 import { movePosition } from './native-math.ts'
+import rules from './original-rules.json' with { type: 'json' }
 import type { Vehicle } from './world-types.ts'
 import type { LivePerson } from './live-people.ts'
 
@@ -40,4 +41,15 @@ export function seatVehiclePassenger(
   }
   place(vehicleSeat(v, slot))
   p.flags2 |= 0x4000
+}
+
+// Fill only the driver vacancy. Other occupants retain their physical seats.
+export function fillVehicleDriverSeat(v: Pick<Vehicle, 'model' | 'passengers'>) {
+  if (v.passengers[0]) return
+  const capacity = (rules.vehicleCapacity[v.model] << 24) >> 24,
+    slot = v.passengers.findIndex((id, i) => i > 0 && i < capacity && !!id)
+  if (slot !== -1) {
+    v.passengers[0] = v.passengers[slot]
+    v.passengers[slot] = 0
+  }
 }

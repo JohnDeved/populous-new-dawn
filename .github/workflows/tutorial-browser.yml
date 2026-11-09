@@ -48,6 +48,11 @@ jobs:
             name: Tutorial browser
             artifact: tutorial-browser
             buildStep: Build plain production Home and validate Tutorial interactions
+          - scenario: building-panel-edges
+            timeoutMinutes: 15
+            name: Building panel edge browser
+            artifact: building-panel-edge-browser
+            buildStep: Validate actual building panel fractional-edge containment and controls
           - scenario: frontend-held-escape
             timeoutMinutes: 15
             name: Frontend held Escape browser

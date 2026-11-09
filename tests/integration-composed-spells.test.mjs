@@ -12,7 +12,9 @@ test('composed pipeline requires version3 Spy frame0/1 without accepting later s
   const f=composedBrowserFixture();validateEntry(f.entry);const row=f.run()
   assert.equal(row.tornadoVerified,true);assert.equal(row.spySourceVerified,true)
   assert.equal(row.spellVisualsVerified,undefined);validatePassedGate(checkView(f),gatesFor(f.entry)[1],row)
-  for(let secondFrame=2;secondFrame<=11;secondFrame++)assert.throws(()=>composedBrowserFixture({secondFrame}).run())
+  // The direct composed-spy-evidence suite retains every later frame 2..11.
+  // Keep the nearest invalid and last native frame through the full pipeline.
+  for(const secondFrame of [2,11])assert.throws(()=>composedBrowserFixture({secondFrame}).run())
 })
 test('legacy eight/v3 and nine/v4 paths remain strict and do not infer composition',()=>{
   for(const nine of [false,true]){const f=passiveBrowserFixture({nine});assert.equal(f.run().identityVerified,true)}
@@ -101,9 +103,10 @@ test('composed source inventory covers every tracked application file exactly on
     /Duplicate composed source input/)
 })
 
-test('composed evidence binds all Angel presentation dependencies in both artifact kinds', () => {
+test('composed evidence binds rendering and audio dependencies in both artifact kinds', () => {
   for (const path of ['app/angel-presentation.ts', 'app/original-angel-presentation.json',
-    'app/original-angel-strike.json']) {
+    'app/original-angel-strike.json', 'app/building-icon.tsx', 'app/original-building-icons.json',
+    'app/original-tower-acquisition.json', 'app/spell-audio-cues.ts']) {
     assert.equal(COMPOSED_SOURCE_INPUTS.filter(input => input === path).length, 1)
     const mismatch = error => error.code === 'ERR_ASSERTION' &&
       error.message.split('\n')[0] === `Composed immutable source differs: ${path}`

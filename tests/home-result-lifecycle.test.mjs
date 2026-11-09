@@ -24,7 +24,7 @@ function fixture() {
   const bindings = {
     store, world, nextMission: 2, OriginalResultScreen: 'OriginalResultScreen', WorldSelector: 'WorldSelector',
     engine: { current: { nearbyFollowersHudActive: true } }, cancelNearbyInput() {},
-    menuSession: { current: { world, paused: false } }, pendingMenuCamera: { current: [() => assert.fail('stale camera action')] },
+    followerPress: { current: null }, menuSession: { current: { world, paused: false } }, pendingMenuCamera: { current: [() => assert.fail('stale camera action')] },
     audio: { current: { reset() { audioResets++ } } }, loadRequest: { current: null },
     openMenu() { menuOpened++ },
     missionNumbers: [1, 2], completedMissions: [], startMission() {}, tutorialLevel: 79, loadCheckpoint() {},

@@ -335,7 +335,8 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', a
       })),
     })
   )
-  assert.deepEqual(restored.passengers, [])
+  assert.equal(restored.active, true)
+  assert.deepEqual(restored.passengers, [0, 0])
   assert.ok(Math.hypot(restored.x - before.x, restored.y - before.y) > 3_000)
   assert.equal(restored.h, terrainPointHeight(world.land, restored) + 560)
   assert.equal(departureOrder.references, 0)

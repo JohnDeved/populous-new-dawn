@@ -191,3 +191,5 @@ export default async function ({ page, browser, url, root, output }) {
   } finally { await tutorial.close() }
   return { checks: progress, limits: ['Browser-adapted wrapping/button positions and storage policy; no native callback/profile equivalence', 'Software rendering, no hardware FPS claim'] }
 }
+
+

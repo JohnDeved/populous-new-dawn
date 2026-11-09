@@ -177,7 +177,7 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
         [shaman.native.substate, shaman.native.workTarget, shaman.native.vehicle],
         [3, 105, 0]
       )
-      assert.deepEqual(balloon.passengers, [])
+      assert.deepEqual(balloon.passengers, [0])
       assert.equal(balloon.passengerCount, 0)
     }
     if (world.turn === expected.fight) {
@@ -212,7 +212,9 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
   }
   assert.equal(world.buildings.includes(target), expected.targetDeath === 0)
   assert.equal(order.references, 0)
-  assert.deepEqual(balloon.passengers, [])
+  assert.equal(balloon.active, true)
+  assert.deepEqual(balloon.passengers, [0])
+  assert.equal(balloon.passengerCount, 0)
 }
 
 // Fresh physical Boat acquisition retains its actual failed direct-attack chronology.
@@ -268,7 +270,7 @@ for (const blocked of [false, true])
     if (blocked) assert.equal(vehicleExit(world, balloon).found, false)
     leaveLiveAttackVehicle(world, p, { x: (p.x + 1000) & 65535, y: p.y })
     assert.equal(p.vehicle, 0)
-    assert.deepEqual(balloon.passengers, [])
+    assert.deepEqual(balloon.passengers, [0])
     assert.equal(balloon.passengerCount, 0)
     assert.deepEqual([p.x, p.y], [expected.x, expected.y])
     assert.deepEqual(

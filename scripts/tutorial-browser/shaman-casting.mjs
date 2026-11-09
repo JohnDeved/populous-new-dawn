@@ -22,7 +22,9 @@ export async function beginOrdinaryCastingWitness(page) {
       !p.vehicle && !(p.flags2 & 0x100000) && !(p.flags4 & 128) && order?.model !== 18
   })
   await button('Pause game').click()
-  await button('Select and focus shaman').click()
+  // Selection and camera focus are separate public portrait actions.
+  await button('Select shaman').click()
+  await button('Select shaman').click({ button: 'right' })
   await page.waitForFunction(() => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     return s.world.selected.includes(u.id) && !s.cameraMotion.active && !s.viewTransition && !s.resultCamera.active

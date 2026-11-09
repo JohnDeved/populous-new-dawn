@@ -1,0 +1,18 @@
+{
+  "browser-findings.md": {
+    "bytes": 12379,
+    "sha256": "d39308a274e2525d874bdd439c940a5aa54ae914f2499a32315ea3548de3bcc7"
+  },
+  "browser-receipt.tar.gz": {
+    "bytes": 811444,
+    "sha256": "3713c068d29b32848e36e165eb1c30355109e8b89b53ac3ad3ed93189c006cd6"
+  },
+  "native-findings.md": {
+    "bytes": 14837,
+    "sha256": "0ee0f1f2150e2b6fd2f6f4b236361fa83ae1c3cb88c645914f736e6e66fc111f"
+  },
+  "native-receipt.tar.gz": {
+    "bytes": 1424650,
+    "sha256": "622c735b5d0d5c725d5ffd33575493e6616ed055f00c042a5c9b347a0cafdf9f"
+  }
+}
