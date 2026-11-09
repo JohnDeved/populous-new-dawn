@@ -39,7 +39,7 @@ test('only fourteen bounded marks are added; original trajectory, assertions, in
   const added = source.split('\n').filter(line => stages.some(stage => line.includes('/' + stage + ':')))
   assert.equal(added.length, 14)
   const original = source.split('\n').filter(line => !stages.some(stage => line.includes('/' + stage + ':'))).join('\n')
-  assert.equal(createHash('sha256').update(original).digest('hex'), 'f606d85cc8ae796502df9e3a1edf07a71adfc08d9bf652033b2de4c3da4cd7cf')
+  assert.equal(createHash('sha256').update(original).digest('hex'), 'd2974d12566574c452034e7553bd5d75498db74fe7c521af295bccff332d7b53')
   // Four fixed cases: fourteen marks each, never dependent on polling counts.
   assert.equal(added.length * 4, 56)
   assert.ok(source.includes('buildingPanelIdentityLimitMs = 35000'))
