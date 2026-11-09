@@ -107,6 +107,37 @@ class PayloadTests(unittest.TestCase):
  def test_callback_interruption(self):
   def stop():raise ValueError('interrupted')
   with self.assertRaisesRegex(ValueError,'interrupted'):payloads.verify_file(str(self.path),self.row,stop)
+ def test_parent_replaced_during_authentication(self):
+  parent=self.path.parent/'input';parent.mkdir();self.path=self.path.rename(parent/'payload');retained=parent.with_name('retained');fired=False
+  def swap():
+   nonlocal fired
+   if not fired:
+    fired=True;parent.rename(retained);parent.mkdir();self.path.write_bytes(b'different bytes')
+  with self.assertRaisesRegex(ValueError,'Descriptor parent changed'):payloads.verify_file(str(self.path),self.row,swap)
+  self.assertTrue(fired);self.assertEqual((retained/'payload').read_bytes(),self.body)
+ def test_parent_symlink_inserted_during_authentication(self):
+  parent=self.path.parent/'input';parent.mkdir();self.path=self.path.rename(parent/'payload');retained=parent.with_name('retained');fired=False
+  def swap():
+   nonlocal fired
+   if not fired:
+    fired=True;parent.rename(retained);parent.symlink_to(retained,target_is_directory=True)
+  with self.assertRaises(OSError):payloads.verify_file(str(self.path),self.row,swap)
+  self.assertTrue(fired);self.assertEqual((retained/'payload').read_bytes(),self.body)
+ def test_ancestor_symlink_inserted_during_authentication(self):
+  ancestor=self.path.parent/'ancestor';parent=ancestor/'input';parent.mkdir(parents=True);self.path=self.path.rename(parent/'payload');retained=ancestor.with_name('retained');fired=False
+  def swap():
+   nonlocal fired
+   if not fired:
+    fired=True;ancestor.rename(retained);ancestor.symlink_to(retained,target_is_directory=True)
+  with self.assertRaises(OSError):payloads.verify_file(str(self.path),self.row,swap)
+  self.assertTrue(fired);self.assertEqual((retained/'input/payload').read_bytes(),self.body)
+ def test_parent_disappears_during_authentication(self):
+  parent=self.path.parent/'input';parent.mkdir();self.path=self.path.rename(parent/'payload');retained=parent.with_name('retained');fired=False
+  def swap():
+   nonlocal fired
+   if not fired:fired=True;parent.rename(retained)
+  with self.assertRaises(FileNotFoundError):payloads.verify_file(str(self.path),self.row,swap)
+  self.assertTrue(fired);self.assertEqual((retained/'payload').read_bytes(),self.body)
  def test_inline_parity(self):
   self.assertEqual(payloads.verify_inline({**self.row,'inlineBase64':base64.b64encode(self.body).decode()}),self.body)
  def test_inline_ambiguity(self):
