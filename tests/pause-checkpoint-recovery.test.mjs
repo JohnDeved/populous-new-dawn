@@ -271,8 +271,15 @@ test('recovery startup waits through delayed, hidden and disabled public Skip co
 test('recovery scenario awaits actionable startup and uses public click before unlocked-input assertion', () => {
   const source = readFileSync(new URL('../scripts/local-render/original-pause-checkpoint-recovery.mjs', import.meta.url), 'utf8')
   const entry = source.slice(source.indexOf('  async function enterMission'), source.indexOf('  async function openFailedLoad'))
-  assert.match(entry, /await page.waitForFunction\(pauseStartupReady\)/)
-  assert.match(entry, /await startup.dispose\(\)/)
+  assert.match(entry, /const action = await waitForPauseStartup\(page\)/)
+  const helper = source.slice(source.indexOf('export async function waitForPauseStartup('),
+    source.indexOf('// The introduction may finish'))
+  assert.match(helper, /const deadlineAt = Date.now\(\) \+ 25000/)
+  assert.match(helper, /await page.waitForFunction\(pauseStartupReady, undefined, \{ timeout: remaining\(\) \}\)/)
+  assert.match(helper, /for \(const handle of \[startup, resume, owner\]\)/)
+  assert.match(helper, /await handle.dispose\(\)/)
+  assert.match(helper, /finally \{/)
+  assert.doesNotMatch(helper, /force: true|store\.change|\.paused\s*=/)
   assert.match(entry, /if \(action === 'skip'\) await skipPauseIntroduction\(page\)/)
   assert.ok(entry.indexOf("if (action === 'skip')") < entry.indexOf('await page.waitForFunction(() => !window.testStore.getWorld().inputMask)'))
   assert.doesNotMatch(entry, /skip\.isVisible|waitForTimeout|skipIntroduction\(|store\.change|\.inputMask\s*=/)

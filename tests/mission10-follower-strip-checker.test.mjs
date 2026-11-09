@@ -1,5 +1,6 @@
 // This validates the public-input witness's assertions, not browser/game behavior.
 import test from 'node:test'
+import { runInNewContext } from 'node:vm'
 import assert from 'node:assert/strict'
 import { checkMission10FollowerStrip } from '../scripts/local-render/mission10-boat-checkpoint.mjs'
 
@@ -8,9 +9,9 @@ import { mission10QueryFixture } from './support/mission10-profile-receipt.mjs'
 
 const party = [63, 111, 112, 113, 114]
 function fixture(occupied, fault) {
-  const calls = [], observations = []
+  const calls = [], observations = [], ownership = []
   const live = {
-    paused: false, turn: 500, selected: [...party], orders: { next: 3 }, randomState: 19,
+    paused: false, status: 'playing', turn: 500, selected: [...party], orders: { next: 3 }, randomState: 19,
     boat: { id: 62, passengers: occupied ? [...party] : [] },
     party: party.map(id => ({ id, hp: 100, vehicle: occupied ? 62 : 0 })),
   }
@@ -21,9 +22,28 @@ function fixture(occupied, fault) {
     people: query.people.map(([id, model, x, y, priority, flags4, vehicle]) => ({ id, model, team: 'blue', hp: 100,
       x, y, assignment: priority << 12, flags4, vehicle, owners: { native: null, flight: null, fight: null, entry: null, builder: null, route: null },
       ownerAliases: { native: null, flight: null, fight: null, entry: null, builder: null, route: null } })) })
+  // Supplied no-open-message DOM. The actual shared public-owner helper runs;
+  // only browser transport and DOM are supplied, not its sequencing or checks.
+  const window = { testStore: { getWorld: () => live }, testSceneRef: { current: { world: live } } }
+  const document = { activeElement: null, querySelectorAll: selector => {
+    assert.equal(selector, '.campaign-messages details[open]'); return []
+  } }
+  const evaluate = (callback, value) => runInNewContext(`(${callback.toString()})(value)`,
+    { window, document, value })
   return {
-    live, calls, observations,
+    live, calls, observations, ownership,
     page: {
+      evaluateHandle: async callback => {
+        assert.equal(evaluate(callback), live); ownership.push('retain-world')
+        return { evaluate: async callback => evaluate(callback, live),
+          dispose: async () => ownership.push('dispose-world') }
+      },
+      evaluate: async callback => evaluate(callback),
+      locator: selector => {
+        assert.equal(selector, '.campaign-messages details[open]')
+        return { elementHandles: async () => { ownership.push('observe-no-open'); return [] },
+          count: async () => 0 }
+      },
       keyboard: { press: async key => {
         assert.equal(key, 'Escape'); calls.push(['key', key]); live.selected = []
       } },
@@ -77,4 +97,16 @@ test('M10 witness requires real occupancy and leaves an already paused scenario 
   await checkMission10FollowerStrip({ ...f, phase: 'loaded', occupied: true })
   assert.equal(f.live.paused, true)
   assert.ok(f.calls.every(call => call[0] !== 'pause' && call[0] !== 'resume'))
+})
+
+
+test('M10 strip executes the real owner precondition with a supplied empty message DOM', async () => {
+  const f = fixture(true), observations = []
+  await checkMission10FollowerStrip({ ...f, phase: 'loaded', occupied: true,
+    deadlineAt: Date.now() + 25000, observeKeyboard: value => observations.push(value) })
+  assert.deepEqual(f.ownership, ['retain-world', 'observe-no-open', 'dispose-world'])
+  assert.deepEqual(observations.map(value => value.phase), ['before-public-collapse', 'after-public-collapse'])
+  assert.ok(observations.every(value => value.stripPhase === 'loaded'))
+  assert.ok(observations.every(value => value.paused && value.openMessageSerials.length === 0))
+  assert.equal(f.live.paused, false)
 })

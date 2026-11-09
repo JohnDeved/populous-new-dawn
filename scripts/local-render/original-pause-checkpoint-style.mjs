@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
-import { pauseStartupReady, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
+import { waitForPauseStartup, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
 
 // A presentation-only supplement to the durable/retry/save-failure scenarios.
 // Storage is deliberately unavailable before startup, producing the real store's
@@ -41,9 +41,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       await bindGame(page)
       const desktop = page.getByRole('button', { name: 'Continue anyway', exact: false })
       if (await desktop.isVisible()) await desktop.click()
-      const startup = await page.waitForFunction(pauseStartupReady)
-      const action = await startup.jsonValue()
-      await startup.dispose()
+      const action = await waitForPauseStartup(page)
       if (action === 'skip') await skipPauseIntroduction(page)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'unavailable')

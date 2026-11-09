@@ -58,7 +58,10 @@ test('route retains public gameplay setup, trusted witness and original globe co
 
 test('same runner deadline and owned cleanup apply; failure remains failure', () => {
   assert.match(runner, /setTimeout\(\(\) => \{ receipt.browserTimedOut = true; abort.abort\(new Error\('Browser deadline exceeded'\)\); void browser.close\(\) \}, receipt.browserCapMs\)/)
-  assert.match(runner, /await context\?\.close\(\); await browser\?\.close\(\); await server\?\.close\(\)/)
+  assert.match(runner, /\['context', \(\) => context\?\.close\(\)\],\s*\['browser', \(\) => browser\?\.close\(\)\],\s*\['server', \(\) => server\?\.close\(\)\]/)
+  assert.match(runner, /try \{ await close\(\) \} catch \(error\) \{ cleanupErrors\.push\(\{ owner, error: failureMessage\(error\) \}\) \}/)
+  assert.match(runner, /receipt\.cleanupVerified = cleanupErrors\.length === 0/)
+  assert.match(runner, /if \(!receipt\.cleanupVerified\) \{\s*receipt\.cleanupError = cleanupErrors\[0\]\.error\s*receipt\.cleanupErrors = cleanupErrors\s*receipt\.status = 'failed'; process\.exitCode = 1/)
   assert.match(route, /report.status = 'failed'/)
   assert.match(route, /throw error/)
   assert.match(route, /finally \{/)

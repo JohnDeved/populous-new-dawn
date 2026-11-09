@@ -1,5 +1,5 @@
 import { templeArt } from './temple-art.ts'
-import towerArt from './original-tower-acquisition.json'
+import towerArt from './original-tower-acquisition.json' with { type: 'json' }
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'

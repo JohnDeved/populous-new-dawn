@@ -236,7 +236,11 @@ export function createBrowserHelpArticleOwner(scene: SceneOwner, shell: HTMLElem
               width: frame.width * frame.scale, height: frame.height * frame.scale })) {
           throw new Error('help-article-placement-mismatch')
         }
-        slot.append(preview.personCanvas, preview.vehicleCanvas)
+        const canvases = slot.ownerDocument.createDocumentFragment()
+        canvases.appendChild(preview.personCanvas)
+        canvases.appendChild(preview.vehicleCanvas)
+        if (!isCurrent(presentation)) return { status: 'stale' as const }
+        slot.appendChild(canvases)
         return { status: 'attached' as const }
       } catch (error) {
         invalidate(error instanceof Error ? error.message : 'help-article-attachment-failed')

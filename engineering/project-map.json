@@ -190,7 +190,10 @@
           "symbol": "createHelpSession"
         }
       ],
-      "parityIds": [],
+      "parityIds": [
+        "interface.commands.input-ownership",
+        "interface.menus"
+      ],
       "evidence": [
         {
           "path": "decomp/research/native-help/README.md",
@@ -220,6 +223,7 @@
         "Preserve current texture-settlement revisions, Query artwork, Scene context retirement and current checkpoint ownership."
       ],
       "unresolved": [
+        "Parity links identify existing unfinished modal-input and menu obligations; they grant no verification credit for staged Query, article rendering or Help activation.",
         "Current-main composition is source-only; focused/type/quality/build/full CI and public-flow rendered evidence remain pending.",
         "Complete topic/discovery/preview and input/render-clock ownership before activation.",
         "Article-link/unavailable-link interaction and real cache failure/retry still need their declared browser checks."

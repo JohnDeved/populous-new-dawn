@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { collapseObservedCampaignMessages } from '../public-keyboard-owner.mjs'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readMission10Observation } from '../tutorial-browser/mission10-input.mjs'
@@ -13,9 +14,13 @@ const boatId = 62
 
 // Executed only after this scenario has observed genuine boarding/restoration or
 // completed public unload. The helper never creates people or edits live World.
-export async function checkMission10FollowerStrip({ page, input, state, phase, occupied }) {
+export async function checkMission10FollowerStrip({ page, input, state, phase, occupied, deadlineAt = null, observeKeyboard = () => {} }) {
   const entering = await state(`${phase}-before-strip`)
   if (!entering.paused) await input.pause()
+  await input.action(`${phase} public keyboard-owner setup`, () => collapseObservedCampaignMessages(page, {
+    remainingMs: () => deadlineAt === null ? 25000 : deadlineAt - Date.now(),
+    observe: observation => observeKeyboard({ stripPhase: phase, ...observation }),
+  }))
   const before = await state(`${phase}-strip-paused`)
   assert.equal(before.paused, true)
   assert.ok(before.party.every(person => person && person.hp > 0))
@@ -66,6 +71,9 @@ export default async function ({ page, openMission, output, receipt, observeChec
     const row = await readMission10Observation(page, { label, party, boatId })
     report.observations.push(row); save(); return row
   }
+  const observeKeyboard = observation => {
+    (report.keyboardOwnership ??= []).push(observation); save()
+  }
   const input = createInput({ page, signal, report, save, originalShamanId: 63, deadlineAt })
   const boatPoint = () => findBoatPoint ? findBoatPoint(page, boatId) : page.evaluate(async id => {
     const s = window.testSceneRef.current, v = s.world.vehicles.find(v => v.id === id)
@@ -106,7 +114,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await input.action('ordinary Boat boarding click', () => page.mouse.click(hit.x, hit.y))
       await page.waitForFunction(({ party, boatId }) => { const w = window.testSceneRef.current.world, v = w.vehicles.find(v => v.id === boatId); return party.every(id => v.passengers.includes(id) && w.units.find(u => u.id === id)?.native?.vehicle === boatId) }, { party, boatId }, { timeout: 60000 })
       await state('boarded'); await capture('boarded')
-      report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true })); save()
+      report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true, deadlineAt, observeKeyboard })); save()
       await capture('boarded-class-selected')
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]'); await menu.waitFor({ state: 'visible' })
@@ -148,7 +156,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await page.waitForFunction(turn => window.testSceneRef.current.world.turn > turn, saved.turn)
     await input.view({ x: 27, z: -27 })
     await capture('restored-occupied-boat')
-    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'loaded', occupied: true })); save()
+    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'loaded', occupied: true, deadlineAt, observeKeyboard })); save()
     await capture('loaded-class-selected')
     await page.keyboard.press('Escape')
     assert.deepEqual(await page.evaluate(() => window.testSceneRef.current.world.selected), [])
@@ -160,7 +168,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await input.action('public Unload all passengers', () => unload.click())
     await page.waitForFunction(({ party, boatId }) => { const w=window.testSceneRef.current.world, v=w.vehicles.find(v=>v.id===boatId); return !v.passengers.some(Boolean) && party.every(id=>{const u=w.units.find(u=>u.id===id);return u&&u.hp>0&&u.native&&!u.native.vehicle&&!(u.native.flags2&0x80000)&&!(u.native.flags4&0x400)}) }, { party, boatId }, { timeout: 60000 })
     report.landed = await state('unloaded-alive'); await capture('unloaded-alive')
-    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'unloaded', occupied: false })); save()
+    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'unloaded', occupied: false, deadlineAt, observeKeyboard })); save()
     await capture('unloaded-class-selected')
     report.loaded = loaded; report.saved = saved
     const stored = await observeCheckpoint('After genuine Load and unload')

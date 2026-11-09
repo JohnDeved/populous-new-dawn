@@ -10,7 +10,8 @@ function keyboard(overrides = {}) {
   const world = createWorld(1), listeners = new Map(), tabs = []
   world.inputMask = 0 // Ordinary play after the authored introduction.
   const bindings = {
-    world, ready: true, menu: false, cheatsOpen: false, SPELLS, spellHudVisibility,
+    world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
+    messageDetails: { current: new Map() }, SPELLS, spellHudVisibility,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn),
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
@@ -97,4 +98,24 @@ test('Space still pauses once per press, and continuous focus routing is unchang
   assert.equal(k.world.paused, !paused)
   for (const repeat of [false, true]) k.key({ key: 'f', code: 'KeyF', repeat })
   assert.equal(focuses, 2)
+})
+
+
+test('an open campaign message owns gameplay shortcuts until its exact details closes', () => {
+  const details = { open: true }, messageDetails = { current: new Map([[57, details]]) }
+  const k = keyboard({ messageDetails })
+  const before = structuredClone(k.world)
+  for (const [key, code] of [['1', 'Digit1'], [' ', 'Space'], ['h', 'KeyH'], ['Escape', 'Escape']]) {
+    for (const repeat of [false, true]) k.key({ key, code, repeat,
+      preventDefault: () => assert.fail('Open message retains keyboard ownership'),
+      stopImmediatePropagation: () => assert.fail('Open message retains propagation') })
+    assert.deepEqual(k.world, before)
+    assert.deepEqual(k.tabs, [])
+  }
+  details.open = false
+  k.key()
+  assert.equal(k.world.mode, 'blast')
+  assert.deepEqual(k.tabs, ['spells'])
+  k.cleanup()
+  assert.equal(k.listeners.size, 0)
 })

@@ -2,16 +2,14 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
+import { pageEffect } from './support/follower-nearby-page.mjs'
 
 // Execute the shipped Page listener and camera entry/exit functions. Scene
 // preparation and completed-transition boundaries are supplied explicitly.
 // This does not mount Home, dispatch trusted keys, or render a globe transition.
-const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
 const camera = readFileSync(new URL('../app/scene-camera-runtime.ts', import.meta.url), 'utf8')
 const sceneSource = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
-const effects = [...page.matchAll(/ {2}useEffect\((\(\) => \{\n {4}const key = \(e: KeyboardEvent\) => \{[^]*?\n {2}\}), \[world, update, store, ready, openMenu, menu, cheatsOpen\]\)/g)]
-assert.equal(effects.length, 1, 'one actual Page keyboard owner')
-const effect = stripTypeScriptTypes(effects[0][1])
+// pageEffect requires exactly one AST owner and evaluates its complete callback.
 const declaration = name => {
   const matches = [...camera.matchAll(new RegExp('^export function ' + name + '\\([^]*?^}', 'gm'))]
   assert.equal(matches.length, 1, 'one actual camera function ' + name)
@@ -30,7 +28,7 @@ function fixture(overrides = {}) {
   const listeners = new Map(), starts = [], morphs = [], tabs = []
   let captures = 0, focuses = 0, prevented = 0, updates = 0
   const world = { inputMask: 0, mode: null, paused: false, units: [], selected: [],
-    flyby: { flags: 0 }, outcome: { level: 1 } }
+    flyby: { flags: 0 }, outcome: { level: 1 }, status: 'playing' }
   const functions = new Function('beginGlobeMorph', cameraFunctions + '\nreturn { overview, leaveOverview }')(
     (state, entering) => { morphs.push(entering); state.active = true }
   )
@@ -49,7 +47,8 @@ function fixture(overrides = {}) {
     skipIntroduction: noOp,
   })
   const bindings = {
-    world, ready: true, menu: false, cheatsOpen: false,
+    world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
+    messageDetails: { current: new Map() },
     SPELLS: [{ id: 'blast', key: '1' }], spellHudVisibility: () => 'visible',
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => {
@@ -63,9 +62,7 @@ function fixture(overrides = {}) {
     HOME: {}, tutorialLevel: 79, rotateBuildingPlan: () => false,
     ...overrides,
   }
-  const cleanup = new Function(...Object.keys(bindings), 'return (' + effect + ')')(
-    ...Object.values(bindings)
-  )()
+  const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
   return {
     scene, world, starts, morphs, tabs, listeners, cleanup,
     press(extra = {}, target = 'body') {
@@ -173,4 +170,25 @@ test('Space and spell toggles stay single-press; continuous focus stays repeatab
   assert.deepEqual(f.tabs, ['spells'])
   for (const repeat of [false, true]) f.press({ key: 'f', code: 'KeyF', repeat })
   assert.equal(f.counts().focuses, 2)
+})
+
+
+test('open campaign details refuse overview, spells, pause and Escape before any gameplay action', () => {
+  const details = { open: true }, messageDetails = { current: new Map([[57, details]]) }
+  const f = fixture({ messageDetails })
+  const before = structuredClone(f.world)
+  for (const [key, code] of [['Enter', 'Enter'], ['1', 'Digit1'], [' ', 'Space'], ['Escape', 'Escape']])
+    for (const repeat of [false, true]) f.press({ key, code, repeat,
+      stopImmediatePropagation: () => assert.fail('Message-owned Escape must not be consumed') })
+  assert.deepEqual(f.world, before)
+  assert.deepEqual(f.starts, [])
+  assert.deepEqual(f.morphs, [])
+  assert.deepEqual(f.tabs, [])
+  assert.deepEqual(f.counts(), { captures: 0, focuses: 0, prevented: 0, updates: 0 })
+  details.open = false
+  f.press()
+  assert.equal(f.scene.overviewStage, 'enter')
+  assert.deepEqual(f.starts, [[4, 0]])
+  f.cleanup()
+  assert.equal(f.listeners.size, 0)
 })

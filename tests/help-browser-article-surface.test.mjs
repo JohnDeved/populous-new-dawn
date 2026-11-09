@@ -50,9 +50,22 @@ test('actual production attachment effect reports placement/append failure and p
     assert.equal(state.status, 'presented')
     const error = new Error('original append error'), failures = []
     let appendCalls = 0
+    const fragments = []
+    f.shell.ownerDocument.createDocumentFragment = () => {
+      const fragment = { childNodes: [], appendChild(node) {
+        fragment.childNodes.push(node)
+        return node
+      } }
+      fragments.push(fragment)
+      return fragment
+    }
     const slot = { isConnected: true, ownerDocument: f.shell.ownerDocument,
       getBoundingClientRect: () => state.snapshot.frame.shell,
-      append() { appendCalls++; throw error } }
+      appendChild(fragment) {
+        appendCalls++
+        assert.equal(fragment, fragments[0])
+        throw error
+      } }
     const surface = { isConnected: true, ownerDocument: f.shell.ownerDocument,
       parentElement: kind === 'placement' ? {} : f.shell,
       contains: node => node === slot, getBoundingClientRect: () => state.snapshot.frame.shell }
@@ -70,6 +83,12 @@ test('actual production attachment effect reports placement/append failure and p
     if (kind === 'append') assert.equal(failures[0], error)
     else assert.equal(failures[0].message, 'help-article-placement-mismatch')
     assert.equal(appendCalls, kind === 'placement' ? 0 : 1)
+    assert.equal(fragments.length, kind === 'placement' ? 0 : 1)
+    if (kind === 'append') {
+      assert.equal(fragments[0].childNodes.length, 2)
+      assert.equal(fragments[0].childNodes[0], owner.personCanvas)
+      assert.equal(fragments[0].childNodes[1], owner.vehicleCanvas)
+    }
     assert.equal(owner.getSnapshot().reason, 'help-article-disposed')
     unmount(); await Promise.resolve()
     hookBoundary.refs = []; hookBoundary.effects = []

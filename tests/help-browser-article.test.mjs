@@ -190,18 +190,51 @@ test('composition remains unreachable from live Home/Scene and introduces no tim
 })
 
 
+// A small DOM transfer boundary, not browser rendering evidence. The actual
+// maintained article owner builds and attaches its own two canvas objects.
+function attachmentTarget(f, state, hooks = {}) {
+  const fragments = [], appended = [], parents = new Map()
+  const move = (parent, node) => {
+    const previous = parents.get(node)
+    if (previous) previous.childNodes.splice(previous.childNodes.indexOf(node), 1)
+    parent.childNodes.push(node)
+    parents.set(node, parent)
+    return node
+  }
+  f.shell.ownerDocument.createDocumentFragment = () => {
+    const fragment = { childNodes: [], appendChild(node) {
+      hooks.stage?.(node, fragment)
+      return move(fragment, node)
+    } }
+    fragments.push(fragment)
+    return fragment
+  }
+  const slot = { isConnected: true, ownerDocument: f.shell.ownerDocument, childNodes: [],
+    getBoundingClientRect: () => ({ x: state().snapshot.frame.shell.x, y: state().snapshot.frame.shell.y,
+      width: state().snapshot.frame.width * state().snapshot.frame.scale,
+      height: state().snapshot.frame.height * state().snapshot.frame.scale }),
+    appendChild(fragment) {
+      assert.ok(fragments.includes(fragment), 'Mount only the fragment created by this document')
+      hooks.mount?.(fragment)
+      const nodes = [...fragment.childNodes]
+      for (const node of nodes) move(slot, node)
+      appended.push(nodes)
+      return fragment
+    } }
+  const surface = { isConnected: true, parentElement: f.shell, ownerDocument: f.shell.ownerDocument,
+    contains: node => node === slot, getBoundingClientRect: () => state().snapshot.frame.shell }
+  return { slot, surface, fragments, appended }
+}
+
 test('attachment requires the exact shell and a genuinely full-frame slot before mounting either canvas', async t => {
   const f = fixture(t, { scale: 1.3, width: 913, height: 701 }), owner = f.create()
-  let state = await ready(owner), appended = []
-  const slot = { isConnected: true, ownerDocument: f.shell.ownerDocument,
-    getBoundingClientRect: () => ({ x: state.snapshot.frame.shell.x, y: state.snapshot.frame.shell.y,
-      width: state.snapshot.frame.width * state.snapshot.frame.scale,
-      height: state.snapshot.frame.height * state.snapshot.frame.scale }),
-    append: (...nodes) => { appended.push(nodes) } }
-  const surface = { isConnected: true, parentElement: f.shell, ownerDocument: f.shell.ownerDocument,
-    contains: node => node === slot, getBoundingClientRect: () => state.snapshot.frame.shell }
+  let state = await ready(owner)
+  const { slot, surface, fragments, appended } = attachmentTarget(f, () => state)
   assert.equal(owner.attach(state, surface, slot).status, 'attached')
   assert.deepEqual(appended, [[owner.personCanvas, owner.vehicleCanvas]])
+  assert.deepEqual(slot.childNodes, [owner.personCanvas, owner.vehicleCanvas])
+  assert.equal(fragments.length, 1)
+  assert.deepEqual(fragments[0].childNodes, [])
   for (const change of [() => { surface.parentElement = {} },
     () => { surface.isConnected = false },
     () => { slot.isConnected = false },
@@ -219,5 +252,66 @@ test('attachment requires the exact shell and a genuinely full-frame slot before
     assert.equal(owner.attach(state, surface, slot).status, 'failed')
     assert.equal(owner.getSnapshot().reason, 'help-article-placement-mismatch')
     assert.equal(appended.length, 1)
+    assert.equal(fragments.length, 1, 'Invalid placement must not stage or move either canvas')
   }
+})
+
+
+test('fragment staging and mount failures preserve the original error and allow exact-node reentry', async t => {
+  for (const phase of ['second-canvas', 'slot']) await t.test(phase, async t => {
+    const f = fixture(t), owner = f.create(), failure = Error(`Injected ${phase} attachment failure`)
+    let state = await ready(owner), fail = true
+    const target = attachmentTarget(f, () => state, {
+      stage(node) { if (fail && phase === 'second-canvas' && node === owner.vehicleCanvas) throw failure },
+      mount() { if (fail && phase === 'slot') throw failure },
+    })
+    const failed = owner.attach(state, target.surface, target.slot)
+    assert.equal(failed.status, 'failed')
+    assert.equal(failed.error, failure)
+    assert.equal(owner.getSnapshot().reason, failure.message)
+    assert.deepEqual(target.slot.childNodes, [])
+    assert.deepEqual(target.appended, [])
+    const abandoned = target.fragments[0]
+    assert.deepEqual(abandoned.childNodes, phase === 'slot' ?
+      [owner.personCanvas, owner.vehicleCanvas] : [owner.personCanvas])
+    fail = false
+    state = await ready(owner)
+    assert.equal(owner.attach(state, target.surface, target.slot).status, 'attached')
+    assert.deepEqual(target.slot.childNodes, [owner.personCanvas, owner.vehicleCanvas])
+    assert.deepEqual(abandoned.childNodes, [])
+    assert.deepEqual(target.appended, [[owner.personCanvas, owner.vehicleCanvas]])
+    assert.equal(owner.attach(state, target.surface, target.slot).status, 'attached')
+    assert.deepEqual(target.slot.childNodes, [owner.personCanvas, owner.vehicleCanvas])
+    assert.equal(new Set(target.slot.childNodes).size, 2)
+    owner.dispose()
+    assert.equal(owner.personCanvas.removed, 1)
+    assert.equal(owner.vehicleCanvas.removed, 1)
+  })
+})
+
+test('a changed or disposed owner during staging cannot mount or revive the old presentation', async t => {
+  for (const change of ['world', 'dispose']) await t.test(change, async t => {
+    const f = fixture(t), owner = f.create()
+    const state = await ready(owner)
+    const target = attachmentTarget(f, () => state, { stage(node) {
+      if (node !== owner.vehicleCanvas) return
+      if (change === 'world') f.scene.world = { ...f.scene.world }
+      else owner.dispose()
+    } })
+    assert.equal(owner.attach(state, target.surface, target.slot).status, 'stale')
+    assert.deepEqual(target.appended, [])
+    assert.deepEqual(target.slot.childNodes, [])
+    assert.equal(owner.getSnapshot().status, 'unavailable')
+    assert.equal(owner.attach(state, target.surface, target.slot).status, 'stale')
+    assert.equal((await owner.present(input())).status, 'unavailable')
+    owner.dispose()
+    assert.equal(owner.personCanvas.removed, 1)
+    assert.equal(owner.vehicleCanvas.removed, 1)
+    const next = f.create(), nextState = await ready(next)
+    const fresh = attachmentTarget(f, () => nextState)
+    assert.equal(next.attach(nextState, fresh.surface, fresh.slot).status, 'attached')
+    assert.deepEqual(fresh.slot.childNodes, [next.personCanvas, next.vehicleCanvas])
+    assert.notEqual(next.personCanvas, owner.personCanvas)
+    assert.notEqual(next.vehicleCanvas, owner.vehicleCanvas)
+  })
 })
