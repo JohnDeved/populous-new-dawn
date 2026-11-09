@@ -1,5 +1,5 @@
 import { vehicleOrdinaryVisitDeferred } from './vehicle-allocation.ts'
-import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
+import { fillVehicleDriverSeat, seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
 import {
   teamForTribe,
@@ -64,26 +64,27 @@ export function nearestLiveBoat(
   minimum: number,
   maximum: number
 ) {
-  return w.vehicles
-    .filter(v => {
-      if (
-        !v.active ||
-        v.model !== 1 ||
-        v.passengerCount >= rules.vehicleCapacity[v.model] ||
-        !vehicleReady(w.land, v) ||
-        (w.manaTribes[p.tribe].playerType === 1 && v.reservation)
-      )
-        return false
-      const driver = v.passengerCount && w.pathfinding.people.get(v.passengers[0])
-      if (driver && driver.tribe !== p.tribe) return false
-      const distance = Math.hypot(short(v.x - center.x), short(v.y - center.y))
-      return distance >= minimum && distance < maximum
-    })
-    .sort(
-      (a, b) =>
-        Math.hypot(short(a.x - center.x), short(a.y - center.y)) -
-        Math.hypot(short(b.x - center.x), short(b.y - center.y))
-    )[0]
+  let nearest: Vehicle | undefined,
+    nearestDistance = Infinity
+  for (const v of w.vehicles) {
+    if (
+      !v.active ||
+      v.model !== 1 ||
+      v.passengerCount >= rules.vehicleCapacity[v.model] ||
+      !vehicleReady(w.land, v) ||
+      (w.manaTribes[p.tribe].playerType === 1 && v.reservation)
+    )
+      continue
+    const driver = v.passengerCount && w.pathfinding.people.get(v.passengers[0])
+    if (driver && driver.tribe !== p.tribe) continue
+    const distance = Math.hypot(short(v.x - center.x), short(v.y - center.y))
+    // Strict comparison preserves the first roster entry when distances tie.
+    if (distance >= minimum && distance < maximum && distance < nearestDistance) {
+      nearest = v
+      nearestDistance = distance
+    }
+  }
+  return nearest
 }
 
 export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
@@ -126,8 +127,9 @@ export function leaveLiveVehicle(
   if (slot < 0) return
   v.apparentTribe ??= tribeForTeam(v.team)
   v.team = teamForTribe(p.tribe)
-  v.passengers.splice(slot, 1)
+  v.passengers[slot] = 0
   v.passengerCount = v.passengers.filter(Boolean).length
+  fillVehicleDriverSeat(v)
   if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
   p.flags2 = (p.flags2 & ~0x4000) >>> 0
@@ -144,6 +146,7 @@ export function leaveLiveVehicle(
 
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
   for (const [slot, id] of v.passengers.entries()) {
+    if (id === 0) continue
     const unit = w.units.find(u => u.id === id),
       // Retiring a route removes its map entry, not the seated native owner.
       p = w.pathfinding.people.get(id) ?? unit?.native
@@ -160,8 +163,9 @@ export function removeMissingVehiclePassengers(w: World) {
   for (const vehicle of w.vehicles) {
     // Linked reward templates are detached from ordinary object processing.
     if (!vehicle.active || vehicleOrdinaryVisitDeferred(w, vehicle)) continue
-    vehicle.passengers = vehicle.passengers.filter(id => people.has(id))
-    vehicle.passengerCount = vehicle.passengers.length
+    vehicle.passengers = vehicle.passengers.map(id => people.has(id) ? id : 0)
+    vehicle.passengerCount = vehicle.passengers.filter(Boolean).length
+    fillVehicleDriverSeat(vehicle)
     if (!vehicle.passengerCount) vehicle.speed = -1
   }
 }
@@ -280,13 +284,7 @@ export function selectLiveVehicleDrivers(w: World) {
         v.passengerCount = (v.passengerCount - 1) & 255
       } else if (p.slowTurn) v.navigationFlags |= 2
     }
-    if (!v.passengers[0]) {
-      const slot = v.passengers.findIndex((id, i) => i > 0 && i < capacity && !!id)
-      if (slot !== -1) {
-        v.passengers[0] = v.passengers[slot]
-        v.passengers[slot] = 0
-      }
-    }
+    fillVehicleDriverSeat(v)
     for (let slot = 0; slot < capacity; slot++) {
       const p = person(v.passengers[slot])
       if (!p) continue
