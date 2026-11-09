@@ -187,3 +187,11 @@ can then cover entry failure, GP completion with early CP EOF, restart, key/butt
 down versus release, mode 3 suppression and consumed exit input. No runtime
 acceptance, parity increase, U08 claim, whole-content scope decision or closure
 of issue 16 follows from this static contract.
+
+## Data-only adapter follow-up
+
+The inactive [recording-manifest tool](recording-manifest.md) now authenticates the
+21 known inputs and exposes ordered recording/frame metadata, null source-map
+identity and separate GP/CP completion. It does not execute payloads, run a replay
+state machine, decode a GM save or enable the menu. The source and live-acceptance
+gaps above remain unchanged.
