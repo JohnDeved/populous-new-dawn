@@ -36,7 +36,7 @@ test('actual dispatch binds identity and entered ownership, rejects incomplete s
  for(const error of [null,false,undefined]){let caught=false;await run(assert,async()=>{throw error},receipt,browser,'url','out',src).catch(e=>{caught=true;assert.equal(e,error)});assert.ok(caught)}
 })
 test('actual cleanup never duplicates entered route close and requires route settlement plus bounded server',async()=>{
- const block=between('    receipt.buildingIconRunnerCleanup = {','  } else {\n    try { await context?.close();')
+ const block=between('    receipt.buildingIconRunnerCleanup = {','  } else {\n    const cleanupErrors = []')
  const run=new AsyncFunction('receipt','browser','server','closeOrdinaryPointerSmokeOwner','process',block)
  for(const confirmed of [true,false])for(const settled of [true,false]){
   let bc=0,sc=0;const receipt={status:'passed',buildingIconEntered:true,buildingIcon:{cleanupConfirmed:confirmed,operationSettled:settled}},process={}
@@ -57,7 +57,7 @@ test('separate fixed six-minute workflow preserves default matrix and exact uplo
  assert.match(workflow,/metadata <= 8 \* MiB && total <= 24 \* MiB/)
  assert.match(workflow,/screenshots <= 8/);assert.match(workflow,/stat.isFile\(\) && !stat.isSymbolicLink\(\)/)
  assert.match(workflow,/steps.icon-bounds.outcome == 'success'/)
- assert.equal((normal.match(/^          - scenario:/gm)||[]).length,10);assert.ok(!normal.includes('building-icon-evidence'))
+ assert.equal((normal.match(/^          - scenario:/gm)||[]).length,11);assert.ok(!normal.includes('building-icon-evidence'))
 })
 test('actual workflow bounder rejects oversize, extra screenshots, unknown files and symlinks without large allocation',async()=>{
  const {runInNewContext}=await import('node:vm')

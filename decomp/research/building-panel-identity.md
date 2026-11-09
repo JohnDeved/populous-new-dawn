@@ -83,3 +83,26 @@ partial work, living occupant release, completion and timber recovery are requir
 Four hashed screenshots and an error/cleanup receipt accompany a successful run.
 This admission is source-tested only until the exact hosted candidate passes; it
 does not yet establish rendered behavior, native pixels or ordinary acquisition.
+
+### Current finite episode budget after the composed UI regression
+
+The preceding admission describes the original source stage. The current Building
+identity guard is one nonresetting 45-second body timeout, inside the existing
+240-second Tutorial browser aggregate and unchanged 15-minute hosted job ceiling.
+It is hang headroom, not a gameplay latency, renderer-speed or performance target.
+All four pointer/focus × ownership/visibility controls, seven captures, real
+worker completion, living-worker/timber assertions and context cleanup remain.
+
+With identical episode, fixture and application source, the Building episode
+completed in 23.475 seconds in [run 42669346015](https://github.com/JohnDeved/populous-new-dawn/actions/runs/42669346015)
+and 33.894 seconds in [run 42673134483](https://github.com/JohnDeved/populous-new-dawn/actions/runs/42673134483).
+In [run 42676925396](https://github.com/JohnDeved/populous-new-dawn/actions/runs/42676925396),
+it began dismantling at 33.389 seconds and exhausted the former 35-second guard
+after the intended partial batch, before completion was called. That failure is
+retained, not relabeled as a pass or a gameplay defect. Ten additional seconds
+provide one existing action-timeout quantum of finite headroom; no per-action
+limit, aggregate cap, assertion, capture or gameplay work is removed or extended.
+The two successful episodes do not make their overall bundles successful. Their
+host processors and installed dependency metadata differ, so these are not a
+controlled performance measurement or a guarantee that the new candidate passes.
+Actual current hosted gates remain required; timer tests use supplied contexts.

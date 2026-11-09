@@ -1,5 +1,10 @@
 # Static decompilation workspace
 
+[Native Query and Encyclopaedia](research/native-help/README.md) records the
+inactive article, discovery, preview and input staging. The current-main
+composition preserves live Menu/Query behavior; source assembly does not establish
+public entry, native fidelity or rendered acceptance.
+
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved
@@ -8,6 +13,9 @@ death/building/reward/final-snapshot leaves. Static research only; UI rows remai
 > Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/decomp), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
 
 This is part of the full-parity goal, not a separate experiment. It records the original routines used to reconstruct browser behavior. `generated/*.c` is Ghidra pseudocode, **not recovered, compilable Bullfrog source**. Names/types can come from community annotations or inference; generated control flow still needs review against instructions and runtime observations.
+
+[Swamp presentation](research/swamp-presentation.md) traces the original nine terrain
+sprites, five variant-positioned plants, independent animation clock and painter.
 
 ## Building-completion feedback ownership
 
@@ -4943,6 +4951,10 @@ result does not justify a separate TS classifier. Run
 `python scripts/check-native-hud-selection.py EXE [--record]` for complete native
 selection/focus and actual callback comparisons. Vehicles, category ownership and
 priority-field lifecycle writers remain open.
+
+The [Shaman portrait binding](research/shaman-portrait.md) confirms the separate
+model7 descriptor's exact PE bytes, left selection/right focus callbacks and
+bounded mounted integration. It retains native shared-ring/death-timing limits.
 
 ## 2026-09-11 — mixed painter hit ownership
 

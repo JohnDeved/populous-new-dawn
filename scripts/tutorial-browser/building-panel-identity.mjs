@@ -7,7 +7,10 @@ import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
 import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
 
-export const buildingPanelIdentityLimitMs = 35000
+// Finite episode liveness headroom, not a gameplay or performance threshold.
+// Includes public startup, four held-owner cases and all seven captures; the
+// enclosing Tutorial browser still has its unchanged 240-second total cap.
+export const buildingPanelIdentityLimitMs = 45000
 
 export function assertReplacement(report) {
   assert.equal(report.oldHp, 0)
@@ -50,7 +53,7 @@ export async function finishBuildingPanelIdentity(outcome) {
     failures.push(error)
   }
   if (report.timedOut)
-    failures.push(Error('Building identity episode exceeded its 35-second bound'))
+    failures.push(Error('Building identity episode exceeded its 45-second bound'))
   if (report.errors.length) failures.push(Error(`Runtime errors: ${JSON.stringify(report.errors)}`))
   report.status = failures.length ? 'failed' : 'passed'
   report.failures = failures.map(error => ({ message: String(error), stack: error?.stack }))

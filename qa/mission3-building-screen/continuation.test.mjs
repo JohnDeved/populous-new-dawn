@@ -268,7 +268,7 @@ test('actual continuation route skips startup/acquisition and enters its guarded
     ),
     /existing construction tail reached/
   )
-  assert.ok(events.indexOf('genuine restore') < events.indexOf('Select and focus shaman'))
+  assert.ok(events.indexOf('genuine restore') < events.indexOf('Select shaman'))
   assert.ok(events.indexOf('home-perimeter view') < events.indexOf('home-perimeter move'))
   assert.ok(events.includes('route closed'))
   assert.ok(!events.includes('Save checkpoint'))

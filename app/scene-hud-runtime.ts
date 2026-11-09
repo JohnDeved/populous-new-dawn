@@ -47,7 +47,7 @@ export function updateHudFrame(scene: GameScene, now: number, dt: number) {
     '--population-full-color',
     nativeHud.colors[populationMeter(1, 1, scene.gameClock.animationFrame).color]
   )
-  const shaman = scene.world.units.find(u => u.team === 'blue' && isShaman(u))
+  const shaman = scene.world.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
   const portraitMesh = shaman && scene.unitMeshes.get(shaman.id)
   drawPortrait(
     scene.portrait,

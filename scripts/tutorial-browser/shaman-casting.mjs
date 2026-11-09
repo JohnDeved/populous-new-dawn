@@ -22,7 +22,9 @@ export async function beginOrdinaryCastingWitness(page) {
       !p.vehicle && !(p.flags2 & 0x100000) && !(p.flags4 & 128) && order?.model !== 18
   })
   await button('Pause game').click()
-  await button('Select and focus shaman').click()
+  // Selection and camera focus are separate public portrait actions.
+  await button('Select shaman').click()
+  await button('Select shaman').click({ button: 'right' })
   await page.waitForFunction(() => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
     return s.world.selected.includes(u.id) && !s.cameraMotion.active && !s.viewTransition && !s.resultCamera.active
@@ -73,15 +75,18 @@ export async function prepareCastingF9(page, report, before, deadline) {
   const token = randomUUID(), binding = `shamanCastingFirstRender_${token.replaceAll('-', '')}`,
     frame = page.mainFrame(), timing = report.castingNotification = { clock: 'host.performance.now', token,
       armedAt: performance.now(), receivedAt: null, clickCompletedAt: null, dispatchAt: null, closedAt: null }
-  let active = true, clickStarted = false, clicked = false, received = null, dispatched = false, failure = null,
+  let active = true, clickStarted = false, clicked = false, received = null, dispatched = false, failed = false, failure,
     bindingHandle, subscription, subscriptionAttempted = false, closePromise, resolve, reject
   const done = new Promise((yes, no) => { resolve = yes; reject = no })
   // A click may still be pending when the page rejects this observation.
   void done.catch(() => {})
   const cancel = error => {
     if (timing.closedAt !== null) return
-    failure ??= error
-    timing.failure ??= String(error)
+    if (!failed) {
+      failed = true
+      failure = error
+      timing.failure = String(error)
+    }
     timing.cancelledAt ??= performance.now()
     active = false
     reject(failure)
@@ -126,7 +131,7 @@ export async function prepareCastingF9(page, report, before, deadline) {
   const close = () => closePromise ??= (async () => {
     active = false
     // No late callback may dispatch while protocol cleanup is in flight.
-    reject(failure ?? Error('Casting F9 notification disarmed'))
+    reject(failed ? failure : Error('Casting F9 notification disarmed'))
     try {
       if (subscriptionAttempted && !page.isClosed())
         await page.evaluate(token => window.shamanCastingObserver.disarmFirstRunningCast(token), token)
@@ -136,7 +141,7 @@ export async function prepareCastingF9(page, report, before, deadline) {
       page.off('close', closed); page.off('framenavigated', navigated)
       timing.closedAt = performance.now()
     }
-    if (failure) throw failure
+    if (failed) throw failure
   })()
   try {
     bindingHandle = await page.exposeBinding(binding, receive)

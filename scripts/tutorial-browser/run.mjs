@@ -18,6 +18,30 @@ import { runProfileEpisode } from './profile-episodes.mjs'
 import { closeCompletedPrimaryTutorial } from './primary-tutorial-lifecycle.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
+
+function failureMessage(value) {
+  try { return String(value) } catch { return '[Unprintable thrown value]' }
+}
+
+function failureSnapshot(error) {
+  const result = { failure: failureMessage(error) }
+  try {
+    const stack = error?.stack
+    if (typeof stack === 'string') result.stack = stack
+  } catch { /* Diagnostics must not interrupt owner cleanup. */ }
+  try {
+    if (error?.code === 'SNAPSHOT_EPISODE_TIMEOUT') result.browserTimedOut = true
+  } catch { /* The rejection is already a failure, even without readable metadata. */ }
+  try {
+    if (error instanceof AggregateError) {
+      const causes = error.errors
+      if (Array.isArray(causes)) result.failureCauses = Array.from(causes, failureMessage)
+      else result.failureCausesUnavailable = true
+    }
+  } catch { result.failureCausesUnavailable = true }
+  return result
+}
+
 // Keep the admission token in the owner only, never in build/Chrome descendant environments.
 const calibrationCommentEnvironment = process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-calibration' &&
   process.env.GITHUB_EVENT_NAME === 'issue_comment' ? {...process.env} : null
@@ -39,6 +63,7 @@ const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/buildin
 const buildingEdgesScenario = resolve(root, 'scripts/tutorial-browser/building-panel-edges.mjs')
 const spellIconScenario = resolve(root, 'scripts/tutorial-browser/spell-icon-states.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
+const pauseStyleScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-style.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const tornadoScenario = resolve(root, 'scripts/check-browser-tornado-appearance.mjs')
@@ -138,6 +163,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
     merge: process.env.GITHUB_SHA ?? null, runId: process.env.GITHUB_RUN_ID ?? null,
     runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null, runnerImage: process.env.ImageOS ?? null,
     runnerImageVersion: process.env.ImageVersion ?? null },
+  pauseStyleScenarioSha256: hash(pauseStyleScenario),
   frontendEscapeScenarioSha256: hash(frontendEscapeScenario),
   recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
   campaignMessageOwnershipSha256: hash(resolve(root, 'scripts/tutorial-browser/campaign-message-ownership.mjs')),
@@ -337,6 +363,8 @@ try {
     receipt.campaignMessageOwnership = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, campaignCallbacks: true })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
+  } else if (selectedScenario === 'pause-checkpoint-style') {
+    receipt.pauseCheckpointStyle = await (await import(pathToFileURL(pauseStyleScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
     receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
@@ -379,11 +407,10 @@ try {
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
 } catch (error) {
-  if (error?.code === 'SNAPSHOT_EPISODE_TIMEOUT') receipt.browserTimedOut = true
-  receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error?.stack; process.exitCode = 1
-  if (error instanceof AggregateError) receipt.failureCauses = error.errors.map(cause => String(cause))
+  receipt.status = 'failed'; process.exitCode = 1
+  Object.assign(receipt, failureSnapshot(error))
   if (page) {
-    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
+    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = failureMessage(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
@@ -439,18 +466,31 @@ try {
     receipt.cleanupVerified = receipt.buildingIconRunnerCleanup.routeConfirmed && receipt.buildingIconRunnerCleanup.browser.confirmed && receipt.buildingIconRunnerCleanup.server.confirmed
     if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
   } else {
-    try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+    const cleanupErrors = []
+    for (const [owner, close] of [
+      ['context', () => context?.close()],
+      ['browser', () => browser?.close()],
+      ['server', () => server?.close()],
+    ]) {
+      try { await close() } catch (error) { cleanupErrors.push({ owner, error: failureMessage(error) }) }
+    }
+    receipt.cleanupVerified = cleanupErrors.length === 0
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = cleanupErrors[0].error
+      receipt.cleanupErrors = cleanupErrors
+      receipt.status = 'failed'; process.exitCode = 1
+    }
   }
   // The original timer is already cleared. Report actual remaining time, even
   // negative, without claiming an independently enforced cleanup deadline.
   if (receipt.heapProducerPreflight) producerCleanup(receipt.heapProducerPreflight, performance.now(), receipt.cleanupVerified)
-  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = failureMessage(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (m2Fixture) {
     try {
       assert.equal(hash(resolve(out, 'm2-checkpoint-transfer.json')), m2Fixture.receipt.transferSha256)
       assert.equal(hash(resolve(out, 'm2-checkpoint.v8')), m2Fixture.receipt.checkpointSha256)
       receipt.m2FixtureUnchanged = true
-    } catch (e) { receipt.m2FixtureError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+    } catch (e) { receipt.m2FixtureError = failureMessage(e); receipt.status = 'failed'; process.exitCode = 1 }
   }
   const after = metadata(dependencies)
   receipt.dependencyChanges = Object.keys({ ...before, ...after }).filter(key => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
@@ -460,21 +500,21 @@ try {
   if (selectedScenario === 'pause-checkpoint-recovery' && receipt.status === 'passed') {
     try { console.log(recoveryReceiptLog(recoveryReceipt(receipt, out))) }
     catch (error) {
-      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.evidenceError = failureMessage(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
   }
   if (selectedScenario === 'profile-recovery' && receipt.status === 'passed') {
     try { console.log(profileCasesReceiptLog(profileCasesReceipt(receipt, out))) }
     catch (error) {
-      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.evidenceError = failureMessage(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
   }
   if (selectedScenario === 'mission10-profile' && receipt.status === 'passed') {
     try { console.log(mission10CrewReceiptLog(mission10CrewReceipt(receipt, out))) }
     catch (error) {
-      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.evidenceError = failureMessage(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
   }

@@ -57,7 +57,7 @@ try{
  await page.getByRole('button',{name:'Close menu',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.world.paused),false);
  await page.getByRole('button',{name:'Planet overview',exact:true}).click();
  await page.waitForFunction(()=>window.testScene.overviewActive&&!window.testScene.overviewStage);
- await page.getByRole('button',{name:'Select and focus shaman',exact:true}).click();
+ await page.getByRole('button',{name:'Select shaman',exact:true}).click({button:'right'});
  await page.waitForFunction(()=>!window.testScene.overviewActive&&!window.testScene.overviewStage);
  assert.deepEqual(errors,[]);
  console.log('PASS: HUD bounds at two desktop sizes; selection, spell toggles/charging, building gating, mesh hover/worship, menu/pause and overview/shaman controls; no floating labels or browser errors');

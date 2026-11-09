@@ -53,6 +53,48 @@ export function pauseStartupReady() {
     getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled ? 'skip' : false
 }
 
+// Advisory dismissal preserves pause ownership. Resume only the observed mission
+// through its public control, within the original startup wait's 25-second budget.
+export async function waitForPauseStartup(page) {
+  const deadlineAt = Date.now() + 25000
+  const remaining = () => {
+    const left = deadlineAt - Date.now()
+    assert.ok(left > 0, 'Pause startup deadline exceeded')
+    return left
+  }
+  const owner = await page.evaluateHandle(() => window.testStore.getWorld())
+  let resume, startup, failed = false, failure, action
+  const fail = error => { if (!failed) { failed = true; failure = error } }
+  const assertOwner = async () => assert.equal(await owner.evaluate(world =>
+    window.testStore.getWorld() === world && window.testSceneRef.current.world === world &&
+    world.outcome.level === 1 && world.status === 'playing'), true,
+  'Pause startup must retain the exact Mission 1 World')
+  try {
+    await assertOwner()
+    if (await owner.evaluate(world => world.paused)) {
+      resume = await page.getByRole('button', { name: 'Resume game', exact: true })
+        .elementHandle({ timeout: remaining() })
+      assert.ok(resume, 'Paused mission must expose its public Resume control')
+      await assertOwner()
+      assert.equal(await resume.evaluate(element => element.isConnected &&
+        element.getAttribute('aria-label') === 'Resume game'), true)
+      await resume.click({ timeout: remaining() })
+      await assertOwner()
+      assert.equal(await owner.evaluate(world => world.paused), false)
+    }
+    startup = await page.waitForFunction(pauseStartupReady, undefined, { timeout: remaining() })
+    await assertOwner()
+    action = await startup.jsonValue()
+  } catch (error) { fail(error) }
+  finally {
+    for (const handle of [startup, resume, owner]) {
+      if (handle) try { await handle.dispose() } catch (error) { fail(error) }
+    }
+  }
+  if (failed) throw failure
+  return action
+}
+
 // The introduction may finish between readiness and activation. Always await the
 // bounded public click, and forgive its failure only if input is already unlocked.
 export async function skipPauseIntroduction(page, { timeout = 2500 } = {}) {
@@ -107,9 +149,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await bindGame(page)
     const desktop = page.getByRole('button', { name: 'Continue anyway', exact: false })
     if (await desktop.isVisible()) await desktop.click()
-    const startup = await page.waitForFunction(pauseStartupReady)
-    const action = await startup.jsonValue()
-    await startup.dispose()
+    const action = await waitForPauseStartup(page)
     if (action === 'skip') await skipPauseIntroduction(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     renderers.push(await page.evaluate(() => {

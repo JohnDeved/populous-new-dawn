@@ -62,7 +62,7 @@ function evidence() {
   frozen.suspended = true
   frozen.person.f2 = casts[1].frames[2].person.f2
   return { casts, closed: true, restored: true, errors: [],
-    holds: [{ label: 'subsequent', samples: [160, 510].map(at => ({ at, frameTime: at, stamp: 131, state: structuredClone(frozen) })), before: { at: 160, stamp: 131, state: frozen },
+    holds: [{ label: 'subsequent', samples: [160, 510].map(at => ({ at, frameTime: at, timelineTime: at, stamp: 131, state: structuredClone(frozen) })), before: { at: 160, stamp: 131, state: frozen },
       after: { at: 510, stamp: 133, state: structuredClone(frozen) } }] }
 }
 
@@ -255,7 +255,7 @@ function observerFixture({ ownRender = false, ownModal = false, installFailure =
   Object.setPrototypeOf(scene, { setModalSuspended: modal })
   if (ownModal) Object.defineProperty(scene, 'setModalSuspended', { value: modal, writable: true, configurable: true })
   let offset = 0, rafId = 0
-  const realPerformance = globalThis.performance, rafs = new Map()
+  const realPerformance = globalThis.performance, rafs = new Map(), timeline = { currentTime: 0 }
   globalThis.performance = { now: () => realPerformance.now() + offset }
   const win = { requestAnimationFrame(callback) { rafs.set(++rafId, callback); return rafId },
     cancelAnimationFrame(id) { rafs.delete(id) }, testSceneRef: { current: scene }, testStore: { getWorld: () => world, hasUsedCheats: () => false },
@@ -269,6 +269,7 @@ function observerFixture({ ownRender = false, ownModal = false, installFailure =
     } }
   globalThis.window = win
   globalThis.document = {
+    timeline,
     elementFromPoint: () => canvas, querySelectorAll: () => [],
     createElement: () => ({ width: 0, height: 0, toDataURL() { readbackCount++; return 'data:image/png;base64,AA==' },
       getContext: () => ({ drawImage() {}, getImageData: () => ({ data: [1, 2, 3, 255, 4, 5, 6, 255] }) }) }),
@@ -298,7 +299,13 @@ function observerFixture({ ownRender = false, ownModal = false, installFailure =
   }
   return { world, person, scene, renderer, group, canvas, win, calls, returned, thrown, listeners,
     turn, render, modal, allocate, dispatch, cleanup,
-    rafs, rafStep(ms = 1) { offset += ms; const entries = [...rafs]; rafs.clear(); for (const [, callback] of entries) callback(performance.now()) },
+    rafs, rafStep(ms = 1, beforeCallback) {
+      offset += ms
+      const frameTime = performance.now(), entries = [...rafs]
+      timeline.currentTime = frameTime; rafs.clear()
+      beforeCallback?.(timeline, frameTime)
+      for (const [, callback] of entries) callback(frameTime)
+    },
     readbacks: () => readbackCount,
     failModal: () => { failModal = true },
     fail: () => { failTurn = true; failRender = true } }
@@ -893,7 +900,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   const actions = [], page = {
     getByRole(role, { name }) {
       assert.equal(role, 'button')
-      return { click: async () => actions.push(['button', String(name)]) }
+      return { click: async options => actions.push(['button', String(name), ...(options ? [options] : [])]) }
     },
     getByTitle(title, options) {
       assert.deepEqual(options, { exact: true })
@@ -915,11 +922,17 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   const result = await beginOrdinaryCastingWitness(page)
   assert.deepEqual(result, { target: { x: 500, y: 300 }, before: { stock: 4, cheatsUsed: false } })
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
-    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select and focus shaman'],
+    ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select shaman'],
+    ['button', 'Select shaman', { button: 'right' }],
     ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
     ['button', 'Resume game'], ['move', 500, 300], ['pointer', 500, 300], ['button', 'Pause game'],
   ])
-  assert.match(actions.find(([kind]) => kind === 'wait')[2], /order\?\.model !== 18/)
+  const waits = actions.filter(([kind]) => kind === 'wait')
+  assert.match(waits[0][2], /order\?\.model !== 18/)
+  assert.match(waits[1][2], /s\.world\.selected\.includes\(u\.id\)/)
+  assert.match(waits[1][2], /!s\.cameraMotion\.active && !s\.viewTransition && !s\.resultCamera\.active/)
+  assert.ok(actions.findIndex(action => action[2]?.button === 'right') < actions.indexOf(waits[1]))
+  assert.ok(actions.indexOf(waits[1]) < actions.findIndex(([kind]) => kind === 'install'))
   assert.match(actions.filter(([kind]) => kind === 'wait').at(-1)[2], /cast\.done/)
   assert.equal(actions.filter(([kind]) => kind === 'wait').at(-1)[1], 'ordinary')
 })
@@ -1072,9 +1085,13 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
   const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8'),
     marker = '\n  } finally {\n',
     start = source.lastIndexOf(marker) + marker.length,
-    end = source.indexOf('\n  if (failure) throw failure', start),
-    body = source.slice(start, end).replace(/\n {2}}\s*$/, '')
+    end = source.indexOf('\n  if (failed) throw failure', start),
+    body = source.slice(start, end).replace(/\n {2}}\s*$/, ''),
+    failureStart = source.indexOf('  const recordFailure = error => {'),
+    failureEnd = source.indexOf('\n  const diagnostics =', failureStart),
+    failureOwner = source.slice(failureStart, failureEnd)
   assert.ok(start > 0 && end > start)
+  assert.ok(failureStart >= 0 && failureEnd > failureStart)
   const { assertSpellTestDeadline, closeSpellTestContext } = await import('../scripts/tutorial-browser/spell-test-menu.mjs')
   for (const expired of [false, true]) for (const attempted of [false, true]) for (const retentionFails of [false, true]) {
     const calls = [], original = new Error('original F9 failure'), report = { status: 'failed' },
@@ -1093,7 +1110,7 @@ test('actual F9 failure cleanup retains at most once and closes context even if 
         writeFileSync: (path, bytes) => { assert.equal(path, 'output/f9-cheats.json'); assert.ok(JSON.parse(bytes).contextClosed); calls.push('writeReceipt') },
       }
     const run = new Function(...Object.keys(bindings), 'failure', 'castingRetentionAttempted',
-      `return (async () => { ${body}\nreturn { failure, castingRetentionAttempted } })()`)
+      `return (async () => { let failed = true; ${failureOwner}\n${body}\nreturn { failure, castingRetentionAttempted } })()`)
     const result = await run(...Object.values(bindings), original, attempted)
     assert.equal(result.failure, original)
     assert.equal(result.castingRetentionAttempted, attempted || !expired)
@@ -1168,7 +1185,8 @@ test('RAF hold evidence rejects missing, duplicate, brief, out-of-bounds or adva
 })
 
 test('owned hold RAF sampler observes without drawing and cancels on completion, error and finish', () => {
-  for (const end of ['success', 'finish', 'owner', 'person', 'shot', 'missing', 'end-owner']) {
+  for (const end of ['success', 'finish', 'owner', 'person', 'shot', 'missing', 'end-owner',
+    'timeline-owner', 'timeline-null', 'timeline-mismatch']) {
     const f = observerFixture()
     try {
       installShamanCastingObserver()
@@ -1189,7 +1207,11 @@ test('owned hold RAF sampler observes without drawing and cancels on completion,
         if (end === 'end-owner') {
           assert.throws(() => observer.endHold(), /changed/)
           assert.equal(f.rafs.size, 0, 'Ownership failure at end also cancels pending sampler')
-        } else f.rafStep(351)
+        } else f.rafStep(351, timeline => {
+          if (end === 'timeline-owner') document.timeline = { ...timeline }
+          if (end === 'timeline-null') timeline.currentTime = null
+          if (end === 'timeline-mismatch') timeline.currentTime -= 1
+        })
         if (end === 'success') observer.endHold()
       }
       const result = observer.finish()
@@ -1198,11 +1220,19 @@ test('owned hold RAF sampler observes without drawing and cancels on completion,
       assert.equal(f.calls.length, calls, 'Sampler never submits rendering or advances simulation')
       assert.equal(f.renderer.info.render.frame, stamp)
       assert.deepEqual(f.world, world)
-      if (['owner', 'person', 'shot', 'end-owner'].includes(end)) assert.ok(result.errors.length)
+      if (['owner', 'person', 'shot', 'end-owner', 'timeline-owner', 'timeline-null', 'timeline-mismatch'].includes(end))
+        assert.ok(result.errors.length)
       else assert.deepEqual(result.errors, [])
       assert.equal(result.restored, true)
       assert.equal(result.closed, true)
       assert.equal(Object.keys(result.holds[0]).includes('person'), false)
+      if (end === 'success') {
+        assert.equal(result.holds[0].samples.length, 2)
+        for (const sample of result.holds[0].samples) assert.equal(sample.timelineTime, sample.frameTime)
+      }
+      if (end === 'timeline-owner') assert.match(result.errors.join(';'), /timeline ownership changed/)
+      if (end === 'timeline-null' || end === 'timeline-mismatch')
+        assert.match(result.errors.join(';'), /timestamp differs from its document timeline/)
     } finally { f.cleanup() }
   }
 })
@@ -1264,29 +1294,39 @@ test('RAF hold accepts the exact failed-artifact shape: last suspended render pr
 })
 
 
-// Supplied evidence retains every full-validator assertion. Shift its time axis
+// Supplied evidence retains the other full-validator assertions. Shift its time axis
 // and use 351ms coverage to avoid a separate 350ms-boundary rounding issue.
-function holdAtCallbackTime(at, frameTime) {
+function holdAtCallbackTime(at, frameTime, timelineTime = frameTime) {
   const result = evidence(), hold = result.holds[0], offset = at - hold.before.at
   for (const record of result.casts) for (const frame of record.frames) frame.at += offset
   for (const edge of [hold.before, hold.after]) edge.at += offset
-  for (const sample of hold.samples) { sample.at += offset; sample.frameTime += offset }
+  for (const sample of hold.samples) { sample.at += offset; sample.frameTime += offset; sample.timelineTime += offset }
   hold.after.at += 1
   hold.samples.at(-1).at += 1
   hold.samples.at(-1).frameTime += 1
+  hold.samples.at(-1).timelineTime += 1
   assert.equal(hold.before.at, at)
   assert.equal(hold.samples[0].at, at)
   hold.samples[0].frameTime = frameTime
+  hold.samples[0].timelineTime = timelineTime
   return result
 }
 
-test('RAF hold accepts only adjacent timestamp rounding without changing raw evidence', () => {
+test('RAF hold binds the document timeline without imposing cross-API rounding order', () => {
   for (const [at, frameTime] of [
     [27357.699999999997, 27357.7], // Exact failed official artifact pair, one successor.
     [27357.7, 27357.7], // Equal clocks remain accepted.
     [27357.7, 27357.699999999997], // Earlier RAF time remains accepted.
     [16384, 16384.000000000004], // Successor just above a power of two.
     [16383.999999999998, 16384], // Successor reaching a power of two.
+    // The former two-successor exclusions had the same disproved cross-API premise.
+    [27357.699999999997, 27357.700000000004],
+    [16384, 16384.000000000007],
+    [16383.999999999998, 16384.000000000004],
+    // Exact 2-, 5- and 6-ULP pairs from the failed combined browser receipt.
+    [24818.899999999994, 24818.9],
+    [24952.199999999983, 24952.2],
+    [24885.599999999977, 24885.6],
   ]) {
     const result = holdAtCallbackTime(at, frameTime), before = structuredClone(result)
     assert.doesNotThrow(() => validateShamanCastingEvidence(result), `${at}/${frameTime}`)
@@ -1294,28 +1334,38 @@ test('RAF hold accepts only adjacent timestamp rounding without changing raw evi
   }
 })
 
-test('RAF hold rejects values beyond the immediate binary64 successor', () => {
-  for (const [at, frameTime] of [
-    [27357.699999999997, 27357.700000000004], // Two successors, not a millisecond tolerance.
-    [27357.699999999997, 27358.699999999997], // Existing material future-time refusal.
-    [16384, 16384.000000000007],
-    [16383.999999999998, 16384.000000000004],
-    [27357.699999999997, Infinity],
-    [27357.699999999997, NaN],
-    [27357.699999999997, -1],
+test('RAF hold rejects missing, stale, mismatched and invalid timeline evidence', () => {
+  for (const mutate of [
+    sample => { delete sample.timelineTime },
+    sample => { sample.timelineTime = null },
+    sample => { sample.timelineTime = NaN },
+    sample => { sample.timelineTime = Infinity },
+    sample => { sample.timelineTime = String(sample.frameTime) },
+    sample => { sample.timelineTime -= 1 },
+    sample => { sample.timelineTime += 1 },
+    // Preserve the material future-frame negative, now against the captured timeline.
+    sample => { sample.frameTime = sample.at + 1 },
+    sample => { sample.frameTime = Infinity },
+    sample => { sample.frameTime = NaN },
+    sample => { sample.frameTime = -1 },
+    sample => { sample.frameTime = sample.timelineTime = -1 },
+    sample => { sample.at = Infinity },
+    sample => { sample.at = NaN },
+    sample => { sample.at = -1 },
   ]) {
-    const result = holdAtCallbackTime(at, frameTime)
+    const result = holdAtCallbackTime(27357.699999999997, 27357.7)
+    mutate(result.holds[0].samples[0])
     assert.throws(() => validateShamanCastingEvidence(result),
       /Hold RAF observations must have distinct increasing callback times within the hold/)
   }
 })
 
-test('adjacent clock rounding never permits duplicate, backward, out-of-hold or changed-state samples', () => {
+test('timeline binding never permits duplicate, backward, out-of-hold or changed-state samples', () => {
   for (const mutate of [
     hold => { hold.samples[1].at = hold.samples[0].at },
     hold => { hold.samples[1].at = hold.samples[0].at - 1 },
-    hold => { hold.samples[1].frameTime = hold.samples[0].frameTime },
-    hold => { hold.samples[1].frameTime = hold.samples[0].frameTime - 1 },
+    hold => { hold.samples[1].frameTime = hold.samples[1].timelineTime = hold.samples[0].frameTime },
+    hold => { hold.samples[1].frameTime = hold.samples[1].timelineTime = hold.samples[0].frameTime - 1 },
     hold => { hold.samples[0].at = hold.before.at - 1 },
     hold => { hold.samples[1].at = hold.after.at + 1 },
     hold => { hold.samples[1].state.turn++ },

@@ -19,7 +19,44 @@ async function prepareHeldCast(page) {
     return !world.paused && !world.inputMask && world.shots.blast > 0 &&
       !world.castingTribes[0].cooldown && unit?.native?.state === 19 && unit.hp > 0 && !unit.flight && !unit.lift
   })
-  await button('Pause game').click(); await button('Select and focus shaman').click()
+  await button('Pause game').click()
+  // The shared keyboard owner rejects H while a campaign message is open.
+  // Retain the exact observed DOM owners and use trusted public summary clicks.
+  const openMessages = await page.locator('.campaign-messages details[open]').elementHandles()
+  const summaryHandles = []
+  let messageFailed = false, messageFailure
+  const failMessage = error => { if (!messageFailed) { messageFailed = true; messageFailure = error } }
+  try {
+    assert.ok(openMessages.length <= 32, 'Observed campaign messages exceed the native slot capacity')
+    const serials = await Promise.all(openMessages.map(message => message.getAttribute('data-message-serial')))
+    assert.ok(new Set(serials).size === serials.length && serials.every(serial => /^\d+$/.test(serial)),
+      'Observed campaign message serials must be valid and unique')
+    for (const [index, message] of openMessages.entries()) {
+      const serial = serials[index]
+      assert.equal(await message.evaluate((element, serial) => {
+        const matches = document.querySelectorAll(`.campaign-messages details[data-message-serial="${serial}"]`)
+        return matches.length === 1 && matches[0] === element && element.isConnected && element.open
+      }, serial), true, 'Exact observed campaign message must remain open and connected')
+      const summary = await message.$(':scope > summary[aria-label="Read campaign message"]')
+      assert.ok(summary, 'Exact observed message must retain its public summary')
+      summaryHandles.push(summary)
+      await summary.click()
+      assert.equal(await message.evaluate((element, serial) => {
+        const matches = document.querySelectorAll(`.campaign-messages details[data-message-serial="${serial}"]`)
+        return matches.length === 1 && matches[0] === element && element.isConnected && !element.open
+      }, serial), true, 'Public collapse must retain and close the exact observed message')
+    }
+    assert.equal(await page.locator('.campaign-messages details[open]').count(), 0)
+  } catch (error) { failMessage(error) }
+  finally {
+    for (const handle of [...summaryHandles, ...openMessages]) {
+      try { await handle.dispose() } catch (error) { failMessage(error) }
+    }
+  }
+  if (messageFailed) throw messageFailure
+  // H preserves exclusive selection; portrait primary activation is additive.
+  await page.keyboard.press('h')
+  await button('Select shaman').click({ button: 'right' })
   await page.waitForFunction(() => {
     const scene = window.testSceneRef.current
     return !scene.cameraMotion.active && !scene.viewTransition && !scene.resultCamera.active

@@ -6,11 +6,13 @@ import { makeBuilderAnimationScene } from './support/builder-animation-scene.mjs
 
 async function inputs() {
   const api = await loadSceneFixture(),
+    // Match each real consumer's module key; fixture JSON hooks can retain both.
     { default: units } = await import('../app/original-units.json'),
+    { default: followerUnits } = await import('../app/original-units.json', { with: { type: 'json' } }),
     { default: rules } = await import('../app/original-rules.json'),
     { createLivePerson } = await import('../app/live-people.ts'),
     { followerNativeDirections, nativeSpriteHidden } = await import('../app/follower-appearance.ts')
-  return { api, units, rules, createLivePerson, followerNativeDirections, nativeSpriteHidden }
+  return { api, units, followerUnits, rules, createLivePerson, followerNativeDirections, nativeSpriteHidden }
 }
 
 async function sceneCase(kind = 'spy') {
@@ -49,7 +51,7 @@ function assertNativeFrame(input, source, direction, phase, draw) {
     original = witness.sources[source][direction]
   assert.equal(group.visible, true)
   assert.ok(call)
-  assert.equal(call[2], input.units.followerSources[source])
+  assert.equal(call[2], input.followerUnits.followerSources[source])
   assert.equal(call[3], 0)
   assert.equal(call[4], false)
   assert.equal(call[5], phase)
@@ -63,7 +65,7 @@ function assertNativeFrame(input, source, direction, phase, draw) {
 }
 
 test('all original model1–6 and proven direct sources resolve to independently read VSTART/VFRA cycles', async () => {
-  const { units, rules, followerNativeDirections } = await inputs()
+  const { units, followerUnits, rules, followerNativeDirections } = await inputs()
   assert.equal(witness.provenance.exeSha256,
     '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f')
   assert.equal(Object.keys(witness.sources).length, 39)
@@ -75,7 +77,7 @@ test('all original model1–6 and proven direct sources resolve to independently
     assert.deepEqual(rules.animationObjects[entry.object], [entry.source, entry.draw])
   for (const [source, original] of Object.entries(witness.sources)) {
     const directions = followerNativeDirections(Number(source))
-    assert.equal(directions, units.followerSources[source], 'catalog arrays are shared, not copied')
+    assert.equal(directions, followerUnits.followerSources[source], 'catalog arrays are shared, not copied')
     assert.deepEqual(directions.map(cycle => ({
       source: cycle.source,
       frames: cycle.frames.map(index => units.frames[index].source),
@@ -245,7 +247,7 @@ test('a publicly trained/disguised Spy reaches source136 through real command15 
       // Calculate the original direction independently, without the production helper.
       direction = ((Math.round(fixture.scene.cameraBearing * 1024 / Math.PI) -
         Math.round((Math.PI - unit.heading) * 1024 / Math.PI) - 0x380) & 0x700) >> 8
-    assert.equal(call[2], input.units.followerSources[136])
+    assert.equal(call[2], input.followerUnits.followerSources[136])
     assert.equal(call[5], phase)
     assert.equal(input.units.frames[group.userData.frame].source, witness.sources[136][direction].frames[phase])
     assert.equal(group.userData.owner, 1)

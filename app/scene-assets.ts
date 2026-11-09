@@ -1,12 +1,12 @@
 import { templeArt } from './temple-art.ts'
-import towerArt from './original-tower-acquisition.json'
+import towerArt from './original-tower-acquisition.json' with { type: 'json' }
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
 import { modelDepthBias, modelStage, modelTextureModes } from './model-faces.ts'
 import { modelLighting, modelWaveOffsets } from './model-lighting.ts'
-import nativeUnits from './original-units.json'
-import nativeEffects from './original-effects.json'
+import nativeUnits from './original-units.json' with { type: 'json' }
+import nativeEffects from './original-effects.json' with { type: 'json' }
 import { lightningTexture } from './lightning.ts'
 
 export { nativeModels } from './model-resources.ts'
@@ -18,6 +18,13 @@ type TextureAsset = {
   status: 'loading' | 'ready' | 'failed'
 }
 const textures = new Map<string, TextureAsset>()
+/** Cache-only borrow. Unlike texture/loadTexture this never loads or retries.
+ * Keep this entry identity as well as its texture/image and recheck before use:
+ * the scene's explicit preload retry can replace a failed cache entry. */
+export function peekLoadedSceneTexture(kind: string): Readonly<TextureAsset> | null {
+  const asset = textures.get(kind)
+  return asset?.status === 'ready' ? asset : null
+}
 let textureCompletionRevision = 0
 // A paused scene still needs a draw when a lazily requested sky/effect texture
 // settles. A revision avoids retaining scene listeners in this shared cache.

@@ -453,6 +453,10 @@ test('actual runner footer preserves browser failure and records malformed succe
     new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
     'utf8'
   )
+  const helperStart = source.indexOf('function failureMessage(')
+  const helperEnd = source.indexOf('// Keep the admission token', helperStart)
+  assert.ok(helperStart > 0 && helperEnd > helperStart)
+  const helpers = source.slice(helperStart, helperEnd)
   const footer = source.slice(source.indexOf('  receipt.endedAt ='), source.lastIndexOf('\n}'))
   const finish = new Function(
     'receipt',
@@ -463,7 +467,7 @@ test('actual runner footer preserves browser failure and records malformed succe
     'recoveryReceipt',
     'out',
     'process',
-    footer
+    helpers + footer
   )
   for (const status of ['failed', 'passed']) {
     const receipt = { status, failure: 'original diagnostic', pauseCheckpointRecovery: {} }

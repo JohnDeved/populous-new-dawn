@@ -40,7 +40,8 @@ function events(owner) {
     },
   }
 }
-function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false) {
+function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
+  messageDetails = { current: new Map() }) {
   const source = ts.createSourceFile(
     'page.tsx',
     readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8'),
@@ -66,6 +67,9 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false) {
     'ready',
     'menu',
     'cheatsOpen',
+    'messageDetails',
+    'selectorOpen',
+    'openMenu',
     'world',
     'store',
     'engine',
@@ -79,6 +83,9 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false) {
     true,
     menu,
     cheatsOpen,
+    messageDetails,
+    false,
+    () => assert.fail('This Temple selection must cancel before opening a menu'),
     world,
     { getWorld: () => world, change: fn => fn(world) },
     { current: scene },
@@ -294,11 +301,24 @@ test('actual Page Escape and explicit approach input feed the same record into t
       assert.deepEqual(world.selected, selectedBeforeMenu)
     }
   }
-  pageEscape(f)({
+  const message = { open: true }, messageDetails = { current: new Map([[57, message]]) }
+  const messageOwnedWorld = structuredClone(world)
+  for (const key of ['Escape', 'h', ' ']) {
+    pageEscape(f, false, false, messageDetails)({
+      key, code: key === ' ' ? 'Space' : key,
+      target: { closest: () => null },
+      preventDefault: () => assert.fail('Page must leave message-owned input alone'),
+      stopImmediatePropagation: () => assert.fail('Message retains propagation'),
+    })
+    assert.deepEqual(world, messageOwnedWorld)
+  }
+  message.open = false
+  pageEscape(f, false, false, messageDetails)({
     key: 'Escape',
     code: 'Escape',
     target: { closest: () => null },
     preventDefault: nop,
+    stopImmediatePropagation: nop,
   })
   assert.deepEqual(world.selected, [])
   manual.armInput()
@@ -590,7 +610,7 @@ for (const failDispatch of [false, true])
         async press(key) {
           assert(dispatched)
           assert.equal(key, 'Escape')
-          pageEscape(f)({ key, code: key, target: { closest: () => null }, preventDefault: nop })
+          pageEscape(f)({ key, code: key, target: { closest: () => null }, preventDefault: nop, stopImmediatePropagation: nop })
           escaped = true
           f.frame(1 / 12)
         },

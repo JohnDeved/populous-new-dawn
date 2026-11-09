@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { collapseObservedCampaignMessages } from '../public-keyboard-owner.mjs'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { readMission10Observation } from '../tutorial-browser/mission10-input.mjs'
@@ -11,11 +12,75 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 const party = [63, 111, 112, 113, 114]
 const boatId = 62
 
+// Escape cancels a selection, but the shipped Page intentionally opens its menu
+// from neutral input. Exercise that owner, then return to the same paused World.
+export async function clearMission10Selection(page, previous, deadlineAt = null) {
+  const neutral = previous.selected.length === 0 && previous.selectionState.mode === null
+  const limit = Math.min(Date.now() + 15000, deadlineAt ?? Infinity)
+  const remaining = () => {
+    const left = limit - Date.now()
+    assert.ok(left > 0, 'Mission 10 Escape owner deadline exceeded')
+    return left
+  }
+  remaining()
+  const world = await page.evaluateHandle(() => window.testStore.getWorld())
+  const handles = [world]
+  let failed = false, failure
+  const fail = error => { if (!failed) { failed = true; failure = error } }
+  const assertOwner = async () => assert.equal(await world.evaluate(owner =>
+    window.testStore.getWorld() === owner && window.testSceneRef.current.world === owner &&
+    owner.paused && owner.status === 'playing'), true,
+  'Escape must retain the exact paused Mission 10 World')
+  try {
+    await assertOwner()
+    const prior = await world.evaluate(owner => ({ selected: [...owner.selected], mode: owner.mode }))
+    assert.deepEqual(prior, { selected: previous.selected, mode: previous.selectionState.mode },
+      'Escape must act on the immediately observed selection and mode')
+    const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+    assert.equal(await menu.isVisible(), false, 'No menu may already own the clearing input')
+    remaining()
+    await page.keyboard.press('Escape')
+    await assertOwner()
+    if (neutral) {
+      await menu.waitFor({ state: 'visible', timeout: remaining() })
+      const owner = await menu.elementHandle({ timeout: remaining() })
+      assert.ok(owner, 'Neutral Escape must expose its exact menu owner')
+      handles.push(owner)
+      assert.equal(await owner.evaluate(element => element.isConnected && element.open &&
+        element.getAttribute('data-panel') === 'root' &&
+        document.querySelector('dialog[data-original-pause-menu]') === element), true,
+      'Neutral Escape must open the actual root Game menu')
+      const resume = await owner.$('button[aria-label="Continue Game"]')
+      assert.ok(resume, 'Exact root menu must retain its Continue Game control')
+      handles.push(resume)
+      await assertOwner()
+      await resume.click({ timeout: remaining() })
+      await menu.waitFor({ state: 'hidden', timeout: remaining() })
+      assert.equal(await owner.evaluate(element => !element.open && !element.isConnected), true,
+        'Continue Game must close and release the exact menu owner')
+    } else {
+      assert.equal(await menu.isVisible(), false, 'Selection Escape must not open a Game menu')
+    }
+    await assertOwner()
+    assert.equal(await menu.isVisible(), false, 'Follower controls require the menu owner to be released')
+  } catch (error) { fail(error) }
+  finally {
+    for (const handle of handles.reverse()) {
+      try { await handle.dispose() } catch (error) { fail(error) }
+    }
+  }
+  if (failed) throw failure
+}
+
 // Executed only after this scenario has observed genuine boarding/restoration or
 // completed public unload. The helper never creates people or edits live World.
-export async function checkMission10FollowerStrip({ page, input, state, phase, occupied }) {
+export async function checkMission10FollowerStrip({ page, input, state, phase, occupied, deadlineAt = null, observeKeyboard = () => {} }) {
   const entering = await state(`${phase}-before-strip`)
   if (!entering.paused) await input.pause()
+  await input.action(`${phase} public keyboard-owner setup`, () => collapseObservedCampaignMessages(page, {
+    remainingMs: () => deadlineAt === null ? 25000 : deadlineAt - Date.now(),
+    observe: observation => observeKeyboard({ stripPhase: phase, ...observation }),
+  }))
   const before = await state(`${phase}-strip-paused`)
   assert.equal(before.paused, true)
   assert.ok(before.party.every(person => person && person.hp > 0))
@@ -25,7 +90,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
   for (const name of ['Select warrior', 'Select follower']) {
     for (const modifiers of [[], ['Control'], ['Shift']]) {
       const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
-      await input.action(`${label} Escape-clear`, () => page.keyboard.press('Escape'))
+      await input.action(`${label} Escape-clear`, () => clearMission10Selection(page, previous, deadlineAt))
       const cleared = await state(`${label} cleared`)
       assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
       const query = mission10SelectionQuery(cleared.selectionState)
@@ -66,6 +131,9 @@ export default async function ({ page, openMission, output, receipt, observeChec
     const row = await readMission10Observation(page, { label, party, boatId })
     report.observations.push(row); save(); return row
   }
+  const observeKeyboard = observation => {
+    (report.keyboardOwnership ??= []).push(observation); save()
+  }
   const input = createInput({ page, signal, report, save, originalShamanId: 63, deadlineAt })
   const boatPoint = () => findBoatPoint ? findBoatPoint(page, boatId) : page.evaluate(async id => {
     const s = window.testSceneRef.current, v = s.world.vehicles.find(v => v.id === id)
@@ -89,7 +157,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await state('authored-start')
       await input.view({ x: 27, z: -27 })
       await page.keyboard.press('Escape')
-      await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+      await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
       await page.getByRole('button', { name: 'Select warrior', exact: true }).click({ modifiers: ['Shift'] })
       const selected = await state('HUD-selected')
       assert.deepEqual([...selected.selected].sort((a,b)=>a-b), party)
@@ -106,7 +174,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
       await input.action('ordinary Boat boarding click', () => page.mouse.click(hit.x, hit.y))
       await page.waitForFunction(({ party, boatId }) => { const w = window.testSceneRef.current.world, v = w.vehicles.find(v => v.id === boatId); return party.every(id => v.passengers.includes(id) && w.units.find(u => u.id === id)?.native?.vehicle === boatId) }, { party, boatId }, { timeout: 60000 })
       await state('boarded'); await capture('boarded')
-      report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true })); save()
+      report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'boarded', occupied: true, deadlineAt, observeKeyboard })); save()
       await capture('boarded-class-selected')
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]'); await menu.waitFor({ state: 'visible' })
@@ -148,7 +216,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await page.waitForFunction(turn => window.testSceneRef.current.world.turn > turn, saved.turn)
     await input.view({ x: 27, z: -27 })
     await capture('restored-occupied-boat')
-    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'loaded', occupied: true })); save()
+    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'loaded', occupied: true, deadlineAt, observeKeyboard })); save()
     await capture('loaded-class-selected')
     await page.keyboard.press('Escape')
     assert.deepEqual(await page.evaluate(() => window.testSceneRef.current.world.selected), [])
@@ -160,7 +228,7 @@ export default async function ({ page, openMission, output, receipt, observeChec
     await input.action('public Unload all passengers', () => unload.click())
     await page.waitForFunction(({ party, boatId }) => { const w=window.testSceneRef.current.world, v=w.vehicles.find(v=>v.id===boatId); return !v.passengers.some(Boolean) && party.every(id=>{const u=w.units.find(u=>u.id===id);return u&&u.hp>0&&u.native&&!u.native.vehicle&&!(u.native.flags2&0x80000)&&!(u.native.flags4&0x400)}) }, { party, boatId }, { timeout: 60000 })
     report.landed = await state('unloaded-alive'); await capture('unloaded-alive')
-    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'unloaded', occupied: false })); save()
+    report.selection.push(await checkMission10FollowerStrip({ page, input, state, phase: 'unloaded', occupied: false, deadlineAt, observeKeyboard })); save()
     await capture('unloaded-class-selected')
     report.loaded = loaded; report.saved = saved
     const stored = await observeCheckpoint('After genuine Load and unload')

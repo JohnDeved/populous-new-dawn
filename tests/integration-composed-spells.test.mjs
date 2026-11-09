@@ -12,7 +12,9 @@ test('composed pipeline requires version3 Spy frame0/1 without accepting later s
   const f=composedBrowserFixture();validateEntry(f.entry);const row=f.run()
   assert.equal(row.tornadoVerified,true);assert.equal(row.spySourceVerified,true)
   assert.equal(row.spellVisualsVerified,undefined);validatePassedGate(checkView(f),gatesFor(f.entry)[1],row)
-  for(let secondFrame=2;secondFrame<=11;secondFrame++)assert.throws(()=>composedBrowserFixture({secondFrame}).run())
+  // The direct composed-spy-evidence suite retains every later frame 2..11.
+  // Keep the nearest invalid and last native frame through the full pipeline.
+  for(const secondFrame of [2,11])assert.throws(()=>composedBrowserFixture({secondFrame}).run())
 })
 test('legacy eight/v3 and nine/v4 paths remain strict and do not infer composition',()=>{
   for(const nine of [false,true]){const f=passiveBrowserFixture({nine});assert.equal(f.run().identityVerified,true)}
