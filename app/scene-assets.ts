@@ -1,4 +1,5 @@
 import { templeArt } from './temple-art.ts'
+import towerArt from './original-tower-acquisition.json'
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
@@ -71,6 +72,7 @@ export function loadTexture(kind: string) {
     kind === 'atlas-s' ||
     kind === 'atlas-p' ||
     kind === templeArt.modelAtlas ||
+    kind === towerArt.modelAtlas ||
     kind.startsWith('sky') ||
     kind.startsWith('clouds')
   ) {

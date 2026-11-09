@@ -171,6 +171,7 @@
         "scripts/import-worship-acquisition.py",
         "scripts/import-vault-knowledge.py",
         "scripts/import-temple-acquisition.py",
+        "scripts/import-tower-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
         "scripts/import-follower-nearby.py",
@@ -199,6 +200,8 @@
         { "path": "app/original-temple-acquisition.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         { "path": "public/original/temple-model-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
         { "path": "public/original/temple-sparkles-p.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-temple-acquisition.py" },
+        { "path": "app/original-tower-acquisition.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tower-acquisition.py" },
+        { "path": "public/original/tower-model-d.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-tower-acquisition.py" },
         {
           "path": "app/level-one.ts",
           "type": "file",
