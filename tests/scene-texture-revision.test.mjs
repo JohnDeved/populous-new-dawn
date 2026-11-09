@@ -17,6 +17,7 @@ function fixture() {
       DataTexture: class { constructor() { Object.assign(this, makeTexture()) } },
     },
     templeArt: { modelAtlas: 'temple-model', sparkleAtlas: 'temple-sparkle' },
+    towerArt: JSON.parse(readFileSync(new URL('../app/original-tower-acquisition.json', import.meta.url), 'utf8')),
     nativeUnits: { atlas: 'units' }, lightningTexture: () => new Uint8Array(32 * 32 * 4),
     console: { error() {} },
   })
