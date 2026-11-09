@@ -203,3 +203,11 @@ live-state calculation at `004439d0`, its ordered linked-list inputs and the
 pre-command comparison. It is not payload/file integrity or replay execution.
 The error-byte literal scan finds only writes, but does not prove there is no
 indirect consumer; error handling remains unresolved.
+
+## CP camera application follow-up
+
+[The CP camera note](rolling-demo-camera.md) binds type-10 staging to the actual
+camera helper: the auxiliary low nibble gates an all-field commit, playback
+bypasses ordinary input damping/clamps, and CP EOF clears staging without zeroing
+the previously committed tribe camera on that service call. Downstream view
+configuration and replay execution remain open; the manifest is unchanged.

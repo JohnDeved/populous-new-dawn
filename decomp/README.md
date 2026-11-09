@@ -81,6 +81,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
 [Rolling Demo control and stream framing](research/rolling-demo-control.md),
 [Rolling Demo live-state checksum and error-byte limits](research/rolling-demo-checksum.md),
+[Rolling Demo CP staging and camera application](research/rolling-demo-camera.md),
 [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
