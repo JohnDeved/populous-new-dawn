@@ -176,6 +176,10 @@ open gets at most one second of further draining and is incomplete, not success;
 descendants are never signaled. If the direct child's exit cannot be observed,
 the receipt remains `unknown` and its runtime run lock is retained rather than
 claiming that caches are free. Do not steal that lock or infer cleanup from silence.
+If receipt/log cleanup also fails while that unobserved-exit marker is propagating,
+the marker remains the raised error and retains the cleanup failure as its cause.
+Cleanup still attempts the remaining owned descriptors; it does not release the
+runtime lock or certify that a failed descriptor close completed.
 Evidence path/link substitution still refuses terminal finalization. Existing
 source, asset and dependency drift checks remain unchanged; `run` is not an
 installer and dependency mutation still invalidates the attempt.

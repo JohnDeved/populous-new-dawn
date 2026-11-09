@@ -1116,5 +1116,100 @@ for suffix in ('', '.stdout', '.stderr'):
             with self.assertRaises(ValueError):
                 storage.safe_relative(name)
 
+class OwnedEvidenceCleanupTests(unittest.TestCase):
+    """Exercise receipt cleanup without Git, pnpm or a child process."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix='pnd-evidence-cleanup-test-')
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.runtime = self.root / 'runtime'
+        self.runtime.mkdir()
+        self.receipt = self.root / 'receipt.json'
+        self.lock = self.runtime / 'work/.shared-runtime-run-lock'
+        self.before = {'source': str(self.root / 'source'), 'runtime': str(self.runtime),
+                       'pool': str(self.root / 'pool')}
+        self.opened = []
+        self.enterContext(mock.patch.object(subprocess, 'Popen',
+                          side_effect=AssertionError('Cleanup fixtures must not launch subprocesses')))
+        for name, value in [('verify', self.before), ('dependency_identity', {}),
+                            ('toolchain_identity', {})]:
+            self.enterContext(mock.patch.object(storage, name, return_value=value))
+
+    def execute(self, capture_error=None, cleanup_error=None):
+        original = storage.OwnedEvidence
+        opened = self.opened
+        class FixtureEvidence(original):
+            def __enter__(self):
+                result = super().__enter__()
+                opened.append(self)
+                if cleanup_error is not None:
+                    def fail_close():
+                        raise cleanup_error
+                    self.stack.callback(fail_close)
+                return result
+        with mock.patch.object(storage, 'OwnedEvidence', FixtureEvidence), \
+                mock.patch.object(storage, 'capture_command', side_effect=capture_error,
+                                  return_value={'exitCode': 0, 'complete': True}) as capture:
+            try:
+                return storage.execute(self.before['source'], '0' * 40, self.before['pool'],
+                                       self.runtime, self.receipt, ['not-executed'])
+            finally:
+                capture.assert_called_once()
+                self.assertEqual(len(opened), 1)
+                self.assertTrue(all(stream.closed for _, stream, _ in opened[0].files.values()))
+
+    def test_unreaped_capture_and_close_failure_retain_lock_and_both_errors(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        close_error = OSError('supplied evidence close failure')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped, close_error)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIs(unreaped.__cause__, close_error)
+        self.assertTrue(self.lock.is_dir())
+        self.assertEqual(json.loads(self.receipt.read_text())['status'], 'unknown')
+        self.assertEqual(Path(str(self.receipt) + '.stdout').read_bytes(), b'')
+        self.assertEqual(Path(str(self.receipt) + '.stderr').read_bytes(), b'')
+
+    def test_baseexception_close_failure_does_not_erase_unreaped_marker(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        close_error = KeyboardInterrupt('supplied cleanup interruption')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped, close_error)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIs(unreaped.__cause__, close_error)
+        self.assertTrue(self.lock.is_dir())
+        self.assertEqual(json.loads(self.receipt.read_text())['status'], 'unknown')
+
+    def test_unreaped_capture_without_close_failure_retains_identity(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIsNone(unreaped.__cause__)
+        self.assertTrue(self.lock.is_dir())
+        self.assertEqual(json.loads(self.receipt.read_text())['status'], 'unknown')
+
+    def test_same_unreaped_cleanup_error_does_not_chain_to_itself(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped, unreaped)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIsNone(unreaped.__cause__)
+        self.assertTrue(self.lock.is_dir())
+
+    def test_close_failure_after_observed_completion_still_raises(self):
+        close_error = OSError('supplied evidence close failure')
+        with self.assertRaises(OSError) as raised:
+            self.execute(cleanup_error=close_error)
+        self.assertIs(raised.exception, close_error)
+        self.assertFalse(self.lock.exists())
+
+    def test_successful_evidence_cleanup_preserves_normal_result(self):
+        result = self.execute()
+        self.assertEqual(result['status'], 'passed')
+        self.assertEqual(json.loads(self.receipt.read_text()), result)
+        self.assertFalse(self.lock.exists())
+
+
 if __name__ == '__main__':
     unittest.main()

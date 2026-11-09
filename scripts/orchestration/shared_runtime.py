@@ -577,8 +577,15 @@ class OwnedEvidence:
             self.stack.close()
             raise
 
-    def __exit__(self, *args):
-        return self.stack.__exit__(*args)
+    def __exit__(self, exc_type, error, traceback):
+        try:
+            return self.stack.__exit__(exc_type, error, traceback)
+        except BaseException as cleanup_error:
+            # execute() retains its run lock only for this ownership marker. A
+            # failing evidence close must not turn unknown child exit into reuse.
+            if isinstance(error, UnreapedRuntimeCommand) and cleanup_error is not error:
+                raise error from cleanup_error
+            raise
 
     def validate(self):
         for parent, name, child, identity in self.parents:
