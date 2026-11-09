@@ -1,6 +1,6 @@
 import { launchFirewarriorPoint } from './firewarrior-point.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
-import { discardInvalidResident, residentPerson } from './building-resident.ts'
+import { prepareResidentPeople, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { latchFollowerCorpseFrame } from './follower-corpse-animation.ts'
@@ -268,14 +268,15 @@ export function createLivePerson(w: World, u: Unit, pos = nativePosition(w, u)):
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
 export function stepLivePersonHealth(w: World, deferred?: ReadonlySet<Unit>) {
+  const residentPeople = prepareResidentPeople(w)
   for (const u of w.units) {
     if (deferred?.has(u)) continue
-    discardInvalidResident(w, u)
+    if (u.resident !== undefined && !residentPeople(u)) delete u.resident
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p && (rules.personStateFlags[p.state] & 1 || p.flags2 & 0x80000)) continue
 
-    const resident = residentPerson(w, u),
+    const resident = residentPeople(u),
       maxLife = short(Math.round(maxHp(u.kind) * 20)),
       health = {
         model: p?.model ?? nativePersonModel(u),
