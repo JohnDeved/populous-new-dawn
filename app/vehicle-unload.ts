@@ -1,6 +1,7 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
 import { nativeAngle } from './native-math.ts'
+import { fillVehicleDriverSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
 import { teamForTribe, tribeForTeam, type Vehicle } from './world-types.ts'
 
@@ -48,13 +49,7 @@ export function departVehiclePerson(
   launchVehiclePerson(rng, p, point)
   vehicle.passengers[slot] = 0
   vehicle.passengerCount--
-  if (!slot && vehicle.passengerCount) {
-    const next = vehicle.passengers.findIndex((id, i) => i > 0 && i < capacity && !!id)
-    if (next !== -1) {
-      vehicle.passengers[0] = vehicle.passengers[next]
-      vehicle.passengers[next] = 0
-    }
-  }
+  if (!slot && vehicle.passengerCount) fillVehicleDriverSeat(vehicle)
   vehicle.navigationFlags |= 2
   vehicle.apparentTribe ??= tribeForTeam(vehicle.team)
   vehicle.team = teamForTribe(p.tribe)
@@ -83,12 +78,7 @@ export function unloadVehiclePeople(
     effects.clearOrders(p)
     const exit = effects.exit()
     if (!exit.found) continue
-    launchVehiclePerson(rng, p, exit.point)
-    vehicle.passengers.shift()
-    vehicle.passengerCount--
-    vehicle.navigationFlags |= 2
-    vehicle.apparentTribe ??= tribeForTeam(vehicle.team)
-    vehicle.team = teamForTribe(p.tribe)
+    if (!departVehiclePerson(rng, vehicle, p, exit.point)) continue
     effects.launched(p)
     count++
   }

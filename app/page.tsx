@@ -900,7 +900,7 @@ export default function Home() {
                     },
                     {
                       text: 'Board followers onto the Boat',
-                      done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
+                      done: world.vehicles.some(vehicle => vehicle.passengerCount > 0),
                     },
                     { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
                   ]
@@ -954,7 +954,7 @@ export default function Home() {
                             {
                               text: 'Send a Brave inside to launch and board a Boat',
                               done: world.vehicles.some(
-                                vehicle => vehicle.active && vehicle.passengers.length
+                                vehicle => vehicle.active && vehicle.passengerCount
                               ),
                             },
                           ]
@@ -963,7 +963,7 @@ export default function Home() {
                               {
                                 text: 'Board two followers onto the provided Boat',
                                 done: world.vehicles.some(
-                                  vehicle => vehicle.passengers.length >= 2
+                                  vehicle => vehicle.passengerCount >= 2
                                 ),
                               },
                               {
