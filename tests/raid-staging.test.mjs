@@ -16,7 +16,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
-    assert.match(result.stdout, /tests 39\b/, 'all thirty-nine child cases must report')
+    assert.match(result.stdout, /tests 98\b/, 'all ninety-eight child cases must report')
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
@@ -52,6 +52,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   const { stepComputerTasks } = await import('../app/computer-runtime.ts')
   const { createWorld } = await import('../app/world-initialization.ts')
   const { migrateCheckpoint } = await import('../app/game-store.ts')
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const cases = [
     { name: 'established base precedes enabled defence', base: 0x8436, expected: 0x8436 },
     { name: 'established base precedes live Shaman', base: 0x8436, defence: false, expected: 0x8436 },
@@ -79,13 +80,57 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     { name: 'Mission 3 legacy recruitment retains loaded origin', level: 3, shaman: 'moved', checkpoint: 'legacy', phase: 3, quota: true, expected: 0x60da },
     { name: 'Mission 3 recruitment retains established base priority', level: 3, base: 0x60d8, shaman: 'moved', phase: 3, quota: true, expected: 0x60d8 },
     { name: 'Mission 3 established cell zero precedes loaded origin', level: 3, base: 0, shaman: 'moved', expected: 0 },
-    { name: 'later Mission 5 retains enabled defence fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0x8232 },
-    { name: 'later Mission 5 retains live Shaman fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0x2020 },
+    { name: 'Mission 6 Chumara loaded origin ignores moved Shaman and defence', level: 6, tribe: 2, shaman: 'moved', expected: 0xd094, },
+    { name: 'Mission 6 Chumara loaded origin survives dead Shaman without defence', level: 6, tribe: 2, shaman: 'dead', defence: false, expected: 0xd094, },
+    { name: 'Mission 6 Chumara modern checkpoint retains absent Shaman origin', level: 6, tribe: 2, shaman: 'missing', checkpoint: 'modern', expected: 0xd094, },
+    { name: 'Mission 6 Chumara saved explicit base zero wins', level: 6, tribe: 2, base: 0, checkpoint: 'modern', expected: 0, },
+    { name: 'Mission 6 Matak loaded origin ignores moved Shaman', level: 6, tribe: 3, shaman: 'moved', expected: 0x72d8, },
+    { name: 'Mission 6 Matak modern checkpoint survives dead Shaman', level: 6, tribe: 3, shaman: 'dead', checkpoint: 'modern', defence: false, expected: 0x72d8, },
+    { name: 'Mission 6 Matak legacy absent-base save derives missing Shaman origin', level: 6, tribe: 3, shaman: 'missing', checkpoint: 'legacy', expected: 0x72d8, },
+    { name: 'Mission 6 Matak legacy explicit base zero wins', level: 6, tribe: 3, base: 0, checkpoint: 'legacy', expected: 0, },
+    { name: 'Mission 6 finished Chumara raid returns to loaded origin', level: 6, tribe: 2, phase: 16, expected: 0xd094, },
+    { name: 'Mission 6 lost Matak target returns to loaded origin', level: 6, tribe: 3, phase: 17, expected: 0x72d8, },
+    { name: 'Mission 6 outbound target remains independent', level: 6, tribe: 2, phase: 9, expected: 0xd094, move: 0x2468, },
+    { name: 'Mission 6 regroup target remains independent', level: 6, tribe: 3, phase: 12, expected: 0x72d8, move: 0x1357, },
+    ...['direct', 'modern', 'legacy'].flatMap(checkpoint =>
+      ['moved', 'dead', 'missing'].flatMap(shaman => [true, false].map(defence => ({
+        name: `Mission 4 loaded origin with ${shaman} Shaman, defence ${defence ? 'on' : 'off'}, ${checkpoint}`,
+        level: 4, tribe: 3, checkpoint, shaman, defence, expected: 0x36b6,
+      })))),
+    { name: 'Mission 4 quota recruitment receives loaded origin', level: 4, tribe: 3, phase: 3, quota: true, expected: 0x36b6 },
+    { name: 'Mission 4 fallback recruitment receives loaded origin', level: 4, tribe: 3, phase: 3, expected: 0x36b6 },
+    { name: 'Mission 4 below-quota retreat returns to loaded origin', level: 4, tribe: 3, phase: 16, retreat: true, expected: 0x36b6 },
+    { name: 'Mission 4 finished raid returns to loaded origin', level: 4, tribe: 3, phase: 16, expected: 0x36b6 },
+    { name: 'Mission 4 lost target returns to loaded origin', level: 4, tribe: 3, phase: 17, expected: 0x36b6 },
+    { name: 'Mission 4 saved established zero still wins', level: 4, tribe: 3, base: 0, checkpoint: 'modern', expected: 0 },
+    { name: 'Mission 4 outbound target remains independent', level: 4, tribe: 3, phase: 9, expected: 0x36b6, move: 0x2468 },
+    { name: 'Mission 4 regroup target remains independent', level: 4, tribe: 3, phase: 12, expected: 0x36b6, move: 0x1357 },
+    // The old M5 cases recorded the compatibility adapter, not the loaded-origin contract.
+    { name: 'Mission 5 loaded origin precedes enabled defence', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0xb492 },
+    { name: 'Mission 5 loaded origin precedes moved Shaman', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0xb492 },
+    ...['direct', 'modern'].flatMap(checkpoint =>
+      ['moved', 'dead', 'missing'].flatMap(shaman => [true, false].map(defence => ({
+        name: `Mission 5 loaded origin with ${shaman} Shaman, defence ${defence ? 'on' : 'off'}, ${checkpoint}`,
+        level: 5, tribe: 1, memberKind: 'warrior', checkpoint, shaman, defence, expected: 0xb492,
+      })))),
+    { name: 'Mission 5 quota recruitment receives loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 3, quota: true, quotas: [0, 100, 0, 0, 0, 0], expected: 0xb492 },
+    { name: 'Mission 5 fallback recruitment receives loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 3, expected: 0xb492 },
+    { name: 'Mission 5 below-quota retreat returns to loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 16, retreat: true, expected: 0xb492 },
+    { name: 'Mission 5 finished raid returns to loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 16, expected: 0xb492 },
+    { name: 'Mission 5 lost target returns to loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 17, expected: 0xb492 },
+    { name: 'Mission 5 direct established zero still wins', level: 5, tribe: 1, memberKind: 'warrior', base: 0, expected: 0 },
+    { name: 'Mission 5 current checkpoint established zero still wins', level: 5, tribe: 1, memberKind: 'warrior', base: 0, checkpoint: 'modern', expected: 0 },
+    { name: 'Mission 5 outbound target remains independent', level: 5, tribe: 1, memberKind: 'warrior', phase: 9, expected: 0xb492, move: 0x2468 },
+    { name: 'Mission 5 regroup target remains independent', level: 5, tribe: 1, memberKind: 'warrior', phase: 12, expected: 0xb492, move: 0x1357 },
   ]
   for (const c of cases) test(c.name, () => {
     const level = c.level ?? 2, tribe = c.tribe ?? [0, 1, 3, 2][level],
       team = ['blue', 'red', 'yellow', 'green'][tribe]
     let world = createWorld(level)
+    if (level === 6) {
+      world.activeCampaignTribe = tribe
+      world.ai = world.campaignAIs[tribe]
+    }
     const shaman = world.units.find(u => u.team === team && u.kind === 'shaman')
     assert.ok(shaman)
     if (c.shaman === 'moved') Object.assign(shaman, c.shamanPoint ?? { x: -8, z: -8 })
@@ -121,7 +166,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
         assert.equal(Object.hasOwn(saved, 'activeCampaignTribe'), false)
         assert.ok(saved.units.some(u => u.team === 'red'))
       }
-      world = migrateCheckpoint(saved)
+      world = c.checkpoint === 'legacy' ? normalizeHistoricalFixture(saved) : migrateCheckpoint(saved)
     }
     const ai = world.ai
     assert.equal(world.activeCampaignTribe, tribe)
@@ -144,7 +189,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     Object.assign(task, { flags: 1, type: 20, phase, target: 0x2468, regroup: 0x1357,
       requested: c.retreat ? 10 : 2, retreatPercent: c.retreat ? 50 : 0,
       members: phase === 3 ? [] : members.map(u => u.id), selected: 0, remaining: 0,
-      quotas: c.quota ? [100, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0],
+      quotas: c.quotas ?? (c.quota ? [100, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0]),
       extra: 0, damage: 0, entity: phase === 17 ? 65534 : 0 })
     assert.equal(actual.computerPhase(world.turn, tribe), 'dispatch')
     observed = { world, calls: 0, recruitment: [] }

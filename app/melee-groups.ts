@@ -101,7 +101,8 @@ export interface FightRoster {
 // 0x519a70: persistent membership and the packed processing list are distinct.
 export function cleanFightRoster(
   group: FightRoster,
-  objects: ReadonlyMap<number, FightParticipant>
+  objects: ReadonlyMap<number, FightParticipant>,
+  groupId?: (stored: number) => number
 ) {
   const people: number[] = []
   for (const [slot, id] of group.members.entries()) {
@@ -110,7 +111,7 @@ export function cleanFightRoster(
     const alive = p && p.class !== 0 && !(p.flags2 & 1)
     if (
       alive &&
-      (p.workFlags << 16) >> 16 === group.id &&
+      (groupId?.(p.workFlags) ?? (p.workFlags << 16) >> 16) === group.id &&
       rules.personStateFlags[p.state] & 16 &&
       p.life > 0
     ) {

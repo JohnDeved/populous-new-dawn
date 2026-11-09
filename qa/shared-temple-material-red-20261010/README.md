@@ -1,5 +1,7 @@
 # Shared Temple material baseline RED
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/shared-temple-material-red-20261010), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Test commit `68aa333d49a821c975e85c2a42e31f137e2fb22f` adds three test changes
 against runtime base `219384134d21200f80df0496a4866fb02fb200db`. No runtime or
 generated assets change. This is the failure-first regression slice for

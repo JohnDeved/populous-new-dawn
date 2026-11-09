@@ -1,0 +1,807 @@
+{
+  "status": "independently accepted scoped cold M10 reconstruction; see README assumptions and exclusions",
+  "input": {
+    "path": "populous-research-inputs/game/app/levels/levl2010.dat",
+    "sha256": "0b0e073e0214597db814d3b69ba565127ea3df58cf5f46e6796466b7059c9f5d"
+  },
+  "receipts": [
+    {
+      "initialLandFlags": 0,
+      "terrainSha256": "901ecc91e83c24fbd5898d8bc55e9da6f91fc261386d158bd91b819bed881e7f",
+      "seed": {
+        "x": 9814,
+        "y": 6230
+      },
+      "before": {
+        "index": 1555,
+        "cell": [
+          19,
+          12
+        ],
+        "flags": 17,
+        "category": 1,
+        "categoryFlags": 2,
+        "direction": -1,
+        "accept": false
+      },
+      "slot": 1,
+      "visited": [
+        {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "position": {
+            "x": 9984,
+            "y": 6400
+          },
+          "index": 1555,
+          "cell": [
+            19,
+            12
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "position": {
+            "x": 9984,
+            "y": 6400
+          },
+          "index": 1555,
+          "cell": [
+            19,
+            12
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 0,
+            "y": 1
+          },
+          "position": {
+            "x": 9984,
+            "y": 6912
+          },
+          "index": 1683,
+          "cell": [
+            19,
+            13
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 1,
+            "y": 1
+          },
+          "position": {
+            "x": 10496,
+            "y": 6912
+          },
+          "index": 1684,
+          "cell": [
+            20,
+            13
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 1,
+            "y": 0
+          },
+          "position": {
+            "x": 10496,
+            "y": 6400
+          },
+          "index": 1556,
+          "cell": [
+            20,
+            12
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 1,
+            "y": -1
+          },
+          "position": {
+            "x": 10496,
+            "y": 5888
+          },
+          "index": 1428,
+          "cell": [
+            20,
+            11
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 0,
+            "y": -1
+          },
+          "position": {
+            "x": 9984,
+            "y": 5888
+          },
+          "index": 1427,
+          "cell": [
+            19,
+            11
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": -1,
+            "y": -1
+          },
+          "position": {
+            "x": 9472,
+            "y": 5888
+          },
+          "index": 1426,
+          "cell": [
+            18,
+            11
+          ],
+          "flags": 16777233,
+          "category": 8,
+          "categoryFlags": 8,
+          "direction": 1,
+          "accept": true
+        }
+      ],
+      "selected": {
+        "x": 9472,
+        "y": 5888
+      },
+      "final": {
+        "x": 9586,
+        "y": 6002
+      },
+      "after": {
+        "index": 1426,
+        "cell": [
+          18,
+          11
+        ],
+        "flags": 16777233,
+        "category": 8,
+        "categoryFlags": 8,
+        "direction": 1,
+        "accept": true
+      },
+      "height": 0,
+      "heading": 1280,
+      "poolAfter": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        16,
+        0,
+        0,
+        6,
+        0,
+        18,
+        0,
+        14,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "initialLandFlags": 128,
+      "terrainSha256": "901ecc91e83c24fbd5898d8bc55e9da6f91fc261386d158bd91b819bed881e7f",
+      "seed": {
+        "x": 9814,
+        "y": 6230
+      },
+      "before": {
+        "index": 1555,
+        "cell": [
+          19,
+          12
+        ],
+        "flags": 17,
+        "category": 1,
+        "categoryFlags": 2,
+        "direction": -1,
+        "accept": false
+      },
+      "slot": 1,
+      "visited": [
+        {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "position": {
+            "x": 9984,
+            "y": 6400
+          },
+          "index": 1555,
+          "cell": [
+            19,
+            12
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "position": {
+            "x": 9984,
+            "y": 6400
+          },
+          "index": 1555,
+          "cell": [
+            19,
+            12
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 0,
+            "y": 1
+          },
+          "position": {
+            "x": 9984,
+            "y": 6912
+          },
+          "index": 1683,
+          "cell": [
+            19,
+            13
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 1,
+            "y": 1
+          },
+          "position": {
+            "x": 10496,
+            "y": 6912
+          },
+          "index": 1684,
+          "cell": [
+            20,
+            13
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 1,
+            "y": 0
+          },
+          "position": {
+            "x": 10496,
+            "y": 6400
+          },
+          "index": 1556,
+          "cell": [
+            20,
+            12
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 1,
+            "y": -1
+          },
+          "position": {
+            "x": 10496,
+            "y": 5888
+          },
+          "index": 1428,
+          "cell": [
+            20,
+            11
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": 0,
+            "y": -1
+          },
+          "position": {
+            "x": 9984,
+            "y": 5888
+          },
+          "index": 1427,
+          "cell": [
+            19,
+            11
+          ],
+          "flags": 17,
+          "category": 1,
+          "categoryFlags": 2,
+          "direction": -1,
+          "accept": false
+        },
+        {
+          "offset": {
+            "x": -1,
+            "y": -1
+          },
+          "position": {
+            "x": 9472,
+            "y": 5888
+          },
+          "index": 1426,
+          "cell": [
+            18,
+            11
+          ],
+          "flags": 16777233,
+          "category": 8,
+          "categoryFlags": 8,
+          "direction": 1,
+          "accept": true
+        }
+      ],
+      "selected": {
+        "x": 9472,
+        "y": 5888
+      },
+      "final": {
+        "x": 9586,
+        "y": 6002
+      },
+      "after": {
+        "index": 1426,
+        "cell": [
+          18,
+          11
+        ],
+        "flags": 16777233,
+        "category": 8,
+        "categoryFlags": 8,
+        "direction": 1,
+        "accept": true
+      },
+      "height": 0,
+      "heading": 1280,
+      "poolAfter": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        2,
+        1,
+        16,
+        0,
+        0,
+        6,
+        0,
+        18,
+        0,
+        14,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

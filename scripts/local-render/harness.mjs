@@ -1,3 +1,5 @@
+import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
+import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { spawn } from 'node:child_process'
 import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
@@ -88,7 +90,7 @@ function profileRuntimeReceipt(root, browserPath, require) {
         resolve(dirname(require.resolve('playwright-core/package.json')), 'lib/coreBundle.js')
       )
     ),
-    installedLockSha256: sha256(readFileSync(resolve(root, 'node_modules/.package-lock.json'))),
+    ...dependencyReceipt(root),
     harness: Object.fromEntries(
       ['harness.mjs', 'owned-profile.mjs', 'checkpoint-observer.mjs', 'vite.config.mjs'].map(
         name => [name, sha256(readFileSync(resolve(here, name)))]
@@ -263,8 +265,8 @@ export async function runLocalBrowser(options, scenario) {
       for (;;) {
         abort.signal.throwIfAborted()
         if (spawnError) throw spawnError
-        if (server.exitCode !== null)
-          throw new Error(`Local server exited ${server.exitCode}; see server.log`)
+        if (server.exitCode !== null || typeof server.signalCode === 'string')
+          throw new Error(`Local server exited ${server.exitCode ?? server.signalCode}; see server.log`)
         if (listening) {
           readiness.attempts++
           const fact = { elapsedMs: Date.now() - readinessStarted, pending: true }
@@ -296,8 +298,8 @@ export async function runLocalBrowser(options, scenario) {
           }
           abort.signal.throwIfAborted()
           if (spawnError) throw spawnError
-          if (server.exitCode !== null)
-            throw new Error(`Local server exited ${server.exitCode}; see server.log`)
+          if (server.exitCode !== null || typeof server.signalCode === 'string')
+            throw new Error(`Local server exited ${server.exitCode ?? server.signalCode}; see server.log`)
           if (fact.ok) {
             readiness.ready = true
             break
@@ -349,7 +351,7 @@ export async function runLocalBrowser(options, scenario) {
     page.setDefaultTimeout(45000)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await page
-      .getByRole('dialog', { name: 'Start game', exact: true })
+      .getByRole('dialog', { name: /^(Main menu|Start game)$/ })
       .waitFor({ state: 'visible' })
     if (lease) {
       receipt.profile.checkpointAtStart = await readCommittedCheckpoint(page)
@@ -366,11 +368,12 @@ export async function runLocalBrowser(options, scenario) {
         throw Error('New task profile unexpectedly contains a checkpoint')
       checkpointIdentityVerified = true
     }
-    const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+    const { bindGame, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
     const openMission = async mission => {
+      const mainMenu = page.getByRole('dialog', { name: 'Main menu', exact: true })
+      if (await mainMenu.isVisible()) await openCampaignFromMainMenu(page)
       const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
-      const allMissions = page.getByRole('button', { name: 'All missions', exact: true })
-      if (!(await button.isVisible()) && (await allMissions.isVisible())) await allMissions.click()
+      if (!(await button.isVisible())) await showAllMissions(page)
       await button.focus()
       await page.keyboard.press('Enter')
       await bindGame(page)

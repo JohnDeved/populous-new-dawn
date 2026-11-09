@@ -1,5 +1,7 @@
 # Debug symbols and reusable projects
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/decomp), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Inspected 2026-09-07. No matching official PDB/DBG package was found in the public searches and repositories checked. This is not proof none exists. The supplied 2,275,840-byte `d3dpoptb.exe` has a PE debug-directory RVA and size of **zero**, so it has no CodeView/PDB locator there. Reproduce with `python3 scripts/decomp.py check /path/to/d3dpoptb.exe`.
 
 Searches included `Populous debug symbols`, `Populous D3DPopTB.pdb`, Populous PDB/D3D combinations, decompilation/source projects, and the OpenPop resource index. PS1 prototype leads target a different platform/build and have not been established as usable PC symbols. Private source repositories mentioned in community notes are not a public source-code dependency.

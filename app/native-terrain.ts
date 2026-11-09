@@ -125,29 +125,34 @@ export function createNativeTerrain(heights: ArrayLike<number>): NativeTerrain {
   }
 }
 
-// 0x422bd0: choose three corners for a quarter-cell off the diagonal, all
-// four when it straddles the diagonal. Native min/max start at 1024 and zero.
+// Choose three corners off the diagonal and all four across it. Scalar loads
+// avoid allocating corner arrays for every bit in both walk masks.
+function quarterHeightRange(heights: Int16Array, cell: number, i: number, flags: number) {
+  const nextColumn = (i + 1) & 127,
+    nextRow = (i + 128) & 16256,
+    a = heights[i],
+    b = heights[nextRow | (i & 127)],
+    c = heights[nextRow | nextColumn],
+    d = heights[(i & 16256) | nextColumn]
+  const quarter = cell & 1 ? (cell & 256 ? 2 : 3) : (cell >> 8) & 1
+  if (flags & 1) {
+    if (quarter === 0) return Math.max(0, a, b, d) - Math.min(1024, a, b, d)
+    if (quarter === 2) return Math.max(0, b, c, d) - Math.min(1024, b, c, d)
+  } else {
+    if (quarter === 1) return Math.max(0, a, b, c) - Math.min(1024, a, b, c)
+    if (quarter === 3) return Math.max(0, a, c, d) - Math.min(1024, a, c, d)
+  }
+  return Math.max(0, a, b, c, d) - Math.min(1024, a, b, c, d)
+}
+
+// 0x422bd0: native min/max start at 1024 and zero, including signed heights.
 export function terrainQuarterPassable(
   land: Pick<NativeTerrain, 'heights' | 'flags'>,
   cell: number,
   limit: number
 ) {
-  const i = indexOf(cell),
-    [a, b, c, d] = heightCorners(land, i)
-  const quarter = cell & 1 ? (cell & 256 ? 2 : 3) : (cell >> 8) & 1
-  const corners =
-    land.flags[i] & 1
-      ? quarter === 0
-        ? [a, b, d]
-        : quarter === 2
-          ? [b, c, d]
-          : [a, b, c, d]
-      : quarter === 1
-        ? [a, b, c]
-        : quarter === 3
-          ? [a, c, d]
-          : [a, b, c, d]
-  return Math.max(0, ...corners) - Math.min(1024, ...corners) <= limit
+  const i = indexOf(cell)
+  return quarterHeightRange(land.heights, cell, i, land.flags[i]) <= limit
 }
 
 // 0x44f750: height range of the triangle beneath a native position.
@@ -212,20 +217,28 @@ export function updateWalkMasks(
 ) {
   radius = (radius << 16) >> 16
   if (radius < 0) throw new RangeError('Negative native walk-mask radius')
-  const limits = [rules.landHeightConstant, rules.alternateLandHeightConstant]
-  for (let pass = 0; pass < 2; pass++)
-    for (let y = 0; y < radius * 4 + 1; y++)
-      for (let x = 0; x < radius * 4 + 1; x++) {
-        const cell =
-          (((center & 255) - radius * 2 + x) & 255) |
-          ((((center >>> 8) - radius * 2 + y) & 255) << 8)
+  const landLimit = rules.landHeightConstant,
+    alternateLimit = rules.alternateLandHeightConstant,
+    width = radius * 4 + 1,
+    originX = (center & 255) - radius * 2,
+    originY = (center >>> 8) - radius * 2
+  for (let pass = 0; pass < 2; pass++) {
+    const limit = pass === 0 ? landLimit : alternateLimit,
+      mask = land.walkMasks[pass]
+    for (let y = 0; y < width; y++) {
+      const row = ((originY + y) & 255) << 8
+      for (let x = 0; x < width; x++) {
+        const cell = row | ((originX + x) & 255),
+          i = indexOf(cell),
+          flags = land.flags[i]
         const allowed =
-          !(land.flags[indexOf(cell)] & 0x80004) && terrainQuarterPassable(land, cell, limits[pass])
-        const mask = land.walkMasks[pass],
-          byte = cell >> 3,
+          !(flags & 0x80004) && quarterHeightRange(land.heights, cell, i, flags) <= limit
+        const byte = cell >> 3,
           bit = 1 << (cell & 7)
         mask[byte] = allowed ? mask[byte] | bit : mask[byte] & ~bit
       }
+    }
+  }
 }
 
 // 0x44df40. Complete simulation passes; texture consumers retain their original

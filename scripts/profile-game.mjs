@@ -48,7 +48,15 @@ try {
         beforeTurn = s.gameClock.beforeTurn,
         afterTurn = s.gameClock.afterTurn
       window.resetMovingProfile = (smooth, crowd) => {
-        s.world = createWorld()
+        if (s.world !== window.testStore.getWorld())
+          throw new Error('Profile Scene and store world must match before reset')
+        // Keep React/store callbacks and the Scene presentation binding on the
+        // same world. A fresh terrain must invalidate the retained Scene mesh.
+        const terrainVersion = s.world.terrainVersion + 1,
+          landVersion = s.world.landVersion + 1
+        Object.assign(s.world, createWorld())
+        s.world.terrainVersion = terrainVersion
+        s.world.landVersion = landVersion
         s.world.flyby.flags &= ~1
         s.world.inputMask = 0
         s.wasFlying = false
@@ -67,6 +75,7 @@ try {
             addUnit(s.world, 'blue', 'brave', { x: -8 + (i % 20), z: 23 + Math.floor(i / 20) })
         s.world.selected = s.world.units.filter(u => u.team === 'blue').map(u => u.id)
         command(s.world, { x: 10, z: 34 })
+        window.testStore.update()
       }
     })
   await cdp.send('Profiler.enable')

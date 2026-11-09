@@ -1,0 +1,17 @@
+file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/live-people.ts:446
+      throw new Error('Live firewarriors are not yet implemented')
+            ^
+
+Error: Live firewarriors are not yet implemented
+    at Object.projectile (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/live-people.ts:446:13)
+    at stepCelebration (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/celebration.ts:266:13)
+    at stepLivePerson (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/live-people.ts:1224:23)
+    at stepTurn (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/world-turn.ts:1341:7)
+    at tick (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/world-turn.ts:469:5)
+    at advanceGame (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/game-clock.ts:82:19)
+    at frame (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/clock-driver.mjs:20:164)
+    at step (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept-settled.mjs:6:252)
+    at file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept-settled.mjs:8:69
+    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/tests/support/profile-storage.mjs:115:5)
+
+Node.js v24.19.0

@@ -6,6 +6,8 @@ import rules from '../app/original-rules.json' with {type:'json'}
 import {spellButton} from '../app/spell-button.ts'
 import {createWorld} from '../app/world-initialization.ts'
 import {campaignSpellModels} from '../app/mission-data.ts'
+import {spellHudVisibility,spellHudButton,spellHudPermanent,spellHudCanCharge} from '../app/spell-visibility.ts'
+import {SPELLS} from '../app/world-rules.ts'
 
 const ids=[408,409,410,411,412,413]
 const iconOf=view=>view.sprites.find(s=>ids.includes(s.id))
@@ -44,15 +46,24 @@ test('ready, inactive, hover and selected states use the original descriptors, n
   }
 })
 
-test('authored Mission16 already exposes both sprites without forced availability or stock',()=>{
+test('authored Mission16 exposes Shield while Bloodlust remains an undiscovered earned reward',()=>{
   const w=createWorld(16),before=structuredClone(w),roster=campaignSpellModels(16)
   for(const [id,model]of [['shield',19],['bloodlust',20]]){
-    assert.ok(roster.has(model))
-    assert.ok(w.manaWorld.spells[0].available&(1<<model))
+    assert.ok(roster.has(model),'campaign content inventory still includes both models')
     assert.equal(w.shots[id],0)
-    const view=spellButton({model,permanent:true,charging:!(w.manaWorld.spells[0].disabled&(1<<(model-1))),
-      hovered:false,selected:false,stock:w.shots[id],gifts:w.giftCounts[id],progress:w.manaTribes[0].spellProgress[model]})
-    assert.equal(iconOf(view).id,rules.spellCharging[model].icons[0])
+    const spell=SPELLS.find(spell=>spell.id===id),permanent=spellHudPermanent(w,spell),
+      visibility=spellHudVisibility(w,spell),
+      view=spellHudButton(visibility,{model,permanent,charging:permanent&&spellHudCanCharge(w,spell)&&!(w.manaWorld.spells[0].disabled&(1<<(model-1))),
+        hovered:false,selected:false,stock:w.shots[id],gifts:w.giftCounts[id],progress:w.manaTribes[0].spellProgress[model]})
+    if(model===19){
+      assert.equal(permanent,true)
+      assert.equal(visibility,'visible')
+      assert.equal(iconOf(view).id,rules.spellCharging[model].icons[0])
+    }else{
+      assert.equal(permanent,false,'native normal initialization clears mode-2 HDR availability')
+      assert.equal(visibility,'undiscovered')
+      assert.deepEqual(view.sprites,[{id:1056,x:5,y:10}])
+    }
   }
   assert.deepEqual(w,before)
 })

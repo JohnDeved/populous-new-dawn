@@ -155,7 +155,7 @@ test('Temple explicit held input reuses one record, releases off-target and expi
   scene.cameraMotion = { active: 0 }
   scene.cameraPreviewButtons = null
   scene.cameraVelocity = { turn: 0, forward: 0, side: 0 }
-  pointerMove(scene, { clientX: 799, clientY: 1, buttons: 2 })
+  pointerMove(scene, { ...event, clientX: 799, clientY: 1, buttons: 2 })
   for (let visits = 0; visits < 30; visits++) frame()
   assert.equal(records(scene).get(temple.id), record)
   assert.deepEqual(record, { phase: 1, remaining: 15, hold: 16, automatic: false })
@@ -358,7 +358,7 @@ test('Temple phase2 manual-to-automatic reuse exits without restarting and held 
 })
 
 test('typed Save and first Load publication preserve gameplay and discard manual Temple ownership', async t => {
-  const fixture = await templePanelFixture(t),
+  const fixture = await templePanelFixture(t, 'scalable'),
     { scene, temple, paint } = fixture,
     { createGameStore, migrateCheckpoint } = await import('../app/game-store.ts'),
     { ObjectPanels } = await import('../app/object-panels.ts'),
@@ -409,14 +409,19 @@ test('typed Save and first Load publication preserve gameplay and discard manual
     globe: { dispose: nop },
     waterMap: { dispose: nop },
     terrainMap: { dispose: nop },
+    terrainUpload: {},
+    minimap: { revision: undefined },
     pointerOutline: { remove: nop },
     spellPointer: { remove: nop },
   })
+  let contextLosses = 0
   scene.renderer.dispose = nop
+  scene.renderer.forceContextLoss = () => { ++contextLosses }
   scene.renderer.domElement.remove = nop
   scene.tooltipElement.remove = nop
   scene.worshipPresentation.dispose = nop
   scene.dispose()
+  assert.equal(contextLosses, 1, 'owned renderer context retirement reaches its supplied boundary')
   assert.equal(records(scene).size, 0)
   assert.equal(scene.objectPanels.buildingInspected, null)
   assert.equal(scene.objectPanels.buildingHeldPointer, null)

@@ -165,12 +165,19 @@ async function advanceUntil(page, condition, limit, label) {
             return world.campaignAIs[3].tasks.some(
               task => task.flags & 1 && task.type === 20 && task.phase === 6
             )
+          if (condition === 'matak-marker-cast')
+            return world.campaignAIs[3].tasks.some(
+              task => task.flags & 1 && task.type === 20 && task.phase === 21
+            )
           if (condition === 'matak-bridge-cast')
             return world.projectiles.some(
               projectile => projectile.spell === 'bridge' && projectile.team === 'green'
             )
           if (condition === 'matak-bridge-resolution')
-            return world.stats.bridges > 0 || world.status !== 'playing'
+            return (
+              (world.stats.bridges > 0 && !world.effects.some(effect => effect.bridge)) ||
+              world.status !== 'playing'
+            )
           throw new Error(`Unknown condition ${condition}`)
         }
       if (!window.__mission6NaturalOwnsRaf || scene.frame)
@@ -184,8 +191,8 @@ async function advanceUntil(page, condition, limit, label) {
       if (scene.frame) cancelAnimationFrame(scene.frame)
       scene.frame = 0
       scene.previous = null
-      const blue = world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0),
-        green = world.units.find(u => u.team === 'green' && u.kind === 'shaman' && u.hp > 0)
+      const queryWorld = structuredClone(world),
+        blue = queryWorld.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
       return {
         ready: ready(),
         ticks,
@@ -193,7 +200,7 @@ async function advanceUntil(page, condition, limit, label) {
         status: world.status,
         bridges: world.stats.bridges,
         bridgeEffects: world.effects.filter(effect => effect.bridge).length,
-        routeToMatak: blue && green ? findPath(world, blue, { x: green.x, z: green.z }).length : 0,
+        routeToMatak: blue ? findPath(queryWorld, blue, { x: -49, z: -121 }).length : 0,
         populations: Object.fromEntries(
           ['blue', 'yellow', 'green'].map(team => [
             team,
@@ -208,6 +215,8 @@ async function advanceUntil(page, condition, limit, label) {
             members: [...task.members],
             spells: [...(task.spells ?? [])],
             target: task.target,
+            stagingMarker: task.stagingMarker,
+            spellMarker: task.spellMarker,
           })),
         bridgeProjectiles: world.projectiles
           .filter(projectile => projectile.spell === 'bridge')
@@ -518,11 +527,21 @@ try {
     `MISSION6_ATTACK_SHAMAN_ASSIGNMENT_MISSING: native type-20 selection assigns the tribe Shaman when the sixth ATTACK quota is nonzero, but browser phase 6 has Shaman ${shaman.id} state ${shaman.state} outside task members ${JSON.stringify(task.members)}`
   )
 
+  const markerPhase = await advanceUntil(
+    page,
+    'matak-marker-cast',
+    6000,
+    'Matak authored shoreline staging and marker spell'
+  )
+  record('matak-marker-phase', markerPhase)
+  assert.equal(markerPhase.matakAttack[0]?.stagingMarker, -1)
+  assert.equal(markerPhase.matakAttack[0]?.spellMarker, 16)
+
   const bridgeCast = await advanceUntil(
     page,
     'matak-bridge-cast',
     256,
-    'Matak phase-6 Land Bridge cast'
+    'Matak phase-21 marker Land Bridge cast'
   )
   record('matak-bridge-cast', bridgeCast)
   assert.deepEqual(
@@ -540,7 +559,7 @@ try {
   record('matak-bridge-resolution', bridgeResolution)
   assert.ok(
     bridgeResolution.routeToMatak > 0,
-    `MISSION6_ATTACK_PHASE5_BRIDGE_TARGET_STATE_MISMATCH: Matak task Shaman is assigned and model12 is consumed, but the ordinary phase-5/6 state leaves the cast non-connecting: ${JSON.stringify({ bridgeCast, bridgeResolution })}`
+    `MISSION6_MARKER_BRIDGE_NOT_CONNECTED: the authored marker cast completed but no land route exists: ${JSON.stringify({ bridgeCast, bridgeResolution })}`
   )
 
   assert.fail(

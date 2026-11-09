@@ -1,0 +1,235 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00429c70 <.text+0x28c70>:
+  429c70:	83 ec 08             	sub    esp,0x8
+  429c73:	56                   	push   esi
+  429c74:	57                   	push   edi
+  429c75:	e8 86 95 07 00       	call   0x4a3200
+  429c7a:	e8 a1 a0 07 00       	call   0x4a3d20
+  429c7f:	68 13 27 89 00       	push   0x892713
+  429c84:	68 23 cd 89 00       	push   0x89cd23
+  429c89:	e8 22 65 0d 00       	call   0x5001b0
+  429c8e:	8d 44 24 14          	lea    eax,[esp+0x14]
+  429c92:	83 c4 08             	add    esp,0x8
+  429c95:	8b 0d f8 ef 87 00    	mov    ecx,DWORD PTR ds:0x87eff8
+  429c9b:	50                   	push   eax
+  429c9c:	68 00 04 00 00       	push   0x400
+  429ca1:	51                   	push   ecx
+  429ca2:	68 23 cd 89 00       	push   0x89cd23
+  429ca7:	e8 d4 c2 0f 00       	call   0x525f80
+  429cac:	83 c4 10             	add    esp,0x10
+  429caf:	e8 6c 8c 07 00       	call   0x4a2920
+  429cb4:	6a 01                	push   0x1
+  429cb6:	8b 0d f8 ef 87 00    	mov    ecx,DWORD PTR ds:0x87eff8
+  429cbc:	51                   	push   ecx
+  429cbd:	e8 0e 96 07 00       	call   0x4a32d0
+  429cc2:	83 c4 08             	add    esp,0x8
+  429cc5:	6a 01                	push   0x1
+  429cc7:	e8 f4 94 0f 00       	call   0x5231c0
+  429ccc:	83 c4 04             	add    esp,0x4
+  429ccf:	8b 0d f8 ef 87 00    	mov    ecx,DWORD PTR ds:0x87eff8
+  429cd5:	51                   	push   ecx
+  429cd6:	e8 45 97 07 00       	call   0x4a3420
+  429cdb:	83 c4 04             	add    esp,0x4
+  429cde:	e8 4d 98 07 00       	call   0x4a3530
+  429ce3:	6a 00                	push   0x0
+  429ce5:	6a 00                	push   0x0
+  429ce7:	6a 06                	push   0x6
+  429ce9:	6a 06                	push   0x6
+  429ceb:	e8 f0 12 07 00       	call   0x49afe0
+  429cf0:	83 c4 10             	add    esp,0x10
+  429cf3:	e8 08 95 07 00       	call   0x4a3200
+  429cf8:	e8 23 a0 07 00       	call   0x4a3d20
+  429cfd:	68 33 27 89 00       	push   0x892733
+  429d02:	68 23 cd 89 00       	push   0x89cd23
+  429d07:	e8 a4 64 0d 00       	call   0x5001b0
+  429d0c:	8d 4c 24 10          	lea    ecx,[esp+0x10]
+  429d10:	83 c4 08             	add    esp,0x8
+  429d13:	51                   	push   ecx
+  429d14:	68 00 40 00 00       	push   0x4000
+  429d19:	68 e0 ea 96 00       	push   0x96eae0
+  429d1e:	68 23 cd 89 00       	push   0x89cd23
+  429d23:	e8 58 c2 0f 00       	call   0x525f80
+  429d28:	83 c4 10             	add    esp,0x10
+  429d2b:	68 00 40 00 00       	push   0x4000
+  429d30:	6a 00                	push   0x0
+  429d32:	6a 06                	push   0x6
+  429d34:	6a 05                	push   0x5
+  429d36:	e8 a5 12 07 00       	call   0x49afe0
+  429d3b:	83 c4 10             	add    esp,0x10
+  429d3e:	e8 bd 94 07 00       	call   0x4a3200
+  429d43:	e8 d8 9f 07 00       	call   0x4a3d20
+  429d48:	68 53 27 89 00       	push   0x892753
+  429d4d:	68 23 cd 89 00       	push   0x89cd23
+  429d52:	e8 59 64 0d 00       	call   0x5001b0
+  429d57:	8d 4c 24 10          	lea    ecx,[esp+0x10]
+  429d5b:	83 c4 08             	add    esp,0x8
+  429d5e:	51                   	push   ecx
+  429d5f:	68 00 00 01 00       	push   0x10000
+  429d64:	68 60 45 97 00       	push   0x974560
+  429d69:	68 23 cd 89 00       	push   0x89cd23
+  429d6e:	e8 0d c2 0f 00       	call   0x525f80
+  429d73:	83 c4 10             	add    esp,0x10
+  429d76:	68 00 00 01 00       	push   0x10000
+  429d7b:	6a 00                	push   0x0
+  429d7d:	6a 06                	push   0x6
+  429d7f:	6a 05                	push   0x5
+  429d81:	e8 5a 12 07 00       	call   0x49afe0
+  429d86:	83 c4 10             	add    esp,0x10
+  429d89:	8b 0d f8 ef 87 00    	mov    ecx,DWORD PTR ds:0x87eff8
+  429d8f:	51                   	push   ecx
+  429d90:	e8 5b 6a fe ff       	call   0x4107f0
+  429d95:	83 c4 04             	add    esp,0x4
+  429d98:	68 00 00 01 00       	push   0x10000
+  429d9d:	6a 00                	push   0x0
+  429d9f:	6a 06                	push   0x6
+  429da1:	6a 05                	push   0x5
+  429da3:	e8 38 12 07 00       	call   0x49afe0
+  429da8:	83 c4 10             	add    esp,0x10
+  429dab:	8b 0d f8 ef 87 00    	mov    ecx,DWORD PTR ds:0x87eff8
+  429db1:	68 f4 c6 89 00       	push   0x89c6f4
+  429db6:	51                   	push   ecx
+  429db7:	e8 04 10 00 00       	call   0x42adc0
+  429dbc:	83 c4 08             	add    esp,0x8
+  429dbf:	8b 0d f8 ef 87 00    	mov    ecx,DWORD PTR ds:0x87eff8
+  429dc5:	be ff 00 00 00       	mov    esi,0xff
+  429dca:	6a 00                	push   0x0
+  429dcc:	51                   	push   ecx
+  429dcd:	e8 fe 94 07 00       	call   0x4a32d0
+  429dd2:	83 c4 08             	add    esp,0x8
+  429dd5:	8d 3c b5 00 00 00 00 	lea    edi,[esi*4+0x0]
+  429ddc:	33 d2                	xor    edx,edx
+  429dde:	03 3d f8 ef 87 00    	add    edi,DWORD PTR ds:0x87eff8
+  429de4:	8a 07                	mov    al,BYTE PTR [edi]
+  429de6:	8a 4f 01             	mov    cl,BYTE PTR [edi+0x1]
+  429de9:	8a 57 02             	mov    dl,BYTE PTR [edi+0x2]
+  429dec:	83 ea 0a             	sub    edx,0xa
+  429def:	85 d2                	test   edx,edx
+  429df1:	7f 02                	jg     0x429df5
+  429df3:	33 d2                	xor    edx,edx
+  429df5:	52                   	push   edx
+  429df6:	33 d2                	xor    edx,edx
+  429df8:	8a d0                	mov    dl,al
+  429dfa:	83 c2 14             	add    edx,0x14
+  429dfd:	83 fa 3f             	cmp    edx,0x3f
+  429e00:	7c 05                	jl     0x429e07
+  429e02:	ba 3f 00 00 00       	mov    edx,0x3f
+  429e07:	52                   	push   edx
+  429e08:	33 c0                	xor    eax,eax
+  429e0a:	8a c1                	mov    al,cl
+  429e0c:	83 e8 0a             	sub    eax,0xa
+  429e0f:	85 c0                	test   eax,eax
+  429e11:	7f 02                	jg     0x429e15
+  429e13:	33 c0                	xor    eax,eax
+  429e15:	50                   	push   eax
+  429e16:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429e1b:	50                   	push   eax
+  429e1c:	e8 3f c8 0f 00       	call   0x526660
+  429e21:	83 c4 10             	add    esp,0x10
+  429e24:	88 86 98 47 98 00    	mov    BYTE PTR [esi+0x984798],al
+  429e2a:	4e                   	dec    esi
+  429e2b:	79 a8                	jns    0x429dd5
+  429e2d:	68 bf 00 00 00       	push   0xbf
+  429e32:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429e37:	6a 00                	push   0x0
+  429e39:	6a 00                	push   0x0
+  429e3b:	50                   	push   eax
+  429e3c:	e8 1f c8 0f 00       	call   0x526660
+  429e41:	83 c4 10             	add    esp,0x10
+  429e44:	a2 c8 89 5a 00       	mov    ds:0x5a89c8,al
+  429e49:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429e4e:	68 ff 00 00 00       	push   0xff
+  429e53:	6a 00                	push   0x0
+  429e55:	6a 00                	push   0x0
+  429e57:	50                   	push   eax
+  429e58:	e8 03 c8 0f 00       	call   0x526660
+  429e5d:	83 c4 10             	add    esp,0x10
+  429e60:	a2 c9 89 5a 00       	mov    ds:0x5a89c9,al
+  429e65:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429e6a:	6a 7f                	push   0x7f
+  429e6c:	6a 00                	push   0x0
+  429e6e:	6a 00                	push   0x0
+  429e70:	50                   	push   eax
+  429e71:	e8 ea c7 0f 00       	call   0x526660
+  429e76:	83 c4 10             	add    esp,0x10
+  429e79:	a2 ca 89 5a 00       	mov    ds:0x5a89ca,al
+  429e7e:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429e83:	6a 00                	push   0x0
+  429e85:	6a 00                	push   0x0
+  429e87:	68 bf 00 00 00       	push   0xbf
+  429e8c:	50                   	push   eax
+  429e8d:	e8 ce c7 0f 00       	call   0x526660
+  429e92:	83 c4 10             	add    esp,0x10
+  429e95:	a2 cd 89 5a 00       	mov    ds:0x5a89cd,al
+  429e9a:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429e9f:	6a 00                	push   0x0
+  429ea1:	6a 00                	push   0x0
+  429ea3:	68 ff 00 00 00       	push   0xff
+  429ea8:	50                   	push   eax
+  429ea9:	e8 b2 c7 0f 00       	call   0x526660
+  429eae:	83 c4 10             	add    esp,0x10
+  429eb1:	a2 ce 89 5a 00       	mov    ds:0x5a89ce,al
+  429eb6:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429ebb:	6a 00                	push   0x0
+  429ebd:	6a 00                	push   0x0
+  429ebf:	6a 7f                	push   0x7f
+  429ec1:	50                   	push   eax
+  429ec2:	e8 99 c7 0f 00       	call   0x526660
+  429ec7:	83 c4 10             	add    esp,0x10
+  429eca:	a2 cf 89 5a 00       	mov    ds:0x5a89cf,al
+  429ecf:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429ed4:	6a 00                	push   0x0
+  429ed6:	68 bf 00 00 00       	push   0xbf
+  429edb:	68 bf 00 00 00       	push   0xbf
+  429ee0:	50                   	push   eax
+  429ee1:	e8 7a c7 0f 00       	call   0x526660
+  429ee6:	83 c4 10             	add    esp,0x10
+  429ee9:	a2 d2 89 5a 00       	mov    ds:0x5a89d2,al
+  429eee:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429ef3:	6a 00                	push   0x0
+  429ef5:	68 ff 00 00 00       	push   0xff
+  429efa:	68 ff 00 00 00       	push   0xff
+  429eff:	50                   	push   eax
+  429f00:	e8 5b c7 0f 00       	call   0x526660
+  429f05:	83 c4 10             	add    esp,0x10
+  429f08:	a2 d3 89 5a 00       	mov    ds:0x5a89d3,al
+  429f0d:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429f12:	6a 00                	push   0x0
+  429f14:	6a 7f                	push   0x7f
+  429f16:	6a 7f                	push   0x7f
+  429f18:	50                   	push   eax
+  429f19:	e8 42 c7 0f 00       	call   0x526660
+  429f1e:	83 c4 10             	add    esp,0x10
+  429f21:	a2 d4 89 5a 00       	mov    ds:0x5a89d4,al
+  429f26:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429f2b:	6a 00                	push   0x0
+  429f2d:	68 bf 00 00 00       	push   0xbf
+  429f32:	6a 00                	push   0x0
+  429f34:	50                   	push   eax
+  429f35:	e8 26 c7 0f 00       	call   0x526660
+  429f3a:	83 c4 10             	add    esp,0x10
+  429f3d:	a2 d7 89 5a 00       	mov    ds:0x5a89d7,al
+  429f42:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429f47:	6a 00                	push   0x0
+  429f49:	68 ff 00 00 00       	push   0xff
+  429f4e:	6a 00                	push   0x0
+  429f50:	50                   	push   eax
+  429f51:	e8 0a c7 0f 00       	call   0x526660
+  429f56:	83 c4 10             	add    esp,0x10
+  429f59:	a2 d8 89 5a 00       	mov    ds:0x5a89d8,al
+  429f5e:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429f63:	6a 00                	push   0x0
+  429f65:	6a 7f                	push   0x7f
+  429f67:	6a 00                	push   0x0
+  429f69:	50                   	push   eax
+  429f6a:	e8 f1 c6 0f 00       	call   0x526660
+  429f6f:	83 c4 10             	add    esp,0x10
+  429f72:	a2 d9 89 5a 00       	mov    ds:0x5a89d9,al
+  429f77:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  429f7c:	6a 01                	push   0x1
+  429f7e:	50                   	push   eax
+  429f7f:	e8                   	.byte 0xe8

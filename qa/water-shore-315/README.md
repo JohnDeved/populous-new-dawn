@@ -1,5 +1,7 @@
 # Issue 315: open-water / shore animation
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 These are real browser captures of ordinary shipped controls, not original-game
 screenshots or injected simulation turns. The user-visible correction removes
 an extra sea-only UV offset. Shared WATDISP height and diffuse-light animation
@@ -24,9 +26,9 @@ natural-play sequences, not pixel-aligned image-difference oracles.
 
 | Mission | Before | After |
 | --- | --- | --- |
-| M1 / landscape c | ![M1 before](before/m1-speed1.gif) | ![M1 after](after/m1-speed1.gif) |
-| M2 / landscape s | ![M2 before](before/m2-speed1.gif) | ![M2 after](after/m2-speed1.gif) |
-| M3 / landscape p | ![M3 before](before/m3-speed1.gif) | ![M3 after](after/m3-speed1.gif) |
+| M1 / landscape c | ![M1 before](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315/before/m1-speed1.gif) | ![M1 after](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315/after/m1-speed1.gif) |
+| M2 / landscape s | ![M2 before](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315/before/m2-speed1.gif) | ![M2 after](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315/after/m2-speed1.gif) |
+| M3 / landscape p | ![M3 before](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315/before/m3-speed1.gif) | ![M3 after](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/qa/water-shore-315/after/m3-speed1.gif) |
 
 ## Ordinary-flow results
 

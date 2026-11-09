@@ -1,0 +1,47 @@
+// Exact result JSX extracted from canonical aaa3202a page.tsx, not a reconstructed expected view.
+export default function BaselineResult({ status }: { status: 'won' | 'lost' }) {
+  const world = { status, time: 125, stats: { cast: 12, built: 5 }, outcome: { cameraPlaying: false } }
+  const enemyName = 'Dakini', nextMission = 2
+  const timeLabel = (time: number) => `${Math.floor(time / 60).toString().padStart(2, '0')}:${Math.floor(time % 60).toString().padStart(2, '0')}`
+  const continueCampaign = () => {}, restart = () => {}, openSelector = () => {}
+  return <>
+      {world.status !== 'playing' && !world.outcome.cameraPlaying && (
+        <div className="end-screen">
+          <span className="end-rune">{world.status === 'won' ? '✺' : '◈'}</span>
+          <p className="eyebrow">{world.status === 'won' ? 'Level Complete' : 'Level Failed'}</p>
+          <h2>{world.status === 'won' ? 'Level Won' : 'Level Lost'}</h2>
+          <p>
+            {world.status === 'won'
+              ? `The ${enemyName} are defeated.`
+              : 'You have failed to conquer this world.'}
+          </p>
+          <div className="end-stats">
+            <span>
+              {timeLabel(world.time)}
+              <small>TIME</small>
+            </span>
+            <span>
+              {world.stats.cast}
+              <small>SPELLS CAST</small>
+            </span>
+            <span>
+              {world.stats.built}
+              <small>BUILDINGS RAISED</small>
+            </span>
+          </div>
+          <button
+            className="primary-button"
+            onClick={world.status === 'won' && nextMission ? continueCampaign : restart}
+          >
+            {world.status === 'won' && nextMission
+              ? `Continue to Mission ${nextMission}`
+              : 'Restart Level'}{' '}
+            <span>↗</span>
+          </button>
+          <button className="secondary-button" onClick={openSelector}>
+            Select Level
+          </button>
+        </div>
+      )}
+  </>
+}

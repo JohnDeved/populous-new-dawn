@@ -1,10 +1,11 @@
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
+import { launchOptions } from './local-render/harness.mjs'
 import { bindGame } from './browser-game.mjs'
 
 const url = process.env.POPULOUS_URL ?? 'http://localhost:3000'
-const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+const browser = await chromium.launch({ ...launchOptions(process.env.POPULOUS_BROWSER), headless: !process.argv.includes('--headed') })
 try {
   const context = await browser.newContext({ viewport: { width: 800, height: 700 } })
   const page = await context.newPage()
@@ -29,7 +30,7 @@ try {
   await mission.waitFor()
   await mission.focus()
   await page.keyboard.press('Enter')
-  await page.getByRole('heading', { name: 'The world could not awaken' }).waitFor()
+  await page.getByRole('heading', { name: 'Loading failed' }).waitFor()
 
   const retry = page.getByRole('button', { name: 'Try again' })
   const layer = await retry.evaluate(button => {

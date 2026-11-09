@@ -80,11 +80,14 @@ test('two live builders dispatch one hauler on the original sixteen-turn phase',
   }
   tick(w,1/12)
   assert.equal(workers.filter(u=>u.builder.task===BuilderTask.Fetch).length,1)
+  w.message='retained status';w.messageUntil=12345
   for(let turn=0;turn<1200&&b.progress<1;turn++){
     tick(w,1/12)
     assert.ok(workers.filter(u=>u.builder?.task===BuilderTask.Fetch).length<=1)
   }
   assert.equal(b.progress,1,'scheduled hauling connects to completed construction')
+  assert.equal(w.message,'retained status','construction must not replace existing status with invented completion prose')
+  assert.equal(w.messageUntil,12345,'construction must not restart the status lifetime')
   assert.ok(workers.every(u=>u.builder&&u.work===b.id),'delivery leaves the original departure gate active')
   for(let turn=0;turn<600&&workers.some(u=>u.builder);turn++)tick(w,1/12)
   assert.ok(workers.every(u=>!u.builder&&u.work===null),'departure releases task ownership')

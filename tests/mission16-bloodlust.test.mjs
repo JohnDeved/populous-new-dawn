@@ -12,6 +12,7 @@ import {
 } from '../app/model.ts'
 import { applyUnitDamage, meleeDamage } from '../app/combat-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import { createLivePerson, syncLivePersonCells } from '../app/live-people.ts'
 import { launchFirewarrior, stepFirewarriorShots } from '../app/firewarrior.ts'
 import { randomPersonSpeed } from '../app/person-state.ts'
@@ -90,11 +91,13 @@ test('Mission 16 worship grants Bloodlust and live combat consumes its status', 
   target.hp = 100
   launchFirewarrior(world, firewarrior, target)
   const shots = world.effects.filter(effect => effect.firewarriorShot)
-  assert.equal(firewarrior.cooldown, 25 / 12 / (1 << constants.BLOODLUST_SW_BLAST_X))
+  assert.equal(firewarrior.cooldown, 3 / 12)
   assert.equal(shots.length, 2)
   assert.ok(shots.every(shot => shot.firewarriorShot.bloodlust))
   stepFirewarriorShots(world)
-  assert.equal(target.hp, 100 - 20 * constants.BLOODLUST_DAMAGE_X)
+  // Native 004bbcf0/004bbf30 assigns damage to only the second projectile.
+  assert.deepEqual(shots.map(shot => shot.firewarriorShot.impact), [false, true])
+  assert.equal(target.hp, 100 - 10 * constants.BLOODLUST_DAMAGE_X)
 
   world.effects = world.effects.filter(effect => !effect.firewarriorShot)
   Object.assign(target, { hp: 100, shield: 1, damageAttacker: 2 })
@@ -128,11 +131,11 @@ test('Mission 16 worship grants Bloodlust and live combat consumes its status', 
   assert.equal(expiring.bloodlust, 0)
 })
 
-test('old checkpoints default Bloodlust stock without disturbing their world', () => {
+test('historical fixtures default Bloodlust stock without disturbing their world', () => {
   const world = createWorld()
   delete world.shots.bloodlust
   delete world.giftCounts.bloodlust
-  assert.equal(migrateCheckpoint(world), world)
+  assert.equal(normalizeHistoricalFixture(world), world)
   assert.equal(world.shots.bloodlust, 0)
   assert.equal(world.giftCounts.bloodlust, 0)
 })

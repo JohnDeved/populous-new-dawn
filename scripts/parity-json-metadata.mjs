@@ -1,6 +1,6 @@
 // Internal JSON grammar reader for oversized discovery inputs. It never attests
-// an owned receipt: only the caller may decide what the seven retained values mean.
-const FIELDS = new Set(['kind', 'status', 'parityMeasurements', 'identity', 'verification', 'command', 'source'])
+// an owned receipt: only the caller may decide what the retained values mean.
+const FIELDS = new Set(['version', 'kind', 'status', 'parityMeasurements', 'identity', 'verification', 'command', 'source'])
 const LIMITS = Object.freeze({ chunkBytes: 64 * 1024, metadataBytes: 4 * 1024 * 1024,
   totalMetadataBytes: 16 * 1024 * 1024, depth: 128, tokens: 16000000, totalTokens: 32000000,
   keyBytes: 16 * 1024, keys: 4096, numberBytes: 128, fileMs: 30000, totalMs: 120000 })

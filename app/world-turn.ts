@@ -1,3 +1,10 @@
+import { requestAngelStrikePresentation } from './angel-presentation.ts'
+import { grantLinkedBoatReward } from './vehicle-reward.ts'
+import {
+  assignVehicleAllocationCounter,
+  deferVehicleOrdinaryVisit,
+  finishVehicleOrdinaryVisits,
+} from './vehicle-allocation.ts'
 import { residentPerson } from './building-resident.ts'
 import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
@@ -7,6 +14,7 @@ import {
   stepLevelStartConversion,
 } from './level-start-runtime.ts'
 import { setShamanDeathPhase } from './shaman-death-vfx.ts'
+import { setFollowerCorpsePhase } from './follower-corpse-animation.ts'
 import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
   changedBuildingGround,
@@ -69,6 +77,7 @@ import {
   builderActivity,
   unitAnimationSource,
   selectionBuilding,
+  removeMissingSelectedPeople,
   canOrder,
 } from './selection-runtime.ts'
 import {
@@ -91,8 +100,8 @@ import {
   stepUnitShields,
   unitInvisibleToPlayer,
 } from './spell-effects-runtime.ts'
-import { meleeDamage, joinBattle, cleanBattles, processBattles } from './combat-runtime.ts'
-import { release, releaseTasks } from './world-tasks.ts'
+import { meleeDamage, joinBattle, cleanBattles, processOwnedBattles } from './combat-runtime.ts'
+import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.ts'
 import {
   sound,
   effect,
@@ -204,6 +213,7 @@ import {
 import { announceCombatMarches, type CombatMarch } from './combat-order-search.ts'
 import {
   stepLiveBuildingAttack,
+  stepLiveAboardPersonAttack,
   cancelLiveBuildingAttack,
   startLiveCombatResponse,
 } from './live-building-combat.ts'
@@ -236,7 +246,6 @@ import { stepBuildingWork, stepBuildingDeparture, stepBuildingApproach } from '.
 import { stepBuildingFetch } from './building-fetch.ts'
 import { stepBuildingLevel } from './building-preparation.ts'
 import {
-  defaultPersonState,
   faceTribe,
   personAnimationObject,
   recoverPersonMovement,
@@ -304,6 +313,7 @@ import {
   collisionWorld,
   enterLiveCombat,
   stepLivePhysics,
+  stepLiveCasting,
   stepLivePersonHealth,
   stepLiveEncounter,
   createLivePerson,
@@ -315,8 +325,10 @@ import {
   stepLiveElectrocution,
   cancelBuildingEntry,
   leaveLiveBuilding,
+  beginLivePersonPass,
   stepLivePerson,
-  stepLiveImpulse,
+  stepOwnedLiveImpulse,
+  resumeLiveSeatedFlight,
   registerLivePerson,
   changeLivePersonState,
   disturbLiveVolcanoPerson,
@@ -340,6 +352,7 @@ import {
   boardLiveVehicle,
   removeMissingVehiclePassengers,
   stepLiveVehicles,
+  beginLiveVehiclePass,
   syncLiveVehiclePassengers,
 } from './live-vehicles.ts'
 import {
@@ -446,7 +459,7 @@ export interface TurnObserver {
   beforeTurn?: () => void
   afterTurn?: () => void
 }
-export function tick(w: World, dt: number, observer?: TurnObserver) {
+export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { steps: number }) {
   if (w.paused) return
   if (!Number.isFinite(dt) || dt < 0)
     throw new RangeError('Simulation delta must be finite and nonnegative')
@@ -457,11 +470,11 @@ export function tick(w: World, dt: number, observer?: TurnObserver) {
     w.pendingTime = Math.max(0, w.pendingTime - 1 / TURNS_PER_SECOND)
     if (w.pendingTime < 1e-9) w.pendingTime = 0
     observer?.beforeTurn?.()
-    stepTurn(w)
+    stepTurn(w, metrics)
     observer?.afterTurn?.()
   }
 }
-function stepTurn(w: World) {
+function stepTurn(w: World, metrics?: { steps: number }) {
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return
@@ -489,8 +502,13 @@ function stepTurn(w: World) {
         },
       }
     )
+  // 0x4ed8a0 prepends Hut births behind 0x4ec6f0's cached-next traversal.
+  // Initialization is immediate; their first scheduled person visit is next turn.
+  const hutNewborns = new Set<Unit>()
   const dt = 1 / TURNS_PER_SECOND
   w.turn = (w.turn + 1) >>> 0
+  // Count actual logical advances, independent of wrapping/resettable turn IDs.
+  if (metrics) metrics.steps++
   if (!(w.manaWorld.gameFlags & 2))
     for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
       if (w.campaignAIs[tribe]) withCampaignTribe(w, tribe, () => stepForcedCampaignAttack(w))
@@ -567,7 +585,9 @@ function stepTurn(w: World) {
         w.shots[gift.reward]++
       // 0x4c2aa0: the separate gift counter increases even at full stock.
       w.giftCounts[gift.reward] = Math.min(15, w.giftCounts[gift.reward] + 1)
-      tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
+      // Proven M1/M2 ordinary rewards already use the native acquisition presentation.
+      if (!gift.ordinaryWorship)
+        tell(w, `${spell.name} received. ${w.shots[gift.reward]} shots ready.`)
     }
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
@@ -601,8 +621,12 @@ function stepTurn(w: World) {
     if (fx.corpse) {
       const step = stepReincarnation(fx.corpse.remaining, true, false)
       fx.corpse.remaining = step.remaining
-      fx.corpse.phase = step.phase
+      setFollowerCorpsePhase(fx, step.phase)
       fx.height = (fx.corpse.ground + step.height) / 45
+      if (step.phase === 3 && fx.unit?.team === 'wild') {
+        const angle = Math.round(((Math.PI - fx.unit.heading) * 1024) / Math.PI)
+        fx.unit.heading = Math.PI - (((angle + 91) & 2047) * Math.PI) / 1024
+      }
       if (!step.remaining) fx.duration = fx.age
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
@@ -610,6 +634,8 @@ function stepTurn(w: World) {
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.angel) {
       const event = stepAngel(w, fx)
+      // Only the proved raw state 6/substate 2 strike branch requests model 62.
+      if (!event.expired) requestAngelStrikePresentation(fx.angel)
       // ponytail: keep one stable native initial offset until target midpoints enter browser state.
       fx.height = (terrainPointHeight(w.land, nativePosition(w, fx)) + 100) / 45
       if (event.hit) {
@@ -625,7 +651,14 @@ function stepTurn(w: World) {
           (source.flags3 & ~0x88000) |
           (event.hit.shield ? 0x8000 : 0) |
           (event.hit.bloodlust ? 0x80000 : 0)
-        damagePerson(source, w.levelFlags2, tribeForTeam(fx.team!), Math.round(event.hit.hp * 20))
+        // 004e0a30 subtracts life directly: Shield does not gate Angel impacts.
+        damagePerson(
+          source,
+          w.levelFlags2,
+          tribeForTeam(fx.team!),
+          Math.round(event.hit.hp * 20),
+          1
+        )
         event.hit.hp = Math.max(0, source.life / 20)
         effect(w, 'hit', event.hit)
         sound(w, 0xdc, event.hit)
@@ -872,7 +905,9 @@ function stepTurn(w: World) {
   processProjectiles(w)
   for (const message of w.messages.slots) if (message) message.age = (message.age + 1) | 0
   w.wood = w.trees.reduce((s, t) => s + Math.floor(t.logs), 0)
+  const retiredVehicleHeads = new Set<number>()
   for (const shrine of w.shrines) {
+    const previousUsesRemaining = shrine.remaining
     if (shrine.kind !== 'vault') stepWorshipHead(shrine)
     if ((shrine.kind === 'mana' || shrine.kind === 'inert') && shrine.rewardDelay) {
       if (--shrine.rewardDelay === 0) {
@@ -1021,14 +1056,29 @@ function stepTurn(w: World) {
           volcano.duration = Infinity
         }
         for (const tree of shrine.linkedTrees ?? [])
-          w.trees.push({ ...tree, id: w.nextId++, logs: 4 })
+          w.trees.push({
+            ...tree,
+            id: w.nextId++,
+            logs: 4,
+            ...(tree.authoredSlot === undefined ? {} : { sceneryBirth: 'linked-release' as const }),
+          })
         if (shrine.linkedShrine) {
-          w.shrines.push(shrine.linkedShrine)
+          // Current checkpoints can retain shared/cyclic links to an already live owner.
+          if (!w.shrines.includes(shrine.linkedShrine)) w.shrines.push(shrine.linkedShrine)
           delete shrine.linkedShrine
         }
       } else if (shrine.kind === 'boat') {
         const boat = w.vehicles.find(v => v.id === shrine.rewardVehicle)
-        if (boat) {
+        const finalUse = previousUsesRemaining === 1 && shrine.remaining === 0
+        if (!boat || boat.model === 1 || boat.model === 2) {
+          const reward = grantLinkedBoatReward(w, shrine, finalUse)
+          if (reward) {
+            w.castingTribes[0].flags |= 64
+            tell(w, 'Boat received. Select followers and click it to board.')
+          }
+          if (finalUse) retiredVehicleHeads.add(shrine.id)
+        } else {
+          // Other linked class4 models retain their existing reward adapter.
           boat.active = true
           w.castingTribes[0].flags |= 64
           tell(w, 'Boat received. Select followers and click it to board.')
@@ -1048,6 +1098,8 @@ function stepTurn(w: World) {
     }
     syncStoneHeadPresentation(shrine)
   }
+  if (retiredVehicleHeads.size)
+    w.shrines = w.shrines.filter(shrine => !retiredVehicleHeads.has(shrine.id))
   // New rewards have already notified their objects. Complete their queued
   // landscape work after all shrine calls, without a second notification pass.
   if (terrainCenters.length) {
@@ -1139,10 +1191,7 @@ function stepTurn(w: World) {
       b.kind === 'firewarriorHut'
     ) {
       stepLiveTraining(w, b)
-    } else if (
-      ((b.kind === 'boatHouse' && !b.boatLaunched) || b.kind === 'balloonHut') &&
-      inhabitants.length
-    ) {
+    } else if ((b.kind === 'boatHouse' || b.kind === 'balloonHut') && inhabitants.length) {
       const balloon = b.kind === 'balloonHut'
       if (++b.timer >= (balloon ? 1000 : 600)) {
         const pose = buildingPose(b),
@@ -1178,10 +1227,13 @@ function stepTurn(w: World) {
               destructionState: 0,
             },
             worker = inhabitants[0]
+          assignVehicleAllocationCounter(w, vehicle)
+          deferVehicleOrdinaryVisit(w, vehicle)
           w.vehicles.push(vehicle)
           release(w, worker)
           worker.native = createLivePerson(w, worker)
           w.pathfinding.people.set(worker.id, worker.native)
+          registerLivePerson(w, worker.native)
           boardLiveVehicle(w, worker.native, vehicle)
           if (w.manaTribes[tribeForTeam(b.team)].playerType === 1)
             for (const occupant of inhabitants.slice(1)) {
@@ -1219,6 +1271,7 @@ function stepTurn(w: World) {
           return neighbor && buildingPose(neighbor)
         })
         const u = addUnit(w, b.team, 'brave', browserPosition(points.inside))
+        hutNewborns.add(u)
         u.heading = Math.PI - b.angle
         if (b.team === 'blue') sound(w, 0x28, u)
         effect(w, 'birth', browserPosition(points.flash))
@@ -1265,10 +1318,10 @@ function stepTurn(w: World) {
     }
   }
 
-  processBattles(w)
+  processOwnedBattles(w)
   const contacts: [Unit, Unit][] = []
   const burningPeople = w.units
-    .filter(u => u.burnTrail && u.hp > 0)
+    .filter(u => !hutNewborns.has(u) && u.burnTrail && u.hp > 0)
     .map(u => ({
       unit: u,
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
@@ -1279,378 +1332,412 @@ function stepTurn(w: World) {
   const startingPeople = new Set(w.units.filter(u => levelStartOwnsShaman(w, u)).map(u => u.id))
   stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
-  for (const u of w.units) {
-    if (startingPeople.has(u.id)) continue
-    if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
-    u.fighting = false
-    const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
-    if (spy?.model === 5 && spy.disguise & 63)
-      spy.disguise = (spy.disguise & 0xc0) | ((spy.disguise - 1) & 63)
-    if (u.native?.state === 44) {
-      stepLiveElectrocution(w, u)
-      continue
-    }
-    if (u.native?.state === 24) {
-      stepLiveTornadoPerson(w, u)
-      continue
-    }
-    if (u.flight) {
-      stepLiveImpulse(w, u)
-      continue
-    }
-    if (u.hp <= 0) continue
-    if (armageddon && (armageddon.phase < 2 || u.native?.state === 39)) continue
-    if (u.native?.state === 14) continue
-    const recovering = u.native ?? u.entry?.person
-    if (recovering?.state === 33) {
-      stepLivePhysics(w, u, recovering)
-      continue
-    }
-    u.cooldown = Math.max(0, u.cooldown - dt)
-    if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
-      stepLivePerson(w, u)
-      continue
-    }
-    if (!u.native?.vehicle && !supportsFollower(w, u)) {
-      u.hp = 0
-      continue
-    }
-    if (u.native?.state === 30) {
-      const next = stateAfterTransportRest(u.native, w.manaWorld.gameFlags)
-      if (next) changeLivePersonState(w, u, next)
-      else {
-        const vehicle = w.vehicles.find(candidate => candidate.id === u.native!.vehicle)
-        if (vehicle) syncLiveVehiclePassengers(w, vehicle)
+  beginLiveVehiclePass(w)
+  // Active gameplay keeps the original visitor without episode eligibility or
+  // generation work. A later victory can opt in on the following object pass.
+  let personPass = w.land.landFlags & 0x2000000 ? beginLivePersonPass(w) : undefined
+  try {
+    for (const u of w.units) {
+      if (personPass) {
+        if (w.land.landFlags & 0x2000000) personPass.next(u)
+        else {
+          personPass.close()
+          personPass = undefined
+        }
       }
-      continue
-    }
-    if (u.native?.state === 23) {
-      stepLiveConversionVictim(w, u)
-      continue
-    }
-    if (
-      u.inside !== null &&
-      !w.buildings.some(building => building.id === u.inside && building.hp > 0)
-    ) {
-      release(w, u)
-      u.hp -= 10
-    }
-    if (
-      u.native &&
-      [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
-    ) {
-      stepLivePreaching(w, u)
-      continue
-    }
-    if (u.fight) {
-      if (u.fight.motion) stepLiveMeleeMotion(w, u)
-      continue
-    }
-    if (u.native && [25, 29].includes(u.native.state)) {
-      stepLivePhysics(w, u, u.native)
-      continue
-    }
-    if (
-      u.native &&
-      [11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
-    ) {
-      stepLiveBuildingAttack(w, u)
-      continue
-    }
-    const castingState = u.native?.state === 22
-    if (castingState) {
-      u.native!.timer = short(u.native!.timer - 1)
-      if (u.native!.timer < 1)
-        changeLivePersonState(w, u, defaultPersonState(u.native!, w.manaWorld.gameFlags))
-    }
-    if (u.casting) {
-      u.casting.remaining -= dt
-      if (u.casting.remaining <= 1e-8) u.casting = null
-      continue
-    }
-    if (castingState) continue
-    const work =
-      w.buildings.find(b => b.id === u.work && b.hp > 0) ??
-      w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))
-    let delivery = u.delivery
-      ? w.buildings.find(b => b.id === u.delivery!.target && needsDirectTimber(w, u, b))
-      : undefined
-    if (u.delivery && !delivery) {
-      u.delivery = undefined
-      u.path = []
-      delivery = directTimberDestination(w, u)
-      if (delivery && route(w, u, entrance(w, delivery)).length) {
-        u.delivery = { target: delivery.id }
-      }
-    }
-    if (u.entry && u.inside === null && !work) {
-      stepBuildingEntry(w, u)
-      continue
-    }
-    if (
-      u.builder?.person &&
-      (currentPersonOrder(w.buildingOrders, u.builder.person)?.flags ?? 0) & 1
-    )
-      finishQueuedConstruction(w, u)
-    if (u.work !== null && !work && !finishQueuedConstruction(w, u)) release(w, u)
-    if (isDismantling(w, u) && work && 'hp' in work) {
-      if (startLiveCombatResponse(w, u)) {
-        stepLiveBuildingAttack(w, u)
+      if (hutNewborns.has(u) || startingPeople.has(u.id)) {
+        personPass?.stop()
         continue
       }
-      stepBuildingEntry(w, u, work)
-      continue
-    }
-    if (u.inside !== null) {
-      const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
-      if (b) {
-        if (
-          (b.kind === 'camp' ||
-            b.kind === 'tower' ||
-            b.kind === 'temple' ||
-            b.kind === 'spyHut' ||
-            b.kind === 'firewarriorHut') &&
-          u.entry
-        )
-          stepBuildingEntry(w, u, b)
+      if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
+      u.fighting = false
+      const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
+      if (spy?.model === 5 && spy.disguise & 63)
+        spy.disguise = (spy.disguise & 0xc0) | ((spy.disguise - 1) & 63)
+      if (u.native?.state === 44) {
+        stepLiveElectrocution(w, u)
         continue
       }
-      release(w, u)
-      u.hp -= 10
-    }
-    if (
-      work &&
-      'hp' in work &&
-      (work.kind === 'hut' ||
-        work.kind === 'camp' ||
-        work.kind === 'tower' ||
-        work.kind === 'temple' ||
-        work.kind === 'spyHut' ||
-        work.kind === 'firewarriorHut' ||
-        work.kind === 'boatHouse' ||
-        work.kind === 'balloonHut' ||
-        !!((work.admission?.activity ?? 0) & 0x8000)) &&
-      (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
-      !work.burn &&
-      !u.builder &&
-      u.tree === null &&
-      !u.harvest &&
-      !u.delivery
-    ) {
-      stepBuildingEntry(w, u, work)
-      continue
-    }
-    // An unavailable hut hands control back to the existing work controller.
-    cancelBuildingEntry(w, u)
-    if (u.delivery && delivery && !u.path.length) {
-      if (!atBuildingEntrance(w, u, delivery)) route(w, u, entrance(w, delivery))
-      else {
-        const p = u.native ?? createLivePerson(w, u)
-        Object.assign(p, nativePosition(w, u))
-        p.cargo = Math.round(u.cargo * 100)
-        u.native = p
-        registerLivePerson(w, p)
-        dropCarriedTimber(
-          p,
-          () => {
-            w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
-            return true
-          },
-          () => sound(w, 11, u)
-        )
-        u.cargo = p.cargo / 100
-        u.delivery = undefined
-      }
-    }
-    const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
-    if (u.native?.vehicle && !activeOrder) {
-      const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
-      if (vehicle) syncLiveVehiclePassengers(w, vehicle)
-      continue
-    }
-    if (
-      u.target === null &&
-      activeOrder?.model === 28 &&
-      nativePersonTribe(u) === w.manaWorld.playerTribe
-    ) {
-      const enemy = w.units.find(
-        target =>
-          target.id === activeOrder.a && target.hp > 0 && target.inside === null && !target.lift
-      )
-      u.target = enemy?.id ?? null
-      if (enemy) route(w, u, enemy, true)
-    }
-    let target: Unit | Building | undefined =
-      u.target === null
-        ? undefined
-        : [...w.units, ...w.buildings].find(t => t.id === u.target && t.hp > 0)
-    if (target && !('progress' in target) && (target.lift > 0 || target.inside !== null))
-      target = undefined
-    if (!target) {
-      cancelLiveBuildingAttack(w, u)
-      u.target = null
-      if (startLiveCombatResponse(w, u)) {
-        stepLiveBuildingAttack(w, u)
+      if (u.native?.state === 24) {
+        stepLiveTornadoPerson(w, u)
         continue
       }
-    }
-    if (target && 'progress' in target && target.progress === 1) {
-      stepLiveBuildingAttack(w, u, target)
-      continue
-    }
-    const targetDelta = target && !('progress' in target) ? wrappedPlanarDelta(u, target) : null
-    const targetDistance = target
-      ? targetDelta
-        ? Math.hypot(targetDelta.x, targetDelta.z) / 256
-        : distance(u, target)
-      : Infinity
-    const reach =
-      target && 'progress' in target ? 4.3 : u.kind === 'firewarrior' ? firewarriorRange : 1.7
-    if (target) {
-      // 0x51a2a0 raises quiet music to activity without overriding battle music.
-      // ponytail: target ownership remains the live attack adapter until the
-      // shared native command controller is integrated.
-      if (!w.musicActivity && nativePersonTribe(u) === w.manaWorld.playerTribe) w.musicActivity = 1
-      u.heading = targetDelta
-        ? Math.atan2(targetDelta.x, targetDelta.z)
-        : Math.atan2(target.x - u.x, target.z - u.z)
-      if (u.target === null && u.work === null) {
-        u.target = target.id
-        if (targetDistance >= reach) route(w, u, target)
-      } else if (
-        !('progress' in target) &&
-        u.target === target.id &&
-        u.work === null &&
-        targetDistance >= reach
+      if (u.flight && !resumeLiveSeatedFlight(u)) {
+        stepOwnedLiveImpulse(w, u)
+        continue
+      }
+      if (u.hp <= 0) continue
+      if (armageddon && (armageddon.phase < 2 || u.native?.state === 39)) {
+        personPass?.stop()
+        continue
+      }
+      if (u.native?.state === 14) continue
+      const recovering = u.native ?? u.entry?.person
+      if (recovering?.state === 33) {
+        stepLivePhysics(w, u, recovering)
+        continue
+      }
+      u.cooldown = Math.max(0, u.cooldown - dt)
+      if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
+        if (personPass) personPass.step(u)
+        else stepLivePerson(w, u)
+        continue
+      }
+      if (!u.native?.vehicle && !supportsFollower(w, u)) {
+        u.hp = 0
+        continue
+      }
+      if (u.native?.state === 30) {
+        const next = stateAfterTransportRest(u.native, w.manaWorld.gameFlags)
+        if (next) changeLivePersonState(w, u, next)
+        else {
+          const vehicle = w.vehicles.find(candidate => candidate.id === u.native!.vehicle)
+          if (vehicle) syncLiveVehiclePassengers(w, vehicle)
+        }
+        continue
+      }
+      if (u.native?.state === 23) {
+        stepLiveConversionVictim(w, u)
+        continue
+      }
+      if (
+        u.inside !== null &&
+        !w.buildings.some(building => building.id === u.inside && building.hp > 0)
       ) {
-        const planned = w.pathfinding.people.get(u.id)
-        if (planned && pursuitDestinationChanged(planned, nativePosition(w, target), 224))
-          route(w, u, target)
+        release(w, u)
+        u.hp -= 10
       }
-    }
-    if (target && targetDistance < reach) {
-      if (!('progress' in target) && u.kind === 'firewarrior') {
+      if (
+        u.native &&
+        u.native.state !== 22 &&
+        [17, 31, 32].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      ) {
+        stepLivePreaching(w, u)
+        continue
+      }
+      if (u.fight) {
+        if (u.fight.motion) stepLiveMeleeMotion(w, u)
+        continue
+      }
+      if (u.native && [25, 29].includes(u.native.state)) {
+        stepLivePhysics(w, u, u.native)
+        continue
+      }
+      if (
+        u.native &&
+        u.native.state !== 22 &&
+        [11, 15, 19, 21].includes(currentPersonOrder(w.buildingOrders, u.native)?.model ?? 0)
+      ) {
+        stepLiveBuildingAttack(w, u)
+        continue
+      }
+      const castingState = u.native?.state === 22
+      if (castingState) stepLiveCasting(w, u, u.native!)
+      if (u.casting) {
+        u.casting.remaining -= dt
+        if (u.casting.remaining <= 1e-8) u.casting = null
+        continue
+      }
+      if (castingState) continue
+      const work =
+        w.buildings.find(b => b.id === u.work && b.hp > 0) ??
+        w.shrines.find(s => s.id === u.work && (s.active || u.vault?.head === s.id))
+      let delivery = u.delivery
+        ? w.buildings.find(b => b.id === u.delivery!.target && needsDirectTimber(w, u, b))
+        : undefined
+      if (u.delivery && !delivery) {
+        u.delivery = undefined
         u.path = []
-        if (u.native) u.native.speed = 0
-        u.fighting = true
-        if (!u.cooldown) launchFirewarrior(w, u, target)
-        continue
-      }
-      if ('progress' in target) {
-        u.fighting = true
-        if (!u.cooldown) {
-          if (!u.ghost) target.hp -= meleeDamage(u)
-          u.cooldown = (u.kind === 'shaman' ? 4 : 6) / TURNS_PER_SECOND
-          if (!u.ghost) effect(w, 'hit', target)
-        }
-      } else contacts.push([u, target])
-      continue
-    }
-    if (u.guard && !u.path.length) {
-      const shaman = w.units.find(a => a.team === u.team && isShaman(a))
-      if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
-    }
-    if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
-    if (
-      u.native &&
-      (u.native.guardInputPending ||
-        [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
-        (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
-        (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
-    ) {
-      stepLiveMovement(w, u, {
-        7: order => stepQueuedTreeOrder(w, u, order),
-        28: order => {
-          const enemy = w.units.find(
-            target =>
-              target.id === order.a && target.hp > 0 && target.inside === null && !target.lift
-          )
-          u.target = enemy?.id ?? null
-          return Number(!enemy)
-        },
-        33: () => processVaultTask(w, u),
-      })
-    } else if (
-      u.team !== 'wild' &&
-      !work &&
-      !target &&
-      !u.guard &&
-      // ponytail: hold direct gatherers at their source until the native no-following tail is evidenced.
-      u.tree === null &&
-      !u.harvest &&
-      !u.delivery &&
-      (!u.path.length || (u.native && [1, 17, 19].includes(u.native.state)))
-    ) {
-      stepLiveResting(w, u)
-    } else if (u.path.length) {
-      const next = u.path[0],
-        length = builderActivity(u) ? (u.builder?.person?.speed ?? unitSpeed(u)) : unitSpeed(u)
-      if (!supportsFollower(w, next)) {
-        clearLivePath(w, u)
-        continue
-      }
-      const { x: dx, z: dz } = wrappedPlanarDelta(u, next),
-        angle = nativeAngle(dx, dz)
-      if (dx || dz) {
-        u.heading = Math.PI - (angle * Math.PI) / 1024
-        if (u.builder?.person) u.builder.person.heading = u.builder.person.angle = angle
-      }
-      const p =
-        Math.hypot(dx, dz) <= length
-          ? { x: Math.round(next.x * 256) / 256, z: Math.round(next.z * 256) / 256 }
-          : nativeStep(u, angle, length)
-      if (!supportsFollower(w, p)) {
-        clearLivePath(w, u)
-        continue
-      }
-      u.x = p.x
-      u.z = p.z
-      if (Math.hypot(dx, dz) <= length) u.path.shift()
-      stepLiveRoute(w, u)
-    } else if (
-      (u.builder?.task === BuilderTask.Leave ||
-        (u.builder?.task === BuilderTask.ClearScenery &&
-          u.builder.phase === SceneryPhase.Retreat)) &&
-      u.builder.person?.speed
-    ) {
-      const p = nativeStep(u, u.builder.person.heading, u.builder.person.speed)
-      if (supportsFollower(w, p)) Object.assign(u, p)
-    } else if (target && u.target !== null)
-      route(w, u, 'progress' in target ? entrance(w, target) : target)
-    else if (work && u.tree === null && !builderActivity(u))
-      u.heading = Math.atan2(work.x - u.x, work.z - u.z)
-    if (
-      u.kind === 'brave' &&
-      !u.path.length &&
-      u.work === null &&
-      u.target === null &&
-      u.tree === null &&
-      !u.guard &&
-      activeOrder?.model !== 30 &&
-      !u.native?.guardInputPending
-    ) {
-      u.idleTurns++
-      if (u.idleTurns > 16 && (w.turn & 15) === 0) {
-        const hut = w.buildings
-          .filter(
-            b =>
-              b.team === u.team &&
-              b.kind === 'hut' &&
-              b.hp > 0 &&
-              b.progress === 1 &&
-              !b.burn &&
-              distance(u, b) < 8 &&
-              w.units.filter(a => a.work === b.id || a.inside === b.id).length < housing(b)
-          )
-          .sort((a, b) => distance(a, u) - distance(b, u))[0]
-        if (hut) {
-          const path = route(w, u, entrance(w, hut))
-          if (path.length) u.work = hut.id
+        delivery = directTimberDestination(w, u)
+        if (delivery && route(w, u, entrance(w, delivery)).length) {
+          u.delivery = { target: delivery.id }
         }
       }
-    } else u.idleTurns = 0
+      if (u.entry && u.inside === null && !work) {
+        stepBuildingEntry(w, u)
+        continue
+      }
+      if (
+        u.builder?.person &&
+        (currentPersonOrder(w.buildingOrders, u.builder.person)?.flags ?? 0) & 1
+      )
+        finishQueuedConstruction(w, u)
+      if (u.work !== null && !work && !finishQueuedConstruction(w, u)) release(w, u)
+      if (isDismantling(w, u) && work && 'hp' in work) {
+        if (startLiveCombatResponse(w, u)) {
+          stepLiveBuildingAttack(w, u)
+          continue
+        }
+        stepBuildingEntry(w, u, work)
+        continue
+      }
+      if (u.inside !== null) {
+        const b = w.buildings.find(b => b.id === u.inside && b.hp > 0)
+        if (b) {
+          if (
+            (b.kind === 'camp' ||
+              b.kind === 'tower' ||
+              b.kind === 'temple' ||
+              b.kind === 'spyHut' ||
+              b.kind === 'firewarriorHut') &&
+            u.entry
+          )
+            stepBuildingEntry(w, u, b)
+          continue
+        }
+        release(w, u)
+        u.hp -= 10
+      }
+      if (
+        work &&
+        'hp' in work &&
+        (work.kind === 'hut' ||
+          work.kind === 'camp' ||
+          work.kind === 'tower' ||
+          work.kind === 'temple' ||
+          work.kind === 'spyHut' ||
+          work.kind === 'firewarriorHut' ||
+          work.kind === 'boatHouse' ||
+          work.kind === 'balloonHut' ||
+          !!((work.admission?.activity ?? 0) & 0x8000)) &&
+        (work.progress === 1 || !!((work.admission?.activity ?? 0) & 0x8000)) &&
+        !work.burn &&
+        !u.builder &&
+        u.tree === null &&
+        !u.harvest &&
+        !u.delivery
+      ) {
+        stepBuildingEntry(w, u, work)
+        continue
+      }
+      // An unavailable hut hands control back to the existing work controller.
+      cancelBuildingEntry(w, u)
+      if (u.delivery && delivery && !u.path.length) {
+        if (!atBuildingEntrance(w, u, delivery)) route(w, u, entrance(w, delivery))
+        else {
+          const p = u.native ?? createLivePerson(w, u)
+          Object.assign(p, nativePosition(w, u))
+          p.cargo = Math.round(u.cargo * 100)
+          u.native = p
+          registerLivePerson(w, p)
+          dropCarriedTimber(
+            p,
+            () => {
+              w.trees.push({
+                ...(w.scenerySource
+                  ? { authoredSlot: null, sceneryBirth: 'loose-log' as const }
+                  : {}),
+                id: w.nextId++,
+                ...browserPosition(p),
+                logs: 1,
+                model: 11,
+              })
+              return true
+            },
+            () => sound(w, 11, u)
+          )
+          u.cargo = p.cargo / 100
+          u.delivery = undefined
+        }
+      }
+      const activeOrder = u.native && currentPersonOrder(w.buildingOrders, u.native)
+      if (activeOrder?.model === 28 && u.native?.vehicle && stepLiveAboardPersonAttack(w, u))
+        continue
+      if (u.native?.vehicle && !activeOrder) {
+        stepLivePhysics(w, u, u.native)
+        const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
+        if (vehicle) syncLiveVehiclePassengers(w, vehicle)
+        continue
+      }
+      if (
+        u.target === null &&
+        activeOrder?.model === 28 &&
+        nativePersonTribe(u) === w.manaWorld.playerTribe
+      ) {
+        const enemy = w.units.find(
+          target =>
+            target.id === activeOrder.a && target.hp > 0 && target.inside === null && !target.lift
+        )
+        u.target = enemy?.id ?? null
+        if (enemy) route(w, u, enemy, true)
+      }
+      let target: Unit | Building | undefined =
+        u.target === null
+          ? undefined
+          : [...w.units, ...w.buildings].find(t => t.id === u.target && t.hp > 0)
+      if (target && !('progress' in target) && (target.lift > 0 || target.inside !== null))
+        target = undefined
+      if (!target) {
+        cancelLiveBuildingAttack(w, u)
+        u.target = null
+        if (startLiveCombatResponse(w, u)) {
+          stepLiveBuildingAttack(w, u)
+          continue
+        }
+      }
+      if (target && 'progress' in target && target.progress === 1) {
+        stepLiveBuildingAttack(w, u, target)
+        continue
+      }
+      const targetDelta = target && !('progress' in target) ? wrappedPlanarDelta(u, target) : null
+      const targetDistance = target
+        ? targetDelta
+          ? Math.hypot(targetDelta.x, targetDelta.z) / 256
+          : distance(u, target)
+        : Infinity
+      const reach =
+        target && 'progress' in target ? 4.3 : u.kind === 'firewarrior' ? firewarriorRange : 1.7
+      if (target) {
+        // 0x51a2a0 raises quiet music to activity without overriding battle music.
+        // ponytail: target ownership remains the live attack adapter until the
+        // shared native command controller is integrated.
+        if (!w.musicActivity && nativePersonTribe(u) === w.manaWorld.playerTribe)
+          w.musicActivity = 1
+        u.heading = targetDelta
+          ? Math.atan2(targetDelta.x, targetDelta.z)
+          : Math.atan2(target.x - u.x, target.z - u.z)
+        if (u.target === null && u.work === null) {
+          u.target = target.id
+          if (targetDistance >= reach) route(w, u, target)
+        } else if (
+          !('progress' in target) &&
+          u.target === target.id &&
+          u.work === null &&
+          targetDistance >= reach
+        ) {
+          const planned = w.pathfinding.people.get(u.id)
+          if (planned && pursuitDestinationChanged(planned, nativePosition(w, target), 224))
+            route(w, u, target)
+        }
+      }
+      if (target && targetDistance < reach) {
+        if (!('progress' in target) && u.kind === 'firewarrior') {
+          u.path = []
+          if (u.native) u.native.speed = 0
+          u.fighting = true
+          if (!u.cooldown) launchFirewarrior(w, u, target)
+          continue
+        }
+        if ('progress' in target) {
+          u.fighting = true
+          if (!u.cooldown) {
+            if (!u.ghost) target.hp -= meleeDamage(u)
+            u.cooldown = (u.kind === 'shaman' ? 4 : 6) / TURNS_PER_SECOND
+            if (!u.ghost) effect(w, 'hit', target)
+          }
+        } else contacts.push([u, target])
+        continue
+      }
+      if (u.guard && !u.path.length) {
+        const shaman = w.units.find(a => a.team === u.team && isShaman(a))
+        if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
+      }
+      if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
+      if (
+        u.native &&
+        (u.native.guardInputPending ||
+          [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+          (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
+          (activeOrder?.model === 28 &&
+            nativePersonTribe(u) === w.manaWorld.playerTribe &&
+            !target))
+      ) {
+        stepLiveMovement(w, u, {
+          7: order => stepQueuedTreeOrder(w, u, order),
+          28: order => {
+            const enemy = w.units.find(
+              target =>
+                target.id === order.a && target.hp > 0 && target.inside === null && !target.lift
+            )
+            u.target = enemy?.id ?? null
+            return Number(!enemy)
+          },
+          33: () => processVaultTask(w, u),
+        })
+      } else if (
+        u.team !== 'wild' &&
+        !work &&
+        !target &&
+        !u.guard &&
+        // ponytail: hold direct gatherers at their source until the native no-following tail is evidenced.
+        u.tree === null &&
+        !u.harvest &&
+        !u.delivery &&
+        (!u.path.length || (u.native && [1, 17, 19].includes(u.native.state)))
+      ) {
+        stepLiveResting(w, u)
+      } else if (u.path.length) {
+        const next = u.path[0],
+          length = builderActivity(u) ? (u.builder?.person?.speed ?? unitSpeed(u)) : unitSpeed(u)
+        if (!supportsFollower(w, next)) {
+          clearLivePath(w, u)
+          continue
+        }
+        const { x: dx, z: dz } = wrappedPlanarDelta(u, next),
+          angle = nativeAngle(dx, dz)
+        if (dx || dz) {
+          u.heading = Math.PI - (angle * Math.PI) / 1024
+          if (u.builder?.person) u.builder.person.heading = u.builder.person.angle = angle
+        }
+        const p =
+          Math.hypot(dx, dz) <= length
+            ? { x: Math.round(next.x * 256) / 256, z: Math.round(next.z * 256) / 256 }
+            : nativeStep(u, angle, length)
+        if (!supportsFollower(w, p)) {
+          clearLivePath(w, u)
+          continue
+        }
+        u.x = p.x
+        u.z = p.z
+        if (Math.hypot(dx, dz) <= length) u.path.shift()
+        stepLiveRoute(w, u)
+      } else if (
+        (u.builder?.task === BuilderTask.Leave ||
+          (u.builder?.task === BuilderTask.ClearScenery &&
+            u.builder.phase === SceneryPhase.Retreat)) &&
+        u.builder.person?.speed
+      ) {
+        const p = nativeStep(u, u.builder.person.heading, u.builder.person.speed)
+        if (supportsFollower(w, p)) Object.assign(u, p)
+      } else if (target && u.target !== null)
+        route(w, u, 'progress' in target ? entrance(w, target) : target)
+      else if (work && u.tree === null && !builderActivity(u))
+        u.heading = Math.atan2(work.x - u.x, work.z - u.z)
+      if (
+        u.kind === 'brave' &&
+        !u.path.length &&
+        u.work === null &&
+        u.target === null &&
+        u.tree === null &&
+        !u.guard &&
+        activeOrder?.model !== 30 &&
+        !u.native?.guardInputPending
+      ) {
+        u.idleTurns++
+        if (u.idleTurns > 16 && (w.turn & 15) === 0) {
+          const hut = w.buildings
+            .filter(
+              b =>
+                b.team === u.team &&
+                b.kind === 'hut' &&
+                b.hp > 0 &&
+                b.progress === 1 &&
+                !b.burn &&
+                distance(u, b) < 8 &&
+                w.units.filter(a => a.work === b.id || a.inside === b.id).length < housing(b)
+            )
+            .sort((a, b) => distance(a, u) - distance(b, u))[0]
+          if (hut) {
+            const path = route(w, u, entrance(w, hut))
+            if (path.length) u.work = hut.id
+          }
+        }
+      } else u.idleTurns = 0
+    }
+  } finally {
+    personPass?.close()
   }
-  stepLivePersonHealth(w)
+  stepLivePersonHealth(w, hutNewborns)
   for (const { unit: u, previous } of burningPeople) {
     if (u.hp <= 0 && !u.flight) continue
     const person = { ...(u.flight ?? nativePosition(w, u)), burnTrail: u.burnTrail! }
@@ -1741,7 +1828,13 @@ function stepTurn(w: World) {
         const position = nativePosition(w, u)
         f.duration = Infinity
         f.height = position.h / 45
-        f.corpse = { remaining: reincarnationTurns(false), phase: 0, ground: position.h }
+        const wild = u.team === 'wild'
+        f.corpse = {
+          remaining: reincarnationTurns(wild),
+          phase: wild ? 3 : 0,
+          ground: position.h,
+        }
+        setFollowerCorpsePhase(f, f.corpse.phase)
       }
     }
   }
@@ -1757,6 +1850,7 @@ function stepTurn(w: World) {
   }
   // Native person epilogue decrements the arrival-voice cooldown after its state body.
   for (const u of w.units) {
+    if (hutNewborns.has(u)) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p?.marchCooldown) p.marchCooldown--
   }
@@ -1768,17 +1862,28 @@ function stepTurn(w: World) {
   removeDeadLiveRoutes(w)
   for (const u of w.units)
     if (u.hp <= 0 && !u.flight && u.native?.state !== 44) {
-      if (u.inside !== null) leaveLiveBuilding(w, u)
+      // Capture physical owners before ordinary cancellation detaches their roles.
+      // Those cancellation whitelists intentionally retain patrols, but a person
+      // removed below cannot keep owning any queued or immediate command.
+      const retiredPeople = new Set([
+        u.native,
+        u.fight?.motion,
+        u.entry?.person,
+        u.builder?.person,
+        residentPerson(w, u),
+      ])
+      if (u.inside !== null) retiredPeople.add(leaveLiveBuilding(w, u))
       cancelLiveBuildingAttack(w, u)
       cancelLiveOrder(w, u)
       cancelBuildingEntry(w, u)
+      clearRetiredPersonOrders(w, retiredPeople)
     }
   w.units = w.units.filter(u => u.hp > 0 || u.flight || u.native?.state === 44)
   removeMissingVehiclePassengers(w)
   w.buildings = w.buildings.filter(b => b.hp > 0)
   // The next tribe visit observes this completed object turn's membership.
   rebuildConstructionBuildings(w)
-  w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
+  removeMissingSelectedPeople(w)
   syncLivePersonCells(w)
   syncLandscapeObjects(w)
   cleanBattles(w)
@@ -1846,4 +1951,5 @@ function stepTurn(w: World) {
     w.status = 'lost'
   }
   w.effects = w.effects.filter(f => f.age < f.duration)
+  finishVehicleOrdinaryVisits(w)
 }

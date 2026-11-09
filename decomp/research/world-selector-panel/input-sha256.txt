@@ -1,0 +1,6 @@
+3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f  /workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe
+5fcb40325e64694860c88db1ea91cd33ddfd2bff88cd8b9b859ad78a6b66fbb9  /workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/data/plsdata.dat
+3f618952c23950afa2e7b6e778609baf374814c2700f0a31477235d91b2869a4  /workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/data/plsbackg.dat
+9b3e17fd501c65c7357cb64c0c8f27ec43304da8726afa6044b642e65e50a778  /workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/data/plspanel.spr
+d24d7b52665807b2dc51ab0401079ee34415e18853817d1d7d7f4f12d2d0e635  /workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/data/plsspace.spr
+9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2  /workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/data/plspl0-c.dat

@@ -23,7 +23,7 @@ export default async function ({ page, openMission, root, output, receipt, signa
     signal.throwIfAborted()
     if (name === 'reloaded') {
       await page.reload({ waitUntil: 'domcontentloaded' })
-      await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
+      await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
     }
     const timeOrigin = await page.evaluate(() => performance.timeOrigin)
     if (name === 'reloaded') assert.notEqual(timeOrigin, report.documents[0].timeOrigin, 'Reload must replace the document')

@@ -1,0 +1,200 @@
+{
+  "method": "Authored M10, trusted HUD/mouse input, real RAF, public Save and Load across browser termination",
+  "limits": "Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage",
+    "commit": "cb2d73af2a92debdc6b9a0042513770a7697b17c",
+    "tree": "d1362f57289e6be28db9c663c90507d49617868e",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "e754152175a35e961645f3289c71a4d3111a07c9d8d421699b9d6b3d7ab5f05a"
+  },
+  "phase": "reused",
+  "actions": [
+    {
+      "label": "minimap-probe",
+      "hit": {
+        "distance": 65.3069674690228,
+        "x": 99,
+        "y": 97,
+        "native": {
+          "x": 8901,
+          "y": 4836
+        }
+      },
+      "diagnostics": {
+        "geometry": {
+          "width": 200,
+          "height": 192,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 192
+          },
+          "center": {
+            "x": 9704,
+            "y": 6063
+          },
+          "heading": 0,
+          "target": {
+            "x": 8960,
+            "y": 4864
+          },
+          "maxDistance": 2048
+        },
+        "turn": 1161,
+        "projected": 36848,
+        "ownershipChecks": 1032,
+        "ownershipRejected": 0,
+        "nearestProjected": {
+          "native": {
+            "x": 8901,
+            "y": 4836
+          },
+          "local": {
+            "x": 99,
+            "y": 97
+          },
+          "distance": 65.3069674690228,
+          "point": {
+            "x": 99,
+            "y": 97
+          },
+          "owned": true,
+          "ownerTag": "CANVAS",
+          "ownerLabel": "Minimap. Click to move the camera."
+        },
+        "nearestOwned": {
+          "native": {
+            "x": 8901,
+            "y": 4836
+          },
+          "local": {
+            "x": 99,
+            "y": 97
+          },
+          "distance": 65.3069674690228,
+          "point": {
+            "x": 99,
+            "y": 97
+          },
+          "owned": true,
+          "ownerTag": "CANVAS",
+          "ownerLabel": "Minimap. Click to move the camera."
+        }
+      }
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-14T09:52:05.567Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-14T09:52:05.767Z"
+    }
+  ],
+  "observations": [
+    {
+      "label": "loaded-occupied-boat",
+      "wallTime": 1791971521745,
+      "turn": 1120,
+      "time": 93.33333333333333,
+      "level": 10,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "contextLost": false,
+      "counts": {
+        "units": 68,
+        "vehicles": 1,
+        "buildings": 25,
+        "secondary": 160
+      },
+      "paused": false,
+      "inputMask": 0,
+      "selected": [
+        63,
+        111,
+        112,
+        113,
+        114
+      ],
+      "status": "playing",
+      "boat": {
+        "id": 62,
+        "x": 9586,
+        "y": 6002,
+        "active": true,
+        "passengers": [
+          63,
+          112,
+          113,
+          111,
+          114
+        ]
+      },
+      "party": [
+        {
+          "id": 63,
+          "kind": "shaman",
+          "hp": 100,
+          "x": 29.90625,
+          "z": -31.68359375,
+          "vehicle": 62,
+          "state": 30,
+          "flags2": 1073893376,
+          "flags4": 671088896
+        },
+        {
+          "id": 111,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.375,
+          "z": -31.15234375,
+          "vehicle": 62,
+          "state": 30,
+          "flags2": 1073893376,
+          "flags4": 671088896
+        },
+        {
+          "id": 112,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.73046875,
+          "z": -31.5078125,
+          "vehicle": 62,
+          "state": 30,
+          "flags2": 1073893376,
+          "flags4": 671088896
+        },
+        {
+          "id": 113,
+          "kind": "warrior",
+          "hp": 90.2,
+          "x": 29.59765625,
+          "z": -31.375,
+          "vehicle": 62,
+          "state": 30,
+          "flags2": 1073893376,
+          "flags4": 671088896
+        },
+        {
+          "id": 114,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.19921875,
+          "z": -30.9765625,
+          "vehicle": 62,
+          "state": 30,
+          "flags2": 1073893376,
+          "flags4": 671088896
+        }
+      ],
+      "panels": []
+    }
+  ],
+  "status": "failed",
+  "error": "TimeoutError: locator.waitFor: Timeout 10000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Unload all passengers', exact: true }) to be visible\u001b[22m\n"
+}

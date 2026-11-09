@@ -1,0 +1,9 @@
+start address 0x0055d6c0
+AddressOfEntryPoint	0015d6c0
+ImageBase		00400000
+	0090c784  <none>  0144  GetTickCount
+	DLL Name: weanetr.dll
+	0090c978  <none>  0003  ?AreWeLobbied@MLDPlay@@QAEKP6GXKPAXKK0@ZPAU_GUID@@PAUMLDPLAY_LOBBYINFO@@PAKPAG5KK@Z
+	0090c9b0  <none>  000e  ?DestroySession@MLDPlay@@QAEHXZ
+	0090c58c  <none>  0136  RegQueryValueExA
+	0090c594  <none>  011b  RegCreateKeyExA

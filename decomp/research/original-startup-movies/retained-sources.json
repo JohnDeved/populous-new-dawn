@@ -1,0 +1,38 @@
+[
+  {
+    "path": "engineering/native-research.md",
+    "commit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "sha256": "9889c5c944937564289a92ea5afd03e1a86c15e835398495dc0ad68f2d333e08",
+    "matchesInspectedCheckout": true
+  },
+  {
+    "path": "decomp/tools.json",
+    "commit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "sha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+    "matchesInspectedCheckout": true
+  },
+  {
+    "path": "decomp/research/original-menus.md",
+    "commit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "sha256": "8ec2e55b976fe5c0aa0e983694c76218c63ad46450ad5ad87743ed9b1a4c2b4b",
+    "matchesInspectedCheckout": true
+  },
+  {
+    "path": "decomp/research/frontend-menu-static/README.md",
+    "commit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "sha256": "6de838e3cc9208bc2f467ea9089b56847327772f9ae71058c141ac7e72fe6af9",
+    "matchesInspectedCheckout": true
+  },
+  {
+    "path": "scripts/extract-reference.py",
+    "commit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "sha256": "43870b6e06aeb43f8ea9103f3e601e4236397cbb1e49d72c43e570d4e13ffd7e",
+    "matchesInspectedCheckout": true
+  },
+  {
+    "path": "decomp/extraction-requirements.txt",
+    "commit": "c9e3cbc8003be7c9b3fc489d794297679476d2b9",
+    "sha256": "c1584005417e59a65352ad3fbbb842c48257d5920c27286538ebbb55b6ce6db3",
+    "matchesInspectedCheckout": true
+  }
+]

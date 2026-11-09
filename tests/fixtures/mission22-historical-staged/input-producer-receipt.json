@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "250e7bce-848a-4bc2-a17a-f083fcdbde0c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9f7a4758aaabd11b0b57e89d150265c313d9a13a",
+    "branch": "fix/raid-native-target-collector",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m22-staged-historical-0444/producer-hook.mjs": "27a7013de2bb749430fbe73e01df424e5ca82e8cd520b6d5fee3e257fa4e2157",
+      "tests/balloon-staged-movement.test.mjs": "6db888befde75d6e96924291d02cd1c4eae36b70a01c71eee3a46cee23095924",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--import",
+    "./work/m22-staged-historical-0444/producer-hook.mjs",
+    "--test",
+    "tests/balloon-staged-movement.test.mjs"
+  ],
+  "cwd": "/tmp/populous-raid447-fallback-0229",
+  "startedAt": "2026-10-15T04:45:34.904Z",
+  "artifacts": {
+    "stdout": "/tmp/populous-raid447-fallback-0229/work/orchestration/m22-staged-historical-0444/producer.json.artifacts/stdout.log",
+    "stderr": "/tmp/populous-raid447-fallback-0229/work/orchestration/m22-staged-historical-0444/producer.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-15T04:46:40.767Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "HISTORICAL_CAPTURE_QUALIFIED {\"shamanId\":89,\"balloonId\":1,\"capturedTurn\":3566,\"validatedThrough\":3966,\"serializedSha256\":\"89b601dfacfb846cca5827367e03782efffc4e8eba9cdac5b70b7085306754a7\",\"gzipSha256\":\"f83f0f0acbf6c4fac23e4a960f1416f5d4a613ae3551566eb373b41863f1802b\"}\n✔ supplied-focus current Mission22 staged transport waypoints advance and retain the seated owner through Save/Load (64360.117011ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 65759.463235\n",
+  "stderr": "",
+  "stdoutSha256": "4e8eada370746b952f475192f7eb44b02f79e286f1d2366d982f77eb2084335e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9f7a4758aaabd11b0b57e89d150265c313d9a13a",
+    "branch": "fix/raid-native-target-collector",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m22-staged-historical-0444/producer-hook.mjs": "27a7013de2bb749430fbe73e01df424e5ca82e8cd520b6d5fee3e257fa4e2157",
+      "tests/balloon-staged-movement.test.mjs": "6db888befde75d6e96924291d02cd1c4eae36b70a01c71eee3a46cee23095924",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

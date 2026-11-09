@@ -1,5 +1,5 @@
 import { currentPersonOrder } from './person-orders.ts'
-import { changeLivePersonState } from './live-people.ts'
+import { beginLiveCasting } from './live-people.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { ManaTribe, ManaWorld, SpellStock } from './mana.ts'
 import { cellDistanceSquared, positionDistance } from './native-math.ts'
@@ -8,6 +8,7 @@ import { SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { buildingModel } from './building-shapes.ts'
 import { sound } from './world-effects.ts'
+import { SPELL_CAST_VOICES } from './spell-audio-cues.ts'
 import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { browserPosition } from './world-coordinates.ts'
 
@@ -191,6 +192,12 @@ export type TargetCaster = SpellCaster & {
   casting: TribeCasting
   playerType: number
 }
+// Normal-mode 0x4c24f0: any vehicle link blocks Land Bridge unless the
+// tribe has unlimited casting. The destination must remain dry in either case.
+export function landBridgeTargetAllowed(tribeFlags: number, vehicle: number, terrainFlags: number) {
+  return !(terrainFlags & 2) && (!!(tribeFlags & 0x80000) || !vehicle)
+}
+
 // 0x4c24f0. Results: 1 valid, -1 unavailable, -2 range, -3 bridge placement.
 // Cursor blocking and the alternate-mode bridge anchor are native UI inputs.
 export function validateSpellTarget(
@@ -224,13 +231,13 @@ export function validateSpellTarget(
       return -2
   }
   if (model !== 12) return 1
-  if (tribeFlags & 0x80000) return terrainFlags & 2 ? -3 : 1
+  if (tribeFlags & 0x80000) return landBridgeTargetAllowed(tribeFlags, 0, terrainFlags) ? 1 : -3
   // A valid normal-mode shaman is guaranteed by the checks above.
   if (notify) {
     if (terrainFlags & 2) effects.notify(0x8000, 0x255)
     if (caster!.landIndex && caster!.flags4 & 0x2000000) effects.notify(0x8000000, 0x261)
   }
-  return !caster!.landIndex && !(terrainFlags & 2) ? 1 : -3
+  return landBridgeTargetAllowed(tribeFlags, caster!.landIndex, terrainFlags) ? 1 : -3
 }
 
 // 0x4d1340. Entry mode selects defense (nonzero) or offense (zero). The
@@ -327,55 +334,7 @@ export function recordSpellCast(w: World, tribe: number, model: number) {
 }
 
 function castVoice(w: World, u: Unit, spell: Spell) {
-  sound(
-    w,
-    (u.team === 'blue'
-      ? {
-          blast: 0x76,
-          convertWild: 0x85,
-          hypnotise: 0x7b,
-          ghostArmy: 0x7d,
-          lightning: 0x77,
-          bridge: 0x80,
-          flatten: 0x83,
-          erosion: 0x7e,
-          swamp: 0x7f,
-          firestorm: 0x7c,
-          earthquake: 0x82,
-          angel: 0x81,
-          volcano: 0x84,
-          tornado: 0x78,
-          shield: 0x87,
-          invisibility: 0x7a,
-          armageddon: 0x86,
-          bloodlust: 0x88,
-          teleport: 0x89,
-          swarm: 0x79,
-        }
-      : {
-          blast: 0x8c,
-          convertWild: 0x9b,
-          hypnotise: 0x91,
-          ghostArmy: 0x93,
-          lightning: 0x8d,
-          bridge: 0x96,
-          flatten: 0x99,
-          erosion: 0x94,
-          swamp: 0x95,
-          firestorm: 0x92,
-          earthquake: 0x98,
-          angel: 0x97,
-          volcano: 0x9a,
-          tornado: 0x8e,
-          shield: 0x9d,
-          invisibility: 0x90,
-          armageddon: 0x9c,
-          bloodlust: 0x9e,
-          teleport: 0x9f,
-          swarm: 0x8f,
-        })[spell],
-    u
-  )
+  sound(w, SPELL_CAST_VOICES[u.team === 'blue' ? 'blue' : 'other'][spell], u)
 }
 
 // ponytail: browser occupancy supplies the cell's building until native terrain
@@ -458,8 +417,12 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point, personId?: 
   }
   u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }
   castVoice(w, u, spell)
-  // 0x4c1b80 retains the opening order while its Shaman enters cast state22.
-  // Other legacy casting owners retain their existing handoff.
-  if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 18)
-    changeLivePersonState(w, u, 22)
+  // 0x4c1b80 hands ordinary grounded casters to native state 22 too.
+  // Forced/script airborne casts retain their existing admission boundary;
+  // their interruption/landing ownership has not yet been traced.
+  if (
+    (!u.flight && !u.lift) ||
+    (u.native && (u.native.vehicle || currentPersonOrder(w.buildingOrders, u.native)?.model === 18))
+  )
+    beginLiveCasting(w, u, nativePosition(w, target))
 }

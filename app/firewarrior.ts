@@ -9,9 +9,11 @@ import { effect, sound } from './world-effects.ts'
 import { applyUnitDamage } from './combat-runtime.ts'
 import { damageBuilding, ensureBuildingDamage } from './building-damage.ts'
 import { TURNS_PER_SECOND } from './world-rules.ts'
+import { stepFirewarriorPoint } from './firewarrior-point.ts'
 import { automaticTowerFirewarriorTarget } from './live-combat.ts'
 import { engagementRange } from './melee-engagement.ts'
 import constants from './original-constants.json' with { type: 'json' }
+import { firewarriorTerrainClear } from './firewarrior-clearance.ts'
 
 export const firewarriorRange = rules.personModels[6].idleRange
 export const firewarriorCooldown = 25 / TURNS_PER_SECOND
@@ -52,9 +54,8 @@ export function launchFirewarrior(w: World, source: Unit, target: Unit | Buildin
     }
     tracked = fx.id
   }
-  source.cooldown =
-    (tower ? towerFirewarriorCooldown : firewarriorCooldown) /
-    (source.bloodlust ? 1 << constants.BLOODLUST_SW_BLAST_X : 1)
+  const cooldown = (tower ? 36 : 25) >> (source.bloodlust ? constants.BLOODLUST_SW_BLAST_X : 0)
+  source.cooldown = cooldown / TURNS_PER_SECOND
   sound(w, 0xa1, source)
   return tracked
 }
@@ -84,10 +85,27 @@ export function firewarriorReady(w: World, source: Unit, target: Unit | Building
       inTower
     ),
     threshold = range * 256 + 56
-  return (
-    Math.abs(short(destination.x - origin.x)) < threshold &&
-    Math.abs(short(destination.y - origin.y)) < threshold
+  if (
+    Math.abs(short(destination.x - origin.x)) >= threshold ||
+    Math.abs(short(destination.y - origin.y)) >= threshold
   )
+    return false
+  // Use the live motion owner's stored height, without changing the established
+  // range calculation. Tower support (+0x1c) is not part of native +0x41.
+  origin.h = firewarriorObjectHeight(source) ?? origin.h
+  destination.h = firewarriorObjectHeight(target) ?? destination.h
+  return firewarriorTerrainClear(w.land, origin, destination)
+}
+
+function firewarriorObjectHeight(object: Unit | Building) {
+  if ('foundation' in object) return Math.round(object.foundation * 45)
+  return (
+    object.flight ??
+    object.fight?.motion ??
+    object.native ??
+    object.entry?.person ??
+    object.builder?.person
+  )?.h
 }
 
 export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
@@ -95,6 +113,10 @@ export const towerFirewarriorReady = (w: World, source: Unit, target: Unit) =>
 
 export function stepFirewarriorShots(w: World) {
   for (const fx of w.effects.filter(effect => effect.firewarriorShot)) {
+    if (fx.firewarriorShot!.point) {
+      stepFirewarriorPoint(w, fx, nativePosition(w, fx), { effect, sound })
+      continue
+    }
     const shot = fx.firewarriorShot!,
       unit = w.units.find(unit => unit.id === shot.target && unit.hp > 0),
       building = w.buildings.find(building => building.id === shot.target && building.hp > 0),
@@ -115,7 +137,11 @@ export function stepFirewarriorShots(w: World) {
       // ponytail: this slice proves the ordinary Brave result. Add the native
       // target table, splash, protection, and LOS as those live paths land.
       const source = w.units.find(unit => unit.id === shot.source && unit.hp > 0),
+        // Older in-flight checkpoints may omit the marker; retain their unit
+        // impact behavior. Every current launch explicitly identifies its side.
+        ownsImpact = shot.impact !== false,
         damaged =
+          ownsImpact &&
           unit &&
           applyUnitDamage(
             unit,
@@ -144,7 +170,7 @@ export function stepFirewarriorShots(w: World) {
         w.attackCell = context.attackCell
         context.tribes.forEach((tribe, i) => (w.manaTribes[i].flags2 = tribe.flags))
       }
-      if (target) effect(w, 'hit', target)
+      if (target && ownsImpact) effect(w, 'hit', target)
       fx.duration = fx.age
       continue
     }

@@ -1,4 +1,6 @@
-import { TRIBE_TEAMS, tribeForTeam, type Point, type Unit, type World } from './world-types.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
+import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
+import { TRIBE_TEAMS, tribeForTeam, type Unit, type World } from './world-types.ts'
 import {
   createLivePerson,
   registerLivePerson,
@@ -7,7 +9,7 @@ import {
   type LivePerson,
 } from './live-people.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
-import { nativePosition, nativeCellIndex } from './world-terrain-runtime.ts'
+import { nativePosition, nativeCellIndex, syncNativeTerrain } from './world-terrain-runtime.ts'
 import { combatPerson, nativePersonModel } from './live-combat.ts'
 import {
   buildingFootprintCells,
@@ -22,9 +24,9 @@ import {
   currentPersonOrder,
   deselectPerson,
   emptyPersonOrder,
-  writePersonOrder,
   commitPersonOrders,
   clearPersonOrders,
+  removePersonOrder,
   prepareMovementOrder,
   queuePersonOrder,
   allocatePersonOrder,
@@ -39,7 +41,7 @@ import {
   orderEffects,
   adoptLiveOrders,
 } from './live-movement.ts'
-import { cellDistanceSquared, random, spiralCell } from './native-math.ts'
+import { cellDistanceSquared, random, spiralCell, short } from './native-math.ts'
 import { isShaman, SPELLS } from './world-rules.ts'
 import {
   campaignPersonCount,
@@ -107,7 +109,7 @@ import {
 } from './computer-spells.ts'
 import { defaultPersonState, resetPersonMotion } from './person-state.ts'
 import { refreshBuildingTerritory } from './territory.ts'
-import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
+import { addBuilding, prepareBuildingSiteCheck } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
 import { release, releaseTasks } from './world-tasks.ts'
 import { objectsInCell } from './object-cells.ts'
@@ -237,7 +239,14 @@ export function requestComputerPreacher(w: World, tribe: number, marker: number)
   if (id === null) return false
   const source = selected.sources.get(id)
   if (source) source.flags3 = selected.world.units.get(id)!.flags3
-  return requestPreacherTask(w.ai, id, marker, w.ai.states, campaignPersonCount(w, tribe, 4))
+  return requestPreacherTask(
+    w.ai,
+    id,
+    marker,
+    w.ai.states,
+    campaignPersonCount(w, tribe, 4),
+    id => id
+  )
 }
 
 //0x4f3280: only current order30 people return, with uncentered even coordinates.
@@ -276,11 +285,11 @@ function finishComputerPerson(
   if (!retainOwner) adoptLiveOrders(w, u, p)
   if (cleanup) {
     const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
-      building =
+      shape =
         w.land.flags[cell] & 512
-          ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+          ? liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
           : undefined,
-      point = building ? buildingOutsidePoint(buildingPose(building)) : p
+      point = shape ? buildingOutsidePoint(shape) : p
     //0x405090 snaps the idle anchor, not the active goal/route fields.
     p.anchorX = (point.x & 0xfe00) + 0x100
     p.anchorY = (point.y & 0xfe00) + 0x100
@@ -592,8 +601,10 @@ const unsignedAttackField = (value: number, maximum: number) =>
 // empty order initializer. Hold malformed fields and still-uncomposed cleanup
 // leaves before changing either native admission or the port member list.
 function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
+  const maximumOrder = w.buildingOrders.scalable ? w.buildingOrders.records.length - 1 : 799,
+    maximumReferences = w.buildingOrders.scalable ? Number.MAX_SAFE_INTEGER : 65535
   if (
-    !unsignedAttackField(p.id, 65535) ||
+    !unsignedAttackField(p.id, Number.MAX_SAFE_INTEGER) ||
     p.id !== u.id ||
     p.class !== 1 ||
     !unsignedAttackField(p.model, 8) ||
@@ -624,9 +635,9 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
     w.land.flags[(p.y >>> 9) * 128 + (p.x >>> 9)] & 512 ||
     !Array.isArray(p.commands) ||
     p.commands.length !== 8 ||
-    !unsignedAttackField(p.immediateCommand, 799) ||
-    ![...p.commands].every(id => unsignedAttackField(id, 799)) ||
-    !unsignedAttackField(w.buildingOrders.active, 799)
+    !unsignedAttackField(p.immediateCommand, maximumOrder) ||
+    ![...p.commands].every(id => unsignedAttackField(id, maximumOrder)) ||
+    !unsignedAttackField(w.buildingOrders.active, maximumOrder)
   )
     return false
   const releases = new Map<number, number>()
@@ -639,7 +650,7 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
       !order ||
       !unsignedAttackField(order.model, 255) ||
       !unsignedAttackField(order.flags, 255) ||
-      !unsignedAttackField(order.references, 65535) ||
+      !unsignedAttackField(order.references, maximumReferences) ||
       order.references < count ||
       !unsignedAttackField(order.object, 65535) ||
       order.model === 30 ||
@@ -651,17 +662,66 @@ function canReleaseComputerAttackPerson(w: World, index: number, u: Unit, p: Liv
   return w.buildingOrders.active >= freed
 }
 
+function registeredAttackPerson(w: World, u: Unit) {
+  const registered = w.objectCells.objects.get(u.id)
+  return [u.flight, u.fight?.motion, u.native, u.entry?.person, u.builder?.person].find(
+    person => person && person === registered
+  )
+}
+
+function releaseAttackPerson(w: World, index: number, u: Unit, p: LivePerson) {
+  if (!canReleaseComputerAttackPerson(w, index, u, p)) return false
+  // 0x4f2440: absence of +7f remains unknown; known upper bits survive.
+  if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+  p.computerAssignment = 0
+  p.flags3 = (p.flags3 & ~0x2000) >>> 0
+  finishComputerPerson(w, u, p, true, true)
+  w.ai.tasks[index].members = w.ai.tasks[index].members.filter(id => id !== u.id)
+  return true
+}
+
+// 0x4cbbc4: retain the admitted-member and proximity adapters, but preserve
+// per-member forced-state, release, then proximity ordering.
+function computerAttackOutbound(w: World, index: number, target: number, radius: number) {
+  let remaining = false
+  for (const u of computerAttackUnits(w, index)) {
+    const p = registeredAttackPerson(w, u)
+    if (!p) {
+      remaining = true
+      continue
+    }
+    if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000) return { kind: 'attack' as const }
+    if (
+      p.state === 33 &&
+      (!unsignedAttackField(p.substate, 255) ||
+        (p.substate === 2 && !unsignedAttackField(p.animationMode, 255)))
+    ) {
+      remaining = true
+      continue
+    }
+    if (p.state === 33 && (p.substate === 3 || (p.substate === 2 && p.animationMode > 4))) {
+      if (!releaseAttackPerson(w, index, u, p)) remaining = true
+      continue
+    }
+    remaining = true
+    if (!computerAttackReady(u)) continue
+    const position = nativePosition(w, u),
+      cell = ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+    if (cellDistanceSquared(cell, target) <= radius * radius)
+      return { kind: 'regroup' as const, cell }
+  }
+  return { kind: remaining ? ('pending' as const) : ('empty' as const) }
+}
+
 // 0x4d14f0: task.members supplies the port's admitted-member ownership. Inspect
 // the registered person, including a fight owner that shadows stale u.native.
 function computerAttackSettled(w: World, index: number) {
-  const units = computerAttackUnits(w, index)
+  const units = computerAttackUnits(w, index),
+    maximumOrder = w.buildingOrders.scalable ? w.buildingOrders.records.length - 1 : 65535
   if (!units.length) return null
   let settled = true
   for (const u of units) {
-    const registered = w.objectCells.objects.get(u.id),
-      p = [u.flight, u.fight?.motion, u.native, u.entry?.person, u.builder?.person].find(
-        person => person && person === registered
-      )
+    const p = registeredAttackPerson(w, u)
     if (
       !p ||
       !unsignedAttackField(p.state, 255) ||
@@ -685,13 +745,7 @@ function computerAttackSettled(w: World, index: number) {
       }
       if (p.substate === 3 || (p.substate === 2 && p.animationMode > 4)) {
         settled = false
-        if (!canReleaseComputerAttackPerson(w, index, u, p)) continue
-        // 0x4f2440: absence of +7f remains unknown; known upper bits survive.
-        if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
-        p.computerAssignment = 0
-        p.flags3 = (p.flags3 & ~0x2000) >>> 0
-        finishComputerPerson(w, u, p, true, true)
-        w.ai.tasks[index].members = w.ai.tasks[index].members.filter(id => id !== u.id)
+        releaseAttackPerson(w, index, u, p)
         continue
       }
     }
@@ -699,11 +753,11 @@ function computerAttackSettled(w: World, index: number) {
     if (rules.personStateFlags[p.state] & 8 || p.state === 25 || p.state === 29) continue
     if (
       (p.state !== 10 && p.state !== 33) ||
-      !unsignedAttackField(p.immediateCommand, 65535) ||
+      !unsignedAttackField(p.immediateCommand, maximumOrder) ||
       (!p.immediateCommand &&
         (!unsignedAttackField(p.commandCursor, 255) ||
           !Array.isArray(p.commands) ||
-          !unsignedAttackField(p.commands[p.commandCursor], 65535)))
+          !unsignedAttackField(p.commands[p.commandCursor], maximumOrder)))
     ) {
       settled = false
       continue
@@ -727,7 +781,7 @@ function computerAttackHasOrder(w: World, index: number, model: number, target: 
   return (
     units.length > 0 &&
     units.every(u => {
-      const p = u.native ?? u.fight?.motion
+      const p = registeredAttackPerson(w, u) ?? u.native ?? u.fight?.motion
       const order = p && currentPersonOrder(w.buildingOrders, p)
       return order?.model === model && order.a === target
     })
@@ -735,25 +789,16 @@ function computerAttackHasOrder(w: World, index: number, model: number, target: 
 }
 
 function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
-  const team = campaignTeam(w, tribe === 0 ? campaignTribe(w) : 0)
-  if (!team) return false
-  const within = (object: Point) => {
-    const p = nativePosition(w, object),
-      cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
-    return cellDistanceSquared(cell, target) <= 100
-  }
-  return (
-    w.units.some(
-      u =>
-        u.team === team &&
-        u.hp > 0 &&
-        u.inside === null &&
-        u.native?.state !== 23 &&
-        !u.flight &&
-        within(u)
-    ) ||
-    w.buildings.some(b => b.team === team && b.hp > 0 && b.damageState?.state !== 3 && within(b))
-  )
+  // Phase16 calls 0x4f5950 with radius7 and independent maximum10 lists,
+  // using native cell order and owner flags, including transient fight owners.
+  const world = computerResponseWorld(w, tribe),
+    targets = collectDefenseTargets(
+      tribe,
+      world.alliances,
+      target,
+      cell => world.cells.get(cell) ?? []
+    )
+  return targets.people.length > 0 || targets.buildings.length > 0
 }
 
 function produceMissionTraining(w: World, tribe: number) {
@@ -761,7 +806,9 @@ function produceMissionTraining(w: World, tribe: number) {
   if (!(w.ai.states & (1 << 6))) return false
   const population = campaignPersonCount(w, tribe),
     eligible = [
-      ...(w.outcome.level === 6 && tribe === 2 ? [{ model: 4, building: 5, preference: 6 }] : []),
+      ...([6, 7].includes(w.outcome.level) && tribe === 2
+        ? [{ model: 4, building: 5, preference: 6 }]
+        : []),
       { model: 3, building: 7, preference: 7 },
     ]
       .map(candidate => ({
@@ -780,9 +827,13 @@ function produceMissionTraining(w: World, tribe: number) {
     available = availableTrainingPeople(selection.world),
     capacity = rules.buildingCapacity[building]
   // Original 0x4e59a0 requires capacity, including equality. Later-mission
-  // adapters outside the already proved Mission6 path retain their current gate.
+  // adapters outside the proved early, Mission6, Mission12 and Mission16 paths retain their gate.
   if (
-    (w.outcome.level >= 1 && w.outcome.level <= 3) || w.outcome.level === 6
+    (w.outcome.level >= 1 && w.outcome.level <= 3) ||
+    w.outcome.level === 6 ||
+    (w.outcome.level === 7 && tribe === 2) ||
+    w.outcome.level === 12 ||
+    w.outcome.level === 16
       ? !hasComputerTrainingCapacity(available, capacity)
       : available >= capacity
   )
@@ -794,7 +845,8 @@ function produceMissionTraining(w: World, tribe: number) {
 
 // The ordinary 0x4e5580 producer reaches training buildings before housing.
 function produceMissionBuilding(w: World, tribe: number) {
-  const team = campaignTeam(w, tribe),
+  const missionFourTower = w.outcome.level === 4 && tribe === 3,
+    team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
         building => building.team === team && building.hp > 0 && buildingModel(building) === model
@@ -815,14 +867,16 @@ function produceMissionBuilding(w: World, tribe: number) {
         )
       }, 0)
   if (
-    ![2, 3, 6, 11, 12, 23].includes(w.outcome.level) ||
+    (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) &&
+      !missionFourTower &&
+      !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
   const selection = computerSelectionWorld(w, tribe)
   const available =
-    w.outcome.level === 2
+    w.outcome.level === 2 || missionFourTower
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -831,19 +885,33 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      w.outcome.level === 2 && tribe === 3 && w.ai.constructionBase === undefined
+      (w.outcome.level === 2 || missionFourTower) &&
+      tribe === 3 &&
+      w.ai.constructionBase === undefined
         ? nativePosition(w, campaignPosition(w, 'green'))
         : shaman && nativePosition(w, shaman),
     origin =
-      w.outcome.level === 2 && w.ai.constructionBase !== undefined
+      (w.outcome.level === 2 || missionFourTower) && w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
-        : (w.outcome.level === 2 || w.outcome.level === 12) && position
+        : (w.outcome.level === 2 || missionFourTower || w.outcome.level === 12) && position
           ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
           : base
             ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
             : position
               ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
               : 0
+  if (missionFourTower) {
+    // 0x4e5580's Tower prefix only. Its later school/housing branches remain
+    // unbound here; this is not a native one-shot latch or a ban on rebuilding.
+    if (w.ai.flags & 0x400) return false
+    const pendingTower = w.ai.tasks.some(
+      task => task.flags & 1 && task.type === 0 && task.requested === 4
+    )
+    return (
+      (!has(4) || (w.ai.constructionBase === undefined && !pendingTower)) &&
+      requestConstruction(w.ai, 4, origin)
+    )
+  }
   if (!origin) return false
   if (w.outcome.level === 2) {
     // The authored outpost is not the construction base. Native 0x461d70 starts
@@ -951,6 +1019,7 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
     task.phase = 2
   }
   if (task.phase === 2) {
+    let checkSite: ReturnType<typeof prepareBuildingSiteCheck> | undefined
     for (let scanned = 0; scanned < 40 && task.elapsed < task.remaining; scanned++) {
       const cell = spiralCell(task.target, task.elapsed++, task.mode),
         point = nativeCellPoint(cell),
@@ -960,8 +1029,14 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
           anchorX: (cell & 254) << 8,
           anchorY: cell & 0xfe00,
         },
-        footprint = new Set(buildingFootprintCells(pose))
-      if (!checkBuildingSite(w, pose, task.requested, team).valid) continue
+        footprintCells = buildingFootprintCells(pose)
+      checkSite ??= prepareBuildingSiteCheck(w, team)
+      if (!checkSite(pose, task.requested).valid) continue
+      // Selection/pathfinding may mutate the world even when rejecting a site.
+      checkSite = undefined
+      // Keep shape evaluation/throws before site synchronization, but allocate the
+      // wild-unit membership Set only for sites that can reach that veto.
+      const footprint = new Set(footprintCells)
       // ponytail: wild units lack native wandering; remove this veto when their movement is live.
       if (
         w.units.some(unit => {
@@ -1003,13 +1078,13 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.target = cell
       task.entity = building.id
       task.retries = 0
-      task.phase = [2, 3].includes(w.outcome.level) && task.requested === 4 ? 3 : 4
+      task.phase = [2, 3, 4].includes(w.outcome.level) && task.requested === 4 ? 3 : 4
       return
     }
     if (task.elapsed >= task.remaining) cleanup()
     return
   }
-  if (task.phase === 3 && [2, 3].includes(w.outcome.level)) {
+  if (task.phase === 3 && [2, 3, 4].includes(w.outcome.level)) {
     const building = w.buildings.find(b => b.id === task.entity && b.hp > 0)
     if (!task.extra && w.ai.constructionBase === undefined && building) {
       const outside = buildingOutsidePoint(buildingPose(building))
@@ -1129,12 +1204,81 @@ function allocateComputerSpell(w: World, u: Unit, model: number, cell: number) {
   if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
   clearLivePath(w, u)
   beginCast(w, u, spell.id, nativeCellPoint(cell))
-  const fightingPerson = u.fight?.motion
-  if (fightingPerson && (fightingPerson.state === 25 || fightingPerson.state === 29)) {
-    u.native = fightingPerson
-    changeLivePersonState(w, u, 22)
-    u.fight = null
+}
+
+// 0x4cc7d7: the marker branch uses the tribe Shaman and ONLY spell byte zero.
+// It does not share phase 6's first-permitted selector or positional target scan.
+function castAttackMarkerSpell(w: World, tribe: number, task: ComputerTask, home: number) {
+  const shaman = w.units.find(u => u.team === campaignTeam(w, tribe) && isShaman(u) && u.hp > 0)
+  if (!shaman) return 'absent' as const
+  const person = combatPerson(shaman),
+    casting = w.castingTribes[tribe],
+    caster = {
+      ...spellCaster(w, shaman),
+      ...person,
+      landIndex: person.vehicle,
+      casting,
+      playerType: w.manaTribes[tribe].playerType,
+    },
+    stock = w.manaWorld.spells[tribe],
+    spells = task.spells ?? [],
+    model = spells[0] ?? 0
+  if (shaman.casting) caster.flags4 |= 0x400
+  if (model >= 2 && model <= 17) {
+    if (!canShamanCast(casting, caster.playerType, caster) || (task.attackVisits ?? 0) & 7)
+      return 'pending' as const
+    const payment = spellPaymentType(w.manaWorld.gameFlags, casting.flags, stock, model)
+    if (payment !== 3 && w.manaTribes[tribe].mana < rules.spellCharging[model].cost) spells[0] = 0
+    else {
+      const target = missionData(w.outcome.level).level.markers[task.spellMarker!]
+      if (target === undefined) throw new Error('Invalid attack spell marker')
+      if (!computerSpellInRange(w.manaWorld.gameFlags, casting.flags, caster, target, model)) {
+        if (rules.personStateFlags[person.state] & 8) spells[0] = 0
+        return 'pending' as const
+      }
+      if (computerSpellAllowed(casting, w.ai.flags, w.manaWorld.gameFlags, model))
+        allocateComputerSpell(w, shaman, model, target)
+      spells[0] = 0
+    }
   }
+  // Cleared slots are not compacted. Success/refusal observes byte zero again
+  // immediately, then retains the Shaman only while some remaining spell is affordable.
+  const costs = spells
+    .filter(remainingModel => remainingModel && remainingModel !== 6 && remainingModel !== 19)
+    .map(remainingModel =>
+      spellPaymentType(w.manaWorld.gameFlags, casting.flags, stock, remainingModel) === 3
+        ? 0
+        : rules.spellCharging[remainingModel].cost
+    )
+  if (!costs.length || w.manaTribes[tribe].mana < Math.min(...costs)) {
+    const owner = defensePerson(shaman)
+    if (!owner || w.objectCells.objects.get(shaman.id) !== owner)
+      throw new Error('Unregistered attack marker Shaman owner')
+    // 0x43b2a0 replaces the queue without running a state initializer. Allocation
+    // failure leaves that queue intact, but the caller still clears assignment.
+    const id = allocatePersonOrder(w.buildingOrders)
+    if (id) {
+      prepareMovementOrder(
+        w.buildingOrders.records[id],
+        { x: (home & 254) << 8, y: home & 0xfe00 },
+        0,
+        w.land,
+        buildingId =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === buildingId)!))
+      )
+      owner.flags2 = (owner.flags2 | 0x10) >>> 0
+      owner.commandCursor = 0
+      for (let slot = 0; slot < 8; slot++)
+        if (owner.commands[slot]) removePersonOrder(w.buildingOrders, owner, slot, orderEffects(w))
+      if (owner.immediateCommand) removePersonOrder(w.buildingOrders, owner, -1, orderEffects(w))
+      owner.flags2 = (owner.flags2 & ~0x8000000) >>> 0
+      owner.flags3 = (owner.flags3 & ~0x200) >>> 0
+      attachPersonOrder(w.buildingOrders, owner, id, 0, orderEffects(w))
+      adoptLiveOrders(w, shaman, owner)
+    }
+    assignDefensePerson(shaman, owner, 0)
+  }
+  return 'finished' as const
 }
 
 function castAttackTaskSpell(w: World, tribe: number, task: ComputerTask) {
@@ -1241,20 +1385,27 @@ function computerResponseWorld(w: World, tribe: number) {
 }
 
 function requestComputerDefense(w: World, tribe: number, entity: number, cell: number) {
-  return requestDefenseTask(w.ai, w.ai.states, w.ai.attributes[15], entity, cell, () =>
-    summarizeSpellEnemies(computerResponseWorld(w, tribe), cell, 4, {
-      preachers: campaignPersonCount(w, tribe, 4),
-      firewarriors: campaignPersonCount(w, tribe, 6),
-      braves: campaignPersonCount(w, tribe, 2),
-      // Complete CPSCR012 assigns attribute46=1 once; no auto-training leaf.
-      autoTrain: false,
-      queuedPreachers: () => {
-        throw new Error('Unreachable Mission3 defense training query')
-      },
-      request: () => {
-        throw new Error('Unreachable Mission3 defense training request')
-      },
-    })
+  return requestDefenseTask(
+    w.ai,
+    w.ai.states,
+    w.ai.attributes[15],
+    entity,
+    cell,
+    () =>
+      summarizeSpellEnemies(computerResponseWorld(w, tribe), cell, 4, {
+        preachers: campaignPersonCount(w, tribe, 4),
+        firewarriors: campaignPersonCount(w, tribe, 6),
+        braves: campaignPersonCount(w, tribe, 2),
+        // Complete CPSCR012 assigns attribute46=1 once; no auto-training leaf.
+        autoTrain: false,
+        queuedPreachers: () => {
+          throw new Error('Unreachable Mission3 defense training query')
+        },
+        request: () => {
+          throw new Error('Unreachable Mission3 defense training request')
+        },
+      }),
+    id => id
   )
 }
 
@@ -1481,7 +1632,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     return
   }
   if (phase === 'produce') {
-    if (w.outcome.level >= 1 && w.outcome.level <= 3) {
+    if (earlyResponse || (w.outcome.level === 7 && tribe === 2)) {
       produceComputerTasks(
         w.ai,
         id => {
@@ -1787,7 +1938,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined,
         loadedOrigin: number | undefined
-      if (w.ai.constructionBase === undefined && [1, 2, 3].includes(w.outcome.level)) {
+      if (w.ai.constructionBase === undefined && [1, 2, 3, 4, 5, 6].includes(w.outcome.level)) {
         const team = campaignTeam(w, tribe)
         if (team === 'wild') throw new Error('Invalid computer staging tribe')
         // 0x485b00 retains the loaded Shaman cell at tribe+0x5a2. These missions
@@ -1811,9 +1962,10 @@ export function stepComputerTasks(w: World, tribe: number) {
           staging,
           ready: () => computerAttackUnits(w, index).every(computerAttackReady),
           activeMembers: () => computerAttackUnits(w, index).length,
-          targetsRemain: target =>
-            computerAttackHasOrder(w, index, 19, target) &&
-            computerAttackTargetsRemain(w, tribe, target),
+          // Native 0x4f5950 collects targets independently of member commands;
+          // mixed raids legitimately retain Preacher17 alongside Warrior19.
+          targetsRemain: target => computerAttackTargetsRemain(w, tribe, target),
+          attackOrdersCurrent: target => computerAttackHasOrder(w, index, 19, target),
           random: () => random(w),
           entity: id => campaignAttackEntity(w, id),
           tracking: id => computerAttackHasOrder(w, index, 28, id),
@@ -1831,6 +1983,7 @@ export function stepComputerTasks(w: World, tribe: number) {
               return null
             return shaman.id
           },
+          markerSpell: () => castAttackMarkerSpell(w, tribe, task, staging),
           taskSpell: () => castAttackTaskSpell(w, tribe, task),
           select: (model, count, destination) => {
             let recruitmentOrigin = destination
@@ -1860,6 +2013,7 @@ export function stepComputerTasks(w: World, tribe: number) {
             return ids
           },
           settled: () => computerAttackSettled(w, index),
+          outbound: (target, radius) => computerAttackOutbound(w, index, target, radius),
           memberWithin: (target, radius) => {
             const unit = computerAttackUnits(w, index).find(u => {
               if (!computerAttackReady(u)) return false
@@ -1986,15 +2140,18 @@ export function stepComputerTasks(w: World, tribe: number) {
 // ponytail: browser unit arrays supply cell order until native terrain lists and
 // person records are live. Blast scoring does not consume terrain flags.
 function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
-  const p = nativePosition(w, u),
+  // Keep terrain notifications before reading the live person; height is unused.
+  syncNativeTerrain(w)
+  const x = short(Math.round((u.x + 8) * 256)),
+    y = short(Math.round((-u.z - 8) * 256)),
     live = unitAnimationSource(u)
   return {
     class: 1,
     model: nativePersonModel(u),
     state: live?.state ?? 0,
     tribe: tribeForTeam(u.team),
-    x: p.x,
-    y: p.y,
+    x,
+    y,
     flags2: u.inside === null ? 0 : 0x800000,
     flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
     assignment: live?.assignment ?? 0,

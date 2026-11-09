@@ -1,5 +1,14 @@
-import { tribeForTeam, type Building, type Point, type Unit, type World } from './world-types.ts'
-import { BUILDINGS, buildingHp, unitSpeed } from './world-rules.ts'
+import { liveBuildingShape } from './live-building-shapes.ts'
+import { timberPhaseObjects } from './timber-phase-index.ts'
+import {
+  tribeForTeam,
+  type Building,
+  type Point,
+  type Tree,
+  type Unit,
+  type World,
+} from './world-types.ts'
+import { buildingHp, unitSpeed } from './world-rules.ts'
 import { breedingWork } from './world-state.ts'
 import { short, positionDistance } from './native-math.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -15,12 +24,18 @@ import {
 } from './building-shapes.ts'
 import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
-import { clearLivePath, probeLivePathCost } from './live-pathfinding.ts'
+import {
+  clearLivePath,
+  probeLivePathCost,
+  buildLiveResourceRoute,
+  replanLivePath,
+} from './live-pathfinding.ts'
+import { acquireQueuedResource } from './queued-resource-search.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import { browserPosition, distance } from './world-coordinates.ts'
-import { buildingDoor, entrance, findPath, route, tell } from './live-command.ts'
+import { buildingDoor, entrance, findPath, route } from './live-command.ts'
 import { BuilderTask } from './building-workers.ts'
 import { stepBuildingFetch } from './building-fetch.ts'
 import {
@@ -42,7 +57,6 @@ import {
 import { depleteTree, sound } from './world-effects.ts'
 import { changeBuildingWork } from './building-damage.ts'
 import {
-  SceneryPhase,
   stepBuildingPeople,
   stepBuildingScenery,
   type ClearingPerson,
@@ -63,7 +77,6 @@ export function completeBuildingConstruction(w: World, b: Building) {
   if (!b.upgrading && !b.damageState) w.stats.built++
   b.upgrading = false
   if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
-  tell(w, `${BUILDINGS.find(s => s.id === b.kind)!.name} completed.`)
 }
 
 export function processBuilderWork(w: World, u: Unit, b: Building) {
@@ -72,7 +85,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     pose = buildingPose(b)
   if (u.native === p) {
     if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-    w.objectCells.objects.delete(p.id)
+    deleteCellObject(w.objectCells, p.id)
     u.native = null
   }
   Object.assign(p, nativePosition(w, u))
@@ -110,7 +123,13 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     clearLivePath(w, u)
   }
   const allocateLog = () => {
-    w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+    w.trees.push({
+      ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+      id: w.nextId++,
+      ...browserPosition(p),
+      logs: 1,
+      model: 11,
+    })
     return true // ponytail: unbounded scenery until native object-pool allocation is connected.
   }
   let finished = 0
@@ -148,7 +167,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       sound: cue => sound(w, cue, u),
       target: timber,
       refreshSearch: (point, angle) => {
-        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p)
+        refreshTimberSearch(w.timberSearches, site, timberCell(point), angle, p, id => id)
         b.timberSearch = site.searchIndex
       },
       findWood: index => findTimber(w.timberSearches, searchWorld, index, p.id, true, false).target,
@@ -233,6 +252,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       task,
       {
         outside: buildingOutsidePoint(pose),
+        scalableOrders: w.buildingOrders.scalable,
         target,
         scenery: () =>
           cells.flatMap(i =>
@@ -373,9 +393,9 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
         outsideBuilding: point => {
           const index = (point.y >> 9) * 128 + (point.x >> 9)
           if (!(w.land.flags[index] & 512)) return point
-          const building = w.buildings.find(b => b.id === (w.land.buildingIds[index] & 1023))
-          if (!building) throw new Error('Missing building at construction resting anchor')
-          return buildingOutsidePoint(buildingPose(building))
+          const shape = liveBuildingShape(w, w.land.buildingIds[index] & 1023)
+          if (!shape) throw new Error('Missing building at construction resting anchor')
+          return buildingOutsidePoint(shape)
         },
         allocateLog,
         sound: cue => sound(w, cue, u),
@@ -459,7 +479,18 @@ function liveTimberWorld(w: World): TimberSearchWorld {
 
 export function stepLiveTimberSearches(w: World) {
   const world = liveTimberWorld(w),
-    collision = collisionWorld(w)
+    collision = collisionWorld(w),
+    expansionWorld: TimberSearchWorld = {
+      ...world,
+      objects: timberPhaseObjects(
+        w,
+        tree => {
+          const point = nativePosition(w, tree)
+          return ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+        },
+        cell => liveTimberObjects(w, cell)
+      ),
+    }
   stepTimberSearches(
     w.timberSearches,
     world,
@@ -480,7 +511,8 @@ export function stepLiveTimberSearches(w: World) {
       }
       return { result: 1, cost: candidate.cost }
     },
-    id => w.units.some(u => u.id === id && u.hp > 0)
+    id => w.units.some(u => u.id === id && u.hp > 0),
+    expansionWorld
   )
 }
 
@@ -522,7 +554,23 @@ export function directTimberDestination(w: World, u: Unit) {
 // Hut upgrades retain the existing loose-log delivery adapter.
 export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queued = false) {
   if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return false
-  const tree = w.trees.find(t => t.id === u.tree)
+  return harvestResolvedTree(
+    w,
+    u,
+    w.trees.find(t => t.id === u.tree),
+    destination,
+    queued
+  )
+}
+
+function harvestResolvedTree(
+  w: World,
+  u: Unit,
+  tree: Tree | undefined,
+  destination?: Point,
+  queued = false
+) {
+  if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return false
   if (!tree) {
     u.tree = null
     u.harvest = undefined
@@ -530,7 +578,8 @@ export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queu
   }
   if (u.path.length) return false
   if (distance(u, tree) >= 1) {
-    route(w, u, tree)
+    if (queued) replanLivePath(w, u, u.native!, nativePosition(w, tree))
+    else route(w, u, tree)
     return false
   }
   if (!u.harvest) {
@@ -566,31 +615,94 @@ export function harvestAssignedTree(w: World, u: Unit, destination?: Point, queu
   return true
 }
 
-export function stepQueuedTreeOrder(w: World, u: Unit, order: { a: number; b: number }) {
+export function stepQueuedTreeOrder(
+  w: World,
+  u: Unit,
+  order: { a: number; b: number; flags: number }
+) {
   if (u.cargo) return 1
-  if (u.tree === null) {
-    // Native command 7 stores the coarse-cell center, then resolves scenery later.
-    const tree = w.trees.findLast(t => {
-      const point = nativePosition(w, t)
-      return (
-        t.logs > 0 &&
-        t.model >= 1 &&
-        t.model <= 6 &&
-        (point.x & 0xff00) + 128 === order.a &&
-        (point.y & 0xff00) + 128 === order.b
-      )
-    })
-    if (!tree) return 1
-    u.tree = tree.id
+  let owned = u.tree === null ? undefined : w.trees.find(tree => tree.id === u.tree)
+  if (u.tree !== null && (!owned || !(owned.logs > 0))) {
+    // Native phases 2/3 schedule reacquisition for the next visit. Ordinary
+    // manual harvesting retains its existing owner/transfer behavior.
+    u.tree = null
+    u.harvest = undefined
+    return 0
   }
-  return Number(harvestAssignedTree(w, u, undefined, true))
+  if (u.tree === null) {
+    const p = u.native!
+    // Current live scenery is stationary, appended on birth/activation and
+    // stable-filtered on removal. Zero is retired; positive fractions stay live.
+    // Rebuild this acquisition-local projection; no retained/save index is added.
+    interface Resource {
+      id: number
+      class: number
+      model: number
+      x: number
+      y: number
+      tree: Tree
+    }
+    let cells: Map<number, Resource[]> | undefined
+    const empty: Resource[] = [],
+      centerX = (order.a >>> 9) & 127,
+      centerY = (order.b >>> 9) & 127
+    const objects = (cell: number) => {
+      if (!cells) {
+        cells = new Map()
+        for (let i = w.trees.length - 1; i >= 0; i--) {
+          const tree = w.trees[i]
+          if (!(tree.logs > 0)) continue
+          const point = nativePosition(w, tree),
+            x = (point.x >>> 9) & 127,
+            y = (point.y >>> 9) & 127
+          // A conservative superset of rings 0..8, not an eligibility test:
+          // retain wrapping boundary cells and native order inside each bucket.
+          if (
+            Math.abs(((x - centerX + 64) & 127) - 64) > 8 ||
+            Math.abs(((y - centerY + 64) & 127) - 64) > 8
+          )
+            continue
+          const index = y * 128 + x,
+            object = { id: tree.id, class: 5, model: tree.model, ...point, tree },
+            row = cells.get(index)
+          if (row) row.push(object)
+          else cells.set(index, [object])
+        }
+      }
+      return cells.get(cell) ?? empty
+    }
+    const tree = acquireQueuedResource(
+      w.indexedSearch,
+      { x: order.a, y: order.b },
+      p.angle,
+      order.flags,
+      objects,
+      target => {
+        if (p.vehicle && p.flags4 & 0x02000000) personStepCollision(collisionWorld(w), p, target)
+        else if (!buildLiveResourceRoute(w, u, p, target)) p.flags4 = (p.flags4 & ~0x10000000) >>> 0
+      }
+    )
+    if (!tree) return 1
+    // Keep native acquisition effects ahead of the browser approach handoff.
+    // The chosen owner now replaces the coarse-click or retired-target path.
+    clearLivePath(w, u)
+    u.tree = tree.id
+    owned = tree.tree
+  }
+  return Number(harvestResolvedTree(w, u, owned, undefined, true))
 }
 
 export function haulBuildingWood(w: World, b: Building, workers: Unit[]) {
   for (const u of workers) {
     if (u.cargo && atBuildingEntrance(w, u, b) && !u.path.length) {
       const point = buildingDoor(b)
-      w.trees.push({ ...point, id: w.nextId++, model: 11, logs: u.cargo })
+      w.trees.push({
+        ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+        ...point,
+        id: w.nextId++,
+        model: 11,
+        logs: u.cargo,
+      })
       sound(w, 0xb, u)
       u.cargo = 0
       u.tree = null

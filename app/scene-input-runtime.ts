@@ -1,3 +1,6 @@
+import { pickRuntimeTerrain } from './runtime-terrain-picking.ts'
+import { capturePointerInteraction } from './pointer-interaction-context.ts'
+import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
 import { focusTransport, type TransportKind } from './hud-transports.ts'
 import { liveVehiclePassengers } from './vehicle-panel-runtime.ts'
@@ -25,6 +28,7 @@ import {
   selectFollowers,
   spellTargetError,
   type Building,
+  type Point,
 } from './model'
 import { command } from './live-command.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -45,6 +49,7 @@ import { nativeAngle, positionDistance } from './native-math.ts'
 import { spellCursor } from './spell-casting.ts'
 import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import nativeHud from './original-hud.json'
+import rules from './original-rules.json' with { type: 'json' }
 import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
 import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
 import { texture } from './scene-assets.ts'
@@ -77,9 +82,15 @@ const cameraKeys: Record<string, number> = {
   numpad9: 202,
 }
 
-export function pickUnit(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pickUnit(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   if (scene.overviewActive) return
-  const id = scene.picking.pickPerson(event)
+  const id = metrics
+    ? measurePointerQuery(metrics, 'object', () => scene.picking.pickPerson(event, metrics))
+    : scene.picking.pickPerson(event)
   return scene.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
 }
 
@@ -154,13 +165,17 @@ export function planGeometry(
   return { geometry, cells, entrance }
 }
 
-export function pick(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pick(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   const rect = scene.renderer.domElement.getBoundingClientRect()
   scene.mouse.set(
     ((event.clientX - rect.left) / rect.width) * 2 - 1,
     1 - ((event.clientY - rect.top) / rect.height) * 2
   )
-  return scene.view.pick(scene.mouse, [scene.terrain], scene.camera)?.point ?? null
+  return pickRuntimeTerrain(scene, metrics)?.point ?? null
 }
 
 export function pickWorldObject(scene: GameScene, event: { clientX: number; clientY: number }) {
@@ -205,6 +220,8 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 }
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -280,9 +297,14 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
 }
 
 export function pointerMove(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
   scene.pointerButtons = event.buttons
   scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
-  if (!scene.world.inputMask && (event.buttons === 2 || event.buttons === 4)) {
+  if (
+    !scene.world.inputMask &&
+    scene.pointerGesture?.pointerId === event.pointerId &&
+    (event.buttons === 2 || event.buttons === 4)
+  ) {
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0
@@ -305,22 +327,29 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
   }
 }
 
-export function updateDrag(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function updateDrag(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
   const drag = scene.drag
   if (!drag || scene.world.mode || scene.world.inputMask || scene.overviewActive) {
     scene.dragActive.value = false
     return
   }
-  const picked = scene.pick(event),
+  const picked = metrics
+      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event, metrics))
+      : scene.pick(event),
     end = picked && nativePosition(scene.world, picked)
   if (!drag.active) {
-    if (scene.down.unit !== undefined) drag.active = scene.pickUnit(event)?.id !== scene.down.unit
+    if (scene.down.unit !== undefined)
+      drag.active = scene.pickUnit(event, metrics)?.id !== scene.down.unit
     else if (end) drag.active = dragMoved(drag.start, end)
   }
   if (end) drag.end = dragEndpoint(drag.start, end, scene.view.angle)
   scene.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
   scene.selectionOverlay.visible = scene.dragActive.value
-  if (!scene.dragActive.value) return
+  if (!scene.dragActive.value) return picked
   const angle = nativeAngle(
     ((drag.end.x - drag.start.x) << 16) >> 16,
     -(((drag.end.y - drag.start.y) << 16) >> 16)
@@ -335,9 +364,20 @@ export function updateDrag(scene: GameScene, event: { clientX: number; clientY: 
     scene.world.land,
     scene.view
   )
+  return picked
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
+  const gesture = scene.pointerGesture
+  if (!gesture || gesture.pointerId !== event.pointerId) return
+  if (gesture.button !== event.button) {
+    // A chord emits one final pointerup; its last button may differ from the first.
+    // End ownership without interpreting it as another button's click.
+    if (event.buttons === 0) cancelPointerGesture(scene, event.pointerId)
+    return
+  }
+  scene.pointerGesture = null
   queueBuildingInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons
   if (!(event.buttons & 6)) scene.globeMotion.dragging = false
@@ -370,12 +410,19 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
     ? scene.world.units.find(u => u.id === scene.down.unit)
     : undefined
   const pickedId = (!scene.world.mode || directBlast) && scene.picking.pickPerson(event)
+  // Ordinary commands may target a model; direct Blast retains its person-only hit.
+  const modelId =
+    !pickedId && !scene.world.mode && !scene.overviewActive && scene.world.selected.length
+      ? scene.picking.pick(event)
+      : null
   const picked =
     scene.world.units.find(u => u.id === pickedId) ??
     (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
     scene.world.buildings.find(b => b.id === pickedId) ??
     scene.world.shrines.find(h => h.id === pickedId) ??
-    scene.world.trees.find(t => t.id === pickedId) ??
+    scene.world.trees.find(
+      t => t.id === modelId && t.logs > 0 && rules.sceneryResourceFlags[t.model] & 4
+    ) ??
     undefined
   const p = picked ?? scene.pick(event) ?? clickedUnit
   if (!p) return
@@ -416,6 +463,22 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
 }
 
 export function keyDown(scene: GameScene, event: KeyboardEvent) {
+  if (event.key === 'F8') {
+    if (
+      !event.repeat &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !event.shiftKey &&
+      !(event.target as HTMLElement | null)?.closest?.(
+        'input,textarea,select,dialog,a,[contenteditable]'
+      )
+    ) {
+      event.preventDefault()
+      scene.togglePerformance()
+    }
+    return
+  }
   const key = (
     event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
   ).toLowerCase()
@@ -451,6 +514,24 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
   if (!modifier) event.preventDefault()
 }
 
+export function cancelPointerGesture(scene: GameScene, pointerId?: number) {
+  if (
+    pointerId !== undefined &&
+    scene.pointerGesture &&
+    scene.pointerGesture.pointerId !== pointerId
+  )
+    return
+  scene.pointerGesture = null
+  cancelTooltipInspection(scene)
+  scene.pointerButtons = 0
+  scene.drag = null
+  scene.dragActive.value = false
+  scene.selectionOverlay.visible = false
+  scene.globeMotion.dragging = false
+  scene.globeMotion.velocity = { x: 0, y: 0 }
+  scene.navigationPointer = null
+}
+
 export function installInputListeners(scene: GameScene, minimap: HTMLCanvasElement) {
   scene.listen(scene.renderer.domElement, 'pointerdown', scene.pointerDown)
   scene.listen(scene.renderer.domElement, 'pointermove', scene.pointerMove)
@@ -461,14 +542,9 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     scene.pointerState = ''
   })
   scene.listen(scene.renderer.domElement, 'pointerup', scene.pointerUp)
-  scene.listen(scene.renderer.domElement, 'pointercancel', () => {
-    cancelTooltipInspection(scene)
-    scene.pointerButtons = 0
-    scene.drag = null
-    scene.dragActive.value = false
-    scene.globeMotion.dragging = false
-    scene.globeMotion.velocity = { x: 0, y: 0 }
-  })
+  scene.listen(scene.renderer.domElement, 'pointercancel', e =>
+    cancelPointerGesture(scene, (e as PointerEvent).pointerId)
+  )
   scene.listen(scene.renderer.domElement, 'contextmenu', e => e.preventDefault())
   scene.listen(scene.renderer.domElement, 'wheel', e => {
     if (!scene.world.inputMask) {
@@ -500,23 +576,21 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   scene.listen(window, 'pointerout', e => {
     if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null
   })
-  scene.listen(window, 'pointercancel', () => {
-    cancelTooltipInspection(scene)
-    scene.navigationPointer = null
-  })
+  scene.listen(window, 'pointercancel', e =>
+    cancelPointerGesture(scene, (e as PointerEvent).pointerId)
+  )
   const pause = () => {
-    cancelTooltipInspection(scene)
+    cancelPointerGesture(scene)
     scene.previous = null
-    scene.globeMotion.dragging = false
-    scene.globeMotion.velocity = { x: 0, y: 0 }
+    scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
     scene.keys.clear()
-    scene.navigationPointer = null
     scene.world.paused = true
     scene.onChange()
   }
   scene.listen(window, 'blur', pause)
   scene.listen(document, 'visibilitychange', () => {
     scene.previous = null
+    scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Warming up')
     if (document.hidden) pause()
   })
   scene.listen(minimap, 'pointerdown', e => {
@@ -552,6 +626,8 @@ export function navigationButtons(scene: GameScene) {
       cameraCommand(cameraKeys[key] ?? 0, {
         control: scene.keys.has('control'),
         fast: scene.keys.has('shift'),
+        swap: scene.gamePreferences.rotation === 'control-cursor',
+        reverse: scene.gamePreferences.flipRotation,
         overview: scene.overviewActive,
       })
     )
@@ -666,41 +742,46 @@ export function acknowledgePointer(scene: GameScene, target: number) {
   scene.pointerAck = { target, until: performance.now() + 5000 / 24 }
 }
 
-export function renderTooltip(scene: GameScene) {
-  const output = scene.tooltipController?.output,
-    state = output ?? scene.tooltip,
-    ordinary = output?.kind === 'object',
-    pointer = ordinary ? output.pointer : null,
-    object = ordinary ? null : worldTooltipObject(scene.world, state.target),
-    element = scene.tooltipElement
-  element.hidden =
-    !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
-  if (element.hidden) return
-  const p =
-    object &&
-    (object.type === 1
-      ? scene.unitScreen(object.id, 1)
-      : scene.screen(object, scene.y(object) + 512 / 45))
-  if (!pointer && (!p || (object && object.type !== 1 && !scene.visible(object)))) {
-    element.hidden = true
-    return
+export function renderTooltip(scene: GameScene, metrics?: PointerFrameMetrics) {
+  const start = metrics ? performance.now() : 0
+  try {
+    const output = scene.tooltipController?.output,
+      state = output ?? scene.tooltip,
+      ordinary = output?.kind === 'object',
+      pointer = ordinary ? output.pointer : null,
+      object = ordinary ? null : worldTooltipObject(scene.world, state.target),
+      element = scene.tooltipElement
+    element.hidden =
+      !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
+    if (element.hidden) return
+    const p =
+      object &&
+      (object.type === 1
+        ? scene.unitScreen(object.id, 1)
+        : scene.screen(object, scene.y(object) + 512 / 45))
+    if (!pointer && (!p || (object && object.type !== 1 && !scene.visible(object)))) {
+      element.hidden = true
+      return
+    }
+    element.setAttribute(
+      'aria-label',
+      state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
+    )
+    const { left = 0, top = 0, width, height } = scene.container.getBoundingClientRect()
+    drawTooltip(
+      scene.tooltipCanvas,
+      texture('hud').image as HTMLImageElement,
+      state.text,
+      window.innerWidth,
+      Math.trunc(height)
+    )
+    const x = pointer ? pointer.clientX - left : ((p!.x + 1) * width) / 2,
+      y = pointer ? pointer.clientY - top : ((1 - p!.y) * height) / 2
+    element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, x))}px`
+    element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, y))}px`
+  } finally {
+    if (metrics) metrics.tooltipRenderMs += performance.now() - start
   }
-  element.setAttribute(
-    'aria-label',
-    state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
-  )
-  const { left = 0, top = 0, width, height } = scene.container.getBoundingClientRect()
-  drawTooltip(
-    scene.tooltipCanvas,
-    texture('hud').image as HTMLImageElement,
-    state.text,
-    window.innerWidth,
-    Math.trunc(height)
-  )
-  const x = pointer ? pointer.clientX - left : ((p!.x + 1) * width) / 2,
-    y = pointer ? pointer.clientY - top : ((1 - p!.y) * height) / 2
-  element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, x))}px`
-  element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, y))}px`
 }
 
 export function drawPointer(scene: GameScene, now: number) {
@@ -734,12 +815,12 @@ export function drawPointer(scene: GameScene, now: number) {
   )
 }
 
-export function updatePointerFrame(scene: GameScene, now: number) {
+export function updatePointerFrame(scene: GameScene, now: number, metrics?: PointerFrameMetrics) {
   // Original geometry advances per draw; its animation clock is still a
   // browser 12 Hz presentation clock until native timer ownership is ported.
   scene.updateSpellHalo(Math.floor((now * 12) / 1000))
   // Picking projects the entire terrain; repeat when the pointer/view changes.
-  const pointerState = [
+  const pointerInputs = [
     scene.world.mode,
     scene.world.manaWorld.gameFlags,
     scene.world.inputMask,
@@ -758,33 +839,68 @@ export function updatePointerFrame(scene: GameScene, now: number) {
     ...scene.camera.position.toArray(),
     scene.container.clientWidth,
     scene.container.clientHeight,
-  ].join(',')
+  ]
+  const pointerState = pointerInputs.join(',')
   const pointerChanged = pointerState !== scene.pointerState
+  let ground: Point | null | undefined
   if (pointerChanged) {
-    if (scene.pointerButtons === 1 && scene.pointerScreen) scene.updateDrag(scene.pointerScreen)
+    if (scene.pointerButtons === 1 && scene.pointerScreen) {
+      ground = scene.updateDrag(scene.pointerScreen, metrics)
+      if (metrics?.interaction) metrics.interaction.dragQuery = ground !== undefined
+    }
     const directBlast =
         !scene.overviewActive &&
         blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
       personId =
-        directBlast && scene.pointerScreen ? scene.picking.pickPerson(scene.pointerScreen) : null,
+        directBlast && scene.pointerScreen
+          ? metrics
+            ? measurePointerQuery(metrics, 'object', () =>
+                scene.picking.pickPerson(scene.pointerScreen!, metrics)
+              )
+            : scene.picking.pickPerson(scene.pointerScreen)
+          : null,
       person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
     scene.pointer = null
-    if (scene.pointerScreen && scene.world.mode)
-      scene.pointer = person ? browserPosition(person) : scene.pick(scene.pointerScreen)
+    if (scene.pointerScreen && scene.world.mode) {
+      if (metrics?.interaction) metrics.interaction.placementQuery = !person
+      scene.pointer = person
+        ? browserPosition(person)
+        : (ground = metrics
+            ? measurePointerQuery(metrics, 'terrain', () =>
+                scene.pick(scene.pointerScreen!, metrics)
+              )
+            : scene.pick(scene.pointerScreen))
+    }
     scene.hoveredObject = null
     if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
       if (directBlast) {
         if (person) scene.hoveredObject = personId
       } else if (!scene.world.mode) {
-        scene.hoveredObject = scene.overviewActive
-          ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
-          : scene.picking.pick(scene.pointerScreen)
+        scene.hoveredObject = metrics
+          ? measurePointerQuery(metrics, 'object', () =>
+              scene.overviewActive
+                ? (scene.pickWorldObject(scene.pointerScreen!)?.id ?? null)
+                : scene.picking.pick(scene.pointerScreen!, metrics)
+            )
+          : scene.overviewActive
+            ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
+            : scene.picking.pick(scene.pointerScreen)
       }
     }
     scene.pointerState = pointerState
   }
   scene.selectionOverlay.visible = scene.dragActive.value
-  publishTooltipInput(scene, pointerChanged)
+  const tooltipStart = metrics ? performance.now() : 0
+  publishTooltipInput(scene, pointerChanged, metrics, ground)
+  if (metrics) metrics.tooltipInputMs += performance.now() - tooltipStart
+  if (metrics?.interaction)
+    capturePointerInteraction(
+      metrics.interaction,
+      scene.fpsGraph?.interactionRecording,
+      scene.tooltipInput?.pointer ?? null,
+      pointerInputs,
+      scene.tooltipInput?.route
+    )
 }
 
 export function updateSpellPointerFrame(

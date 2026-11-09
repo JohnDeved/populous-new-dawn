@@ -27,23 +27,32 @@ export function undiscoveredSpellModels(world: Pick<World, 'outcome'>) {
   return models
 }
 
-// 0x4c3110 -> 0x4c31e0 precedence, with 0x49e650/0x4c2ca0 click permission
-// kept separate from visual ownership/discovery.
+// 0x49e650 -> 0x4c2ca0 gates charging, not the left-click selection callback.
+export function spellHudCanCharge(world: VisibilityWorld, spell: SpellDescriptor) {
+  return (
+    !(world.manaWorld.gameFlags & 32) &&
+    (rules.spellCharging[spell.model].mode !== 2 || !!(world.manaWorld.gameFlags & 256))
+  )
+}
+
+export function spellHudPermanent(world: VisibilityWorld, spell: SpellDescriptor) {
+  const tribe = world.manaWorld.playerTribe,
+    owner = world.manaTribes[tribe]?.spellOwner ?? tribe
+  return !!(world.manaWorld.spells[owner]?.available & (1 << spell.model))
+}
+
+// 0x4c3110 -> 0x4c31e0 ownership/discovery precedence. The left callback
+// 0x49e5c0 selects an owned/stocked spell without the charging permission gate.
 export function spellHudVisibility(
   world: VisibilityWorld,
   spell: SpellDescriptor,
   undiscovered = undiscoveredSpellModels(world)
 ): SpellHudVisibility {
-  const tribe = world.manaWorld.playerTribe,
-    owner = world.manaTribes[tribe]?.spellOwner ?? tribe,
-    stock = world.shots[spell.id] & 15,
-    permanent = !!(world.manaWorld.spells[owner]?.available & (1 << spell.model))
+  const stock = world.shots[spell.id] & 15,
+    permanent = spellHudPermanent(world, spell)
   if (!permanent && !stock) return undiscovered.has(spell.model) ? 'undiscovered' : 'hidden'
 
-  const rule = rules.spellCharging[spell.model],
-    canCast =
-      !(world.manaWorld.gameFlags & 32) && (rule.mode !== 2 || !!(world.manaWorld.gameFlags & 256))
-  return canCast ? 'visible' : 'visible-disabled'
+  return world.manaWorld.gameFlags & 32 ? 'visible-disabled' : 'visible'
 }
 
 export function spellHudRoster(world: VisibilityWorld) {

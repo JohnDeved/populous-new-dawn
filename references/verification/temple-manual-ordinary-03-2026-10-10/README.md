@@ -1,5 +1,7 @@
 # Temple manual inspection: bounded ordinary attempt 03
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-ordinary-03-2026-10-10). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Overall result: **FAILED**. Independent review **ACCEPTS only genuine public
 startup Load, the complete idle manual lifecycle and normal cleanup**.
 Manual-to-automatic reuse, active Save/Load, conversion and the complete ordinary
@@ -65,15 +67,15 @@ frame-performance equivalence.
 
 First: the completed Temple, imported name and idle manual panel are visible.
 
-![Temple first manual name and panel](temple-manual-first.png)
+![Temple first manual name and panel](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-ordinary-03-2026-10-10/temple-manual-first.png)
 
 Held: the manual panel remains visible while the name is hidden.
 
-![Temple manual panel retained while held off target](temple-manual-held.png)
+![Temple manual panel retained while held off target](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-ordinary-03-2026-10-10/temple-manual-held.png)
 
 Released: the retired panel is absent.
 
-![Temple after manual release and retirement](temple-manual-released.png)
+![Temple after manual release and retirement](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/temple-manual-ordinary-03-2026-10-10/temple-manual-released.png)
 
 | Original PNG | SHA256 |
 | --- | --- |

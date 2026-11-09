@@ -106,7 +106,7 @@ export default async function ({ page, root, output, receipt, signal }) {
   })
   await stage('fresh-page-load-ready', async () => {
     await page.reload({ waitUntil: 'domcontentloaded' })
-    await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
+    await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor({ state: 'visible' })
     const emptyBindings = await page.evaluate(() => ({ scene: typeof window.testSceneRef, mission: typeof window.missionTwoObserveReady, legacy: typeof window.campaignObserveShaman }))
     assert.deepEqual(emptyBindings, { scene: 'undefined', mission: 'undefined', legacy: 'undefined' })
     await button('Load Game')

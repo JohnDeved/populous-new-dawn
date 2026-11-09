@@ -2,6 +2,45 @@
 
 Bounded retained-source proof for #102 blocking #96. This note does not authorize production edits.
 
+## 2026-10-13 correction to the historical acceptance wording
+
+PR106 already corrected object100's imported native coordinates. PR422 supplies
+initial authored Boat construction; it does not complete the separate reward
+path. The later paragraphs proposing equivalent preparation only at activation,
+or activation that simply preserves the inactive template's position, are
+historical and are not the current native contract.
+
+The source sequence below is decisive: initial allocation prepares the inactive
+source; reward004fb270 allocates a NEW vehicle from that source's CURRENT live
+position, runs the constructor again against reward-time terrain/occupancy/search
+state, and then004ede10 preserves the NEW destination's position/state/list links
+through its template copy. Even an already-valid point receives the successful
+162-unit category adjustment again. The old source is subsequently deleted.
+The loader's post-pass004edf50 is also an occupancy boundary: generic004ed580
+sets flags+10 bit20000000; for linked sources the post-pass clears that bit,
+unlinks registered cells (flags+c bit20000), clears registration, installs state0
+and invokes the class state initializer. This occurs AFTER all authored object
+allocations. Consequently earlier inactive templates count in initial authored
+constructor occupancy, but the detached source is not a registered blocker at
+reward-time allocation. Reusing an all-previous-vehicles construction scan for
+reward would therefore be incorrect; supply the actual then-registered set.
+
+Raw004ede10 copies0xb3 bytes, then restores destination position+3d/+3f/+41,
+state+2c, allocated links+0/+4/+20/+22 and identity+24, byte+2e, and only selected
+flag bits (+c bits1/20000, +10 bit20000000, +14 bit4); it clears+8. In particular,
+heading+26, physics+30, speed+5f, navigation+92 and life+98 are NOT restored from
+the fresh destination. They copy from the detached source before immediate
+004ed700 processing. A future reward implementation must preserve exactly this
+field ownership, rather than retaining every freshly initialized field.
+
+A single preparation plus active=true is therefore insufficient. Initial and
+reward-time input contexts, allocation identity and template-copy field ownership
+need distinct tests. No exact M5 reward endpoint is claimed by the cold M10 proof. Because the
+current reward code still activates this stored object, initial preparation also
+changes its eventual visible position and movement speed. That downstream effect
+is acknowledged, not accepted as a faithful reward lifecycle. The initial-only
+test checks that preparation leaves the source inactive and linked to its head.
+
 ## Provenance
 
 - Verified executable: `d3dpoptb.exe`, SHA-256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.

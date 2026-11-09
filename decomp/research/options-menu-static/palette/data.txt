@@ -1,0 +1,14 @@
+0 308 19 indices [160, 167, 169]
+1 23 22 indices [131, 132, 153, 154, 160, 166, 167, 168, 169, 170, 171, 193, 204, 234, 235, 236, 237]
+2 23 22 indices [130, 132, 154, 157, 158, 160, 166, 167, 168, 169, 170, 171, 193, 195, 204, 234, 235, 236, 237, 238, 247]
+D3DPopTB.exe 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f
+data/fenew/igmslidr.spr ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da
+data/pal0-c.dat 6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53
+levels/levl2001.hdr 4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6
+Mission1 bank 12
+palette comparison c vs 0 different slider RGB indices []
+palette comparison c vs c different slider RGB indices []
+palette comparison c vs s different slider RGB indices []
+palette comparison c vs p different slider RGB indices []
+palette comparison c vs d different slider RGB indices []
+palette comparison c vs g different slider RGB indices []

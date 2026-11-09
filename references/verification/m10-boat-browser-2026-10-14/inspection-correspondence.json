@@ -1,0 +1,10 @@
+{
+  "priorRunId": "20c78c34-868b-4220-93cc-b91e3e6de932",
+  "previousSourceFingerprint": "e754152175a35e961645f3289c71a4d3111a07c9d8d421699b9d6b3d7ab5f05a",
+  "currentSourceFingerprint": "b5d09422b574042e200610a41ea32eb994c472ad12151300f3ea9b7086610337",
+  "previousChecker": "73bd844cb3f9964785d5359f83454ab1ea6c4848c98f87a5b743bc684afba15f",
+  "currentChecker": "336e055431ea788219bb70da4a94f90e2579afd81fac438d1794124724a00bf6",
+  "decision": "ACCEPT",
+  "reviewer": "review_browser_checkpoint",
+  "reference": "work/m10-boat-04/inspection-review.md"
+}

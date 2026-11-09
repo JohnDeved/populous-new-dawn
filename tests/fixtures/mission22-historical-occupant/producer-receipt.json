@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "48abd4cb-a650-4731-9054-0511a0bf8b90",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9f7a4758aaabd11b0b57e89d150265c313d9a13a",
+    "branch": "fix/raid-native-target-collector",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m22-occupant-historical-0427/producer-hook.mjs": "91511079fe1bf65403bfb5864bd3dff6ea3ae19f59518b7a0406d58f4b62b184",
+      "tests/hypnotise-registered-occupants.test.mjs": "74b51e7529bf147e8662ebe5920f3cda3d89b5d7c74753886a3ea799a4b13151",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--import",
+    "./work/m22-occupant-historical-0427/producer-hook.mjs",
+    "--test",
+    "tests/hypnotise-registered-occupants.test.mjs"
+  ],
+  "cwd": "/tmp/populous-raid447-fallback-0229",
+  "startedAt": "2026-10-15T04:29:08.816Z",
+  "artifacts": {
+    "stdout": "/tmp/populous-raid447-fallback-0229/work/orchestration/m22-occupant-historical-0427/producer.json.artifacts/stdout.log",
+    "stderr": "/tmp/populous-raid447-fallback-0229/work/orchestration/m22-occupant-historical-0427/producer.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-15T04:29:27.614Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "HISTORICAL_CAPTURE_QUALIFIED {\"targetId\":96,\"towerId\":90,\"effectId\":823,\"nextId\":825,\"capturedTurn\":6246,\"validatedThrough\":6721,\"serializedSha256\":\"8e7b37a61bc615e39e05db36eedd7d35784f835ae0e5eaccd110eb8d593ea447\",\"gzipSha256\":\"67635fd5492902847c7f4a5fd6c330407c9688effe15adfde1bafb29227d8b64\"}\n✔ earned Hypnotise converts an ordinary registered enemy Tower occupant and preserves checkpoint continuation (17436.1713ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 18694.875891\n",
+  "stderr": "",
+  "stdoutSha256": "6a9782748cca6fa01ad7c006bdea17d9beef56573b22c4489ce4580bd3e3d9e3",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9f7a4758aaabd11b0b57e89d150265c313d9a13a",
+    "branch": "fix/raid-native-target-collector",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m22-occupant-historical-0427/producer-hook.mjs": "91511079fe1bf65403bfb5864bd3dff6ea3ae19f59518b7a0406d58f4b62b184",
+      "tests/hypnotise-registered-occupants.test.mjs": "74b51e7529bf147e8662ebe5920f3cda3d89b5d7c74753886a3ea799a4b13151",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

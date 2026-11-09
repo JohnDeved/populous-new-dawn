@@ -1,0 +1,49 @@
+✖ public seated Tornado finishes casting and permits a second earned cast through Save/Load (230.257909ms)
+✖ seated cast state owns retained area orders and moving Boat/Balloon seat visits (28.674488ms)
+✔ protected seated Shaman rejects public cast without stock or projectile changes (22.098424ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1539.872208
+
+✖ failing tests:
+
+test at tests/seated-casting-candidate.test.mjs:39:1
+✖ public seated Tornado finishes casting and permits a second earned cast through Save/Load (230.257909ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  30 !== 22
+  
+      at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-casting-candidate.test.mjs:59:12
+      at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/support/profile-storage.mjs:115:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-casting-candidate.test.mjs:40:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 30,
+    expected: 22,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/seated-casting-candidate.test.mjs:126:1
+✖ seated cast state owns retained area orders and moving Boat/Balloon seat visits (28.674488ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  10 !== 22
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-casting-candidate.test.mjs:152:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 10,
+    expected: 22,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "aaa3202a4c8fa2f309886ae38e5ab9b349f3047e",
+  "sourceTree": "e376b14b07b58f2c3d75ad5d95ccc65df7168bf6",
+  "pageSha256": "c750c495ee58b13d0ae90d1c2ad6573ff24b76070ce32a19149b0de352c555d4",
+  "stylesSha256": "f79041ca9126b8548276bcc6278c71cd5cb95a31a01452376b92c777a11ceb70",
+  "extractedJsxSha256": "6b0503f6069374b3f51ad3b1c1a7073ea4e72ffd28a8e24ad1b89077471473d1",
+  "sourceStartLine": 1520,
+  "sourceEndLine": 1557,
+  "fixtureInputs": {
+    "mission": 1,
+    "enemyName": "Dakini",
+    "time": 125,
+    "cast": 12,
+    "built": 5,
+    "nextMission": 2,
+    "cameraPlaying": false
+  },
+  "limits": [
+    "Presentation-only fixture, no game world/renderer/lifecycle mounted.",
+    "Original JSX and full globals.css snapshot are copied byte-for-byte from canonical source; runtime source inputs preserved by hashes.",
+    "Both outcome labels are supplied explicitly. Buttons are inert fixture callbacks.",
+    "Battlefield is an empty source-styled viewport; no native-runtime or real-game screenshot claim."
+  ],
+  "hudScaleSource": {
+    "path": "app/hud-layout.ts",
+    "sha256": "013169e0feab4f2c71659b1fb22781c78755fd9ccca1542095224135eb08b6d6",
+    "preference": "auto",
+    "integration": "Exact production helper imported by fixture; applied at mount and resize as in Home.resize."
+  }
+}

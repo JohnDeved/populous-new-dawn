@@ -20,6 +20,54 @@ scripts cannot accidentally inherit its `package.json` module type.
 no shared fixed ports, profiles, capture paths, or record modes. The receipt helper
 does not enforce isolation or manage arbitrary daemons.
 
+Before creating the worktree or copying private dependencies, check user-available
+space on the **destination filesystem** (use its existing parent if the target does
+not exist). Record the destination, timestamp, available bytes, source paths and
+their full-copy size estimate, plus an explicit reserve for build output, caches,
+temporary files and receipt logs. Include every copy still to be made; do not assume
+reflinks, sparse files or hardlinks will save space. Stop preparation if available
+bytes are less than the copy estimate plus reserve, or either value is unknown.
+Check again immediately before a large dependency copy if preparation intervenes.
+This is a point-in-time guard, not a reservation or guarantee against ENOSPC; other
+writers, inode exhaustion and quotas can still cause failure.
+
+If space is insufficient, coordinate with the parent. Reclaim only explicitly owned,
+completed runs whose dependencies are not used by another checkout. Preserve source,
+raw logs, receipts, queue locks and dependency-lock identity before removing generated
+dependencies or build output. Unknown runs remain untouched; a missing process in
+another execution scope does not prove completion. Recheck available space before
+retrying, and never solve the shortage by sharing writable dependency trees.
+
+For example, on Linux, GNU `du -s -B1 --count-links SOURCE...` reports allocated
+bytes; repeat with `--apparent-size` and use at least the larger estimate for each
+source. Count repeated copies separately and allow for destination allocation
+overhead. Record the source commit and dependency-lock hashes; size is not input
+identity. Declare the output/scratch reserve from the planned workload and retained
+comparable output sizes, with headroom, rather than treating a fixed value as safe.
+After assigning those byte estimates and an existing destination parent, this
+read-only Node check prints the budget and exits nonzero on a shortage or bad input:
+
+```sh
+node --input-type=module - "$existingDestinationParent" "$fullCopyBytes" "$outputScratchReserveBytes" <<'NODE'
+import { statfsSync } from 'node:fs'
+const [destination, copy, reserve] = process.argv.slice(2)
+if (!destination || !/^[0-9]+$/.test(copy ?? '') || !/^[0-9]+$/.test(reserve ?? '') || BigInt(reserve) === 0n)
+  throw new Error('Declare destination, full-copy bytes and a positive output/scratch reserve')
+const { bsize, bavail } = statfsSync(destination, { bigint: true })
+if (bsize <= 0n || bavail < 0n) throw new Error('Unknown usable filesystem capacity')
+const available = bsize * bavail
+const required = BigInt(copy) + BigInt(reserve)
+console.log(JSON.stringify({ destination, measuredAt: new Date().toISOString(),
+  blockBytes: String(bsize), availableBlocks: String(bavail), availableBytes: String(available),
+  fullCopyBytes: copy, reserveBytes: reserve, requiredBytes: String(required),
+  status: available >= required ? 'sufficient-at-measurement' : 'insufficient' }))
+if (available < required) process.exitCode = 1
+NODE
+```
+
+Retain the output with the preparation evidence and require a zero exit before
+proceeding. The command neither copies nor deletes anything and does not reserve space.
+
 Run the existing command receipt helper directly, without the detached queue:
 
 ```sh
@@ -32,8 +80,9 @@ node scripts/orchestration/command-receipt.mjs \
 
 Include every ignored/untracked helper, configuration and external input read by
 the command using repeatable `--input` arguments (or the `inputs` array in
-`runCommandReceipt`). If the candidate lacks the repaired helper, use a frozen
-copy as an explicit input and call `runCommandReceipt(candidateRoot, options)`;
+`runCommandReceipt`). The programmatic writer returns a Promise; await it before
+reading the receipt or advancing to the next command. If the candidate lacks the
+repaired helper, use a frozen copy as an explicit input and call `runCommandReceipt(candidateRoot, options)`;
 do not edit the candidate under verification. HEAD, tracked diff, and explicit
 input hashes are captured before and after execution. A changed input produces
 `invalidated`, even when the command exits zero. Accept `status: passed`, not just
@@ -52,6 +101,70 @@ The parent may authorize fresh isolated functional checks after checking that th
 share no writable resources with that job. This does not recover the old queue or
 establish machine idleness; timing/performance claims remain blocked. Browser work
 also needs its reviewed same-invocation process guardian and private resources.
+
+### Same-invocation test-throughput comparisons
+
+For the bounded test-workflow comparison, predeclare the order within one foreground
+invocation and use the same committed source, complete test set, group order,
+Node executable/version, environment and inspected read-only dependency bytes.
+Only the declared concurrency/profile may differ. Retain source, runner, helper,
+lockfile and installed-package fingerprints before and after, all raw results,
+per-group coverage/exits and owned-process CPU/RSS telemetry. Give each attempt
+private outputs and temporary directories. Coordinate it as the sole currently
+scheduled heavy lane; never edit its loaded runners or dependencies.
+
+This can establish comparative command throughput in that invocation even when
+old jobs, machine quota or external host contention cannot be resolved. State
+those unknowns explicitly. It does not establish host idleness, recover old jobs,
+certify their cleanup, or measure hardware game performance. The existing rules
+for preserving unknown jobs and their writable resources remain unchanged.
+Read-only installed dependencies may be shared for this inspected comparison;
+any command that can write them needs the existing private-resource preparation.
+
+Reject drift, unequal selected cases, missing completion and failed/cancelled
+attempts as successful speedup evidence. Preserve all failed/unknown attempts.
+Report cold/warm conditions, order effects and observed memory tradeoffs; hashing
+reads warms filesystem caches and is not a genuinely cold start. A small pilot
+cannot establish whole-suite saving. Compare the complete identical final test
+set before making that claim. Keep typecheck/cache effects separate from the
+test phase, and retain the full correctness and build gates. A single complete
+C1-to-C2 pair may report its observed same-workload delta, explicitly subject to
+order, cache and host variability. It is not balanced or demonstrated repeatability.
+An order-controlled A/B/B/A pilot is separate supporting evidence, not a reason to
+extrapolate its percentage or erase the complete pair's sampling limits.
+
+### Optional bounded foreground advisories
+
+For a foreground advisory whose children do not detach, the existing queue tool
+also offers a same-invocation supervisor. It does not submit a queue job or acquire
+its shared lane. Coordinate expensive work with the parent as above. Choose an
+explicit timeout for the particular attempt; no timeout or quality default changes.
+For example, a deliberately two-minute health investigation can use:
+
+```sh
+node scripts/orchestration/command-receipt.mjs \
+  --output work/orchestration/unique-attempt/health.json \
+  --input scripts/performance-queue.mjs \
+  --input package-lock.json --input node_modules/.package-lock.json \
+  -- node scripts/performance-queue.mjs foreground 120000 -- npm run quality:health
+```
+
+`foreground TIMEOUT_MS -- COMMAND [ARG...]` requires a positive integer timeout,
+passes direct argv, and inherits raw stdout/stderr into the receipt's logs. It
+checks the owned process-group identities before signalling, sends TERM and then
+KILL if necessary, and checks release even when the command leader exits early.
+The deadline excludes the bounded cleanup grace period. Timeout exits 124,
+interruption exits 130, and findings preserve the child's nonzero exit; even a
+TERM handler exiting zero cannot turn a timeout into a pass. The terminal summary
+in stderr distinguishes `timed-out`, `interrupted`, and `cleanup-blocked`; the
+outer command receipt remains a failed non-pass with raw evidence.
+
+This mode is only for foreground commands whose descendants stay in the owned
+process group, not browsers, detached daemons, or arbitrary process discovery.
+Unknown identities or failed cleanup cannot certify release. Losing/killing the
+outer receipt session still leaves its prepared receipt **unknown**; a missing
+session never proves cleanup. Keep its resources and logs as described above.
+Required check/build gates and long-running explicitly requested jobs are unchanged.
 
 ## Stable-scope detached queue
 
@@ -111,6 +224,52 @@ No retries are automatic. Fix a failed input or setup, then submit a new job.
 
 Optional `env` is a string-valued object for job-specific environment settings.
 The submitting worker's PATH is retained, not inherited from another job's controller.
+New submissions retain the caller's effective specification as `requestedSpec`.
+`spec.command` contains transport argv described by the versioned `executionEnvelope`:
+a frozen launcher and original argv/declared ports, not a replacement description of the user's
+command. Retry matching uses `requestedSpec` and, for guarded jobs, the frozen
+effective `NODE_OPTIONS`; source fingerprints still bind the
+original inputs. The frozen launcher bytes are hashed in `executionEnvelope`.
+Before any payload starts, it verifies the launching parent's PID/start identity,
+the lock owner's supported protocol, exact submitting-controller source SHA256,
+and declared-port environment. A different queue-source revision fails closed even
+if it advertises the same protocol; it must release normally before a matching
+controller can serve a new guarded payload. An unchanged legacy controller can dequeue this envelope but cannot
+run its payload: rejection exits nonzero, records the original command/reason in
+`launch.json`, and supplies an empty prelaunch cleanup receipt because no payload
+was started. This is a failed job, never a successful check.
+After launch, the payload alone remains responsible for its normal cleanup receipt.
+No requested environment reaches the launcher: its transport env only clears
+`NODE_OPTIONS` before Node initializes. After validation it reads the requested env
+from private job data, verifies the frozen environment digest, and applies it only
+to the payload. Values are not copied into process argv. The effective requested
+or submitter-inherited `NODE_OPTIONS` is frozen separately for payload restoration;
+arbitrary inherited environment is not copied. Controller-supplied `PND_QUEUE_*`
+fields still override caller values. This is not a security sandbox for an already
+customized controller process environment.
+The launcher resolves the command with the payload's PATH and performs a true exec
+handoff: the payload retains the controller's original child PID/process group, so
+even SIGKILL escalation remains directly reapable. It neither starts a second queue
+nor changes ownership, FIFO, or port admission. `launch.json` status `handoff` is a
+synchronous pre-exec record, not proof of successful execution or cleanup.
+Guarded detached jobs require a supported POSIX runtime exposing experimental
+`process.execve` (added in Node22.15/23.11; verified here on24.19). A missing feature
+fails before launch; there is no spawn fallback or whole-project engine change.
+Commands must be kernel-executable binaries or supported shebang scripts. This is
+not execvp's implicit shell fallback for executable text lacking a shebang.
+Missing/non-executable paths are rejected before handoff. Node24 can abort on a
+later kernel error, such as a missing interpreter or a path race: no synthetic
+cleanup receipt is written, so the job remains nonpassing/cleanup-blocked. See the
+[pinned execve contract](https://nodejs.org/download/release/v24.19.0/docs/api/process.html#processexecvefile-args-env).
+Existing unwrapped jobs remain readable/executable by current controllers; no live
+controller, lock, or already-admitted historical command is rewritten or upgraded.
+Use a current submitter for new work. Legacy submitters compare the old transport
+specification and cannot deduplicate guarded jobs; resubmitting through one can
+create a separate, unguarded job. Current submitters match both guarded requests
+and historical canonical specs. For an existing submission, including from an old
+caller, use `wait JOB_ID`: its ID and status remain specific to that job. A separate
+duplicate's success never turns a rejected guarded job into a success. These
+guards do not retroactively protect unwrapped jobs admitted by legacy submitters.
 Results return directly to the calling worker via `run`/`wait`; no completion
 message bridge or CEO acknowledgment is required. `submit` provides the job ID for
 independent work. A runner may send an already-authorized exceptional notification
@@ -125,6 +284,8 @@ Replace old wall-clock slot guards with these supplied environment variables:
 - `PND_QUEUE_OUTPUT`: fresh, owned output directory.
 - `PND_QUEUE_DEADLINE`: absolute ISO timeout; reserve cleanup time **inside** it.
 - `PND_QUEUE_CLEANUP`: exact path for the final cleanup receipt.
+- `PND_QUEUE_PORTS`: exact comma-separated declared ports, including an empty string
+  when no ports were declared. It must not be inherited from another job.
 
 Reuse the existing startup, measurement and process guardian. The runner must own
 and clean every browser profile, detached process group, server and temporary wake

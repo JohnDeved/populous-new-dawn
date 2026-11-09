@@ -1,0 +1,14 @@
+{
+  "archive": {
+    "url": "https://the-beginning.b-cdn.net/wp-content/downloads/other/PopulousTB-Setup.zip",
+    "size": 322676040,
+    "sha256": "6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702",
+    "matchesRetainedChecksum": true
+  },
+  "installer": {
+    "path": "Populous The Beginning [Setup]/Setup_Populous_The_Beginning.exe",
+    "size": 323091880,
+    "sha256": "c5d3ad2a1b369e636df85a6061b832c18f2dc33526a03383f61abd7b5518c52d"
+  },
+  "memberCount": 1549
+}

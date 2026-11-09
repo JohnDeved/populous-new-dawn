@@ -30,3 +30,23 @@ export function unitAnimationSource(u: Unit) {
     ? (u.builder?.person ?? null)
     : null
 }
+
+// Fight artwork owns a native phase without changing AI, command or selection
+// queries that still use the existing gameplay adapter above.
+export function unitRenderAnimationSource(u: Unit) {
+  if (
+    !u.flight &&
+    u.fight?.motion &&
+    u.fight.nativeAttackAnimation === true &&
+    ['attack', 'strike', 'special', 'approach'].includes(u.fight.action)
+  )
+    return u.fight.motion
+  if (
+    !u.flight &&
+    u.fight?.motion &&
+    u.fight.nativeRecoilAnimation === true &&
+    ['recoil', 'push', 'approach'].includes(u.fight.action)
+  )
+    return u.fight.motion
+  return unitAnimationSource(u)
+}

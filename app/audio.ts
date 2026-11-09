@@ -1,7 +1,9 @@
+import { short } from './native-math.ts'
 import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
 import { DEFAULT_AUDIO_PREFERENCES } from './audio-preferences.ts'
 import { SELECTION_CUES } from './person-selection.ts'
+import { SPELL_CAST_CUES } from './spell-audio-cues.ts'
 import {
   ambientLayers,
   ambientWeights,
@@ -10,9 +12,32 @@ import {
   type SoundEnvironment,
 } from './ambient-sound.ts'
 import type { GameScene } from './scene.ts'
-// First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
+// Load the live cue samples before enabling playback so gameplay never waits on a fetch.
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
+  ...SPELL_CAST_CUES,
+  9, // Follower landing.
+  0x12, // Building damage and demolition.
+  0x15, // Earthquake fissure.
+  0x1a, // Player Shaman airborne voice.
+  0x1b, // Shaman landing.
+  0x2a, // Hypnotise effect.
+  0x31, // Invisibility application.
+  0x35, // Invisibility reveal.
+  0x36, // Spy ignition action.
+  0x55, // Firestorm water impact.
+  0xa3, // Tornado.
+  0xa4, // Swarm effect.
+  0xa8, // Ghost Army effect.
+  0xa9, // Erosion.
+  0xaa, // Swamp effect.
+  0xad, // Earthquake rumble.
+  0xaf, // Volcano rumble.
+  0xb0, // Volcano eruption.
+  0xb3, // Firestorm projectile launch.
+  0xb4, // Convert Wild effect.
+  0xb6, // Firestorm land impact.
+  0xc4, // Follower airborne voice.
   5, // 0x4d7fd0: opening Wildman conversion
   0x9e, // 0x50c780: opening terrain wave
   0x6a,
@@ -121,8 +146,18 @@ export function soundEnvironment(scene: GameScene): SoundEnvironment {
 }
 
 export function orderSound(scene: GameScene, selected = scene.world.selected) {
-  const units = scene.world.units.filter(u => selected.includes(u.id))
-  if (units.length) scene.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
+  if (!selected.length) return
+  const selectedIds = new Set(selected)
+  let cue: number | undefined
+  for (const unit of scene.world.units) {
+    if (!selectedIds.has(unit.id)) continue
+    cue = 0x37
+    if (unit.kind === 'shaman') {
+      cue = 0x19
+      break
+    }
+  }
+  if (cue !== undefined) scene.onSound(cue)
 }
 
 export function playWorldSounds(scene: GameScene) {
@@ -145,17 +180,21 @@ export function playWorldSounds(scene: GameScene) {
         scene.onSound(event.cue, 1, 0)
         continue
       } // Native notification and defeat-sky cues are not positional.
-      const dx = Math.round((event.x - scene.viewPoint.x) * 256),
-        dz = Math.round((event.z - scene.viewPoint.z) * 256)
+      const dx = short(Math.round((event.x - scene.viewPoint.x) * 256)),
+        dz = short(Math.round((event.z - scene.viewPoint.z) * 256))
       const screen = scene.screen(event)
       // Native distance curve and projected pan; the full native mixer is still unported.
-      const stop = scene.onSound(
+      let stop: ReturnType<GameScene['onSound']>
+      stop = scene.onSound(
         event.cue,
         soundAttenuation(dx * dx + dz * dz),
         screen.x,
         event.owner === undefined
           ? undefined
           : () => {
+              // WebAudio ended callbacks can arrive after a same-owner restart.
+              const current = scene.ownedSounds.get(event.owner!)
+              if (stop && current && current !== stop) return
               const fire = scene.world.effects.find(f => f.id === event.owner)?.fire
               if (fire) fire.soundPlaying = false
               const burn = scene.world.buildings.find(b => b.id === event.owner)?.burn
@@ -175,6 +214,7 @@ export class Soundscape {
   master: GainNode | null = null
   buffers = new Map<string, AudioBuffer>()
   loading: Promise<void> | null = null
+  private loadController = new AbortController()
   active = new Set<AudioBufferSourceNode>()
   enabled = false
   disposed = false
@@ -288,29 +328,43 @@ export class Soundscape {
     if (!this.music) this.music = new Music(ctx, this.master!, this)
     const { music } = this
     this.setMusicVolume(this.musicVolume)
-    await ctx.resume()
-    if (!this.loading) {
-      const samples = new Set(
-        AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
-      )
-      this.loading = Promise.all(
-        [...samples].map(async key => {
-          if (this.buffers.has(key)) return
-          const response = await fetch(`/original/audio/${key}.wav`)
-          if (!response.ok) throw new Error(`Sound sample failed: ${key}`)
-          const buffer = await ctx.decodeAudioData(await response.arrayBuffer())
-          if (!this.disposed) this.buffers.set(key, buffer)
-        })
-      )
-        .then(() => {})
-        .catch(e => {
-          this.loading = null
-          throw e
-        })
-    }
+    // Music starts loading before the context resumes. Observe early failures
+    // without replacing the original promise awaited by this enable attempt.
+    void music.loading.catch(() => {})
     try {
+      await ctx.resume()
+      // Mute or disposal can cancel startup while the context is resuming.
+      if (this.disposed || generation !== this.generation) return false
+      if (!this.loading) {
+        // Cue loads are shared across mute/re-enable and retries, until disposal.
+        const { signal } = this.loadController
+        const samples = new Set(
+          AUDIO_CUES.flatMap(c => native.cues[c].samples.map(s => `${native.cues[c].bank}-${s}`))
+        )
+        this.loading = Promise.all(
+          [...samples].map(async key => {
+            if (this.buffers.has(key)) return
+            const response = await fetch(`/original/audio/${key}.wav`, { signal })
+            if (signal.aborted) return
+            if (!response.ok) throw new Error(`Sound sample failed: ${key}`)
+            const bytes = await response.arrayBuffer()
+            if (signal.aborted) return
+            const buffer = await ctx.decodeAudioData(bytes)
+            if (!signal.aborted) this.buffers.set(key, buffer)
+          })
+        )
+          .then(() => {})
+          .catch(e => {
+            // Only disposal cancels this owner; live failures still reach enable().
+            if (signal.aborted) return
+            this.loading = null
+            throw e
+          })
+      }
       await Promise.all([this.loading, music.loading])
     } catch (error) {
+      // A cancelled startup no longer owns playback or a reused Music instance.
+      if (this.disposed || generation !== this.generation) return false
       music.dispose()
       if (this.music === music) this.music = null
       throw error
@@ -339,7 +393,9 @@ export class Soundscape {
     this.playbackRequest++
     this.enabled = false
     this.music?.element.pause()
-    if (this.context && this.context.state !== 'closed') void this.context.suspend()
+    // Muting is the error fallback itself; local silence must not spawn a new
+    // unhandled rejection when the context cannot suspend.
+    if (this.context && this.context.state !== 'closed') void this.context.suspend().catch(() => {})
     if (this.backgroundTimer) clearInterval(this.backgroundTimer)
     this.backgroundTimer = null
     this.stopAll()
@@ -403,10 +459,12 @@ export class Soundscape {
   }
   dispose() {
     this.disposed = true
+    this.loadController.abort()
+    this.loading = null
     this.mute()
     this.music?.dispose()
     this.music = null
     this.buffers.clear()
-    void this.context?.close()
+    void this.context?.close().catch(() => {})
   }
 }

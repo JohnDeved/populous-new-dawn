@@ -53,6 +53,8 @@ type QueuePerson = Pick<
   | 'reservationNext'
 >
 interface QueueWorld {
+  // Native words remain the default; live browser handles retain exact identity.
+  personId?: (stored: number) => number
   people: Map<number, QueuePerson>
   orders: OrderPool
 }
@@ -92,29 +94,33 @@ export interface TrainingEffects {
 }
 const short = (n: number) => (n << 16) >> 16
 const byte = (n: number) => (n << 24) >> 24
-function live<T extends { class: number; flags2: number }>(units: Map<number, T>, id: number) {
-  const p = id ? units.get(id & 65535) : undefined
+function live<T extends { class: number; flags2: number }>(
+  units: Map<number, T>,
+  id: number,
+  personId?: (stored: number) => number
+) {
+  const p = id ? units.get(personId?.(id) ?? id & 65535) : undefined
   return p?.class && !(p.flags2 & 1) ? p : undefined
 }
 
 // 0x409c50. A negative index asks for the tail; an invalid tail link returns
 // nothing, rather than returning the last valid entry or repairing the list.
 export function trainingQueuePerson(w: QueueWorld, b: TrainingQueue, index: number) {
-  let p = live(w.people, b.queueHead)
+  let p = live(w.people, b.queueHead, w.personId)
   while (p) {
     if (index === 0 || (index < 0 && !p.reservationNext)) return p
-    p = live(w.people, p.reservationNext)
+    p = live(w.people, p.reservationNext, w.personId)
     if (index > 0) index--
   }
 }
 
 // 0x409bd0. If the requested person is absent, returns the last visited entry.
 export function trainingQueuePredecessor(w: QueueWorld, b: TrainingQueue, person: QueuePerson) {
-  let p = live(w.people, b.queueHead),
+  let p = live(w.people, b.queueHead, w.personId),
     previous: QueuePerson | undefined
   while (p && p !== person) {
     previous = p
-    p = live(w.people, p.reservationNext)
+    p = live(w.people, p.reservationNext, w.personId)
   }
   return previous
 }
@@ -125,13 +131,13 @@ export function appendTrainingQueue(w: QueueWorld, b: TrainingQueue, person: Que
   if (!b.queueHead) b.queueHead = person.id
   else {
     index = 1
-    let p = live(w.people, b.queueHead)
+    let p = live(w.people, b.queueHead, w.personId)
     while (p) {
       if (!p.reservationNext) {
         p.reservationNext = person.id
         break
       }
-      p = live(w.people, p.reservationNext)
+      p = live(w.people, p.reservationNext, w.personId)
       index++
     }
   }
@@ -143,14 +149,14 @@ export function appendTrainingQueue(w: QueueWorld, b: TrainingQueue, person: Que
 // 0x409580. Preserve raw successor links while pruning live entries, including
 // a dangling final link. Native lists are acyclic; this does not repair cycles.
 export function rebuildTrainingQueue(w: QueueWorld, b: TrainingQueue) {
-  let p = live(w.people, b.queueHead),
+  let p = live(w.people, b.queueHead, w.personId),
     previous: QueuePerson | undefined
   let count = 0,
     index = 0,
     firstRemoved = -1
   if (!p) b.queueHead = 0
   while (p) {
-    const next = live(w.people, p.reservationNext)
+    const next = live(w.people, p.reservationNext, w.personId)
     const order =
       p.class === 1 && (p.state === 10 || p.state === 14)
         ? currentPersonOrder(w.orders, p)
@@ -235,10 +241,10 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
     } else {
       p.substate = 3
       p.commandPhase = 0
-      let follower = live(w.people, b.queueHead),
+      let follower = live(w.people, b.queueHead, w.personId),
         index = 0
       while (follower && follower !== p) {
-        follower = live(w.people, follower.reservationNext)
+        follower = live(w.people, follower.reservationNext, w.personId)
         index = (index + 1) & 255
       }
       if (follower) {
@@ -280,12 +286,17 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
     // falls through
     case 3: {
       p.flags2 = (p.flags2 | 0x200000) >>> 0
-      if (byte(b.inside) < capacity && !b.entryDelay && p.id === short(b.queueHead) && !p.speed) {
+      if (
+        byte(b.inside) < capacity &&
+        !b.entryDelay &&
+        p.id === (w.personId?.(b.queueHead) ?? short(b.queueHead)) &&
+        !p.speed
+      ) {
         p.substate = 6
         b.entryDelay = 16
       } else {
         if (p.commandAux && --p.commandAux === 0) {
-          const next = live(w.people, p.reservationNext)
+          const next = live(w.people, p.reservationNext, w.personId)
           if (next) next.commandAux = 2
           const previous = trainingQueuePredecessor(w, b, p)
           p.commandPhase = previous ? (phase(previous) + 1) & 255 : 0
@@ -303,7 +314,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
             p.flags2 = (p.flags2 | 0x1080) >>> 0
           }
           const trained = rules.buildingTrainedModel[b.model]
-          const next = live(w.people, p.reservationNext)
+          const next = live(w.people, p.reservationNext, w.personId)
           if (
             !(p.counter & 15) &&
             !p.commandAux &&

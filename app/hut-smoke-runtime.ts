@@ -11,7 +11,6 @@ import {
 } from './hut-occupancy-smoke.ts'
 import {
   allocateSecondaryEffect,
-  createSecondaryEffects,
   releaseSecondaryEffect,
   rebuildSecondaryLists,
 } from './secondary-effects.ts'
@@ -127,18 +126,10 @@ export function stepSecondaryEffects(w: World) {
 }
 
 export function restoreSecondaryEffects(w: World) {
-  if (!w.secondaryEffects) {
-    w.secondaryEffects = createSecondaryEffects(w.turn)
-    // Legacy browser markers were unbounded. Discard any that cannot acquire
-    // an owner, otherwise the secondary-only expiry pass would never visit them.
-    w.effects = w.effects.filter(
-      effect => effect.kind !== 'orderMarker' || registerSecondaryMarker(w, effect)
-    )
-  }
+  if (!w.secondaryEffects) throw new RangeError('Missing current secondary-effect state')
   rebuildSecondaryLists(w.secondaryEffects)
   // DOM panels/previews are transient and are rebuilt by their actual adapters.
   w.secondaryEffects.reservations = []
-  // Older saves could retain a burning hut's root until occupant evacuation.
-  // Restore the same eligibility now, including when play resumes paused.
+  // Reconcile current eligibility, including when play resumes paused.
   for (const building of w.buildings) if (!eligible(building)) reconcileWorldHutSmoke(w, building)
 }

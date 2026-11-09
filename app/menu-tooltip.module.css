@@ -1,0 +1,2 @@
+.tooltip { position: absolute; z-index: 2; display: flex; pointer-events: none; image-rendering: pixelated; color: #fff1bb; font: 10px/10px sans-serif; white-space: nowrap; }
+.tooltip i { display: block; flex-shrink: 0; }

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "32f32151-cd72-4845-b4a6-cf9ce83d671b",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3de90382ebfaccad0628b5be0198a1a082763b58",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-restart-route/final-accept-settled.mjs": "b647a0f1a64be14c90c61f6ba5ca394158f0b655a0cf6273bcd4f6384f42bfe6",
+      "work/m17-restart-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m17-restart-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m17-restart-route/all-cell-consistency.mjs": "1ed9a4d1e2c5faec22e6a21c0a862f6a8d9ee783003706b3bbc9c9c33a199f80",
+      "work/m17-restart-route/arena-resolved-terminal.v8": "aab90067763aa6966192bb333133b28682f3cb6d5b98120d5ca95cfe4eea5434",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m17-restart-route/final-accept-settled.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit",
+  "startedAt": "2026-10-14T15:39:55.491Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/orchestration/m17-restart-route/final-accept-settled.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/orchestration/m17-restart-route/final-accept-settled.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T15:39:58.006Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"event\":\"M17 natural arena victory\",\"turn\":6784,\"status\":\"won\",\"outcome\":{\"campaignTribes\":4,\"level\":17,\"progressFlags\":1,\"lastDefeated\":1,\"defeatedCounts\":[3,0,0,0],\"alliances\":[0,0,0,0],\"cameraTribe\":1,\"cameraRequest\":1,\"cameraPlaying\":true,\"completedLevel\":16,\"skyCounter\":18},\"mask\":4}\n{\"event\":\"actual automatic Armageddon battle\",\"turn\":6785,\"status\":\"won\",\"counts\":[35,0,0,0],\"inputMask\":4,\"arena\":null,\"rank0\":[null,null,null,null]}\n{\"event\":\"actual victory result camera\",\"turn\":6785,\"request\":1,\"playing\":true,\"sky\":16,\"mask\":4}\n{\"event\":\"actual victory result camera\",\"turn\":6786,\"request\":1,\"playing\":true,\"sky\":14,\"mask\":4}\n{\"event\":\"actual victory result camera\",\"turn\":6787,\"request\":1,\"playing\":true,\"sky\":12,\"mask\":4}\n{\"event\":\"actual victory result camera\",\"turn\":6788,\"request\":1,\"playing\":true,\"sky\":10,\"mask\":4}\n{\"event\":\"actual victory result camera\",\"turn\":6789,\"request\":1,\"playing\":true,\"sky\":8,\"mask\":4}\n{\"event\":\"actual victory result camera\",\"turn\":6790,\"request\":1,\"playing\":true,\"sky\":6,\"mask\":4}\n{\"event\":\"actual victory result camera\",\"turn\":6791,\"request\":1,\"playing\":true,\"sky\":4,\"mask\":4}\n",
+  "stderr": "file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/live-people.ts:446\n      throw new Error('Live firewarriors are not yet implemented')\n            ^\n\nError: Live firewarriors are not yet implemented\n    at Object.projectile (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/live-people.ts:446:13)\n    at stepCelebration (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/celebration.ts:266:13)\n    at stepLivePerson (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/live-people.ts:1224:23)\n    at stepTurn (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/world-turn.ts:1341:7)\n    at tick (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/world-turn.ts:469:5)\n    at advanceGame (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/app/game-clock.ts:82:19)\n    at frame (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/clock-driver.mjs:20:164)\n    at step (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept-settled.mjs:6:252)\n    at file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/work/m17-restart-route/final-accept-settled.mjs:8:69\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-pose-audit/tests/support/profile-storage.mjs:115:5)\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "8d3c7f48efa754d06e563aca2bb2aeb52e02394d77a76eb70152898af09d1f77",
+  "stderrSha256": "6223568f5f05a0d83022c3d74cb07f22b6ec778bdf8a705331f837ae810bd3ab",
+  "sourceAfter": {
+    "headOid": "3de90382ebfaccad0628b5be0198a1a082763b58",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m17-restart-route/final-accept-settled.mjs": "b647a0f1a64be14c90c61f6ba5ca394158f0b655a0cf6273bcd4f6384f42bfe6",
+      "work/m17-restart-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m17-restart-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m17-restart-route/all-cell-consistency.mjs": "1ed9a4d1e2c5faec22e6a21c0a862f6a8d9ee783003706b3bbc9c9c33a199f80",
+      "work/m17-restart-route/arena-resolved-terminal.v8": "aab90067763aa6966192bb333133b28682f3cb6d5b98120d5ca95cfe4eea5434",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

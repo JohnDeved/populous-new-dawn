@@ -1,10 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import { createReceiptArtifacts } from '../scripts/orchestration/receipt-streams.mjs'
+import { MetadataParser, createMetadataBudget } from '../scripts/parity-json-metadata.mjs'
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { execFileSync } from 'node:child_process'
-import { buildReport, browserSourceFingerprint, captureMeasurement, evaluateCheck, finishMeasurement, refreshMeasurement, renderHTML, writeReport } from '../scripts/parity-measure.mjs'
+import { buildReport, browserSourceFingerprint, captureMeasurement, discoverReceipts, evaluateCheck, finishMeasurement, refreshMeasurement, renderHTML, writeReport } from '../scripts/parity-measure.mjs'
 import { runCommandReceipt } from '../scripts/orchestration/command-receipt.mjs'
 
 const check = { id: 'opening-browser', kind: 'browser', executable: 'node', args: ['check.mjs'], inputs: ['check.mjs', 'app/game.ts'], expected: { exitCode: 0, artifacts: [] } }
@@ -92,9 +95,9 @@ test('actual input capture invalidates fixtures/dependencies/source, ignores unr
   }
 })
 
-test('real command receipt automatically gains binding, report and history; scope changes retain history', t => {
+test('real command receipt automatically gains binding, report and history; scope changes retain history', async t => {
   const { repo, put } = repository(t)
-  const result = runCommandReceipt(repo, { output: 'work/orchestration/run/pass.json', command: ['node', 'check.mjs'] })
+  const result = await runCommandReceipt(repo, { output: 'work/orchestration/run/pass.json', command: ['node', 'check.mjs'] })
   assert.equal(result.parityMeasurements[0].status, 'passed')
   const report = writeReport(repo)
   assert.equal(report.checks[0].status, 'unknown')
@@ -111,10 +114,10 @@ test('real command receipt automatically gains binding, report and history; scop
   assert.equal(history()[0].reportHash.length, 64)
 })
 
-test('receipt records source drift as invalidated and cannot credit changed behavior', t => {
+test('receipt records source drift as invalidated and cannot credit changed behavior', async t => {
   const { repo, put } = repository(t)
   put('check.mjs', "import{writeFileSync}from'node:fs';writeFileSync('app/game.ts','changed')")
-  const result = runCommandReceipt(repo, { output: 'work/orchestration/run/drift.json', command: ['node', 'check.mjs'] })
+  const result = await runCommandReceipt(repo, { output: 'work/orchestration/run/drift.json', command: ['node', 'check.mjs'] })
   assert.equal(result.status, 'invalidated')
   assert.equal(result.parityMeasurements[0].status, 'invalidated')
   assert.equal(writeReport(repo).checks[0].status, 'stale')
@@ -148,4 +151,79 @@ test('refresh failure invalidates an existing current pass without rewriting his
   assert.ok(!('percent' in report))
   assert.ok(!readFileSync(join(repo, 'work/orchestration/parity-measure/index.html'), 'utf8').includes('100%'))
   assert.equal(readFileSync(historyPath, 'utf8'), history)
+})
+
+
+test('real v2 command finalization failure cannot earn measurement credit', async t => {
+  const { repo, put } = repository(t), nativeCheck = { ...check, kind: 'native' }
+  put('engineering/checks.json', { checks: [nativeCheck] })
+  put('engineering/parity-capabilities.json', { version: 1, capabilities: [{ ...model.definitions.capabilities[0],
+    browserCheckIds: [], originalCheckIds: [nativeCheck.id] }] })
+  const command = ['node', 'check.mjs'], current = captureMeasurement(repo, command)[0]
+  const path = 'work/orchestration/final.json', target = join(repo, path)
+  const renameSync = fs.renameSync, writeSync = fs.writeSync
+  let published = false
+  const rename = t.mock.method(fs, 'renameSync', (from, to) => {
+    renameSync(from, to); published = true
+    const fd = fs.openSync(target + '.artifacts/stdout.log', 'r+')
+    try { writeSync(fd, 'fail\n', 0) } finally { fs.closeSync(fd) }
+  })
+  // Corrective I/O is unavailable after publication. The preexisting guard, not
+  // a best-effort status rewrite, must prevent downstream success.
+  const writes = t.mock.method(fs, 'writeSync', (...args) => {
+    if (published) throw new Error('corrective I/O unavailable')
+    return writeSync(...args)
+  })
+  await assert.rejects(runCommandReceipt(repo, { output: path, command, streamVersion: 2 }), /Captured raw stream changed/)
+  rename.mock.restore(); writes.mock.restore()
+  const persisted = JSON.parse(readFileSync(target))
+  assert.equal(persisted.status, 'passed'); assert.equal(persisted.publication, 'guard-v1')
+  assert.equal(persisted.parityMeasurements[0].status, 'passed')
+  writeFileSync(persisted.artifacts.stdout, 'pass\n')
+  const discovered = discoverReceipts(repo)
+  assert.match(discovered.warnings.join(' '), /publication is pending/)
+  assert.equal(evaluateCheck(nativeCheck, discovered.receipts, current).status, 'stale')
+})
+
+
+test('generic v2 discovery verifies complete raw identity and preserves newer invalid attempts', t => {
+  const root = mkdtempSync(join(tmpdir(), 'measurement-raw-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const path = 'work/orchestration/v2.json', target = join(root, path), artifacts = createReceiptArtifacts(target)
+  try {
+    fs.writeSync(artifacts.fd('stdout'), 'complete result')
+    const terminal = { kind: 'pnd-command-receipt', version: 2, streamFormat: 'raw-artifact-v1', status: 'passed',
+      artifacts: { stdout: target + '.artifacts/stdout.log', stderr: target + '.artifacts/stderr.log' },
+      ...artifacts.capture(), parityMeasurements: [evidence()] }
+    artifacts.write(terminal, true)
+  } finally { artifacts.close() }
+  assert.equal(evaluateCheck(check, discoverReceipts(root).receipts, current).status, 'verified')
+  writeFileSync(join(root, 'work/orchestration/older.json'), JSON.stringify({ kind: 'pnd-command-receipt', version: 1,
+    status: 'passed', parityMeasurements: [evidence('passed', { finishedAt: '2026-10-06T00:00:00Z' })] }))
+  writeFileSync(target + '.artifacts/stdout.log', 'tampered result')
+  const discovered = discoverReceipts(root)
+  assert.match(discovered.warnings.join(' '), /identity mismatch/)
+  assert.equal(evaluateCheck(check, discovered.receipts, current).status, 'stale')
+})
+
+test('streaming metadata retains receipt version instead of downgrading v2 to legacy', () => {
+  const parser = new MetadataParser(createMetadataBudget())
+  parser.write(JSON.stringify({ kind: 'pnd-command-receipt', version: 2, status: 'passed',
+    stdout: 'not retained', parityMeasurements: [evidence()] }))
+  const value = parser.finish()
+  assert.equal(value.version, 2)
+  assert.equal(Object.hasOwn(value, 'stdout'), false)
+})
+
+
+test('projected v2 measurements remain invalidated and cannot regain legacy credit', t => {
+  const root = mkdtempSync(join(tmpdir(), 'measurement-projected-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  mkdirSync(join(root, 'work/orchestration'), { recursive: true })
+  writeFileSync(join(root, 'work/orchestration/projected.json'), JSON.stringify({ kind: 'pnd-command-receipt', version: 2,
+    status: 'passed', parityMeasurements: [evidence()] }))
+  // Reduce the normal budget to exercise streaming on a tiny fixture.
+  const discovered = discoverReceipts(root, { fileLimit: 64 })
+  assert.match(discovered.warnings.join(' '), /Projected receipt cannot verify/)
+  assert.equal(evaluateCheck(check, discovered.receipts, current).status, 'stale')
 })

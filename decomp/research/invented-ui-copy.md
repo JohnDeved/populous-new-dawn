@@ -65,3 +65,52 @@ The issue 58 user report also identifies invented spell-success prose outside `p
 The focused browser check covers the current startup chooser, the modern loading-error recovery surface, the in-game settings dialog, and forced win/loss result presentation. It asserts the removed flavor strings are absent while functional retry/accessibility/control copy remains available.
 
 This slice does not change DOM structure, CSS/layout, loading state transitions, message content/runtime, simulation, store, scene, audio, RNG, or campaign logic. CEO integration owns aggregate/build gates.
+
+## October 12, 2026: four transient status owners
+
+Assessment source: `81c05c16897f58a46171d165cb8f8ec5e75fb763`, with unchanged
+runtime from `e25f1a1e3eeeac7a03eac88704680aa8249c2a1a`. The historical page-copy
+findings above retain their original scope. This register supports issue #58's
+next fidelity decision; it does not authorize another text deletion.
+
+All four calls use [tell](../../app/live-command.ts), which writes `World.message`
+and a nine-second deadline. [Page](../../app/page.tsx) renders that status separately
+from the imported campaign-message queue. None of these calls binds an original
+message or language entry.
+
+| Current status template                  | Live event owner and retained support                                                                                                                                        | Exact wording |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| `{Building name} completed.`             | `live-construction-runtime.ts::completeBuildingConstruction`, called on incomplete-to-complete progress; retained building-work fixtures and live completion tests           | Ambiguous     |
+| `{Amount} mana received.`                | `world-turn.ts` gift expiry adds to the recipient's pending mana; [Mission 22 reward evidence](mission22-rewards.md) binds `004facf0` and `0041a500`                         | Ambiguous     |
+| `{Spell} received. {Count} shots ready.` | `world-turn.ts` gift expiry updates capped stock and the separate gift counter; [replacement/payout evidence](worship-grant-replacement.md) executes the original arithmetic | Ambiguous     |
+| `Your shaman will reincarnate.`          | `world-turn.ts` initializes an eligible Blue Shaman's respawn and model-12 effect; [death/cadence evidence](shaman-death-cadence.md) supports the lifecycle                  | Ambiguous     |
+
+Event evidence does not bind these exact sentences or establish that they are
+required compatibility feedback. Building-work sound leaves and death presentation
+proof are not proof of original prose or audible narration. Preserve original
+campaign messages and event arithmetic, timing and cues while the wording remains
+subject to a scoped review decision. The reincarnation branch also requires another
+living, non-ghost unit of the same team. Page displays status only when ready and
+without a route notice; expiry follows world time rather than wall time.
+
+The imported 85-message catalogue is not the complete English bank. The expected
+`language/lang00.dat` is **207,264 bytes**, SHA-256
+`e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d`.
+Retained [Mission 15 provenance](mission15-prison.md) records setup archive SHA-256
+`6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702`.
+The October 12 authorized request for that archive returned **HTTP 403 / curl exit
+22**, without archive bytes. Extraction and full-bank comparison are **NOT RUN**;
+no alternate route or retry is credited.
+
+The existing [extractor](../../scripts/extract-reference.py) selects data without
+running the installer. A future approved recovery must verify archive and bank
+identity before comparison. The [language reader](../../scripts/import-messages.py)
+checks even byte length and a terminal UTF-16 NUL, then decodes UTF-16LE and removes
+only the final terminator sentinel. Retain interior empty entries, duplicates and
+original indexes, distinct from campaign message numbers. Compare exact building
+name variants, the Shaman sentence, spell-name/count templates and the mana
+template's locale-dependent number separately from placeholder or semantic
+candidates. Do not trim or normalize exact matches. No match would establish
+absence only from this verified bank, not absence of equivalent native feedback.
+No importer, native/browser check, original-text absence or deletion claim follows
+from this documentation update.

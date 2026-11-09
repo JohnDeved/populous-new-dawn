@@ -1,0 +1,72 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004fe270 <.text+0xfd270>:
+  4fe270:	53                   	push   ebx
+  4fe271:	56                   	push   esi
+  4fe272:	57                   	push   edi
+  4fe273:	55                   	push   ebp
+  4fe274:	e8 97 4f f9 ff       	call   0x493210
+  4fe279:	85 c0                	test   eax,eax
+  4fe27b:	74 75                	je     0x4fe2f2
+  4fe27d:	e8 8e 4f f9 ff       	call   0x493210
+  4fe282:	8b 74 24 1c          	mov    esi,DWORD PTR [esp+0x1c]
+  4fe286:	85 c0                	test   eax,eax
+  4fe288:	56                   	push   esi
+  4fe289:	74 07                	je     0x4fe292
+  4fe28b:	e8 40 45 f5 ff       	call   0x4527d0
+  4fe290:	eb 05                	jmp    0x4fe297
+  4fe292:	e8 79 98 02 00       	call   0x527b10
+  4fe297:	c1 f8 01             	sar    eax,0x1
+  4fe29a:	8b 7c 24 18          	mov    edi,DWORD PTR [esp+0x18]
+  4fe29e:	83 c4 04             	add    esp,0x4
+  4fe2a1:	8d 1c 38             	lea    ebx,[eax+edi*1]
+  4fe2a4:	e8 67 4f f9 ff       	call   0x493210
+  4fe2a9:	56                   	push   esi
+  4fe2aa:	85 c0                	test   eax,eax
+  4fe2ac:	74 07                	je     0x4fe2b5
+  4fe2ae:	e8 3d 45 f5 ff       	call   0x4527f0
+  4fe2b3:	eb 05                	jmp    0x4fe2ba
+  4fe2b5:	e8 86 98 02 00       	call   0x527b40
+  4fe2ba:	c1 f8 01             	sar    eax,0x1
+  4fe2bd:	8b 4c 24 1c          	mov    ecx,DWORD PTR [esp+0x1c]
+  4fe2c1:	83 c4 04             	add    esp,0x4
+  4fe2c4:	8b 2d 70 90 a6 00    	mov    ebp,DWORD PTR ds:0xa69070
+  4fe2ca:	8d 14 08             	lea    edx,[eax+ecx*1]
+  4fe2cd:	2b eb                	sub    ebp,ebx
+  4fe2cf:	c1 fd 05             	sar    ebp,0x5
+  4fe2d2:	a1 74 90 a6 00       	mov    eax,ds:0xa69074
+  4fe2d7:	66 2b fd             	sub    di,bp
+  4fe2da:	2b c2                	sub    eax,edx
+  4fe2dc:	c1 f8 05             	sar    eax,0x5
+  4fe2df:	56                   	push   esi
+  4fe2e0:	66 2b c8             	sub    cx,ax
+  4fe2e3:	51                   	push   ecx
+  4fe2e4:	57                   	push   edi
+  4fe2e5:	e8 56 40 f5 ff       	call   0x452340
+  4fe2ea:	83 c4 0c             	add    esp,0xc
+  4fe2ed:	5d                   	pop    ebp
+  4fe2ee:	5f                   	pop    edi
+  4fe2ef:	5e                   	pop    esi
+  4fe2f0:	5b                   	pop    ebx
+  4fe2f1:	c3                   	ret
+  4fe2f2:	8b 74 24 1c          	mov    esi,DWORD PTR [esp+0x1c]
+  4fe2f6:	83 ee 20             	sub    esi,0x20
+  4fe2f9:	79 02                	jns    0x4fe2fd
+  4fe2fb:	33 f6                	xor    esi,esi
+  4fe2fd:	a1 4c 90 a6 00       	mov    eax,ds:0xa6904c
+  4fe302:	8b 50 20             	mov    edx,DWORD PTR [eax+0x20]
+  4fe305:	8b 42 10             	mov    eax,DWORD PTR [edx+0x10]
+  4fe308:	8d 48 ff             	lea    ecx,[eax-0x1]
+  4fe30b:	3b ce                	cmp    ecx,esi
+  4fe30d:	73 02                	jae    0x4fe311
+  4fe30f:	8b f1                	mov    esi,ecx
+  4fe311:	c1 e6 03             	shl    esi,0x3
+  4fe314:	8b 42 0c             	mov    eax,DWORD PTR [edx+0xc]
+  4fe317:	03 c6                	add    eax,esi
+  4fe319:	8b 4c 24 18          	mov    ecx,DWORD PTR [esp+0x18]
+  4fe31d:	8b                   	.byte 0x8b
+  4fe31e:	7c 24                	jl     0x4fe344

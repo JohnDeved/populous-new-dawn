@@ -1,0 +1,33 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004fddab <.text+0xfcdab>:
+  4fddab:	e8 60 54 f9 ff       	call   0x493210
+  4fddb0:	85 c0                	test   eax,eax
+  4fddb2:	0f 85 0e 01 00 00    	jne    0x4fdec6
+  4fddb8:	83 0d 74 a0 5d 00 08 	or     DWORD PTR ds:0x5da074,0x8
+  4fddbf:	8d 4b ff             	lea    ecx,[ebx-0x1]
+  4fddc2:	83 f9 08             	cmp    ecx,0x8
+  4fddc5:	77 0f                	ja     0x4fddd6
+  4fddc7:	33 c0                	xor    eax,eax
+  4fddc9:	8a 81 40 e0 4f 00    	mov    al,BYTE PTR [ecx+0x4fe040]
+  4fddcf:	ff 24 85 2c e0 4f 00 	jmp    DWORD PTR [eax*4+0x4fe02c]
+  4fddd6:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  4fddda:	a3 0c 57 5d 00       	mov    ds:0x5d570c,eax
+  4fdddf:	e9 e2 00 00 00       	jmp    0x4fdec6
+  4fdde4:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  4fdde8:	b9 03 00 00 00       	mov    ecx,0x3
+  4fdded:	03 c0                	add    eax,eax
+  4fddef:	2b d2                	sub    edx,edx
+  4fddf1:	f7 f1                	div    ecx
+  4fddf3:	a3 0c 57 5d 00       	mov    ds:0x5d570c,eax
+  4fddf8:	e9 c9 00 00 00       	jmp    0x4fdec6
+  4fddfd:	b9 03 00 00 00       	mov    ecx,0x3
+  4fde02:	8b 44 24 14          	mov    eax,DWORD PTR [esp+0x14]
+  4fde06:	2b d2                	sub    edx,edx
+  4fde08:	f7 f1                	div    ecx
+  4fde0a:	a3 0c 57 5d 00       	mov    ds:0x5d570c,eax
+  4fde0f:	e9 b2 00 00 00       	jmp    0x4fdec6

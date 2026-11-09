@@ -3,20 +3,33 @@ import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
-import { gunzipSync } from 'node:zlib'
 import test from 'node:test'
 import policy from '../decomp/research/firewarrior-firing-phase/owned-projection.json' with { type: 'json' }
 
 const root = new URL('../', import.meta.url)
-const proof = new URL('evidence/firewarrior-firing-phase/native-comparison-20261006/', root)
 const sha = data => createHash('sha256').update(data).digest('hex')
-const fixtures = gunzipSync(readFileSync(new URL('fixtures.json.gz', proof)))
-const nativeBytes = gunzipSync(readFileSync(new URL('native.json.gz', proof)))
+const fixtures = readFileSync(new URL('tests/fixtures/firewarrior-firing-phase-input.json', root))
 assert.equal(sha(fixtures), policy.fixtureSha256)
-assert.equal(sha(nativeBytes), '977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a')
 assert.equal(sha(readFileSync(new URL('decomp/research/firewarrior-firing-phase/owned-projection.json', root))),
   '5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128')
+const nativeBytes = readFileSync(new URL('tests/fixtures/firewarrior-firing-phase-native.json', root))
+assert.equal(sha(nativeBytes), '6115fb54241c6cd15a5c9f6652cea74f2c73762bb2906195346412122c298deb')
 const native = JSON.parse(nativeBytes)
+assert.equal(native.schemaVersion, 1)
+assert.equal(native.kind, 'firewarrior-firing-phase-native')
+assert.equal(native.cases.length, 16)
+assert.equal(native.cases.reduce((count, c) => count + c.visits.length, 0), 60)
+assert.deepEqual(native.cases.map(c => c.name), JSON.parse(fixtures).map(c => c.spec.name))
+for (const expected of native.cases) {
+  assert.deepEqual(Object.keys(expected), ['name', 'initialFields', 'visits'])
+  for (const visit of expected.visits) {
+    assert.equal(typeof visit.complete, 'boolean')
+    assert.deepEqual(Object.keys(visit), visit.complete ? ['complete'] : ['complete', 'activeFields', 'activeBits'])
+    if (visit.complete) continue
+    assert.deepEqual(Object.keys(visit.activeFields), policy.activeAfterFields)
+    assert.deepEqual(Object.keys(visit.activeBits), policy.activeAfterBits.map(bit => bit.field))
+  }
+}
 const child = spawnSync(process.execPath,
   ['--max-old-space-size=128', 'decomp/research/firewarrior-firing-phase/port.mjs'],
   { cwd: fileURLToPath(root), input: fixtures, encoding: 'utf8', timeout: 20_000,
@@ -30,7 +43,7 @@ assert.deepEqual(port.cases.map(c => c.name), native.cases.map(c => c.name))
 for (const [index, expected] of native.cases.entries()) {
   test(`actual ranged body matches owned native visits: ${expected.name}`, () => {
     const actual = port.cases[index]
-    assert.deepEqual(actual.visits[0].before.fields, expected.visits[0].before.fields,
+    assert.deepEqual(actual.visits[0].before.fields, expected.initialFields,
       'the fixed native/port initial comparison records must still agree')
     assert.equal(actual.visits.length, expected.visits.length, 'body completion invocation count')
     for (const [visit, n] of expected.visits.entries()) {
@@ -38,10 +51,10 @@ for (const [index, expected] of native.cases.entries()) {
       assert.equal(p.complete, n.complete, `completion at invocation ${visit}`)
       if (n.complete) continue
       for (const field of policy.activeAfterFields)
-        assert.equal(p.after.fields[field], n.after.fields[field], `${field} at invocation ${visit}`)
+        assert.equal(p.after.fields[field], n.activeFields[field], `${field} at invocation ${visit}`)
       for (const bit of policy.activeAfterBits) {
         const mask = Number(bit.maskHex)
-        assert.equal(p.after.fields[bit.field] & mask, n.after.fields[bit.field] & mask,
+        assert.equal(p.after.fields[bit.field] & mask, n.activeBits[bit.field],
           `${bit.field}&${bit.maskHex} at invocation ${visit}`)
       }
     }

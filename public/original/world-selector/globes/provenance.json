@@ -1,0 +1,356 @@
+{
+  "consumer": "004289c8 -> 00428b90 -> 004306d0",
+  "layout": "Four sequential 256x256 tiles: TL, TR, BL, BR",
+  "reduction": "Per-channel palette RGB integer sum of 4x4 pixels, shifted right 4",
+  "adaptation": "RGB8 before device-dependent texture quantization",
+  "assets": [
+    {
+      "mission": 1,
+      "bank": 12,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2001.hdr": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+        "data/plstx001.dat": "3843a9bd552cf8c3e44e514f1d2c5b7c8ce3443a3b2c92eecfe4e7bd0acb51ce",
+        "data/plspl0-c.dat": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2"
+      },
+      "rgbSha256": "4cc247b09d01659f2a6fe225d72a0fab71083a865cc8358593125deb18072a69",
+      "output": "mission-1.png",
+      "outputSha256": "ea3bc9c60819e38e214bba5b9cb29d9590012dd65923753508f87972df9a5487"
+    },
+    {
+      "mission": 2,
+      "bank": 28,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2002.hdr": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+        "data/plstx002.dat": "aaa13d29bf1dc47ffec981b08e67b55015cf4faef9b8729f05d831791ac0fec8",
+        "data/plspl0-s.dat": "a74fd9c5e6b630e9de3ffa7f93ce1cca2785dfd0de5499923ae18d51ebc8b2e4"
+      },
+      "rgbSha256": "4d72b8a80b1c703e805800f23d503157558c2a4d05d2191830574eb747916b09",
+      "output": "mission-2.png",
+      "outputSha256": "796243eb3ac2d9bbb48bea7309ee5100767cbaf957cbc3b95e4d54524103ad4d"
+    },
+    {
+      "mission": 3,
+      "bank": 25,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2003.hdr": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+        "data/plstx003.dat": "bb2a831f962727ca5ebff7b68f8dbcc3e5ac834c91cdca3a59d6145dd39037bb",
+        "data/plspl0-p.dat": "916b8eef2b9c9a9af6607ad29501364d5a280681ba52229bfff32c8a2fe2c736"
+      },
+      "rgbSha256": "5ea88e9cbd5be276d39ecb535c3a724144296c56ef7c732ef5db0a804e880f61",
+      "output": "mission-3.png",
+      "outputSha256": "dc719445b51c8f12f4f90e8600c97268f157b431a8b6aaab6e21041bb469daf2"
+    },
+    {
+      "mission": 4,
+      "bank": 13,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2004.hdr": "28423b5c46f3db542852b2a3059b343b255886697f335c38515ad20ffc812e3b",
+        "data/plstx004.dat": "655dedf939af0e5daf9a74fb871c113585441ed00540907cf14f5ff6d5472b52",
+        "data/plspl0-d.dat": "594baf9403a85de1cc8aa2834a4bcf14477d412c5412952db8ef3dc4f3ba3f5a"
+      },
+      "rgbSha256": "6b0ba716cd90372f441725ab47c63edd1b33f0efc1d17c6395568c813e922ac5",
+      "output": "mission-4.png",
+      "outputSha256": "2ef45e90b45d054cae7f425f83f8d33a55ed023e34795cdd50fcd10fe4bcb938"
+    },
+    {
+      "mission": 5,
+      "bank": 22,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2005.hdr": "b06f1bb554ad467434df5430e33b5d4762889bb7b92b921fc8df0c84e99e0b3c",
+        "data/plstx005.dat": "2ebfbbcbe5489c0c12458c6ca5287c25be849b5a1382eb3731c8b5e55e02aa94",
+        "data/plspl0-m.dat": "cb35ff0e6ab79b5b6939f694af055a3673660b6996b59d85beb38035c87af826"
+      },
+      "rgbSha256": "542b74e98c3aae6b50071f505a29fdf358f1d734f3dfaf610858c8b0c3ae931d",
+      "output": "mission-5.png",
+      "outputSha256": "a94417ab887845691db8593a2b8cb94dd14d02847887f9eb2786ec1d722908c4"
+    },
+    {
+      "mission": 6,
+      "bank": 12,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2006.hdr": "65321079e12c036738a5a7c5049c0e292af43f071a265512408953c822ce781b",
+        "data/plstx006.dat": "1762bcfc50057dcf365964e2da906bd56f744938722c4c4b02c52fcbad523e95",
+        "data/plspl0-c.dat": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2"
+      },
+      "rgbSha256": "3e8fb985dbc61cca1700c080f332efdf5eb2756f1c51b4c436849708a5d53873",
+      "output": "mission-6.png",
+      "outputSha256": "b8a2bc477e02ab5c74a608b38f315158137a89fea393f8d632f970371bb1b047"
+    },
+    {
+      "mission": 7,
+      "bank": 6,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2007.hdr": "5bbe0a02845d1a9182fcd63dcaa67dcb918051caecce4c3ebd261640282e41b7",
+        "data/plstx007.dat": "0b547316f0399c19e2e5d0e2a8c10a6a5c52d81962c33c3b258c4de3e4d3d6ab",
+        "data/plspl0-6.dat": "e09361c7ad2e74859c709280e5d6f948ddab0f193857f041616167a07304229b"
+      },
+      "rgbSha256": "5b03102da720fd0a01a9073732d2280a6cc11a8d39aa88b18d0ff16146158f48",
+      "output": "mission-7.png",
+      "outputSha256": "6dec44954477ac767d739641f436bcecbeadf99a3fd8fbf101a930b6b007b264"
+    },
+    {
+      "mission": 8,
+      "bank": 11,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2008.hdr": "0d63ff5313d1e97b4a4d498ca68ef627a3318a749b0b0b947543c50a4d0a25c3",
+        "data/plstx008.dat": "3e3b9cf926dceed5a633cef63b59b1be5d6fd9f8e50468e08e77f760ec40f31e",
+        "data/plspl0-b.dat": "1d684763d12058308e59faac4b9fe386ace34303d0e0668dfb79cbf12cfab75b"
+      },
+      "rgbSha256": "cb2247d90a9a9be3d1916ca195e478981609b423a4d2972baaa90fdf3274f794",
+      "output": "mission-8.png",
+      "outputSha256": "dbfd64db3b69e4a9cd272b38c53d527b528f5a44633280b2d5f40dff7ce3beac"
+    },
+    {
+      "mission": 9,
+      "bank": 5,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2009.hdr": "3e4783dcbfd2216a7bf93cf2f827f3212e992455f11e75b4e56f9488eb4927b3",
+        "data/plstx009.dat": "ae7669ce17edbdfe2c1b11e20485a07e8a8b133a65ba0000ed58014242a49b9f",
+        "data/plspl0-5.dat": "e3bc3445c9126bb104f763faaebb7fffad2ecb78b2e55b1550a90c3fb15a6aee"
+      },
+      "rgbSha256": "faf5da6793e127bf548e7c8ac91c9ee5b3fb4bcdb73b95831e4b5dd1e726f384",
+      "output": "mission-9.png",
+      "outputSha256": "2315ee7e607b8ef165d91b82bed38e3bc6cc552ca0e8499989bb4e53f5d33b50"
+    },
+    {
+      "mission": 10,
+      "bank": 25,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2010.hdr": "2576ff6cddb23ff12afe86c9fc5b8680a035947f1f1e583568c95ea8be4f7bbb",
+        "data/plstx010.dat": "334eb7a1d52ea0bae809e684a07a78f8cb9473e6b2de1bfd92f0f878afa3bfbc",
+        "data/plspl0-p.dat": "916b8eef2b9c9a9af6607ad29501364d5a280681ba52229bfff32c8a2fe2c736"
+      },
+      "rgbSha256": "bc2ce02d6f147d5323816f95b874b6ed00cf71250af236e31da9501376e930d1",
+      "output": "mission-10.png",
+      "outputSha256": "0278f78080a60195db5534278ea7c42c940e5f724c523480513f5ce5006d4e5a"
+    },
+    {
+      "mission": 11,
+      "bank": 6,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2011.hdr": "c4d8198e104db05ae55f7f141da41e7fe44ee1cf356b7ce084dfb32a4ba0807b",
+        "data/plstx011.dat": "ac7557223371d97ee76c6288a45d0c4d23d2c6c0f83edf27bdfec6ac5ee6751e",
+        "data/plspl0-6.dat": "e09361c7ad2e74859c709280e5d6f948ddab0f193857f041616167a07304229b"
+      },
+      "rgbSha256": "63e0eefeea79f01b05efea906a85ea4099640a58c480cafc55c9a2fcd761026e",
+      "output": "mission-11.png",
+      "outputSha256": "c1205e6c2a646a41024139e5f9fc4617826098fe447efe2f73b3d88c99b8361f"
+    },
+    {
+      "mission": 12,
+      "bank": 17,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2012.hdr": "d9d72fb5ee6e8bfbf1a19a6396e8d44b3caea928346622c2b398073c138a2184",
+        "data/plstx012.dat": "7d74fab460c4d2ff79f6782868a06fd9781c8c8d676f11a3a9f6f614bfa92805",
+        "data/plspl0-h.dat": "61497395aee5bd0e2fcad6c25ab31c2c46c73c9e1d662326ae6686130e2f0f34"
+      },
+      "rgbSha256": "9ccbefcbf3e0784d40690a43dc4bba0cd1f8d47e2125ee97de57918d81383e6c",
+      "output": "mission-12.png",
+      "outputSha256": "032d02845a91fe9b9680636b99e81b835ff1a47122671be3cc429433f3075660"
+    },
+    {
+      "mission": 13,
+      "bank": 1,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2013.hdr": "aebcd04cce2e61b5d1c275c725b6ca448c66d67b1a71f168231414609b2f75f9",
+        "data/plstx013.dat": "62c8de2be8f4820c5b8a589fb1a29a8708b4c8e437a54883eb03b5368584b7b7",
+        "data/plspl0-1.dat": "891eaa3682fa070e5621cd7663dde6c848b19f5dad31e747bd1d932db5341fbe"
+      },
+      "rgbSha256": "4c4ea81e427b6b0888fb787bce938014640b3a60e49d198c5ddf9562f04d0b16",
+      "output": "mission-13.png",
+      "outputSha256": "694cdff819908c10bd11d0e854bd4a2235df043021aa52fc7470d6f44a311702"
+    },
+    {
+      "mission": 14,
+      "bank": 10,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2014.hdr": "eae951d3dc6e6d2ef664a767fa01395968cec5f322ff8de53554e9548bc1ea19",
+        "data/plstx014.dat": "11d6a51246c5b9872f4330b8a0a1d9dea99589ba841fb981d8f1ebdf54a7d303",
+        "data/plspl0-a.dat": "aa60fc4daa9d38ae766e98826b4f580145f5ac3c03bb7cb7afe32abf9c053f03"
+      },
+      "rgbSha256": "ee6d6035c12d25f3626acfe6d42a9356a6741d914611aa6df235d15bd5a714f8",
+      "output": "mission-14.png",
+      "outputSha256": "6fbcb83467f4f9a2465a8aa47c1da33d675d2493a596ec1bf342adf8a3c61f9f"
+    },
+    {
+      "mission": 15,
+      "bank": 24,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2015.hdr": "049c95ca300efa49f47f58f4fe517d51a1732fbf6e1abec1f54d68a71cc8aafe",
+        "data/plstx015.dat": "9e3865b7bcc5a42468f768b422b53674f03cd927733225a7dea6826c7a83415c",
+        "data/plspl0-o.dat": "65366509736e6256abd14d3fad4455de9aff87acc4f2a8ed431ce2770e3e1033"
+      },
+      "rgbSha256": "b3fa919779e9f89a7b9ee59ffab8115e6ba106ff9d2d1a064d8759743f12abba",
+      "output": "mission-15.png",
+      "outputSha256": "c911c3ce4596ee8a70dd398ad2dbccfe2c871d36eadd4f02f1aded949207848a"
+    },
+    {
+      "mission": 16,
+      "bank": 21,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2016.hdr": "748693a7571d36053bd45f5ba2a58f4c48e72cc9eaa35325b1257b0079873ef7",
+        "data/plstx016.dat": "d4c8cddc867ea43ed606a84e605f24abdc75a7ae55f2c363647e007833b702e8",
+        "data/plspl0-l.dat": "eaf679dbe8079755e2edef1ec940f1a9637c47185d5bd1de2ce82a75dac995d1"
+      },
+      "rgbSha256": "affeb59ca4a583ccb7faa2a1fdb5299bddc2a854d606ea5ed85199a71ca5075b",
+      "output": "mission-16.png",
+      "outputSha256": "3597b12041b65b9dea82891373acc95a73e9f8be447f8855b5c677cc171662d6"
+    },
+    {
+      "mission": 17,
+      "bank": 12,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2017.hdr": "ec81812dd7d15fd05850f08073eb74bd4819d2ecfe78b43568b761e36c6bafe2",
+        "data/plstx017.dat": "afe93cbf30e12cf79a4d42efd12f7c9dc6befda8bdcd42f532d000c4ab36985f",
+        "data/plspl0-c.dat": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2"
+      },
+      "rgbSha256": "ac9b188c2b8523a745e803c29b0fc55f1977411d8d2e4b3ed6848078b85dbd12",
+      "output": "mission-17.png",
+      "outputSha256": "5f7a13b34fdbebf830d753d3d4832c3f3c954410dc8ba53ed8ad41f8689bd98b"
+    },
+    {
+      "mission": 18,
+      "bank": 16,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2018.hdr": "6ede1c60604d8f0e4f8c959ece873506e8a5882b93c93df12a000061483232c4",
+        "data/plstx018.dat": "85438e3b32bb4bc3807f8747972d41ad6a8bc22eb21593ac9aef48da30967504",
+        "data/plspl0-g.dat": "ba1f1ae7ca7d6cbd907584bc4f486246eb0a970d0869d3107dd3bf79eba90b49"
+      },
+      "rgbSha256": "91c907c2a0517c231b0c7195c6d5623cfe18ba4a2987c8c2dfa55e34c437d318",
+      "output": "mission-18.png",
+      "outputSha256": "5c044d061432bb7fa5fb033fc5a1570250cf5726c83d84d58c9deb120e0d30e6"
+    },
+    {
+      "mission": 19,
+      "bank": 13,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2019.hdr": "72c4982a400702b8e6b05afd2257cb2453a4f3113d493d744db5352925e1661a",
+        "data/plstx019.dat": "cfe337a6123ff91ac0da2b0e8fca92b8350d7edd40b111b6c2981bfa5844b0aa",
+        "data/plspl0-d.dat": "594baf9403a85de1cc8aa2834a4bcf14477d412c5412952db8ef3dc4f3ba3f5a"
+      },
+      "rgbSha256": "34fbd5568d9432dde46fa9050e70b224a12bb0b320239b7daeab68ef3c8656e0",
+      "output": "mission-19.png",
+      "outputSha256": "8e74d5546c79b8d5cf84163b345cb7c35c6678ffbada2451c7990778c7278e8b"
+    },
+    {
+      "mission": 20,
+      "bank": 9,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2020.hdr": "a364fabd0f483570149756f1d7c83f28982faaea410d78f11122e6bfa77b3820",
+        "data/plstx020.dat": "9496bea684b33a39fc7fd1e5aa6aabc3e4ecc97fc57e291218fb5bcba1813d9c",
+        "data/plspl0-9.dat": "d35b3ae18594352c31ea04db3cd4c89354369376acca7fefa9a4e640ffac5292"
+      },
+      "rgbSha256": "846396a9a19804766d20bdb754db5b0699a3b5c2c3b361606461af60fcd4fba9",
+      "output": "mission-20.png",
+      "outputSha256": "09f5b21f2fc9cf2a5006bad0c8ca74e2a42fe220f8a481ac40add0369158e121"
+    },
+    {
+      "mission": 21,
+      "bank": 29,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2021.hdr": "923672226657a361567a1c8c356945c0226e28b0ab1291885c364cf97332a675",
+        "data/plstx021.dat": "2763e2104b7fe0dae350e60555a6e381e91e349dd0577a3d0f6b5bb07769ab31",
+        "data/plspl0-t.dat": "5e2481d460c6fbbd574b72d110c1f27e197d424ab934dde15e831f6370453387"
+      },
+      "rgbSha256": "b41cece78de3d3cc2fdfd6f97882bae8ca1d21a17a8b82b0335e6f1b97c41305",
+      "output": "mission-21.png",
+      "outputSha256": "cc1f7d3a750790e0a172c917027d62df0091f9c5653863cff862542539d602c6"
+    },
+    {
+      "mission": 22,
+      "bank": 4,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2022.hdr": "f3d38acb58ab080e7e18b707d6a9aa1a387d4783de1b3236a4bbbba52d5d4245",
+        "data/plstx022.dat": "c4e43a5a857ddeb7793d39e4d11e7c399fb3082b088d33a839c3fccc9bd9a47d",
+        "data/plspl0-4.dat": "ba964da868cacc0340a2815b07447396723120744dd0c4e06a812aaa87666d03"
+      },
+      "rgbSha256": "71d69e39b30f82e7ef96b9e4220aec2e2f25d0030e9a04f1f01d45183695dc63",
+      "output": "mission-22.png",
+      "outputSha256": "e6097633f9a472f79cfa18afa5f8ddeb1c8265089206e3f553cc46d04aa7fd2a"
+    },
+    {
+      "mission": 23,
+      "bank": 30,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2023.hdr": "d141635a840bb16a4b5e41beec064fd154aead055bbe663710dbcfe417574976",
+        "data/plstx023.dat": "0f8761442cc8cdf02e4cafe4773282b18cb7838e486a809d299f96b8b2248a81",
+        "data/plspl0-u.dat": "4ba5c5d33c308dffeb54c7f4b071d06ebe7ee6b50defe37989f9e4861b5c879e"
+      },
+      "rgbSha256": "9101708ab97cc15ec5d7b930c2f78dc78e7b29d8b1ab26862c09bad84308aa14",
+      "output": "mission-23.png",
+      "outputSha256": "cf96500d85ed2ac3fc84b187af930c3c978e2888982e49e4e94ded41b4584b75"
+    },
+    {
+      "mission": 24,
+      "bank": 23,
+      "width": 128,
+      "height": 128,
+      "sources": {
+        "levels/levl2024.hdr": "50d4b3aaca1e19892802ae14ec0b83d407a6775a28683bd1f99e10fcc9a95662",
+        "data/plstx024.dat": "53140e86eec61891916d2453894efcfb76893092f6b0377220876ad01b2131eb",
+        "data/plspl0-n.dat": "52e184b02bb15decf8f8d6054a48ad26729ad247b97d2d216ecb95e81fa7c228"
+      },
+      "rgbSha256": "604bc058d9850ed23d7c2aa35154b08fb22679d6752f346750edf95f0486dc20",
+      "output": "mission-24.png",
+      "outputSha256": "4bd959a09d8c9fbdb23dd393f781bb95efb6ff2116ec6ba1d7f7c3b6089dc1ec"
+    },
+    {
+      "source": "data/d3d/Sun.png",
+      "output": "sun.png",
+      "sourceSha256": "67d20335b39471fa5c0be3799b8ae36e41ba857d77b5b804201c79c9d905a657",
+      "outputSha256": "67d20335b39471fa5c0be3799b8ae36e41ba857d77b5b804201c79c9d905a657"
+    },
+    {
+      "source": "data/d3d/ring.png",
+      "output": "ring.png",
+      "sourceSha256": "6814e461c75a21d904132087a37eea8045d5d9d69a09f230e0b0ae6b1340245c",
+      "outputSha256": "6814e461c75a21d904132087a37eea8045d5d9d69a09f230e0b0ae6b1340245c"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "scope": "Historical campaign-derived browser-port acquisition with supplied spell-focus setup; subsequent tests are current-runtime checkpoint continuations, not fresh acquisition.",
+  "sourceHead": "c44dadfc91ba5bdca9b97552c84e42ebff63d62f",
+  "sourceObjects": {
+    "app": "43fb8558f1a3fefb5e7fbdf58ef16eed04697fe9",
+    "public": "7c05123a959e5a47d420c9516e4e85b4fa94350a",
+    "package.json": "d7bf5c3f2e69a82ac80ecda568321df62c0caa6d",
+    "package-lock.json": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+  },
+  "producer": "scripts/capture-historical-mission22-balloon.mjs",
+  "producerSha256": "6edf61c07bf150911a4f8ff63564538c81192b7b0bc3be27c4d6155c29681ac9",
+  "historicalSetupPath": "tests/balloon-worship.test.mjs",
+  "historicalSetupSha256": "bbab9463a5933135725477d66965ebb70ab93d7c590ebfb09774716df8486245",
+  "compression": "gzip",
+  "encoding": "node:v8 serialization",
+  "serializedBytes": 1454253,
+  "serializedSha256": "02e304e776c28f4aa8c43c4ef7ec54bcf6c6bdae25df6929e2ec48cbda3f044c",
+  "compressedBytes": 40349,
+  "compressedSha256": "10c0791d73815a927a083cad0a77ffdb9e0c4330e7e675232cb053c647acf1c9",
+  "turn": 2206,
+  "shamanId": 89,
+  "balloonId": 1,
+  "personCounter": 158,
+  "randomState": 4125041181,
+  "allowedSetup": [
+    "Existing spell charging mask only; no actor, terrain, outcome, counter or RNG edits."
+  ],
+  "nativeExecutableExecuted": false
+}

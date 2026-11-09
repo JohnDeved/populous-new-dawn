@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "297f71d8-21b8-40d7-8c5a-31e89f3a1dff",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/seated-tornado.mjs": "f3d06fc9ec708701974aa27b178cf9f602f15394d2f4492c9365dbf853efe640",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m16-clock-route/convoy-continuity.mjs": "9360c1255387c203b4d3e3745eb83386e7bdc0f6ae54f975772c5c33c0b59774",
+      "work/m16-clock-route/convoy-native-consistency.mjs": "7a719ae77afd97a76c7ff56619171ea7ab3873056f497f690c50966d60439c7d",
+      "work/m16-clock-route/shaman-flight-terminal.v8": "7585ea4141b940d88e29932e87eaa79e947b20e01a8bc849b15e0586e04ec119",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m16-clock-route/seated-tornado.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-audit",
+  "startedAt": "2026-10-14T12:23:26.075Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/orchestration/m16-clock-route/seated-tornado.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/orchestration/m16-clock-route/seated-tornado.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T12:23:29.096Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"event\":\"public earned seated Shaman Tornado\",\"turn\":26250,\"target\":{\"id\":281,\"x\":-70.9296875,\"z\":52.9453125},\"party\":{\"boatId\":8830,\"boat\":{\"x\":-75,\"z\":39},\"people\":[{\"id\":115,\"x\":-74.7890625,\"z\":39.1328125,\"vehicle\":8830,\"flight\":false},{\"id\":8286,\"x\":-75.21484375,\"z\":38.87109375,\"vehicle\":8830,\"flight\":false}]}}\n{\"event\":\"actual bounded Angel target lifecycle\",\"turn\":26251,\"angel\":null,\"victim\":null}\n",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Physical continuity for115: 3.0002949887521475 at26252\n    at verifyPhysicalStep (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/convoy-continuity.mjs:9:81)\n    at step (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/seated-tornado.mjs:11:716)\n    at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/seated-tornado.mjs:12:614\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/tests/support/profile-storage.mjs:115:5)\n    at async file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/seated-tornado.mjs:8:1 {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "e61fc1bb71c1df84c15abefb6e1849b31870168c7728b96210e1dc9880a508dd",
+  "stderrSha256": "bd6eda783a400ed586421b4f537cb1cc366712c7df9e99e2a4e261927a139337",
+  "sourceAfter": {
+    "headOid": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/seated-tornado.mjs": "f3d06fc9ec708701974aa27b178cf9f602f15394d2f4492c9365dbf853efe640",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m16-clock-route/convoy-continuity.mjs": "9360c1255387c203b4d3e3745eb83386e7bdc0f6ae54f975772c5c33c0b59774",
+      "work/m16-clock-route/convoy-native-consistency.mjs": "7a719ae77afd97a76c7ff56619171ea7ab3873056f497f690c50966d60439c7d",
+      "work/m16-clock-route/shaman-flight-terminal.v8": "7585ea4141b940d88e29932e87eaa79e947b20e01a8bc849b15e0586e04ec119",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

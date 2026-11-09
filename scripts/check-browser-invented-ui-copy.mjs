@@ -1,3 +1,4 @@
+import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
@@ -68,6 +69,7 @@ try {
         errors.push(message.text())
     })
     await page.goto(url, { waitUntil: 'networkidle' })
+    await openCampaignFromMainMenu(page)
     const start = page.getByRole('dialog', { name: 'Start game' })
     await start.waitFor()
     await start.getByText('Populous: The Beginning', { exact: true }).waitFor()

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d4394366-6e87-4e50-bcd4-bc8e973f94a1",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/yellow-last-hut.mjs": "46c57ab8b9541152036a4bf25f5bfe609af01242641160b190b331a7d021be90",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m16-clock-route/convoy-continuity-mode1.mjs": "1982988f5efbed3bab7378e7ab483e4b7003f5c99d32cbc9c2676b2a4dc8cad4",
+      "work/m16-clock-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m16-clock-route/pilot-reboard-qualified-terminal.v8": "a5891ee2ba5fc750fb92178359f0e281b686b3c329f6be60114c21bf3a19b996",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m16-clock-route/yellow-last-hut.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-audit",
+  "startedAt": "2026-10-14T12:34:16.022Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/orchestration/m16-clock-route/yellow-last-hut.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/orchestration/m16-clock-route/yellow-last-hut.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T12:34:19.066Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ {\n+   code: -1,\n+   message: 'Your shaman must finish her current action.'\n+ }\n- null\n\n    at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/yellow-last-hut.mjs:12:128\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/tests/support/profile-storage.mjs:115:5)\n    at async file:///workspace/scratch/69fd8163d94e/populous-m16-seat-audit/work/m16-clock-route/yellow-last-hut.mjs:8:1 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: { code: -1, message: 'Your shaman must finish her current action.' },\n  expected: null,\n  operator: 'strictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "deca28aae8ea48a1d028e8fa0781bca86eb2e0ee9b7b93a4d9af8564d600f5a9",
+  "sourceAfter": {
+    "headOid": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m16-clock-route/yellow-last-hut.mjs": "46c57ab8b9541152036a4bf25f5bfe609af01242641160b190b331a7d021be90",
+      "work/m16-clock-route/clock-driver.mjs": "c184f2d1278166731a0df6079cb01721b2b6f6fb0f68c5811490b2297e9e8d64",
+      "work/m16-clock-route/convoy-continuity-mode1.mjs": "1982988f5efbed3bab7378e7ab483e4b7003f5c99d32cbc9c2676b2a4dc8cad4",
+      "work/m16-clock-route/convoy-native-consistency-combat.mjs": "7766bd81efa7a2945547d8c08c1fa4108805110a2d11bda645510efe2a8db112",
+      "work/m16-clock-route/pilot-reboard-qualified-terminal.v8": "a5891ee2ba5fc750fb92178359f0e281b686b3c329f6be60114c21bf3a19b996",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

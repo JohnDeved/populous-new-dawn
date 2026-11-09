@@ -1,0 +1,23 @@
+✔ ordinary browser pose publication preserves physical identity, same-cell order and cross-cell linkage (454.727177ms)
+✔ existing flight, combat and vehicle physical owners are never overwritten by browser reconciliation (170.489347ms)
+✔ genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load (3898.514268ms)
+✔ outdoor and building encounter calls match captured original fields, timing, RNG and sound (43.936947ms)
+✔ all playable encounter pairs show the opening strike, physical stagger and defender-centered fight (888.122912ms)
+✔ encounters and their animations stay deterministic across render schedules (546.066106ms)
+✔ the native skip-intro flag and player cancellation do not leave stuck encounters (118.062078ms)
+✔ an encounter releases cleanly when an airborne participant returns to ordinary motion (64.453441ms)
+✔ live fights refresh the first native player alert each object turn (193.48831ms)
+✔ simulation owns quiet, attack and battle music activity across pause and cancellation (56.408524ms)
+✔ reinforcements and new encounters retain the same person and resume ground, building and worship orders (1304.68068ms)
+✔ replacing or killing a reinforcement releases every retained command reference (263.932001ms)
+✔ a displaced fighter retains its queue and a split keeps both followers’ original records (374.066914ms)
+✔ combat interruption and resumed orders preserve simulation and poses across render rates (940.382819ms)
+✔ combat removes a waiting trainee from its physical line while retaining its training order (203.008957ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6264.244762

@@ -1,0 +1,1 @@
+import{readFileSync}from'node:fs';import{deserialize}from'node:v8';import{frame}from'./clock-driver.mjs';const w=deserialize(readFileSync('work/m16-clock-route/yellow-final-terminal.v8'));console.log(JSON.stringify({event:'input',turn:w.turn}));for(let i=0;i<20;i++){frame(w);console.log(JSON.stringify({event:'complete-frame',turn:w.turn}))}

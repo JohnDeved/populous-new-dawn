@@ -1,6 +1,7 @@
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
+import { launchOptions } from './local-render/harness.mjs'
 import { bindGame } from './browser-game.mjs'
 
 const url = process.env.POPULOUS_URL ?? 'http://localhost:3000'
@@ -108,12 +109,20 @@ async function assertPendingFrozen(page, expectedLevel, holdMs = 1200) {
 
   // Real scene camera input is not installed yet.
   await page.keyboard.press('ArrowRight')
-  // The HUD is visibly outside the loading overlay, so its own React actions must also be gated.
+  // The full-screen loading surface owns physical pointer hits over the hidden HUD.
   const buildings = page.getByRole('button', { name: 'buildings B', exact: true })
-  await buildings.click()
+  const box = await buildings.boundingBox()
+  assert.ok(box)
+  const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  assert.equal(await page.evaluate(({ x, y }) => !!document.elementFromPoint(x, y)?.closest('.loading-world'), point), true)
+  await page.mouse.click(point.x, point.y)
+  // Deliberately injected DOM dispatch also checks the retained React readiness guard.
+  await buildings.dispatchEvent('click')
   assert.equal(await buildings.getAttribute('aria-pressed'), 'false')
-  // The native minimap pointer listener is likewise inactive until readiness.
-  await page.getByLabel('Minimap. Click to move the camera.').click({ position: { x: 50, y: 48 } })
+  // Real pointer input over the native minimap remains intercepted until readiness.
+  const map = await page.getByLabel('Minimap. Click to move the camera.').boundingBox()
+  assert.ok(map)
+  await page.mouse.click(map.x + 50, map.y + 48)
   await page.waitForTimeout(holdMs)
 
   const after = await snapshot(page)
@@ -209,7 +218,7 @@ async function runRequiredTextureRetryCase(browser, target) {
   assert.equal(control.count(target), 1)
   assert.equal(control.count(other), 1)
   hold.fail()
-  await page.getByRole('heading', { name: 'The world could not awaken' }).waitFor()
+  await page.getByRole('heading', { name: 'Loading failed' }).waitFor()
   await bindStoreOnly(page)
   assert.equal(await page.evaluate(() => globalThis.loadingTestStore.getWorld().outcome.level), 1)
 
@@ -230,7 +239,8 @@ async function runRequiredTextureRetryCase(browser, target) {
   // atlas cache entries without touching the network again.
   const warmCounts = control.snapshot()
   await page.getByRole('button', { name: 'Game settings' }).click()
-  await page.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
   await page.locator('.loading-world').waitFor({ state: 'detached' })
   await bindGame(page)
   assert.deepEqual(control.snapshot(), warmCounts, { target, warmCounts, now: control.snapshot() })
@@ -315,7 +325,7 @@ async function finishHeldLoad(page, hold, frozen, expectedLevel) {
   return ready
 }
 
-const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+const browser = await chromium.launch({ ...launchOptions(process.env.POPULOUS_BROWSER), headless: !process.argv.includes('--headed') })
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
   const page = await context.newPage()
@@ -374,7 +384,8 @@ try {
   // Restart is a normal entry path and gets exactly the same dormant-before-ready lifecycle.
   await page.getByRole('button', { name: 'Game settings' }).click()
   hold = beginHold()
-  await page.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
   await waitForCount(() => hold.count, 2)
   const restarted = await assertPendingFrozen(page, 1, 300)
   assert.equal(restarted.paused, false)
@@ -402,7 +413,8 @@ try {
   // A stale pending restart must abort/dispose without ever installing input or RAF.
   await page.getByRole('button', { name: 'Game settings' }).click()
   hold = beginHold()
-  await page.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
+  await page.getByRole('button', { name: 'Yes', exact: true }).click()
   await waitForCount(() => hold.count, 2)
   await bindInternals(page)
   await page.evaluate(() => { globalThis.staleLoadingScene = globalThis.loadingTestScene })
@@ -427,7 +439,7 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   failLandscape = true
   await selectMission(page, 3)
-  await page.getByRole('heading', { name: 'The world could not awaken' }).waitFor()
+  await page.getByRole('heading', { name: 'Loading failed' }).waitFor()
   await bindStoreOnly(page)
   assert.equal(await page.evaluate(() => globalThis.loadingTestStore.getWorld().outcome.level), 3)
   await page.getByRole('button', { name: 'Try again' }).click()
@@ -475,7 +487,7 @@ try {
   await loadUnpaused.waitFor()
   await loadUnpaused.focus()
   await page.keyboard.press('Enter')
-  await page.getByRole('heading', { name: 'The world could not awaken' }).waitFor()
+  await page.getByRole('heading', { name: 'Loading failed' }).waitFor()
   await bindStoreOnly(page)
   const failedCheckpoint = await page.evaluate(() => {
     const world = globalThis.loadingTestStore.getWorld()

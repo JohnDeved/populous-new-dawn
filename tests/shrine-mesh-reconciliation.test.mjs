@@ -1,0 +1,487 @@
+// Actual shrine factories/frame/transforms/resources in a Node Scene fixture.
+// Authored templates and controlled transitions; no ordinary/browser/native claim.
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import * as THREE from 'three'
+import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+import { makeShrineScene } from './support/shrine-scene.mjs'
+
+const models = JSON.parse(readFileSync(new URL('../app/original-models.json', import.meta.url)))
+
+async function worldWithShrines(count) {
+  const api = await loadSceneFixture(),
+    world = api.createWorld(22),
+    template = world.shrines.find(s => s.kind === 'inert' && s.model === 8)
+  assert.ok(template, 'authored Mission22 mode3 Obelisk must supply the quiet template')
+  world.shrines = Array.from({ length: count }, () => ({
+    ...structuredClone(template),
+    id: world.nextId++,
+  }))
+  return { api, world }
+}
+
+function observeCleanup(scene) {
+  const events = [],
+    remove = scene.objects.remove.bind(scene.objects),
+    release = scene.releaseGroup,
+    drop = scene.shrineMeshes.delete.bind(scene.shrineMeshes)
+  scene.objects.remove = group => {
+    events.push(['remove', group.userData.shrine])
+    return remove(group)
+  }
+  scene.releaseGroup = group => {
+    events.push(['release', group.userData.shrine])
+    release(group)
+  }
+  scene.shrineMeshes.delete = id => {
+    events.push(['delete', id])
+    return drop(id)
+  }
+  return events
+}
+
+test('shrine cleanup preserves model truthiness, ordered owned disposal, survivors, spawning and pose', async () => {
+  const { world } = await worldWithShrines(5),
+    [a, b, c, d, hidden] = world.shrines
+  hidden.model = 0
+  const beforeConstruction = structuredClone(world),
+    fixture = await makeShrineScene(world)
+  let atlas, onAtlasDispose
+  try {
+    assert.equal(fixture.scene.shrineMeshes.has(hidden.id), false)
+    fixture.render()
+    assert.deepEqual(world, beforeConstruction)
+    const original = new Map(fixture.scene.shrineMeshes),
+      events = observeCleanup(fixture.scene),
+      disposed = []
+    atlas = original.get(a.id).g.children[0].material.map
+    let atlasDisposals = 0
+    onAtlasDispose = () => atlasDisposals++
+    atlas.addEventListener('dispose', onAtlasDispose)
+    for (const s of [b, d]) {
+      const mesh = original.get(s.id).g.children[0]
+      assert.equal(mesh.material.map, atlas)
+      mesh.geometry.addEventListener('dispose', () => disposed.push(`${s.id}:geometry`))
+      mesh.material.addEventListener('dispose', () => disposed.push(`${s.id}:material`))
+    }
+    b.model = 0
+    a.active = false // Active visibility is deliberately separate from eligibility.
+    const spawned = { ...structuredClone(c), id: world.nextId++, x: c.x + 2, angle: Math.PI / 2 }
+    world.shrines = [c, a, b, hidden, spawned]
+    const before = structuredClone(world)
+    fixture.render()
+    assert.deepEqual(
+      events,
+      [b, d].flatMap(s => [
+        ['remove', s.id],
+        ['release', s.id],
+        ['delete', s.id],
+      ])
+    )
+    assert.deepEqual(disposed, [
+      `${b.id}:geometry`,
+      `${b.id}:material`,
+      `${d.id}:geometry`,
+      `${d.id}:material`,
+    ])
+    assert.equal(atlasDisposals, 0)
+    for (const s of [a, c]) assert.equal(fixture.scene.shrineMeshes.get(s.id), original.get(s.id))
+    assert.equal(original.get(a.id).g.visible, false)
+    assert.deepEqual([...fixture.scene.shrineMeshes.keys()], [a.id, c.id, spawned.id])
+    for (const s of [b, d]) assert.equal(original.get(s.id).g.parent, null)
+    const { g } = fixture.scene.shrineMeshes.get(spawned.id)
+    assert.equal(g.parent, fixture.scene.objects)
+    assert.deepEqual(g.position.toArray(), [
+      spawned.x,
+      Math.round(fixture.scene.y(spawned) * 45) / 128,
+      spawned.z,
+    ])
+    assert.equal(g.rotation.y, -spawned.angle)
+    assert.equal(g.userData.nativeHeading, 512)
+    assert.deepEqual(world, before)
+    events.length = 0
+    fixture.render()
+    assert.deepEqual(events, [])
+    assert.equal(disposed.length, 4)
+    hidden.model = 8
+    const revealed = structuredClone(world)
+    fixture.render()
+    assert.ok(
+      fixture.scene.shrineMeshes.has(hidden.id),
+      'in-place truthiness transition is observed'
+    )
+    assert.deepEqual(world, revealed)
+  } finally {
+    if (onAtlasDispose) atlas.removeEventListener('dispose', onAtlasDispose)
+    fixture.close()
+  }
+})
+
+test('authored HFX Vault cleanup releases marker before model while shared atlases survive and visibility stays separate', async () => {
+  for (const [mission, reward] of [
+    [1, 'camp'],
+    [3, 'temple'],
+  ]) {
+    const api = await loadSceneFixture(),
+      world = api.createWorld(mission),
+      vault = world.shrines.find(s => s.kind === 'vault' && s.reward === reward)
+    assert.ok(vault?.knowledgeGlow)
+    world.shrines = [vault]
+    const fixture = await makeShrineScene(world)
+    const maps = new Set()
+    let onAtlasDispose
+    try {
+      const before = structuredClone(world)
+      fixture.render()
+      const entry = fixture.scene.shrineMeshes.get(vault.id),
+        model = entry.g.children[0],
+        marker = entry.g.userData.vaultKnowledgeMarker,
+        body = marker.children[0],
+        halo = marker.userData.glow.children[0]
+      assert.equal(marker.userData.resourceFamily, 'hfx')
+      assert.equal(marker.parent, fixture.scene.objects)
+      assert.equal(body.material.map, halo.material.map)
+      const bodyUV = body.userData.atlasTransform.toArray(),
+        haloUV = halo.userData.atlasTransform.toArray()
+      assert.deepEqual(world, before, 'owned Vault cursor is already initialized by createWorld')
+      fixture.render()
+      assert.equal(fixture.scene.shrineMeshes.get(vault.id), entry)
+      assert.equal(entry.g.userData.vaultKnowledgeMarker, marker)
+      assert.deepEqual(body.userData.atlasTransform.toArray(), bodyUV)
+      assert.deepEqual(halo.userData.atlasTransform.toArray(), haloUV)
+      vault.active = false
+      fixture.render()
+      assert.equal(fixture.scene.shrineMeshes.get(vault.id), entry)
+      assert.equal(entry.g.visible, true)
+      assert.equal(marker.visible, false)
+      const events = [],
+        remove = fixture.scene.objects.remove.bind(fixture.scene.objects),
+        release = fixture.scene.releaseGroup,
+        drop = fixture.scene.shrineMeshes.delete.bind(fixture.scene.shrineMeshes)
+      const label = group => (group === marker ? 'marker' : group === entry.g ? 'model' : 'other')
+      fixture.scene.objects.remove = group => {
+        events.push(['remove', label(group)])
+        return remove(group)
+      }
+      fixture.scene.releaseGroup = group => {
+        events.push(['release', label(group)])
+        release(group)
+      }
+      fixture.scene.shrineMeshes.delete = id => {
+        events.push(['delete', id])
+        return drop(id)
+      }
+      const disposals = []
+      model.geometry.addEventListener('dispose', () => disposals.push('geometry'))
+      model.material.addEventListener('dispose', () => disposals.push('model'))
+      body.material.addEventListener('dispose', () => disposals.push('body'))
+      halo.material.addEventListener('dispose', () => disposals.push('halo'))
+      let atlasDisposals = 0
+      onAtlasDispose = () => atlasDisposals++
+      for (const map of [model.material.map, body.material.map]) {
+        maps.add(map)
+        map.addEventListener('dispose', onAtlasDispose)
+      }
+      vault.model = 0
+      const removed = structuredClone(world)
+      fixture.render()
+      assert.deepEqual(events, [
+        ['remove', 'marker'],
+        ['release', 'marker'],
+        ['remove', 'model'],
+        ['release', 'model'],
+        ['delete', vault.id],
+      ])
+      assert.deepEqual(disposals, ['body', 'halo', 'geometry', 'model'])
+      assert.equal(atlasDisposals, 0)
+      assert.equal(marker.parent, null)
+      assert.equal(entry.g.parent, null)
+      assert.equal(fixture.scene.objects.children.length, 0)
+      assert.deepEqual(world, removed)
+      events.length = 0
+      fixture.render()
+      assert.deepEqual(events, [])
+      assert.equal(disposals.length, 4)
+      vault.model = 154
+      fixture.render()
+      const rebuilt = fixture.scene.shrineMeshes.get(vault.id)
+      assert.notEqual(rebuilt, entry)
+      assert.notEqual(rebuilt.g.userData.vaultKnowledgeMarker, marker)
+      assert.equal(
+        rebuilt.g.userData.vaultKnowledgeMarker.children[0].material.map,
+        body.material.map
+      )
+      assert.equal(atlasDisposals, 0)
+    } finally {
+      if (onAtlasDispose) for (const map of maps) map.removeEventListener('dispose', onAtlasDispose)
+      fixture.close()
+    }
+  }
+})
+
+test('Vault opening model replacement and morph geometry retain marker and non-advancing frame caches', async () => {
+  const api = await loadSceneFixture(),
+    { morphCoordinate } = await import('../app/morph.ts'),
+    world = api.createWorld(1),
+    vault = world.shrines.find(s => s.kind === 'vault' && s.reward === 'camp')
+  world.shrines = [vault]
+  const fixture = await makeShrineScene(world)
+  try {
+    fixture.render()
+    const entry = fixture.scene.shrineMeshes.get(vault.id),
+      first = entry.g.children[0],
+      marker = entry.g.userData.vaultKnowledgeMarker
+    let geometryDisposals = 0,
+      materialDisposals = 0
+    first.geometry.addEventListener('dispose', () => geometryDisposals++)
+    first.material.addEventListener('dispose', () => materialDisposals++)
+    // Exact opening descriptor assigned by app/vault.ts; controlled renderer state,
+    // not a claim that this fixture performs player approach/admission/prayer.
+    vault.model = 152
+    vault.morph = { from: 154, to: 153, started: world.turn, duration: 40 }
+    let mesh
+    for (const frame of [1, 20, 40]) {
+      world.turn = vault.morph.started + frame - 1
+      const before = structuredClone(world)
+      fixture.render()
+      const current = entry.g.children[0]
+      if (mesh) assert.equal(current, mesh)
+      mesh = current
+      assert.equal(fixture.scene.shrineMeshes.get(vault.id), entry)
+      assert.equal(entry.g.userData.vaultKnowledgeMarker, marker)
+      assert.equal(mesh.userData.nativeModel, 152)
+      assert.equal(mesh.userData.morphFrame, frame)
+      const scale = models[154].scale * 3,
+        expected = new Float32Array(mesh.geometry.getAttribute('position').array.length)
+      for (let i = 0; i < expected.length; i++)
+        expected[i] =
+          morphCoordinate(
+            Math.round(models[154].p[i] * scale),
+            Math.round(models[153].p[i] * scale),
+            frame,
+            40
+          ) / scale
+      const positions = mesh.geometry.getAttribute('position')
+      assert.deepEqual(positions.array, expected)
+      const version = positions.version
+      fixture.render()
+      assert.equal(mesh.geometry.getAttribute('position'), positions)
+      assert.equal(positions.version, version)
+      assert.equal(geometryDisposals, 1)
+      assert.equal(materialDisposals, 1)
+      assert.equal(first.parent, null)
+      assert.deepEqual(world, before)
+    }
+    vault.model = 153
+    vault.morph = null
+    const opened = structuredClone(world)
+    fixture.render()
+    assert.equal(fixture.scene.shrineMeshes.get(vault.id), entry)
+    assert.notEqual(entry.g.children[0], mesh)
+    assert.equal(entry.g.children[0].userData.nativeModel, 153)
+    assert.equal(entry.g.userData.vaultKnowledgeMarker, marker)
+    assert.deepEqual(world, opened)
+  } finally {
+    fixture.close()
+  }
+})
+
+test('shrine membership observes migrated NaN IDs, in-place IDs, loaded/empty worlds and independent Scenes', async () => {
+  const { api, world } = await worldWithShrines(2)
+  world.shrines[0].id = NaN
+  const restored = api.migrateCheckpoint(structuredClone(world))
+  assert.ok(restored)
+  assert.ok(Number.isNaN(restored.shrines[0].id))
+  const before = structuredClone(restored),
+    fixture = await makeShrineScene(restored)
+  let other
+  try {
+    fixture.render()
+    let previous = fixture.scene.shrineMeshes.get(NaN)
+    const survivor = fixture.scene.shrineMeshes.get(restored.shrines[1].id)
+    for (let frame = 0; frame < 3; frame++) {
+      let disposals = 0
+      previous.g.children[0].geometry.addEventListener('dispose', () => disposals++)
+      fixture.render()
+      const replacement = fixture.scene.shrineMeshes.get(NaN)
+      assert.notEqual(replacement, previous)
+      assert.equal(previous.g.parent, null)
+      assert.equal(disposals, 1)
+      assert.equal(fixture.scene.shrineMeshes.get(restored.shrines[1].id), survivor)
+      assert.deepEqual(restored, before)
+      previous = replacement
+    }
+    restored.shrines = [restored.shrines[1]]
+    const oldId = restored.shrines[0].id
+    restored.shrines[0].id = restored.nextId++
+    fixture.render()
+    assert.equal(fixture.scene.shrineMeshes.has(oldId), false)
+    assert.equal(survivor.g.parent, null)
+    const loaded = api.migrateCheckpoint(structuredClone(restored)),
+      loadedBefore = structuredClone(loaded),
+      cached = fixture.scene.shrineMeshes.get(loaded.shrines[0].id)
+    fixture.scene.world = loaded
+    fixture.render()
+    assert.equal(fixture.scene.shrineMeshes.get(loaded.shrines[0].id), cached)
+    other = await makeShrineScene(loaded)
+    other.render()
+    const independent = other.scene.shrineMeshes.get(loaded.shrines[0].id)
+    assert.notEqual(independent, cached)
+    fixture.scene.world = { ...loaded, shrines: [] }
+    fixture.render()
+    assert.equal(fixture.scene.shrineMeshes.size, 0)
+    assert.equal(fixture.scene.objects.children.length, 0)
+    other.render()
+    assert.equal(other.scene.shrineMeshes.get(loaded.shrines[0].id), independent)
+    fixture.scene.world = loaded
+    fixture.render()
+    assert.deepEqual(loaded, loadedBefore)
+  } finally {
+    other?.close()
+    fixture.close()
+  }
+})
+
+test('authored45 and149 geometry and saved frames remain unchanged while legacy initialization stays owned', async () => {
+  const api = await loadSceneFixture(),
+    { stoneHead149Model } = await import('../app/stone-head-149.ts'),
+    { initializeStoneHead, stoneHeadFrame, stoneHeadPositions, stepStoneHeadAnimation } =
+      await import('../app/stone-head-animation.ts')
+  for (const mission of [1, 3]) {
+    const world = api.createWorld(mission),
+      head =
+        mission === 1
+          ? world.shrines.find(s => s.kind === 'bridge')
+          : world.shrines.find(s => stoneHead149Model(s, mission) === 149)
+    assert.ok(head)
+    world.shrines = [head]
+    const fixture = await makeShrineScene(world)
+    try {
+      const before = structuredClone(world)
+      fixture.render()
+      const entry = fixture.scene.shrineMeshes.get(head.id),
+        mesh = entry.g.children[0],
+        geometry = mesh.geometry,
+        expectedModel = mission === 1 ? 45 : 149
+      assert.equal(mesh.userData.nativeModel, expectedModel)
+      assert.deepEqual(world, before)
+      if (mission === 1) {
+        // Maintained owned animation visit; caller consumes it without another visit.
+        stepStoneHeadAnimation(head.stoneHead, head.enabled, world.turn)
+        const advanced = structuredClone(world)
+        fixture.render()
+        assert.equal(fixture.scene.shrineMeshes.get(head.id), entry)
+        assert.equal(mesh.geometry, geometry)
+        assert.equal(mesh.userData.stoneHeadFrame, stoneHeadFrame(head.stoneHead))
+        assert.deepEqual(
+          geometry.getAttribute('position').array,
+          stoneHeadPositions(stoneHeadFrame(head.stoneHead))
+        )
+        assert.deepEqual(world, advanced)
+      }
+      const positions = [...geometry.getAttribute('position').array],
+        version = geometry.getAttribute('position').version,
+        saved = api.migrateCheckpoint(structuredClone(world)),
+        loadedBefore = structuredClone(saved)
+      fixture.scene.world = saved
+      fixture.render()
+      assert.equal(fixture.scene.shrineMeshes.get(head.id), entry)
+      assert.equal(entry.g.children[0], mesh)
+      assert.equal(mesh.geometry, geometry)
+      assert.deepEqual([...geometry.getAttribute('position').array], positions)
+      assert.equal(geometry.getAttribute('position').version, version)
+      assert.deepEqual(saved, loadedBefore)
+      // Diagnostic old record: compare the legitimate initializer write explicitly.
+      const legacy = structuredClone(saved)
+      delete legacy.shrines[0].stoneHead
+      const expected = structuredClone(legacy)
+      initializeStoneHead(expected.shrines[0], mission)
+      fixture.scene.world = legacy
+      fixture.render()
+      assert.deepEqual(
+        legacy,
+        expected,
+        'only the maintained lazy initialization may change this old record'
+      )
+      const initialized = structuredClone(legacy)
+      fixture.render()
+      assert.deepEqual(legacy, initialized)
+      assert.equal(fixture.scene.shrineMeshes.get(head.id), entry)
+      assert.equal(entry.g.children[0].userData.nativeModel, expectedModel)
+    } finally {
+      fixture.close()
+    }
+  }
+})
+
+test('initialized shrine-only membership has linear full-caller ID reads with equally many stale groups', async () => {
+  const counts = []
+  for (const count of [64, 256, 1024]) {
+    const { world } = await worldWithShrines(count),
+      fixture = await makeShrineScene(world)
+    try {
+      fixture.render()
+      assert.ok(
+        world.shrines.every(s => s.model === 8 && !s.stoneHead && !s.morph && !s.knowledgeGlow)
+      )
+      assert.ok(
+        [...fixture.scene.shrineMeshes.values()].every(({ g }) => !g.userData.vaultKnowledgeMarker)
+      )
+      let reads = 0
+      for (const s of world.shrines) {
+        const id = s.id
+        Object.defineProperty(s, 'id', {
+          enumerable: true,
+          configurable: true,
+          get: () => {
+            reads++
+            return id
+          },
+        })
+      }
+      const ids = [...fixture.scene.shrineMeshes.keys()],
+        frozenCleanup = meshIds => {
+          for (const id of meshIds) world.shrines.some(s => s.id === id && s.model)
+        }
+      frozenCleanup(ids)
+      const oldSurvivors = reads
+      reads = 0
+      fixture.render()
+      const currentSurvivors = reads
+      assert.ok(
+        currentSurvivors <= count * 4,
+        `initialized shrine-only full caller read ${currentSurvivors} IDs for ${count} shrines`
+      )
+      const staleIds = Array.from({ length: count }, (_, index) => world.nextId + index + 1)
+      reads = 0
+      frozenCleanup([...ids, ...staleIds])
+      const oldMixed = reads
+      for (const id of staleIds) {
+        const g = new THREE.Group()
+        g.userData.shrine = id
+        fixture.scene.shrineMeshes.set(id, { g })
+        fixture.scene.objects.add(g)
+      }
+      reads = 0
+      fixture.render()
+      const currentMixed = reads
+      assert.ok(
+        currentMixed <= count * 4,
+        `mixed shrine-only full caller read ${currentMixed} IDs for ${count} shrines`
+      )
+      assert.equal(fixture.scene.shrineMeshes.size, count)
+      counts.push({ shrines: count, oldSurvivors, currentSurvivors, oldMixed, currentMixed })
+    } finally {
+      fixture.close()
+    }
+  }
+  for (let i = 1; i < counts.length; i++) {
+    assert.equal(counts[i].currentSurvivors, counts[i - 1].currentSurvivors * 4)
+    assert.equal(counts[i].currentMixed, counts[i - 1].currentMixed * 4)
+  }
+  console.log(
+    'Initialized shrine-only ID-read diagnostic (frozen old cleanup vs actual full caller):',
+    JSON.stringify(counts)
+  )
+})

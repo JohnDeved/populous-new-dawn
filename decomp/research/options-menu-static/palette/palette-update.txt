@@ -1,0 +1,47 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004b6320 <.text+0xb5320>:
+  4b6320:	83 ec 04             	sub    esp,0x4
+  4b6323:	68 78 43 5d 00       	push   0x5d4378
+  4b6328:	e8 a3 11 fa ff       	call   0x4574d0
+  4b632d:	83 c4 04             	add    esp,0x4
+  4b6330:	a1 f8 ef 87 00       	mov    eax,ds:0x87eff8
+  4b6335:	8b 0d f4 c2 af 00    	mov    ecx,DWORD PTR ds:0xafc2f4
+  4b633b:	50                   	push   eax
+  4b633c:	e8 7f a6 06 00       	call   0x5209c0
+  4b6341:	85 c0                	test   eax,eax
+  4b6343:	75 1d                	jne    0x4b6362
+  4b6345:	a1 f4 c2 af 00       	mov    eax,ds:0xafc2f4
+  4b634a:	8b 15 f8 ef 87 00    	mov    edx,DWORD PTR ds:0x87eff8
+  4b6350:	8b 88 a0 1d 00 00    	mov    ecx,DWORD PTR [eax+0x1da0]
+  4b6356:	51                   	push   ecx
+  4b6357:	52                   	push   edx
+  4b6358:	b9 68 c8 9b 00       	mov    ecx,0x9bc868
+  4b635d:	e8 1e 9a f7 ff       	call   0x42fd80
+  4b6362:	83 3d e4 e0 5c 00 00 	cmp    DWORD PTR ds:0x5ce0e4,0x0
+  4b6369:	74 5a                	je     0x4b63c5
+  4b636b:	68 30 3d 5d 00       	push   0x5d3d30
+  4b6370:	e8 5b 11 fa ff       	call   0x4574d0
+  4b6375:	83 c4 04             	add    esp,0x4
+  4b6378:	b9 f8 c7 9b 00       	mov    ecx,0x9bc7f8
+  4b637d:	e8 be 36 05 00       	call   0x509a40
+  4b6382:	b9 88 c7 9b 00       	mov    ecx,0x9bc788
+  4b6387:	e8 b4 36 05 00       	call   0x509a40
+  4b638c:	b9 18 c7 9b 00       	mov    ecx,0x9bc718
+  4b6391:	e8 aa 36 05 00       	call   0x509a40
+  4b6396:	c7 05 e4 e0 5c 00 00 	mov    DWORD PTR ds:0x5ce0e4,0x0
+  4b639d:	00 00 00 
+  4b63a0:	68 30 3d 5d 00       	push   0x5d3d30
+  4b63a5:	e8 26 11 fa ff       	call   0x4574d0
+  4b63aa:	83 c4 04             	add    esp,0x4
+  4b63ad:	a1 a4 dc 5d 00       	mov    eax,ds:0x5ddca4
+  4b63b2:	68 00 02 00 00       	push   0x200
+  4b63b7:	68 00 02 00 00       	push   0x200
+  4b63bc:	50                   	push   eax
+  4b63bd:	e8                   	.byte 0xe8
+  4b63be:	0e                   	push   cs
+  4b63bf:	fd                   	std

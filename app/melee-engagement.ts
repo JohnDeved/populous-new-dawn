@@ -60,7 +60,7 @@ export function engagementRange(
 
 // 0x51e5e0/0x51eab0 scan a wrapped square of whole 512-unit terrain cells.
 // A range of one checks the current cell, including its far corner.
-const cellDelta = (a: number, b: number) =>
+export const engagementCellDelta = (a: number, b: number) =>
   ((((a >>> 8) & 254) - ((b >>> 8) & 254) + 128) & 255) - 128
 
 export function inEngagementArea(
@@ -71,8 +71,8 @@ export function inEngagementArea(
   if (!range) return false
   const radius = Math.trunc(range / 2) * 2
   return (
-    Math.abs(cellDelta(source.x, target.x)) <= radius &&
-    Math.abs(cellDelta(source.y, target.y)) <= radius
+    Math.abs(engagementCellDelta(source.x, target.x)) <= radius &&
+    Math.abs(engagementCellDelta(source.y, target.y)) <= radius
   )
 }
 

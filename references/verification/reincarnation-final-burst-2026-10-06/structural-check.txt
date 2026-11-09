@@ -1,0 +1,40 @@
+Source-only validation, 2026-10-06 UTC.
+Source HEAD: 1c7e6b05687aca14d9350e17c7ae14dc6c68bb97.
+Scope: the research note, index links and static packet were uncommitted;
+all 21 manifest source inputs were checked byte-for-byte against this HEAD.
+
+Command: python3 - (stdin below)
+Exit: 0
+
+from pathlib import Path
+import hashlib,json,re,subprocess
+root=Path.cwd();packet=root/'references/verification/reincarnation-final-burst-2026-10-06';m=json.loads((packet/'manifest.json').read_text())
+sha=lambda b:hashlib.sha256(b).hexdigest()
+assert m['inspectedMain']==subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+for path,expected in m['sources'].items():
+ actual=(root/path).read_bytes();assert sha(actual)==expected,path
+ assert actual==subprocess.check_output(['git','show',m['inspectedMain']+':'+path]),path
+assert sha((packet/'native-static.txt').read_bytes())==m['nativeStaticSha256']
+assert sha((packet/'extract-static.py').read_bytes())==m['extractorSha256']
+index=json.loads((root/'engineering/project-map.json').read_text())
+for path in [root/'decomp/research/reincarnation-final-burst.md',packet/'README.md']:
+ for target in re.findall(r'\]\(([^)]+)\)',path.read_text()):
+  if '://' not in target:
+   assert (path.parent/target.split('#',1)[0]).exists(),(path,target)
+for path in [root/'decomp/research/reincarnation-final-burst.md',*packet.iterdir()]:
+ if path.is_file():
+  for n,line in enumerate(path.read_text().splitlines(),1):assert line.rstrip()==line,(path,n)
+print('PASS: project-map JSON, relative documentation links, and whitespace')
+print('PASS: all 21 source hashes equal inspected main '+m['inspectedMain'])
+print('PASS: static disassembly and extractor hashes match retained manifest')
+print('NOT-RUN: native/app/browser/npm/build/performance; source-only assignment')
+
+Stdout:
+PASS: project-map JSON, relative documentation links, and whitespace
+PASS: all 21 source hashes equal inspected main 1c7e6b05687aca14d9350e17c7ae14dc6c68bb97
+PASS: static disassembly and extractor hashes match retained manifest
+NOT-RUN: native/app/browser/npm/build/performance; source-only assignment
+
+Command: git diff --check
+Exit: 0
+Stdout: empty

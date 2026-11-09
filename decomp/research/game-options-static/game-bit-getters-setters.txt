@@ -1,0 +1,139 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004999a0 <.text+0x989a0>:
+  4999a0:	a1 a8 5d 89 00       	mov    eax,ds:0x895da8
+  4999a5:	25 00 00 20 00       	and    eax,0x200000
+  4999aa:	c3                   	ret
+  4999ab:	cc                   	int3
+  4999ac:	cc                   	int3
+  4999ad:	cc                   	int3
+  4999ae:	cc                   	int3
+  4999af:	cc                   	int3
+  4999b0:	81 0d a8 5d 89 00 00 	or     DWORD PTR ds:0x895da8,0x200000
+  4999b7:	00 20 00 
+  4999ba:	c3                   	ret
+  4999bb:	cc                   	int3
+  4999bc:	cc                   	int3
+  4999bd:	cc                   	int3
+  4999be:	cc                   	int3
+  4999bf:	cc                   	int3
+  4999c0:	81 25 a8 5d 89 00 ff 	and    DWORD PTR ds:0x895da8,0xffdfffff
+  4999c7:	ff df ff 
+  4999ca:	c3                   	ret
+  4999cb:	cc                   	int3
+  4999cc:	cc                   	int3
+  4999cd:	cc                   	int3
+  4999ce:	cc                   	int3
+  4999cf:	cc                   	int3
+  4999d0:	a1 a8 5d 89 00       	mov    eax,ds:0x895da8
+  4999d5:	25 00 00 10 00       	and    eax,0x100000
+  4999da:	83 f8 01             	cmp    eax,0x1
+  4999dd:	1b c0                	sbb    eax,eax
+  4999df:	f7 d8                	neg    eax
+  4999e1:	c3                   	ret
+  4999e2:	cc                   	int3
+  4999e3:	cc                   	int3
+  4999e4:	cc                   	int3
+  4999e5:	cc                   	int3
+  4999e6:	cc                   	int3
+  4999e7:	cc                   	int3
+  4999e8:	cc                   	int3
+  4999e9:	cc                   	int3
+  4999ea:	cc                   	int3
+  4999eb:	cc                   	int3
+  4999ec:	cc                   	int3
+  4999ed:	cc                   	int3
+  4999ee:	cc                   	int3
+  4999ef:	cc                   	int3
+  4999f0:	81 25 a8 5d 89 00 ff 	and    DWORD PTR ds:0x895da8,0xffefffff
+  4999f7:	ff ef ff 
+  4999fa:	c3                   	ret
+  4999fb:	cc                   	int3
+  4999fc:	cc                   	int3
+  4999fd:	cc                   	int3
+  4999fe:	cc                   	int3
+  4999ff:	cc                   	int3
+  499a00:	81 0d a8 5d 89 00 00 	or     DWORD PTR ds:0x895da8,0x100000
+  499a07:	00 10 00 
+  499a0a:	c3                   	ret
+  499a0b:	cc                   	int3
+  499a0c:	cc                   	int3
+  499a0d:	cc                   	int3
+  499a0e:	cc                   	int3
+  499a0f:	cc                   	int3
+  499a10:	a1 a8 5d 89 00       	mov    eax,ds:0x895da8
+  499a15:	25 00 00 08 00       	and    eax,0x80000
+  499a1a:	c3                   	ret
+  499a1b:	cc                   	int3
+  499a1c:	cc                   	int3
+  499a1d:	cc                   	int3
+  499a1e:	cc                   	int3
+  499a1f:	cc                   	int3
+  499a20:	81 0d a8 5d 89 00 00 	or     DWORD PTR ds:0x895da8,0x80000
+  499a27:	00 08 00 
+  499a2a:	c3                   	ret
+  499a2b:	cc                   	int3
+  499a2c:	cc                   	int3
+  499a2d:	cc                   	int3
+  499a2e:	cc                   	int3
+  499a2f:	cc                   	int3
+  499a30:	81 25 a8 5d 89 00 ff 	and    DWORD PTR ds:0x895da8,0xfff7ffff
+  499a37:	ff f7 ff 
+  499a3a:	c3                   	ret
+  499a3b:	cc                   	int3
+  499a3c:	cc                   	int3
+  499a3d:	cc                   	int3
+  499a3e:	cc                   	int3
+  499a3f:	cc                   	int3
+  499a40:	a1 a8 5d 89 00       	mov    eax,ds:0x895da8
+  499a45:	25 00 00 04 00       	and    eax,0x40000
+  499a4a:	c3                   	ret
+  499a4b:	cc                   	int3
+  499a4c:	cc                   	int3
+  499a4d:	cc                   	int3
+  499a4e:	cc                   	int3
+  499a4f:	cc                   	int3
+  499a50:	81 0d a8 5d 89 00 00 	or     DWORD PTR ds:0x895da8,0x40000
+  499a57:	00 04 00 
+  499a5a:	c3                   	ret
+  499a5b:	cc                   	int3
+  499a5c:	cc                   	int3
+  499a5d:	cc                   	int3
+  499a5e:	cc                   	int3
+  499a5f:	cc                   	int3
+  499a60:	81 25 a8 5d 89 00 ff 	and    DWORD PTR ds:0x895da8,0xfffbffff
+  499a67:	ff fb ff 
+  499a6a:	c3                   	ret
+  499a6b:	cc                   	int3
+  499a6c:	cc                   	int3
+  499a6d:	cc                   	int3
+  499a6e:	cc                   	int3
+  499a6f:	cc                   	int3
+  499a70:	a1 a8 5d 89 00       	mov    eax,ds:0x895da8
+  499a75:	25 00 00 02 00       	and    eax,0x20000
+  499a7a:	c3                   	ret
+  499a7b:	cc                   	int3
+  499a7c:	cc                   	int3
+  499a7d:	cc                   	int3
+  499a7e:	cc                   	int3
+  499a7f:	cc                   	int3
+  499a80:	81 0d a8 5d 89 00 00 	or     DWORD PTR ds:0x895da8,0x20000
+  499a87:	00 02 00 
+  499a8a:	c3                   	ret
+  499a8b:	cc                   	int3
+  499a8c:	cc                   	int3
+  499a8d:	cc                   	int3
+  499a8e:	cc                   	int3
+  499a8f:	cc                   	int3
+  499a90:	81 25 a8 5d 89 00 ff 	and    DWORD PTR ds:0x895da8,0xfffdffff
+  499a97:	ff fd ff 
+  499a9a:	c3                   	ret
+  499a9b:	cc                   	int3
+  499a9c:	cc                   	int3
+  499a9d:	cc                   	int3
+  499a9e:	cc                   	int3
+  499a9f:	cc                   	int3

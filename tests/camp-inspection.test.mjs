@@ -256,7 +256,7 @@ test('new camp allocation failure still feeds back once and rejects stale or blo
 })
 
 test('actual store migration and Scene disposal separate saved camps from transient inspection owners', async t => {
-  const fixture = await campFixture(t),
+  const fixture = await campFixture(t, 'scalable'),
     { scene, world, camp, paint } = fixture,
     { createGameStore } = await import('../app/game-store.ts'),
     { createTooltip } = await import('../app/tooltips.ts'),
@@ -297,14 +297,19 @@ test('actual store migration and Scene disposal separate saved camps from transi
     globe: { dispose: nop },
     waterMap: { dispose: nop },
     terrainMap: { dispose: nop },
+    terrainUpload: {},
+    minimap: { revision: undefined },
     pointerOutline: { remove: nop },
     spellPointer: { remove: nop },
   })
+  let contextLosses = 0
   scene.renderer.dispose = nop
+  scene.renderer.forceContextLoss = () => { ++contextLosses }
   scene.renderer.domElement.remove = nop
   scene.tooltipElement.remove = nop
   scene.worshipPresentation.dispose = nop
   scene.dispose()
+  assert.equal(contextLosses, 1, 'owned renderer context retirement reaches its supplied boundary')
   assert.equal(records(scene).size, 0)
   assert.deepEqual(scene.tooltipInspectionInputs, [])
   assert.equal(scene.objectPanels.buildingHeldPointer, null)

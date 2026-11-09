@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e66b6ba1-1494-4439-8170-318bd7236715",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9f7a4758aaabd11b0b57e89d150265c313d9a13a",
+    "branch": "fix/raid-native-target-collector",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m6-historical-0404/producer-hook.mjs": "fa3696896a0d573d70db18ea59c1a46ab54ac8df993bdb1ef9b9a28ddd6cab45",
+      "tests/mission6.test.mjs": "2859ebbf26f3786ad272b7ffc2b4999bda5d71baff5577cdb65aa1872d353765",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--import",
+    "./work/m6-historical-0404/producer-hook.mjs",
+    "--test",
+    "--test-name-pattern",
+    "^Mission 6 Chumara",
+    "tests/mission6.test.mjs"
+  ],
+  "cwd": "/tmp/populous-raid447-fallback-0229",
+  "startedAt": "2026-10-15T04:05:44.071Z",
+  "artifacts": {
+    "stdout": "/tmp/populous-raid447-fallback-0229/work/orchestration/m6-historical-0404/producer.json.artifacts/stdout.log",
+    "stderr": "/tmp/populous-raid447-fallback-0229/work/orchestration/m6-historical-0404/producer.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-15T04:06:06.515Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "HISTORICAL_CAPTURE_QUALIFIED {\"originalMembers\":[386,415,445,398],\"raidSlot\":0,\"preacherId\":398,\"capturedTurn\":8529,\"validatedThrough\":8702,\"serializedSha256\":\"f7fd8ab133ae00a02d43b296fd714148a28faae2d3733ef87b4446f17922557c\",\"gzipSha256\":\"5dffbaa507061aac80e3ca7da5aed06f189c54103a816e7b3054fae9c8564aff\"}\n✔ Mission 6 Chumara trains Preachers and launches its first mixed raid (21217.447819ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 22356.781618\n",
+  "stderr": "",
+  "stdoutSha256": "a02e630e29610439858b506a913ebd49a25181c64c5af78c416741d606a44c93",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9f7a4758aaabd11b0b57e89d150265c313d9a13a",
+    "branch": "fix/raid-native-target-collector",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m6-historical-0404/producer-hook.mjs": "fa3696896a0d573d70db18ea59c1a46ab54ac8df993bdb1ef9b9a28ddd6cab45",
+      "tests/mission6.test.mjs": "2859ebbf26f3786ad272b7ffc2b4999bda5d71baff5577cdb65aa1872d353765",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

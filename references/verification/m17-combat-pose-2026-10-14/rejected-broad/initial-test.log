@@ -1,0 +1,12 @@
+Historical input SHA256 908e458d89e5bfcff568b7b36254e4da3e688d9928b4f980ec05933e3948fe5f
+✔ ordinary browser pose publication preserves physical identity, same-cell order and cross-cell linkage (253.864848ms)
+✔ existing flight, combat and vehicle physical owners are never overwritten by browser reconciliation (154.63098ms)
+✔ genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load (2437.559987ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3988.83485

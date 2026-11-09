@@ -1,0 +1,411 @@
+// Serialized into the existing campaign document. All writes below belong to
+// this observer, not World. Wrappers call the original callback exactly once and
+// preserve its receiver, result and thrown object. No clock/render is driven.
+export function installShamanCastingInputTiming() {
+  if (window.shamanCastingInputTiming) throw Error('Casting input timing already installed')
+  const listener = event => {
+    if (event.key === 'F9' && event.isTrusted) input.record?.(event)
+  }
+  const input = window.shamanCastingInputTiming = {
+    record: null, closed: false,
+    close(record = input.record) {
+      window.removeEventListener('keydown', listener, true)
+      if (input.record === record) input.record = null
+      input.closed = true
+    },
+  }
+  // Registered by addInitScript before Home's stopImmediatePropagation listener.
+  window.addEventListener('keydown', listener, true)
+}
+
+export function installShamanCastingObserver() {
+  if (window.shamanCastingObserver) throw Error('Casting observer already installed')
+  const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
+    clock = scene.gameClock, renderer = scene.renderer, canvas = renderer.domElement,
+    originalTurn = clock.afterTurn, originalRender = renderer.render, originalModal = scene.setModalSuspended,
+    inputTiming = window.shamanCastingInputTiming,
+    turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
+    renderDescriptor = Object.getOwnPropertyDescriptor(renderer, 'render'),
+    modalDescriptor = Object.getOwnPropertyDescriptor(scene, 'setModalSuspended')
+  const result = { casts: [], holds: [], errors: [], closed: false, restored: false,
+    timing: { clock: 'page.performance.now', events: [] } }, copies = []
+  let armed = null, pending = null, active = null, closed = false, inputAttached = false, notification = null, holdRaf = null
+  const check = (condition, message) => { if (!condition) throw Error(message) }
+  const firstRunningFrame = record => record.frames.find(frame =>
+    frame.person.state === 22 && frame.person.casting && !frame.paused && !frame.suspended)
+  const observe = callback => {
+    if (closed || result.errors.length) return
+    try { return callback() } catch (error) {
+      result.errors.push(String(error))
+      stopHoldSampling()
+      invalidateNotification(String(error))
+    }
+  }
+  const owner = () => {
+    check(window.testSceneRef.current === scene && window.testStore.getWorld() === world &&
+      scene.world === world && scene.gameClock === clock && scene.renderer === renderer &&
+      renderer.domElement === canvas && canvas.isConnected, 'Casting Scene/World/clock/canvas changed')
+    check(clock.afterTurn === turnWrapper && renderer.render === renderWrapper &&
+      scene.setModalSuspended === modalWrapper && window.shamanCastingInputTiming === inputTiming &&
+      inputTiming.record === beforeF9 && !inputTiming.closed,
+      'Casting observation callback ownership changed')
+    if (notification && !notification.closed)
+      check(window[notification.binding] === notification.send, 'Casting notification binding ownership changed')
+  }
+  const timing = (event, details = {}, state = read()) => {
+    check(result.timing.events.length < 32, 'Casting timing observation exceeded 32 events')
+    const row = { event, at: performance.now(), label: armed ?? active?.record.label,
+      shot: armed ? null : active?.record.shot ?? null, stamp: renderer.info.render.frame, state, ...details }
+    result.timing.events.push(row)
+    return row
+  }
+  const subsequent = () => armed === 'subsequent' ||
+    (active?.record.label === 'subsequent' && !active.record.done)
+  const sendNotification = message => {
+    const subscription = notification
+    try {
+      void Promise.resolve(subscription.send({ token: subscription.token, ...message })).catch(error => {
+        if (!closed && !subscription.closed) {
+          result.errors.push(`Casting notification delivery failed: ${String(error)}`)
+          subscription.closed = true
+        }
+      })
+    } catch (error) {
+      result.errors.push(`Casting notification delivery failed: ${String(error)}`)
+      subscription.closed = true
+    }
+  }
+  function invalidateNotification(reason) {
+    if (!notification || notification.closed || notification.delivered) return
+    notification.closed = true
+    sendNotification({ kind: 'invalid', reason })
+  }
+  const notificationState = state => {
+    const subscription = notification, record = subscription.record,
+      shot = world.projectiles.find(shot => shot.id === record.shot)
+    check(active?.record === record && active.person === subscription.person &&
+      state.person.id === subscription.personId && state.person.sameOwner &&
+      shot === subscription.shot && shot.caster === subscription.personId,
+    'Casting notification person/shot/record ownership changed')
+    check(!record.done && state.person.state === 22 && state.person.casting &&
+      shot.phase === 'windup' && shot.remaining > 0, 'Casting notification windup expired')
+  }
+  const beforeF9 = event => {
+    const at = performance.now()
+    observe(() => {
+      if (!subsequent()) return
+      timing('trusted-f9-keydown', { at, key: event.key, repeat: event.repeat, isTrusted: event.isTrusted })
+      if (notification && !notification.closed && notification.sent && !notification.delivered) {
+        notificationState(read())
+        notification.delivered = true
+      }
+    })
+  }
+  function modalWrapper(...args) {
+    const enteredAt = performance.now()
+    let entry
+    observe(() => {
+      if (subsequent()) entry = timing('modal-setter-entry', { at: enteredAt, suspendedArgument: args[0], receiverOwned: this === scene })
+    })
+    let completed = false
+    try {
+      const returned = originalModal.apply(this, args)
+      completed = true
+      return returned
+    } finally {
+      const at = performance.now()
+      observe(() => {
+        if (entry) timing('modal-setter-exit', { at, enteredAt, completed })
+      })
+    }
+  }
+  const read = () => {
+    owner()
+    const u = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman' && unit.hp > 0),
+      p = u?.native,
+      order = p && world.buildingOrders?.records[p.immediateCommand || p.commands?.[p.commandCursor]]
+    check(u && p, 'Living authored Shaman must have a native person')
+    return {
+      turn: world.turn, paused: world.paused, suspended: scene.modalSuspended,
+      speed: world.speed, level: world.outcome.level, inputMask: world.inputMask,
+      mode: world.mode, cheatsUsed: window.testStore.hasUsedCheats(),
+      stock: world.shots.blast, storedStock: world.manaWorld.spells[0].stocks[2] & 15,
+      casts: world.stats.cast, nativeCasts: world.spellCasts[0][2],
+      cooldown: world.castingTribes[0].cooldown, tribeFlags: world.castingTribes[0].flags,
+      gameFlags: world.manaWorld.gameFlags, mana: world.manaTribes[0].available,
+      person: { id: u.id, hp: u.hp, state: p.state, previousState: p.previousState,
+        object: p.object, draw: p.draw, f1: p.f1, f2: p.f2, timer: p.timer,
+        angle: p.angle, heading: p.heading, turnAngle: p.turnAngle, turnY: p.turnY,
+        counter: p.counter, stamp: p.stamp, vehicle: p.vehicle, flags2: p.flags2,
+        flags4: p.flags4, flight: !!u.flight, lift: u.lift, casting: !!u.casting,
+        orderModel: order?.model ?? 0, sameOwner: !active || active.person === p },
+      projectiles: world.projectiles.filter(shot => shot.team === 'blue' && shot.spell === 'blast')
+        .map(shot => ({ id: shot.id, caster: shot.caster, phase: shot.phase, remaining: shot.remaining })),
+      waves: world.effects.filter(effect => effect.kind === 'blastWave' && effect.wave?.tribe === 0)
+        .map(effect => effect.id),
+    }
+  }
+  const beforeInput = event => observe(() => {
+    if (!armed || event.target !== canvas || event.button !== 0 || world.mode !== 'blast') return
+    check(!pending, 'Nested cast pointer input')
+    pending = { label: armed, trusted: event.isTrusted, button: event.button,
+      point: { x: event.clientX, y: event.clientY }, before: read() }
+  })
+  const afterInput = event => observe(() => {
+    if (!pending || event.target !== canvas || event.button !== 0) return
+    const at = performance.now(), after = read(), prior = new Set(pending.before.projectiles.map(shot => shot.id)),
+      shots = after.projectiles.filter(shot => !prior.has(shot.id))
+    check(shots.length === 1 && after.casts === pending.before.casts + 1,
+      'Real pointer input must allocate exactly one Blast')
+    const record = { ...pending, after, shot: shots[0].id, logical: [], frames: [], crops: [],
+      done: false, terminal: null }
+    active = { record, person: world.units.find(unit => unit.id === after.person.id).native,
+      phases: new Set() }
+    result.casts.push(record)
+    timing('allocation', { at, shot: record.shot }, after)
+    if (notification && !notification.closed) {
+      check(record.label === 'subsequent' && !notification.record &&
+        pending.before.casts === notification.before && after.casts === notification.before + 1 &&
+        active.person === notification.person && after.person.id === notification.personId,
+      'Casting notification allocation does not match its armed input')
+      notification.record = record
+      notification.shot = world.projectiles.find(shot => shot.id === record.shot)
+      notificationState(after)
+    }
+    pending = null; armed = null
+  })
+  function turnWrapper(...args) {
+    const returned = originalTurn?.apply(this, args)
+    observe(() => {
+      if (!active || active.record.done) return
+      const state = read(), record = active.record
+      check(record.logical.length < 12, 'Casting logical observation exceeded twelve visits')
+      record.logical.push(state)
+      if (notification?.record && !notification.closed && !notification.delivered) notificationState(state)
+      if (state.turn >= record.after.turn + 12) {
+        record.done = true
+        record.terminal = { turn: state.turn, reason: 'twelve-natural-visits' }
+      }
+    })
+    return returned
+  }
+  function renderWrapper(...args) {
+    const enteredAt = performance.now()
+    const returned = originalRender.apply(this, args)
+    if (args[0] !== scene.scene || args[1] !== scene.camera) return returned
+    observe(() => {
+      if (!active || active.record.done) return
+      const state = read(), record = active.record, u = world.units.find(u => u.id === state.person.id),
+        group = scene.unitMeshes.get(u.id), stamp = renderer.info.render.frame
+      check(record.frames.length < 600, 'Casting render observation exceeded 600 samples')
+      const camera = Math.round(scene.cameraBearing * 1024 / Math.PI),
+        heading = Math.round((Math.PI - u.heading) * 1024 / Math.PI),
+        direction = ((((camera << 16) >> 16) - ((heading << 16) >> 16) - 0x380) & 0x700) >> 8,
+        layers = (group?.userData.layers ?? []).filter(layer => layer.visible),
+        frame = { ...state, at: performance.now(), stamp, direction,
+          cameraBearing: scene.cameraBearing, heading: u.heading, visible: group?.visible === true,
+          submittedLayers: layers.filter(layer => scene.view.painter.source(layer)).length,
+          frame: group?.userData.frame, flip: group?.userData.frameFlip,
+          renderedDraw: group?.userData.draw, cropPlanned: false }
+      record.frames.push(frame)
+      if (firstRunningFrame(record) === frame)
+        timing('first-running-render', { enteredAt, renderedAt: frame.at }, state)
+      // Capture the first two distinct running phases per cast. Paused/modal
+      // frames remain evidence but cannot replace an ordinary visible crop.
+      if (state.person.state !== 22 || state.paused || state.suspended ||
+        active.phases.has(state.person.f2) || active.phases.size >= 2) return
+      active.phases.add(state.person.f2); frame.cropPlanned = true
+      const rect = canvas.getBoundingClientRect(), bounds = scene.picking.personBounds(u.id, rect)
+      check(bounds && bounds.width > 1 && bounds.height > 1, 'Cast body lacks bounds')
+      const center = { x: rect.left + bounds.x + bounds.width / 2,
+        y: rect.top + bounds.y + bounds.height / 2 }
+      frame.bodyCanvasOwned = document.elementFromPoint(center.x, center.y) === canvas
+      frame.bodyInCanvas = bounds.x >= 0 && bounds.y >= 0 &&
+        bounds.x + bounds.width <= rect.width && bounds.y + bounds.height <= rect.height
+      const sx = canvas.width / rect.width, sy = canvas.height / rect.height,
+        x = Math.max(0, Math.floor((bounds.x - 8) * sx)),
+        y = Math.max(0, Math.floor((bounds.y - 8) * sy)),
+        width = Math.min(256, canvas.width - x, Math.ceil((bounds.width + 16) * sx)),
+        height = Math.min(256, canvas.height - y, Math.ceil((bounds.height + 16) * sy)),
+        clip = { x: rect.left + x / sx, y: rect.top + y / sy, width: width / sx, height: height / sy }
+      const overlays = [...document.querySelectorAll(
+        '.native-hud,.paused-badge,.campaign-messages summary,.campaign-messages details[open]>div,.fps-graph,.hud-description,.world-message,.target-prompt,dialog[open],.loading-world')]
+        .filter(element => {
+          const style = getComputedStyle(element), r = element.getBoundingClientRect()
+          return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) !== 0 &&
+            r.width > 0 && r.height > 0 && r.x < clip.x + clip.width && r.x + r.width > clip.x &&
+            r.y < clip.y + clip.height && r.y + r.height > clip.y
+        })
+      frame.cropOverlayClear = overlays.length === 0
+      check(frame.bodyCanvasOwned && frame.bodyInCanvas && frame.cropOverlayClear,
+        'First reserved cast crop is obscured; no later replacement')
+      check(width > 1 && height > 1, 'Cast crop is empty')
+      const copy = document.createElement('canvas')
+      copy.width = width; copy.height = height
+      const context = copy.getContext('2d')
+      check(context, 'Cast crop requires 2D canvas')
+      context.drawImage(canvas, x, y, width, height, 0, 0, width, height)
+      const copiedAt = performance.now()
+      frame.cropFile = `shaman-casting-${record.label}-${record.crops.length}.png`
+      const crop = { file: frame.cropFile, turn: state.turn, stamp, f2: state.person.f2,
+        frame: frame.frame, clip: { x, y, width, height } }
+      record.crops.push(crop); copies.push({ copy, context, crop })
+      timing('crop-complete', { at: copiedAt, file: crop.file, renderedAt: frame.at }, state)
+      if (notification && !notification.closed && !notification.sent && record === notification.record) {
+        check(firstRunningFrame(record) === frame && record.crops[0] === crop,
+          'Casting notification requires the first running render and its first reserved copy')
+        notificationState(read())
+        check(!state.paused && !state.suspended && frame.visible && frame.submittedLayers > 0,
+          'Casting notification requires a submitted running render')
+        check(record.after.casts === notification.before + 1 && state.casts === notification.before + 1,
+          'Casting notification cast counter changed')
+        const row = timing('first-render-notification', { firstRunningStamp: frame.stamp, copiedAt }, state)
+        notification.sent = true
+        sendNotification({ kind: 'ready', label: record.label, personId: state.person.id, shot: record.shot,
+          before: notification.before, after: record.after.casts, stamp: frame.stamp, turn: state.turn,
+          pageAt: row.at, copiedAt })
+      }
+    })
+    return returned
+  }
+  const stopHoldSampling = () => {
+    if (holdRaf !== null) window.cancelAnimationFrame(holdRaf)
+    holdRaf = null
+  }
+  const sampleHold = frameTime => {
+    holdRaf = null
+    observe(() => {
+      const hold = result.holds[0]
+      check(hold && !hold.after, 'Casting hold sampling requires an open hold')
+      const state = read(), record = active?.record,
+        shot = world.projectiles.find(shot => shot.id === record?.shot)
+      check(record === hold.record && active.person === hold.person && state.person.sameOwner && shot === hold.shot,
+        'Casting hold person/shot/record ownership changed')
+      check(!state.paused && state.suspended, 'Casting hold lost presentation suspension')
+      check(hold.samples.length < 120, 'Casting hold exceeded 120 RAF state observations')
+      hold.samples.push({ at: performance.now(), frameTime, stamp: renderer.info.render.frame, state })
+      holdRaf = window.requestAnimationFrame(sampleHold)
+    })
+  }
+  const restore = () => {
+    stopHoldSampling()
+    if (clock.afterTurn === turnWrapper) {
+      if (turnDescriptor) Object.defineProperty(clock, 'afterTurn', turnDescriptor)
+      else delete clock.afterTurn
+    }
+    if (renderer.render === renderWrapper) {
+      if (renderDescriptor) Object.defineProperty(renderer, 'render', renderDescriptor)
+      else delete renderer.render
+    }
+    if (scene.setModalSuspended === modalWrapper) {
+      if (modalDescriptor) Object.defineProperty(scene, 'setModalSuspended', modalDescriptor)
+      else delete scene.setModalSuspended
+    }
+    if (inputAttached) inputTiming.close(beforeF9)
+    window.removeEventListener('pointerup', beforeInput, true)
+    window.removeEventListener('pointerup', afterInput, false)
+    result.restored = clock.afterTurn === originalTurn && renderer.render === originalRender &&
+      scene.setModalSuspended === originalModal && window.shamanCastingInputTiming === inputTiming &&
+      inputTiming?.closed === true && inputTiming.record === null
+  }
+  try {
+    check(inputTiming && !inputTiming.closed && inputTiming.record === null,
+      'Casting timing requires its early input listener')
+    inputTiming.record = beforeF9
+    inputAttached = true
+    clock.afterTurn = turnWrapper
+    renderer.render = renderWrapper
+    scene.setModalSuspended = modalWrapper
+    owner()
+    window.addEventListener('pointerup', beforeInput, true)
+    window.addEventListener('pointerup', afterInput, false)
+  } catch (error) { restore(); throw error }
+  window.shamanCastingObserver = {
+    subscribeFirstRunningCast({ binding, token, before }) {
+      owner()
+      check(!closed && !result.errors.length && !notification && armed === 'subsequent' && !pending,
+        'One pre-input subsequent casting notification required')
+      const state = read(), person = world.units.find(unit => unit.id === state.person.id).native
+      check(state.casts === before && typeof token === 'string' && token.length > 0 &&
+        typeof window[binding] === 'function', 'Casting notification subscription is invalid')
+      notification = { binding, token, before, person, personId: state.person.id,
+        send: window[binding], record: null, shot: null, sent: false, delivered: false, closed: false }
+      timing('notification-armed', { token }, state)
+      return { personId: state.person.id, before, token }
+    },
+    disarmFirstRunningCast(token) {
+      check(notification?.token === token, 'Casting notification token changed')
+      notification.closed = true
+    },
+    arm(label) {
+      owner()
+      check(!closed && !result.errors.length && !armed && !pending && (!active || active.record.done),
+        'Previous casting observation is incomplete')
+      check(label === ['ordinary', 'subsequent'][result.casts.length], 'Unexpected casting case')
+      armed = label
+      return read()
+    },
+    status() {
+      const current = active && !closed && !result.errors.length ? read() : null
+      const samples = result.holds[0]?.samples ?? []
+      return { holdRafCoverageMs: samples.length < 2 ? 0 : samples.at(-1).at - samples[0].at,
+        errors: [...result.errors], casts: result.casts.map(record => ({
+        label: record.label, done: record.done, turn: record.after.turn, visits: record.logical.length,
+        runningFrameStamp: firstRunningFrame(record)?.stamp ?? null,
+        running: active?.record === record && !record.done && current?.person.state === 22 &&
+          current.person.casting && !current.paused && !current.suspended,
+      })) }
+    },
+    beginHold() {
+      owner()
+      check(!closed && !result.errors.length && active?.record.label === 'subsequent' &&
+        !active.record.done && !result.holds.length, 'One active subsequent-cast hold required')
+      const state = read()
+      check(state.person.state === 22 && state.person.casting && !state.paused && state.suspended,
+        'F9 must suspend an active, otherwise unpaused cast')
+      check(firstRunningFrame(active.record), 'F9 hold requires a running render of this subsequent cast')
+      const hold = { label: active.record.label, samples: [],
+        before: { at: performance.now(), stamp: renderer.info.render.frame, state }, after: null }
+      // Identity references are observer-private and never serialized into evidence.
+      Object.defineProperties(hold, {
+        record: { value: active.record }, person: { value: active.person },
+        shot: { value: world.projectiles.find(shot => shot.id === active.record.shot) },
+      })
+      result.holds.push(hold)
+      holdRaf = window.requestAnimationFrame(sampleHold)
+    },
+    endHold() {
+      try {
+        owner()
+        const hold = result.holds[0]
+        check(!closed && hold && !hold.after, 'Active cast hold must be open')
+        check(!result.errors.length && hold.samples.length >= 2 &&
+          hold.samples.at(-1).at - hold.samples[0].at >= 350,
+        'Casting hold requires at least 350ms of repeated RAF state observations')
+        hold.after = { at: performance.now(), stamp: renderer.info.render.frame, state: read() }
+      } finally { stopHoldSampling() }
+    },
+    finish() {
+      if (!closed) {
+        observe(owner)
+        invalidateNotification('Casting observation finished before F9 delivery')
+        closed = true; result.closed = true
+        restore()
+        // Readback/encoding is outside every logical/render callback. Each copy
+        // remains tied to its first reserved frame, never replaced on failure.
+        for (const { copy, context, crop } of copies) {
+          try {
+            const pixels = context.getImageData(0, 0, copy.width, copy.height).data, colors = new Set()
+            for (let i = 0; i < pixels.length; i += 4)
+              if (pixels[i + 3]) colors.add((pixels[i] << 16) | (pixels[i + 1] << 8) | pixels[i + 2])
+            crop.opaqueColors = colors.size
+            crop.png = copy.toDataURL('image/png')
+          } catch (error) { result.errors.push(String(error)); crop.error = String(error) }
+          finally { copy.width = 0; copy.height = 0 }
+        }
+        copies.length = 0
+      }
+      return result
+    },
+  }
+}

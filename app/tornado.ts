@@ -1,10 +1,16 @@
+import {
+  tornadoAppearance,
+  tornadoCell,
+  tornadoPalette,
+  type TornadoAppearance,
+} from './tornado-appearance.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { movePosition, nativeAngle, random } from './native-math.ts'
 import { groundVelocity } from './person-motion.ts'
 import { terrainPointHeight, type NativeTerrain } from './native-terrain.ts'
 
 type Point = { x: number; y: number; h: number }
-export type TornadoParticle = Point
+export type TornadoParticle = Point & TornadoAppearance
 export type Tornado = Point & {
   tribe: number
   destinationX: number
@@ -57,7 +63,8 @@ export function createTornado(
   start: Point,
   destination: Pick<Point, 'x' | 'y'>,
   tribe: number,
-  rng: { randomState: number }
+  rng: { randomState: number },
+  birthPhase = 0
 ): Tornado {
   const tornado: Tornado = {
     ...start,
@@ -72,11 +79,16 @@ export function createTornado(
     heading: random(rng) & 0x7ff,
     step: 120,
     steering: 100,
-    particles: Array.from({ length: 16 }, () => ({ ...start })),
+    particles: Array.from({ length: 16 }, (_, ordinal) => ({
+      ...start,
+      ...tornadoAppearance(ordinal, birthPhase, tornadoCell(land, start).water),
+    })),
     soundPlaying: false,
   }
   const world = { land, randomState: rng.randomState }
-  placeParticles(world, tornado, terrainPointHeight(land, tornado) + 1440)
+  placeParticles(world, tornado, Math.max(start.h, terrainPointHeight(land, start)) + 1440)
+  for (const particle of tornado.particles)
+    particle.h = Math.max(particle.h, terrainPointHeight(land, particle))
   rng.randomState = world.randomState
   return tornado
 }
@@ -110,6 +122,15 @@ export function stepTornado(
   movePosition(tornado, tornado.heading, tornado.step)
   tornado.h = terrainPointHeight(w.land, tornado)
   placeParticles(w, tornado, tornado.h + (tornado.phase ? (tornado.remaining - 8) * 90 : 1440))
+  for (let i = 0; i < tornado.particles.length; i++) {
+    const particle = tornado.particles[i],
+      next = tornado.particles[i + 1]
+    if (next) particle.palette = next.palette
+    else {
+      const cell = tornadoCell(w.land, particle)
+      particle.palette = tornadoPalette(cell.water, cell.cliff)
+    }
+  }
   if (!tornado.phase) {
     const cell = ((tornado.y & 0xfe00) | ((tornado.x >>> 8) & 254)) >>> 0
     for (const person of effects.people(cell))
@@ -179,7 +200,7 @@ export function stepTornadoPerson(
     person.h = Math.max(person.h, tornado.h + vertical + jitter - 37)
     return true
   }
-  person.flags3 = (person.flags3 | 0x400) >>> 0
+  person.flags4 = (person.flags4 | 0x400) >>> 0
   person.flags2 = ((person.flags2 | 0x82000) & ~0x4000) >>> 0
   person.heading = random(w) & 2047
   person.velocity.x = person.velocity.z = 0

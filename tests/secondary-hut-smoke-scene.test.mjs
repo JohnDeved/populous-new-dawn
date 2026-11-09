@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { fullHutScene, makeHutSmokeScene } from './support/hut-smoke-scene.mjs'
@@ -127,7 +128,7 @@ test('legacy missing-history roots bootstrap on first render without inventing p
     const { world } = fixture.scene
     const legacy = structuredClone(world)
     delete legacy.secondaryEffects
-    migrateCheckpoint(legacy)
+    normalizeHistoricalFixture(legacy)
     assert.deepEqual(legacy.secondaryEffects.roots, {})
     assert.deepEqual(legacy.secondaryEffects.order, [])
     // This real admission fixture is not on the next periodic building sample.

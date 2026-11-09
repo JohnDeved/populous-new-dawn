@@ -1,3 +1,5 @@
+import type { SceneUpdateMetrics } from './scene-update-metrics.ts'
+import type { WaterUpdateMetrics } from './water-update-reasons.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { texture } from './scene-assets.ts'
@@ -145,8 +147,15 @@ export function updateSky(scene: GameScene) {
   }
 }
 
-export function updateEnvironmentFrame(scene: GameScene, skyTicks: number) {
-  scene.updateWater()
+export function updateEnvironmentFrame(
+  scene: GameScene,
+  skyTicks: number,
+  waterMetrics?: WaterUpdateMetrics,
+  sceneUpdates?: SceneUpdateMetrics
+) {
+  const waterStart = sceneUpdates ? performance.now() : 0
+  scene.updateWater(waterMetrics)
+  if (sceneUpdates) sceneUpdates.waterCpuMs += performance.now() - waterStart
   scene.ground.visible = !scene.overviewActive
   scene.globe.visible = scene.overviewActive
   scene.scene.background = scene.space

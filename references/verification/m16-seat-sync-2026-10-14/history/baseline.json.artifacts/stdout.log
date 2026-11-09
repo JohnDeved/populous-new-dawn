@@ -1,0 +1,68 @@
+✖ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (1304.706956ms)
+✖ Boat and Balloon seat sync retain route-map precedence and existing fallback ownership (33.84867ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3446.078611
+
+✖ failing tests:
+
+test at tests/seated-native-position.test.mjs:45:1
+✖ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (1304.706956ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   h: 1081,
+  +   x: 8592,
+  +   y: 33855
+  -   h: 1072,
+  -   x: 8590,
+  -   y: 33898
+    }
+  
+      at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-native-position.test.mjs:75:18
+      at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/support/profile-storage.mjs:115:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-native-position.test.mjs:48:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { x: 8592, y: 33855, h: 1081 },
+    expected: { x: 8590, y: 33898, h: 1072 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/seated-native-position.test.mjs:163:1
+✖ Boat and Balloon seat sync retain route-map precedence and existing fallback ownership (33.84867ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   h: 777,
+  +   x: 9517,
+  +   y: 4306
+  -   h: 648,
+  -   x: 11960,
+  -   y: 17872
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-native-position.test.mjs:202:16)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { x: 9517, y: 4306, h: 777 },
+    expected: { x: 11960, y: 17872, h: 648 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

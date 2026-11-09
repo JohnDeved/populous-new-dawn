@@ -1,0 +1,442 @@
+{
+  "evidence": "Static canonical original VSTART/VFRA and PE descriptor bytes, read independently of the importer and application; no original instructions executed.",
+  "provenance": {
+    "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "descriptorBase": "005a6af8",
+    "recordBytes": 11,
+    "fieldLayoutSource": "accepted6698809 scripts/inspect-executable.py:126 and decomp/generated/004ee7b0.c",
+    "descriptorReaderSha256": "4da2d98bee78e37f529427004ffbee8b9e55e0e19a4df185d7f4102494bc2e6a",
+    "catalogReaderSha256": "560511c05969cb6cb873ee4c0dd5c6e9cd13ef801781a05f9c63fb6769a4390d",
+    "catalogWitnessSha256": "919895d36d211b93234578cd8d84c3ba0ddb817c2b31bd0375ce6fe26151e130",
+    "inputs": {
+      "vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258"
+    }
+  },
+  "sources": {
+    "248": [
+      {
+        "vstart": 248,
+        "mirror": false,
+        "vfra": [
+          1418,
+          1419,
+          1420,
+          1421
+        ]
+      },
+      {
+        "vstart": 249,
+        "mirror": false,
+        "vfra": [
+          1422,
+          1423,
+          1424,
+          1425
+        ]
+      },
+      {
+        "vstart": 250,
+        "mirror": false,
+        "vfra": [
+          1426,
+          1427,
+          1428,
+          1429
+        ]
+      },
+      {
+        "vstart": 251,
+        "mirror": false,
+        "vfra": [
+          1430,
+          1431,
+          1432,
+          1433
+        ]
+      },
+      {
+        "vstart": 252,
+        "mirror": false,
+        "vfra": [
+          1434,
+          1435,
+          1436,
+          1437
+        ]
+      },
+      {
+        "vstart": 253,
+        "mirror": true,
+        "vfra": [
+          1430,
+          1431,
+          1432,
+          1433
+        ]
+      },
+      {
+        "vstart": 254,
+        "mirror": true,
+        "vfra": [
+          1426,
+          1427,
+          1428,
+          1429
+        ]
+      },
+      {
+        "vstart": 255,
+        "mirror": true,
+        "vfra": [
+          1422,
+          1423,
+          1424,
+          1425
+        ]
+      }
+    ],
+    "304": [
+      {
+        "vstart": 304,
+        "mirror": false,
+        "vfra": [
+          1661,
+          1662,
+          1663,
+          1664,
+          1665,
+          1666,
+          1667,
+          1668
+        ]
+      },
+      {
+        "vstart": 305,
+        "mirror": false,
+        "vfra": [
+          1844,
+          1845,
+          1859,
+          1866,
+          1867,
+          1868,
+          1869,
+          1870
+        ]
+      },
+      {
+        "vstart": 306,
+        "mirror": false,
+        "vfra": [
+          1669,
+          1842,
+          1843,
+          1871,
+          1872,
+          1873,
+          1874,
+          1875
+        ]
+      },
+      {
+        "vstart": 307,
+        "mirror": false,
+        "vfra": [
+          1860,
+          1861,
+          1862,
+          1876,
+          1877,
+          1878,
+          1879,
+          1880
+        ]
+      },
+      {
+        "vstart": 308,
+        "mirror": false,
+        "vfra": [
+          1863,
+          1864,
+          1865,
+          1881,
+          1882,
+          1883,
+          1884,
+          1885
+        ]
+      },
+      {
+        "vstart": 309,
+        "mirror": true,
+        "vfra": [
+          1860,
+          1861,
+          1862,
+          1876,
+          1877,
+          1878,
+          1879,
+          1880
+        ]
+      },
+      {
+        "vstart": 310,
+        "mirror": true,
+        "vfra": [
+          1669,
+          1842,
+          1843,
+          1871,
+          1872,
+          1873,
+          1874,
+          1875
+        ]
+      },
+      {
+        "vstart": 311,
+        "mirror": true,
+        "vfra": [
+          1844,
+          1845,
+          1859,
+          1866,
+          1867,
+          1868,
+          1869,
+          1870
+        ]
+      }
+    ],
+    "312": [
+      {
+        "vstart": 312,
+        "mirror": false,
+        "vfra": [
+          1886
+        ]
+      },
+      {
+        "vstart": 313,
+        "mirror": false,
+        "vfra": [
+          1887
+        ]
+      },
+      {
+        "vstart": 314,
+        "mirror": false,
+        "vfra": [
+          1888
+        ]
+      },
+      {
+        "vstart": 315,
+        "mirror": false,
+        "vfra": [
+          1889
+        ]
+      },
+      {
+        "vstart": 316,
+        "mirror": false,
+        "vfra": [
+          1890
+        ]
+      },
+      {
+        "vstart": 317,
+        "mirror": true,
+        "vfra": [
+          1889
+        ]
+      },
+      {
+        "vstart": 318,
+        "mirror": true,
+        "vfra": [
+          1888
+        ]
+      },
+      {
+        "vstart": 319,
+        "mirror": true,
+        "vfra": [
+          1887
+        ]
+      }
+    ],
+    "320": [
+      {
+        "vstart": 320,
+        "mirror": false,
+        "vfra": [
+          1891,
+          1892,
+          1893,
+          1894,
+          1895
+        ]
+      },
+      {
+        "vstart": 321,
+        "mirror": false,
+        "vfra": [
+          1896,
+          1897,
+          1898,
+          1899,
+          1900
+        ]
+      },
+      {
+        "vstart": 322,
+        "mirror": false,
+        "vfra": [
+          1901,
+          1902,
+          1903,
+          1904,
+          1905
+        ]
+      },
+      {
+        "vstart": 323,
+        "mirror": false,
+        "vfra": [
+          1906,
+          1907,
+          1908,
+          1909,
+          1910
+        ]
+      },
+      {
+        "vstart": 324,
+        "mirror": false,
+        "vfra": [
+          1911,
+          1912,
+          1913,
+          1914,
+          1918
+        ]
+      },
+      {
+        "vstart": 325,
+        "mirror": true,
+        "vfra": [
+          1906,
+          1907,
+          1908,
+          1909,
+          1910
+        ]
+      },
+      {
+        "vstart": 326,
+        "mirror": true,
+        "vfra": [
+          1901,
+          1902,
+          1903,
+          1904,
+          1905
+        ]
+      },
+      {
+        "vstart": 327,
+        "mirror": true,
+        "vfra": [
+          1896,
+          1897,
+          1898,
+          1899,
+          1900
+        ]
+      }
+    ]
+  },
+  "descriptors": [
+    {
+      "draw": 13,
+      "address": "005a6b87",
+      "rawHex": "0a000000020000f0000000",
+      "hold": 0,
+      "step": 0,
+      "mode": 2,
+      "person": 0,
+      "variant": 0,
+      "palette": 240,
+      "reset": 0,
+      "flags": 0
+    },
+    {
+      "draw": 14,
+      "address": "005a6b92",
+      "rawHex": "0a000000020000f0000000",
+      "hold": 0,
+      "step": 0,
+      "mode": 2,
+      "person": 0,
+      "variant": 0,
+      "palette": 240,
+      "reset": 0,
+      "flags": 0
+    },
+    {
+      "draw": 15,
+      "address": "005a6b9d",
+      "rawHex": "0a000000020202f0000000",
+      "hold": 0,
+      "step": 0,
+      "mode": 2,
+      "person": 2,
+      "variant": 2,
+      "palette": 240,
+      "reset": 0,
+      "flags": 0
+    },
+    {
+      "draw": 16,
+      "address": "005a6ba8",
+      "rawHex": "0a000000020301f0000000",
+      "hold": 0,
+      "step": 0,
+      "mode": 2,
+      "person": 3,
+      "variant": 1,
+      "palette": 240,
+      "reset": 0,
+      "flags": 0
+    },
+    {
+      "draw": 17,
+      "address": "005a6bb3",
+      "rawHex": "0a000000020203f0000000",
+      "hold": 0,
+      "step": 0,
+      "mode": 2,
+      "person": 2,
+      "variant": 3,
+      "palette": 240,
+      "reset": 0,
+      "flags": 0
+    },
+    {
+      "draw": 18,
+      "address": "005a6bbe",
+      "rawHex": "0a000001020201f0000000",
+      "hold": 0,
+      "step": 1,
+      "mode": 2,
+      "person": 2,
+      "variant": 1,
+      "palette": 240,
+      "reset": 0,
+      "flags": 0
+    }
+  ]
+}

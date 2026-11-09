@@ -1,0 +1,188 @@
+{
+  "version": 1,
+  "mission": 6,
+  "expectedWinTurn": 29504,
+  "stages": [
+    {
+      "name": "fresh-release",
+      "inputs": [],
+      "outputs": [
+        "fresh-after-recruitment.v8"
+      ]
+    },
+    {
+      "name": "early-camp",
+      "inputs": [
+        "fresh-after-recruitment.v8"
+      ],
+      "outputs": [
+        "early-camp-built.v8",
+        "early-army-terminal.v8"
+      ]
+    },
+    {
+      "name": "army-approach",
+      "inputs": [
+        "early-army-terminal.v8"
+      ],
+      "outputs": [
+        "army-approach-terminal.v8"
+      ]
+    },
+    {
+      "name": "army-shaman",
+      "inputs": [
+        "army-approach-terminal.v8"
+      ],
+      "outputs": [
+        "army-shaman-terminal.v8"
+      ]
+    },
+    {
+      "name": "army-followers",
+      "inputs": [
+        "army-shaman-terminal.v8"
+      ],
+      "outputs": [
+        "army-followers-progress.v8",
+        "army-followers-terminal.v8"
+      ]
+    },
+    {
+      "name": "economy",
+      "inputs": [
+        "army-followers-terminal.v8"
+      ],
+      "outputs": [
+        "economy-progress.v8",
+        "economy-terminal.v8"
+      ]
+    },
+    {
+      "name": "live-yellow",
+      "inputs": [
+        "economy-terminal.v8"
+      ],
+      "outputs": [
+        "live-yellow-terminal.v8"
+      ]
+    },
+    {
+      "name": "finish-yellow",
+      "inputs": [
+        "live-yellow-terminal.v8"
+      ],
+      "outputs": [
+        "chumara-defeat.v8"
+      ]
+    },
+    {
+      "name": "hut-resume",
+      "inputs": [
+        "chumara-defeat.v8"
+      ],
+      "outputs": [
+        "hut-resume-terminal.v8"
+      ]
+    },
+    {
+      "name": "population",
+      "inputs": [
+        "hut-resume-terminal.v8"
+      ],
+      "outputs": [
+        "population-terminal.v8"
+      ]
+    },
+    {
+      "name": "matak-stage",
+      "inputs": [
+        "population-terminal.v8"
+      ],
+      "outputs": [
+        "matak-stage-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-2233",
+      "inputs": [
+        "matak-stage-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-2233-progress.v8",
+        "recovery-2233-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-stage",
+      "inputs": [
+        "recovery-2233-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-stage-progress.v8",
+        "recovery-stage-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-raid",
+      "inputs": [
+        "recovery-stage-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-raid-progress.v8",
+        "recovery-raid-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-spells",
+      "inputs": [
+        "recovery-raid-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-spells-progress.v8",
+        "recovery-spells-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-village",
+      "inputs": [
+        "recovery-spells-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-village-progress.v8",
+        "recovery-village-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-cleanup",
+      "inputs": [
+        "recovery-village-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-cleanup-progress.v8",
+        "recovery-cleanup-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-pursuit",
+      "inputs": [
+        "recovery-cleanup-terminal.v8"
+      ],
+      "outputs": [
+        "recovery-pursuit-progress.v8",
+        "recovery-pursuit-terminal.v8"
+      ]
+    },
+    {
+      "name": "recovery-persistence",
+      "inputs": [
+        "recovery-pursuit-progress.v8"
+      ],
+      "outputs": [
+        "recovery-persisted-win.v8",
+        "recovery-continue7.v8",
+        "recovery-persistence-summary.json"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "readMethod": "Static PE bytes and GNU objdump; no original code execution",
+  "style2": [
+    6,
+    7,
+    8,
+    9,
+    10,
+    0
+  ],
+  "glyphBanks": {
+    "6": "data\\fenew\\feft33we.spr",
+    "7": "data\\fenew\\fehi33we.spr",
+    "8": "data\\fenew\\felo33we.spr",
+    "9": "data\\fenew\\feti33we.spr",
+    "10": "data\\fenew\\fesd33we.spr"
+  },
+  "assets": {
+    "felgspen.spr": {
+      "sha256": "6f3313eda0b1500af8121924247a05798ec2a75fc591c75a4ae367bbd63cb7b5",
+      "bytes": 11061,
+      "frames": [
+        [
+          279,
+          101,
+          24
+        ],
+        [
+          11,
+          6,
+          10993
+        ]
+      ]
+    },
+    "FELGsdEN.spr": {
+      "sha256": "58bc3387f637343ea254a1f9370545674d69b01b9f74dd94deaea3e621af37ea",
+      "bytes": 20219,
+      "frames": [
+        [
+          294,
+          111,
+          16
+        ]
+      ]
+    },
+    "fecursor.spr": {
+      "sha256": "92878bdf05a53f60f72dbe51ca1a63d8300a4911f0829e4d21afdc558dadf4d8",
+      "bytes": 134216,
+      "frames": [
+        [
+          128,
+          128,
+          72
+        ],
+        [
+          128,
+          128,
+          16840
+        ],
+        [
+          128,
+          128,
+          33608
+        ],
+        [
+          128,
+          128,
+          50376
+        ],
+        [
+          128,
+          128,
+          67144
+        ],
+        [
+          128,
+          128,
+          83912
+        ],
+        [
+          128,
+          128,
+          100680
+        ],
+        [
+          128,
+          128,
+          117448
+        ]
+      ]
+    },
+    "Fepointe.spr": {
+      "sha256": "d28897f7b29b183cd54499cd8e63709c0ef80b52c371e840724372747706c94d",
+      "bytes": 224,
+      "frames": [
+        [
+          26,
+          27,
+          16
+        ]
+      ]
+    },
+    "fefade1.dat": {
+      "sha256": "9fac6338288ca8c8191a627198b8fd97f433a3fc53655fe965fc1cc5fc3c71ad",
+      "bytes": 16384
+    }
+  }
+}

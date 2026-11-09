@@ -1,0 +1,6 @@
+Static only. Reviewer generated GNU objdump Intel disassembly from pinned D3DPopTB.exe.
+Original EXE: populous-research-inputs/game/app/D3DPopTB.exe
+SHA256: 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f
+Pseudocode source: populous-near-transfer/decomp/generated/{004e0af0,0051fbf0,004bbcf0,004bbf30}.c
+See hashes.txt for exact individual source and assembly values.
+No original executable execution or emulation occurred.

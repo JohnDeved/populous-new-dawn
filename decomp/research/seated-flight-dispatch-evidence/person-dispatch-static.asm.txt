@@ -1,0 +1,79 @@
+
+populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004d32b0 <.text+0xd22b0>:
+  4d32b0:	83 ec 08             	sub    esp,0x8
+  4d32b3:	53                   	push   ebx
+  4d32b4:	56                   	push   esi
+  4d32b5:	8b 74 24 14          	mov    esi,DWORD PTR [esp+0x14]
+  4d32b9:	57                   	push   edi
+  4d32ba:	56                   	push   esi
+  4d32bb:	e8 e0 0f 00 00       	call   0x4d42a0
+  4d32c0:	83 c4 04             	add    esp,0x4
+  4d32c3:	56                   	push   esi
+  4d32c4:	e8 07 cc 04 00       	call   0x51fed0
+  4d32c9:	83 c4 04             	add    esp,0x4
+  4d32cc:	56                   	push   esi
+  4d32cd:	e8 7e 5d 01 00       	call   0x4e9050
+  4d32d2:	83 c4 04             	add    esp,0x4
+  4d32d5:	56                   	push   esi
+  4d32d6:	e8 25 3a 01 00       	call   0x4e6d00
+  4d32db:	83 c4 04             	add    esp,0x4
+  4d32de:	66 83 be 9f 00 00 00 	cmp    WORD PTR [esi+0x9f],0x0
+  4d32e5:	00
+  4d32e6:	74 13                	je     0x4d32fb
+  4d32e8:	8b 46 0c             	mov    eax,DWORD PTR [esi+0xc]
+  4d32eb:	25 ff df ff ff       	and    eax,0xffffdfff
+  4d32f0:	89 46 0c             	mov    DWORD PTR [esi+0xc],eax
+  4d32f3:	25 ff ff f7 ff       	and    eax,0xfff7ffff
+  4d32f8:	89 46 0c             	mov    DWORD PTR [esi+0xc],eax
+  4d32fb:	8b 56 14             	mov    edx,DWORD PTR [esi+0x14]
+  4d32fe:	f7 c2 00 00 01 00    	test   edx,0x10000
+  4d3304:	74 35                	je     0x4d333b
+  4d3306:	66 8b 46 72          	mov    ax,WORD PTR [esi+0x72]
+  4d330a:	33 c9                	xor    ecx,ecx
+  4d330c:	66 3b c1             	cmp    ax,cx
+  4d330f:	74 17                	je     0x4d3328
+  4d3311:	0f b7 c0             	movzx  eax,ax
+  4d3314:	8b 04 85 90 03 89 00 	mov    eax,DWORD PTR [eax*4+0x890390]
+  4d331b:	f6 40 0c 01          	test   BYTE PTR [eax+0xc],0x1
+  4d331f:	75 07                	jne    0x4d3328
+  4d3321:	38 48 2a             	cmp    BYTE PTR [eax+0x2a],cl
+  4d3324:	74 02                	je     0x4d3328
+  4d3326:	8b c8                	mov    ecx,eax
+  4d3328:	85 c9                	test   ecx,ecx
+  4d332a:	75 0f                	jne    0x4d333b
+  4d332c:	66 c7 46 72 00 00    	mov    WORD PTR [esi+0x72],0x0
+  4d3332:	81 e2 ff ff fe ff    	and    edx,0xfffeffff
+  4d3338:	89 56 14             	mov    DWORD PTR [esi+0x14],edx
+  4d333b:	6a 01                	push   0x1
+  4d333d:	56                   	push   esi
+  4d333e:	e8 2d cf 00 00       	call   0x4e0270
+  4d3343:	83 c4 08             	add    esp,0x8
+  4d3346:	8a 4e 2b             	mov    cl,BYTE PTR [esi+0x2b]
+  4d3349:	80 f9 05             	cmp    cl,0x5
+  4d334c:	75 20                	jne    0x4d336e
+  4d334e:	8a 9e b2 00 00 00    	mov    bl,BYTE PTR [esi+0xb2]
+  4d3354:	8a c3                	mov    al,bl
+  4d3356:	24 3f                	and    al,0x3f
+  4d3358:	74 14                	je     0x4d336e
+  4d335a:	33 d2                	xor    edx,edx
+  4d335c:	8a d0                	mov    dl,al
+  4d335e:	4a                   	dec    edx
+  4d335f:	79 02                	jns    0x4d3363
+  4d3361:	33 d2                	xor    edx,edx
+  4d3363:	80 e3 c0             	and    bl,0xc0
+  4d3366:	0a da                	or     bl,dl
+  4d3368:	88 9e b2 00 00 00    	mov    BYTE PTR [esi+0xb2],bl
+  4d336e:	8a 5e 2c             	mov    bl,BYTE PTR [esi+0x2c]
+  4d3371:	33 c0                	xor    eax,eax
+  4d3373:	8a c3                	mov    al,bl
+  4d3375:	48                   	dec    eax
+  4d3376:	83 f8 2b             	cmp    eax,0x2b
+  4d3379:	0f 87 60 07 00 00    	ja     0x4d3adf
+  4d337f:	ff 24 85 18 3d 4d 00 	jmp    DWORD PTR [eax*4+0x4d3d18]
+  4d3386:	66                   	data16
+  4d3387:	8b                   	.byte 0x8b

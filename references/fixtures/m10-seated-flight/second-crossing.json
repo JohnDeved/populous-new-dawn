@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "de522b74-a8fd-470e-b51b-be04db5b7e56",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "97f65ac0374fdf2cdd013794d666363a6019c113",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m10-restart-route/second-crossing.mjs": "d27ec4b748572aba4aae9f38ec88cd9fba51a66120f050e291aa44e06b4d5396",
+      "work/m10-restart-route/first-totem-terminal.v8": "a2a10117af9d682783830a57781ad95fc8d329aeb098e0a92cefe3511b6b23c8",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "work/m10-restart-route/second-crossing.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m10-validation",
+  "startedAt": "2026-10-14T03:49:32.503Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m10-validation/work/orchestration/m10-restart-route/second-crossing.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m10-validation/work/orchestration/m10-restart-route/second-crossing.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T03:49:37.452Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"event\":\"public second-crossing order\",\"turn\":550,\"ids\":[63],\"point\":{\"x\":29,\"z\":-61},\"ok\":[true,true]}\n{\"event\":\"public second-crossing order\",\"turn\":551,\"ids\":[63,111,112,113,114],\"point\":{\"id\":62,\"x\":29.0078125,\"z\":-57.2265625},\"ok\":[true,true]}\n{\"event\":\"public second-crossing order\",\"turn\":579,\"ids\":[63,111,112,113,114],\"point\":{\"x\":-15,\"z\":33},\"ok\":[true,true]}\n{\"event\":\"second-crossing frontier\",\"turn\":600,\"timer\":5710,\"party\":[{\"id\":63,\"team\":\"blue\",\"x\":22.31640625,\"z\":-51.04296875,\"hp\":100,\"vehicle\":62},{\"id\":111,\"team\":\"blue\",\"x\":21.546875,\"z\":-51.6796875,\"hp\":90,\"vehicle\":62},{\"id\":112,\"team\":\"blue\",\"x\":22.125,\"z\":-51.203125,\"hp\":90,\"vehicle\":62},{\"id\":113,\"team\":\"blue\",\"x\":21.73828125,\"z\":-51.51953125,\"hp\":90,\"vehicle\":62},{\"id\":114,\"team\":\"blue\",\"x\":21.98046875,\"z\":-51.3203125,\"hp\":90,\"vehicle\":62}],\"boat\":{\"id\":62,\"x\":22.03515625,\"z\":-51.484375,\"ready\":false,\"passengers\":[63,112,114,113,111]}}\n{\"event\":\"second-crossing frontier\",\"turn\":700,\"timer\":5610,\"party\":[{\"id\":63,\"team\":\"blue\",\"x\":-10.55859375,\"z\":-23.6953125,\"hp\":100,\"vehicle\":62},{\"id\":111,\"team\":\"blue\",\"x\":-11.328125,\"z\":-24.33984375,\"hp\":90,\"vehicle\":62},{\"id\":112,\"team\":\"blue\",\"x\":-10.75,\"z\":-23.85546875,\"hp\":90,\"vehicle\":62},{\"id\":113,\"team\":\"blue\",\"x\":-11.13671875,\"z\":-24.1796875,\"hp\":90,\"vehicle\":62},{\"id\":114,\"team\":\"blue\",\"x\":-10.89453125,\"z\":-23.9765625,\"hp\":90,\"vehicle\":62}],\"boat\":{\"id\":62,\"x\":-10.83984375,\"z\":-24.140625,\"ready\":false,\"passengers\":[63,112,114,113,111]}}\n{\"event\":\"second-crossing frontier\",\"turn\":800,\"timer\":5510,\"party\":[{\"id\":63,\"team\":\"blue\",\"x\":-28.91015625,\"z\":11.0625,\"hp\":100,\"vehicle\":62},{\"id\":111,\"team\":\"blue\",\"x\":-28.9296875,\"z\":10.06640625,\"hp\":90,\"vehicle\":62},{\"id\":112,\"team\":\"blue\",\"x\":-28.9140625,\"z\":10.8125,\"hp\":90,\"vehicle\":62},{\"id\":113,\"team\":\"blue\",\"x\":-28.92578125,\"z\":10.31640625,\"hp\":90,\"vehicle\":62},{\"id\":114,\"team\":\"blue\",\"x\":-28.91796875,\"z\":10.625,\"hp\":90,\"vehicle\":62}],\"boat\":{\"id\":62,\"x\":-28.76171875,\"z\":10.55859375,\"ready\":false,\"passengers\":[63,112,114,113,111]}}\n{\"event\":\"second-crossing frontier\",\"turn\":900,\"timer\":5410,\"party\":[{\"id\":63,\"team\":\"blue\",\"x\":-17.51953125,\"z\":30.9140625,\"hp\":100,\"vehicle\":62},{\"id\":111,\"team\":\"blue\",\"x\":-17,\"z\":28.53125,\"hp\":90,\"vehicle\":0},{\"id\":112,\"team\":\"blue\",\"x\":-16.53125,\"z\":29,\"hp\":90,\"vehicle\":0},{\"id\":113,\"team\":\"blue\",\"x\":-17,\"z\":29.46875,\"hp\":90,\"vehicle\":0},{\"id\":114,\"team\":\"blue\",\"x\":-17.46875,\"z\":29,\"hp\":90,\"vehicle\":0}],\"boat\":{\"id\":62,\"x\":-17,\"z\":31,\"ready\":true,\"passengers\":[63]}}\n{\"event\":\"second-crossing frontier\",\"turn\":1000,\"timer\":5310,\"party\":[{\"id\":63,\"team\":\"blue\",\"x\":-17.51953125,\"z\":30.9140625,\"hp\":100,\"vehicle\":62},{\"id\":111,\"team\":\"blue\",\"x\":-17,\"z\":28.53125,\"hp\":90,\"vehicle\":0},{\"id\":112,\"team\":\"blue\",\"x\":-16.53125,\"z\":29,\"hp\":90,\"vehicle\":0},{\"id\":113,\"team\":\"blue\",\"x\":-17,\"z\":29.46875,\"hp\":90,\"vehicle\":0},{\"id\":114,\"team\":\"blue\",\"x\":-17.46875,\"z\":29,\"hp\":90,\"vehicle\":0}],\"boat\":{\"id\":62,\"x\":-17,\"z\":31,\"ready\":true,\"passengers\":[63]}}\n",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: false == true\n    at file:///workspace/scratch/69fd8163d94e/populous-m10-validation/work/m10-restart-route/second-crossing.mjs:11:1179\n    at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m10-validation/tests/support/profile-storage.mjs:115:5)\n    at async file:///workspace/scratch/69fd8163d94e/populous-m10-validation/work/m10-restart-route/second-crossing.mjs:8:1 {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: false,\n  expected: true,\n  operator: '==',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "04ba5c4b44de87b4c8dde3c748bef5a9865cabd1c3f73b11f114f57fcc8de744",
+  "stderrSha256": "f16ca9246f4156b336a5c916f4918af54d13663693353a2b3813d506871f3336",
+  "sourceAfter": {
+    "headOid": "97f65ac0374fdf2cdd013794d666363a6019c113",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/m10-restart-route/second-crossing.mjs": "d27ec4b748572aba4aae9f38ec88cd9fba51a66120f050e291aa44e06b4d5396",
+      "work/m10-restart-route/first-totem-terminal.v8": "a2a10117af9d682783830a57781ad95fc8d329aeb098e0a92cefe3511b6b23c8",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

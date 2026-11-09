@@ -1,0 +1,8734 @@
+[
+  {
+    "turn": 3800,
+    "boat": {
+      "x": 11.4765625,
+      "z": -23.5703125,
+      "native": {
+        "x": 4986,
+        "y": 3986,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 11.56640625,
+        "z": -23.05078125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 5009,
+          "y": 3853,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 11.21875,
+        "z": -23.71484375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4920,
+          "y": 4023,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 11.36328125,
+        "z": -23.4375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4957,
+          "y": 3952,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 11.44921875,
+        "z": -23.2734375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4979,
+          "y": 3910,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 11.1015625,
+        "z": -23.9375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4890,
+          "y": 4080,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3801,
+    "boat": {
+      "x": 11.27734375,
+      "z": -23.1875,
+      "native": {
+        "x": 4935,
+        "y": 3888,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 11.3671875,
+        "z": -22.66796875,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4958,
+          "y": 3755,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 11.01953125,
+        "z": -23.33203125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4869,
+          "y": 3925,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 11.1640625,
+        "z": -23.0546875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4906,
+          "y": 3854,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 11.25,
+        "z": -22.890625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4928,
+          "y": 3812,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 10.90234375,
+        "z": -23.5546875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4839,
+          "y": 3982,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3802,
+    "boat": {
+      "x": 11.078125,
+      "z": -22.80859375,
+      "native": {
+        "x": 4884,
+        "y": 3791,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 11.16796875,
+        "z": -22.2890625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4907,
+          "y": 3658,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 10.8203125,
+        "z": -22.953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4818,
+          "y": 3828,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 10.96484375,
+        "z": -22.67578125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4855,
+          "y": 3757,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 11.05078125,
+        "z": -22.51171875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4877,
+          "y": 3715,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 10.703125,
+        "z": -23.17578125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4788,
+          "y": 3885,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3803,
+    "boat": {
+      "x": 10.87890625,
+      "z": -22.42578125,
+      "native": {
+        "x": 4833,
+        "y": 3693,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 10.96875,
+        "z": -21.90625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4856,
+          "y": 3560,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 10.62109375,
+        "z": -22.5703125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4767,
+          "y": 3730,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 10.765625,
+        "z": -22.29296875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4804,
+          "y": 3659,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 10.8515625,
+        "z": -22.12890625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4826,
+          "y": 3617,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 10.50390625,
+        "z": -22.79296875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4737,
+          "y": 3787,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3804,
+    "boat": {
+      "x": 10.6796875,
+      "z": -22.046875,
+      "native": {
+        "x": 4782,
+        "y": 3596,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 10.76953125,
+        "z": -21.52734375,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4805,
+          "y": 3463,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 10.421875,
+        "z": -22.19140625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4716,
+          "y": 3633,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 10.56640625,
+        "z": -21.9140625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4753,
+          "y": 3562,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 10.65234375,
+        "z": -21.75,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4775,
+          "y": 3520,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 10.3046875,
+        "z": -22.4140625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4686,
+          "y": 3690,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3805,
+    "boat": {
+      "x": 10.48046875,
+      "z": -21.6640625,
+      "native": {
+        "x": 4731,
+        "y": 3498,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 10.5703125,
+        "z": -21.14453125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4754,
+          "y": 3365,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 10.22265625,
+        "z": -21.80859375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4665,
+          "y": 3535,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 10.3671875,
+        "z": -21.53125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4702,
+          "y": 3464,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 10.453125,
+        "z": -21.3671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4724,
+          "y": 3422,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 10.10546875,
+        "z": -22.03125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4635,
+          "y": 3592,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3806,
+    "boat": {
+      "x": 10.28125,
+      "z": -21.28125,
+      "native": {
+        "x": 4680,
+        "y": 3400,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 10.37109375,
+        "z": -20.76171875,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4703,
+          "y": 3267,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 10.0234375,
+        "z": -21.42578125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4614,
+          "y": 3437,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 10.16796875,
+        "z": -21.1484375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4651,
+          "y": 3366,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 10.25390625,
+        "z": -20.984375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4673,
+          "y": 3324,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 9.90625,
+        "z": -21.6484375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4584,
+          "y": 3494,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3807,
+    "boat": {
+      "x": 10.08203125,
+      "z": -20.90234375,
+      "native": {
+        "x": 4629,
+        "y": 3303,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 10.171875,
+        "z": -20.3828125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4652,
+          "y": 3170,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 9.82421875,
+        "z": -21.046875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4563,
+          "y": 3340,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 9.96875,
+        "z": -20.76953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4600,
+          "y": 3269,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 10.0546875,
+        "z": -20.60546875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4622,
+          "y": 3227,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 9.70703125,
+        "z": -21.26953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4533,
+          "y": 3397,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3808,
+    "boat": {
+      "x": 9.8828125,
+      "z": -20.51953125,
+      "native": {
+        "x": 4578,
+        "y": 3205,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 9.97265625,
+        "z": -20,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4601,
+          "y": 3072,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 9.625,
+        "z": -20.6640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4512,
+          "y": 3242,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 9.76953125,
+        "z": -20.38671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4549,
+          "y": 3171,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 9.85546875,
+        "z": -20.22265625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4571,
+          "y": 3129,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 9.5078125,
+        "z": -20.88671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4482,
+          "y": 3299,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3809,
+    "boat": {
+      "x": 9.68359375,
+      "z": -20.13671875,
+      "native": {
+        "x": 4527,
+        "y": 3107,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 9.7734375,
+        "z": -19.6171875,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4550,
+          "y": 2974,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 9.42578125,
+        "z": -20.28125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4461,
+          "y": 3144,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 9.5703125,
+        "z": -20.00390625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4498,
+          "y": 3073,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 9.65625,
+        "z": -19.83984375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4520,
+          "y": 3031,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 9.30859375,
+        "z": -20.50390625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4431,
+          "y": 3201,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3810,
+    "boat": {
+      "x": 9.484375,
+      "z": -19.7578125,
+      "native": {
+        "x": 4476,
+        "y": 3010,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 9.57421875,
+        "z": -19.23828125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4499,
+          "y": 2877,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 9.2265625,
+        "z": -19.90234375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4410,
+          "y": 3047,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 9.37109375,
+        "z": -19.625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4447,
+          "y": 2976,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 9.45703125,
+        "z": -19.4609375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4469,
+          "y": 2934,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 9.109375,
+        "z": -20.125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4380,
+          "y": 3104,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3811,
+    "boat": {
+      "x": 9.28515625,
+      "z": -19.375,
+      "native": {
+        "x": 4425,
+        "y": 2912,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 9.375,
+        "z": -18.85546875,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4448,
+          "y": 2779,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 9.02734375,
+        "z": -19.51953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4359,
+          "y": 2949,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 9.171875,
+        "z": -19.2421875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4396,
+          "y": 2878,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 9.2578125,
+        "z": -19.078125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4418,
+          "y": 2836,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 8.91015625,
+        "z": -19.7421875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4329,
+          "y": 3006,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3812,
+    "boat": {
+      "x": 9.0859375,
+      "z": -18.9921875,
+      "native": {
+        "x": 4374,
+        "y": 2814,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 9.17578125,
+        "z": -18.47265625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4397,
+          "y": 2681,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 8.828125,
+        "z": -19.13671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4308,
+          "y": 2851,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 8.97265625,
+        "z": -18.859375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4345,
+          "y": 2780,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 9.05859375,
+        "z": -18.6953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4367,
+          "y": 2738,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 8.7109375,
+        "z": -19.359375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4278,
+          "y": 2908,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3813,
+    "boat": {
+      "x": 8.88671875,
+      "z": -18.61328125,
+      "native": {
+        "x": 4323,
+        "y": 2717,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 8.9765625,
+        "z": -18.09375,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4346,
+          "y": 2584,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 8.62890625,
+        "z": -18.7578125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4257,
+          "y": 2754,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 8.7734375,
+        "z": -18.48046875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4294,
+          "y": 2683,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 8.859375,
+        "z": -18.31640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4316,
+          "y": 2641,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 8.51171875,
+        "z": -18.98046875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4227,
+          "y": 2811,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3814,
+    "boat": {
+      "x": 8.6875,
+      "z": -18.23046875,
+      "native": {
+        "x": 4272,
+        "y": 2619,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 8.77734375,
+        "z": -17.7109375,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4295,
+          "y": 2486,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 8.4296875,
+        "z": -18.375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4206,
+          "y": 2656,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 8.57421875,
+        "z": -18.09765625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4243,
+          "y": 2585,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 8.66015625,
+        "z": -17.93359375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4265,
+          "y": 2543,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 8.3125,
+        "z": -18.59765625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4176,
+          "y": 2713,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3815,
+    "boat": {
+      "x": 8.48828125,
+      "z": -17.8515625,
+      "native": {
+        "x": 4221,
+        "y": 2522,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 8.578125,
+        "z": -17.33203125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4244,
+          "y": 2389,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 8.23046875,
+        "z": -17.99609375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4155,
+          "y": 2559,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 8.375,
+        "z": -17.71875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4192,
+          "y": 2488,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 8.4609375,
+        "z": -17.5546875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4214,
+          "y": 2446,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 8.11328125,
+        "z": -18.21875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4125,
+          "y": 2616,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3816,
+    "boat": {
+      "x": 8.2890625,
+      "z": -17.46875,
+      "native": {
+        "x": 4170,
+        "y": 2424,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 8.37890625,
+        "z": -16.94921875,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4193,
+          "y": 2291,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 8.03125,
+        "z": -17.61328125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4104,
+          "y": 2461,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 8.17578125,
+        "z": -17.3359375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4141,
+          "y": 2390,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 8.26171875,
+        "z": -17.171875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4163,
+          "y": 2348,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 7.9140625,
+        "z": -17.8359375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4074,
+          "y": 2518,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1792,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3817,
+    "boat": {
+      "x": 8.08984375,
+      "z": -17.0859375,
+      "native": {
+        "x": 4119,
+        "y": 2326,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 8.1796875,
+        "z": -16.56640625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4142,
+          "y": 2193,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 7.83203125,
+        "z": -17.23046875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4053,
+          "y": 2363,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 7.9765625,
+        "z": -16.953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4090,
+          "y": 2292,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 8.0625,
+        "z": -16.7890625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4112,
+          "y": 2250,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 7.71484375,
+        "z": -17.453125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4023,
+          "y": 2420,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3818,
+    "boat": {
+      "x": 7.98046875,
+      "z": -16.671875,
+      "native": {
+        "x": 4091,
+        "y": 2220,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 7.95703125,
+        "z": -16.14453125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4085,
+          "y": 2085,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 7.76171875,
+        "z": -16.8671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4035,
+          "y": 2270,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 7.84375,
+        "z": -16.56640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4056,
+          "y": 2193,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 7.890625,
+        "z": -16.38671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4068,
+          "y": 2147,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 7.6953125,
+        "z": -17.109375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4018,
+          "y": 2332,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3819,
+    "boat": {
+      "x": 7.87109375,
+      "z": -16.2578125,
+      "native": {
+        "x": 4063,
+        "y": 2114,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 7.84765625,
+        "z": -15.73046875,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4057,
+          "y": 1979,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 7.65234375,
+        "z": -16.453125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4007,
+          "y": 2164,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 7.734375,
+        "z": -16.15234375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4028,
+          "y": 2087,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 7.78125,
+        "z": -15.97265625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4040,
+          "y": 2041,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 7.5859375,
+        "z": -16.6953125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3990,
+          "y": 2226,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3820,
+    "boat": {
+      "x": 7.76171875,
+      "z": -15.84375,
+      "native": {
+        "x": 4035,
+        "y": 2008,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 7.73828125,
+        "z": -15.31640625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4029,
+          "y": 1873,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 7.54296875,
+        "z": -16.0390625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3979,
+          "y": 2058,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 7.625,
+        "z": -15.73828125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4000,
+          "y": 1981,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 7.671875,
+        "z": -15.55859375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4012,
+          "y": 1935,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 7.4765625,
+        "z": -16.28125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3962,
+          "y": 2120,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3821,
+    "boat": {
+      "x": 7.65234375,
+      "z": -15.4296875,
+      "native": {
+        "x": 4007,
+        "y": 1902,
+        "h": 0
+      },
+      "speed": 110,
+      "passengers": [
+        63,
+        113,
+        112,
+        111,
+        114
+      ]
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": 7.62890625,
+        "z": -14.90234375,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 4001,
+          "y": 1767,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 63,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107448320,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": 7.43359375,
+        "z": -15.625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3951,
+          "y": 1952,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 71,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": 7.515625,
+        "z": -15.32421875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3972,
+          "y": 1875,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": 7.5625,
+        "z": -15.14453125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3984,
+          "y": 1829,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": 7.3671875,
+        "z": -15.8671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": 7,
+            "z": -15
+          },
+          {
+            "x": 7,
+            "z": -13
+          },
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 3934,
+          "y": 2014,
+          "h": 48,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 62,
+          "savedVehicle": 0,
+          "speed": 61,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 3840,
+          "destinationY": 1280,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107448320,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3822,
+    "boat": {
+      "x": 7.5390625,
+      "z": -15.015625,
+      "native": {
+        "x": 3978,
+        "y": 1796,
+        "h": 0
+      },
+      "speed": -1,
+      "passengers": []
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": -9,
+        "z": 33,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": -9,
+            "z": 33
+          },
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65280,
+          "y": 55040,
+          "h": 466,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 58,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 65280,
+          "destinationY": 55040,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107431936,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": -9,
+        "z": 33,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65280,
+          "y": 55040,
+          "h": 466,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": -9,
+        "z": 33,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65280,
+          "y": 55040,
+          "h": 466,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": -9,
+        "z": 33,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65280,
+          "y": 55040,
+          "h": 466,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": -9,
+        "z": 33,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65280,
+          "y": 55040,
+          "h": 466,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3823,
+    "boat": {
+      "x": 7.5390625,
+      "z": -15.015625,
+      "native": {
+        "x": 3978,
+        "y": 1796,
+        "h": 0
+      },
+      "speed": -1,
+      "passengers": []
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": -9,
+        "z": 33,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65280,
+          "y": 55040,
+          "h": 466,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 58,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107431936,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": -9.375,
+        "z": 32.78515625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65184,
+          "y": 55095,
+          "h": 422,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": -9.375,
+        "z": 32.78515625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65184,
+          "y": 55095,
+          "h": 422,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": -9.375,
+        "z": 32.78515625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65184,
+          "y": 55095,
+          "h": 422,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": -9.375,
+        "z": 32.78515625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65184,
+          "y": 55095,
+          "h": 422,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3824,
+    "boat": {
+      "x": 7.5390625,
+      "z": -15.015625,
+      "native": {
+        "x": 3978,
+        "y": 1796,
+        "h": 0
+      },
+      "speed": -1,
+      "passengers": []
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": -9.3671875,
+        "z": 32.7890625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65186,
+          "y": 55094,
+          "h": 423,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 58,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107431936,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": -9.80859375,
+        "z": 32.90234375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65073,
+          "y": 55065,
+          "h": 367,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": -9.80859375,
+        "z": 32.90234375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65073,
+          "y": 55065,
+          "h": 367,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": -9.80859375,
+        "z": 32.90234375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65073,
+          "y": 55065,
+          "h": 367,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": -9.80859375,
+        "z": 32.90234375,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65073,
+          "y": 55065,
+          "h": 367,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431936,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3825,
+    "boat": {
+      "x": 7.5390625,
+      "z": -15.015625,
+      "native": {
+        "x": 3978,
+        "y": 1796,
+        "h": 0
+      },
+      "speed": -1,
+      "passengers": []
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": -9.80859375,
+        "z": 32.90625,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 65073,
+          "y": 55064,
+          "h": 367,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 58,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107431936,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": -10.15625,
+        "z": 33.1328125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64984,
+          "y": 55006,
+          "h": 314,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": -10.15625,
+        "z": 33.1328125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64984,
+          "y": 55006,
+          "h": 314,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": -10.15625,
+        "z": 33.1328125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64984,
+          "y": 55006,
+          "h": 314,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": -10.15625,
+        "z": 33.1328125,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64984,
+          "y": 55006,
+          "h": 314,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3826,
+    "boat": {
+      "x": 7.5390625,
+      "z": -15.015625,
+      "native": {
+        "x": 3978,
+        "y": 1796,
+        "h": 0
+      },
+      "speed": -1,
+      "passengers": []
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": -10.15625,
+        "z": 33.1328125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64984,
+          "y": 55006,
+          "h": 314,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 58,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107427840,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": -10.54296875,
+        "z": 33.38671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64885,
+          "y": 54941,
+          "h": 240,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": -10.54296875,
+        "z": 33.38671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64885,
+          "y": 54941,
+          "h": 240,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": -10.54296875,
+        "z": 33.38671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64885,
+          "y": 54941,
+          "h": 240,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 114,
+        "x": -10.54296875,
+        "z": 33.38671875,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64885,
+          "y": 54941,
+          "h": 240,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  },
+  {
+    "turn": 3827,
+    "boat": {
+      "x": 7.5390625,
+      "z": -15.015625,
+      "native": {
+        "x": 3978,
+        "y": 1796,
+        "h": 0
+      },
+      "speed": -1,
+      "passengers": []
+    },
+    "party": [
+      {
+        "id": 63,
+        "x": -10.5390625,
+        "z": 33.3828125,
+        "hp": 100,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64886,
+          "y": 54942,
+          "h": 241,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 58,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -98,
+            "y": 0,
+            "z": -64
+          },
+          "flags2": 1107427840,
+          "physics": 18
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 111,
+        "x": -10.9296875,
+        "z": 33.640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64786,
+          "y": 54876,
+          "h": 176,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 112,
+        "x": -10.9296875,
+        "z": 33.640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64786,
+          "y": 54876,
+          "h": 176,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      },
+      {
+        "id": 113,
+        "x": -10.9296875,
+        "z": 33.640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          }
+        ],
+        "native": {
+          "x": 64786,
+          "y": 54876,
+          "h": 176,
+          "state": 17,
+          "previousState": 10,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 69,
+          "commandStatus": 0,
+          "goalX": 64256,
+          "goalY": 54528,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107431424,
+          "physics": 14
+        },
+        "flight": null
+      },
+      {
+        "id": 114,
+        "x": -10.9296875,
+        "z": 33.640625,
+        "hp": 90,
+        "lift": 0,
+        "path": [
+          {
+            "x": -13,
+            "z": 35
+          },
+          {
+            "x": -12.5,
+            "z": 34.5
+          }
+        ],
+        "native": {
+          "x": 64786,
+          "y": 54876,
+          "h": 176,
+          "state": 10,
+          "previousState": 0,
+          "substate": 0,
+          "vehicle": 0,
+          "savedVehicle": 0,
+          "speed": 59,
+          "commandStatus": 3,
+          "goalX": 64384,
+          "goalY": 54656,
+          "destinationX": 64256,
+          "destinationY": 54528,
+          "velocity": {
+            "x": -99,
+            "y": 0,
+            "z": -65
+          },
+          "flags2": 1107427840,
+          "physics": 14
+        },
+        "flight": null,
+        "order": {
+          "model": 3,
+          "flags": 0,
+          "references": 4,
+          "object": 0,
+          "a": 64384,
+          "b": 54656
+        }
+      }
+    ]
+  }
+]

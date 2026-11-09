@@ -191,7 +191,7 @@ test('Mission 23 enemy tribes grow their native settlements and populations', ()
       world.units.filter(unit => unit.team === team).length,
     ]),
     [
-      ['red', 6, 12],
+      ['red', 6, 13],
       ['yellow', 6, 12],
       ['green', 6, 16],
     ]

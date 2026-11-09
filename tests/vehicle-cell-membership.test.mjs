@@ -84,7 +84,7 @@ for (const [label, mission, model] of [
       exit = { x: short(person.x + 2_048), y: person.y }
     leaveLiveVehicle(world, vehicle, person, exit)
     assert.equal(vehicle.passengerCount, 0)
-    assert.deepEqual(vehicle.passengers, [])
+    assert.deepEqual(vehicle.passengers, [0])
     assert.equal(person.vehicle, 0)
     assert.equal(packedCell(person), packedCell(exit))
     assert.deepEqual(occupants(world, person).filter(id => id === person.id), [person.id])

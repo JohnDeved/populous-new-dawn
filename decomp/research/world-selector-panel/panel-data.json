@@ -1,0 +1,427 @@
+{
+  "palette_sha256": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2",
+  "frames": [
+    {
+      "index": 0,
+      "width": 638,
+      "height": 61,
+      "sha256_rgba": "bc61613cc499efc21038261c1489f3efa9cbf19d75f8bdc850d0a06a9d31d329"
+    },
+    {
+      "index": 1,
+      "width": 21,
+      "height": 21,
+      "sha256_rgba": "47d12b34c92e6905a79103d19d901bab33a1872908f12d9d30f7900e1889b5f6"
+    },
+    {
+      "index": 2,
+      "width": 21,
+      "height": 21,
+      "sha256_rgba": "b36e35a90bd3943ca1444b0e05c9e708f28d8fc00a6686e1d51f9de46b9a1f5c"
+    },
+    {
+      "index": 3,
+      "width": 13,
+      "height": 15,
+      "sha256_rgba": "1f16dafbe1c1aa98bcdfc58f1480de85e5026339774f05609905f2e98be570f6"
+    },
+    {
+      "index": 4,
+      "width": 13,
+      "height": 15,
+      "sha256_rgba": "8b20a350b50da40d1ab1fe14a1c23cd3aac793e0ce7e6866631061f1704bcdd4"
+    },
+    {
+      "index": 5,
+      "width": 10,
+      "height": 12,
+      "sha256_rgba": "7c790d123568f09a2b215f5d86c219e986b60350f8a1d6f9216d0a79a5782665"
+    },
+    {
+      "index": 6,
+      "width": 10,
+      "height": 12,
+      "sha256_rgba": "e1faec63a96aca4981cb408b3975f47354445775ffdd0240ef15b46e4dbc3888"
+    },
+    {
+      "index": 7,
+      "width": 31,
+      "height": 29,
+      "sha256_rgba": "cf483e3a5d1cd0a31e0714c6b310d8564f81ed47298d8afea9bf324e65ac0d88"
+    },
+    {
+      "index": 8,
+      "width": 29,
+      "height": 25,
+      "sha256_rgba": "ba84ddcdcaf78c29ebbfd71a0787ff1aa2ee1cfb943e25bf28aee46266d7664a"
+    },
+    {
+      "index": 9,
+      "width": 22,
+      "height": 20,
+      "sha256_rgba": "9ddd8f1062caa21c417d2e104964c29286859dd85efc9dfb1950dc8eed43af98"
+    },
+    {
+      "index": 10,
+      "width": 37,
+      "height": 37,
+      "sha256_rgba": "e39b11c09f7ef1448d17ae8b4473fd337f491b70094cd230e127df69f970be6e"
+    },
+    {
+      "index": 11,
+      "width": 37,
+      "height": 37,
+      "sha256_rgba": "413c35e7ce600b7f6decf3e0ef3835ec7929424b7876fe634de2969d42e73b3c"
+    },
+    {
+      "index": 12,
+      "width": 26,
+      "height": 27,
+      "sha256_rgba": "5a1da598aac7b98a04715efacbf89b5e9f63a0c202c84c93dac89fd267eaff69"
+    },
+    {
+      "index": 13,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "ff502fcb1dffee8c6e7e165a9c2e667d6e9829ee3dc279dd023607881461f776"
+    },
+    {
+      "index": 14,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "17b0cfcc01cb411d040bc4031308933ef9b66e9e25ba1b92574cfab797a53682"
+    },
+    {
+      "index": 15,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "0e3344d9e1eb17df68a38b4e7682b1edb739a8311e0e98c52dea629671ca9932"
+    },
+    {
+      "index": 16,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "becc8800830639315dea084747b673b8ad3ca1b06d7042879085bb607cae8b03"
+    },
+    {
+      "index": 17,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "df62a2414f67aca73dd69c54f763d556c7584c9560139b3cc3e73c4a82896be6"
+    },
+    {
+      "index": 18,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "61f91501a5365f0fb58e7c9d4a36bee8806bbf25f95310b1bb703a3372953119"
+    },
+    {
+      "index": 19,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "07745010e1fc888dfe41e997f8fd8537b2085009219c8bd5df4807f55e3fc214"
+    },
+    {
+      "index": 20,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "3a973d19e62bfdda1f84ae5325ddde37c25bfb0486e01da3938a5cc92aeda7f0"
+    },
+    {
+      "index": 21,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "4991991833cfd060945980b8ad1d8fa24473c34983e2f1707c49f7a1ee06f98a"
+    },
+    {
+      "index": 22,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "8b9548419a987d586cec4f85f993125756d77f59fecbca4a2abe88e2caf73bf4"
+    },
+    {
+      "index": 23,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "d131f6f37dbfab591e7aec844bf066b06c55e6ea34c0e3978ac137563f34d4d6"
+    },
+    {
+      "index": 24,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "9ad56812b5cc59ff7eab4111c7a542ee6228470ffa557f53840f533287285037"
+    },
+    {
+      "index": 25,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "b34a0482a03619e6a95a248eae5a84600594db90363835a33614ebac20bd1da0"
+    },
+    {
+      "index": 26,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "0106f961c45f2875b2aec743159c8b32b8d09be5c4bbaabda5682bcaf03203b5"
+    },
+    {
+      "index": 27,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "98030297febc22d66f0193e7e377ef0c8e152b33648385b5af196494665bd530"
+    },
+    {
+      "index": 28,
+      "width": 16,
+      "height": 16,
+      "sha256_rgba": "19ac7dcc7fbdbf193b6c4d955eb90a3c4766819eb77ffe5dc82d1cccccc135ef"
+    }
+  ],
+  "table_va": "0059dff8",
+  "raw_rows": [
+    [
+      0,
+      34,
+      27,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      54,
+      27,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      74,
+      27,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      94,
+      27,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      114,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      137,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      168,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      191,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      224,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      249,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      270,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      298,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      329,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      354,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      379,
+      25,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      408,
+      8,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      412,
+      19,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      412,
+      30,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      408,
+      41,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      442,
+      12,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      442,
+      38,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      466,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      495,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      523,
+      23,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      2,
+      551,
+      23,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "panel_origin": [
+    1,
+    419
+  ],
+  "opening_glyphs": [
+    {
+      "mission": 1,
+      "frame": 5,
+      "global_xy": [
+        34,
+        445
+      ],
+      "hit": {
+        "left_exclusive": 34,
+        "right_inclusive": 44,
+        "top_exclusive": 445,
+        "bottom_inclusive": 457
+      }
+    }
+  ]
+}

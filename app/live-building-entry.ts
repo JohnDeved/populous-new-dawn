@@ -39,7 +39,13 @@ import {
 } from './training.ts'
 import { stepTrainingConversion, type ConvertingBuilding } from './training-conversion.ts'
 import { requestTrainingPanel } from './training-panel-requests.ts'
-import { adoptLiveOrders, startLiveOrders, stepLiveOrderQueue } from './live-movement.ts'
+import {
+  adoptLiveOrders,
+  startLiveOrders,
+  stepLiveOrderQueue,
+  stepLiveMovement,
+  orderEffects,
+} from './live-movement.ts'
 import {
   allocatePersonOrder,
   attachPersonOrder,
@@ -47,11 +53,11 @@ import {
   prepareMovementOrder,
   currentPersonOrder,
   type OrderPool,
-  type OrderEffects,
 } from './person-orders.ts'
 import { clearLivePath, planLivePath, acceptLivePath, replanLivePath } from './live-pathfinding.ts'
 import { releasePersonRoute, setDirectPersonDestination } from './person-routes.ts'
 import {
+  setCellObject,
   insertObjectIntoCell,
   removeObjectFromCell,
   moveObjectInCells,
@@ -96,13 +102,6 @@ export type BuildingAdmission = ConvertingBuilding & TrainingBuilding & { manaNe
 function unsupported(): never {
   throw new Error('Building entry reached an unported world consumer')
 }
-const orderEffects: OrderEffects = {
-  prepare: unsupported,
-  stopWork: unsupported,
-  releaseSpell: unsupported,
-  deleteObject: unsupported,
-  releaseFight: unsupported,
-}
 const person = (w: World, u: Unit): EntryPerson =>
   Object.assign(createLivePerson(w, u), { savedVehicle: 0, orderDelay: 0 })
 
@@ -117,7 +116,7 @@ function begin(w: World, u: Unit, b: Building): BuildingEntry | undefined {
     model: b.admission?.activity && b.admission.activity & 0x8000 ? 10 : 8,
     a: b.id,
   })
-  attachPersonOrder(orders, p, id, 0, orderEffects)
+  attachPersonOrder(orders, p, id, 0, orderEffects(w))
   p.previousState = p.state
   p.state = defaultPersonState(p, w.manaWorld.gameFlags)
   initializeBuildingPerson(w, p)
@@ -208,8 +207,8 @@ export function initializeBuildingPerson(w: World, p: EntryPerson) {
                 b: point.y & 65535,
               }),
             occupied: () => false,
-            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects),
-            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects),
+            clearOrders: () => clearPersonOrders(w.buildingOrders, p, orderEffects(w)),
+            attachOrder: id => attachPersonOrder(w.buildingOrders, p, id, 0, orderEffects(w)),
             initialize,
           })
           if (u && currentPersonOrder(w.buildingOrders, p)?.model === 31) adoptLiveOrders(w, u, p)
@@ -306,6 +305,10 @@ function context(w: World) {
   return {
     randomState: w.randomState,
     people,
+    // Native pool indices are bounded. Browser person handles can exceed 0x7fff;
+    // preserve their full identity when comparing stored occupant references.
+    occupantId: (slot: number) => slot,
+    personId: (stored: number) => stored,
     buildings,
     tribes,
     orders: w.buildingOrders,
@@ -319,7 +322,7 @@ function context(w: World) {
 
 function occupancyEffects(w: World, people: Map<number, EntryPerson>): OccupancyEffects {
   return {
-    orders: orderEffects,
+    orders: orderEffects(w),
     leaveVehicle: p => {
       if ((p as EntryPerson).vehicle) unsupported()
     },
@@ -342,7 +345,7 @@ function occupancyEffects(w: World, people: Map<number, EntryPerson>): Occupancy
       Object.assign(u, browserPosition(p))
     },
     insertCell: p => {
-      w.objectCells.objects.set(p.id, p as EntryPerson)
+      setCellObject(w.objectCells, p.id, p as EntryPerson)
       insertObjectIntoCell(w.objectCells, p as EntryPerson, p)
     },
     removeCell: p => removeObjectFromCell(w.objectCells, p as EntryPerson),
@@ -420,8 +423,8 @@ export function dismantleBuilding(w: World, b: Building) {
         p = ctx.people.get(id)!
       u.entry ??= { person: p, orders: w.buildingOrders }
       leaveBuildingEntry(w, u)
-      clearPersonOrders(w.buildingOrders, p, orderEffects)
-      attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects)
+      clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+      attachPersonOrder(w.buildingOrders, p, order, 0, orderEffects(w))
       resetPersonMotion(p)
       u.work = b.id
       if (!(p.flags2 & 0x100000)) {
@@ -448,7 +451,8 @@ export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
   if (!u.entry) return
   const p = u.entry.person
   if (!preserveOrders) {
-    clearPersonOrders(w.buildingOrders, p, orderEffects)
+    clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+    delete p.guardInputPending
     if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
   }
   releasePersonRoute(w.motionRoutes, p)
@@ -457,11 +461,61 @@ export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
   clearLivePath(w, u)
 }
 
+// G retains the entry adapter until the native startup actually departs. The
+// failed-allocation empty queue can instead reach occupied21; that owner must
+// stay here, including its timer and future panel selection, not become stranded.
+function stepSchoolGuard(w: World, u: Unit) {
+  const entry = u.entry!,
+    p = entry.person
+  let published = false
+  const publish = () => {
+    const occupied = !!(p.flags2 & 0x800000)
+    if (occupied || u.inside !== null || p.building !== null) {
+      const b = w.buildings.find(candidate => candidate.id === u.inside)
+      const consistent =
+        b && p.building === b.id && b.admission?.occupants.filter(id => id === p.id).length === 1
+      const waiting = p.guardInputPending && !!(p.flags2 & 0x100000)
+      const resting = p.state === 21 && !currentPersonOrder(w.buildingOrders, p)
+      if (!occupied || !consistent || (!waiting && !resting))
+        throw new Error('School Guard reached an unsupported occupied owner transition')
+      u.native = null
+    } else adoptLiveOrders(w, u, p)
+    published = true
+  }
+  // The route consumer must see this exact physical owner, not overwrite its
+  // counter from world.turn as it does for a retired browser route adapter.
+  u.native = p
+  try {
+    stepLiveMovement(
+      w,
+      u,
+      {},
+      {
+        initialize: () => initializeBuildingPerson(w, p),
+        changeState: next => {
+          if (p.flags2 & 0x100000) return
+          p.previousState = p.state
+          p.state = next
+          initializeBuildingPerson(w, p)
+        },
+        adopt: publish,
+      }
+    )
+    if (!published) publish()
+  } finally {
+    if (u.entry === entry) u.native = null
+  }
+}
+
 export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
   const fresh = !u.entry
   if (!u.entry && b) u.entry = begin(w, u, b)
   if (!u.entry) return
   const p = u.entry.person
+  if (p.guardInputPending) {
+    stepSchoolGuard(w, u)
+    return
+  }
   if (p.state === 21) {
     // Native state-21 pose freezes once its signed timer expires. AI reassignment
     // and other occupied classes remain separate scheduler consumers.
@@ -515,7 +569,13 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
     dropCarriedTimber(
       p,
       () => {
-        w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+        w.trees.push({
+          ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+          id: w.nextId++,
+          ...browserPosition(p),
+          logs: 1,
+          model: 11,
+        })
         return true
       },
       () => sound(w, 10, u)
@@ -642,7 +702,7 @@ export function stepLiveTraining(w: World, b: Building) {
   stepTrainingConversion(ctx, state, {
     ...effects,
     orders: {
-      ...orderEffects,
+      ...orderEffects(w),
       prepare: (order, model, x, y, flags = 0) => {
         if (model !== 3) unsupported()
         prepareMovementOrder(order, { x, y }, flags, w.land, id =>

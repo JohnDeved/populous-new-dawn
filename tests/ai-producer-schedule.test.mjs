@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { addBuilding, addUnit, createWorld } from '../app/model.ts'
@@ -96,7 +97,7 @@ test('checkpoint migration retains producer history and initializes each legacy 
   // A second independently stored AI validates migration without shared arrays.
   legacy.campaignAIs[1] = { ...structuredClone(legacy.ai), ...createComputerQueue() }
   delete legacy.campaignAIs[1].producers
-  const migrated = migrateCheckpoint(legacy)
+  const migrated = normalizeHistoricalFixture(legacy)
   assert.equal(migrated.ai.producers.length, 12)
   assert.deepEqual(migrated.ai.producers, migrated.campaignAIs[1].producers)
   assert.notEqual(migrated.ai.producers, migrated.campaignAIs[1].producers)

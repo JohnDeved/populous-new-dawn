@@ -1,6 +1,7 @@
+import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
 import type { GameScene } from './scene.ts'
 import { buildingInsidePoint, buildingPose } from './building-shapes.ts'
-import { browserPosition, effect, nativePosition } from './model.ts'
+import { browserPosition, effect, nativePosition, type Point } from './model.ts'
 import { retainedBuildingPanel } from './building-panels.ts'
 import { stepTooltip, tooltipPalette, worldTooltipObject, type TooltipObject } from './tooltips.ts'
 import {
@@ -109,7 +110,12 @@ function hudOwner(scene: GameScene, element: Element) {
   return owner
 }
 
-export function publishTooltipInput(scene: GameScene, geometryChanged = true) {
+export function publishTooltipInput(
+  scene: GameScene,
+  geometryChanged = true,
+  metrics?: PointerFrameMetrics,
+  terrainPick?: Point | null
+) {
   const pointer = scene.navigationPointer
       ? { clientX: scene.navigationPointer.x, clientY: scene.navigationPointer.y }
       : scene.pointerScreen,
@@ -155,14 +161,26 @@ export function publishTooltipInput(scene: GameScene, geometryChanged = true) {
         !geometryChanged &&
         previous &&
         ['world', 'unmapped-cell', 'unmapped-object'].includes(previous.route),
-      id = reuse ? previous.picked : scene.picking.pick(scene.pointerScreen)
+      id = reuse
+        ? previous.picked
+        : metrics
+          ? measurePointerQuery(metrics, 'object', () =>
+              scene.picking.pick(scene.pointerScreen!, metrics)
+            )
+          : scene.picking.pick(scene.pointerScreen)
     sample.picked = id
     sample.object = id === null ? null : tooltipObject(scene, id)
     if (reuse) sample.cell = previous.cell
     else if (id !== null) sample.cell = hutCell(scene, id)
     if (id !== null && !sample.object) sample.route = 'unmapped-object'
     if (!reuse && sample.cell === null) {
-      const ground = scene.pick(scene.pointerScreen)
+      // Share only the ordinary terrain query from this pointer update, including misses.
+      let ground = terrainPick
+      if (metrics?.interaction && ground !== undefined) metrics.interaction.sharedTerrain = true
+      if (ground === undefined)
+        ground = metrics
+          ? measurePointerQuery(metrics, 'terrain', () => scene.pick(scene.pointerScreen!, metrics))
+          : scene.pick(scene.pointerScreen)
       if (ground) sample.cell = packedCell(nativePosition(scene.world, ground))
     }
     sample.inspectionTarget = inspectionTarget(scene, id, sample.cell)

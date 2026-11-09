@@ -1,0 +1,912 @@
+{
+  "scope": "Observation-only collectors force non-passing exit, never acceptance. Original test input/actions unchanged; assertions collected rather than aborting to expose full outcome.",
+  "baselineHead": "69a9a600effdf7264c53a89f8a007b9377ed8e9c",
+  "baselineRuntimeEquals": "a550ac898d15ce5a5c58947c0cd0f8cbabc0cd06",
+  "candidateHead": "287d4ee0a90df1296a626bbde26edb9d86f56c3a",
+  "logHashes": {
+    "baseline": "5dc3ccb5a8d62321fc2786a8a0efe6637785e689d821fe6b86bb0f581360d46e",
+    "candidate": "cc845c983ac255cc4da3a927bcb80b9d0cd955cf1961f05e6bb382aaa4859b8f"
+  },
+  "baselineAssertionMismatches": [],
+  "candidateAssertionMismatches": [
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n3857 !== 3862\n",
+      "stack": [
+        "",
+        "3857 !== 3862",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    [\n+     3857,\n+     17\n+   ],\n+   [\n+     3872,\n-     3862,\n      10\n    ],\n    [\n+     3876,\n-     3883,\n      12\n    ],\n-   [\n-     3891,\n-     11\n-   ]\n  ]\n",
+      "stack": [
+        "+ actual - expected",
+        "",
+        "  ["
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n17 !== 10\n",
+      "stack": [
+        "",
+        "17 !== 10",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n3888 !== 3891\n",
+      "stack": [
+        "",
+        "3888 !== 3891",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n3857 !== 3862\n",
+      "stack": [
+        "",
+        "3857 !== 3862",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n17 !== 10\n",
+      "stack": [
+        "",
+        "17 !== 10",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    [\n+     3857,\n+     17\n-     3862,\n-     10\n    ],\n    [\n+     3873,\n+     12\n+   ],\n+   [\n+     3877,\n-     3901,\n      11\n    ]\n  ]\n",
+      "stack": [
+        "+ actual - expected",
+        "",
+        "  ["
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n3884 !== 3915\n",
+      "stack": [
+        "",
+        "3884 !== 3915",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n3545 !== 3541\n",
+      "stack": [
+        "",
+        "3545 !== 3541",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n3578 !== 0\n",
+      "stack": [
+        "",
+        "3578 !== 0",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n0 !== 3760\n",
+      "stack": [
+        "",
+        "0 !== 3760",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n0 !== 100.75\n",
+      "stack": [
+        "",
+        "0 !== 100.75",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n+ actual - expected\n\n+ undefined\n- null\n",
+      "stack": [
+        "+ actual - expected",
+        "",
+        "+ undefined"
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\nfalse !== true\n",
+      "stack": [
+        "",
+        "false !== true",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\ntrue !== false\n",
+      "stack": [
+        "",
+        "true !== false",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\ntrue !== false\n",
+      "stack": [
+        "",
+        "true !== false",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n55 !== 0\n",
+      "stack": [
+        "",
+        "55 !== 0",
+        ""
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    3881,\n+   3886,\n-   3882,\n    17,\n+   3917\n-   3915\n  ]\n",
+      "stack": [
+        "+ actual - expected",
+        "",
+        "  ["
+      ]
+    },
+    {
+      "diagnosticAssertion": "Expected values to be strictly equal:\n\n227 !== 1\n",
+      "stack": [
+        "",
+        "227 !== 1",
+        ""
+      ]
+    }
+  ],
+  "pairedSelectedRows": [
+    {
+      "label": "balloon-person-attack",
+      "turn": 3851,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3851,
+        "id": 89,
+        "unit": {
+          "x": 27.25,
+          "z": 120.9609375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 10030,
+          "y": 32379,
+          "h": 1580,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 11
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3851,
+        "id": 89,
+        "unit": {
+          "x": 27.25,
+          "z": 120.9609375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9024,
+          "y": 32522,
+          "h": 1563,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 11
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-person-attack",
+      "turn": 3852,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3852,
+        "id": 89,
+        "unit": {
+          "x": 23.04296875,
+          "z": 121.5625,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 7947,
+          "y": 32368,
+          "h": 905,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 553648384,
+          "counter": 12
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3852,
+        "id": 89,
+        "unit": {
+          "x": 24.27734375,
+          "z": 121.375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 8263,
+          "y": 32416,
+          "h": 933,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 553648384,
+          "counter": 12
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-person-attack",
+      "turn": 3857,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3857,
+        "id": 89,
+        "unit": {
+          "x": 23.93359375,
+          "z": 121.4453125,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 8175,
+          "y": 32398,
+          "h": 927,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 553648384,
+          "counter": 12
+        },
+        "inRouteMap": true,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3857,
+        "id": 89,
+        "unit": {
+          "x": 24.9453125,
+          "z": 121.29296875,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 17
+      }
+    },
+    {
+      "label": "balloon-person-attack",
+      "turn": 3880,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3880,
+        "id": 89,
+        "unit": {
+          "x": 23.03515625,
+          "z": 121.33203125,
+          "hp": 84.8
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 10
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3880,
+        "id": 89,
+        "unit": {
+          "x": 26.98046875,
+          "z": 121.53125,
+          "hp": 32.35
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 12
+      }
+    },
+    {
+      "label": "balloon-person-attack",
+      "turn": 3881,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3881,
+        "id": 89,
+        "unit": {
+          "x": 23.03515625,
+          "z": 121.33203125,
+          "hp": 84.8
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 10
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3881,
+        "id": 89,
+        "unit": {
+          "x": 26.98046875,
+          "z": 121.53125,
+          "hp": 32.35
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 12
+      }
+    },
+    {
+      "label": "balloon-person-attack",
+      "turn": 3882,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3882,
+        "id": 89,
+        "unit": {
+          "x": 23.03515625,
+          "z": 121.33203125,
+          "hp": 66.8
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 10
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3882,
+        "id": 89,
+        "unit": {
+          "x": 26.98046875,
+          "z": 121.53125,
+          "hp": 32.35
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 12
+      }
+    },
+    {
+      "label": "balloon-person-attack",
+      "turn": 3886,
+      "baseline": {
+        "observation": "balloon-person-attack",
+        "turn": 3886,
+        "id": 89,
+        "unit": {
+          "x": 23.03515625,
+          "z": 121.33203125,
+          "hp": 48.8
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 12
+      },
+      "candidate": {
+        "observation": "balloon-person-attack",
+        "turn": 3886,
+        "id": 89,
+        "unit": {
+          "x": 26.98046875,
+          "z": 121.53125,
+          "hp": 14.8
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 12
+      }
+    },
+    {
+      "label": "balloon-plain-person-attack",
+      "turn": 3539,
+      "baseline": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3539,
+        "id": 89,
+        "unit": {
+          "x": 27.25,
+          "z": 120.96484375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9975,
+          "y": 32415,
+          "h": 1577,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 704643328,
+          "counter": 211
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3539,
+        "id": 89,
+        "unit": {
+          "x": 27.25,
+          "z": 120.96484375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9024,
+          "y": 32521,
+          "h": 1563,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 704643328,
+          "counter": 211
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-plain-person-attack",
+      "turn": 3540,
+      "baseline": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3540,
+        "id": 89,
+        "unit": {
+          "x": 27.9765625,
+          "z": 121.10546875,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9210,
+          "y": 32485,
+          "h": 950,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 671088896,
+          "counter": 212
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3540,
+        "id": 89,
+        "unit": {
+          "x": 24.26953125,
+          "z": 121.3359375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 8261,
+          "y": 32426,
+          "h": 932,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 671088896,
+          "counter": 212
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-plain-person-attack",
+      "turn": 3541,
+      "baseline": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3541,
+        "id": 89,
+        "unit": {
+          "x": 27.9765625,
+          "z": 121.10546875,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 17
+      },
+      "candidate": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3541,
+        "id": 89,
+        "unit": {
+          "x": 24.26953125,
+          "z": 121.3359375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 8261,
+          "y": 32426,
+          "h": 932,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 671088896,
+          "counter": 212
+        },
+        "inRouteMap": true,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-plain-person-attack",
+      "turn": 3545,
+      "baseline": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3545,
+        "id": 89,
+        "unit": {
+          "x": 27.9765625,
+          "z": 121.10546875,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 17
+      },
+      "candidate": {
+        "observation": "balloon-plain-person-attack",
+        "turn": 3545,
+        "id": 89,
+        "unit": {
+          "x": 24.9375,
+          "z": 121.26171875,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 17
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3851,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3851,
+        "id": 89,
+        "unit": {
+          "x": 30.5,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9920,
+          "y": 32512,
+          "h": 1576,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 242
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3851,
+        "id": 89,
+        "unit": {
+          "x": 30.5,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9856,
+          "y": 32512,
+          "h": 1573,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 242
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3852,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3852,
+        "id": 89,
+        "unit": {
+          "x": 30.375,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9920,
+          "y": 32512,
+          "h": 1576,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 243
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3852,
+        "id": 89,
+        "unit": {
+          "x": 30.375,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9824,
+          "y": 32512,
+          "h": 1572,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 243
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3857,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3857,
+        "id": 89,
+        "unit": {
+          "x": 29.75,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9920,
+          "y": 32512,
+          "h": 1576,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 248
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3857,
+        "id": 89,
+        "unit": {
+          "x": 29.75,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9664,
+          "y": 32512,
+          "h": 1571,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 248
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3880,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3880,
+        "id": 89,
+        "unit": {
+          "x": 27.25390625,
+          "z": 120.99609375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9920,
+          "y": 32512,
+          "h": 1576,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 15
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3880,
+        "id": 89,
+        "unit": {
+          "x": 27.25390625,
+          "z": 120.99609375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9025,
+          "y": 32513,
+          "h": 1563,
+          "state": 10,
+          "vehicle": 1,
+          "flags2": 35803648,
+          "flags4": 587202816,
+          "counter": 15
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3881,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3881,
+        "id": 89,
+        "unit": {
+          "x": 27.75,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 9152,
+          "y": 32512,
+          "h": 949,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 553648384,
+          "counter": 16
+        },
+        "inRouteMap": false,
+        "flight": false
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3881,
+        "id": 89,
+        "unit": {
+          "x": 24.25390625,
+          "z": 120.99609375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 8257,
+          "y": 32513,
+          "h": 922,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 553648384,
+          "counter": 16
+        },
+        "inRouteMap": false,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3882,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3882,
+        "id": 89,
+        "unit": {
+          "x": 27.75,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 17
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3882,
+        "id": 89,
+        "unit": {
+          "x": 24.25390625,
+          "z": 120.99609375,
+          "hp": 100.6
+        },
+        "native": {
+          "x": 8257,
+          "y": 32513,
+          "h": 922,
+          "state": 10,
+          "vehicle": 0,
+          "flags2": 1109529088,
+          "flags4": 553648384,
+          "counter": 16
+        },
+        "inRouteMap": true,
+        "flight": false
+      }
+    },
+    {
+      "label": "balloon-staged-movement",
+      "turn": 3886,
+      "baseline": {
+        "observation": "balloon-staged-movement",
+        "turn": 3886,
+        "id": 89,
+        "unit": {
+          "x": 27.75,
+          "z": 121,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 10
+      },
+      "candidate": {
+        "observation": "balloon-staged-movement",
+        "turn": 3886,
+        "id": 89,
+        "unit": {
+          "x": 24.93359375,
+          "z": 120.99609375,
+          "hp": 100.6
+        },
+        "native": null,
+        "inRouteMap": false,
+        "flight": false,
+        "fight": 17
+      }
+    }
+  ],
+  "rowScope": "Plain-person paired rows restricted to3539\u20133545, before fresh-case observation starts3547, so historical and fresh timelines cannot alias. Raw collector later rows share a label and must not be compared as one case."
+}

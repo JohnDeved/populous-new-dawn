@@ -1,0 +1,51 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00459d00 <.text+0x58d00>:
+  459d00:	56                   	push   esi
+  459d01:	8b 15 70 90 a6 00    	mov    edx,DWORD PTR ds:0xa69070
+  459d07:	8b 4c 24 10          	mov    ecx,DWORD PTR [esp+0x10]
+  459d0b:	57                   	push   edi
+  459d0c:	66 8b 41 04          	mov    ax,WORD PTR [ecx+0x4]
+  459d10:	8b 3d 74 90 a6 00    	mov    edi,DWORD PTR ds:0xa69074
+  459d16:	66 c1 e8 01          	shr    ax,0x1
+  459d1a:	0f b7 f0             	movzx  esi,ax
+  459d1d:	66 8b 41 06          	mov    ax,WORD PTR [ecx+0x6]
+  459d21:	2b d6                	sub    edx,esi
+  459d23:	66 c1 e8 01          	shr    ax,0x1
+  459d27:	8b 74 24 0c          	mov    esi,DWORD PTR [esp+0xc]
+  459d2b:	0f b7 c0             	movzx  eax,ax
+  459d2e:	2b d6                	sub    edx,esi
+  459d30:	2b f8                	sub    edi,eax
+  459d32:	c1 fa 05             	sar    edx,0x5
+  459d35:	8b 44 24 10          	mov    eax,DWORD PTR [esp+0x10]
+  459d39:	2b f8                	sub    edi,eax
+  459d3b:	6a 01                	push   0x1
+  459d3d:	c1 ff 05             	sar    edi,0x5
+  459d40:	51                   	push   ecx
+  459d41:	2b c7                	sub    eax,edi
+  459d43:	2b f2                	sub    esi,edx
+  459d45:	50                   	push   eax
+  459d46:	56                   	push   esi
+  459d47:	e8 14 00 00 00       	call   0x459d60
+  459d4c:	83 c4 10             	add    esp,0x10
+  459d4f:	5f                   	pop    edi
+  459d50:	5e                   	pop    esi
+  459d51:	c3                   	ret
+  459d52:	cc                   	int3
+  459d53:	cc                   	int3
+  459d54:	cc                   	int3
+  459d55:	cc                   	int3
+  459d56:	cc                   	int3
+  459d57:	cc                   	int3
+  459d58:	cc                   	int3
+  459d59:	cc                   	int3
+  459d5a:	cc                   	int3
+  459d5b:	cc                   	int3
+  459d5c:	cc                   	int3
+  459d5d:	cc                   	int3
+  459d5e:	cc                   	int3
+  459d5f:	cc                   	int3

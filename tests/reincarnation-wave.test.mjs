@@ -1,6 +1,7 @@
+import { vehicleExit } from '../app/live-vehicles.ts'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createWorld, tick, joinBattle, command } from '../app/model.ts'
+import { createWorld, tick, joinBattle, command, supportsFollower } from '../app/model.ts'
 import { createWorldState, addUnit } from '../app/world-state.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { browserPosition } from '../app/world-coordinates.ts'
@@ -253,8 +254,10 @@ test('ordinary Boat and Balloon boarding retain seats and deselect passengers un
   const { selectVehiclePassenger } = await import('../app/vehicle-panel-runtime.ts')
   for (const model of [1, 3]) {
     const w = createWorld(22), vehicle = w.vehicles.find(v => v.model === model)
-    const passenger = addUnit(w, 'blue', 'spy', browserPosition(vehicle))
-    const shaman = addUnit(w, 'blue', 'shaman', browserPosition(vehicle))
+    const exit = vehicleExit(w, vehicle), point = browserPosition(exit.point)
+    assert.ok(exit.found && supportsFollower(w, point), 'supplied people start on valid land')
+    const passenger = addUnit(w, 'blue', 'spy', point)
+    const shaman = addUnit(w, 'blue', 'shaman', point)
     w.inputMask = 0
     w.selected = [passenger.id, shaman.id]
     assert.ok(command(w, {...browserPosition(vehicle), id:vehicle.id}))

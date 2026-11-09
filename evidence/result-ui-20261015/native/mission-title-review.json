@@ -1,0 +1,204 @@
+{
+  "status": "passed",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "existingDisassembly": "/tmp/selector-text/language.asm",
+  "instructionOrContinuationLines": 180,
+  "bytes": 704,
+  "resultPassesFlag1At": "005240a8",
+  "formatVA": "005d4784",
+  "format": "%02d : %s",
+  "numberedTitles": [
+    {
+      "level": 1,
+      "tableBranch": 0,
+      "branchVA": "0x4c3c7b",
+      "languageId": 610,
+      "title": "01 : The Journey Begins",
+      "font3Width": 200
+    },
+    {
+      "level": 2,
+      "tableBranch": 1,
+      "branchVA": "0x4c3c8a",
+      "languageId": 640,
+      "title": "02 : Night Falls",
+      "font3Width": 139
+    },
+    {
+      "level": 3,
+      "tableBranch": 2,
+      "branchVA": "0x4c3c99",
+      "languageId": 647,
+      "title": "03 : Crisis of Faith",
+      "font3Width": 170
+    },
+    {
+      "level": 4,
+      "tableBranch": 3,
+      "branchVA": "0x4c3ca8",
+      "languageId": 653,
+      "title": "04 : Combined Forces",
+      "font3Width": 193
+    },
+    {
+      "level": 5,
+      "tableBranch": 4,
+      "branchVA": "0x4c3cb7",
+      "languageId": 660,
+      "title": "05 : Death From Above",
+      "font3Width": 205
+    },
+    {
+      "level": 6,
+      "tableBranch": 5,
+      "branchVA": "0x4c3cc6",
+      "languageId": 663,
+      "title": "06 : Building Bridges",
+      "font3Width": 182
+    },
+    {
+      "level": 7,
+      "tableBranch": 6,
+      "branchVA": "0x4c3cd5",
+      "languageId": 667,
+      "title": "07 : Unseen Enemy",
+      "font3Width": 158
+    },
+    {
+      "level": 8,
+      "tableBranch": 7,
+      "branchVA": "0x4c3ce4",
+      "languageId": 671,
+      "title": "08 : Continental Divide",
+      "font3Width": 206
+    },
+    {
+      "level": 9,
+      "tableBranch": 8,
+      "branchVA": "0x4c3cf3",
+      "languageId": 674,
+      "title": "09 : Fire in the Mist",
+      "font3Width": 175
+    },
+    {
+      "level": 10,
+      "tableBranch": 9,
+      "branchVA": "0x4c3d02",
+      "languageId": 678,
+      "title": "10 : From the Depths",
+      "font3Width": 182
+    },
+    {
+      "level": 11,
+      "tableBranch": 10,
+      "branchVA": "0x4c3d11",
+      "languageId": 683,
+      "title": "11 : Treacherous Souls",
+      "font3Width": 199
+    },
+    {
+      "level": 12,
+      "tableBranch": 11,
+      "branchVA": "0x4c3d20",
+      "languageId": 685,
+      "title": "12 : An Easy Target",
+      "font3Width": 170
+    },
+    {
+      "level": 13,
+      "tableBranch": 12,
+      "branchVA": "0x4c3d2f",
+      "languageId": 687,
+      "title": "13 : Aerial Bombardment",
+      "font3Width": 212
+    },
+    {
+      "level": 14,
+      "tableBranch": 13,
+      "branchVA": "0x4c3d3e",
+      "languageId": 689,
+      "title": "14 : Attacked From All Sides",
+      "font3Width": 253
+    },
+    {
+      "level": 15,
+      "tableBranch": 14,
+      "branchVA": "0x4c3d4d",
+      "languageId": 691,
+      "title": "15 : Incarcerated",
+      "font3Width": 150
+    },
+    {
+      "level": 16,
+      "tableBranch": 15,
+      "branchVA": "0x4c3d5c",
+      "languageId": 693,
+      "title": "16 : Bloodlust",
+      "font3Width": 129
+    },
+    {
+      "level": 17,
+      "tableBranch": 16,
+      "branchVA": "0x4c3d6b",
+      "languageId": 696,
+      "title": "17 : Middle Ground",
+      "font3Width": 167
+    },
+    {
+      "level": 18,
+      "tableBranch": 17,
+      "branchVA": "0x4c3d7a",
+      "languageId": 698,
+      "title": "18 : Head Hunter",
+      "font3Width": 142
+    },
+    {
+      "level": 19,
+      "tableBranch": 18,
+      "branchVA": "0x4c3d89",
+      "languageId": 700,
+      "title": "19 : Unlikely Allies",
+      "font3Width": 161
+    },
+    {
+      "level": 20,
+      "tableBranch": 19,
+      "branchVA": "0x4c3d98",
+      "languageId": 706,
+      "title": "20 : Archipelago",
+      "font3Width": 149
+    },
+    {
+      "level": 21,
+      "tableBranch": 20,
+      "branchVA": "0x4c3da7",
+      "languageId": 708,
+      "title": "21 : Fractured Earth",
+      "font3Width": 181
+    },
+    {
+      "level": 22,
+      "tableBranch": 21,
+      "branchVA": "0x4c3db6",
+      "languageId": 712,
+      "title": "22 : Solo",
+      "font3Width": 87
+    },
+    {
+      "level": 23,
+      "tableBranch": 22,
+      "branchVA": "0x4c3dc5",
+      "languageId": 714,
+      "title": "23 : Inferno",
+      "font3Width": 106
+    }
+  ],
+  "tutorial79": {
+    "tableBranch": 44,
+    "branchVA": "0x4c3e75",
+    "behavior": "edx/esi remain -1; metadata-name fallback at004c3ec4 uses009fd108 + (level << 8); no numeric formatter",
+    "valueProven": false,
+    "allowedBrowserAdaptation": "Tutorial, explicitly labeled adaptation"
+  },
+  "maxFont3Width": 253
+}

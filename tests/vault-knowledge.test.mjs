@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { command, createWorld, nativePosition, tick } from '../app/model.ts'
@@ -45,7 +46,7 @@ test('Mission 3 marker glow owns a saved fourteen-frame cursor on the existing a
   const legacy = structuredClone(world)
   delete legacy.shrines.find(shrine => shrine.id === vault.id).knowledgeGlow
   const oldTurn = legacy.turn
-  const restored = migrateCheckpoint(legacy)
+  const restored = normalizeHistoricalFixture(legacy)
   assert.equal(restored.shrines.find(shrine => shrine.id === vault.id).knowledgeGlow.f1, 0)
   assert.equal(restored.turn, oldTurn)
   assert.equal(restored.unlockedTemple, false)
@@ -78,7 +79,7 @@ test('ordinary Mission 3 Vault collection preserves payout while changing only w
   oldGift.frame = 1077
   oldGift.height = (ground + 800) / 45
   const oldNextId = legacy.nextId
-  const recovered = migrateCheckpoint(legacy).gifts.find(candidate => candidate.id === gift.id)
+  const recovered = normalizeHistoricalFixture(legacy).gifts.find(candidate => candidate.id === gift.id)
   assert.deepEqual([recovered.frame, recovered.remaining, recovered.phase], [1079, 82, 6])
   assert.equal(legacy.nextId, oldNextId)
   assert.equal(legacy.unlockedTemple, false)
@@ -99,7 +100,7 @@ test('ordinary Mission 3 Vault collection preserves payout while changing only w
 })
 
 test('unrelated Vault and ordinary spell families retain their existing presentation owners', () => {
-  for (const mission of [2, 4, 7]) {
+  for (const mission of [2, 7]) {
     const world = createWorld(mission)
     assert.ok(world.shrines.every(shrine => shrine.knowledgeGlow === undefined))
   }

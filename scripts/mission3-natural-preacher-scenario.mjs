@@ -8,7 +8,7 @@ import { observeCampaignConversions } from './campaign-conversion-observer.mjs'
 const assertCondition = (condition, message) => { if (!condition) throw Error(message) }
 export const preachingPoint = { x: -39, z: -110 }
 
-export function naturalPreacherJourney(world) {
+export function acquireNaturalPreacher(world) {
   assertCondition(world.outcome.level === 3 && world.turn <= 256, 'Journey requires fresh Mission 3')
   const victim = world.units.find(unit => unit.team === 'yellow' && unit.kind === 'brave' && unit.x === -43 && unit.z === -107)
   assertCondition(victim, 'Missing authored Yellow Brave at (-43,-107)')
@@ -41,6 +41,12 @@ export function naturalPreacherJourney(world) {
   assertCondition(command(world, temple), 'Temple training command rejected')
   until('preacher-trained', () => world.units.some(unit => unit.team === 'blue' && unit.kind === 'preacher'))
   const preacher = world.units.find(unit => unit.team === 'blue' && unit.kind === 'preacher')
+  return { world, preacher, shaman, victim, authoredVictimId, traineeId, templeId: temple.id, milestones,
+    step, until, observation: () => observation }
+}
+
+export function naturalPreacherJourney(world) {
+  const { preacher, victim, authoredVictimId, traineeId, templeId, milestones, step, until, observation } = acquireNaturalPreacher(world)
   setSelection(world, [preacher.id])
   assertCondition(command(world, { x: -33, z: -110 }), 'Preacher staging approach rejected')
   // Let the real defense commit to the staging cell before the final sermon.
@@ -58,6 +64,6 @@ export function naturalPreacherJourney(world) {
   assertCondition(command(world, preachingPoint), 'Preacher approach rejected')
   until('authored-brave-listening', () => victim.native?.state === 23 && victim.native.workTarget === preacher.id)
   assertCondition(preacher.hp > 0 && victim.hp > 0, 'Natural sermon requires living participants')
-  return { world, preacher, victim, authoredVictimId, traineeId, templeId: temple.id, milestones,
-    step, until, observation: () => observation }
+  return { world, preacher, victim, authoredVictimId, traineeId, templeId, milestones,
+    step, until, observation }
 }

@@ -7,8 +7,10 @@ import { createWorld, addUnit, browserPosition } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle, damageLiveVehicle } from '../app/live-vehicles.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
-import { teamForTribe, tribeForTeam, vehicleApparentTribe } from '../app/world-types.ts'
+import { tribeForTeam, vehicleApparentTribe } from '../app/world-types.ts'
 import { originalVehicleUV } from '../app/vehicle-appearance.ts'
+import { makeVehicleScene } from './support/vehicle-scene.mjs'
+import { objectsInCell } from '../app/object-cells.ts'
 
 // Execute the maintained adapter itself. Only its renderer/engine leaves are
 // supplied; this verifies source wiring, not native/GPU rendering or full Blast.
@@ -39,31 +41,42 @@ function splitOwner(model) {
   return { world, vehicle }
 }
 
-test('vehicle creation and frame cache use apparent tribe, including checkpoints and legacy fallback', () => {
+test('vehicle creation and frame cache use apparent tribe, including checkpoints and legacy fallback', async () => {
   for (const model of [1, 3]) {
-    const { world, vehicle } = splitOwner(model), copies = []
-    const update = adapter('scene-entities.ts', 'updateVehiclesFrame', {
-      browserPosition, originalVehicleUV, teamForTribe, vehicleApparentTribe,
-      makeVehicle: () => ({ userData: {}, children: [{ geometry: { getAttribute: () => ({
-        copyArray: array => copies.push([...array]), needsUpdate: false,
-      }) } }] }),
-    })
-    const scene = { world: { vehicles: [vehicle] }, vehicleMeshes: new Map(),
-      objects: { add() {}, remove() {} }, releaseGroup() {}, locate() {}, orientModel() {} }
-    update(scene)
-    assert.deepEqual(copies.at(-1), [...originalVehicleUV(model, 'blue')])
-    assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'blue')
-    update(scene); assert.equal(copies.length, 1, 'unchanged appearance reuses cached UVs')
-    vehicle.apparentTribe = 2
-    update(scene)
-    assert.deepEqual(copies.at(-1), [...originalVehicleUV(model, 'yellow')])
-    assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'yellow')
-    const restored = migrateCheckpoint(structuredClone(world)).vehicles.find(v => v.id === vehicle.id)
-    scene.world.vehicles = [restored]; update(scene)
-    assert.equal(copies.length, 2, 'checkpoint keeps the apparent material')
-    delete restored.apparentTribe; update(scene)
-    assert.deepEqual(copies.at(-1), [...originalVehicleUV(model, 'red')])
-    assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'red')
+    const { world, vehicle } = splitOwner(model)
+    world.vehicles = [vehicle]
+    const fixture = await makeVehicleScene(world),
+      { scene, render } = fixture
+    try {
+      render()
+      const group = scene.vehicleMeshes.get(vehicle.id),
+        uv = group.children[0].geometry.getAttribute('uv'),
+        initialVersion = uv.version
+      assert.deepEqual([...uv.array], [...originalVehicleUV(model, 'blue')])
+      assert.equal(group.userData.vehicleTeam, 'blue')
+      render()
+      assert.equal(scene.vehicleMeshes.get(vehicle.id), group)
+      assert.equal(uv.version, initialVersion, 'unchanged appearance reuses cached UVs')
+      vehicle.apparentTribe = 2
+      render()
+      assert.deepEqual([...uv.array], [...originalVehicleUV(model, 'yellow')])
+      assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'yellow')
+      assert.equal(uv.version, initialVersion + 1)
+      const restored = migrateCheckpoint(structuredClone(world)).vehicles.find(
+        v => v.id === vehicle.id
+      )
+      scene.world.vehicles = [restored]
+      render()
+      assert.equal(scene.vehicleMeshes.get(vehicle.id), group)
+      assert.equal(uv.version, initialVersion + 1, 'checkpoint keeps the apparent material')
+      delete restored.apparentTribe
+      render()
+      assert.deepEqual([...uv.array], [...originalVehicleUV(model, 'red')])
+      assert.equal(scene.vehicleMeshes.get(vehicle.id).userData.vehicleTeam, 'red')
+      assert.equal(uv.version, initialVersion + 2)
+    } finally {
+      fixture.close()
+    }
   }
 })
 
@@ -84,7 +97,7 @@ test('live Blast projects class4 apparent tribe without changing the real owner'
     const { world, vehicle } = splitOwner(model), observed = []
     world.units = []; world.buildings = []; world.trees = []; world.vehicles = [vehicle]
     const step = adapter('spell-effects-runtime.ts', 'stepLiveBlastWave', {
-      tribeForTeam, vehicleApparentTribe, syncLandscapeObjects() {},
+      tribeForTeam, vehicleApparentTribe, objectsInCell, syncLandscapeObjects() {},
       stepBlastWave: (_state, _wave, search) => {
         const cell = ((vehicle.y & 65535) >> 9) * 128 + ((vehicle.x & 65535) >> 9)
         observed.push(search.cell(cell).find(p => p.id === vehicle.id).tribe)

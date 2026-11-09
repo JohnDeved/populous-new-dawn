@@ -1,0 +1,29 @@
+{
+    "programs": [
+
+    ],
+    "stream_groups": [
+
+    ],
+    "streams": [
+        {
+            "index": 0,
+            "codec_name": "tqi",
+            "codec_type": "video",
+            "width": 320,
+            "height": 240,
+            "r_frame_rate": "25/1",
+            "duration": "0.000000",
+            "nb_read_packets": "2425"
+        },
+        {
+            "index": 1,
+            "codec_name": "adpcm_ea",
+            "codec_type": "audio",
+            "sample_rate": "22050",
+            "channels": 2,
+            "r_frame_rate": "0/0",
+            "nb_read_packets": "2424"
+        }
+    ]
+}

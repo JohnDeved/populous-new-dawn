@@ -133,7 +133,7 @@ test('destroying an occupied tower releases its native record and display height
   assert.equal(w.buildingOrders.active, 0)
 })
 
-test('a tower Firewarrior autonomously attacks an eligible hostile on the tower cadence', () => {
+for (const targetHp of [25, 50]) test(`a tower Firewarrior owns one impact per volley (${targetHp}HP target)`, () => {
   const {
     w,
     b,
@@ -150,7 +150,7 @@ test('a tower Firewarrior autonomously attacks an eligible hostile on the tower 
     hidden = addUnit(w, 'red', 'brave', { x: guard.x + 4, z: guard.z }),
     target = addUnit(w, 'red', 'brave', { x: guard.x + 8, z: guard.z })
   hidden.invisibility = 10
-  target.hp = 50
+  target.hp = targetHp
   target.x = guard.x + 3383 / 256
   assert.equal(towerFirewarriorReady(w, guard, target), true)
   target.x = guard.x + 3384 / 256
@@ -176,8 +176,26 @@ test('a tower Firewarrior autonomously attacks an eligible hostile on the tower 
   )
   assert.equal(ally.hp, 50)
   assert.equal(hidden.hp, 50)
-  until(w, () => !w.units.some(unit => unit.id === target.id), 32)
-  assert.equal(w.killCredits[0][1], 1)
+  assert.deepEqual(shots.map(shot => shot.firewarriorShot.impact), [false, true])
+  if (targetHp === 25) {
+    // The original damage consumer belongs to one marked 25 HP tower shot.
+    // Preserve the existing lethal ownership witness and its32-turn bound.
+    until(w, () => !w.units.some(unit => unit.id === target.id), 32)
+    assert.equal(w.killCredits[0][1], 1)
+  } else {
+    const firstLaunchTurn = w.turn, firstIds = new Set(shots.map(shot => shot.id))
+    until(w, () => !w.effects.some(effect => firstIds.has(effect.id)), 16)
+    assert.equal(target.hp, 25, 'one marked impact cannot kill the 50 HP target')
+    assert.equal(w.killCredits[0][1], 0)
+    until(w, () => w.effects.some(effect => effect.firewarriorShot && !firstIds.has(effect.id)), 36)
+    assert.equal(w.turn - firstLaunchTurn, 36, 'the next volley keeps the original tower cooldown')
+    const next = w.effects.filter(effect => effect.firewarriorShot && !firstIds.has(effect.id))
+    assert.equal(next.length, 2)
+    assert.deepEqual(next.map(effect => effect.firewarriorShot.impact), [false, true])
+    assert.equal(guard.cooldown, 36 / 12)
+    // Normal combat can reveal/retarget the hidden enemy between volleys.
+    assert.ok(next.every(effect => w.units.some(unit => unit.id === effect.firewarriorShot.target && unit.team === 'red')))
+  }
   assert.equal(w.killCredits[3][1], 0)
   assert.equal(guard.inside, b.id)
 })

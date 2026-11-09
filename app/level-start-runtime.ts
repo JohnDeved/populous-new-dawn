@@ -17,7 +17,7 @@ import {
 } from './person-orders.ts'
 import { orderEffects } from './live-movement.ts'
 import { startPersonOrders } from './person-order-start.ts'
-import { removeObjectFromCell } from './object-cells.ts'
+import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'
 import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -180,7 +180,7 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
     slot = w.units.indexOf(u)
   releaseTasks(w, u)
   if (u.native?.flags2 && u.native.flags2 & 0x20000) removeObjectFromCell(w.objectCells, u.native)
-  w.objectCells.objects.delete(u.id)
+  deleteCellObject(w.objectCells, u.id)
   const replacement = addUnit(w, teamForTribe(tribe), 'brave', browserPosition(point))
   w.units[slot] = replacement
   w.units.pop()
@@ -287,14 +287,17 @@ export function stepLevelStarts(w: World) {
       p.flags2 &= ~0x4000
       continue
     }
-    site.counter = (site.counter + 1) & 255
-    p.counter = site.counter
     if (p.state !== 10) {
       // 0x4c1b80 may enter cast state22 without clearing command18. Its return
       // goes through 0x432260, which reinitializes the command at substate0.
+      // The replacement person controller owns this turn's counter/physics.
       site.suspended = true
       continue
     }
+    // 0x4ec6f0 advances the actual person once, including suspended cast visits.
+    // Resume from that owner, not the opening controller's stale snapshot.
+    site.counter = (p.counter + 1) & 255
+    p.counter = site.counter
     if (site.suspended) {
       site.suspended = false
       site.phase = 0

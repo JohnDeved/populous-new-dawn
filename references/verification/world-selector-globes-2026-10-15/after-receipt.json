@@ -1,0 +1,174 @@
+{
+  "startedAt": "2026-10-15T19:47:12.800Z",
+  "source": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "0e10d80e887b4b1787254842fa49f066154d85e8",
+    "tree": "e9d28f3672e7cd14186ffe64f44c4547bf33f7d4",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b18d30450099433f01ce31a3a094622a789606f667d1e024640bb0059aabd42d"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [
+    "Failed to load resource: net::ERR_FAILED",
+    "Failed to load resource: net::ERR_FAILED"
+  ],
+  "warnings": [
+    "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+  ],
+  "status": "passed",
+  "readiness": {
+    "timeoutMs": 60000,
+    "attempts": 8,
+    "first": {
+      "elapsedMs": 22883,
+      "pending": false,
+      "error": {
+        "name": "TimeoutError",
+        "message": "The operation was aborted due to timeout",
+        "cause": ""
+      }
+    },
+    "last": {
+      "elapsedMs": 34113,
+      "pending": false,
+      "status": 200,
+      "ok": true
+    },
+    "elapsedMs": 34114,
+    "listening": true,
+    "ready": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "samples": [
+      {
+        "viewport": [
+          640,
+          480
+        ],
+        "width": 141,
+        "css": 140.796875,
+        "covered": 14553,
+        "pointerEvents": "none",
+        "tabIndex": -1
+      },
+      {
+        "viewport": [
+          1920,
+          1080
+        ],
+        "width": 346,
+        "css": 345.59375,
+        "covered": 87536,
+        "pointerEvents": "none",
+        "tabIndex": -1
+      },
+      {
+        "viewport": [
+          3440,
+          1440
+        ],
+        "width": 461,
+        "css": 460.796875,
+        "covered": 155461,
+        "pointerEvents": "none",
+        "tabIndex": -1
+      },
+      {
+        "viewport": [
+          3840,
+          2160
+        ],
+        "width": 691,
+        "css": 691.1875,
+        "covered": 349281,
+        "pointerEvents": "none",
+        "tabIndex": -1
+      },
+      {
+        "viewport": [
+          390,
+          844
+        ],
+        "width": 164,
+        "css": 163.796875,
+        "covered": 19672,
+        "pointerEvents": "none",
+        "tabIndex": -1
+      },
+      {
+        "dpr": 2,
+        "width": 451,
+        "css": 225.265625
+      },
+      {
+        "viewport": [
+          3840,
+          2160
+        ],
+        "dpr": 2,
+        "batchMs": [
+          1.800000011920929,
+          6.0999999940395355,
+          6,
+          6,
+          0.19999998807907104,
+          6.800000011920929,
+          6.299999982118607,
+          6,
+          6.0999999940395355,
+          6,
+          6.5999999940395355,
+          6,
+          6,
+          6.0999999940395355,
+          6.0999999940395355,
+          6.199999988079071,
+          6.199999988079071,
+          6.0999999940395355,
+          6.100000023841858,
+          5.799999982118607
+        ],
+        "maxBatchMs": 6.800000011920929
+      }
+    ],
+    "checks": [
+      "Actual textured mesh pixel coverage",
+      "CSS resize including4K and DPR-only change",
+      "no focus/pointer overlay",
+      "rapid selection and stale-image lifetime",
+      "static idle pixels",
+      "missing-art fallback and availability",
+      "all23 direct access retained",
+      "Back/reopen",
+      "cooperative4K/DPR2 batch latency",
+      "superseded resize and mission generation cancellation"
+    ],
+    "limits": [
+      "Fixed adapted depth/pose and RGB8 bilinear repeat sampler; not original full-scene pixel parity",
+      "Headless compositor; no hardware performance claim"
+    ]
+  },
+  "finishedAt": "2026-10-15T19:48:20.047Z",
+  "sourceAfter": {
+    "root": "/tmp/populous-raid447-fallback-0229",
+    "commit": "0e10d80e887b4b1787254842fa49f066154d85e8",
+    "tree": "e9d28f3672e7cd14186ffe64f44c4547bf33f7d4",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b18d30450099433f01ce31a3a094622a789606f667d1e024640bb0059aabd42d"
+  }
+}

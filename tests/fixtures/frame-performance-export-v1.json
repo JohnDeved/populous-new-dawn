@@ -1,0 +1,72 @@
+{
+  "schema": "populous-new-dawn/frame-performance",
+  "schemaVersion": 1,
+  "exportedAt": "2026-10-17T00:00:01.000Z",
+  "buildRevision": "unknown",
+  "units": {
+    "durations": "milliseconds",
+    "timestamps": "milliseconds since performance.timeOrigin",
+    "counters": "per frame"
+  },
+  "timing": {
+    "timeOriginUnixMs": 0,
+    "enabledAt": "2026-10-17T00:00:00.000Z",
+    "capacityFrames": 1200,
+    "count": 2,
+    "startTimestampMs": 0,
+    "endTimestampMs": 34,
+    "capturedSpanMs": 34
+  },
+  "session": {
+    "level": 2
+  },
+  "environment": {
+    "userAgent": "node fixture, not hardware-performance evidence",
+    "hardware": {
+      "renderer": "fixture"
+    },
+    "viewportCssPixels": {
+      "width": 1280,
+      "height": 720
+    },
+    "devicePixelRatio": 1,
+    "drawingBufferPixels": {
+      "width": 1280,
+      "height": 720
+    },
+    "visibility": "visible"
+  },
+  "notes": [
+    "RAF cadence is not presented FPS. CPU wall times are not GPU timings.",
+    "Callback includes all CPU stages; other is a signed remainder. Overlay and export work are excluded.",
+    "Pointer breakdown phases overlap: tooltipInput includes nested picks; objectPick includes units/models/occlusion; tooltipRender is outside pointerTooltip CPU. Do not sum them.",
+    "Browser layout flushes execute in the phase that reads layout, which may differ from the phase that dirtied it.",
+    "Capture resets on focus loss, hidden tab or F8 disable. No account, URL, save or world contents are included."
+  ],
+  "frames": [
+    {
+      "pointerBreakdown": null,
+      "timestampMs": 16,
+      "rafIntervalMs": 16,
+      "simulationCpuMs": 1,
+      "sceneRenderCpuMs": 2,
+      "sceneDrawCalls": 10,
+      "callbackCpuMs": 12,
+      "pointerTooltipCpuMs": 8,
+      "otherCallbackCpuMs": 1,
+      "state": "live"
+    },
+    {
+      "pointerBreakdown": null,
+      "timestampMs": 34,
+      "rafIntervalMs": 18,
+      "simulationCpuMs": 2,
+      "sceneRenderCpuMs": 3,
+      "sceneDrawCalls": 11,
+      "callbackCpuMs": 14,
+      "pointerTooltipCpuMs": 8,
+      "otherCallbackCpuMs": 1,
+      "state": "live"
+    }
+  ]
+}

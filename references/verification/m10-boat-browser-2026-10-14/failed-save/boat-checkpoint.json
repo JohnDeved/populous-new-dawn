@@ -1,0 +1,722 @@
+{
+  "method": "Authored M10, trusted HUD/mouse input, real RAF, public Save and Load across browser termination",
+  "limits": "Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/populous-m10-browser-storage",
+    "commit": "8c1a634c952d9c98b27369809b9ff66fcb3b59b9",
+    "tree": "20799820285ed6e9b0f66472a3e8b1952499fdaf",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1332e86579455e589231347305224d0d209c270a591930102cfea0502e58e46a"
+  },
+  "phase": "created",
+  "actions": [
+    {
+      "label": "minimap-probe",
+      "hit": {
+        "distance": 49.4064773081425,
+        "x": 99,
+        "y": 74,
+        "native": {
+          "x": 8920,
+          "y": 4893
+        }
+      },
+      "diagnostics": {
+        "geometry": {
+          "width": 200,
+          "height": 192,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 192
+          },
+          "center": {
+            "x": 9472,
+            "y": -768
+          },
+          "heading": 0,
+          "target": {
+            "x": 8960,
+            "y": 4864
+          },
+          "maxDistance": 2048
+        },
+        "turn": 669,
+        "projected": 36848,
+        "ownershipChecks": 727,
+        "ownershipRejected": 0,
+        "nearestProjected": {
+          "native": {
+            "x": 8920,
+            "y": 4893
+          },
+          "local": {
+            "x": 99,
+            "y": 74
+          },
+          "distance": 49.4064773081425,
+          "point": {
+            "x": 99,
+            "y": 74
+          },
+          "owned": true,
+          "ownerTag": "CANVAS",
+          "ownerLabel": "Minimap. Click to move the camera."
+        },
+        "nearestOwned": {
+          "native": {
+            "x": 8920,
+            "y": 4893
+          },
+          "local": {
+            "x": 99,
+            "y": 74
+          },
+          "distance": 49.4064773081425,
+          "point": {
+            "x": 99,
+            "y": 74
+          },
+          "owned": true,
+          "ownerTag": "CANVAS",
+          "ownerLabel": "Minimap. Click to move the camera."
+        }
+      }
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-14T09:40:31.629Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-14T09:40:31.897Z"
+    },
+    {
+      "label": "minimap-probe",
+      "hit": {
+        "distance": 49.4064773081425,
+        "x": 99,
+        "y": 74,
+        "native": {
+          "x": 8920,
+          "y": 4893
+        }
+      },
+      "diagnostics": {
+        "geometry": {
+          "width": 200,
+          "height": 192,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 192
+          },
+          "center": {
+            "x": 9472,
+            "y": -768
+          },
+          "heading": 0,
+          "target": {
+            "x": 8960,
+            "y": 4864
+          },
+          "maxDistance": 2048
+        },
+        "turn": 802,
+        "projected": 36848,
+        "ownershipChecks": 727,
+        "ownershipRejected": 0,
+        "nearestProjected": {
+          "native": {
+            "x": 8920,
+            "y": 4893
+          },
+          "local": {
+            "x": 99,
+            "y": 74
+          },
+          "distance": 49.4064773081425,
+          "point": {
+            "x": 99,
+            "y": 74
+          },
+          "owned": true,
+          "ownerTag": "CANVAS",
+          "ownerLabel": "Minimap. Click to move the camera."
+        },
+        "nearestOwned": {
+          "native": {
+            "x": 8920,
+            "y": 4893
+          },
+          "local": {
+            "x": 99,
+            "y": 74
+          },
+          "distance": 49.4064773081425,
+          "point": {
+            "x": 99,
+            "y": 74
+          },
+          "owned": true,
+          "ownerTag": "CANVAS",
+          "ownerLabel": "Minimap. Click to move the camera."
+        }
+      }
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-14T09:40:42.723Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-14T09:40:43.023Z"
+    },
+    {
+      "label": "rally-ground",
+      "ground": {
+        "x": 824,
+        "y": 422,
+        "point": {
+          "x": 26.987903955415618,
+          "z": -27.025413454927047
+        },
+        "target": {
+          "x": 27,
+          "z": -27
+        },
+        "snapped": {
+          "x": 27,
+          "z": -27
+        },
+        "wantedCell": {
+          "x": 17,
+          "y": 9
+        },
+        "pointCell": {
+          "x": 17,
+          "y": 9
+        },
+        "cellMove": false,
+        "context": {
+          "model": 3,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": null,
+          "treeId": null,
+          "vehicleId": null
+        },
+        "rejection": null,
+        "caster": null,
+        "nativeTarget": null,
+        "distance": null,
+        "margin": null,
+        "minimumMargin": 128,
+        "rejected": [],
+        "rejectionCounts": {
+          "canvasOwnership": 0,
+          "objectHit": 0,
+          "noTerrainPick": 0,
+          "wrongCell": 0,
+          "aimPrecision": 0,
+          "commandContext": 0,
+          "spellPredicate": 0,
+          "spellMargin": 0
+        },
+        "nearestRejectedPoint": null,
+        "diagnostics": {
+          "turn": 879,
+          "frame": 235,
+          "animationFrame": 1759,
+          "currentSceneMatches": true,
+          "currentWorldMatches": true,
+          "rect": {
+            "left": 200,
+            "top": 0,
+            "width": 1240,
+            "height": 1000
+          },
+          "localPixel": {
+            "x": 624,
+            "y": 422
+          },
+          "camera": {
+            "x": 8920,
+            "y": 4893,
+            "angle": 0
+          },
+          "center": {
+            "x": 8920,
+            "y": 4893
+          },
+          "rawCenter": {
+            "x": 8920,
+            "y": 4893
+          },
+          "projection": {
+            "curvature": 35248,
+            "depth": 6500,
+            "perspective": 11,
+            "scale": 40786,
+            "width": 1240,
+            "height": 1000,
+            "centerX": 620,
+            "centerY": 423,
+            "fractionX": 4,
+            "fractionY": 4,
+            "pixelScaleX": 0.0625,
+            "pixelScaleY": 0.0625,
+            "matrix": [
+              16384,
+              0,
+              0,
+              0,
+              15357,
+              5708,
+              0,
+              -5708,
+              15357
+            ]
+          },
+          "target": null,
+          "body": null,
+          "cache": {
+            "lastKey": "235,8920,4893,8920,4893,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,16384,0,0,0,15357,5708,0,-5708,15357,620,423,4,4,0.0625,0.0625,624,422",
+            "lastId": null,
+            "lastKind": null
+          }
+        },
+        "turn": 879,
+        "search": {
+          "startedAt": 1791970844727,
+          "deadlineAt": null,
+          "inspected": 1,
+          "maxCandidates": 8281,
+          "lastPixel": {
+            "x": 824,
+            "y": 422
+          },
+          "lastPoint": {
+            "x": 26.987903955415618,
+            "z": -27.025413454927047
+          },
+          "stopReason": "matched",
+          "endedAt": 1791970850697,
+          "elapsedMs": 5970
+        }
+      }
+    },
+    {
+      "label": "ordinary rally click",
+      "phase": "before",
+      "at": "2026-10-14T09:40:51.460Z"
+    },
+    {
+      "label": "ordinary rally click",
+      "phase": "after",
+      "at": "2026-10-14T09:40:53.492Z"
+    },
+    {
+      "label": "boat-target",
+      "hit": {
+        "x": 880.4375,
+        "y": 390.1875,
+        "target": {
+          "x": 29.4453125,
+          "z": -31.4453125
+        }
+      }
+    },
+    {
+      "label": "ordinary Boat boarding click",
+      "phase": "before",
+      "at": "2026-10-14T09:41:08.941Z"
+    },
+    {
+      "label": "ordinary Boat boarding click",
+      "phase": "after",
+      "at": "2026-10-14T09:41:09.978Z"
+    }
+  ],
+  "observations": [
+    {
+      "label": "authored-start",
+      "wallTime": 1791970828786,
+      "turn": 639,
+      "time": 53.25,
+      "level": 10,
+      "paused": false,
+      "inputMask": 0,
+      "selected": [
+        63
+      ],
+      "status": "playing",
+      "boat": {
+        "id": 62,
+        "x": 9586,
+        "y": 6002,
+        "active": true,
+        "passengers": []
+      },
+      "party": [
+        {
+          "id": 63,
+          "kind": "shaman",
+          "hp": 100,
+          "x": 29,
+          "z": -5,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 111,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 31,
+          "z": -5,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 112,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 27,
+          "z": -5,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 113,
+          "kind": "warrior",
+          "hp": 72.2,
+          "x": 17,
+          "z": -3,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 114,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 23,
+          "z": -17,
+          "vehicle": 0,
+          "state": 19
+        }
+      ],
+      "panels": []
+    },
+    {
+      "label": "HUD-selected",
+      "wallTime": 1791970841245,
+      "turn": 789,
+      "time": 65.75,
+      "level": 10,
+      "paused": false,
+      "inputMask": 0,
+      "selected": [
+        63,
+        111,
+        112,
+        113,
+        114
+      ],
+      "status": "playing",
+      "boat": {
+        "id": 62,
+        "x": 9586,
+        "y": 6002,
+        "active": true,
+        "passengers": []
+      },
+      "party": [
+        {
+          "id": 63,
+          "kind": "shaman",
+          "hp": 100,
+          "x": 29,
+          "z": -5,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 111,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 31,
+          "z": -5,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 112,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 27,
+          "z": -5,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 113,
+          "kind": "warrior",
+          "hp": 77.9,
+          "x": 17,
+          "z": -3,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 114,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 23,
+          "z": -17,
+          "vehicle": 0,
+          "state": 19
+        }
+      ],
+      "panels": []
+    },
+    {
+      "label": "rallied",
+      "wallTime": 1791970862818,
+      "turn": 1036,
+      "time": 86.33333333333333,
+      "level": 10,
+      "paused": false,
+      "inputMask": 0,
+      "selected": [
+        63,
+        111,
+        112,
+        113,
+        114
+      ],
+      "status": "playing",
+      "boat": {
+        "id": 62,
+        "x": 9586,
+        "y": 6002,
+        "active": true,
+        "passengers": []
+      },
+      "party": [
+        {
+          "id": 63,
+          "kind": "shaman",
+          "hp": 100,
+          "x": 26.9765625,
+          "z": -26.9375,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 111,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 27,
+          "z": -26.53125,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 112,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 27.46875,
+          "z": -27,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 113,
+          "kind": "warrior",
+          "hp": 87.2,
+          "x": 26.53125,
+          "z": -27,
+          "vehicle": 0,
+          "state": 19
+        },
+        {
+          "id": 114,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 27,
+          "z": -27.46875,
+          "vehicle": 0,
+          "state": 19
+        }
+      ],
+      "panels": []
+    },
+    {
+      "label": "boarded",
+      "wallTime": 1791970871243,
+      "turn": 1147,
+      "time": 95.58333333333333,
+      "level": 10,
+      "paused": false,
+      "inputMask": 0,
+      "selected": [
+        63,
+        111,
+        112,
+        113,
+        114
+      ],
+      "status": "playing",
+      "boat": {
+        "id": 62,
+        "x": 9586,
+        "y": 6002,
+        "active": true,
+        "passengers": [
+          63,
+          113,
+          114,
+          111,
+          112
+        ]
+      },
+      "party": [
+        {
+          "id": 63,
+          "kind": "shaman",
+          "hp": 100,
+          "x": 29.90625,
+          "z": -31.68359375,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 111,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.375,
+          "z": -31.15234375,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 112,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.19921875,
+          "z": -30.9765625,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 113,
+          "kind": "warrior",
+          "hp": 90.2,
+          "x": 29.73046875,
+          "z": -31.5078125,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 114,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.59765625,
+          "z": -31.375,
+          "vehicle": 62,
+          "state": 30
+        }
+      ],
+      "panels": []
+    },
+    {
+      "label": "save-menu",
+      "wallTime": 1791970890045,
+      "turn": 1298,
+      "time": 108.16666666666667,
+      "level": 10,
+      "paused": true,
+      "inputMask": 0,
+      "selected": [
+        63,
+        111,
+        112,
+        113,
+        114
+      ],
+      "status": "playing",
+      "boat": {
+        "id": 62,
+        "x": 9586,
+        "y": 6002,
+        "active": true,
+        "passengers": [
+          63,
+          113,
+          114,
+          111,
+          112
+        ]
+      },
+      "party": [
+        {
+          "id": 63,
+          "kind": "shaman",
+          "hp": 100,
+          "x": 29.90625,
+          "z": -31.68359375,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 111,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.375,
+          "z": -31.15234375,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 112,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.19921875,
+          "z": -30.9765625,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 113,
+          "kind": "warrior",
+          "hp": 90.2,
+          "x": 29.73046875,
+          "z": -31.5078125,
+          "vehicle": 62,
+          "state": 30
+        },
+        {
+          "id": 114,
+          "kind": "warrior",
+          "hp": 90,
+          "x": 29.59765625,
+          "z": -31.375,
+          "vehicle": 62,
+          "state": 30
+        }
+      ],
+      "panels": []
+    }
+  ],
+  "status": "failed",
+  "error": "TimeoutError: locator.click: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('dialog.game-dialog').getByRole('button', { name: 'Save checkpoint', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"secondary-button\">Save checkpoint</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n"
+}

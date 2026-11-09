@@ -9,9 +9,11 @@ import { fileURLToPath } from 'node:url'
 const root = fileURLToPath(new URL('../', import.meta.url))
 const path = resolve(root, 'tests/fixtures/mission3-raid-recruitment-loaded-cell.json')
 const fixture = JSON.parse(readFileSync(path, 'utf8'))
-const retained = JSON.parse(readFileSync(resolve(root,
-  'references/verification/mission3-raid-recruitment-origin-2026-10-06/attempt1/stdout.log'), 'utf8'))
-  .cases.find(c => c.native.id === 'no-base-authored-coordinates').native.comparison
+const reference = JSON.parse(readFileSync(resolve(root,
+  'tests/fixtures/mission3-raid-recruitment-native.json'), 'utf8'))
+assert.equal(reference.schemaVersion, 1)
+assert.equal(reference.kind, 'mission3-raid-recruitment-native')
+const retained = reference.cases.find(c => c.id === 'no-base-authored-coordinates').comparison
 const temporary = mkdtempSync(join(tmpdir(), 'pnd-loaded-shaman-cell-'))
 const rows = []
 try {

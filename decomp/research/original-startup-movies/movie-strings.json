@@ -1,0 +1,62 @@
+[
+  {
+    "name": "FMV\\pop3mask.tgq",
+    "fileOffset": "0x1979a0",
+    "virtualAddress": "0x599ba0",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\outro.tgq",
+    "fileOffset": "0x1979b4",
+    "virtualAddress": "0x599bb4",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\p3intro1.tgq",
+    "fileOffset": "0x1d24bc",
+    "virtualAddress": "0x5d46bc",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\p3intro2.tgq",
+    "fileOffset": "0x1d24d0",
+    "virtualAddress": "0x5d46d0",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\p3intro3.tgq",
+    "fileOffset": "0x1d24e4",
+    "virtualAddress": "0x5d46e4",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\p3introj.tgq",
+    "fileOffset": "0x1d24f8",
+    "virtualAddress": "0x5d46f8",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\p3introc.tgq",
+    "fileOffset": "0x1d250c",
+    "virtualAddress": "0x5d470c",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\trailer.tgq",
+    "fileOffset": "0x1d2520",
+    "virtualAddress": "0x5d4720",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\blogo.tgq",
+    "fileOffset": "0x1dbae8",
+    "virtualAddress": "0x5ddce8",
+    "note": "Filename presence is not proof of caller or playback order."
+  },
+  {
+    "name": "FMV\\blogojap.tgq",
+    "fileOffset": "0x1dbaf8",
+    "virtualAddress": "0x5ddcf8",
+    "note": "Filename presence is not proof of caller or playback order."
+  }
+]

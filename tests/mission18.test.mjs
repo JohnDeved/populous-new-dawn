@@ -6,19 +6,16 @@ import {
   cast,
   command,
   createWorld,
-  nativePosition,
   tick,
 } from '../app/model.ts'
 import { missionData, missionScript } from '../app/mission-data.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
+import { worshipHeadPose } from '../app/live-worship.ts'
 import { worshipPositions } from '../app/worship.ts'
 
 function finishWorship(world, head) {
-  const slots = worshipPositions({
-      ...nativePosition(world, head),
-      angle: Math.round((head.angle * 1024) / Math.PI) & 2047,
-    }),
+  const slots = worshipPositions(worshipHeadPose(world, head)),
     followers = Array.from({ length: head.required }, (_, index) =>
       addUnit(world, 'blue', 'brave', browserPosition(slots[index]))
     )
@@ -28,6 +25,7 @@ function finishWorship(world, head) {
   for (let turn = 0; turn < 8; turn++) tick(world, 1 / 12)
   head.work = head.target * head.required ** 2 - 1
   for (let turn = 0; turn < 8 && !head.uses; turn++) tick(world, 1 / 12)
+  assert.equal(head.uses, 1, `head ${head.id} completed worship before gift delivery`)
   for (let turn = 0; turn < 82 && world.gifts.length; turn++) tick(world, 1 / 12)
 }
 

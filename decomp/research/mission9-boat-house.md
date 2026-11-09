@@ -36,3 +36,23 @@ Limits: the probe does not prove native allocation pools, motion/routing, the
 selected cell of a particular player placement, or the external work increment
 scheduler. The browser's one-Boat slice increments persistent building work
 once per simulation turn while occupied; recurring production remains open.
+
+## Bounded repeat-capability adapter repair
+
+The live Boat House previously set a permanent `boatLaunched` latch and excluded
+all later production visits. The original completed-building dispatcher repeatedly
+calls `00406600`; its launch path resets `building+0xa4` and retains eligible human
+occupants without a one-launch latch. Removing only the live latch condition lets
+the existing recipe repeat. The historical saved field remains informational.
+
+An authored Mission15 two-worker route launches the first Boat, moves it clear
+with a public command, and keeps the second living worker inside. The old adapter
+never produces again. The repaired adapter produces a second occupied Boat,
+releases the second worker's order, and matches public checkpoint continuation.
+Empty and explicitly supplied destroyed-workshop controls do not produce.
+
+This does **not** establish native production pacing or resource economy:
+`004a7860` supplies `+0xa4` through capped wood transfer, whereas the existing
+browser recipe uses its occupied timer. Allocation limits, production departure
+physics and exact native resource scheduling remain separate. No new funding,
+timber increment, timer rule or launch-position behavior is introduced here.

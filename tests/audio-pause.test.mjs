@@ -198,3 +198,55 @@ test('enable reports cancellation when muted during its pending playback', async
   assert.equal(sound.enabled, false)
   assert.equal(timers.size, 0)
 })
+
+test('the page pause-error fallback mutes without another unhandled suspend rejection', async t => {
+  const { sound, timers } = fixture(t), failure = new Error('suspend failed')
+  sound.context.suspend = async () => { throw failure }
+  timers.add(sound.backgroundTimer = {})
+  let stopped = 0
+  sound.active.add({ stop() { stopped++ } })
+  await sound.setPaused(true).catch(error => {
+    assert.equal(error, failure, 'the public pause failure must still reach its caller')
+    sound.mute()
+  })
+  // The test runner fails if the best-effort mute promise rejects unobserved.
+  await setImmediate()
+  assert.equal(sound.enabled, false)
+  assert.equal(sound.music.element.paused, true)
+  assert.equal(timers.size, 0)
+  assert.equal(sound.backgroundTimer, null)
+  assert.equal(stopped, 1)
+  assert.equal(sound.active.size, 0)
+})
+
+test('direct mute keeps local silence and later explicit enable works after a suspend failure', async t => {
+  const { sound, plays } = fixture(t)
+  sound.context.suspend = async () => { throw new Error('suspend failed') }
+  assert.equal(sound.mute(), undefined)
+  await setImmediate()
+  assert.equal(sound.enabled, false)
+  sound.context.suspend = async () => { sound.context.state = 'suspended' }
+  const enabled = sound.enable()
+  await setImmediate()
+  assert.equal(plays.length, 1)
+  plays[0].resolve()
+  assert.equal(await enabled, true)
+})
+
+test('dispose observes a rejected close while releasing local owners and tolerates repeated disposal', async t => {
+  const { sound } = fixture(t), music = sound.music
+  let closed = 0
+  sound.context.close = async () => { closed++; throw new Error('close failed') }
+  sound.buffers.set('test', {})
+  sound.dispose()
+  await setImmediate()
+  assert.equal(sound.disposed, true)
+  assert.equal(sound.enabled, false)
+  assert.equal(music.element.paused, true)
+  assert.equal(sound.music, null)
+  assert.equal(sound.buffers.size, 0)
+  assert.equal(await sound.enable(), false)
+  sound.dispose()
+  await setImmediate()
+  assert.equal(closed, 2)
+})

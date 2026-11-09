@@ -12,12 +12,12 @@ test('Tornado replays native initialization, lifetime, carry and throw', () => {
     [tornado.remaining, tornado.phase, tornado.headingTimer, tornado.heading, w.randomState],
     [200, 0, 3, 1534, 0x2dd1b2e7]
   )
-  assert.deepEqual(tornado.particles.slice(0, 3), [
+  assert.deepEqual(tornado.particles.slice(0, 3).map(({ x, y, h }) => ({ x, y, h })), [
     { x: 16365, y: 16626, h: 1862 },
     { x: 16384, y: 16606, h: 1772 },
     { x: 16368, y: 16620, h: 1682 },
   ])
-  assert.deepEqual(tornado.particles.at(-1), { x: 16351, y: 16675, h: 512 })
+  assert.deepEqual((({ x, y, h }) => ({ x, y, h }))(tornado.particles.at(-1)), { x: 16351, y: 16675, h: 512 })
 
   const person = {
     id: 1,
@@ -44,8 +44,8 @@ test('Tornado replays native initialization, lifetime, carry and throw', () => {
   person.substate = 18
   assert.equal(stepTornadoPerson(w, person, tornado, 0), false)
   assert.deepEqual(
-    [person.state, person.flags2, person.flags3, person.velocity, person.damageAttacker, w.randomState],
-    [8, 0x82000, 0x400, { x: -204, y: 230, z: -2 }, 2, 0x52d595fe]
+    [person.state, person.flags2, person.flags3, person.flags4, person.velocity, person.damageAttacker, w.randomState],
+    [8, 0x82000, 0, 0x400, { x: -204, y: 230, z: -2 }, 2, 0x52d595fe]
   )
 
   let visits = 0

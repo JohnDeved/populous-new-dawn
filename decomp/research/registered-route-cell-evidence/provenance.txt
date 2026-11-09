@@ -1,0 +1,6 @@
+Original data only; no EXE execution/emulation.
+Static command, from workspace root:
+objdump -d --start-address=0x004ee580 --stop-address=0x004ee700 populous-research-inputs/game/app/D3DPopTB.exe
+Reviewed generated export: populous-near-transfer/decomp/generated/004ee580.c
+Export SHA256: c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef
+Original EXE and retained assembly SHA256 are in hashes.txt; objdump version is in tool-version.txt.

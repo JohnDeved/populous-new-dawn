@@ -208,3 +208,32 @@ test('campaign pending auto-open waits for settled motion and consumes one oldes
   assert.equal(second.flags & 0x20000, 0)
   assert.equal(second.flags & 2, 2)
 })
+
+test('optional simulation step counter records advances, not tick attempts, animations or turn IDs', () => {
+  for (const [name, seconds, setup, expected] of [
+    ['zero interval', 0, () => {}, 0],
+    ['no fixed turn', 1 / 48, () => {}, 0],
+    ['one turn', 1 / 12, () => {}, 1],
+    ['catch up', 1 / 4, () => {}, 3],
+    ['paused', 1 / 4, w => { w.paused = true }, 0],
+    ['land paused', 1 / 4, w => { w.land.landFlags |= 2 }, 0],
+    ['wrap', 1 / 12, w => { w.turn = 0xffffffff }, 1],
+  ]) {
+    const a = createWorld(), b = createWorld(), metrics = { steps: 0 },
+      ca = { animationTime: 0, animationFrame: 0 }, cb = { ...ca }
+    setup(a); setup(b)
+    advanceGame(a, ca, seconds, metrics)
+    advanceGame(b, cb, seconds)
+    assert.equal(metrics.steps, expected, name)
+    assert.deepEqual(a, b, `${name}: instrumentation preserves entire world`)
+    assert.deepEqual(ca, cb)
+  }
+  const w = createWorld(), metrics = { steps: 0 },
+    clock = { animationTime: 0, animationFrame: 0, afterTurn() { w.turn = 0 } }
+  advanceGame(w, clock, 1 / 4, metrics)
+  assert.equal(metrics.steps, 3, 'observer/reset boundaries cannot become an unsigned turn delta')
+  const next = createWorld()
+  metrics.steps = 0
+  advanceGame(next, { animationTime: 0, animationFrame: 0 }, 1 / 48, metrics)
+  assert.equal(metrics.steps, 0, 'replacement world has no inherited count')
+})

@@ -21,6 +21,7 @@ export type OrderStartWorld = PersonStateWorld & {
   tribes: (PersonStateWorld['tribes'][number] & { vehicleMode: number })[]
 }
 export type OrderStartEffects = {
+  objectId?: (stored: number, model: number) => number
   setAnimation: PersonStateEffects['setAnimation']
   setDestination: (person: StartingPerson, x: number, y: number) => void
   commandPosition: (order: PersonOrder) => { x: number; y: number }
@@ -70,11 +71,11 @@ export function configurePersonOrder(
       effects.initializeCommand(p, order)
     if (flags & 1) {
       if (!(flags & 0x200000)) effects.setDestination(p, short(order.a), short(order.b))
-    } else if (flags & 4) p.target = short(order.a)
+    } else if (flags & 4) p.target = effects.objectId?.(order.a, order.model) ?? short(order.a)
     else if (flags & 0x800) {
       if (!(flags & 0x200000))
         effects.setDestination(p, short((order.a & 254) << 8), short(order.a & 0xfe00))
-    } else if (flags & 0x242) p.target = short(order.a)
+    } else if (flags & 0x242) p.target = effects.objectId?.(order.a, order.model) ?? short(order.a)
     p.commandStatus = order.model
     if (p.assignment & 32) {
       p.assignment &= ~32

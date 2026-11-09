@@ -1,0 +1,17 @@
+{
+  "sourceHashes": {
+    "data/point0-0.dat": "591d79efacb2d2cbb220d9edef5ffd028518704e97f31bf86a78b4e258dd466b",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "frame": 14,
+  "width": 17,
+  "height": 17,
+  "hotspot": [
+    0,
+    0
+  ],
+  "pngSha256": "328110f383597b25333744d5092568fb39729a501110b9b73b4398357853fe43",
+  "decoderSha256": "6aa71f58cf34dea4b19fd2e8553ef3fa199c274aa41a60a012fa6d246cc43a19",
+  "importerSha256": "b191211882d7270cf40c995b960572fe4ba5264cfef44aeecf598d4b8ce83c76",
+  "scope": "POINT14 source-palette reconstruction; no unconditional gameplay or HUD mapping claim"
+}

@@ -1,0 +1,173 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00459940 <.text+0x58940>:
+  459940:	83 ec 2c             	sub    esp,0x2c
+  459943:	83 3d 64 d1 59 00 00 	cmp    DWORD PTR ds:0x59d164,0x0
+  45994a:	53                   	push   ebx
+  45994b:	56                   	push   esi
+  45994c:	57                   	push   edi
+  45994d:	55                   	push   ebp
+  45994e:	74 52                	je     0x4599a2
+  459950:	68 00 b0 04 00       	push   0x4b000
+  459955:	e8 d6 cc 0c 00       	call   0x526630
+  45995a:	83 c4 04             	add    esp,0x4
+  45995d:	a3 28 9d 74 00       	mov    ds:0x749d28,eax
+  459962:	68 00 04 00 00       	push   0x400
+  459967:	e8 34 13 10 00       	call   0x55aca0
+  45996c:	83 c4 04             	add    esp,0x4
+  45996f:	a3 18 9d 74 00       	mov    ds:0x749d18,eax
+  459974:	68 00 40 00 00       	push   0x4000
+  459979:	e8 b2 cc 0c 00       	call   0x526630
+  45997e:	83 c4 04             	add    esp,0x4
+  459981:	a3 1c 9d 74 00       	mov    ds:0x749d1c,eax
+  459986:	68 00 00 01 00       	push   0x10000
+  45998b:	e8 a0 cc 0c 00       	call   0x526630
+  459990:	83 c4 04             	add    esp,0x4
+  459993:	a3 20 9d 74 00       	mov    ds:0x749d20,eax
+  459998:	c7 05 64 d1 59 00 00 	mov    DWORD PTR ds:0x59d164,0x0
+  45999f:	00 00 00 
+  4599a2:	8b 74 24 40          	mov    esi,DWORD PTR [esp+0x40]
+  4599a6:	85 f6                	test   esi,esi
+  4599a8:	7d 02                	jge    0x4599ac
+  4599aa:	33 f6                	xor    esi,esi
+  4599ac:	a1 24 9d 74 00       	mov    eax,ds:0x749d24
+  4599b1:	48                   	dec    eax
+  4599b2:	3b f0                	cmp    esi,eax
+  4599b4:	7e 02                	jle    0x4599b8
+  4599b6:	8b f0                	mov    esi,eax
+  4599b8:	8b fe                	mov    edi,esi
+  4599ba:	e8 41 98 04 00       	call   0x4a3200
+  4599bf:	c1 e7 04             	shl    edi,0x4
+  4599c2:	e8 59 a3 04 00       	call   0x4a3d20
+  4599c7:	8b 87 f0 71 5d 00    	mov    eax,DWORD PTR [edi+0x5d71f0]
+  4599cd:	50                   	push   eax
+  4599ce:	68 23 cd 89 00       	push   0x89cd23
+  4599d3:	e8 d8 67 0a 00       	call   0x5001b0
+  4599d8:	8d 44 24 18          	lea    eax,[esp+0x18]
+  4599dc:	83 c4 08             	add    esp,0x8
+  4599df:	8b 0d 28 9d 74 00    	mov    ecx,DWORD PTR ds:0x749d28
+  4599e5:	50                   	push   eax
+  4599e6:	68 00 b0 04 00       	push   0x4b000
+  4599eb:	51                   	push   ecx
+  4599ec:	68 23 cd 89 00       	push   0x89cd23
+  4599f1:	e8 8a c5 0c 00       	call   0x525f80
+  4599f6:	83 c4 10             	add    esp,0x10
+  4599f9:	e8 02 98 04 00       	call   0x4a3200
+  4599fe:	e8 1d a3 04 00       	call   0x4a3d20
+  459a03:	8b 8f f4 71 5d 00    	mov    ecx,DWORD PTR [edi+0x5d71f4]
+  459a09:	51                   	push   ecx
+  459a0a:	68 23 cd 89 00       	push   0x89cd23
+  459a0f:	e8 9c 67 0a 00       	call   0x5001b0
+  459a14:	8d 4c 24 18          	lea    ecx,[esp+0x18]
+  459a18:	83 c4 08             	add    esp,0x8
+  459a1b:	8b 15 18 9d 74 00    	mov    edx,DWORD PTR ds:0x749d18
+  459a21:	51                   	push   ecx
+  459a22:	68 00 04 00 00       	push   0x400
+  459a27:	52                   	push   edx
+  459a28:	68 23 cd 89 00       	push   0x89cd23
+  459a2d:	e8 4e c5 0c 00       	call   0x525f80
+  459a32:	83 c4 10             	add    esp,0x10
+  459a35:	e8 c6 97 04 00       	call   0x4a3200
+  459a3a:	e8 e1 a2 04 00       	call   0x4a3d20
+  459a3f:	8b 8f f8 71 5d 00    	mov    ecx,DWORD PTR [edi+0x5d71f8]
+  459a45:	51                   	push   ecx
+  459a46:	68 23 cd 89 00       	push   0x89cd23
+  459a4b:	e8 60 67 0a 00       	call   0x5001b0
+  459a50:	8d 4c 24 18          	lea    ecx,[esp+0x18]
+  459a54:	83 c4 08             	add    esp,0x8
+  459a57:	8b 15 1c 9d 74 00    	mov    edx,DWORD PTR ds:0x749d1c
+  459a5d:	51                   	push   ecx
+  459a5e:	68 00 40 00 00       	push   0x4000
+  459a63:	52                   	push   edx
+  459a64:	68 23 cd 89 00       	push   0x89cd23
+  459a69:	e8 12 c5 0c 00       	call   0x525f80
+  459a6e:	83 c4 10             	add    esp,0x10
+  459a71:	e8 8a 97 04 00       	call   0x4a3200
+  459a76:	e8 a5 a2 04 00       	call   0x4a3d20
+  459a7b:	8b 8f fc 71 5d 00    	mov    ecx,DWORD PTR [edi+0x5d71fc]
+  459a81:	51                   	push   ecx
+  459a82:	68 23 cd 89 00       	push   0x89cd23
+  459a87:	e8 24 67 0a 00       	call   0x5001b0
+  459a8c:	8d 4c 24 18          	lea    ecx,[esp+0x18]
+  459a90:	83 c4 08             	add    esp,0x8
+  459a93:	8b 15 20 9d 74 00    	mov    edx,DWORD PTR ds:0x749d20
+  459a99:	51                   	push   ecx
+  459a9a:	68 00 00 01 00       	push   0x10000
+  459a9f:	52                   	push   edx
+  459aa0:	68 23 cd 89 00       	push   0x89cd23
+  459aa5:	e8 d6 c4 0c 00       	call   0x525f80
+  459aaa:	83 c4 10             	add    esp,0x10
+  459aad:	33 ff                	xor    edi,edi
+  459aaf:	85 f6                	test   esi,esi
+  459ab1:	75 7c                	jne    0x459b2f
+  459ab3:	57                   	push   edi
+  459ab4:	ff 15 54 c8 d0 00    	call   DWORD PTR ds:0xd0c854
+  459aba:	8b f0                	mov    esi,eax
+  459abc:	8b 2d bc c5 d0 00    	mov    ebp,DWORD PTR ds:0xd0c5bc
+  459ac2:	8d 44 24 14          	lea    eax,[esp+0x14]
+  459ac6:	50                   	push   eax
+  459ac7:	6a 0a                	push   0xa
+  459ac9:	57                   	push   edi
+  459aca:	56                   	push   esi
+  459acb:	ff d5                	call   ebp
+  459acd:	83 f8 0a             	cmp    eax,0xa
+  459ad0:	75 5d                	jne    0x459b2f
+  459ad2:	33 c0                	xor    eax,eax
+  459ad4:	88 44 bc 17          	mov    BYTE PTR [esp+edi*4+0x17],al
+  459ad8:	47                   	inc    edi
+  459ad9:	47                   	inc    edi
+  459ada:	83 ff 0a             	cmp    edi,0xa
+  459add:	72 f5                	jb     0x459ad4
+  459adf:	6a 0a                	push   0xa
+  459ae1:	33 db                	xor    ebx,ebx
+  459ae3:	8d 44 24 18          	lea    eax,[esp+0x18]
+  459ae7:	53                   	push   ebx
+  459ae8:	50                   	push   eax
+  459ae9:	e8 b2 8a 05 00       	call   0x4b25a0
+  459aee:	8d 44 24 20          	lea    eax,[esp+0x20]
+  459af2:	83 c4 0c             	add    esp,0xc
+  459af5:	50                   	push   eax
+  459af6:	6a 0a                	push   0xa
+  459af8:	68 f6 00 00 00       	push   0xf6
+  459afd:	56                   	push   esi
+  459afe:	ff d5                	call   ebp
+  459b00:	83 f8 0a             	cmp    eax,0xa
+  459b03:	75 2a                	jne    0x459b2f
+  459b05:	33 c0                	xor    eax,eax
+  459b07:	88 5c 84 17          	mov    BYTE PTR [esp+eax*4+0x17],bl
+  459b0b:	40                   	inc    eax
+  459b0c:	40                   	inc    eax
+  459b0d:	83 f8 0a             	cmp    eax,0xa
+  459b10:	72 f5                	jb     0x459b07
+  459b12:	8d 44 24 14          	lea    eax,[esp+0x14]
+  459b16:	6a 0a                	push   0xa
+  459b18:	68 f6 00 00 00       	push   0xf6
+  459b1d:	50                   	push   eax
+  459b1e:	e8 7d 8a 05 00       	call   0x4b25a0
+  459b23:	83 c4 0c             	add    esp,0xc
+  459b26:	56                   	push   esi
+  459b27:	6a 00                	push   0x0
+  459b29:	ff 15 50 c8 d0 00    	call   DWORD PTR ds:0xd0c850
+  459b2f:	6a 00                	push   0x0
+  459b31:	e8 8a 96 0c 00       	call   0x5231c0
+  459b36:	83 c4 04             	add    esp,0x4
+  459b39:	a1 18 9d 74 00       	mov    eax,ds:0x749d18
+  459b3e:	50                   	push   eax
+  459b3f:	e8 dc 98 04 00       	call   0x4a3420
+  459b44:	83 c4 04             	add    esp,0x4
+  459b47:	e8 e4 99 04 00       	call   0x4a3530
+  459b4c:	68 f4 c6 89 00       	push   0x89c6f4
+  459b51:	a1 18 9d 74 00       	mov    eax,ds:0x749d18
+  459b56:	50                   	push   eax
+  459b57:	e8 64 12 fd ff       	call   0x42adc0
+  459b5c:	83 c4 08             	add    esp,0x8
+  459b5f:	5d                   	pop    ebp
+  459b60:	5f                   	pop    edi
+  459b61:	5e                   	pop    esi
+  459b62:	5b                   	pop    ebx
+  459b63:	83 c4 2c             	add    esp,0x2c
+  459b66:	c3                   	ret

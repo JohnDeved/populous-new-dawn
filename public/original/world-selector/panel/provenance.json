@@ -1,0 +1,114 @@
+{
+  "consumer": "0047e3e0 / 0047e660 / 0047f190; selected palette 00412780",
+  "inputs": {
+    "data/plspanel.spr": "9b3e17fd501c65c7357cb64c0c8f27ec43304da8726afa6044b642e65e50a778",
+    "levels/levl2001.hdr": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+    "data/plspl0-c.dat": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2",
+    "levels/levl2002.hdr": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+    "data/plspl0-s.dat": "a74fd9c5e6b630e9de3ffa7f93ce1cca2785dfd0de5499923ae18d51ebc8b2e4",
+    "levels/levl2003.hdr": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+    "data/plspl0-p.dat": "916b8eef2b9c9a9af6607ad29501364d5a280681ba52229bfff32c8a2fe2c736"
+  },
+  "banks": {
+    "1": {
+      "palette": "c",
+      "frames": {
+        "0": {
+          "file": "1-0.png",
+          "width": 638,
+          "height": 61,
+          "rgbaSha256": "bc61613cc499efc21038261c1489f3efa9cbf19d75f8bdc850d0a06a9d31d329",
+          "outputSha256": "6c56b784e6cb5d154291160e7bba665230274166b191bd9aabc0fff88e50cfed"
+        },
+        "5": {
+          "file": "1-5.png",
+          "width": 10,
+          "height": 12,
+          "rgbaSha256": "7c790d123568f09a2b215f5d86c219e986b60350f8a1d6f9216d0a79a5782665",
+          "outputSha256": "a8411036be0fd00e9281703f49f3d29e1977cd18fe92c73e3e6c6e9c277d433d"
+        },
+        "6": {
+          "file": "1-6.png",
+          "width": 10,
+          "height": 12,
+          "rgbaSha256": "e1faec63a96aca4981cb408b3975f47354445775ffdd0240ef15b46e4dbc3888",
+          "outputSha256": "ed3b64135395fc7c5c542e22a34e0a07ee25dd087f23f590bb4dbde43c067657"
+        },
+        "10": {
+          "file": "1-10.png",
+          "width": 37,
+          "height": 37,
+          "rgbaSha256": "e39b11c09f7ef1448d17ae8b4473fd337f491b70094cd230e127df69f970be6e",
+          "outputSha256": "97fec61b85bad17f25f9434bd1fa0894bd8b87339c08b443d9c571c088fa8023"
+        }
+      }
+    },
+    "2": {
+      "palette": "s",
+      "frames": {
+        "0": {
+          "file": "2-0.png",
+          "width": 638,
+          "height": 61,
+          "rgbaSha256": "bc61613cc499efc21038261c1489f3efa9cbf19d75f8bdc850d0a06a9d31d329",
+          "outputSha256": "6c56b784e6cb5d154291160e7bba665230274166b191bd9aabc0fff88e50cfed"
+        },
+        "5": {
+          "file": "2-5.png",
+          "width": 10,
+          "height": 12,
+          "rgbaSha256": "7c790d123568f09a2b215f5d86c219e986b60350f8a1d6f9216d0a79a5782665",
+          "outputSha256": "a8411036be0fd00e9281703f49f3d29e1977cd18fe92c73e3e6c6e9c277d433d"
+        },
+        "6": {
+          "file": "2-6.png",
+          "width": 10,
+          "height": 12,
+          "rgbaSha256": "e1faec63a96aca4981cb408b3975f47354445775ffdd0240ef15b46e4dbc3888",
+          "outputSha256": "ed3b64135395fc7c5c542e22a34e0a07ee25dd087f23f590bb4dbde43c067657"
+        },
+        "10": {
+          "file": "2-10.png",
+          "width": 37,
+          "height": 37,
+          "rgbaSha256": "e39b11c09f7ef1448d17ae8b4473fd337f491b70094cd230e127df69f970be6e",
+          "outputSha256": "97fec61b85bad17f25f9434bd1fa0894bd8b87339c08b443d9c571c088fa8023"
+        }
+      }
+    },
+    "3": {
+      "palette": "p",
+      "frames": {
+        "0": {
+          "file": "3-0.png",
+          "width": 638,
+          "height": 61,
+          "rgbaSha256": "bc61613cc499efc21038261c1489f3efa9cbf19d75f8bdc850d0a06a9d31d329",
+          "outputSha256": "6c56b784e6cb5d154291160e7bba665230274166b191bd9aabc0fff88e50cfed"
+        },
+        "5": {
+          "file": "3-5.png",
+          "width": 10,
+          "height": 12,
+          "rgbaSha256": "7c790d123568f09a2b215f5d86c219e986b60350f8a1d6f9216d0a79a5782665",
+          "outputSha256": "a8411036be0fd00e9281703f49f3d29e1977cd18fe92c73e3e6c6e9c277d433d"
+        },
+        "6": {
+          "file": "3-6.png",
+          "width": 10,
+          "height": 12,
+          "rgbaSha256": "e1faec63a96aca4981cb408b3975f47354445775ffdd0240ef15b46e4dbc3888",
+          "outputSha256": "ed3b64135395fc7c5c542e22a34e0a07ee25dd087f23f590bb4dbde43c067657"
+        },
+        "10": {
+          "file": "3-10.png",
+          "width": 37,
+          "height": 37,
+          "rgbaSha256": "e39b11c09f7ef1448d17ae8b4473fd337f491b70094cd230e127df69f970be6e",
+          "outputSha256": "97fec61b85bad17f25f9434bd1fa0894bd8b87339c08b443d9c571c088fa8023"
+        }
+      }
+    }
+  },
+  "limits": "Source-art reconstruction; not an original GPU screenshot. Title font and orbit renderer remain adapted."
+}

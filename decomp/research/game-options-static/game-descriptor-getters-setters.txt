@@ -1,0 +1,147 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004c4e00 <.text+0xc3e00>:
+  4c4e00:	e8 3b 4c fd ff       	call   0x499a40
+  4c4e05:	85 c0                	test   eax,eax
+  4c4e07:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4e0b:	74 08                	je     0x4c4e15
+  4c4e0d:	c7 40 30 01 00 00 00 	mov    DWORD PTR [eax+0x30],0x1
+  4c4e14:	c3                   	ret
+  4c4e15:	c7 40 30 00 00 00 00 	mov    DWORD PTR [eax+0x30],0x0
+  4c4e1c:	c3                   	ret
+  4c4e1d:	cc                   	int3
+  4c4e1e:	cc                   	int3
+  4c4e1f:	cc                   	int3
+  4c4e20:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4e24:	83 78 30 00          	cmp    DWORD PTR [eax+0x30],0x0
+  4c4e28:	74 05                	je     0x4c4e2f
+  4c4e2a:	e9 21 4c fd ff       	jmp    0x499a50
+  4c4e2f:	e9 2c 4c fd ff       	jmp    0x499a60
+  4c4e34:	cc                   	int3
+  4c4e35:	cc                   	int3
+  4c4e36:	cc                   	int3
+  4c4e37:	cc                   	int3
+  4c4e38:	cc                   	int3
+  4c4e39:	cc                   	int3
+  4c4e3a:	cc                   	int3
+  4c4e3b:	cc                   	int3
+  4c4e3c:	cc                   	int3
+  4c4e3d:	cc                   	int3
+  4c4e3e:	cc                   	int3
+  4c4e3f:	cc                   	int3
+  4c4e40:	e8 5b 4b fd ff       	call   0x4999a0
+  4c4e45:	85 c0                	test   eax,eax
+  4c4e47:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4e4b:	74 08                	je     0x4c4e55
+  4c4e4d:	c7 40 30 01 00 00 00 	mov    DWORD PTR [eax+0x30],0x1
+  4c4e54:	c3                   	ret
+  4c4e55:	c7 40 30 00 00 00 00 	mov    DWORD PTR [eax+0x30],0x0
+  4c4e5c:	c3                   	ret
+  4c4e5d:	cc                   	int3
+  4c4e5e:	cc                   	int3
+  4c4e5f:	cc                   	int3
+  4c4e60:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4e64:	83 78 30 00          	cmp    DWORD PTR [eax+0x30],0x0
+  4c4e68:	74 05                	je     0x4c4e6f
+  4c4e6a:	e9 41 4b fd ff       	jmp    0x4999b0
+  4c4e6f:	e9 4c 4b fd ff       	jmp    0x4999c0
+  4c4e74:	cc                   	int3
+  4c4e75:	cc                   	int3
+  4c4e76:	cc                   	int3
+  4c4e77:	cc                   	int3
+  4c4e78:	cc                   	int3
+  4c4e79:	cc                   	int3
+  4c4e7a:	cc                   	int3
+  4c4e7b:	cc                   	int3
+  4c4e7c:	cc                   	int3
+  4c4e7d:	cc                   	int3
+  4c4e7e:	cc                   	int3
+  4c4e7f:	cc                   	int3
+  4c4e80:	e8 8b 4b fd ff       	call   0x499a10
+  4c4e85:	85 c0                	test   eax,eax
+  4c4e87:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4e8b:	74 08                	je     0x4c4e95
+  4c4e8d:	c7 40 28 01 00 00 00 	mov    DWORD PTR [eax+0x28],0x1
+  4c4e94:	c3                   	ret
+  4c4e95:	c7 40 28 00 00 00 00 	mov    DWORD PTR [eax+0x28],0x0
+  4c4e9c:	c3                   	ret
+  4c4e9d:	cc                   	int3
+  4c4e9e:	cc                   	int3
+  4c4e9f:	cc                   	int3
+  4c4ea0:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4ea4:	83 78 28 00          	cmp    DWORD PTR [eax+0x28],0x0
+  4c4ea8:	74 05                	je     0x4c4eaf
+  4c4eaa:	e9 71 4b fd ff       	jmp    0x499a20
+  4c4eaf:	e9 7c 4b fd ff       	jmp    0x499a30
+  4c4eb4:	cc                   	int3
+  4c4eb5:	cc                   	int3
+  4c4eb6:	cc                   	int3
+  4c4eb7:	cc                   	int3
+  4c4eb8:	cc                   	int3
+  4c4eb9:	cc                   	int3
+  4c4eba:	cc                   	int3
+  4c4ebb:	cc                   	int3
+  4c4ebc:	cc                   	int3
+  4c4ebd:	cc                   	int3
+  4c4ebe:	cc                   	int3
+  4c4ebf:	cc                   	int3
+  4c4ec0:	e8 0b 4b fd ff       	call   0x4999d0
+  4c4ec5:	85 c0                	test   eax,eax
+  4c4ec7:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4ecb:	74 08                	je     0x4c4ed5
+  4c4ecd:	c7 40 28 01 00 00 00 	mov    DWORD PTR [eax+0x28],0x1
+  4c4ed4:	c3                   	ret
+  4c4ed5:	c7 40 28 00 00 00 00 	mov    DWORD PTR [eax+0x28],0x0
+  4c4edc:	c3                   	ret
+  4c4edd:	cc                   	int3
+  4c4ede:	cc                   	int3
+  4c4edf:	cc                   	int3
+  4c4ee0:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4ee4:	83 78 28 00          	cmp    DWORD PTR [eax+0x28],0x0
+  4c4ee8:	74 05                	je     0x4c4eef
+  4c4eea:	e9 01 4b fd ff       	jmp    0x4999f0
+  4c4eef:	e9 0c 4b fd ff       	jmp    0x499a00
+  4c4ef4:	cc                   	int3
+  4c4ef5:	cc                   	int3
+  4c4ef6:	cc                   	int3
+  4c4ef7:	cc                   	int3
+  4c4ef8:	cc                   	int3
+  4c4ef9:	cc                   	int3
+  4c4efa:	cc                   	int3
+  4c4efb:	cc                   	int3
+  4c4efc:	cc                   	int3
+  4c4efd:	cc                   	int3
+  4c4efe:	cc                   	int3
+  4c4eff:	cc                   	int3
+  4c4f00:	e8 6b 4b fd ff       	call   0x499a70
+  4c4f05:	85 c0                	test   eax,eax
+  4c4f07:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4f0b:	74 08                	je     0x4c4f15
+  4c4f0d:	c7 40 28 01 00 00 00 	mov    DWORD PTR [eax+0x28],0x1
+  4c4f14:	c3                   	ret
+  4c4f15:	c7 40 28 00 00 00 00 	mov    DWORD PTR [eax+0x28],0x0
+  4c4f1c:	c3                   	ret
+  4c4f1d:	cc                   	int3
+  4c4f1e:	cc                   	int3
+  4c4f1f:	cc                   	int3
+  4c4f20:	8b 44 24 04          	mov    eax,DWORD PTR [esp+0x4]
+  4c4f24:	83 78 28 00          	cmp    DWORD PTR [eax+0x28],0x0
+  4c4f28:	74 05                	je     0x4c4f2f
+  4c4f2a:	e9 51 4b fd ff       	jmp    0x499a80
+  4c4f2f:	e9 5c 4b fd ff       	jmp    0x499a90
+  4c4f34:	cc                   	int3
+  4c4f35:	cc                   	int3
+  4c4f36:	cc                   	int3
+  4c4f37:	cc                   	int3
+  4c4f38:	cc                   	int3
+  4c4f39:	cc                   	int3
+  4c4f3a:	cc                   	int3
+  4c4f3b:	cc                   	int3
+  4c4f3c:	cc                   	int3
+  4c4f3d:	cc                   	int3
+  4c4f3e:	cc                   	int3
+  4c4f3f:	cc                   	int3

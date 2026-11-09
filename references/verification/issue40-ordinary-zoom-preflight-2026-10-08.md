@@ -1,5 +1,7 @@
 # Issue 40: ordinary zoom observation preflight
 
+> Historical run artifacts referenced below are [retained at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification), not in the current checkout. Source probes, fixtures, and findings remain tracked where applicable.
+
 Initial base: `86c0dd37b1a7879a84d5a55ab9bca4b14beed029`; integration adopts
 main `eac737a0f7411f432ed790202cde63a42e314115` (the delivered PR275 acknowledgment
 repair and its test) without altering the QA source. This change adds QA only;

@@ -48,6 +48,10 @@ export function multiplyShift16(a: number, b: number) {
 }
 const dot = (a: number[], b: number[]) =>
   (Math.imul(a[0], b[0]) + Math.imul(a[1], b[1]) + Math.imul(a[2], b[2])) | 0
+// Scalar arguments retain the original row-first operand read order without
+// constructing two temporary arrays for each projected dot product.
+const projectionDot = (a: number, b: number, c: number, x: number, y: number, z: number) =>
+  (Math.imul(a, x) + Math.imul(b, y) + Math.imul(c, z)) | 0
 const cross = (a: number[], b: number[]) => [
   (Math.imul(a[1], b[2]) - Math.imul(a[2], b[1])) >> 14,
   (Math.imul(a[2], b[0]) - Math.imul(a[0], b[2])) >> 14,
@@ -99,17 +103,19 @@ export function modelMatrix(heading: number, pitch = 0, roll = 0) {
     cp = rules.sine[(pitch + 512) & 2047] >> 2
   const sr = rules.sine[roll & 2047] >> 2,
     cr = rules.sine[(roll + 512) & 2047] >> 2
-  const a = [
-      [cr, -sr, 0],
-      [sr, cr, 0],
-      [0, 0, 16384],
-    ],
-    b = [
-      [16384, 0, 0],
-      [0, cp, -sp],
-      [0, sp, cp],
-    ]
-  const matrix = a.flatMap(row => [0, 1, 2].map(i => dot(row, [b[0][i], b[1][i], b[2][i]]) >> 14))
+  // Sparse roll × pitch: each nonzero cell has only one product. Keep imul
+  // even for ×16384 so the original signed low-32-bit overflow is retained.
+  const matrix = [
+    Math.imul(cr, 16384) >> 14,
+    Math.imul(-sr, cp) >> 14,
+    Math.imul(-sr, -sp) >> 14,
+    Math.imul(sr, 16384) >> 14,
+    Math.imul(cr, cp) >> 14,
+    Math.imul(cr, -sp) >> 14,
+    0,
+    Math.imul(16384, sp) >> 14,
+    Math.imul(16384, cp) >> 14,
+  ]
   return heading || pitch || roll ? rotateBasis(matrix, -heading, 2) : matrix
 }
 
@@ -376,8 +382,8 @@ export function projectPoint(
 ): ProjectedPoint {
   const m = v.matrix
   const x = (Math.imul(p.x, m[0]) + Math.imul(p.z, m[2])) >> 14
-  let y = dot([m[3], m[4], m[5]], [p.x, p.y, p.z]) >> 14
-  const z = dot([m[6], m[7], m[8]], [p.x, p.y, p.z]) >> 14
+  let y = projectionDot(m[3], m[4], m[5], p.x, p.y, p.z) >> 14
+  const z = projectionDot(m[6], m[7], m[8], p.x, p.y, p.z) >> 14
   const radiusSquared = (Math.imul(x << 1, x << 1) + Math.imul(z << 1, z << 1)) | 0
   y = (y - (multiplyShift16(radiusSquared, v.curvature) >> 16)) | 0
   const depth = (z + v.depth) | 0

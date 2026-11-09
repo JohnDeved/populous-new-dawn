@@ -1,0 +1,26 @@
+
+/workspace/scratch/69fd8163d94e/populous-research-inputs/game/app/D3DPopTB.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004c3800 <.text+0xc2800>:
+  4c3800:	83 3d 5c 90 a6 00 00 	cmp    DWORD PTR ds:0xa6905c,0x0
+  4c3807:	74 05                	je     0x4c380e
+  4c3809:	e9 f2 b1 03 00       	jmp    0x4fea00
+  4c380e:	f6 05 6c c6 89 00 80 	test   BYTE PTR ds:0x89c66c,0x80
+  4c3815:	74 0b                	je     0x4c3822
+  4c3817:	6a 10                	push   0x10
+  4c3819:	e8 a2 6b f9 ff       	call   0x45a3c0
+  4c381e:	83 c4 04             	add    esp,0x4
+  4c3821:	c3                   	ret
+  4c3822:	f6 05 f5 c9 5f 00 01 	test   BYTE PTR ds:0x5fc9f5,0x1
+  4c3829:	74 0b                	je     0x4c3836
+  4c382b:	6a 15                	push   0x15
+  4c382d:	e8 8e 6b f9 ff       	call   0x45a3c0
+  4c3832:	83 c4 04             	add    esp,0x4
+  4c3835:	c3                   	ret
+  4c3836:	6a 00                	push   0x0
+  4c3838:	e8 83 6b f9 ff       	call   0x45a3c0
+  4c383d:	83 c4 04             	add    esp,0x4
+  4c3840:	c3                   	ret

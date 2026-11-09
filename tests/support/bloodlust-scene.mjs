@@ -3,13 +3,16 @@ import assert from 'node:assert/strict'
 import { readFileSync, existsSync } from 'node:fs'
 import { registerHooks } from 'node:module'
 import { fileURLToPath } from 'node:url'
-import ts from 'typescript'
+import { sceneFixtureSource, sceneFixtureSourceForApp } from './scene-fixture-source.mjs'
 import * as THREE from 'three'
+
+export { sceneFixtureSource }
 
 let loaded
 export async function loadSceneFixture() {
   if (loaded) return loaded
   const app = new URL('../../app/', import.meta.url)
+  const fixtureSource = sceneFixtureSourceForApp(app)
   // Resolve the unchanged Vite-style TS/JSON imports in Node in memory. This
   // does not add helpers to app/ or replace the scene implementation under test.
   registerHooks({
@@ -31,9 +34,7 @@ export async function loadSceneFixture() {
       if (url.startsWith(app.href) && url.endsWith('.ts'))
         return {
           format: 'module',
-          source: ts.transpileModule(readFileSync(new URL(url), 'utf8'), {
-            compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
-          }).outputText,
+          source: fixtureSource(url, readFileSync(new URL(url), 'utf8')),
           shortCircuit: true,
         }
       return next(url, context)

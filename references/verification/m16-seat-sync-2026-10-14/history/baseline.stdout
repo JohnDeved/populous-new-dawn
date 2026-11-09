@@ -1,0 +1,27 @@
+✖ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (1610.026263ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3122.796832
+
+✖ failing tests:
+
+test at tests/seated-native-position.test.mjs:24:1
+✖ retired route-map Balloon occupants launch from actual seats through public panel and Save/Load (1610.026263ms)
+  AssertionError [ERR_ASSERTION]: person 112 displaced 114.61239964109144 in one tick
+      at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-native-position.test.mjs:50:12
+      at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/support/profile-storage.mjs:115:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-native-position.test.mjs:27:2)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

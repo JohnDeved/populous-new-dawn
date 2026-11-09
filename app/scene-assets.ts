@@ -1,4 +1,5 @@
 import { templeArt } from './temple-art.ts'
+import towerArt from './original-tower-acquisition.json'
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
@@ -17,6 +18,12 @@ type TextureAsset = {
   status: 'loading' | 'ready' | 'failed'
 }
 const textures = new Map<string, TextureAsset>()
+let textureCompletionRevision = 0
+// A paused scene still needs a draw when a lazily requested sky/effect texture
+// settles. A revision avoids retaining scene listeners in this shared cache.
+export function sceneTextureRevision() {
+  return textureCompletionRevision
+}
 export function texture(kind: string) {
   return loadTexture(kind).texture
 }
@@ -30,6 +37,7 @@ export function loadTexture(kind: string) {
     ready: new Promise<boolean>(resolve => {
       loaded = success => {
         result.status = success ? 'ready' : 'failed'
+        textureCompletionRevision++
         resolve(success)
       }
     }),
@@ -64,6 +72,7 @@ export function loadTexture(kind: string) {
     kind === 'atlas-s' ||
     kind === 'atlas-p' ||
     kind === templeArt.modelAtlas ||
+    kind === towerArt.modelAtlas ||
     kind.startsWith('sky') ||
     kind.startsWith('clouds')
   ) {
@@ -79,9 +88,11 @@ export function loadTexture(kind: string) {
   if (
     kind === nativeUnits.atlas ||
     kind === 'effects' ||
+    kind === 'tornado' ||
     kind === templeArt.sparkleAtlas ||
     kind === 'vault-knowledge' ||
     kind === 'vault-knowledge-camp' ||
+    kind === 'vault-knowledge-tower' ||
     kind === 'selection' ||
     kind === 'unit-health'
   ) {
@@ -265,8 +276,12 @@ export function updateModelLighting(object: THREE.Object3D) {
   object.userData.lightKey = key
 }
 const meshes = new Map<string, THREE.BufferGeometry>()
+let sharedGeometryMembership: WeakSet<THREE.BufferGeometry> | undefined
 export function geometry(key: string, create: () => THREE.BufferGeometry) {
-  if (!meshes.has(key)) meshes.set(key, create())
+  if (!meshes.has(key)) {
+    meshes.set(key, create())
+    sharedGeometryMembership = undefined
+  }
   return meshes.get(key)!
 }
 export const box = (x: number, y: number, z: number) =>
@@ -296,7 +311,8 @@ export function releaseGroup(g: THREE.Object3D) {
       materials.add(o.material)
     }
     if (o instanceof THREE.Mesh || o instanceof THREE.Line) {
-      if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose()
+      if (!(sharedGeometryMembership ??= new WeakSet(meshes.values())).has(o.geometry))
+        o.geometry.dispose()
       ;(Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m))
     }
   })

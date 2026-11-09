@@ -68,7 +68,8 @@ export class ObjectPanels {
       building.hp > 0 &&
       building.admission?.class === 2 &&
       ((building.kind === 'camp' && building.admission.model === 7) ||
-        (building.kind === 'temple' && building.admission.model === 5))
+        (building.kind === 'temple' && building.admission.model === 5) ||
+        (building.kind === 'firewarriorHut' && building.admission.model === 8))
     )
   }
   private trainingActive(building: Building | undefined) {
@@ -219,6 +220,7 @@ export class ObjectPanels {
         record.automatic &&
         (building?.kind === 'camp' ||
           building?.kind === 'temple' ||
+          building?.kind === 'firewarriorHut' ||
           this.automaticTrainingLatches.has(id))
       if (training && !this.trainingIdentity(building)) building = undefined
       const element = scene.buildingPanels.get(id),
@@ -246,8 +248,12 @@ export class ObjectPanels {
           !building ||
           !(
             dismantlingCampPanel(building) ||
-            (building.kind === 'temple' && (building.admission?.activity ?? 0) & 0x8000) ||
-            ((building.kind === 'camp' || building.kind === 'temple') && panelInteraction)
+            ((building.kind === 'temple' || building.kind === 'firewarriorHut') &&
+              (building.admission?.activity ?? 0) & 0x8000) ||
+            ((building.kind === 'camp' ||
+              building.kind === 'temple' ||
+              building.kind === 'firewarriorHut') &&
+              panelInteraction)
           )
         ) {
           element?.remove()
@@ -685,6 +691,7 @@ export class ObjectPanels {
     const candidates = [
       [1, world.units.find(u => u.id === order.a && u.hp > 0)],
       [2, world.buildings.find(b => b.id === order.a && b.hp > 0)],
+      [4, world.vehicles.find(v => v.id === order.a && v.active)],
       [5, world.trees.find(t => t.id === order.a && t.logs > 0)],
       [10, world.shrines.find(s => s.id === order.a)],
     ] as const
@@ -692,7 +699,8 @@ export class ObjectPanels {
     const point = personOrderFocus(
       order,
       target && {
-        ...nativePosition(world, target),
+        // Vehicles already retain native coordinates, unlike browser world objects.
+        ...(objectClass === 4 ? target : nativePosition(world, target)),
         id: target.id,
         class: objectClass,
         flags2: 0,

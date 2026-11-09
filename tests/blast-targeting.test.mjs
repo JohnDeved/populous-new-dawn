@@ -1,3 +1,4 @@
+import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { addUnit, cast, createWorld, nativePosition } from '../app/model.ts'
@@ -190,7 +191,7 @@ test('current saves preserve target ownership and old point-only saves stay poin
   const legacy = structuredClone(world)
   delete legacy.projectiles[0].blastTarget
   const point = { ...legacy.projectiles[0].destination }
-  migrateCheckpoint(legacy)
+  normalizeHistoricalFixture(legacy)
   legacy.units.find(person => person.id === target.id).x += 1
   processProjectiles(legacy)
   assert.equal(legacy.projectiles[0].blastTarget, undefined)

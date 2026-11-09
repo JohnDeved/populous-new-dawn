@@ -1,0 +1,28 @@
+{
+  "scope": "Supplement to immutable final-manifest.json. Same genuine won6784 source checkpoint replayed on revised584d; final gates pending. Original ede and revised results remain separately recorded.",
+  "priorManifestSha256": "81b6d46920e6514c643dbe7a381df45f25823e36ab666ad2f2811685c9f358c8",
+  "receipt": {
+    "path": "work/orchestration/m17-restart-route/final-qualified-584d.json",
+    "sha256": "cf78f25cb195bd3a840744b358e08a0fc2a47a04c44b7541054cf9125cc6f34a",
+    "status": "passed",
+    "source": "584d40aebd4a18bb2adb37a0788697acc3f0406c"
+  },
+  "terminals": [
+    {
+      "path": "work/m17-restart-route/camera-settled-fixed-terminal-584d.v8",
+      "sha256": "7c3bd320a2971ac5c3ba4a5b207f728e10cc4bc05e2cee23ed2afe4445d38794"
+    },
+    {
+      "path": "work/m17-restart-route/continue18-terminal-584d.v8",
+      "sha256": "0e8d4ed1de1728540e32a6bc312ee05d2e6670eac32d659927e1b59d2e44c21d"
+    },
+    {
+      "path": "work/m17-restart-route/final-qualified-terminal-584d.v8",
+      "sha256": "f035d2bf6a2a04076e29ca4df0d54b3de0ac0e6078097cfc161245b6e8b14ff7"
+    },
+    {
+      "path": "work/m17-restart-route/won-fixed-terminal-584d.v8",
+      "sha256": "446756fc1241f1a0a52f2a87f096788321e6022b15ec48d4c4e181c191dc0538"
+    }
+  ]
+}

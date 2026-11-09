@@ -157,3 +157,60 @@ The nearby fixture also exposed and repaired the Total-number font choice: nativ
 nearby mode uses the alternate font for Total as well as class cells. Executed
 native text queues now compare all 96 task-number layouts (font, glyph and logical
 placement) across the four retained renderer cases.
+
+## Prospective ordinary Followers episodes
+
+Source assessed: `e25f1a1e3eeeac7a03eac88704680aa8249c2a1a`. These candidates
+extend the earlier, source-labelled acceptance; **every episode below is browser
+NOT RUN**. They do not relabel supporting class/crew fixtures as natural acquisition
+or complete issue #60.
+
+Before execution, bind the exact served source/build, wait for ordinary loading,
+flyby and input readiness, and require a supported browser with usable WebGL. Use
+normal RAF and public rendered controls, without manual ticks, forced outcomes,
+entity/position/HP/order edits, crew clearing or state30 holds. Protect existing
+checkpoints and unsaved work: Save replaces `latest`; Load resumes unpaused and
+resets the camera. Storage acceptance needs an authorized disposable session or
+preservation of the existing checkpoint. A disabled-WebGL startup supplies no
+in-scene acceptance. Record actual viewport/DPR, UI actions, counts, selection,
+focus and checkpoint observations; missing prerequisites remain BLOCKED/NOT RUN.
+
+- **M7, a new Brave:** [Mission 7](mission7.md) supplies one Blue Shaman and 59
+  Wildmen, with rechargeable Convert Wild. Observe the initial global Total and
+  Brave controls, earn a shot normally, and use a legal rendered cast on an actual
+  Wildman. After completed conversion, require the matching live Brave/Total
+  increase and enabled Brave frame; exercise selection/focus and Nearby at the
+  actual camera. Do not infer universal inertness from Total zero: `hud-tasks.ts`
+  sums models2..6, excluding Shaman, while some single/focus actions include her.
+- **M10, mixed-class passengers:** use existing authored classes and an actually
+  eligible Blue Boat for ordinary boarding, sailing and voluntary unloading.
+  [Opening research](mission10-opening.md) rejects initial Boat109 in open water;
+  its [exact prepared state](mission10-boat-prepared-state.md) remains unproved.
+  The retained crossing instead uses Boat House159's naturally produced occupied
+  Boat. Require legal entry/production, capacity, boarding and landing through
+  current controls, or stop as blocked. Compare passenger panels and transport
+  rows before/after each actual transition. `hud-transports.ts` counts occupied
+  vehicles once per represented class, not passenger totals; row acquisition
+  selects the eligible whole crew and uses separate focus memory.
+- **M22, ownership and conditional claim:** the
+  [authored enemy craft](mission22-rewards.md) must not enter Blue real-owner
+  counts merely because it is visible, focused or nearby. A later ordinary claim
+  and unload is conditional: `vehicle-routing.ts::boardingVehicle` requires
+  readiness/capacity and rejects a present slot0 driver of another tribe. Require
+  a rendered target, legal route, naturally eligible crew/driver state and a legal
+  landing. No Swarm or boarding success is promised; if any prerequisite fails,
+  record the boundary and stop without forcing crew departure. Keep real count
+  ownership distinct from apparent selection/focus ownership.
+- **Optional M1, residence and birth:** use an existing or normally completed Hut
+  for genuine Brave entry and panel-selected departure, then observe an actual
+  capacity-eligible birth if it occurs. Follow the
+  [completion/occupancy contract](hut-completion-occupancy.md); completion need not
+  start empty and birth does not imply residence. Compare Housed/Busy/Idle,
+  population, capacity and selection without adding Camp or training behavior.
+
+Specialist training remains **DEFERRED under parked #29**. Preserve original
+command mechanics and accessibility, current global class enablement versus
+nearby displayed counts, Shaman exceptions and transport owner rules. Any future
+Save/Load evidence must identify committed mode and actual restored state rather
+than assume equal whole-checkpoint digests. These plans supply no native pixel,
+audible sound, hardware-performance, parity or full-panel completion claim.

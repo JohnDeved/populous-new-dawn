@@ -1,3 +1,4 @@
+import type { TerrainVisibilityMetrics } from './ordinary-terrain-metrics.ts'
 // The terrain keeps its original six vertices per cell. An index buffer selects
 // only cells used by the native row spans; gl_VertexID retains painter face IDs.
 export function visibleTerrainCells(bounds: number[][], center: { x: number; y: number }) {
@@ -42,4 +43,69 @@ export function visibleTerrainCopies(bounds: number[][], center: { x: number; y:
     for (let tileX = first; tileX <= last; tileX++) mask |= 1 << ((tileX + 1) * 3 + tileZ + 1)
   }
   return terrainTiles.filter(([x, z]) => mask & (1 << ((x + 1) * 3 + z + 1)))
+}
+
+// One bounded selection per view, shared by picking and render preparation.
+// Snapshot values, not array identities: callers may replace or mutate spans.
+export class TerrainVisibilityPreparation {
+  private state?: {
+    overview: boolean
+    x: number
+    y: number
+    bounds: number[][]
+    vertices: number
+    indices: Uint32Array
+    count: number
+    tiles: number[][]
+    tileOrder: number[][]
+  }
+
+  prepare(
+    bounds: number[][],
+    center: { x: number; y: number },
+    overview: boolean,
+    vertices: number,
+    metrics?: TerrainVisibilityMetrics
+  ) {
+    const x = center.x >> 9,
+      y = center.y >> 9,
+      state = this.state
+    if (
+      state &&
+      state.overview === overview &&
+      state.vertices === vertices &&
+      (overview ||
+        (state.x === x &&
+          state.y === y &&
+          state.bounds.length === bounds.length &&
+          bounds.every(
+            ([start, end], row) => start === state.bounds[row][0] && end === state.bounds[row][1]
+          ))) &&
+      state.tileOrder.length === terrainTiles.length &&
+      terrainTiles.every(([x, z], i) => x === state.tileOrder[i][0] && z === state.tileOrder[i][1])
+    )
+      return state
+
+    const cells = overview ? null : visibleTerrainCells(bounds, center),
+      indices = new Uint32Array(Math.ceil(vertices / 6) * 6),
+      tiles = overview ? terrainTiles : visibleTerrainCopies(bounds, center)
+    let count = 0
+    for (let cell = 0; cell < vertices / 6; cell++) {
+      if (cells && !cells[cell]) continue
+      for (let vertex = cell * 6; vertex < cell * 6 + 6; vertex++) indices[count++] = vertex
+    }
+    if (metrics) metrics.selectionRebuilds++
+    this.state = {
+      overview,
+      x,
+      y,
+      vertices,
+      indices,
+      count,
+      bounds: overview ? [] : bounds.map(([start, end]) => [start, end]),
+      tiles,
+      tileOrder: terrainTiles.map(([x, z]) => [x, z]),
+    }
+    return this.state
+  }
 }

@@ -1,0 +1,57 @@
+✖ authored multi-follower heads report required count, not selected or admitted count (102.510767ms)
+✔ single-follower head keeps singular feedback (84.968662ms)
+✖ Shaman-only authored head identifies its required worshipper (66.796048ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2011.87837
+
+✖ failing tests:
+
+test at tests/shrine-command-message.test.mjs:23:1
+✖ authored multi-follower heads report required count, not selected or admitted count (102.510767ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Worshipping Earthquake stone head. One follower is enough.'
+  - 'Worshipping Earthquake stone head. 6 followers are required.'
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-shrine-toast/tests/shrine-command-message.test.mjs:27:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Worshipping Earthquake stone head. One follower is enough.',
+    expected: 'Worshipping Earthquake stone head. 6 followers are required.',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shrine-command-message.test.mjs:38:1
+✖ Shaman-only authored head identifies its required worshipper (66.796048ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'Worshipping Volcano stone head. One follower is enough.'
+  - 'Worshipping Volcano stone head. Only your shaman can worship here.'
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-shrine-toast/tests/shrine-command-message.test.mjs:41:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Worshipping Volcano stone head. One follower is enough.',
+    expected: 'Worshipping Volcano stone head. Only your shaman can worship here.',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

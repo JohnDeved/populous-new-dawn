@@ -1,5 +1,7 @@
 # Mission 1 → 2 → 3 ordinary campaign victory, 2026-10-05
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/current-campaign-victory-2026-10-05). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 **Direct original-executable evidence:** independently replayed
 [native probes](https://github.com/JohnDeved/populous-new-dawn/blob/5f8298e898ac4a1ae624c066dee3515b09e7940a/evidence/native-sermon-order-handoff/README.md)
 show that a genuinely native-converted Blue Brave retains its conversion flags,
@@ -26,7 +28,7 @@ does not substitute historical or synthetic replay for those missing inputs.
 Whole original-game parity, calibrated animation timing, original pixels and
 hardware/GPU performance remain open. This note adds no parity credit.
 
-![Actual Mission 3 Level Won and Continue to Mission 4 at turn 13480](victory.png)
+![Actual Mission 3 Level Won and Continue to Mission 4 at turn 13480](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/current-campaign-victory-2026-10-05/victory.png)
 
 *Unedited 1440×1000 output from sandboxed Chrome Headless Shell; the snapshot
 was recorded at 22:51:43.667 UTC. The visible 18:43 / 0 spells / 9 buildings raised are displayed

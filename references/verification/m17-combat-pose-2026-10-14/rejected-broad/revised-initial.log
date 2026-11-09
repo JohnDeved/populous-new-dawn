@@ -1,0 +1,38 @@
+✔ ordinary browser pose publication preserves physical identity, same-cell order and cross-cell linkage (306.461571ms)
+✔ existing flight, combat and vehicle physical owners are never overwritten by browser reconciliation (146.111704ms)
+✔ combat admission reconciles only ordinary reused native poses, preserving protected and other owners (381.346166ms)
+✖ genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load (1070.083238ms)
+✔ outdoor and building encounter calls match captured original fields, timing, RNG and sound (29.420591ms)
+✔ all playable encounter pairs show the opening strike, physical stagger and defender-centered fight (722.943088ms)
+✔ encounters and their animations stay deterministic across render schedules (453.134663ms)
+✔ the native skip-intro flag and player cancellation do not leave stuck encounters (125.767438ms)
+✔ an encounter releases cleanly when an airborne participant returns to ordinary motion (52.022913ms)
+✔ live fights refresh the first native player alert each object turn (188.210661ms)
+✔ simulation owns quiet, attack and battle music activity across pause and cancellation (49.365503ms)
+✔ reinforcements and new encounters retain the same person and resume ground, building and worship orders (1188.172521ms)
+✔ replacing or killing a reinforcement releases every retained command reference (269.940565ms)
+✔ a displaced fighter retains its queue and a split keeps both followers’ original records (341.425216ms)
+✔ combat interruption and resumed orders preserve simulation and poses across render rates (944.115183ms)
+✔ combat removes a waiting trainee from its physical line while retaining its training order (177.930521ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 15
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4379.752742
+
+✖ failing tests:
+
+test at tests/combat-pose-handoff.test.mjs:110:1
+✖ genuine M17 arena walk publishes current pose before encounter adoption and remains deterministic after Save/Load (1070.083238ms)
+  ReferenceError: syncBrowserPersonPosition is not defined
+      at stepTurn (file:///workspace/scratch/69fd8163d94e/populous-m17-combat-pose/app/world-turn.ts:1646:55)
+      at tick (file:///workspace/scratch/69fd8163d94e/populous-m17-combat-pose/app/world-turn.ts:469:5)
+      at advanceGame (file:///workspace/scratch/69fd8163d94e/populous-m17-combat-pose/app/game-clock.ts:82:19)
+      at file:///workspace/scratch/69fd8163d94e/populous-m17-combat-pose/tests/combat-pose-handoff.test.mjs:135:7
+      at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m17-combat-pose/tests/support/profile-storage.mjs:115:5)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m17-combat-pose/tests/combat-pose-handoff.test.mjs:120:3)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

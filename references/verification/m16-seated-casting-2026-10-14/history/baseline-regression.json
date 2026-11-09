@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "45c17ebe-f7b6-4a8a-bbfe-c1c0a2fc95a8",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1df610353a0eaf2e7c5a7e82b16c4c235e3e6bce",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/seated-casting-candidate.test.mjs": "2bda4be2d3b187af0cd63765f07caa30bd831e33c126294a407e8ba6120bc9b5",
+      "references/fixtures/m16-seated-casting/before-cast.v8.gz": "845e22d45928e013d4e6bad1a399d7dd554d1915ee89cf34b7c1465e5e907a49"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/seated-casting-candidate.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync",
+  "startedAt": "2026-10-14T12:46:50.844Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-casting-baseline/regression.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/populous-m16-seat-sync/work/orchestration/m16-casting-baseline/regression.json.artifacts/stderr.log"
+  },
+  "parityMeasurements": [],
+  "finishedAt": "2026-10-14T12:46:52.497Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ public seated Tornado finishes casting and permits a second earned cast through Save/Load (230.257909ms)\n✖ seated cast state owns retained area orders and moving Boat/Balloon seat visits (28.674488ms)\n✔ protected seated Shaman rejects public cast without stock or projectile changes (22.098424ms)\nℹ tests 3\nℹ suites 0\nℹ pass 1\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1539.872208\n\n✖ failing tests:\n\ntest at tests/seated-casting-candidate.test.mjs:39:1\n✖ public seated Tornado finishes casting and permits a second earned cast through Save/Load (230.257909ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  30 !== 22\n  \n      at file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-casting-candidate.test.mjs:59:12\n      at async withStorage (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/support/profile-storage.mjs:115:5)\n      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-casting-candidate.test.mjs:40:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 30,\n    expected: 22,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/seated-casting-candidate.test.mjs:126:1\n✖ seated cast state owns retained area orders and moving Boat/Balloon seat visits (28.674488ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  10 !== 22\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/populous-m16-seat-sync/tests/seated-casting-candidate.test.mjs:152:12)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 10,\n    expected: 22,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "9ff66c4f76b43c4bd9b6484edd124f376176a0e7ca03bfc7f0183c22e27a16d9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "1df610353a0eaf2e7c5a7e82b16c4c235e3e6bce",
+    "branch": "fix/seated-native-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/seated-casting-candidate.test.mjs": "2bda4be2d3b187af0cd63765f07caa30bd831e33c126294a407e8ba6120bc9b5",
+      "references/fixtures/m16-seated-casting/before-cast.v8.gz": "845e22d45928e013d4e6bad1a399d7dd554d1915ee89cf34b7c1465e5e907a49"
+    }
+  }
+}

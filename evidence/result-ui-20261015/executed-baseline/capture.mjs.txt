@@ -1,0 +1,34 @@
+import { createServer } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/postcss'
+import { chromium } from '@playwright/test'
+import { mkdirSync, writeFileSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { createHash } from 'node:crypto'
+const root='/tmp/result-screen457/ui-fixture', output='/tmp/result-screen457/baseline-static-auto-aaa3202a'
+mkdirSync(output,{recursive:true})
+const receipt={startedAt:new Date().toISOString(),source:JSON.parse(readFileSync(resolve(root,'source.json'),'utf8')),scenarioSha256:createHash('sha256').update(readFileSync(import.meta.filename)).digest('hex'),fixtureFiles:Object.fromEntries(['BaselineResult.tsx','baseline.css','main.tsx'].map(file=>[file,createHash('sha256').update(readFileSync(resolve(root,file))).digest('hex')])),status:'running',errors:[],captures:[],limits:['Static React presentation fixture; integrated full-game startup failed separately with SIGKILL.','Headless browser, no gameplay, native runtime or performance equivalence claim.']}
+let server,browser
+try{
+ server=await createServer({configFile:false,root,publicDir:'/tmp/populous-selector-scene-457/public',cacheDir:resolve(root,'.vite'),plugins:[react()],css:{postcss:{plugins:[tailwindcss()]}},server:{host:'127.0.0.1',port:4190,strictPort:true,fs:{allow:[root,'/tmp/populous-selector-scene-457']}},logLevel:'warn'})
+ await server.listen()
+ browser=await chromium.launch({executablePath:'/workspace/scratch/69fd8163d94e/browser-recovery-20261014/chrome-headless-shell-linux64/chrome-headless-shell',headless:true,chromiumSandbox:true,ignoreDefaultArgs:true,args:['--remote-debugging-pipe'],timeout:30000})
+ receipt.browser=browser.version()
+ const page=await browser.newPage({viewport:{width:640,height:480}})
+ page.on('pageerror',e=>receipt.errors.push(String(e)))
+ for(const status of ['won','lost']) {
+  await page.goto(`http://127.0.0.1:4190/?status=${status}`,{waitUntil:'networkidle'})
+  await page.locator('.end-screen').getByRole('heading',{name:status==='won'?'Level Won':'Level Lost',exact:true}).waitFor()
+  for(const [width,height] of [[640,480],[1280,960],[1920,1080]]){
+   await page.setViewportSize({width,height})
+   const screenshot=`baseline-${status}-${width}x${height}.png`
+   await page.waitForFunction(()=>!!document.querySelector('main').style.getPropertyValue('--hud-scale'))
+   const layout=await page.locator('main').evaluate(node=>({hudScale:node.style.getPropertyValue('--hud-scale'),side:getComputedStyle(node).getPropertyValue('--side'),viewportX:document.querySelector('.world-viewport').getBoundingClientRect().x}))
+   await page.screenshot({path:resolve(output,screenshot)})
+   receipt.captures.push({status,width,height,screenshot,layout})
+  }
+ }
+ if(receipt.errors.length)throw Error(receipt.errors.join('\n'))
+ receipt.status='passed'
+}catch(error){receipt.status='failed';receipt.failure=String(error);process.exitCode=1}
+finally{await browser?.close();await server?.close();receipt.finishedAt=new Date().toISOString();writeFileSync(resolve(output,'receipt.json'),JSON.stringify(receipt,null,2)+'\n');console.log(JSON.stringify(receipt))}

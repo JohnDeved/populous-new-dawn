@@ -35,6 +35,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
   const { createWorld } = await import('../app/world-initialization.ts')
   const { createLivePerson } = await import('../app/live-people.ts')
   const { migrateCheckpoint } = await import('../app/game-store.ts')
+  const { normalizeHistoricalFixture } = await import('./helpers/historical-checkpoint.ts')
   const { browserPosition } = await import('../app/world-coordinates.ts')
 
   // Supplied caller states, not an ordinary Mission 3 history. Two actual Wildmen
@@ -83,7 +84,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
         delete saved.respawns
         delete saved.respawnPoints
       }
-      world = migrateCheckpoint(saved)
+      world = checkpoint === 'legacy' ? normalizeHistoricalFixture(saved) : migrateCheckpoint(saved)
     }
     assert.equal(world.outcome.level, 3)
     assert.equal(world.activeCampaignTribe, 2)

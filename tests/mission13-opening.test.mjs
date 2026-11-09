@@ -1,14 +1,21 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
 import { liveCommandContext, spellTargetError } from '../app/live-command.ts'
 import { liveVehicleCellObjects } from '../app/live-vehicles.ts'
 import { messageText } from '../app/messages.ts'
 import { missionComputerTribes, missionData, missionScript } from '../app/mission-data.ts'
-import { addBuilding, browserPosition, command, tick } from '../app/model.ts'
+import {
+  addBuilding,
+  browserPosition,
+  command,
+  tick,
+  nativePosition,
+  supportsFollower,
+} from '../app/model.ts'
 import { terrainPointHeight } from '../app/native-terrain.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
-import { vehicleCanDisembark } from '../app/vehicle-routing.ts'
+import { vehicleCanDisembark, vehicleReady } from '../app/vehicle-routing.ts'
 import { createGift } from '../app/world-effects.ts'
 import { createWorld } from '../app/world-initialization.ts'
 
@@ -137,8 +144,8 @@ test('Mission 13 Land Bridge uses native surface categories at low shore', () =>
   assert.equal(spellTargetError(world, 'bridge', { x: -116, z: 62 })?.code, -3)
 })
 
-test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', () => {
-  let world = createWorld(13)
+test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', async () => {
+  let world = createWorld(13, 'scalable')
   createGift(
     world,
     'balloonHut',
@@ -152,10 +159,51 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', (
       brave.inside = hut.id
       brave.work = hut.id
       hut.timer = 999
+      const allocationSeed = world.vehicleAllocationSeed
       tick(world, 1 / 12)
+      const produced = world.vehicles.find(vehicle => vehicle.id === brave.native.vehicle)
+      assert.ok(produced)
+      assert.equal(produced.counter, allocationSeed, 'new workshop craft skips its ordinary visit this pass')
+      assert.equal(produced.life, 5000)
+      assert.equal(world.vehicleAllocationSeed, (allocationSeed + 1) & 255)
+      assert.deepEqual(produced.passengers, [brave.id])
+      assert.equal(produced.passengerCount, 1)
+      assert.equal(world.objectCells.objects.get(brave.id), brave.native)
     }
+  // Supplied completed Hut/timer; production and subsequent commands are real.
   produce(braves[0])
   produce(braves[1])
+
+  // Separate clone: the public production checkpoint must not advance the route.
+  const store = createGameStore()
+  store.startMission(13)
+  const uninterrupted = store.getWorld()
+  Object.assign(uninterrupted, structuredClone(world))
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  const loaded = store.getWorld(),
+    producedOwners = uninterrupted.vehicles.map(vehicle => ({
+      vehicle: vehicle.id,
+      counter: vehicle.counter,
+      id: vehicle.passengers[0],
+      owner: uninterrupted.units.find(unit => unit.id === vehicle.passengers[0]).native,
+    }))
+  assert.deepEqual(loaded, uninterrupted)
+  for (let turn = 0; turn < 120; turn++) {
+    tick(uninterrupted, 1 / 12)
+    tick(loaded, 1 / 12)
+    assert.deepEqual(loaded, uninterrupted)
+    for (const entry of producedOwners) {
+      const vehicle = uninterrupted.vehicles.find(vehicle => vehicle.id === entry.vehicle),
+        unit = uninterrupted.units.find(unit => unit.id === entry.id)
+      assert.equal(vehicle.counter, (entry.counter + turn + 1) & 255)
+      assert.equal(vehicle.life, 5000)
+      assert.deepEqual(vehicle.passengers, [entry.id])
+      assert.equal(vehicle.passengerCount, 1)
+      assert.equal(unit.native, entry.owner)
+      assert.equal(uninterrupted.objectCells.objects.get(entry.id), entry.owner)
+    }
+  }
 
   assert.equal(world.vehicles.length, 2)
   assert.ok(world.vehicles.every(vehicle => vehicle.model === 3 && vehicle.physics === 0))
@@ -182,6 +230,18 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', (
           distance > 3_000 &&
           distance < 10_000 &&
           vehicleCanDisembark(vehicleWorld, vehicle, point) &&
+          // Reboarding requires readiness, which is stricter than disembarking.
+          [-512, 0, 512].every(dx =>
+            [-512, 0, 512].every(dy =>
+              vehicleReady(state.land, {
+                ...vehicle,
+                x: point.x + dx,
+                y: point.y + dy,
+                speed: 0,
+                navigationFlags: 0,
+              })
+            )
+          ) &&
           liveCommandContext(state, browserPosition(point))?.enabled
         )
           return point
@@ -192,14 +252,42 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', (
   const firstLanding = findLanding(world, balloon)
   assert.ok(firstLanding)
   assert.ok(command(world, browserPosition(firstLanding)))
+  for (
+    let turn = 0;
+    turn < 1_000 &&
+    (currentPersonOrder(world.buildingOrders, driver.native) ||
+      balloon.speed !== 0 ||
+      !vehicleReady(world.land, balloon));
+    turn++
+  )
+    tick(world, 1 / 12)
+  assert.equal(currentPersonOrder(world.buildingOrders, driver.native), undefined)
+  assert.equal(balloon.speed, 0)
+  assert.ok(vehicleReady(world.land, balloon))
+  const firstOwner = driver.native
+  assert.ok(command(world, browserPosition(balloon), { shiftKey: true }))
+  const firstDeparture = currentPersonOrder(world.buildingOrders, firstOwner)
+  assert.equal(firstDeparture.flags, 64)
   for (let turn = 0; balloon.passengerCount && turn < 1_000; turn++) tick(world, 1 / 12)
   assert.equal(balloon.passengerCount, 0)
+  for (let turn = 0; driver.flight && turn < 120; turn++) tick(world, 1 / 12)
+  assert.equal(driver.flight, undefined)
+  assert.equal(driver.hp, 50)
+  assert.ok(supportsFollower(world, driver))
+  assert.equal(firstOwner.vehicle, 0)
+  assert.equal(firstDeparture.references, 0)
 
-  Object.assign(passenger.native, { x: driver.native.x, y: driver.native.y })
-  Object.assign(passenger, browserPosition(driver.native))
+  // Preserve the original explicitly supplied second-passenger position setup.
+  Object.assign(passenger.native, nativePosition(world, driver))
+  Object.assign(passenger, { x: driver.x, z: driver.z })
   world.selected = [passenger.id]
   assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
   for (let turn = 0; balloon.passengerCount < 1 && turn < 1_000; turn++) tick(world, 1 / 12)
+  // Settled drivers leave the route cache but remain persistent vehicle owners.
+  assert.equal(passenger.native.state, 30)
+  assert.equal(world.pathfinding.people.has(passenger.id), false)
+  assert.equal(world.objectCells.objects.get(passenger.id), passenger.native)
+  assert.equal(passenger.native.vehicle, balloon.id)
   world.selected = [driver.id]
   assert.ok(command(world, { ...browserPosition(balloon), id: balloon.id }))
   for (let turn = 0; balloon.passengerCount < 2 && turn < 1_000; turn++) tick(world, 1 / 12)
@@ -212,12 +300,27 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', (
   world.selected = occupants.map(unit => unit.id)
   const target = findLanding(world, restored)
   assert.ok(target)
-  const clicked = { x: target.x + 37, y: target.y + 91 }
+  const flightPeople = occupants.map(unit => unit.native),
+    clicked = { x: target.x + 37, y: target.y + 91 }
   assert.ok(command(world, browserPosition(clicked)))
   const flightOrder = currentPersonOrder(world.buildingOrders, occupants[0].native)
-  assert.deepEqual([flightOrder.a & 255, flightOrder.b & 255], [0, 0])
+  assert.deepEqual([flightOrder.a & 255, flightOrder.b & 255], [128, 128])
+  assert.equal(flightOrder.flags, 0)
   assert.notDeepEqual([flightOrder.a, flightOrder.b], [clicked.x, clicked.y])
-  for (let turn = 0; restored.passengers.length && turn < 1_000; turn++) tick(world, 1 / 12)
+  for (
+    let turn = 0;
+    turn < 1_000 &&
+    (flightOrder.references || restored.speed !== 0 || !vehicleReady(world.land, restored));
+    turn++
+  )
+    tick(world, 1 / 12)
+  assert.equal(flightOrder.references, 0)
+  assert.equal(restored.speed, 0)
+  assert.ok(vehicleReady(world.land, restored))
+  assert.ok(command(world, browserPosition(restored), { shiftKey: true }))
+  const departureOrder = currentPersonOrder(world.buildingOrders, occupants[0].native)
+  assert.equal(departureOrder.flags, 64)
+  for (let turn = 0; restored.passengerCount && turn < 1_000; turn++) tick(world, 1 / 12)
   for (let turn = 0; turn < 32; turn++) tick(world, 1 / 12)
 
   assert.equal(
@@ -227,16 +330,24 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', (
       vehicle: restored,
       occupants: occupants.map(unit => ({
         id: unit.id,
-        vehicle: unit.native.vehicle,
-        order: currentPersonOrder(world.buildingOrders, unit.native),
+        vehicle: unit.native?.vehicle,
+        order: unit.native && currentPersonOrder(world.buildingOrders, unit.native),
       })),
     })
   )
   assert.deepEqual(restored.passengers, [])
   assert.ok(Math.hypot(restored.x - before.x, restored.y - before.y) > 3_000)
   assert.equal(restored.h, terrainPointHeight(world.land, restored) + 560)
-  assert.ok(occupants.every(unit => !unit.native.vehicle && !(unit.native.flags4 & 0x2000000)))
-  assert.ok(occupants.every(unit => !currentPersonOrder(world.buildingOrders, unit.native)))
+  assert.equal(departureOrder.references, 0)
+  assert.ok(flightPeople.every(person => !person.vehicle && !(person.flags4 & 0x2000000)))
+  assert.ok(flightPeople.every(person => !currentPersonOrder(world.buildingOrders, person)))
+  for (const unit of occupants) {
+    assert.equal(unit.hp, 50)
+    assert.equal(unit.flight, undefined)
+    assert.ok(world.units.includes(unit))
+    assert.ok(supportsFollower(world, unit))
+    assert.equal(world.objectCells.objects.get(unit.id), unit.native)
+  }
 })
 
 test('Mission 13 opening remains deterministic through checkpoint migration', () => {

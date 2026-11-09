@@ -229,7 +229,13 @@ test('a funded Spy Training Hut trains an original model-5 Spy and sends it outs
   until(w, () => !!target.burn, 600)
   assert.equal(target.damageState.state, 4)
   assert.equal(target.damageState.attacker, 0)
-  assert.equal(spy.native.disguise, 0, 'nearby target-tribe detection reveals the saboteur')
+  // The supplied detector is four coarse cells away; this reveal is the
+  // phase4 discovery roll, not phase1/2 proximity detection or ignition.
+  assert.equal(spy.native.disguise, 0x40, 'ignition only arms aftermath discovery')
+  assert.ok(spy.native.flags2 & 0x40000000)
+  tick(w, 1 / 12)
+  assert.equal(spy.native.timer, 23)
+  assert.equal(spy.native.disguise, 0, 'the next aftermath entry reveals the saboteur')
   const checkpoint = structuredClone(w)
   assert.equal(currentPersonOrder(checkpoint.buildingOrders, checkpoint.units.find(u => u.id === spy.id).native)?.model, 15)
   assert.equal(checkpoint.buildings.find(b => b.id === target.id).burn.remaining, target.burn.remaining)

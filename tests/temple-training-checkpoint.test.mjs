@@ -4,7 +4,8 @@ import test from 'node:test'
 import { addBuilding, addUnit } from '../app/model.ts'
 import { buildingAdmission } from '../app/live-building-entry.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
-import { migrateCheckpoint } from '../app/game-store.ts'
+import { allocatePersonOrder, attachPersonOrder } from '../app/person-orders.ts'
+import { migrateCheckpoint, CHECKPOINT_VERSION } from '../app/game-store.ts'
 import { checkpointObservation } from '../scripts/local-render/checkpoint-observer.mjs'
 import {
   armTempleCheckpoint,
@@ -76,7 +77,7 @@ async function storage(t) {
     target.dispatchEvent(event)
     target[`on${type}`]?.call(target, event)
   }
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     objectStoreNames: { contains: name => name === 'checkpoints' },
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
@@ -114,7 +115,7 @@ async function storage(t) {
     close() {
       closed++
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {
@@ -166,20 +167,20 @@ function activeFixture(createGameStore) {
     admission = buildingAdmission(world, temple)
   registerLivePerson(world, person)
   const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
-  shaman.native = createLivePerson(world, shaman)
+  shaman.native ??= createLivePerson(world, shaman)
   registerLivePerson(world, shaman.native)
   Object.assign(world, { turn: 707, time: 707 / 12, paused: true, unlockedTemple: true })
   Object.assign(person, { flags3: 0, savedVehicle: 0, orderDelay: 0 })
-  person.commands.fill(0)
-  person.commands[0] = 1
-  person.commandCursor = 0
-  Object.assign(world.buildingOrders.records[1], {
+  // Supply the training state without overwriting unrelated authored owners.
+  const order = allocatePersonOrder(world.buildingOrders)
+  Object.assign(world.buildingOrders.records[order], {
     model: 8,
     a: temple.id,
     flags: 0,
-    references: 1,
   })
-  Object.assign(world.buildingOrders, { active: 1, cursor: 2 })
+  attachPersonOrder(world.buildingOrders, person, order, 0, {
+    prepare() {}, stopWork() {}, releaseSpell() {}, deleteObject() {}, releaseFight() {},
+  })
   Object.assign(trainee, {
     native: null,
     entry: { person, orders: world.buildingOrders },
@@ -227,7 +228,7 @@ function activeFixture(createGameStore) {
 
 async function typed(world) {
   const key = Symbol('test-only checkpoint'),
-    record = { version: 1, world }
+    record = { version: 3, world }
   Object.defineProperty(globalThis, key, { configurable: true, value: record })
   try {
     return await checkpointObservation({ observationName: key })
@@ -247,8 +248,11 @@ function publicLoad(store) {
   const noop = () => {},
     bindings = {
       store,
+      followerPress: { current: null }, menuSession: { current: null },
+      pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
+      setCheatsOpen: value => assert.equal(value, false, 'actual Page Load closes the testing menu'),
       setSelectorOpen: noop,
       audio: { current: { reset: noop } },
       setMenu: noop,
@@ -378,7 +382,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
   assert.equal(db.closed, 2, 'both readback database handles close')
 })
 
-test('fresh store restores committed active Temple and public Load Game publishes before Page unpause', async t => {
+for (const version of [CHECKPOINT_VERSION]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
   const db = await storage(t),
     f = activeFixture(db.createGameStore),
     saved = f.store.saveCheckpoint()
@@ -389,6 +393,8 @@ test('fresh store restores committed active Temple and public Load Game publishe
     read = readTempleCommittedLoad()
   ;(await db.transaction('readonly')).complete()
   const expected = await read
+  assert.equal(expected.committed.version, version)
+  assert.equal(expected.expectedLoad.version, 3)
   assert.deepEqual(expected.committed, committedBefore)
   assert.deepEqual(db.records, recordsBefore, 'detached restore/Load prediction cannot alter IDB')
   assert.notEqual(expected.expectedLoad.checkpointSha256, committedBefore.checkpointSha256)
@@ -422,9 +428,18 @@ test('fresh store restores committed active Temple and public Load Game publishe
   const selector = readFileSync(new URL('../app/world-selector.tsx', import.meta.url), 'utf8'),
     selectorUse = page.match(/<WorldSelector\b[\s\S]*?\n\s*\/>/)?.[0],
     handlerName = selectorUse?.match(/\bonLoad=\{(\w+)\}/)?.[1]
+  // Native-default presentation groups adapted Load access behind its explicit
+  // compatibility toggle; checkpoint availability and Page ownership stay intact.
+  assert.match(selector, /aria-expanded=\{compatibility\}/)
+  assert.match(selector, /aria-controls="selector-browser-controls"/)
+  assert.match(selector, /onClick=\{\(\) => setCompatibility\(value => !value\)\}/)
+  const compatibilityControls = selector.match(
+    /\{compatibility && \(\s*<section\s+id="selector-browser-controls"[\s\S]*?<\/section>/
+  )?.[0]
+  assert.ok(compatibilityControls)
   assert.match(
-    selector,
-    /\{hasCheckpoint && \(\s*<button autoFocus onClick=\{onLoad\}>\s*Load Game\s*<\/button>/
+    compatibilityControls,
+    /\{hasCheckpoint && <button onClick=\{onLoad\}>Load Game<\/button>\}/
   )
   assert.match(selectorUse, /hasCheckpoint=\{store\.hasCheckpoint\(\)\}/)
   assert.ok(handlerName)
@@ -785,4 +800,18 @@ test('aborted Save cannot claim committed IDB even though its synchronous in-ses
   })
   t.after(() => load.close())
   await assert.rejects(load.expectedLoadDigest(), /requires a Save/)
+})
+
+for (const mode of ['obsolete-envelope', 'classic']) test(`Temple committed observer rejects ${mode} without changing storage`, async t => {
+  const db = await storage(t), f = activeFixture(db.createGameStore), saved = f.store.saveCheckpoint()
+  ;(await db.transaction('readwrite')).complete()
+  assert.equal(await saved, true)
+  if (mode === 'obsolete-envelope') {
+    db.records.get('latest').version = 1
+    delete db.records.get('latest').world.capacityPolicy
+  } else db.records.get('latest').world.capacityPolicy.mode = 'classic'
+  const before = structuredClone(db.records), rejected = assert.rejects(readTempleCommittedLoad(), /Committed Mission 3 checkpoint required/)
+  ;(await db.transaction('readonly')).complete()
+  await rejected
+  assert.deepEqual(db.records, before)
 })

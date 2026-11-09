@@ -38,7 +38,9 @@ const index = (cell: number) => ((cell & 0xfe00) >> 9) * 128 + ((cell & 254) >> 
 const packed = (p: Point) => ((p.x >> 8) & 254) | (p.y & 0xfe00)
 
 // 0x42c210 at fresh-world initialization. Centers are zeroed BSS; shapes 1..8
-// receive exactly their population's positions. Shape zero reads shape six.
+// receive exactly their population's positions in one contiguous table. A
+// temporary slot can exceed its shape's population and read the following ring.
+// Every shape exposes the six slots used by ownership; shape zero reads six.
 export function createRestingSlots() {
   const radii = [0, 0, 80, 100, 120, 130, 140, 150, 160],
     slots: Point[][] = [[]]
@@ -49,6 +51,12 @@ export function createRestingSlots() {
       row.push({ x: p.x * 256, y: -p.z * 256 })
     }
     slots.push(row)
+  }
+  const positions = slots.flat()
+  let start = 0
+  for (let n = 1; n <= 8; n++) {
+    slots[n] = positions.slice(start, start + Math.max(7, n + 1))
+    start += n + 1
   }
   slots[0] = slots[6]
   return slots

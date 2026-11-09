@@ -1,5 +1,7 @@
 # Mission 3 saved-checkpoint ordinary victory, 2026-10-05
 
+> Historical PNG captures are [preserved unchanged at the pre-cleanup commit](https://github.com/JohnDeved/populous-new-dawn/tree/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-three-controls-2026-10-05). They are no longer tracked in the current checkout; the source-bound findings, image names and any recorded hashes below remain historical evidence.
+
 Mission 3 reached **Level Won** through ordinary controls and the real animation
 frame clock on application **b3818511da0b420129b03092f397ad76bc6111a8**, with frozen
 QA **5de3c5715f05cce509a6d7a86c2b17752aac8c2a**. The final Warrior attack removed
@@ -23,7 +25,7 @@ This is historical application evidence; later current-main changes were not
 replayed. It does not establish full original-game parity, native-pixel equivalence,
 full-campaign acceptance or hardware performance, and it adds no parity credit.
 
-![Actual ordinary Mission 3 victory at paused turn 16193](victory.png)
+![Actual ordinary Mission 3 victory at paused turn 16193](https://github.com/JohnDeved/populous-new-dawn/blob/bc9cabf404240ad99b2aab8c26e9b0137cdd7702/references/verification/mission-three-controls-2026-10-05/victory.png)
 
 *Unedited 1440×1000 browser output, captured 08:39:19.581 UTC on the pinned
 application. The displayed 22:29 is this world's game time, not cumulative replay

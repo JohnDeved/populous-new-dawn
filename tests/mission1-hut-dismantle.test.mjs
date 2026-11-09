@@ -49,8 +49,11 @@ function pageLoad(store) {
     noop = () => {},
     bindings = {
       store,
+      followerPress: { current: null }, menuSession: { current: null },
+      pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
+      setCheatsOpen: value => assert.equal(value, false, 'actual Page Load closes the testing menu'),
       setSelectorOpen: noop,
       audio: { current: { reset: noop } },
       setMenu: noop,
@@ -68,7 +71,7 @@ function pageLoad(store) {
 }
 
 test('authored Hut resident reaches shipped dismantle input, partial Save/Load and exact recovery', async t => {
-  const { scene, world, hut, api, frame } = await tooltipCallerFixture(t),
+  const { scene, world, hut, api, frame } = await tooltipCallerFixture(t, { capacityMode: 'scalable' }),
     { renderBuildingPanels } = await import('../app/building-panels.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
     { armTempleCheckpoint } = await import('../scripts/local-render/temple-training-checkpoint.mjs')

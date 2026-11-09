@@ -101,8 +101,17 @@ test('the normal Balloon Hut producer creates the original144 appearance', () =>
   assert.ok(balloon)
   assert.equal(originalVehicleMesh(balloon.model), 144)
   assert.equal(balloon.passengers[0], brave.id)
+  assert.equal(balloon.passengerCount, 1)
   assert.equal(brave.native.vehicle, balloon.id)
-  assert.equal(originalVehicleMesh(migrateCheckpoint(structuredClone(world)).vehicles[0].model), 144)
+  assert.equal(world.objectCells.objects.get(brave.id), brave.native)
+  const restored = migrateCheckpoint(structuredClone(world)),
+    restoredBrave = restored.units.find(unit => unit.id === brave.id),
+    restoredBalloon = restored.vehicles.find(vehicle => vehicle.id === balloon.id)
+  assert.equal(originalVehicleMesh(restoredBalloon.model), 144)
+  assert.deepEqual(restoredBalloon.passengers, [brave.id])
+  assert.equal(restoredBalloon.passengerCount, 1)
+  assert.equal(restored.objectCells.objects.get(brave.id), restoredBrave.native)
+  assert.equal(restoredBrave.native.vehicle, balloon.id)
 })
 
 test('the shipped vehicle factory consumes original models, with no custom hull/envelope', () => {

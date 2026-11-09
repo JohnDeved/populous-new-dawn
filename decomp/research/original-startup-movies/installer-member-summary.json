@@ -1,0 +1,40 @@
+{
+  "sourceIndexSHA256": "72ca16c97b8315f463fc07874e0e015922164ba82bb254dfa382399087cc131c",
+  "sourceIndexBytes": 129090,
+  "totalMembers": 1549,
+  "fmvMembers": [
+    {
+      "path": "data/{app}/Fmv/BLOGO.TGQ",
+      "component": "Component0"
+    },
+    {
+      "path": "data/{app}/Fmv/OUTRO.TGQ",
+      "component": "Component0"
+    },
+    {
+      "path": "data/{app}/Fmv/P3INTRO1.TGQ",
+      "component": "Component0"
+    },
+    {
+      "path": "data/{app}/Fmv/p3intro2.tgq",
+      "component": "Component0"
+    },
+    {
+      "path": "data/{app}/Fmv/p3intro3.tgq",
+      "component": "Component0"
+    },
+    {
+      "path": "data/{app}/Fmv/POP3MASK.TGQ",
+      "component": "Component0"
+    },
+    {
+      "path": "data/{app}/Fmv/Trailer.tgq",
+      "component": "Component0"
+    }
+  ],
+  "absentReferencedFmvNames": [
+    "blogojap.tgq",
+    "p3introj.tgq",
+    "p3introc.tgq"
+  ]
+}

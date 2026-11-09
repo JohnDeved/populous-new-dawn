@@ -1,0 +1,118 @@
+{
+  "movie-callbacks": [
+    [
+      "0x49cc10",
+      "0x49cc7d"
+    ]
+  ],
+  "movie-wrapper": [
+    [
+      "0x49cc80",
+      "0x49cf3c"
+    ]
+  ],
+  "input-dispatch": [
+    [
+      "0x526a80",
+      "0x526bed"
+    ]
+  ],
+  "input-dequeue-count": [
+    [
+      "0x526c10",
+      "0x526cf1"
+    ],
+    [
+      "0x526d10",
+      "0x526d16"
+    ]
+  ],
+  "input-ring": [
+    [
+      "0x52c5b0",
+      "0x52c74c"
+    ]
+  ],
+  "keyboard-producer": [
+    [
+      "0x52c880",
+      "0x52cb3c"
+    ]
+  ],
+  "mouse-producer": [
+    [
+      "0x52cd40",
+      "0x52d117"
+    ]
+  ],
+  "input-helper-boundary": [
+    [
+      "0x526fd0",
+      "0x526fe7"
+    ],
+    [
+      "0x52e060",
+      "0x52e073"
+    ]
+  ],
+  "memory-release-boundary": [
+    [
+      "0x55bdd0",
+      "0x55be3d"
+    ]
+  ],
+  "player-create": [
+    [
+      "0x579960",
+      "0x5799e0"
+    ]
+  ],
+  "player-entry": [
+    [
+      "0x57ae00",
+      "0x57ae3f"
+    ]
+  ],
+  "player-run-and-destroy": [
+    [
+      "0x57a800",
+      "0x57a99b"
+    ]
+  ],
+  "player-loop": [
+    [
+      "0x57a9a0",
+      "0x57ac83"
+    ]
+  ],
+  "player-exit-helpers": [
+    [
+      "0x57dfe0",
+      "0x57e026"
+    ],
+    [
+      "0x57e350",
+      "0x57e36f"
+    ],
+    [
+      "0x57ade0",
+      "0x57adf3"
+    ]
+  ],
+  "callers-continue": [
+    [
+      "0x523170",
+      "0x5231bc"
+    ],
+    [
+      "0x4c3340",
+      "0x4c34ec"
+    ]
+  ],
+  "directinput-import-thunk": [
+    [
+      "0x584f38",
+      "0x584f3e"
+    ]
+  ]
+}

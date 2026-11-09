@@ -1,4 +1,7 @@
+import type { ScenerySource, SceneryBirth } from './scenery-provenance.ts'
+import type { AngelPresentation } from './angel-presentation.ts'
 import type { SecondaryEffects } from './secondary-effects.ts'
+import type { CapacityPolicy } from './capacity-policy.ts'
 import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
@@ -106,10 +109,18 @@ export type Fight = {
   remaining?: number
   animation?: MeleeAttack | 'recoil' | 'walk' | 'idle'
   knockback?: boolean
+  // Only attacks entered with a native pose own it; legacy active saves keep fallback.
+  nativeAttackAnimation?: boolean
+  // A processed recoil entry owns its phase through the following push/approach.
+  nativeRecoilAnimation?: boolean
   motion?: LivePerson
 }
 export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
+  // Native allocation/visit byte. Missing in legacy checkpoints means unknown.
+  counter?: number
+  // Snapshot of the reward's immediate visit, not an ordinary vehicle controller.
+  rewardInitialization?: import('./vehicle-reward.ts').BoatRewardInitialization
   // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
   apparentTribe?: number
   id: number
@@ -152,6 +163,7 @@ export type Projectile = {
   fireball?: boolean
 }
 export type AngelState = {
+  presentation?: AngelPresentation
   phase: 'seeking' | 'striking' | 'dying'
   target: number | null
   heading: number
@@ -252,6 +264,8 @@ export type Building = Point & {
 }
 export type Shrine = Point &
   WorshipState & {
+    triggerSlot?: number
+    verifiedDecorationSlot?: number | null
     id: number
     kind:
       | Spell
@@ -284,7 +298,7 @@ export type Shrine = Point &
     lightningTargets?: Point[]
     firestormTargets?: Point[]
     volcanoTargets?: Point[]
-    linkedTrees?: { x: number; z: number; model: number }[]
+    linkedTrees?: { x: number; z: number; model: number; authoredSlot?: number }[]
     linkedShrine?: Shrine
     rewardVehicle?: number
     rewardMana?: number
@@ -311,8 +325,12 @@ export type Shrine = Point &
     stoneHead?: StoneHeadAnimation | null
     knowledgeGlow?: AnimatedUnit & { displayedFrame: number }
     angle: number
+    shake?: number
+    shakeOrigin?: number
   }
 export type Tree = Point & {
+  authoredSlot?: number | null
+  sceneryBirth?: SceneryBirth
   id: number
   logs: number
   model: number
@@ -368,7 +386,7 @@ export type Effect = Point & {
   age: number
   duration: number
   unit?: Pick<Unit, 'team' | 'kind' | 'heading'>
-  corpse?: { remaining: number; phase: number; ground: number }
+  corpse?: { remaining: number; phase: number; ground: number; displayedFrame?: number }
   bridge?: LandBridge
   flatten?: Flatten
   erosion?: Erosion
@@ -388,6 +406,7 @@ export type Effect = Point & {
     target: number
     attacker: number
     remaining: number
+    point?: boolean
     tower?: boolean
     bloodlust?: boolean
     impact?: boolean
@@ -436,6 +455,8 @@ export type CampaignAI = ScriptState &
   }
 
 export type World = {
+  scenerySource?: ScenerySource
+  capacityPolicy: CapacityPolicy
   objectCells: ObjectCells
   marching: LiveFormation[]
   combatMarches: CombatMarch[]
@@ -482,6 +503,8 @@ export type World = {
   terrain: number[]
   terrainVersion: number
   units: Unit[]
+  // Native class-4 allocation seed; legacy history cannot be inferred from IDs.
+  vehicleAllocationSeed?: number
   vehicles: Vehicle[]
   buildings: Building[]
   effects: Effect[]

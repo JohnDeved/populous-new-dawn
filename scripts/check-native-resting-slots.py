@@ -46,10 +46,10 @@ compare('search',ops,expected,actual);print('PASS: 16,384 sequential native inde
 cpu.mem_write(0x895ed9,bytes(256));call(0x42c210)
 native_slots=[[]]
 for n in range(1,9):
- ptr=read(0x895ed9+n*4,'I');native_slots.append([dict(x=read(ptr+i*4,'h'),y=read(ptr+i*4+2,'h')) for i in range(n+1)])
+ ptr=read(0x895ed9+n*4,'I');native_slots.append([dict(x=read(ptr+i*4,'h'),y=read(ptr+i*4+2,'h')) for i in range(max(7,n+1))])
 native_slots[0]=native_slots[6]
 actual=browser("""import {createRestingSlots} from './app/resting-slots.ts';console.log(JSON.stringify(createRestingSlots()));""",{})
-assert actual==native_slots,(actual,native_slots);print('PASS: native startup geometry, all 44 slot positions and default shape alias',flush=True)
+assert actual==native_slots,(actual,native_slots);print('PASS: native startup geometry, all 44 initialized positions, adjacent six-slot reads and default shape alias',flush=True)
 
 fields={'id':(0x24,'H'),'class':(0x2a,'B'),'model':(0x2b,'B'),'state':(0x2c,'B'),'flags3':(0x14,'I'),'assignment':(0x76,'H'),'formationCell':(0x80,'H'),'anchorFlags':(0x82,'B'),'commandCursor':(0xa6,'B'),'immediateCommand':(0x9b,'H'),'physics':(0x30,'B'),'heading':(0x5d,'H'),'anchorX':(0x68,'H'),'anchorY':(0x6a,'H')}
 def ptr(i):return base+i*256
@@ -75,10 +75,8 @@ for mode,address in [('cell',0x4d55a0),('valid',0x4d5420),('find',0x4d5120),('re
    model=rng.randrange(9);cl=rng.choice([1,1,1,4,7]);model=model%5 if cl==4 else model
    ps.append(dict(id=n,**{'class':cl},model=model,state=rng.choice([10,19,33]),flags3=rng.choice([0,0,16]),assignment=rng.choice([0,1,1,3]),formationCell=cell if n==1 or rng.randrange(4) else (cell+512)&0xfefe,anchorFlags=rng.randrange(7)|(rng.randrange(7)<<4),commandCursor=rng.randrange(8),immediateCommand=rng.choice([0,0,1,2]),physics=rng.randrange(20),heading=rng.randrange(2048),anchorX=((cell&255)+1)*256,anchorY=((cell>>8)+1)*256,commands=[rng.choice([0,0,1,2]) for _ in range(8)]))
   ps[0].update(**{'class':1},model=i%9)
-  # A settled shape owns slots 0..population; shape zero aliases six. Other
-  # combinations read unrelated native storage and are not valid ownership.
-  if mode=='valid':
-   shape=ps[0]['anchorFlags']>>4;ps[0]['anchorFlags']=(shape<<4)|rng.randrange((shape or 6)+1)
+  # Sparse native compaction can retain slots above the current population.
+  # All slots 0..6 read the contiguous initialized table, including the next ring.
   order=[dict(model=0,flags=0),dict(model=24,flags=i%2),dict(model=8,flags=0)]
   pool=[rng.randrange(256) for _ in range(192)]
   for n in range(16):pool[n*12]=1 if i%16==0 else 0

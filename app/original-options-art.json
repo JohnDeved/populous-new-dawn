@@ -1,0 +1,50 @@
+{
+  "source": "Populous: The Beginning supplied Options slider banks",
+  "inputs": {
+    "data/fenew/feslider.spr": "99dd18f3d07b7e8b36977b60f1543fe089972523c5f364db7fe19d85dc5667c8",
+    "data/fenew/fepal1.dat": "3d5dde1ab7c351635efdc58f4fee879f85b842bb044d8a83a0d21eede1bac02f",
+    "data/fenew/igmslidr.spr": "ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/pal0-0.dat": "a558ecae83bc0c794ff8c929ecea0cc7405b7fb8eb3c793ca44cd05835db5d0c",
+    "data/pal0-s.dat": "545843d0e8dc788549ca3546389eaded787369ddfb530995055c8b4b7d3658db",
+    "data/pal0-p.dat": "f246c0c22c835208167ae4ad8a4c1f1303691c610a1ff8560edeaf1f7d095f74",
+    "data/pal0-d.dat": "baadb5c8fb8a31d64835db3ddccf85857d11f3cdc8f67e3ae233b4d919967a4f",
+    "data/pal0-g.dat": "63abc7be002f6ebe763a39f921e8b7442fe2839150e8ca7a05c0084440e982ac"
+  },
+  "banks": {
+    "frontend": [
+      {
+        "file": "frontend-0.png",
+        "w": 308,
+        "h": 19
+      },
+      {
+        "file": "frontend-1.png",
+        "w": 23,
+        "h": 22
+      },
+      {
+        "file": "frontend-2.png",
+        "w": 23,
+        "h": 22
+      }
+    ],
+    "ingame": [
+      {
+        "file": "ingame-0.png",
+        "w": 308,
+        "h": 19
+      },
+      {
+        "file": "ingame-1.png",
+        "w": 23,
+        "h": 22
+      },
+      {
+        "file": "ingame-2.png",
+        "w": 23,
+        "h": 22
+      }
+    ]
+  }
+}

@@ -1,0 +1,1723 @@
+{
+  "schemaVersion": 1,
+  "kind": "firewarrior-firing-phase-native",
+  "provenance": {
+    "commit": "bc9cabf404240ad99b2aab8c26e9b0137cdd7702",
+    "sources": [
+      {
+        "path": "evidence/firewarrior-firing-phase/native-comparison-20261006/native.json.gz",
+        "sha256": "627ac93756fd29012b8a4d4dc26b0b54a5da388cee36c1d1a28ec9707c896a4d",
+        "decodedSha256": "977f01bd263bc7c49de959e8738c5538d7e14c637146b324a32dbfbf1fd0ba1a",
+        "bytes": 15086,
+        "decodedBytes": 907665
+      }
+    ],
+    "scope": "Original ranged-body owned active-state and completion observations for sixteen synthetic cases only; terminal residual fields and other diagnostic state are not owned assertions. Not whole-command, ordinary gameplay, or rendering parity.",
+    "policyPath": "decomp/research/firewarrior-firing-phase/owned-projection.json",
+    "policySha256": "5ea3bf389c59cb4ecbf98b19f98566939103e14ce49301b7fb64b330289d0128",
+    "inputPath": "tests/fixtures/firewarrior-firing-phase-input.json",
+    "inputSha256": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d"
+  },
+  "cases": [
+    {
+      "name": "person-entry-walk-frame3",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 1073741824,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 0,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 0,
+            "assignment": 528,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 5,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "person-entry-idle-frame4",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 1073741824,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 128,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 48,
+        "renderFlags": 0,
+        "f1": 2,
+        "f2": 4,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 0,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "person-recovery-boundary-present",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 1,
+        "assignment": 512,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 44,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 56,
+        "renderFlags": 0,
+        "f1": 3,
+        "f2": 4,
+        "draw": 13,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 4
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 3,
+            "f2": 4,
+            "timer": 0,
+            "assignment": 528,
+            "renderFlags": 0,
+            "morph": 0,
+            "palette": 0,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 5,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "person-wait-entry-present",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 528,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 40,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 56,
+        "renderFlags": 0,
+        "f1": 3,
+        "f2": 4,
+        "draw": 13,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 4
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 5,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "person-wait-entry-gone",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 528,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 40,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 56,
+        "renderFlags": 0,
+        "f1": 3,
+        "f2": 4,
+        "draw": 13,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "person-cooldown-entry",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 1073741824,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 45,
+            "object": 40,
+            "draw": 18,
+            "f1": 7,
+            "f2": 3,
+            "timer": 31,
+            "assignment": 0,
+            "renderFlags": 0,
+            "morph": 0,
+            "palette": 0,
+            "trackedProjectile": 0,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 45,
+            "object": 40,
+            "draw": 18,
+            "f1": 7,
+            "f2": 3,
+            "timer": 30,
+            "assignment": 0,
+            "renderFlags": 0,
+            "morph": 0,
+            "palette": 0,
+            "trackedProjectile": 0,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "person-cooldown-expiry",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 1,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 45,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "person-cooldown-cleared",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 10,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 10,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 45,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 0,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "building-entry-walk-frame3",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 1073741824,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 0,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 0,
+            "assignment": 528,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 5,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "building-entry-idle-frame4",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 1073741824,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 128,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 48,
+        "renderFlags": 0,
+        "f1": 2,
+        "f2": 4,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 0,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 44,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 384,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "building-recovery-boundary-present",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 1,
+        "assignment": 512,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 44,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 56,
+        "renderFlags": 0,
+        "f1": 3,
+        "f2": 4,
+        "draw": 13,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 4
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 3,
+            "f2": 4,
+            "timer": 0,
+            "assignment": 528,
+            "renderFlags": 0,
+            "morph": 0,
+            "palette": 0,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 5,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "building-wait-entry-present",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 528,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 40,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 56,
+        "renderFlags": 0,
+        "f1": 3,
+        "f2": 4,
+        "draw": 13,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 4
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 5,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 4,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 3,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 2,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 40,
+            "object": 56,
+            "draw": 13,
+            "f1": 1,
+            "f2": 0,
+            "timer": 1,
+            "assignment": 512,
+            "renderFlags": 386,
+            "morph": 0,
+            "palette": 240,
+            "trackedProjectile": 4,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "building-wait-entry-gone",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 528,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 40,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 56,
+        "renderFlags": 0,
+        "f1": 3,
+        "f2": 4,
+        "draw": 13,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "building-cooldown-entry",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 1073741824,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 0,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 45,
+            "object": 40,
+            "draw": 18,
+            "f1": 7,
+            "f2": 3,
+            "timer": 31,
+            "assignment": 0,
+            "renderFlags": 0,
+            "morph": 0,
+            "palette": 0,
+            "trackedProjectile": 0,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        },
+        {
+          "complete": false,
+          "activeFields": {
+            "animationMode": 45,
+            "object": 40,
+            "draw": 18,
+            "f1": 7,
+            "f2": 3,
+            "timer": 30,
+            "assignment": 0,
+            "renderFlags": 0,
+            "morph": 0,
+            "palette": 0,
+            "trackedProjectile": 0,
+            "cooldown": 25
+          },
+          "activeBits": {
+            "flags2": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "building-cooldown-expiry",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 1,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 45,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 25,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": true
+        }
+      ]
+    },
+    {
+      "name": "building-cooldown-cleared",
+      "initialFields": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 11,
+        "counter": 1,
+        "tribe": 0,
+        "physics": 17,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "angle": 0,
+        "heading": 0,
+        "turnAngle": 0,
+        "turnY": 0,
+        "x": 8704,
+        "y": 9216,
+        "h": 128,
+        "speed": 0,
+        "timer": 10,
+        "assignment": 0,
+        "cargo": 0,
+        "workTarget": 2,
+        "vehicle": 0,
+        "commandStatus": 21,
+        "animationMode": 45,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "renderFlags": 0,
+        "f1": 7,
+        "f2": 3,
+        "draw": 18,
+        "morph": 0,
+        "palette": 0,
+        "cooldown": 0,
+        "trackedProjectile": 0
+      },
+      "visits": [
+        {
+          "complete": true
+        }
+      ]
+    }
+  ]
+}
