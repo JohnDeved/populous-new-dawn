@@ -6,10 +6,11 @@ import { pathToFileURL } from 'node:url'
 import { resolve } from 'node:path'
 import { performance } from 'node:perf_hooks'
 import { loadCandidateBrowser } from './candidate-browser.mjs'
+import { fileSha256 } from './bounded-hash.mjs'
 import { APP, URL, LIMITS, Budget, Counts, HeldStartup, admitTarget, guardDocumentResponse, hydrationDiagnostic, admitDeployment, admitRuntime } from './policy.mjs'
 const root=resolve(process.argv[2]), binding=JSON.parse(readFileSync(resolve(root,'binding.json'),'utf8'))
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex')
-for(const item of binding.files) {assert.equal(hash(readFileSync(item.path)),item.sha256,item.path);assert.equal(statSync(item.path).mode&0o7777,item.mode,item.path)}
+for(const item of binding.files) {assert.equal(fileSha256(item.path),item.sha256,item.path);assert.equal(statSync(item.path).mode&0o7777,item.mode,item.path)}
 for(const link of binding.links)assert.equal(readlinkSync(link.path),link.target,link.path)
 assert.equal(binding.url,URL);assert.equal(binding.application,APP)
 const admission=JSON.parse(readFileSync(resolve(root,'runtime-admission.json'),'utf8'))
@@ -156,6 +157,6 @@ finally {
   if(activePending)await cleanup(()=>activePending.release('cleanup'),'held-request')
   if(context)await cleanup(()=>context.close(),'remaining-context')
   if(browser)await cleanup(()=>browser.close(),'browser')
-  try {for(const item of binding.files){assert.equal(hash(readFileSync(item.path)),item.sha256,item.path);assert.equal(statSync(item.path).mode&0o7777,item.mode,item.path)};for(const link of binding.links)assert.equal(readlinkSync(link.path),link.target,link.path)}catch(error){report.status='failed';report.stabilityFailure=String(error);process.exitCode=1}
+  try {for(const item of binding.files){assert.equal(fileSha256(item.path),item.sha256,item.path);assert.equal(statSync(item.path).mode&0o7777,item.mode,item.path)};for(const link of binding.links)assert.equal(readlinkSync(link.path),link.target,link.path)}catch(error){report.status='failed';report.stabilityFailure=String(error);process.exitCode=1}
   save()
 }

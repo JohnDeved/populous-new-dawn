@@ -22,6 +22,15 @@ def bounded_hash(path,deadline):
         while chunk:=stream.read(1024*1024):check_time(deadline);h.update(chunk)
     check_time(deadline);return h.hexdigest()
 
+def membership_delta(expected,actual):
+    # Names only, never changed-file contents. The mismatch always remains fatal.
+    before=set(expected);after=set(actual)
+    def bounded(names):
+        selected=sorted(names)[:32]
+        return {'count':len(names),'names':[name[:256] for name in selected],
+                'truncated':len(names)>32 or any(len(name)>256 for name in selected)}
+    return {'added':bounded(after-before),'removed':bounded(before-after)}
+
 def verify_binding(binding,deadline):
     for item in binding['files']:
         p=Path(item['path']);assert bounded_hash(p,deadline)==item['sha256'] and p.stat().st_mode&0o7777==item['mode'],str(p)
@@ -30,7 +39,7 @@ def verify_binding(binding,deadline):
     for directory,expected in binding['directories'].items():
         check_time(deadline)
         actual=sorted(p.name for p in Path(directory).iterdir() if p.name not in expected['excluded'])
-        assert actual==expected['names'], 'Runtime directory membership changed: '+directory
+        assert actual==expected['names'], 'Runtime directory membership changed: '+directory+' '+json.dumps(membership_delta(expected['names'],actual),ensure_ascii=True,separators=(',',':'))
 
 def validate_result(report,owner,binding):
     assert owner['status']=='passed-awaiting-evidence-review'
@@ -41,6 +50,20 @@ def validate_result(report,owner,binding):
     assert temporary['retired'] is True and temporary['outsidePathAbsent'] is True
     assert temporary['identity']==temporary['retiredIdentity'] and temporary['identity']['mode']==0o700
     assert 0<temporary['socketPathBytes']<=107
+    home=owner['runtimeHome'];identity=home['identity']
+    assert home['allocated'] is True and home['verifiedAfterProcessAbsence'] is True and home['retainedInOutput'] is True
+    assert identity['mode']==0o700 and identity['uid']==temporary['identity']['uid']
+    assert all(type(identity[key]) is int and identity[key]>=0 for key in ['device','inode','uid','mode'])
+    profile=owner['sampledProfilePeak']
+    assert all(type(profile[key]) is int and profile[key]>=0 for key in ['temporaryBytes','homeBytes','totalBytes'])
+    assert profile['temporaryBytes']+profile['homeBytes']==profile['totalBytes']<=512*1024**2
+    peak=owner['sampledOwnedPeakRss'];sample=owner['sampledOwnedPeakProcesses']
+    assert type(peak) is int and 0<=peak<=1536*1024**2 and sample['truncated'] is False
+    processes=sample['processes'];assert len(processes)<=256
+    assert all(type(row[key]) is int and row[key]>=0 for row in processes for key in ['pid','start','rss'])
+    assert all(row['pid']>0 for row in processes)
+    assert len({row['pid'] for row in processes})==len(processes)
+    assert sum(row['rss'] for row in processes)==peak
     assert owner['remainingOwned']=={} and owner['unreadableProcessIdentities']==[]
     assert all(not stream['overflow'] for stream in owner['streams'].values())
     assert report['status']=='passed-awaiting-pixel-review'

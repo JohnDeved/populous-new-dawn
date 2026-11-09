@@ -19,6 +19,15 @@ def directory_identity(path):
     assert stat.S_ISDIR(info.st_mode) and path.is_absolute() and path==path.resolve(),'Aliased runtime directory'
     return {'device':info.st_dev,'inode':info.st_ino,'uid':info.st_uid,'mode':stat.S_IMODE(info.st_mode)}
 
+def verify_home(home,identity):
+    assert directory_identity(home)==identity,'Owned HOME identity changed'
+    assert identity['uid']==os.geteuid() and identity['mode']==0o700,'Unsafe owned HOME permissions'
+
+def owned_rss_sample(live):
+    # Reuse the existing numeric process snapshot, no command lines or environment.
+    return {'processes':[{'pid':pid,**{key:live[pid][key] for key in ['ppid','start','rss','state']}}
+                         for pid in sorted(live)[:256]],'truncated':len(live)>256}
+
 class RuntimeTemp:
     """Own one short root, then retain it under output without recursive copying.
 
@@ -134,6 +143,11 @@ def profile_size(root):
             except FileNotFoundError:pass
     return total
 
+def profile_sample(temp,home):
+    assert temp!=home and temp not in home.parents and home not in temp.parents,'Profile roots overlap'
+    temporary=profile_size(temp);private_home=profile_size(home)
+    return {'temporaryBytes':temporary,'homeBytes':private_home,'totalBytes':temporary+private_home}
+
 def main():
     start=time.monotonic()
     root=Path(sys.argv[1]).resolve(); deadline=start+WALL
@@ -157,26 +171,34 @@ def main():
     def limits():
         os.setsid();resource.setrlimit(resource.RLIMIT_CORE,(0,0));resource.setrlimit(resource.RLIMIT_FSIZE,(64*1024**2,64*1024**2));resource.setrlimit(resource.RLIMIT_CPU,(230,230))
     owners=Owners(os.getpid());stop=None;term_at=None;peak=0;signals=[];failures=[];streams={};selector=selectors.DefaultSelector()
+    peak_sample=owned_rss_sample({});peak_profile={'temporaryBytes':0,'homeBytes':0,'totalBytes':0};home_allocated=False;home_identity=None;home_verified=False
     receipt={'command':command,'bindingSha256':sha(binding_path),'subreaper':True,'hostMemAvailable':mem,'diskFree':fs.f_bavail*fs.f_frsize,'cgroup':'unknown','limits':{'wallSeconds':WALL,'workSeconds':WORK,'sampledOwnedRssBytes':RSS,'sampledProfileBytes':PROFILE,'retainedBytesPerStream':STREAM,'perFileRlimitBytes':64*1024**2,'nodeHeapMiB':256,'coreBytes':0},'ownership':'Only numeric PID/PPID/start-time/RSS; detached descendants adopted by local subreaper.'}
     proc=None;temporary=RuntimeTemp(root)
     try:
         temp=temporary.create(deadline)
         attempt['runtimeTemporary']=temporary.record()
         (root/'runtime-attempt.json').write_text(json.dumps(attempt)+'\n')
-        home.mkdir()
+        home.mkdir(mode=0o700)
+        home_allocated=True
+        home_identity=directory_identity(home);verify_home(home,home_identity)
         env={'PATH':'/usr/local/bin:/usr/bin:/bin','HOME':str(home),'TMPDIR':str(temp),'LC_ALL':'C','PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD':'1','PYTHONDONTWRITEBYTECODE':'1'}
         assert time.monotonic()-start<WORK,'Prelaunch admission exceeded work budget'
         proc=subprocess.Popen(command,cwd=root,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.DEVNULL,preexec_fn=limits)
         for label,pipe in [('stdout',proc.stdout),('stderr',proc.stderr)]:
             os.set_blocking(pipe.fileno(),False);selector.register(pipe,selectors.EVENT_READ,label);streams[label]={'file':(root/f'runtime.{label}').open('xb'),'kept':0,'overflow':False}
         while True:
-            elapsed=time.monotonic()-start;rows,unreadable=snapshot();live=owners.update(rows);current=sum(row['rss'] for row in live.values());peak=max(peak,current)
+            elapsed=time.monotonic()-start;rows,unreadable=snapshot();live=owners.update(rows);current=sum(row['rss'] for row in live.values())
+            if current>peak:peak=current;peak_sample=owned_rss_sample(live)
+            if len(live)>256:stop=stop or 'owned RSS diagnostic limit'
             unreadable_owned=[pid for pid in unreadable if pid in owners.known]
             if unreadable:failures.append({'unreadableProcessIdentities':unreadable,'knownOwned':unreadable_owned});stop=stop or 'process ownership coverage unknown'
             code=proc.poll()
             if not stop:
                 temporary.verify()
-                stop=stop_reason(elapsed,current,profile_size(temp))
+                verify_home(home,home_identity)
+                profile=profile_sample(temp,home)
+                if profile['totalBytes']>peak_profile['totalBytes']:peak_profile=profile
+                stop=stop_reason(elapsed,current,profile['totalBytes'])
                 if not stop and (root/'evidence').exists() and profile_size(root/'evidence')>48*1024**2:stop='evidence size limit'
                 elif not stop and code is not None and any(pid!=proc.pid and row['state']!='Z' for pid,row in live.items()):stop='adapter exited with owned descendants still live'
             if stop and term_at is None:
@@ -229,12 +251,20 @@ def main():
         temp_cleanup=False
         try:temp_cleanup=temporary.retire(process_cleanup,deadline)
         except Exception as error:failures.append({'tempRetirementError':repr(error)})
-        cleanup_complete=process_cleanup and temp_cleanup
+        try:
+            if home_allocated:
+                assert process_cleanup,'Owned processes must be absent before final HOME verification'
+                assert home_identity is not None,'Allocated HOME identity was not acquired'
+                verify_home(home,home_identity);home_verified=True
+        except Exception as error:failures.append({'homeVerificationError':repr(error)})
+        cleanup_complete=process_cleanup and temp_cleanup and (not home_allocated or home_verified)
         stability=True
         try: verify_binding(binding,deadline)
         except Exception as error:
             stability=False;failures.append({'inputVerificationError':repr(error)})
         receipt.update(remainingOwned=remaining,unreadableProcessIdentities=unreadable,exitCode=None if proc is None else proc.returncode,stopReason=stop,failures=failures,elapsedSeconds=time.monotonic()-start,sampledOwnedPeakRss=peak,ownedProcesses=owners.known,signals=signals,processCleanupComplete=process_cleanup,runtimeTemporary=temporary.record(),cleanupComplete=cleanup_complete,laneReleasePermitted=cleanup_complete,inputStability=stability,streams={name:{'bytes':state['kept'],'overflow':state['overflow']} for name,state in streams.items()})
+        receipt.update(sampledOwnedPeakProcesses=peak_sample,sampledProfilePeak=peak_profile,
+                       runtimeHome={'path':str(home),'allocated':home_allocated,'identity':home_identity,'verifiedAfterProcessAbsence':home_verified,'retainedInOutput':home_verified})
         receipt['status']='passed-awaiting-evidence-review' if proc is not None and proc.returncode==0 and stop is None and not failures and cleanup_complete and stability else 'failed'
         # Retain process and temp disposition even if later finalization fails.
         (root/'supervisor-receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
