@@ -1,42 +1,29 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
-import { runInNewContext } from 'node:vm'
+import { nearestLiveBoat } from '../app/live-vehicles.ts'
+import { vehicleReady } from '../app/vehicle-routing.ts'
+import rules from '../app/original-rules.json' with { type: 'json' }
 
-// Execute the complete maintained selector and readiness predicate without the
-// unrelated rendering/world import closure. These are supplied-state controls,
-// not a full route, campaign, native-executable or browser acceptance run.
-const vehicles = readFileSync(new URL('../app/live-vehicles.ts', import.meta.url), 'utf8'),
-  routing = readFileSync(new URL('../app/vehicle-routing.ts', import.meta.url), 'utf8'),
-  rules = JSON.parse(readFileSync(new URL('../app/original-rules.json', import.meta.url), 'utf8'))
-
-function between(source, start, end) {
-  const first = source.indexOf(start),
-    last = source.indexOf(end, first + start.length)
-  assert.ok(first >= 0 && last > first, `Missing authored boundary: ${start}`)
-  assert.equal(source.indexOf(start, first + start.length), -1)
-  return source.slice(first, last)
-}
-
-const source = stripTypeScriptTypes(
-  [
-    between(vehicles, 'const short =', '\nconst packedCell ='),
-    between(routing, 'const cell =', '\nconst signedByte ='),
-    between(routing, 'export function vehicleReady(', '\n// Complete 0x4663c0'),
-    between(vehicles, 'export function nearestLiveBoat(', '\nexport function boardLiveVehicle('),
-  ].join('\n').replaceAll('export function ', 'function ')
-)
-
+// Execute actual module imports. Supplied Worlds still do not establish ordinary
+// route, campaign, browser or durable-checkpoint acceptance.
 function implementation() {
   let distances = 0
-  const math = Object.create(Math)
-  math.hypot = (...args) => {
-    distances++
-    return Math.hypot(...args)
+  return {
+    vehicleReady,
+    distances: () => distances,
+    nearestLiveBoat(...args) {
+      const hypot = Math.hypot
+      Math.hypot = (...values) => {
+        distances++
+        return hypot(...values)
+      }
+      try {
+        return nearestLiveBoat(...args)
+      } finally {
+        Math.hypot = hypot
+      }
+    },
   }
-  const api = runInNewContext(`${source}\n;({ nearestLiveBoat, vehicleReady })`, { rules, Math: math })
-  return { ...api, distances: () => distances }
 }
 
 const short = value => (value << 16) >> 16,
@@ -207,4 +194,15 @@ test('out-of-range Boats compute distance once, without hiding an in-range tie',
   const api = implementation(), boats = [boat(1, 0, 0), boat(2, 3, 4), boat(3, -3, -4), boat(4, 6, 8)]
   assert.equal(api.nearestLiveBoat(world(boats), { tribe: 0 }, { x: 0, y: 0 }, 5, 10), boats[1])
   assert.equal(api.distances(), boats.length)
+})
+
+
+test('distance instrumentation restores Math.hypot after success and a throwing input', () => {
+  const api = implementation(), hypot = Math.hypot, p = { tribe: 0 }, center = { x: 0, y: 0 }
+  api.nearestLiveBoat(world([boat(1)]), p, center, 0, Infinity)
+  assert.equal(Math.hypot, hypot)
+  const failure = new Error('supplied roster read failure'), w = world([])
+  Object.defineProperty(w, 'vehicles', { get() { throw failure } })
+  assert.throws(() => api.nearestLiveBoat(w, p, center, 0, Infinity), error => error === failure)
+  assert.equal(Math.hypot, hypot)
 })
