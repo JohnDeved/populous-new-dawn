@@ -56,6 +56,8 @@ export function WorldSelectorScene({
   progressionMission: number
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const sceneContainer = useRef<HTMLDivElement>(null)
+  const retryControl = useRef<HTMLButtonElement>(null)
   const selection = useRef({ mission, progressionMission })
   const [failed, setFailed] = useState(false)
   const [generation, setGeneration] = useState(0)
@@ -73,6 +75,10 @@ export function WorldSelectorScene({
     let loaded = false,
       broken = false
     const motion = new SelectorMotion()
+    // Retry and context restoration remove the failure controls. Move only
+    // their current focus owner to a stable, non-launch destination first.
+    if (retryControl.current?.contains(document.activeElement))
+      sceneContainer.current?.focus({ preventScroll: true })
     setFailed(false)
     delete canvas.dataset.ready
     canvas.dataset.generation = String(generation)
@@ -145,7 +151,12 @@ export function WorldSelectorScene({
     }
   }, [generation])
   return (
-    <div className={styles.scene} aria-label="Original star-system scene">
+    <div
+      ref={sceneContainer}
+      className={styles.scene}
+      aria-label="Original star-system scene"
+      tabIndex={-1}
+    >
       <canvas
         ref={canvasRef}
         data-world-scene="true"
@@ -179,11 +190,12 @@ export function WorldSelectorScene({
             ))}
           </p>
           <button
+            ref={retryControl}
+            onClick={() => setGeneration(value => value + 1)}
             type="button"
             className={styles.sceneRetry}
             aria-label="Retry scene"
             data-selector-recovery="true"
-            onClick={() => setGeneration(value => value + 1)}
           >
             <SceneRecoveryText
               text="Retry scene"

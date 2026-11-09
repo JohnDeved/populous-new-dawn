@@ -36,10 +36,18 @@ function ControlText({ text, ready }: { text: string; ready: boolean }) {
 export function StartupLogo({ onComplete }: { onComplete: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const video = useRef<HTMLVideoElement>(null)
+  const playbackControl = useRef<HTMLButtonElement>(null)
   const completed = useRef(false)
   const pointer = useRef<number | null>(null)
   const [playback, setPlayback] = useState<'playing' | 'blocked' | 'failed'>('playing')
   const [muted, setMuted] = useState(true)
+  const changePlayback = useCallback((next: 'playing' | 'blocked' | 'failed') => {
+    // Keep keyboard focus in the logo before a failed control is unmounted.
+    // Other controls and outside focus retain their current owner.
+    if (next === 'failed' && playbackControl.current?.contains(document.activeElement))
+      dialog.current?.focus({ preventScroll: true })
+    setPlayback(next)
+  }, [])
   const [bitmapReady, setBitmapReady] = useState(false)
   const complete = useCallback(() => {
     if (completed.current) return
@@ -74,7 +82,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         },
         () => {
           if (active && !completed.current && !document.hidden && pointer.current === null)
-            setPlayback(media.error ? 'failed' : 'blocked')
+            changePlayback(media.error ? 'failed' : 'blocked')
         }
       )
     }
@@ -93,7 +101,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
       media.load()
       modal.close()
     }
-  }, [])
+  }, [changePlayback])
 
   function playFromControl() {
     const media = video.current
@@ -103,7 +111,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
     setPlayback('playing')
     void media.play().catch(() => {
       if (!completed.current && !document.hidden && pointer.current === null)
-        setPlayback(media.error ? 'failed' : 'blocked')
+        changePlayback(media.error ? 'failed' : 'blocked')
     })
   }
 
@@ -163,7 +171,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
           aria-label="Original Bullfrog opening logo"
           onEnded={complete}
           onError={() => {
-            if (!completed.current) setPlayback('failed')
+            if (!completed.current) changePlayback('failed')
           }}
         />
       </div>
@@ -175,6 +183,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         )}
         {playback !== 'failed' && (
           <button
+            ref={playbackControl}
             type="button"
             className={
               !muted && !recovery ? `${styles.focusOnly} ${styles.soundHidden}` : undefined
