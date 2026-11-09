@@ -781,7 +781,7 @@ function computerAttackHasOrder(w: World, index: number, model: number, target: 
   return (
     units.length > 0 &&
     units.every(u => {
-      const p = u.native ?? u.fight?.motion
+      const p = registeredAttackPerson(w, u) ?? u.native ?? u.fight?.motion
       const order = p && currentPersonOrder(w.buildingOrders, p)
       return order?.model === model && order.a === target
     })
