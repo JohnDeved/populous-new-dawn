@@ -57,9 +57,15 @@ Only TMPDIR now uses a freshly exclusive `/tmp/pnd-hud-<8 random characters>`
 directory, with current uid, mode 0700, canonical parents and recorded device/inode.
 The observed `/com.google.Chrome.<6 characters>/SingletonSocket` suffix yields
 62 bytes at that root; the actual generated root is checked before launch.
-HOME, evidence output, Chrome version, arguments and mandatory sandbox are unchanged.
+HOME location, evidence output, Chrome version, arguments and mandatory sandbox are unchanged.
 
-The existing sampled 512 MiB profile budget follows the live short root. After
+The sampled 512 MiB profile budget covers the combined live short root and private
+runtime HOME, not a separate allowance per directory. HOME is exclusively created
+with mode0700 and its canonical device/inode/uid/mode is checked during sampling
+and after process absence. Chrome156 headless creates its unique profile under
+HOME/.config/google-chrome-headless; default crash data can also live under HOME.
+The supervisor retains HOME in the output and records its identity; it does not
+delete or separately retire it. The two owned sampled roots must be disjoint. After
 independent descendant-absence proof, the same supervisor atomically renames that
 exact directory back to output/runtime-tmp, retaining raw files outside the upload
 payload. Same-filesystem `/tmp`/output and Linux no-replace rename support are new
@@ -72,6 +78,14 @@ launch and finalization failures retain the same ownership/cleanup requirement.
 Unknown ownership, survivors, expired cleanup or failed retirement stay nonpassing
 with the recorded short path for investigation. No generic retry is authorized.
 
+HOME allocation is recorded immediately after exclusive mkdir, before reading its
+identity. A later identity-read failure cannot be treated as an unallocated HOME:
+cleanup and lane release remain unconfirmed. The passing consumer requires HOME
+allocation, private identity matching the owned temp uid, and final verification.
+It also requires nonnegative combined-profile counts with an exact sum within the
+fixed512MiB cap, and a complete nontruncated peak process sample with unique numeric
+PIDs, start times and RSS whose sum equals the peak within the fixed1536MiB cap.
+
 One monotonic 240-second supervisor acceptance deadline covers prelaunch input
 verification,230-second work cutoff, cleanup, post-input verification, final consumer,
 payload retention and final success check. Late failure reporting may occur after
@@ -79,6 +93,17 @@ the deadline but cannot yield a successful result. Sampled RSS1.5GiB/profile512M
 limits are not hard aggregate memory/storage bounds. Browser network buffers are
 not bounded by retained-body caps. Node heap256MiB, core0, CPU230s and per-file64MiB
 limits remain. Initial admission requires4GiB available memory and2GiB disk.
+
+Adapter pre/post bound-file SHA256 verification uses one reusable64KiB buffer,
+with full-input digests and unchanged mode/link comparisons. This bounds hashing
+scratch allocation; it does not establish the cause of the prior RSS stop or prove
+a future browser pass. The peak receipt retains at most256 existing numeric process
+sample rows (PID/PPID/start/RSS/state); diagnostic overflow fails closed. Shared RSS
+pages can be counted more than once, so this is not unique physical memory or PSS.
+Directory-membership failures retain at most32 added and32 removed names, each
+limited to256 characters, plus original counts/truncation flags. A mismatch remains
+fatal even when details are truncated. The prior unknown Chrome directory mutation
+is not classified as benign or resolved by these diagnostics.
 
 Upload payload is bounded to48MiB including receipts, source/runtime/dependency
 manifests, logs, inventory and six HTML/eight PNG files. Per-image4MiB, per-HTML2MiB,
@@ -99,7 +124,7 @@ Late dlopen driver selection remains a runtime limitation, not attested complete
 No local Playwright1.62.1/Chromium/Python3.13 hashes are copied onto hosted tooling.
 
 Portable check: node --test --test-concurrency=1 tests/hud-preference-ssr-evidence.test.mjs.
-It imports only pure policy/admission functions and runs one finite isolated Python
+It imports only pure policy/admission and bounded-hash fixtures and runs one finite isolated Python
 synthetic fixture child (25s/2MiB), creating/removing only owned temporary fixtures.
 It does not import prepare/adapter/runtime-binding entry points or run browsers,
 network, proc inspection, prctl or signals. The genuine orchestration planner,

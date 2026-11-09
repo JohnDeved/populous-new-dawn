@@ -10,7 +10,7 @@ export function installHypnotiseObserver({ observationMs }) {
     clock = scene.gameClock,
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
     result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], nonAdvancingCallbacks: 0, crops: [], bornTurn: null,
-      terminal: null, birthHook: { installed: false, restored: false, foreign: false }, hook: { installed: false, restored: false, foreign: false } }
+      terminal: null, logicalExpiry: null, birthHook: { installed: false, restored: false, foreign: false }, hook: { installed: false, restored: false, foreign: false } }
   let raf, flash, stopped = false, lastKey, lastObservedTurn, originalDescriptor, ownedDescriptor, hookActive = false
   let beforeDescriptor, ownedBeforeDescriptor, beforeActive = false
   const sameDescriptor = (a, b) => !!a && !!b &&
@@ -105,8 +105,14 @@ export function installHypnotiseObserver({ observationMs }) {
         if (threw) throw failure
         current()
         if (flash) {
-          // Restore at logical expiry, but keep the existing post-render RAF terminal witness.
-          if (!world.effects.includes(flash)) { restoreHook(); restoreBefore() }
+          // Record the actual logical boundary before restoring. RAF may follow catch-up turns.
+          if (!world.effects.includes(flash)) {
+            if (world.turn !== lastObservedTurn + 1)
+              throw Error('Hypnotise expiry missed a consecutive advancing World turn')
+            result.logicalExpiry = { turn: world.turn, id: flash.id,
+              remaining: flash.turnsRemaining, present: false }
+            restoreHook(); restoreBefore()
+          }
           else if (world.turn === lastObservedTurn) result.nonAdvancingCallbacks++
           else {
             if (world.turn !== lastObservedTurn + 1)
@@ -223,7 +229,13 @@ export function installHypnotiseObserver({ observationMs }) {
 export function validateHypnotiseObservation(observation, atlas) {
   assert.equal(observation.error, null)
   assert.equal(observation.terminal.reason, 'logical-expiry')
-  assert.equal(observation.terminal.turn - observation.bornTurn, 16)
+  assert.ok(observation.logicalExpiry, 'Require the actual afterTurn expiry witness')
+  assert.equal(observation.logicalExpiry.turn - observation.bornTurn, 16)
+  assert.equal(observation.logicalExpiry.id, observation.birth.id)
+  assert.equal(observation.logicalExpiry.remaining, 0)
+  assert.equal(observation.logicalExpiry.present, false)
+  assert.ok(observation.terminal.turn >= observation.logicalExpiry.turn,
+    'Actual post-render terminal must not precede logical expiry')
   assert.equal(observation.terminal.present, false)
   assert.equal(observation.terminal.meshPresent, false)
   assert.equal(observation.terminal.remaining, 0)

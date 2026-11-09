@@ -40,7 +40,7 @@ test('only icon rendering changes: page handlers, roster and geometry retain exa
   assert.equal(page.split('<BuildingIcon kind={b.id} />').length, 2)
   const restored = page.replace("import { BuildingIcon } from './building-icon'\n\n", '')
     .replace('<BuildingIcon kind={b.id} />', "<HudSprite\n                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}\n                  />")
-  assert.equal(hash(restored), '12b2bdca7afce4061eb507ccc86286a9962b9d8b320c5abe50d056b7385d3c1f')
+  assert.equal(hash(restored), '935bd455e21271deeb30931dfaa9ff69e2b02445dc144319a8cd9479c293db79')
   assert.equal(hash(read('app/world-rules.ts')), '5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a')
   assert.equal(hash(read('app/globals.css')), 'd8c1d463c3e21f19311336bcec94ca9d9a42fd8867772447c1a19c6e80c8bb2d')
 })

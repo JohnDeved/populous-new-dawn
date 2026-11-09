@@ -31,7 +31,10 @@ export function WorldSelectorScene({
     setFailed(false)
     delete canvas.dataset.ready
     canvas.dataset.generation = String(generation)
+    // Optional selector artwork must reach the existing retry UI, not hang forever.
+    const loadTimer = setTimeout(fail, 10_000)
     function fail() {
+      clearTimeout(loadTimer)
       if (disposed) return
       broken = true
       cancelAnimationFrame(frame)
@@ -83,6 +86,7 @@ export function WorldSelectorScene({
       renderer
         .load()
         .then(() => {
+          clearTimeout(loadTimer)
           loaded = true
           if (!disposed && !broken && !document.hidden) frame = requestAnimationFrame(draw)
         })
@@ -92,6 +96,7 @@ export function WorldSelectorScene({
     }
     return () => {
       disposed = true
+      clearTimeout(loadTimer)
       cancelAnimationFrame(frame)
       canvas.removeEventListener('webglcontextlost', lost)
       canvas.removeEventListener('webglcontextrestored', restored)

@@ -22,7 +22,7 @@ test('each Home Retry restores the retained checkpoint, not the mutated failed w
   const loadRequest = { current: null }, state = { cheatsOpen: true, ready: true, error: '', startup: 'choice' }
   const bindings = {
     store, loadRequest, OriginalLoadingScreen: 'OriginalLoadingScreen',
-    menuSession: { current: null }, pendingMenuCamera: { current: [] },
+    followerPress: { current: null }, menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, cancelNearbyInput() {},
     setCheatsOpen(value) { state.cheatsOpen = value },
     setSelectorOpen() {}, setMenu() {}, setTab() {},
@@ -68,7 +68,7 @@ function recoveryFixture() {
   const store = createGameStore(), loadRequest = { current: null }, state = {}, calls = []
   const bindings = {
     store, loadRequest, OriginalLoadingScreen: 'OriginalLoadingScreen',
-    menuSession: { current: null }, pendingMenuCamera: { current: [] },
+    followerPress: { current: null }, menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: { reset() { calls.push('audio reset') } } },
     cancelNearbyInput() { calls.push('cancel nearby') },
     ...Object.fromEntries(['CheatsOpen', 'SelectorOpen', 'Menu', 'Tab', 'Ready', 'Error', 'Startup', 'StartupCampaign']

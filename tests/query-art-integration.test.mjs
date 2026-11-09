@@ -22,7 +22,7 @@ test('exact-head Ready same-repository selection rejects stale labels, forks and
 test('icon is a fixed180s scenario with no initial context or generic timer, existing launch remains owned',()=>{
  assert.ok(browserScenarios.includes('query-art-evidence'));assert.equal(browserCapMs('query-art-evidence'),180000)
  assert.ok(source.includes("else if (selectedScenario === 'query-art-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }"))
- assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence'].includes(selectedScenario)"))
+ assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)"))
  assert.ok(source.includes("if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {"))
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'));assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
 })
@@ -57,7 +57,7 @@ test('separate fixed six-minute workflow preserves default matrix and exact uplo
  assert.match(workflow,/metadata <= 8 \* MiB && total <= 24 \* MiB/)
  assert.match(workflow,/screenshots <= 8/);assert.match(workflow,/stat.isFile\(\) && !stat.isSymbolicLink\(\)/)
  assert.match(workflow,/steps.query-bounds.outcome == 'success'/)
- assert.equal((normal.match(/^          - scenario:/gm)||[]).length,9);assert.ok(!normal.includes('query-art-evidence'))
+ assert.equal((normal.match(/^          - scenario:/gm)||[]).length,10);assert.ok(!normal.includes('query-art-evidence'))
 })
 test('actual workflow bounder rejects oversize, extra screenshots, unknown files and symlinks without large allocation',async()=>{
  const {runInNewContext}=await import('node:vm')

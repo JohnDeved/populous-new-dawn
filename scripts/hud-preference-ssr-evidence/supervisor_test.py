@@ -7,6 +7,43 @@ import supervisor
 from supervisor import Owners,RuntimeTemp,bounded_chunk,cleanup_proven,socket_path_bytes,stop_reason,WORK,RSS,PROFILE
 
 def row(ppid,start,rss=1,state='S'):return {'ppid':ppid,'start':start,'rss':rss,'state':state}
+
+class ResourceCoverageTests(unittest.TestCase):
+    def test_rss_diagnostic_reuses_numeric_rows_and_bounds_retention(self):
+        sample=supervisor.owned_rss_sample({12:{**row(10,100,7),'secret':'not retained'}})
+        self.assertEqual(sample,{'processes':[{'pid':12,**row(10,100,7)}],'truncated':False})
+        sample=supervisor.owned_rss_sample({pid:row(10,pid) for pid in range(300)})
+        self.assertEqual(len(sample['processes']),256);self.assertTrue(sample['truncated'])
+
+    def test_combined_profile_budget_not_two_allowances(self):
+        temp=Path('/owned/tmp');home=Path('/owned/home')
+        with patch.object(supervisor,'profile_size',side_effect=[PROFILE//2+1,PROFILE//2]):
+            sample=supervisor.profile_sample(temp,home)
+        self.assertEqual(sample['totalBytes'],PROFILE+1)
+        self.assertEqual(stop_reason(0,0,sample['totalBytes']),'sampled profile size limit')
+        self.assertIsNone(stop_reason(0,0,PROFILE))
+        for other in [temp,temp/'nested',temp.parent]:
+            with self.assertRaisesRegex(AssertionError,'overlap'):supervisor.profile_sample(temp,other)
+
+    def test_private_home_identity_replacement_mode_and_alias_fail(self):
+        with tempfile.TemporaryDirectory() as base:
+            home=Path(base)/'home';home.mkdir(mode=0o700)
+            identity=supervisor.directory_identity(home)
+            supervisor.verify_home(home,identity)
+            home.chmod(0o755)
+            with self.assertRaises(AssertionError):supervisor.verify_home(home,identity)
+            home.chmod(0o700);home.rename(Path(base)/'original');home.mkdir(mode=0o700)
+            with self.assertRaises(AssertionError):supervisor.verify_home(home,identity)
+            alias=Path(base)/'alias';alias.symlink_to(home,target_is_directory=True)
+            with self.assertRaises(AssertionError):supervisor.directory_identity(alias)
+            with self.assertRaises(FileExistsError):home.mkdir(mode=0o700)
+
+    def test_actual_private_home_files_are_in_combined_sample(self):
+        with tempfile.TemporaryDirectory() as base:
+            temp=Path(base)/'temp';home=Path(base)/'home';temp.mkdir();home.mkdir()
+            (temp/'temporary').write_bytes(b'abc');(home/'profile').write_bytes(b'12345')
+            self.assertEqual(supervisor.profile_sample(temp,home),{'temporaryBytes':3,'homeBytes':5,'totalBytes':8})
+
 class OwnershipTests(unittest.TestCase):
     def test_detached_descendants_follow_parentage_not_process_group(self):
         o=Owners(10);live=o.update({11:row(10,100),12:row(11,101),13:row(12,102),99:row(1,999)})
@@ -144,12 +181,12 @@ class RuntimeTempTests(unittest.TestCase):
             allocate.assert_not_called()
 
     def test_setup_write_launch_and_finalization_failures_retire_owned_root(self):
-        real_read=Path.read_text;real_write=Path.write_text;real_libc=ctypes.CDLL(None,use_errno=True)
+        real_read=Path.read_text;real_write=Path.write_text;real_libc=ctypes.CDLL(None,use_errno=True);real_identity=supervisor.directory_identity
         def prctl(operation,*args):
             if operation==37:args[0]._obj.value=1
             return 0
         fake_libc=SimpleNamespace(prctl=prctl,renameat2=real_libc.renameat2)
-        for failure in ['attempt-write','home-setup','launch','finalization']:
+        for failure in ['attempt-write','home-setup','home-identity','launch','finalization']:
             with self.subTest(failure=failure),tempfile.TemporaryDirectory(prefix='case-',dir=self.parent) as directory:
                 root=Path(directory)
                 (root/'binding.json').write_text(json.dumps({'node':'/never-launched'}))
@@ -160,8 +197,14 @@ class RuntimeTempTests(unittest.TestCase):
                 def write(path,text,*args,**kwargs):
                     if failure=='attempt-write' and path.name=='runtime-attempt.json' and 'runtimeTemporary' in text:raise OSError('Synthetic attempt write failure')
                     return real_write(path,text,*args,**kwargs)
+                def identity(path):
+                    if failure=='home-identity' and path==root/'runtime-home':
+                        self.assertTrue(path.is_dir())
+                        raise OSError('Synthetic post-mkdir HOME identity failure')
+                    return real_identity(path)
                 with patch.object(supervisor.sys,'argv',['supervisor',str(root)]),patch.object(supervisor,'bounded_hash',return_value='fixture'), \
                      patch.object(supervisor,'verify_binding'),patch.object(supervisor,'snapshot',return_value=({},[])), \
+                     patch.object(supervisor,'directory_identity',side_effect=identity), \
                      patch.object(supervisor.ctypes,'CDLL',return_value=fake_libc),patch.object(Path,'read_text',read),patch.object(Path,'write_text',write), \
                      patch.object(supervisor.os,'statvfs',return_value=SimpleNamespace(f_bavail=4*1024**3,f_frsize=1)), \
                      patch.object(supervisor.subprocess,'Popen',side_effect=OSError('Synthetic launch failure')) as spawn:
@@ -173,9 +216,17 @@ class RuntimeTempTests(unittest.TestCase):
                     else:
                         self.assertEqual(supervisor.main(),1)
                         receipt=json.loads((root/'supervisor-receipt.json').read_text())
-                        self.assertTrue(receipt['processCleanupComplete']);self.assertTrue(receipt['cleanupComplete'])
+                        self.assertTrue(receipt['processCleanupComplete'])
+                        self.assertEqual(receipt['cleanupComplete'],failure!='home-identity')
+                        self.assertEqual(receipt['laneReleasePermitted'],failure!='home-identity')
                         self.assertTrue(receipt['runtimeTemporary']['retired']);self.assertEqual(receipt['status'],'failed')
-                    if failure in ['attempt-write','home-setup']:spawn.assert_not_called()
+                    if failure=='home-identity':
+                        self.assertEqual(receipt['runtimeHome'],{'path':str(root/'runtime-home'),'allocated':True,'identity':None,
+                            'verifiedAfterProcessAbsence':False,'retainedInOutput':False})
+                        self.assertTrue(any('homeVerificationError' in item for item in receipt['failures']))
+                    if failure in ['attempt-write','home-setup']:
+                        self.assertFalse(receipt['runtimeHome']['allocated'])
+                    if failure in ['attempt-write','home-setup','home-identity']:spawn.assert_not_called()
                     else:spawn.assert_called_once()
                 self.assertTrue((root/'runtime-tmp').is_dir())
                 self.assertEqual(list(self.parent.glob('pnd-hud-*')),[])
