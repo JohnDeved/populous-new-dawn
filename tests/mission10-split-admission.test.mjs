@@ -68,11 +68,15 @@ function entry() {
 test('parsed resource-nine matrix preserves legacy split allowances without changing other caps or permissions', () => {
   const workflow = yaml.load(readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'))
   const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
-  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), GAMEPLAY_RESOURCE_BROWSER_JOBS)
+  assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), [
+    GAMEPLAY_RESOURCE_BROWSER_JOBS[0],
+    ['building-panel-edges', 'Building panel edge browser', 'building-panel-edge-browser', 'Validate actual building panel fractional-edge containment and controls', 15],
+    ...GAMEPLAY_RESOURCE_BROWSER_JOBS.slice(1),
+  ])
   assert.deepEqual(workflow.on.pull_request.types, ['ready_for_review'])
   assert.deepEqual(workflow.permissions, { contents: 'read' })
   assert.equal(workflow.jobs['tutorial-browser']['runs-on'], 'ubuntu-24.04')
-  assert.equal(new Set(items.map(x => x.artifact)).size, 9)
+  assert.equal(new Set(items.map(x => x.artifact)).size, 10)
   assert.deepEqual(profileSplitBudget, { version: 1, recoveryMs: 180000, mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
   assert.equal(browserCapMs('profile-recovery'), profileSplitBudget.recoveryMs)
   assert.equal(browserCapMs('mission10-profile'), profileSplitBudget.mission10Ms)

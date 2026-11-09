@@ -1994,9 +1994,9 @@ test('dead vehicle passengers release their slots and driver position',async()=>
  // Supplied active craft: the authored Mission5 source is detached and must not be cleaned.
  Object.assign(boat,{active:true,passengers:[999,survivor.id],passengerCount:2,speed:100});
  removeMissingVehiclePassengers(w);
- assert.deepEqual(boat.passengers,[survivor.id]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
+ assert.deepEqual(boat.passengers,[survivor.id,0]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
  w.units=[];removeMissingVehiclePassengers(w);
- assert.deepEqual(boat.passengers,[]);assert.equal(boat.passengerCount,0);assert.equal(boat.speed,-1);
+ assert.deepEqual(boat.passengers,[0,0]);assert.equal(boat.passengerCount,0);assert.equal(boat.speed,-1);
 });
 
 test('live native preparation consumes reroutes and completes slow turns and reactions', async () => {

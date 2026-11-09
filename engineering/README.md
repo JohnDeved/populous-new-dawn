@@ -223,6 +223,27 @@ drift-invalidated attempt cannot become a pass. The aggregate inclusion rule is
 narrowly extended to this full-discovery runner and its own regression suite;
 `test:focus` never qualifies for aggregate coverage.
 
+## Keep tests useful
+
+Use [t3code PR #22557](https://github.com/pingdotgg/t3code/pull/22557) as a
+reference when reviewing test cost, not as a blanket deletion rule. Remove tests
+that only repeat a dependency's basic behavior, mirror implementation details,
+or duplicate an existing behavioral oracle. Read each test and its replacement
+coverage before deleting it.
+
+Keep meaningful gameplay/native-output regressions, persistence and malformed-input
+checks, ownership/permission boundaries, and deterministic race tests. A mock,
+timer or small test is not by itself evidence of low value. The reference review
+restored boundary tests that had been incorrectly classified as timing checks.
+
+For each cleanup, state the removed work and the coverage retained. Measure
+before/after with the same source, dependencies and execution profile when feasible;
+otherwise report counts or removed subprocesses without claiming a speedup.
+For example, the normal aggregate already runs the native TypeScript checker on
+the project. The toolchain test retains package/entrypoint separation and the
+scene-fixture emitter regression, rather than launching compilers again to test
+number assignment or loading an ESLint parser only to name a number annotation.
+
 ## Sources and evidence boundaries
 
 `app/scene.ts` is the browser composition root; `app/model.ts` owns simulation state

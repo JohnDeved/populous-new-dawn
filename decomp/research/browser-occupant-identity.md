@@ -105,8 +105,14 @@ Vault targets remain startup-allocated. `prepareCellOrder` handles bounded
 building/cell/area payloads. Growing timber/tree handles already travel through
 exact assignments and lookups. Checkpoints use structured records and preserve
 numeric handles; no new serialization migration is needed for these adapters.
-A separate signed-32 `requestAttack` entity coercion remains outside this tested
-16-bit cohort and must not be described as repaired.
+The separate signed-32 `requestAttack` entity boundary now has an explicit live
+identity adapter at the campaign ATTACK caller. The pure allocator retains its
+prior coercion by default; only the live caller preserves the selected browser
+handle. `tests/attack-target-handles.test.mjs` covers supplied signed/unsigned
+32-bit boundaries, distinct low-word aliases, exact later target lookup and
+unchanged allocation gates. This is separate bounded evidence, not an extension
+of the historical 16-bit cohort, ordinary high-handle campaign acceptance or a
+claim that the engine supports billions of simultaneously active entities.
 
 New controlled regressions exercise public queue overflow/cancellation/admission
 at 32768, 65536 and actual 287375, against a low-ID pipeline, including public
