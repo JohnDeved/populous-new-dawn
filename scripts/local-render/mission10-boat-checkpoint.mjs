@@ -12,6 +12,66 @@ import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
 const party = [63, 111, 112, 113, 114]
 const boatId = 62
 
+// Escape cancels a selection, but the shipped Page intentionally opens its menu
+// from neutral input. Exercise that owner, then return to the same paused World.
+export async function clearMission10Selection(page, previous, deadlineAt = null) {
+  const neutral = previous.selected.length === 0 && previous.selectionState.mode === null
+  const limit = Math.min(Date.now() + 15000, deadlineAt ?? Infinity)
+  const remaining = () => {
+    const left = limit - Date.now()
+    assert.ok(left > 0, 'Mission 10 Escape owner deadline exceeded')
+    return left
+  }
+  remaining()
+  const world = await page.evaluateHandle(() => window.testStore.getWorld())
+  const handles = [world]
+  let failed = false, failure
+  const fail = error => { if (!failed) { failed = true; failure = error } }
+  const assertOwner = async () => assert.equal(await world.evaluate(owner =>
+    window.testStore.getWorld() === owner && window.testSceneRef.current.world === owner &&
+    owner.paused && owner.status === 'playing'), true,
+  'Escape must retain the exact paused Mission 10 World')
+  try {
+    await assertOwner()
+    const prior = await world.evaluate(owner => ({ selected: [...owner.selected], mode: owner.mode }))
+    assert.deepEqual(prior, { selected: previous.selected, mode: previous.selectionState.mode },
+      'Escape must act on the immediately observed selection and mode')
+    const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+    assert.equal(await menu.isVisible(), false, 'No menu may already own the clearing input')
+    remaining()
+    await page.keyboard.press('Escape')
+    await assertOwner()
+    if (neutral) {
+      await menu.waitFor({ state: 'visible', timeout: remaining() })
+      const owner = await menu.elementHandle({ timeout: remaining() })
+      assert.ok(owner, 'Neutral Escape must expose its exact menu owner')
+      handles.push(owner)
+      assert.equal(await owner.evaluate(element => element.isConnected && element.open &&
+        element.getAttribute('data-panel') === 'root' &&
+        document.querySelector('dialog[data-original-pause-menu]') === element), true,
+      'Neutral Escape must open the actual root Game menu')
+      const resume = await owner.$('button[aria-label="Continue Game"]')
+      assert.ok(resume, 'Exact root menu must retain its Continue Game control')
+      handles.push(resume)
+      await assertOwner()
+      await resume.click({ timeout: remaining() })
+      await menu.waitFor({ state: 'hidden', timeout: remaining() })
+      assert.equal(await owner.evaluate(element => !element.open && !element.isConnected), true,
+        'Continue Game must close and release the exact menu owner')
+    } else {
+      assert.equal(await menu.isVisible(), false, 'Selection Escape must not open a Game menu')
+    }
+    await assertOwner()
+    assert.equal(await menu.isVisible(), false, 'Follower controls require the menu owner to be released')
+  } catch (error) { fail(error) }
+  finally {
+    for (const handle of handles.reverse()) {
+      try { await handle.dispose() } catch (error) { fail(error) }
+    }
+  }
+  if (failed) throw failure
+}
+
 // Executed only after this scenario has observed genuine boarding/restoration or
 // completed public unload. The helper never creates people or edits live World.
 export async function checkMission10FollowerStrip({ page, input, state, phase, occupied, deadlineAt = null, observeKeyboard = () => {} }) {
@@ -30,7 +90,7 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
   for (const name of ['Select warrior', 'Select follower']) {
     for (const modifiers of [[], ['Control'], ['Shift']]) {
       const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
-      await input.action(`${label} Escape-clear`, () => page.keyboard.press('Escape'))
+      await input.action(`${label} Escape-clear`, () => clearMission10Selection(page, previous, deadlineAt))
       const cleared = await state(`${label} cleared`)
       assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
       const query = mission10SelectionQuery(cleared.selectionState)
