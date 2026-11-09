@@ -353,15 +353,21 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     }), report.selection, 'Eligibility diagnostics preserve selection and occupant ownership')
     await screenshot('held-restored')
     timing.mark('dismantle:start')
+    timing.mark('dismantle/click:start')
     await panel.locator('.dismantle-control').click()
+    timing.mark('dismantle/click:complete')
+    timing.mark('dismantle/partial:start')
     report.partial = await page.evaluate(() =>
       window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, false)
     )
+    timing.mark('dismantle/partial:complete')
     assert.ok(report.partial.hp > 0 && report.partial.progress > 0 && report.partial.progress < 1)
     assert.equal(report.partial.removed, false)
+    timing.mark('dismantle/paint:start')
     await page.waitForFunction(() =>
       window.buildingIdentity.panel.classList.contains('construction-panel')
     )
+    timing.mark('dismantle/paint:complete')
     await screenshot('dismantling')
     report.completed = await page.evaluate(() =>
       window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, true)
