@@ -582,3 +582,24 @@ test('checkpoint copy is independently scrollable and cannot cover fixed actions
   assert.match(css, /\.checkpointText \{[^}]*overflow-wrap: anywhere/)
   assert.doesNotMatch(css, /\.panel h2|\.panel button \{[^}]*background|font: 15px/)
 })
+
+test('native Save action pointer and focus handlers retain settled and highlighted opacity', () => {
+  const ui = fixture({ prepared: { fonts: true } })
+  ui.click('Save Game')
+  const opacity = () => {
+    const text = tree(ui.button('Save checkpoint')).find(node =>
+      node.type === 'span' && node.props['aria-hidden'] === 'true')
+    assert.ok(text, 'Save checkpoint has native text')
+    assert.ok(tree(text).some(node => node.type === 'i'), 'opacity belongs to native glyph text')
+    return text.props.style.opacity
+  }
+  assert.equal(opacity(), 2 / 3)
+  for (const [enter, leave] of [['onPointerEnter', 'onPointerLeave'], ['onFocus', 'onBlur']]) {
+    ui.button('Save checkpoint').props[enter]()
+    ui.render()
+    assert.equal(opacity(), 1)
+    ui.button('Save checkpoint').props[leave]()
+    ui.render()
+    assert.equal(opacity(), 2 / 3)
+  }
+})
