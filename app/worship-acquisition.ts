@@ -1,5 +1,8 @@
 import {
   initializeBuildingAcquisition,
+  buildingAcquisitionGeometry,
+  buildingAcquisitionModel,
+  type BuildingAcquisitionModel,
   visitBuildingAcquisition,
   type BuildingAcquisitionController,
   type BuildingAcquisitionDrawCommand,
@@ -18,7 +21,7 @@ export interface WorshipRect extends WorshipPoint {
   height: number
 }
 export type WorshipSpellModel = 3 | 4 | 12
-export type WorshipTargetModel = WorshipSpellModel | 5 | 7
+export type WorshipTargetModel = WorshipSpellModel | BuildingAcquisitionModel
 export type WorshipAcquisitionFamily = 'spell' | 'building'
 /** Immutable handoff coordinates, in HUD-logical pixels. targetHud is the measured
  * card center relative to the HUD, retained for drawing while its tab is unmounted. */
@@ -80,7 +83,7 @@ export interface WorshipPulse extends DrawBinding {
   remaining: number
 }
 interface DrawBinding {
-  family?: WorshipAcquisitionFamily
+  family: WorshipAcquisitionFamily
   giftId?: number
   model: WorshipTargetModel
   geometry: WorshipAcquisitionGeometry
@@ -201,14 +204,14 @@ function startCompanion(state: WorshipAcquisitionState, common: Controller) {
  * companion. Pulse survives until its own visit or a source-owned reinitialization. */
 export function startBuildingAcquisition(
   state: WorshipAcquisitionState,
-  request: { giftId: number; geometry: WorshipAcquisitionGeometry; model?: 5 | 7 },
+  request: { giftId: number; geometry: WorshipAcquisitionGeometry; model?: BuildingAcquisitionModel },
   random: () => number
 ) {
   const c = initializeBuildingAcquisition(
     request.giftId,
     request.geometry,
     random,
-    request.model === 5 ? 95 : 103
+    buildingAcquisitionGeometry[request.model ?? 7]
   )
   state.building = c
   startCompanion(state, {
@@ -480,7 +483,7 @@ function stepSpell(
 export function stepWorshipAcquisition(
   state: WorshipAcquisitionState,
   input: { paused: boolean; random: () => number }
-): { arrivals: WorshipAcquisitionArrival[]; buildingPanel: 5 | 7 | null; limiterActive: boolean } {
+): { arrivals: WorshipAcquisitionArrival[]; buildingPanel: BuildingAcquisitionModel | null; limiterActive: boolean } {
   state.drawCommands = []
   const pulse = state.pulse
   if (pulse?.active) {
@@ -495,7 +498,7 @@ export function stepWorshipAcquisition(
     const binding = {
       family: 'building' as const,
       giftId: building.giftId,
-      model: (building.model === 95 ? 5 : 7) as 5 | 7,
+      model: buildingAcquisitionModel[building.model],
       geometry: building.geometry,
     }
     if (result.pulse) startPulse(state, binding, result.pulse)
@@ -509,9 +512,9 @@ export function stepWorshipAcquisition(
       submissions: result.submissions,
     })
   }
-  let buildingPanel: 5 | 7 | null = null
-  if (result && 'selectPanel' in result && result.selectPanel)
-    buildingPanel = building?.model === 95 ? 5 : 7
+  let buildingPanel: BuildingAcquisitionModel | null = null
+  if (building && result && 'selectPanel' in result && result.selectPanel)
+    buildingPanel = buildingAcquisitionModel[building.model]
   const arrivals: WorshipAcquisitionArrival[] = []
   stepSpell(state, input.paused, arrivals)
   return {

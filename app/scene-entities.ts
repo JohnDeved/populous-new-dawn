@@ -101,7 +101,10 @@ function legacyFollowerDirections(animations: UnitAnimationTable, source: number
 const unitFrameIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameSelectedIds = new WeakMap<GameScene, Set<number>>()
 const unitFrameBuildingsById = new WeakMap<GameScene, Map<Unit['work'], Building>>()
-const unitFrameShrinesById = new WeakMap<GameScene, Map<Unit['work'], Shrine[]>>()
+const unitFrameShrineGroups = new WeakMap<
+  GameScene,
+  { byId: Map<Unit['work'], Shrine[]>; buckets: Shrine[][] }
+>()
 const vehicleFrameIds = new WeakMap<GameScene, Set<number>>()
 const vehicleFrameViews = new WeakMap<GameScene, Vehicle[]>()
 const planFrameIds = new WeakMap<GameScene, Set<number>>()
@@ -515,6 +518,30 @@ export function animatePerson(
   }
 }
 
+// Borrowed only by this frame's synchronous animation lookups. Reuse bucket
+// arrays without retaining removed shrines or changing first-ID/within-ID order.
+function refreshShrineGroups(
+  groups: { byId: Map<Unit['work'], Shrine[]>; buckets: Shrine[][] },
+  shrines: Shrine[]
+) {
+  const { byId, buckets } = groups
+  for (const bucket of buckets) bucket.length = 0
+  byId.clear()
+  let count = 0
+  shrines.forEach(shrine => {
+    const { id } = shrine
+    let bucket = byId.get(id)
+    if (!bucket) {
+      bucket = buckets[count] ?? (buckets[count] = [])
+      count++
+      byId.set(id, bucket)
+    }
+    bucket.push(shrine)
+  })
+  buckets.length = count
+  return byId
+}
+
 export function updateUnitsFrame(scene: GameScene) {
   let ids = unitFrameIds.get(scene)
   if (!ids) {
@@ -545,19 +572,12 @@ export function updateUnitsFrame(scene: GameScene) {
     const { id } = building
     if (!buildingsById.has(id)) buildingsById.set(id, building)
   }
-  let shrinesById = unitFrameShrinesById.get(scene)
-  if (!shrinesById) {
-    shrinesById = new Map()
-    unitFrameShrinesById.set(scene, shrinesById)
+  let shrineGroups = unitFrameShrineGroups.get(scene)
+  if (!shrineGroups) {
+    shrineGroups = { byId: new Map(), buckets: [] }
+    unitFrameShrineGroups.set(scene, shrineGroups)
   }
-  const shrineBuckets = shrinesById
-  shrineBuckets.clear()
-  scene.world.shrines.forEach(shrine => {
-    const { id } = shrine
-    const bucket = shrineBuckets.get(id)
-    if (bucket) bucket.push(shrine)
-    else shrineBuckets.set(id, [shrine])
-  })
+  const shrineBuckets = refreshShrineGroups(shrineGroups, scene.world.shrines)
   // Accepted checkpoint IDs may be NaN, which never matched the old strict comparison.
   for (const [id, g] of scene.unitMeshes)
     if (Number.isNaN(id) || !ids.has(id)) {
@@ -768,6 +788,11 @@ export function updateBuildingsFrame(scene: GameScene) {
     if (Number.isNaN(id) || !ids.has(id)) {
       mesh.removeFromParent()
       mesh.geometry.dispose()
+      // Unprepared plans still borrow the cursor material. RenderView.prepare
+      // gives prepared plans their own clones, but the atlas remains shared.
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      for (const material of new Set(materials))
+        if (material !== scene.cursor.material) material.dispose()
       scene.plans.delete(id)
     }
   let buildings = planFrameViews.get(scene)

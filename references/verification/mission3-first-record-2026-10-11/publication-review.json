@@ -1,0 +1,29 @@
+{
+  "verdict": "ACCEPT_PUBLICATION",
+  "sourceHead": "adae85b9df3085f2f63b4661195dd80fd633a2b3",
+  "originalInstructionsExecutedByReviewer": 0,
+  "expandedResultReplayPerformedForPublication": false,
+  "archive": {
+    "path": "references/verification/mission3-first-record-2026-10-11/retained-proof.tar.gz",
+    "bytes": 13739164,
+    "sha256": "ff38f4c149efd6743573ff2b96ac65d963e6cd4d4541fcdab6df8efe7af6b1f7"
+  },
+  "verifiedRegularMembers": 34,
+  "manifestSha256": "b7442f6a154f472724007d367ef7102dda5b1c87f0b8530b4529f69d6922cb54",
+  "readmeSha256": "7eb52cde5720ad814624e19cc33b99b3838e1cc706a18ab65946da756ed67730",
+  "compositionIndexSha256": "c2870a69ce8c4981f530918f704416bb3f95a5a28c1cd2a2ab864646c44e7984",
+  "acceptedPriorReviewSha256": "ce6a91ddeac4c802c158a46e64ad87b7c6794e2c6581e927a0064a9973749187",
+  "checks": [
+    "Archive identity, exact unique regular relative member set, all member lengths and SHA256, and identity to retained sources verified.",
+    "No EXE, DLL, DAT or BIN assets and no expanded-result duplicate introduced. Compressed result/event identities reuse completed independent file-only review.",
+    "README and appended composition section preserve one returned allocation and one completed record, the distinct pool WORD ID639 and authored DWORD ID1, class2 copy0/increment1, unchanged class1, and the uncommitted unknown second-record scenery alternator stop.",
+    "All2555942 observer events were reconciled in the retained review with source/snapshot/supply masks; neither publication nor prior review claims an independent full CPU arithmetic emulator.",
+    "Actual300s dispatcher correction is distinguished from ineffective historical240s wiring; no speedup attribution.",
+    "Named seam inputs and lifetimes, model terrain, transport, opaque-resource normal-completion/disjointness and unknown projected outputs remain explicit. No actual startup/population/final seed/product repair claim.",
+    "Historical dependencies and canonical assets/tools/path adaptation remain required for reproduction. Prior verification depth is not enlarged by this publication check."
+  ],
+  "verifier": {
+    "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_run07_publication.py",
+    "sha256": "5a633629817c933a17228e1b2a731ac311258bd239ccefccb62986d17db77b1e"
+  }
+}

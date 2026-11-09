@@ -187,7 +187,13 @@ export function stepLiveRestingState(w: World, u: Unit, p: LivePerson) {
         height: to => terrainPointHeight(w.land, to),
         allocateLog: () => {
           // ponytail: scenery allocation uses the existing unbounded live pool.
-          w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+          w.trees.push({
+            ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+            id: w.nextId++,
+            ...browserPosition(p),
+            logs: 1,
+            model: 11,
+          })
           return true
         },
         sound: cue => sound(w, cue, u),

@@ -4,15 +4,16 @@ import type { Gift, Point, World } from './world-types.ts'
 const sources = [
   { mission: 1, head: 1, reward: 2, model: 7, kind: 'camp' },
   { mission: 3, head: 91, reward: 92, model: 5, kind: 'temple' },
+  { mission: 4, head: 1, reward: 0, model: 4, kind: 'tower' },
 ] as const
 
 export interface BuildingAcquisitionSource {
-  mission: 1 | 3
+  mission: 1 | 3 | 4
   head: 1 | 91
-  reward: 2 | 92
+  reward: 0 | 2 | 92
   slot: number
   rewardClass: 2
-  model: 5 | 7
+  model: 4 | 5 | 7
 }
 
 /** Creation-only provenance. Coordinates/artwork or a building-valued gift do not

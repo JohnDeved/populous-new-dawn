@@ -1,4 +1,3 @@
-import type { World } from './world-types.ts'
 import {
   clearTooltip,
   showObjectTooltip,
@@ -32,7 +31,6 @@ export interface TooltipOutput extends TooltipState {
 export interface TooltipController {
   session: TooltipSession
   category: Category
-  routeNotice: World['routeNotice']
   key: number | string | null
   dwell: number
   owners: { hud: string | null; object: number; cell: number; status: number; message: number }
@@ -54,7 +52,6 @@ export function createTooltipController(
   return {
     session,
     category: 'none',
-    routeNotice: null,
     key: null,
     dwell: 0,
     owners: { hud: null, object: 0, cell: 0, status: 0, message: 0 },

@@ -22,8 +22,8 @@ test('ranks only disjoint callback stages and reports nearest-rank distributions
   const result = summarize(report())
   assert.equal(result.sampleCount, 3)
   assert.equal(result.capturedSpanMs, 60)
-  assert.deepEqual(result.raf, { sampleCount: 3, mean: 20, p50: 20, p95: 30, max: 30 })
-  assert.deepEqual(result.callback, { sampleCount: 3, mean: 11, p50: 11, p95: 12, max: 12 })
+  assert.deepEqual(result.raf, { sampleCount: 3, mean: 20, p50: 20, p95: 30, p99: 30, max: 30 })
+  assert.deepEqual(result.callback, { sampleCount: 3, mean: 11, p50: 11, p95: 12, p99: 12, max: 12 })
   assert.equal(result.topCpuPhases[0].phase, 'pointerTooltipCpuMs')
   assert.equal(result.topCpuPhases.length, 4)
   assert.equal(result.pointerPhases[0].phase, 'tooltipInputMs')
@@ -86,6 +86,7 @@ test('single-frame capture uses its RAF interval, not a zero timestamp differenc
   const result = summarize(value)
   assert.equal(result.capturedSpanMs, 10)
   assert.equal(result.raf.p50, 10)
+  assert.equal(result.raf.p99, 10)
 })
 
 test('accepts a production FpsGraph export contract fixture and exposes bounded provenance', async () => {
@@ -407,3 +408,69 @@ test('actual path extensions are validated, retained and unknown when absent', (
   assert.equal(historical.ordinaryTerrain.paths, undefined)
   assert.equal(historical.nativeOcclusion.cacheRepresentationChanged, undefined)
 })
+
+
+test('p99 uses nearest rank independently for RAF, callback and measured CPU phases', () => {
+  const value = report()
+  let now = 0
+  value.frames = Array.from({ length: 100 }, (_, index) => {
+    const rafIntervalMs = 100 - index
+    now += rafIntervalMs
+    return {
+      ...report().frames[0], timestampMs: now, rafIntervalMs,
+      simulationCpuMs: index + 1, sceneRenderCpuMs: 0, pointerTooltipCpuMs: 0,
+      callbackCpuMs: index + 1, otherCallbackCpuMs: 0,
+      pointerBreakdown: { ...createPointerFrameMetrics(), objectPickMs: 100 - index },
+    }
+  })
+  Object.assign(value.timing, { count: 100, endTimestampMs: now, capturedSpanMs: now })
+  const result = summarize(value)
+  for (const stats of [result.raf, result.callback,
+    result.topCpuPhases.find(row => row.phase === 'simulationCpuMs'),
+    result.pointerPhases.find(row => row.phase === 'objectPickMs')]) {
+    assert.equal(stats.sampleCount, 100)
+    assert.equal(stats.p50, 50)
+    assert.equal(stats.p95, 95)
+    assert.equal(stats.p99, 99)
+    assert.equal(stats.max, 100)
+  }
+  for (let index = 0; index < 50; index++) value.frames[index].pointerBreakdown = null
+  const sparse = summarize(value).pointerPhases.find(row => row.phase === 'objectPickMs')
+  assert.equal(sparse.sampleCount, 50)
+  assert.equal(sparse.p99, 50, 'missing pointer samples must not become zeroes or RAF samples')
+})
+
+for (const phase of ['callback', 'residual', 'nested pointer']) {
+  test(`rejects nonfinite derived mean from finite ${phase} samples`, () => {
+    const value = report()
+    for (const frame of value.frames) {
+      Object.assign(frame, { simulationCpuMs: 0, sceneRenderCpuMs: 0,
+        pointerTooltipCpuMs: 0, callbackCpuMs: 0, otherCallbackCpuMs: 0 })
+      if (phase === 'callback') {
+        frame.callbackCpuMs = Number.MAX_VALUE
+        frame.otherCallbackCpuMs = Number.MAX_VALUE
+      } else if (phase === 'residual') {
+        frame.simulationCpuMs = Number.MAX_VALUE / 2
+        frame.sceneRenderCpuMs = Number.MAX_VALUE / 2
+        frame.otherCallbackCpuMs = -Number.MAX_VALUE
+      } else frame.pointerBreakdown.objectPickMs = Number.MAX_VALUE
+    }
+    assert.throws(() => summarize(value), /nonfinite timing mean/)
+  })
+}
+
+test('large finite derived means remain accepted without a new timing ceiling', () => {
+  const value = report(), duration = Number.MAX_VALUE / 2
+  for (const frame of value.frames) {
+    Object.assign(frame, { simulationCpuMs: 0, sceneRenderCpuMs: 0,
+      pointerTooltipCpuMs: 0, callbackCpuMs: duration, otherCallbackCpuMs: duration })
+    frame.pointerBreakdown.objectPickMs = duration
+  }
+  const result = summarize(value)
+  assert.ok(Number.isFinite(result.callback.mean))
+  assert.ok(Math.abs(result.callback.mean / duration - 1) <= Number.EPSILON)
+  assert.ok(Number.isFinite(result.pointerPhases.find(row => row.phase === 'objectPickMs').mean))
+  assert.ok(Math.abs(result.pointerPhases.find(row => row.phase === 'objectPickMs').mean / duration - 1) <= Number.EPSILON)
+  assert.equal(result.callback.p99, duration)
+})
+

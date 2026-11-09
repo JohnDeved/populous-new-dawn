@@ -117,6 +117,87 @@ test('each reload observes the new logo and reacquires actual menu readiness', a
 
 // Execute the actual entry-driver statements with the real public helper. The
 // logo never finishes playback in this fixture: only its public Skip advances it.
+function deliveryFixture(events) {
+  return {
+    delivery: { async preflight() {
+      await Promise.resolve()
+      assert.deepEqual(events, [['navigation']], 'preflight must finish before saving or menu entry')
+      events.push(['preflight'])
+    } },
+    save() {
+      assert.deepEqual(events, [['navigation'], ['preflight']], 'save follows awaited preflight')
+      events.push(['save'])
+    },
+  }
+}
+
+// Building identity covers gameplay, not full boot-logo playback. Execute its
+// actual entry block with the real helper, preserving every later public click.
+const buildingSource = readFileSync(new URL('../scripts/tutorial-browser/building-panel-identity.mjs', import.meta.url), 'utf8')
+const buildingStart = "await page.goto(target.href, { waitUntil: 'domcontentloaded' })"
+const buildingEnd = "timing.mark('mission-start:clicked')"
+const buildingFrom = buildingSource.indexOf(buildingStart)
+const buildingTo = buildingSource.indexOf(buildingEnd, buildingFrom)
+assert.ok(buildingFrom >= 0 && buildingTo > buildingFrom, 'actual building entry boundaries exist')
+assert.match(buildingSource, /import \{ waitForStartupMenu \} from '\.\.\/browser-new-game\.mjs'/)
+const driveBuilding = new (Object.getPrototypeOf(async function () {}).constructor)(
+  'page', 'waitForStartupMenu', 'target', 'timing', buildingSource.slice(buildingFrom, buildingTo + buildingEnd.length))
+
+function buildingEntryFixture(options) {
+  const f = fixture(options), dialog = f.page.getByRole.bind(f.page)
+  f.page.goto = async (url, options) => {
+    assert.equal(url, 'http://fixture.invalid/?building-panel-identity=1')
+    assert.deepEqual(options, { waitUntil: 'domcontentloaded' })
+    f.events.push(['navigation'])
+  }
+  f.page.getByRole = (role, options) => {
+    if (role === 'dialog') return dialog(role, options)
+    assert.equal(role, 'button')
+    assert.equal(options.exact, true)
+    const previous = {
+      'New Game': ['wait', ['Main menu']],
+      'No': ['recommendation'],
+      'Start Mission 1': ['button', 'No'],
+    }[options.name]
+    assert.ok(previous, 'only the original public campaign controls are accepted')
+    return { async click() {
+      assert.deepEqual(f.events.at(-1), previous, 'public entry prerequisite must finish first')
+      f.events.push(['button', options.name])
+    } }
+  }
+  f.page.locator = selector => {
+    assert.equal(selector, '[data-original-tutorial-recommendation]')
+    return { async waitFor() {
+      assert.deepEqual(f.events.at(-1), ['button', 'New Game'])
+      f.events.push(['recommendation'])
+    } }
+  }
+  return f
+}
+
+for (const initial of ['Opening logo', 'Main menu']) {
+  test(`building identity observes public startup readiness before original campaign controls (${initial})`, async () => {
+    const f = buildingEntryFixture({ initial: 'loading', appears: initial }), marks = []
+    await driveBuilding(f.page, waitForStartupMenu,
+      { href: 'http://fixture.invalid/?building-panel-identity=1' }, { mark: value => marks.push(value) })
+    assert.deepEqual(f.events.slice(-4), [
+      ['button', 'New Game'], ['recommendation'], ['button', 'No'], ['button', 'Start Mission 1'],
+    ])
+    assert.equal(f.events.filter(e => e[0] === 'click').length, initial === 'Opening logo' ? 1 : 0)
+    assert.deepEqual(marks, ['navigation:complete', 'mission-start:clicked'])
+  })
+}
+
+test('building identity propagates failed logo Skip without beginning campaign entry', async () => {
+  const failure = Object.assign(new Error('Skip inaccessible'), { name: 'TimeoutError' })
+  const f = buildingEntryFixture({ clickError: failure }), marks = []
+  await assert.rejects(driveBuilding(f.page, waitForStartupMenu,
+    { href: 'http://fixture.invalid/?building-panel-identity=1' }, { mark: value => marks.push(value) }), error => error === failure)
+  assert.equal(f.events.filter(e => e[0] === 'click').length, 1)
+  assert.equal(f.events.some(e => e[0] === 'button'), false)
+  assert.deepEqual(marks, ['navigation:complete'])
+})
+
 for (const scenario of ['spy-source', 'spell-test-menu']) {
   const source = readFileSync(new URL(`../scripts/tutorial-browser/${scenario}.mjs`, import.meta.url), 'utf8'),
     spy = scenario === 'spy-source',
@@ -125,11 +206,12 @@ for (const scenario of ['spy-source', 'spell-test-menu']) {
     from = source.indexOf(start), to = source.indexOf(end, from)
   assert.ok(from >= 0 && to > from, 'actual driver entry boundaries exist')
   const drive = new (Object.getPrototypeOf(async function () {}).constructor)(
-    'page', 'waitForStartupMenu', 'm2LoadReady', 'button', 'url', source.slice(from, to + end.length))
+    'page', 'waitForStartupMenu', 'm2LoadReady', 'button', 'url', 'delivery', 'save', source.slice(from, to + end.length))
 
   for (const initial of ['Opening logo', 'Main menu']) {
     test(`${scenario} observes public startup readiness before its next action (${initial})`, async () => {
-      const f = fixture({ initial: 'loading', appears: initial }), ready = () => true
+      const f = fixture({ initial: 'loading', appears: initial }), ready = () => true,
+        { delivery, save } = deliveryFixture(f.events)
       f.page.reload = f.page.goto = async () => { f.events.push(['navigation']) }
       const downstream = () => {
         assert.deepEqual(f.events.at(-1), ['wait', ['Main menu']], 'destination readiness precedes load/new game')
@@ -137,8 +219,9 @@ for (const scenario of ['spy-source', 'spell-test-menu']) {
       }
       f.page.waitForFunction = async fn => { assert.equal(fn, ready); downstream() }
       const button = name => { assert.equal(name, 'New Game'); return { click: async () => downstream() } }
-      await drive(f.page, waitForStartupMenu, ready, button, 'http://fixture.invalid')
-      assert.equal(f.events[0][0], 'navigation')
+      await drive(f.page, waitForStartupMenu, ready, button, 'http://fixture.invalid', delivery, save)
+      assert.deepEqual(f.events.slice(0, spy ? 3 : 1), spy
+        ? [['navigation'], ['preflight'], ['save']] : [['navigation']])
       assert.equal(f.events.at(-1)[0], 'downstream')
       assert.equal(f.events.filter(e => e[0] === 'click').length, initial === 'Opening logo' ? 1 : 0)
     })
@@ -146,11 +229,33 @@ for (const scenario of ['spy-source', 'spell-test-menu']) {
 
   test(`${scenario} propagates failed logo Skip without starting load/new game`, async () => {
     const failure = Object.assign(new Error('Skip inaccessible'), { name: 'TimeoutError' }),
-      f = fixture({ clickError: failure })
-    f.page.reload = f.page.goto = async () => {}
+      f = fixture({ clickError: failure }), { delivery, save } = deliveryFixture(f.events)
+    f.page.reload = f.page.goto = async () => { f.events.push(['navigation']) }
     f.page.waitForFunction = async () => assert.fail('load readiness must not begin')
     await assert.rejects(drive(f.page, waitForStartupMenu, () => true,
-      () => assert.fail('New Game must not begin'), 'http://fixture.invalid'), error => error === failure)
+      () => assert.fail('New Game must not begin'), 'http://fixture.invalid', delivery, save), error => error === failure)
     assert.equal(f.events.filter(e => e[0] === 'click').length, 1)
   })
+
+  if (spy) for (const stage of ['preflight', 'save']) {
+    test(`${scenario} propagates failed ${stage} without entering the startup menu or load`, async () => {
+      const failure = new Error(`${stage} failed`), events = [],
+        page = {
+          reload: async () => { events.push('navigation') },
+          waitForFunction: async () => assert.fail('load readiness must not begin'),
+        },
+        delivery = { async preflight() {
+          events.push('preflight')
+          if (stage === 'preflight') throw failure
+        } },
+        save = () => {
+          events.push('save')
+          if (stage === 'save') throw failure
+        }
+      await assert.rejects(drive(page, () => assert.fail('startup menu must not begin'),
+        () => true, () => assert.fail('New Game must not begin'), 'http://fixture.invalid', delivery, save),
+      error => error === failure)
+      assert.deepEqual(events, stage === 'preflight' ? ['navigation', 'preflight'] : ['navigation', 'preflight', 'save'])
+    })
+  }
 }

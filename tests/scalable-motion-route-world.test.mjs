@@ -1,4 +1,3 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createGameStore, migrateCheckpoint, CHECKPOINT_VERSION } from '../app/game-store.ts'
@@ -109,8 +108,8 @@ test('JSON route transport preserves safe-integer counts exactly and never repai
 })
 
 test('actual scalable boarding can adopt a driver without a route and remains saveable', async () => {
-  const store = await createCampaignFixtureStore([5])
-  assert.equal(store.startMission(5), true)
+  const store = createGameStore()
+  store.startMission(5)
   const world = store.getWorld(), boat = world.vehicles[0],
     units = [0, 1].map(i => addUnit(world, 'blue', 'warrior', { x: i, z: 0 })),
     [driver, passenger] = units.map(u => createLivePerson(world, u))

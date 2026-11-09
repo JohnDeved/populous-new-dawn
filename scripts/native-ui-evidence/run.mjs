@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { manualIdentity, separateRoots, sourceManifest, verifyManifest, infrastructureInput, sha256 } from './identity.mjs'
 import { limits, acceptSeries } from './policy.mjs'
 import { artifactInventory } from './browser-owner.mjs'
+import { finalizeArtifactReceipt, recordArtifactFailure, artifactFailureText } from './receipt-finalization.mjs'
 import { supervise } from './supervise.mjs'
 import { directoryManifest, publicLinks, verifyBuiltOutput, afterScopes } from './files.mjs'
 import { initializeEpisodeLedger, recordUnstartedFailure } from './ledger.mjs'
@@ -37,6 +38,11 @@ try {
   report.packageLockSha256 = sha256(resolve(candidateRoot, 'package-lock.json'))
   Object.assign(report, dependencyReceipt(candidateRoot))
   save()
+  stage = 'candidate-audio-source-contract'
+  report.candidateAudioSourceContract = await supervise(
+    ['--test', '--test-concurrency=1', resolve(import.meta.dirname, 'candidate-audio-probes-contract.mjs')],
+    { cwd: candidateRoot, log: resolve(output, 'candidate-audio-source-contract.log'), capMs: 30000, inspect: () => artifactInventory(output) })
+  save(); assert.equal(report.candidateAudioSourceContract.status, 'passed', 'Exact candidate audio source contract failed')
   stage = 'candidate-build'
   report.build = await supervise([resolve(import.meta.dirname, 'build-home.mjs'), candidateRoot, dist, identity.candidateSha],
     { cwd: candidateRoot, log: resolve(output, 'build.log'), capMs: limits.buildMs, inspect: () => artifactInventory(output) })
@@ -51,7 +57,7 @@ try {
   stage = 'browser-worker'
   report.browser = await supervise([resolve(import.meta.dirname, 'browser-worker.mjs'), candidateRoot, infrastructureRoot, output, dist],
     { cwd: candidateRoot, log: resolve(output, 'browser.log'), capMs: limits.browserMs, inspect: () => artifactInventory(output) })
-  save(); assert.equal(report.browser.status, 'passed', 'Seven-episode browser worker failed')
+  save(); assert.equal(report.browser.status, 'passed', 'Nine-episode browser worker failed')
   const series = JSON.parse(readFileSync(resolve(output, 'episodes.json'), 'utf8'))
   assert.equal(series.status, 'passed'); assert.equal(series.cleanupVerified, true); acceptSeries(series.episodes)
   verifyBuiltOutput(dist, built, links)
@@ -69,7 +75,13 @@ finally {
   })
   report.inputsAfter = after.states
   if (after.failures.length) { report.inputFailures = after.failures; report.status = 'failed'; process.exitCode = 1 }
-  report.finishedAt = new Date().toISOString(); save()
-  try { report.artifacts = artifactInventory(output); save() }
-  catch (error) { report.status = 'failed'; report.artifactFailure = String(error); process.exitCode = 1; save() }
+  report.finishedAt = new Date().toISOString()
+  try { report.artifacts = finalizeArtifactReceipt(output, report) }
+  catch (error) {
+    delete report.artifacts; report.status = 'failed'; report.artifactFailure = artifactFailureText(error); process.exitCode = 1
+    try { recordArtifactFailure(output, report) }
+    catch (failure) { console.error('Native UI receipt NOT accepted:', report.artifactFailure,
+      'Failure receipt unavailable:', artifactFailureText(failure), 'Primary failure:', artifactFailureText(report.failure ?? 'none'),
+      'Input failures:', artifactFailureText(report.inputFailures ?? 'none')) }
+  }
 }

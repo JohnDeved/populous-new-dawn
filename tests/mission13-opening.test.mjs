@@ -1,4 +1,3 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
@@ -176,8 +175,8 @@ test('Mission 13 Balloon Hut repeatedly produces occupied airborne transport', a
   produce(braves[1])
 
   // Separate clone: the public production checkpoint must not advance the route.
-  const store = await createCampaignFixtureStore([13])
-  assert.equal(store.startMission(13), true)
+  const store = createGameStore()
+  store.startMission(13)
   const uninterrupted = store.getWorld()
   Object.assign(uninterrupted, structuredClone(world))
   await store.saveCheckpoint()

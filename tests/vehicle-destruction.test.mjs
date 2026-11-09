@@ -1,4 +1,3 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import { normalizeHistoricalFixture } from './helpers/historical-checkpoint.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
@@ -140,8 +139,8 @@ test('vehicle life and destruction survive checkpoint migration and reload', asy
   normalizeHistoricalFixture(legacy)
   assert.deepEqual([legacyBoat.life, legacyBoat.destructionState], [5000, 0])
 
-  const store = await createCampaignFixtureStore([5])
-  assert.equal(store.startMission(5), true)
+  const store = createGameStore()
+  store.startMission(5)
   let world = store.getWorld(),
     boat = world.vehicles[0],
     passenger = world.units.find(unit => unit.team === 'blue' && unit.inside === null)

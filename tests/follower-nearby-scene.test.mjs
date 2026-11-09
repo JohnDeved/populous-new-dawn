@@ -1,5 +1,3 @@
-import { createResultClock, advanceResultClock } from '../app/result-session.ts'
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Page handlers, Scene methods/animate, store ownership and fixed-clock
 // consumer. DOM/GPU and event trust are supplied; this is not browser evidence.
 import assert from 'node:assert/strict'
@@ -15,12 +13,13 @@ const declaration = source.statements.find(node => ts.isClassDeclaration(node) &
 const animateSource = declaration.members.find(node => node.name?.getText(source) === 'animate').initializer.getText(source)
 const execute = (expression, bindings, receiver) => Function(...Object.keys(bindings), `return ${ts.transpileModule(`(${expression})`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText}`).call(receiver, ...Object.values(bindings))
 
-async function fixture(t, campaignMissions = []) {
+async function fixture(t) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../app/scene.ts'),
     { RenderView } = await import('../app/render-view.ts'),
+    { sceneTextureRevision } = await import('../app/scene-assets.ts'),
     { createGameStore } = await import('../app/game-store.ts'),
-    store = campaignMissions.length ? await createCampaignFixtureStore(campaignMissions) : createGameStore(), logs = [], globals = new Map()
+    store = createGameStore(), logs = [], globals = new Map()
   let arrival = 1, modal = false
   for (const [name, value] of Object.entries({ document: { hidden: false, querySelector: () => modal ? {} : null }, performance: { now: () => arrival }, devicePixelRatio: 1, requestAnimationFrame: () => 1, cancelAnimationFrame: noOp })) {
     globals.set(name, Object.getOwnPropertyDescriptor(globalThis, name))
@@ -44,8 +43,6 @@ async function fixture(t, campaignMissions = []) {
       view, scene: new THREE.Scene(), camera: new THREE.Camera(),
       world, presentationBinding: store.bindPresentation(world), started: true, disposed: false,
       nearbyFollowersHudActive: true, previous: null, fpsGraph: null,
-      tooltipElement: { hidden: false }, // supplied DOM leaf used by the real modal boundary
-      resultClock: createResultClock(),
       gameClock: { animationTime: 0, animationFrame: 0 }, overviewActive: false, overviewStage: null,
       keys: new Set(), dragActive: { value: false }, selectionOverlay: { visible: false }, globeMotion: { velocity: { x: 0, y: 0 } },
       renderer: { getPixelRatio: () => 1, render: noOp }, hoveredObject: null, buildingPanels: new Map(),
@@ -53,9 +50,15 @@ async function fixture(t, campaignMissions = []) {
       onChange: () => logs.push(['change', world.castingTribes[0].flags]),
       updateCameraMotion: () => true,
     })
+    // Object.create skips class field initialization; use the actual expressions.
+    for (const name of ['modalRenderVersion', 'modalRenderedVersion', 'modalTextureVersion']) {
+      const field = declaration.members.find(node => node.name?.getText(source) === name)
+      assert.ok(field?.initializer, `production modal field: ${name}`)
+      scene[name] = execute(field.initializer.getText(source), {}, scene)
+    }
     for (const name of ['playWorldSounds', 'updateTerrainFrame', 'updateDecorationsFrame', 'cancelTooltipInspection', 'updateUnitsFrame', 'renderTooltip', 'updateBuildingsFrame', 'updateEffectsFrame', 'updateShrinesFrame', 'updatePointerFrame', 'updatePlacement', 'updateSpellPointerFrame', 'updateEnvironmentFrame', 'renderSceneFrame', 'updateHudFrame']) scene[name] = noOp
     scene.animate = execute(animateSource, {
-      advanceResultClock, syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp,
+      syncSecondaryReservations: noOp, updateVehiclesFrame: noOp, SPELLS: [], worldTooltipObject: noOp, sceneTextureRevision,
       advanceGame: (w, clock, seconds) => { logs.push(['advanceGame', w.castingTribes[0].flags]); api.advanceGame(w, clock, seconds) },
     }, scene)
     const page = pageNearby(scene)
@@ -151,7 +154,7 @@ test('blocked, modal and hidden visits cancel pending and armed input without de
 })
 
 test('actual store replacement and same-World rebinding reject stale callbacks before disposal', async t => {
-  const f = await fixture(t, [2])
+  const f = await fixture(t)
   for (const replace of [() => f.store.restart(), () => f.store.startMission(2), () => f.store.loadCheckpoint(), old => f.store.bindPresentation(old.world)]) {
     await f.store.saveCheckpoint()
     const old = f.bind()
@@ -201,18 +204,21 @@ test('actual Save clones committed mode without flushing; ordinary menu cancels 
 
 test('actual Scene disposal cancels pending input and the elapsed phase', async t => {
   const f = await fixture(t), disposable = () => ({ dispose: noOp, remove: noOp })
+  let contextLosses = 0
   f.scene.animate(0)
   f.at(1); release(f.page)
   f.page.render().props.onPointerDown(nearbyEvent())
   Object.assign(f.scene, {
     ownedSounds: new Map(), terrainLoad: new AbortController(), resize: { disconnect: noOp },
     disposeListeners: [], scene: { remove: noOp }, globe: disposable(), waterMap: disposable(),
-    terrainMap: disposable(), view: disposable(), renderer: { ...f.scene.renderer, dispose: noOp, domElement: disposable() },
+    terrainMap: disposable(), view: disposable(), renderer: { ...f.scene.renderer, dispose: noOp, domElement: disposable(), forceContextLoss: () => { ++contextLosses } },
+    terrainUpload: {}, minimap: { revision: undefined },
     tooltipElement: disposable(), pointerOutline: disposable(), spellPointer: disposable(),
     objectPanels: disposable(), worshipPresentation: disposable(), releaseGroup: noOp,
   })
   f.scene.dispose()
   f.scene.dispose()
+  assert.equal(contextLosses, 1, 'repeated disposal retires the supplied renderer boundary only once')
   assert.equal(f.page.pressed, false)
   f.scene.animate(1000)
   assert.equal(mode(f.world), false)
@@ -222,16 +228,17 @@ test('actual Scene disposal cancels pending input and the elapsed phase', async 
 test('actual Scene modal boundary freezes game clock and rendering consumers, then restarts elapsed time at zero', async t => {
   const { scene, page, world, logs } = await fixture(t)
   world.paused = false
-  assert.equal(scene.tooltipElement.hidden, false)
   page.openMenu()
-  assert.equal(scene.tooltipElement.hidden, true, 'modal owner immediately hides the native tooltip')
   const before = structuredClone(world)
   const clock = structuredClone(scene.gameClock)
   let renders = 0
   scene.renderer.render = () => renders++
   scene.animate(1000)
   scene.animate(100000)
-  assert.equal(renders,2)
+  assert.equal(renders,1,'unchanged modal retains its drawn frame')
+  scene.invalidateModalRender()
+  scene.animate(150000)
+  assert.equal(renders,2,'explicit invalidation redraws without advancing simulation')
   assert.deepEqual(world,before)
   assert.deepEqual(scene.gameClock,clock)
   assert.equal(logs.filter(item=>item[0]==='advanceGame').length,0)

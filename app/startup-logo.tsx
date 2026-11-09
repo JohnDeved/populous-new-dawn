@@ -1,46 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import hud from './original-hud.json'
 import styles from './startup-logo.module.css'
 
 const source = '/original/startup/blogo.webm'
-
-// Browser compatibility labels use the same original FONT0 atlas as the HUD.
-// Plain text is retained only while that atlas is unavailable.
-function ControlText({ text, ready }: { text: string; ready: boolean }) {
-  if (!ready) return <span className={styles.fallback}>{text}</span>
-  return (
-    <span className={styles.bitmap} aria-hidden="true">
-      {text.split(' ').map((word, wordIndex, words) => (
-        <span className={styles.word} key={wordIndex}>
-          {[...(word + (wordIndex < words.length - 1 ? ' ' : ''))].map((letter, index) => {
-            const glyph = hud.rects[`font0-${letter.charCodeAt(0) - 32}` as keyof typeof hud.rects]
-            return (
-              <i
-                key={index}
-                style={{
-                  width: glyph.w,
-                  height: glyph.h,
-                  backgroundPosition: `-${glyph.x}px -${glyph.y}px`,
-                }}
-              />
-            )
-          })}
-        </span>
-      ))}
-    </span>
-  )
-}
 
 // Only the boot logo. New Game's language-selected intro is a separate native
 // caller; neither it nor the mission camera introduction belongs in this stage.
 export function StartupLogo({ onComplete }: { onComplete: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null)
   const video = useRef<HTMLVideoElement>(null)
+  const playbackControl = useRef<HTMLButtonElement>(null)
   const completed = useRef(false)
   const pointer = useRef<number | null>(null)
   const [playback, setPlayback] = useState<'playing' | 'blocked' | 'failed'>('playing')
   const [muted, setMuted] = useState(true)
-  const [bitmapReady, setBitmapReady] = useState(false)
+  const changePlayback = useCallback((next: 'playing' | 'blocked' | 'failed') => {
+    // Keep keyboard focus in the logo before a failed control is unmounted.
+    // Other controls and outside focus retain their current owner.
+    if (next === 'failed' && playbackControl.current?.contains(document.activeElement))
+      dialog.current?.focus({ preventScroll: true })
+    setPlayback(next)
+  }, [])
   const complete = useCallback(() => {
     if (completed.current) return
     completed.current = true
@@ -58,14 +37,6 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
     modal.showModal()
     modal.focus()
     media.src = source
-    const image = new Image()
-    image.src = '/original/hud.png'
-    void image
-      .decode()
-      .then(() => {
-        if (active && !completed.current) setBitmapReady(true)
-      })
-      .catch(() => {})
     const play = () => {
       if (document.hidden || completed.current || pointer.current !== null) return
       void media.play().then(
@@ -74,7 +45,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         },
         () => {
           if (active && !completed.current && !document.hidden && pointer.current === null)
-            setPlayback(media.error ? 'failed' : 'blocked')
+            changePlayback(media.error ? 'failed' : 'blocked')
         }
       )
     }
@@ -93,27 +64,27 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
       media.load()
       modal.close()
     }
-  }, [])
+  }, [changePlayback])
 
   function playFromControl() {
     const media = video.current
-    if (!media || completed.current || document.hidden || pointer.current !== null) return
+    if (!media || completed.current) return
     // This explicit browser control supplies user activation when autoplay was
     // refused. It does not restart the clip or change the game's saved volume.
     setPlayback('playing')
     void media.play().catch(() => {
-      if (!completed.current && !document.hidden && pointer.current === null)
-        setPlayback(media.error ? 'failed' : 'blocked')
+      if (!completed.current) changePlayback(media.error ? 'failed' : 'blocked')
     })
   }
 
-  const recovery = playback !== 'playing'
-  const status =
-    playback === 'failed'
-      ? 'The opening logo could not be played. You can continue to the menu.'
-      : 'Your browser paused the opening logo.'
+  let status = muted ? 'Opening logo · sound off' : 'Opening logo'
   let playbackAction = muted ? 'Enable logo sound' : 'Mute logo'
-  if (playback === 'blocked') playbackAction = 'Play logo'
+  if (playback === 'failed')
+    status = 'The opening logo could not be played. You can continue to the menu.'
+  else if (playback === 'blocked') {
+    status = 'Your browser paused the opening logo.'
+    playbackAction = 'Play logo'
+  }
 
   return (
     <dialog
@@ -135,7 +106,7 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         if (!event.repeat) complete()
       }}
       onPointerDown={event => {
-        if (event.button < 0 || event.button > 3 || pointer.current !== null) return
+        if (event.button < 0 || event.button > 3) return
         event.preventDefault()
         video.current?.pause()
         pointer.current = event.pointerId
@@ -163,23 +134,15 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
           aria-label="Original Bullfrog opening logo"
           onEnded={complete}
           onError={() => {
-            if (!completed.current) setPlayback('failed')
+            if (!completed.current) changePlayback('failed')
           }}
         />
       </div>
-      <div className={styles.controls} data-recovery={recovery || undefined}>
-        {recovery && (
-          <p role="status" aria-label={status}>
-            <ControlText text={status} ready={bitmapReady} />
-          </p>
-        )}
+      <div className={styles.controls}>
+        <p role="status">{status}</p>
         {playback !== 'failed' && (
           <button
-            type="button"
-            className={
-              !muted && !recovery ? `${styles.focusOnly} ${styles.soundHidden}` : undefined
-            }
-            aria-label={playbackAction}
+            ref={playbackControl}
             onPointerDown={event => event.stopPropagation()}
             onPointerUp={event => event.stopPropagation()}
             onKeyDown={event => {
@@ -187,32 +150,19 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
               event.stopPropagation()
               if (event.repeat) event.preventDefault()
             }}
-            onKeyUp={event => {
-              if (event.key === 'Enter' || event.key === ' ') event.stopPropagation()
-            }}
             onClick={() => {
               if (playback === 'blocked') playFromControl()
               else {
                 const next = !muted
                 if (video.current) video.current.muted = next
                 setMuted(next)
-                // Unmute and resume inside the same trusted activation. Never
-                // seek/reload the movie or alter the saved game sound preference.
-                if (!next) playFromControl()
               }
             }}
           >
-            <ControlText text={playbackAction} ready={bitmapReady} />
+            {playbackAction}
           </button>
         )}
-        <button
-          type="button"
-          className={recovery ? undefined : styles.focusOnly}
-          aria-label="Skip logo"
-          onClick={complete}
-        >
-          <ControlText text="Skip logo" ready={bitmapReady} />
-        </button>
+        <button onClick={complete}>Skip logo</button>
       </div>
     </dialog>
   )

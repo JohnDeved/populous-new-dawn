@@ -3,21 +3,131 @@ import assert from 'node:assert/strict'
 export const hypnotiseLimitMs = 75000
 export const hypnotiseObservationMs = 12000
 
-// Read-only RAF observation. No game method replacement, forced ticks, hidden
-// groups, changed frame/UV, stock injection or repeated camera pursuit.
+// RAF artwork observation plus owned, transparent before/afterTurn witnesses. No
+// forced ticks, hidden groups, changed frame/UV, stock injection or camera pursuit.
 export function installHypnotiseObserver({ observationMs }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
+    clock = scene.gameClock,
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
-    result = { done: false, error: null, visits: 0, samples: [], crops: [], bornTurn: null, terminal: null }
-  let raf, flash, stopped = false, lastKey
+    result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], nonAdvancingCallbacks: 0, crops: [], bornTurn: null,
+      terminal: null, logicalExpiry: null, birthHook: { installed: false, restored: false, foreign: false }, hook: { installed: false, restored: false, foreign: false } }
+  let raf, flash, stopped = false, lastKey, lastObservedTurn, originalDescriptor, ownedDescriptor, hookActive = false
+  let beforeDescriptor, ownedBeforeDescriptor, beforeActive = false
+  const sameDescriptor = (a, b) => !!a && !!b &&
+    ['value', 'writable', 'get', 'set', 'enumerable', 'configurable'].every(key => a[key] === b[key])
+  const recordError = error => {
+    try { result.error ??= String(error) }
+    catch { result.error ??= 'Hypnotise observer error could not be represented' }
+  }
+  const restoreHook = () => {
+    if (!hookActive) return
+    hookActive = false
+    // Inspect descriptors, not a possibly foreign getter. Never overwrite a successor.
+    if (!sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), ownedDescriptor)) {
+      result.hook.foreign = true
+      throw Error('Hypnotise observer lost its owned afterTurn descriptor')
+    }
+    Object.defineProperty(clock, 'afterTurn', originalDescriptor)
+    result.hook.restored = sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), originalDescriptor)
+    if (!result.hook.restored) throw Error('Hypnotise afterTurn restoration failed')
+  }
+  const restoreBefore = () => {
+    if (!beforeActive) return
+    beforeActive = false
+    if (!sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'beforeTurn'), ownedBeforeDescriptor)) {
+      result.birthHook.foreign = true
+      throw Error('Hypnotise observer lost its owned beforeTurn descriptor')
+    }
+    if (beforeDescriptor) Object.defineProperty(clock, 'beforeTurn', beforeDescriptor)
+    else delete clock.beforeTurn
+    result.birthHook.restored = beforeDescriptor
+      ? sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'beforeTurn'), beforeDescriptor)
+      : !Object.hasOwn(clock, 'beforeTurn')
+    if (!result.birthHook.restored) throw Error('Hypnotise beforeTurn restoration failed')
+  }
   const stop = reason => {
     if (stopped) return
     stopped = true
-    cancelAnimationFrame(raf)
     result.done = true
-    result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame,
-      elapsedMs: performance.now() - started, present: !!flash && world.effects.includes(flash),
-      meshPresent: !!flash && scene.fxMeshes.has(flash.id), remaining: flash?.turnsRemaining }
+    try { cancelAnimationFrame(raf) } catch (error) { recordError(error) }
+    try { restoreHook() } catch (error) { recordError(error) }
+    try { restoreBefore() } catch (error) { recordError(error) }
+    try {
+      result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame,
+        elapsedMs: performance.now() - started, present: !!flash && world.effects.includes(flash),
+        meshPresent: !!flash && scene.fxMeshes.has(flash.id), remaining: flash?.turnsRemaining }
+    } catch (error) { recordError(error); result.terminal = { reason, snapshotFailed: true } }
+  }
+  const current = () => {
+    if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world ||
+      scene.world !== world || scene.gameClock !== clock)
+      throw Error('Hypnotise observer lost its original Scene/world/clock')
+    if (beforeActive && !sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'beforeTurn'), ownedBeforeDescriptor))
+      throw Error('Hypnotise observer lost its owned beforeTurn descriptor')
+    if (hookActive && !sameDescriptor(Object.getOwnPropertyDescriptor(clock, 'afterTurn'), ownedDescriptor))
+      throw Error('Hypnotise observer lost its owned afterTurn descriptor')
+  }
+  const reserveSample = () => {
+    if (result.samples.length + result.turnSamples.length >= 2048)
+      throw Error('Hypnotise sample storage exceeded')
+  }
+  const acquireBirth = boundary => {
+    if (flash) return
+    flash = world.effects.find(f => f.kind === 'hypnotise' && f.team === 'blue')
+    if (!flash) return
+    result.bornTurn = world.turn
+    lastObservedTurn = world.turn
+    result.birth = { boundary, id: flash.id, remaining: flash.turnsRemaining,
+      stock: world.shots.hypnotise, x: flash.x, z: flash.z,
+      cue: world.sounds.some(s => s.cue === 0x2a && s.turn === world.turn && s.x === flash.x && s.z === flash.z) }
+  }
+  function beforeTurn(...args) {
+    let returned, failure, threw = false
+    try { returned = beforeDescriptor?.value == null ? undefined : Reflect.apply(beforeDescriptor.value, this, args) }
+    catch (value) { failure = value; threw = true }
+    if (!stopped) {
+      try {
+        if (threw) throw failure
+        current()
+        // Observe actual birth before the next fixed turn can decrement it; never backdate RAF state.
+        acquireBirth('before-turn')
+      } catch (error) { recordError(error); stop('error') }
+    }
+    if (threw) throw failure
+    return returned
+  }
+  function afterTurn(...args) {
+    let returned, failure, threw = false
+    try { returned = Reflect.apply(originalDescriptor.value, this, args) }
+    catch (value) { failure = value; threw = true }
+    if (!stopped) {
+      try {
+        if (threw) throw failure
+        current()
+        if (flash) {
+          // Record the actual logical boundary before restoring. RAF may follow catch-up turns.
+          if (!world.effects.includes(flash)) {
+            if (world.turn !== lastObservedTurn + 1)
+              throw Error('Hypnotise expiry missed a consecutive advancing World turn')
+            result.logicalExpiry = { turn: world.turn, id: flash.id,
+              remaining: flash.turnsRemaining, present: false }
+            restoreHook(); restoreBefore()
+          }
+          else if (world.turn === lastObservedTurn) result.nonAdvancingCallbacks++
+          else {
+            if (world.turn !== lastObservedTurn + 1)
+              throw Error('Hypnotise observer missed a consecutive advancing World turn')
+            reserveSample()
+            // afterTurn follows the fixed World turn, before deferred phases/animation/presentation.
+            result.turnSamples.push({ turn: world.turn, id: flash.id, remaining: flash.turnsRemaining,
+              converted: world.units.filter(u => u.hypnotise?.originalTeam === 'red' && u.team === 'blue').map(u => u.id) })
+            lastObservedTurn = world.turn
+          }
+        }
+      } catch (error) { recordError(error); stop('error') }
+    }
+    if (threw) throw failure
+    return returned
   }
   const visit = () => {
     if (stopped) return
@@ -25,19 +135,12 @@ export function installHypnotiseObserver({ observationMs }) {
       result.visits++
       if (performance.now() - started > observationMs || result.visits > 7200)
         throw Error('Hypnotise observation exceeded its fixed bound')
-      if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
-        throw Error('Hypnotise observer lost its original Scene/world')
+      current()
       if (!canvas.isConnected || document.visibilityState !== 'visible' || world.paused || world.speed !== 1)
         throw Error('Hypnotise observation must remain connected, visible and running at normal speed')
       if (scene.renderer.getContext().isContextLost()) throw Error('Hypnotise WebGL context lost')
-      if (!flash) {
-        flash = world.effects.find(f => f.kind === 'hypnotise' && f.team === 'blue')
-        if (!flash) { raf = requestAnimationFrame(visit); return }
-        result.bornTurn = world.turn
-        result.birth = { id: flash.id, remaining: flash.turnsRemaining,
-          stock: world.shots.hypnotise, x: flash.x, z: flash.z,
-          cue: world.sounds.some(s => s.cue === 0x2a && s.turn === world.turn && s.x === flash.x && s.z === flash.z) }
-      }
+      acquireBirth('raf')
+      if (!flash) { raf = requestAnimationFrame(visit); return }
       if (!world.effects.includes(flash)) { stop('logical-expiry'); return }
       const group = scene.fxMeshes.get(flash.id), sprite = group?.userData.sprite,
         animation = flash.animation, stamp = scene.renderer.info.render.frame,
@@ -53,7 +156,7 @@ export function installHypnotiseObserver({ observationMs }) {
             submitted: !!sprite && !!scene.view.painter.source(sprite), opacity: sprite?.material.opacity,
             uv: sprite?.userData.atlasTransform?.toArray(), size: sprite?.scale.toArray(),
             center: sprite?.center.toArray(), texture: sprite?.material.map?.image?.currentSrc ?? sprite?.material.map?.image?.src }
-        if (result.samples.length >= 2048) throw Error('Hypnotise sample storage exceeded')
+        reserveSample()
         result.samples.push(sample)
         if (sample.visible && frame !== null && !keys.has(frame) && keys.size < 16) {
           keys.add(frame) // A failed original frame slot is never replaced by later pixels.
@@ -82,7 +185,7 @@ export function installHypnotiseObserver({ observationMs }) {
       }
       if (world.turn > result.bornTurn + 16) throw Error('Hypnotise owner exceeded sixteen logical visits')
       raf = requestAnimationFrame(visit)
-    } catch (error) { result.error = String(error); stop('error') }
+    } catch (error) { recordError(error); stop('error') }
   }
   window.__pndHypnotiseObservation = {
     result,
@@ -102,26 +205,59 @@ export function installHypnotiseObserver({ observationMs }) {
       return result
     },
   }
-  raf = requestAnimationFrame(visit)
+  try {
+    originalDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn')
+    if (!originalDescriptor || typeof originalDescriptor.value !== 'function')
+      throw Error('Hypnotise requires the actual own afterTurn callback')
+    ownedDescriptor = { ...originalDescriptor, value: afterTurn }
+    Object.defineProperty(clock, 'afterTurn', ownedDescriptor)
+    hookActive = true
+    result.hook.installed = true
+    beforeDescriptor = Object.getOwnPropertyDescriptor(clock, 'beforeTurn')
+    if ((!beforeDescriptor && 'beforeTurn' in clock) || (beforeDescriptor &&
+      (!Object.hasOwn(beforeDescriptor, 'value') || (beforeDescriptor.value != null && typeof beforeDescriptor.value !== 'function'))))
+      throw Error('Hypnotise beforeTurn must be an own data callback or absent')
+    ownedBeforeDescriptor = beforeDescriptor ? { ...beforeDescriptor, value: beforeTurn }
+      : { configurable: true, enumerable: true, writable: true, value: beforeTurn }
+    Object.defineProperty(clock, 'beforeTurn', ownedBeforeDescriptor)
+    beforeActive = true
+    result.birthHook.installed = true
+    raf = requestAnimationFrame(visit)
+  } catch (error) { recordError(error); stop('error') }
 }
 
 export function validateHypnotiseObservation(observation, atlas) {
   assert.equal(observation.error, null)
   assert.equal(observation.terminal.reason, 'logical-expiry')
-  assert.equal(observation.terminal.turn - observation.bornTurn, 16)
+  assert.ok(observation.logicalExpiry, 'Require the actual afterTurn expiry witness')
+  assert.equal(observation.logicalExpiry.turn - observation.bornTurn, 16)
+  assert.equal(observation.logicalExpiry.id, observation.birth.id)
+  assert.equal(observation.logicalExpiry.remaining, 0)
+  assert.equal(observation.logicalExpiry.present, false)
+  assert.ok(observation.terminal.turn >= observation.logicalExpiry.turn,
+    'Actual post-render terminal must not precede logical expiry')
   assert.equal(observation.terminal.present, false)
   assert.equal(observation.terminal.meshPresent, false)
   assert.equal(observation.terminal.remaining, 0)
   assert.equal(observation.birth.remaining, 16)
   assert.equal(observation.birth.stock, 0)
   assert.equal(observation.birth.cue, true)
+  assert.deepEqual(observation.birthHook, { installed: true, restored: true, foreign: false })
+  assert.deepEqual(observation.hook, { installed: true, restored: true, foreign: false })
+  assert.ok(observation.samples.length + observation.turnSamples.length <= 2048)
   const visible = observation.samples.filter(s => s.visible)
   assert.ok(new Set(visible.map(s => s.frame)).size >= 2, 'Observe actual artwork progression')
   assert.ok(observation.crops.length >= 2 && observation.crops.length <= 16)
   assert.ok(observation.samples.some(s => s.object === 0x650 && !s.visible), 'Observe terminal hiding')
-  assert.ok(observation.samples.some(s => s.remaining === 12 && !s.converted.length))
-  assert.ok(observation.samples.some(s => s.remaining === 11 && s.converted.length === 2),
+  const fourth = observation.turnSamples.find(s => s.remaining === 12 && !s.converted.length)
+  const fifth = observation.turnSamples.find(s => s.remaining === 11 && s.converted.length === 2)
+  assert.ok(fourth)
+  assert.ok(fifth,
     'Actual fifth-visit callback must replace the two authored targets')
+  assert.equal(fourth.id, observation.birth.id)
+  assert.equal(fifth.id, observation.birth.id)
+  assert.equal(fourth.turn, observation.bornTurn + 4)
+  assert.equal(fifth.turn, fourth.turn + 1)
   for (const sample of visible) {
     assert.equal(sample.id, observation.birth.id)
     assert.equal(sample.draw, 44); assert.equal(sample.object, 1264)

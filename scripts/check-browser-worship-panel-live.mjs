@@ -1,4 +1,3 @@
-import { changeHudSize } from './browser-native-options.mjs'
 // #72: authored Shrine input and panel behavior, not worship/world lifecycle.
 // Only camera framing and ordinary clock pacing are supplied. No actors, orders,
 // terrain, work, rewards or mode/model identities are injected.
@@ -8,7 +7,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
-import { bindGame, openCampaignGame } from './browser-game.mjs'
+import { bindGame, openGame } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 import { superviseBrowserCheck } from './performance-queue.mjs'
 
@@ -64,7 +63,9 @@ async function waitNormalFollowerInput(page) {
 }
 
 async function setHudSize(page, value) {
-  await changeHudSize(page, value)
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByLabel('HUD size').selectOption(value)
+  await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
   await page.waitForFunction(value => {
     const fit = Math.min(innerWidth / 640, innerHeight / 480),
       preferred =
@@ -594,7 +595,6 @@ async function assertEdgeClamping(page, id) {
 
 async function checkpoint(page, id) {
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
   await page.evaluate(id => {
@@ -602,8 +602,6 @@ async function checkpoint(page, id) {
     window.oldPanel = window.testScene.objectPanels.panels.get(id).element
     window.oldSelection = [...window.testScene.world.selected]
   }, id)
-  await page.getByRole('button', { name: 'Back', exact: true }).click()
-  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(
@@ -684,7 +682,7 @@ async function acceptance() {
   const browser = await chromium.launch({ headless: true })
   let page
   try {
-    const game = await openCampaignGame(browser, 1)
+    const game = await openGame(browser, 1)
     page = game.page
     page.setDefaultTimeout(20_000)
     await waitHud(page, 20_000)

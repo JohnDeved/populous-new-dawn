@@ -1,4 +1,3 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -10,6 +9,8 @@ import { spellHudVisibility, spellHudCanCharge } from '../app/spell-visibility.t
 import { cast, spellTargetError } from '../app/live-command.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { pageEffect, pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
+import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
+import { withCaptureProtocolWindow } from '../scripts/tutorial-browser/capture-protocol-window.mjs'
 
 function readyStore() {
   const store = createGameStore(), world = store.getWorld()
@@ -114,8 +115,7 @@ test('cheats preserve ordinary range, busy-cast admission, charge spending and p
 })
 
 test('cheat sessions cannot overwrite checkpoints or record campaign completion; world replacement resets them', async () => {
-  const store = await createCampaignFixtureStore([2]), world = store.getWorld(), normal = structuredClone(world)
-  world.inputMask = 0
+  const { store, world } = readyStore(), normal = structuredClone(world)
   await store.saveCheckpoint()
   store.applySpellTestCheat('unlock')
   world.outcome.completedLevel = 0
@@ -157,7 +157,7 @@ test('actual Home F9 owner toggles once without mutating world and respects star
     world = { status: 'playing' }, before = structuredClone(world)
   for (const [ready, menu, selectorOpen, startup] of [[true, false, false, 'playing'], [false, false, false, 'playing'], [true, true, false, 'playing'], [true, false, true, 'playing'], [true, false, false, 'choice']]) {
     opened = false
-    const cleanup = pageEffect('spellTestShortcut(event, cheatsOpen)', {
+    const cleanup = pageEffect("globalThis.addEventListener('keydown', toggle, true)", {
       globalThis: window, ready, menu, selectorOpen, startup, world, cheatsOpen: false, spellTestShortcut,
       cancelNearbyInput: () => cancelled++, setCheatsOpen: action => { opened = action(opened) },
     })()
@@ -199,35 +199,63 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
   assert.match(workflow, /node scripts\/tutorial-browser\/run\.mjs/)
   const scenarios = ['snapshotScenario', 'frontendEscapeScenario', 'spellTestScenario', 'spellConversionScenario', 'gameplayScenario',
     'meleeScenario', 'm2Scenario', 'pauseRecoveryScenario', 'scenario', 'selectorScenario', 'sceneryScenario',
-    'spellProjectionScenario', 'buildingIdentityScenario']
+    'spellProjectionScenario', 'buildingIdentityScenario', 'spellIconScenario']
   for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
-    const calls = [], receipt = {}, page = { goto: async () => calls.push('goto') },
+    const calls = [], receipt = { browserCapMs: browserCapMs(selectedScenario) }, page = { goto: async () => calls.push('goto') },
       context = { close: async () => calls.push('closeFrontendContext') },
-      browser = {}, m2Fixture = {}, browserDeadlineAt = 240000, abort = new AbortController(), bindings = {
+      browser = {}, bindings = {
         selectedScenario, receipt, page, context, browser, url: 'test-url', root: 'test-root',
-        out: 'test-output', dist: 'test-dist', m2Fixture, browserDeadlineAt, abort,
+        captureProtocolEnabled: false, withCaptureProtocolWindow,
+        out: 'test-output', dist: 'test-dist', m2Fixture: {},
+        browserStartedMs: 1000, performance: { now: () => 1250 },
         ...Object.fromEntries(scenarios.map(name => [name, name])),
         pathToFileURL: value => ({ href: value }),
-        importScenario: async name => ({ default: async input => {
+        closeCompletedPrimaryTutorial: async input => {
+          assert.equal(selectedScenario, 'tutorial')
+          assert.equal(input.browser, browser); assert.equal(input.context, context); assert.equal(input.page, page)
+          assert.equal(input.result, receipt.result); assert.equal(input.errors, receipt.errors)
+          calls.push('retirePrimaryTutorial')
+          await input.context.close()
+          input.persist({ status: 'passed', contextClosed: true })
+        },
+        resolve: (...parts) => parts.join('/'),
+        writeFileSync: (path, data) => {
+          assert.equal(path, 'test-output/primary-tutorial-context.json')
+          assert.deepEqual(JSON.parse(data), { status: 'passed', contextClosed: true })
+          calls.push('persistPrimaryTutorial')
+        },
+        save: () => calls.push('saveReceipt'),
+        importScenario: async name => ({ checkSelectorRecovery: async input => {
+          assert.equal(name, '../check-browser-selector-recovery.mjs')
+          assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
+          calls.push('selectorRecovery')
+          return { completed: 'selectorRecovery' }
+        }, default: async input => {
           calls.push(name)
           assert.equal(input.output, 'test-output')
           if (name === 'spellTestScenario' || name === 'spellConversionScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
-          if (name === 'm2Scenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output',
-            fixture: m2Fixture, deadlineAt: browserDeadlineAt, signal: abort.signal })
+          if (name === 'spellIconScenario') assert.deepEqual(input,
+            { browser, url: 'test-url', output: 'test-output', root: 'test-root', episode: selectedScenario })
           return { completed: name }
         } }),
       }
     await new Function(...Object.keys(bindings),
       `return (async () => { ${routing.join('\n').replaceAll('import(', 'importScenario(')} })()`)(...Object.values(bindings))
     if (selectedScenario === 'frontend-held-escape') {
-      assert.deepEqual(calls, ['frontendEscapeScenario', 'closeFrontendContext', 'spellTestScenario', 'spellConversionScenario'])
-      assert.deepEqual(receipt, { frontendHeldEscape: { completed: 'frontendEscapeScenario' },
-        spellTestMenu: { completed: 'spellTestScenario' }, spellConversion: { completed: 'spellConversionScenario' } })
+      assert.deepEqual(calls, ['frontendEscapeScenario', 'closeFrontendContext', 'spellTestScenario', 'spellConversionScenario',
+        'saveReceipt', 'spellIconScenario', 'selectorRecovery'])
+      assert.deepEqual(receipt, { browserCapMs: browserCapMs(selectedScenario), frontendHeldEscape: { completed: 'frontendEscapeScenario' },
+        spellTestMenu: { completed: 'spellTestScenario' }, spellConversion: { completed: 'spellConversionScenario' },
+        spellIconBudgetBefore: { elapsedMs: 250, remainingMs: browserCapMs(selectedScenario) - 250 },
+        spellIconStates: { completed: 'spellIconScenario' }, selectorRecovery: { completed: 'selectorRecovery' } })
     } else {
-      assert.deepEqual(calls, ['goto', 'scenario', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
-        'spellProjectionScenario', 'buildingIdentityScenario'])
+      assert.deepEqual(calls, ['goto', 'scenario', 'retirePrimaryTutorial', 'closeFrontendContext', 'persistPrimaryTutorial', 'saveReceipt', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
+        'spellProjectionScenario', 'buildingIdentityScenario', 'saveReceipt', 'spellIconScenario'])
       assert.equal('spellTestMenu' in receipt, false)
       assert.equal('spellConversion' in receipt, false)
+      assert.equal('selectorRecovery' in receipt, false)
+      assert.deepEqual(receipt.spellIconBudgetBefore, { elapsedMs: 250, remainingMs: browserCapMs(selectedScenario) - 250 })
+      assert.deepEqual(receipt.spellIconStates, { completed: 'spellIconScenario' })
     }
   }
 })

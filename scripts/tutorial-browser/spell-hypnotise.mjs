@@ -1,5 +1,3 @@
-import { setWorldPaused } from '../browser-world-input.mjs'
-import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 // Independent opt-in episode after the existing compact-layout/picking witnesses.
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -24,11 +22,13 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
     limits: [
       'Public Mission22 access, not campaign unlock proof.',
       'Accelerated ordinary simulation preparation with existing mana-focus adapter, not real-time earned gameplay.',
-      'No stock, actors, callbacks, animation fields or rendered pixels are supplied.',
+      'No stock, actors, game-callback outcomes, animation fields or rendered pixels are supplied.',
+      'The actual beforeTurn and afterTurn callbacks are transparently wrapped for birth/logical observation; original receiver, arguments, results and exceptions are preserved.',
       'Public pre-cast checkpoint save/load; in-progress effect continuation is covered separately by CPU tests.',
       'Actual production Home through Vite, not deployed Vinext/Cloudflare hosting.',
       'Real same-frame canvas crops; no original framebuffer or hardware-performance equivalence claim.',
       'Display callbacks may skip frames; exhaustive16-frame coverage remains in source/CPU oracle.',
+      'Exact post-render expiry remains RAF-based: catch-up past bornTurn+16 can still fail that unchanged terminal assertion.',
     ],
   }
   let page
@@ -73,9 +73,14 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         await showAllMissions(page)
         await button('Mission 22').click()
         await bindGame(page)
-        await skipIntroductionWithSpace(page, { timeout: 10000 })
+        await page.waitForFunction(
+          () =>
+            !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction')
+        )
+        if (await page.locator('.skip-introduction').isVisible())
+          await page.locator('.skip-introduction').click()
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-        await setWorldPaused(page, true, { timeout: Math.min(10000, report.deadlineAt - performance.now()) })
+        await button('Pause game').click()
         report.preparationStart = await page.evaluate(() =>
           window.__pndHypnotiseFixture.hypnotisePreparationState(window.testSceneRef.current.world)
         )
@@ -106,7 +111,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         report.checkpoint = await page.evaluate(() => window.__hypnotiseLoaded)
         validateHypnotiseLoad(saved, report.checkpoint)
         await bindGame(page)
-        await setWorldPaused(page, true, { timeout: Math.min(10000, report.deadlineAt - performance.now()) })
+        await button('Pause game').click()
         report.reframed = await page.evaluate(() => {
           const w = window.testStore.getWorld(),
             scene = window.testSceneRef.current
@@ -135,7 +140,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
             throw Error('Actual cast point is covered by UI')
           return { x, y }
         })
-        await setWorldPaused(page, false, { timeout: Math.min(10000, report.deadlineAt - performance.now()) })
+        await button('Resume game').click()
         await page.evaluate(installHypnotiseObserver, { observationMs: hypnotiseObservationMs })
         await page.mouse.click(target.x, target.y)
         await page.waitForFunction(() => window.__pndHypnotiseObservation.result.done, null, {

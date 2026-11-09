@@ -1,6 +1,6 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { createGameStore } from '../app/game-store.ts'
 import { browserPosition, tick } from '../app/model.ts'
 import { createLivePerson, moveLivePerson, collisionWorld } from '../app/live-people.ts'
 import { groundVelocity, recoverGroundObstacle } from '../app/person-motion.ts'
@@ -11,9 +11,9 @@ import { terrainPointHeight } from '../app/native-terrain.ts'
 
 // Supplied motion boundary on authored M22 terrain, derived from a separately
 // retained ordinary failed-recovery witness. This is not an ordinary acquisition.
-async function fixture() {
-  const store = await createCampaignFixtureStore([22])
-  assert.equal(store.startMission(22), true)
+function fixture() {
+  const store = createGameStore()
+  store.startMission(22)
   const w = store.getWorld(),
     u = w.units.find(u => u.id === 89)
   Object.assign(u, browserPosition({ x: 10085, y: 33991 }))
@@ -61,7 +61,7 @@ function recovery(w, p) {
 }
 
 test('failed unsupported recovery retains limited ground velocity and defers physics', async () => {
-  const { store, w, u, p } = await fixture()
+  const { store, w, u, p } = fixture()
   assert.deepEqual(recovery(w, p), { success: false, probes: Array(22).fill(3) })
   assert.equal(unsupportedGround(w.land, p, p.physics), true)
   moveLivePerson(w, u, p)
@@ -89,8 +89,8 @@ test('failed unsupported recovery retains limited ground velocity and defers phy
 })
 
 for (const y of [-192, 65535, 10000])
-  test(`failed recovery projects signed vertical velocity ${y}`, async () => {
-    const { w, u, p } = await fixture()
+  test(`failed recovery projects signed vertical velocity ${y}`, () => {
+    const { w, u, p } = fixture()
     p.velocity.y = y
     const expected = { x: 0, y: Math.max(0, (y << 16) >> 16), z: 0 }
     groundVelocity(expected, p, p.speed, p.heading, (x, y) => terrainPointHeight(w.land, { x, y }))
@@ -100,9 +100,9 @@ for (const y of [-192, 65535, 10000])
     assert.deepEqual(p.velocity, expected)
   })
 
-test('supported failure, successful alternate recovery and turning do not enter flight', async () => {
+test('supported failure, successful alternate recovery and turning do not enter flight', () => {
   for (const boundary of ['supported', 'alternate', 'turning', 'stopped']) {
-    const { w, u, p } = await fixture()
+    const { w, u, p } = fixture()
     if (boundary === 'supported') {
       w.land.heights.fill(334)
       w.land.flags.fill(4)
@@ -125,8 +125,8 @@ test('supported failure, successful alternate recovery and turning do not enter 
 })
 
 // Explicit queued-owner fixture; the recovery branch must not finish the order.
-test('failed recovery preserves a supplied attached order and exact owner', async () => {
-  const { w, u, p } = await fixture(),
+test('failed recovery preserves a supplied attached order and exact owner', () => {
+  const { w, u, p } = fixture(),
     id = allocatePersonOrder(w.buildingOrders)
   assert.ok(id)
   Object.assign(w.buildingOrders.records[id], {

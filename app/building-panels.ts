@@ -1,3 +1,4 @@
+import { clampPanelAnchor } from './panel-viewport-clamp.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import { buildingModel, type Building } from './model.ts'
@@ -155,6 +156,8 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       panel.remove()
       scene.buildingPanels.delete(id)
     } else if (
+      building.team !== 'blue' ||
+      !scene.visible(building) ||
       (trainingOwnsPanel(building, record) &&
         !((building.admission?.activity ?? 0) & 0x8000) &&
         (modal || !record || record.phase < 0)) ||
@@ -370,14 +373,12 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
       anchorY = rendererTop + ((1 - p.y) * rendererRect.height) / 2,
       halfPanelWidth = (canvas.width * scale) / 2,
       panelHeight = canvas.height * scale,
-      left = Math.max(
+      left = clampPanelAnchor(
+        anchorX,
         rendererLeft + halfPanelWidth,
-        Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+        rendererLeft + rendererRect.width - halfPanelWidth
       ),
-      top = Math.max(
-        rendererTop + panelHeight,
-        Math.min(rendererTop + rendererRect.height, anchorY)
-      )
+      top = clampPanelAnchor(anchorY, rendererTop + panelHeight, rendererTop + rendererRect.height)
     panel.hidden = false
     panel.style.left = `${left}px`
     panel.style.top = `${top}px`

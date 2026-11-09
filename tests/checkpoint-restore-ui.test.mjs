@@ -1,12 +1,10 @@
-import { nativeCampaignProfile } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import ts from 'typescript'
 import { createWorld } from '../app/world-initialization.ts'
-import { frontendRows, frontendRowY, frontendTextWidth } from '../app/frontend-composition.ts'
-import { wrapTutorialRecommendation } from '../app/tutorial-recommendation.ts'
+import { frontendRowY, frontendTextWidth } from '../app/frontend-composition.ts'
 import { menuTooltipPosition } from '../app/menu-tooltip-layout.ts'
 import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
@@ -36,9 +34,8 @@ const menuFunction = menuSource.statements.find(node => ts.isFunctionDeclaration
 const renderMenu = evaluatePage(menuFunction.getText(menuSource).replace(/^export /, ''), {
   useRef: current => ({ current }), useState: value => [value, () => {}],
   useEffect: () => {}, useLayoutEffect: () => {}, useCallback: callback => callback,
-  useMemo: callback => callback(),
   styles: new Proxy({}, { get: (_, name) => name }), MenuText: 'MenuText', MenuTooltip,
-  frontendRows, frontendRowY, frontendTextWidth, wrapTutorialRecommendation,
+  frontendRowY, frontendTextWidth,
 })
 const homeMenu = pageNode(node => ts.isJsxSelfClosingElement(node) && node.tagName.getText(pageSource) === 'OriginalMainMenu')
 function menu(store, overrides = {}) {
@@ -63,11 +60,10 @@ function startup(store) {
   const declarations = names.map(name => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
   const navigation = evaluatePage(`function(){${declarations}; return {${names.join(',')}}}`, {
     store, setStartup: state => states.push(state),
-    menuSession: { current: null }, pendingMenuCamera: { current: [] },
+    followerPress: { current: null }, menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
-    setCheatsOpen: value => cheatClosures.push(value), setDebugPicker: () => {},
+    setCheatsOpen: value => cheatClosures.push(value),
     cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},
-    setResultInputCycles: value => assert.equal(value, 0, 'each admitted load resets result input time'),
     setReady: () => {}, setError: () => {}, setTab: () => {},
   })()
   const cleanup = pageEffect('store.restoreCheckpoint()', {
@@ -85,7 +81,7 @@ async function withStorage(run, initial = {}, { failWrite = false } = {}) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB')
   const records = new Map(Object.entries(initial)), opens = [], reads = [], writes = []
   let transactions = 0
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
       transactions++
@@ -101,7 +97,7 @@ async function withStorage(run, initial = {}, { failWrite = false } = {}) {
       })
       return transaction
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', { configurable: true, value: {
     open: () => { const request = new EventTarget(); opens.push(request); return request },
   } })
@@ -205,24 +201,20 @@ test('late read keeps a newer memory save and current world after navigation', a
   const saved = createWorld(1, 'scalable'); saved.turn = 217
   await withStorage(async ({ store, open, read }) => {
     const home = startup(store)
-    // Read the declared Mission 2 prerequisite before beginning the delayed retry.
+    await open(true)
+    button(menu(store), 'Retry checkpoint lookup').props.onClick()
     await open()
-    await read()
-    const retry = store.restoreCheckpoint()
-    await settle()
     home.navigation.startMission(2)
-    assert.equal(store.getWorld().outcome.level, 2)
     const newer = store.getWorld()
     newer.turn = 999
     assert.equal(await store.saveCheckpoint(), true)
     await read()
-    await retry
     assert.equal(store.getWorld(), newer)
     assert.deepEqual(home.states, ['choice', 'playing'], 'Home stays mounted while retry completes after mission launch')
     home.navigation.loadCheckpoint()
     assert.equal(store.getWorld().turn, 999, 'post-await memory checkpoint wins over old read')
     home.cleanup()
-  }, { latest: { version: 3, world: saved }, profile: nativeCampaignProfile({ available: [2] }) })
+  }, { latest: { version: 3, world: saved } })
 })
 
 for (const interruption of ['unmount', 'world replacement']) test(`initial restore completion cannot navigate after ${interruption}`, async () => {
@@ -230,7 +222,7 @@ for (const interruption of ['unmount', 'world replacement']) test(`initial resto
     const home = startup(store)
     await open()
     if (interruption === 'unmount') home.cleanup()
-    else assert.equal(store.startDebugMission(2), true)
+    else store.startMission(2)
     const active = store.getWorld()
     await read()
     assert.deepEqual(home.states, [])

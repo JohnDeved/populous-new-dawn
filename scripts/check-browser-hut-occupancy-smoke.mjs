@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
-import { bindGame, openCampaignGame } from './browser-game.mjs'
+import { bindGame, openGame } from './browser-game.mjs'
 import effects from '../app/original-effects.json' with { type: 'json' }
 import rules from '../app/original-rules.json' with { type: 'json' }
 
@@ -30,45 +30,40 @@ const stage = name => {
 
 async function pauseGame(page) {
   if (!(await page.evaluate(() => window.testScene.world.paused)))
-    await page.locator('.world-viewport').press('Space')
+    await page.getByRole('button', { name: 'Pause game', exact: true }).click()
   await page.waitForFunction(() => window.testScene.world.paused)
 }
 
 async function resumeGame(page) {
   if (await page.evaluate(() => window.testScene.world.paused))
-    await page.locator('.world-viewport').press('Space')
+    await page.getByRole('button', { name: 'Resume game', exact: true }).click()
   await page.waitForFunction(() => !window.testScene.world.paused)
 }
 
-// Return through original menu panels, then explicitly resume if the captured
-// world was already paused. Menu close itself preserves that original pause.
+// dialog.close() removes `open` before its queued close event. The React
+// onClose handler then unpauses; consume both before issuing a fresh Pause.
 async function closeMenuForGameplay(page) {
-  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
-  if (await page.getByRole('region', { name: 'Browser compatibility and help', exact: true }).isVisible())
-    await page.getByRole('button', { name: 'Back to Options', exact: true }).click()
-  if (await menu.getAttribute('data-panel') !== 'root')
-    await menu.getByRole('button', { name: 'Back', exact: true }).click()
-  await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
-  await menu.waitFor({ state: 'hidden' })
-  if (await page.evaluate(() => window.testScene.world.paused))
-    await page.locator('.world-viewport').press('Space')
-  await page.waitForFunction(() => !window.testScene.world.paused)
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.waitForFunction(() => {
+    const dialog = document.querySelector('.game-dialog')
+    return dialog && !dialog.open && window.testScene.world.paused === false
+  })
 }
 
 async function ensureDoubleSpeed(page) {
   const current = await page.evaluate(() => window.testScene.world.speed)
   if (current === 2) return
   assert.equal(current, 1, 'rendered game-speed control expects the normal 1x state')
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Options', exact: true }).click()
-  await page.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: '1× game speed', exact: true }).click()
   await closeMenuForGameplay(page)
   await page.waitForFunction(() => window.testScene.world.speed === 2)
 }
 
 async function focusSettlement(page) {
-  await page.getByRole('button', { name: 'Select and focus shaman', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Focus settlement', exact: true }).click()
+  await closeMenuForGameplay(page)
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
 }
 
@@ -898,7 +893,7 @@ const browser = await chromium.launch({ headless: !process.argv.includes('--head
 let page, errors
 try {
   stage('construction')
-  ;({ page, errors } = await openCampaignGame(browser, 1))
+  ;({ page, errors } = await openGame(browser, 1))
   page.setDefaultTimeout(30_000)
   report.environment = await page.evaluate(() => {
     const gl = window.testScene.renderer.getContext(),
@@ -1123,11 +1118,9 @@ try {
     }
   )
 
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
-  await page.getByRole('button', { name: 'Back', exact: true }).click()
-  const load = page.getByRole('button', { name: 'Load Game', exact: true })
+  const load = page.getByRole('button', { name: 'Load checkpoint', exact: true })
   assert.equal(await load.isEnabled(), true)
   await closeMenuForGameplay(page)
 
@@ -1161,15 +1154,14 @@ try {
   writeReport()
 
   stage('checkpoint restore')
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   await observeCheckpointLoad(
     page,
     pausedBefore.puffs.map(puff => puff.serial)
   )
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   // Use the ordinary Pause control before the more expensive full scene bind.
-  await page.locator('.world-viewport').press('Space')
+  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
   await bindGame(page)
   state = await waitForGuardedSmoke(page, residentIds, 'full')
   report.checkpointLoad = await page.evaluate(() => window.hutSmoke.checkpointLoad)

@@ -1,5 +1,3 @@
-import { changeHudSize } from './browser-native-options.mjs'
-import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
@@ -130,7 +128,7 @@ async function summaryRect(page, stringId) {
     const summary = node.getBoundingClientRect(),
       detail = node.parentElement,
       detailBox = detail.getBoundingClientRect(),
-      popup = detail.open ? detail.querySelector('[data-native-campaign-panel]')?.getBoundingClientRect() : null,
+      popup = detail.open ? detail.querySelector(':scope > div')?.getBoundingClientRect() : null,
       hud = document.querySelector('.native-hud').getBoundingClientRect(),
       world = document.querySelector('.world-viewport').getBoundingClientRect(),
       style = getComputedStyle(detail)
@@ -145,7 +143,6 @@ async function summaryRect(page, stringId) {
       popup: popup
         ? { left: popup.left, top: popup.top, width: popup.width, height: popup.height }
         : null,
-      worldRight: world.right,
       hudRight: hud.right,
       worldLeft: world.left,
       transitionDuration: style.transitionDuration,
@@ -170,13 +167,17 @@ async function assertComposedRect(page, stringId, width, height) {
   )
   assert.equal(layout.detailsLeft, layout.worldLeft, 'message details parent must track browser seam')
   if (layout.popup)
-    assert.ok(Math.abs(layout.popup.left + layout.popup.width / 2 - (layout.worldLeft + layout.worldRight) / 2) <= 1, 'native popup body centers in the battlefield')
+    assert.equal(layout.popup.left, layout.worldLeft, 'open popup body must track browser seam')
   assert.equal(
     layout.transitionDuration,
     '0s',
     'campaign message position remains unsmoothed while animation-cadence diagnosis is open'
   )
   return { details, message, layout, expected }
+}
+
+async function closeMenu(page) {
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
 }
 
 async function freezePresentation(page) {
@@ -234,7 +235,8 @@ try {
   await page.evaluate(() => {
     window.testScene = window.testSceneRef.current
   })
-  await skipIntroductionWithSpace(page)
+  const skipIntroduction = page.locator('.skip-introduction')
+  if (await skipIntroduction.count()) await skipIntroduction.click()
   await page.waitForFunction(() => !(window.testStore.getWorld().inputMask & 64))
   await freezePresentation(page)
 
@@ -385,7 +387,9 @@ try {
       .evaluate(node => node.getBoundingClientRect().width)
   assert.equal(automatic1440.layout.summary.left, hudAutomatic1440)
 
-  await changeHudSize(page, '1')
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
+  await closeMenu(page)
   await page.waitForFunction(
     width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
     100
@@ -422,14 +426,16 @@ try {
   const hud1003440 = await assertComposedRect(page, 641, 3440, 1440)
   assert.equal(hud1003440.layout.summary.left, 100)
 
-  await changeHudSize(page, 'auto')
+  await page.getByRole('button', { name: 'Menu', exact: true }).click()
+  await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('auto')
+  await closeMenu(page)
   await page.waitForFunction(
     width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
     250
   )
   const automatic3440 = await assertComposedRect(page, 641, 3440, 1440)
   assert.equal(automatic3440.layout.summary.left, 250)
-  assert.ok(automatic3440.layout.popup.left > 250, 'body is centered independently of its strip anchor')
+  assert.equal(automatic3440.layout.popup?.left, 250)
 
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.waitForFunction(
@@ -562,7 +568,7 @@ try {
     { x: 0xcd00, y: 0x6100 }
   )
   await page.screenshot({ path: resolve(output, 'message-644-authored.png') })
-  await positioned.getByRole('button', { name: 'Acknowledge campaign message', exact: true }).click()
+  await positioned.getByRole('button', { name: 'Dismiss campaign message', exact: true }).click()
   assert.equal(await currentMessage(page, 644), null)
   assert.equal(
     await page.evaluate(() => window.testStore.getWorld().randomState),
@@ -590,7 +596,7 @@ try {
       noCssTopTransition: true,
       browserSeamAnchoredX: true,
       nativeWidthAndYParameterization: true,
-      popupBodyCentersInBattlefield: true,
+      popupBodySharesSeamAnchor: true,
       seams: {
         automatic1440: automatic1440.layout.worldLeft,
         hud1001440: hud1001440.layout.worldLeft,
@@ -616,7 +622,7 @@ try {
     JSON.stringify(evidence, null, 2) + '\n'
   )
   console.log(
-    'PASS: authored Mission 2 campaign messages use settle-gated auto-open; summary/details track the rendered browser HUD/world seam and the native body centers in the battlefield while native width/Y, focus, dismissal and checkpoint behavior remain intact',
+    'PASS: authored Mission 2 campaign messages use settle-gated auto-open; summary/details/popup track the rendered browser HUD/world seam while native width/Y, focus, dismissal and checkpoint behavior remain intact',
     evidence
   )
 } finally {

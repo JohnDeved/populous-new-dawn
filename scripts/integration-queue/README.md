@@ -535,10 +535,11 @@ The explicit composed additions are:
   and land/water diagnostic black/white PNGs. Names are exactly
   `tornado-KIND-STAGE-normal.png` or `tornado-KIND-diagnostic-COLOR.png`.
 - Mission 10: `spy-source.json`, `spy-source-context.png`, and exactly two
-  `spy-source-frame-N.png` crops. The first is frame 0; the distinct second is any
-  integer 1–11 selected by the validated retained observation. All eleven finite
-  inventories are tested. Extra, missing, duplicate, cross-episode and failure-only
-  paths fail closed.
+  `spy-source-frame-N.png` crops. Evidence version 3 requires genuine frame 0
+  and frame 1. Later second frames 2–11 are negative fixtures, not substitutes.
+  Historical ordinary-RAF receipts keep their original source and interpretation;
+  they are not silently upgraded to version 3. Historical controlled-capture v2 receipts likewise retain their original interpretation. Version 3 additionally requires delivery.version1 and unchanged capture.version2: exact source-bound, test-routed native ESM preflight before capture ownership, with explicit HTTP-cache disabling and owned-route cleanup. Extra, missing, duplicate,
+  cross-episode and failure-only paths fail closed.
 
 Filenames alone do not admit evidence. Raw child reports must deeply match the
 source-bound authenticated host. Only Tornado's documented raw-only `elapsedMs`
@@ -552,10 +553,14 @@ structurally decoded; retained data has no normal-frame framebuffer hash or
 absolute episode timestamps, so neither framebuffer equality nor direct outer
 host-deadline equality is claimed.
 
-Spy checks literal v3 fixture/load digests, public action order, phase/entry/source
+Spy evidence version 3 checks literal v3 fixture/load digests, public action order, phase/entry/source
 136 and original frame ownership, both same-frame crop hashes and decoded color
 counts, paused actor/clock equality, resumed advance, cleanup and the original
-45-second budget. Ordering uses `endedAt` from both retained Mission 10 phase
+45-second budget. The controlled-elapsed full-Scene protocol also requires its
+transparent consecutive-turn ledger, exact next-visit entry, actual frame0/1
+crops, paused non-evidence timestamp handback and final owned-hook/RAF cleanup.
+It is not natural wall-clock timing or performance evidence; see
+[the versioned capture contract](../../engineering/spy-capture-v2.md). Ordering uses `endedAt` from both retained Mission 10 phase
 receipts. Crop bytes stay below 256 KiB and dimensions at most 256×256. Transfer
 bytes are not retained; the claim is source-bound producer/load digest agreement,
 not an independently reconstructed checkpoint. The context image is 1440×1000.
@@ -567,7 +572,7 @@ CRC, chunk order, dimensions, DEFLATE length and filters; rejects APNG and tRNS;
 and permits only singleton pre-IDAT sRGB, standard sRGB gAMA and valid pHYs
 metadata. No arbitrary pixel-interpretation chunks are ignored.
 
-The complete candidate byte-input set is the explicit 485-path
+The complete candidate byte-input set is the explicit finite
 [`composed-source-inputs.json`](composed-source-inputs.json), derived by static
 inspection of that producer. It includes the Tornado adapter/fixture, native
 fixture data, transitive rendering and clock inputs, and both `tornado.png` and

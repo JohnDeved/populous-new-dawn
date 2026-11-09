@@ -1,4 +1,4 @@
-import { prepareCampaignFixture, launchCampaignMission } from './browser-game.mjs'
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -13,9 +13,8 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
-  // Declared mission availability only, not naturally earned campaign history.
-  await prepareCampaignFixture(page, 17)
-  await launchCampaignMission(page, 17)
+  await showAllMissions(page)
+  await page.getByRole('button', { name: 'Mission 17', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
   await page.getByText(/great struggle ahead/).waitFor()
@@ -190,7 +189,7 @@ try {
     special: 0,
     controller: false,
   })
-  await page.getByRole('heading', { name: 'Level Won', exact: true }).waitFor()
+  await page.getByText('A world united.').waitFor()
   assert.deepEqual(errors, [])
   console.log(
     'PASS: Mission 17 reward, HUD cast, checkpoint, visible staged arena, live battle order, and victory teardown'

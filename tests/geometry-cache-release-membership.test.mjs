@@ -295,8 +295,10 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
     releaseGroup: GameScene.prototype.releaseGroup,
     waterMap: disposable('water map'),
     terrainMap: disposable('terrain map'),
+    terrainUpload: new THREE.DataTexture(),
+    minimap: { revision: undefined },
     view: disposable('view'),
-    renderer: { ...disposable('renderer'), domElement: element('renderer element') },
+    renderer: { ...disposable('renderer'), domElement: element('renderer element'), forceContextLoss: leaf('context loss') },
     fpsGraph,
     cancelTooltipInspection: GameScene.prototype.cancelTooltipInspection,
     tooltipInspectionInputs: ['diagnostic input'],
@@ -341,6 +343,7 @@ test('GameScene.dispose delegates real resource ownership once and preserves the
     'object panels',
     'spell pointer',
     'worship',
+    'context loss',
   ])
   assert.equal(receiver.fpsGraph, null)
   assert.equal(fpsGraph.gpuTimer, null)

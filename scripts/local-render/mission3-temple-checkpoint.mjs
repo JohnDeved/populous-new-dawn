@@ -171,8 +171,7 @@ export async function saveTempleCheckpoint({
     failed = false,
     failure
   try {
-    await input.button('Menu')
-    await input.button('Save Game')
+    await input.button('Game settings')
     await page.evaluate(armTempleSave)
     armed = true
     await input.button('Save checkpoint')
@@ -249,9 +248,8 @@ export async function saveTempleCheckpoint({
   return entry
 }
 
-// A fresh, declared M3-available profile is QA setup, not earned campaign progress.
-// After its restore, every gameplay mutation is shipped DOM input; the harness
-// owns real RAF, profile provenance and shutdown. Continuation never reseeds it.
+// Direct M3 startup is a QA entry point, not campaign unlocking. Every mutation
+// below is a shipped DOM input; the harness owns real RAF, profile and shutdown.
 export default async function mission3TempleCheckpoint(
   { page, openMission, output, signal, receipt, observeCheckpoint },
   acquisitionSteps = null
@@ -273,7 +271,7 @@ export default async function mission3TempleCheckpoint(
     actions: [],
     samples: [],
     scope:
-      'Declared M3 availability fixture on first entry only, not earned campaign prerequisites. Ordinary M3 Temple construction and genuine Save. No training, sermon, victory, art parity or hardware-performance claim.',
+      'Ordinary M3 Temple construction and genuine Save only. No training, sermon, victory, art parity or hardware-performance claim.',
   }
   const save = () =>
     writeFileSync(
@@ -348,7 +346,7 @@ export default async function mission3TempleCheckpoint(
       assert.equal(report.initial.vault[0].uses, 1)
       input = createMission1VaultInput({ page, signal, report, save, originalShamanId: shamanId })
     } else {
-      await openMission(3, { campaignFixture: true })
+      await openMission(3)
       report.readiness = await waitForShamanReadiness(page, { timeout: 60000 })
       const initial = await page.evaluate(installTempleRouteObservation)
       report.initial = initial

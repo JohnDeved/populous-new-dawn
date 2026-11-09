@@ -1,21 +1,5 @@
 # Static decompilation workspace
 
-[Ordinary HUD control artwork](research/ordinary-hud-controls/README.md) binds the
-shared command-root panel and separates the original Help/tribe callbacks from
-the browser's retained Menu/focus adaptations. Those controls remain unfinished.
-
-[Campaign notification tab presentation](research/campaign-notification-tabs.md)
-binds the original normal/hover/active frame descriptors and type1/type3 icon pairs.
-
-[Native campaign selection and progression](research/native-campaign-progression/README.md)
-preserves the complete 25-mission branch contract, completion/availability distinction,
-terminal boundary, original disassembly, and static test oracles. The pure model is
-unwired; profile migration and live selector/result continuation remain separate.
-
-[Original terminal-result navigation](research/result-navigation/README.md) traces
-the two-stage Space flow through HUD hiding/pause and the verified level-54 selector
-sentinel. Static contract only; existing result actions are not removed or activated.
-
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved
@@ -76,6 +60,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Original Game options and bounded keyboard preferences](research/game-options-static/findings.md),
+[Eight-Brave Temple entry composition](research/training-entry-composition.md),
 [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
 [Automatic Preacher sermons and raid ownership](research/automatic-preacher-and-raid-ownership.md),
 [Shrine Erosion activation](research/erosion-activation.md),
@@ -84,6 +69,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Native melee attack animation ownership](research/melee-attack-animation.md),
+[Native recoil entry and push handoff](research/melee-recoil-animation.md),
 [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
 [Completed authored Vault prayer-panel socket anchor](research/vault-prayer-panel-anchor.md),
 [Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
@@ -95,6 +81,9 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Ordinary M1/M2 browser adapter](research/worship-acquisition-adapter.md),
 [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
 [Rolling Demo control and stream framing](research/rolling-demo-control.md),
+[Rolling Demo live-state checksum and error-byte limits](research/rolling-demo-checksum.md),
+[Rolling Demo CP staging and camera application](research/rolling-demo-camera.md),
+[Rolling Demo deferred input lock and release](research/rolling-demo-input.md),
 [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
@@ -5306,7 +5295,6 @@ Mixed-raid target availability versus member-order refresh: see
 [the static evidence and live-caller regression](research/mixed-raid-target-exhaustion/README.md).
 
 - [Ordinary selector globe texture, rings, UV and vertex light](research/world-selector-globes.md)
-- [All 25 native selector records, panel sockets, palettes and title dispatch](research/world-selector-manifest/README.md)
 
 ## Original frontend Quit submenu
 

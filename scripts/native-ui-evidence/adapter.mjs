@@ -4,18 +4,20 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { episodes, acceptSeries, boundedEpisode } from './policy.mjs'
 import { artifactInventory, ownBrowser } from './browser-owner.mjs'
+import { assertPauseResult } from './pause-acceptance.mjs'
+import { assertAudioResult } from './audio-acceptance.mjs'
 import { initialEpisodeReport } from './ledger.mjs'
 
-export async function runNativeUiEvidence({ browser, candidateRoot, infrastructureRoot, url, output, signal }) {
+export async function runNativeUiEvidence({ browser, candidateRoot, infrastructureRoot, url, output, signal, pauseTraceStorage }) {
   const report = initialEpisodeReport()
   report.status = 'running'
   const save = () => writeFileSync(resolve(output, 'episodes.json'), JSON.stringify(report, null, 2) + '\n')
-  const owner = ownBrowser(browser, output, report)
+  const owner = ownBrowser(browser, output, report, { pauseTraceStorage })
   let primaryError, cleanupError
   try {
     for (const episode of episodes) {
       signal.throwIfAborted()
-      owner.beginEpisode()
+      owner.beginEpisode(episode)
       const record = report.episodes.find(record => record.id === episode.id)
       record.status = 'running'; record.startedAt = new Date().toISOString(); save()
       const dir = resolve(output, episode.id); mkdirSync(dir)
@@ -45,9 +47,18 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
           const module = await import(pathToFileURL(resolve(root, episode.path)).href)
           assert.equal(typeof module[episode.exportName ?? 'default'], 'function')
           const result = await module[episode.exportName ?? 'default'](args)
+          if (episode.pauseMode) {
+            assert.equal(episode.primary, false)
+            assertPauseResult(episode.pauseMode, result)
+          }
+          if (episode.audioMode) {
+            assert.equal(episode.primary, false)
+            assertAudioResult(episode.audioMode, result)
+          }
           return result
         }, { capMs: episode.capMs, signal, close: () => owner.closeContexts() })
         record.cleanupVerified = true
+        owner.assertTraceEpisode(episode)
         assert.deepEqual(report.errors, [], 'Unexpected console/runtime errors, including fallback contexts')
         artifactInventory(output)
         record.status = 'passed'
@@ -66,12 +77,18 @@ export async function runNativeUiEvidence({ browser, candidateRoot, infrastructu
     try { await owner.close(); report.cleanupVerified = true }
     catch (error) { report.cleanupError = String(error); report.status = 'failed'; cleanupError = error }
     finally {
+      try { owner.finishTraces() }
+      catch (error) { report.traceError = String(error); report.status = 'failed'; cleanupError ??= error }
       save()
       try { artifactInventory(output) }
       catch (error) { report.artifactError = String(error); report.status = 'failed'; cleanupError ??= error; save() }
     }
   }
-  if (primaryError) { if (cleanupError) primaryError.cleanupError = String(cleanupError); throw primaryError }
+  if (primaryError) {
+    // Diagnostic annotation must not replace a frozen/non-extensible primary.
+    if (cleanupError) { try { primaryError.cleanupError = String(cleanupError) } catch {} }
+    throw primaryError
+  }
   if (cleanupError) throw cleanupError
   return report
 }

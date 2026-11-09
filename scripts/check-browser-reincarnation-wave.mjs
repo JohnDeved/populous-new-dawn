@@ -1,11 +1,10 @@
-import { introductionInputState, pressIntroductionSpace } from './browser-introduction.mjs'
 // Natural Mission2 combat death and complete ordinary reincarnation, followed
 // by a separately labeled staged cell-consumer fixture. No state injection in
 // the natural phase; pacing, camera and read-only observations are controlled.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { bindGame, prepareCampaignFixture, launchCampaignMission, effectPixels, readShamanReadiness } from './browser-game.mjs'
+import { bindGame, showAllMissions, effectPixels, readShamanReadiness } from './browser-game.mjs'
 
 export default async function checkReincarnationWave({ page, url, root, output, signal }) {
 const baseline = process.env.POPULOUS_REINCARNATION_BASELINE === '1'
@@ -24,10 +23,10 @@ try {
   page.setDefaultTimeout(60000)
   await page.addInitScript(() => { window.requestAnimationFrame = () => 0 })
   await page.goto(url, { waitUntil: 'domcontentloaded' })
-  // Declared mission availability only, not naturally earned campaign history.
-  await prepareCampaignFixture(page, 2)
-  await launchCampaignMission(page, 2)
+  await showAllMissions(page)
+  await page.getByRole('button', { name: 'Mission 2', exact: true }).click()
   await bindGame(page)
+  const skip = page.getByRole('button', { name: /Skip introduction/i })
   report.startup = { initial: await readShamanReadiness(page), samples: [], skipTurns: [], batches: 0 }
   for (let batch = 0; batch < 80; batch++) {
     signal.throwIfAborted()
@@ -36,12 +35,12 @@ try {
       for (let frame = 0; frame < 24; frame++) s.animate(s.previous + 1000 / 24)
     })
     report.startup.batches++
-    // RAF is held for deterministic pacing; observe the native flyby gate
-    // after the authored introduction begins, then use the public Space key.
+    // RAF is held for deterministic pacing; let React publish the real Skip
+    // button after the authored flyby begins, then use that visible control.
     await page.waitForTimeout(25)
-    if (await page.evaluate(introductionInputState) === 'skip') {
+    if (await skip.isVisible()) {
       report.startup.skipTurns.push(await page.evaluate(() => window.testSceneRef.current.world.turn))
-      await pressIntroductionSpace(page, { timeout: 60000 })
+      await skip.click()
     }
     const readiness = await readShamanReadiness(page)
     report.startup.samples.push(readiness)

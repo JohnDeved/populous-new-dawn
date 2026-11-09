@@ -436,7 +436,8 @@ export function requestAttack(
   maximum: number,
   entity = 0,
   spells: number[] = [],
-  markers: { staging?: number; spell?: number } = {}
+  markers: { staging?: number; spell?: number } = {},
+  entityId?: (stored: number) => number
 ) {
   if (!enabled || ai.tasks.filter(t => t.flags & 1 && t.type === 20).length >= maximum) return
   const task = ai.tasks.find(t => !(t.flags & 1))
@@ -455,7 +456,7 @@ export function requestAttack(
     fallback: 0,
     regroup: 0,
     origin: target & 65535,
-    entity: entity | 0,
+    entity: entityId?.(entity) ?? entity | 0,
     damage: 0,
     retries: 0,
     retreatPercent: retreatPercent & 255,

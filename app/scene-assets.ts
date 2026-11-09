@@ -1,4 +1,5 @@
 import { templeArt } from './temple-art.ts'
+import towerArt from './original-tower-acquisition.json'
 import * as THREE from 'three'
 import { nativeModelResource, type NativeModelResource } from './model-resources.ts'
 import { compatibilityEnvironment, type WorldEnvironment } from './world-environment.ts'
@@ -17,6 +18,12 @@ type TextureAsset = {
   status: 'loading' | 'ready' | 'failed'
 }
 const textures = new Map<string, TextureAsset>()
+let textureCompletionRevision = 0
+// A paused scene still needs a draw when a lazily requested sky/effect texture
+// settles. A revision avoids retaining scene listeners in this shared cache.
+export function sceneTextureRevision() {
+  return textureCompletionRevision
+}
 export function texture(kind: string) {
   return loadTexture(kind).texture
 }
@@ -30,6 +37,7 @@ export function loadTexture(kind: string) {
     ready: new Promise<boolean>(resolve => {
       loaded = success => {
         result.status = success ? 'ready' : 'failed'
+        textureCompletionRevision++
         resolve(success)
       }
     }),
@@ -64,6 +72,7 @@ export function loadTexture(kind: string) {
     kind === 'atlas-s' ||
     kind === 'atlas-p' ||
     kind === templeArt.modelAtlas ||
+    kind === towerArt.modelAtlas ||
     kind.startsWith('sky') ||
     kind.startsWith('clouds')
   ) {
@@ -83,6 +92,7 @@ export function loadTexture(kind: string) {
     kind === templeArt.sparkleAtlas ||
     kind === 'vault-knowledge' ||
     kind === 'vault-knowledge-camp' ||
+    kind === 'vault-knowledge-tower' ||
     kind === 'selection' ||
     kind === 'unit-health'
   ) {

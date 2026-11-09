@@ -1,5 +1,6 @@
 // Offline only: never import into the frame loop.
 import { analyzeFrameExport } from './frame-export-analysis.ts'
+import { GPU_RENDER_STATUSES, type GpuFrameTiming } from './gpu-frame-timing.ts'
 import {
   ORDINARY_TERRAIN_FIELDS,
   TERRAIN_VISIBILITY_FIELDS,
@@ -61,7 +62,15 @@ const GROUPS = {
 } as const
 
 type InputFrame = Record<string, unknown> & {
+  sceneRenderGpu?: GpuFrameTiming
   pointerBreakdown: null | { interaction?: PointerInteractionContext }
+}
+function gpuStatusCounts(frames: InputFrame[]) {
+  const counts = Object.fromEntries(
+    ['missing', ...GPU_RENDER_STATUSES].map(status => [status, 0])
+  ) as Record<'missing' | GpuFrameTiming['status'], number>
+  for (const frame of frames) counts[frame.sceneRenderGpu?.status ?? 'missing']++
+  return counts
 }
 function distribution(values: number[]) {
   values.sort((a, b) => a - b)
@@ -156,6 +165,7 @@ export function summarizeFrameExportCohorts(json: string) {
       'Missing context and null change fields are unknown, never inferred stationary. Stored changes compare recorded samples, not input-event counts.',
       'Each metric uses only measured samples; missing optional metrics are not zero-filled. Empty distributions contain null quantiles.',
       'Timings are reported independently: never sum nested CPU phases.',
+      'GPU status counts describe recorded coverage within each cohort; missing means unknown. Only available results enter GPU timing distributions, including measured zeroes. Cohorts overlap, so do not sum their GPU status counts.',
       'sceneUpdateCpu regions are disjoint subsets of otherCallbackCpuMs. The derived remainder is unclassified, not an inferred phase; negative residuals expose inconsistent timing ownership.',
       'Unmatched captures and cohort differences do not establish causal speedup.',
       ...analysis.warnings,
@@ -164,6 +174,7 @@ export function summarizeFrameExportCohorts(json: string) {
       name,
       definition,
       sampleCount: members[name as keyof typeof GROUPS].length,
+      gpuStatusCounts: gpuStatusCounts(members[name as keyof typeof GROUPS]),
       metrics: Object.fromEntries(
         METRICS.map(path => [
           path,

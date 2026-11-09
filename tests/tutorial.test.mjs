@@ -143,7 +143,7 @@ test('Tutorial advances through Shaman selection into the authored Obelisk flyby
 
 test('Tutorial restart recreates fresh script and view state', () => {
   const store = createGameStore()
-  assert.equal(store.startTutorial(), true)
+  store.startMission(79)
   const first = store.getWorld()
   first.drawMode = 0
   until(first, () => first.ai.variables[9] === 4)

@@ -55,6 +55,7 @@ function fixture(t) {
     objectPanels: { releaseBuildingInspection() {} },
   }
   scene.pointerDown = e => pointerDown(scene, e)
+  scene.pointerMove = e => pointerMove(scene, e)
   scene.pointerUp = e => pointerUp(scene, e)
   scene.updateDrag = e => updateDrag(scene, e)
   skipIntroduction(scene)
@@ -85,6 +86,31 @@ function fixture(t) {
     },
   }
 }
+
+test('the installed canvas leave listener clears hover state without changing selection and permits re-entry', t => {
+  const { scene, world, unit, event, emit } = fixture(t)
+  api.setSelection(world, [unit.id])
+  const selection = [...world.selected]
+  Object.assign(scene, {
+    hoveredObject: world.buildings[0].id,
+    pointerScreen: { clientX: 10, clientY: 10 },
+    pointer: { x: unit.x, z: unit.z },
+    pointerState: 'previous-hover-sample',
+  })
+  // Deliver the registered listener, rather than directly clearing fixture state.
+  // DOM hit-testing and browser event delivery remain outside this Node fixture.
+  emit(scene.renderer.domElement, 'pointerleave', event(1, { buttons: 0 }))
+  emit(scene.renderer.domElement, 'pointerleave', event(1, { buttons: 0 }))
+  assert.equal(scene.hoveredObject, null)
+  assert.equal(scene.pointerScreen, null)
+  assert.equal(scene.pointer, null)
+  assert.equal(scene.pointerState, '')
+  assert.deepEqual(world.selected, selection, 'leaving the canvas must not clear selection')
+  emit(scene.renderer.domElement, 'pointermove', event(1, { buttons: 0, clientX: 25, clientY: 30 }))
+  assert.deepEqual(scene.pointerScreen, { clientX: 25, clientY: 30 })
+  assert.equal(scene.pointerState, '', 're-entry must leave the next pointer-frame sample invalidated')
+  assert.deepEqual(world.selected, selection)
+})
 
 for (const reason of ['blur', 'hidden', 'pointercancel']) {
   test(`${reason} clears an interrupted gesture and ignores its release without suppressing a fresh click`, t => {

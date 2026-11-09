@@ -1,6 +1,6 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createGameStore } from '../app/game-store.ts'
 import { browserPosition, command, selectUnit } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { stepLiveMovement } from '../app/live-movement.ts'
@@ -9,9 +9,9 @@ import { boardingTargetLeftOrigin } from '../app/vehicle-boarding-orders.ts'
 
 // Supplied craft displacement isolates command lifetime, not native steering,
 // ordinary acquisition or rendered input. Terrain and the person remain authored.
-async function fixture() {
-  const store = await createCampaignFixtureStore([10])
-  assert.equal(store.startMission(10), true)
+function fixture() {
+  const store = createGameStore()
+  store.startMission(10)
   const world = store.getWorld(),
     boat = world.vehicles.find(v => v.id === 62),
     unit = world.units.find(u => u.id === 111)
@@ -29,7 +29,7 @@ async function fixture() {
 }
 
 test('a public captured boarding order retires after its target leaves the origin', async () => {
-  const { store, world, boat, unit, person, order, originalPayload } = await fixture()
+  const { store, world, boat, unit, person, order, originalPayload } = fixture()
   const hp = unit.hp
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
@@ -62,7 +62,7 @@ test('a public captured boarding order retires after its target leaves the origi
 })
 
 test('public Save/Load preserves the captured boarding origin and full current world', async () => {
-  const { store, world, unit, order } = await fixture()
+  const { store, world, unit, order } = fixture()
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   const restored = store.getWorld(),
@@ -72,8 +72,8 @@ test('public Save/Load preserves the captured boarding origin and full current w
 })
 
 test('a public boarding click at packed origin zero retains the native distance limit', async () => {
-  const store = await createCampaignFixtureStore([10])
-  assert.equal(store.startMission(10), true)
+  const store = createGameStore()
+  store.startMission(10)
   const world = store.getWorld(),
     boat = world.vehicles.find(v => v.id === 62),
     unit = world.units.find(u => u.id === 111)

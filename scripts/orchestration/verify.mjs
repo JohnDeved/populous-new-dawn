@@ -1,8 +1,8 @@
 import { packageScriptCommand } from './dependency-profile.mjs'
+import { captureCommand, createRawLogBudget, createServerLog, writeLegacyLog } from './command-log.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
-import { once } from 'node:events'
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -56,34 +56,26 @@ export function checkAutomation(check) {
   return null
 }
 
-export function runCommand(command, { cwd, env, timeoutMs }) {
-  return new Promise(resolve => {
-    const child = spawn(command[0], command.slice(1), { cwd, env, shell: false }),
-      stdout = [],
-      stderr = []
-    child.stdout.on('data', chunk => stdout.push(chunk))
-    child.stderr.on('data', chunk => stderr.push(chunk))
-    const timer = setTimeout(() => child.kill('SIGKILL'), timeoutMs)
-    child.on('error', error => {
-      clearTimeout(timer)
-      resolve({ exitCode: 1, stdout: '', stderr: error.message, timedOut: false })
-    })
-    child.on('close', code => {
-      clearTimeout(timer)
-      resolve({
-        exitCode: code ?? 1,
-        stdout: Buffer.concat(stdout).toString(),
-        stderr: Buffer.concat(stderr).toString(),
-        timedOut: code === null,
-      })
-    })
-  })
+// One 64 MiB default raw allowance per verifier attempt, shared by every check
+// and owned server. Configure bytes with POPULOUS_VERIFY_MAX_RAW_BYTES (zero is
+// valid). This is not an allowance for derivatives, artifacts or old attempts.
+function verificationRawBudget(env) {
+  const value = env.POPULOUS_VERIFY_MAX_RAW_BYTES
+  assert(value === undefined || /^(0|[1-9][0-9]*)$/.test(value),
+    'POPULOUS_VERIFY_MAX_RAW_BYTES must be a nonnegative safe integer')
+  return createRawLogBudget(value === undefined ? undefined : Number(value))
 }
 
-async function waitForServer(url, timeoutMs, child) {
+export function runCommand(command, { cwd, env, timeoutMs, captureDirectory, rawLogBudget = verificationRawBudget(env) }) {
+  return captureCommand(command, { cwd, env, timeoutMs, directory: captureDirectory,
+    diagnosticMode: 'raw-only-v2', rawLogBudget })
+}
+
+async function waitForServer(url, timeoutMs, child, failure = () => null) {
   const end = Date.now() + timeoutMs
   while (Date.now() < end) {
-    if (child?.exitCode != null) throw new Error(`game server exited with ${child.exitCode}`)
+    if (failure()) throw failure()
+    if (child && (child.exitCode != null || child.signalCode != null)) throw new Error(`game server exited with ${child.exitCode ?? child.signalCode}`)
     try {
       const response = await fetch(url)
       if (response.ok) return
@@ -93,18 +85,70 @@ async function waitForServer(url, timeoutMs, child) {
   throw new Error(`game server was not ready within ${timeoutMs}ms`)
 }
 
-async function stopServer(child) {
-  if (child.exitCode != null) return
-  child.kill('SIGTERM')
-  await Promise.race([once(child, 'exit'), new Promise(resolve => setTimeout(resolve, 2_000))])
-  if (child.exitCode == null) child.kill('SIGKILL')
+// Only the exact spawned child is owned. Descendants may retain stdio after
+// that child exits; a finite drain timeout records incomplete capture, not a
+// claim that descendants were stopped. Synchronous disk writes can delay timers.
+function ownServer(child, capture) {
+  let closed = false, captureError, stopping, intentionalStop = false
+  const cleanupErrors = []
+  let resolveClosed
+  const closing = new Promise(resolve => { resolveClosed = resolve })
+  const fail = error => { captureError ??= error }
+  child.once('error', fail)
+  child.once('close', () => { closed = true; resolveClosed() })
+  for (const stream of [child.stdout, child.stderr]) {
+    stream.on('error', fail)
+    stream.on('data', bytes => {
+      if (!captureError) try { capture.write(bytes) } catch (error) {
+        fail(error)
+        // Begin bounded owned cleanup immediately; the caller still observes it.
+        void stop().catch(() => {})
+      }
+    })
+  }
+  const live = () => child.pid && child.exitCode === null && child.signalCode === null
+  const waitClose = async ms => {
+    let timer
+    try { await Promise.race([closing, new Promise(resolve => { timer = setTimeout(resolve, ms) })]) }
+    finally { clearTimeout(timer) }
+  }
+  const signal = name => {
+    if (live()) try { assert(child.kill(name), `Owned server could not be signaled with ${name}`) }
+    catch (error) { cleanupErrors.push(error); fail(error) }
+  }
+  const stop = () => stopping ??= (async () => {
+    if (!live() && !captureError) fail(new Error('Owned game server exited before verification completed'))
+    intentionalStop = true
+    signal('SIGTERM')
+    if (!closed) await waitClose(2_000)
+    signal('SIGKILL')
+    if (!closed) await waitClose(2_000)
+    if (!closed) {
+      fail(new Error('Owned server stdio did not close before drain deadline; descendant cleanup is not claimed'))
+      // Mark incomplete before releasing parent handles. A resulting close is
+      // not genuine drained completion and cannot clear the error.
+      child.stdin.destroy(); child.stdout.destroy(); child.stderr.destroy()
+      child.unref()
+    }
+    const error = cleanupErrors.length
+      ? new AggregateError([...(captureError ? [captureError] : []), ...cleanupErrors], 'Owned server cleanup failed')
+      : captureError
+    try { return capture.finish(error, { drainIncomplete: !closed, ownedChildExited: !live(), ownedChildPid: child.pid }) }
+    finally { unsubscribe() }
+  })()
+  const unsubscribe = capture.subscribe(error => {
+    fail(error)
+    void stop().catch(() => {})
+  })
+  return { stop, failure: () => captureError ??
+    (!intentionalStop && closed ? new Error('Owned game server closed before verification completed') : null) }
 }
 
-export async function startGameServer(repo, env, logPath) {
+export async function startGameServer(repo, env, logPath, { rawLogBudget = verificationRawBudget(env) } = {}) {
   const supplied = env.POPULOUS_URL
   if (supplied) {
     await waitForServer(supplied, 10_000)
-    return { url: supplied, stop: async () => {} }
+    return { url: supplied, owned: false, stop: async () => {} }
   }
   const port = Number(env.POPULOUS_PORT ?? 3000)
   assert(Number.isInteger(port) && port > 0 && port < 65536, 'POPULOUS_PORT must be a valid port')
@@ -117,23 +161,19 @@ export async function startGameServer(repo, env, logPath) {
   if (occupied) throw new Error(`refusing to reuse an unidentified server at ${url}`)
   const ownedSourceFingerprint = existsSync(join(repo, 'engineering/parity-capabilities.json')) ? browserSourceFingerprint(repo) : null
   const [manager, ...args] = packageScriptCommand(repo, 'dev', ['--port', String(port)])
-  const child = spawn(manager, args, { cwd: repo, env, shell: false }),
-    output = []
-  child.stdout.on('data', chunk => output.push(chunk))
-  child.stderr.on('data', chunk => output.push(chunk))
+  const capture = createServerLog(logPath, { rawLogBudget })
+  let child
+  try { child = spawn(manager, args, { cwd: repo, env, shell: false }) }
+  catch (error) { capture.finish(error); throw error }
+  const owner = ownServer(child, capture)
   try {
-    await waitForServer(url, 30_000, child)
-    return {
-      url,
-      sourceFingerprint: ownedSourceFingerprint,
-      stop: async () => {
-        await stopServer(child)
-        writeFileSync(logPath, Buffer.concat(output))
-      },
-    }
+    // Existing readiness fetches have no hard per-request wall-time bound.
+    await waitForServer(url, 30_000, child, owner.failure)
+    if (owner.failure()) throw owner.failure()
+    return { url, owned: true, sourceFingerprint: ownedSourceFingerprint,
+      capture: capture.reference, stop: owner.stop }
   } catch (error) {
-    await stopServer(child)
-    writeFileSync(logPath, Buffer.concat(output))
+    try { await owner.stop() } catch (cleanup) { throw new AggregateError([error, cleanup], 'Game server startup and capture failed') }
     throw error
   }
 }
@@ -153,6 +193,7 @@ export async function verifyContract(
   contractPath,
   { env = process.env, execute = runCommand, startServer = startGameServer } = {}
 ) {
+  const rawLogBudget = verificationRawBudget(env)
   const manifests = validateRepository(repo),
     absoluteContract = safeRepoPath(repo, contractPath),
     contract = JSON.parse(readFileSync(absoluteContract, 'utf8'))
@@ -216,20 +257,59 @@ export async function verifyContract(
   // Clear old passes before executing; interrupted runs retain only completed receipts.
   persist()
   let gameServer = null,
+    serverSegment = null,
     nativeError,
     stopReason = null
+  // Candidates contain only receipt metadata, never process output. Persisted
+  // rows remain blocked until this exact owned segment has fully finalized.
+  const finishServer = async () => {
+    const server = gameServer, segment = serverSegment
+    gameServer = null
+    serverSegment = null
+    if (!server) return
+    if (!env.POPULOUS_URL) delete runEnv.POPULOUS_URL
+    if (!segment) return // A supplied URL is not owned and must not be signaled.
+    let stopped
+    try { stopped = await server.stop() } catch (error) {
+      if (rawLogBudget.error) for (const candidate of segment.candidates) {
+        const pending = results.find(item => item.checkId === candidate.checkId)
+        record({ ...pending, reason: rawLogBudget.error.message, rawBudget: rawLogBudget.snapshot() })
+      }
+      throw error
+    }
+    const capture = server.capture ? stopped : null
+    if (server.capture) assert(capture?.complete === true &&
+      ['version', 'path', 'runId', 'log'].every(key => capture[key] === server.capture[key]),
+    'Owned server capture did not complete')
+    for (const candidate of segment.candidates) {
+      if (capture) candidate.serverCapture = { ...capture,
+        path: relative(repo, capture.path), log: relative(repo, capture.log) }
+      results[results.findIndex(item => item.checkId === candidate.checkId)] = candidate
+      contract.verification.results = contract.verification.results.map(item =>
+        item.checkId === candidate.checkId ? candidate : item)
+    }
+    persist()
+  }
+  const recordCompleted = result => {
+    if (!serverSegment) return record(result)
+    serverSegment.candidates.push(result)
+    record({ ...result, status: 'blocked', coveredCheckIds: [],
+      reason: 'Owned game server capture is pending finalization',
+      serverCapture: serverSegment.reference,
+      parityMeasurements: result.parityMeasurements.map(item => ({ ...item, status: 'blocked' })),
+    })
+  }
+  let verificationError
   try {
     for (const check of required) {
       if (check.kind !== 'browser' && gameServer) {
-        await gameServer.stop()
-        gameServer = null
-        if (!env.POPULOUS_URL) delete runEnv.POPULOUS_URL
+        await finishServer()
       }
       const fingerprint = fingerprintPaths(repo, check.inputs),
         command = commandFor(check, runEnv),
         automationError = checkAutomation(check)
-      if (stopReason) {
-        record(blocked(check, fingerprint, command, stopReason))
+      if (stopReason || rawLogBudget.error) {
+        record(blocked(check, fingerprint, command, stopReason ?? rawLogBudget.error.message))
         continue
       }
       if (automationError) {
@@ -249,29 +329,56 @@ export async function verifyContract(
         }
       }
       if (check.kind === 'browser' && !gameServer) {
-        const serverLog = join(dirname(logDirectory), 'game-server.log')
+        const serverLog = join(dirname(logDirectory), `game-server.${randomUUID()}.log`)
+        const owned = !env.POPULOUS_URL
+        const reference = { version: 1, path: relative(repo, serverLog + '.capture.json'),
+          log: relative(repo, serverLog), complete: false }
+        // Identify startup evidence before the server can emit a single byte.
+        if (owned) record({ ...blocked(check, fingerprint, command,
+          'Owned game server startup is pending'), serverCapture: reference })
         try {
-          gameServer = await startServer(repo, runEnv, serverLog)
+          gameServer = await startServer(repo, runEnv, serverLog, { rawLogBudget })
+          serverSegment = owned ? { reference, candidates: [] } : null
           runEnv.POPULOUS_URL = gameServer.url
         } catch (error) {
-          record(blocked(check, fingerprint, command, error.message))
+          record({ ...blocked(check, fingerprint, command, rawLogBudget.error?.message ?? error.message),
+            ...(owned ? { serverCapture: reference } : {}) })
+          if (rawLogBudget.error) throw error
           continue
         }
       }
       const concreteCommand = commandFor(check, runEnv)
-      record(blocked(check, fingerprint, concreteCommand,
-        'Execution started; no completed result is available if this run is interrupted'))
+      const captureDirectory = join(logDirectory, `${check.id}.${randomUUID()}`)
+      const pending = blocked(check, fingerprint, concreteCommand,
+        'Execution started; no completed result is available if this run is interrupted')
+      if (execute === runCommand) pending.capture = {
+        version: 2, path: relative(repo, join(captureDirectory, 'capture.json')), complete: false,
+      }
+      if (serverSegment) pending.serverCapture = serverSegment.reference
+      record(pending)
       const measurementContext = { cwd: safeRepoPath(repo, check.cwd), ownedServerFingerprint: gameServer?.sourceFingerprint ?? null }
       const measurementBefore = captureMeasurement(repo, concreteCommand, measurementContext)
-      const started = performance.now(),
+      const started = performance.now()
+      let outcome, log
+      try {
         outcome = await execute(concreteCommand, {
           cwd: safeRepoPath(repo, check.cwd),
           env: runEnv,
           timeoutMs: TIMEOUT_MS,
-        }),
-        durationMs = Math.round(performance.now() - started),
-        log = join(logDirectory, `${check.id}.log`)
-      writeFileSync(log, `${outcome.stdout}${outcome.stderr}`)
+          captureDirectory,
+          rawLogBudget,
+        })
+        if (rawLogBudget.error) throw rawLogBudget.error
+        if (outcome.capture) assert(outcome.capture.complete === true, 'Command capture is incomplete')
+        log = outcome.capture?.complete
+          ? outcome.capture.log
+          : writeLegacyLog(logDirectory, check.id, `${outcome.stdout}${outcome.stderr}`, { rawLogBudget })
+      } catch (error) {
+        if (rawLogBudget.error) record({ ...pending, reason: rawLogBudget.error.message,
+          rawBudget: rawLogBudget.snapshot() })
+        throw error
+      }
+      const durationMs = Math.round(performance.now() - started)
       const changedState = checkoutState(repo, contract.identity.baseCommit),
         changedFingerprint = fingerprintPaths(repo, check.inputs),
         artifacts = check.expected.artifacts.filter(path =>
@@ -291,7 +398,7 @@ export async function verifyContract(
         const missingArtifacts = check.expected.artifacts.filter(path => !artifacts.includes(path))
         if (missingArtifacts.length) reason = `missing artifacts: ${missingArtifacts.join(', ')}`
       }
-      record({
+      recordCompleted({
         checkId: check.id,
         status: reason ? 'failed' : 'passed',
         command: concreteCommand,
@@ -301,16 +408,31 @@ export async function verifyContract(
         artifacts,
         reason,
         durationMs,
-        log: relative(repo, log),
+        ...(log ? { log: relative(repo, log) } : {}),
+        ...(outcome.capture ? { capture: { ...outcome.capture,
+          path: relative(repo, outcome.capture.path),
+          ...(outcome.capture.log ? { log: relative(repo, outcome.capture.log) } : {}) } } : {}),
         parityMeasurements: finishMeasurement(measurementBefore, captureMeasurement(repo, concreteCommand, measurementContext), { status: reason ? 'failed' : 'passed', exitCode: outcome.exitCode, finishedAt: new Date().toISOString() }),
         coveredCheckIds: reason ? [] : coverage.filter(item => item.coveredBy === check.id)
           .map(item => item.checkId),
       })
     }
+  } catch (error) {
+    verificationError = error
   } finally {
-    await gameServer?.stop()
-    refreshMeasurement(repo)
+    try { await finishServer() } catch (error) {
+      verificationError = verificationError
+        ? new AggregateError([verificationError, error], 'Verification and server finalization failed') : error
+    } finally {
+      try { refreshMeasurement(repo) } catch (error) {
+        verificationError = verificationError
+          ? new AggregateError([verificationError, error], 'Verification and measurement refresh failed') : error
+      }
+    }
   }
+  if (rawLogBudget.error) throw new AggregateError([rawLogBudget.error, ...(verificationError ? [verificationError] : [])],
+    rawLogBudget.error.message)
+  if (verificationError) throw verificationError
   const status = results.some(result => result.status === 'failed')
     ? 'failed'
     : results.some(result => result.status !== 'passed')

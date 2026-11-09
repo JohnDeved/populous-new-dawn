@@ -1,0 +1,26 @@
+{
+  "archiveSha256": "69b0b21cb3ca86f9034a43a7fc94c5250bb97965b7b448d436c40a5d5151c523",
+  "members": {
+    "source-hashes.json": "5920e8aa34fe12eb133c548da5d12549c42cefaec9ca3a953f7f8e9f24c544ab",
+    "descriptor-words.json": "a9796cc765b428860a9e8c639d99fd6b7a9a5bbf978e2efe82a4a85ca5b4fbbb",
+    "export.log": "eefed0e44ea2b6cc0eebd214002d190f9ee9b0ccb152b2de2ce7ad422a220d79",
+    "export-receipt.json": "743699e4363a5698c99bb3813533664da350d95d2e25459c80f50b1b50c70a76",
+    "leaf-export.log": "2f60de9a6ffaf6d7f709716e03c254a501802026da6b1c44a89ece40973a7d54",
+    "leaf-export-receipt.json": "f2232417361af51815d69714c65ce294b15602b7420fbb49ea2a2e7087f60d32",
+    "leaf-export-02.log": "40b2ec16d3a3457925d349b5e18b123939871bf20a920571464caa64cfaf6c03",
+    "leaf-export-02-receipt.json": "449bc4180c720703493b3e1f95755c9203ecfb1356b0490aa80d6e3a78296e44",
+    "facts.log": "44fabe60a8e9d1c07628065d76a49a0d34f3c76edec99f3c98857275fcde35aa",
+    "facts-receipt.json": "78b16cd8a01ce49fb431d3e5e719f730a56ca70527597fa400d0751c1e4d9493",
+    "callback-facts.tsv": "15acaa01addc8ab7555f1fa1139a151faf65810a123faaf38131566d022adbb6",
+    "scripts/CallbackFacts.java": "54f834d300fd764ddf917f38ee946466bc983f364c69989a796ce8b40a4fe41a",
+    "verify-static.py": "04868e7389f3a343169e0606a33f7a29cb37dc38121517be46e4221845f7dfd9",
+    "static-verification.json": "56e52fb443a5763c18c8843d6edb4cbce0c4b5b3f9c6c02589645fafea459438",
+    "exports/004fc330.c": "d9a8b5d10459d134ac0d441aca5601c0f9ffe34a5f23a3fea0f0d0f48570abd7",
+    "exports/0042ca00.c": "f0a528a13dda5247b180b89656a2628c0b90454999de6cfb7ab5782bdaf350f5",
+    "exports/00408e30.c": "c460e6866bce1f6f1740f2ae060fd5249eadcd502e88f890742e81f2df1dd5e7",
+    "exports/0041b520.c": "c51849026e471f8fc21764a2884fdaa860c73d279e5cf6c3ee8c8a83a552c57f",
+    "exports/00503230.c": "a96ca9af88c2c7a7cc249cce85e4964a35af41996e7c63009dbee0ce6b0aeae5",
+    "exports/004c2c60.c": "19b8d64173cabe09dca4fa0d85090d9a82b9f6cf3d196656043d07e2d45073a3",
+    "exports/004c2fc0.c": "f72b3ebc31237eb38b8e0b34be06bfee4ce403a156992e8dceb7121cc01d0739"
+  }
+}

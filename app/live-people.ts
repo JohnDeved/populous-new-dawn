@@ -1,6 +1,6 @@
 import { launchFirewarriorPoint } from './firewarrior-point.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
-import { discardInvalidResident, residentPerson } from './building-resident.ts'
+import { prepareResidentPeople, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { latchFollowerCorpseFrame } from './follower-corpse-animation.ts'
@@ -268,14 +268,15 @@ export function createLivePerson(w: World, u: Unit, pos = nativePosition(w, u)):
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
 export function stepLivePersonHealth(w: World, deferred?: ReadonlySet<Unit>) {
+  const residentPeople = prepareResidentPeople(w)
   for (const u of w.units) {
     if (deferred?.has(u)) continue
-    discardInvalidResident(w, u)
+    if (u.resident !== undefined && !residentPeople(u)) delete u.resident
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p && (rules.personStateFlags[p.state] & 1 || p.flags2 & 0x80000)) continue
 
-    const resident = residentPerson(w, u),
+    const resident = residentPeople(u),
       maxLife = short(Math.round(maxHp(u.kind) * 20)),
       health = {
         model: p?.model ?? nativePersonModel(u),
@@ -627,7 +628,13 @@ function context(w: World, synchronize = () => syncLivePersonCells(w)) {
         x: ((person.x & 0xfe00) + 256 + 32 - (random(state) & 63)) & 65535,
         y: ((person.y & 0xfe00) + 256 + 32 - (random(state) & 63)) & 65535,
       }
-      w.trees.push({ id: w.nextId++, ...browserPosition(pos), logs: 1, model: 11 })
+      w.trees.push({
+        ...(w.scenerySource ? { authoredSlot: null, sceneryBirth: 'loose-log' as const } : {}),
+        id: w.nextId++,
+        ...browserPosition(pos),
+        logs: 1,
+        model: 11,
+      })
       return true
     },
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
@@ -898,13 +905,15 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)
-    people.unshift(p)
+    people.push(p)
   }
+  people.reverse()
+  const members = new Map<CellObject, LivePerson>(people.map(person => [person, person]))
   // 00511f70 consumes the retained person chain before its inclusive kill cap.
   // Project only exact owned objects into existing slots; snapshot before release.
   const linked: LivePerson[] = []
   for (const object of objectsInCell(w.objectCells, ((point.x >>> 8) & 254) | (point.y & 0xfe00))) {
-    const person = people.find(candidate => candidate === object)
+    const person = members.get(object)
     if (person) linked.push(person)
   }
   const owned = new Set(linked)
@@ -953,16 +962,18 @@ export function buildingFirePeople(w: World) {
     const p = u.flight ?? u.native ?? createLivePerson(w, u)
     const cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
     const people = cells.get(cell) ?? []
-    people.unshift(p)
+    people.push(p)
     cells.set(cell, people)
     units.set(p.id, u)
   }
   // 00408840 assigns panic/trail RNG in each socket's retained cell order.
   // Preserve this adapter's snapshot and legacy slots across repeated sockets.
   for (const [cell, people] of cells) {
+    people.reverse()
+    const members = new Map<CellObject, LivePerson>(people.map(person => [person, person]))
     const linked: LivePerson[] = []
     for (const object of objectsInCell(w.objectCells, ((cell & 127) << 1) | ((cell >>> 7) << 9))) {
-      const person = people.find(candidate => candidate === object)
+      const person = members.get(object)
       if (person) linked.push(person)
     }
     const owned = new Set(linked)
@@ -1131,12 +1142,17 @@ export function startMeleeKnockback(w: World, u: Unit) {
   p.flags2 = ((p.flags2 & ~0x40000000) | 0x83080) >>> 0
   p.flags3 |= 0x8000000
   p.flags4 |= 0x2000
-  setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
-  p.f1 = 1
-  // Carry the displayed recoil frame across the browser-to-native handoff.
-  // Ordinary fight poses still use elapsed turns rather than a retained person.
-  const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
-  p.f2 = Math.min(sprites.frameCounts[p.object] - 1, Math.max(0, Math.floor(elapsed * sprites.fps)))
+  // Native substate7 retains both counters from the processed recoil entry.
+  // Only a pose without that owner still needs the existing elapsed-time adapter.
+  if (!u.fight?.nativeRecoilAnimation) {
+    setLivePersonAnimation(w, p, meleeAnimationObject(u.kind, 'recoil'))
+    p.f1 = 1
+    const elapsed = w.time - (u.fight?.started ?? w.turn) / 12
+    p.f2 = Math.min(
+      sprites.frameCounts[p.object] - 1,
+      Math.max(0, Math.floor(elapsed * sprites.fps))
+    )
+  }
   groundVelocity(p.velocity, p, (random(w) % 70) + 35, (p.heading + 1024) & 2047, (x, y) =>
     terrainPointHeight(w.land, { x, y })
   )
@@ -1193,11 +1209,17 @@ export function registerLivePerson(w: World, p: LivePerson) {
 }
 
 // Grounded combat and airborne impulses share the original person physics.
-export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
-  stepLivePhysicsImpl(w, u, p)
+export function stepLivePhysics(w: World, u: Unit, p: LivePerson, initializeOwner?: () => void) {
+  stepLivePhysicsImpl(w, u, p, false, initializeOwner)
 }
 
-function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = false) {
+function stepLivePhysicsImpl(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  ownedImpulse = false,
+  initializeOwner?: () => void
+) {
   const fighting = p.state === 25 || p.state === 29,
     recovering = p.state === 33
   registerLivePerson(w, p)
@@ -1211,7 +1233,14 @@ function stepLivePhysicsImpl(w: World, u: Unit, p: LivePerson, ownedImpulse = fa
     const object = personAnimationObject(p)
     if (object !== -1) setLivePersonAnimation(w, p, object)
   }
-  const initialize = () => initializeLivePerson(w, u, stateContext(), p)
+  const initialize = () => {
+    if (!initializeOwner) return initializeLivePerson(w, u, stateContext(), p)
+    // The entry initializer commits its own RNG context. Synchronize either
+    // direction if a physics consumer already opened the ordinary context.
+    if (ctx) w.randomState = ctx.state.randomState
+    initializeOwner()
+    if (ctx) ctx.state.randomState = w.randomState
+  }
   p.counter = (p.counter + 1) & 255
   preparePersonTurn(p, w.manaWorld.gameFlags, {
     initialize,

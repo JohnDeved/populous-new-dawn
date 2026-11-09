@@ -160,7 +160,7 @@ test('public checkpoint observer waits for normal resumed notification and prese
 
 function preparationScene() {
   const store = createGameStore()
-  assert.equal(store.startDebugMission(22), true)
+  store.startMission(22)
   const world = store.getWorld()
   world.paused = true
   return { world, isCurrent: () => true, focus: () => {}, onChange: () => {} }

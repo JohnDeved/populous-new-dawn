@@ -2,7 +2,6 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -21,12 +20,10 @@ import {
   tutorialParagraphRows,
   tutorialRecommendationRows,
   tutorialRecommendationText,
-  wrapTutorialRecommendation,
 } from './tutorial-recommendation.ts'
 import {
   frontendBackground,
   frontendQuitRows,
-  frontendRows,
   frontendRowY,
   frontendScale,
   frontendTextWidth,
@@ -41,6 +38,8 @@ interface Props {
   onNewGame: () => void
   onTutorial: () => void
   onLoad: () => void
+  /** Optional review-only host; absent in the production caller. */
+  renderCredits?: (onBack: () => void, screen: { width: number; height: number }) => ReactNode
   renderOptions: (
     onBack: () => void,
     onTextRowsChange: (rows: FrontendTextRow[]) => void
@@ -144,6 +143,7 @@ export function OriginalMainMenu({
   onTutorial,
   onLoad,
   renderOptions,
+  renderCredits,
 }: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const frame = useRef<HTMLDivElement>(null)
@@ -158,9 +158,10 @@ export function OriginalMainMenu({
   const [focused, setFocused] = useState<string | null>(null)
   const returnFocus = useRef<string | null>(null)
   const recommendationCommitted = useRef(false)
-  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>(
-    'main'
-  )
+  const [panel, setPanel] = useState<
+    'main' | 'options' | 'quit' | 'tutorial-recommendation' | 'credits'
+  >('main')
+  if (panel === 'credits' && !renderCredits) setPanel('main')
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
   const [vectorFailures, setVectorFailures] = useState(
@@ -180,48 +181,6 @@ export function OriginalMainMenu({
   const artReady = prepared.fonts
   const questionReady = prepared.lowFont
   const logoReady = prepared.logo
-  const checkpointRecoveryNotices = {
-    idle: '',
-    read: '',
-    failed: 'Could not read browser storage. Your saved checkpoint may still be available.',
-    incompatible:
-      'This checkpoint is incompatible with the current development version. The stored save has not been changed.',
-    pending: 'Checking browser storage…',
-    unavailable: 'Browser storage is unavailable. You can still play and save for this session.',
-  }
-  const checkpointRecovery = useMemo(() => {
-    // Browser-only recovery needs a visible disclosure, not a new card. Keep the
-    // original menu rows fixed and reuse its measured wrap and 30px pitch in
-    // the two free rows below Quit. Copy also fits between the original badges;
-    // Retry always owns a separate second row. The lookup never writes the save.
-    const paragraphs = {
-      idle: [],
-      read: [],
-      failed: ['Lookup failed; save unchanged.'],
-      incompatible: ['Incompatible with this build.', 'Stored save unchanged.'],
-      pending: ['Checking browser storage...'],
-      unavailable: ['Browser storage is unavailable.', 'Play and save this session only.'],
-    }
-    const noticeRows = paragraphs[checkpointReadStatus]
-      .flatMap(wrapTutorialRecommendation)
-      .map((text, index) => ({ text, x: 320, y: 414 + index * 30 }))
-    const retry = checkpointReadStatus === 'failed' || checkpointReadStatus === 'pending'
-    const retryRow = { text: 'Retry checkpoint lookup', x: 320, y: 444 }
-    const retryReady = checkpointReadStatus === 'pending' ? questionReady : artReady
-    return {
-      noticeRows,
-      retry,
-      retryRow,
-      retryReady,
-      shadowRows: [
-        ...(artReady
-          ? frontendRows.map((text, index) => ({ text, x: 320, y: frontendRowY(index) }))
-          : []),
-        ...(questionReady ? noticeRows : []),
-        ...(retry && retryReady ? [retryRow] : []),
-      ],
-    }
-  }, [checkpointReadStatus, questionReady, artReady])
   useLayoutEffect(() => {
     const resize = () => {
       const scale = frontendScale(window.innerWidth, window.innerHeight)
@@ -239,22 +198,21 @@ export function OriginalMainMenu({
     }
   }, [])
   const draw = useCallback(() => {
+    if (panel === 'credits') return
     const context = canvas.current?.getContext('2d')
     if (context && prepared.composition) {
-      const panelRows =
+      const rgba = frontendBackground(
+        prepared.composition,
+        pointer.current,
+        panel === 'main',
+        pointerMode.current ? glowFrame.current : null,
         panel === 'options'
           ? optionRows
           : panel === 'tutorial-recommendation'
             ? tutorialRecommendationRows.filter(row =>
                 tutorialParagraphRows.includes(row) ? questionReady : artReady
               )
-            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady))
-      const rgba = frontendBackground(
-        prepared.composition,
-        pointer.current,
-        panel === 'main' && !checkpointRecovery.noticeRows.length,
-        pointerMode.current ? glowFrame.current : null,
-        panel === 'main' ? checkpointRecovery.shadowRows : panelRows,
+            : frontendQuitRows.filter((_, index) => (index === 0 ? questionReady : artReady)),
         canvasWidth,
         logoReady,
         artReady
@@ -278,40 +236,31 @@ export function OriginalMainMenu({
         badgeContext.putImageData(new ImageData(pixels, width, height), 0, 0)
       }
     }
-  }, [
-    panel,
-    optionRows,
-    canvasWidth,
-    questionReady,
-    artReady,
-    logoReady,
-    prepared,
-    vectorFailures,
-    checkpointRecovery,
-  ])
+  }, [panel, optionRows, canvasWidth, questionReady, artReady, logoReady, prepared, vectorFailures])
   useLayoutEffect(() => {
     draw()
   }, [draw])
   useEffect(() => {
-    const timer = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? undefined
-      : window.setInterval(() => {
-          if (!pointerMode.current || document.hidden) return
-          glowFrame.current = (glowFrame.current + 1) % 8
-          draw()
-        }, 101)
+    const timer =
+      panel === 'credits' || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? undefined
+        : window.setInterval(() => {
+            if (!pointerMode.current || document.hidden) return
+            glowFrame.current = (glowFrame.current + 1) % 8
+            draw()
+          }, 101)
     return () => {
       if (timer !== undefined) window.clearInterval(timer)
       cancelAnimationFrame(animation.current)
     }
-  }, [draw])
+  }, [draw, panel])
   useEffect(() => {
     if (panel === 'main') {
       const previous = [
         ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
       ].find(button => button.getAttribute('aria-label') === returnFocus.current)
       ;(previous ?? first.current)?.focus()
-    } else dialog.current?.querySelector<HTMLButtonElement>('[data-panel-back]')?.focus()
+    } else dialog.current?.querySelector<HTMLElement>('[data-panel-back]')?.focus()
   }, [panel])
   function back() {
     setPanel('main')
@@ -330,6 +279,15 @@ export function OriginalMainMenu({
     unavailable: 'Browser storage is unavailable',
     incompatible: 'Checkpoint is incompatible with this development version',
     read: 'No usable saved checkpoint',
+  }
+  const checkpointRecoveryNotices = {
+    idle: '',
+    read: '',
+    failed: 'Could not read browser storage. Your saved checkpoint may still be available.',
+    incompatible:
+      'This checkpoint is incompatible with the current development version. The stored save has not been changed.',
+    pending: 'Checking browser storage…',
+    unavailable: 'Browser storage is unavailable. You can still play and save for this session.',
   }
   const rows = [
     {
@@ -360,7 +318,11 @@ export function OriginalMainMenu({
       },
     },
     { label: 'Rolling Demo', unavailable: 'Original demo playback is not yet available' },
-    { label: 'Credits', unavailable: 'Original credits are not yet restored' },
+    {
+      label: 'Credits',
+      unavailable: renderCredits ? undefined : 'Original credits are not yet restored',
+      action: renderCredits ? () => setPanel('credits') : undefined,
+    },
     { label: 'Coming Soon', unavailable: 'Original preview is not yet restored' },
     { label: 'Quit', action: () => setPanel('quit') },
   ]
@@ -373,6 +335,7 @@ export function OriginalMainMenu({
       data-background-ready={prepared.background}
       data-cursor-ready={prepared.cursor}
       onPointerMove={event => {
+        if (panel === 'credits') return
         const bounds = frame.current?.getBoundingClientRect()
         if (!bounds) return
         // The dialog receives side-area motion; keep native coordinates relative
@@ -391,6 +354,7 @@ export function OriginalMainMenu({
         draw()
       }}
       onKeyDown={event => {
+        if (panel === 'credits') return
         pointerMode.current = false
         draw()
         // A held activation key must not follow Retry focus into Load Game.
@@ -432,7 +396,7 @@ export function OriginalMainMenu({
       }}
       onCancel={event => {
         event.preventDefault()
-        back()
+        if (panel !== 'credits') back()
       }}
       style={{ '--frontend-scale': scale } as CSSProperties}
     >
@@ -445,14 +409,16 @@ export function OriginalMainMenu({
           style={{ width: canvasWidth, left: (640 - canvasWidth) / 2 }}
           aria-hidden="true"
         />
-        {prepared.composition &&
+        {panel !== 'credits' &&
+          prepared.composition &&
           frontendBadges.map((badge, index) => {
             const image = prepared.badgeVectors?.[index]
             return image && !vectorFailures[index] ? (
               <BadgeVector key={badge.x} image={image} index={index} onError={failVector} />
             ) : null
           })}
-        {prepared.composition &&
+        {panel !== 'credits' &&
+          prepared.composition &&
           frontendBadgeBounds.map((badge, index) => (
             <canvas
               key={badge.x}
@@ -467,13 +433,15 @@ export function OriginalMainMenu({
               aria-hidden="true"
             />
           ))}
-        <h1 className={styles.title} aria-label="Populous: The Beginning">
-          {logoReady ? (
-            <span className={styles.logo} />
-          ) : (
-            <span className={styles.fallbackTitle}>Populous: The Beginning</span>
-          )}
-        </h1>
+        {panel !== 'credits' && (
+          <h1 className={styles.title} aria-label="Populous: The Beginning">
+            {logoReady ? (
+              <span className={styles.logo} />
+            ) : (
+              <span className={styles.fallbackTitle}>Populous: The Beginning</span>
+            )}
+          </h1>
+        )}
         {panel === 'main' && (
           <nav aria-label="Main menu choices" className={styles.rows}>
             {rows.map((row, index) => (
@@ -515,51 +483,21 @@ export function OriginalMainMenu({
           />
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
+        {panel === 'credits' && renderCredits && (
+          <div style={{ position: 'absolute', left: (640 - canvasWidth) / 2, top: 0 }}>
+            {renderCredits(back, { width: canvasWidth, height: 480 })}
+          </div>
+        )}
         {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
-          <section
-            className={`${styles.checkpointRecovery} ${styles.rows}`}
-            aria-label="Browser checkpoint recovery"
-          >
-            <p role="status">
-              <span className={styles.visuallyHidden}>
-                {checkpointRecoveryNotices[checkpointReadStatus]}
-              </span>
-              {checkpointRecovery.noticeRows.map(row => (
-                <span
-                  key={row.y}
-                  className={styles.question}
-                  style={{ top: row.y }}
-                  aria-hidden="true"
-                  data-checkpoint-notice-line={row.text}
-                >
-                  <MenuText text={row.text} highlighted={false} low ready={questionReady} />
-                </span>
-              ))}
-            </p>
-            {checkpointRecovery.retry && (
+          <section className={styles.checkpointRecovery} aria-label="Browser checkpoint recovery">
+            <p role="status">{checkpointRecoveryNotices[checkpointReadStatus]}</p>
+            {!['unavailable', 'incompatible'].includes(checkpointReadStatus) && (
               <button
                 type="button"
-                aria-label={checkpointRecovery.retryRow.text}
-                style={{
-                  top: checkpointRecovery.retryRow.y,
-                  width: Math.max(200, frontendTextWidth(checkpointRecovery.retryRow.text) + 16),
-                }}
                 disabled={checkpointReadStatus === 'pending'}
-                onPointerEnter={() => setHovered(checkpointRecovery.retryRow.text)}
-                onPointerLeave={() => setHovered(null)}
-                onFocus={() => setFocused(checkpointRecovery.retryRow.text)}
-                onBlur={() => setFocused(null)}
                 onClick={retryCheckpoint}
               >
-                <MenuText
-                  text={checkpointRecovery.retryRow.text}
-                  ready={checkpointRecovery.retryReady}
-                  low={checkpointReadStatus === 'pending'}
-                  highlighted={
-                    hovered === checkpointRecovery.retryRow.text ||
-                    focused === checkpointRecovery.retryRow.text
-                  }
-                />
+                Retry checkpoint lookup
               </button>
             )}
           </section>

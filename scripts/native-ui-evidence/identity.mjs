@@ -58,7 +58,7 @@ export function verifyManifest(root, manifest) {
   assert.deepEqual(sourceManifest(root, manifest.commit, name => Object.hasOwn(manifest.files, name)), manifest)
 }
 export const infrastructureInput = name => name.startsWith('scripts/native-ui-evidence/') ||
-  name === 'scripts/tutorial-browser/browser-config.mjs' || name === 'scripts/orchestration/dependency-profile.mjs' || name === workflowPath
+  name === 'scripts/browser-options-audio.mjs' || name === 'scripts/tutorial-browser/browser-config.mjs' || name === 'scripts/orchestration/dependency-profile.mjs' || name === workflowPath
 export function candidateDependency(root, name) {
   const entry = createRequire(resolve(root, 'package.json')).resolve(name)
   const canonical = realpathSync(entry)

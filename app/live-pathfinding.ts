@@ -147,11 +147,24 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
   }))
   const vehicles = liveVehicles(w),
     people = new Map(w.pathfinding.people)
+  // This synchronous query builds a fresh first-living-owner view. It is not
+  // retained across path planning or roster mutations; owner fields stay live.
+  let livingUnits: Map<number, Unit> | undefined
+  const driverUnit = (id: number) => {
+    if (!livingUnits) {
+      livingUnits = new Map()
+      for (const unit of w.units) {
+        const id = unit.id
+        if (unit.hp > 0 && !livingUnits.has(id)) livingUnits.set(id, unit)
+      }
+    }
+    return Number.isNaN(id) ? undefined : livingUnits.get(id)
+  }
   // Occupied-vehicle admission resolves persistent native drivers, independently
   // of whether they currently own an active person route.
   for (const vehicle of vehicles.values()) {
     people.delete(vehicle.passengers[0])
-    const unit = w.units.find(u => u.id === vehicle.passengers[0] && u.hp > 0),
+    const unit = driverUnit(vehicle.passengers[0]),
       owner = unit?.native ?? unit?.entry?.person ?? unit?.builder?.person
     if (
       owner &&
@@ -266,7 +279,7 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
     build: (_, from, to) =>
       buildPersonRoute(w.motionRoutes, p, from, to, searchOption, tribes[p.tribe], {
         findVehicle: (_, center, minimum, maximum) =>
-          nearestLiveBoat(w, p, center, minimum, maximum) ?? null,
+          nearestLiveBoat(w, p, center, minimum, maximum, people) ?? null,
         search: (_, _person, a, b, option, vehicles) => search(p, a, b, option, vehicles),
       }),
   }
@@ -294,6 +307,21 @@ export function buildLiveRecoveryRoute(w: World, u: Unit, p: LivePerson, option:
   const { planner, routeEffects } = routeContext(w, u, p, option)
   const from = { x: p.x >>> 8, y: p.y >>> 8 },
     to = { x: p.goalX >>> 8, y: p.goalY >>> 8 }
+  correctRouteEndpoints(planner, p, from, to, routeEffects)
+  return routeEffects.build(p, from, to)
+}
+
+// 004a74e0 uses the raw endpoint/build pair for its chosen resource. It does
+// not replace the person's goal or use the broader destination planner.
+export function buildLiveResourceRoute(
+  w: World,
+  u: Unit,
+  p: LivePerson,
+  target: { x: number; y: number }
+) {
+  const { planner, routeEffects } = routeContext(w, u, p, 0)
+  const from = { x: (p.x >>> 8) & 255, y: (p.y >>> 8) & 255 },
+    to = { x: (target.x >>> 8) & 255, y: (target.y >>> 8) & 255 }
   correctRouteEndpoints(planner, p, from, to, routeEffects)
   return routeEffects.build(p, from, to)
 }

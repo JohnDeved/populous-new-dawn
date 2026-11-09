@@ -1,5 +1,4 @@
-import { withoutCampaignPopup } from './support/world-input-page.mjs'
-import { worldPauseState } from '../scripts/browser-world-input.mjs'
+import { spyDeliveryFixture, corruptSpyDelivery } from './support/spy-delivery-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
@@ -33,14 +32,24 @@ function sample(f2 = 0) {
 function report() {
   const samples = [sample(), sample(1)]
   samples.forEach(row => { row.submittedLayers = row.pieces.length })
-  return { spyId: 100, targetId: 101, order: { target: 101, selected: [100], lastOrderTurn: 10 },
+  return { evidenceVersion: 3, delivery: spyDeliveryFixture(),
+    inputs: { 'scripts/controlled-scene-frames.mjs': spyDeliveryFixture().sha256 }, budget: { deadlineAt: 45000 },
+    capture: { version: 2, method: 'controlled-full-scene', frameMs: 1000 / 24,
+      maxFrames: 384, maxTurns: 192, frames: 8, turns: 4, startTurn: 18,
+      suppliedElapsedMilliseconds: 8 * (1000 / 24), deadlineAt: 45000,
+      installed: true, released: true, rafRestored: true, cancelRestored: true,
+      resumedRAF: true, foreign: false, error: null,
+      handback: { previous: 1000, timestamp: 1500, turn: 22, stamp: 40,
+        spyAndAnimationUnchanged: true, evidence: false } },
+    spyId: 100, targetId: 101, order: { target: 101, selected: [100], lastOrderTurn: 10 },
     holdBefore: { paused: true, turn: 22 },
     holdAfter: { paused: true, turn: 22 }, resumed: { paused: false, turn: 23 },
-    observation: { error: null, done: true, turns: [
-      { turn: 18, substate: 1, timer: 1, object: 48, entryArmed: false, f2: 0 },
-      { turn: 19, substate: 2, timer: 0, object: 48, entryArmed: true, f2: 0 },
-      { turn: 20, substate: 2, timer: 23, object: 136, entryArmed: false, f2: 0 },
-    ].map(row => ({ ...row, spyId: 100, targetId: 101, target: 101, speed: 1, paused: false, sceneStoreMatch: true })), samples: [
+    observation: { error: null, done: true, nonAdvancingCallbacks: 0,
+      hook: { installed: true, restored: true, foreign: false },
+      turnSamples: [19, 20, 21, 22].map(turn => ({ spyId: 100, targetId: 101, target: 101,
+        turn, speed: 1, paused: false, substate: 2, entryArmed: turn === 19,
+        object: turn === 19 ? 48 : 136, timer: turn === 19 ? 0 : 43 - turn,
+        f2: turn === 19 || turn === 20 ? 0 : 1 })), samples: [
       { substate: 1, target: 101 },
       { substate: 2, entryArmed: true, object: 48, timer: 0, turn: 19 }, ...samples],
     crops: samples.map(row => ({ filename: row.cropFile, spyId: row.spyId,
@@ -49,25 +58,28 @@ function report() {
 
 test('Spy browser evidence admits actual source136 identity and rejects substituted or incomplete render observations', () => {
   assert.deepEqual(validateSpySourceObservation(report()).croppedFrames, [0, 1])
-  const catchUp = report(); catchUp.observation.samples.splice(1, 1)
-  assert.deepEqual(validateSpySourceObservation(catchUp).croppedFrames, [0, 1],
-    'Pending entry witnessed by its real logical visit need not have its own rendered frame')
   for (const change of [
+    ...corruptSpyDelivery,
+    r => { delete r.evidenceVersion },
+    r => { r.capture.resumedRAF = false },
+    r => { r.capture.handback.evidence = true },
+    r => { r.capture.foreign = true },
+    r => { r.capture.frames = 385 },
+    r => { r.captureCleanupFailure = 'restore failed' },
+    r => { r.observation.hook.restored = false },
+    r => { r.observation.turnSamples.splice(1, 1) },
+    r => { r.observation.turnSamples[1].timer = 22 },
+    r => { r.observation.turnSamples[1].f2 = 1 },
+    r => { r.observation.turnSamples[1].object = 48 },
+    r => { r.observation.crops[0].f2 = 1 },
     r => { r.observation.error = 'Page failed' },
     r => { r.order.target = 102 },
     r => { r.order.selected = [102] },
     r => { r.observation.samples[2].spyId++ },
     r => { r.observation.done = false },
     r => { r.observation.samples = r.observation.samples.filter(row => row.substate !== 1) },
-    r => { delete r.observation.turns },
-    r => { r.observation.turns.splice(1, 1) },
-    r => { r.observation.turns[1].spyId++ },
-    r => { r.observation.turns[1].object = 136 },
-    r => { r.observation.turns[1].turn++ },
-    r => { r.observation.turns[0].timer = 2 },
-    r => { r.observation.turns[2].timer = 22 },
-    r => { r.observation.turns[2].f2 = 1 },
-    r => { r.observation.turns[2].target++ },
+    r => { r.observation.samples.splice(1, 1) },
+    r => { r.observation.samples[1].object = 136 },
     r => { r.observation.samples[2].timer = 24 },
     r => { r.observation.samples[2].turn++ },
     r => { r.observation.samples[2].frame = 0 },
@@ -154,11 +166,13 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   const api = await loadSceneFixture()
   const { currentPersonOrder } = await import('../app/person-orders.ts')
   api.select(world, 'spy')
-  const actions = [], page = withoutCampaignPopup({
-    evaluate: async fn => { assert.equal(fn, worldPauseState); return { paused: world.paused, inputMask: 0, turn: world.turn } },
-    keyboard: { press: async key => { assert.equal(key, 'Space'); world.paused = false; actions.push('resume') } },
+  const actions = [], page = {
+    getByRole(role, { name, exact }) {
+      assert.equal(role, 'button'); assert.equal(name, 'Resume game'); assert.equal(exact, true)
+      return { click: async () => { world.paused = false; actions.push('resume') } }
+    },
     waitForFunction: async () => { assert.equal(world.paused, false); actions.push('running') },
-  }), action = async (_name, run) => run()
+  }, action = async (_name, run) => run()
   assert.equal(api.disguiseSelectedSpies(world, 1), false, 'the actual shipped command rejects paused input')
   await resumeSpySourceInput(page, action, 'Disguise as Dakini', async () => {
     assert.equal(api.disguiseSelectedSpies(world, 1), true); actions.push('disguise')
@@ -188,7 +202,7 @@ test('current checkpoint supplies a truly trained Spy but never seeds disguise o
   assert.equal(world.turn, armed.turn + 1)
 })
 
-test('the exact Spy checkpoint introduction outlasts 8s but the production native interruption releases its own input bit', async () => {
+test('the exact Spy checkpoint introduction outlasts 8s but the production public Skip releases its own input bit', async () => {
   const fixture = await createSpySourceFixture('a'.repeat(40)),
     world = checkpointCodec(fixture.transfer, true).world,
     { skipIntroduction, updateFlyby } = await import('../app/scene-camera-runtime.ts'),
@@ -217,58 +231,62 @@ test('the exact Spy checkpoint introduction outlasts 8s but the production nativ
   assert.equal(world.turn, turn)
 })
 
-test('Spy readiness observes actual owners and presses Space only for an interruptible introduction within the same 8s cap', async () => {
+test('Spy readiness observes actual owners and clicks only the public interruptible introduction within the same 8s cap', async () => {
   await assert.rejects(awaitSpySourceReadiness({ deadlineAt: NaN }), /Original Spy episode deadline/)
   const original = { window: globalThis.window, document: globalThis.document,
     getComputedStyle: globalThis.getComputedStyle }
   try {
     for (const mode of ['skip', 'ready', 'short-host', 'blocked', 'wrong-scene', 'loading', 'disconnected',
-      'inactive', 'unrelated-lock', 'uninterruptible', 'already-skipping', 'skip-failed']) {
+      'disabled', 'hidden', 'uninterruptible', 'already-skipping', 'skip-failed']) {
       const world = { outcome: { level: 1 }, turn: 116, paused: false,
-        inputMask: ['ready', 'short-host'].includes(mode) ? 0 : mode === 'blocked' ? 4 : mode === 'unrelated-lock' ? 192 : 64,
-        flyby: { flags: mode === 'uninterruptible' ? 1 : mode === 'inactive' ? 16 : mode === 'already-skipping' ? 85 : 21,
+        inputMask: ['ready', 'short-host'].includes(mode) ? 0 : mode === 'blocked' ? 4 : 64,
+        flyby: { flags: mode === 'uninterruptible' ? 1 : mode === 'already-skipping' ? 85 : 21,
           frame: 0, warmup: 6 } },
         before = structuredClone(world),
+        button = { disabled: mode === 'disabled', getClientRects: () => [1] },
         scene = { world: mode === 'wrong-scene' ? {} : world,
           renderer: { domElement: { isConnected: mode !== 'disconnected' } } },
         report = {}, calls = []
       globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
-      globalThis.document = { querySelector: selector => {
-        assert.equal(selector, '.loading-world', 'readiness cannot depend on a removed Skip control')
-        return mode === 'loading' ? {} : null
-      } }
+      globalThis.document = { querySelector: selector => selector === '.loading-world'
+        ? (mode === 'loading' ? {} : null) : button }
+      globalThis.getComputedStyle = () => ({ visibility: mode === 'hidden' ? 'hidden' : 'visible' })
       const snapshot = readSpySourceReadiness()
       assert.deepEqual(world, before, 'observation is read-only')
       const page = {
-        evaluate: async (fn, arg) => fn(arg),
+        evaluate: async fn => fn(),
         waitForFunction: async (fn, arg, options) => {
           assert.ok(options.timeout > 0 && options.timeout <= 8000)
           const result = fn(arg)
           if (!result) throw Error('readiness predicate blocked')
           return { jsonValue: async () => result, dispose: async () => calls.push('dispose') }
         },
-        keyboard: { press: async key => {
-          assert.equal(key, 'Space')
-          calls.push('press')
-          if (mode === 'skip-failed') throw Error('public Space failed')
-          // Keyboard unit boundary only. Rendered execution sends the real key.
-          world.inputMask = 0; world.flyby.flags &= ~1
-        } },
+        getByRole: (role, options) => {
+          assert.equal(role, 'button')
+          assert.equal(options.name.source, '^Skip introduction')
+          return { click: async options => {
+            calls.push('click')
+            assert.ok(options.timeout > 0 && options.timeout <= 8000)
+            if (mode === 'skip-failed') throw Error('public click failed')
+            // Browser double only. Real execution uses the button, never a world write.
+            world.inputMask = 0; world.flyby.flags &= ~1
+          } }
+        },
       }
       const deadlineAt = Date.now() + (mode === 'short-host' ? 500 : 45000),
-        run = awaitSpySourceReadiness({ page: withoutCampaignPopup(page), report,
+        run = awaitSpySourceReadiness({ page, report,
         action: async (name, run) => { calls.push(name); await run() },
         save: () => calls.push('save'), deadlineAt })
       if (['skip', 'ready', 'short-host'].includes(mode)) {
         await run
         assert.equal(report.readiness.after.action, 'ready')
         assert.equal(report.readiness.after.sceneStoreMatch, true)
-        assert.equal(calls.filter(call => call === 'press').length, mode === 'skip' ? 1 : 0)
+        assert.equal(calls.filter(call => call === 'click').length, mode === 'skip' ? 1 : 0)
       } else {
-        await assert.rejects(run, mode === 'skip-failed' ? /public Space failed/ : /predicate blocked/)
+        await assert.rejects(run, mode === 'skip-failed' ? /public click failed/ : /predicate blocked/)
         assert.deepEqual(report.readiness.failed, snapshot, 'failure retains bounded owner diagnostics')
         assert.equal(report.readiness.after, undefined)
-        assert.equal(calls.filter(call => call === 'press').length, mode === 'skip-failed' ? 1 : 0)
+        assert.equal(calls.filter(call => call === 'click').length, mode === 'skip-failed' ? 1 : 0)
       }
       assert.equal(report.readiness.capMs, spySourceReadinessMs)
       assert.equal(report.readiness.deadlineAt, Math.min(report.readiness.startedAt + 8000, deadlineAt))
@@ -311,4 +329,36 @@ test('the wired Spy witness retains the M10 artifact root and existing job cap w
   const observer = readFileSync(new URL('../scripts/tutorial-browser/spy-source-observer.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(observer, /(?:world|p|spy)\.(?:paused|substate|timer|object|f1|f2)\s*=(?!=)/)
   assert.doesNotMatch(observer, /scene\.animate|tick\(|advanceGame|stepLiveBuildingAttack/)
+})
+
+test('ordinary catch-up keeps exact Spy logical entry even when the next rendered state is frame1', async () => {
+  const fixture = await createSpySourceFixture('a'.repeat(40)),
+    { world } = checkpointCodec(fixture.transfer, true),
+    { loadSceneFixture } = await import('./support/bloodlust-scene.mjs'), api = await loadSceneFixture(),
+    spy = world.units.find(u => u.id === fixture.spyId), target = world.buildings.find(b => b.id === fixture.targetId)
+  // CPU setup, not a public browser input or pixel claim.
+  api.select(world, 'spy'); world.paused = false
+  assert.equal(api.disguiseSelectedSpies(world, 1), true)
+  for (let n = 0; spy.native.disguise !== 0x40 && n < 100; n++) api.tick(world, 1 / 12)
+  assert.equal(spy.native.disguise, 0x40)
+  assert.equal(api.command(world, target), true)
+  const clock = { animationTime: 0, animationFrame: 0 }
+  for (let n = 0; !(spy.native.substate === 2 && (spy.native.flags2 & 0x40000000)) && n < 360; n++)
+    api.advanceGame(world, clock, 1 / 24)
+  assert.equal(spy.native.substate, 2); assert.ok(spy.native.flags2 & 0x40000000)
+  const armedTurn = world.turn, visits = []
+  clock.afterTurn = () => visits.push({ turn: world.turn, object: spy.native.object,
+    timer: spy.native.timer, f2: spy.native.f2 })
+  api.advanceGame(world, clock, 1 / 6)
+  assert.deepEqual(visits, [
+    { turn: armedTurn + 1, object: 136, timer: 23, f2: 0 },
+    { turn: armedTurn + 2, object: 136, timer: 22, f2: 0 },
+  ]) // afterTurn precedes logical animation; do not relabel it as a rendered sample.
+  assert.equal(world.turn, armedTurn + 2)
+  assert.equal(spy.native.timer, 22)
+  assert.equal(spy.native.f2, 1)
+  const missingRaster = report()
+  missingRaster.observation.samples.splice(2, 1)
+  missingRaster.observation.crops.shift()
+  assert.throws(() => validateSpySourceObservation(missingRaster), 'Logical entry never substitutes missing frame0 pixels')
 })

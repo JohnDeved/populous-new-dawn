@@ -18,11 +18,6 @@ import {
   type SceneVertex,
 } from './world-selector-geometry.ts'
 
-// Page-lifetime recovery namespace. Returning to the selector after a successful
-// Retry must not revert to the original URL whose decoded image may be corrupt.
-// Only an explicit recovery load rotates it; asynchronous callbacks never do.
-let textureRecoveryQuery = ''
-
 const vertexSource = `#version 300 es
 in vec3 position;
 in float reciprocalW;
@@ -167,13 +162,7 @@ export class SelectorRenderer {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
     return texture
   }
-  async load(retry = false) {
-    // Explicit reload attempts must not reuse a previously decoded corrupt
-    // image. A fresh token also remains distinct across selector remounts.
-    // Loads before any recovery retain static URLs. Later remounts inherit the
-    // latest namespace, captured once so overlapping loads stay independent.
-    if (retry) textureRecoveryQuery = `?retry=${crypto.randomUUID()}`
-    const query = textureRecoveryQuery
+  async load() {
     await Promise.all(
       ['sun', 'ring', ...selectorWorlds.slice(1).map(body => `mission-${body.mission}`)].map(
         name =>
@@ -204,7 +193,7 @@ export class SelectorRenderer {
               this.images.delete(image)
               reject(new Error(`Scene texture unavailable: ${name}`))
             }
-            image.src = `/original/world-selector/globes/${name}.png${query}`
+            image.src = `/original/world-selector/globes/${name}.png`
           })
       )
     )

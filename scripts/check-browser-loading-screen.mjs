@@ -1,4 +1,3 @@
-import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -93,7 +92,9 @@ async function selectMission(page, mission) {
 }
 
 async function skipIntroduction(page) {
-  await skipIntroductionWithSpace(page)
+  const button = page.getByRole('button', { name: /Skip introduction/ })
+  await button.waitFor()
+  await button.click()
   await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
 }
 
@@ -237,7 +238,7 @@ async function runRequiredTextureRetryCase(browser, target) {
   // A successful retry is now warm: a same-page scene replacement reuses both essential
   // atlas cache entries without touching the network again.
   const warmCounts = control.snapshot()
-  await page.getByRole('button', { name: 'Menu' }).click()
+  await page.getByRole('button', { name: 'Game settings' }).click()
   await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
   await page.getByRole('button', { name: 'Yes', exact: true }).click()
   await page.locator('.loading-world').waitFor({ state: 'detached' })
@@ -381,7 +382,7 @@ try {
   await skipIntroduction(page)
 
   // Restart is a normal entry path and gets exactly the same dormant-before-ready lifecycle.
-  await page.getByRole('button', { name: 'Menu' }).click()
+  await page.getByRole('button', { name: 'Game settings' }).click()
   hold = beginHold()
   await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
   await page.getByRole('button', { name: 'Yes', exact: true }).click()
@@ -410,7 +411,7 @@ try {
   await skipIntroduction(page)
 
   // A stale pending restart must abort/dispose without ever installing input or RAF.
-  await page.getByRole('button', { name: 'Menu' }).click()
+  await page.getByRole('button', { name: 'Game settings' }).click()
   hold = beginHold()
   await page.getByRole('button', { name: 'Restart Level', exact: true }).click()
   await page.getByRole('button', { name: 'Yes', exact: true }).click()

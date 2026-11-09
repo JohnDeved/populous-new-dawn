@@ -64,7 +64,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: '19321bcee0ed17a93b709cb602dd070c'
-          wranglerVersion: '4.92.0'
+          # Worker-scoped preview URL fields; no account-subdomain permission needed.
+          wranglerVersion: '4.136.1'
           packageManager: npm
           workingDirectory: .cloudflare-publisher
           # Fixed trusted preflight runs AFTER tool install, immediately before upload.

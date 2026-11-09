@@ -1,5 +1,4 @@
-import { skipIntroductionWithSpace } from './browser-introduction.mjs'
-import { launchCampaignMission } from './browser-game.mjs'
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -24,10 +23,11 @@ try {
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
-  await launchCampaignMission(page, 1)
+  await showAllMissions(page)
+  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1)
-  await skipIntroductionWithSpace(page)
+  await page.keyboard.press('Escape')
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })

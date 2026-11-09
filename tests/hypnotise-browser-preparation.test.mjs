@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs'
 
 for (const initialVisits of [0, 1, 20, 60]) test(`opt-in Hypnotise earns stock after ${initialVisits} ordinary startup visits`, async () => {
   const store = createGameStore()
-  assert.equal(store.startDebugMission(22), true)
+  store.startMission(22)
   const world = store.getWorld()
   world.paused = false
   for (let i = 0; i < initialVisits; i++) tick(world, 1 / 12)
@@ -79,21 +79,47 @@ function observation() {
     return { filename: s.cropFile, frame: s.frame, turn: s.turn, stamp: s.stamp, colors: 12 }
   })
   return { error: null, bornTurn: 20, birth: { id: 7, remaining: 16, stock: 0, cue: true },
+    logicalExpiry: { turn: 36, id: 7, remaining: 0, present: false },
     terminal: { reason: 'logical-expiry', turn: 36, present: false, meshPresent: false, remaining: 0 },
+    hook: { installed: true, restored: true, foreign: false },
+    birthHook: { installed: true, restored: true, foreign: false },
+    turnSamples: [{ id: 7, turn: 24, remaining: 12, converted: [] },
+      { id: 7, turn: 25, remaining: 11, converted: [90, 91] }],
     samples, crops }
 }
 
 test('Hypnotise rendered contract requires authored frames, callback timing, real crop attribution and cleanup', () => {
   validateHypnotiseObservation(observation(), atlas)
+  // A later actual RAF is valid only with a separate exact sixteen-visit expiry witness.
+  const laterPresentation = observation()
+  laterPresentation.terminal.turn++
+  validateHypnotiseObservation(laterPresentation, atlas)
+  assert.equal(laterPresentation.logicalExpiry.turn - laterPresentation.bornTurn, 16)
+  assert.equal(laterPresentation.terminal.turn, 37)
   for (const breakWitness of [
     o => { o.samples[0].frame = 1288 },
     o => { o.samples[0].uv[0] = 1 },
     o => { o.samples[0].submitted = false },
-    o => { o.samples[3].converted = [] },
-    o => { o.samples[2].converted = [90] },
+    o => { o.turnSamples[1].converted = [] },
+    o => { o.turnSamples[0].converted = [90] },
+    o => { o.turnSamples[1].remaining = 10 },
+    o => { o.turnSamples[1].turn++ },
+    o => { o.turnSamples[1].id++ },
+    o => { o.hook.restored = false },
+    o => { o.birthHook.restored = false },
+    o => { o.birthHook.foreign = true },
+    o => { o.birth.remaining = 15 },
     o => { o.crops[0].stamp++ },
     o => { o.crops[0].colors = 1 },
     o => { o.terminal.turn-- },
+    o => { o.logicalExpiry.turn-- },
+    o => { o.logicalExpiry.turn++ },
+    o => { delete o.logicalExpiry },
+    o => { o.logicalExpiry.id++ },
+    o => { o.logicalExpiry.remaining = 1 },
+    o => { o.logicalExpiry.present = true },
+    o => { o.terminal.remaining = 1 },
+    o => { o.terminal.present = true },
     o => { o.terminal.meshPresent = true },
     o => { o.birth.cue = false },
   ]) {

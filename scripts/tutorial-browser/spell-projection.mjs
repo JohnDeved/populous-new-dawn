@@ -1,5 +1,3 @@
-import { setWorldPaused } from '../browser-world-input.mjs'
-import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
@@ -106,14 +104,20 @@ export default async function spellProjection({ browser, url, output, root, dist
     await button('Start Mission 1').click()
     await bindGame(page)
     const startup = await page.waitForFunction(() => {
-      const world = window.testStore.getWorld()
+      const world = window.testStore.getWorld(),
+        skip = document.querySelector('button.skip-introduction')
       if (!world.inputMask) return 'ready'
-      return (world.inputMask & 64) && (world.flyby.flags & 0x51) === 0x11 ? 'skip' : false
+      return skip &&
+        skip.getClientRects().length &&
+        getComputedStyle(skip).visibility !== 'hidden' &&
+        !skip.disabled
+        ? 'skip'
+        : false
     })
     if ((await startup.jsonValue()) === 'skip')
-      await skipIntroductionWithSpace(page, { timeout: 10000 })
+      await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await setWorldPaused(page, true, { timeout: 10000 })
+    await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await page.evaluate(() => {
       window.spellProjectionWitness = {
@@ -178,12 +182,12 @@ export default async function spellProjection({ browser, url, output, root, dist
     })
     coverageStarted = true
     await cdp.send('Profiler.takePreciseCoverage') // Reset startup/paused activity immediately before public Resume.
-    await setWorldPaused(page, false, { timeout: 10000 })
+    await button('Resume game').click()
     await page.waitForFunction(
       turn => !window.testStore.getWorld().paused && window.testStore.getWorld().turn >= turn + 8,
       report.before.turn
     )
-    await setWorldPaused(page, true, { timeout: 10000 })
+    await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     const coverage = await cdp.send('Profiler.takePreciseCoverage')
     report.after = await read()

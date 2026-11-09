@@ -1,5 +1,3 @@
-import { createResultClock, advanceResultClock } from '../app/result-session.ts'
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 // Actual Scene methods/field initializers and Page Load/retry bodies, with the
 // existing Node TS loader. Texture IO, DOM, GPU and unrelated drawing are supplied.
 // This is composed caller coverage, not a full constructor or browser witness.
@@ -118,8 +116,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       else delete globalThis[name]
     }
   })
-  const store = await createCampaignFixtureStore([3])
-  assert.equal(store.startMission(3), true)
+  const store = createGameStore()
+  store.startMission(3)
   function makeScene() {
     const world = store.getWorld(),
       presentationBinding = store.bindPresentation(world),
@@ -138,6 +136,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
           domElement: disposable(),
           initTexture: texture => calls.push(['texture', texture.image.src]),
           getPixelRatio: () => 1,
+          forceContextLoss: () => calls.push(['context loss']),
         },
         unitMotion: { beforeTurn: nop, afterTurn: nop },
         projectileMotion: { beforeTurn: nop, afterTurn: nop },
@@ -158,6 +157,7 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
         globe: disposable(),
         waterMap: disposable(),
         terrainMap: disposable(),
+        terrainUpload: {}, minimap: { revision: undefined },
         view: disposable(),
         tooltipElement: disposable(),
         pointerOutline: disposable(),
@@ -178,12 +178,10 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       scene
     )
     scene.gameClock = execute(`return ${field('gameClock')}`, {}, scene)
-    scene.resultClock = execute(`return ${field('resultClock')}`, { createResultClock }, scene)
     scene.animate = execute(
       `return ${field('animate')}`,
       {
         syncSecondaryReservations,
-        advanceResultClock,
         advanceGame: api.advanceGame,
         updateVehiclesFrame: nop,
         SPELLS: api.SPELLS,
@@ -250,13 +248,11 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       store,
       loadRequest,
       audio: { current: { reset: nop } },
-      menuSession: { current: null },
+      followerPress: { current: null }, menuSession: { current: null },
       pendingMenuCamera: { current: [] },
       cancelNearbyInput: nop,
       engine: { current: null },
       setCheatsOpen: value => pageEvents.push(['cheatsOpen', value]),
-      setDebugPicker: value => assert.equal(value, false, 'each admitted load closes diagnostic entry'),
-      setResultInputCycles: value => assert.equal(value, 0, 'each admitted load resets result input time'),
       setSelectorOpen: nop,
       setMenu: nop,
       setReady: value => pageEvents.push(['ready', value]),
@@ -316,6 +312,9 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
     snapshot,
     'Scene disposal does not reset shared phase'
   )
+  for (const fixture of [first, rejected, stale, next])
+    assert.equal(fixture.calls.filter(([kind]) => kind === 'context loss').length, 1,
+      'each retired Scene reaches its supplied context-loss boundary once')
 })
 
 test('actual world building caller binds the Temple shader across nine selections without changing source UVs', async () => {
@@ -323,8 +322,8 @@ test('actual world building caller binds the Temple shader across nine selection
     { createGameStore } = await import('../app/game-store.ts'),
     { nativeModel } = await import('../app/scene-assets.ts'),
     { templeTileOffset } = await import('../app/temple-art.ts'),
-    store = await createCampaignFixtureStore([3])
-  assert.equal(store.startMission(3), true)
+    store = createGameStore()
+  store.startMission(3)
   // Supporting renderer fixture only; ordinary QA must earn and build its Temple.
   const world = store.getWorld(),
     temple = api.addBuilding(world, 'blue', 'temple', { x: 24, z: 70 }, true),
@@ -450,8 +449,8 @@ test('actual training factories reuse all16 meshes and qualify completed Temple 
 test('actual Page async import and rejection callbacks cannot publish from a replaced World before cleanup', async () => {
   await loadSceneFixture()
   const { createGameStore } = await import('../app/game-store.ts'),
-    store = await createCampaignFixtureStore([3])
-  assert.equal(store.startMission(3), true)
+    store = createGameStore()
+  store.startMission(3)
   const world = store.getWorld(),
     errors = [],
     events = [],

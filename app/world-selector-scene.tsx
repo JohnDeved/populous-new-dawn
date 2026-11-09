@@ -2,51 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { selectorWorlds } from './world-selector-data'
 import { SelectorMotion, sceneStep } from './world-selector-motion'
 import { SelectorRenderer } from './world-selector-renderer'
-import frontend from './original-frontend.json'
 import styles from './world-selector.module.css'
-
-// Browser recovery is not a native menu. Use the original gold label bank on the
-// black failure clear, then the original pale highlight for the Retry action.
-// Keep readable text if art fails; this does not change native menu state mapping.
-function SceneRecoveryText({
-  text,
-  ready,
-  low = false,
-}: {
-  text: string
-  ready: boolean
-  low?: boolean
-}) {
-  if (!ready)
-    return (
-      <span className={styles.sceneRecoveryFallback} aria-hidden="true">
-        {text}
-      </span>
-    )
-  const bank = frontend.banks.felo33we
-  const scaled = (pixels: number) => `calc(var(--panel-width) * ${pixels} / 640)`
-  return (
-    <span className={styles.sceneRecoveryText} aria-hidden="true">
-      {[...text].map((letter, index) => {
-        const glyph = bank.rects[letter.charCodeAt(0) - 32]
-        return (
-          <i
-            key={index}
-            style={{
-              width: scaled(glyph.w),
-              height: scaled(glyph.h),
-              backgroundPosition: `${scaled(-glyph.x)} ${scaled(-glyph.y)}`,
-              backgroundSize: `${scaled(bank.width)} ${scaled(bank.height)}`,
-              backgroundImage: low
-                ? "url('/original/frontend/felo33we.png')"
-                : 'var(--selector-recovery-font)',
-            }}
-          />
-        )
-      })}
-    </span>
-  )
-}
 
 export function WorldSelectorScene({
   mission,
@@ -56,10 +12,11 @@ export function WorldSelectorScene({
   progressionMission: number
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const sceneContainer = useRef<HTMLDivElement>(null)
+  const retryControl = useRef<HTMLButtonElement>(null)
   const selection = useRef({ mission, progressionMission })
   const [failed, setFailed] = useState(false)
   const [generation, setGeneration] = useState(0)
-  const [recoveryFonts, setRecoveryFonts] = useState<string[]>([])
   useEffect(() => {
     selection.current = { mission, progressionMission }
   }, [mission, progressionMission])
@@ -73,10 +30,17 @@ export function WorldSelectorScene({
     let loaded = false,
       broken = false
     const motion = new SelectorMotion()
+    // Retry and context restoration remove the failure controls. Move only
+    // their current focus owner to a stable, non-launch destination first.
+    if (retryControl.current?.contains(document.activeElement))
+      sceneContainer.current?.focus({ preventScroll: true })
     setFailed(false)
     delete canvas.dataset.ready
     canvas.dataset.generation = String(generation)
+    // Optional selector artwork must reach the existing retry UI, not hang forever.
+    const loadTimer = setTimeout(fail, 10_000)
     function fail() {
+      clearTimeout(loadTimer)
       if (disposed) return
       broken = true
       cancelAnimationFrame(frame)
@@ -126,8 +90,9 @@ export function WorldSelectorScene({
     try {
       renderer = new SelectorRenderer(canvas)
       renderer
-        .load(generation > 0)
+        .load()
         .then(() => {
+          clearTimeout(loadTimer)
           loaded = true
           if (!disposed && !broken && !document.hidden) frame = requestAnimationFrame(draw)
         })
@@ -137,6 +102,7 @@ export function WorldSelectorScene({
     }
     return () => {
       disposed = true
+      clearTimeout(loadTimer)
       cancelAnimationFrame(frame)
       canvas.removeEventListener('webglcontextlost', lost)
       canvas.removeEventListener('webglcontextrestored', restored)
@@ -145,7 +111,12 @@ export function WorldSelectorScene({
     }
   }, [generation])
   return (
-    <div className={styles.scene} aria-label="Original star-system scene">
+    <div
+      ref={sceneContainer}
+      className={styles.scene}
+      aria-label="Original star-system scene"
+      tabIndex={-1}
+    >
       <canvas
         ref={canvasRef}
         data-world-scene="true"
@@ -153,42 +124,10 @@ export function WorldSelectorScene({
         style={{ visibility: failed ? 'hidden' : 'visible' }}
       />
       {failed && (
-        <div className={styles.sceneFailure}>
-          {['fehi33we', 'felo33we'].map(name => (
-            <img
-              key={name}
-              src={`/original/frontend/${name}.png`}
-              alt=""
-              hidden
-              onLoad={() =>
-                setRecoveryFonts(previous =>
-                  previous.includes(name) ? previous : [...previous, name]
-                )
-              }
-              onError={() => setRecoveryFonts(previous => previous.filter(font => font !== name))}
-            />
-          ))}
-          <p role="status">
-            <span className={styles.visuallyHidden}>
-              Star-system image unavailable. Mission controls still work.
-            </span>
-            {['Star-system image unavailable.', 'Mission controls still work.'].map(text => (
-              <span key={text} className={styles.sceneRecoveryLine}>
-                <SceneRecoveryText text={text} low ready={recoveryFonts.includes('felo33we')} />
-              </span>
-            ))}
-          </p>
-          <button
-            type="button"
-            className={styles.sceneRetry}
-            aria-label="Retry scene"
-            data-selector-recovery="true"
-            onClick={() => setGeneration(value => value + 1)}
-          >
-            <SceneRecoveryText
-              text="Retry scene"
-              ready={recoveryFonts.includes('felo33we') && recoveryFonts.includes('fehi33we')}
-            />
+        <div className={styles.sceneFailure} role="status">
+          <p>Star-system image unavailable. Mission controls still work.</p>
+          <button ref={retryControl} onClick={() => setGeneration(value => value + 1)}>
+            Retry scene
           </button>
         </div>
       )}

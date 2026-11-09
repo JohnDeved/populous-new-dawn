@@ -21,7 +21,7 @@ for (const [mission, bank, atlas] of [
   test(`actual M${mission} building caller shares ${bank} animation across all Temple tribes`, async () => {
     const api = await loadSceneFixture(),
       store = createGameStore()
-    if (mission !== 1) assert.equal(store.startDebugMission(mission), true)
+    if (mission !== 1) store.startMission(mission)
     const world = store.getWorld(),
       binding = store.bindPresentation(world),
       fixture = await makeHutSmokeScene(world),
@@ -84,7 +84,7 @@ for (const [mission, bank, atlas] of [
 test('actual non-Blue completion joins the running resource instead of starting a local flame', async () => {
   const api = await loadSceneFixture(),
     store = createGameStore()
-  assert.equal(store.startDebugMission(3), true)
+  store.startMission(3)
   const world = store.getWorld(),
     temple = api.addBuilding(world, 'yellow', 'temple', { x: 24, z: 70 }, true),
     binding = store.bindPresentation(world),
@@ -151,7 +151,7 @@ test('actual acquisition sprite caller preserves M1 and other p-mission companio
     const drawn = [],
       pixels = [],
       store = createGameStore()
-    assert.equal(store.startDebugMission(mission), true)
+    store.startMission(mission)
     globalThis.document = {
       createElement: () => ({
         getContext: () => ({
@@ -194,7 +194,7 @@ test('shared resources do not expand authored building-reward provenance', () =>
     [3, 'temple', 5],
   ]) {
     const store = createGameStore()
-    assert.equal(store.startDebugMission(mission), true)
+    store.startMission(mission)
     const world = store.getWorld(),
       vault = world.shrines.find(shrine => shrine.kind === 'vault' && shrine.reward === reward)
     assert.ok(vault)
@@ -204,11 +204,11 @@ test('shared resources do not expand authored building-reward provenance', () =>
     assert.equal(createGift(world, reward, vault).buildingAcquisition, undefined)
   }
   const source = createGameStore()
-  assert.equal(source.startDebugMission(3), true)
+  source.startMission(3)
   const original = source.getWorld().shrines.find(shrine => shrine.reward === 'temple')
   for (const mission of [6, 10]) {
     const store = createGameStore()
-    assert.equal(store.startDebugMission(mission), true)
+    store.startMission(mission)
     const world = store.getWorld(),
       supplied = structuredClone(original)
     world.shrines.push(supplied)

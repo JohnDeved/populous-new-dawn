@@ -16,7 +16,7 @@ export function tooltipLayout(text: string, screenWidth: number, screenHeight: n
       let end = start,
         pixels = 0,
         lastBreak = -1
-      while (end < codes.length && pixels < width && end - start < 127) {
+      while (end < codes.length && (end === start || pixels < width) && end - start < 127) {
         const code = codes[end++]
         pixels += glyph(code).w
         if (' -.,:;'.includes(String.fromCharCode(code + 32))) lastBreak = end
@@ -80,20 +80,9 @@ export function drawTooltip(
   canvas.height = layout.height
   const context = canvas.getContext('2d')!
   context.imageSmoothingEnabled = false
-  paintTooltipText(context, atlas, layout)
-  canvas.dataset.layout = key
-}
-
-// Keep the source glyphs unmodulated in both ordinary and route tooltips.
-export function paintTooltipText(
-  context: CanvasRenderingContext2D,
-  atlas: HTMLImageElement,
-  layout: ReturnType<typeof tooltipLayout>,
-  left = 0,
-  top = 0
-) {
   for (const [font, code, x, y] of layout.draws) {
     const r = glyphs[`f00t${font}-${code}`]
-    context.drawImage(atlas, r.x, r.y, r.w, r.h, x + left, y + top, r.w, r.h)
+    context.drawImage(atlas, r.x, r.y, r.w, r.h, x, y, r.w, r.h)
   }
+  canvas.dataset.layout = key
 }

@@ -1,5 +1,3 @@
-import { setWorldPaused } from '../browser-world-input.mjs'
-import { skipIntroductionWithSpace } from '../browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
@@ -81,9 +79,9 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await button('No').click()
     await button('Start Mission 1').click()
     await bindGame(page)
-    await skipIntroductionWithSpace(page, { timeout: 15000 })
+    await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await setWorldPaused(page, true, { timeout: 15000 })
+    await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await button('Select brave').click()
     await button('buildings B').click()
@@ -209,12 +207,8 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await hover(invalid)
     await hover(valid)
     report.repeated = await read()
-    await page.keyboard.press('Escape')
-    await page.waitForFunction(() => window.testStore.getWorld().mode === null)
-    await setWorldPaused(page, false, { timeout: 15000 })
+    await button('Resume game').click()
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
-    await button('Hut, 3 wood').click()
-    await page.waitForFunction(() => window.testStore.getWorld().mode === 'hut')
     await page.mouse.move(invalid.x, invalid.y)
     await page.waitForFunction(
       () =>

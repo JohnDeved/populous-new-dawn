@@ -299,9 +299,8 @@ async function castAvailableBlast() {
   return true
 }
 async function openSettings() {
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('dialog', { name: 'Game menu', exact: true }).waitFor()
-  await page.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('heading', { name: 'Game settings', exact: true }).waitFor()
 }
 
 try {
@@ -353,8 +352,6 @@ try {
   await openSettings()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Back', exact: true }).click()
-  await page.getByRole('button', { name: 'Load Game', exact: true }).click()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bind()
   await snapshot('prebattle-checkpoint-reloaded')

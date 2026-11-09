@@ -1,3 +1,4 @@
+import { requestAngelStrikePresentation } from './angel-presentation.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
   assignVehicleAllocationCounter,
@@ -76,6 +77,7 @@ import {
   builderActivity,
   unitAnimationSource,
   selectionBuilding,
+  removeMissingSelectedPeople,
   canOrder,
 } from './selection-runtime.ts'
 import {
@@ -632,6 +634,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.angel) {
       const event = stepAngel(w, fx)
+      // Only the proved raw state 6/substate 2 strike branch requests model 62.
+      if (!event.expired) requestAngelStrikePresentation(fx.angel)
       // ponytail: keep one stable native initial offset until target midpoints enter browser state.
       fx.height = (terrainPointHeight(w.land, nativePosition(w, fx)) + 100) / 45
       if (event.hit) {
@@ -1052,9 +1056,15 @@ function stepTurn(w: World, metrics?: { steps: number }) {
           volcano.duration = Infinity
         }
         for (const tree of shrine.linkedTrees ?? [])
-          w.trees.push({ ...tree, id: w.nextId++, logs: 4 })
+          w.trees.push({
+            ...tree,
+            id: w.nextId++,
+            logs: 4,
+            ...(tree.authoredSlot === undefined ? {} : { sceneryBirth: 'linked-release' as const }),
+          })
         if (shrine.linkedShrine) {
-          w.shrines.push(shrine.linkedShrine)
+          // Current checkpoints can retain shared/cyclic links to an already live owner.
+          if (!w.shrines.includes(shrine.linkedShrine)) w.shrines.push(shrine.linkedShrine)
           delete shrine.linkedShrine
         }
       } else if (shrine.kind === 'boat') {
@@ -1513,7 +1523,15 @@ function stepTurn(w: World, metrics?: { steps: number }) {
           dropCarriedTimber(
             p,
             () => {
-              w.trees.push({ id: w.nextId++, ...browserPosition(p), logs: 1, model: 11 })
+              w.trees.push({
+                ...(w.scenerySource
+                  ? { authoredSlot: null, sceneryBirth: 'loose-log' as const }
+                  : {}),
+                id: w.nextId++,
+                ...browserPosition(p),
+                logs: 1,
+                model: 11,
+              })
               return true
             },
             () => sound(w, 11, u)
@@ -1865,7 +1883,7 @@ function stepTurn(w: World, metrics?: { steps: number }) {
   w.buildings = w.buildings.filter(b => b.hp > 0)
   // The next tribe visit observes this completed object turn's membership.
   rebuildConstructionBuildings(w)
-  w.selected = w.selected.filter(id => w.units.some(u => u.id === id))
+  removeMissingSelectedPeople(w)
   syncLivePersonCells(w)
   syncLandscapeObjects(w)
   cleanBattles(w)

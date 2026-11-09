@@ -12,11 +12,16 @@ export function recoveryReadinessSnapshot() {
     document.querySelector('.loading-world')
   )
     return null
-  const world = scene.world
+  const world = scene.world,
+    skip = document.querySelector('button.skip-introduction')
   return {
     units: world.units.filter(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0),
     flyby: { flags: world.flyby?.flags ?? null },
-    introductionSkipAvailable: (world.inputMask & 64) !== 0 && (world.flyby.flags & 0x51) === 0x11,
+    introductionSkipVisible:
+      !!skip &&
+      skip.getClientRects().length > 0 &&
+      getComputedStyle(skip).visibility !== 'hidden' &&
+      !skip.disabled,
     status: world.status,
     paused: world.paused,
     inputMask: world.inputMask,
@@ -33,7 +38,7 @@ export function recoveryReadiness(snapshot) {
         ...campaignShamanReadiness(snapshot),
         level: snapshot.outcome.level,
         flybyFlags: snapshot.flyby?.flags ?? null,
-        introductionSkipAvailable: snapshot.introductionSkipAvailable === true,
+        introductionSkipVisible: snapshot.introductionSkipVisible === true,
       }
     : { ready: false, reason: 'Scene/store changed during readiness observation' }
 }

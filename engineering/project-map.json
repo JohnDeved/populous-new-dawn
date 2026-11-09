@@ -225,10 +225,7 @@
         "scripts/check-native-follower-task-art.py",
         "scripts/check-native-follower-task-adapters.py",
         "scripts/check-browser-follower-tasks.mjs",
-        "decomp/research/follower-tasks-live.md",
-        "decomp/research/ordinary-hud-controls/README.md",
-        "scripts/research-hud-controls.py",
-        "tests/command-dock-art.test.mjs"
+        "decomp/research/follower-tasks-live.md"
       ],
       "sharedPaths": [
         "app/page.tsx",
@@ -262,10 +259,6 @@
         {
           "path": "decomp/research/follower-tasks-live.md",
           "heading": "Followers task rows: live integration"
-        },
-        {
-          "path": "decomp/research/ordinary-hud-controls/README.md",
-          "heading": "Ordinary HUD controls: original art and unresolved actions"
         }
       ],
       "nativeAddresses": [
@@ -778,6 +771,11 @@
         "scripts/import-worship-acquisition.py",
 
         "app/angel.ts",
+        "app/angel-presentation.ts",
+        "app/original-angel-presentation.json",
+        "app/original-angel-strike.json",
+        "scripts/import-angel-presentation.py",
+        "scripts/import-angel-strike.py",
         "app/campaign-command-runtime.ts",
         "app/computer.ts",
         "app/computer-runtime.ts",
@@ -814,9 +812,6 @@
         "app/person-update.ts",
         "app/live-worship.ts",
         "app/messages.ts",
-        "app/original-message-tab.tsx",
-        "app/original-message-tab.module.css",
-        "app/original-message-tabs.json",
         "app/object-panels.ts",
         "app/person-worship.ts",
         "app/popscript.ts",
@@ -853,10 +848,6 @@
       ],
       "researchPaths": [
         "decomp/research/world-selector-globes.md",
-        "decomp/research/result-navigation/README.md",
-        "scripts/research-result-navigation.py",
-        "tests/native-result-navigation-source.test.mjs",
-        "decomp/research/world-selector-manifest/README.md",
         "tests/worship-acquisition-controller.test.mjs",
         "tests/worship-acquisition-runtime.test.mjs",
         "tests/worship-acquisition-source.test.mjs",
@@ -872,6 +863,10 @@
         "engineering/single-player-feasibility.md",
         "decomp/research/rolling-demo-control.md",
         "scripts/check-static-rolling-demo-control.py",
+        "decomp/research/rolling-demo-checksum.md",
+        "decomp/research/rolling-demo-camera.md",
+        "decomp/research/rolling-demo-input.md",
+        "scripts/check-static-rolling-demo-checksum.py",
         "tests/rolling-demo-stream-framing.test.py",
         "decomp/research/recorded-demo-provenance.md",
         "scripts/check-static-recorded-demo-provenance.py",
@@ -995,6 +990,9 @@
         "decomp/research/mission4.md",
         "decomp/research/mission5-boat.md",
         "decomp/research/mission5-angel.md",
+        "decomp/research/angel-presentation/README.md",
+        "decomp/research/angel-presentation/strike.md",
+        "decomp/research/angel-presentation/004de440.asm",
         "decomp/generated/00479840.c",
         "decomp/generated/004db980.c",
         "decomp/generated/004dd700.c",
@@ -1106,6 +1104,7 @@
         "scripts/check-browser-mission7.mjs",
         "scripts/check-browser-mission4.mjs",
         "scripts/check-browser-mission5-angel.mjs",
+        "scripts/angel-strike-witness.mjs",
         "scripts/check-browser-mission14-rewards.mjs",
         "scripts/check-browser-mission15-prison.mjs",
         "scripts/check-browser-mission16-bloodlust.mjs",
@@ -1124,8 +1123,6 @@
         "scripts/check-native-messages.py",
         "scripts/import-level.py",
         "scripts/import-messages.py",
-        "scripts/import-message-tabs.py",
-        "tests/message-tab-art.test.mjs",
         "scripts/import-original.py",
         "scripts/import-script.py",
         "scripts/inspect-executable.py",
@@ -1150,6 +1147,9 @@
         "tests/tutorial.test.mjs",
         "tests/melee.test.mjs",
         "tests/mission5-angel.test.mjs",
+        "tests/angel-presentation.test.mjs",
+        "tests/angel-strike-presentation.test.mjs",
+        "tests/angel-painter-order.test.mjs",
         "tests/shield-spell.test.mjs",
         "tests/housing-entry.test.mjs",
         "tests/human-training-orders.test.mjs",
@@ -1205,10 +1205,9 @@
         "effects.reincarnation"
       ],
       "evidence": [
-        { "path": "decomp/research/campaign-notification-tabs.md", "heading": "Original descriptor and state ownership" },
         { "path": "decomp/research/world-selector-globes.md", "heading": "Ordinary selector globes" },
-        { "path": "decomp/research/world-selector-manifest/README.md", "heading": "All 25 native selector records" },
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        { "path": "decomp/research/training-entry-composition.md", "heading": "First divergences" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-replacement.md", "heading": "Dynamic result" },

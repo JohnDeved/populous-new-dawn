@@ -1,4 +1,3 @@
-import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame, openGame } from './browser-game.mjs'
@@ -681,7 +680,8 @@ try {
     Object.values(missionTwelve.teams).reduce((sum, count) => sum + count, 0)
   )
 
-  await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
+  const skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
+  await skip.waitFor()
   await page.waitForFunction(
     initial =>
       Math.hypot(
@@ -690,7 +690,7 @@ try {
       ) > 0.5,
     missionTwelve.camera
   )
-  await skipIntroductionWithSpace(page, { timeout: 20000 })
+  await skip.click()
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
@@ -1245,7 +1245,11 @@ try {
   await page.getByLabel('Focus Chumara tribe').waitFor()
   await page.getByLabel('Focus Matak tribe').waitFor()
   await page.getByText('I sense a new threat', { exact: false }).waitFor()
-  await page.waitForFunction(() => (window.testStore.getWorld().flyby.flags & 0x51) === 0x11)
+  const missionThirteenSkip = page.getByRole('button', {
+    name: 'Skip introduction',
+    exact: false,
+  })
+  await missionThirteenSkip.waitFor()
 
   const missionThirteen = await page.evaluate(() => {
     const scene = globalThis.testScene,
@@ -1327,7 +1331,7 @@ try {
       ) > 0.5,
     missionThirteen.camera
   )
-  await skipIntroductionWithSpace(page, { timeout: 20000 })
+  await missionThirteenSkip.click()
   await page.waitForFunction(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)

@@ -177,7 +177,7 @@ const ownedRouteOverrides = {
     "sha256": "c69ef62767a9417c736a1cc6636fdfba48ee81e305a995d0001d06d760741e86"
   }
 }
-export const dragSourceProfiles = Object.freeze([
+const historicalDragSourceProfiles = Object.freeze([
   Object.freeze({ id: 'generic-terrain-v1', slices: dragSourceSlices }),
   Object.freeze({ id: 'owned-numeric-terrain-v1', slices: Object.freeze(dragSourceSlices.map(
     slice => Object.freeze(ownedRouteOverrides[slice.id] ?? slice))) }),
@@ -215,51 +215,293 @@ export const dragSourceProfiles = Object.freeze([
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
-  // The reviewed native route tooltip keeps eligible 24 Hz visits during ordinary
-  // pause without advancing flyby or sky. Bind the complete camera owner and keep
-  // the historical epoch route exact; no other slice or boundary changes here.
-  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-v1', slices: Object.freeze([
-    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'camera-producers'
-      ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
-      : slice.id === 'pointer-callback'
-        ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
-        : slice.id === 'query-inputs'
-          ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
-          : slice.id === 'frame-order'
-            ? { ...slice, sha256: '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf' }
+  // Terminal CPU-owner guards preserve the active route and recorder epoch.
+  // Bind both the complete frame and terrain producer deltas atomically; keep
+  // every historical route exact. This admits source, not timing equivalence.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'pointer-callback'
+      ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
+      : slice.id === 'query-inputs'
+        ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
+        : slice.id === 'frame-order'
+          ? { ...slice, sha256: 'cb8253460282f1ca9605e4b7a4d43b6c6a2844816fd53b5e3b01ae2d7514cd08' }
+          : slice.id === 'terrain-producers'
+            ? { ...slice, sha256: '1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012' }
             : ownedRouteOverrides[slice.id] ?? slice)),
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
   ]) }),
-  // The native-result integration adds a pause-independent presentation clock
-  // before the existing modal/simulation frame gates. Admit that complete frame
-  // route only with its exact import, per-scene initialization and clock owner.
-  // All older profiles remain byte-for-byte identical. This admits source owners,
-  // not native scheduler equivalence or an unmeasured performance comparison.
-  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-route-tooltip-result-clock-v1', slices: Object.freeze([
-    ...dragSourceSlices.map(slice => Object.freeze(slice.id === 'camera-producers'
-      ? { ...slice, sha256: 'cd3b53fce3efc61851ceb0c34d11d35d13a15cac7162753d8b1677c7d2b8875e' }
-      : slice.id === 'pointer-callback'
-        ? { ...slice, sha256: '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895' }
-        : slice.id === 'query-inputs'
-          ? { ...slice, sha256: 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c' }
-          : slice.id === 'frame-order'
-            ? { ...slice, sha256: '5c8dbbf4dc2caaf257c7eedb472dcd7caeca30aeda695dd2fa0294934a6aeb50' }
-            : ownedRouteOverrides[slice.id] ?? slice)),
+  // Reviewed RenderView CPU leases extend the epoch route, not its historical
+  // hashes. Bind the new helper body too; call-site hashes alone are insufficient.
+  // This admits exact source, not timing equivalence or retrospective reports.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-render-cpu-leases-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => {
+      const inherited = ownedRouteOverrides[slice.id] ?? slice
+      const sha256 = {
+        'submission-key': '851a6568e0d0cd0e998c4465a04f74648bcf98c8aca7e58889d0533959d71c63',
+        'query-entry': '53d968701fa1a46599f3c32470db0d917fe9559cae74c72abb82514a70a8d67e',
+        'owned-terrain-entry': '7f554b1b133b1873d4c5f0779c8d9424c0dcc546bfff6d2e87e35edbb45369fa',
+        'pointer-callback': '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895',
+        'query-inputs': 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c',
+        'frame-order': '27ed72fea09df7d40a3e632ca56da9aa487a2df73dc950655f74bf1bb7b93adf',
+      }[slice.id]
+      return Object.freeze(sha256 ? { ...inherited, sha256 } : inherited)
+    }),
     Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
       sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
-    Object.freeze({ id: 'result-clock-owner', path: 'app/result-session.ts',
-      start: 'export function createResultClock()', end: '\nexport function resultBlink(',
-      sha256: 'e13cdfd3133fb3867b5dac81fcda0bef017db7a7eacdd5174ec5d60339a46976' }),
-    Object.freeze({ id: 'result-clock-import', path: 'app/scene.ts',
-      start: 'import { createResultClock, advanceResultClock }', end: '\nimport { FollowerNearbyMode }',
-      sha256: 'fd473366de9695475cdb1e1ed6190c2dbbfa778851186442377e638dd4b40052' }),
-    Object.freeze({ id: 'result-clock-initialization', path: 'app/scene.ts',
-      start: '  resultClock = createResultClock()', end: '\n  focusPauseOwned =',
-      sha256: 'ac3b234a89c07d24ca0ebc49a91617029e37018708cb32f18ab1329870752f6f' }),
+    Object.freeze({ id: 'pick-operation-leases', path: 'app/render-view.ts',
+      start: '  private beginPickOperation()', end: '\n  private resolveCandidates(',
+      sha256: '3949a4264ea8c4d612658cdbc0c6923b028af8457ef04656319378dc22f6b41a' }),
+  ]) }),
+  // Compose both reviewed CPU-lifetime changes as one exact route. Preserve
+  // each sibling profile; this is source admission, not measured equivalence.
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-v1', slices: Object.freeze([
+    ...dragSourceSlices.map(slice => {
+      const inherited = ownedRouteOverrides[slice.id] ?? slice
+      const sha256 = {
+        'submission-key': '851a6568e0d0cd0e998c4465a04f74648bcf98c8aca7e58889d0533959d71c63',
+        'query-entry': '53d968701fa1a46599f3c32470db0d917fe9559cae74c72abb82514a70a8d67e',
+        'owned-terrain-entry': '7f554b1b133b1873d4c5f0779c8d9424c0dcc546bfff6d2e87e35edbb45369fa',
+        'pointer-callback': '741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895',
+        'query-inputs': 'c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c',
+        'frame-order': 'cb8253460282f1ca9605e4b7a4d43b6c6a2844816fd53b5e3b01ae2d7514cd08',
+        'terrain-producers': '1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012',
+      }[slice.id]
+      return Object.freeze(sha256 ? { ...inherited, sha256 } : inherited)
+    }),
+    Object.freeze({ id: 'neutral-cursor-owner', path: 'app/neutral-cursor.ts', start: null, end: null,
+      sha256: '33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7' }),
+    Object.freeze({ id: 'pick-operation-leases', path: 'app/render-view.ts',
+      start: '  private beginPickOperation()', end: '\n  private resolveCandidates(',
+      sha256: '3949a4264ea8c4d612658cdbc0c6923b028af8457ef04656319378dc22f6b41a' }),
+  ]) }),
+])
+// Reviewed loose-log sprite hits extend only the complete current CPU-owner route.
+// Historical routes remain byte-exact; no new-log/old-CPU mixtures are admitted.
+// Bind the shared queue resolver too, not just its new call-site submissions.
+// This is source admission only, not performance equivalence or a new benchmark.
+const historicalMainProfiles = Object.freeze([
+  ...historicalDragSourceProfiles,
+  Object.freeze({ id: 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1', slices: Object.freeze([
+    ...historicalDragSourceProfiles.at(-1).slices.map(slice => Object.freeze(
+      slice.id === 'native-route' ? { ...slice,
+        sha256: '4c06971b6ece6c52eebc066fe594af406551cf362d9660db2c0e774d5bf9b344' } : slice)),
+    Object.freeze({ id: 'resource-queue-owner', path: 'app/world-picking.ts', start: null, end: null,
+      sha256: '45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611' }),
   ]) }),
 ])
 const hash = value => createHash('sha256').update(value).digest('hex')
+// Add only the independently reviewed complete camera owner; historical routes remain exact.
+// Source admission is not snapshot/schema equivalence or performance eligibility.
+const reviewedCameraProfile = {
+  "id": "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1",
+  "slices": [
+    {
+      "id": "input-move",
+      "path": "app/scene-input-runtime.ts",
+      "start": "export function pointerMove(",
+      "end": "\nexport function updateDrag(",
+      "sha256": "dd414900157c8598d7357390ba18c9d4a2d135bdb3aef9c35a8557c04db4871b"
+    },
+    {
+      "id": "pointer-callback",
+      "path": "app/scene-input-runtime.ts",
+      "start": "export function updatePointerFrame(",
+      "end": "\nexport function updateSpellPointerFrame(",
+      "sha256": "741e838886ad865d30e675158c627bb1056b0d4b0c04ee32f0b15296bd2b1895"
+    },
+    {
+      "id": "tooltip-order",
+      "path": "app/scene-tooltip-runtime.ts",
+      "start": "export function publishTooltipInput(",
+      "end": "\nexport function cancelTooltipInspection(",
+      "sha256": "c39efeea8249b5fe25cbdcaae78552c73fcddf4252e135c3a988130569c8e471"
+    },
+    {
+      "id": "frame-order",
+      "path": "app/scene.ts",
+      "start": "  animate = (now: number) => {",
+      "end": "\n  private updateTerrainFrame()",
+      "sha256": "498b022b8f7535ce6b1adbee7aea560b3649b534cb7533a7023b8fc8585f1cc9"
+    },
+    {
+      "id": "frame-facades",
+      "path": "app/scene.ts",
+      "start": "  private updateTerrainFrame()",
+      "end": "\n  private updateSpellPointerFrame(",
+      "sha256": "13bc9f25008153680e1526b0cb8854ac337594e8ee7631a283d80efde3677052"
+    },
+    {
+      "id": "view-facade",
+      "path": "app/scene.ts",
+      "start": "  updateView() {",
+      "end": "\n  currentPreset()",
+      "sha256": "c87a04b3b8310491049fdfd5b264fd9ef55bcd172f0c5a0b20f8b3123ed2adce"
+    },
+    {
+      "id": "native-route",
+      "path": "app/scene-picking.ts",
+      "start": "  pick(event:",
+      "end": "\n  pickPerson(event:",
+      "sha256": "4c06971b6ece6c52eebc066fe594af406551cf362d9660db2c0e774d5bf9b344"
+    },
+    {
+      "id": "submission-key",
+      "path": "app/render-view.ts",
+      "start": "  pickSubmissionKey(objects:",
+      "end": "\n  // Pick the projected triangles themselves.",
+      "sha256": "851a6568e0d0cd0e998c4465a04f74648bcf98c8aca7e58889d0533959d71c63"
+    },
+    {
+      "id": "query-entry",
+      "path": "app/render-view.ts",
+      "start": "  pickCandidates(",
+      "end": "\n  private collectPickCandidates(",
+      "sha256": "53d968701fa1a46599f3c32470db0d917fe9559cae74c72abb82514a70a8d67e"
+    },
+    {
+      "id": "query-inputs",
+      "path": "app/render-view.ts",
+      "start": "  private collectPickCandidates(",
+      "end": "\n          for (let vertex = 0; vertex < count; vertex++) {",
+      "sha256": "c3b43f1239d7f441378bca9466f092fa70425e3b2e85e4805d097b31b9f0485c"
+    },
+    {
+      "id": "camera-producers",
+      "path": "app/scene-camera-runtime.ts",
+      "start": null,
+      "end": null,
+      "sha256": "44518e0567e5b37ff13af1385dee3a9b0794e929c917b74734295d8d10bae498"
+    },
+    {
+      "id": "terrain-producers",
+      "path": "app/scene-terrain-runtime.ts",
+      "start": null,
+      "end": null,
+      "sha256": "1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012"
+    },
+    {
+      "id": "public-terrain-dispatch",
+      "path": "app/scene-input-runtime.ts",
+      "start": "export function pick(",
+      "end": "\nexport function pickWorldObject(",
+      "sha256": "a741a336fe45b51c5225dd75eca1ab2a0a5c27a8f3b29a72ec377d8f7ec3ae2b"
+    },
+    {
+      "id": "terrain-constructor",
+      "path": "app/scene.ts",
+      "start": "    this.cursor.visible = false\n    this.range.visible = false\n    this.rebuildTerrain()",
+      "end": "\n    this.makeDecorations()",
+      "sha256": "0a604ca13b5cf53f13bcbabd37a79d240018addd4e9943c95cd90d93dc9f03f2"
+    },
+    {
+      "id": "owned-terrain-helper",
+      "path": "app/runtime-terrain-picking.ts",
+      "start": null,
+      "end": null,
+      "sha256": "2a43f16d67f4f542d7b281af4e26bacfe19815f0c40565ab873ecde7ad8494d2"
+    },
+    {
+      "id": "owned-terrain-entry",
+      "path": "app/render-view.ts",
+      "start": "  pickOwnedTerrain(",
+      "end": "\n  releaseOrdinaryNumericProjection()",
+      "sha256": "7f554b1b133b1873d4c5f0779c8d9424c0dcc546bfff6d2e87e35edbb45369fa"
+    },
+    {
+      "id": "neutral-cursor-owner",
+      "path": "app/neutral-cursor.ts",
+      "start": null,
+      "end": null,
+      "sha256": "33753cbc3d3ab607f8d6efb1f3fd486ed7d0a5ad51ddd52e90216f3bed6d7ea7"
+    },
+    {
+      "id": "pick-operation-leases",
+      "path": "app/render-view.ts",
+      "start": "  private beginPickOperation()",
+      "end": "\n  private resolveCandidates(",
+      "sha256": "3949a4264ea8c4d612658cdbc0c6923b028af8457ef04656319378dc22f6b41a"
+    },
+    {
+      "id": "resource-queue-owner",
+      "path": "app/world-picking.ts",
+      "start": null,
+      "end": null,
+      "sha256": "45d4f2f5a49ba2af665e24eb8c6dc5e671f7aa360788de04b8ca55f40a0bc611"
+    },
+    {
+      "id": "tribe-camera-owner",
+      "path": "app/tribe-camera.ts",
+      "start": null,
+      "end": null,
+      "sha256": "47bc2f2f4a92fa01a4e8245880a635581e929d4bf8ae49a6583efb1bcf1b68a9"
+    },
+    {
+      "id": "chronological-game-clock",
+      "path": "app/game-clock.ts",
+      "start": null,
+      "end": null,
+      "sha256": "55766c84091f05a4ce07e422d382d55809fcd1fdf9d884e90ebcbfcc1bc48b7e"
+    },
+    {
+      "id": "scene-camera-wiring",
+      "path": "app/scene.ts",
+      "start": null,
+      "end": null,
+      "sha256": "38003b8e7e944366bcf8f788159f7a1f0cb81cc4a6a2606612f60efadb56f5da"
+    },
+    {
+      "id": "tooltip-frame-owner",
+      "path": "app/scene-tooltip-runtime.ts",
+      "start": null,
+      "end": null,
+      "sha256": "18b666b052772604505c6c130ad8b8d198b5bff3db6c6d862a77dce69e7e84bc"
+    }
+  ]
+}
+// Add the exact modal-demand route without changing any historical admission.
+// Its texture revision and GPU polling dependencies are part of the same owner.
+const modalDemandHashes = {
+  "frame-order": "cff2d260d109dfc5824d601c9bfa3fe446375f3adb9ea90f47e9593386f24ab3",
+  "view-facade": "592f9bb45f42e432efb92eb3d1f620103dc31289a82422739074e29c1fd9d8ab"
+}
+const reviewedModalDemandProfile = {
+  id: "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1",
+  slices: [
+    ...historicalMainProfiles.at(-1).slices.map(slice => ({
+      ...slice, sha256: modalDemandHashes[slice.id] ?? slice.sha256,
+    })),
+    ...[
+  {
+    "id": "modal-scene-owner",
+    "path": "app/scene.ts",
+    "start": null,
+    "end": null,
+    "sha256": "46dc13f8b6be3b92204b10437a061e5261cb7b0c0a898a55aff222c71ead7e90"
+  },
+  {
+    "id": "modal-texture-revision-owner",
+    "path": "app/scene-assets.ts",
+    "start": null,
+    "end": null,
+    "sha256": "a928460b203f02f5a265b2b3e4f2db9214e652723e218cb8345ce628357a10de"
+  },
+  {
+    "id": "modal-gpu-poll-owner",
+    "path": "app/fps-graph.ts",
+    "start": null,
+    "end": null,
+    "sha256": "43f4d60b6d31be6bc63c07b2c9c746c58240b46759ac5cfdc780cb059ebd1e41"
+  }
+],
+  ],
+}
+export const dragSourceProfiles = Object.freeze([...historicalMainProfiles, ...[
+  reviewedCameraProfile, reviewedModalDemandProfile,
+].map(profile => Object.freeze({
+  ...profile, slices: Object.freeze(profile.slices.map(slice => Object.freeze(slice))),
+}))])
+
 export function inspectDragSource(root, read = path => readFileSync(resolve(root, path), 'utf8')) {
   // Cache success AND failure once across all profile attempts. A missing path is not
   // interchangeable with an unreadable, empty, non-string or oversized source.

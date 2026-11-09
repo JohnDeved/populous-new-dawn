@@ -1,4 +1,3 @@
-import { nativeCampaignProfile } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import test from 'node:test'
@@ -78,7 +77,7 @@ async function storage(t) {
     target.dispatchEvent(event)
     target[`on${type}`]?.call(target, event)
   }
-  const database = {
+  const database = Object.assign(new EventTarget(), {
     objectStoreNames: { contains: name => name === 'checkpoints' },
     transaction(name, mode = 'readonly') {
       assert.equal(name, 'checkpoints')
@@ -116,7 +115,7 @@ async function storage(t) {
     close() {
       closed++
     },
-  }
+  })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {
@@ -158,13 +157,9 @@ async function storage(t) {
   }
 }
 
-async function activeFixture(db) {
-  // Declared Mission 3 prerequisite; keep the existing controllable IDB owner.
-  db.records.set('profile', nativeCampaignProfile({ available: [3] }))
-  const store = db.createGameStore(), restoring = store.restoreCheckpoint()
-  ;(await db.transaction('readonly')).complete()
-  await restoring
-  assert.equal(store.startMission(3), true)
+function activeFixture(createGameStore) {
+  const store = createGameStore()
+  store.startMission(3)
   const world = store.getWorld(),
     temple = addBuilding(world, 'blue', 'temple', { x: -2, z: 32 }, true),
     trainee = addUnit(world, 'blue', 'brave', { x: 7, z: 33 }),
@@ -253,16 +248,14 @@ function publicLoad(store) {
   const noop = () => {},
     bindings = {
       store,
-      menuSession: { current: null },
+      followerPress: { current: null }, menuSession: { current: null },
       pendingMenuCamera: { current: [] },
       cancelNearbyInput: noop,
       engine: { current: null },
       setCheatsOpen: value => assert.equal(value, false, 'actual Page Load closes the testing menu'),
       setSelectorOpen: noop,
-      setDebugPicker: value => assert.equal(value, false, 'actual Page Load closes diagnostic entry'),
       audio: { current: { reset: noop } },
       setMenu: noop,
-      setResultInputCycles: value => assert.equal(value, 0, 'actual Page Load resets result input time'),
       setReady: noop,
       setError: noop,
       loadRequest: { current: null },
@@ -276,7 +269,7 @@ function publicLoad(store) {
 
 test('active Temple Save observes post-normalization publication, committed IDB and first Page Load before unpause', async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     button = new Button(),
     save = armTempleCheckpoint({ kind: 'save', store: f.store, button, snapshot: f.snapshot }),
     before = structuredClone(f.world),
@@ -391,7 +384,7 @@ test('active Temple Save observes post-normalization publication, committed IDB 
 
 for (const version of [CHECKPOINT_VERSION]) test(`fresh store restores v${version} active Temple and public Load Game publishes before Page unpause`, async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     saved = f.store.saveCheckpoint()
   ;(await db.transaction('readwrite')).complete()
   assert.equal(await saved, true)
@@ -497,7 +490,7 @@ for (const version of [CHECKPOINT_VERSION]) test(`fresh store restores v${versio
 
 test('full typed digest rejects wrong active training, stored mana, shared orders and iteration order despite matching summary digests', async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     button = new Button(),
     save = armTempleCheckpoint({ kind: 'save', store: f.store, button, snapshot: f.snapshot })
   t.after(() => save.close())
@@ -571,7 +564,7 @@ test('full typed digest rejects wrong active training, stored mana, shared order
 
 test('native-dispatch microtasks do not expire capture and Load skips same-World publications', async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     button = new Button(),
     save = armTempleCheckpoint({ kind: 'save', store: f.store, button, snapshot: f.snapshot })
   t.after(() => save.close())
@@ -606,7 +599,7 @@ test('native-dispatch microtasks do not expire capture and Load skips same-World
 test('publication read or snapshot errors are retained without rejecting the production Save', async t => {
   const db = await storage(t)
   for (const failure of ['snapshot', 'getWorld']) {
-    const f = await activeFixture(db),
+    const f = activeFixture(db.createGameStore),
       button = new Button(),
       original = f.store.getWorld
     let reads = 0,
@@ -645,7 +638,7 @@ test('untrusted, absent, delayed and wrong-world publications fail closed withou
   const db = await storage(t)
   for (const kind of ['save', 'load'])
     for (const action of ['untrusted', 'absent', 'delayed', 'wrong-world']) {
-      const f = await activeFixture(db),
+      const f = activeFixture(db.createGameStore),
         button = new Button(),
         capture = armTempleCheckpoint({ kind, store: f.store, button, snapshot: f.snapshot })
       t.after(() => capture.close())
@@ -671,7 +664,7 @@ test('untrusted, absent, delayed and wrong-world publications fail closed withou
 
 test('passive observation forwards receivers, retains errors, bounds evidence and preserves foreign ownership on cleanup', async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     button = new Button(),
     listeners = new Set(),
     original = f.store.getWorld,
@@ -735,7 +728,7 @@ test('passive observation forwards receivers, retains errors, bounds evidence an
 
 test('cleanup failures attempt both resources and installation or target-copy failures leave close usable', async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     button = new Button()
   let unsubscribed = 0
   button.removeEventListener = () => {
@@ -784,7 +777,7 @@ test('cleanup failures attempt both resources and installation or target-copy fa
 
 test('aborted Save cannot claim committed IDB even though its synchronous in-session boundary exists', async t => {
   const db = await storage(t),
-    f = await activeFixture(db),
+    f = activeFixture(db.createGameStore),
     button = new Button(),
     capture = armTempleCheckpoint({ kind: 'save', store: f.store, button, snapshot: f.snapshot })
   t.after(() => capture.close())
@@ -810,7 +803,7 @@ test('aborted Save cannot claim committed IDB even though its synchronous in-ses
 })
 
 for (const mode of ['obsolete-envelope', 'classic']) test(`Temple committed observer rejects ${mode} without changing storage`, async t => {
-  const db = await storage(t), f = await activeFixture(db), saved = f.store.saveCheckpoint()
+  const db = await storage(t), f = activeFixture(db.createGameStore), saved = f.store.saveCheckpoint()
   ;(await db.transaction('readwrite')).complete()
   assert.equal(await saved, true)
   if (mode === 'obsolete-envelope') {

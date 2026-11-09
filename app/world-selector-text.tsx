@@ -1,19 +1,19 @@
 import { useState, type RefObject } from 'react'
 import { useMenuTooltip } from './menu-tooltip'
 import { menuTooltipPosition } from './menu-tooltip-layout'
-import { selectorTitle, selectorTooltip } from './world-selector-art'
+import art from '../public/original/world-selector/text/runtime.json'
 import styles from './world-selector.module.css'
 
 export function SelectorTitle({ mission }: { mission: number }) {
   const [failed, setFailed] = useState<number[]>([])
-  const title = selectorTitle(mission)
+  const title = art.banks[String(mission) as keyof typeof art.banks].title
   return (
     <h3 aria-label={title.text}>
       {failed.includes(mission) ? (
         title.text
       ) : (
         <img
-          src={title.src}
+          src={art.baseUrl + title.file}
           alt=""
           style={{
             width: `calc(var(--panel-width) * ${title.width} / 640)`,
@@ -37,7 +37,10 @@ export function SelectorTooltip({
   const state = useMenuTooltip(container, 'data-selector-tooltip')
   const [failed, setFailed] = useState<string[]>([])
   if (!state || !container.current || !['978', '979', '980'].includes(state.value)) return null
-  const record = selectorTooltip(mission, state.value as '978' | '979' | '980')
+  const record =
+    art.banks[String(mission) as keyof typeof art.banks].tooltips[
+      state.value as '978' | '979' | '980'
+    ]
   if (failed.includes(record.file)) return null
   const bounds = container.current.getBoundingClientRect(),
     scale = Math.min(bounds.width / 640, bounds.height / 480)
@@ -50,7 +53,7 @@ export function SelectorTooltip({
     <img
       className={styles.nativeTooltip}
       data-native-tooltip={state.value}
-      src={record.file}
+      src={art.baseUrl + record.file}
       alt=""
       aria-hidden="true"
       style={{

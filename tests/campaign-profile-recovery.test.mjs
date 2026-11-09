@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { nativeCampaignProfile } from './support/campaign-fixture.mjs'
 
 import { createWorld } from '../app/world-initialization.ts'
 import { createLivePerson } from '../app/live-people.ts'
@@ -14,7 +13,7 @@ async function withStorage(initial, run, { failRead = false } = {}) {
   const records = new Map(Object.entries(structuredClone(initial))),
     writes = [],
     previous = Object.getOwnPropertyDescriptor(globalThis, 'indexedDB'),
-    database = {
+    database = Object.assign(new EventTarget(), {
       transaction(name, mode = 'readonly') {
         assert.equal(name, 'checkpoints')
         const transaction = new EventTarget()
@@ -42,7 +41,7 @@ async function withStorage(initial, run, { failRead = false } = {}) {
         })
         return transaction
       },
-    }
+    })
   Object.defineProperty(globalThis, 'indexedDB', {
     configurable: true,
     value: {
@@ -59,7 +58,7 @@ async function withStorage(initial, run, { failRead = false } = {}) {
   try {
     // Each module instance has a fresh database handle, like a fresh session.
     const { createGameStore } = await import(`../app/game-store.ts?profile-test=${++session}`)
-    await run({ createGameStore, records, writes, failSubsequentReads: () => { failRead = true } })
+    await run({ createGameStore, records, writes })
   } finally {
     if (previous) Object.defineProperty(globalThis, 'indexedDB', previous)
     else delete globalThis.indexedDB
@@ -163,10 +162,8 @@ test('new checkpoints write v3 while database/profile stay v1; invalid saves do 
 })
 
 test('malformed stored checkpoint preserves usable session checkpoint and merges completion', async () => {
-  await withStorage({ profile: nativeCampaignProfile({ available: [3] }) }, async ({ createGameStore, records, writes }) => {
+  await withStorage({}, async ({ createGameStore, records, writes }) => {
     const store = createGameStore()
-    await store.restoreCheckpoint()
-    assert.equal(store.startMission(3), true)
     store.change(world => { world.outcome.completedLevel = 2; world.turn = 217 })
     assert.equal(await store.saveCheckpoint(), true)
     store.change(world => { world.turn = 218 })
@@ -185,11 +182,8 @@ test('malformed stored checkpoint preserves usable session checkpoint and merges
 })
 
 test('storage read failure retains in-session progress and checkpoint', async () => {
-  await withStorage({ profile: nativeCampaignProfile({ available: [2] }) }, async ({ createGameStore, records, writes, failSubsequentReads }) => {
+  await withStorage({}, async ({ createGameStore, records, writes }) => {
     const store = createGameStore()
-    await store.restoreCheckpoint()
-    assert.equal(store.startMission(2), true)
-    failSubsequentReads()
     store.change(world => { world.outcome.completedLevel = 1; world.turn = 217 })
     assert.equal(await store.saveCheckpoint(), true)
     const before = structuredClone(records), writeCount = writes.length
@@ -199,7 +193,7 @@ test('storage read failure retains in-session progress and checkpoint', async ()
     assert.equal(store.getWorld().turn, 217)
     assert.deepEqual(records, before)
     assert.equal(writes.length, writeCount)
-  })
+  }, { failRead: true })
 })
 
 

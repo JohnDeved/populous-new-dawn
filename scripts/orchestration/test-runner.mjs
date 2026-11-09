@@ -13,6 +13,11 @@ import { dependencyReceipt, portablePnpmRuntime } from './dependency-profile.mjs
 const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const customRuntime = () => ['NODE_OPTIONS', 'NODE_PATH', 'NODE_COMPILE_CACHE', 'NODE_V8_COVERAGE'].some(key => process.env[key])
+const assertDefaultSceneFixtureEnvironment = (env = process.env) => {
+  assert(['PND_SCENE_FIXTURE_PRECOMPILED', 'PND_SCENE_FIXTURE_PRECOMPILED_SHA256']
+    .every(key => env[key] === undefined),
+  'Precompiled scene fixture settings require an explicit source-bound direct command, not the standard test runner')
+}
 const testPath = path => typeof path === 'string' && /^tests\/[^./\0\r\n][^/\0\r\n]*\.test\.mjs$/.test(path)
 
 export function discoverTests(repo) {
@@ -93,6 +98,7 @@ export function productionFingerprint(repo, { portable = false } = {}) {
 }
 
 export function planTestRun(repo, mode, requested = [], { concurrency = '2' } = {}) {
+  assertDefaultSceneFixtureEnvironment()
   assert(['1', '2'].includes(concurrency), 'PND_TEST_CONCURRENCY must be 1 or 2')
   assert(['all', 'serial', 'focus'].includes(mode), 'Use all, serial, or focus')
   const discovered = discoverTests(repo)
@@ -136,6 +142,7 @@ export function partitionTestFiles(files, index, count = TEST_SHARD_COUNT) {
 }
 
 export function shardInputFingerprint(repo) {
+  assertDefaultSceneFixtureEnvironment()
   // Include all tests and scripts, not just selected files: drift in discovery,
   // helpers or the runner invalidates the run. The CI envelope additionally binds
   // the complete tracked source tree, git/workflow identity and installed lock.
@@ -221,6 +228,7 @@ export async function runTestPlan(repo, plan, { launch = spawn, signals = proces
   assert(plan.groups.every(group => [1, 2].includes(group.concurrency) && group.files.length), 'Invalid test group')
   assert.deepEqual(plan.groups.flatMap(group => group.files).sort(), [...plan.files].sort(), 'Groups must cover every selected file exactly once')
   const env = { ...process.env }
+  assertDefaultSceneFixtureEnvironment(env)
   assert(!/--(?:experimental-)?test/.test(env.NODE_OPTIONS ?? ''), 'NODE_OPTIONS must not change test selection or isolation')
   delete env.PND_TEST_TIMING_SLOT
   delete env.NODE_TEST_CONTEXT

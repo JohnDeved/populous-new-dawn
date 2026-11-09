@@ -1,4 +1,3 @@
-import { campaignPopupSnapshot } from '../scripts/browser-world-input.mjs'
 import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { assertNativeFrameExport, m2NativePointerTarget } from '../scripts/tutorial-browser/frame-export.mjs'
 import test from 'node:test'
@@ -6,7 +5,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
-import { assertM2Input, m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import { assertM2Input, m2FunctionalLimitMs, m2AuthoredMessageReady } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import { createMessages, addMessage, stepMessages } from '../app/messages.ts'
+import originalMessages from '../app/original-messages.json' with { type: 'json' }
 
 test('checkpoint codec preserves shared buffers, typed offsets, Maps, Sets, cycles and special scalars', () => {
   const buffer = new ArrayBuffer(32),
@@ -62,8 +63,10 @@ test('M2 functional acceptance rejects level, selection, order, clock and Scene 
 test('M2 has isolated selection and default append; legacy scenarios and bounds retained', () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(run, /POPULOUS_BROWSER_SCENARIO \|\| 'tutorial'/)
-  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'mission10-profile', 'gameplay-frames', 'snapshot-protocol', 'compact-message-layout', 'frontend-held-escape'])
+  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'compact-message-layout', 'frontend-held-escape', 'building-panel-edges', 'globe-held-enter'])
   assert.equal(browserCapMs('m2-pointer-f8'), 180000)
+  assert.equal(browserCapMs('ordinary-pointer-smoke'), 90000)
+  assert.equal(browserCapMs('ordinary-pointer-calibration'), 1200000)
   assert.match(run, /120000/)
   assert.ok(run.indexOf('receipt.result =') < run.indexOf('receipt.selectorInspection ='))
   assert.ok(run.indexOf('receipt.selectorInspection =') < run.indexOf('receipt.sceneryPlacement ='))
@@ -76,10 +79,8 @@ test('M2 has isolated selection and default append; legacy scenarios and bounds 
   assert.match(source, /loadBoundaryMatched = true/)
   assert.ok(
     source.indexOf('timer = setTimeout') < source.indexOf('await page.goto'),
-    'Independent picking retains its 45-second total admission bound'
+    '45-second bound includes admission'
   )
-  assert.match(source, /if \(pickingPaths\) timer = setTimeout/)
-  assert.match(source, /createM2Admission\(\{ deadlineAt: options.deadlineAt, signal: options.signal/)
   assert.match(source, /tx.oncomplete = resolve/)
   assert.doesNotMatch(source, /showAllMissions|\.tick\(|\.startMission\(|\.setWorld\(|--no-sandbox/)
 })
@@ -151,8 +152,8 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /await skipIntroductionWithSpace\(page, \{ timeout: 10000, closedPopups: report.inputPopups \}\)/)
-  assert.doesNotMatch(source, /getByRole\([^\n]*Skip introduction|skip-introduction/)
+  assert.match(source, /name: \/\^Skip introduction\//)
+  assert.doesNotMatch(source, /name: 'Skip introduction', exact: true/)
 })
 
 test('public Load readiness uses accessible bitmap-menu state, not absent text or native disabled', async () => {
@@ -185,26 +186,109 @@ test('public Load readiness uses accessible bitmap-menu state, not absent text o
   assert.equal(ready(), false)
 })
 
-test('M2 waits for active interruptible native Space or naturally ready input', async () => {
+test('M2 waits for delayed public Skip or naturally ready input, not one-shot visibility', async () => {
   const { m2StartupReady } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
-  const world = { inputMask: 64, flyby: { flags: 16 }, outcome: { level: 2 } }
+  const world = { inputMask: 128, flyby: { flags: 16 }, outcome: { level: 2 } }
+  let visible = false,
+    mounted = false
+  const button = { disabled: false, getClientRects: () => (visible ? [{}] : []) }
   const ready = runInNewContext(`(${m2StartupReady.toString()})`, {
     window: { testStore: { getWorld: () => world } },
+    document: { querySelector: () => (mounted ? button : null) },
+    getComputedStyle: () => ({ visibility: 'visible' }),
   })
-  for (const flags of [0, 1, 16, 64, 65, 80, 81, 85]) {
-    world.flyby.flags = flags
-    assert.equal(ready(), false, `flags ${flags} cannot accept native interruption`)
-  }
+  assert.equal(ready(), false)
   world.flyby.flags = 17
-  world.inputMask = 128
-  assert.equal(ready(), false, 'another input owner cannot enable Space')
   world.inputMask = 192
-  assert.equal(ready().action, 'skip', 'the flyby can release its bit without bypassing another owner')
+  assert.equal(ready(), false, 'Active script before React control is still waiting')
+  mounted = true
+  assert.equal(ready(), false, 'Hidden Skip is not actionable')
+  visible = true
+  assert.equal(ready().action, 'skip')
   assert.equal(ready().inputMask, 192)
-  assert.equal(ready().skipAvailable, true)
   world.inputMask = 0
-  assert.equal(ready().action, 'ready', 'completed introduction must not issue a pause toggle')
-  assert.equal(ready().skipAvailable, false)
+  mounted = false
+  assert.equal(ready().action, 'ready')
+})
+
+function authoredMessageFixture() {
+  const expectedText = originalMessages.messages[102].text,
+    message = { serial: 7, stringId: 641, flags: 0x40010, position: 60000 },
+    world = { turn: 71, status: 'playing', paused: false, inputMask: 0,
+      outcome: { level: 2 }, messages: { slots: [message] } },
+    canvas = { isConnected: true }, scene = { world, renderer: { domElement: canvas } },
+    paragraph = { textContent: expectedText, visible: true, visibility: 'visible',
+      getClientRects() { return this.visible ? [{}] : [] } },
+    details = { open: true, serial: 7, querySelector(selector) {
+      assert.equal(selector, 'div > p'); return paragraph
+    } },
+    window = { testScene: scene, testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+    document = { querySelector(selector) {
+      return selector === `.campaign-messages details[data-message-serial="${details.serial}"]` ? details : null
+    } },
+    ready = runInNewContext(`(${m2AuthoredMessageReady.toString()})`, {
+      window, document, getComputedStyle: node => ({ visibility: node.visibility }),
+    })
+  return { expectedText, message, world, canvas, scene, paragraph, details, window, ready: () => ready(expectedText) }
+}
+
+test('authored M2 readiness rejects missing, entering, pending, closed and hidden messages without mutating them', () => {
+  const cases = [
+    f => { f.world.messages.slots = [] },
+    f => { f.message.stringId = 642 },
+    f => { f.message.flags = 0x20010 },
+    f => { f.message.flags = 0x80012 },
+    f => { f.message.flags = 0xa0012 },
+    f => { f.message.flags |= 0x20000 },
+    f => { f.details.open = false },
+    f => { f.details.serial++ },
+    f => { f.details.querySelector = () => null },
+    f => { f.paragraph.visible = false },
+    f => { f.paragraph.visibility = 'hidden' },
+    f => { f.paragraph.textContent = 'unrelated message' },
+    f => { f.world.paused = true },
+    f => { f.world.inputMask = 64 },
+    f => { f.world.status = 'lost' },
+    f => { f.world.outcome.level = 3 },
+    f => { f.scene.world = { ...f.world } },
+    f => { f.window.testScene = {} },
+    f => { f.canvas.isConnected = false },
+  ]
+  for (const mutate of cases) {
+    const f = authoredMessageFixture(); mutate(f)
+    const before = structuredClone(f.world)
+    assert.equal(f.ready(), false, String(mutate))
+    assert.deepEqual(f.world, before)
+  }
+  const f = authoredMessageFixture(), before = structuredClone(f.world), ready = f.ready()
+  assert.deepEqual(JSON.parse(JSON.stringify(ready)), { turn: 71, serial: 7, stringId: 641,
+    flags: 0x40010, position: 60000, text: f.expectedText, open: true })
+  assert.deepEqual(f.world, before)
+})
+
+test('actual message motion must settle and the matching authored DOM must open before M2 readiness', () => {
+  const f = authoredMessageFixture(), state = createMessages(), slot = addMessage(state, 641, () => 0, 480, 1),
+    message = state.slots[slot]
+  message.flags |= 0x20000
+  f.world.messages = state
+  f.details.serial = message.serial; f.details.open = false
+  assert.equal(f.ready(), false)
+  let sawOpenSignal = false, visits = 0
+  for (; visits < 300 && !(message.flags & 0x40000); visits++) {
+    stepMessages(state)
+    sawOpenSignal ||= !!(message.flags & 2)
+    assert.equal(f.ready(), false, 'Native state alone does not admit missing React opening')
+  }
+  assert.ok(visits > 0 && visits < 300)
+  assert.equal(message.flags & 0x20000, 0)
+  assert.equal(sawOpenSignal, true)
+  message.flags &= ~2
+  assert.equal(f.ready(), false, 'Cleared transient bit2 is not DOM readiness')
+  f.details.open = true
+  const before = structuredClone(state)
+  assert.equal(f.ready().serial, message.serial)
+  assert.equal(f.ready().stringId, 641)
+  assert.deepEqual(state, before)
 })
 
 test('HUD witness stays inside transformed compact and wide docks and rejects an obstructed target', async () => {
@@ -248,16 +332,19 @@ test('sample publication readiness rejects absent, empty and reset overlay field
   assert.equal(ready(), true)
 })
 
-test('compact witness has no invented advisory and still pauses before observing gameplay', () => {
+test('compact notice is publicly dismissed before the paused witness, never during it', () => {
   const source = readFileSync(
-    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8'
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
   )
-  assert.doesNotMatch(source, /desktopNotice|Continue anyway|desktop-only-notice/)
-  const skip = source.indexOf('await skipIntroductionWithSpace(page, { timeout: 10000, closedPopups: report.inputPopups })'),
-    pause = source.indexOf('await setWorldPaused(page, true)'), baseline = source.indexOf('report.before = await observe()')
-  assert.ok(skip >= 0 && pause > skip && baseline > pause, 'Exact bounded skip and public pause must precede observation')
-  assert.match(source, /await page\.setViewportSize\(\{ width: 640, height: 480 \}\)/)
-  assert.equal(m2FunctionalLimitMs, 45000)
+  const dismiss = source.indexOf(
+    "desktopNotice.getByRole('button', { name: /^Continue anyway/ }).click()"
+  )
+  assert.ok(dismiss > 0)
+  assert.ok(source.indexOf("await desktopNotice.waitFor({ state: 'visible' })") < dismiss)
+  assert.ok(dismiss < source.indexOf("name: 'Pause game'"))
+  assert.ok(dismiss < source.indexOf('report.before = await observe()'))
+  assert.equal(source.match(/Continue anyway/g).length, 1)
 })
 
 test('public zoom readiness follows settled preset/configuration, not flyby zoom scalar', async () => {
@@ -304,9 +391,7 @@ test('pause-overlay regression detects occlusion while permitting edge-touching 
   assert.match(source, /\[900, 360\]/)
   assert.match(source, /m2RectanglesOverlap\(layout, layout.pause\)/)
   assert.match(source, /m2RectanglesOverlap\(layout.pause, ui\)/)
-  assert.match(source, /pausePointerEvents, 'none'/)
-  assert.match(source, /pauseText, 'Paused'/)
-  assert.doesNotMatch(source, /pauseActionable|Click to resume|WORLD PAUSED/)
+  assert.match(source, /pauseActionable/)
 })
 
 test('bounded M2 avoids duplicate initial-wide PNG while retaining all viewport captures and stage evidence', () => {
@@ -324,58 +409,41 @@ test('bounded M2 avoids duplicate initial-wide PNG while retaining all viewport 
   assert.equal(m2FunctionalLimitMs, 45000)
 })
 
-test('campaign popup regression retains collision, content, export and native pause admission', async () => {
-  const { m2RectanglesOverlap, assertM2DiagnosticLayout } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
-  // Retain the originally captured short-wide collision and boundary oracle.
+test('open campaign panel regression rejects the captured short-wide collision without hiding either panel', async () => {
+  const { m2RectanglesOverlap } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
   const message = { left: 72, top: 241, right: 412, bottom: 341 }
   assert.equal(m2RectanglesOverlap({ left: 332, top: 8, right: 892, bottom: 350 }, message), true)
   assert.equal(m2RectanglesOverlap({ left: 428, top: 8, right: 892, bottom: 350 }, message), false)
-  assert.equal(m2RectanglesOverlap(
-    { left: 104, top: 8, right: 632, bottom: 350 },
-    { left: 96, top: 355, right: 436, bottom: 455 }
-  ), false)
-  // Synthetic layout admission, not a rendered layout claim. Native popup
-  // artwork/layout is independently tested; F8 must retain every existing oracle.
-  const layout = {
-    left: 108, top: 180, right: 892, bottom: 330, rowsFit: true,
-    pointerTail: '1.0 / 2.0 ms', overflow: false, events: 'auto', overflowY: 'auto',
-    exportFits: true, exportActionable: true,
-    campaignPanels: [{ left: 330, top: 16, right: 568, bottom: 150,
-      text: 'Authored campaign text', contentFits: true, closeActionable: true }],
-    pause: { left: 843, top: 348, right: 898, bottom: 360 },
-    pausePointerEvents: 'none', pauseText: 'Paused',
-    interactiveUi: [{ name: 'native-hud', left: 0, top: 0, right: 100, bottom: 360 }],
-  }
-  assert.doesNotThrow(() => assertM2DiagnosticLayout(layout, 900, 360))
-  for (const change of [
-    value => { value.left = -1 },
-    value => { value.rowsFit = false },
-    value => { value.pointerTail = '' },
-    value => { value.overflow = true },
-    value => { value.events = 'none' },
-    value => { value.exportFits = false },
-    value => { value.exportActionable = false },
-    value => { value.campaignPanels = [] },
-    value => { value.campaignPanels[0].top = 200; value.campaignPanels[0].bottom = 250 },
-    value => { value.campaignPanels[0].left = -1 },
-    value => { value.campaignPanels[0].text = ' ' },
-    value => { value.campaignPanels[0].contentFits = false },
-    value => { value.campaignPanels[0].closeActionable = false },
-    value => { value.pause = null },
-    value => { value.pausePointerEvents = 'auto' },
-    value => { value.overflowY = 'hidden' },
-    value => { value.pauseText = 'Click to resume' },
-    value => { value.pause.right-- },
-    value => { value.pause.bottom-- },
-    value => { value.pause.top = 300 },
-    value => { value.interactiveUi.push({ name: 'overlap', ...value.pause }) },
-  ]) {
-    const candidate = structuredClone(layout)
-    change(candidate)
-    assert.throws(() => assertM2DiagnosticLayout(candidate, 900, 360))
-  }
+  assert.equal(
+    m2RectanglesOverlap(
+      { left: 104, top: 8, right: 632, bottom: 350 },
+      { left: 96, top: 355, right: 436, bottom: 455 }
+    ),
+    false
+  )
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /layout\.campaignPanels\.length > 0/)
+  assert.match(source, /m2RectanglesOverlap\(layout, panel\)/)
+  assert.match(source, /panel\.contentFits, true/)
+  assert.match(source, /layout\.exportFits, true/)
+  assert.match(source, /layout\.exportActionable,\s*true/)
+  assert.match(source, /panel\.closeActionable,\s*true/)
   const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
+  assert.match(css, /--campaign-message-width:340px/)
   assert.match(css, /\.world-viewport\{position:absolute;inset:0 0 0 var\(--side\)/)
+  assert.match(css, /@media \(min-width:900px\) and \(max-height:700px\)/)
+  assert.match(css, /max-width:calc\(100% - var\(--campaign-message-width\) - 24px\)/)
+  assert.match(css, /\.campaign-messages details\[open\]\{width:var\(--campaign-message-width\)\}/)
+  assert.match(css, /\.fps-renderer\{max-height:none;overflow:visible\}/)
+  for (const side of [72, 100, 140]) {
+    const worldWidth = 900 - side
+    const graphWidth = Math.min(560, worldWidth - 340 - 24)
+    const graphLeft = 900 - 8 - graphWidth
+    assert.equal(graphLeft - (side + 340), 16, 'HUD is excluded once by the containing viewport')
+  }
 })
 
 test('hosted M2 route awaits actual pointer and keyboard export checks inside existing scene deadline', () => {
@@ -488,96 +556,4 @@ test('native export target uses rendered bounds and real input without invoking 
   assert.ok(helper.indexOf("filename.replace('.json', '-native-summary.json')") < helper.indexOf('assert.ok(nativeDiagnostics.nativeWorkFrames'))
   assert.match(helper, /examined > 128/)
   assert.equal(m2FunctionalLimitMs, 45000)
-})
-
-
-test('normal M2 establishes closed camera/pointer ownership and restores the same popup for layout', async () => {
-  const { setM2CampaignPopupOpen } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
-  let open = true, present = true
-  const calls = [], notification = { serial: 7, stringId: 641, oneShot: true }, original = structuredClone(notification)
-  const detail = {
-    count: async () => Number(present),
-    getAttribute: async name => { assert.equal(name, 'open'); return open ? '' : null },
-    locator: selector => selector === 'summary'
-      ? { click: async () => { calls.push('summary'); open = !open } }
-      : { waitFor: async ({ state }) => { assert.equal(selector, '[data-native-campaign-panel]'); assert.equal(state, open ? 'visible' : 'hidden') } },
-  }
-  const page = { evaluate: async read => {
-    assert.equal(read, campaignPopupSnapshot)
-    return present ? [{ serial: '7', open }] : []
-  }, locator: selector => {
-    if (selector === '.campaign-messages details[open]') return { count: async () => Number(open) }
-    assert.equal(selector, '.campaign-messages details[data-message-serial="7"]')
-    return detail
-  } }
-  for (const desired of [false, false, true, false, true]) {
-    await setM2CampaignPopupOpen(page, '7', desired)
-    assert.equal(open, desired)
-    assert.deepEqual(notification, original, 'Neither ordinary nor one-shot records are acknowledged by summary toggles')
-  }
-  assert.deepEqual(calls, ['summary', 'summary', 'summary', 'summary'])
-  present = false
-  await assert.rejects(setM2CampaignPopupOpen(page, '7', true), /same campaign notification/)
-  await assert.rejects(setM2CampaignPopupOpen(page, '7"]', true), /real retained campaign/)
-
-  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
-  const normal = source.slice(source.indexOf('const popupSerial ='), source.indexOf("stage('camera-reached')"))
-  assert.ok(normal.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)') < normal.indexOf("page.keyboard.down(key)"))
-  assert.match(normal, /graph\.evaluate\(el => \(\{ text: el\.innerText, pointerEvents: getComputedStyle\(el\)\.pointerEvents \}\)\)/)
-  assert.match(normal, /assert\.equal\(graphEntry\.pointerEvents, 'none'\)/)
-  const loop = source.slice(source.indexOf('// Keep the original world-route coordinates'), source.indexOf("stage(`viewport-${width}x${height}-captured`)"))
-  const close = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, false)'),
-    pointer = loop.indexOf('await moveAndObserve(width - 60, height - 100, true)'),
-    reopen = loop.indexOf('await setM2CampaignPopupOpen(page, popupSerial, true)'),
-    layout = loop.indexOf('assertCompactMessageWitness(sample.layout, sample.witness, width, height, sample.scrollSamples)')
-  assert.ok(close >= 0 && close < pointer && pointer < reopen && reopen < layout)
-  assert.ok(reopen < loop.indexOf('await checkFrameExport('))
-  assert.ok(loop.indexOf('await checkFrameExport(') < loop.indexOf('await scrollCompactDiagnostics('))
-  assert.ok(loop.indexOf('await scrollCompactDiagnostics(') < layout)
-  assert.match(loop, /pointerPopupState: 'closed', layoutPopupState: 'open', popupSerial/)
-  assert.match(source, /Public close\/reopen retains the complete paused notification state/)
-  assert.equal(m2FunctionalLimitMs, 45000, 'Functional phase and separate picking cap remain45s; ordinary setup is explicitly separate')
-})
-
-
-test('atomic M2 popup ownership rejects missing, pending, stale and unrelated final owners', async () => {
-  const { assertM2PopupOwnership } = await import('../scripts/tutorial-browser/m2-pointer-f8.mjs')
-  const good = { phase: 'verify-retained-popup-and-owners', pending: false, serial: '7', observedOpen: true, owners: [{ serial: '7' }] }
-  assertM2PopupOwnership(good, '7', true)
-  assertM2PopupOwnership({ ...good, observedOpen: false, owners: [] }, '7', false)
-  for (const change of [v => { delete v.owners }, v => { v.phase = 'observe-retained-popups' },
-    v => { v.pending = true }, v => { v.serial = '99' }, v => { v.observedOpen = false },
-    v => { v.owners = [{ serial: '99' }] }, v => { v.owners.push({ serial: '99' }) }]) {
-    const value = structuredClone(good); change(value)
-    assert.throws(() => assertM2PopupOwnership(value, '7', true))
-  }
-})
-
-test('atomic export observation retains event, world and hit-test rejection oracles', async () => {
-  const { assertFrameExportObservation } = await import('../scripts/tutorial-browser/frame-export.mjs')
-  const before = { turn: 17, paused: true, selected: [7], camera: { x: 1, y: 2, angle: 3 }, mode: 'normal' }
-  const good = { inputs: [], state: structuredClone(before), bounds: { buttonFits: true, statusFits: true, hit: true } }
-  assertFrameExportObservation(before, good)
-  for (const change of [v => { delete v.inputs }, v => { v.inputs.push('keydown') },
-    v => { v.state.turn++ }, v => { v.state.paused = false }, v => { v.state.selected = [99] },
-    v => { v.state.camera.angle++ }, v => { v.state.mode = 'spell' },
-    v => { v.bounds.buttonFits = false }, v => { v.bounds.statusFits = false }, v => { v.bounds.hit = false }]) {
-    const value = structuredClone(good); change(value)
-    assert.throws(() => assertFrameExportObservation(before, value))
-  }
-})
-
-test('atomic export reader observes current post-action state, never a cached before snapshot', async () => {
-  const { readFrameExportObservation } = await import('../scripts/tutorial-browser/frame-export.mjs')
-  const { runInNewContext } = await import('node:vm')
-  const scene = { world: { turn: 17, paused: true, selected: [7], mode: 'normal' }, cameraPosition: { x: 1, y: 2, angle: 3 } }
-  const button = { getBoundingClientRect: () => ({ left: 0, top: 0, right: 20, bottom: 20 }), contains: node => node === button }
-  const context = { window: { testSceneRef: { current: scene }, frameExportInputs: [] }, innerWidth: 100, innerHeight: 100,
-    document: { querySelector: () => ({ getBoundingClientRect: () => ({ bottom: 25 }) }), elementFromPoint: () => button }, button }
-  const read = () => JSON.parse(JSON.stringify(runInNewContext(`(${readFrameExportObservation.toString()})(button)`, context)))
-  const first = read(); scene.world.turn++; scene.cameraPosition.angle++; context.window.frameExportInputs.push('click')
-  const second = read()
-  assert.equal(first.state.turn, 17); assert.equal(second.state.turn, 18)
-  assert.equal(second.state.camera.angle, 4); assert.deepEqual(second.inputs, ['click'])
-  assert.deepEqual(second.bounds, { buttonFits: true, statusFits: true, hit: true })
 })

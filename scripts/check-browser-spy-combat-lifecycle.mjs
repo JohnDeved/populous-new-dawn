@@ -1,4 +1,3 @@
-import { skipIntroductionWithSpace } from './browser-introduction.mjs'
 import { showAllMissions } from './browser-game.mjs'
 // Issue97 normal Spy lifecycle. PR108 acquisition helpers and stages are reused
 // from their exact reviewed source; the original checker is not modified.
@@ -1066,6 +1065,7 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
       const w = window.testStore.getWorld(),
         { tick } = await import('/app/model.ts')
       const samples = []
+      let encounteredOpponentId = null
       let reveal = null,
         firstDamage = null,
         outcome = null
@@ -1075,8 +1075,9 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
           priorDisguise = before?.native?.disguise ?? before?.fight?.motion?.disguise
         tick(w, 1 / 12)
         const spy = w.units.find(u => u.id === spyId),
-          enemy = w.units.find(u => u.id === targetId),
           native = spy?.fight?.motion ?? spy?.native
+        if (encounteredOpponentId === null && Number.isInteger(spy?.fight?.opponent))
+          encounteredOpponentId = spy.fight.opponent
         if (spy && (spy.fight || [25, 29].includes(native?.state)) && !reveal) {
           reveal = {
             turn: w.turn,
@@ -1097,6 +1098,8 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
             disguise: native?.disguise,
             state: native?.state,
           }
+        const target = w.units.find(u => u.id === targetId)
+        const opponent = w.units.find(u => u.id === encounteredOpponentId)
         if (!(n % 64))
           samples.push({
             turn: w.turn,
@@ -1109,13 +1112,15 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
               command: spy.native?.commandStatus,
               fight: spy.fight && { action: spy.fight.action, opponent: spy.fight.opponent },
             },
-            target: enemy && { hp: enemy.hp, x: enemy.x, z: enemy.z },
+            target: target && { id: target.id, hp: target.hp, x: target.x, z: target.z },
+            opponent: opponent && { id: opponent.id, hp: opponent.hp, x: opponent.x, z: opponent.z },
           })
-        if (!spy || spy.hp <= 0 || !enemy || enemy.hp <= 0) {
+        if (!spy || spy.hp <= 0 || (encounteredOpponentId !== null && (!opponent || opponent.hp <= 0))) {
           outcome = {
             turn: w.turn,
             spyAlive: !!spy && spy.hp > 0,
-            enemyAlive: !!enemy && enemy.hp > 0,
+            opponentId: encounteredOpponentId,
+            enemyAlive: !!opponent && opponent.hp > 0,
           }
           break
         }
@@ -1123,8 +1128,10 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
       }
       if (outcome) for (let i = 0; i < 128; i++) tick(w, 1 / 12)
       const spy = w.units.find(u => u.id === spyId),
-        enemy = w.units.find(u => u.id === targetId)
+        enemy = w.units.find(u => u.id === encounteredOpponentId)
       return {
+        clickedTargetId: targetId,
+        encounteredOpponentId,
         reveal,
         firstDamage,
         outcome,
@@ -1153,14 +1160,20 @@ async function ordinaryEncounter(spyId, schoolId, targetId) {
     result.reveal.priorHP,
     'Reveal observed before first encounter damage tick'
   )
-  if (result.firstDamage) assert.equal(result.firstDamage.disguise, 0)
+  if (result.firstDamage) {
+    assert.equal(result.firstDamage.disguise, 0)
+    assert.ok(
+      result.reveal.turn < result.firstDamage.turn,
+      'Reveal must precede first observed damage'
+    )
+  }
   assert.ok(result.outcome, 'Combat death/cleanup not reached within bounded normal encounter')
   if (!result.cleanup.spyAlive)
     assert.equal(result.cleanup.selected, false, 'Dead Spy must leave selection normally')
   if (result.cleanup.spyAlive && !result.cleanup.enemyAlive)
     assert.notEqual(
       result.cleanup.remainingFight?.opponent,
-      targetId,
+      result.encounteredOpponentId,
       'Dead opponent must not remain as an active fight target'
     )
   return result
@@ -1213,7 +1226,9 @@ try {
   await stage('normal-opening', async () => {
     await until('authored opening', { kind: 'opening' }, 64)
     await holdRaf(false)
-    await skipIntroductionWithSpace(page, { timeout: 15000 })
+    const skip = page.getByRole('button', { name: /Skip introduction/ })
+    await skip.waitFor()
+    await skip.click()
     await page.waitForFunction(
       () =>
         !(window.testStore.getWorld().inputMask & 64) &&

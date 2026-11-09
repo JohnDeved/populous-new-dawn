@@ -209,7 +209,7 @@ export function rebuildTerrain(scene: GameScene) {
 }
 
 export function updateTerrainTexture(scene: GameScene) {
-  if (!scene.terrainTextures) return
+  if (scene.disposed || !scene.terrainTextures) return
   const w = scene.world,
     marks = w.footprints
   const terrainChanged =
@@ -267,6 +267,7 @@ export function landIndex(scene: GameScene, x: number, z: number) {
 }
 
 export function updateWater(scene: GameScene, metrics?: WaterUpdateMetrics) {
+  if (scene.disposed) return
   if (!scene.waves) {
     if (metrics) metrics.reasons |= WATER_UPDATE_REASON.missingWaves
     return

@@ -1,0 +1,39 @@
+{
+  "verdict": "ACCEPT",
+  "reviewedAtUTC": "2026-10-11T02:35:10Z",
+  "scope": "Light publication/archive check only; no native execution or repeated expanded replay",
+  "acceptedNativeClaim": "Conditional first-record allocator diagnostic stop; class2 copy0/increment1 before an unknown initializer-suppression byte, no returned allocation or completed record, no class1 copy/increment",
+  "claimsMatchAcceptedPartialResult": true,
+  "all62MemberHashesAndSizesMatchManifest": true,
+  "all62MembersMatchRetainedLocalSources": true,
+  "allMembersRegularAndSafeRelativePaths": true,
+  "wholeOriginalExeOrAssetFilesIncluded": false,
+  "productSourceEdits": false,
+  "compositionChange": "Documentation-only appended partial-result section; does not claim actual startup, completion or product fix.",
+  "correctedFinding": "Removed misleading carryover of earlier camera-return/palette-fixture conditions. New README identifies this distinct conditional seam and disabled earlier projections.",
+  "independentReviewLimits": "Mask/observer/call/opcode/source-record and partial-result reconciliation; not independent CPU arithmetic replay or reconstruction of every memory value. Engine retirement counts remain receipts.",
+  "reproductionLimits": "Historical path materialization/adaptation plus separately supplied canonical EXE/DAT, Capstone and static PE reader; retained gzip results require no expanded disk duplicate.",
+  "reviewedFiles": [
+    {
+      "path": "references/verification/mission3-constructor-stop-2026-10-11/README.md",
+      "bytes": 4620,
+      "sha256": "b544d27d5e86f5002cb037b2a6c962343f425f5361b65318ee15b41d959845bb"
+    },
+    {
+      "path": "references/verification/mission3-constructor-stop-2026-10-11/manifest.json",
+      "bytes": 16335,
+      "sha256": "f3845a44b6418dd556fd3b11d2c0902f772b6dc87277fdee5c238d0bffebae98"
+    },
+    {
+      "path": "references/verification/mission3-constructor-stop-2026-10-11/retained-proof.tar.gz",
+      "bytes": 13457276,
+      "sha256": "669d3c0454cff10567e9e76e2f6c7cd340fde1bd2bc25bf3e7bedf05025a7a92"
+    },
+    {
+      "path": "decomp/research/training-entry-composition.md",
+      "bytes": 10026,
+      "sha256": "c043820451bb56c9f4566ca8317220b1f76e2b7c9939f6b70905cc6996128a1e"
+    }
+  ],
+  "outstandingDefects": []
+}

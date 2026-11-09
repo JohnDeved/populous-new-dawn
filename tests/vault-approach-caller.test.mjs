@@ -1,4 +1,3 @@
-import { createCampaignFixtureStore } from './support/campaign-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { command, createWorld, select, tick } from '../app/model.ts'
@@ -177,7 +176,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   const { ObjectPanels } = await import('../app/object-panels.ts')
   const projections = []
   const draws = []
-  let screenOverride
+  let screenOverride, contextLosses = 0
   const element = (tagName = 'div') => ({
     tagName,
     children: [], style: {}, dataset: {}, classList: { add: nop },
@@ -208,6 +207,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
     visible: () => true, ownedSounds: new Map(), resize: { disconnect: nop },
     disposeListeners: [], scene: { remove: nop }, globe: { dispose: nop },
     releaseGroup: nop, waterMap: { dispose: nop }, terrainMap: { dispose: nop },
+    terrainUpload: {}, minimap: { revision: undefined },
     view: {
       dispose: nop,
       screen(point) {
@@ -215,7 +215,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
         return screenOverride ?? { x: point.x / 128, y: point.y / 32, z: 0 }
       },
     },
-    renderer: { dispose: nop, domElement: element() },
+    renderer: { dispose: nop, domElement: element(), forceContextLoss: () => { ++contextLosses } },
     cancelTooltipInspection: nop, tooltipElement: element(), pointerOutline: element(),
     spellPointer: element(), worshipPresentation: { dispose: nop },
   })
@@ -224,6 +224,7 @@ async function vaultSceneFixture(t, world = createWorld(3)) {
   assert.equal(scene.start(), true)
   t.after(() => {
     scene.dispose()
+    assert.equal(contextLosses, 1, 'each retired Scene reaches its supplied context-loss boundary once')
     for (const [name, descriptor] of globals) {
       if (descriptor) Object.defineProperty(globalThis, name, descriptor)
       else delete globalThis[name]
@@ -513,8 +514,8 @@ test('Vault prior1→new0 entry and a long paint expire on the first inactive ph
 test('Vault Save/Load and replacement Scene rebuild only on the next live request; stale disposal preserves the successor', async t => {
   const { createGameStore } = await import('../app/game-store.ts')
   const { trainingPanelRequestOwner } = await import('../app/training-panel-requests.ts')
-  const store = await createCampaignFixtureStore([3])
-  assert.equal(store.startMission(3), true)
+  const store = createGameStore()
+  store.startMission(3)
   const original = store.getWorld()
   assert.equal(original.capacityPolicy.mode, 'scalable')
   assert.ok(original.objectCells.heads instanceof Float64Array)
