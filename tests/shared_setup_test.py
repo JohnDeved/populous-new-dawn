@@ -100,7 +100,8 @@ class SharedSetupTests(unittest.TestCase):
 
     def git(self, *args):
         return subprocess.check_output(
-            ['git', '-C', str(self.source), *args], stderr=subprocess.PIPE).decode()
+            ['git', '-c', 'maintenance.auto=false', '-C', str(self.source), *args],
+            stderr=subprocess.PIPE).decode()
 
     def commit(self):
         self.git('-c', 'user.name=Setup fixture', '-c', 'user.email=fixture@localhost',
@@ -154,6 +155,23 @@ class SharedSetupTests(unittest.TestCase):
         value = json.loads(path.read_bytes())
         value.update(changes)
         path.write_text(json.dumps(value) + '\n')
+
+    def test_fixture_git_does_not_start_automatic_maintenance(self):
+        # Exercise a commit with auto maintenance enabled in the temporary repo.
+        # The fixture-only command override must prevent even a background start.
+        self.git('config', 'maintenance.auto', 'true')
+        self.git('config', 'maintenance.autoDetach', 'false')
+        (self.source / 'app/main.js').write_text('export const source = 2;\n')
+        self.git('add', 'app/main.js')
+        trace = self.root / 'git-trace.jsonl'
+        with mock.patch.dict(os.environ, {'GIT_TRACE2_EVENT': str(trace)}):
+            self.commit()
+        events = [json.loads(line) for line in trace.read_text().splitlines()]
+        self.assertTrue(any(event.get('event') == 'exit' for event in events))
+        maintenance = [event['argv'] for event in events
+                       if event.get('event') == 'child_start'
+                       and any(arg in ('maintenance', 'gc') for arg in event.get('argv', []))]
+        self.assertEqual(maintenance, [], 'Fixture commits must not race strict preservation snapshots')
 
     def test_source_only_after_reset_has_no_assets_dependencies_or_store(self):
         # No public/original is needed just to edit or inspect metadata.

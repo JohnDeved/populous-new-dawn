@@ -60,7 +60,7 @@ function startup(store) {
   const declarations = names.map(name => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === name).getText(pageSource)).join('\n')
   const navigation = evaluatePage(`function(){${declarations}; return {${names.join(',')}}}`, {
     store, setStartup: state => states.push(state),
-    menuSession: { current: null }, pendingMenuCamera: { current: [] },
+    followerPress: { current: null }, menuSession: { current: null }, pendingMenuCamera: { current: [] },
     engine: { current: null }, audio: { current: null }, loadRequest: { current: null },
     setCheatsOpen: value => cheatClosures.push(value),
     cancelNearbyInput: () => {}, setSelectorOpen: () => {}, setMenu: () => {},

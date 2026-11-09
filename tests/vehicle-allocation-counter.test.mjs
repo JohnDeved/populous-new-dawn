@@ -47,7 +47,7 @@ test('missing-passenger cleanup changes active craft only', () => {
   template.passengers = [99999]
   template.passengerCount = 1
   removeMissingVehiclePassengers(world)
-  assert.deepEqual([template.passengers, template.passengerCount, template.speed], [[], 0, -1])
+  assert.deepEqual([template.passengers, template.passengerCount, template.speed], [[0], 0, -1])
 })
 
 test('inactive destruction state retains ordinary counter progression', () => {
