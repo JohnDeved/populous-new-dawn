@@ -211,3 +211,10 @@ camera helper: the auxiliary low nibble gates an all-field commit, playback
 bypasses ordinary input damping/clamps, and CP EOF clears staging without zeroing
 the previously committed tribe camera on that service call. Downstream view
 configuration and replay execution remain open; the manifest is unchanged.
+
+## Deferred input service follow-up
+
+[The deferred input follow-up](rolling-demo-input.md) now binds the callback-batch
+return boundary, shared pending owner mask, acquire-before-release ordering and
+cleanup's forced release(1) request. It remains a conditional static contract, not
+OS focus restoration, an executed replay or a complete frontend transition.

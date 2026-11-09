@@ -865,6 +865,7 @@
         "scripts/check-static-rolling-demo-control.py",
         "decomp/research/rolling-demo-checksum.md",
         "decomp/research/rolling-demo-camera.md",
+        "decomp/research/rolling-demo-input.md",
         "scripts/check-static-rolling-demo-checksum.py",
         "tests/rolling-demo-stream-framing.test.py",
         "decomp/research/recorded-demo-provenance.md",

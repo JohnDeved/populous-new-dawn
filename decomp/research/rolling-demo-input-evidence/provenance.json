@@ -1,0 +1,120 @@
+{
+  "original": "d3dpoptb.exe",
+  "original_sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "original_bytes": 2275840,
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "tool_sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "windows": [
+    {
+      "name": "caller",
+      "start": "004a4960",
+      "end_exclusive": "004a4d37",
+      "bytes": 983,
+      "raw_sha256": "fbd2c248a955ff5584d2af13f904c7d7ea3af30e9fb7904b5cad70cc8401837c",
+      "listing_sha256": "c63a224464747c8927bbc31fc08671e815da0db588ac0e88405f049b29505195",
+      "source_output_sha256": "32cc59b516add4ec9d07ffd6241a402d31269b838f20ffb3b928e434940de5e4"
+    },
+    {
+      "name": "service",
+      "start": "004aa4e0",
+      "end_exclusive": "004aa8a8",
+      "bytes": 968,
+      "raw_sha256": "064e32a29e8e01d80245af7d3c75bc8081e875d80c0246c76d16d5a791426ad7",
+      "listing_sha256": "f31b27aeaa4394bac1a213c880db89312f5ea77755acdfdd9976167d9e34c933",
+      "source_output_sha256": "a6254f04b9cea585131506bf701a073420b498aed114b930e142619a8b473df3"
+    },
+    {
+      "name": "lock",
+      "start": "004af0a0",
+      "end_exclusive": "004af1b2",
+      "bytes": 274,
+      "raw_sha256": "fbb15aac005fa05d00231489c45f7573ef0fec537de0c1a37601309839d1f3c1",
+      "listing_sha256": "32efab5a149024e205658be34bb186d736c98a7fcbc0338dc1be42b86a24d6a3",
+      "source_output_sha256": "3c82bec09eb82b4ca698ec5419054a4acf68f3983c08af564d28ff09036b134b"
+    },
+    {
+      "name": "unlock",
+      "start": "004af1c0",
+      "end_exclusive": "004af33b",
+      "bytes": 379,
+      "raw_sha256": "4b8d2244891e9f57068ecf7dc82ba3933be529d7feb3522d8f39b52c78aa450f",
+      "listing_sha256": "8dd703d5efbe41436859fe578ec56c8c811a5704a050896905ec9e102e564b4a",
+      "source_output_sha256": "04ad16d5ab0e2b95a73581693b33ee3eaaf18c0ac0b6976d880d62975f8e7db9"
+    },
+    {
+      "name": "handler",
+      "start": "00526a80",
+      "end_exclusive": "00526bed",
+      "bytes": 365,
+      "raw_sha256": "e8868ee9ca70726673a64af55e891ffbcda71ed14e6f0f1e24f31112b6805dfc",
+      "listing_sha256": "dd70496d48d5dcf0a63722a2719f8f9043c31ad87d8a1b70bf89d7d80c906c35",
+      "source_output_sha256": "7e9dc57dcaa8b681ef3417a7afb4016cf203e54ed0609e246d8f74b152c2fc7b"
+    },
+    {
+      "name": "cleanup",
+      "start": "004b2700",
+      "end_exclusive": "004b28c5",
+      "bytes": 453,
+      "raw_sha256": "5a492f8f42ef3c5fe5a939f3b5464912e7e6fdc7408ef8225f9ed2bea51398ef",
+      "listing_sha256": "bf34c0a8453f444590fb5153b9c3876db4fc5268f0989b26beba7d5cc3d60a2e",
+      "source_output_sha256": "a15de9ab074ba4452cf558d3ef670dda64199ccaae2361f1838ddaea43af27d3"
+    },
+    {
+      "name": "gate",
+      "start": "004b2670",
+      "end_exclusive": "004b2682",
+      "bytes": 18,
+      "raw_sha256": "cfd9058bf10acb2e3f1254d4317d0f0329e705e6102121afa0af438dfa14e759",
+      "listing_sha256": "bc902b8c0f9cc96be967e6c65a943f4fd20e984e885bcd665851347e58117d58",
+      "source_output_sha256": "c9feee2081c976e79fbff10519d7f7e32f7bec9769b72ee8be1860e547092114"
+    }
+  ],
+  "tables": [
+    {
+      "name": "callback_table",
+      "address": "005cdb98",
+      "bytes": 20,
+      "hex": "909d4a00c0a14a00000000000000000000000000",
+      "sha256": "401b6a8d0d5375102c11ce1083a42162084c4ecdffe99d4d5510447b9c5b9273",
+      "values": [
+        "004a9d90",
+        "004aa1c0",
+        "00000000",
+        "00000000",
+        "00000000"
+      ]
+    },
+    {
+      "name": "extended_key_targets",
+      "address": "00526bf0",
+      "bytes": 12,
+      "hex": "546b5200546b5200186b5200",
+      "sha256": "92e532f8d274143ec18a4aaee1600c2eeda7c1a49f79189e10664226fbf199b7",
+      "values": [
+        "00526b54",
+        "00526b54",
+        "00526b18"
+      ]
+    },
+    {
+      "name": "extended_key_selectors",
+      "address": "00526bfc",
+      "bytes": 7,
+      "hex": "00000002010101",
+      "sha256": "00a499461d3ecd9f329f8821e3240468a8c1fc37576e3a762934a29cbdbd7d3d",
+      "values": [
+        "00000000",
+        "00000000",
+        "00000000",
+        "00000002",
+        "00000001",
+        "00000001",
+        "00000001"
+      ]
+    }
+  ],
+  "display_normalization": "Only raw output headers and out-of-window addresses are omitted. Instruction lines are unchanged. No local path is published.",
+  "original_execution": false,
+  "operating_system_focus_or_replay_qualified": false,
+  "limits": "Static byte/control-flow contract only; external callees, concurrent mutation, and OS delivery are not executed."
+}
