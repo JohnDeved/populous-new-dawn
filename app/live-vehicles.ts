@@ -62,7 +62,8 @@ export function nearestLiveBoat(
   p: Pick<LivePerson, 'tribe'>,
   center: { x: number; y: number },
   minimum: number,
-  maximum: number
+  maximum: number,
+  people: ReadonlyMap<number, Pick<LivePerson, 'tribe'>> = w.pathfinding.people
 ) {
   let nearest: Vehicle | undefined,
     nearestDistance = Infinity
@@ -75,7 +76,7 @@ export function nearestLiveBoat(
       (w.manaTribes[p.tribe].playerType === 1 && v.reservation)
     )
       continue
-    const driver = v.passengerCount && w.pathfinding.people.get(v.passengers[0])
+    const driver = v.passengerCount && people.get(v.passengers[0])
     if (driver && driver.tribe !== p.tribe) continue
     const distance = Math.hypot(short(v.x - center.x), short(v.y - center.y))
     // Strict comparison preserves the first roster entry when distances tie.
