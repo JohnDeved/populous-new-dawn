@@ -132,6 +132,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
     runnerImageVersion: process.env.ImageVersion ?? null },
   frontendEscapeScenarioSha256: hash(frontendEscapeScenario),
   recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
+  campaignMessageOwnershipSha256: hash(resolve(root, 'scripts/tutorial-browser/campaign-message-ownership.mjs')),
   compactMessageScenarioSha256: hash(resolve(root, 'scripts/tutorial-browser/compact-message-layout.mjs')),
   checkpointCodecSha256: hash(resolve(root, 'scripts/tutorial-browser/checkpoint-codec.mjs')),
   checkpointGeneratorSha256: hash(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')), status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
@@ -311,6 +312,7 @@ try {
     // Existing compact layout and picking assertions finish unchanged first.
     await context.close(); context = undefined; page = undefined
     receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
+    receipt.campaignMessageOwnership = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, campaignCallbacks: true })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
