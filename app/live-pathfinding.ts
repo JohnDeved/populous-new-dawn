@@ -147,11 +147,24 @@ function routeContext(w: World, u: Unit, p: LivePerson, searchOption = 0) {
   }))
   const vehicles = liveVehicles(w),
     people = new Map(w.pathfinding.people)
+  // This synchronous query builds a fresh first-living-owner view. It is not
+  // retained across path planning or roster mutations; owner fields stay live.
+  let livingUnits: Map<number, Unit> | undefined
+  const driverUnit = (id: number) => {
+    if (!livingUnits) {
+      livingUnits = new Map()
+      for (const unit of w.units) {
+        const id = unit.id
+        if (unit.hp > 0 && !livingUnits.has(id)) livingUnits.set(id, unit)
+      }
+    }
+    return Number.isNaN(id) ? undefined : livingUnits.get(id)
+  }
   // Occupied-vehicle admission resolves persistent native drivers, independently
   // of whether they currently own an active person route.
   for (const vehicle of vehicles.values()) {
     people.delete(vehicle.passengers[0])
-    const unit = w.units.find(u => u.id === vehicle.passengers[0] && u.hp > 0),
+    const unit = driverUnit(vehicle.passengers[0]),
       owner = unit?.native ?? unit?.entry?.person ?? unit?.builder?.person
     if (
       owner &&
