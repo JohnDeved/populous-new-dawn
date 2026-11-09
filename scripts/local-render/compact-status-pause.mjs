@@ -9,7 +9,7 @@ export default async function ({ browser, url, root, output, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { openCampaignFromMainMenu } = await import(pathToFileURL(resolve(root, 'scripts/browser-new-game.mjs')).href)
   const { compactMessageWitness, assertCompactMessageWitness } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/compact-message-layout.mjs')).href)
-  const { m2DiagnosticLayout, m2RectanglesOverlap } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')).href)
+  const { m2DiagnosticLayout, m2RectanglesOverlap, prepareCompactFeedback } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')).href)
   const report = { checks: [], captures: [], errors: [], scenarioSha256: createHash('sha256').update(readFileSync(import.meta.filename)).digest('hex') }
   const save = () => writeFileSync(resolve(output, 'compact-status-pause.json'), JSON.stringify(report, null, 2))
   const record = (name, observation) => { report.checks.push({ name, observation }); save() }
@@ -61,6 +61,15 @@ export default async function ({ browser, url, root, output, signal }) {
         assert.equal(await advisory.count(), 0, 'Resize cannot reopen a dismissed advisory')
         record(`advisory-pause-${initiallyPaused}-dpr${dpr}`, { paused: await paused(), modalSuspended: await page.evaluate(() => window.testSceneRef.current.modalSuspended) })
         if (!initiallyPaused) await button('Pause game').click()
+        await prepareCompactFeedback(page, () => page.evaluate(() => {
+          const world = window.testStore.getWorld()
+          return {
+            turn: world.turn, time: world.time, paused: world.paused,
+            randomState: world.randomState, selected: [...world.selected],
+            orders: world.units.map(unit => [unit.id, unit.target, unit.work, unit.tree,
+              unit.guard, unit.path.map(point => [point.x, point.z])]),
+          }
+        }))
         const turn = await page.evaluate(() => window.testStore.getWorld().turn)
         for (const preference of ['auto', '4']) {
           await page.setViewportSize({ width: 960, height: 720 })
@@ -83,7 +92,7 @@ export default async function ({ browser, url, root, output, signal }) {
                 assert.ok(f.left >= 0 && f.top >= 0 && f.right <= width && f.bottom <= height, 'Every wrapped text fragment fits the viewport')
             }
             assert.equal(m2RectanglesOverlap(status, campaign), false, 'Ordinary status and campaign text must not overlap')
-            assert.equal(m2RectanglesOverlap(status, ordinary.pause), false, 'Status must not cover Resume')
+            assert.equal(m2RectanglesOverlap(status, ordinary.pause), false, 'Feedback must not cover the native pause status')
             await capture(`messages-${preference}-${width}x${height}`)
             record(`ordinary-${preference}-${width}x${height}-dpr${dpr}`, ordinary)
             if (width !== 1920) {

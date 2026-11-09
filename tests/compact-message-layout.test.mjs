@@ -9,7 +9,7 @@ import {
   compactMessageCases,
   diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
-import runM2Functional, { m2DiagnosticLayout, m2FunctionalLimitMs, runCompactDiagnosticEpisodes } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import runM2Functional, { m2DiagnosticLayout, m2FunctionalLimitMs, runCompactDiagnosticEpisodes, prepareCompactFeedback } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { hudScale } from '../app/hud-layout.ts'
 import { pickingPathMetricIds, pickingPathViewports } from '../scripts/tutorial-browser/picking-path-readout.mjs'
@@ -34,7 +34,7 @@ function clearWitness() {
   return {
     layout: {
       ...box(428, 8, 892, 317),
-      pause: box(80, 135, 240, 188),
+      pause: box(840, 341, 898, 360),
       rowsFit: true,
       pointerTail: '1.0 / 2.0 ms',
       overflow: false,
@@ -42,7 +42,8 @@ function clearWitness() {
       exportFits: true,
       exportActionable: true,
       pauseActionable: true,
-      pauseText: 'WORLD PAUSED Click to resume',
+      pauseText: 'Paused',
+      pausePointerEvents: 'none',
       campaignPanels: [panel],
       interactiveUi: [
         { ...box(0, 0, 72, 360), name: 'native-hud' },
@@ -89,8 +90,9 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
       return picking.hidden ? picking : null
     },
   }))
-  const pause = { ...node(good.layout.pause), textContent: good.layout.pauseText }
-  pause.closest = selector => selector === '.paused-badge' ? pause : null
+  const pause = { ...node(good.layout.pause), getAttribute: name => name === 'aria-label' ? 'Paused' : null }
+  const resume = { ...node(box(10, 330, 30, 350)), disabled: false }
+  resume.closest = selector => selector === 'button' ? resume : null
   const exportButton = node(box(435, 270, 550, 290))
   const exportStatus = node(box(435, 294, 550, 310))
   const close = node(box(380, 245, 405, 265))
@@ -117,13 +119,22 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
     getComputedStyle: () => ({ visibility: 'visible', pointerEvents: 'none' }),
     document: {
       documentElement: { scrollWidth: 900 },
-      querySelector: selector => selector === 'button.paused-badge' ? pause : null,
+      querySelector: selector => ({
+        '[data-original-pause-status]': pause,
+        'button[aria-label="Resume game"]': resume,
+      })[selector] ?? null,
       querySelectorAll: selector => selector === '.campaign-messages details[open]>div' ? [campaign] : [],
-      elementFromPoint: (x, y) => [pause, exportButton, close].find(({ bounds: r }) =>
+      elementFromPoint: (x, y) => [resume, exportButton, close].find(({ bounds: r }) =>
         x >= r.left && x <= r.right && y >= r.top && y <= r.bottom),
     },
   })
   const layout = () => readLayout(overlay)
+  assert.equal(layout().pauseText, 'Paused')
+  assert.equal(layout().pausePointerEvents, 'none')
+  assert.equal(layout().pauseActionable, true)
+  resume.disabled = true
+  assert.equal(layout().pauseActionable, false, 'Resume actionability belongs to the distinct public button')
+  resume.disabled = false
   assert.equal(optional.length, 7)
   assertCompactMessageWitness(layout(), good.witness, 900, 360)
   for (const damaged of [zero, box(427, 140, 654, 157), box(435, 140, 893, 157),
@@ -195,6 +206,9 @@ test('compact message acceptance rejects status occlusion, clipping, missing con
     ({ layout }) => {
       layout.pauseActionable = false
     },
+    ({ layout }) => { layout.pause.right -= 8 },
+    ({ layout }) => { layout.pause.bottom -= 8 },
+    ({ layout }) => { layout.pausePointerEvents = 'auto' },
     ({ layout }) => {
       layout.rowsFit = false
     },
@@ -507,4 +521,55 @@ test('existing compact hosted job invokes shared expanded picking cases against 
   assert.match(workflow, /outputs\/tutorial-browser\/\*\.json/)
   assert.match(read('scripts/tutorial-browser/fixture/main.tsx'), /import Home from '\.\.\/\.\.\/\.\.\/app\/page'/)
   assert.match(read('scripts/tutorial-browser/build-home.mjs'), /mode: 'production'/)
+})
+
+test('compact overlap setup obtains real feedback and restores authored panels before its baseline', () => {
+  const source = prepareCompactFeedback.toString()
+  assert.match(source, /page\.locator\('\.campaign-messages details\[open\]'\)/)
+  assert.match(source, /await panel\.locator\('summary'\)\.click\(\)/)
+  assert.match(source, /selection\.selected\.every\(id => id === selection\.shamanId\)/)
+  assert.match(source, /unit\.native\?\.state === 10 && unit\.native\.commandStatus === 30/)
+  assert.match(source, /await page\.keyboard\.press\('g'\)/)
+  assert.match(source, /world\.messageUntil > world\.time/)
+  assert.match(source, /document\.querySelectorAll\('\.world-message'\)/)
+  assert.match(source, /assert\.deepEqual\(await observe\(\), beforeFeedback/)
+  assert.match(source, /assert\.equal\(await panel\.locator\('div > p'\)\.textContent\(\), texts\[index\]\)/)
+  assert.doesNotMatch(source, /\.message\s*=(?!=)|\.messageUntil\s*=(?!=)|\.tick\(|\.setWorld\(|\.change\(/)
+  const episode = runM2Functional.toString()
+  assert.ok(episode.indexOf('await prepareCompactFeedback(page, observe)') < episode.indexOf('report.before = await observe()'))
+  const local = readFileSync(new URL('../scripts/local-render/compact-status-pause.mjs', import.meta.url), 'utf8')
+  assert.ok(local.indexOf('await prepareCompactFeedback(page,') < local.indexOf('const turn = await page.evaluate'))
+  assert.match(local, /assert\.equal\(ordinary\.worldMessages\.length, 1\)/)
+})
+
+test('public compact feedback setup accepts Shaman selection and rejects followers before issuing G', async () => {
+  for (const selected of [[54], [], [54, 55], [55], [999]]) {
+    const world = { selected, paused: true, time: 12, message: '', messageUntil: 0,
+      units: [{ id: 54, team: 'blue', kind: 'shaman', ghost: false, hp: 100 },
+        { id: 55, team: 'blue', kind: 'brave', ghost: false, hp: 100 }] }
+    const keys = []
+    const context = { window: { testStore: { getWorld: () => world } },
+      document: { querySelectorAll: () => [{ textContent: world.message }] } }
+    const page = {
+      locator: () => ({ all: async () => [], count: async () => 0 }),
+      evaluate: async fn => runInNewContext(`(${fn})()`, context),
+      keyboard: { press: async key => {
+        keys.push(key)
+        // Mock transport only. Actual guardShaman production semantics are
+        // exercised separately on untouched Mission 1/2 initial selections.
+        world.message = 'Your followers stop guarding your shaman.'
+        world.messageUntil = world.time + 9
+      } },
+      waitForFunction: async fn => assert.equal(runInNewContext(`(${fn})()`, context), true),
+    }
+    const prepare = prepareCompactFeedback(page, async () => ({ selected: [...world.selected], paused: world.paused }))
+    if (selected.every(id => id === 54)) {
+      await prepare
+      assert.deepEqual(keys, ['g'])
+    } else {
+      await assert.rejects(prepare, /only Shaman or empty selection/)
+      assert.deepEqual(keys, [], 'Never submit a guard command for follower or unknown selection')
+    }
+    assert.deepEqual(world.selected, selected)
+  }
 })
