@@ -41,6 +41,12 @@ def validate_metadata(row):
     if 'blobSha'in row:require(type(row['blobSha'])is str and re.fullmatch('[a-f0-9]{40}',row['blobSha']),'Malformed Git OID')
 
 def verify_file(path,row,checkpoint,anchor=None,target=False):
+    """Authenticate bytes and recheck the named parent at completion.
+
+    This is a snapshot, not atomic pathname authentication against concurrent
+    writers. Callers must keep paths stable under their ownership or bind later
+    consumption to the verified descriptor/content instead of reopening the path.
+    """
     validate_metadata(row)
     parent,name=open_parent(path)
     try:
@@ -58,6 +64,17 @@ def verify_file(path,row,checkpoint,anchor=None,target=False):
             require(digest.hexdigest()==row['sha256'],'Descriptor SHA256 differs')
             if anchor is not None:require(digest.hexdigest()==anchor['sha256'],'Private source anchor hash differs')
             if 'blobSha'in row:require(git.hexdigest()==row['blobSha'],'Descriptor Git blob OID differs')
+            # The held parent can be renamed while its file descriptor stays valid.
+            # Reopen the requested path without following any parent symlink before
+            # returning identity for that path, not merely for a detached old file.
+            current_parent,current_name=open_parent(path)
+            try:
+                original=os.fstat(parent);current=os.fstat(current_parent)
+                require((original.st_dev,original.st_ino)==(current.st_dev,current.st_ino),
+                        'Descriptor parent changed during authentication')
+                require(key(before)==key(os.stat(current_name,dir_fd=current_parent,follow_symlinks=False)),
+                        'Descriptor path changed during authentication')
+            finally:os.close(current_parent)
             return identity(before)
         finally:os.close(fd)
     finally:os.close(parent)

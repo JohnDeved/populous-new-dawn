@@ -1,5 +1,10 @@
 # Static Totem/model149 prerequisite — Worker1, #21
 
+**Historical static delivery record.** See the [current implementation boundaries
+and corrected prerequisites](stone-head-149-current.md). In particular, the current
+browser checker rejects `--static-only`; the narrower route below describes an
+earlier attempt, not an available substitute for ordinary worship acceptance.
+
 Scope: base149 asset and source-qualified campaign presentation only, based on
 main `4897ea93833b5062aabc357a9aa54787f150c44e`. This does **not** complete #21 or
 claim native animation cadence. Historical research is retained verbatim in

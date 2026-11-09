@@ -135,9 +135,9 @@ export async function runCompactDiagnosticEpisodes({ report, ...options }, runEp
   report.pickingPathReadout = await runEpisode({ ...options, pickingPaths: true })
 }
 
-export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false }) {
-  assert.ok(!(compactMessages && pickingPaths), 'Diagnostic episodes must have independent contexts')
-  const scenario = pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
+export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, campaignCallbacks = false }) {
+  assert.ok([compactMessages, pickingPaths, campaignCallbacks].filter(Boolean).length <= 1, 'Diagnostic episodes must have independent contexts')
+  const scenario = campaignCallbacks ? 'campaign-message-ownership' : pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
   const context = await browser.newContext({
     viewport: { width: 1440, height: 1000 },
     deviceScaleFactor: 1,
@@ -348,7 +348,11 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     stage('paused-baseline')
     assert.equal(report.before.level, 2)
     assert.match(report.before.webgl, /WebGL 2/)
-    if (pickingPaths) {
+    if (campaignCallbacks) {
+      const { checkCampaignMessageOwnership } = await import('./campaign-message-ownership.mjs')
+      report.campaignMessageOwnership = {}
+      await checkCampaignMessageOwnership({ page, output, stage, report: report.campaignMessageOwnership, messageReady: m2AuthoredMessageReady, expectedText: originalMessages.messages[102].text })
+    } else if (pickingPaths) {
       const { checkExpandedPickingPaths } = await import('./compact-message-layout.mjs')
       report.pickingPaths = {}
       await checkExpandedPickingPaths({ page, output, stage, report: report.pickingPaths })
@@ -527,7 +531,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       await page.screenshot({
         path: resolve(
           output,
-          pickingPaths ? 'picking-path-failure.png' : compactMessages ? 'compact-message-failure.png' : 'm2-pointer-failure.png'
+          campaignCallbacks ? 'campaign-message-ownership-failure.png' : pickingPaths ? 'picking-path-failure.png' : compactMessages ? 'compact-message-failure.png' : 'm2-pointer-failure.png'
         ),
         timeout: 3000,
       })
