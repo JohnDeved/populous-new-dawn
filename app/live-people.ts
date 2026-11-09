@@ -1,6 +1,6 @@
 import { launchFirewarriorPoint } from './firewarrior-point.ts'
 import { unitRenderAnimationSource } from './unit-animation-source.ts'
-import { discardInvalidResident, residentPerson } from './building-resident.ts'
+import { prepareResidentPeople, residentPerson } from './building-resident.ts'
 import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { latchFollowerCorpseFrame } from './follower-corpse-animation.ts'
@@ -268,14 +268,15 @@ export function createLivePerson(w: World, u: Unit, pos = nativePosition(w, u)):
 // ponytail: ordinary occupants still belong to the browser unit list; native
 // six-slot admission, training repricing and order ownership remain to be wired.
 export function stepLivePersonHealth(w: World, deferred?: ReadonlySet<Unit>) {
+  const residentPeople = prepareResidentPeople(w)
   for (const u of w.units) {
     if (deferred?.has(u)) continue
-    discardInvalidResident(w, u)
+    if (u.resident !== undefined && !residentPeople(u)) delete u.resident
     if (u.hp <= 0) continue
     const p = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
     if (p && (rules.personStateFlags[p.state] & 1 || p.flags2 & 0x80000)) continue
 
-    const resident = residentPerson(w, u),
+    const resident = residentPeople(u),
       maxLife = short(Math.round(maxHp(u.kind) * 20)),
       health = {
         model: p?.model ?? nativePersonModel(u),
@@ -904,13 +905,15 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
     const p = existing ?? createLivePerson(w, u)
     p.life = Math.round(u.hp * 20)
     units.set(p.id, u)
-    people.unshift(p)
+    people.push(p)
   }
+  people.reverse()
+  const members = new Map<CellObject, LivePerson>(people.map(person => [person, person]))
   // 00511f70 consumes the retained person chain before its inclusive kill cap.
   // Project only exact owned objects into existing slots; snapshot before release.
   const linked: LivePerson[] = []
   for (const object of objectsInCell(w.objectCells, ((point.x >>> 8) & 254) | (point.y & 0xfe00))) {
-    const person = people.find(candidate => candidate === object)
+    const person = members.get(object)
     if (person) linked.push(person)
   }
   const owned = new Set(linked)
@@ -959,16 +962,18 @@ export function buildingFirePeople(w: World) {
     const p = u.flight ?? u.native ?? createLivePerson(w, u)
     const cell = ((p.y & 65535) >> 9) * 128 + ((p.x & 65535) >> 9)
     const people = cells.get(cell) ?? []
-    people.unshift(p)
+    people.push(p)
     cells.set(cell, people)
     units.set(p.id, u)
   }
   // 00408840 assigns panic/trail RNG in each socket's retained cell order.
   // Preserve this adapter's snapshot and legacy slots across repeated sockets.
   for (const [cell, people] of cells) {
+    people.reverse()
+    const members = new Map<CellObject, LivePerson>(people.map(person => [person, person]))
     const linked: LivePerson[] = []
     for (const object of objectsInCell(w.objectCells, ((cell & 127) << 1) | ((cell >>> 7) << 9))) {
-      const person = people.find(candidate => candidate === object)
+      const person = members.get(object)
       if (person) linked.push(person)
     }
     const owned = new Set(linked)

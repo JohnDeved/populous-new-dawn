@@ -224,11 +224,13 @@ function buildingId(w: World) {
       w.projectiles,
     ].flatMap(objects => objects.map(o => o.id))
   )
-  const reserveLinkedHeads = (head: World['shrines'][number]) => {
+  // Shared or cyclic linked owners already pass current checkpoint validation.
+  // Visit object identities once, reserving inactive descendants as well.
+  const heads = new Set(w.shrines)
+  for (const head of heads) {
     used.add(head.id)
-    if (head.linkedShrine) reserveLinkedHeads(head.linkedShrine)
+    if (head.linkedShrine) heads.add(head.linkedShrine)
   }
-  for (const head of w.shrines) reserveLinkedHeads(head)
   for (let id = 1023; id > 0; id--) if (!used.has(id)) return id
   throw new Error('No free terrain building handles')
 }
