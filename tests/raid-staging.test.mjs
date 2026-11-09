@@ -16,7 +16,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     })
     t.diagnostic(result.stdout)
     assert.equal(result.error, undefined)
-    assert.match(result.stdout, /tests 77\b/, 'all seventy-seven child cases must report')
+    assert.match(result.stdout, /tests 98\b/, 'all ninety-eight child cases must report')
     assert.equal(result.status, 0, result.stderr + result.stdout)
   })
 } else {
@@ -105,8 +105,23 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     { name: 'Mission 4 saved established zero still wins', level: 4, tribe: 3, base: 0, checkpoint: 'modern', expected: 0 },
     { name: 'Mission 4 outbound target remains independent', level: 4, tribe: 3, phase: 9, expected: 0x36b6, move: 0x2468 },
     { name: 'Mission 4 regroup target remains independent', level: 4, tribe: 3, phase: 12, expected: 0x36b6, move: 0x1357 },
-    { name: 'later Mission 5 retains enabled defence fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0x8232 },
-    { name: 'later Mission 5 retains live Shaman fallback', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0x2020 },
+    // The old M5 cases recorded the compatibility adapter, not the loaded-origin contract.
+    { name: 'Mission 5 loaded origin precedes enabled defence', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, expected: 0xb492 },
+    { name: 'Mission 5 loaded origin precedes moved Shaman', level: 5, tribe: 1, memberKind: 'warrior', shaman: 'moved', shamanPoint: { x: 24, z: -40 }, defence: false, expected: 0xb492 },
+    ...['direct', 'modern'].flatMap(checkpoint =>
+      ['moved', 'dead', 'missing'].flatMap(shaman => [true, false].map(defence => ({
+        name: `Mission 5 loaded origin with ${shaman} Shaman, defence ${defence ? 'on' : 'off'}, ${checkpoint}`,
+        level: 5, tribe: 1, memberKind: 'warrior', checkpoint, shaman, defence, expected: 0xb492,
+      })))),
+    { name: 'Mission 5 quota recruitment receives loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 3, quota: true, quotas: [0, 100, 0, 0, 0, 0], expected: 0xb492 },
+    { name: 'Mission 5 fallback recruitment receives loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 3, expected: 0xb492 },
+    { name: 'Mission 5 below-quota retreat returns to loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 16, retreat: true, expected: 0xb492 },
+    { name: 'Mission 5 finished raid returns to loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 16, expected: 0xb492 },
+    { name: 'Mission 5 lost target returns to loaded origin', level: 5, tribe: 1, memberKind: 'warrior', phase: 17, expected: 0xb492 },
+    { name: 'Mission 5 direct established zero still wins', level: 5, tribe: 1, memberKind: 'warrior', base: 0, expected: 0 },
+    { name: 'Mission 5 current checkpoint established zero still wins', level: 5, tribe: 1, memberKind: 'warrior', base: 0, checkpoint: 'modern', expected: 0 },
+    { name: 'Mission 5 outbound target remains independent', level: 5, tribe: 1, memberKind: 'warrior', phase: 9, expected: 0xb492, move: 0x2468 },
+    { name: 'Mission 5 regroup target remains independent', level: 5, tribe: 1, memberKind: 'warrior', phase: 12, expected: 0xb492, move: 0x1357 },
   ]
   for (const c of cases) test(c.name, () => {
     const level = c.level ?? 2, tribe = c.tribe ?? [0, 1, 3, 2][level],
@@ -174,7 +189,7 @@ if (!process.execArgv.includes('--experimental-test-module-mocks')) {
     Object.assign(task, { flags: 1, type: 20, phase, target: 0x2468, regroup: 0x1357,
       requested: c.retreat ? 10 : 2, retreatPercent: c.retreat ? 50 : 0,
       members: phase === 3 ? [] : members.map(u => u.id), selected: 0, remaining: 0,
-      quotas: c.quota ? [100, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0],
+      quotas: c.quotas ?? (c.quota ? [100, 0, 0, 0, 0, 0] : [0, 0, 0, 0, 0, 0]),
       extra: 0, damage: 0, entity: phase === 17 ? 65534 : 0 })
     assert.equal(actual.computerPhase(world.turn, tribe), 'dispatch')
     observed = { world, calls: 0, recruitment: [] }
