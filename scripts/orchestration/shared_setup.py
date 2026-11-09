@@ -88,13 +88,21 @@ def filesystem_type(path):
     mounts = Path('/proc/self/mountinfo')
     if not mounts.is_file():
         return 'unknown'
+    device = path.stat().st_dev
+    device_number = f'{os.major(device)}:{os.minor(device)}'
     choices = []
     for line in mounts.read_text().splitlines():
         fields = line.split()
         mount = Path(re.sub(r'\\([0-7]{3})', lambda m: chr(int(m[1], 8)), fields[4]))
-        if within(mount, path):
+        # Stacked mounts can share a pathname. Match the path's actual device,
+        # rather than choosing a covered mount by filesystem-name ordering.
+        if fields[2] == device_number and within(mount, path):
             choices.append((len(mount.parts), fields[fields.index('-') + 1]))
-    return max(choices)[1] if choices else 'unknown'
+    if not choices:
+        return 'unknown'
+    depth = max(depth for depth, _ in choices)
+    kinds = {kind for candidate_depth, kind in choices if candidate_depth == depth}
+    return next(iter(kinds)) if len(kinds) == 1 else 'unknown'
 
 
 def registered_worktrees(source):

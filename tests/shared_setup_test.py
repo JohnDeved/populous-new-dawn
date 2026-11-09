@@ -600,5 +600,106 @@ class SharedSetupTests(unittest.TestCase):
                          LOCK + b'# changed during check\n')
 
 
+class FilesystemTypeTests(unittest.TestCase):
+    """Supplied mountinfo only; never create mounts, Git repositories or packages."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix='pnd-mount-type-test-')
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        self.source = self.root / 'source'
+        self.source.mkdir()
+        self.shared = self.root / 'shared'
+        device = self.source.stat().st_dev
+        self.device = f'{os.major(device)}:{os.minor(device)}'
+        self.other_device = '8:1' if self.device != '8:1' else '8:2'
+        self.mountinfo = Path('/proc/self/mountinfo')
+        self.text = ''
+        actual_read = Path.read_text
+        actual_is_file = Path.is_file
+        def read(path, *args, **kwargs):
+            return self.text if path == self.mountinfo else actual_read(path, *args, **kwargs)
+        def is_file(path):
+            return True if path == self.mountinfo else actual_is_file(path)
+        self.enterContext(mock.patch.object(Path, 'read_text', read))
+        self.enterContext(mock.patch.object(Path, 'is_file', is_file))
+        self.enterContext(mock.patch.object(subprocess, 'Popen',
+                          side_effect=AssertionError('Mount fixtures must not launch subprocesses')))
+
+    def rows(self, *records):
+        def escape(path):
+            return str(path).replace('\\', r'\134').replace(' ', r'\040').replace('\t', r'\011')
+        self.text = ''.join(f'{i} 0 {device} / {escape(path)} rw - {kind} fixture rw\n'
+                            for i, (path, kind, device) in enumerate(records, 1))
+
+    def test_visible_tmpfs_is_not_hidden_by_lexically_larger_covered_filesystem(self):
+        self.rows((self.root, 'zfs', self.other_device), (self.root, 'tmpfs', self.device))
+        self.assertEqual(setup.filesystem_type(self.source), 'tmpfs')
+
+    def test_visible_ext4_is_not_rejected_for_covered_ramfs(self):
+        self.rows((self.root, 'ramfs', self.other_device), (self.root, 'ext4', self.device))
+        self.assertEqual(setup.filesystem_type(self.source), 'ext4')
+
+    def test_record_order_does_not_replace_device_identity(self):
+        records = [(self.root, 'zfs', self.other_device), (self.root, 'tmpfs', self.device)]
+        for ordered in (records, list(reversed(records))):
+            with self.subTest(records=ordered):
+                self.rows(*ordered)
+                self.assertEqual(setup.filesystem_type(self.source), 'tmpfs')
+
+    def test_deeper_record_on_another_device_is_not_selected(self):
+        self.rows((self.root, 'ext4', self.device), (self.source, 'tmpfs', self.other_device))
+        self.assertEqual(setup.filesystem_type(self.source), 'ext4')
+
+    def test_deepest_matching_device_record_is_selected(self):
+        self.rows((self.root, 'ext4', self.device), (self.source, 'tmpfs', self.device))
+        self.assertEqual(setup.filesystem_type(self.source), 'tmpfs')
+
+    def test_sibling_prefix_does_not_match_and_mount_escapes_are_decoded(self):
+        escaped = self.root / 'source with space\\slash'
+        escaped.mkdir()
+        self.rows((self.root / 'source with', 'zfs', self.device),
+                  (escaped, 'ext4', self.device))
+        self.assertEqual(setup.filesystem_type(escaped), 'ext4')
+
+    def test_no_matching_device_and_ambiguous_types_remain_unknown(self):
+        self.rows((self.root, 'zfs', self.other_device))
+        self.assertEqual(setup.filesystem_type(self.source), 'unknown')
+        self.rows((self.root, 'ext4', self.device), (self.root, 'tmpfs', self.device))
+        self.assertEqual(setup.filesystem_type(self.source), 'unknown')
+
+    def test_duplicate_matching_types_are_not_ambiguous(self):
+        self.rows((self.root, 'ext4', self.device), (self.root, 'ext4', self.device))
+        self.assertEqual(setup.filesystem_type(self.source), 'ext4')
+
+    def test_missing_mountinfo_remains_unknown(self):
+        with mock.patch.object(Path, 'is_file', return_value=False):
+            self.assertEqual(setup.filesystem_type(self.source), 'unknown')
+
+    def test_actual_plan_rejects_supplied_visible_ram_filesystem_without_writes(self):
+        before = snapshot(self.root)
+        with mock.patch.object(setup, 'registered_worktrees', return_value=(self.source,)):
+            for kind in ('tmpfs', 'ramfs'):
+                with self.subTest(filesystem=kind):
+                    self.rows((self.root, 'zfs', self.other_device), (self.root, kind, self.device))
+                    with self.assertRaisesRegex(ValueError, 'RAM-backed'):
+                        setup.storage_plan(self.source, self.shared, RESERVE, ALLOCATION)
+        self.assertEqual(snapshot(self.root), before)
+        self.assertFalse(self.shared.exists())
+
+    def test_actual_plan_accepts_disk_type_and_preserves_unknown_contract(self):
+        before = snapshot(self.root)
+        with mock.patch.object(setup, 'registered_worktrees', return_value=(self.source,)):
+            for records, expected in [
+                    ([(self.root, 'tmpfs', self.other_device), (self.root, 'ext4', self.device)], 'ext4'),
+                    ([(self.root, 'ext4', self.other_device)], 'unknown')]:
+                with self.subTest(expected=expected):
+                    self.rows(*records)
+                    result = setup.storage_plan(self.source, self.shared, RESERVE, ALLOCATION)
+                    self.assertEqual(result['filesystemType'], expected)
+                    self.assertFalse(result['allocates'])
+        self.assertEqual(snapshot(self.root), before)
+        self.assertFalse(self.shared.exists())
+
+
 if __name__ == '__main__':
     unittest.main()

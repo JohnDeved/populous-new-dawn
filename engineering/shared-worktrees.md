@@ -226,6 +226,12 @@ This is a read-only snapshot, not a lock against later worktree changes, a canon
 shared-root registry, or discovery of unrelated clones. Continue choosing the same
 external root explicitly: two different external stores are not automatically deduplicated.
 
+Linux mount-type classification matches the existing path's device number to
+`/proc/self/mountinfo` before selecting its deepest applicable mount record. Covered
+mounts at the same pathname cannot win by filesystem-name ordering. Missing device
+matches or conflicting deepest types remain `unknown`; this does not prove storage
+persistence or prevent a mount changing after the snapshot.
+
 Serialize the install after admission; the plan is a capacity snapshot, not a disk
 reservation, quota or process memory cap. It cannot limit a later package manager's
 allocation. Retain separate exact-source/toolchain/raw command receipts and resource
