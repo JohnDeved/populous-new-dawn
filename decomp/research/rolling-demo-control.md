@@ -195,3 +195,11 @@ The inactive [recording-manifest tool](recording-manifest.md) now authenticates 
 identity and separate GP/CP completion. It does not execute payloads, run a replay
 state machine, decode a GM save or enable the menu. The source and live-acceptance
 gaps above remain unchanged.
+
+## Live-state checksum follow-up
+
+[The checksum follow-up](rolling-demo-checksum.md) now binds the exact six-nibble
+live-state calculation at `004439d0`, its ordered linked-list inputs and the
+pre-command comparison. It is not payload/file integrity or replay execution.
+The error-byte literal scan finds only writes, but does not prove there is no
+indirect consumer; error handling remains unresolved.

@@ -863,6 +863,8 @@
         "engineering/single-player-feasibility.md",
         "decomp/research/rolling-demo-control.md",
         "scripts/check-static-rolling-demo-control.py",
+        "decomp/research/rolling-demo-checksum.md",
+        "scripts/check-static-rolling-demo-checksum.py",
         "tests/rolling-demo-stream-framing.test.py",
         "decomp/research/recorded-demo-provenance.md",
         "scripts/check-static-recorded-demo-provenance.py",
