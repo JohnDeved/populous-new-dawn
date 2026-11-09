@@ -40,8 +40,9 @@ export function assertCompletion(report) {
   assert.ok(report.expectedTimber > 0)
 }
 
-export async function finishBuildingPanelIdentity({ context, report, output, failure }) {
-  const failures = failure ? [failure] : []
+export async function finishBuildingPanelIdentity(outcome) {
+  const { context, report, output } = outcome
+  const failures = Object.hasOwn(outcome, 'failure') ? [outcome.failure] : []
   try {
     await context.close()
     report.contextClosed = true
@@ -52,7 +53,7 @@ export async function finishBuildingPanelIdentity({ context, report, output, fai
     failures.push(Error('Building identity episode exceeded its 35-second bound'))
   if (report.errors.length) failures.push(Error(`Runtime errors: ${JSON.stringify(report.errors)}`))
   report.status = failures.length ? 'failed' : 'passed'
-  report.failures = failures.map(error => ({ message: String(error), stack: error.stack }))
+  report.failures = failures.map(error => ({ message: String(error), stack: error?.stack }))
   writeFileSync(
     resolve(output, 'building-panel-identity.json'),
     JSON.stringify(report, null, 2) + '\n'
@@ -110,7 +111,8 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       'No production hooks, gameplay deletion shortcut, native raster equivalence or performance claim',
     ],
   }
-  let page, failure
+  const outcome = { context, report, output }
+  let page
   const screenshot = async (name, timeout = 10000) => {
     const path = resolve(output, `building-identity-${name}.png`)
     timing.mark(`screenshot:${name}:start`)
@@ -373,7 +375,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     timing.mark('episode:complete')
   } catch (error) {
     timing.mark('episode:failure')
-    failure = error
+    outcome.failure = error
     if (page)
       try {
         await screenshot('failure', 3000)
@@ -384,5 +386,5 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     timing.mark('episode:finally')
     clearTimeout(timer)
   }
-  return finishBuildingPanelIdentity({ context, report, output, failure })
+  return finishBuildingPanelIdentity(outcome)
 }

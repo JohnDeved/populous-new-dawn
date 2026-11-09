@@ -1063,7 +1063,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
             ...(tree.authoredSlot === undefined ? {} : { sceneryBirth: 'linked-release' as const }),
           })
         if (shrine.linkedShrine) {
-          w.shrines.push(shrine.linkedShrine)
+          // Current checkpoints can retain shared/cyclic links to an already live owner.
+          if (!w.shrines.includes(shrine.linkedShrine)) w.shrines.push(shrine.linkedShrine)
           delete shrine.linkedShrine
         }
       } else if (shrine.kind === 'boat') {

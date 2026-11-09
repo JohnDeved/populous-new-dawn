@@ -20,11 +20,91 @@ def good():
         'cleanupComplete':True,'laneReleasePermitted':True,'inputStability':True,'remainingOwned':{},'unreadableProcessIdentities':[],
         'processCleanupComplete':True,'runtimeTemporary':{'retired':True,'outsidePathAbsent':True,'socketPathBytes':62,
             'identity':{'device':1,'inode':2,'uid':1000,'mode':0o700},'retiredIdentity':{'device':1,'inode':2,'uid':1000,'mode':0o700}},
+        'runtimeHome':{'allocated':True,'identity':{'device':1,'inode':3,'uid':1000,'mode':0o700},
+                       'verifiedAfterProcessAbsence':True,'retainedInOutput':True},
+        'sampledProfilePeak':{'temporaryBytes':2,'homeBytes':3,'totalBytes':5},
+        'sampledOwnedPeakRss':7,'sampledOwnedPeakProcesses':{'processes':[{'pid':12,'ppid':10,'start':100,'rss':7,'state':'S'}],'truncated':False},
         'streams':{'stdout':{'overflow':False},'stderr':{'overflow':False}}}
     return report,owner,binding
 
+class MembershipDiagnosticTests(unittest.TestCase):
+    def test_added_removed_names_and_counts_are_bounded(self):
+        from finalizer import membership_delta
+        self.assertEqual(membership_delta(['old','same'],['new','same']),
+                         {'added':{'count':1,'names':['new'],'truncated':False},'removed':{'count':1,'names':['old'],'truncated':False}})
+        result=membership_delta([],['x'*300]+[str(i) for i in range(40)])
+        self.assertEqual(result['added']['count'],41);self.assertEqual(len(result['added']['names']),32)
+        self.assertTrue(result['added']['truncated'])
+        self.assertEqual(len(membership_delta([],['x'*300])['added']['names'][0]),256)
+
+    def test_mismatch_still_fails_with_names_and_on_truncation(self):
+        with tempfile.TemporaryDirectory() as base:
+            root=Path(base);(root/'new').write_text('not read')
+            binding={'files':[],'links':[],'directories':{str(root):{'excluded':[],'names':['old']}}}
+            with self.assertRaisesRegex(AssertionError,'Runtime directory membership changed:') as error:
+                verify_binding(binding,time.monotonic()+5)
+            self.assertIn('new',str(error.exception));self.assertIn('old',str(error.exception))
+            for i in range(40):(root/str(i)).touch()
+            with self.assertRaisesRegex(AssertionError,'"truncated":true'):verify_binding(binding,time.monotonic()+5)
+
 class FinalConsumerTests(unittest.TestCase):
     def test_exact_good(self):validate_result(*good())
+    def test_new_resource_proof_missing_or_false_never_passes(self):
+        for key in ['runtimeHome','sampledProfilePeak','sampledOwnedPeakRss','sampledOwnedPeakProcesses']:
+            report,owner,binding=good();del owner[key]
+            with self.assertRaises((AssertionError,KeyError,TypeError)):validate_result(report,owner,binding)
+        for key in ['allocated','verifiedAfterProcessAbsence','retainedInOutput']:
+            for value in [False,None,1]:
+                report,owner,binding=good();owner['runtimeHome'][key]=value
+                with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+        for key in ['identity','allocated','verifiedAfterProcessAbsence','retainedInOutput']:
+            report,owner,binding=good();del owner['runtimeHome'][key]
+            with self.assertRaises((AssertionError,KeyError,TypeError)):validate_result(report,owner,binding)
+        for key,value in [('mode',0o755),('uid',1001),('inode',None),('device',-1)]:
+            report,owner,binding=good();owner['runtimeHome']['identity'][key]=value
+            with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+
+    def test_combined_profile_proof_requires_exact_sum_and_single_limit(self):
+        for key in ['temporaryBytes','homeBytes','totalBytes']:
+            for value in [-1,True,1.5,'3']:
+                report,owner,binding=good();owner['sampledProfilePeak'][key]=value
+                with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+            report,owner,binding=good();del owner['sampledProfilePeak'][key]
+            with self.assertRaises(KeyError):validate_result(report,owner,binding)
+        for profile in [{'temporaryBytes':2,'homeBytes':3,'totalBytes':4},
+                        {'temporaryBytes':256*1024**2,'homeBytes':256*1024**2+1,'totalBytes':512*1024**2+1}]:
+            report,owner,binding=good();owner['sampledProfilePeak']=profile
+            with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+        report,owner,binding=good();owner['sampledProfilePeak']={'temporaryBytes':256*1024**2,'homeBytes':256*1024**2,'totalBytes':512*1024**2}
+        validate_result(report,owner,binding)
+
+    def test_peak_proof_requires_complete_unique_numeric_rows_and_unchanged_limit(self):
+        for key in ['processes','truncated']:
+            report,owner,binding=good();del owner['sampledOwnedPeakProcesses'][key]
+            with self.assertRaises(KeyError):validate_result(report,owner,binding)
+        for value in [True,None,0]:
+            report,owner,binding=good();owner['sampledOwnedPeakProcesses']['truncated']=value
+            with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+        for key in ['pid','start','rss']:
+            for value in [-1,True,1.5,'7']:
+                report,owner,binding=good();owner['sampledOwnedPeakProcesses']['processes'][0][key]=value
+                with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+            report,owner,binding=good();del owner['sampledOwnedPeakProcesses']['processes'][0][key]
+            with self.assertRaises(KeyError):validate_result(report,owner,binding)
+        for value in [-1,True,1.5,'7',8,1536*1024**2+1]:
+            report,owner,binding=good();owner['sampledOwnedPeakRss']=value
+            with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+        for rows in [[{'pid':12,'start':100,'rss':3},{'pid':12,'start':101,'rss':4}],
+                     [{'pid':0,'start':100,'rss':7}],
+                     [{'pid':i+1,'start':i,'rss':0} for i in range(257)]]:
+            report,owner,binding=good();owner['sampledOwnedPeakProcesses']['processes']=rows
+            owner['sampledOwnedPeakRss']=sum(row['rss'] for row in rows)
+            with self.assertRaises(AssertionError):validate_result(report,owner,binding)
+        for peak in [1536*1024**2,1536*1024**2+1]:
+            report,owner,binding=good();owner['sampledOwnedPeakRss']=peak;owner['sampledOwnedPeakProcesses']['processes'][0]['rss']=peak
+            if peak==1536*1024**2:validate_result(report,owner,binding)
+            else:
+                with self.assertRaises(AssertionError):validate_result(report,owner,binding)
     def test_missing_reordered_cases_and_evidence(self):
         for field in ['cases','documents','images']:
             for operation in ['missing','duplicate','unexpected']:

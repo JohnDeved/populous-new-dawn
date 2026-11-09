@@ -168,7 +168,7 @@ export default function Home() {
     ['camp', campButton],
     ['temple', templeButton],
   ])
-  const followerPress = useRef<EventTarget | null>(null)
+  const followerPress = useRef<{ target: EventTarget; scene: GameScene } | null>(null)
   const nearbyPress = useRef<{
     scene: GameScene
     pointer?: number
@@ -515,6 +515,7 @@ export default function Home() {
       })
     return () => {
       disposed = true
+      if (followerPress.current?.scene === scene) followerPress.current = null
       scene?.dispose()
       if (engine.current === scene) engine.current = null
     }
@@ -574,7 +575,7 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
+      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
         if (store.getWorld().outcome.level === tutorialLevel) {
@@ -654,7 +655,9 @@ export default function Home() {
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
-        followerPress.current = event.button === 0 ? event.currentTarget : null
+        const scene = engine.current
+        followerPress.current =
+          event.button === 0 && scene ? { target: event.currentTarget, scene } : null
       },
       onPointerCancel: () => {
         followerPress.current = null
@@ -665,7 +668,14 @@ export default function Home() {
       // macOS emits contextmenu instead of click for Ctrl + primary button.
       // Handle its release once; retain native button activation for keyboard users.
       onPointerUp: (event: MouseEvent<HTMLButtonElement>) => {
-        if (event.button === 0 && event.ctrlKey && followerPress.current === event.currentTarget) {
+        const press = followerPress.current
+        if (
+          event.button === 0 &&
+          event.ctrlKey &&
+          press?.target === event.currentTarget &&
+          press.scene === engine.current &&
+          press.scene.world === store.getWorld()
+        ) {
           choose(event)
           event.currentTarget.blur()
         }
@@ -745,6 +755,7 @@ export default function Home() {
   function beginLoad(request: LoadRequest) {
     setCheatsOpen(false)
     if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
+    followerPress.current = null
     menuSession.current = null
     pendingMenuCamera.current = []
     cancelNearbyInput()
@@ -1115,9 +1126,17 @@ export default function Home() {
                 <summary
                   aria-label="Read campaign message"
                   onClick={event => {
+                    if (
+                      store.getWorld() !== world ||
+                      world.messages.slots[slot] !== message
+                    ) {
+                      event.preventDefault()
+                      return
+                    }
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    if (!details.open && target && engine.current?.world === world)
+                      engine.current.focus(target, { animate: true })
                   }}
                 >
                   <img src={messageIcon(message!)} alt="" />
@@ -1126,6 +1145,8 @@ export default function Home() {
                   <p>{messageText(message!.stringId)}</p>
                   <button
                     onClick={() => {
+                      if (store.getWorld() !== world || world.messages.slots[slot] !== message)
+                        return
                       removeMessage(world.messages, slot)
                       update()
                     }}

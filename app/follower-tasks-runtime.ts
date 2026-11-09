@@ -37,7 +37,11 @@ function taskCategory(w: World, u: Unit, source: ReturnType<typeof unitAnimation
       selectionBuilding(w, u.entry.person)?.model,
       currentPersonOrder(w.buildingOrders, u.entry.person)
     )
-  const building = w.buildings.find(b => b.id === (u.inside ?? u.work) && b.hp > 0)
+  const buildingId = u.inside ?? u.work,
+    building =
+      buildingId === null
+        ? undefined
+        : w.buildings.find(b => b.id === buildingId && b.hp > 0)
   // Legacy checkpoint occupants still have an authoritative building owner.
   if (u.inside !== null && building)
     return classifyFollowerTask(
