@@ -11,6 +11,7 @@ import itertools
 import json
 import os
 from pathlib import Path
+import signal
 import stat
 import struct
 import tempfile
@@ -230,6 +231,62 @@ class EvidenceArchiveTests(unittest.TestCase):
         with patch.object(ea.Archive, 'copy', injected), self.assertRaisesRegex(ValueError, 'Unexpected'): self.make(manifest=manifest)
         self.assertEqual(json.loads((self.cache/ea.CONTROL).read_text())['status'], 'prepared')
         self.assertEqual((self.cache/'foreign.txt').read_text(), 'keep')
+
+
+    def assert_fifo_refused(self, path, action, message):
+        """A real readerless FIFO must fail validation before its open can wait."""
+        os.mkfifo(path, 0o600)
+        before = ea.record(path.lstat())
+        previous = signal.getsignal(signal.SIGALRM)
+        self.assertEqual(signal.getitimer(signal.ITIMER_REAL), (0.0, 0.0))
+        def deadline(signum, frame):
+            raise AssertionError('FIFO read blocked before regular-file validation')
+        signal.signal(signal.SIGALRM, deadline)
+        try:
+            signal.setitimer(signal.ITIMER_REAL, 1.0)
+            with self.assertRaisesRegex(ValueError, message):
+                action()
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, previous)
+        self.assertEqual(ea.record(path.lstat()), before)
+        self.assertFalse(self.journal.exists())
+
+    def test_archive_fifo_is_refused_without_waiting_for_writer(self):
+        before = ea.record(self.archive.stat())
+        self.assert_fifo_refused(self.data/'readerless.zip',
+            lambda: ea.index_archive(self.data/'readerless.zip', '0'*64), 'Invalid archive file')
+        self.assertEqual(ea.record(self.archive.stat()), before)
+        self.assertEqual(list(self.caches.iterdir()), [])
+
+    def test_bound_manifest_fifo_is_refused_without_waiting_for_writer(self):
+        before = ea.record(self.archive.stat())
+        self.assert_fifo_refused(self.root/'readerless.json',
+            lambda: ea.read_bound_json(self.root/'readerless.json', '0'*64), 'Oversized/nonregular manifest')
+        self.assertEqual(ea.record(self.archive.stat()), before)
+        self.assertEqual(list(self.caches.iterdir()), [])
+
+    def test_cache_receipt_fifo_is_refused_before_release(self):
+        result = self.make()
+        control = self.cache/ea.CONTROL
+        saved = self.root/'preserved-receipt.json'
+        control.rename(saved)
+        before = {path: ea.record(path.stat()) for path in
+                  (self.archive, saved, self.cache/'scene/a.png')}
+        self.assert_fifo_refused(control, lambda: self.release(result), 'Invalid cache receipt file')
+        self.assertEqual({path: ea.record(path.stat()) for path in before}, before)
+        self.assertEqual(saved.read_bytes(), ea.encoded(result['ownershipReceipt']))
+
+    def test_cached_member_fifo_is_refused_before_release(self):
+        result = self.make()
+        member = self.cache/'scene/a.png'
+        saved = self.root/'preserved-member.png'
+        member.rename(saved)
+        before = {path: ea.record(path.stat()) for path in
+                  (self.archive, saved, self.cache/ea.CONTROL)}
+        self.assert_fifo_refused(member, lambda: self.release(result), 'Cache file identity changed')
+        self.assertEqual({path: ea.record(path.stat()) for path in before}, before)
+        self.assertEqual(saved.read_bytes(), self.payloads['scene/a.png'])
 
     def test_archive_deadline_enforced(self):
         with patch.object(ea.time, 'monotonic', side_effect=itertools.chain([0], itertools.repeat(16))):
