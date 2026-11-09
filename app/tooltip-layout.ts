@@ -16,7 +16,7 @@ export function tooltipLayout(text: string, screenWidth: number, screenHeight: n
       let end = start,
         pixels = 0,
         lastBreak = -1
-      while (end < codes.length && pixels < width && end - start < 127) {
+      while (end < codes.length && (end === start || pixels < width) && end - start < 127) {
         const code = codes[end++]
         pixels += glyph(code).w
         if (' -.,:;'.includes(String.fromCharCode(code + 32))) lastBreak = end

@@ -99,10 +99,24 @@ test('fixed deployment config has no build hooks or arbitrary inherited bindings
   assert.deepEqual(config.unsafe.metadata.keep_bindings, []); assert.equal(config.build, undefined)
   for (const field of ['routes', 'vars', 'services', 'd1_databases', 'kv_namespaces', 'r2_buckets', 'secrets']) assert.equal(config[field], undefined)
 })
+test('build, local development and trusted publisher opt into incoming disconnect signals', () => {
+  // The pinned date predates default incoming Request.signal disconnect events.
+  // This is a configuration contract, not an actual client-disconnect test.
+  const build = JSON.parse(readFileSync(new URL('wrangler.cloudflare.jsonc', root), 'utf8'))
+  const publisher = fixedConfig()
+  for (const [name, config] of [['build', build], ['trusted publisher', publisher]]) {
+    assert.equal(config.compatibility_date, '2026-09-17', name)
+    assert.deepEqual(config.compatibility_flags, ['nodejs_compat', 'enable_request_signal'], name)
+  }
+  const vite = readFileSync(new URL('vite.config.ts', root), 'utf8')
+  const local = vite.match(/const localBindingConfig = \{([\s\S]*?)\n\};/)
+  assert.ok(local, 'local development binding configuration is present')
+  assert.match(local[1], /compatibility_flags: \["nodejs_compat", "enable_request_signal"\]/)
+})
 test('materializer treats output as bytes and discards executable configuration', t => {
   const directory = mkdtempSync(join(tmpdir(), 'cloudflare-data-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
   const code = 'throw new Error("MUST NOT EXECUTE")'
-  materializeBuild(archive([['server/index.js', code], ['server/wrangler.json', '{"build":{"command":"evil"}}'],
+  materializeBuild(archive([['server/index.js', code], ['server/wrangler.json', '{"compatibility_flags":["disable_request_signal"],"build":{"command":"evil"}}'],
     ['server/package.json', '{"scripts":{"postinstall":"evil"}}'], ['server/.env', 'secret'],
     ['server/chunks/child.mjs', code], ['client/index.html', '<html/>']]), directory, digest)
   assert.equal(readFileSync(join(directory, 'worker/index.js'), 'utf8'), code)

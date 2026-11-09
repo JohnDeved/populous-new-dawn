@@ -5,7 +5,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 import { checkpointCodec } from '../scripts/tutorial-browser/checkpoint-codec.mjs'
-import { assertM2Input, m2FunctionalLimitMs } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import { assertM2Input, m2FunctionalLimitMs, m2AuthoredMessageReady } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import { createMessages, addMessage, stepMessages } from '../app/messages.ts'
+import originalMessages from '../app/original-messages.json' with { type: 'json' }
 
 test('checkpoint codec preserves shared buffers, typed offsets, Maps, Sets, cycles and special scalars', () => {
   const buffer = new ArrayBuffer(32),
@@ -61,7 +63,7 @@ test('M2 functional acceptance rejects level, selection, order, clock and Scene 
 test('M2 has isolated selection and default append; legacy scenarios and bounds retained', () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.match(run, /POPULOUS_BROWSER_SCENARIO \|\| 'tutorial'/)
-  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'compact-message-layout', 'frontend-held-escape'])
+  assert.deepEqual(browserScenarios, ['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'compact-message-layout', 'frontend-held-escape', 'building-panel-edges', 'globe-held-enter'])
   assert.equal(browserCapMs('m2-pointer-f8'), 180000)
   assert.equal(browserCapMs('ordinary-pointer-smoke'), 90000)
   assert.equal(browserCapMs('ordinary-pointer-calibration'), 1200000)
@@ -207,6 +209,86 @@ test('M2 waits for delayed public Skip or naturally ready input, not one-shot vi
   world.inputMask = 0
   mounted = false
   assert.equal(ready().action, 'ready')
+})
+
+function authoredMessageFixture() {
+  const expectedText = originalMessages.messages[102].text,
+    message = { serial: 7, stringId: 641, flags: 0x40010, position: 60000 },
+    world = { turn: 71, status: 'playing', paused: false, inputMask: 0,
+      outcome: { level: 2 }, messages: { slots: [message] } },
+    canvas = { isConnected: true }, scene = { world, renderer: { domElement: canvas } },
+    paragraph = { textContent: expectedText, visible: true, visibility: 'visible',
+      getClientRects() { return this.visible ? [{}] : [] } },
+    details = { open: true, serial: 7, querySelector(selector) {
+      assert.equal(selector, 'div > p'); return paragraph
+    } },
+    window = { testScene: scene, testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+    document = { querySelector(selector) {
+      return selector === `.campaign-messages details[data-message-serial="${details.serial}"]` ? details : null
+    } },
+    ready = runInNewContext(`(${m2AuthoredMessageReady.toString()})`, {
+      window, document, getComputedStyle: node => ({ visibility: node.visibility }),
+    })
+  return { expectedText, message, world, canvas, scene, paragraph, details, window, ready: () => ready(expectedText) }
+}
+
+test('authored M2 readiness rejects missing, entering, pending, closed and hidden messages without mutating them', () => {
+  const cases = [
+    f => { f.world.messages.slots = [] },
+    f => { f.message.stringId = 642 },
+    f => { f.message.flags = 0x20010 },
+    f => { f.message.flags = 0x80012 },
+    f => { f.message.flags = 0xa0012 },
+    f => { f.message.flags |= 0x20000 },
+    f => { f.details.open = false },
+    f => { f.details.serial++ },
+    f => { f.details.querySelector = () => null },
+    f => { f.paragraph.visible = false },
+    f => { f.paragraph.visibility = 'hidden' },
+    f => { f.paragraph.textContent = 'unrelated message' },
+    f => { f.world.paused = true },
+    f => { f.world.inputMask = 64 },
+    f => { f.world.status = 'lost' },
+    f => { f.world.outcome.level = 3 },
+    f => { f.scene.world = { ...f.world } },
+    f => { f.window.testScene = {} },
+    f => { f.canvas.isConnected = false },
+  ]
+  for (const mutate of cases) {
+    const f = authoredMessageFixture(); mutate(f)
+    const before = structuredClone(f.world)
+    assert.equal(f.ready(), false, String(mutate))
+    assert.deepEqual(f.world, before)
+  }
+  const f = authoredMessageFixture(), before = structuredClone(f.world), ready = f.ready()
+  assert.deepEqual(JSON.parse(JSON.stringify(ready)), { turn: 71, serial: 7, stringId: 641,
+    flags: 0x40010, position: 60000, text: f.expectedText, open: true })
+  assert.deepEqual(f.world, before)
+})
+
+test('actual message motion must settle and the matching authored DOM must open before M2 readiness', () => {
+  const f = authoredMessageFixture(), state = createMessages(), slot = addMessage(state, 641, () => 0, 480, 1),
+    message = state.slots[slot]
+  message.flags |= 0x20000
+  f.world.messages = state
+  f.details.serial = message.serial; f.details.open = false
+  assert.equal(f.ready(), false)
+  let sawOpenSignal = false, visits = 0
+  for (; visits < 300 && !(message.flags & 0x40000); visits++) {
+    stepMessages(state)
+    sawOpenSignal ||= !!(message.flags & 2)
+    assert.equal(f.ready(), false, 'Native state alone does not admit missing React opening')
+  }
+  assert.ok(visits > 0 && visits < 300)
+  assert.equal(message.flags & 0x20000, 0)
+  assert.equal(sawOpenSignal, true)
+  message.flags &= ~2
+  assert.equal(f.ready(), false, 'Cleared transient bit2 is not DOM readiness')
+  f.details.open = true
+  const before = structuredClone(state)
+  assert.equal(f.ready().serial, message.serial)
+  assert.equal(f.ready().stringId, 641)
+  assert.deepEqual(state, before)
 })
 
 test('HUD witness stays inside transformed compact and wide docks and rejects an obstructed target', async () => {

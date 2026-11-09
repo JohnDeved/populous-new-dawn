@@ -99,10 +99,25 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
     const y = Math.round((-u.z - 8) * 256)
     if (Math.abs(engagementCellDelta(source.y, y)) <= radius) add(combatPerson(u), u, true)
   }
+  let people: Map<number, Unit> | undefined
+  let nextPerson = 0
+  const findPerson = (id: number) => {
+    if (Number.isNaN(id)) return
+    const known = people?.get(id)
+    if (known) return known
+    people ??= new Map()
+    // Resolve only the needed roster prefix, retaining the first matching ID.
+    while (nextPerson < w.units.length) {
+      const person = w.units[nextPerson++],
+        personId = person.id
+      if (!people.has(personId)) people.set(personId, person)
+      if (personId === id) return person
+    }
+  }
   for (const fight of w.fights) {
     const point = position(fight)
     if (!inEngagementArea(source, point, range)) continue
-    const members = fight.members.map(id => w.units.find(u => u.id === id)).filter(u => !!u)
+    const members = fight.members.map(findPerson).filter(u => !!u)
     for (const u of members) if (!objects.has(u.id)) add(combatPerson(u), u, false)
     add(
       {
@@ -135,14 +150,17 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
       const row = cells.get(cell)
       if (!row) return []
       const ordered: CombatTarget[] = []
+      let members: Set<CombatTarget> | undefined
       // Combat scans use dense landscape indices; the native chain API takes
       // packed even-byte X/Y coordinates instead.
       const packedCell = ((cell & 127) << 1) | ((cell >>> 7) << 9)
       for (const indexed of objectsInCell(w.objectCells, packedCell)) {
         const object = objects.get(indexed.id)
-        if (object && row.includes(object)) ordered.push(object)
+        if (object && (members ??= new Set(row)).has(object)) ordered.push(object)
       }
-      return ordered.length ? [...ordered, ...row.filter(o => !ordered.includes(o))] : row
+      if (!ordered.length) return row
+      const included = new Set(ordered)
+      return [...ordered, ...row.filter(o => !included.has(o))]
     },
     buildingAt: cell => {
       const id = w.land.buildingIds[cell] & 1023

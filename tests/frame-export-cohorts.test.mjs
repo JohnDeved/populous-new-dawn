@@ -88,7 +88,9 @@ test('CLI emits machine-readable output and rejects invalid/oversized inputs', t
   writeFileSync(file, JSON.stringify(capture([null])))
   const good = run(file)
   assert.equal(good.status, 0, good.stderr)
-  assert.equal(JSON.parse(good.stdout).schema, 'populous-new-dawn/frame-cohorts')
+  const summary = JSON.parse(good.stdout)
+  assert.equal(summary.schema, 'populous-new-dawn/frame-cohorts')
+  assert.equal(group(summary, 'all').gpuStatusCounts.missing, 1)
   writeFileSync(file, '{}'); assert.equal(run(file).status, 1)
   writeFileSync(file, ' '.repeat(2 * 1024 * 1024 + 1)); assert.equal(run(file).status, 1)
   assert.equal(run(dir).status, 1)
@@ -164,4 +166,59 @@ test('actual path cohorts preserve optional coverage rather than treating missin
   assert.equal(all.metrics['pointerBreakdown.nativeOcclusion.cacheRepresentationChanged'].sampleCount, 2)
   assert.equal(all.metrics['pointerBreakdown.nativeOcclusion.cacheRepresentationChanged'].max, 2)
   assert.equal(second.ordinaryTerrain.paths.numeric, 0)
+})
+
+test('GPU status counts distinguish unavailable reasons within each overlapping cohort', () => {
+  const statuses = ['available', 'pending', 'unsupported', 'disjoint', 'context-lost', 'busy', 'failed']
+  const value = capture(Array.from({ length: 8 }, (_, i) => ({
+    route: i < 4 ? 'world' : i < 6 ? 'hud' : 'outside',
+    pointerMoved: i % 2 === 0, viewChanged: i < 3,
+  })))
+  statuses.forEach((status, i) => {
+    value.frames[i].sceneRenderGpu = { status, ...(status === 'available' ? { milliseconds: 0 } : {}) }
+  })
+  value.frames[0].sceneRenderGpu.privateDevice = 'do not copy'
+  const before = JSON.stringify(value), result = summarize(value)
+  assert.equal(JSON.stringify(value), before, 'summary must not alter its input')
+  assert.deepEqual(group(result, 'all').gpuStatusCounts, {
+    missing: 1, pending: 1, available: 1, unsupported: 1, disjoint: 1,
+    'context-lost': 1, busy: 1, failed: 1,
+  })
+  assert.equal(group(result, 'worldPointerMoving').gpuStatusCounts.available, 1)
+  assert.equal(group(result, 'worldPointerMoving').gpuStatusCounts.unsupported, 1)
+  assert.equal(group(result, 'worldPointerStationary').gpuStatusCounts.pending, 1)
+  assert.equal(group(result, 'worldPointerStationary').gpuStatusCounts.disjoint, 1)
+  assert.equal(group(result, 'hud').gpuStatusCounts['context-lost'], 1)
+  assert.equal(group(result, 'hud').gpuStatusCounts.busy, 1)
+  assert.equal(group(result, 'outside').gpuStatusCounts.failed, 1)
+  assert.equal(group(result, 'outside').gpuStatusCounts.missing, 1)
+  assert.equal(group(result, 'cameraChanged').gpuStatusCounts.available, 1)
+  for (const cohort of result.cohorts) {
+    assert.equal(Object.values(cohort.gpuStatusCounts).reduce((sum, count) => sum + count, 0), cohort.sampleCount)
+    assert.equal(cohort.gpuStatusCounts.available, cohort.metrics['sceneRenderGpu.milliseconds'].sampleCount)
+  }
+  assert.equal(group(result, 'all').metrics['sceneRenderGpu.milliseconds'].p50, 0,
+    'a measured zero is still available, unlike absent timing')
+  assert.ok(!JSON.stringify(result).includes('do not copy'))
+  assert.ok(result.warnings.some(warning => warning.includes('GPU status counts')))
+})
+
+test('legacy missing GPU data and empty cohorts retain explicit zero status counts', () => {
+  const result = summarize(capture([null, undefined]))
+  const emptyCounts = { missing: 0, pending: 0, available: 0, unsupported: 0,
+    disjoint: 0, 'context-lost': 0, busy: 0, failed: 0 }
+  assert.deepEqual(group(result, 'all').gpuStatusCounts, { ...emptyCounts, missing: 2 })
+  assert.deepEqual(group(result, 'worldPointerMoving').gpuStatusCounts, emptyCounts)
+  assert.deepEqual(group(result, 'all').metrics['sceneRenderGpu.milliseconds'],
+    { unit: 'milliseconds', sampleCount: 0, p50: null, p95: null, p99: null, max: null })
+})
+
+test('GPU coverage never counts invalid status or unavailable-duration inputs', () => {
+  for (const invalid of [null, {}, { status: 'unknown' }, { status: 'available' },
+    { status: 'available', milliseconds: -1 }, { status: 'pending', milliseconds: 0 },
+    { status: 'unsupported', milliseconds: 0 }]) {
+    const value = capture([undefined])
+    value.frames[0].sceneRenderGpu = invalid
+    assert.throws(() => summarize(value), /sceneRenderGpu/)
+  }
 })

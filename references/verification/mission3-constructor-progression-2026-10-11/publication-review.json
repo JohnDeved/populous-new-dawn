@@ -1,0 +1,67 @@
+{
+  "verdict": "ACCEPT_PUBLICATION",
+  "originalInstructionsExecuted": 0,
+  "expandedResultReplayPerformed": false,
+  "sourceHead": "044028f2e2fe75055c3ffd2f01e44783abe037fd",
+  "readmeSha256": "c7cbba67e61f841574b632a3fb3cc4d00e8933d4dedf85059c9cf3967abaf8d1",
+  "manifestSha256": "ba6002a630157a001268cd1ce5e93e52710c92745dc365ef3ce8445ee5f605bd",
+  "compositionIndexSha256": "ca13503a97530d22cac333fb785895b4911dcad74f286784951b97441b5e7e6a",
+  "packages": [
+    {
+      "run": 3,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run03-proof.tar.gz",
+        "bytes": 13657922,
+        "sha256": "4bc661cdf91a43ff0a483e71f09b791f610b727103012dc292b25fc198595c81"
+      },
+      "verifiedRegularMembers": 36
+    },
+    {
+      "run": 4,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run04-proof.tar.gz",
+        "bytes": 6547813,
+        "sha256": "01d6034afd96842f44d34e591c2b14fa20fd1c1a3bed2cd7301248e25a7032a7"
+      },
+      "verifiedRegularMembers": 36
+    },
+    {
+      "run": 5,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run05-proof.tar.gz",
+        "bytes": 13575450,
+        "sha256": "27105ad0488a340f980ef644a2aff981731e438932d807c3d5012a83a42d001b"
+      },
+      "verifiedRegularMembers": 24
+    },
+    {
+      "run": 6,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run06-proof.tar.gz",
+        "bytes": 13732792,
+        "sha256": "6fb14f7d7886a13ac8b6ca06c3af1a7d952dfbe7d3c48877f3ee9d07c74acc09"
+      },
+      "verifiedRegularMembers": 49
+    }
+  ],
+  "totalVerifiedRegularMembers": 145,
+  "archiveChecks": [
+    "Exact archive bytes/hashes; exact unique member names and every member byte count/SHA256; current retained source byte identity; regular safe relative paths only.",
+    "No whole original EXE/DLL/DAT/BIN assets or expanded result files introduced. Existing compressed result/event identities reused; no new native/full semantic replay."
+  ],
+  "claimsReview": [
+    "Run03 full ordered mask/supply reconciliation correctly distinguished from limited terminal/guard/form checks for runs04\u201306. None returns an allocation or completes a record.",
+    "Class2 copy0/increment1 is partial; run04 has no constructor entry. Class1 remains untouched and no actual startup seed/product repair is inferred.",
+    "Run05 guard regression and run06 repaired two contexts are accurately stated; rejected IDIV is an unsupported form, not a demonstrated zero/unknown divisor.",
+    "Both historical review corrections are prominent: actual240s animation for runs05/06 despite declared300; production-generated positive fixtures missed prior observed caller. Old artifacts preserved and correction map retained.",
+    "Conditional selected inputs, omitted-history lifetime, model-terrain limits, opaque projection normal-completion/disjointness and unknown outputs are explicit. Direct-model exclusions do not close nested effects.",
+    "Finite capability inventory remains source-only; no claim that two form fixes complete every reachable constructor path.",
+    "Reproduction requires linked earlier evidence, explicit historical-path adaptation, canonical assets and pinned tools. Bundle does not claim stand-alone game-input redistribution."
+  ],
+  "retentionRepair": "Before acceptance, parent added omitted budget final review and capability audit/generator/review/verifier plus the before-repair regression logs; all were verified in final run06 package.",
+  "verificationScope": "Light publication/archive review only; prior retained independent result reviews supply the stated evidence depth. Product TypeScript/full check/build gates are not applicable to this docs/evidence-only publication.",
+  "verifier": {
+    "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_progression_publication.py",
+    "sha256": "52894fda49625e4cff4f435b3a48130b66b98c9810f913a77f1e9ebfe1b8eb67"
+  }
+}

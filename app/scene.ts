@@ -6,6 +6,7 @@ import { worldEnvironment, type WorldEnvironment } from './world-environment.ts'
 import { DEFAULT_GAME_PREFERENCES, type GamePreferences } from './game-preferences.ts'
 import type { PresentationBinding, SharedAniblSnapshot } from './shared-anibl.ts'
 import { templeArt } from './temple-art.ts'
+import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
@@ -45,7 +46,7 @@ import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
 import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, retryFailedTexture, texture } from './scene-assets.ts'
+import { loadTexture, releaseGroup, retryFailedTexture, sceneTextureRevision, texture } from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -331,8 +332,15 @@ export class GameScene {
   neutralCursorRosterSelected = true
   cursorFrameBlocked = true
   modalSuspended = false
+  private modalRenderVersion = 0
+  private modalRenderedVersion = -1
+  private modalTextureVersion = -1
+  private invalidateModalRender() {
+    if (!this.disposed) this.modalRenderVersion++
+  }
   setModalSuspended(suspended: boolean) {
     this.modalSuspended = suspended
+    this.invalidateModalRender()
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
@@ -449,6 +457,10 @@ export class GameScene {
               name => [name, retryFailedTexture(name), true] as const
             )
           : [],
+      towerAssets =
+        world.outcome.level === towerArt.mission
+          ? [[towerArt.modelAtlas, retryFailedTexture(towerArt.modelAtlas), true] as const]
+          : [],
       preload = (
         [
           ['effects', loadTexture('effects'), false],
@@ -461,6 +473,7 @@ export class GameScene {
           [nativeUnits.atlas, unitAtlasAsset, true],
           ...(knowledgeAtlasAsset ? [[knowledgeAtlas!, knowledgeAtlasAsset, true] as const] : []),
           ...templeAssets,
+          ...towerAssets,
         ] as const
       ).map(([name, asset, required]) =>
         asset.ready.then(loaded => {
@@ -578,6 +591,9 @@ export class GameScene {
       this.focus(browserPosition(camera))
     } else this.focus(shaman ?? HOME)
     this.drawMinimap()
+    this.listen(this.renderer.domElement, 'webglcontextrestored', () => this.invalidateModalRender())
+    this.listen(document, 'visibilitychange', () => this.invalidateModalRender())
+    this.listen(window, 'focus', () => this.invalidateModalRender())
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
@@ -671,6 +687,7 @@ export class GameScene {
     g.userData.nativeHeading = Math.round((angle * 1024) / Math.PI) & 2047
   }
   updateView() {
+    this.invalidateModalRender()
     updateView(this)
   }
   currentPreset() {
@@ -899,18 +916,31 @@ export class GameScene {
     // Keep sampling timestamps so resuming never catches up suspended wall time.
     if (this.modalSuspended) {
       this.neutralCursor?.reset()
-      const renderStart = diagnostic ? performance.now() : 0
-      if (diagnostic)
-        diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
-      else this.view.painter.render(this.renderer, this.scene, this.camera)
-      const renderMs = diagnostic ? performance.now() - renderStart : 0
+      const version = this.modalRenderVersion,
+        textures = sceneTextureRevision(),
+        redraw =
+          version !== this.modalRenderedVersion ||
+          textures !== this.modalTextureVersion ||
+          !!this.view.painter.pendingSoundEnvironment
+      let renderMs = 0
+      if (redraw) {
+        const renderStart = diagnostic ? performance.now() : 0
+        if (diagnostic)
+          diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+        else this.view.painter.render(this.renderer, this.scene, this.camera)
+        renderMs = diagnostic ? performance.now() - renderStart : 0
+        // A throw leaves the request dirty. Capture before rendering so an
+        // invalidation raised during a draw cannot be accidentally consumed.
+        this.modalRenderedVersion = version
+        this.modalTextureVersion = textures
+      } else diagnostic?.pollGpu()
       this.frame = requestAnimationFrame(this.animate)
       diagnostic?.update(
         now,
         0,
         renderMs,
-        this.renderer.info.render.calls,
-        'Menu · rendering',
+        redraw ? this.renderer.info.render.calls : 0,
+        redraw ? 'Menu · rendering' : 'Menu · holding frame',
         performance.now() - callbackStart,
         0,
         pointerMetrics,

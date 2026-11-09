@@ -6,6 +6,7 @@ import {
   type WorshipAcquisitionGeometry,
   type WorshipAcquisitionState,
   type WorshipAcquisitionDrawCommand,
+  type WorshipAcquisitionFamily,
   type WorshipTargetModel,
 } from './worship-acquisition.ts'
 import { random } from './native-math.ts'
@@ -70,11 +71,23 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       second.serial - first.serial
     )
   })
+  // Notification failures must not abandon the already-detached request batch.
+  // Finish its ordered handoffs, then preserve the first thrown value verbatim.
+  let notificationFailed = false
+  let notificationFailure: unknown
+  const notify = (callback: () => void) => {
+    try {
+      callback()
+    } catch (error) {
+      if (!notificationFailed) notificationFailure = error
+      notificationFailed = true
+    }
+  }
   for (const gift of gifts) {
     if (gift.buildingAcquisition) {
-      bridge.cue(0xcc)
-      bridge.cue(0xcb)
-    } else bridge.cue(0x71)
+      notify(() => bridge.cue(0xcc))
+      notify(() => bridge.cue(0xcb))
+    } else notify(() => bridge.cue(0x71))
     let geometry: WorshipAcquisitionGeometry | null = null
     try {
       geometry = bridge.geometry(gift)
@@ -82,7 +95,7 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       // A detached/failed HUD must not throw out of the clock or defer a handoff.
     }
     if (!geometry) {
-      bridge.failed(gift)
+      notify(() => bridge.failed(gift))
       continue
     }
     if (gift.buildingAcquisition) {
@@ -99,11 +112,12 @@ export function startPendingWorshipAcquisitions(world: World, bridge: WorshipHan
       geometry,
     })
   }
+  if (notificationFailed) throw notificationFailure
 }
 
 export function visitWorshipAcquisition(
   world: World,
-  reselectPanel: (model: WorshipTargetModel) => void
+  reselectPanel: (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => void
 ) {
   const state = world.worshipAcquisition,
     paused = world.paused || !!(world.land.landFlags & 2)
@@ -113,10 +127,10 @@ export function visitWorshipAcquisition(
     paused,
     random: () => random(world.cosmeticRandom),
   })
-  if (result.buildingPanel) reselectPanel(result.buildingPanel)
+  if (result.buildingPanel) reselectPanel(result.buildingPanel, 'building')
   for (const arrival of result.arrivals) {
     // Native panel reopening precedes the arrival flag/handle/timer checks.
-    reselectPanel(arrival.model)
+    reselectPanel(arrival.model, 'spell')
     if (world.land.landFlags & 8) continue
     const gift = world.gifts.find(candidate => candidate.id === arrival.giftId)
     if (gift?.ordinaryWorship && gift.remaining > 1) gift.remaining = 1

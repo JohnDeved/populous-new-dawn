@@ -1,7 +1,9 @@
+import { short } from './native-math.ts'
 import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
 import { DEFAULT_AUDIO_PREFERENCES } from './audio-preferences.ts'
 import { SELECTION_CUES } from './person-selection.ts'
+import { SPELL_CAST_CUES } from './spell-audio-cues.ts'
 import {
   ambientLayers,
   ambientWeights,
@@ -10,9 +12,32 @@ import {
   type SoundEnvironment,
 } from './ambient-sound.ts'
 import type { GameScene } from './scene.ts'
-// First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
+// Load the live cue samples before enabling playback so gameplay never waits on a fetch.
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
+  ...SPELL_CAST_CUES,
+  9, // Follower landing.
+  0x12, // Building damage and demolition.
+  0x15, // Earthquake fissure.
+  0x1a, // Player Shaman airborne voice.
+  0x1b, // Shaman landing.
+  0x2a, // Hypnotise effect.
+  0x31, // Invisibility application.
+  0x35, // Invisibility reveal.
+  0x36, // Spy ignition action.
+  0x55, // Firestorm water impact.
+  0xa3, // Tornado.
+  0xa4, // Swarm effect.
+  0xa8, // Ghost Army effect.
+  0xa9, // Erosion.
+  0xaa, // Swamp effect.
+  0xad, // Earthquake rumble.
+  0xaf, // Volcano rumble.
+  0xb0, // Volcano eruption.
+  0xb3, // Firestorm projectile launch.
+  0xb4, // Convert Wild effect.
+  0xb6, // Firestorm land impact.
+  0xc4, // Follower airborne voice.
   5, // 0x4d7fd0: opening Wildman conversion
   0x9e, // 0x50c780: opening terrain wave
   0x6a,
@@ -121,8 +146,18 @@ export function soundEnvironment(scene: GameScene): SoundEnvironment {
 }
 
 export function orderSound(scene: GameScene, selected = scene.world.selected) {
-  const units = scene.world.units.filter(u => selected.includes(u.id))
-  if (units.length) scene.onSound(units.some(u => u.kind === 'shaman') ? 0x19 : 0x37)
+  if (!selected.length) return
+  const selectedIds = new Set(selected)
+  let cue: number | undefined
+  for (const unit of scene.world.units) {
+    if (!selectedIds.has(unit.id)) continue
+    cue = 0x37
+    if (unit.kind === 'shaman') {
+      cue = 0x19
+      break
+    }
+  }
+  if (cue !== undefined) scene.onSound(cue)
 }
 
 export function playWorldSounds(scene: GameScene) {
@@ -145,8 +180,8 @@ export function playWorldSounds(scene: GameScene) {
         scene.onSound(event.cue, 1, 0)
         continue
       } // Native notification and defeat-sky cues are not positional.
-      const dx = Math.round((event.x - scene.viewPoint.x) * 256),
-        dz = Math.round((event.z - scene.viewPoint.z) * 256)
+      const dx = short(Math.round((event.x - scene.viewPoint.x) * 256)),
+        dz = short(Math.round((event.z - scene.viewPoint.z) * 256))
       const screen = scene.screen(event)
       // Native distance curve and projected pan; the full native mixer is still unported.
       let stop: ReturnType<GameScene['onSound']>

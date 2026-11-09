@@ -361,6 +361,148 @@ globalThis.sharedAssetResult = { runtime, provenance };
             storage.prepare(self.source, self.revision, self.pool, self.runtime, 10**20)
         self.assertFalse(self.pool.exists())
 
+    def test_readonly_allocation_parents_refuse_before_any_publication(self):
+        original = os.statvfs
+        for name in ('runtime-parent', 'pool-parent'):
+            with self.subTest(target=name):
+                folder = self.root / name
+                (folder / 'runtime-parent').mkdir(parents=True)
+                (folder / 'pool-parent').mkdir()
+                self.runtime = folder / 'runtime-parent/runtime'
+                self.pool = folder / 'pool-parent/pool'
+                target = folder / name
+                def readonly(path):
+                    value = original(path)
+                    return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                           f_flag=os.ST_RDONLY if path == target else 0)
+                with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
+                    with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
+                        self.prepare()
+                self.assertFalse(self.runtime.exists())
+                self.assertFalse(self.pool.exists())
+
+    def test_readonly_existing_allocation_roots_preserve_the_pool(self):
+        self.prepare()
+        (self.source / 'public/original/sub/new.bin').write_bytes(b'new content needs a blob and tree')
+        self.git('add', '.'); self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        original = os.statvfs
+        roots = (self.pool, self.pool / 'blobs', self.pool / storage.ASSET_TREES)
+        for i, target in enumerate(roots):
+            with self.subTest(target=target):
+                runtime = self.root / f'readonly-runtime-{i}'
+                before = {str(p): (p.lstat().st_ino, p.lstat().st_mode, p.lstat().st_nlink,
+                                  p.read_bytes() if p.is_file() else None)
+                          for p in [self.pool, *self.pool.rglob('*')]}
+                def readonly(path):
+                    value = original(path)
+                    return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                           f_flag=os.ST_RDONLY if path == target else 0)
+                with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
+                    with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
+                        self.prepare(runtime)
+                self.assertFalse(runtime.exists())
+                after = {str(p): (p.lstat().st_ino, p.lstat().st_mode, p.lstat().st_nlink,
+                                 p.read_bytes() if p.is_file() else None)
+                         for p in [self.pool, *self.pool.rglob('*')]}
+                self.assertEqual(after, before)
+
+    def test_allocation_flags_fail_closed_when_missing_or_invalid(self):
+        for i, flags in enumerate((None, '0', False, -1, 'absent')):
+            with self.subTest(flags=flags):
+                self.pool = self.root / f'invalid-pool-{i}'
+                self.runtime = self.root / f'invalid-runtime-{i}'
+                fields = dict(f_frsize=4096, f_bavail=10**12)
+                if flags != 'absent':
+                    fields['f_flag'] = flags
+                with mock.patch.object(storage.os, 'statvfs', return_value=SimpleNamespace(**fields)):
+                    with self.assertRaisesRegex(ValueError, 'Filesystem flags are unavailable'):
+                        self.prepare()
+                self.assertFalse(self.pool.exists())
+                self.assertFalse(self.runtime.exists())
+        self.pool = self.root / 'unknown-flag-pool'
+        self.runtime = self.root / 'unknown-flag-runtime'
+        with mock.patch.object(storage.os, 'ST_RDONLY', None):
+            with self.assertRaisesRegex(ValueError, 'Read-only filesystem flag is unavailable'):
+                self.prepare()
+        self.assertFalse(self.pool.exists())
+
+    def test_readonly_reused_blobs_refuse_new_tree_hardlinks(self):
+        self.prepare()
+        original_asset = self.source / 'public/original/sub/game.bin'
+        (original_asset.parent / 'duplicate.bin').write_bytes(original_asset.read_bytes())
+        self.git('add', '.'); self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        original = os.statvfs
+        original_links = self.asset_blob().stat().st_nlink
+        original_trees = list((self.pool / storage.ASSET_TREES).iterdir())
+        runtime = self.root / 'new-tree-runtime'
+        def readonly(path):
+            value = original(path)
+            return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                   f_flag=os.ST_RDONLY if path == self.pool / 'blobs' else 0)
+        with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
+            with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
+                self.prepare(runtime)
+        self.assertFalse(runtime.exists())
+        self.assertEqual(self.asset_blob().stat().st_nlink, original_links)
+        self.assertEqual(list((self.pool / storage.ASSET_TREES).iterdir()), original_trees)
+        self.assertFalse((self.pool / '.writer-lock').exists())
+
+    def test_writable_selected_mounts_do_not_inherit_source_or_ancestor_flags(self):
+        (self.root / 'runtime-parent').mkdir()
+        (self.root / 'pool-parent').mkdir()
+        self.runtime = self.root / 'runtime-parent/runtime'
+        self.pool = self.root / 'pool-parent/pool'
+        result = self.prepare()
+        self.runtime = self.root / 'runtime-parent/second-runtime'
+        original = os.statvfs
+        queried = []
+        readonly = (self.root, self.source, self.pool.parent, self.pool / 'blobs',
+                    self.pool / storage.ASSET_TREES,
+                    self.pool / storage.ASSET_TREES / result['assetTree'])
+        def writable(path):
+            queried.append(path)
+            value = original(path)
+            return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                   f_flag=os.ST_RDONLY if path in readonly else 0)
+        with mock.patch.object(storage.os, 'statvfs', side_effect=writable):
+            self.assertEqual(self.prepare()['status'], 'verified')
+        for path in readonly:
+            self.assertNotIn(path, queried)
+        self.assertIn(self.runtime.parent, queried)
+
+    def test_readonly_change_after_lock_refuses_before_materialization(self):
+        original = os.statvfs
+        def readonly_after_lock(path):
+            value = original(path)
+            return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                   f_flag=os.ST_RDONLY if (self.pool / '.writer-lock').exists() else 0)
+        with mock.patch.object(storage.os, 'statvfs', side_effect=readonly_after_lock):
+            with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
+                self.prepare()
+        self.assertFalse(self.runtime.exists())
+        self.assertEqual(list(self.pool.iterdir()), [])
+
+    def test_new_readonly_blob_root_after_lock_is_checked(self):
+        original_statvfs, original_mkdir = os.statvfs, Path.mkdir
+        def mkdir(path, *args, **kwargs):
+            result = original_mkdir(path, *args, **kwargs)
+            if path == self.pool / '.writer-lock':
+                (self.pool / 'blobs').mkdir()
+            return result
+        def readonly(path):
+            value = original_statvfs(path)
+            return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                   f_flag=os.ST_RDONLY if path == self.pool / 'blobs' else 0)
+        with mock.patch.object(Path, 'mkdir', mkdir), \
+             mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
+            with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
+                self.prepare()
+        self.assertFalse(self.runtime.exists())
+        self.assertEqual(list(self.pool.iterdir()), [self.pool / 'blobs'])
+        self.assertEqual(list((self.pool / 'blobs').iterdir()), [])
+
     def test_verified_warm_cas_only_discounts_content_not_metadata_or_reserve(self):
         cold = self.allocation_plan()
         result = self.prepare()
@@ -400,7 +542,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_missing_cas_cannot_receive_a_reuse_discount(self):
         plan = self.allocation_plan()
         available = plan['newAllocationEstimateBytes'] + plan['reserveBytes'] - plan['allocations']['missingCasBytes']
-        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096)
+        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096, f_flag=0)
         with mock.patch.object(storage.os, 'statvfs', return_value=fs):
             with self.assertRaisesRegex(ValueError, 'capacity'):
                 self.prepare()
@@ -410,13 +552,15 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_capacity_boundary_and_locked_recheck_preserve_reserve(self):
         plan = self.allocation_plan()
         required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
-        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096)
-        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1)
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1, f_flag=0)
         with mock.patch.object(storage.os, 'statvfs', return_value=short):
             with self.assertRaisesRegex(ValueError, 'capacity'):
                 self.prepare()
         self.assertFalse(self.pool.exists())
-        with mock.patch.object(storage.os, 'statvfs', side_effect=[enough, short]):
+        def capacity_after_lock(path):
+            return short if (self.pool / '.writer-lock').exists() else enough
+        with mock.patch.object(storage.os, 'statvfs', side_effect=capacity_after_lock):
             with self.assertRaisesRegex(ValueError, 'after publication lock'):
                 self.prepare()
         self.assertFalse(self.runtime.exists())
@@ -430,9 +574,11 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_post_prepare_reserve_shortfall_is_not_a_pass(self):
         plan = self.allocation_plan()
         required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
-        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096)
-        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1)
-        with mock.patch.object(storage.os, 'statvfs', side_effect=[enough, enough, short]):
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1, f_flag=0)
+        def capacity_after_creation(path):
+            return short if self.runtime.exists() else enough
+        with mock.patch.object(storage.os, 'statvfs', side_effect=capacity_after_creation):
             with self.assertRaisesRegex(ValueError, 'reserve was consumed'):
                 self.prepare()
         self.assertTrue(self.runtime.exists())  # Preserve partial output, never erase it.
@@ -1115,6 +1261,101 @@ for suffix in ('', '.stdout', '.stderr'):
         for name in ('../escape', '/absolute', 'x/../../escape', 'x\\evil', '.git/config'):
             with self.assertRaises(ValueError):
                 storage.safe_relative(name)
+
+class OwnedEvidenceCleanupTests(unittest.TestCase):
+    """Exercise receipt cleanup without Git, pnpm or a child process."""
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory(prefix='pnd-evidence-cleanup-test-')
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.runtime = self.root / 'runtime'
+        self.runtime.mkdir()
+        self.receipt = self.root / 'receipt.json'
+        self.lock = self.runtime / 'work/.shared-runtime-run-lock'
+        self.before = {'source': str(self.root / 'source'), 'runtime': str(self.runtime),
+                       'pool': str(self.root / 'pool')}
+        self.opened = []
+        self.enterContext(mock.patch.object(subprocess, 'Popen',
+                          side_effect=AssertionError('Cleanup fixtures must not launch subprocesses')))
+        for name, value in [('verify', self.before), ('dependency_identity', {}),
+                            ('toolchain_identity', {})]:
+            self.enterContext(mock.patch.object(storage, name, return_value=value))
+
+    def execute(self, capture_error=None, cleanup_error=None):
+        original = storage.OwnedEvidence
+        opened = self.opened
+        class FixtureEvidence(original):
+            def __enter__(self):
+                result = super().__enter__()
+                opened.append(self)
+                if cleanup_error is not None:
+                    def fail_close():
+                        raise cleanup_error
+                    self.stack.callback(fail_close)
+                return result
+        with mock.patch.object(storage, 'OwnedEvidence', FixtureEvidence), \
+                mock.patch.object(storage, 'capture_command', side_effect=capture_error,
+                                  return_value={'exitCode': 0, 'complete': True}) as capture:
+            try:
+                return storage.execute(self.before['source'], '0' * 40, self.before['pool'],
+                                       self.runtime, self.receipt, ['not-executed'])
+            finally:
+                capture.assert_called_once()
+                self.assertEqual(len(opened), 1)
+                self.assertTrue(all(stream.closed for _, stream, _ in opened[0].files.values()))
+
+    def test_unreaped_capture_and_close_failure_retain_lock_and_both_errors(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        close_error = OSError('supplied evidence close failure')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped, close_error)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIs(unreaped.__cause__, close_error)
+        self.assertTrue(self.lock.is_dir())
+        self.assertEqual(json.loads(self.receipt.read_text())['status'], 'unknown')
+        self.assertEqual(Path(str(self.receipt) + '.stdout').read_bytes(), b'')
+        self.assertEqual(Path(str(self.receipt) + '.stderr').read_bytes(), b'')
+
+    def test_baseexception_close_failure_does_not_erase_unreaped_marker(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        close_error = KeyboardInterrupt('supplied cleanup interruption')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped, close_error)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIs(unreaped.__cause__, close_error)
+        self.assertTrue(self.lock.is_dir())
+        self.assertEqual(json.loads(self.receipt.read_text())['status'], 'unknown')
+
+    def test_unreaped_capture_without_close_failure_retains_identity(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIsNone(unreaped.__cause__)
+        self.assertTrue(self.lock.is_dir())
+        self.assertEqual(json.loads(self.receipt.read_text())['status'], 'unknown')
+
+    def test_same_unreaped_cleanup_error_does_not_chain_to_itself(self):
+        unreaped = storage.UnreapedRuntimeCommand('supplied unknown child exit')
+        with self.assertRaises(storage.UnreapedRuntimeCommand) as raised:
+            self.execute(unreaped, unreaped)
+        self.assertIs(raised.exception, unreaped)
+        self.assertIsNone(unreaped.__cause__)
+        self.assertTrue(self.lock.is_dir())
+
+    def test_close_failure_after_observed_completion_still_raises(self):
+        close_error = OSError('supplied evidence close failure')
+        with self.assertRaises(OSError) as raised:
+            self.execute(cleanup_error=close_error)
+        self.assertIs(raised.exception, close_error)
+        self.assertFalse(self.lock.exists())
+
+    def test_successful_evidence_cleanup_preserves_normal_result(self):
+        result = self.execute()
+        self.assertEqual(result['status'], 'passed')
+        self.assertEqual(json.loads(self.receipt.read_text()), result)
+        self.assertFalse(self.lock.exists())
+
 
 if __name__ == '__main__':
     unittest.main()

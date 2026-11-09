@@ -5,7 +5,8 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
-import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness } from './shaman-casting.mjs'
+import { beginOrdinaryCastingWitness, waitForCastingWitness, retainCastingWitness, prepareCastingF9 } from './shaman-casting.mjs'
+import { installShamanCastingInputTiming } from './shaman-casting-observer.mjs'
 
 // Same-source hosted passes took 49.356s/50.327s; a 55s run still reached a
 // normal, connected restart flyby. Allow the three world loads, interactions and
@@ -84,9 +85,10 @@ export default async function spellTestMenu({ browser, url, output }) {
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
-  let failure, castingRetentionAttempted = false
+  let failure, castingRetentionAttempted = false, castingDispatch
   const diagnostics = startSpellTestDiagnostics(page, report)
   const timer = setTimeout(() => {
+    castingDispatch?.cancel(Error('F9 episode deadline expired'))
     report.timedOut = true; diagnostics.stop(); void context.close().catch(() => {})
   }, Math.max(0, spellTestLimitMs - (performance.now() - started)))
   page.setDefaultTimeout(12000)
@@ -129,6 +131,7 @@ export default async function spellTestMenu({ browser, url, output }) {
   try {
     assertSpellTestDeadline(report, started)
     diagnostics.stage('start mission')
+    await page.addInitScript(installShamanCastingInputTiming)
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await waitForStartupMenu(page)
     await button('New Game').click()
@@ -144,7 +147,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await page.getByText('Checkpoint saved in this browser.', { exact: true }).waitFor()
     await button('Back').click()
     await button('Continue Game').click()
-    const saved = await storage(), beforeOpen = await snapshot()
+    const [saved, beforeOpen] = await Promise.all([storage(), snapshot()])
     diagnostics.stage('read-only menu and keyboard controls')
     await button('Resume game').focus()
     await page.keyboard.down('F9')
@@ -162,9 +165,14 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     await page.keyboard.down('Escape')
     await page.keyboard.up('Escape')
-    assert.equal(await page.locator('[data-original-pause-menu]').count(), 0)
-    assert.equal(await button('Resume game').evaluate(element => element === document.activeElement), true)
-    assert.deepEqual(await snapshot(), beforeOpen)
+    const [pauseMenus, resumeFocused, afterClose] = await Promise.all([
+      page.locator('[data-original-pause-menu]').count(),
+      button('Resume game').evaluate(element => element === document.activeElement),
+      snapshot(),
+    ])
+    assert.equal(pauseMenus, 0)
+    assert.equal(resumeFocused, true)
+    assert.deepEqual(afterClose, beforeOpen)
     await page.keyboard.press('Shift+F9')
     assert.equal(await menu.count(), 0)
     report.openCloseWithoutMutation = true
@@ -198,9 +206,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Unlock + refill all spells').click()
     const unlocked = await snapshot()
     assert.equal(unlocked.cheatsUsed, true)
-    for (const spell of SPELLS) {
+    const enabled = await Promise.all(SPELLS.map(spell =>
+      button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled()))
+    for (const [index, spell] of SPELLS.entries()) {
       assert.ok(unlocked.shots[spell.id] >= rules.spellCharging[spell.model].normalLimit)
-      assert.equal(await button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled(), true)
+      assert.equal(enabled[index], true)
     }
     await button('Refill mana').click()
     assert.ok((await snapshot()).manaTribes[0].available >= 1_000_000)
@@ -223,9 +233,9 @@ export default async function spellTestMenu({ browser, url, output }) {
         p = scene.screen({ x: shaman.x + 5, z: shaman.z + 5 }), rect = scene.renderer.domElement.getBoundingClientRect()
       return { x: rect.left + (p.x + 1) * rect.width / 2, y: rect.top + (1 - p.y) * rect.height / 2, before: w.stats.cast }
     })
-    await page.mouse.click(target.x, target.y)
-    await page.waitForFunction(before => window.testStore.getWorld().stats.cast === before + 1, target.before)
-    await page.keyboard.press('F9')
+    castingDispatch = await prepareCastingF9(page, report, target.before, started + spellTestLimitMs)
+    await castingDispatch.click(target)
+    await castingDispatch.close()
     await menu.waitFor()
     const casting = await snapshot()
     assert.equal(casting.shots.blast, unlocked.shots.blast - 1, 'normal cast spent one real charge')
@@ -235,6 +245,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     assert.ok(casting.castingTribes[0].cooldown > 0, 'native cooldown remains active')
     await page.evaluate(() => window.shamanCastingObserver.beginHold())
     await page.waitForTimeout(350)
+    await page.waitForFunction(() => {
+      const state = window.shamanCastingObserver.status()
+      if (state.errors.length) throw Error(state.errors.join('; '))
+      return state.holdRafCoverageMs >= 350
+    }, null, { polling: 'raf', timeout: 1000 })
     await page.evaluate(() => window.shamanCastingObserver.endHold())
     assert.deepEqual(await snapshot(), casting, 'active cast and its windup freeze while F9 is open')
     await button('Refill available charges').click()
@@ -262,8 +277,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Load Game').click()
     await button('Load checkpoint').click()
     await waitReady('checkpoint load')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const loaded = await snapshot()
+    assert.equal(loaded.cheatsUsed, false)
+    assert.equal(loaded.shots.teleport, 0)
     diagnostics.stage('grant and restart')
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -273,8 +289,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Restart Level').click()
     await button('Yes').click()
     await waitReady('restart')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const restarted = await snapshot()
+    assert.equal(restarted.cheatsUsed, false)
+    assert.equal(restarted.shots.teleport, 0)
     report.savePreservedAndLoadRestartReset = true
     assert.deepEqual(report.errors, [])
     diagnostics.stage('completed')
@@ -286,6 +303,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) }
     catch (error) { report.screenshotError = String(error) }
   } finally {
+    if (castingDispatch) {
+      castingDispatch.cancel(failure ?? Error('F9 episode cleanup'))
+      try { await castingDispatch.close() }
+      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+    }
     // Retain partial casting observations before context closure, with the same
     // absolute watchdog still active. Retention must never erase the first error.
     try {

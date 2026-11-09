@@ -323,15 +323,13 @@ function issueLiveOrders(
         unit.native,
       ],
       registered = w.objectCells.objects.get(unit.id),
-      person = playerReplacement
-        ? (sources.find(p => p && p === registered) ?? sources.find(Boolean))
-        : personSource(unit)
+      person =
+        sources.find(p => p && p === registered) ??
+        (playerReplacement ? sources.find(Boolean) : personSource(unit))
     return {
       unit,
       person,
-      retained: playerReplacement
-        ? !!person && (person === unit.flight || person === unit.fight?.motion)
-        : !!(unit.flight || unit.fight?.motion),
+      retained: !!person && (person === unit.flight || person === unit.fight?.motion),
     }
   })
   const preachers =
