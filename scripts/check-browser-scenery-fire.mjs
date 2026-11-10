@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // Start npm run dev, then node scripts/check-browser-scenery-fire.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -7,8 +8,7 @@ import { fireUV } from '../app/scenery-fire.ts'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
-  await page.getByRole('button', { name: 'Mute sound', exact: true }).waitFor()
+  await setSoundThroughOptions(page, true)
   await page.evaluate(() => {
     const scene = window.testScene
     window.burnTree = scene.world.trees.find(t => t.id === 21)
