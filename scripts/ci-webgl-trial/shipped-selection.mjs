@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url'
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
 const side = 'selection-texture'
 assert.ok(rootArg && outputArg)
-assert.equal(expectedCommit, '67dc7ff0ed5ec9e7bc97516b4e7b5e4c7fd2fc75')
+assert.equal(expectedCommit, 'cd967306e82d42d60f731e1d90e808e46b7fa00e')
 const root = resolve(rootArg), output = resolve(outputArg)
 assert.ok(!existsSync(output), 'Use a fresh evidence directory')
 mkdirSync(output, { recursive: true })

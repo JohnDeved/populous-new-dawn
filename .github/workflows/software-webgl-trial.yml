@@ -1,15 +1,12 @@
-name: Isolated instrumented hook inventory
+name: Isolated shipped selection texture readiness
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-hook-inventory.mjs'
-      - 'scripts/ci-webgl-trial/hook-inventory-episode.mjs'
-      - 'scripts/ci-webgl-trial/runtime-hook-inventory.mjs'
-      - 'scripts/ci-webgl-trial/apply-hook-instrumentation.mjs'
-      - 'scripts/ci-webgl-trial/hook-instrumentation-proposal/**'
+      - 'scripts/ci-webgl-trial/shipped-selection.mjs'
+      - 'scripts/ci-webgl-trial/selection-episode.mjs'
 
 permissions:
   contents: read
@@ -20,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Instrumented hook inventory
+    name: Shipped selection texture readiness
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 3f73fdbcb630604049658f42a896db1fe1304aef
+      PND_CANDIDATE_SHA: cd967306e82d42d60f731e1d90e808e46b7fa00e
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed pinned snapshot source
+      - name: Check out exact reviewed selection texture candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 3f73fdbcb630604049658f42a896db1fe1304aef
+          ref: cd967306e82d42d60f731e1d90e808e46b7fa00e
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -69,7 +66,7 @@ jobs:
           printf '%s\n' "$chrome_version"
           case "$chrome_version" in
             'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
-            *) printf 'Unreviewed inventory browser version\n' >&2; exit 1 ;;
+            *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
@@ -91,7 +88,7 @@ jobs:
       - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
         timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-hook-inventory.mjs "$PWD/after-source" "$PWD/outputs/shipped-hook-inventory" "$PND_CANDIDATE_SHA"
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-selection.mjs "$PWD/after-source" "$PWD/outputs/shipped-selection" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -101,15 +98,15 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-hook-inventory-3f73fdbc-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-selection-cd967306-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-hook-inventory/*.json
-            outputs/shipped-hook-inventory/*.log
-            outputs/shipped-hook-inventory/*.html
-            outputs/shipped-hook-inventory/*.png
-            outputs/shipped-hook-inventory/hook-inventory-episode/*.json
-            outputs/shipped-hook-inventory/hook-inventory-episode/*.html
-            outputs/shipped-hook-inventory/hook-inventory-episode/*.png
+            outputs/shipped-selection/*.json
+            outputs/shipped-selection/*.log
+            outputs/shipped-selection/*.html
+            outputs/shipped-selection/*.png
+            outputs/shipped-selection/selection-episode/*.json
+            outputs/shipped-selection/selection-episode/*.html
+            outputs/shipped-selection/selection-episode/*.png
           if-no-files-found: warn
           retention-days: 7
 
