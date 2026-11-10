@@ -10,6 +10,7 @@ import { spriteDirection } from '../../app/projection.ts'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from './melee-attack-running-evidence.mjs'
 import { recoilRunningProtocol, validateRecoilObservation } from './melee-recoil-evidence.mjs'
 import { installRecoilCameraFollow } from './melee-recoil-camera.mjs'
+import { installCaptureProbe } from './capture-probe.mjs'
 
 export const meleeAttackLimitMs = 75000
 // A fixed functional artwork workload, separate from performance frame recording.
@@ -146,7 +147,11 @@ export function meleeAttackMapping(recoil = false) {
 // It does not mutate World, advance time, render, replace a game method or issue
 // a hit-selection query. Reading crop bounds may touch renderer/picker metadata.
 export function installMeleeFrameObserver(input) {
-  const recoil = input?.mode === 'recoil', originalMapping = recoil ? input.mapping : input
+  if (input?.mode !== undefined && !['recoil', 'same-frame-ab-v1'].includes(input.mode)) throw Error('Unknown observer mode')
+  const captureDiagnostic = input?.mode === 'same-frame-ab-v1'
+  const recoil = input?.mode === 'recoil', originalMapping = recoil || captureDiagnostic ? input.mapping : input
+  const captureOwner = captureDiagnostic ? globalThis.__pndMeleeCaptureDiagnostic : null
+  if (captureDiagnostic && !captureOwner) throw Error('Explicit diagnostic requires owned probe')
   const admitted = action => recoil ? action === 'recoil' : ['attack', 'strike', 'special'].includes(action)
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const canvas = scene.renderer.domElement, visitLimit = 75 * 240
@@ -198,7 +203,7 @@ export function installMeleeFrameObserver(input) {
     result.retention.done = true
     return result
   }
-  window.__pndMeleeObservation = { result, stop, retain }
+  window.__pndMeleeObservation = { result, stop, retain, ...(captureDiagnostic ? { diagnosticOwner: captureOwner } : {}) }
   const visit = rafTimestampMs => {
     if (stopped) return
     const timestampMs = performance.now()
@@ -313,7 +318,23 @@ export function installMeleeFrameObserver(input) {
         const key = JSON.stringify([sample.id, sample.action, sample.started, sample.fightGroup,
           sample.opponent, sample.object, sample.draw, sample.f1, sample.f2, sample.direction])
         sample.cropPlanned = !cropKeys.has(key) && cropKeys.size < 4
-        if (sample.cropPlanned) {
+        if (sample.cropPlanned && captureDiagnostic) {
+          cropKeys.add(key)
+          if (globalThis.__pndMeleeCaptureDiagnostic !== captureOwner) throw Error('Diagnostic namespace lost')
+          const capture = captureOwner.capture({ ...sample, rafTimestampMs, callbackEntryMs: timestampMs })
+          const pair = captureOwner.report().pairs[capture.slot]
+          if (!capture.reserved || !pair || pair.key !== key) throw Error('Reserved diagnostic slot mismatch')
+          sample.captureSlot = pair.slot
+          if (pair.status === 'copied') {
+            Object.assign(sample, pair.visibility)
+            sample.cropFile = pair.arms.A.filename
+            sample.captureClip = structuredClone(pair.clip)
+            sample.captureSourceDimensions = { width: pair.sourceWidth, height: pair.sourceHeight }
+            diagnostic.cropCopyMs = pair.cropCopyMs
+            diagnostic.candidateCopyMs = pair.candidateCopyMs
+            diagnostic.pairMs = pair.pairMs
+          }
+        } else if (sample.cropPlanned) {
           cropKeys.add(key)
           const rect = canvas.getBoundingClientRect(), bounds = scene.picking.personBounds(54, rect)
           if (bounds && bounds.width > 1 && bounds.height > 1) {
@@ -379,11 +400,17 @@ export function installMeleeFrameObserver(input) {
   raf = requestAnimationFrame(visit)
 }
 
-export default async function meleeAttack({ browser, url, output, expectedRevision, recoil = false }) {
+export default async function meleeAttack({ browser, url, output, expectedRevision, recoil = false, captureDiagnostic = null }) {
   assert.equal(typeof recoil, 'boolean')
+  assert.ok(captureDiagnostic === null || typeof captureDiagnostic === 'object' && captureDiagnostic.mode === 'same-frame-ab-v1', 'Unknown capture diagnostic mode')
+  if (captureDiagnostic) {
+    assert.equal(captureDiagnostic.mode, 'same-frame-ab-v1')
+    assert.equal(recoil, false, 'Capture diagnostic cannot run recoil')
+    captureDiagnostic.budget.check()
+  }
   const label = recoil ? 'melee-recoil' : 'melee-attack'
-  const context = await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
-  const page = await context.newPage()
+  const context = captureDiagnostic ? captureDiagnostic.context : await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
+  const page = captureDiagnostic ? captureDiagnostic.page : await context.newPage()
   page.setDefaultTimeout(10000)
   const report = { schema: recoil ? 'populous-new-dawn/ordinary-recoil-artwork' : 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: recoil ? 1 : 2,
     status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
@@ -402,16 +429,22 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       'scripts/tutorial-browser/melee-attack-running-evidence.mjs',
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
+  if (captureDiagnostic) for (const path of ['scripts/tutorial-browser/capture-probe.mjs',
+    'scripts/tutorial-browser/melee-capture-diagnostic.mjs', 'scripts/tutorial-browser/capture-diagnostic-budget.mjs',
+    'scripts/tutorial-browser/capture-diagnostic-png.mjs']) report.source[path] = sha256(readFileSync(resolve(root, path)))
   if (recoil) {
     report.method = report.method.replace('first observed attack entry', 'first observed recoil entry').replace('plus one fixed (0,+12) backing-pixel corridor offset', 'with zero offset at the nearest target center') + ' Recoil-only setup rotates the camera by a fixed half-turn through two public right drags while paused before minimap framing and the attack; no world objects or actor state are edited. After the actual order, the supported camera focus follows only authored actor54 after each observer sample to keep intercepted combat in view; tooltip state is reset and camera-relative terrain lightView follows actor54 through that API; combat orders, RNG and actor state are unchanged.'
     report.limits.push('The first observed recoil is accepted only from its exact entry, using original four-turn knockback or seven-turn Shaman duration; no later favorable episode or native-executable comparison is substituted.')
     for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts', 'scripts/tutorial-browser/melee-recoil-camera.mjs'])
       report.source[path] = sha256(readFileSync(resolve(root, path)))
   }
-  const save = () => writeFileSync(resolve(output, `${label}.json`), JSON.stringify(report, null, 2) + '\n')
+  const save = () => captureDiagnostic ? captureDiagnostic.saveJson(`${label}.json`, report) :
+    writeFileSync(resolve(output, `${label}.json`), JSON.stringify(report, null, 2) + '\n')
   const action = async (name, perform) => {
+    captureDiagnostic?.budget.check()
     report.actions.push({ name, startedAt: new Date().toISOString() }); save()
     await perform()
+    captureDiagnostic?.budget.check()
     report.actions.at(-1).finishedAt = new Date().toISOString(); save()
   }
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
@@ -419,11 +452,80 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   page.on('pageerror', runtimeError)
   page.on('console', message => { if (message.type() === 'error') runtimeError(message.text()) })
   page.on('crash', () => runtimeError('Page crashed'))
-  const timer = setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, meleeAttackLimitMs)
+  const timer = captureDiagnostic ? null : setTimeout(() => { report.timedOut = true; void context.close().catch(() => {}) }, meleeAttackLimitMs)
   let failure
+  let diagnosticRetained = false
   const retainObservation = async () => {
     if (report.observation || page.isClosed()) return
-    const observation = await page.evaluate(() => window.__pndMeleeObservation?.retain() ?? null)
+    if (captureDiagnostic) {
+      if (diagnosticRetained) return
+      diagnosticRetained = true // Failure cannot initiate a second retention/readback.
+      captureDiagnostic.budget.check()
+      const retained = await page.evaluate(async () => {
+        const observer = window.__pndMeleeObservation, probe = observer?.diagnosticOwner
+        if (!observer || !probe) throw Error('Missing owned diagnostic observer/probe')
+        observer.stop('diagnostic-retention')
+        probe.stop({ reason: 'observer-terminal' })
+        const diagnostic = await probe.retain()
+        const observation = observer.retain()
+        try {
+          for (const pair of diagnostic.pairs) {
+            const arm = pair.arms.A
+            if (!arm?.png) continue
+            const sample = observation.samples.find(sample => sample.captureSlot === pair.slot)
+            if (!sample || sample.cropFile !== arm.filename || arm.filename !== `melee-attack-frame-${pair.slot}.png`)
+              throw Error('Canonical diagnostic slot/filename mismatch')
+            if (JSON.stringify(pair.clip) !== JSON.stringify(sample.captureClip) ||
+              pair.sourceWidth !== sample.captureSourceDimensions?.width || pair.sourceHeight !== sample.captureSourceDimensions?.height ||
+              JSON.stringify(pair.visibility.cropVisibility) !== JSON.stringify(sample.cropVisibility))
+              throw Error('Canonical crop/source geometry mismatch')
+            if (pair.identity.source !== 'source:1' || pair.identity.scene !== 'scene:1' ||
+              pair.identity.world !== 'world:1' || pair.identity.physicalPerson !== 'person:1')
+              throw Error('Canonical physical source labels mismatch')
+            for (const field of ['turn', 'stamp', 'animationFrame'])
+              if (pair[field] !== sample[field]) throw Error(`Canonical ${field} mismatch`)
+            for (const field of ['id', 'action', 'started', 'fightGroup', 'opponent', 'object', 'draw', 'f1', 'f2', 'direction', 'frame', 'phase'])
+              if (pair.pose[field] !== sample[field]) throw Error(`Canonical pose ${field} mismatch`)
+            if (pair.identity.actorId !== sample.id || pair.identity.started !== sample.started ||
+              pair.identity.opponent !== sample.opponent || pair.identity.fightGroup !== sample.fightGroup)
+              throw Error('Canonical physical identity mismatch')
+            observation.crops.push({ filename: arm.filename, turn: pair.turn, stamp: pair.stamp,
+              frame: sample.frame, object: sample.object, f2: sample.f2, phase: sample.phase,
+              clip: pair.clip, copyMs: arm.copyMs, readbackScanMs: arm.readbackScanMs,
+              encodingMs: arm.encodingMs, opaqueColors: arm.opaqueColors, png: arm.png,
+              pngSha256: arm.pngSha256, rawPixelSha256: arm.rawPixelSha256, readbackColorSpace: arm.readbackColorSpace })
+            arm.png = null // Exactly one returned copy of each encoded image.
+          }
+          return { observation, diagnostic }
+        } finally { probe.dispose() }
+      })
+      captureDiagnostic.budget.check()
+      const pendingImages = []
+      for (const pair of retained.diagnostic.pairs) for (const arm of Object.values(pair.arms)) {
+        if (arm.png) pendingImages.push({ name: arm.filename, png: arm.png, expected: { ...pair.clip, ...arm }, record: arm })
+        arm.png = null
+      }
+      for (const crop of retained.observation.crops) {
+        if (crop.png) pendingImages.push({ name: crop.filename, png: crop.png, expected: { ...crop.clip, ...crop }, record: crop })
+        delete crop.png
+      }
+      // Strip every image before any fallible write or report save.
+      for (const image of pendingImages) delete image.expected.png
+      report.captureDiagnostic = retained.diagnostic
+      report.observation = retained.observation
+      // Retain each immutable A/B image once, including partial failure evidence.
+      try {
+        for (const image of pendingImages) {
+          image.record.file = captureDiagnostic.writePng(image.name, image.png, image.expected)
+          image.record.sha256 = image.record.file.sha256
+        }
+      } finally {
+        captureDiagnostic.saveJson('melee-capture-diagnostic.json', retained.diagnostic)
+        save()
+      }
+      captureDiagnostic.saveJson('melee-capture-diagnostic.json', retained.diagnostic)
+    }
+    const observation = captureDiagnostic ? report.observation : await page.evaluate(() => window.__pndMeleeObservation?.retain() ?? null)
     if (!observation) return
     report.observation = observation
     for (const sample of observation.samples)
@@ -432,14 +534,19 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     for (const crop of observation.crops) {
       if (crop.error) continue // Keep other immutable crops and the failed timeline.
       assert.match(crop.filename, recoil ? /^melee-recoil-frame-[0-3]\.png$/ : /^melee-attack-frame-[0-3]\.png$/)
-      assert.match(crop.png, /^data:image\/png;base64,/)
+      if (!captureDiagnostic) assert.match(crop.png, /^data:image\/png;base64,/)
       const sample = observation.samples.find(sample => sample.cropFile === crop.filename)
       assert.ok(sample, 'Every canvas crop must belong to an actual sampled native frame')
       for (const field of ['turn', 'stamp', 'frame', 'object', 'f2', 'phase'])
         assert.equal(crop[field], sample[field], `Canvas crop ${field} must match its synchronous observation`)
-      const bytes = Buffer.from(crop.png.split(',')[1], 'base64')
-      writeFileSync(resolve(output, crop.filename), bytes, { flag: 'wx' })
-      crop.sha256 = sha256(bytes); delete crop.png
+      if (captureDiagnostic) {
+        assert.ok(crop.file?.decoded?.decoded, 'Canonical PNG must be independently decoded')
+        assert.equal(crop.sha256, crop.pngSha256)
+      } else {
+        const bytes = Buffer.from(crop.png.split(',')[1], 'base64')
+        writeFileSync(resolve(output, crop.filename), bytes, { flag: 'wx' })
+        crop.sha256 = sha256(bytes); delete crop.png
+      }
     }
     save()
   }
@@ -519,7 +626,15 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     report.afterFocus = await page.evaluate(readMeleeRouteState); save()
     assertMeleeRouteReady(report.afterFocus)
     report.mapping = meleeAttackMapping(recoil); save()
-    await page.evaluate(installMeleeFrameObserver, recoil ? { mode: 'recoil', mapping: report.mapping } : report.mapping)
+    if (captureDiagnostic) {
+      const origins = await captureDiagnostic.budget.pageOrigins(page)
+      captureDiagnostic.budget.check()
+      await page.evaluate(installCaptureProbe, { ...origins, episodeId: 'authored-m2-first-entry',
+        canonicalPngByteLimit: 8388608, requestDigests: true, sourceProfile: 'melee-capture-diagnostic-960x720-dpr1' })
+      captureDiagnostic.budget.check()
+    }
+    await page.evaluate(installMeleeFrameObserver, captureDiagnostic ? { mode: 'same-frame-ab-v1', mapping: report.mapping } :
+      recoil ? { mode: 'recoil', mapping: report.mapping } : report.mapping)
     await button('Resume game')
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
     report.afterResume = await page.evaluate(readMeleeRouteState); save()
@@ -567,8 +682,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.done, true)
     report.acceptance = (recoil ? validateRecoilObservation : validateMeleeRunningObservation)(report.observation, report.mapping)
+    if (captureDiagnostic) report.canonicalStatus = 'passed'
     await button('Pause game')
-    await page.screenshot({ path: resolve(output, `${label}-context.png`) })
+    if (captureDiagnostic) {
+      assert.equal(report.captureDiagnostic.retention.status, 'complete-comparison-only')
+      assert.equal(report.captureDiagnostic.cleanup.confirmed, true)
+      await captureDiagnostic.screenshot(page, 'context')
+    } else await page.screenshot({ path: resolve(output, `${label}-context.png`) })
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()
     if (!page.isClosed()) {
@@ -576,8 +696,11 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       catch (diagnostic) { report.failureStateError = String(diagnostic) }
       try {
         const filename = `${label}-failure.png`
-        await page.screenshot({ path: resolve(output, filename), timeout: 2000 })
-        report.failureScreenshot = { filename, sha256: sha256(readFileSync(resolve(output, filename))) }
+        if (captureDiagnostic) report.failureScreenshot = await captureDiagnostic.screenshot(page, 'failure')
+        else {
+          await page.screenshot({ path: resolve(output, filename), timeout: 2000 })
+          report.failureScreenshot = { filename, sha256: sha256(readFileSync(resolve(output, filename))) }
+        }
       } catch (diagnostic) { report.failureScreenshotError = String(diagnostic) }
     }
   }
@@ -589,7 +712,15 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     }
     try { await retainObservation() }
     catch (error) { report.errors.push(`Observer cleanup: ${error}`) }
-    try { await context.close(); report.contextClosed = true }
+    try {
+      if (captureDiagnostic) {
+        captureDiagnostic.budget.check()
+        if (!page.isClosed()) await page.evaluate(() => {
+          window.__pndMeleeObservation?.stop('diagnostic-cleanup')
+          window.__pndMeleeObservation?.diagnosticOwner?.dispose()
+        })
+      } else { await context.close(); report.contextClosed = true }
+    }
     catch (error) { report.errors.push(`Context cleanup: ${error}`) }
     report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'; save()
   }
