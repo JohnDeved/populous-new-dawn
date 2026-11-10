@@ -96,7 +96,12 @@ export default async function ({ browser, url, root, output, signal }) {
             await capture(`messages-${preference}-${width}x${height}`)
             record(`ordinary-${preference}-${width}x${height}-dpr${dpr}`, ordinary)
             if (width !== 1920) {
-              await page.keyboard.press('F8'); await page.locator('.fps-graph').waitFor(); await settle()
+              await page.keyboard.press('F8'); await page.locator('.fps-graph').waitFor()
+              // Two frames can precede the first numeric diagnostic sample.
+              await page.waitForFunction(() => /^\d+\.\d \/ \d+\.\d ms$/.test(
+                document.querySelector('.fps-graph [data-metric="pointer-tail"]')?.textContent ?? ''
+              ))
+              await settle()
               const diagnostic = await page.locator('.fps-graph').evaluate(m2DiagnosticLayout)
               assertCompactMessageWitness(diagnostic, await page.evaluate(compactMessageWitness), width, height)
               await page.keyboard.press('F8'); await page.locator('.fps-graph').waitFor({ state: 'detached' }); await settle()
