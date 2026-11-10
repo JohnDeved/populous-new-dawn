@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, statfsSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, lstatSync, statfsSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const [candidateArg, baselineArg, outputArg] = process.argv.slice(2)
@@ -17,7 +17,7 @@ for (const path of ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'es
 assert.equal(existsSync(resolve(candidate, '.npmrc')), false, 'No untracked pnpm config override')
 assert.equal(existsSync(resolve(baseline, '.npmrc')), false, 'No untracked baseline config override')
 const source = root => Object.fromEntries(execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean).map(path => [path, sha256(readFileSync(resolve(root, path)))]))
-const dependencies = () => {
+const dependencies = root => {
   const entries = {}
   const walk = (dir, prefix = '') => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -26,17 +26,18 @@ const dependencies = () => {
       else if (entry.isFile()) { const stat = statSync(path); entries[name] = [stat.size, stat.mtimeMs] }
     }
   }
-  walk(resolve(candidate, 'node_modules'))
+  assert.equal(lstatSync(resolve(root, 'node_modules')).isSymbolicLink(), false)
+  walk(resolve(root, 'node_modules'))
   return sha256(JSON.stringify(entries))
 }
-const before = { candidate: source(candidate), baseline: source(baseline), dependencies: dependencies() }
+const before = { candidate: source(candidate), baseline: source(baseline), dependencies: { candidate: dependencies(candidate), baseline: dependencies(baseline) } }
 const receipt = { status: 'running', command: ['pnpm', 'run', 'lint', '--format', 'json', '--no-cache'],
   candidate: git(candidate, 'rev-parse', 'HEAD'), baseline: git(baseline, 'rev-parse', 'HEAD'),
   scenarioSha256: sha256(readFileSync(import.meta.filename)), source: before, runs: [],
   limits: ['Normal full lint script, JSON reporter and cache disabled; no file-selection omissions.',
-    'Both complete checkouts share the same locked installed dependency tree via baseline node_modules symlink after package/lock/config equality checks.',
+    'Both complete checkouts have independent normal frozen-lockfile installations after package/lock/workspace/config equality checks; no node_modules symlink or dependency-guard override.',
     'Dependency preservation compares regular-file size/mtime, not cryptographic identity or symlink targets.',
-    'Candidate is linted after build/server; baseline is pristine. Untracked generated targets/diagnostics are explicitly separate, not automatically product regressions.',
+    'Both source trees are pristine in this lint-only retry. Any untracked targets and diagnostics remain separately identified.',
     'Baseline-attributed failures are not clean passes and do not replace the final Full check/build.'] }
 const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
 async function lint(side, root) {
@@ -122,7 +123,7 @@ try {
 finally {
   try {
     assert.deepEqual(source(candidate), before.candidate); assert.deepEqual(source(baseline), before.baseline)
-    assert.equal(dependencies(), before.dependencies)
+    assert.equal(dependencies(candidate), before.dependencies.candidate); assert.equal(dependencies(baseline), before.dependencies.baseline)
     assert.equal(git(candidate, 'diff', '--name-only', 'HEAD', '--'), ''); assert.equal(git(baseline, 'diff', '--name-only', 'HEAD', '--'), '')
     receipt.inputsUnchanged = true
   } catch (error) { receipt.status = 'failed'; receipt.inputFailure = String(error); process.exitCode = 1 }
