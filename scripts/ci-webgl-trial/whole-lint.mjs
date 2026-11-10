@@ -30,12 +30,12 @@ const dependencies = root => {
   walk(resolve(root, 'node_modules'))
   return sha256(JSON.stringify(entries))
 }
-const before = { candidate: source(candidate), baseline: source(baseline), dependencies: { candidate: dependencies(candidate), baseline: dependencies(baseline) } }
+const before = { candidate: source(candidate), baseline: source(baseline), dependencies: { candidate: dependencies(candidate) } }
 const receipt = { status: 'running', command: ['pnpm', 'run', 'lint', '--format', 'json', '--no-cache'],
   candidate: git(candidate, 'rev-parse', 'HEAD'), baseline: git(baseline, 'rev-parse', 'HEAD'),
   scenarioSha256: sha256(readFileSync(import.meta.filename)), source: before, runs: [],
   limits: ['Normal full lint script, JSON reporter and cache disabled; no file-selection omissions.',
-    'Both complete checkouts have independent normal frozen-lockfile installations after package/lock/workspace/config equality checks; no node_modules symlink or dependency-guard override.',
+    'Candidate uses an independent normal frozen-lockfile installation. Baseline source/config is checked out for identity; completed baseline lint is retained from run42762369253, not repeated here.',
     'Dependency preservation compares regular-file size/mtime, not cryptographic identity or symlink targets.',
     'Both source trees are pristine in this lint-only retry. Any untracked targets and diagnostics remain separately identified.',
     'Baseline-attributed failures are not clean passes and do not replace the final Full check/build.'] }
@@ -84,9 +84,11 @@ async function lint(side, root) {
   run.cleanupVerified = true; save()
   assert.equal(run.error, undefined); assert.equal(run.timedOut, undefined); assert.equal(run.forced, undefined); assert.equal(run.outputOverflow, undefined)
   assert.ok(run.code === 0 || run.code === 1, 'Lint infrastructure failure, not ordinary diagnostics')
-  const stdout = Buffer.concat(chunks.stdout).toString('utf8'), start = stdout.indexOf('[{"filePath"'), end = stdout.lastIndexOf(']')
-  assert.ok(start >= 0 && end >= start, 'Require complete ESLint JSON output')
-  const results = JSON.parse(stdout.slice(start, end + 1))
+  const stdout = Buffer.concat(chunks.stdout).toString('utf8'), lines = stdout.split(/\r?\n/)
+  const payloads = lines.filter(line => line.startsWith('[{"filePath"'))
+  assert.equal(payloads.length, 1, 'Require exactly one complete ESLint JSON line')
+  assert.ok(lines.every(line => !line || line === payloads[0] || line === '[ELIFECYCLE] Command failed with exit code 1.'), 'Unexpected lint stdout outside JSON')
+  const results = JSON.parse(payloads[0])
   assert.ok(Array.isArray(results) && results.length > 1000, 'Require complete repository lint scope')
   const diagnostics = []
   run.untrackedTargets = []
@@ -98,32 +100,23 @@ async function lint(side, root) {
     for (const m of file.messages) diagnostics.push({ path, tracked, ruleId: m.ruleId, severity: m.severity, message: m.message,
       sourceLine: m.line ? lines[m.line - 1]?.trim() : null, line: m.line, column: m.column, endLine: m.endLine, endColumn: m.endColumn, fatal: m.fatal ?? false })
   }
-  assert.equal(diagnostics.some(d => d.fatal), false, 'Parser/tool failures require separate diagnosis')
-  run.result = run.code === 0 ? 'passed' : 'failed-with-diagnostics'
+  run.fatalErrors = diagnostics.filter(d => d.fatal).length
+  run.result = run.code === 0 ? 'passed' : run.fatalErrors ? 'failed-with-parse-diagnostics' : 'failed-with-diagnostics'
   run.files = results.length; run.errors = diagnostics.filter(d => d.severity === 2).length; run.warnings = diagnostics.filter(d => d.severity === 1).length
   writeFileSync(resolve(output, `${side}-diagnostics.json`), JSON.stringify(diagnostics, null, 2) + '\n')
   save(); return diagnostics
 }
 try {
   save()
-  const baselineDiagnostics = await lint('baseline', baseline)
-  const candidateDiagnostics = await lint('candidate', candidate)
-  const normalize = ({ line, column, endLine, endColumn, ...rest }) => JSON.stringify(rest)
-  const subtract = (left, right) => {
-    const counts = new Map(); for (const d of right) { const key = normalize(d); counts.set(key, (counts.get(key) ?? 0) + 1) }
-    return left.filter(d => { const key = normalize(d), n = counts.get(key) ?? 0; if (n) { counts.set(key, n - 1); return false } return true })
-  }
-  receipt.introduced = subtract(candidateDiagnostics, baselineDiagnostics)
-  receipt.removed = subtract(baselineDiagnostics, candidateDiagnostics)
-  receipt.introducedTracked = receipt.introduced.filter(d => d.tracked)
-  receipt.introducedUntracked = receipt.introduced.filter(d => !d.tracked)
-  receipt.comparison = 'Rule, severity, message, path and unchanged trimmed source-line multiset; source line numbers may move.'
-  receipt.status = receipt.introduced.length ? 'introduced-diagnostics' : 'no-introduced-diagnostics'
+  await lint('candidate', candidate)
+  receipt.status = receipt.runs[0].result
+  receipt.baselineReference = { runId: '42762369253', artifactId: '13738685071', commit: '480a1493a62c3b015ae97ebb22dfc20b6b284eae', stdoutSha256: '5e34be0f3f59a1f501a2ae0125faaef9532f21d9e5bf504f6f7d1dac45e062da', note: 'Complete failed baseline diagnostics retained separately; this candidate-only receipt does not claim a comparison or a clean baseline.' }
+  process.exitCode = receipt.runs[0].code
 } catch (error) { receipt.status = 'failed'; receipt.failure = error.stack ?? String(error); process.exitCode = 1 }
 finally {
   try {
     assert.deepEqual(source(candidate), before.candidate); assert.deepEqual(source(baseline), before.baseline)
-    assert.equal(dependencies(candidate), before.dependencies.candidate); assert.equal(dependencies(baseline), before.dependencies.baseline)
+    assert.equal(dependencies(candidate), before.dependencies.candidate)
     assert.equal(git(candidate, 'diff', '--name-only', 'HEAD', '--'), ''); assert.equal(git(baseline, 'diff', '--name-only', 'HEAD', '--'), '')
     receipt.inputsUnchanged = true
   } catch (error) { receipt.status = 'failed'; receipt.inputFailure = String(error); process.exitCode = 1 }

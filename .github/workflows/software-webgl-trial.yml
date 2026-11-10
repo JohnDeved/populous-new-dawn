@@ -1,4 +1,4 @@
-name: Isolated pause whole lint comparison
+name: Isolated pause candidate whole lint
 
 on:
   push:
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Full normal lint candidate and baseline
+    name: Full normal lint candidate only
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -57,7 +57,7 @@ jobs:
           node-version: '24.19.0'
           architecture: x64
           package-manager-cache: false
-      - name: Install independent locked source profiles
+      - name: Install independent candidate source profile
         id: setup
         shell: bash
         run: |
@@ -68,11 +68,9 @@ jobs:
           test ! -e after-source/.npmrc
           test ! -e baseline-source/.npmrc
           npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
-          for source in after-source baseline-source; do
-            test ! -e "$source/node_modules"
-            ( cd "$source" && pnpm install --frozen-lockfile --ignore-scripts )
-          done
-      - name: Compare full normal lint on complete source trees
+          test ! -e after-source/node_modules
+          ( cd after-source && pnpm install --frozen-lockfile --ignore-scripts )
+      - name: Run full normal candidate lint
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         timeout-minutes: 6
         run: node trial-infrastructure/scripts/ci-webgl-trial/whole-lint.mjs "$PWD/after-source" "$PWD/baseline-source" "$PWD/outputs/whole-lint"
@@ -86,7 +84,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: pause-whole-lint-c078343-${{ github.run_id }}-${{ github.run_attempt }}
+          name: pause-candidate-lint-c078343-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/whole-lint/*.json
             outputs/whole-lint/*.log
