@@ -1,12 +1,12 @@
-name: Isolated shipped HUD shortcuts
+name: Isolated shipped CPU snapshot inventory
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-shortcuts.mjs'
-      - 'scripts/ci-webgl-trial/shortcut-episode.mjs'
+      - 'scripts/ci-webgl-trial/shipped-cpu-inventory.mjs'
+      - 'scripts/ci-webgl-trial/cpu-inventory-episode.mjs'
 
 permissions:
   contents: read
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped HUD shortcuts
+    name: Shipped CPU snapshot inventory
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 3c7d9c80b4eabbb2b36c4831bd941fd6ce3c0059
+      PND_CANDIDATE_SHA: 1f76849ea332c1328553f13f4819d46f92f82ee7
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed HUD shortcut candidate
+      - name: Check out exact reviewed current-main snapshot source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 3c7d9c80b4eabbb2b36c4831bd941fd6ce3c0059
+          ref: 1f76849ea332c1328553f13f4819d46f92f82ee7
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -66,7 +66,7 @@ jobs:
           printf '%s\n' "$chrome_version"
           case "$chrome_version" in
             'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
-            *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
+            *) printf 'Unreviewed inventory browser version\n' >&2; exit 1 ;;
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
@@ -88,7 +88,7 @@ jobs:
       - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
         timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-shortcuts.mjs "$PWD/after-source" "$PWD/outputs/shipped-shortcuts" "$PND_CANDIDATE_SHA"
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-cpu-inventory.mjs "$PWD/after-source" "$PWD/outputs/shipped-cpu-inventory" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -98,15 +98,15 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-shortcuts-3c7d9c80-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-cpu-inventory-1f76849e-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-shortcuts/*.json
-            outputs/shipped-shortcuts/*.log
-            outputs/shipped-shortcuts/*.html
-            outputs/shipped-shortcuts/*.png
-            outputs/shipped-shortcuts/shortcut-episode/*.json
-            outputs/shipped-shortcuts/shortcut-episode/*.html
-            outputs/shipped-shortcuts/shortcut-episode/*.png
+            outputs/shipped-cpu-inventory/*.json
+            outputs/shipped-cpu-inventory/*.log
+            outputs/shipped-cpu-inventory/*.html
+            outputs/shipped-cpu-inventory/*.png
+            outputs/shipped-cpu-inventory/cpu-inventory-episode/*.json
+            outputs/shipped-cpu-inventory/cpu-inventory-episode/*.html
+            outputs/shipped-cpu-inventory/cpu-inventory-episode/*.png
           if-no-files-found: warn
           retention-days: 7
 
