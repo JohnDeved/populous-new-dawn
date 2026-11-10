@@ -65,6 +65,18 @@ also fails rather than returning a pass if other allocation consumed the reserve
 partial output is retained. Caller-supplied reserves, output budgets and runtime
 free-space/memory floors are not reduced by the reuse calculation.
 
+Before pool/lock creation and again under the publication lock, `prepare` rejects
+read-only filesystem flags at actual write destinations: the runtime parent, the
+pool for its lock, the blob store when content is missing or new tree hardlinks are
+needed, and the versioned trees directory when a new asset tree is needed. Each check resolves the nearest existing
+parent afresh, including roots appearing while the lock is acquired. Missing or
+invalid flags also refuse admission. Fully reused blob/tree directories and source
+mounts are read-only inputs; a read-only higher ancestor does not override a selected
+writable destination mount. This is a snapshot, not a write-permission probe or
+protection against a later remount. No mount settings are changed, and a refusal
+after lock acquisition retains the newly created pool without materializing runtime
+or CAS files.
+
 Example with explicitly chosen, fresh destinations:
 
 ```sh
@@ -176,6 +188,10 @@ open gets at most one second of further draining and is incomplete, not success;
 descendants are never signaled. If the direct child's exit cannot be observed,
 the receipt remains `unknown` and its runtime run lock is retained rather than
 claiming that caches are free. Do not steal that lock or infer cleanup from silence.
+If receipt/log cleanup also fails while that unobserved-exit marker is propagating,
+the marker remains the raised error and retains the cleanup failure as its cause.
+Cleanup still attempts the remaining owned descriptors; it does not release the
+runtime lock or certify that a failed descriptor close completed.
 Evidence path/link substitution still refuses terminal finalization. Existing
 source, asset and dependency drift checks remain unchanged; `run` is not an
 installer and dependency mutation still invalidates the attempt.
@@ -214,7 +230,12 @@ without refreshing the Git index or lazily fetching missing Git objects. Unrelat
 edits are preserved, not certified as a clean source tree. No pnpm executable, asset
 scan or dependency installation is required. `plan` additionally checks physical,
 nonnested roots, actual/nearest existing filesystem devices, available bytes and
-positive caller-declared allocation and remaining-reserve budgets. Known Linux
+positive caller-declared allocation and remaining-reserve budgets. A read-only
+filesystem flag on any shared/store/cache destination or its nearest existing ancestor
+refuses admission even when free bytes are sufficient. Missing or invalid filesystem
+flags also refuse admission rather than assume writability. This snapshot does not
+prove write permission or reserve capacity against subsequent changes. The source is
+read-only input, and higher ancestors do not override a selected writable mount. Known Linux
 tmpfs/ramfs destinations are refused; an unknown mount type is reported, not treated
 as proof of persistent storage.
 
@@ -225,6 +246,12 @@ resolve their ownership separately. The inventory is checked again before return
 This is a read-only snapshot, not a lock against later worktree changes, a canonical
 shared-root registry, or discovery of unrelated clones. Continue choosing the same
 external root explicitly: two different external stores are not automatically deduplicated.
+
+Linux mount-type classification matches the existing path's device number to
+`/proc/self/mountinfo` before selecting its deepest applicable mount record. Covered
+mounts at the same pathname cannot win by filesystem-name ordering. Missing device
+matches or conflicting deepest types remain `unknown`; this does not prove storage
+persistence or prevent a mount changing after the snapshot.
 
 Serialize the install after admission; the plan is a capacity snapshot, not a disk
 reservation, quota or process memory cap. It cannot limit a later package manager's

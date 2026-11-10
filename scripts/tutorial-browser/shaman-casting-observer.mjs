@@ -23,7 +23,7 @@ export function installShamanCastingObserver() {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock, renderer = scene.renderer, canvas = renderer.domElement,
     originalTurn = clock.afterTurn, originalRender = renderer.render, originalModal = scene.setModalSuspended,
-    inputTiming = window.shamanCastingInputTiming,
+    inputTiming = window.shamanCastingInputTiming, holdTimeline = document.timeline,
     turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
     renderDescriptor = Object.getOwnPropertyDescriptor(renderer, 'render'),
     modalDescriptor = Object.getOwnPropertyDescriptor(scene, 'setModalSuspended')
@@ -45,6 +45,7 @@ export function installShamanCastingObserver() {
     check(window.testSceneRef.current === scene && window.testStore.getWorld() === world &&
       scene.world === world && scene.gameClock === clock && scene.renderer === renderer &&
       renderer.domElement === canvas && canvas.isConnected, 'Casting Scene/World/clock/canvas changed')
+    check(holdTimeline && document.timeline === holdTimeline, 'Casting document timeline ownership changed')
     check(clock.afterTurn === turnWrapper && renderer.render === renderWrapper &&
       scene.setModalSuspended === modalWrapper && window.shamanCastingInputTiming === inputTiming &&
       inputTiming.record === beforeF9 && !inputTiming.closed,
@@ -283,7 +284,14 @@ export function installShamanCastingObserver() {
         'Casting hold person/shot/record ownership changed')
       check(!state.paused && state.suspended, 'Casting hold lost presentation suspension')
       check(hold.samples.length < 120, 'Casting hold exceeded 120 RAF state observations')
-      hold.samples.push({ at: performance.now(), frameTime, stamp: renderer.info.render.frame, state })
+      // RAF uses this document's frozen animation timeline, not a fresh now() read.
+      // Keep both raw values; separately coarsened performance.now() is not an
+      // exact-double upper bound on the RAF argument.
+      const timelineTime = holdTimeline.currentTime
+      check(Number.isFinite(frameTime) && frameTime >= 0 &&
+        Number.isFinite(timelineTime) && frameTime === timelineTime,
+      'Casting hold RAF timestamp differs from its document timeline')
+      hold.samples.push({ at: performance.now(), frameTime, timelineTime, stamp: renderer.info.render.frame, state })
       holdRaf = window.requestAnimationFrame(sampleHold)
     })
   }

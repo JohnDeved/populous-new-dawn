@@ -13,8 +13,9 @@ test('aggregate is explicit with fixed cap; all original caps retained',()=>{
  assert.equal(browserCapMs('ordinary-pointer-calibration'),1200000)
  assert.equal(browserCapMs('ordinary-pointer-smoke'),90000)
  assert.equal(browserCapMs('snapshot-protocol'),90000)
+ assert.equal(browserCapMs('building-panel-edges'),90000)
  assert.equal(browserCapMs('tutorial'),240000)
- for(const s of browserScenarios.filter(x=>!['ordinary-pointer-calibration','ordinary-pointer-smoke','snapshot-protocol','tutorial'].includes(x)))assert.equal(browserCapMs(s),180000)
+ for(const s of browserScenarios.filter(x=>!['ordinary-pointer-calibration','ordinary-pointer-smoke','snapshot-protocol','tutorial','building-panel-edges'].includes(x)))assert.equal(browserCapMs(s),180000)
 })
 test('actual launch branch skips initial browser for aggregate and owned trace route',async()=>{
  const block=between("  if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {","  receipt.browserCapMs")
@@ -54,8 +55,8 @@ test('actual cleanup requires aggregate and server proof, never launches or clos
  }
 })
 test('aggregate bypasses generic context/timer; smoke budget and diagnostic runner pin remain exact',()=>{
- assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence'].includes(selectedScenario))"))
- assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'query-art-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 2 \}\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
+ assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario))"))
+ assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'query-art-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 2 \}\s+else if \(selectedScenario === 'building-icon-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 2 \}\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
  assert.match(source,/ordinaryPointerCalibrationSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env\)/)
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
  assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))

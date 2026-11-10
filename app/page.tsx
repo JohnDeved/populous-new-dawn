@@ -1,5 +1,7 @@
 'use client'
 
+import { BuildingIcon } from './building-icon'
+
 import { QueryControlArt } from './query-control.tsx'
 
 import { FullscreenControl } from './fullscreen-control'
@@ -12,7 +14,11 @@ import { StartupLogo } from './startup-logo'
 import { hudScale } from './hud-layout.ts'
 import { OriginalResultScreen } from './original-result-screen'
 import { flushSync } from 'react-dom'
-import type { WorshipAcquisitionGeometry, WorshipTargetModel } from './worship-acquisition.ts'
+import type {
+  WorshipAcquisitionFamily,
+  WorshipAcquisitionGeometry,
+  WorshipTargetModel,
+} from './worship-acquisition.ts'
 import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
 
 import { MinimapFrame } from './minimap-frame-view'
@@ -193,12 +199,14 @@ export default function Home() {
   const hudPanel = useRef<HTMLElement>(null)
   const spellButtons = useRef(new Map<number, HTMLButtonElement>())
   const campButton = useRef<HTMLButtonElement>(null),
-    templeButton = useRef<HTMLButtonElement>(null)
+    templeButton = useRef<HTMLButtonElement>(null),
+    towerButton = useRef<HTMLButtonElement>(null)
   const buildingButtonRefs = new Map([
     ['camp', campButton],
     ['temple', templeButton],
+    ['tower', towerButton],
   ])
-  const followerPress = useRef<EventTarget | null>(null)
+  const followerPress = useRef<{ target: EventTarget; scene: GameScene } | null>(null)
   const nearbyPress = useRef<{
     scene: GameScene
     pointer?: number
@@ -347,11 +355,16 @@ export default function Home() {
   const measureWorshipHud = useCallback(
     (
       model: WorshipTargetModel,
+      family: WorshipAcquisitionFamily,
       fallback?: WorshipAcquisitionGeometry
     ): WorshipHudGeometry | null => {
-      let button: HTMLButtonElement | null | undefined = spellButtons.current.get(model)
-      if (model === 7) button = campButton.current
+      // Building and spell IDs overlap. Select within the source family even
+      // while its allocated control is knowledge-disabled or its tab is detached.
+      let button: HTMLButtonElement | null | undefined
+      if (family === 'spell') button = spellButtons.current.get(model)
+      else if (model === 4) button = towerButton.current
       else if (model === 5) button = templeButton.current
+      else if (model === 7) button = campButton.current
       const root = shell.current,
         panel = hudPanel.current,
         view = viewport.current
@@ -477,16 +490,16 @@ export default function Home() {
     if (startup !== 'playing') return
     let disposed = false,
       scene: GameScene | null = null
-    const selectAcquisitionPanel = (model: WorshipTargetModel) => {
+    const selectAcquisitionPanel = (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => {
       if (disposed || store.getWorld() !== world) return null
       // The scene task owns this synchronous commit; React does not call it
       // during render. Automatic native selection preserves spell/build mode.
       flushSync(() => {
-        setTab(model === 7 || model === 5 ? 'buildings' : 'spells')
+        setTab(family === 'building' ? 'buildings' : 'spells')
         setHover(null)
         update()
       })
-      return measureWorshipHud(model)
+      return measureWorshipHud(model, family)
     }
     if (window.innerWidth < 900)
       store.change(w => {
@@ -545,6 +558,7 @@ export default function Home() {
       })
     return () => {
       disposed = true
+      if (followerPress.current?.scene === scene) followerPress.current = null
       scene?.dispose()
       if (engine.current === scene) engine.current = null
     }
@@ -581,6 +595,7 @@ export default function Home() {
         !ready ||
         menu ||
         cheatsOpen ||
+        [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         e.ctrlKey ||
         e.metaKey ||
@@ -604,15 +619,24 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !(e.target as HTMLElement).closest('button'))
+      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
         engine.current?.overview()
       if (e.key === 'Escape') {
-        if (store.getWorld().outcome.level === tutorialLevel) {
-          e.preventDefault()
+        const current = store.getWorld()
+        if (current !== world || current.status !== 'playing' || selectorOpen) return
+        e.preventDefault()
+        e.stopImmediatePropagation()
+        // The native Escape menu binding applies beyond the tutorial. Preserve
+        // existing browser targeting/selection cancellation before opening it.
+        if (
+          current.outcome.level === tutorialLevel ||
+          (!current.mode && current.selected.length === 0)
+        ) {
           openMenu()
           return
         }
         store.change(cancelInteraction)
+        return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
       if (e.key.toLowerCase() === 'h') select(world, 'shaman')
@@ -639,13 +663,21 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu, menu, cheatsOpen])
+  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen])
   useEffect(() => {
-    void audio.current?.setPaused(world.paused || document.hidden).catch(() => {
-      audio.current?.mute()
-      setSound(false)
-    })
-  }, [world.paused])
+    const sound = audio.current
+    if (!sound) return
+    const refresh = () => {
+      void sound.setPaused(world.paused || document.hidden).catch(() => {
+        if (audio.current !== sound) return
+        sound.mute()
+        setSound(false)
+      })
+    }
+    refresh()
+    document.addEventListener('visibilitychange', refresh)
+    return () => document.removeEventListener('visibilitychange', refresh)
+  }, [world, world.paused])
   useEffect(() => {
     const refresh = () => {
       if (audio.current?.enabled && engine.current)
@@ -689,7 +721,9 @@ export default function Home() {
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
-        followerPress.current = event.button === 0 ? event.currentTarget : null
+        const scene = engine.current
+        followerPress.current =
+          event.button === 0 && scene ? { target: event.currentTarget, scene } : null
       },
       onPointerCancel: () => {
         followerPress.current = null
@@ -700,7 +734,14 @@ export default function Home() {
       // macOS emits contextmenu instead of click for Ctrl + primary button.
       // Handle its release once; retain native button activation for keyboard users.
       onPointerUp: (event: MouseEvent<HTMLButtonElement>) => {
-        if (event.button === 0 && event.ctrlKey && followerPress.current === event.currentTarget) {
+        const press = followerPress.current
+        if (
+          event.button === 0 &&
+          event.ctrlKey &&
+          press?.target === event.currentTarget &&
+          press.scene === engine.current &&
+          press.scene.world === store.getWorld()
+        ) {
           choose(event)
           event.currentTarget.blur()
         }
@@ -780,6 +821,7 @@ export default function Home() {
   function beginLoad(request: LoadRequest) {
     setCheatsOpen(false)
     if (request.kind === 'checkpoint' && !store.hasCheckpoint()) return
+    followerPress.current = null
     menuSession.current = null
     pendingMenuCamera.current = []
     cancelNearbyInput()
@@ -922,7 +964,7 @@ export default function Home() {
                     },
                     {
                       text: 'Board followers onto the Boat',
-                      done: world.vehicles.some(vehicle => vehicle.passengers.length > 0),
+                      done: world.vehicles.some(vehicle => vehicle.passengerCount > 0),
                     },
                     { text: 'Defeat the Dakini tribe', done: world.status === 'won' },
                   ]
@@ -976,7 +1018,7 @@ export default function Home() {
                             {
                               text: 'Send a Brave inside to launch and board a Boat',
                               done: world.vehicles.some(
-                                vehicle => vehicle.active && vehicle.passengers.length
+                                vehicle => vehicle.active && vehicle.passengerCount
                               ),
                             },
                           ]
@@ -985,7 +1027,7 @@ export default function Home() {
                               {
                                 text: 'Board two followers onto the provided Boat',
                                 done: world.vehicles.some(
-                                  vehicle => vehicle.passengers.length >= 2
+                                  vehicle => vehicle.passengerCount >= 2
                                 ),
                               },
                               {
@@ -1116,9 +1158,6 @@ export default function Home() {
             className="primary-button"
             onClick={() => {
               setDesktopNotice(false)
-              store.change(w => {
-                w.paused = false
-              })
             }}
           >
             Continue anyway <span>↗</span>
@@ -1156,9 +1195,17 @@ export default function Home() {
                 <summary
                   aria-label="Read campaign message"
                   onClick={event => {
+                    if (
+                      store.getWorld() !== world ||
+                      world.messages.slots[slot] !== message
+                    ) {
+                      event.preventDefault()
+                      return
+                    }
                     const target = messageViewPoint(message!),
                       details = event.currentTarget.parentElement as HTMLDetailsElement
-                    if (!details.open && target) engine.current?.focus(target, { animate: true })
+                    if (!details.open && target && engine.current?.world === world)
+                      engine.current.focus(target, { animate: true })
                   }}
                 >
                   <img src={messageIcon(message!)} alt="" />
@@ -1167,6 +1214,8 @@ export default function Home() {
                   <p>{messageText(message!.stringId)}</p>
                   <button
                     onClick={() => {
+                      if (store.getWorld() !== world || world.messages.slots[slot] !== message)
+                        return
                       removeMessage(world.messages, slot)
                       update()
                     }}
@@ -1291,15 +1340,15 @@ export default function Home() {
           </button>
           <button
             className="portrait"
-            aria-label="Select and focus shaman"
-            title="Shaman · H"
-            onClick={() => {
-              select(world, 'shaman')
-              audio.current?.cue(0x18)
-              update()
-              engine.current?.focus(shaman ?? HOME, { animate: true })
-            }}
+            aria-label="Select shaman"
+            aria-describedby="shaman-portrait-instructions"
+            title="Shaman · Click: add to selection · Right-click: focus · H: select"
+            disabled={!shaman || shaman.hp <= 0}
+            {...followerControl(7)}
           >
+            <span id="shaman-portrait-instructions" className="sr-only">
+              Right-click to focus the camera on the Shaman.
+            </span>
             <canvas ref={portrait} width={100} height={480} aria-hidden="true" />
           </button>
           <button
@@ -1483,9 +1532,7 @@ export default function Home() {
                   onFocus={() => setHover(b.id)}
                   onBlur={() => setHover(null)}
                 >
-                  <HudSprite
-                    id={b.id === 'hut' ? 1028 : b.id === 'tower' || b.id === 'temple' ? 1029 : 1030}
-                  />
+                  <BuildingIcon kind={b.id} />
                 </button>
               ))}
             </div>

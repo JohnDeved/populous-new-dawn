@@ -1,0 +1,39 @@
+{
+  "verdict": "ACCEPT_PUBLICATION",
+  "sourceHead": "df1840cad597e9b134443c5c364d775440cbebbe",
+  "originalInstructionsExecutedByReviewer": 0,
+  "expandedResultReplayPerformedForPublication": false,
+  "archive": {
+    "path": "references/verification/mission3-partial-ledger-2026-10-11/retained-proof.tar.gz",
+    "bytes": 15980071,
+    "sha256": "ef1131ba846c415ef224ace551dc899a95dc35303a1e22868f772554fb7438c4"
+  },
+  "verifiedRegularMembers": 42,
+  "manifestSha256": "91178925be80eb3aacd17881aab21dcff9dbd6a0b866ed76abaaf7df9e5368be",
+  "readmeSha256": "1b054cd63ba1ae03768418956148a673e47b61fff80d22f3e7db4d398785bc13",
+  "compositionIndexSha256": "0120ebc3e0c07451078fe3a9bc2fbf97f9e524d451529666eb6cc98c208267f0",
+  "independentReviewBindings": [
+    {
+      "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run08-post-review.json",
+      "sha256": "18f576213d77783e650a7f30e83a7d20e1a57196a0919a7b58753a34b6acbd00"
+    },
+    {
+      "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-run08-identity-review.json",
+      "sha256": "1f8a17a895593d37379f4938f869c052e329a16f5c0be16a75d3d59b17bd6a04"
+    }
+  ],
+  "checks": [
+    "Archive and every unique regular relative member match exact byte count/SHA256 and retained source files; no EXE/DLL/DAT/BIN assets or expanded-result duplicate introduced.",
+    "README/index preserve94 started allocation counter mutations,93 returns,92 completed/publications,40 class1 copies0..39/final40 and50 alternator updates.",
+    "Record93 direct class6/model2 return is distinguished from its open nested class6/model10 allocation, copied2/incremented3, and rejected004fa7af\u2192004fc790 call with four open frames.",
+    "Review depth accurately states every observer mask/cursor, reconstructed call stack, snapshots and finite source-derived laws; no general CPU/value or retirement emulator is claimed.",
+    "Identity section accurately separates32 neutral Wildmen, two Shamans and six Braves from twelve later unexecuted Blue-start Wildmen. Ten retained-browser conversion births at17/20/21 do not establish original replacement counters or exact duplicate-source identities.",
+    "All lifetime/RNG/mode/transport/model-terrain conditions persist;50 gameplay-start-flag and52 texture/cache projections remain declared, with unknown outputs, resource disjointness and normal completion.",
+    "Actual startup seed, full2000-record completion, replacement phases and product fix remain unproved; source-only future residual work is not represented as executed.",
+    "Prior dependencies and historical path adaptation plus separately supplied canonical assets and pinned tools remain necessary. Existing independent expanded reviews are reused without a new replay."
+  ],
+  "verifier": {
+    "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_run08_publication.py",
+    "sha256": "b78c456c30a626d7c8dd722b5c03c3e980c80d92a0a79d64a8ae31a615bb0101"
+  }
+}

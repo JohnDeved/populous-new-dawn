@@ -1,3 +1,9 @@
+// Supplied worship-slot boundary in the test host only.
+if (new URLSearchParams(location.search).get('worship-panel-lifecycle') === '1') {
+  void import('../worship-panel-fixture.mjs').then(fixture => {
+    Object.defineProperty(globalThis, '__pndWorshipPanelFixture', { value: Object.freeze({ ...fixture }) })
+  })
+}
 import { Matrix4 as PndReaderMatrix4 } from 'three'
 Object.defineProperty(globalThis, '__pndReaderTypes', {
   value: Object.freeze({ Matrix4: PndReaderMatrix4 }),
@@ -43,4 +49,11 @@ if (new URLSearchParams(location.search).get('modal-invalidation') === '1') {
 import { createRoot } from 'react-dom/client'
 import Home from '../../../app/page'
 import '../../../app/globals.css'
-createRoot(document.getElementById('root')!).render(<Home />)
+// Separate component-only scroll evidence. Home is imported but never mounted on this route.
+if (new URLSearchParams(location.search).get('pause-checkpoint-scroll-stress') === '1') {
+  void import('./pause-checkpoint-scroll-stress').then(({ default: Stress }) => {
+    createRoot(document.getElementById('root')!).render(<Stress />)
+  })
+} else {
+  createRoot(document.getElementById('root')!).render(<Home />)
+}

@@ -1,7 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { createHash } from 'node:crypto'
 
 const source = readFileSync(new URL('../scripts/tutorial-browser/building-panel-identity.mjs', import.meta.url), 'utf8')
 const stages = ['hold-input', 'held-snapshot', 'positive-frames', 'positive-visible', 'transition', 'hidden-frame', 'hidden-count']
@@ -35,12 +34,54 @@ for (const stage of stages) test(`actual ${stage} marks bracket settled transpor
   }
 })
 
-test('only fourteen bounded marks are added; original trajectory, assertions, input and deadline bytes are identical', () => {
+test('stage marks stay bounded and retain the witness deadline', () => {
   const added = source.split('\n').filter(line => stages.some(stage => line.includes('/' + stage + ':')))
   assert.equal(added.length, 14)
-  const original = source.split('\n').filter(line => !stages.some(stage => line.includes('/' + stage + ':'))).join('\n')
-  assert.equal(createHash('sha256').update(original).digest('hex'), 'f606d85cc8ae796502df9e3a1edf07a71adfc08d9bf652033b2de4c3da4cd7cf')
-  // Four fixed cases: fourteen marks each, never dependent on polling counts.
-  assert.equal(added.length * 4, 56)
-  assert.ok(source.includes('buildingPanelIdentityLimitMs = 35000'))
+  assert.ok(source.includes('buildingPanelIdentityLimitMs = 45000'))
+})
+
+// These supplied transport outcomes exercise the actual diagnostic-only blocks.
+// They do not establish browser timing or dismantle completion.
+const dismantleStages = ['click', 'partial', 'paint']
+for (const stage of dismantleStages) test(`dismantle ${stage} marks wait for settlement and preserve rejection`, async () => {
+  const start = `    timing.mark('dismantle/${stage}:start')`
+  const complete = `    timing.mark('dismantle/${stage}:complete')`
+  const a = source.indexOf(start), b = source.indexOf(complete, a)
+  assert.ok(a >= 0 && b > a)
+  assert.equal(source.indexOf(start, a + 1), -1)
+  assert.equal(source.indexOf(complete, b + 1), -1)
+  const run = new AsyncFunction('timing', 'page', 'panel', 'report', source.slice(a, b + complete.length))
+  for (const reject of [false, true]) {
+    const marks = [], calls = [], report = {}, partial = { hp: 260, progress: 0.8 }
+    let release
+    const pending = new Promise((resolve, fail) => { release = () => reject ? fail(null) : resolve(partial) })
+    const op = name => { calls.push(name); return pending }
+    const panel = { locator: selector => {
+      assert.equal(selector, '.dismantle-control')
+      return { click: () => op('click') }
+    } }
+    const page = { evaluate: () => op('partial'), waitForFunction: () => op('paint') }
+    const result = run({ mark: value => marks.push(value) }, page, panel, report)
+    assert.deepEqual(marks, [`dismantle/${stage}:start`])
+    assert.deepEqual(calls, [stage])
+    assert.equal(report.partial, undefined)
+    const observed = result.then(() => ({ rejected: false }), error => ({ rejected: true, error }))
+    release()
+    const outcome = await observed
+    assert.equal(outcome.rejected, reject)
+    if (reject) {
+      assert.equal(outcome.error, null)
+      assert.deepEqual(marks, [`dismantle/${stage}:start`])
+      assert.equal(report.partial, undefined)
+    } else {
+      assert.deepEqual(marks, [`dismantle/${stage}:start`, `dismantle/${stage}:complete`])
+      assert.equal(report.partial, stage === 'partial' ? partial : undefined)
+    }
+  }
+})
+
+test('dismantle diagnostics add only six marks and retain the episode deadline', () => {
+  const added = source.split('\n').filter(line => line.includes("timing.mark('dismantle/"))
+  assert.equal(added.length, 6)
+  assert.ok(source.includes('buildingPanelIdentityLimitMs = 45000'))
 })

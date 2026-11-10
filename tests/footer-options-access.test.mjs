@@ -217,17 +217,17 @@ test('keyboard launchers and unrelated HUD controls keep their existing focus po
     assert.equal(f.calls.includes('blur'), false)
   }
   for (const nested of [false, true]) {
-    const pointer = openingFixture('Select and focus shaman', { nested })
+    const pointer = openingFixture('Select shaman', { nested })
     pointer.capture()
     assert.equal(pointer.focusOwner(), 'BODY')
     assert.deepEqual(pointer.calls, ['blur'])
-    const keyboard = openingFixture('Select and focus shaman', { detail: 0, nested })
+    const keyboard = openingFixture('Select shaman', { detail: 0, nested })
     keyboard.capture()
-    assert.equal(keyboard.focusOwner(), 'Select and focus shaman')
+    assert.equal(keyboard.focusOwner(), 'Select shaman')
     assert.deepEqual(keyboard.calls, [])
-    const outside = openingFixture('Select and focus shaman', { inHud: false, nested })
+    const outside = openingFixture('Select shaman', { inHud: false, nested })
     outside.capture()
-    assert.equal(outside.focusOwner(), 'Select and focus shaman')
+    assert.equal(outside.focusOwner(), 'Select shaman')
     assert.deepEqual(outside.calls, [])
   }
 })

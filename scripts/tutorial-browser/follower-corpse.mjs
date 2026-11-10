@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { collapseObservedCampaignMessages } from '../public-keyboard-owner.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -120,7 +121,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
       'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
-      'app/page.tsx', 'app/original-pause-menu.tsx']
+      'app/page.tsx', 'app/original-pause-menu.tsx', 'scripts/public-keyboard-owner.mjs']
       .map(path => [path, sha(readFileSync(resolve(root, path)))])) }
   const save = () => writeFileSync(resolve(output, 'follower-corpse.json'), JSON.stringify(report, null, 2) + '\n')
   const started = performance.now()
@@ -200,12 +201,16 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
     phase('public-combat-setup')
-    await button('Pause game'); await button('Select and focus shaman'); await settle()
+    await button('Pause game'); await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' })); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
     await action('One public - zoom-out', () => page.keyboard.press('-')); await settle()
     assertMeleeRouteReady(await page.evaluate(readMeleeRouteState))
     await focus(null)
     assertMeleeRouteReady(await page.evaluate(readMeleeRouteState))
+    await action('Public campaign-message collapse before Escape', () => collapseObservedCampaignMessages(page, {
+      remainingMs: budget.remaining,
+      observe: observation => { (report.keyboardOwnership ??= []).push(observation); save() },
+    }))
     await action('Public Escape clears the startup Shaman selection', () => page.keyboard.press('Escape'))
     assert.deepEqual(await page.evaluate(() => window.testStore.getWorld().selected), [])
     await button('Select brave')

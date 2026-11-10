@@ -1,0 +1,770 @@
+{
+  "sourceHead": "044028f2e2fe75055c3ffd2f01e44783abe037fd",
+  "packages": [
+    {
+      "run": 3,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run03-proof.tar.gz",
+        "bytes": 13657922,
+        "sha256": "4bc661cdf91a43ff0a483e71f09b791f610b727103012dc292b25fc198595c81"
+      },
+      "members": [
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03/constructor-ledger-events.jsonl.gz",
+          "bytes": 15419783,
+          "sha256": "ce55fba5d017dc259ac90705820433f5eaa0bd0e4c28f40b3641acb462a3720e"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03/constructor-ledger-preflight.json",
+          "bytes": 44342,
+          "sha256": "b62fa24dc0b8c7e99705d1b401c84bd51be59390147ac9fd0aba6722604071e0"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03/constructor-ledger-result-stream-receipt.json",
+          "bytes": 521,
+          "sha256": "0f94b211dd626ff74cc736ec78459ec091e6914ade553cced5ec4b55fedb3680"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03/constructor-ledger-result.json.gz",
+          "bytes": 15981474,
+          "sha256": "11ef1baf0a11b556be9a1e624b79f5e8520f8770d001c7f21f1c742b61b10e26"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03-process-receipt.json",
+          "bytes": 9232,
+          "sha256": "e7b9bce23eea9e6cc400fe6d951bbc87b6d2acb15a797f058b09892b34922d9b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03-stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run03-stdout.log",
+          "bytes": 750,
+          "sha256": "a465cb9a1d087c1531436dd67933106306789b6cdd160b0a0ae2cd2824c04f90"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-inputs-boundary.md",
+          "bytes": 7626,
+          "sha256": "a43c6fd3b481524dcf3114793251163b0b038379143313892df629328b7e586f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-inputs-verification-receipt02.json",
+          "bytes": 3854,
+          "sha256": "e601da72ed9cfaaba429c822264b5b1dad4a317f63c0dfbfa5d20e0a609398f2"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run02-portable-manifest.json",
+          "bytes": 14175,
+          "sha256": "c17cf2cff382801d38850c24fc34e10207029e9b5b16931716952a8c0dff92ee"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run03-selected-summary.json",
+          "bytes": 14398,
+          "sha256": "a724a8d27e7818d0f7c93cbec345aa24acc063d48ad081531ddb422c4cfc67e9"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor_ledger_inputs_candidate.py",
+          "bytes": 52774,
+          "sha256": "61c7aa644c53bd953b3447d393a72e5db0d4dc4f64c45b66fff4e26fb763b60d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/first-hut-source/FirstHutBounds.java",
+          "bytes": 1605,
+          "sha256": "679ca33747e145105be76f4f5fff898695db072750577174c7654f25652762d5"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/first-hut-source/export-receipt03.json",
+          "bytes": 5264,
+          "sha256": "2f1a5c751b9a1d18a0632d97149d7aa9fb9b8f2de0d0293e5fb62ece95ed7605"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/first-hut-source/export.log",
+          "bytes": 7545,
+          "sha256": "85ac0656b7e898343dc591fe0a7228d510c188a3da94389c30ba9ca147b1bea4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/first-hut-source/exports/004bf1b0.c",
+          "bytes": 5398,
+          "sha256": "b7a8b48d401b13226e479b8316c9c77eec9ad30be6bb23fdc5568f521dd6e9a6"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/first-hut-source/first-hut-bounds.tsv",
+          "bytes": 1371,
+          "sha256": "b7edece8d5efa565c9fba24e6524930b62ffc67ce64f7a800c92c318ecae73fc"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/first-hut-source/source-contract.json",
+          "bytes": 297754,
+          "sha256": "a0e16ba06e7cd14f58d81ac7d3f22e0134df78831406fe50b1fb1cd1e4799624"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-inputs-preflight02/constructor-ledger-preflight.json",
+          "bytes": 44342,
+          "sha256": "b62fa24dc0b8c7e99705d1b401c84bd51be59390147ac9fd0aba6722604071e0"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-inputs-tests02.log",
+          "bytes": 99,
+          "sha256": "4a3a65c7c8969c6916e48e17bb743fd8ef13a5300f77785ef51df9660f9f8f4f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/prepare_first_hut_contract.py",
+          "bytes": 6337,
+          "sha256": "a79f2d79e5c0788dba69b4c70b097143be28e0a185b7d53a68a915a2871e13bc"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/run_constructor_ledger_inputs_once.py",
+          "bytes": 3703,
+          "sha256": "157a0ceb5a81c780ef61ee6827c5e53fe5d51c795f64aa408aac1e1212e13451"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/test_constructor_ledger_inputs.py",
+          "bytes": 31792,
+          "sha256": "c85359ea8e4eed25ab91b9d350fb3d29b7bbaf2f22e70e6db773e927f6e9ad68"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-inputs-extra-tests.log",
+          "bytes": 609,
+          "sha256": "9d9290140611d7f30e9fb6122c2168c83e9d874b1416be03176799899233bac4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-inputs-final-review.json",
+          "bytes": 7723,
+          "sha256": "be9c453a30bea808431f8f095da23930b10254c2987d44eb543e18c7069c840c"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-inputs-held-approval.json",
+          "bytes": 932,
+          "sha256": "7582fc897ba3085d1332c6c3b659962a72cb61d1cdde8538a2a858c04691977d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-inputs-parent-released-approval.json",
+          "bytes": 1194,
+          "sha256": "9eb3db7fb885c975df43254586dca011a49b9e1ae452739d7a198e998d7c3de7"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-inputs-preflight-final/constructor-ledger-preflight.json",
+          "bytes": 44342,
+          "sha256": "b62fa24dc0b8c7e99705d1b401c84bd51be59390147ac9fd0aba6722604071e0"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-inputs-prepare-final.log",
+          "bytes": 121,
+          "sha256": "7acdb52abf6e121dadb4e5cee4f171f3ee9119895005c5eb79c189f7a2bcbc5b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-inputs-tests-final.log",
+          "bytes": 31830,
+          "sha256": "7676b5e297cd8ee0802ff19adaa75a8a0f7e6d43842a989d4582f903181580e4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run03-post-review.json",
+          "bytes": 23881,
+          "sha256": "233bbed9926f972a354bd4b7ce50bb4214fd597699bc89ca5c26b67e60e2360d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/test_constructor_inputs_extra.py",
+          "bytes": 1683,
+          "sha256": "a30b3593eb77f82341bf2c1fff47747f40094892ab0d29abd7ac23e1ae2859fd"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run03-portable-manifest.json",
+          "bytes": 9870,
+          "sha256": "1dda8de14ca88e1578eae0c983568d3d311fb0293be04ef663225a8f050d210d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run03-post-review.log",
+          "bytes": 867,
+          "sha256": "e2bb6e406c308bfbedeb565b54467e24bfd6551fe3f623eb554d7138d516161f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_ledger_run03.py",
+          "bytes": 12188,
+          "sha256": "42757d2ed63852da755dcaa299b3bde7ad049869524fbe495e6d3426bd11c585"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run03-post-review-first-host-error.log",
+          "bytes": 1021,
+          "sha256": "29760dc9734896b0a8d3d6d65c7a8aa9b6d70eb3f94b3204b265e11b31977eee"
+        }
+      ]
+    },
+    {
+      "run": 4,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run04-proof.tar.gz",
+        "bytes": 6547813,
+        "sha256": "01d6034afd96842f44d34e591c2b14fa20fd1c1a3bed2cd7301248e25a7032a7"
+      },
+      "members": [
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/call-inventory02.json",
+          "bytes": 1788268,
+          "sha256": "7302d10ec951d57225f8fd0a070732bf7e00bebbb7a8472fc359314816997504"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/closure-delta-source-contract.json",
+          "bytes": 31632,
+          "sha256": "88af8973852bef1125af0257f685135c34999d7fce4d189c62f261d18fb767e4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/constructor-call-bounds.tsv",
+          "bytes": 3704,
+          "sha256": "872099a939eb0a04ae94d00fd6355638d4b285e67717dc4e69baacd5f54c8f94"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/constructor-final-bounds.tsv",
+          "bytes": 591,
+          "sha256": "ae04fbebfe84714d79a12efb0504bedf018da0b39d28a0c09497d247f7983e5b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/export-final-receipt.json",
+          "bytes": 3091,
+          "sha256": "e823b4253c6a0ea3d32958d7f7094748c07e3051793b786910862e383cf3970e"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/export-receipt.json",
+          "bytes": 3895,
+          "sha256": "cdde25f10fc495af6fbd8c5c9ce99f8c3401bcab935c1af53df9528839450307"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/generator-retention-receipt.json",
+          "bytes": 615,
+          "sha256": "aabcddb312aed8d2c7d643d5664719ee2a3989660f15fe37199f1bf396392f96"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-call-closure-source/prepare_constructor_call_inventory01.py",
+          "bytes": 8487,
+          "sha256": "bd3356cac520f3930a1734d7b6ae86fed65a917575e9b2efd1def84e47a7737e"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-animation-timeout-comparison.json",
+          "bytes": 10321,
+          "sha256": "ec838b24d644a6872791459cdb2cd34fedbbe2f99f9fc237afe34be5ded5c5a5"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04/constructor-ledger-events.jsonl.gz",
+          "bytes": 5293657,
+          "sha256": "e1f68e9b3f7296ad0f0911407e1caf0266721f33163d6097f157763597783984"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04/constructor-ledger-preflight.json",
+          "bytes": 52052,
+          "sha256": "ce950921a40673dc9c8c3bb4836caef0a85bcc06aa0ca9c4179cbddf0692a24a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04/constructor-ledger-result-stream-receipt.json",
+          "bytes": 520,
+          "sha256": "4bd9a10e1adcf06c8f54e100b3795f60e873f4c6c799a208715269d7a59a6f92"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04/constructor-ledger-result.json.gz",
+          "bytes": 5598165,
+          "sha256": "cfd045ca10d778c7cfa1c00d8387f397e0143535ae50ccd0b119e623355fe75b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04-process-receipt.json",
+          "bytes": 9889,
+          "sha256": "3c801392336d20d423f7e85c93fda02bf4d57f4dc013745b714287ffb7540f07"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04-stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run04-stdout.log",
+          "bytes": 716,
+          "sha256": "069915fced75d9b22bb4c085cca33601c9f10f7fb316529faf41a2cde3b16923"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-closure-boundary.md",
+          "bytes": 4940,
+          "sha256": "06232466bbf6282bdffc4cd3ec54b41407bc2d001cf609a87a564d8b7cbd4f10"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-closure-verification-receipt01.json",
+          "bytes": 4909,
+          "sha256": "f81c1187a3160c5a0d60724e27d691a7b3eabe7c38ec344c2218cbb5303dbba1"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run03-portable-manifest.json",
+          "bytes": 9870,
+          "sha256": "1dda8de14ca88e1578eae0c983568d3d311fb0293be04ef663225a8f050d210d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run04-early-summary.json",
+          "bytes": 1003,
+          "sha256": "12496e9939b3f71efaa813e46264dc3713d9906daef30275fd5f6d0085861bf5"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor_ledger_closure_candidate.py",
+          "bytes": 56263,
+          "sha256": "2f5254fc3a649b1ba642ad92b1cdbc14dbe986c9d7f5957fce91fdd440572431"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-closure-preflight01/constructor-ledger-preflight.json",
+          "bytes": 52052,
+          "sha256": "ce950921a40673dc9c8c3bb4836caef0a85bcc06aa0ca9c4179cbddf0692a24a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-closure-tests04.log",
+          "bytes": 35644,
+          "sha256": "a00a07305525685b87b3735f007ec5ddeef414c7b19499347cada33a6d49d508"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/prepare_constructor_call_inventory.py",
+          "bytes": 8764,
+          "sha256": "9a929b8ac4bd69eae2f0fe1a0013f79a7a32b7fd0152b94f5c7868384008a05d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/prepare_constructor_closure_delta.py",
+          "bytes": 4684,
+          "sha256": "67be6e0c23f2ed1b1cd73de007a76175119e7d709844458d42c702a6a7b43142"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/run_constructor_ledger_closure_once.py",
+          "bytes": 3747,
+          "sha256": "0047b1c8178bcd93dd68131597fe550f4013f0697f5fb4dd78778a92d06b5af4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/test_constructor_ledger_closure.py",
+          "bytes": 10754,
+          "sha256": "99a7e3d6d364784e1ad00f793f8d08f0050d9a4e5ad5c8473f6fff2687b5706c"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-call-inventory02-source-review.json",
+          "bytes": 3363,
+          "sha256": "4dcf77bd9ac7e9f05a0472f14c29740418fced06877cea8151bbf041c7d16828"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-closure-final-review.json",
+          "bytes": 10530,
+          "sha256": "e2369d6085405d3f69ce93c9a2bd98a1af9fbcb0791b4f9df4bed664b00c74ce"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-closure-held-approval.json",
+          "bytes": 637,
+          "sha256": "cd29a4a7bc8738c142ed8d19081a51ca9fba374ee09eab637659ef236d61ed3d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-closure-parent-released-approval.json",
+          "bytes": 898,
+          "sha256": "b173bddb04347b55c5251eb260d17081baadc900b355ce79f1faf821d1e64568"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run04-terminal-review.json",
+          "bytes": 3494,
+          "sha256": "3217aab0f4ba1c03b935fbb8e707890a632525336b896b6880d1c26fe80f41f8"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run04-portable-manifest.json",
+          "bytes": 9631,
+          "sha256": "4abbcad97bddb4e0fd515b6956b1ba259f235b88f8194ef75ddfddef854e0f5f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-run04-terminal-review.log",
+          "bytes": 162,
+          "sha256": "4f2f7375ec70a0284e8f6ad52b834b8778a5e0e134cc05ea54b496f526c353b9"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-run04-first-host-check.log",
+          "bytes": 308,
+          "sha256": "72735a33c2aa09f01abfbb5788bb019a896b6e2206e904b45e5f0bf463086510"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_run04_terminal.py",
+          "bytes": 5742,
+          "sha256": "ef08246d09b9b5cdaa15ab7a10da5c99162c4c3afe606c3cd0d23b24d6a1ec91"
+        }
+      ]
+    },
+    {
+      "run": 5,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run05-proof.tar.gz",
+        "bytes": 13575450,
+        "sha256": "27105ad0488a340f980ef644a2aff981731e438932d807c3d5012a83a42d001b"
+      },
+      "members": [
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run03-portable-manifest.json",
+          "bytes": 9870,
+          "sha256": "1dda8de14ca88e1578eae0c983568d3d311fb0293be04ef663225a8f050d210d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run04-portable-manifest.json",
+          "bytes": 9631,
+          "sha256": "4abbcad97bddb4e0fd515b6956b1ba259f235b88f8194ef75ddfddef854e0f5f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor_ledger_budget_candidate.py",
+          "bytes": 56354,
+          "sha256": "86a296a3df0385cfb5487e92fdeedba2002ee58f2fb22601e8c961bdc1518cb2"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/test_constructor_ledger_budget.py",
+          "bytes": 2871,
+          "sha256": "261e5d05c3f75a7069de2537a0984d65ccf574347e6345b78a4684de8a391c69"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/run_constructor_ledger_budget_once.py",
+          "bytes": 3786,
+          "sha256": "80bb7a7a04663a5676c5b8bb68a4dba7e610d143a4ec3978a157e98000ff2588"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-budget-boundary.md",
+          "bytes": 1892,
+          "sha256": "124c383a35092846e5b48104fd854efc5e68895af68dfa7d79c70aca4ed5002d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-budget-verification-receipt01.json",
+          "bytes": 2786,
+          "sha256": "0fddc0e1f9f1ea62d3954be40c22f5a5fa9e87951b7edeb28789ee70a454c04a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-budget-preflight01/constructor-ledger-preflight.json",
+          "bytes": 52094,
+          "sha256": "c9653c68816131f3041fbbf9567ed3de42a18602a2a6688a6521fcd72085cf32"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-budget-tests01.log",
+          "bytes": 36376,
+          "sha256": "d74232094b83d43f7cb8286779ee2bcab49b4a769ae12c21d9e17a62e9df8e02"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05-process-receipt.json",
+          "bytes": 10115,
+          "sha256": "a00af5447a7098e383bb1680e47dfaae660060952511a9b28a581fa7c9595859"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05-stdout.log",
+          "bytes": 934,
+          "sha256": "cc3e938a2e447f898a8c6e94df18188046fb53ca7be9ba407573d8cd3bc4ae8c"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05-stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run05-early-summary.json",
+          "bytes": 1397,
+          "sha256": "4c8a1ec0fd0adb8b1344f7e6da436be8aa09a10e6ab8ca5f0165b0b496595be6"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05/constructor-ledger-result.json.gz",
+          "bytes": 15980579,
+          "sha256": "c25f746986fb0cb6779b66510be19bddea9a60199b39a3f260d544615aa2766e"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05/constructor-ledger-preflight.json",
+          "bytes": 52094,
+          "sha256": "c9653c68816131f3041fbbf9567ed3de42a18602a2a6688a6521fcd72085cf32"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05/constructor-ledger-events.jsonl.gz",
+          "bytes": 15419663,
+          "sha256": "e8568dd58503a7760673dfceea6446dfe4a5e6b79ca9ddc0a0f18b1ff92e1503"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run05/constructor-ledger-result-stream-receipt.json",
+          "bytes": 521,
+          "sha256": "f27eb556e133acf356e19ad07d2176e22f7c1880294ebc748df6902bc4028965"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-budget-held-approval.json",
+          "bytes": 637,
+          "sha256": "33d4d79f3c7e73994128d097d46911d05c685bb90b1cb3b08fae504ed25e486b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-budget-parent-released-approval.json",
+          "bytes": 868,
+          "sha256": "da29e864b33488d50774d36132d3b80984d9b0353c8b232a03f6c854c27fb9e6"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run05-guard-review.json",
+          "bytes": 3523,
+          "sha256": "730f8cded0e89c9682a2dcd60226ebd6c84903b1580f775d6cc4da31a8f21848"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-texture-independent-fixture.json",
+          "bytes": 6232,
+          "sha256": "0a6dce0aae2241b574ae5eb98a6bd9ff22a26d03d95e4c0c476fc9e02de42c73"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run05-portable-manifest.json",
+          "bytes": 7388,
+          "sha256": "219e6c08a42f39dbc60083aa7938e9d9d944e6f78b974b348a41a21694d123d4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-run05-guard-review.log",
+          "bytes": 183,
+          "sha256": "bb6159cb6366baf46f324834d7a4f8d221deae1201d418e3e8bb01a2d014a962"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_run05_guard.py",
+          "bytes": 5586,
+          "sha256": "4c538c04b9594129d9e9128fedbb2a0fba5e0b04fc654ecee611920f08103062"
+        }
+      ]
+    },
+    {
+      "run": 6,
+      "archive": {
+        "path": "references/verification/mission3-constructor-progression-2026-10-11/run06-proof.tar.gz",
+        "bytes": 13732792,
+        "sha256": "6fb14f7d7886a13ac8b6ca06c3af1a7d952dfbe7d3c48877f3ee9d07c74acc09"
+      },
+      "members": [
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor_ledger_context_candidate.py",
+          "bytes": 56889,
+          "sha256": "6efb7128fdb42ab0f4d52644876278ad90ecbbba5b5340dd84a8c400a0f8fa90"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/test_constructor_ledger_context.py",
+          "bytes": 9928,
+          "sha256": "bc6a9fb7ba08ea455e403170448d7ac7e047697feaa6ec9f68d03060d3eb9e28"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/prepare_constructor_context_repair.py",
+          "bytes": 6194,
+          "sha256": "97b3929091feb59258a543688ca16740fb4a2d540bf80cc6472a8f311b15c482"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-context-repair-source.json",
+          "bytes": 23146,
+          "sha256": "e2afde7260b46a94d61e0378e512c2e71ed40d5b4ed75b3269bd9ced7e71f235"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-context-preflight-comparison.json",
+          "bytes": 626,
+          "sha256": "16e2f631af7697f263045ce7211dc6d7d548a7b7a0ecd9e1f1fa48c03081e2a6"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-context-boundary.md",
+          "bytes": 3842,
+          "sha256": "68f3986e7ada9caa5f6f235adf19a9a6424fcc7a7a23762f4cb5c17ea5f44c36"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-context-delta.diff",
+          "bytes": 6735,
+          "sha256": "b9ee27e3802dc3b3ce2c7959ecfb881f5acf8a92e32c44f375823875a947036b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-context-preflight01/constructor-ledger-preflight.json",
+          "bytes": 52718,
+          "sha256": "3173ae87df045adeb31df7fe5b63fb8ac1359e6d7a808234d67cf4edc0510634"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-context-tests02.log",
+          "bytes": 39460,
+          "sha256": "d8bfa122038b9ba21d96e469a65433d623e1082444ac33a42e0e7d48df08c8f0"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-context-focused-tests01.log",
+          "bytes": 4771,
+          "sha256": "156060c7c24478909f1c51d7716b5eb4a132d01e735527a84fb774f6028dcc65"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/prepare-context-repair01.log",
+          "bytes": 312,
+          "sha256": "8a18413efbffdb7031dbb72dee093f1e7b5df86d688eb1e17a12a2b0c374faf7"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/ledger-context-prepare01.log",
+          "bytes": 121,
+          "sha256": "c39f08d6c9a38240ff0e44c3f7c75a3abfb685243450ae0ce7ccc69916c184c6"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/run_constructor_ledger_context_once.py",
+          "bytes": 3830,
+          "sha256": "43c9f3afc2e70c75e2dc3fddb3d500e0d0e57b2028c261da966cc38d4731bbe9"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-texture-independent-fixture.json",
+          "bytes": 6232,
+          "sha256": "0a6dce0aae2241b574ae5eb98a6bd9ff22a26d03d95e4c0c476fc9e02de42c73"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run05-guard-review.json",
+          "bytes": 3523,
+          "sha256": "730f8cded0e89c9682a2dcd60226ebd6c84903b1580f775d6cc4da31a8f21848"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-context-verification-receipt01.json",
+          "bytes": 4619,
+          "sha256": "e06a460bb8556b839b84e75648f652186dd2fdbe3e8789920609309af676706c"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run03-portable-manifest.json",
+          "bytes": 9870,
+          "sha256": "1dda8de14ca88e1578eae0c983568d3d311fb0293be04ef663225a8f050d210d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run04-portable-manifest.json",
+          "bytes": 9631,
+          "sha256": "4abbcad97bddb4e0fd515b6956b1ba259f235b88f8194ef75ddfddef854e0f5f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run05-portable-manifest.json",
+          "bytes": 7388,
+          "sha256": "219e6c08a42f39dbc60083aa7938e9d9d944e6f78b974b348a41a21694d123d4"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-animation-dispatch-correction.md",
+          "bytes": 1640,
+          "sha256": "da319f30522f9e59c5c71fd0dee9f4dc1a4f22791b4d0296504e7eb7b0e5e39a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06-process-receipt.json",
+          "bytes": 10344,
+          "sha256": "aa70ad7edb9d2458d1d9a8244f2ca1cde51e5518977ba3e5b7e2300336007dfa"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06-stdout.log",
+          "bytes": 714,
+          "sha256": "0a415ce92ff70c9e3e9a50d1f31f125cd77d33b7de87af44c8316c427d214c90"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06-stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run06-early-summary.json",
+          "bytes": 997,
+          "sha256": "09ae18889e4bda24863d4e2cc9ebdc617e62385a3c5c7bd74626b871a13d3da5"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06/constructor-ledger-result.json.gz",
+          "bytes": 16010992,
+          "sha256": "0a83f6625c1a1ddc3931b6f06888f687a03f37aceb03cbded7c2b05974b6c844"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06/constructor-ledger-preflight.json",
+          "bytes": 52718,
+          "sha256": "3173ae87df045adeb31df7fe5b63fb8ac1359e6d7a808234d67cf4edc0510634"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06/constructor-ledger-events.jsonl.gz",
+          "bytes": 15449040,
+          "sha256": "515981c0f91fe12346aa036efa1540b522b36fd9b4723ad1135cf31ccb01a1f0"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-clear-run06/constructor-ledger-result-stream-receipt.json",
+          "bytes": 521,
+          "sha256": "4efca061dd2871e5d0c7db197c3fd0478bf77f03ca032963e39dc5035e8f32c0"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-context-held-approval.json",
+          "bytes": 637,
+          "sha256": "e75b41bf8343c8a2a49955ac14c675168e6b074bfebc80ebe5006a4e8213813a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-context-parent-released-approval.json",
+          "bytes": 900,
+          "sha256": "4dcab4ab1984a8142b13f6bd638aeba35e43b229a3cb2d897070f22c9aded10d"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-run06-stop-review.json",
+          "bytes": 3821,
+          "sha256": "3a4804dc11cda53c94667cc7972a76904d466aa579446ca21abaf09cb84b1c5a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/test_animation_setup_dispatch.py",
+          "bytes": 919,
+          "sha256": "7bdfedbc6916e6e2c9856c666acd53d26ad55f737ca380c8a196450b4b94641f"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-context-final-review.json",
+          "bytes": 5693,
+          "sha256": "645af5126cce13c4e34ab34d5086a24853018aebb19611fee883f785e6ae0f43"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-context-source-review.json",
+          "bytes": 3069,
+          "sha256": "b64da93f6b2904bb6ef072474dd11c4c5a228b14c488a532b222ef120195f72a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-budget-callsite-correction.json",
+          "bytes": 2144,
+          "sha256": "68a4c326f2b10d1e3cdb71864b865c30230c82bd460a67641f1c3b18f7d9528c"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-review-corrections-publication-addendum.json",
+          "bytes": 9483,
+          "sha256": "aac9827bd35c2ded7847eb057b6726211d0234ee612130a9ac63627041ca7c1b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-ledger-run06-portable-manifest.json",
+          "bytes": 11405,
+          "sha256": "4d99f78b3b0117e4db012b8615950320ea8d207f83a2fd180d9e99eb1b79db8b"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-run06-stop-review.log",
+          "bytes": 182,
+          "sha256": "061f239db7e8313fbc5807c98c85dc2942408586d11abfbb42455d77e10d3467"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_run06_stop.py",
+          "bytes": 6034,
+          "sha256": "f1536b53bf105ea98acca02ed4cab1c79e2d869b3c0729168fc707ae7f15e0cd"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_context_gate.py",
+          "bytes": 6480,
+          "sha256": "2cea9c210b9f3e8fdb4afb78ec8bf7ebfb3cdafd57408cbe9e9d7b9ec698a685"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_context_source.py",
+          "bytes": 3583,
+          "sha256": "a68212406b27177874e1bc80030bf763afb4b0bafac5b8ba105da5245faf178c"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/test_texture_contexts_independent.py",
+          "bytes": 5070,
+          "sha256": "f4928f6746eee98d953f6ec2bd518f527ba368ff866d40eedc4a5a27308cb320"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-ledger-budget-final-review.json",
+          "bytes": 4414,
+          "sha256": "3923636e8bcf742586ce8c3cc11db2e20a32c6ad58bb59a22b5056bedab859d5"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/constructor-capability-audit01.json",
+          "bytes": 478577,
+          "sha256": "4dcc446986477e5aec4cd8fe810cabe54ec9206892f0dfc3702cf306c70c8f84"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/harness-repair/prepare_constructor_capability_audit.py",
+          "bytes": 8064,
+          "sha256": "33f2fb71e114a5b97cd83c2bff4131062cdd5b008758361718ddd670b0117592"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/constructor-capability-source-review.json",
+          "bytes": 1453,
+          "sha256": "b76d7c2e90c349f7ed1372a9da0b7c4a003ccfe8dc5788c7f8f7c3b196f41444"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/verify_constructor_capability_source.py",
+          "bytes": 3823,
+          "sha256": "dfdee19cf63f1a8eb5ca455a8f92e02555d536c0b3381eebc4adb1c973d3756a"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/texture-independent-before-repair.log",
+          "bytes": 3158,
+          "sha256": "ee637ac5fb5980d4597128ebca5107a9ffc53f02b9f3778e86535139adf79b98"
+        },
+        {
+          "path": "work/orchestration/training-native-20261010/mission3-initialization/review-boundary/animation-setup-before-repair.log",
+          "bytes": 1358,
+          "sha256": "44fd1f0274aaf7ad3a6e1f3ccb0832c34a2f0e17562844905fd6fc74ca154b15"
+        }
+      ]
+    }
+  ]
+}

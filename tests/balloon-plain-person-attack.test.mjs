@@ -320,7 +320,8 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     assert.equal(target.hp, 55)
   }
   assert.equal(world.buildingOrders.records[orderId].references, 0)
-  assert.deepEqual(balloon.passengers, [])
+  assert.equal(balloon.active, true)
+  assert.deepEqual(balloon.passengers, [0])
   assert.equal(balloon.passengerCount, 0)
 }
 

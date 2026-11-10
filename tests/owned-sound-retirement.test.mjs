@@ -1,20 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
-import ts from 'typescript'
+import { Soundscape, playWorldSounds } from '../app/audio.ts'
 
-// Execute only these two actual pure function bodies, never the audio/model imports.
-const source = readFileSync(new URL('../app/audio.ts', import.meta.url), 'utf8')
-const ast = ts.createSourceFile('audio.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
-const functions = ['soundAttenuation', 'playWorldSounds'].map(name => {
-  const nodes = ast.statements.filter(n => ts.isFunctionDeclaration(n) && n.name?.text === name)
-  assert.equal(nodes.length, 1)
-  return nodes[0].getText(ast).replace(/^export /, '')
-}).join('\n')
-const { playWorldSounds } = new Function(ts.transpileModule(functions, {
-  compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None },
-}).outputText + ';return { playWorldSounds }')()
-
+// Actual module/voice-owner methods with supplied scene and WebAudio boundaries.
+// No browser, media loading or audible output is exercised.
 function fixture({ synchronous = false } = {}) {
   const owner = 17, voices = []
   const fire = { soundPlaying: true }, burn = { soundPlaying: true }
@@ -107,13 +96,8 @@ test('replaying an already-consumed sound list does not start duplicate voices',
 })
 
 test('actual playSample stop handles survive a delayed ended event from a replaced source', () => {
-  const soundClass = ast.statements.find(n => ts.isClassDeclaration(n) && n.name?.text === 'Soundscape')
-  const methods = soundClass.members.filter(n => ts.isMethodDeclaration(n) && n.name.getText(ast) === 'playSample')
-  assert.equal(methods.length, 1)
-  const body = ts.transpileModule('class Playback { ' + methods[0].getText(ast) + ' }', {
-    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None },
-  }).outputText
-  const playSample = new Function(body + ';return Playback.prototype.playSample')()
+  const playSample = Soundscape.prototype.playSample
+  assert.equal(typeof playSample, 'function')
   const nodes = [], noop = () => {}
   const plainNode = () => ({ connect: noop, disconnect: noop })
   const sound = {

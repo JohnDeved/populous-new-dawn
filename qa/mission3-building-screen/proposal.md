@@ -1,5 +1,42 @@
 # Ordinary Mission 3 acquisition and shared p art
 
+## Maintained-helper correspondence (source-only, 2026-10-30)
+
+The preparation and run descriptions below retain their historical product,
+checkpoint and evidence bindings. They are not a current launch plan. In
+particular, the historical saved1190/v1 continuation is not admitted by the
+current-v3-only checkpoint policy from #662.
+
+At #706 head `d214e3d20aaf6d226c1e0eb946fd8a160c5a1e00`, the existing strict
+helper-hash contract reads `helpers[].sha256` as maintained-file integrity pins.
+Three preparation pins were stale after already-maintained source changes:
+
+- #297 / `02da50391dd2968d7389a78160370bafb6004f51` added public Brave
+  secondary-click home focus, its bounded observer, and minimap ownership/search
+  diagnostics. The original input deadline, picker/ownership result, selected
+  Shaman/order, route-health and owned-cleanup guards are not relaxed here.
+- #662 / `ba41eb53c3b3c4218697ee58910ba08906838167` made committed checkpoint
+  readback require version 3. Earlier v1/v2 transitions remain historical; this
+  is not permission to migrate or reuse a historical profile.
+- #699 source `d757c4001c8f9c3a92c3ef185c0ad4d8d72c8f00` changed the two
+  portrait-selection labels to `Select shaman`. Separate explicit view/focus
+  operations remain. Older label/control prose below is historical, not an
+  assertion about the current portrait action.
+
+The correspondence manifest retains each superseded value as `preparedSha256`,
+keeps its declared upstream commit/hash, and records exact maintained source
+and adaptation separately. The arrival helper remains byte-identical. Product,
+observer/lifecycle and old result/profile pins are unchanged; old browser or
+test receipts are not relabeled as validation of these maintained helpers.
+
+This correction changes only provenance metadata and this explanatory section;
+it does not change helper behavior or the strict hash assertion. No project
+test, compiler, browser, profile or runtime was executed for this maintenance.
+`launchEnabled:false`, original failure/UNKNOWN records, runtime/resource
+admission and all current-source validation gates remain intact.
+
+## Historical preparation and retained evidence
+
 Source-only preparation now composes product9d88d721, including the accepted
 p-only world cache-key repair over8f7f05de, through normal Git merges. Exact app
 and consumer/asset pins are in `source-correspondence.json`; final standard

@@ -38,6 +38,8 @@ interface Props {
   onNewGame: () => void
   onTutorial: () => void
   onLoad: () => void
+  /** Optional review-only host; absent in the production caller. */
+  renderCredits?: (onBack: () => void, screen: { width: number; height: number }) => ReactNode
   renderOptions: (
     onBack: () => void,
     onTextRowsChange: (rows: FrontendTextRow[]) => void
@@ -141,6 +143,7 @@ export function OriginalMainMenu({
   onTutorial,
   onLoad,
   renderOptions,
+  renderCredits,
 }: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const frame = useRef<HTMLDivElement>(null)
@@ -155,9 +158,10 @@ export function OriginalMainMenu({
   const [focused, setFocused] = useState<string | null>(null)
   const returnFocus = useRef<string | null>(null)
   const recommendationCommitted = useRef(false)
-  const [panel, setPanel] = useState<'main' | 'options' | 'quit' | 'tutorial-recommendation'>(
-    'main'
-  )
+  const [panel, setPanel] = useState<
+    'main' | 'options' | 'quit' | 'tutorial-recommendation' | 'credits'
+  >('main')
+  if (panel === 'credits' && !renderCredits) setPanel('main')
   const [optionRows, setOptionRows] = useState<FrontendTextRow[]>([])
   const [{ scale, canvasWidth }, setViewport] = useState({ scale: 1, canvasWidth: 640 })
   const [vectorFailures, setVectorFailures] = useState(
@@ -194,6 +198,7 @@ export function OriginalMainMenu({
     }
   }, [])
   const draw = useCallback(() => {
+    if (panel === 'credits') return
     const context = canvas.current?.getContext('2d')
     if (context && prepared.composition) {
       const rgba = frontendBackground(
@@ -236,25 +241,26 @@ export function OriginalMainMenu({
     draw()
   }, [draw])
   useEffect(() => {
-    const timer = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      ? undefined
-      : window.setInterval(() => {
-          if (!pointerMode.current || document.hidden) return
-          glowFrame.current = (glowFrame.current + 1) % 8
-          draw()
-        }, 101)
+    const timer =
+      panel === 'credits' || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        ? undefined
+        : window.setInterval(() => {
+            if (!pointerMode.current || document.hidden) return
+            glowFrame.current = (glowFrame.current + 1) % 8
+            draw()
+          }, 101)
     return () => {
       if (timer !== undefined) window.clearInterval(timer)
       cancelAnimationFrame(animation.current)
     }
-  }, [draw])
+  }, [draw, panel])
   useEffect(() => {
     if (panel === 'main') {
       const previous = [
         ...(dialog.current?.querySelectorAll<HTMLButtonElement>('nav button') ?? []),
       ].find(button => button.getAttribute('aria-label') === returnFocus.current)
       ;(previous ?? first.current)?.focus()
-    } else dialog.current?.querySelector<HTMLButtonElement>('[data-panel-back]')?.focus()
+    } else dialog.current?.querySelector<HTMLElement>('[data-panel-back]')?.focus()
   }, [panel])
   function back() {
     setPanel('main')
@@ -312,7 +318,11 @@ export function OriginalMainMenu({
       },
     },
     { label: 'Rolling Demo', unavailable: 'Original demo playback is not yet available' },
-    { label: 'Credits', unavailable: 'Original credits are not yet restored' },
+    {
+      label: 'Credits',
+      unavailable: renderCredits ? undefined : 'Original credits are not yet restored',
+      action: renderCredits ? () => setPanel('credits') : undefined,
+    },
     { label: 'Coming Soon', unavailable: 'Original preview is not yet restored' },
     { label: 'Quit', action: () => setPanel('quit') },
   ]
@@ -325,6 +335,7 @@ export function OriginalMainMenu({
       data-background-ready={prepared.background}
       data-cursor-ready={prepared.cursor}
       onPointerMove={event => {
+        if (panel === 'credits') return
         const bounds = frame.current?.getBoundingClientRect()
         if (!bounds) return
         // The dialog receives side-area motion; keep native coordinates relative
@@ -343,6 +354,7 @@ export function OriginalMainMenu({
         draw()
       }}
       onKeyDown={event => {
+        if (panel === 'credits') return
         pointerMode.current = false
         draw()
         // A held activation key must not follow Retry focus into Load Game.
@@ -384,7 +396,7 @@ export function OriginalMainMenu({
       }}
       onCancel={event => {
         event.preventDefault()
-        back()
+        if (panel !== 'credits') back()
       }}
       style={{ '--frontend-scale': scale } as CSSProperties}
     >
@@ -397,14 +409,16 @@ export function OriginalMainMenu({
           style={{ width: canvasWidth, left: (640 - canvasWidth) / 2 }}
           aria-hidden="true"
         />
-        {prepared.composition &&
+        {panel !== 'credits' &&
+          prepared.composition &&
           frontendBadges.map((badge, index) => {
             const image = prepared.badgeVectors?.[index]
             return image && !vectorFailures[index] ? (
               <BadgeVector key={badge.x} image={image} index={index} onError={failVector} />
             ) : null
           })}
-        {prepared.composition &&
+        {panel !== 'credits' &&
+          prepared.composition &&
           frontendBadgeBounds.map((badge, index) => (
             <canvas
               key={badge.x}
@@ -419,13 +433,15 @@ export function OriginalMainMenu({
               aria-hidden="true"
             />
           ))}
-        <h1 className={styles.title} aria-label="Populous: The Beginning">
-          {logoReady ? (
-            <span className={styles.logo} />
-          ) : (
-            <span className={styles.fallbackTitle}>Populous: The Beginning</span>
-          )}
-        </h1>
+        {panel !== 'credits' && (
+          <h1 className={styles.title} aria-label="Populous: The Beginning">
+            {logoReady ? (
+              <span className={styles.logo} />
+            ) : (
+              <span className={styles.fallbackTitle}>Populous: The Beginning</span>
+            )}
+          </h1>
+        )}
         {panel === 'main' && (
           <nav aria-label="Main menu choices" className={styles.rows}>
             {rows.map((row, index) => (
@@ -467,6 +483,11 @@ export function OriginalMainMenu({
           />
         )}
         {panel === 'options' && renderOptions(back, setOptionRows)}
+        {panel === 'credits' && renderCredits && (
+          <div style={{ position: 'absolute', left: (640 - canvasWidth) / 2, top: 0 }}>
+            {renderCredits(back, { width: canvasWidth, height: 480 })}
+          </div>
+        )}
         {panel === 'main' && checkpointReadStatus !== 'read' && checkpointReadStatus !== 'idle' && (
           <section className={styles.checkpointRecovery} aria-label="Browser checkpoint recovery">
             <p role="status">{checkpointRecoveryNotices[checkpointReadStatus]}</p>

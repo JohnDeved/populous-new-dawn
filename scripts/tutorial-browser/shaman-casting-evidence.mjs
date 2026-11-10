@@ -170,7 +170,8 @@ export function validateShamanCastingEvidence(result, reference = castingArtwork
   for (const sample of hold.samples) {
     assert.ok(Number.isFinite(sample.at) && Number.isFinite(sample.frameTime) &&
       sample.at >= hold.before.at && sample.at <= hold.after.at &&
-      sample.frameTime >= 0 && sample.frameTime <= sample.at &&
+      sample.frameTime >= 0 && Number.isFinite(sample.timelineTime) &&
+      sample.frameTime === sample.timelineTime &&
       integer(sample.stamp) && sample.stamp >= hold.before.stamp && sample.stamp <= hold.after.stamp &&
       (!previous || sample.stamp >= previous.stamp) &&
       (!previous || sample.at > previous.at && sample.frameTime > previous.frameTime),

@@ -41,7 +41,11 @@ export function SpellTestMenu({
       if (previousFocus instanceof HTMLElement && previousFocus.isConnected) previousFocus.focus()
     }
   }, [sceneRef, store, world])
+  function isCurrent() {
+    return dialog.current?.open && store.getWorld() === world
+  }
   function grant(action: SpellTestCheat) {
+    if (!isCurrent()) return
     if (!store.applySpellTestCheat(action)) {
       setNotice('Cheats are unavailable while mission controls are locked.')
       return
@@ -124,7 +128,9 @@ export function SpellTestMenu({
               key={spell.id}
               disabled={!available}
               aria-label={`Test ${spell.name}, ${stock} shots`}
-              onClick={() => onSelect(spell.id)}
+              onClick={() => {
+                if (isCurrent()) onSelect(spell.id)
+              }}
             >
               <span className={styles.art}>
                 <SpellButtonArt view={view} />

@@ -88,13 +88,21 @@ def filesystem_type(path):
     mounts = Path('/proc/self/mountinfo')
     if not mounts.is_file():
         return 'unknown'
+    device = path.stat().st_dev
+    device_number = f'{os.major(device)}:{os.minor(device)}'
     choices = []
     for line in mounts.read_text().splitlines():
         fields = line.split()
         mount = Path(re.sub(r'\\([0-7]{3})', lambda m: chr(int(m[1], 8)), fields[4]))
-        if within(mount, path):
+        # Stacked mounts can share a pathname. Match the path's actual device,
+        # rather than choosing a covered mount by filesystem-name ordering.
+        if fields[2] == device_number and within(mount, path):
             choices.append((len(mount.parts), fields[fields.index('-') + 1]))
-    return max(choices)[1] if choices else 'unknown'
+    if not choices:
+        return 'unknown'
+    depth = max(depth for depth, _ in choices)
+    kinds = {kind for candidate_depth, kind in choices if candidate_depth == depth}
+    return next(iter(kinds)) if len(kinds) == 1 else 'unknown'
 
 
 def registered_worktrees(source):
@@ -135,6 +143,18 @@ def storage_plan(source, shared_root, reserve_bytes, allocation_bytes, *, post_i
     require(not kinds.intersection(('tmpfs', 'ramfs')), 'Shared storage must not be RAM-backed')
     kind = filesystem_type(parents[1])
     spaces = [os.statvfs(p) for p in parents]
+    # Capacity on a read-only mount cannot admit a later installation. Check each
+    # actual destination or nearest existing ancestor, including nested mounts.
+    # This is still a snapshot, not proof that permission or later writes succeed.
+    readonly_flag = getattr(os, 'ST_RDONLY', None)
+    require(type(readonly_flag) is int and readonly_flag > 0,
+            'Read-only filesystem flag is unavailable for storage admission')
+    for parent, space in zip(parents[1:], spaces[1:]):
+        flags = getattr(space, 'f_flag', None)
+        require(type(flags) is int and flags >= 0,
+                f'Filesystem flags are unavailable for storage admission path: {parent}')
+        require(not flags & readonly_flag,
+                f'Read-only filesystem at storage admission path: {parent}')
     available = min(s.f_bavail * s.f_frsize for s in spaces)
     require(available >= allocation_bytes + reserve_bytes,
             'Insufficient capacity for allocation budget plus unchanged reserve')

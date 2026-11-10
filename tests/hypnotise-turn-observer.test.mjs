@@ -90,7 +90,8 @@ test('Hypnotise turn observer does not rewrite a later RAF terminal turn as exac
   assert.equal(f.observation().result.terminal.turn, 37)
   assert.equal(f.observation().result.terminal.remaining, 0)
   assert.equal(f.observation().result.terminal.turn - f.observation().result.bornTurn, 17)
-  // The unchanged rendered-oracle contract rejects this late terminal observation.
+  assert.deepEqual(f.observation().result.logicalExpiry, { turn: 36, id: 7, remaining: 0, present: false })
+  // Keep actual late RAF time separate; never invent earlier pixels.
 })
 
 test('Hypnotise turn observer forwards original receiver, arguments and return exactly once', t => {
@@ -278,4 +279,77 @@ for(const foreign of ['beforeTurn','afterTurn'])test(`Hypnotise independently re
  const descriptor=Object.getOwnPropertyDescriptor(f.clock,foreign);f.observation().retain()
  assert.equal(reads,0);assert.deepEqual(Object.getOwnPropertyDescriptor(f.clock,foreign),descriptor)
  if(foreign==='beforeTurn')f.restored();else assert.equal(Object.hasOwn(f.clock,'beforeTurn'),false)
+})
+
+
+// Validator-only supplied evidence. No browser or gameplay proof is fabricated.
+function validEvidence() {
+  return { error: null, bornTurn: 20, birth: { id: 7, remaining: 16, stock: 0, cue: true },
+    logicalExpiry: { turn: 36, id: 7, remaining: 0, present: false },
+    terminal: { reason: 'logical-expiry', turn: 37, present: false, meshPresent: false, remaining: 0 },
+    birthHook: { installed: true, restored: true, foreign: false },
+    hook: { installed: true, restored: true, foreign: false },
+    samples: [0, 1].map(i => ({ id: 7, visible: true, frame: 1264 + i,
+      object: 1264, draw: 44, f1: i * 4, sequence: 'hypnotise', flags: 0x104,
+      palette: 0, opacity: 1, submitted: true, texture: '/original/effects.png',
+      size: [100, 100, 1], center: [0.5, 0], uv: [100 / 2048, 100 / 256, i / 8, 1 - 100 / 256],
+      cropFile: `supplied-${i}.png`, turn: 20 + i, stamp: 1 + i
+    })).concat([{ object: 0x650, visible: false }]),
+    turnSamples: [{ turn: 24, id: 7, remaining: 12, converted: [] },
+      { turn: 25, id: 7, remaining: 11, converted: [90, 91] }],
+    crops: [0, 1].map(i => ({ filename: `supplied-${i}.png`, frame: 1264 + i,
+      turn: 20 + i, stamp: 1 + i, colors: 2 })) }
+}
+const suppliedAtlas = { width: 2048, height: 256,
+  animations: { hypnotise: [{ source: 1264, index: 0 }, { source: 1265, index: 1 }] } }
+
+for (const [name, change] of [
+  ['fifteen visits', r => r.logicalExpiry.turn = 35],
+  ['seventeen visits', r => r.logicalExpiry.turn = 37],
+  ['missing logical witness', r => delete r.logicalExpiry],
+  ['wrong owner', r => r.logicalExpiry.id = 8],
+  ['remaining logical lifetime', r => r.logicalExpiry.remaining = 1],
+  ['present logical effect', r => r.logicalExpiry.present = true],
+  ['reversed presentation', r => r.terminal.turn = 35],
+  ['present rendered effect', r => r.terminal.present = true],
+  ['present rendered mesh', r => r.terminal.meshPresent = true],
+  ['remaining rendered lifetime', r => r.terminal.remaining = 1],
+]) test(`Hypnotise validator rejects ${name} with otherwise valid supplied evidence`, () => {
+  const r = validEvidence(); change(r)
+  assert.throws(() => validateHypnotiseObservation(r, suppliedAtlas), assert.AssertionError)
+})
+test('Hypnotise validator accepts separate expiry and later actual RAF with otherwise valid supplied evidence', () => {
+  assert.doesNotThrow(() => validateHypnotiseObservation(validEvidence(), suppliedAtlas))
+})
+test('Hypnotise expiry rejects a skipped last callback instead of inventing its turn', t => {
+  const f = fixture(t); f.start(); f.frame(); f.advance(15)
+  f.world.turn += 2; f.flash.turnsRemaining = 0; f.world.effects = []
+  f.clock.afterTurn()
+  assert.match(f.observation().result.error, /expiry missed a consecutive/)
+  assert.equal(f.observation().result.logicalExpiry, null); f.restored()
+})
+
+test('Hypnotise missing final callback cannot be replaced by RAF absence', t => {
+  const f = fixture(t); f.start(); f.frame(); f.advance(15)
+  f.world.turn++; f.flash.turnsRemaining = 0; f.world.effects = []
+  f.frame()
+  const { result } = f.observation()
+  assert.equal(result.logicalExpiry, null)
+  assert.equal(result.terminal.turn, 36)
+  assert.equal(result.terminal.meshPresent, false)
+  assert.throws(() => validateHypnotiseObservation(result, suppliedAtlas), /actual afterTurn expiry witness/)
+  f.restored()
+})
+for (const lifetime of [15, 17]) test(`Hypnotise actual ${lifetime}-turn expiry is retained and rejected`, t => {
+  const f = fixture(t); f.start(); f.frame()
+  // Supplied simulation boundary changes lifetime only after the actual birth witness.
+  f.flash.turnsRemaining = lifetime
+  f.advance(lifetime); f.frame()
+  const { result } = f.observation()
+  assert.equal(result.birth.remaining, 16)
+  assert.equal(result.logicalExpiry.turn - result.bornTurn, lifetime)
+  assert.equal(result.logicalExpiry.remaining, 0)
+  assert.equal(result.logicalExpiry.present, false)
+  assert.throws(() => validateHypnotiseObservation(result, suppliedAtlas), assert.AssertionError)
+  f.restored()
 })

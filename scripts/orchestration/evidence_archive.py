@@ -129,7 +129,7 @@ class Archive:
     def __enter__(self):
         try:
             parent, self.verify_parent = self.stack.enter_context(parent_chain(self.path.parent))
-            self.fd = os.open(self.path.name, os.O_RDONLY | NOFOLLOW, dir_fd=parent)
+            self.fd = os.open(self.path.name, os.O_RDONLY | NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
             self.stack.callback(os.close, self.fd)
             self.before = record(os.fstat(self.fd))
             require(stat.S_ISREG(self.before['mode']) and self.before['bytes'] <= LIMITS['archive_bytes'], 'Invalid archive file')
@@ -394,7 +394,7 @@ def materialize(path, manifest, names, cache):
 def read_bound_json(path, expected_sha):
     path = Path(path); digest(expected_sha)
     with parent_chain(path.parent) as (parent, verify):
-        fd = os.open(path.name, os.O_RDONLY | NOFOLLOW, dir_fd=parent)
+        fd = os.open(path.name, os.O_RDONLY | NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
         with os.fdopen(fd, 'rb') as stream:
             before = record(os.fstat(stream.fileno()))
             require(stat.S_ISREG(before['mode']) and before['bytes'] <= LIMITS['directory_bytes'], 'Oversized/nonregular manifest')
@@ -481,7 +481,7 @@ def release_cache(cache, expected_receipt_sha, token, journal):
         journal_event = None
         with parent_chain(cache) as (root, verify_root), ExitStack() as stack:
             pinned_root = os.dup(root); journal_stack.callback(os.close, pinned_root)
-            control = os.open(CONTROL, os.O_RDONLY | NOFOLLOW, dir_fd=root); stack.callback(os.close, control)
+            control = os.open(CONTROL, os.O_RDONLY | NOFOLLOW | os.O_NONBLOCK, dir_fd=root); stack.callback(os.close, control)
             control_before = record(os.fstat(control))
             require(stat.S_ISREG(control_before['mode']) and control_before['nlink'] == 1
                     and control_before['bytes'] <= LIMITS['directory_bytes'], 'Invalid cache receipt file')
@@ -520,7 +520,7 @@ def release_cache(cache, expected_receipt_sha, token, journal):
                 require(seen == expected, 'Incomplete cache paths')
             for name, row in rows.items():
                 budget(); entry = PurePosixPath(name); directory = pinned[str(entry.parent)]
-                fd = os.open(entry.name, os.O_RDONLY | NOFOLLOW, dir_fd=directory)
+                fd = os.open(entry.name, os.O_RDONLY | NOFOLLOW | os.O_NONBLOCK, dir_fd=directory)
                 with os.fdopen(fd, 'rb') as stream:
                     require(record(os.fstat(stream.fileno())) == row['identity'], 'Cache file identity changed')
                     h = hashlib.sha256(); total = 0

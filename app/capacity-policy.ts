@@ -2,7 +2,7 @@
 // fixtures retain classic limits; all new browser games use scalable.
 import type { World } from './world-types.ts'
 import { validateScalableMotionRoutes } from './person-routes.ts'
-import { residentPerson } from './building-resident.ts'
+import { prepareResidentPeople } from './building-resident.ts'
 
 export type CapacityMode = 'classic' | 'scalable'
 export interface CapacityPolicy {
@@ -52,6 +52,7 @@ export function restoreCapacityPolicy(world: World) {
     if (order.references) active++
   }
   if (active !== pool.active) throw new RangeError('Invalid scalable checkpoint active-order count')
+  const resident = prepareResidentPeople(world)
   const people = new Set([
       ...world.objectCells.objects.values(),
       ...world.pathfinding.people.values(),
@@ -60,7 +61,7 @@ export function restoreCapacityPolicy(world: World) {
         unit.flight,
         unit.entry?.person,
         unit.builder?.person,
-        residentPerson(world, unit),
+        resident(unit),
         unit.fight?.motion,
       ]),
     ]),

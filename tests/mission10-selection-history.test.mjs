@@ -1,13 +1,14 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { runInNewContext } from 'node:vm'
+import { pageEffect } from './support/follower-nearby-page.mjs'
 import { createWorld } from '../app/world-initialization.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle } from '../app/live-vehicles.ts'
 import { cancelInteraction, selectFollowers } from '../app/selection-runtime.ts'
 import { readMission10Selection } from '../scripts/tutorial-browser/mission10-input.mjs'
 import { mission10EscapePreserved, mission10SelectionPreserved } from '../scripts/local-render/mission10-selection.mjs'
-import { checkMission10FollowerStrip } from '../scripts/local-render/mission10-boat-checkpoint.mjs'
+import { checkMission10FollowerStrip, clearMission10Selection } from '../scripts/local-render/mission10-boat-checkpoint.mjs'
 import { validateMission10SelectionEvidence } from '../scripts/local-render/mission10-selection-evidence.mjs'
 
 const party = [63, 111, 112, 113, 114], capturedExtra = [116, 118, 120, 122]
@@ -98,6 +99,80 @@ test('serialized observer distinguishes real owner aliases from equal-valued ind
   }
 })
 
+// Controlled page transport/DOM, but the actual Page key owner and real
+// selectFollowers/cancelInteraction adapters execute. No browser claim.
+function historyPage(w) {
+  const calls = [], handles = [], listeners = new Map()
+  const scene = { world: w }, store = { getWorld: () => w, change: fn => fn(w) }
+  let priorPause
+  const menu = { open: false, isConnected: false, getAttribute: name => name === 'data-panel' ? 'root' : null }
+  const window = { testStore: store, testSceneRef: { current: scene } }
+  const document = { activeElement: null,
+    querySelectorAll: selector => { assert.equal(selector, '.campaign-messages details[open]'); return [] },
+    querySelector: selector => { assert.equal(selector, 'dialog[data-original-pause-menu]'); return menu.isConnected ? menu : null } }
+  const evaluate = (callback, value) => {
+    const result = runInNewContext(`(${callback.toString()})(value)`, { window, document, value })
+    return result === w ? w : structuredClone(result)
+  }
+  const retain = (name, value, extra = {}) => {
+    handles.push(`retain:${name}`)
+    return { evaluate: async callback => evaluate(callback, value), ...extra,
+      dispose: async () => handles.push(`dispose:${name}`) }
+  }
+  const cleanup = pageEffect("window.addEventListener('keydown', key)", {
+    world: w, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
+    messageDetails: { current: new Map() }, SPELLS: [], store, engine: { current: scene },
+    tutorialLevel: 79, cancelInteraction,
+    openMenu: () => { priorPause = w.paused; w.paused = true; menu.open = true; menu.isConnected = true },
+    window: { addEventListener: (name, fn) => { assert.equal(listeners.size, 0); listeners.set(name, fn) },
+      removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
+  })()
+  const page = {
+    evaluateHandle: async callback => { assert.equal(evaluate(callback), w); return retain('world', w) },
+    evaluate: async callback => evaluate(callback),
+    locator: selector => {
+      assert.equal(selector, '.campaign-messages details[open]')
+      return { elementHandles: async () => [], count: async () => 0 }
+    },
+    keyboard: { press: async key => {
+      assert.equal(key, 'Escape'); calls.push('Escape')
+      listeners.get('keydown')({ key, code: key, repeat: false, ctrlKey: false, metaKey: false, altKey: false,
+        target: { closest: () => false }, preventDefault() {}, stopImmediatePropagation() {} })
+    } },
+    getByRole: (role, { name, exact }) => {
+      assert.equal(exact, true)
+      if (role === 'dialog') {
+        assert.equal(name, 'Game menu')
+        return { isVisible: async () => menu.open,
+          waitFor: async ({ state, timeout }) => {
+            assert.ok(timeout > 0 && timeout <= 15000); assert.equal(menu.open, state === 'visible')
+          },
+          elementHandle: async () => retain('menu', menu, {
+            $: async selector => {
+              assert.equal(selector, 'button[aria-label="Continue Game"]')
+              return retain('continue', {}, { click: async ({ timeout }) => {
+                assert.ok(timeout > 0 && timeout <= 15000); calls.push('Continue Game')
+                menu.open = false; menu.isConnected = false; w.paused = priorPause
+              } })
+            },
+          }) }
+      }
+      assert.equal(role, 'button'); assert.ok(['Select warrior', 'Select follower'].includes(name))
+      return { click: async ({ modifiers }) => {
+        assert.equal(menu.open, false); calls.push(name)
+        selectFollowers(w, name === 'Select warrior' ? 3 : 0, observe(w).point,
+          modifiers[0] === 'Control' ? 'five' : modifiers[0] === 'Shift' ? 'all' : 'single')
+      } }
+    },
+  }
+  return { page, calls, close() {
+    cleanup(); assert.equal(listeners.size, 0)
+    for (const name of ['world', 'menu', 'continue'])
+      assert.equal(handles.filter(event => event === `retain:${name}`).length,
+        handles.filter(event => event === `dispose:${name}`).length)
+  } }
+}
+
 test('real selection/cancel adapters replay all18 witness controls with exact history, artifact replay and unchanged world facts', async () => {
   for (const phase of ['boarded', 'loaded', 'unloaded']) {
     const w = world(), occupied = phase !== 'unloaded', boat = w.vehicles.find(v => v.id === 62)
@@ -113,11 +188,17 @@ test('real selection/cancel adapters replay all18 witness controls with exact hi
         party: party.map(id => { const u = w.units.find(v => v.id === id); return { id, hp: u.hp, vehicle: u.native.vehicle } }), selectionState }
       observations.push(row); return row
     }
-    const page = { keyboard: { press: async key => { assert.equal(key, 'Escape'); cancelInteraction(w) } },
-      getByRole: (_role, { name }) => ({ click: async ({ modifiers }) => selectFollowers(w, name === 'Select warrior' ? 3 : 0,
-        observe(w).point, modifiers[0] === 'Control' ? 'five' : modifiers[0] === 'Shift' ? 'all' : 'single') }) }
+    // Controlled ordinary-play admission; no authored introduction is simulated here.
+    w.inputMask = 0
+    const owner = historyPage(w), page = owner.page
     const input = { action: async (_label, fn) => fn() }
-    const selection = [await checkMission10FollowerStrip({ page, input, state, phase, occupied })]
+    let selection
+    try {
+      selection = [await checkMission10FollowerStrip({ page, input, state, phase, occupied })]
+      assert.equal(owner.calls.filter(call => call === 'Escape').length, 6)
+      assert.equal(owner.calls.filter(call => call.startsWith('Select ')).length, 6)
+      assert.equal(owner.calls.includes('Continue Game'), false)
+    } finally { owner.close() }
     const result = { status: 'passed', selection, observations }
     assert.equal(validateMission10SelectionEvidence(result, [phase]).length, 1)
     assert.equal(selection[0].checks.length, 6)
@@ -125,4 +206,16 @@ test('real selection/cancel adapters replay all18 witness controls with exact hi
     first.selectionState.people.find(p => p.id === 116).owners.native.selectionFlags ^= 1
     assert.throws(() => validateMission10SelectionEvidence(corrupt, [phase]))
   }
+})
+
+
+test('neutral Page Escape preserves real history across supplied Continue Game ownership', async () => {
+  const w = world(); w.inputMask = 0
+  const before = observe(w), snapshot = structuredClone(w), owner = historyPage(w)
+  try {
+    await clearMission10Selection(owner.page, { selected: [], selectionState: before }, Date.now() + 15000)
+    assert.deepEqual(owner.calls, ['Escape', 'Continue Game'])
+    assert.deepEqual(w, snapshot)
+    mission10EscapePreserved(before, observe(w))
+  } finally { owner.close() }
 })

@@ -85,7 +85,14 @@ export default async function spellTestMenu({ browser, url, output }) {
       'No injected spells, forced simulation turns, altered casting state or direct store mutations.',
       'Functional/rendered menu coverage, not proof of every spell effect or hardware performance.',
     ] }
-  let failure, castingRetentionAttempted = false, castingDispatch
+  let failed = false, failure, castingRetentionAttempted = false, castingDispatch
+  const recordFailure = error => {
+    if (failed) return
+    failed = true
+    failure = error
+    report.failure = String(error)
+    report.stack = error?.stack
+  }
   const diagnostics = startSpellTestDiagnostics(page, report)
   const timer = setTimeout(() => {
     castingDispatch?.cancel(Error('F9 episode deadline expired'))
@@ -147,7 +154,7 @@ export default async function spellTestMenu({ browser, url, output }) {
     await page.getByText('Checkpoint saved in this browser.', { exact: true }).waitFor()
     await button('Back').click()
     await button('Continue Game').click()
-    const saved = await storage(), beforeOpen = await snapshot()
+    const [saved, beforeOpen] = await Promise.all([storage(), snapshot()])
     diagnostics.stage('read-only menu and keyboard controls')
     await button('Resume game').focus()
     await page.keyboard.down('F9')
@@ -165,9 +172,14 @@ export default async function spellTestMenu({ browser, url, output }) {
     await menu.waitFor({ state: 'detached' })
     await page.keyboard.down('Escape')
     await page.keyboard.up('Escape')
-    assert.equal(await page.locator('[data-original-pause-menu]').count(), 0)
-    assert.equal(await button('Resume game').evaluate(element => element === document.activeElement), true)
-    assert.deepEqual(await snapshot(), beforeOpen)
+    const [pauseMenus, resumeFocused, afterClose] = await Promise.all([
+      page.locator('[data-original-pause-menu]').count(),
+      button('Resume game').evaluate(element => element === document.activeElement),
+      snapshot(),
+    ])
+    assert.equal(pauseMenus, 0)
+    assert.equal(resumeFocused, true)
+    assert.deepEqual(afterClose, beforeOpen)
     await page.keyboard.press('Shift+F9')
     assert.equal(await menu.count(), 0)
     report.openCloseWithoutMutation = true
@@ -201,9 +213,11 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Unlock + refill all spells').click()
     const unlocked = await snapshot()
     assert.equal(unlocked.cheatsUsed, true)
-    for (const spell of SPELLS) {
+    const enabled = await Promise.all(SPELLS.map(spell =>
+      button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled()))
+    for (const [index, spell] of SPELLS.entries()) {
       assert.ok(unlocked.shots[spell.id] >= rules.spellCharging[spell.model].normalLimit)
-      assert.equal(await button(`Test ${spell.name}, ${unlocked.shots[spell.id]} shots`).isEnabled(), true)
+      assert.equal(enabled[index], true)
     }
     await button('Refill mana').click()
     assert.ok((await snapshot()).manaTribes[0].available >= 1_000_000)
@@ -270,8 +284,9 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Load Game').click()
     await button('Load checkpoint').click()
     await waitReady('checkpoint load')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const loaded = await snapshot()
+    assert.equal(loaded.cheatsUsed, false)
+    assert.equal(loaded.shots.teleport, 0)
     diagnostics.stage('grant and restart')
     await page.keyboard.press('F9')
     await menu.waitFor()
@@ -281,23 +296,22 @@ export default async function spellTestMenu({ browser, url, output }) {
     await button('Restart Level').click()
     await button('Yes').click()
     await waitReady('restart')
-    assert.equal((await snapshot()).cheatsUsed, false)
-    assert.equal((await snapshot()).shots.teleport, 0)
+    const restarted = await snapshot()
+    assert.equal(restarted.cheatsUsed, false)
+    assert.equal(restarted.shots.teleport, 0)
     report.savePreservedAndLoadRestartReset = true
     assert.deepEqual(report.errors, [])
     diagnostics.stage('completed')
   } catch (error) {
-    failure = error
-    report.failure = String(error)
-    report.stack = error.stack
+    recordFailure(error)
     report.status = 'failed'
     try { await page.screenshot({ path: resolve(output, 'f9-cheats-failure.png') }) }
     catch (error) { report.screenshotError = String(error) }
   } finally {
     if (castingDispatch) {
-      castingDispatch.cancel(failure ?? Error('F9 episode cleanup'))
+      castingDispatch.cancel(failed ? failure : Error('F9 episode cleanup'))
       try { await castingDispatch.close() }
-      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+      catch (error) { recordFailure(error) }
     }
     // Retain partial casting observations before context closure, with the same
     // absolute watchdog still active. Retention must never erase the first error.
@@ -310,21 +324,19 @@ export default async function spellTestMenu({ browser, url, output }) {
       }
     } catch (error) {
       report.castingRetentionError = String(error)
-      failure ??= error
-      report.failure ??= String(error)
-      report.stack ??= error.stack
+      recordFailure(error)
     }
     try { await closeSpellTestContext(context, report, started) }
-    catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
+    catch (error) { recordFailure(error) }
     finally {
       clearTimeout(timer)
       diagnostics.stop()
       try { assertSpellTestDeadline(report, started) }
-      catch (error) { failure ??= error; report.failure ??= String(error); report.stack ??= error.stack }
-      report.status = failure ? 'failed' : 'passed'
+      catch (error) { recordFailure(error) }
+      report.status = failed ? 'failed' : 'passed'
       writeFileSync(resolve(output, 'f9-cheats.json'), JSON.stringify(report, null, 2) + '\n')
     }
   }
-  if (failure) throw failure
+  if (failed) throw failure
   return report
 }

@@ -1994,9 +1994,9 @@ test('dead vehicle passengers release their slots and driver position',async()=>
  // Supplied active craft: the authored Mission5 source is detached and must not be cleaned.
  Object.assign(boat,{active:true,passengers:[999,survivor.id],passengerCount:2,speed:100});
  removeMissingVehiclePassengers(w);
- assert.deepEqual(boat.passengers,[survivor.id]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
+ assert.deepEqual(boat.passengers,[survivor.id,0]);assert.equal(boat.passengerCount,1);assert.equal(boat.speed,100);
  w.units=[];removeMissingVehiclePassengers(w);
- assert.deepEqual(boat.passengers,[]);assert.equal(boat.passengerCount,0);assert.equal(boat.speed,-1);
+ assert.deepEqual(boat.passengers,[0,0]);assert.equal(boat.passengerCount,0);assert.equal(boat.speed,-1);
 });
 
 test('live native preparation consumes reroutes and completes slow turns and reactions', async () => {
@@ -2486,7 +2486,8 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
     followers.map(u => u.hp),
     [90, 90]
   )
-  assert.deepEqual(boat.passengers, [])
+  assert.equal(boat.active, true)
+  assert.deepEqual(boat.passengers, [0, 0])
   assert.equal(boat.passengerCount, 0)
   assert.equal(boat.speed, -1)
   assert.ok(vehicleReady(vehicleWorld(), boat))
@@ -2514,7 +2515,9 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   w = store.getWorld()
-  assert.deepEqual(w.vehicles[0].passengers, [])
+  assert.equal(w.vehicles[0].active, true)
+  assert.deepEqual(w.vehicles[0].passengers, [0, 0])
+  assert.equal(w.vehicles[0].passengerCount, 0)
   assert.ok(ids.every(id => !w.units.find(u => u.id === id).native?.vehicle))
   boat = w.vehicles[0]
   followers = ids.map(id => w.units.find(u => u.id === id))
@@ -2524,7 +2527,8 @@ test('supplied Mission 5 reward and relocated Boat support boarding, sailing and
   )
   assert.ok(followers.every(u => supportsFollower(w, u)))
   assert.ok(command(w, { ...browserPosition(boat), id: boat.id }))
-  until(w, () => boat.passengers.length === 2, 3)
+  // Retained vacant slots already have length 2; wait for actual occupancy.
+  until(w, () => boat.passengerCount === 2, 3)
   assert.deepEqual(boat.passengers, ids)
   assert.deepEqual(
     followers.map(u => u.hp),

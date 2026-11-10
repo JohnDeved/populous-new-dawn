@@ -68,7 +68,8 @@ import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
 export function liveCommandContext(w: World, point: Point & { id?: number }) {
-  const selected = w.units.filter(u => w.selected.includes(u.id))
+  const selectedIds = new Set(w.selected)
+  const selected = w.units.filter(u => selectedIds.has(u.id))
   const team = selected[0]?.team ?? 'blue'
   const cell = (p: Point) => {
     const n = nativePosition(w, p)

@@ -6,9 +6,21 @@
     {
       "path": "scripts/local-render/mission1-vault-input.mjs",
       "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
-      "sha256": "f11a2c71bc4430cafbbbf1fdccc3168a6061e77ef937d59825e416b1add0e414",
+      "sha256": "3ceaa6bf4537c4056b917c9efa1d59f4adb6016e4a5c033b5fded8d09c6fcdec",
       "upstreamSha256": "6516422eadca28e8850a0640ded3ab8a30cdc5b12a1a44e982af14c2a414b913",
-      "adaptation": "Ground spell diagnostics resolve the shipped SPELLS model: Blast 2 and Bridge 12 stay unchanged, Swarm uses 5, and unknown names fail closed. Optional absolute deadlines bound new-input admission and return partial ground-search diagnostics; they do not cancel pending operations. Default movement geometry and input predicates remain unchanged."
+      "adaptation": "Ground spell diagnostics resolve the shipped SPELLS model: Blast 2 and Bridge 12 stay unchanged, Swarm uses 5, and unknown names fail closed. Optional absolute deadlines bound new-input admission and return partial ground-search diagnostics; they do not cancel pending operations. Default movement geometry and input predicates remain unchanged.",
+      "preparedSha256": "f11a2c71bc4430cafbbbf1fdccc3168a6061e77ef937d59825e416b1add0e414",
+      "maintainedSource": {
+        "head": "d214e3d20aaf6d226c1e0eb946fd8a160c5a1e00",
+        "blob": "5401a279328922785ed583d17095d3ef00a335e7",
+        "changes": [
+          {
+            "source": "02da50391dd2968d7389a78160370bafb6004f51",
+            "pullRequest": 297,
+            "scope": "Retain bounded minimap geometry and projected/owned/rejected candidate diagnostics before the existing owned-input assertion. The picker result, ownership predicate and public click remain unchanged."
+          }
+        ]
+      }
     },
     {
       "path": "scripts/local-render/mission1-vault-arrival.mjs",
@@ -18,14 +30,53 @@
     {
       "path": "scripts/local-render/mission3-temple-checkpoint.mjs",
       "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
-      "sha256": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
+      "sha256": "bf4e0c02ff4f1bfaea876d4161bde24093e5fb02aa0751d26763b2951c29f50f",
       "upstreamSha256": "f74bef212a3bf9a80a6d9dfeac3785e74042cd5489a15952f96971dd99516181",
-      "adaptation": "Four optional acquisition steps plus explicit genuine-checkpoint restore entry; default fresh route preserves its original controls and guards."
+      "adaptation": "Historical prepared adaptation: four optional acquisition steps and genuine-checkpoint restore entry. Later maintained home-focus, current-v3 readback and public-label changes are listed separately; the original default-control and historical runtime claims are not extended to these bytes.",
+      "preparedSha256": "cba34008a00a0a58b377ba24d09e92f19a7bf4884e139fef38b3cc1a7ada4182",
+      "maintainedSource": {
+        "head": "d214e3d20aaf6d226c1e0eb946fd8a160c5a1e00",
+        "blob": "9895a717344e302f4d5e69e6878221c1451dd89f",
+        "changes": [
+          {
+            "source": "02da50391dd2968d7389a78160370bafb6004f51",
+            "pullRequest": 297,
+            "scope": "Add the public Brave secondary-click home-focus witness before the existing home minimap view, preserving selected Shaman/order assertions and owned cleanup."
+          },
+          {
+            "source": "ba41eb53c3b3c4218697ee58910ba08906838167",
+            "pullRequest": 662,
+            "scope": "Require current checkpoint envelope version 3 at committed readback. Intermediate changes admitted versions 1/2 then only 2; these are historical, not current compatibility fallbacks.",
+            "intermediateSources": [
+              "abe5ae78d92e17174f7b30896ba7ed250efbdf2b",
+              "1543ccaca45b1cf43601b85d649e9a96b41d6304"
+            ]
+          },
+          {
+            "source": "d757c4001c8f9c3a92c3ef185c0ad4d8d72c8f00",
+            "pullRequest": 699,
+            "scope": "Two public portrait-selection labels become Select shaman. Existing explicit Vault/home view and Brave focus operations remain; this does not requalify historical browser evidence."
+          }
+        ]
+      }
     },
     {
       "path": "scripts/local-render/mission3-temple-witness.mjs",
       "commit": "d6565f2a8ab6a020258e777ac548ca5c5ea6a155",
-      "sha256": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e"
+      "sha256": "5590f9b05e78df562636735dd38b32cd7088e1b07b9b85208eb1f8e6b65fe657",
+      "preparedSha256": "7d07df4ba1c098beb2f8c6ce73c4949d2ba9faa7a9648cd490426eae519b126e",
+      "maintainedSource": {
+        "head": "d214e3d20aaf6d226c1e0eb946fd8a160c5a1e00",
+        "blob": "d8211950d150a23ac0dab84d2e38a513441229a1",
+        "changes": [
+          {
+            "source": "02da50391dd2968d7389a78160370bafb6004f51",
+            "pullRequest": 297,
+            "scope": "Add the bounded home-focus observer: one context-menu event, capped caller observations, original receiver/return/throw forwarding and owned wrapper/listener restoration. Existing route/save observation code is retained."
+          }
+        ]
+      },
+      "adaptation": "The original route/save observation remains; the later bounded home-focus observer is identified in maintainedSource."
     }
   ],
   "observerBasis": {
@@ -117,5 +168,10 @@
   },
   "entry": "scripts/local-render/mission3-building-screen.mjs",
   "innerTimeoutMs": 1500000,
-  "outerTimeoutSeconds": 1560
+  "outerTimeoutSeconds": 1560,
+  "helperIntegrityScope": {
+    "sourceHead": "d214e3d20aaf6d226c1e0eb946fd8a160c5a1e00",
+    "meaning": "helpers[].sha256 binds maintained helper bytes for the existing strict contract. preparedSha256 preserves the superseded preparation pin. Declared upstream commits/hashes and product, observer, lifecycle and historical run provenance are not rebound.",
+    "validation": "Source-only maintenance correspondence; no new test, browser or runtime result. Historical checkpoint/profile instructions do not authorize current-v3 continuation. launchEnabled remains false."
+  }
 }

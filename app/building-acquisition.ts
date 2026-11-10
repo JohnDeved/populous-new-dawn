@@ -3,7 +3,12 @@ import rules from './original-rules.json' with { type: 'json' }
 import models from './original-models.json' with { type: 'json' }
 import type { WorshipAcquisitionGeometry } from './worship-acquisition.ts'
 
-// Source-derived M1 controller/geometry; accepted finite reference at
+export type BuildingAcquisitionModel = 4 | 5 | 7
+export type BuildingAcquisitionGeometryModel = 79 | 95 | 103
+export const buildingAcquisitionGeometry = { 4: 79, 5: 95, 7: 103 } as const
+export const buildingAcquisitionModel = { 79: 4, 95: 5, 103: 7 } as const
+
+// Source-derived building controller/geometry; accepted finite reference at
 // 5fedc5f6: decomp/research/building-acquisition-screen/composed-reference.md.
 // This computes CPU feedback, not visibility or original GPU pixels.
 export interface BuildingFaceState {
@@ -18,7 +23,7 @@ export interface BuildingAcquisitionController {
   phase: number
   visits: number
   pending: boolean
-  model: 103 | 95
+  model: BuildingAcquisitionGeometryModel
   giftId: number
   family: 'building'
   geometry: WorshipAcquisitionGeometry
@@ -46,8 +51,8 @@ export interface BuildingAcquisitionDrawCommand {
   anchor: { x: number; y: number }
   family: 'building'
   giftId: number
-  model: 5 | 7
-  geometryModel: 103 | 95
+  model: BuildingAcquisitionModel
+  geometryModel: BuildingAcquisitionGeometryModel
   geometry: WorshipAcquisitionGeometry
   whole: boolean
   selected: number[]
@@ -56,7 +61,7 @@ export interface BuildingAcquisitionDrawCommand {
 
 // Undo the existing import's exact model scaling/reflected Z. Six-decimal
 // positions recover all original integer coordinates, verified against FACS/PNTS.
-function modelCorners(id: 103 | 95) {
+function modelCorners(id: BuildingAcquisitionGeometryModel) {
   const model = models[id],
     result: number[][][] = []
   for (let face = 0, vertex = 0; face < model.faces.length; face += 2) {
@@ -76,7 +81,8 @@ function modelCorners(id: 103 | 95) {
 }
 export const campCorners = modelCorners(103)
 export const templeCorners = modelCorners(95)
-const cornersByModel = { 103: campCorners, 95: templeCorners }
+export const towerCorners = modelCorners(79)
+const cornersByModel = { 103: campCorners, 95: templeCorners, 79: towerCorners }
 const { trunc, imul: mul } = Math
 const dot = (a: number[], b: number[]) => (mul(a[0], b[0]) + mul(a[1], b[1]) + mul(a[2], b[2])) | 0
 const cross = (a: number[], b: number[]) => [
@@ -224,7 +230,7 @@ export function initializeBuildingAcquisition(
   giftId: number,
   geometry: WorshipAcquisitionGeometry,
   random: () => number,
-  model: 103 | 95 = 103
+  model: BuildingAcquisitionGeometryModel = 103
 ): BuildingAcquisitionController {
   const saved = structuredClone(geometry)
   saved.origin = { x: short(saved.origin.x), y: short(saved.origin.y) }

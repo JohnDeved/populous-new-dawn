@@ -199,7 +199,7 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
   assert.match(workflow, /node scripts\/tutorial-browser\/run\.mjs/)
   const scenarios = ['snapshotScenario', 'frontendEscapeScenario', 'spellTestScenario', 'spellConversionScenario', 'gameplayScenario',
     'meleeScenario', 'm2Scenario', 'pauseRecoveryScenario', 'scenario', 'selectorScenario', 'sceneryScenario',
-    'spellProjectionScenario', 'buildingIdentityScenario', 'spellIconScenario']
+    'spellProjectionScenario', 'buildingIdentityScenario', 'worshipLifecycleScenario', 'spellIconScenario']
   for (const selectedScenario of ['frontend-held-escape', 'tutorial']) {
     const calls = [], receipt = { browserCapMs: browserCapMs(selectedScenario) }, page = { goto: async () => calls.push('goto') },
       context = { close: async () => calls.push('closeFrontendContext') },
@@ -225,7 +225,12 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
           calls.push('persistPrimaryTutorial')
         },
         save: () => calls.push('saveReceipt'),
-        importScenario: async name => ({ default: async input => {
+        importScenario: async name => ({ checkSelectorRecovery: async input => {
+          assert.equal(name, '../check-browser-selector-recovery.mjs')
+          assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
+          calls.push('selectorRecovery')
+          return { completed: 'selectorRecovery' }
+        }, default: async input => {
           calls.push(name)
           assert.equal(input.output, 'test-output')
           if (name === 'spellTestScenario' || name === 'spellConversionScenario') assert.deepEqual(input, { browser, url: 'test-url', output: 'test-output' })
@@ -238,16 +243,17 @@ test('actual runner invokes F9 once after held Escape, never inside the tutorial
       `return (async () => { ${routing.join('\n').replaceAll('import(', 'importScenario(')} })()`)(...Object.values(bindings))
     if (selectedScenario === 'frontend-held-escape') {
       assert.deepEqual(calls, ['frontendEscapeScenario', 'closeFrontendContext', 'spellTestScenario', 'spellConversionScenario',
-        'saveReceipt', 'spellIconScenario'])
+        'saveReceipt', 'spellIconScenario', 'selectorRecovery'])
       assert.deepEqual(receipt, { browserCapMs: browserCapMs(selectedScenario), frontendHeldEscape: { completed: 'frontendEscapeScenario' },
         spellTestMenu: { completed: 'spellTestScenario' }, spellConversion: { completed: 'spellConversionScenario' },
         spellIconBudgetBefore: { elapsedMs: 250, remainingMs: browserCapMs(selectedScenario) - 250 },
-        spellIconStates: { completed: 'spellIconScenario' } })
+        spellIconStates: { completed: 'spellIconScenario' }, selectorRecovery: { completed: 'selectorRecovery' } })
     } else {
       assert.deepEqual(calls, ['goto', 'scenario', 'retirePrimaryTutorial', 'closeFrontendContext', 'persistPrimaryTutorial', 'saveReceipt', 'selectorScenario', 'sceneryScenario', 'm2Scenario',
-        'spellProjectionScenario', 'buildingIdentityScenario', 'saveReceipt', 'spellIconScenario'])
+        'spellProjectionScenario', 'buildingIdentityScenario', 'worshipLifecycleScenario', 'saveReceipt', 'spellIconScenario'])
       assert.equal('spellTestMenu' in receipt, false)
       assert.equal('spellConversion' in receipt, false)
+      assert.equal('selectorRecovery' in receipt, false)
       assert.deepEqual(receipt.spellIconBudgetBefore, { elapsedMs: 250, remainingMs: browserCapMs(selectedScenario) - 250 })
       assert.deepEqual(receipt.spellIconStates, { completed: 'spellIconScenario' })
     }

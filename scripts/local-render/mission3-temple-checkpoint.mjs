@@ -362,7 +362,7 @@ export default async function mission3TempleCheckpoint(
       const acquisitionContext = { page, input, report, save, shamanId, read }
       if (acquisitionSteps) await acquisitionSteps.begin(acquisitionContext)
       await clear()
-      await input.button('Select and focus shaman')
+      await input.button('Select shaman')
       await input.view(initial.vault[0])
       report.vaultOrder = await input.clickEntity('shrines', initial.vault[0].id, 33, false, [
         shamanId,
@@ -376,7 +376,7 @@ export default async function mission3TempleCheckpoint(
       420000
     )
     await clear()
-    await input.button('Select and focus shaman')
+    await input.button('Select shaman')
     await focusTempleHome({ page, input, report, save, shamanId })
     await input.view({ x: 35, z: 70 })
     const movement = await input.moveGround({ x: 35, z: 70 })

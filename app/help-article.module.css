@@ -1,0 +1,11 @@
+.surface{position:absolute;inset:0;pointer-events:none;image-rendering:pixelated}
+.frame{position:absolute;pointer-events:auto}
+.frame i{position:absolute;display:block;width:16px;height:16px;background-image:url('/original/campaign-popup-tiles.png');background-repeat:no-repeat}
+.text{position:absolute;overflow:hidden;pointer-events:auto}
+.run,.link{position:absolute;display:block;white-space:pre}
+.run i,.link i{position:absolute;top:0;display:block;background-repeat:no-repeat}
+.run img{display:block}
+.link{appearance:none;padding:0;border:0;background:none;border-radius:0;box-shadow:none;cursor:inherit}
+.link:focus-visible{outline:0}
+
+.hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}

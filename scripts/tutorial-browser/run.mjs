@@ -18,6 +18,30 @@ import { runProfileEpisode } from './profile-episodes.mjs'
 import { closeCompletedPrimaryTutorial } from './primary-tutorial-lifecycle.mjs'
 import { buildRevision } from './build-provenance.mjs'
 import { arch, cpus, platform, release } from 'node:os'
+
+function failureMessage(value) {
+  try { return String(value) } catch { return '[Unprintable thrown value]' }
+}
+
+function failureSnapshot(error) {
+  const result = { failure: failureMessage(error) }
+  try {
+    const stack = error?.stack
+    if (typeof stack === 'string') result.stack = stack
+  } catch { /* Diagnostics must not interrupt owner cleanup. */ }
+  try {
+    if (error?.code === 'SNAPSHOT_EPISODE_TIMEOUT') result.browserTimedOut = true
+  } catch { /* The rejection is already a failure, even without readable metadata. */ }
+  try {
+    if (error instanceof AggregateError) {
+      const causes = error.errors
+      if (Array.isArray(causes)) result.failureCauses = Array.from(causes, failureMessage)
+      else result.failureCausesUnavailable = true
+    }
+  } catch { result.failureCausesUnavailable = true }
+  return result
+}
+
 // Keep the admission token in the owner only, never in build/Chrome descendant environments.
 const calibrationCommentEnvironment = process.env.POPULOUS_BROWSER_SCENARIO === 'ordinary-pointer-calibration' &&
   process.env.GITHUB_EVENT_NAME === 'issue_comment' ? {...process.env} : null
@@ -34,9 +58,12 @@ const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-pr
 const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotise.mjs')
 const spellTestScenario = resolve(root, 'scripts/tutorial-browser/spell-test-menu.mjs')
 const spellConversionScenario = resolve(root, 'scripts/tutorial-browser/spell-conversion.mjs')
+const worshipLifecycleScenario = resolve(root, 'scripts/tutorial-browser/worship-panel-lifecycle.mjs')
 const buildingIdentityScenario = resolve(root, 'scripts/tutorial-browser/building-panel-identity.mjs')
+const buildingEdgesScenario = resolve(root, 'scripts/tutorial-browser/building-panel-edges.mjs')
 const spellIconScenario = resolve(root, 'scripts/tutorial-browser/spell-icon-states.mjs')
 const pauseRecoveryScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-recovery.mjs')
+const pauseStyleScenario = resolve(root, 'scripts/local-render/original-pause-checkpoint-style.mjs')
 const frontendEscapeScenario = resolve(root, 'scripts/local-render/frontend-held-escape.mjs')
 const recoveryScenario = resolve(root, 'scripts/local-render/campaign-profile-recovery.mjs')
 const tornadoScenario = resolve(root, 'scripts/check-browser-tornado-appearance.mjs')
@@ -69,6 +96,12 @@ if (selectedScenario === 'ordinary-pointer-trace') {
   closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
   assert.ok(policy.ordinaryPointerTraceSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     traceCommentEnvironment), 'Trace requires exact trusted-main owner selection')
+}
+if (selectedScenario === 'building-icon-evidence') {
+  const policy = await import('./building-icon-selection.mjs')
+  closeOrdinaryPointerSmokeOwner = (await import('../browser-performance/ordinary-pointer-smoke-policy.mjs')).closeOrdinaryPointerSmokeOwner
+  assert.ok(policy.buildingIconSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
+    process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Building icon evidence requires exact-head same-repository Ready label')
 }
 if (selectedScenario === 'query-art-evidence') {
   const policy = await import('./query-art-selection.mjs')
@@ -130,8 +163,10 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
     merge: process.env.GITHUB_SHA ?? null, runId: process.env.GITHUB_RUN_ID ?? null,
     runAttempt: process.env.GITHUB_RUN_ATTEMPT ?? null, runnerImage: process.env.ImageOS ?? null,
     runnerImageVersion: process.env.ImageVersion ?? null },
+  pauseStyleScenarioSha256: hash(pauseStyleScenario),
   frontendEscapeScenarioSha256: hash(frontendEscapeScenario),
   recoveryScenarioSha256: hash(recoveryScenario), selectedScenario, pauseRecoveryScenarioSha256: hash(pauseRecoveryScenario), m2ScenarioSha256: hash(m2Scenario),
+  campaignMessageOwnershipSha256: hash(resolve(root, 'scripts/tutorial-browser/campaign-message-ownership.mjs')),
   compactMessageScenarioSha256: hash(resolve(root, 'scripts/tutorial-browser/compact-message-layout.mjs')),
   checkpointCodecSha256: hash(resolve(root, 'scripts/tutorial-browser/checkpoint-codec.mjs')),
   checkpointGeneratorSha256: hash(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')), status: 'running', startedAt: new Date().toISOString(), source, command: process.argv,
@@ -144,6 +179,8 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   spellTestScenarioSha256: hash(spellTestScenario),
   spellConversionScenarioSha256: hash(spellConversionScenario),
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
+  buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
+  worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -209,10 +246,11 @@ try {
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.browserBudget = ordinaryPointerSmokePolicy
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.browserBudget = ordinaryPointerCalibrationPolicy
   else if (selectedScenario === 'query-art-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }
+  else if (selectedScenario === 'building-icon-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -253,6 +291,15 @@ try {
     await runQueryArt({ browser, url, output: out, source,
       expectedRevision: receipt.buildRevision, receipt: receipt.queryArt })
     assert.equal(receipt.queryArt.status, 'passed', 'Query art evidence incomplete or failed')
+  } else if (selectedScenario === 'building-icon-evidence') {
+    receipt.buildingIcon = {}
+    const runBuildingIcon = (await import('./building-icon-evidence.mjs')).default
+    receipt.buildingIconEntered = true
+    await runBuildingIcon({ browser, url, output: out, source,
+      expectedRevision: receipt.buildRevision, receipt: receipt.buildingIcon })
+    assert.equal(receipt.buildingIcon.status, 'passed', 'Building icon evidence incomplete or failed')
+  } else if (selectedScenario === 'building-panel-edges') {
+    receipt.buildingPanelEdges = await (await import(pathToFileURL(buildingEdgesScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'frontend-held-escape') {
     receipt.frontendHeldEscape = await (await import(pathToFileURL(frontendEscapeScenario).href)).default({ page, url, output: out })
     // Preserve the completed frontend episode, then use an independent context
@@ -261,6 +308,8 @@ try {
     receipt.spellTestMenu = await (await import(pathToFileURL(spellTestScenario).href)).default({ browser, url, output: out })
     // Separate natural Mission3 context, after F9, within the unchanged global cap.
     receipt.spellConversion = await (await import(pathToFileURL(spellConversionScenario).href)).default({ browser, url, output: out })
+  } else if (selectedScenario === 'globe-held-enter') {
+    receipt.globeHeldEnter = await (await import('./globe-held-enter.mjs')).default({ page, url, output: out, source })
   } else if (selectedScenario === 'gameplay-resources') {
     // Separate job owns the complete five-phase workload and mandatory restart.
     // No melee/corpse work is moved or removed from the original gameplay job.
@@ -311,8 +360,11 @@ try {
     // Existing compact layout and picking assertions finish unchanged first.
     await context.close(); context = undefined; page = undefined
     receipt.hypnotise = await (await import(pathToFileURL(hypnotiseScenario).href)).default({ browser, url, output: out, deadlineAt: browserDeadlineAt })
+    receipt.campaignMessageOwnership = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture, campaignCallbacks: true })
   } else if (selectedScenario === 'm2-pointer-f8') {
     receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
+  } else if (selectedScenario === 'pause-checkpoint-style') {
+    receipt.pauseCheckpointStyle = await (await import(pathToFileURL(pauseStyleScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
   } else if (selectedScenario === 'pause-checkpoint-recovery') {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
     receipt.pauseCheckpointRecovery = await (await import(pathToFileURL(pauseRecoveryScenario).href)).default({ browser, page, url, root, output: out, receipt, signal: abort.signal })
@@ -339,25 +391,32 @@ try {
     captureProtocolEnabled, line => process.stderr.write(line),
     async () => (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out }),
   )
+  if (selectedScenario === 'tutorial') receipt.worshipPanelLifecycle = await (await import(pathToFileURL(worshipLifecycleScenario).href)).default({ browser, url, output: out })
   if (selectedScenario === 'tutorial' || selectedScenario === 'frontend-held-escape') {
     const elapsedMs = performance.now() - browserStartedMs
     receipt.spellIconBudgetBefore = { elapsedMs, remainingMs: Math.max(0, receipt.browserCapMs - elapsedMs) }
     save()
     receipt.spellIconStates = await (await import(pathToFileURL(spellIconScenario).href)).default({ browser, url, output: out, root, episode: selectedScenario })
   }
+  if (selectedScenario === 'frontend-held-escape') {
+    // Run after every existing frontend/spell assertion, inside the same 180s cap.
+    // The Tutorial aggregate keeps its original workload and unchanged 240s cap.
+    receipt.selectorRecovery = await (await import('../check-browser-selector-recovery.mjs')).checkSelectorRecovery({ browser, url, output: out })
+  }
   assert.equal(receipt.browserTimedOut, undefined)
   assert.deepEqual(receipt.errors, [], 'Unexpected primary-page runtime/console errors')
   receipt.status = 'passed'
 } catch (error) {
-  if (error?.code === 'SNAPSHOT_EPISODE_TIMEOUT') receipt.browserTimedOut = true
-  receipt.status = 'failed'; receipt.failure = String(error); receipt.stack = error?.stack; process.exitCode = 1
-  if (error instanceof AggregateError) receipt.failureCauses = error.errors.map(cause => String(cause))
+  receipt.status = 'failed'; process.exitCode = 1
+  Object.assign(receipt, failureSnapshot(error))
   if (page) {
-    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = String(e) }
+    try { receipt.failureState = await page.evaluate(() => ({ active: document.activeElement?.outerHTML?.slice(0, 500), body: document.body.innerText.slice(0, 2500) })); await page.screenshot({ path: resolve(out, 'failure.png'), timeout: 10000 }) } catch (e) { receipt.diagnosticError = failureMessage(e) }
   } else if (selectedScenario === 'snapshot-protocol') receipt.failureEvidence = 'candidate-snapshot-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
+  else if (selectedScenario === 'building-icon-evidence') receipt.failureEvidence = 'building-icon-evidence.json'
+  else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = 'building-panel-edges.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 
@@ -396,19 +455,42 @@ try {
     }
     receipt.cleanupVerified = receipt.queryArtRunnerCleanup.routeConfirmed && receipt.queryArtRunnerCleanup.browser.confirmed && receipt.queryArtRunnerCleanup.server.confirmed
     if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
+  } else if (selectedScenario === 'building-icon-evidence') {
+    receipt.buildingIconRunnerCleanup = {
+      routeConfirmed: receipt.buildingIcon?.cleanupConfirmed === true && receipt.buildingIcon?.operationSettled === true,
+      browser: receipt.buildingIconEntered === true
+        ? { confirmed: receipt.buildingIcon?.cleanupConfirmed === true, ownedByScenario: true }
+        : await closeOrdinaryPointerSmokeOwner(() => browser?.close()),
+      server: await closeOrdinaryPointerSmokeOwner(() => server?.close()),
+    }
+    receipt.cleanupVerified = receipt.buildingIconRunnerCleanup.routeConfirmed && receipt.buildingIconRunnerCleanup.browser.confirmed && receipt.buildingIconRunnerCleanup.server.confirmed
+    if (!receipt.cleanupVerified) { receipt.status = 'failed'; process.exitCode = 1 }
   } else {
-    try { await context?.close(); await browser?.close(); await server?.close(); receipt.cleanupVerified = true } catch (e) { receipt.cleanupError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+    const cleanupErrors = []
+    for (const [owner, close] of [
+      ['context', () => context?.close()],
+      ['browser', () => browser?.close()],
+      ['server', () => server?.close()],
+    ]) {
+      try { await close() } catch (error) { cleanupErrors.push({ owner, error: failureMessage(error) }) }
+    }
+    receipt.cleanupVerified = cleanupErrors.length === 0
+    if (!receipt.cleanupVerified) {
+      receipt.cleanupError = cleanupErrors[0].error
+      receipt.cleanupErrors = cleanupErrors
+      receipt.status = 'failed'; process.exitCode = 1
+    }
   }
   // The original timer is already cleared. Report actual remaining time, even
   // negative, without claiming an independently enforced cleanup deadline.
   if (receipt.heapProducerPreflight) producerCleanup(receipt.heapProducerPreflight, performance.now(), receipt.cleanupVerified)
-  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+  try { verifySource(); receipt.sourceAfter = 'identical'; if (receipt.outputManifest) assert.deepEqual(outputManifest(dist), receipt.outputManifest) } catch (e) { receipt.sourceAfter = failureMessage(e); receipt.status = 'failed'; process.exitCode = 1 }
   if (m2Fixture) {
     try {
       assert.equal(hash(resolve(out, 'm2-checkpoint-transfer.json')), m2Fixture.receipt.transferSha256)
       assert.equal(hash(resolve(out, 'm2-checkpoint.v8')), m2Fixture.receipt.checkpointSha256)
       receipt.m2FixtureUnchanged = true
-    } catch (e) { receipt.m2FixtureError = String(e); receipt.status = 'failed'; process.exitCode = 1 }
+    } catch (e) { receipt.m2FixtureError = failureMessage(e); receipt.status = 'failed'; process.exitCode = 1 }
   }
   const after = metadata(dependencies)
   receipt.dependencyChanges = Object.keys({ ...before, ...after }).filter(key => JSON.stringify(before[key]) !== JSON.stringify(after[key]))
@@ -418,24 +500,25 @@ try {
   if (selectedScenario === 'pause-checkpoint-recovery' && receipt.status === 'passed') {
     try { console.log(recoveryReceiptLog(recoveryReceipt(receipt, out))) }
     catch (error) {
-      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.evidenceError = failureMessage(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
   }
   if (selectedScenario === 'profile-recovery' && receipt.status === 'passed') {
     try { console.log(profileCasesReceiptLog(profileCasesReceipt(receipt, out))) }
     catch (error) {
-      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.evidenceError = failureMessage(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
   }
   if (selectedScenario === 'mission10-profile' && receipt.status === 'passed') {
     try { console.log(mission10CrewReceiptLog(mission10CrewReceipt(receipt, out))) }
     catch (error) {
-      receipt.evidenceError = String(error); receipt.failure ??= receipt.evidenceError
+      receipt.evidenceError = failureMessage(error); receipt.failure ??= receipt.evidenceError
       receipt.status = 'failed'; process.exitCode = 1; save()
     }
   }
   console.log(JSON.stringify({ status: receipt.status, failure: receipt.failure, cleanupVerified: receipt.cleanupVerified, output: out }))
 }
+
 

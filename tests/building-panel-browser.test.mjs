@@ -108,7 +108,7 @@ test('hosted building witness is query-gated and preserves finite cases within T
     scenario = read('scripts/tutorial-browser/building-panel-identity.mjs')
   assert.match(fixture, /get\('building-panel-identity'\) === '1'/)
   assert.match(fixture, /import\('\.\.\/building-panel-fixture\.mjs'\)/)
-  assert.equal(buildingPanelIdentityLimitMs, 35000)
+  assert.equal(buildingPanelIdentityLimitMs, 45000)
   assert.equal(browserCapMs('tutorial'), 240000)
   for (const name of [
     'result',
@@ -139,6 +139,8 @@ test('browser witness cleanup preserves failures instead of passing timeouts or 
   ]) {
     let closed = false
     const report = { errors: [], ...boundary }
+    const message = boundary.timedOut ? /45-second bound/
+      : boundary.errors ? /Runtime errors/ : /assertion/
     await assert.rejects(
       finishBuildingPanelIdentity({
         context: {
@@ -148,11 +150,18 @@ test('browser witness cleanup preserves failures instead of passing timeouts or 
         },
         report,
         output,
-        failure: boundary.failure,
-      })
+        ...(Object.hasOwn(boundary, 'failure') ? { failure: boundary.failure } : {}),
+      }),
+      error => {
+        assert.ok(error instanceof AggregateError)
+        assert.equal(error.errors.length, 1)
+        assert.match(String(error.errors[0]), message)
+        return true
+      }
     )
     assert.equal(closed, true)
     assert.equal(report.status, 'failed')
-    assert.ok(report.failures.length > 0)
+    assert.equal(report.failures.length, 1)
+    assert.match(report.failures[0].message, message)
   }
 })

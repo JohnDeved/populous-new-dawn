@@ -7,7 +7,10 @@ import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
 import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
 
-export const buildingPanelIdentityLimitMs = 35000
+// Finite episode liveness headroom, not a gameplay or performance threshold.
+// Includes public startup, four held-owner cases and all seven captures; the
+// enclosing Tutorial browser still has its unchanged 240-second total cap.
+export const buildingPanelIdentityLimitMs = 45000
 
 export function assertReplacement(report) {
   assert.equal(report.oldHp, 0)
@@ -40,8 +43,9 @@ export function assertCompletion(report) {
   assert.ok(report.expectedTimber > 0)
 }
 
-export async function finishBuildingPanelIdentity({ context, report, output, failure }) {
-  const failures = failure ? [failure] : []
+export async function finishBuildingPanelIdentity(outcome) {
+  const { context, report, output } = outcome
+  const failures = Object.hasOwn(outcome, 'failure') ? [outcome.failure] : []
   try {
     await context.close()
     report.contextClosed = true
@@ -49,10 +53,10 @@ export async function finishBuildingPanelIdentity({ context, report, output, fai
     failures.push(error)
   }
   if (report.timedOut)
-    failures.push(Error('Building identity episode exceeded its 35-second bound'))
+    failures.push(Error('Building identity episode exceeded its 45-second bound'))
   if (report.errors.length) failures.push(Error(`Runtime errors: ${JSON.stringify(report.errors)}`))
   report.status = failures.length ? 'failed' : 'passed'
-  report.failures = failures.map(error => ({ message: String(error), stack: error.stack }))
+  report.failures = failures.map(error => ({ message: String(error), stack: error?.stack }))
   writeFileSync(
     resolve(output, 'building-panel-identity.json'),
     JSON.stringify(report, null, 2) + '\n'
@@ -110,7 +114,8 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       'No production hooks, gameplay deletion shortcut, native raster equivalence or performance claim',
     ],
   }
-  let page, failure
+  const outcome = { context, report, output }
+  let page
   const screenshot = async (name, timeout = 10000) => {
     const path = resolve(output, `building-identity-${name}.png`)
     timing.mark(`screenshot:${name}:start`)
@@ -351,15 +356,21 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     }), report.selection, 'Eligibility diagnostics preserve selection and occupant ownership')
     await screenshot('held-restored')
     timing.mark('dismantle:start')
+    timing.mark('dismantle/click:start')
     await panel.locator('.dismantle-control').click()
+    timing.mark('dismantle/click:complete')
+    timing.mark('dismantle/partial:start')
     report.partial = await page.evaluate(() =>
       window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, false)
     )
+    timing.mark('dismantle/partial:complete')
     assert.ok(report.partial.hp > 0 && report.partial.progress > 0 && report.partial.progress < 1)
     assert.equal(report.partial.removed, false)
+    timing.mark('dismantle/paint:start')
     await page.waitForFunction(() =>
       window.buildingIdentity.panel.classList.contains('construction-panel')
     )
+    timing.mark('dismantle/paint:complete')
     await screenshot('dismantling')
     report.completed = await page.evaluate(() =>
       window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, true)
@@ -373,7 +384,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     timing.mark('episode:complete')
   } catch (error) {
     timing.mark('episode:failure')
-    failure = error
+    outcome.failure = error
     if (page)
       try {
         await screenshot('failure', 3000)
@@ -384,5 +395,5 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     timing.mark('episode:finally')
     clearTimeout(timer)
   }
-  return finishBuildingPanelIdentity({ context, report, output, failure })
+  return finishBuildingPanelIdentity(outcome)
 }

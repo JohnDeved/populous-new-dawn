@@ -1,4 +1,6 @@
 import models from './original-models.json' with { type: 'json' }
+import rules from './original-rules.json' with { type: 'json' }
+import type { BuildingAcquisitionGeometryModel } from './building-acquisition.ts'
 import { modelTextureUV } from './model-faces.ts'
 import { faceNormal, sunlightShades } from './model-lighting.ts'
 import { comparePolygons } from './painter-order.ts'
@@ -40,7 +42,7 @@ interface AcquisitionFace {
 }
 
 const sunlight = sunlightShades()
-function acquisitionFaces(id: 103 | 95) {
+function acquisitionFaces(id: BuildingAcquisitionGeometryModel) {
   const model = models[id],
     faces = model.modes.map((mode, face): AcquisitionFace => {
       if (mode !== 6 && mode !== 7 && mode !== 32)
@@ -62,9 +64,9 @@ function acquisitionFaces(id: 103 | 95) {
   }
   return { model, faces }
 }
-const geometry = { 103: acquisitionFaces(103), 95: acquisitionFaces(95) }
+const geometry = { 103: acquisitionFaces(103), 95: acquisitionFaces(95), 79: acquisitionFaces(79) }
 export const BUILDING_ACQUISITION_TRIANGLE_CAPACITY =
-  Math.max(models[103].p.length, models[95].p.length) / 9
+  Math.max(models[103].p.length, models[95].p.length, models[79].p.length) / 9
 
 // The screen producer uses a different depth origin from world polygons.
 export function buildingAcquisitionBucket(depths: number[], bias: number) {
@@ -89,7 +91,7 @@ export function collectBuildingAcquisitionTriangles(
     height: number
     tribe?: number
     shadeOffset?: number
-    model?: 103 | 95
+    model?: BuildingAcquisitionGeometryModel
     templeTile?: number
   }
 ) {
@@ -101,7 +103,7 @@ export function collectBuildingAcquisitionTriangles(
     const { face, transformed, projected, flight } = submission,
       data = faces[face]
     if (!data || projected.length !== data.count || transformed.length !== data.count)
-      throw new Error('Invalid Mission 1 or 3 acquisition face')
+      throw new Error('Invalid Mission 1, 3 or 4 acquisition face')
     let light = sunlight[model.normals[face][0]] + ((shadeOffset << 24) >> 24)
     if (!command.whole) {
       const [[, , firstDepth]] = transformed
@@ -125,10 +127,10 @@ export function collectBuildingAcquisitionTriangles(
           corner,
           x: projected[corner][0],
           y: projected[corner][1],
-          // Only tile226 in geometry103 has the original tribe-remap bit.
+          // The original flag remaps tiles186/226 in the admitted models.
           u:
             data.uv[corner][0] +
-            (data.tile === 226 ? tribe / 8 : 0) +
+            (rules.textureFlags[data.tile] & 1 ? tribe / 8 : 0) +
             (data.mode === 32 ? animatedOffset[0] : 0),
           v: data.uv[corner][1] + (data.mode === 32 ? animatedOffset[1] : 0),
         }))

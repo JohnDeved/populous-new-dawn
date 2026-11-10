@@ -1,0 +1,80 @@
+{
+  "original_sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "original_bytes": 2275840,
+  "tool": "GNU objdump (GNU Binutils for Debian) 2.44",
+  "tool_sha256": "96afb8521834982d0e711b5d6e9785252bf82129fb0106b93a6bd54d83fae11f",
+  "windows": [
+    {
+      "name": "service",
+      "start": "004b3920",
+      "end_exclusive": "004b3a47",
+      "bytes": 295,
+      "raw_sha256": "cb5ff8ee88669041bd24855d2e30d9211e7a7dd6df5006befd0944279bd2cb58",
+      "listing_sha256": "55680585675d011c3816412955b7e008f431c0469656cd3243bdd8698cf6eaa3",
+      "command": [
+        "/usr/bin/x86_64-linux-gnu-objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4b3920",
+        "--stop-address=0x4b3a47",
+        "/workspace/shared/populous-prerequisites/game/d3dpoptb.exe"
+      ]
+    },
+    {
+      "name": "chunk",
+      "start": "004b4020",
+      "end_exclusive": "004b4225",
+      "bytes": 517,
+      "raw_sha256": "4a881c35f20ec983bdfe538d7c9ab0782401ab970f32f7e43fada2ad7eb4e272",
+      "listing_sha256": "2e07e9945bdac69a2e4478214b75c331335c1568c6faf004bee0d8f8baa40f35",
+      "command": [
+        "/usr/bin/x86_64-linux-gnu-objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4b4020",
+        "--stop-address=0x4b4225",
+        "/workspace/shared/populous-prerequisites/game/d3dpoptb.exe"
+      ]
+    },
+    {
+      "name": "camera",
+      "start": "004b43f0",
+      "end_exclusive": "004b4751",
+      "bytes": 865,
+      "raw_sha256": "c8364dc77999d59d0fbafdf2e72d0166aca940856876c68266ff416c998df06a",
+      "listing_sha256": "d8ea85bfbbb84b14b55007f1ef070468ddf958ae496e3c059dcca9408d4b621a",
+      "command": [
+        "/usr/bin/x86_64-linux-gnu-objdump",
+        "-d",
+        "-M",
+        "intel",
+        "--start-address=0x4b43f0",
+        "--stop-address=0x4b4751",
+        "/workspace/shared/populous-prerequisites/game/d3dpoptb.exe"
+      ]
+    }
+  ],
+  "dispatch_table": {
+    "address": "004b4228",
+    "bytes_hex": "7c404b008e404b00ab404b00c9404b0020414b002a414b0057414b0070414b0086414b00bd414b00f7414b00",
+    "sha256": "a6b0744e1d60db56c12d4ba3ff1a9fc25c9dd4585aa7d35d9a3bef6efcb9bae0",
+    "entries": [
+      "004b407c",
+      "004b408e",
+      "004b40ab",
+      "004b40c9",
+      "004b4120",
+      "004b412a",
+      "004b4157",
+      "004b4170",
+      "004b4186",
+      "004b41bd",
+      "004b41f7"
+    ]
+  },
+  "original_execution": false,
+  "camera_or_replay_evaluated": false,
+  "scope": "Static byte windows only; downstream view/render functions unexecuted."
+}

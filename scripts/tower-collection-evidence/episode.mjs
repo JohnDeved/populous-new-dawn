@@ -160,7 +160,45 @@ export async function runTowerCollectionEpisode({ browser, url, output, signal, 
     report.marker = await presentation(null)
     assertTowerPresentation(report.marker)
     await capture('tower-before.png')
-    await button('Select and focus shaman').click()
+    // The shared keyboard owner rejects H while a campaign message is open.
+    // Retain the exact observed DOM owners and use trusted public summary clicks.
+    const openMessages = await page.locator('.campaign-messages details[open]').elementHandles()
+    const summaryHandles = []
+    let messageFailed = false, messageFailure
+    const failMessage = error => { if (!messageFailed) { messageFailed = true; messageFailure = error } }
+    try {
+      assert.ok(openMessages.length <= 32, 'Observed campaign messages exceed the native slot capacity')
+      const serials = await Promise.all(openMessages.map(message => message.getAttribute('data-message-serial')))
+      assert.ok(new Set(serials).size === serials.length && serials.every(serial => /^\d+$/.test(serial)),
+        'Observed campaign message serials must be valid and unique')
+      for (const [index, message] of openMessages.entries()) {
+        check()
+        const serial = serials[index]
+        assert.equal(await message.evaluate((element, serial) => {
+          const matches = document.querySelectorAll(`.campaign-messages details[data-message-serial="${serial}"]`)
+          return matches.length === 1 && matches[0] === element && element.isConnected && element.open
+        }, serial), true, 'Exact observed campaign message must remain open and connected')
+        const summary = await message.$(':scope > summary[aria-label="Read campaign message"]')
+        assert.ok(summary, 'Exact observed message must retain its public summary')
+        summaryHandles.push(summary)
+        await summary.click()
+        assert.equal(await message.evaluate((element, serial) => {
+          const matches = document.querySelectorAll(`.campaign-messages details[data-message-serial="${serial}"]`)
+          return matches.length === 1 && matches[0] === element && element.isConnected && !element.open
+        }, serial), true, 'Public collapse must retain and close the exact observed message')
+      }
+      assert.equal(await page.locator('.campaign-messages details[open]').count(), 0)
+    } catch (error) { failMessage(error) }
+    finally {
+      for (const handle of [...summaryHandles, ...openMessages]) {
+        try { await handle.dispose() } catch (error) { failMessage(error) }
+      }
+    }
+    if (messageFailed) throw messageFailure
+    check()
+    // H preserves the exact single-Shaman selection required below.
+    await page.keyboard.press('h')
+    await button('Select shaman').click({ button: 'right' })
     check(); assert.ok(report.controlledFrames < 24000, 'Admit the zero-delta picker presentation visit')
     const target = await page.evaluate(() => {
       const scene = window.testSceneRef.current, world = window.testStore.getWorld()

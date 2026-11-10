@@ -11,6 +11,25 @@ import { m2HudPoint, m2RouteReady, m2StartupReady } from './m2-pointer-f8.mjs'
 import { observeGameplayResources, captureRetiredGameplayScene, assertResourceLive, summarizeResourceRestart, assertResourceScenario } from './gameplay-resource-observer.mjs'
 import { gameplayFramePlan as plan, gameplayFrameLimits, summarizeGameplayPhase } from './gameplay-frame-evidence.mjs'
 
+function throwCollectedFailures(failures, message) {
+  if (failures.length === 1) throw failures[0]
+  if (failures.length > 1) throw new AggregateError(failures, message)
+}
+
+function failureMessage(error) {
+  try { return String(error) } catch { return '[Unprintable thrown value]' }
+}
+
+function failureDetails(error) {
+  const message = failureMessage(error)
+  let stack
+  try {
+    const value = error?.stack
+    if (typeof value === 'string') stack = value
+  } catch { /* Diagnostics must not replace the original reason or prevent cleanup. */ }
+  return { message, stack }
+}
+
 // Read-only phase observer. No clocks, simulation state, renderer or picker calls are replaced.
 // The dedicated resource scenario separately requests GC after all F8 windows.
 export function observeGameplayFramePhase() {
@@ -52,6 +71,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
   const observe = () => page.evaluate(observeGameplayFramePhase)
   const graph = page.locator('.fps-graph')
   let heapSession
+  const failures = []
   save()
   try {
     if (ownershipProbe) await page.evaluate(clearRetiredGameplayOwnership)
@@ -123,12 +143,23 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
             await input(command, () => page.mouse.move(command.x, command.y))
           }
         } else if (phase.camera) {
+          const cameraFailures = []
           try {
             for (const command of plan.cameraInputs)
               await input(command, () => page.keyboard[command.action](command.key))
+          } catch (error) {
+            cameraFailures.push(error)
+            record.cameraFailure = failureDetails(error)
           } finally {
             // Release only keys owned by this scenario even if an action fails.
-            await page.keyboard.up('ArrowRight'); await page.keyboard.up('w')
+            for (const key of ['ArrowRight', 'w']) {
+              try { await page.keyboard.up(key) } catch (error) {
+                cameraFailures.push(error)
+                record.cameraKeyReleaseFailures ??= []
+                record.cameraKeyReleaseFailures.push({ key, message: failureMessage(error) })
+              }
+            }
+            throwCollectedFailures(cameraFailures, 'Gameplay camera input and key release failed')
           }
         }
         await waitUntil(plan.phaseDurationMs)
@@ -251,8 +282,8 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     report.status = 'passed'
     return report
   } catch (error) {
-    report.status = 'failed'; report.failure = { message: String(error), stack: error.stack }
-    throw error
+    failures.push(error)
+    report.status = 'failed'; report.failure = failureDetails(error)
   } finally {
     // Do not leave test bindings retaining a Scene after success or failure.
     try {
@@ -261,15 +292,19 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         delete window.__populousGameplayOwnershipV1
       })
     } catch (cleanupError) {
-      report.status = 'failed'; report.resourceObserverCleanupFailure = String(cleanupError)
-      throw cleanupError
-    } finally {
-      try {
-        if (heapSession) await heapSession.detach()
-      } catch (cleanupError) {
-        report.status = 'failed'; report.heapObserverCleanupFailure = String(cleanupError)
-        throw cleanupError
-      } finally { save() }
+      failures.push(cleanupError)
+      report.status = 'failed'; report.resourceObserverCleanupFailure = failureMessage(cleanupError)
     }
+    try {
+      if (heapSession) await heapSession.detach()
+    } catch (cleanupError) {
+      failures.push(cleanupError)
+      report.status = 'failed'; report.heapObserverCleanupFailure = failureMessage(cleanupError)
+    }
+    try { save() } catch (saveError) {
+      failures.push(saveError)
+      report.status = 'failed'
+    }
+    throwCollectedFailures(failures, 'Gameplay frame recording and cleanup failed')
   }
 }

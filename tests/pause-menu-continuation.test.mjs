@@ -123,5 +123,5 @@ test('shipped root Back and Continue Game use the helper; navigation actions ret
   assert.match(source, /restart: \{ question: 'Restart Level\?', action: props\.onRestart \}/)
   assert.match(source, /'quit-level': \{ question: 'Quit Level\?', action: props\.onQuitLevel \}/)
   assert.match(source, /'quit-game': \{ question: 'Quit Game\?', action: props\.onQuitGame \}/)
-  assert.match(source, /onClick=\{\(\) => once\(props\.onLoad\)\}/)
+  assert.match(source, /action=\{\(\) => once\(props\.onLoad\)\}/)
 })

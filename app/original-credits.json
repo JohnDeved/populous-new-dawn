@@ -1,0 +1,1238 @@
+{
+  "version": 1,
+  "source": {
+    "inventory": "decomp/research/original-credits/source-data.json",
+    "inventorySha256": "f8dd148fce572c2e424e9e48442e08a0470cbc8856c95dd6f09ff14834717a63",
+    "parser": "app/original-credits-content.ts",
+    "parserSha256": "cedb0c7652e7f774d96cf507a1d520a506986ffb64def44569168f01942e6614",
+    "parserCommit": "a0631ff3fd28f653931c981d842d34fdb8c51b2f",
+    "resource": "data/credits.txt",
+    "resourceSha256": "7c821672c19e46bdf19b01f2fe94434f6de5ad18dbb36ea577c8188b96463ef6",
+    "recordsSha256": "54e25be4fa450ac76fcd3fe24fc0576f86dd3aecc246949dac6042c6ca111bb7",
+    "method": "Inventory-derived Latin-1 bytes; not a fresh original-file read or native execution"
+  },
+  "headings": {
+    "1071": "Production",
+    "1072": "Executive Producer",
+    "1073": "Producer",
+    "1074": "Project Leader",
+    "1075": "Associate Producer",
+    "1076": "Team Administration",
+    "1077": "Design",
+    "1078": "Game Designed by",
+    "1079": "Level Designers",
+    "1080": "Assistant Level Designers",
+    "1081": "Additional Level Design",
+    "1082": "Multiplayer Level Designers",
+    "1083": "Additional Multiplayer Level Design",
+    "1084": "Associate Producer - Level Design",
+    "1085": "Scripting",
+    "1086": "Tooltip Text",
+    "1087": "Encyclopaedia Text",
+    "1088": "Programming",
+    "1089": "Lead Programmer",
+    "1090": "Game Programming",
+    "1091": "AI Programming",
+    "1092": "Additional AI Programming",
+    "1093": "Network Programming",
+    "1095": "Network Library Programming",
+    "1096": "Additional Programming",
+    "1097": "Direct3D Programming",
+    "1098": "Localisation Programming",
+    "1099": "Solar System Programming",
+    "1101": "Front End Programming",
+    "1102": "Engine Created by",
+    "1103": "Art",
+    "1104": "Lead Artists",
+    "1105": "Artists",
+    "1106": "Additional Artwork",
+    "1107": "FMV",
+    "1109": "Writers",
+    "1110": "FMV",
+    "1111": "Audio",
+    "1112": "Audio Producer",
+    "1113": "Music Composers",
+    "1114": "Additional Music Composer",
+    "1115": "Sound Design",
+    "1116": "Sound Programmer",
+    "1117": "Sound Library and Tools",
+    "1118": "Voice Over Artists",
+    "1119": "Voice Over Casting",
+    "1120": "Installer",
+    "1121": "Associate Producer",
+    "1122": "Programming",
+    "1123": "Additional Programming",
+    "1124": "Artwork",
+    "1125": "Quality Assurance",
+    "1126": "QA Project Lead",
+    "1127": "Head of QA",
+    "1128": "QA Team",
+    "1129": "Additional QA",
+    "1130": "Config Supervisor",
+    "1131": "Config Assistant",
+    "1132": "Marketing",
+    "1133": "Marketing Manager",
+    "1134": "Product Manager",
+    "1135": "Studio Marketing",
+    "1136": "Manual and Packaging",
+    "1137": "Manual Writer",
+    "1138": "Documentation Layout Manager",
+    "1139": "Documentation Editor",
+    "1140": "Packaging Design",
+    "1143": "Packaging Copywriter",
+    "1144": "Localisation",
+    "1145": "Associate Producer",
+    "1146": "Localisation Project Manager",
+    "1147": "LPM Assistant",
+    "1149": "Far East Co-ordinator",
+    "1150": "French Localisation",
+    "1151": "German Localisation",
+    "1152": "Spanish Localisation",
+    "1153": "Swedish Localisation",
+    "1154": "Italian Localisation",
+    "1155": "Dutch Localisation",
+    "1156": "Polish Localisation",
+    "1157": "Russian Localisation",
+    "1158": "Chinese Localisation",
+    "1159": "Japanese Localisation",
+    "1160": "Translation Co-ordination (Documentation)",
+    "1161": "Product Support Manager Europe",
+    "1163": "Language Test Supervisor",
+    "1164": "Language Testers",
+    "1165": "Populous Webteam",
+    "1167": "Website Management",
+    "1168": "Website Scripting",
+    "1169": "Website Creation",
+    "1170": "Screensaver",
+    "1171": "PR",
+    "1172": "Technical Support",
+    "1173": "Finance",
+    "1174": "Legal",
+    "1175": "Administration",
+    "1176": "Management",
+    "1177": "Special Thanks",
+    "1178": "Thanks To"
+  },
+  "records": [
+    {
+      "headingId": 1071,
+      "text": "  "
+    },
+    {
+      "headingId": 1072,
+      "text": "Richard Leinfellner"
+    },
+    {
+      "headingId": 1073,
+      "text": "Stuart Whyte"
+    },
+    {
+      "headingId": 1074,
+      "text": "Alan Wright"
+    },
+    {
+      "headingId": 1075,
+      "text": "Pete Blow"
+    },
+    {
+      "headingId": 1076,
+      "text": "Lisa Stokes"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1077,
+      "text": "  "
+    },
+    {
+      "headingId": 1078,
+      "text": "The Populous Team"
+    },
+    {
+      "headingId": 0,
+      "text": "Bullfrog Productions"
+    },
+    {
+      "headingId": 1084,
+      "text": "Rajan Tande"
+    },
+    {
+      "headingId": 1079,
+      "text": "Ken Malcolm"
+    },
+    {
+      "headingId": 0,
+      "text": "Al Cullum"
+    },
+    {
+      "headingId": 1080,
+      "text": "Dan Riley"
+    },
+    {
+      "headingId": 0,
+      "text": "Lawrence Doyle"
+    },
+    {
+      "headingId": 1081,
+      "text": "Pete Blow"
+    },
+    {
+      "headingId": 0,
+      "text": "Rajan Tande"
+    },
+    {
+      "headingId": 0,
+      "text": "Richard Leinfellner"
+    },
+    {
+      "headingId": 1082,
+      "text": "Dan Riley"
+    },
+    {
+      "headingId": 0,
+      "text": "Al Cullum"
+    },
+    {
+      "headingId": 0,
+      "text": "Ken Malcolm"
+    },
+    {
+      "headingId": 1083,
+      "text": "Barry Parker"
+    },
+    {
+      "headingId": 1085,
+      "text": "Jon Rennie"
+    },
+    {
+      "headingId": 0,
+      "text": "James Leach"
+    },
+    {
+      "headingId": 0,
+      "text": "Steve Brown"
+    },
+    {
+      "headingId": 1086,
+      "text": "Jon Rennie"
+    },
+    {
+      "headingId": 0,
+      "text": "Pete Blow"
+    },
+    {
+      "headingId": 1087,
+      "text": "Jon Rennie"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1088,
+      "text": "  "
+    },
+    {
+      "headingId": 1089,
+      "text": "Alan Wright"
+    },
+    {
+      "headingId": 1090,
+      "text": "Gary Stead"
+    },
+    {
+      "headingId": 0,
+      "text": "Michael Willis "
+    },
+    {
+      "headingId": 0,
+      "text": "Ben Deane"
+    },
+    {
+      "headingId": 1091,
+      "text": "Gary Stead"
+    },
+    {
+      "headingId": 1092,
+      "text": "Alan Wright"
+    },
+    {
+      "headingId": 1097,
+      "text": "David Bryson"
+    },
+    {
+      "headingId": 1093,
+      "text": "Ben Deane"
+    },
+    {
+      "headingId": 0,
+      "text": "Mark Lamport"
+    },
+    {
+      "headingId": 1095,
+      "text": "Mark Lamport"
+    },
+    {
+      "headingId": 0,
+      "text": "Grantley Day"
+    },
+    {
+      "headingId": 0,
+      "text": "Wes Santee"
+    },
+    {
+      "headingId": 0,
+      "text": "Tony Van"
+    },
+    {
+      "headingId": 0,
+      "text": "Steve Keller"
+    },
+    {
+      "headingId": 0,
+      "text": "Scott Talafuse"
+    },
+    {
+      "headingId": 1098,
+      "text": "Ben Deane"
+    },
+    {
+      "headingId": 1099,
+      "text": "Michael Willis "
+    },
+    {
+      "headingId": 1101,
+      "text": "Michael Willis"
+    },
+    {
+      "headingId": 1102,
+      "text": "Alan Wright"
+    },
+    {
+      "headingId": 0,
+      "text": "Michael Willis"
+    },
+    {
+      "headingId": 0,
+      "text": "Gary Stead"
+    },
+    {
+      "headingId": 0,
+      "text": "Glenn Corpes"
+    },
+    {
+      "headingId": 0,
+      "text": "Ian Shaw"
+    },
+    {
+      "headingId": 0,
+      "text": "Martin Bell"
+    },
+    {
+      "headingId": 1096,
+      "text": "Ian Shaw"
+    },
+    {
+      "headingId": 0,
+      "text": "Mark Huntley"
+    },
+    {
+      "headingId": 0,
+      "text": "Rajan Tande"
+    },
+    {
+      "headingId": 0,
+      "text": "Jan Svarovsky"
+    },
+    {
+      "headingId": 0,
+      "text": "Martin Griffiths"
+    },
+    {
+      "headingId": 0,
+      "text": "David Bryson"
+    },
+    {
+      "headingId": 0,
+      "text": "Dene Carter"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy McDonald"
+    },
+    {
+      "headingId": 0,
+      "text": "Alistair Milne"
+    },
+    {
+      "headingId": 0,
+      "text": "Alex Peters"
+    },
+    {
+      "headingId": 0,
+      "text": "Chris Killpack"
+    },
+    {
+      "headingId": 0,
+      "text": "David Hooper"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1103,
+      "text": "  "
+    },
+    {
+      "headingId": 1104,
+      "text": "Steve Leney"
+    },
+    {
+      "headingId": 0,
+      "text": "Paul McLaughlin"
+    },
+    {
+      "headingId": 0,
+      "text": "Stuart Black"
+    },
+    {
+      "headingId": 1105,
+      "text": "Mark Pitcher"
+    },
+    {
+      "headingId": 0,
+      "text": "Alex Godsill"
+    },
+    {
+      "headingId": 1106,
+      "text": "Andy Bass"
+    },
+    {
+      "headingId": 0,
+      "text": "Stuart Black"
+    },
+    {
+      "headingId": 0,
+      "text": "Tony Dawson"
+    },
+    {
+      "headingId": 0,
+      "text": "Jo Rider"
+    },
+    {
+      "headingId": 0,
+      "text": "Jon Farmer"
+    },
+    {
+      "headingId": 0,
+      "text": "Martin Carroll"
+    },
+    {
+      "headingId": 0,
+      "text": "Adam Coglan"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1107,
+      "text": "  "
+    },
+    {
+      "headingId": 1109,
+      "text": "Steve Brown"
+    },
+    {
+      "headingId": 0,
+      "text": "James Leach"
+    },
+    {
+      "headingId": 1110,
+      "text": "Steve Brown"
+    },
+    {
+      "headingId": 0,
+      "text": "Steve Leney"
+    },
+    {
+      "headingId": 0,
+      "text": "Jamie Bradshaw"
+    },
+    {
+      "headingId": 0,
+      "text": "Jason Lord"
+    },
+    {
+      "headingId": 0,
+      "text": "DigiMania Limited, member of the Digital Animation Group plc."
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1111,
+      "text": "  "
+    },
+    {
+      "headingId": 1112,
+      "text": "Nick Laviers"
+    },
+    {
+      "headingId": 1113,
+      "text": "Mark Knight"
+    },
+    {
+      "headingId": 1114,
+      "text": "Russell Shaw"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy Nuttall"
+    },
+    {
+      "headingId": 1115,
+      "text": "Adele Kellett"
+    },
+    {
+      "headingId": 0,
+      "text": "Bill Lusty"
+    },
+    {
+      "headingId": 0,
+      "text": "Adrian Moore"
+    },
+    {
+      "headingId": 1116,
+      "text": "Ben Deane"
+    },
+    {
+      "headingId": 1117,
+      "text": "Austin Ellis"
+    },
+    {
+      "headingId": 0,
+      "text": "Nick Laviers"
+    },
+    {
+      "headingId": 0,
+      "text": "Martin Griffiths"
+    },
+    {
+      "headingId": 1118,
+      "text": "Janet McTeer"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy Cakebread"
+    },
+    {
+      "headingId": 0,
+      "text": "Dene Carter"
+    },
+    {
+      "headingId": 0,
+      "text": "Jon Law"
+    },
+    {
+      "headingId": 0,
+      "text": "Wayne Frost"
+    },
+    {
+      "headingId": 0,
+      "text": "James Leach"
+    },
+    {
+      "headingId": 0,
+      "text": "Adrian Moore"
+    },
+    {
+      "headingId": 1119,
+      "text": "Steve Brown"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1120,
+      "text": "  "
+    },
+    {
+      "headingId": 1121,
+      "text": "Pete Blow"
+    },
+    {
+      "headingId": 1122,
+      "text": "Andy McDonald"
+    },
+    {
+      "headingId": 1123,
+      "text": "Alistair Milne"
+    },
+    {
+      "headingId": 1124,
+      "text": "Steve Leney"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1125,
+      "text": "  "
+    },
+    {
+      "headingId": 1126,
+      "text": "Wayne Frost"
+    },
+    {
+      "headingId": 1127,
+      "text": "Dominic Murphy"
+    },
+    {
+      "headingId": 1128,
+      "text": "Jeff Brutus"
+    },
+    {
+      "headingId": 0,
+      "text": "Olly Byrne"
+    },
+    {
+      "headingId": 0,
+      "text": "Rob Charlish"
+    },
+    {
+      "headingId": 0,
+      "text": "Lawrence Doyle"
+    },
+    {
+      "headingId": 0,
+      "text": "Darren King"
+    },
+    {
+      "headingId": 0,
+      "text": "Steve Lawrie"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy Miller"
+    },
+    {
+      "headingId": 0,
+      "text": "Tristan Paramor"
+    },
+    {
+      "headingId": 0,
+      "text": "Matt Price"
+    },
+    {
+      "headingId": 0,
+      "text": "Dan Riley"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy Robson"
+    },
+    {
+      "headingId": 0,
+      "text": "Nathan Smethurst"
+    },
+    {
+      "headingId": 0,
+      "text": "Darren Tuckey"
+    },
+    {
+      "headingId": 1129,
+      "text": "Michael Bain"
+    },
+    {
+      "headingId": 0,
+      "text": "Rob Byrne"
+    },
+    {
+      "headingId": 0,
+      "text": "Matt Dean"
+    },
+    {
+      "headingId": 0,
+      "text": "Stephen Harrison"
+    },
+    {
+      "headingId": 0,
+      "text": "Phil Mansell"
+    },
+    {
+      "headingId": 0,
+      "text": "Jake May"
+    },
+    {
+      "headingId": 0,
+      "text": "Dan McDonald"
+    },
+    {
+      "headingId": 0,
+      "text": "Mark Rose"
+    },
+    {
+      "headingId": 0,
+      "text": "James Robinson"
+    },
+    {
+      "headingId": 0,
+      "text": "Dominic Waddell"
+    },
+    {
+      "headingId": 1130,
+      "text": "Matt Price"
+    },
+    {
+      "headingId": 1131,
+      "text": "Rob Charlish"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1132,
+      "text": "  "
+    },
+    {
+      "headingId": 1133,
+      "text": "Europe - David Dyett"
+    },
+    {
+      "headingId": 0,
+      "text": "US - Alex Carlos, Chris Plummer, Lorraine Woodruff"
+    },
+    {
+      "headingId": 1134,
+      "text": "US - Matt Orlich, Lisa Laverty"
+    },
+    {
+      "headingId": 1135,
+      "text": "Neil Thewarapperuma"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1136,
+      "text": "  "
+    },
+    {
+      "headingId": 1137,
+      "text": "Jon Rennie"
+    },
+    {
+      "headingId": 1138,
+      "text": "Anita Legg"
+    },
+    {
+      "headingId": 1139,
+      "text": "James Lenoël, Oli Ladenburg"
+    },
+    {
+      "headingId": 1140,
+      "text": "Caroline Page"
+    },
+    {
+      "headingId": 1143,
+      "text": "Neil Cook"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1144,
+      "text": "  "
+    },
+    {
+      "headingId": 1145,
+      "text": "Pete Blow"
+    },
+    {
+      "headingId": 1146,
+      "text": "Carol Aggett"
+    },
+    {
+      "headingId": 1147,
+      "text": "Petrina Wallace"
+    },
+    {
+      "headingId": 1149,
+      "text": "Masa Nemoto"
+    },
+    {
+      "headingId": 1150,
+      "text": "Phuong Tran-mai, Christine Jean"
+    },
+    {
+      "headingId": 1151,
+      "text": "Bianca Normann, Alexa Kortsch"
+    },
+    {
+      "headingId": 1152,
+      "text": "Julio Valladares, Ricardo Martínez"
+    },
+    {
+      "headingId": 1153,
+      "text": "Inger Marshall, Anu Laitila"
+    },
+    {
+      "headingId": 1154,
+      "text": "CTO Studios S.p.A"
+    },
+    {
+      "headingId": 1155,
+      "text": "Utrax Multimedia Productions"
+    },
+    {
+      "headingId": 1156,
+      "text": "IPS Computer Group, Poland"
+    },
+    {
+      "headingId": 1157,
+      "text": "Soft Club, Russia"
+    },
+    {
+      "headingId": 1158,
+      "text": "Christine Kong"
+    },
+    {
+      "headingId": 0,
+      "text": "Lennox Ong "
+    },
+    {
+      "headingId": 1159,
+      "text": "Keisuke Yamada"
+    },
+    {
+      "headingId": 1160,
+      "text": "Petrina Wallace, Clare Parkes"
+    },
+    {
+      "headingId": 1161,
+      "text": "Iain Hancock"
+    },
+    {
+      "headingId": 1163,
+      "text": "Simon Davison"
+    },
+    {
+      "headingId": 1164,
+      "text": "Sami Valkama"
+    },
+    {
+      "headingId": 0,
+      "text": "Grzegorz Wilk"
+    },
+    {
+      "headingId": 0,
+      "text": "Gabriele Livaldi"
+    },
+    {
+      "headingId": 0,
+      "text": "Frederic Reitz"
+    },
+    {
+      "headingId": 0,
+      "text": "Wendy Auckel"
+    },
+    {
+      "headingId": 0,
+      "text": "Dmitry Martynov"
+    },
+    {
+      "headingId": 0,
+      "text": "Frank Gördes"
+    },
+    {
+      "headingId": 0,
+      "text": "Alvaro Corral"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1165,
+      "text": "  "
+    },
+    {
+      "headingId": 1073,
+      "text": "Dan Blackstone"
+    },
+    {
+      "headingId": 1167,
+      "text": "Chris Morgan"
+    },
+    {
+      "headingId": 1168,
+      "text": "James Leach"
+    },
+    {
+      "headingId": 0,
+      "text": "Jon Rennie"
+    },
+    {
+      "headingId": 1169,
+      "text": "Insomnious"
+    },
+    {
+      "headingId": 1170,
+      "text": "Joseph Waller"
+    },
+    {
+      "headingId": 0,
+      "text": "Natalie White"
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 0,
+      "text": "  "
+    },
+    {
+      "headingId": 1171,
+      "text": "Europe - David Wilson"
+    },
+    {
+      "headingId": 0,
+      "text": "US - Patrick Buechner"
+    },
+    {
+      "headingId": 1172,
+      "text": "Simon Handby"
+    },
+    {
+      "headingId": 0,
+      "text": "Michael Burnham"
+    },
+    {
+      "headingId": 0,
+      "text": "Daren Watson"
+    },
+    {
+      "headingId": 0,
+      "text": "Kevin Donkin"
+    },
+    {
+      "headingId": 1173,
+      "text": "Laura West"
+    },
+    {
+      "headingId": 0,
+      "text": "Annette Dabb"
+    },
+    {
+      "headingId": 0,
+      "text": "Lucia Gobbo"
+    },
+    {
+      "headingId": 1174,
+      "text": "Felicity Knights"
+    },
+    {
+      "headingId": 0,
+      "text": "Duncan Backus"
+    },
+    {
+      "headingId": 0,
+      "text": "Elizabeth Hudson-Carter"
+    },
+    {
+      "headingId": 0,
+      "text": "Sue Garfield "
+    },
+    {
+      "headingId": 1175,
+      "text": "Audrey Adams"
+    },
+    {
+      "headingId": 0,
+      "text": "Tracey Charlton"
+    },
+    {
+      "headingId": 0,
+      "text": "Dan Hart"
+    },
+    {
+      "headingId": 0,
+      "text": "Sian Jones"
+    },
+    {
+      "headingId": 0,
+      "text": "Kathy McEntee"
+    },
+    {
+      "headingId": 0,
+      "text": "Lorraine Metcalf"
+    },
+    {
+      "headingId": 0,
+      "text": "Marta Soroa-Lerida"
+    },
+    {
+      "headingId": 0,
+      "text": "Lisa Williams"
+    },
+    {
+      "headingId": 1176,
+      "text": "Bruce McMillan"
+    },
+    {
+      "headingId": 0,
+      "text": "Colin Robinson"
+    },
+    {
+      "headingId": 0,
+      "text": "David Byrne"
+    },
+    {
+      "headingId": 0,
+      "text": "Les Edgar"
+    },
+    {
+      "headingId": 1177,
+      "text": "Glenn Corpes, Sean Ratcliffe, Chuck Clanton"
+    },
+    {
+      "headingId": 0,
+      "text": "Bing Gordon, David Byrne, Lisa Laverty"
+    },
+    {
+      "headingId": 0,
+      "text": "Pete Murphy, Keith Ferrel, Simon Harris"
+    },
+    {
+      "headingId": 0,
+      "text": "Sean Cooper, Brian Allen, Don Mattrick"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy Trowers, John Kershaw"
+    },
+    {
+      "headingId": 0,
+      "text": "Jeremy Longley, Simon Roper, Marshall Stowe"
+    },
+    {
+      "headingId": 0,
+      "text": "Martin & Stowe, Intensity, Michel Coulon"
+    },
+    {
+      "headingId": 0,
+      "text": "Cathy Campos, Steve Metcalf, Louise Powell"
+    },
+    {
+      "headingId": 0,
+      "text": "Matt Whitton, Catherine Leinfellner, Nathalie Wright"
+    },
+    {
+      "headingId": 0,
+      "text": "Pearl Willis, Audrey Adams, Jamie Edgar"
+    },
+    {
+      "headingId": 0,
+      "text": "Keith McCurdy, Alex Carlos, Noise"
+    },
+    {
+      "headingId": 0,
+      "text": "Nick Goldsworthy, Ross Dearsley, Chris Hill"
+    },
+    {
+      "headingId": 0,
+      "text": "Darran Thomas, John Miles, Daren Watson"
+    },
+    {
+      "headingId": 0,
+      "text": "Stephen Frost"
+    },
+    {
+      "headingId": 1178,
+      "text": "Peter Amachree, David Amor, Thomas Andersen"
+    },
+    {
+      "headingId": 0,
+      "text": "Chris Battson, Graham Bell, Ben Board"
+    },
+    {
+      "headingId": 0,
+      "text": "James Boty, Simon Britnell, Paul Brooke"
+    },
+    {
+      "headingId": 0,
+      "text": "Andy Buchanan, Andy Cakebread, Paul Carpenter"
+    },
+    {
+      "headingId": 0,
+      "text": "Michael Carr, Matt Chilton, Adrian Crofts"
+    },
+    {
+      "headingId": 0,
+      "text": "Alex Dowdeswell, Kevin Duffy, Mark Feldman"
+    },
+    {
+      "headingId": 0,
+      "text": "Karl Fitzhugh, David Foskett, Jeff Gamon"
+    },
+    {
+      "headingId": 0,
+      "text": "Julian Glover, Robin Green, Graham Harbour"
+    },
+    {
+      "headingId": 0,
+      "text": "Neil Kaminski, Shin Kanaoya, Andy Kerridge"
+    },
+    {
+      "headingId": 0,
+      "text": "Colin Moore, Jon Lawrence, William Leach"
+    },
+    {
+      "headingId": 0,
+      "text": "Shelagh Lewins, Mark Machin, Mike Man"
+    },
+    {
+      "headingId": 0,
+      "text": "John McCormack, Neil Martin, Roger Mitchell"
+    },
+    {
+      "headingId": 0,
+      "text": "Simon Nicholson, Darren Pattenden, Morten Pedersen"
+    },
+    {
+      "headingId": 0,
+      "text": "Darren Potter, Bjarne Rene, Nick Ricks"
+    },
+    {
+      "headingId": 0,
+      "text": "Jason Smith, Carsten Sorensen, Mark Stacey"
+    },
+    {
+      "headingId": 0,
+      "text": "John Steels, Jon Taylor, Matt Thurling"
+    },
+    {
+      "headingId": 0,
+      "text": "Alex Trowers, Matt Wee, Gary Welch"
+    },
+    {
+      "headingId": 0,
+      "text": "Andrew Whittaker"
+    },
+    {
+      "headingId": 0,
+      "text": null
+    }
+  ]
+}
