@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { execFileSync, spawn } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync, readdirSync, statSync, statfsSync, existsSync, openSync, writeSync, closeSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { resolve } from 'node:path'
+import { resolve, isAbsolute } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
@@ -40,12 +40,18 @@ const { collapseObservedCampaignMessages } = await import(pathToFileURL(resolve(
 const config = browserConfiguration()
 assert.deepEqual(config.launch.args, ['--headless', '--remote-debugging-pipe'])
 assert.equal(config.launch.chromiumSandbox, true)
+const runtimePath = process.env.MINIFLARE_WORKERD_PATH
+assert.ok(runtimePath && isAbsolute(runtimePath), 'Require the checksum-verified official local runtime')
+const runtime = { path: runtimePath, sha256: hash(runtimePath),
+  version: execFileSync(runtimePath, ['--version'], { encoding: 'utf8', timeout: 10000 }).trim(),
+  release: 'https://github.com/cloudflare/workerd/releases/tag/v1.20261110.1',
+  archiveSha256: '6d710b0f310e21383ee52fe8c71aa8cca3f51c2c04a48ec03e56868e97e1e65d' }
 const receipt = {
   status: 'running', side, commit: expectedCommit, tree: git('rev-parse', 'HEAD^{tree}'), source,
   scenarioSha256: hash(import.meta.filename), launch: config.launch, browserSha256: hash(config.browserPath),
   runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT,
   workflowCommit: process.env.GITHUB_SHA, startedAt: new Date().toISOString(), errors: [], warnings: [],
-  checks: [], captures: [], limits: ['Exact candidate shipped Vinext/Cloudflare bundle served by local workerd; not deployed Cloudflare edge or a synthetic merge.',
+  runtime, checks: [], captures: [], limits: ['Exact candidate shipped Vinext/Cloudflare bundle served by separately pinned official workerd v1.20261110.1 via the supported MINIFLARE_WORKERD_PATH override; not the old locked runtime, deployed Cloudflare edge or a synthetic merge.',
     'Fresh Mission 1 through ordinary public controls. No seeded saves, injected world state, altered simulation time or supplied pixels.',
     'Software rendering is not hardware performance or original-game framebuffer equivalence.'],
 }
@@ -288,6 +294,7 @@ try {
     for (const [path, digest] of Object.entries(source)) assert.equal(hash(resolve(root, path)), digest, path)
     assert.equal(git('diff', '--name-only', 'HEAD', '--'), '')
     assert.equal(dependencies(resolve(root, 'node_modules')), depsBefore)
+    assert.equal(hash(runtimePath), runtime.sha256, 'Official runtime bytes changed')
     if (buildInputs) for (const [path, digest] of Object.entries(buildInputs)) assert.equal(hash(resolve(root, 'dist', path)), digest, 'Build input changed: ' + path)
     receipt.inputsUnchanged = true
   } catch (error) { receipt.inputFailure = String(error); receipt.status = 'failed'; process.exitCode = 1 }
