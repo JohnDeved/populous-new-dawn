@@ -1,11 +1,12 @@
-name: Isolated synthetic original-host C memory/thread/frame fixture
+name: Isolated shipped selection texture readiness
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/integrated-memory-trial/**'
+      - 'scripts/ci-webgl-trial/shipped-selection.mjs'
+      - 'scripts/ci-webgl-trial/selection-episode.mjs'
 
 permissions:
   contents: read
@@ -16,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Synthetic original-host C memory/thread/frame fixture
+    name: Shipped selection texture readiness
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 1f76849ea332c1328553f13f4819d46f92f82ee7
+      PND_CANDIDATE_SHA: 67dc7ff0ed5ec9e7bc97516b4e7b5e4c7fd2fc75
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -37,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed current-main snapshot source
+      - name: Check out exact reviewed selection texture candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 1f76849ea332c1328553f13f4819d46f92f82ee7
+          ref: 67dc7ff0ed5ec9e7bc97516b4e7b5e4c7fd2fc75
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -65,72 +66,47 @@ jobs:
           printf '%s\n' "$chrome_version"
           case "$chrome_version" in
             'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
-            *) printf 'Unreviewed inventory browser version\n' >&2; exit 1 ;;
+            *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Check out pinned official Emscripten SDK
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          repository: emscripten-core/emsdk
-          ref: c69d433d8509c5c64564c2f0d054bf102a5cf67e
-          path: official-emsdk
-          persist-credentials: false
-      - name: Install official pinned Emscripten 4.0.7
-        timeout-minutes: 6
+      - name: Provision compatible official local workerd
+        id: runtime
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C official-emsdk rev-parse HEAD)" = c69d433d8509c5c64564c2f0d054bf102a5cf67e
-          python3 -c 'import json; assert json.load(open("official-emsdk/emscripten-releases-tags.json"))["releases"]["4.0.7"] == "ef4e9cedeac3332e4738087567552063f4f250d3"'
-          python3 - <<'PYRESOURCE'
-          import pathlib, shutil
-          free = shutil.disk_usage('.').free
-          mem = {line.split(':')[0]: int(line.split()[1])*1024 for line in pathlib.Path('/proc/meminfo').read_text().splitlines()}
-          print({'disk_free_bytes': free, 'memory_available_bytes': mem['MemAvailable']})
-          assert free >= 6*1024**3, 'Need at least 6GiB free disk before SDK install'
-          assert mem['MemAvailable'] >= 2*1024**3, 'Need at least 2GiB available RAM before SDK install'
-          PYRESOURCE
-          timeout --kill-after=5s 300s ./official-emsdk/emsdk install 4.0.7
-          ./official-emsdk/emsdk activate 4.0.7
-      - name: Compile reviewed authored C fixture only
-        timeout-minutes: 3
-        shell: bash
-        run: |
-          set -euo pipefail
-          source ./official-emsdk/emsdk_env.sh
-          export EMCC_CORES=1
-          emcc --version
-          cd trial-infrastructure/scripts/ci-webgl-trial/integrated-memory-trial
-          sha256sum --check --strict <<'SHA256'
-          c2c9f5a3bb697acfd470cf1c1a4fe91d5579dfc3fcda892436e466836f3f5730  index.html
-          d73c97f1060ee2e71babb7b6d80e1cba092b69be78cae474b4e33328c5964e51  integrated-thread-frame.c
-          a7abcfaa13ba0c4be030ee564e2a638c7fa0e04c57e844e0c1d1a3bd60ff0e0a  guest_memory_port.c
-          192113f9e322e418ae279808a484ea03cc312509f8761874ac9c7e7c81f31e58  guest_memory_port.h
-          7d305341d21483811f7562535fbfe1d7369980f262e5d4957205fda84554f5ff  expected-frame.hex
-          a55c4cd5f8be611f42c254a6bdca821ee00427665db876f0af6c9851cf792e1f  run-browser-frame.mjs
-          SHA256
-          mkdir build
-          cp index.html build/index.html
-          timeout --kill-after=5s 150s emcc integrated-thread-frame.c guest_memory_port.c -std=c11 -Wall -Wextra -Werror -O0 -pthread -sPROXY_TO_PTHREAD=1 -sPTHREAD_POOL_SIZE=2 -sINITIAL_MEMORY=16777216 -sALLOW_MEMORY_GROWTH=0 -sSTACK_SIZE=1048576 -sDEFAULT_PTHREAD_STACK_SIZE=131072 -sEXIT_RUNTIME=1 -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web,worker -o build/integrated-thread-frame.mjs
-          sha256sum build/*
-      - name: Verify compiled C thread boundary
-        if: ${{ !cancelled() && success() }}
-        timeout-minutes: 2
-        run: |
-          set -euo pipefail
-          mkdir -p outputs
-          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/integrated-memory-trial/run-browser-frame.mjs "$PWD/after-source" "$PWD/outputs/integrated-memory-trial"
+          runtime="$RUNNER_TEMP/shipped-workerd"
+          mkdir "$runtime"
+          curl --fail --location --silent --show-error --max-time 60 --max-filesize 50000000 --proto '=https' --proto-redir '=https' \
+            'https://github.com/cloudflare/workerd/releases/download/v1.20261110.1/workerd-linux-64.gz' \
+            -o "$runtime/workerd.gz"
+          printf '%s  %s\n' '6d710b0f310e21383ee52fe8c71aa8cca3f51c2c04a48ec03e56868e97e1e65d' "$runtime/workerd.gz" | sha256sum --check
+          gzip -dc "$runtime/workerd.gz" > "$runtime/workerd"
+          chmod u+x "$runtime/workerd"
+          "$runtime/workerd" --version
+          printf 'MINIFLARE_WORKERD_PATH=%s\n' "$runtime/workerd" >> "$GITHUB_ENV"
+      - name: Build and exercise shipped local Worker
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
+        timeout-minutes: 8
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-selection.mjs "$PWD/after-source" "$PWD/outputs/shipped-selection" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain synthetic fixture stack receipts
+      - name: Retain SSR hydration receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: synthetic-original-host-${{ github.run_id }}-${{ github.run_attempt }}
-          path: outputs/integrated-memory-trial/
+          name: shipped-selection-67dc7ff0-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/shipped-selection/*.json
+            outputs/shipped-selection/*.log
+            outputs/shipped-selection/*.html
+            outputs/shipped-selection/*.png
+            outputs/shipped-selection/selection-episode/*.json
+            outputs/shipped-selection/selection-episode/*.html
+            outputs/shipped-selection/selection-episode/*.png
           if-no-files-found: warn
           retention-days: 7
+
