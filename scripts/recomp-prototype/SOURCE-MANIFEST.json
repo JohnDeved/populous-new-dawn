@@ -230,5 +230,49 @@
   {
     "path": "browser-host-fixture/c-presentation/test.c",
     "sha256": "1b53e328f39f6ddc1b51b2b8bd05f94ffd7607b1d93af77832ca96ad3a6fd2d3"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/owner-core.mjs",
+    "sha256": "ed22e2ee55d82eaa141d315a4db51cc2d32ad189f1ece7ba4e82c69e240878f2"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/test-owner-core.mjs",
+    "sha256": "53203c6e6e196eca779c1f1642fa48cce8d5aa837522386ef2c45598479057d8"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/browser-owner-worker.mjs",
+    "sha256": "c80c8c13658f934a1c1ba99b052e8d46587f4d97a5263131afed37eeaaa0d85d"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/browser-owner-test.mjs",
+    "sha256": "cc9319a8aa384489076b78a39e3c68d75d3220b7ada7fec89886be4645114cae"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/browser-owner-index.html",
+    "sha256": "7f07b6f92c05d918ebc1eb1b9f9c46ccdd751435a85a7bb264c1cf58ac4ce81f"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/run-browser-owner.mjs",
+    "sha256": "65f789d735168f1ca6b87137b11c1abc5f8ac57eea1f919bf2a9bf53a81399e7"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/capture-presentation.mjs",
+    "sha256": "06508df92e8f1f63d30a651982b5a20c09ab8f75b5be68c3d8eb871a7094154a"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/test-capture-presentation.mjs",
+    "sha256": "e7e0072e51b408bc20b88192093e5aba34cf3a7bd474cbb6a143183e1b07702c"
+  },
+  {
+    "path": "browser-boundary-fixture/surface-descriptor/decode.mjs",
+    "sha256": "e6d16d5c23273c9bea12ca0140a4f85a8576994f0b87c71be3edf79f9a1c6526"
+  },
+  {
+    "path": "browser-boundary-fixture/surface-descriptor/test.mjs",
+    "sha256": "6c0f49e605d8edf41274afb8e2e76d9fd34b0a1285d812f451a284ccaf831f33"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/BROWSER-CHECKPOINT.md",
+    "sha256": "8a541dbe07e174dfdd676c13587dc71918169cb111535db1db71a29cc5cfad95"
   }
 ]
