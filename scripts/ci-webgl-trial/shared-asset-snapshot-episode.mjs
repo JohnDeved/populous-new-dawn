@@ -38,7 +38,7 @@ export async function runSharedAssetEpisode({browser,sourceRoot,output,expectedC
    if(!terrain?.isDataTexture||terrain.image.width!==4096||terrain.image.height!==4096||terrain.image.data!==game.terrainAtlasState?.pixels||!found.has(terrain.source)||game.terrainMapVersion!==world.landVersion)throw new Error('Named current generated terrain atlas not verified');
    const sprite=[...found.values()].find(t=>t!==terrain),image=sprite?.image;
    if(!(image instanceof HTMLImageElement)||!image.complete||image.width!==2048||image.height!==8192||image.naturalWidth!==2048||image.naturalHeight!==8192)throw new Error('Loaded unscaled sprite atlas image required');
-   const spriteUrl=new URL(image.currentSrc),allowedPaths=['/original/atlas.png','/original/atlas-s.png','/original/atlas-p.png'];
+   const spriteUrl=new URL(image.currentSrc),allowedPaths=['/original/unit-layers.png'];
    if(spriteUrl.origin!==location.origin||!allowedPaths.includes(spriteUrl.pathname)||spriteUrl.search||spriteUrl.hash)throw new Error('Unreviewed sprite atlas URL: '+spriteUrl.href);
    const landVersion=world.landVersion,terrainVersion=game.terrainMapVersion;
    const heap=()=>performance.memory?{used:performance.memory.usedJSHeapSize,total:performance.memory.totalJSHeapSize,limit:performance.memory.jsHeapSizeLimit}:null;
