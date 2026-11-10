@@ -163,10 +163,19 @@ export default async function ({ page, browser, url, root, output }) {
     assert.equal(await p.locator('[data-loading-phase="failed"]').count(), 1)
     assert.equal(failures, initialFailures + 2, 'unowned Space release must not retry')
     await p.screenshot({ path: resolve(output, 'loading-retry-held-Space-1920x1080.png') })
-    await p.keyboard.press('Tab')
-    assert.equal(await p.locator('.loading-recovery summary').evaluate(node => document.activeElement === node), true)
-    await p.keyboard.press('Shift+Tab')
-    assert.equal(await button(p, 'Try again').evaluate(node => document.activeElement === node), true)
+    // Loading recovery and its body-owned fullscreen portal share one focus cycle.
+    const retry = button(p, 'Try again')
+    const fullscreen = button(p, 'Fullscreen')
+    const details = p.locator('.loading-recovery summary')
+    assert.equal(await retry.evaluate(node => document.activeElement === node), true)
+    for (const control of [fullscreen, details, retry]) {
+      await p.keyboard.press('Tab')
+      assert.equal(await control.evaluate(node => document.activeElement === node), true)
+    }
+    for (const control of [details, fullscreen, retry]) {
+      await p.keyboard.press('Shift+Tab')
+      assert.equal(await control.evaluate(node => document.activeElement === node), true)
+    }
     await p.keyboard.down('Space')
     assert.equal(failures, initialFailures + 2, 'fresh Space waits for release')
     await p.keyboard.up('Space')
@@ -176,7 +185,7 @@ export default async function ({ page, browser, url, root, output }) {
       status: 'passed', initialFailures, failures,
       checks: ['Enter held across failed remount rejected', 'fresh Enter permits retry',
         'Space held from loading across failed remount and keyup rejected',
-        'fresh Space activates on keyup once', 'Tab and Shift-Tab recovery cycle retained'],
+        'fresh Space activates on keyup once', 'Tab and Shift-Tab cycle includes recovery controls and Fullscreen'],
     }, null, 2) + '\n')
     passed('loading-recovery-held-key-remount-ownership')
     await p.setViewportSize({ width: 640, height: 480 })
