@@ -103,7 +103,7 @@ async function settings(page) {
   await step(waitForStartupMenu(page),LIMITS.navigation)
   await step(openCampaignFromMainMenu(page),LIMITS.navigation)
   await click(page.getByRole('button',{name:'Start Mission 1',exact:true}))
-  await step(page.locator('.world-viewport canvas').waitFor({state:'visible',timeout:caseBudget.left(LIMITS.navigation)}),LIMITS.navigation)
+  await step(page.locator('.world-viewport canvas.battlefield').waitFor({state:'visible',timeout:caseBudget.left(LIMITS.navigation)}),LIMITS.navigation)
   await step(page.locator('.loading-world').waitFor({state:'hidden',timeout:caseBudget.left(LIMITS.navigation)}),LIMITS.navigation)
   const skip=page.getByRole('button',{name:'Skip introduction',exact:false});if(await skip.isVisible())await click(skip)
   await click(page.getByRole('button',{name:'Game settings',exact:true}))
