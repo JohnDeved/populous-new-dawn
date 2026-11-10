@@ -1,11 +1,11 @@
-name: Isolated fresh Mission 1 screenshot pair
+name: Isolated shipped pause SSR and hydration
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/fresh-mission.mjs'
+      - 'scripts/ci-webgl-trial/shipped-pause.mjs'
 
 permissions:
   contents: read
@@ -16,19 +16,19 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Fresh Mission 1 before and after
+    name: Shipped pause SSR and hydration
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
       PND_CANDIDATE_SHA: a92ce32bc484e51e615d02a785ef8e342bf80fd8
-      PND_BASELINE_SHA: 480a1493a62c3b015ae97ebb22dfc20b6b284eae
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
       NODE_COMPILE_CACHE: ''
       NODE_V8_COVERAGE: ''
       WRANGLER_SEND_METRICS: 'false'
+      CLOUDFLARE_CF_FETCH_ENABLED: 'false'
     steps:
       - name: Check out reviewed experiment only
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -37,15 +37,7 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact current main baseline
-        id: before
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: 480a1493a62c3b015ae97ebb22dfc20b6b284eae
-          path: before-source
-          persist-credentials: false
       - name: Check out exact reviewed pause candidate
-        id: after
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: a92ce32bc484e51e615d02a785ef8e342bf80fd8
@@ -57,45 +49,36 @@ jobs:
           node-version: '24.19.0'
           architecture: x64
           package-manager-cache: false
-      - name: Install both locked source profiles and verified official Chrome
+      - name: Install locked source profile and verified official Chrome
         id: setup
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C before-source rev-parse HEAD)" = "$PND_BASELINE_SHA"
           test "$(git -C after-source rev-parse HEAD)" = "$PND_CANDIDATE_SHA"
           npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
-          for source in before-source after-source; do
-            (
-              cd "$source"
-              node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json","utf8")).packageManager,"pnpm@11.25.0")'
-              pnpm install --frozen-lockfile --ignore-scripts
-            )
-          done
-          (cd after-source && node scripts/browser-performance/install-browser.mjs)
-      - name: Capture fresh Mission 1 on main before the pause change
+          cd after-source
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json","utf8")).packageManager,"pnpm@11.25.0")'
+          pnpm install --frozen-lockfile --ignore-scripts
+          node scripts/browser-performance/install-browser.mjs
+      - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        timeout-minutes: 6
-        run: node trial-infrastructure/scripts/ci-webgl-trial/fresh-mission.mjs "$PWD/before-source" "$PWD/outputs/fresh-before" before "$PND_BASELINE_SHA"
-      - name: Capture fresh Mission 1 on the pause candidate
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        timeout-minutes: 6
-        run: node trial-infrastructure/scripts/ci-webgl-trial/fresh-mission.mjs "$PWD/after-source" "$PWD/outputs/fresh-after" after "$PND_CANDIDATE_SHA"
+        timeout-minutes: 8
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-pause.mjs "$PWD/after-source" "$PWD/outputs/shipped-after" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
-          git -C before-source diff --exit-code HEAD --
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain raw receipts and screenshot pair
+      - name: Retain SSR hydration receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: fresh-mission1-a92ce32-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-pause-a92ce32-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/fresh-*/*.json
-            outputs/fresh-*/*.log
-            outputs/fresh-*/*.png
+            outputs/shipped-after/*.json
+            outputs/shipped-after/*.log
+            outputs/shipped-after/*.html
+            outputs/shipped-after/*.png
             after-source/outputs/browser-runtime/receipt.json
             after-source/outputs/browser-runtime/install.log
           if-no-files-found: warn
