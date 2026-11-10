@@ -54,6 +54,8 @@ import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
+import { OriginalPauseStatus } from './original-pause-status'
+import { pauseStatusLayout } from './pause-status-layout'
 import { SpellTestMenu } from './spell-test-menu'
 import { CHEAT_SAVE_NOTICE, spellTestShortcut } from './spell-test-cheats'
 import worldSelectorStyles from './world-selector.module.css'
@@ -230,6 +232,10 @@ export default function Home() {
       shell.current?.style.setProperty(
         '--message-width',
         `${messageScreenX(normalizedMessageWidth, window.innerWidth)}px`
+      )
+      shell.current?.style.setProperty(
+        '--pause-status-height',
+        `${pauseStatusLayout(window.innerWidth, window.innerHeight).height}px`
       )
       setMessageViewportHeight(window.innerHeight)
     }
@@ -1129,7 +1135,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
+            '[data-fullscreen-control],.top-actions,.wordmark,.game-dialog,[data-original-pause-menu],[data-spell-test-menu],.campaign-messages,.skip-introduction,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector],[data-original-main-menu],[data-startup-logo]'
           )
         ) {
           e.preventDefault()
@@ -1263,20 +1269,9 @@ export default function Home() {
             {world.message}
           </div>
         )}
-        {ready && world.paused && !menu && world.status === 'playing' && (
-          <button
-            className="paused-badge"
-            onClick={() => {
-              store.change(w => {
-                w.paused = false
-              })
-            }}
-          >
-            Ⅱ <span>WORLD PAUSED</span>
-            <small>Click to resume</small>
-          </button>
-        )}
       </div>
+      {ready && startup === 'playing' && world.paused && !menu && !selectorOpen &&
+        !cheatsOpen && world.status === 'playing' && <OriginalPauseStatus />}
       {world.mode && (
         <div className="target-prompt">
           <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}

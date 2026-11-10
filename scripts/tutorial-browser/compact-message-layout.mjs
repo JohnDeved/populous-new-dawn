@@ -132,7 +132,7 @@ export function compactMessageWitness() {
       .map(node => ({ metric: node.dataset.metric, ...text(node) })),
     diagnosticTextRuns: document.querySelector('.fps-graph')
       ? textRuns(document.querySelector('.fps-graph')) : [],
-    pause: document.querySelector('.paused-badge') && rect(document.querySelector('.paused-badge')),
+    pause: document.querySelector('[data-original-pause-status]') && rect(document.querySelector('[data-original-pause-status]')),
     overflow:
       document.documentElement.scrollWidth > innerWidth ||
       document.documentElement.scrollHeight > innerHeight,
