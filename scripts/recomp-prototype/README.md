@@ -34,9 +34,11 @@ From repository root (Node 24; no dependency install required):
 
 ```sh
 for f in scripts/recomp-prototype/browser-boundary-fixture/test*.mjs \
+         scripts/recomp-prototype/browser-boundary-fixture/surface-descriptor/test.mjs \
+         scripts/recomp-prototype/browser-host-fixture/frame-comparison/test*.mjs \
          scripts/recomp-prototype/browser-host-fixture/test.mjs \
          scripts/recomp-prototype/browser-host-fixture/test-guest-call-contract.mjs; do
-  timeout --kill-after=2s 30s node --max-old-space-size=64 "$f"
+  timeout --kill-after=2s 30s node --max-old-space-size=64 "$f" || exit "$?"
 done
 ```
 
@@ -65,3 +67,4 @@ branch or future changes:
 
 Full repository check/build, complete original-game execution and original-versus-
 New-Dawn comparison are **not completed by this checkpoint**. Keep the PR Draft.
+
