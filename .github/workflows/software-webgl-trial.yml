@@ -1,11 +1,11 @@
-name: Isolated synthetic original-host Worker stack fixture
+name: Isolated synthetic original-host C pthread fixture
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/browser-stack-fixture/**'
+      - 'scripts/ci-webgl-trial/c-wasm-trial/**'
 
 permissions:
   contents: read
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Synthetic original-host Worker stack fixture
+    name: Synthetic original-host C pthread fixture
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -69,23 +69,55 @@ jobs:
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Verify synthetic WASM worker stack
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+      - name: Check out pinned official Emscripten SDK
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: emscripten-core/emsdk
+          ref: c69d433d8509c5c64564c2f0d054bf102a5cf67e
+          path: official-emsdk
+          persist-credentials: false
+      - name: Install official pinned Emscripten 4.0.7
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C official-emsdk rev-parse HEAD)" = c69d433d8509c5c64564c2f0d054bf102a5cf67e
+          python3 -c 'import json; assert json.load(open("official-emsdk/emscripten-releases-tags.json"))["releases"]["4.0.7"] == "ef4e9cedeac3332e4738087567552063f4f250d3"'
+          python3 - <<'PYRESOURCE'
+          import pathlib, shutil
+          free = shutil.disk_usage('.').free
+          mem = {line.split(':')[0]: int(line.split()[1])*1024 for line in pathlib.Path('/proc/meminfo').read_text().splitlines()}
+          print({'disk_free_bytes': free, 'memory_available_bytes': mem['MemAvailable']})
+          assert free >= 6*1024**3, 'Need at least 6GiB free disk before SDK install'
+          assert mem['MemAvailable'] >= 2*1024**3, 'Need at least 2GiB available RAM before SDK install'
+          PYRESOURCE
+          timeout --kill-after=5s 300s ./official-emsdk/emsdk install 4.0.7
+          ./official-emsdk/emsdk activate 4.0.7
+      - name: Compile reviewed authored C fixture only
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          source ./official-emsdk/emsdk_env.sh
+          export EMCC_CORES=1
+          emcc --version
+          cd trial-infrastructure/scripts/ci-webgl-trial/c-wasm-trial
+          sha256sum --check --strict <<'SHA256'
+          0b1b98b232c0ad013179cd1980d08448b3551024b51f84c821319716ca45d137  index.html
+          39ecb61fbcd1366e77cccefc25339f8b88e0ffb8d83b0bd5b4c94c5abcd4b1d8  synthetic-thread-stack.c
+          378210aef5ccfe34a526c3a9315535b0017a835caa23e6daf106533da25c9b7b  run-browser-c.mjs
+          SHA256
+          mkdir build
+          cp index.html build/index.html
+          timeout --kill-after=5s 150s emcc synthetic-thread-stack.c -std=c11 -Wall -Wextra -Werror -O0 -pthread -sPROXY_TO_PTHREAD=1 -sPTHREAD_POOL_SIZE=2 -sINITIAL_MEMORY=16777216 -sMAXIMUM_MEMORY=16777216 -sALLOW_MEMORY_GROWTH=0 -sSTACK_SIZE=1048576 -sDEFAULT_PTHREAD_STACK_SIZE=131072 -sEXIT_RUNTIME=1 -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web,worker -o build/synthetic-thread-stack.mjs
+          sha256sum build/*
+      - name: Verify compiled C thread boundary
+        if: ${{ !cancelled() && success() }}
         timeout-minutes: 2
         run: |
           set -euo pipefail
-          (
-            cd trial-infrastructure/scripts/ci-webgl-trial/browser-stack-fixture
-            sha256sum --check --strict <<'SHA256'
-          be00236ef8e1c2d6d883ad8a8884288cb0adf077b85ed93989023e5d6a822850  stack-index.html
-          8bcff7a56edd01352e3970cf8ba22827a42bc64caeda2ccd6255f89852821175  browser-stack-test.mjs
-          a8a84bd5095f12bdb30fa00f8d7f5cc3ccb9713109889354379ac42505591df7  browser-stack-worker.mjs
-          2e89728852821110fa564a741ea4c09db48f1bb5e9010b6b768cd48d06a601f4  stack-seam.mjs
-          fd6c32b45d6be914fadc07cebe010c960c784589246b977daa58caab42447d89  run-browser-stack.mjs
-          SHA256
-          )
           mkdir -p outputs
-          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/browser-stack-fixture/run-browser-stack.mjs "$PWD/after-source" "$PWD/outputs/browser-stack-fixture"
+          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/c-wasm-trial/run-browser-c.mjs "$PWD/after-source" "$PWD/outputs/c-wasm-trial"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -96,6 +128,6 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: synthetic-original-host-${{ github.run_id }}-${{ github.run_attempt }}
-          path: outputs/browser-stack-fixture/
+          path: outputs/c-wasm-trial/
           if-no-files-found: warn
           retention-days: 7
