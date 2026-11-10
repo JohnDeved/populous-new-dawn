@@ -92,7 +92,7 @@ try {
   })
 
   const audioOptions = await openAudioOptions(page)
-  let audioOptionsFailed = false
+  let audioOptionsFailed = false, audioOptionsError
   try {
     await audioOptions.budget.step(timeout => audioOptionsControl(page).click({ timeout }))
     await waitForAudioObservation(audioOptions.budget, timeout => page.waitForFunction(() => window.testAudio.enabled && window.testAudio.paused &&
@@ -105,14 +105,14 @@ try {
     assert.equal(menuEnabled.events.length, 0, 'Menu-owned enable does not play the still-held stream')
   } catch (error) {
     audioOptionsFailed = true
-    throw error
-  } finally {
-    try { await closeAudioOptions(page, audioOptions) }
-    catch (error) {
-      if (!audioOptionsFailed) throw error
-      ;(report.audioOptionsCleanupErrors ??= []).push(String(error))
-    }
+    audioOptionsError = error
   }
+  try { await closeAudioOptions(page, audioOptions) }
+  catch (error) {
+    if (!audioOptionsFailed) throw error
+    ;(report.audioOptionsCleanupErrors ??= []).push(String(error))
+  }
+  if (audioOptionsFailed) throw audioOptionsError
   await page.waitForFunction(() => window.testAudio.enabled &&
     window.audioPauseEvents.some(event => event.state === 'pending'))
   assert.ok(heldRequests > 0, 'The real streamed drone request must still be held')

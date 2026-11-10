@@ -12,7 +12,7 @@ assert.equal(source.split(end).length, 2)
 const block = source.slice(source.indexOf(start), source.indexOf(end))
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 const run = new AsyncFunction('page', 'openAudioOptions', 'audioOptionsControl', 'waitForAudioObservation', 'closeAudioOptions', 'state', 'report', 'assert', block)
-function fixture({ late = false, clickFailure, closeFailure, disposeFailure, hasClickFailure = false } = {}) {
+function fixture({ late = false, clickFailure, closeFailure, disposeFailure, hasClickFailure = false, hasCloseFailure = false } = {}) {
   let now = 0, disposed = 0, closed = 0
   const calls = [], report = {}, cleanupErrors = []
   const budget = createAudioOptionsBudget({ timeout: 100, now: () => now, cleanupErrors })
@@ -30,7 +30,7 @@ function fixture({ late = false, clickFailure, closeFailure, disposeFailure, has
     getByRole() { return { async waitFor(options) { tick('control', options) } } },
   }
   const execute = () => run(page, async () => ({ budget }), () => control, waitForAudioObservation,
-    async () => { closed++; if (closeFailure) throw closeFailure },
+    async () => { closed++; if (hasCloseFailure || closeFailure) throw closeFailure },
     async () => { tick('state'); return { mediaPaused: true, backgroundScheduled: false, events: [] } }, report, assert)
   return { execute, calls, report, cleanupErrors, get disposed() { return disposed }, get closed() { return closed } }
 }
@@ -66,4 +66,23 @@ test('cleanup rejection remains fatal when the primary operation succeeded', asy
   const error = new Error('close failed'), f = fixture({ closeFailure: error })
   await assert.rejects(f.execute(), actual => actual === error)
   assert.equal(f.disposed, 1); assert.equal(f.closed, 1)
+})
+
+test('every falsey primary rejection is retained after menu cleanup', async () => {
+  for (const clickFailure of [undefined, null, false, 0, '']) {
+    const f = fixture({ hasClickFailure: true, clickFailure, closeFailure: new Error('close failed') })
+    let caught = false
+    try { await f.execute() } catch (error) { caught = true; assert.equal(error, clickFailure) }
+    assert.equal(caught, true); assert.equal(f.closed, 1); assert.equal(f.disposed, 0)
+    assert.deepEqual(f.report.audioOptionsCleanupErrors, ['Error: close failed'])
+  }
+})
+test('every falsey cleanup rejection is fatal after a successful primary operation', async () => {
+  for (const closeFailure of [undefined, null, false, 0, '']) {
+    const f = fixture({ hasCloseFailure: true, closeFailure })
+    let caught = false
+    try { await f.execute() } catch (error) { caught = true; assert.equal(error, closeFailure) }
+    assert.equal(caught, true); assert.equal(f.closed, 1); assert.equal(f.disposed, 1)
+    assert.equal(f.report.audioOptionsCleanupErrors, undefined)
+  }
 })
