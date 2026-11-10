@@ -1,14 +1,15 @@
-name: Isolated real atlas snapshot probe
+name: Isolated instrumented hook inventory
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-shared-asset-snapshot.mjs'
-      - 'scripts/ci-webgl-trial/shared-asset-snapshot-episode.mjs'
-      - 'scripts/ci-webgl-trial/shared-texture-snapshot.mjs'
-      - 'scripts/ci-webgl-trial/read-asset-image-pixels.mjs'
+      - 'scripts/ci-webgl-trial/shipped-hook-inventory.mjs'
+      - 'scripts/ci-webgl-trial/hook-inventory-episode.mjs'
+      - 'scripts/ci-webgl-trial/runtime-hook-inventory.mjs'
+      - 'scripts/ci-webgl-trial/apply-hook-instrumentation.mjs'
+      - 'scripts/ci-webgl-trial/hook-instrumentation-proposal/**'
 
 permissions:
   contents: read
@@ -19,12 +20,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Real atlas snapshot probe
+    name: Instrumented hook inventory
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 1f76849ea332c1328553f13f4819d46f92f82ee7
+      PND_CANDIDATE_SHA: 3f73fdbcb630604049658f42a896db1fe1304aef
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -43,7 +44,7 @@ jobs:
       - name: Check out exact reviewed pinned snapshot source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 1f76849ea332c1328553f13f4819d46f92f82ee7
+          ref: 3f73fdbcb630604049658f42a896db1fe1304aef
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -90,7 +91,7 @@ jobs:
       - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
         timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-shared-asset-snapshot.mjs "$PWD/after-source" "$PWD/outputs/shipped-shared-asset-snapshot" "$PND_CANDIDATE_SHA"
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-hook-inventory.mjs "$PWD/after-source" "$PWD/outputs/shipped-hook-inventory" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -100,15 +101,15 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-shared-asset-snapshot-1f76849e-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-hook-inventory-3f73fdbc-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-shared-asset-snapshot/*.json
-            outputs/shipped-shared-asset-snapshot/*.log
-            outputs/shipped-shared-asset-snapshot/*.html
-            outputs/shipped-shared-asset-snapshot/*.png
-            outputs/shipped-shared-asset-snapshot/shared-asset-snapshot-episode/*.json
-            outputs/shipped-shared-asset-snapshot/shared-asset-snapshot-episode/*.html
-            outputs/shipped-shared-asset-snapshot/shared-asset-snapshot-episode/*.png
+            outputs/shipped-hook-inventory/*.json
+            outputs/shipped-hook-inventory/*.log
+            outputs/shipped-hook-inventory/*.html
+            outputs/shipped-hook-inventory/*.png
+            outputs/shipped-hook-inventory/hook-inventory-episode/*.json
+            outputs/shipped-hook-inventory/hook-inventory-episode/*.html
+            outputs/shipped-hook-inventory/hook-inventory-episode/*.png
           if-no-files-found: warn
           retention-days: 7
 

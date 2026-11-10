@@ -1,0 +1,46 @@
+{
+  "pinnedCommit": "3f73fdbcb630604049658f42a896db1fe1304aef",
+  "scope": "Unlaunched source instrumentation proposal; registration at exact reviewed sites, full graph receipts",
+  "files": [
+    {
+      "path": "app/render-view.ts",
+      "inputSha256": "4988a6e4da0aa303b22b7014bfc03319ba1a61012d2436a2c7c696e23275e461",
+      "outputSha256": "d58a75307addbdfebd063ad4b0bd41d3779fc70cf216c0784f8d3f01b2bad34f",
+      "replacements": 4
+    },
+    {
+      "path": "app/scene-assets.ts",
+      "inputSha256": "eece09e7ae30fb5d4e23039785beebffd34c9574d6f7b5272c76172d03a7b89a",
+      "outputSha256": "61357e38428fc9d8cc91640793f9de3302c04c2332efac392c9f06d1d71a288f",
+      "replacements": 1
+    },
+    {
+      "path": "app/tornado-material.ts",
+      "inputSha256": "37f82d293f7e9d8ebb03f79ebeab30bc75c1716a33d170de06e9d3ce981d0371",
+      "outputSha256": "3dad86b54c82979020ba4ffea42f0d6eed7ffd6d90c48bd0b6fbfb8fa556ef8b",
+      "replacements": 1
+    },
+    {
+      "path": "app/globe-renderer.ts",
+      "inputSha256": "b3e049243aeb9c37f034027de0430c6a154b326d85517030ec4494e66ec54ac6",
+      "outputSha256": "159d07a5cc4607866df04e83e9d13d813e5f184a251ede9dd77f51eac0bf232b",
+      "replacements": 1
+    },
+    {
+      "path": "app/drag-overlay.ts",
+      "inputSha256": "cc0a140d76c048bccddbd4ed1228583946331407c9d1ba771b55ad9415ae0c4e",
+      "outputSha256": "17474a5b8c37731a1bc1fd6daabf4989098c79dedea0594ac1605229327e90d8",
+      "replacements": 1
+    },
+    {
+      "path": "app/cpu-hook-probe.ts",
+      "outputSha256": "4a38a4ecbf4daeadf70809206a94fd9c1f74b52c639f2ab9abd5ad99cb578d73",
+      "newHelper": true
+    },
+    {
+      "path": "app/cpu-hook-provenance.mjs",
+      "outputSha256": "75cd6972a7946118c49be6ffab36af54bf25cf20842d7f7203a8d8835dd544c0",
+      "newHelper": true
+    }
+  ]
+}
