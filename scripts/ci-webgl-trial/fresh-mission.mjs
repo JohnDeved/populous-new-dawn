@@ -36,6 +36,7 @@ const { preview } = await import(pathToFileURL(require.resolve('vite')).href)
 const { browserConfiguration } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/browser-config.mjs')).href)
 const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
 const { openCampaignFromMainMenu } = await import(pathToFileURL(resolve(root, 'scripts/browser-new-game.mjs')).href)
+const { collapseObservedCampaignMessages } = await import(pathToFileURL(resolve(root, 'scripts/public-keyboard-owner.mjs')).href)
 const config = browserConfiguration()
 assert.deepEqual(config.launch.args, ['--headless', '--remote-debugging-pipe'])
 assert.equal(config.launch.chromiumSandbox, true)
@@ -135,6 +136,11 @@ try {
     const paused = await capture('paused-1440x1000')
     if (side === 'after') { assert.equal(paused.pause.label, 'Paused'); assert.equal(paused.pause.pointerEvents, 'none'); assert.equal(paused.legacyPauseVisible, false); assert.equal(paused.worldMessages.length, 0) }
     else assert.equal(paused.legacyPauseVisible, true)
+    // Open authored message panels own keyboard input. Collapse their public
+    // summaries while paused, preserving the exact message records and World.
+    await collapseObservedCampaignMessages(page, { observe: observation => {
+      receipt.checks.push({ name: `public-campaign-collapse-dpr${dpr}`, observation }); save()
+    } })
     await button('Resume game').click()
     await page.waitForFunction(turn => !window.testStore.getWorld().paused && window.testStore.getWorld().turn > turn, paused.turn)
     if (side === 'after') assert.equal((await observe()).pause, null)
