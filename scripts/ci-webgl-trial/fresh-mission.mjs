@@ -138,17 +138,30 @@ try {
     await button('Resume game').click()
     await page.waitForFunction(turn => !window.testStore.getWorld().paused && window.testStore.getWorld().turn > turn, paused.turn)
     if (side === 'after') assert.equal((await observe()).pause, null)
-    await page.locator('.world-viewport canvas').click({ position: { x: 250, y: 200 } })
+    await page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.', { exact: true })
+      .click({ position: { x: 250, y: 200 } })
     for (const expected of [true, false, true]) {
       await page.keyboard.press('Space')
       await page.waitForFunction(paused => window.testStore.getWorld().paused === paused, expected)
     }
     receipt.checks.push({ name: `public-resume-repeated-space-dpr${dpr}`, observation: await observe() }); save()
     if (side === 'after') {
+      const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
       await button('Game settings').click()
+      await menu.waitFor({ state: 'visible' })
       await settle(); assert.equal((await observe()).pause, null)
-      await page.keyboard.press('Space'); assert.equal((await observe()).paused, true)
+      assert.equal(await button('Continue Game').evaluate(node => node === document.activeElement), true)
+      // Space activates the naturally focused Continue Game button. The menu
+      // must restore the prior paused state, not toggle the gameplay pause key.
+      await page.keyboard.press('Space')
+      await menu.waitFor({ state: 'hidden' })
+      await page.locator('[data-original-pause-status]').waitFor({ state: 'visible' })
+      assert.equal((await observe()).paused, true)
+      await button('Game settings').click()
+      await menu.waitFor({ state: 'visible' })
+      await settle(); assert.equal((await observe()).pause, null)
       await page.keyboard.press('Escape')
+      await menu.waitFor({ state: 'hidden' })
       await page.locator('[data-original-pause-status]').waitFor({ state: 'visible' })
       assert.equal((await observe()).paused, true)
       receipt.checks.push({ name: `paused-menu-space-escape-dpr${dpr}`, observation: await observe() }); save()
