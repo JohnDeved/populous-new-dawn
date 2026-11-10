@@ -6,6 +6,7 @@ import { createRequire } from 'node:module'
 import ts from 'typescript'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { createElement } from 'react'
+import { bindLoadingFocus } from '../app/loading-focus.ts'
 
 const require = createRequire(import.meta.url)
 const art = JSON.parse(readFileSync(new URL('../app/original-loading-art.json', import.meta.url), 'utf8'))
@@ -18,6 +19,7 @@ function load(react = require('react')) {
   new Function('require', 'module', 'exports', emitted)(name => {
     if (name === 'react') return react
     if (name === './original-loading-art.json') return {default: art}
+    if (name === './loading-focus') return {bindLoadingFocus}
     if (name === 'react/jsx-runtime') return require(name)
     throw Error(`Unexpected component dependency: ${name}`)
   }, component, component.exports)
@@ -208,5 +210,146 @@ test('retry rejects held Enter and unowned Space releases across replacement, bu
   assert.equal(requests, 3, 'blur cancels Space ownership')
   button.props.onClick() // Mouse or assistive detail-zero click remains supported.
   assert.equal(requests, 4)
-  assert.equal(key(mount(), 'onKeyDown', 'Tab'), false, 'Tab still bubbles to the existing focus trap')
+  assert.equal(key(mount(), 'onKeyDown', 'Tab'), false, 'Retry leaves Tab to the loading focus owner')
+})
+
+function focusFixture({ failed = false, fullscreen = true } = {}) {
+  const listeners = new Set(), calls = [], controls = []
+  const doc = {
+    body: {}, activeElement: null, modal: null,
+    querySelector(selector) {
+      if (selector === 'dialog[open]') return this.modal
+      assert.equal(selector, '[data-fullscreen-control]')
+      return fullscreen ? portal : null
+    },
+    addEventListener(type, callback, capture) {
+      assert.equal(type, 'keydown'); assert.equal(capture, true); listeners.add(callback)
+    },
+    removeEventListener(type, callback, capture) {
+      assert.equal(type, 'keydown'); assert.equal(capture, true); listeners.delete(callback)
+    },
+  }
+  const control = name => ({ name, focus(options) {
+    assert.deepEqual(options, {preventScroll: true}); doc.activeElement = this; calls.push(name)
+  } })
+  const summary = control('details'), retry = control('retry'), button = control('fullscreen')
+  if (failed) controls.push(summary, retry)
+  const screen = {
+    isConnected: true, ownerDocument: doc,
+    contains: element => element === screen || controls.includes(element),
+    querySelectorAll(selector) { assert.equal(selector, 'summary,button:not(:disabled)'); return controls },
+    focus() { doc.activeElement = screen },
+  }
+  const portal = {
+    parentElement: doc.body,
+    contains: element => element === button,
+    querySelectorAll(selector) { assert.equal(selector, 'button:not(:disabled)'); return [button] },
+  }
+  doc.activeElement = screen
+  return {doc, screen, portal, button, summary, retry, calls, listeners, controls,
+    press(key = 'Tab', {shiftKey = false, prevented = false} = {}) {
+      const event = { key, shiftKey, defaultPrevented: prevented, stopped: false,
+        preventDefault() { this.defaultPrevented = true }, stopPropagation() { this.stopped = true } }
+      for (const listener of listeners) listener(event)
+      return event
+    },
+  }
+}
+
+test('normal loading reaches the sibling fullscreen control in both directions and retains Tab ownership', () => {
+  for (const shiftKey of [false, true]) {
+    const f = focusFixture(), dispose = bindLoadingFocus(f.screen)
+    for (let repeat = 0; repeat < 3; repeat++) {
+      const event = f.press('Tab', {shiftKey})
+      assert.equal(event.defaultPrevented, true); assert.equal(event.stopped, true)
+      assert.equal(f.doc.activeElement, f.button)
+    }
+    assert.deepEqual(f.calls, ['fullscreen', 'fullscreen', 'fullscreen'])
+    dispose()
+  }
+})
+
+test('recovery controls and fullscreen form one forward and reverse cycle', () => {
+  const f = focusFixture({failed: true}), dispose = bindLoadingFocus(f.screen)
+  for (const expected of [f.summary, f.retry, f.button, f.summary]) {
+    f.press(); assert.equal(f.doc.activeElement, expected)
+  }
+  for (const expected of [f.button, f.retry, f.summary, f.button]) {
+    f.press('Tab', {shiftKey:true}); assert.equal(f.doc.activeElement, expected)
+  }
+  f.doc.activeElement = f.screen
+  f.press('Tab', {shiftKey:true})
+  assert.equal(f.doc.activeElement, f.button, 'reverse traversal from the wrapper starts at the last control')
+  dispose()
+})
+
+test('loading without a fullscreen host cannot Tab into covered gameplay controls', () => {
+  const f = focusFixture({fullscreen:false}), dispose = bindLoadingFocus(f.screen)
+  for (const shiftKey of [false, true]) {
+    assert.equal(f.press('Tab', {shiftKey}).defaultPrevented, true)
+    assert.equal(f.doc.activeElement, f.screen)
+  }
+  assert.deepEqual(f.calls, [])
+  dispose()
+})
+
+test('recovery still cycles details and Retry without fullscreen', () => {
+  const f = focusFixture({failed:true, fullscreen:false}), dispose = bindLoadingFocus(f.screen)
+  for (const expected of [f.summary, f.retry, f.summary]) {
+    f.press(); assert.equal(f.doc.activeElement, expected)
+  }
+  f.press('Tab', {shiftKey:true}); assert.equal(f.doc.activeElement, f.retry)
+  dispose()
+})
+
+test('an open dialog, foreign focus, moved portal or detached loader retains its own keyboard owner', () => {
+  for (const change of [
+    f => { f.doc.modal = {} },
+    f => { f.doc.activeElement = {} },
+    f => { f.doc.activeElement = f.button; f.portal.parentElement = {} },
+    f => { f.screen.isConnected = false },
+  ]) {
+    const f = focusFixture(), dispose = bindLoadingFocus(f.screen)
+    change(f)
+    const focused = f.doc.activeElement, event = f.press()
+    assert.equal(event.defaultPrevented, false); assert.equal(event.stopped, false)
+    assert.equal(f.doc.activeElement, focused); assert.deepEqual(f.calls, [])
+    dispose()
+  }
+})
+
+test('loading Tab listener leaves native activation, Escape and already-owned events unchanged', () => {
+  const f = focusFixture(), dispose = bindLoadingFocus(f.screen)
+  f.doc.activeElement = f.button
+  for (const key of ['Enter', ' ', 'Escape', 'a']) {
+    const event = f.press(key)
+    assert.equal(event.defaultPrevented, false); assert.equal(event.stopped, false)
+  }
+  assert.equal(f.press('Tab', {prevented:true}).stopped, false)
+  assert.deepEqual(f.calls, [])
+  dispose()
+})
+
+test('dispose and resubscribe leave exactly one loading Tab owner', () => {
+  const f = focusFixture(), first = bindLoadingFocus(f.screen)
+  assert.equal(f.listeners.size, 1)
+  first(); first()
+  assert.equal(f.listeners.size, 0)
+  assert.equal(f.press().defaultPrevented, false)
+  const second = bindLoadingFocus(f.screen)
+  f.press()
+  assert.deepEqual(f.calls, ['fullscreen'])
+  second(); assert.equal(f.listeners.size, 0)
+})
+
+test('mounted loading effect acquires the actual screen and returns its listener cleanup', () => {
+  const harness = inspectState(), nodes = harness.render(), f = focusFixture()
+  nodes[0].props.ref.current = f.screen
+  assert.equal(nodes[0].props.onKeyDown, undefined, 'one native owner handles both DOM siblings')
+  harness.effects[1]()
+  assert.equal(f.doc.activeElement, f.screen)
+  const cleanup = harness.effects[2]()
+  assert.equal(f.listeners.size, 1)
+  f.press(); assert.equal(f.doc.activeElement, f.button)
+  cleanup(); assert.equal(f.listeners.size, 0)
 })

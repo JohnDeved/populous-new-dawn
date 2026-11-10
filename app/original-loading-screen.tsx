@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import art from './original-loading-art.json' with { type: 'json' }
+import { bindLoadingFocus } from './loading-focus'
 
 // Critical splash geometry travels with the document, not a later stylesheet.
 const loadingStyle = `.loading-world{position:fixed;inset:0;background:#000;color:#fff;z-index:31;text-align:center;outline:none}
@@ -39,6 +40,10 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
     if (phase === 'failed') retry.current?.focus()
     else screen.current?.focus()
   }, [phase])
+  useEffect(() => {
+    const node = screen.current
+    if (node) return bindLoadingFocus(node)
+  }, [])
   function requestRetry() {
     if (retried.current) return
     retried.current = true
@@ -55,17 +60,6 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
       aria-label={phase === 'failed' ? 'Browser loading recovery' : undefined}
       aria-modal={phase === 'failed' ? true : undefined}
       tabIndex={-1}
-      onKeyDown={event => {
-        if (event.key !== 'Tab') return
-        event.preventDefault()
-        if (phase !== 'failed') return
-        const controls = [
-          ...(screen.current?.querySelectorAll<HTMLElement>('summary,button') ?? []),
-        ]
-        const current = controls.indexOf(document.activeElement as HTMLElement)
-        const next = (current + (event.shiftKey ? -1 : 1) + controls.length) % controls.length
-        controls[next]?.focus()
-      }}
     >
       <style>{loadingStyle}</style>
       <div className="loading-original-art">
