@@ -1,0 +1,82 @@
+name: Isolated software WebGL screenshot trial
+
+# One branch-scoped experiment. It does not mark a product PR Ready or deploy.
+on:
+  push:
+    branches: [ci/software-webgl-trial-20261110]
+    paths: ['.github/workflows/software-webgl-trial.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: software-webgl-trial-20261110
+  cancel-in-progress: false
+
+jobs:
+  screenshot:
+    name: Sandboxed CPU WebGL screenshot trial
+    if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PND_CANDIDATE_SHA: a92ce32bc484e51e615d02a785ef8e342bf80fd8
+      PR_HEAD_SHA: a92ce32bc484e51e615d02a785ef8e342bf80fd8
+      PR_BASE_SHA: 0953b8327bf386e112ac9c5801f69a80f2b0ce52
+      POPULOUS_BROWSER_SCENARIO: compact-message-layout
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out exact source candidate without retained credentials
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: JohnDeved/populous-new-dawn
+          ref: a92ce32bc484e51e615d02a785ef8e342bf80fd8
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install locked dependencies and verified official Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$PND_CANDIDATE_SHA"
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json", "utf8")).packageManager, "pnpm@11.25.0")'
+          npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+          pnpm install --frozen-lockfile --ignore-scripts
+          node scripts/browser-performance/install-browser.mjs
+      - name: Run existing bounded rendered screenshot scenario
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p outputs
+          node --input-type=module -e 'import fs from "node:fs"; fs.writeFileSync("outputs/ci-webgl-trial-identity.json", JSON.stringify({kind:"exact-head-screenshot-trial", candidate:process.env.PND_CANDIDATE_SHA, workflowCommit:process.env.GITHUB_SHA, workflowRef:process.env.GITHUB_WORKFLOW_REF, runId:process.env.GITHUB_RUN_ID, runAttempt:process.env.GITHUB_RUN_ATTEMPT, syntheticMerge:false},null,2))'
+          # The generic runner otherwise interprets GITHUB_SHA as a tested PR merge.
+          # Omit that optional value rather than relabel the workflow or candidate.
+          env -u GITHUB_SHA node scripts/tutorial-browser/run.mjs
+      - name: Reject tracked source mutation
+        if: ${{ always() && steps.checkout.outcome == 'success' }}
+        run: git diff --exit-code HEAD --
+      - name: Retain bounded raw receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: software-webgl-trial-a92ce32-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/ci-webgl-trial-identity.json
+            outputs/tutorial-browser/*.json
+            outputs/tutorial-browser/*.log
+            outputs/tutorial-browser/*.png
+            outputs/browser-runtime/receipt.json
+            outputs/browser-runtime/install.log
+          if-no-files-found: warn
+          retention-days: 7
+
