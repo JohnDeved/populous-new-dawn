@@ -1,12 +1,11 @@
-name: Isolated shipped selection texture readiness
+name: Synthetic surface owner browser fixture
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-selection.mjs'
-      - 'scripts/ci-webgl-trial/selection-episode.mjs'
+      - 'scripts/ci-webgl-trial/surface-owner-fixture/**'
 
 permissions:
   contents: read
@@ -17,12 +16,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped selection texture readiness
+    name: Synthetic surface owner browser fixture
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: cd967306e82d42d60f731e1d90e808e46b7fa00e
+      PND_CANDIDATE_SHA: 3f73fdbcb630604049658f42a896db1fe1304aef
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +37,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed selection texture candidate
+      - name: Check out exact reviewed current-main snapshot source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: cd967306e82d42d60f731e1d90e808e46b7fa00e
+          ref: 3f73fdbcb630604049658f42a896db1fe1304aef
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -57,6 +56,8 @@ jobs:
           set -euo pipefail
           test "$GITHUB_RUN_ATTEMPT" = 1
           test "$(git -C after-source rev-parse HEAD)" = "$PND_CANDIDATE_SHA"
+          test "$(df --output=avail -B1 . | tail -1 | tr -d ' ')" -ge 3221225472
+          test "$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)" -ge 1048576
           npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
           cd after-source
           node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json","utf8")).packageManager,"pnpm@11.25.0")'
@@ -66,47 +67,40 @@ jobs:
           printf '%s\n' "$chrome_version"
           case "$chrome_version" in
             'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
-            *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
+            *) printf 'Unreviewed inventory browser version\n' >&2; exit 1 ;;
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Provision compatible official local workerd
-        id: runtime
-        shell: bash
+      - name: Verify synthetic surface ownership in browser
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        timeout-minutes: 2
         run: |
           set -euo pipefail
-          runtime="$RUNNER_TEMP/shipped-workerd"
-          mkdir "$runtime"
-          curl --fail --location --silent --show-error --max-time 60 --max-filesize 50000000 --proto '=https' --proto-redir '=https' \
-            'https://github.com/cloudflare/workerd/releases/download/v1.20261110.1/workerd-linux-64.gz' \
-            -o "$runtime/workerd.gz"
-          printf '%s  %s\n' '6d710b0f310e21383ee52fe8c71aa8cca3f51c2c04a48ec03e56868e97e1e65d' "$runtime/workerd.gz" | sha256sum --check
-          gzip -dc "$runtime/workerd.gz" > "$runtime/workerd"
-          chmod u+x "$runtime/workerd"
-          "$runtime/workerd" --version
-          printf 'MINIFLARE_WORKERD_PATH=%s\n' "$runtime/workerd" >> "$GITHUB_ENV"
-      - name: Build and exercise shipped local Worker
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
-        timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-selection.mjs "$PWD/after-source" "$PWD/outputs/shipped-selection" "$PND_CANDIDATE_SHA"
+          (
+            cd trial-infrastructure/scripts/ci-webgl-trial/surface-owner-fixture
+            sha256sum --check --strict <<'SHA256'
+          7f07b6f92c05d918ebc1eb1b9f9c46ccdd751435a85a7bb264c1cf58ac4ce81f  browser-host-fixture/frame-comparison/browser-owner-index.html
+          cc9319a8aa384489076b78a39e3c68d75d3220b7ada7fec89886be4645114cae  browser-host-fixture/frame-comparison/browser-owner-test.mjs
+          c80c8c13658f934a1c1ba99b052e8d46587f4d97a5263131afed37eeaaa0d85d  browser-host-fixture/frame-comparison/browser-owner-worker.mjs
+          ed22e2ee55d82eaa141d315a4db51cc2d32ad189f1ece7ba4e82c69e240878f2  browser-host-fixture/frame-comparison/owner-core.mjs
+          bf15b90960b8a9b85a7d8326218d68e04a472b6b05eb3c5ca26d7e217e639640  browser-host-fixture/frame-comparison/capture-surface.mjs
+          9aef3eb4f3f0922b0079b5b677fee775545115efffd494b85931b9ae8e68bc01  browser-host-fixture/frame-comparison/normalize-surface.mjs
+          65f789d735168f1ca6b87137b11c1abc5f8ac57eea1f919bf2a9bf53a81399e7  browser-host-fixture/frame-comparison/run-browser-owner.mjs
+          72c073b9e84293828b7ce2ca6ddd3e0a6897aa0e31506e23a1112b07d4351da4  browser-boundary-fixture/guest-memory.mjs
+          SHA256
+          )
+          mkdir -p outputs
+          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/surface-owner-fixture/browser-host-fixture/frame-comparison/run-browser-owner.mjs "$PWD/after-source" "$PWD/outputs/surface-owner-fixture"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain SSR hydration receipts and screenshots
+      - name: Retain synthetic surface ownership receipts
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-selection-cd967306-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            outputs/shipped-selection/*.json
-            outputs/shipped-selection/*.log
-            outputs/shipped-selection/*.html
-            outputs/shipped-selection/*.png
-            outputs/shipped-selection/selection-episode/*.json
-            outputs/shipped-selection/selection-episode/*.html
-            outputs/shipped-selection/selection-episode/*.png
+          name: synthetic-surface-owner-${{ github.run_id }}-${{ github.run_attempt }}
+          path: outputs/surface-owner-fixture/
           if-no-files-found: warn
           retention-days: 7
-
