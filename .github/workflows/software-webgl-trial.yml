@@ -1,11 +1,11 @@
-name: Isolated synthetic original-host Canvas2D fixture
+name: Isolated synthetic original-host Worker stack fixture
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/original-host-fixture/**'
+      - 'scripts/ci-webgl-trial/browser-stack-fixture/**'
 
 permissions:
   contents: read
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Synthetic original-host Canvas2D fixture
+    name: Synthetic original-host Worker stack fixture
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -69,22 +69,33 @@ jobs:
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Verify synthetic framebuffer and input
+      - name: Verify synthetic WASM worker stack
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         timeout-minutes: 2
         run: |
+          set -euo pipefail
+          (
+            cd trial-infrastructure/scripts/ci-webgl-trial/browser-stack-fixture
+            sha256sum --check --strict <<'SHA256'
+          be00236ef8e1c2d6d883ad8a8884288cb0adf077b85ed93989023e5d6a822850  stack-index.html
+          8bcff7a56edd01352e3970cf8ba22827a42bc64caeda2ccd6255f89852821175  browser-stack-test.mjs
+          a8a84bd5095f12bdb30fa00f8d7f5cc3ccb9713109889354379ac42505591df7  browser-stack-worker.mjs
+          2e89728852821110fa564a741ea4c09db48f1bb5e9010b6b768cd48d06a601f4  stack-seam.mjs
+          fd6c32b45d6be914fadc07cebe010c960c784589246b977daa58caab42447d89  run-browser-stack.mjs
+          SHA256
+          )
           mkdir -p outputs
-          node trial-infrastructure/scripts/ci-webgl-trial/original-host-fixture/run-browser-fixture.mjs "$PWD/after-source" "$PWD/outputs/original-host-fixture"
+          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/browser-stack-fixture/run-browser-stack.mjs "$PWD/after-source" "$PWD/outputs/browser-stack-fixture"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain synthetic fixture receipt and screenshot
+      - name: Retain synthetic fixture stack receipts
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: synthetic-original-host-${{ github.run_id }}-${{ github.run_attempt }}
-          path: outputs/original-host-fixture/
+          path: outputs/browser-stack-fixture/
           if-no-files-found: warn
           retention-days: 7
