@@ -34,12 +34,12 @@
     },
     {
       "path": "app/cpu-hook-probe.ts",
-      "outputSha256": "4a38a4ecbf4daeadf70809206a94fd9c1f74b52c639f2ab9abd5ad99cb578d73",
+      "outputSha256": "1e4138c529fcf7a5b17c1c35c207b8873fd493088ff26c3cfbcb7bfb2d433fd6",
       "newHelper": true
     },
     {
       "path": "app/cpu-hook-provenance.mjs",
-      "outputSha256": "75cd6972a7946118c49be6ffab36af54bf25cf20842d7f7203a8d8835dd544c0",
+      "outputSha256": "f839b31960b779d7915d46bd9580453522e769d86b74c9b55d8a6a71fc466bf7",
       "newHelper": true
     }
   ]
