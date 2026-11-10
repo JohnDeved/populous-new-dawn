@@ -214,5 +214,21 @@
   {
     "path": "browser-host-fixture/frame-comparison/test.mjs",
     "sha256": "2a192906a6c1d7e5d9ec4408f687a3f8463d63598e795c52fdc1378a40b1623b"
+  },
+  {
+    "path": "browser-host-fixture/c-presentation/README.md",
+    "sha256": "ed91d644d256e8cc4b63385d7609e9156c9893f761f8985a4ff65fd3359dad0b"
+  },
+  {
+    "path": "browser-host-fixture/c-presentation/capture.c",
+    "sha256": "528463bdeeefa99300caba37d97c725b1b849eb4698afb2ff7efe95bf5d4f03a"
+  },
+  {
+    "path": "browser-host-fixture/c-presentation/capture.h",
+    "sha256": "f43d50ce1e3d227fd46e6e15820928b98651c386851920bc1055969858e62c55"
+  },
+  {
+    "path": "browser-host-fixture/c-presentation/test.c",
+    "sha256": "1b53e328f39f6ddc1b51b2b8bd05f94ffd7607b1d93af77832ca96ad3a6fd2d3"
   }
 ]
