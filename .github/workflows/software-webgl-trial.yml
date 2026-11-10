@@ -1,11 +1,12 @@
-name: Isolated shipped Options controls
+name: Isolated shipped Options audio retry
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-options.mjs'
+      - 'scripts/ci-webgl-trial/shipped-audio-retry.mjs'
+      - 'scripts/ci-webgl-trial/audio-retry-episode.mjs'
 
 permissions:
   contents: read
@@ -16,7 +17,7 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped Options controls
+    name: Shipped Options audio retry
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -86,7 +87,7 @@ jobs:
       - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
         timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-options.mjs "$PWD/after-source" "$PWD/outputs/shipped-options" "$PND_CANDIDATE_SHA"
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-audio-retry.mjs "$PWD/after-source" "$PWD/outputs/shipped-audio-retry" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -96,12 +97,12 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-options-0609f557-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-audio-retry-0609f557-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-options/*.json
-            outputs/shipped-options/*.log
-            outputs/shipped-options/*.html
-            outputs/shipped-options/*.png
+            outputs/shipped-audio-retry/*.json
+            outputs/shipped-audio-retry/*.log
+            outputs/shipped-audio-retry/*.html
+            outputs/shipped-audio-retry/*.png
           if-no-files-found: warn
           retention-days: 7
 
