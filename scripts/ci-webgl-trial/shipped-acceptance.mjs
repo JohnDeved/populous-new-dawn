@@ -196,9 +196,11 @@ try {
       return next
     },
   }
-  const compactPath = resolve(root, 'scripts/local-render/compact-status-pause.mjs')
+  const compactPath = resolve(import.meta.dirname, 'compact-status-pause-trial.mjs')
   const { default: compact } = await import(pathToFileURL(compactPath).href)
   receipt.compactScenarioSha256 = hash(compactPath)
+  receipt.maintainedCompactSourceSha256 = hash(resolve(root, 'scripts/local-render/compact-status-pause.mjs'))
+  receipt.compactAdapter = 'Exact maintained scenario with bounded visible-metric readiness before unchanged F8 assertions, plus diagnostic observations/screenshots; separate experiment file, no candidate source mutation.'
   receipt.compact = await compact({ browser: scenarioBrowser, url: origin, root, output, signal: controller.signal })
   assert.equal(receipt.compact.status, 'passed')
   assert.deepEqual(receipt.compact.errors, [])

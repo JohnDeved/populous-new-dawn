@@ -12,8 +12,10 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const git = (root, ...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
 assert.equal(git(candidate, 'rev-parse', 'HEAD'), 'c078343e705cf31b194a6326f82b752f90c0ca23')
 assert.equal(git(baseline, 'rev-parse', 'HEAD'), '480a1493a62c3b015ae97ebb22dfc20b6b284eae')
-for (const path of ['package.json', 'pnpm-lock.yaml', '.npmrc', 'eslint.config.mjs'])
+for (const path of ['package.json', 'pnpm-lock.yaml', 'pnpm-workspace.yaml', 'eslint.config.mjs'])
   assert.deepEqual(readFileSync(resolve(candidate, path)), readFileSync(resolve(baseline, path)), path)
+assert.equal(existsSync(resolve(candidate, '.npmrc')), false, 'No untracked pnpm config override')
+assert.equal(existsSync(resolve(baseline, '.npmrc')), false, 'No untracked baseline config override')
 const source = root => Object.fromEntries(execFileSync('git', ['ls-files', '-z'], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean).map(path => [path, sha256(readFileSync(resolve(root, path)))]))
 const dependencies = () => {
   const entries = {}

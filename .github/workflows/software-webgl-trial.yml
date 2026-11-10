@@ -7,6 +7,7 @@ on:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-acceptance.mjs'
       - 'scripts/ci-webgl-trial/whole-lint.mjs'
+      - 'scripts/ci-webgl-trial/compact-status-pause-trial.mjs'
 
 permissions:
   contents: read
