@@ -23,9 +23,12 @@ try{
  assert.deepEqual(report.samples,[[18,32,51,255],[54,183,164,255],[225,171,63,255],[255,255,255,255]]);
  report.rgba_sha256=await page.locator('canvas').evaluate(async c=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',c.getContext('2d').getImageData(0,0,640,480).data))].map(x=>x.toString(16).padStart(2,'0')).join(''));
  assert.equal(report.rgba_sha256,'0879f72b9957ef5a5bae1435d55653411d32c7e7ef89bbbc1d91ed759aef2b9d');
- await page.locator('canvas').click({position:{x:200,y:150},modifiers:['Control','Alt']});
+ report.canvasRect=await page.locator('canvas').evaluate(c=>{const r=c.getBoundingClientRect();return {left:r.left,top:r.top,width:r.width,height:r.height}});
+ report.requestedClick={x:200.5,y:150.5};
+ await page.locator('canvas').click({position:report.requestedClick,modifiers:['Control','Alt']});
+ await page.screenshot({path:resolve(out,'synthetic-framebuffer.png'),fullPage:true});
  report.input=JSON.parse(await page.locator('#log').textContent());assert.deepEqual(report.input,{type:'pointerDown',point:{x:200,y:150},ctrl:true,alt:true});
- await page.screenshot({path:resolve(out,'synthetic-framebuffer.png'),fullPage:true});assert.deepEqual(report.errors,[]);report.status='passed';
+ assert.deepEqual(report.errors,[]);report.status='passed';
 }catch(e){failure=e;report.status='failed';report.failure=String(e)}finally{
  for(const [label,close] of [['context',()=>context?.close()],['browser',()=>browser?.close()],['loopback server',()=>server?new Promise((ok,fail)=>server.close(e=>e?fail(e):ok())):undefined]])try{await close();report.cleanup.push(`${label} closed or not created`)}catch(e){report.errors.push(`${label}: ${e}`);report.status='failed';failure??=e}
  writeFileSync(resolve(out,'receipt.json'),JSON.stringify(report,null,2));
