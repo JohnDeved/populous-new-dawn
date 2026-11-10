@@ -1,11 +1,11 @@
-name: Isolated synthetic original-host C pthread fixture
+name: Isolated synthetic original-host C memory/thread/frame fixture
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/c-wasm-trial/**'
+      - 'scripts/ci-webgl-trial/integrated-memory-trial/**'
 
 permissions:
   contents: read
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Synthetic original-host C pthread fixture
+    name: Synthetic original-host C memory/thread/frame fixture
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -101,15 +101,18 @@ jobs:
           source ./official-emsdk/emsdk_env.sh
           export EMCC_CORES=1
           emcc --version
-          cd trial-infrastructure/scripts/ci-webgl-trial/c-wasm-trial
+          cd trial-infrastructure/scripts/ci-webgl-trial/integrated-memory-trial
           sha256sum --check --strict <<'SHA256'
-          0b1b98b232c0ad013179cd1980d08448b3551024b51f84c821319716ca45d137  index.html
-          39ecb61fbcd1366e77cccefc25339f8b88e0ffb8d83b0bd5b4c94c5abcd4b1d8  synthetic-thread-stack.c
-          378210aef5ccfe34a526c3a9315535b0017a835caa23e6daf106533da25c9b7b  run-browser-c.mjs
+          c2c9f5a3bb697acfd470cf1c1a4fe91d5579dfc3fcda892436e466836f3f5730  index.html
+          d73c97f1060ee2e71babb7b6d80e1cba092b69be78cae474b4e33328c5964e51  integrated-thread-frame.c
+          a7abcfaa13ba0c4be030ee564e2a638c7fa0e04c57e844e0c1d1a3bd60ff0e0a  guest_memory_port.c
+          192113f9e322e418ae279808a484ea03cc312509f8761874ac9c7e7c81f31e58  guest_memory_port.h
+          7d305341d21483811f7562535fbfe1d7369980f262e5d4957205fda84554f5ff  expected-frame.hex
+          a55c4cd5f8be611f42c254a6bdca821ee00427665db876f0af6c9851cf792e1f  run-browser-frame.mjs
           SHA256
           mkdir build
           cp index.html build/index.html
-          timeout --kill-after=5s 150s emcc synthetic-thread-stack.c -std=c11 -Wall -Wextra -Werror -O0 -pthread -sPROXY_TO_PTHREAD=1 -sPTHREAD_POOL_SIZE=2 -sINITIAL_MEMORY=16777216 -sALLOW_MEMORY_GROWTH=0 -sSTACK_SIZE=1048576 -sDEFAULT_PTHREAD_STACK_SIZE=131072 -sEXIT_RUNTIME=1 -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web,worker -o build/synthetic-thread-stack.mjs
+          timeout --kill-after=5s 150s emcc integrated-thread-frame.c guest_memory_port.c -std=c11 -Wall -Wextra -Werror -O0 -pthread -sPROXY_TO_PTHREAD=1 -sPTHREAD_POOL_SIZE=2 -sINITIAL_MEMORY=16777216 -sALLOW_MEMORY_GROWTH=0 -sSTACK_SIZE=1048576 -sDEFAULT_PTHREAD_STACK_SIZE=131072 -sEXIT_RUNTIME=1 -sMODULARIZE=1 -sEXPORT_ES6=1 -sENVIRONMENT=web,worker -o build/integrated-thread-frame.mjs
           sha256sum build/*
       - name: Verify compiled C thread boundary
         if: ${{ !cancelled() && success() }}
@@ -117,7 +120,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p outputs
-          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/c-wasm-trial/run-browser-c.mjs "$PWD/after-source" "$PWD/outputs/c-wasm-trial"
+          timeout --kill-after=5s 90s node --max-old-space-size=256 trial-infrastructure/scripts/ci-webgl-trial/integrated-memory-trial/run-browser-frame.mjs "$PWD/after-source" "$PWD/outputs/integrated-memory-trial"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -128,6 +131,6 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
           name: synthetic-original-host-${{ github.run_id }}-${{ github.run_attempt }}
-          path: outputs/c-wasm-trial/
+          path: outputs/integrated-memory-trial/
           if-no-files-found: warn
           retention-days: 7
