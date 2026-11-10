@@ -4,6 +4,8 @@
 inactive article, discovery, preview and input staging. The current-main
 composition preserves live Menu/Query behavior; source assembly does not establish
 public entry, native fidelity or rendered acceptance.
+[Spell-control preview inputs](research/native-help/spell-control.md) narrows the
+29 kind-4 illustration dependency without activating the renderer.
 
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
