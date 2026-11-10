@@ -586,6 +586,34 @@ export default function Home() {
         }
         return
       }
+      const nextTab =
+        e.code === 'Insert'
+          ? 'buildings'
+          : e.code === 'Home'
+            ? 'spells'
+            : e.code === 'PageUp'
+              ? 'followers'
+              : null
+      if (nextTab) {
+        if (
+          e.defaultPrevented ||
+          e.repeat ||
+          e.shiftKey ||
+          selectorOpen ||
+          world.status !== 'playing' ||
+          store.getWorld() !== world ||
+          engine.current?.world !== world ||
+          (e.target as HTMLElement).closest('textarea,select,a,[contenteditable]')
+        )
+          return
+        e.preventDefault()
+        setTab(nextTab)
+        store.change(w => {
+          w.mode = null
+        })
+        setHover(null)
+        return
+      }
       const s =
         !e.code.startsWith('Numpad') &&
         SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
@@ -1267,7 +1295,8 @@ export default function Home() {
             <button
               key={t}
               aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
-              title={t}
+              title={`${t} · ${t === 'buildings' ? 'Insert' : t === 'spells' ? 'Home' : 'Page Up'}`}
+              aria-keyshortcuts={t === 'buildings' ? 'Insert' : t === 'spells' ? 'Home' : 'PageUp'}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
               onClick={() => {
