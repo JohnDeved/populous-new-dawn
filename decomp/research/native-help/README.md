@@ -338,3 +338,10 @@ subtraction/addition preserves DWORD wrap before the native signed clamp. The
 unreachable ordinary-viewport downward-cap overflow case is explicitly unsupported,
 not silently changed into a fabricated negative position or lower clamp. Edge
 regressions cover signed limits, subtraction/addition wrap and rejected values.
+
+## Spell-control preview source contract
+
+[Template-2 clone, centering and renderer inputs](spell-control.md) records the
+29 kind-4 descriptors, exact caller resets, inherited-state and native renderer
+dependencies, and the still-missing runtime template/conversion evidence. This
+is source research only; Help and its unsupported preview guards stay unchanged.
