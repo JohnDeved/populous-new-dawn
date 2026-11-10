@@ -344,6 +344,10 @@ export default async function runM2Functional({ browser, url, output, fixture, c
           dpr: devicePixelRatio,
         }
       })
+    if (compactMessages) {
+      await prepareCompactFeedback(page, observe)
+      stage('public-feedback-ready')
+    }
     report.before = await observe()
     stage('paused-baseline')
     assert.equal(report.before.level, 2)
@@ -550,11 +554,59 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   })
 }
 
+// Campaign panels intentionally own keyboard input while open. Temporarily close
+// them through public summaries, issue G with only the default Shaman selected
+// (or no selection) and no existing guards, then
+// restore the same authored panels before establishing the scenario baseline.
+export async function prepareCompactFeedback(page, observe) {
+  const panels = []
+  for (const panel of await page.locator('.campaign-messages details[open]').all()) {
+    const serial = await panel.getAttribute('data-message-serial')
+    assert.match(serial, /^\d+$/, 'Authored panel must have a stable message identity')
+    panels.push(page.locator(`.campaign-messages details[data-message-serial="${serial}"]`))
+  }
+  const texts = []
+  for (const panel of panels) {
+    texts.push(await panel.locator('div > p').textContent())
+    await panel.locator('summary').click()
+  }
+  assert.equal(await page.locator('.campaign-messages details[open]').count(), 0)
+  const beforeFeedback = await observe()
+  const selection = await page.evaluate(() => {
+    const world = window.testStore.getWorld()
+    const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman' && !unit.ghost && unit.hp > 0)
+    return { shamanId: shaman?.id, selected: [...world.selected] }
+  })
+  assert.equal(typeof selection.shamanId, 'number', 'Feedback requires the living player Shaman')
+  assert.ok(selection.selected.every(id => id === selection.shamanId),
+    'Feedback setup accepts only Shaman or empty selection, never follower orders')
+  assert.equal(await page.evaluate(() => window.testStore.getWorld().units.some(
+    unit => unit.team === 'blue' && unit.native?.state === 10 && unit.native.commandStatus === 30
+  )), false, 'Feedback setup must not release existing guard orders')
+  assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
+  await page.keyboard.press('g')
+  await page.waitForFunction(() => {
+    const world = window.testStore.getWorld()
+    return world.paused && world.message === 'Your followers stop guarding your shaman.' &&
+      world.messageUntil > world.time && [...document.querySelectorAll('.world-message')]
+        .some(node => node.textContent.includes(world.message))
+  })
+  assert.deepEqual(await observe(), beforeFeedback, 'Public feedback setup preserves world orders and the paused scene')
+  for (const [index, panel] of panels.entries()) {
+    await panel.locator('summary').click()
+    assert.notEqual(await panel.getAttribute('open'), null)
+    assert.equal(await panel.locator('div > p').textContent(), texts[index])
+  }
+  assert.equal(await page.locator('.campaign-messages details[open]').count(), panels.length)
+}
+
 // Shared read-only DOM witness for pointer and compact-preference episodes.
 export function m2DiagnosticLayout(el) {
   const r = el.getBoundingClientRect()
-  const badge = document.querySelector('button.paused-badge')
+  const badge = document.querySelector('[data-original-pause-status]')
   const b = badge?.getBoundingClientRect()
+  const resume = document.querySelector('button[aria-label="Resume game"]')
+  const resumeBounds = resume?.getBoundingClientRect()
   const exportButton = el.querySelector('.fps-export')
   const exportStatus = el.querySelector('[data-metric="export-status"]')
   const fits = node => {
@@ -578,13 +630,13 @@ export function m2DiagnosticLayout(el) {
       document.elementFromPoint((e.left + e.right) / 2, (e.top + e.bottom) / 2) === exportButton,
     pause: b && { left: b.left, top: b.top, right: b.right, bottom: b.bottom },
     pauseActionable:
-      !!badge &&
-      !badge.disabled &&
-      !!b &&
-      document
-        .elementFromPoint((b.left + b.right) / 2, (b.top + b.bottom) / 2)
-        ?.closest('.paused-badge') === badge,
-    pauseText: badge?.textContent,
+      !!resume && !resume.disabled && !!resumeBounds &&
+      document.elementFromPoint(
+        (resumeBounds.left + resumeBounds.right) / 2,
+        (resumeBounds.top + resumeBounds.bottom) / 2
+      )?.closest('button') === resume,
+    pauseText: badge?.getAttribute('aria-label'),
+    pausePointerEvents: badge && getComputedStyle(badge).pointerEvents,
     pointerTail: el.querySelector('[data-metric="pointer-tail"]')?.textContent,
     campaignPanels: [...document.querySelectorAll('.campaign-messages details[open]>div')]
       .filter(
@@ -679,8 +731,10 @@ export function assertM2DiagnosticLayout(layout, width, height) {
   }
   assert.ok(layout.pause, 'Public pause indicator must remain present')
   assert.equal(layout.pauseActionable, true, 'Public resume control must remain hit-testable')
-  assert.match(layout.pauseText, /WORLD PAUSED/)
-  assert.match(layout.pauseText, /Click to resume/)
+  assert.equal(layout.pauseText, 'Paused')
+  assert.ok(Math.abs(layout.pause.right - (width - 2)) <= 0.5, 'Pause stays two pixels from the full viewport right edge')
+  assert.ok(Math.abs(layout.pause.bottom - height) <= 0.5, 'Pause stays at the full viewport bottom, including compact feedback layout')
+  assert.equal(layout.pausePointerEvents, 'none', 'Native pause status is not a resume button')
   assert.equal(
     m2RectanglesOverlap(layout, layout.pause),
     false,
