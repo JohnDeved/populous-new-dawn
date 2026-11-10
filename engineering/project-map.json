@@ -138,6 +138,7 @@
         "decomp/research/help-spell-discovery.md",
         "decomp/research/native-help/README.md",
         "decomp/research/native-help/source.json",
+        "decomp/research/native-help/spell-control.md",
         "tests/browser-model-lighting.test.mjs",
         "tests/help-browser-article-surface.test.mjs",
         "tests/help-browser-article.test.mjs",
@@ -198,6 +199,10 @@
         {
           "path": "decomp/research/native-help/README.md",
           "heading": "Native Query and Encyclopaedia"
+        },
+        {
+          "path": "decomp/research/native-help/spell-control.md",
+          "heading": "Help spell-control preview inputs"
         }
       ],
       "nativeAddresses": [
