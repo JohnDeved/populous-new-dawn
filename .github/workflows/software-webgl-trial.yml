@@ -1,11 +1,12 @@
-name: Isolated shipped Options controls
+name: Isolated shipped pause acceptance
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-options.mjs'
+      - 'scripts/ci-webgl-trial/shipped-acceptance.mjs'
+      - 'scripts/ci-webgl-trial/whole-lint.mjs'
 
 permissions:
   contents: read
@@ -16,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped Options controls
+    name: Shipped pause remaining acceptance
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: abbc247d33a0c901d8355179cd16196b6cbb901f
+      PND_CANDIDATE_SHA: c078343e705cf31b194a6326f82b752f90c0ca23
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -37,11 +38,17 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed Options candidate
+      - name: Check out exact reviewed pause candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: abbc247d33a0c901d8355179cd16196b6cbb901f
+          ref: c078343e705cf31b194a6326f82b752f90c0ca23
           path: after-source
+          persist-credentials: false
+      - name: Check out exact main lint baseline
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 480a1493a62c3b015ae97ebb22dfc20b6b284eae
+          path: baseline-source
           persist-credentials: false
       - name: Set up pinned Node
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
@@ -49,7 +56,7 @@ jobs:
           node-version: '24.19.0'
           architecture: x64
           package-manager-cache: false
-      - name: Install locked source profile and verify reviewed host Chrome
+      - name: Install locked source profile and verified official Chrome
         id: setup
         shell: bash
         run: |
@@ -59,15 +66,7 @@ jobs:
           cd after-source
           node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json","utf8")).packageManager,"pnpm@11.25.0")'
           pnpm install --frozen-lockfile --ignore-scripts
-          test -x /opt/google/chrome/chrome
-          chrome_version="$(/opt/google/chrome/chrome --version)"
-          printf '%s\n' "$chrome_version"
-          case "$chrome_version" in
-            'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
-            *) printf 'Unreviewed Options native-Escape browser version\n' >&2; exit 1 ;;
-          esac
-          dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
-          sha256sum /opt/google/chrome/chrome
+          node scripts/browser-performance/install-browser.mjs
       - name: Provision compatible official local workerd
         id: runtime
         shell: bash
@@ -86,22 +85,36 @@ jobs:
       - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
         timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-options.mjs "$PWD/after-source" "$PWD/outputs/shipped-options" "$PND_CANDIDATE_SHA"
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-acceptance.mjs "$PWD/after-source" "$PWD/outputs/shipped-after" "$PND_CANDIDATE_SHA"
+      - name: Compare full normal lint on complete source trees
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        timeout-minutes: 6
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e baseline-source/node_modules
+          ln -s "$PWD/after-source/node_modules" baseline-source/node_modules
+          node trial-infrastructure/scripts/ci-webgl-trial/whole-lint.mjs "$PWD/after-source" "$PWD/baseline-source" "$PWD/outputs/whole-lint"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain SSR hydration receipts and screenshots
+          git -C baseline-source diff --exit-code HEAD --
+      - name: Retain acceptance receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-options-abbc247d-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-pause-acceptance-c078343-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-options/*.json
-            outputs/shipped-options/*.log
-            outputs/shipped-options/*.html
-            outputs/shipped-options/*.png
+            outputs/shipped-after/*.json
+            outputs/shipped-after/*.log
+            outputs/shipped-after/*.html
+            outputs/shipped-after/*.png
+            outputs/whole-lint/*.json
+            outputs/whole-lint/*.log
+            after-source/outputs/browser-runtime/receipt.json
+            after-source/outputs/browser-runtime/install.log
           if-no-files-found: warn
           retention-days: 7
 
