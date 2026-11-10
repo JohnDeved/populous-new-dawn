@@ -1,0 +1,126 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "name": "stock compositor + inverse-transfer shader",
+      "kind": "normal",
+      "experimental": false,
+      "center": [
+        163,
+        163,
+        163,
+        255
+      ],
+      "expectedOutputSpaceByte": 153
+    },
+    {
+      "name": "encoded-output worker-local experiment",
+      "kind": "normal",
+      "experimental": true,
+      "center": [
+        153,
+        153,
+        153,
+        255
+      ],
+      "expectedOutputSpaceByte": 153
+    },
+    {
+      "name": "stock compositor + inverse-transfer shader",
+      "kind": "additive",
+      "experimental": false,
+      "center": [
+        123,
+        123,
+        123,
+        255
+      ],
+      "expectedOutputSpaceByte": 153
+    },
+    {
+      "name": "encoded-output worker-local experiment",
+      "kind": "additive",
+      "experimental": true,
+      "center": [
+        153,
+        153,
+        153,
+        255
+      ],
+      "expectedOutputSpaceByte": 153
+    },
+    {
+      "name": "stock compositor + inverse-transfer shader",
+      "kind": "premultiplied",
+      "experimental": false,
+      "center": [
+        89,
+        89,
+        89,
+        255
+      ],
+      "expectedOutputSpaceByte": 102
+    },
+    {
+      "name": "encoded-output worker-local experiment",
+      "kind": "premultiplied",
+      "experimental": true,
+      "center": [
+        102,
+        102,
+        102,
+        255
+      ],
+      "expectedOutputSpaceByte": 102
+    },
+    {
+      "name": "stock compositor + inverse-transfer shader",
+      "kind": "fog-off",
+      "experimental": false,
+      "center": [
+        102,
+        102,
+        102,
+        255
+      ],
+      "expectedOutputSpaceByte": 102
+    },
+    {
+      "name": "encoded-output worker-local experiment",
+      "kind": "fog-off",
+      "experimental": true,
+      "center": [
+        102,
+        102,
+        102,
+        255
+      ],
+      "expectedOutputSpaceByte": 102
+    },
+    {
+      "name": "stock compositor + inverse-transfer shader",
+      "kind": "fog-on",
+      "experimental": false,
+      "center": [
+        156,
+        156,
+        156,
+        255
+      ],
+      "expectedOutputSpaceByte": 141
+    },
+    {
+      "name": "encoded-output worker-local experiment",
+      "kind": "fog-on",
+      "experimental": true,
+      "center": [
+        141,
+        141,
+        141,
+        255
+      ],
+      "expectedOutputSpaceByte": 141
+    }
+  ],
+  "scope": "Synthetic opaque target, one sample, no effects; mathematical blend/fog expectations, not GPU execution"
+}
