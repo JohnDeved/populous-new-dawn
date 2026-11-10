@@ -1,0 +1,182 @@
+[
+  {
+    "path": "browser-boundary-fixture/browser-check.spec.mjs",
+    "sha256": "7ae438e0aa0fe993cf1bfb56f62e551506ce91c034b09c0cfcac6c53063e0772"
+  },
+  {
+    "path": "browser-boundary-fixture/c-memory/guest_memory_port.c",
+    "sha256": "a7abcfaa13ba0c4be030ee564e2a638c7fa0e04c57e844e0c1d1a3bd60ff0e0a"
+  },
+  {
+    "path": "browser-boundary-fixture/c-memory/guest_memory_port.h",
+    "sha256": "192113f9e322e418ae279808a484ea03cc312509f8761874ac9c7e7c81f31e58"
+  },
+  {
+    "path": "browser-boundary-fixture/c-memory/integrated-thread-frame.c",
+    "sha256": "d73c97f1060ee2e71babb7b6d80e1cba092b69be78cae474b4e33328c5964e51"
+  },
+  {
+    "path": "browser-boundary-fixture/c-memory/run-tests.sh",
+    "sha256": "94eca4a8f928913180f072a91e515edd6c560319a9c25245cf5b3fc7fbd6f69e"
+  },
+  {
+    "path": "browser-boundary-fixture/c-memory/test.c",
+    "sha256": "d94f057815f1f03d9e8792539b1045218c62c5d6a43746eee865e2d56cdf38f0"
+  },
+  {
+    "path": "browser-boundary-fixture/framebuffer.mjs",
+    "sha256": "b8a8d1e6e0c0e13549d227c507f86bc1b9f7eda3cad141ae766d4a591c040066"
+  },
+  {
+    "path": "browser-boundary-fixture/guest-memory.mjs",
+    "sha256": "72c073b9e84293828b7ce2ca6ddd3e0a6897aa0e31506e23a1112b07d4351da4"
+  },
+  {
+    "path": "browser-boundary-fixture/guest_memory_port.h",
+    "sha256": "ec12fa588f3f32f88a8dc69159531d85fa2a4d7ebe99cb0fc1de9d6ecc7c1af2"
+  },
+  {
+    "path": "browser-boundary-fixture/index.html",
+    "sha256": "9ed60054173883d7cca7890011ba670883cac71d49d789602edb0ce17a151257"
+  },
+  {
+    "path": "browser-boundary-fixture/native-boundary.mjs",
+    "sha256": "4d2c1c2b0611b999e625e79fcfa0e9337eec0a74a5b7dd8e6b2cecb059253d8e"
+  },
+  {
+    "path": "browser-boundary-fixture/run-browser-fixture.mjs",
+    "sha256": "3c3870f268d0208464246fc876514dcd439ba8d3bcc1a52b1becef369f997874"
+  },
+  {
+    "path": "browser-boundary-fixture/shared-page-memory.mjs",
+    "sha256": "92d15cfe6d86446f6f3e275aeee86a2edee6565de6eb11ab7cc483431a7f29ff"
+  },
+  {
+    "path": "browser-boundary-fixture/test-memory-contract.mjs",
+    "sha256": "d128110258b28b43ebbc7021fe6b831f6868b7aa82d8ebbe39d36d253cdc3b31"
+  },
+  {
+    "path": "browser-boundary-fixture/test-memory-extended.mjs",
+    "sha256": "e06c80bf1ec7d79bd0dc3c862f9d4bd98de33025ad5e6017414ff74e67258281"
+  },
+  {
+    "path": "browser-boundary-fixture/test-memory.mjs",
+    "sha256": "358e03a821a0fede9a43f577b9b1e52ced8a8fefbd84824ead3588c5e101b938"
+  },
+  {
+    "path": "browser-boundary-fixture/test-native-boundary.mjs",
+    "sha256": "8711d5e3aecdb658551eb9a29a1bbe5b5986f53b6ae01e0bf28c89ca42bb6513"
+  },
+  {
+    "path": "browser-boundary-fixture/test-shared-pages.mjs",
+    "sha256": "b7367b4ceff9c2fd4f91dc5e1f3415b46161c4aa541e5805531f0afbcee37b23"
+  },
+  {
+    "path": "browser-boundary-fixture/test.mjs",
+    "sha256": "a81ee5ccdb4188309032dc5a0ae48f20ef7dc91f48cfb96e0de5b1465f7a1511"
+  },
+  {
+    "path": "browser-host-fixture/browser-stack-test.mjs",
+    "sha256": "8bcff7a56edd01352e3970cf8ba22827a42bc64caeda2ccd6255f89852821175"
+  },
+  {
+    "path": "browser-host-fixture/browser-stack-worker.mjs",
+    "sha256": "a8a84bd5095f12bdb30fa00f8d7f5cc3ccb9713109889354379ac42505591df7"
+  },
+  {
+    "path": "browser-host-fixture/c-guest-abi/guest_abi.c",
+    "sha256": "62f165ea4267f958b113a541fb45341b3e6c488d8e2a6093f5d03c0a827b6f50"
+  },
+  {
+    "path": "browser-host-fixture/c-guest-abi/guest_abi.h",
+    "sha256": "79695b35128cc5d07f0f7b93e0a2ac94c7fdb2e84d32ee84282f3ccb4ca33082"
+  },
+  {
+    "path": "browser-host-fixture/c-guest-abi/test.c",
+    "sha256": "b3bb4805c7a84407a99705f7d76a01181f61a9fc8027750882f87b4872ec6b99"
+  },
+  {
+    "path": "browser-host-fixture/c-wasm-trial/index.html",
+    "sha256": "0b1b98b232c0ad013179cd1980d08448b3551024b51f84c821319716ca45d137"
+  },
+  {
+    "path": "browser-host-fixture/c-wasm-trial/run-browser-c.mjs",
+    "sha256": "378210aef5ccfe34a526c3a9315535b0017a835caa23e6daf106533da25c9b7b"
+  },
+  {
+    "path": "browser-host-fixture/c-wasm-trial/synthetic-thread-stack.c",
+    "sha256": "39ecb61fbcd1366e77cccefc25339f8b88e0ffb8d83b0bd5b4c94c5abcd4b1d8"
+  },
+  {
+    "path": "browser-host-fixture/c-wasm-trial/workflow.yml",
+    "sha256": "78f948265b4475c4bcd21b3a4597bec1b6f69e68a23da836d02003583728f9aa"
+  },
+  {
+    "path": "browser-host-fixture/guest-call-contract.mjs",
+    "sha256": "6124635f7c9641c4591dc2f3b5884b31bfd7b53bc6867044b06e2636007f272b"
+  },
+  {
+    "path": "browser-host-fixture/host.mjs",
+    "sha256": "a58ee2e08e8c5c768263ab51105a60437c24082a3d083679f54fe1a069aaeefa"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/expected-frame.hex",
+    "sha256": "7d305341d21483811f7562535fbfe1d7369980f262e5d4957205fda84554f5ff"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/guest_memory_port.c",
+    "sha256": "a7abcfaa13ba0c4be030ee564e2a638c7fa0e04c57e844e0c1d1a3bd60ff0e0a"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/guest_memory_port.h",
+    "sha256": "192113f9e322e418ae279808a484ea03cc312509f8761874ac9c7e7c81f31e58"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/index.html",
+    "sha256": "c2c9f5a3bb697acfd470cf1c1a4fe91d5579dfc3fcda892436e466836f3f5730"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/integrated-thread-frame.c",
+    "sha256": "d73c97f1060ee2e71babb7b6d80e1cba092b69be78cae474b4e33328c5964e51"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/run-browser-frame.mjs",
+    "sha256": "a55c4cd5f8be611f42c254a6bdca821ee00427665db876f0af6c9851cf792e1f"
+  },
+  {
+    "path": "browser-host-fixture/integrated-memory-trial/workflow.yml",
+    "sha256": "733e46396fddf33eebcb15d8937f00d6255ba74f8fd54880664870617a40137c"
+  },
+  {
+    "path": "browser-host-fixture/run-browser-stack.mjs",
+    "sha256": "fd6c32b45d6be914fadc07cebe010c960c784589246b977daa58caab42447d89"
+  },
+  {
+    "path": "browser-host-fixture/stack-index.html",
+    "sha256": "be00236ef8e1c2d6d883ad8a8884288cb0adf077b85ed93989023e5d6a822850"
+  },
+  {
+    "path": "browser-host-fixture/stack-seam.mjs",
+    "sha256": "2e89728852821110fa564a741ea4c09db48f1bb5e9010b6b768cd48d06a601f4"
+  },
+  {
+    "path": "browser-host-fixture/stack-worker.mjs",
+    "sha256": "c075394ac1336163f6057cc5ca1c37caa4a162a42905ca543ed96e764ae41003"
+  },
+  {
+    "path": "browser-host-fixture/test-guest-call-contract.mjs",
+    "sha256": "a83d45daaff1cfab08defa161fd2b31436b2f71c2483ff3ea2cab8aa80f18457"
+  },
+  {
+    "path": "browser-host-fixture/test-stack-seam.mjs",
+    "sha256": "6f040c3aa5794881e87f991333e463f8e3136bc8b23b1a3c59d27192ca774e33"
+  },
+  {
+    "path": "browser-host-fixture/test-stack-worker.mjs",
+    "sha256": "a476730fd6db2eda494de09e5777eb8f902b1080b335cf342a7629a7a87bba12"
+  },
+  {
+    "path": "browser-host-fixture/test.mjs",
+    "sha256": "37f14582cc48c9156b3e8bf29a01739150f247e9a7197988ff2cbb4820f87325"
+  }
+]
