@@ -90,14 +90,17 @@ export function createFullscreenSession(
  * Detach the portal, not the session: browser Escape and pending state still work. */
 export function placeFullscreenHost(doc: Document, host: HTMLElement) {
   const dialogs = doc.querySelectorAll<HTMLDialogElement>('dialog[open]')
-  const target = dialogs[dialogs.length - 1] ??
-    (doc.querySelector('.loading-world') ? doc.body : null)
+  const target =
+    dialogs[dialogs.length - 1] ?? (doc.querySelector('.loading-world') ? doc.body : null)
   if (host.parentElement === target) return
-  const focused = host.contains(doc.activeElement) ? doc.activeElement as HTMLElement : null
+  const focused = host.contains(doc.activeElement) ? (doc.activeElement as HTMLElement) : null
   if (!target) {
     host.remove()
     // Only transfer focus when the removed portal still owns it.
-    if (focused) doc.querySelector<HTMLElement>('.world-viewport canvas.battlefield')?.focus({ preventScroll: true })
+    if (focused)
+      doc
+        .querySelector<HTMLElement>('.world-viewport canvas.battlefield')
+        ?.focus({ preventScroll: true })
     return
   }
   target.appendChild(host)
@@ -130,9 +133,11 @@ export function fullscreenHostNeedsPlacement(records: MutationRecord[], host: HT
   return records.some(record =>
     record.type === 'attributes'
       ? record.target.nodeName === 'DIALOG'
-      : [...record.addedNodes, ...record.removedNodes].some(node =>
-          node.nodeName === 'DIALOG' || node.contains(host) ||
-          (node.nodeType === 1 && (node as Element).matches('.loading-world'))
+      : [...record.addedNodes, ...record.removedNodes].some(
+          node =>
+            node.nodeName === 'DIALOG' ||
+            node.contains(host) ||
+            (node.nodeType === 1 && (node as Element).matches('.loading-world'))
         )
   )
 }

@@ -275,7 +275,7 @@ test('source integration preserves original admission, measured windows, and the
   assert.equal(route.controls.at(-1).selector, described ? selectors.description : selectors.title)
   if (dual) {
     assert.match(page, /className="top-actions"/)
-    assert.match(page, /aria-label="Game settings" aria-haspopup="dialog" title="Game settings" onClick=\{openMenu\}/)
+    assert.match(page, /aria-label="Game settings"\s+aria-haspopup="dialog"\s+title="Game settings"\s+onClick=\{openMenu\}/)
   }
   assert.match(menu, /aria-label="Game menu"[\s\S]{0,150}data-original-pause-menu\s+data-panel=\{panel\}/)
   assert.match(menu, /useState<Panel>\('root'\)/)

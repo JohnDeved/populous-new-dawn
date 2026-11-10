@@ -1563,7 +1563,12 @@ export default function Home() {
           >
             {world.paused ? '▷' : 'Ⅱ'}
           </button>
-          <button aria-label="Game settings" aria-haspopup="dialog" title="Game settings" onClick={openMenu}>
+          <button
+            aria-label="Game settings"
+            aria-haspopup="dialog"
+            title="Game settings"
+            onClick={openMenu}
+          >
             ☰
           </button>
         </div>
