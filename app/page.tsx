@@ -123,6 +123,12 @@ type LoadRequest =
   | { kind: 'restart' }
   | { kind: 'continue'; mission: number }
 
+const HUD_TAB_SHORTCUTS = {
+  buildings: { code: 'Insert', label: 'Insert' },
+  spells: { code: 'Home', label: 'Home' },
+  followers: { code: 'PageUp', label: 'Page Up' },
+} as const
+
 export default function Home() {
   const [store] = useState(createGameStore)
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
@@ -586,14 +592,18 @@ export default function Home() {
         }
         return
       }
-      const nextTab =
-        e.code === 'Insert'
-          ? 'buildings'
-          : e.code === 'Home'
-            ? 'spells'
-            : e.code === 'PageUp'
-              ? 'followers'
-              : null
+      let nextTab: 'buildings' | 'spells' | 'followers' | null = null
+      switch (e.code) {
+        case 'Insert':
+          nextTab = 'buildings'
+          break
+        case 'Home':
+          nextTab = 'spells'
+          break
+        case 'PageUp':
+          nextTab = 'followers'
+          break
+      }
       if (nextTab) {
         if (
           e.defaultPrevented ||
@@ -1295,8 +1305,8 @@ export default function Home() {
             <button
               key={t}
               aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
-              title={`${t} · ${t === 'buildings' ? 'Insert' : t === 'spells' ? 'Home' : 'Page Up'}`}
-              aria-keyshortcuts={t === 'buildings' ? 'Insert' : t === 'spells' ? 'Home' : 'PageUp'}
+              title={`${t} · ${HUD_TAB_SHORTCUTS[t].label}`}
+              aria-keyshortcuts={HUD_TAB_SHORTCUTS[t].code}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
               onClick={() => {

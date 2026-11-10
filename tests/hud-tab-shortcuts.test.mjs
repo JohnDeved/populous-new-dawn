@@ -13,6 +13,11 @@ const from = source.indexOf(start)
 const to = source.indexOf(end, from)
 assert.ok(to > from)
 const effect = stripTypeScriptTypes(source.slice(from + '  useEffect('.length, to) + '\n  }')
+const mappingStart = source.indexOf('const HUD_TAB_SHORTCUTS = ')
+assert.ok(mappingStart >= 0)
+const mappingEnd = source.indexOf('\n\nexport default function Home()', mappingStart)
+const mappingSource = stripTypeScriptTypes(source.slice(mappingStart, mappingEnd))
+const HUD_TAB_SHORTCUTS = new Function(`${mappingSource}; return HUD_TAB_SHORTCUTS`)()
 const shortcuts = [['Insert', 'buildings'], ['Home', 'spells'], ['PageUp', 'followers']]
 
 function fixture(options = {}) {
@@ -25,7 +30,7 @@ function fixture(options = {}) {
   const engine = { current: { world, skipIntroduction() { throw Error('Unexpected introduction skip') } } }
   let tab = 'followers', hover = 'spell', handler, changes = 0, removed = false
   const bindings = {
-    world, engine, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
+    HUD_TAB_SHORTCUTS, world, engine, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
     messageDetails: { current: new Map() }, SPELLS: [],
     store: { getWorld: () => current, change: action => { changes++; action(current) } },
     setTab(value) { tab = value }, setHover(value) { hover = value }, update() {},
@@ -160,7 +165,12 @@ test('existing B shortcut remains available', () => {
 })
 
 test('the tab buttons advertise the bindings without renaming existing accessible controls', () => {
-  assert.ok(/aria-keyshortcuts=\{t === 'buildings' \? 'Insert' : t === 'spells' \? 'Home' : 'PageUp'\}/.test(source))
-  assert.ok(/title=\{`\$\{t\} · \$\{t === 'buildings' \? 'Insert' : t === 'spells' \? 'Home' : 'Page Up'\}`\}/.test(source))
+  assert.deepEqual(HUD_TAB_SHORTCUTS, {
+    buildings: { code: 'Insert', label: 'Insert' },
+    spells: { code: 'Home', label: 'Home' },
+    followers: { code: 'PageUp', label: 'Page Up' },
+  })
+  assert.ok(source.includes('aria-keyshortcuts={HUD_TAB_SHORTCUTS[t].code}'))
+  assert.ok(source.includes('title={`${t} · ${HUD_TAB_SHORTCUTS[t].label}`}'))
   assert.ok(/aria-label=\{`\$\{t\} \$\{t === 'spells' \? '1–3' : t === 'buildings' \? 'B' : ''\}`\}/.test(source))
 })
