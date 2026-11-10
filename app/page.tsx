@@ -123,6 +123,39 @@ type LoadRequest =
   | { kind: 'restart' }
   | { kind: 'continue'; mission: number }
 
+function createHudPreferenceStore() {
+  let value = 'auto',
+    initialized = false
+  const listeners = new Set<() => void>()
+  const set = (next: string) => {
+    initialized = true
+    if (value === next) return
+    value = next
+    for (const listener of listeners) listener()
+  }
+  return {
+    getSnapshot: () => value,
+    getServerSnapshot: () => 'auto',
+    set,
+    subscribe(listener: () => void) {
+      listeners.add(listener)
+      if (!initialized) {
+        initialized = true
+        let saved: string | null = null
+        try {
+          saved = localStorage.getItem('hud-size')
+        } catch {
+          // Storage can be disabled; the size control still works for this session.
+        }
+        if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) set(saved)
+      }
+      return () => {
+        listeners.delete(listener)
+      }
+    },
+  }
+}
+
 const HUD_TAB_SHORTCUTS = {
   buildings: { code: 'Insert', label: 'Insert' },
   spells: { code: 'Home', label: 'Home' },
@@ -148,7 +181,13 @@ export default function Home() {
   const gamePreferencesRef = useRef(gamePreferences)
   const [gameStorageNotice, setGameStorageNotice] = useState('')
   const [soundPending, setSoundPending] = useState(false)
-  const [hudSize, setHudSize] = useState('auto')
+  const [hudPreference] = useState(createHudPreferenceStore)
+  const hudSize = useSyncExternalStore(
+    hudPreference.subscribe,
+    hudPreference.getSnapshot,
+    hudPreference.getServerSnapshot
+  )
+  const setHudSize = hudPreference.set
   const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
   const [nearbyPressed, setNearbyPressed] = useState(false)
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
@@ -157,15 +196,6 @@ export default function Home() {
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   const [startupLogoDone, setStartupLogoDone] = useState(false)
   const finishStartupLogo = useCallback(() => setStartupLogoDone(true), [])
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('hud-size')
-      // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.
-      if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)
-    } catch {
-      // Storage can be disabled; the size control still works for this session.
-    }
-  }, [])
   const [menu, setMenu] = useState(false)
   const [cheatsOpen, setCheatsOpen] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
@@ -714,8 +744,13 @@ export default function Home() {
         setSound(!!(await audio.current?.enable()))
       } catch {
         audio.current?.mute()
-        setAudioStartNotice('Audio could not start. Try the sound button again.')
-        tell(world, 'Audio could not start. Try the sound button again.')
+        setAudioStartNotice(
+          'Audio could not start. Retry Enable sound in Menu > Options > Game > Browser compatibility and help.'
+        )
+        tell(
+          world,
+          'Audio could not start. Retry Enable sound in Menu > Options > Game > Browser compatibility and help.'
+        )
         update()
       } finally {
         setSoundPending(false)
@@ -1145,8 +1180,14 @@ export default function Home() {
           e.stopPropagation()
           return
         }
-        if (e.detail > 0 && (e.target as Element).closest('.native-hud'))
-          (e.target as Element).closest('button')?.blur()
+        const button = (e.target as Element).closest('button')
+        // Dialogs remember their focused opener; keep it through the opening click.
+        if (
+          e.detail > 0 &&
+          (e.target as Element).closest('.native-hud') &&
+          button?.getAttribute('aria-haspopup') !== 'dialog'
+        )
+          button?.blur()
       }}
     >
       <FullscreenControl />
@@ -1347,6 +1388,7 @@ export default function Home() {
           <button
             className="help-button"
             aria-label="Menu"
+            aria-haspopup="dialog"
             title="Help and game menu"
             onClick={openMenu}
           >
@@ -1550,15 +1592,6 @@ export default function Home() {
         </section>
         <div className="top-actions">
           <button
-            aria-label={sound ? 'Mute sound' : 'Enable sound'}
-            title={sound ? 'Mute sound' : 'Enable sound'}
-            onClick={toggleSound}
-            disabled={soundPending}
-            aria-busy={soundPending}
-          >
-            {sound ? '♪' : '♫'}
-          </button>
-          <button
             aria-label={world.paused ? 'Resume game' : 'Pause game'}
             title="Pause / resume · Space"
             onClick={() =>
@@ -1569,7 +1602,12 @@ export default function Home() {
           >
             {world.paused ? '▷' : 'Ⅱ'}
           </button>
-          <button aria-label="Game settings" title="Game settings" onClick={openMenu}>
+          <button
+            aria-label="Game settings"
+            aria-haspopup="dialog"
+            title="Game settings"
+            onClick={openMenu}
+          >
             ☰
           </button>
         </div>
@@ -1915,6 +1953,8 @@ export default function Home() {
                   <div className="audio-settings">
                     <button
                       className="secondary-button"
+                      data-option-key="audio"
+                      aria-label={sound ? '♪ Sound on' : '♫ Enable sound'}
                       onClick={toggleSound}
                       disabled={soundPending}
                       aria-busy={soundPending}

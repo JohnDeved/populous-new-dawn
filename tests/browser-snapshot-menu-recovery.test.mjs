@@ -265,7 +265,7 @@ test('source integration preserves original admission, measured windows, and the
   const page = read('app/page.tsx'), menu = read('app/original-pause-menu.tsx')
   const menuControls = [...page.matchAll(/<button\s+className="help-button"[\s\S]*?>/g)]
   assert.equal(menuControls.length, 1, 'Expected one shipped native Menu declaration')
-  assert.match(menuControls[0][0], /^<button\s+className="help-button"\s+aria-label="Menu"\s+(title|aria-description)="Help and game menu"\s+onClick=\{openMenu\}\s*>$/)
+  assert.match(menuControls[0][0], /^<button\s+className="help-button"\s+aria-label="Menu"\s+aria-haspopup="dialog"\s+(title|aria-description)="Help and game menu"\s+onClick=\{openMenu\}\s*>$/)
   assert.match(page, /className="native-hud"\s+aria-label="Tribe controls"/)
   assert.match(page, /className="shaman-controls"/)
   const described = menuControls[0][0].includes('aria-description='), dual = page.includes('aria-label="Game settings"')
@@ -275,7 +275,7 @@ test('source integration preserves original admission, measured windows, and the
   assert.equal(route.controls.at(-1).selector, described ? selectors.description : selectors.title)
   if (dual) {
     assert.match(page, /className="top-actions"/)
-    assert.match(page, /aria-label="Game settings" title="Game settings" onClick=\{openMenu\}/)
+    assert.match(page, /aria-label="Game settings"\s+aria-haspopup="dialog"\s+title="Game settings"\s+onClick=\{openMenu\}/)
   }
   assert.match(menu, /aria-label="Game menu"[\s\S]{0,150}data-original-pause-menu\s+data-panel=\{panel\}/)
   assert.match(menu, /useState<Panel>\('root'\)/)

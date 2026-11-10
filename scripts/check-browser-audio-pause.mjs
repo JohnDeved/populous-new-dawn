@@ -1,3 +1,4 @@
+import { openAudioOptions, closeAudioOptions, audioOptionsControl, setSoundThroughOptions, waitForAudioObservation } from './browser-options-audio.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -10,7 +11,7 @@ mkdirSync(output, { recursive: true })
 const report = {
   status: 'running',
   jobId: process.env.PND_QUEUE_JOB_ID,
-  method: 'Normal Mission 1 sound/pause controls; delay only the real drone HTTP request, never replace play() results or audio bytes.',
+  method: 'Normal Mission 1 Options audio and retained Pause/Resume controls; Options pauses before Continue starts pending play; delay only the real drone HTTP request, never replace play() results or audio bytes.',
   checkpoints: [],
 }
 let browser, page, releaseStream
@@ -29,7 +30,8 @@ async function state(label) {
       mediaTime: sound.music.element.currentTime,
       contextTime: sound.context.currentTime,
       backgroundScheduled: sound.backgroundTimer !== null,
-      muteControl: Boolean(document.querySelector('button[aria-label="Mute sound"]')),
+      audioOptionsControl: Boolean(document.querySelector('dialog[data-original-pause-menu][open] [data-option-key="audio"]')),
+      gameplaySoundControlCount: document.querySelectorAll('.top-actions button[aria-label="Enable sound"],.top-actions button[aria-label="Mute sound"]').length,
       failedMessage: document.body.textContent.includes('Audio could not start.'),
       events: structuredClone(window.audioPauseEvents),
     }
@@ -44,7 +46,7 @@ async function playing() {
     return s.enabled && !s.paused && s.context.state === 'running' &&
       !s.music.element.paused && s.music.element.readyState >= 2 && s.backgroundTimer !== null
   })
-  await page.getByRole('button', { name: 'Mute sound', exact: true }).waitFor()
+  assert.equal(await page.locator('.top-actions button[aria-label="Enable sound"],.top-actions button[aria-label="Mute sound"]').count(), 0, 'Audio is owned by Options; retained Pause and Settings remain available')
 }
 
 try {
@@ -89,7 +91,28 @@ try {
     }
   })
 
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  const audioOptions = await openAudioOptions(page)
+  let audioOptionsFailed = false, audioOptionsError
+  try {
+    await audioOptions.budget.step(timeout => audioOptionsControl(page).click({ timeout }))
+    await waitForAudioObservation(audioOptions.budget, timeout => page.waitForFunction(() => window.testAudio.enabled && window.testAudio.paused &&
+      window.testAudio.context.state === 'suspended', null, { timeout }))
+    await audioOptions.budget.step(timeout => page.getByRole('button', { name: '♪ Sound on', exact: true }).waitFor({ timeout }))
+    assert.equal(await audioOptions.budget.step(timeout => audioOptionsControl(page).getAttribute('aria-label', { timeout })), '♪ Sound on')
+    const menuEnabled = await audioOptions.budget.step(() => state('enabled-under-real-menu-pause'))
+    assert.equal(menuEnabled.mediaPaused, true)
+    assert.equal(menuEnabled.backgroundScheduled, false)
+    assert.equal(menuEnabled.events.length, 0, 'Menu-owned enable does not play the still-held stream')
+  } catch (error) {
+    audioOptionsFailed = true
+    audioOptionsError = error
+  }
+  try { await closeAudioOptions(page, audioOptions) }
+  catch (error) {
+    if (!audioOptionsFailed) throw error
+    ;(report.audioOptionsCleanupErrors ??= []).push(String(error))
+  }
+  if (audioOptionsFailed) throw audioOptionsError
   await page.waitForFunction(() => window.testAudio.enabled &&
     window.audioPauseEvents.some(event => event.state === 'pending'))
   assert.ok(heldRequests > 0, 'The real streamed drone request must still be held')
@@ -101,7 +124,7 @@ try {
   await page.waitForFunction(() => window.testAudio.context.state === 'suspended' &&
     window.testAudio.music.element.paused &&
     window.audioPauseEvents.some(event => event.state === 'rejected'))
-  await page.getByRole('button', { name: 'Mute sound', exact: true }).waitFor()
+  assert.equal(await page.locator('.top-actions button[aria-label="Enable sound"],.top-actions button[aria-label="Mute sound"]').count(), 0, 'Audio is owned by Options; retained Pause and Settings remain available')
   const paused = await state('pause-cancelled-native-play-without-disabling-sound')
   assert.equal(paused.enabled, true)
   assert.equal(paused.paused, true)
@@ -159,20 +182,23 @@ try {
   await page.getByRole('button', { name: 'Resume game', exact: true }).click()
   await playing()
 
-  await page.getByRole('button', { name: 'Mute sound', exact: true }).click()
+  await setSoundThroughOptions(page, false)
   await page.waitForFunction(() => !window.testAudio.enabled && window.testAudio.context.state === 'suspended')
   const muted = await state('mute')
   assert.equal(muted.mediaPaused, true)
   assert.equal(muted.backgroundScheduled, false)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   await playing()
   const reenabled = await state('reenable')
   assert.equal(reenabled.failedMessage, false)
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await page.getByRole('button', { name: 'Options', exact: true }).click()
+  await page.getByRole('button', { name: 'Sound', exact: true }).click()
   await page.waitForFunction(() => window.testAudio.context.state === 'suspended')
   await page.getByRole('slider', { name: 'Music volume', exact: true }).fill('0.5')
   assert.equal(await page.evaluate(() => window.testAudio.musicVolume), 0.5)
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await page.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await playing()
   await state('settings-close-restores-playback')
 
