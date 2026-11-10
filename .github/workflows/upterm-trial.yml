@@ -1,0 +1,92 @@
+name: Temporary restricted Upterm trial
+
+on:
+  push:
+    branches: [ci/upterm-trial-20261110]
+    paths: ['.github/workflows/upterm-trial.yml']
+
+permissions:
+  contents: read
+
+concurrency:
+  group: upterm-trial-20261110
+  cancel-in-progress: false
+
+jobs:
+  trial:
+    if: ${{ github.repository == 'JohnDeved/populous-new-dawn' && github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Check out exact source without retaining credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 480a1493a62c3b015ae97ebb22dfc20b6b284eae
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install locked dependencies and verified Upterm
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(date -u +%s)" -lt "$(date -u -d '2026-11-10T03:56:41Z' +%s)"
+          test "$(git rev-parse HEAD)" = '480a1493a62c3b015ae97ebb22dfc20b6b284eae'
+          npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+          pnpm install --frozen-lockfile --ignore-scripts
+          mkdir -m 700 "$RUNNER_TEMP/upterm-trial"
+          cd "$RUNNER_TEMP/upterm-trial"
+          curl --fail --location --proto '=https' --tlsv1.2 --output upterm.tar.gz 'https://github.com/owenthereal/upterm/releases/download/v0.41.1/upterm_linux_amd64.tar.gz'
+          printf '%s  %s\n' '3007d4ce09e9f70a390e1b52e5a0b591fc9fa473196ca76d8f72b5f1cd723b31' upterm.tar.gz | sha256sum --check --strict
+          tar -xzf upterm.tar.gz upterm
+          printf '%s\n' 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO+QDI/RBlOC2oG9WGYAsaQ2t5u+0GWMvGRdb5J/x3AF populous-30-minute-runner-20261110' > authorized_keys
+          printf '%s\n' '@cert-authority [uptermd.upterm.dev]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICiecex8Dq718eSe1CCLgLvDmI7AagvCtax7brPFWkh4' > known_hosts
+          test "$(wc -l < authorized_keys)" -eq 1
+      - name: Open only the approved temporary key-restricted shell
+        id: session
+        shell: bash
+        run: |
+          set -euo pipefail
+          export XDG_CONFIG_HOME="$RUNNER_TEMP/upterm-trial/config"
+          export XDG_STATE_HOME="$RUNNER_TEMP/upterm-trial/state"
+          export XDG_RUNTIME_DIR="$RUNNER_TEMP/upterm-trial/runtime"
+          mkdir -p -m 700 "$XDG_CONFIG_HOME" "$XDG_STATE_HOME" "$XDG_RUNTIME_DIR"
+          printf '%s\n' "XDG_CONFIG_HOME=$XDG_CONFIG_HOME" "XDG_STATE_HOME=$XDG_STATE_HOME" "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> "$GITHUB_ENV"
+          "$RUNNER_TEMP/upterm-trial/upterm" host --detach --accept --output json --name populous-trial --server wss://uptermd.upterm.dev --known-hosts "$RUNNER_TEMP/upterm-trial/known_hosts" --authorized-keys "$RUNNER_TEMP/upterm-trial/authorized_keys" --join-timeout 10m --allow-exec --no-sftp --no-forwarding -- bash > "$RUNNER_TEMP/upterm-trial/session.json"
+          jq -e '(.status == "ready") and (.access == "allowlist") and (.fileTransfer == "off") and (.tcpForwarding == "off") and (.execution == "granted") and (.relayKeyTrust == "known")' "$RUNNER_TEMP/upterm-trial/session.json" >/dev/null
+      - name: Make the authenticated connection details available
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: upterm-trial-connection-${{ github.run_id }}
+          path: ${{ runner.temp }}/upterm-trial/session.json
+          if-no-files-found: error
+          retention-days: 1
+      - name: Wait within the 30-minute job limit
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap '"$RUNNER_TEMP/upterm-trial/upterm" session stop populous-trial || true' EXIT
+          trap 'exit 130' INT
+          trap 'exit 143' TERM
+          "$RUNNER_TEMP/upterm-trial/upterm" session wait populous-trial &
+          wait $!
+      - name: Close temporary access
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          if test -x "$RUNNER_TEMP/upterm-trial/upterm"; then
+            export XDG_CONFIG_HOME="$RUNNER_TEMP/upterm-trial/config"
+            export XDG_STATE_HOME="$RUNNER_TEMP/upterm-trial/state"
+            export XDG_RUNTIME_DIR="$RUNNER_TEMP/upterm-trial/runtime"
+            "$RUNNER_TEMP/upterm-trial/upterm" session stop populous-trial || true
+          fi
