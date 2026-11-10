@@ -1,12 +1,12 @@
-name: Isolated shipped Options audio retry
+name: Isolated shipped Options held-stream interruption
 
 on:
   push:
     branches: [ci/software-webgl-trial-20261110]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
-      - 'scripts/ci-webgl-trial/shipped-audio-retry.mjs'
-      - 'scripts/ci-webgl-trial/audio-retry-episode.mjs'
+      - 'scripts/ci-webgl-trial/shipped-held-stream.mjs'
+      - 'scripts/ci-webgl-trial/held-stream-episode.mjs'
 
 permissions:
   contents: read
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped Options audio retry
+    name: Shipped Options held-stream interruption
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -87,7 +87,7 @@ jobs:
       - name: Build and exercise shipped local Worker
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
         timeout-minutes: 8
-        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-audio-retry.mjs "$PWD/after-source" "$PWD/outputs/shipped-audio-retry" "$PND_CANDIDATE_SHA"
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-held-stream.mjs "$PWD/after-source" "$PWD/outputs/shipped-held-stream" "$PND_CANDIDATE_SHA"
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -97,12 +97,12 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-audio-retry-0609f557-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-held-stream-0609f557-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-audio-retry/*.json
-            outputs/shipped-audio-retry/*.log
-            outputs/shipped-audio-retry/*.html
-            outputs/shipped-audio-retry/*.png
+            outputs/shipped-held-stream/*.json
+            outputs/shipped-held-stream/*.log
+            outputs/shipped-held-stream/*.html
+            outputs/shipped-held-stream/*.png
           if-no-files-found: warn
           retention-days: 7
 
