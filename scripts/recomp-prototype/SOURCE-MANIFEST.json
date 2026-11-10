@@ -178,5 +178,41 @@
   {
     "path": "browser-host-fixture/test.mjs",
     "sha256": "37f14582cc48c9156b3e8bf29a01739150f247e9a7197988ff2cbb4820f87325"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/README.md",
+    "sha256": "8691b55b04499746d1b464cde1363619dd09a51642fa03eafe1c51160ac399dc"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/capture-surface.mjs",
+    "sha256": "bf15b90960b8a9b85a7d8326218d68e04a472b6b05eb3c5ca26d7e217e639640"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/compare.mjs",
+    "sha256": "7c3ffb8661e9c8a55950a03f14ece00a8e8f73e3ef200105acec8d7d8e2e51e9"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/normalize-surface.mjs",
+    "sha256": "9aef3eb4f3f0922b0079b5b677fee775545115efffd494b85931b9ae8e68bc01"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/surface-owner-worker.mjs",
+    "sha256": "22888ef07a730e81d1f0a63af54fcc868dacee6ceb329aff276eff28fb725e41"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/test-capture-surface.mjs",
+    "sha256": "bfbd47a3943608e4bfdfd50ae62a09ff7ff6170953a2007959528342cae13289"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/test-normalize-surface.mjs",
+    "sha256": "ed50272bdcd32883a1632a56891ba1ddbd8a087ec13eb87d395f306c7c5f95f8"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/test-surface-owner.mjs",
+    "sha256": "9ad7289c68f62f13011a12d5cb885616a3cec94f9c7709bc4f89fdcb70b26f59"
+  },
+  {
+    "path": "browser-host-fixture/frame-comparison/test.mjs",
+    "sha256": "2a192906a6c1d7e5d9ec4408f687a3f8463d63598e795c52fdc1378a40b1623b"
   }
 ]
