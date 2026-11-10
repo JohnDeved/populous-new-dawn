@@ -83,6 +83,7 @@ try {
       const extension = gl.getExtension('WEBGL_debug_renderer_info'), node = document.querySelector('[data-original-pause-status]'), rect = node?.getBoundingClientRect()
       return { level: w.outcome.level, turn: w.turn, time: w.time, paused: w.paused, mode: w.mode, inputMask: w.inputMask,
         message: w.message, messageUntil: w.messageUntil, messageVisible: w.messageUntil > w.time,
+        flybyFlags: w.flyby.flags,
         worldMessages: [...document.querySelectorAll('.world-message')].map(el => el.textContent),
         renderer: extension ? gl.getParameter(extension.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER), webgl: gl.getParameter(gl.VERSION),
         pause: node ? { label: node.getAttribute('aria-label'), font: node.getAttribute('data-font'), pointerEvents: getComputedStyle(node).pointerEvents,
@@ -104,9 +105,30 @@ try {
     if (side === 'after') { assert.equal(initial.message, ''); assert.equal(initial.messageUntil, 0) }
     else assert.match(initial.message, /Select a brave and send them to the southern stone head/)
     receipt.checks.push({ name: `initial-startup-message-dpr${dpr}`, observation: initial }); save()
+    await capture('initial-introduction-1440x1000')
     const skip = page.getByRole('button', { name: /Skip introduction/ })
-    if (await skip.isVisible()) await skip.click({ noWaitAfter: true })
+    // Scene/store binding precedes the authored flyby and its public Skip UI.
+    // Wait for that owner, then let the real control's click await DOM readiness.
+    await page.waitForFunction(() => {
+      const world = window.testStore.getWorld()
+      return Boolean(world.flyby.flags & 1) || !world.inputMask
+    })
+    const introduction = await observe()
+    let skipClicked = false
+    if (introduction.inputMask) {
+      try {
+        await skip.click({ noWaitAfter: true })
+        skipClicked = true
+      } catch (error) {
+        // Natural completion may remove Skip between observation and click.
+        // Accept only a timeout after both real exit conditions are observed.
+        if (error.name !== 'TimeoutError' || await skip.isVisible() ||
+          await page.evaluate(() => Boolean(window.testStore.getWorld().inputMask))) throw error
+      }
+    }
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    receipt.checks.push({ name: `public-introduction-exit-dpr${dpr}`, before: introduction,
+      skipClicked, after: await observe() }); save()
     await capture('startup-playing-1440x1000')
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
