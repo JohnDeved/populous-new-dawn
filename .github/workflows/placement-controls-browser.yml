@@ -1,0 +1,115 @@
+name: Isolated shipped placement controls
+
+on:
+  push:
+    branches: [ci/placement-controls-1024-20261111]
+    paths:
+      - '.github/workflows/placement-controls-browser.yml'
+      - 'scripts/ci-webgl-trial/shipped-placement.mjs'
+      - 'scripts/ci-webgl-trial/placement-episode.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: placement-controls-1024-20261111
+  cancel-in-progress: false
+
+jobs:
+  screenshot:
+    name: Shipped placement controls
+    if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PND_CANDIDATE_SHA: b704aed96880184dcdde689c203741b5a225e3b9
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+      CLOUDFLARE_CF_FETCH_ENABLED: 'false'
+    steps:
+      - name: Check out reviewed experiment only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: trial-infrastructure
+          persist-credentials: false
+          sparse-checkout: scripts/ci-webgl-trial
+      - name: Check out exact reviewed placement candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: b704aed96880184dcdde689c203741b5a225e3b9
+          path: after-source
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install locked source profile and verify reviewed host Chrome
+        id: setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git -C after-source rev-parse HEAD)" = "$PND_CANDIDATE_SHA"
+          test "$(df --output=avail -B1 . | tail -1 | tr -d ' ')" -ge 4294967296
+          test "$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)" -ge 3932160
+          test "$(df --output=iavail . | tail -1 | tr -d ' ')" -ge 50000
+          npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+          cd after-source
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json","utf8")).packageManager,"pnpm@11.25.0")'
+          pnpm install --frozen-lockfile --ignore-scripts
+          test -x /opt/google/chrome/chrome
+          chrome_version="$(/opt/google/chrome/chrome --version)"
+          printf '%s\n' "$chrome_version"
+          case "$chrome_version" in
+            'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
+            *) printf 'Unreviewed placement browser version\n' >&2; exit 1 ;;
+          esac
+          dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
+          sha256sum /opt/google/chrome/chrome
+      - name: Provision compatible official local workerd
+        id: runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime="$RUNNER_TEMP/shipped-workerd"
+          mkdir "$runtime"
+          curl --fail --location --silent --show-error --max-time 60 --max-filesize 50000000 --proto '=https' --proto-redir '=https' \
+            'https://github.com/cloudflare/workerd/releases/download/v1.20261110.1/workerd-linux-64.gz' \
+            -o "$runtime/workerd.gz"
+          printf '%s  %s\n' '6d710b0f310e21383ee52fe8c71aa8cca3f51c2c04a48ec03e56868e97e1e65d' "$runtime/workerd.gz" | sha256sum --check
+          gzip -dc "$runtime/workerd.gz" > "$runtime/workerd"
+          chmod u+x "$runtime/workerd"
+          "$runtime/workerd" --version
+          printf 'MINIFLARE_WORKERD_PATH=%s\n' "$runtime/workerd" >> "$GITHUB_ENV"
+      - name: Build and exercise shipped local Worker
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.runtime.outcome == 'success' }}
+        timeout-minutes: 8
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-placement.mjs "$PWD/after-source" "$PWD/outputs/shipped-placement" "$PND_CANDIDATE_SHA"
+      - name: Reject any tracked source or experiment mutation
+        if: ${{ always() && steps.setup.outcome == 'success' }}
+        run: |
+          git -C after-source diff --exit-code HEAD --
+          git -C trial-infrastructure diff --exit-code HEAD --
+      - name: Retain SSR hydration receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: shipped-placement-b704aed9-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/shipped-placement/*.json
+            outputs/shipped-placement/*.log
+            outputs/shipped-placement/*.html
+            outputs/shipped-placement/*.png
+            outputs/shipped-placement/placement-episode/*.json
+            outputs/shipped-placement/placement-episode/*.html
+            outputs/shipped-placement/placement-episode/*.png
+          if-no-files-found: warn
+          retention-days: 7
+
