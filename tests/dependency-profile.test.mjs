@@ -73,12 +73,18 @@ test('bounded writer paths follow genuine metadata without creating an npm lock'
 })
 
 
-test('pinned pnpm rejects missing installation before executing a script or installing', t => {
+for (const caller of ['inherited', 'pnpm script']) test(`pinned pnpm rejects missing installation from ${caller} before executing a script or installing`, t => {
   const f = fixture(t)
   f.put('package.json', JSON.stringify({ private: true, scripts: { probe: 'node probe.mjs' } }))
   f.put('probe.mjs', 'import fs from "node:fs"; fs.writeFileSync("executed", "unexpected")')
   f.put('pnpm-workspace.yaml', "packages:\n  - '.'\nverifyDepsBeforeRun: error\n")
-  const result = spawnSync('pnpm', ['run', 'probe'], { cwd: f.repo, encoding: 'utf8' })
+  const env = { ...process.env }
+  if (caller === 'pnpm script') env.pnpm_config_verify_deps_before_run = 'false'
+  // pnpm scripts inherit this recursion-control flag after their parent's check.
+  // This independent fixture has no installation: test its YAML policy instead
+  // of inheriting the caller's already-checked state. Do not alter process.env.
+  delete env.pnpm_config_verify_deps_before_run
+  const result = spawnSync('pnpm', ['run', 'probe'], { cwd: f.repo, encoding: 'utf8', env })
   assert.notEqual(result.status, 0)
   assert.match(result.stdout + result.stderr, /VERIFY_DEPS_BEFORE_RUN|out of sync|outdated|not installed/i)
   for (const name of ['executed', 'node_modules', 'pnpm-lock.yaml']) assert.equal(existsSync(join(f.repo, name)), false)
