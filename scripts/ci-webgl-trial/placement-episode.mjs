@@ -41,7 +41,7 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
         selected: [...w.selected], sceneCurrent: s.world === w && s.renderer.domElement.isConnected,
         gesture: !!s.pointerGesture, cursor: { visible: s.cursor.visible, invalid: s.cursor.userData.invalid, point: s.pointer && { x: s.pointer.x, z: s.pointer.z } },
         pointerScreen: s.pointerScreen && { x: s.pointerScreen.clientX, y: s.pointerScreen.clientY },
-        camera: { viewPoint: { x: s.viewPoint.x, z: s.viewPoint.z }, zoom: s.viewZoom, overview: s.overviewActive },
+        camera: { viewPoint: { x: s.viewPoint.x, z: s.viewPoint.z }, zoom: s.viewZoom, preset: s.viewPreset, transitioning: !!s.viewTransition, overview: s.overviewActive },
         renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
         viewport: [innerWidth, innerHeight], dpr: devicePixelRatio }
     })
@@ -61,6 +61,19 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
       await button('Resume game').click()
       await page.waitForFunction(() => !window.testStore.getWorld().paused)
       assert.equal((await observe()).sceneCurrent, true)
+      // Ordinary public zoom makes the island usable by the unchanged pointer grid.
+      // Loaded games may already retain bird's-eye view: do not enter world view.
+      await page.waitForFunction(() => !window.testSceneRef.current.viewTransition)
+      const cameraBefore = await observe()
+      assert.equal(cameraBefore.camera.overview, false)
+      assert.ok([0, 2].includes(cameraBefore.camera.preset), "Expected normal or retained bird's-eye view")
+      if (cameraBefore.camera.preset === 0) {
+        await page.keyboard.press('-')
+        await page.waitForFunction(() => window.testSceneRef.current.viewPreset === 2 && !window.testSceneRef.current.viewTransition)
+      }
+      const cameraAfter = await observe()
+      assert.equal(cameraAfter.camera.preset, 2); assert.equal(cameraAfter.camera.overview, false)
+      record('ordinary-birds-eye-camera', cameraBefore, cameraAfter, { key: cameraBefore.camera.preset === 0 ? '-' : null })
     }
     const selectHut = async () => {
       await page.getByRole('button', { name: /^buildings B\s*$/ }).click()
