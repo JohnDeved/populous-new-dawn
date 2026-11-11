@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><link rel="icon" href="data:,"><title>Synthetic CPU framebuffer fixture</title>
+<style>body{background:#161c24;color:white;font:16px system-ui}canvas{display:block;width:640px;height:auto;aspect-ratio:4/3;max-width:100%;image-rendering:pixelated}pre{white-space:pre-wrap}</style>
+<h1>Synthetic fixture, not Populous</h1><p>CPU indexed framebuffer → Canvas 2D. No WebGL, WebGPU or game assets.</p><canvas width="640" height="480"></canvas><pre id="log"></pre>
+<script type="module">
+import {indexedFrame,gamePoint,syntheticScene} from './framebuffer.mjs';
+const c=document.querySelector('canvas'),ctx=c.getContext('2d'),s=syntheticScene();
+if(!ctx) throw Error('Canvas2D unavailable');
+ctx.imageSmoothingEnabled=false;ctx.putImageData(new ImageData(indexedFrame(s.pixels,s.width,s.height,s.pitch,s.palette),s.width,s.height),0,0);
+c.addEventListener('pointerdown',e=>document.querySelector('#log').textContent=JSON.stringify({type:'pointerDown',point:gamePoint(e.clientX,e.clientY,c.getBoundingClientRect(),640,480),ctrl:e.ctrlKey,alt:e.altKey}));
+</script>

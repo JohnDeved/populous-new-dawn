@@ -1,0 +1,7 @@
+build/
+*.wasm
+*.o
+test-native
+integrated-native
+synthetic-thread-stack
+*.zip
