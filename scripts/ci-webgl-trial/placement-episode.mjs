@@ -12,6 +12,7 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
   mkdirSync(output, { recursive: false })
   const report = { status: 'running', expectedCommit, cases: [], images: [], siteSearches: [], errors: [], warnings: [], cleanup: [],
     limits: ['Ordinary public input with read-only World/Scene and rendered preview observations. No game state, clock, handlers or storage are assigned.',
+      'Public restart/checkpoint-isolated groups, at most two new huts per world. Not one uninterrupted all-cases placement episode.',
       'One fresh context at 1440x1000 DPR 1. Software-rendered browser behavior, not native consumer parity, hardware performance or complete checkpoint equivalence.'] }
   const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(report, null, 2) + '\n')
   let context
@@ -154,6 +155,14 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
         record(name, before, after)
       } finally { await old.dispose() }
     }
+    const restartGroup = async name => {
+      await replace(name, async () => {
+        await button('Game settings').click(); await menu.waitFor({ state: 'visible' })
+        await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
+        await menu.getByRole('button', { name: 'Yes', exact: true }).click(); await menu.waitFor({ state: 'hidden' })
+      })
+      await selectHut()
+    }
     const response = await page.goto('http://127.0.0.1:5198/', { waitUntil: 'domcontentloaded' })
     assert.equal(response.status(), 200)
     await openCampaignFromMainMenu(page); await button('Start Mission 1').click(); await ready()
@@ -166,6 +175,7 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
     record('overlap-rejection-retains-mode', beforeOverlap, afterOverlap, { point: first })
     await place('second-Ctrl-plan', ['Control'])
     await shot('01-consecutive-retained-plans')
+    await restartGroup('isolate-modifier-and-rotation-group-by-public-restart')
     for (const keys of [['Shift'], ['Control', 'Alt'], ['Control', 'Shift'], ['Alt', 'Shift'], ['Control', 'Alt', 'Shift']]) {
       const point = await validSite(), before = await observe()
       await click(point, keys)
@@ -182,6 +192,7 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
     record('public-Space-advances-quarter-turn', beforeRotation, afterRotation)
     await place('Alt-plan-after-public-rotation', ['Alt'])
     await place('Ctrl-added-at-release', [], ['Control'])
+    await restartGroup('isolate-release-finish-and-checkpoint-group-by-public-restart')
     await place('Ctrl-removed-at-release-finishes', ['Control'], [], false)
     await shot('02-release-time-finish')
     await selectHut()
