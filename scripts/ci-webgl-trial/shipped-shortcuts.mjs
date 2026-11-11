@@ -7,7 +7,7 @@ import { resolve, isAbsolute } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
-const side = 'hud-shortcuts'
+const side = 'hud-shortcuts-checkpoint-continuity'
 assert.ok(rootArg && outputArg)
 assert.equal(expectedCommit, '33f6a87ac7ae7e2087ce47cfe2516531716ae32a')
 const root = resolve(rootArg), output = resolve(outputArg)
@@ -57,8 +57,8 @@ const receipt = {
   runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT,
   workflowCommit: process.env.GITHUB_SHA, startedAt: new Date().toISOString(), errors: [], warnings: [],
   runtime, trialInputs, checks: [], captures: [], limits: ['Exact candidate shipped Vinext/Cloudflare bundle served by separately pinned official workerd v1.20261110.1 via the supported MINIFLARE_WORKERD_PATH override; not the old locked runtime, deployed Cloudflare edge or a synthetic merge.',
-    'Exact candidate public HUD shortcut actions in two fresh contexts, two root navigations and nine captures. No supplied world state, storage seeds, mocked responses or rendered pixels.',
-    'No native keyboard execution, audio/fullscreen, development StrictMode or current-main merge acceptance. Menu/Options coverage is bounded to shortcut suppression and public return.',
+    'Exact candidate public Save/Load and shortcut actions in two fresh contexts, four root navigations and four captures. Passive store replacement observer and read-only IndexedDB inspection; no supplied world state, storage seeds, mocked responses or rendered pixels.',
+    'No native keyboard execution, audio/fullscreen, development StrictMode, editable/loading suppression, complete checkpoint equivalence or current-main merge acceptance. This adds checkpoint continuation without repeating the previous nine-image visual episode.',
     'Software rendering is not hardware performance or original-game framebuffer equivalence.'],
 }
 const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
@@ -166,13 +166,13 @@ try {
   receipt.episode = await runShortcutEpisode({ browser, sourceRoot: root,
     output: resolve(output, 'shortcut-episode'), expectedCommit })
   assert.equal(receipt.episode.status, 'passed-awaiting-pixel-review')
-  assert.equal(receipt.episode.images.length, 9)
+  assert.equal(receipt.episode.images.length, 4)
   receipt.captures = receipt.episode.images
   assert.equal(receipt.timedOut, undefined)
   receipt.status = 'passed-awaiting-pixel-review'
 } catch (error) {
   receipt.status = 'failed'; receipt.failure = error?.stack ?? String(error); process.exitCode = 1
-  // Do not add failure screenshots beyond the retained nine-image HUD cap.
+  // Do not add failure screenshots beyond the retained four-image continuity cap.
 } finally {
   clearTimeout(timer)
   receipt.cleanupErrors = []
