@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // npm run dev, then node scripts/check-browser-hut-birth.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -8,7 +9,7 @@ import { hutBirthPoints } from '../app/hut-birth.ts'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   const setup = await page.evaluate(() => {
     const s = window.testScene, w = s.world
     w.speed = 0

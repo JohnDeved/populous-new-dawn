@@ -1,3 +1,4 @@
+import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // Live Lightning -> burning-hut ejection, original panic poses and personal sparks.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -10,7 +11,7 @@ const profile = process.argv.includes('--profile')
 const browser = await chromium.launch({ headless: !headed })
 try {
   const { page, errors } = await openGame(browser)
-  await page.getByRole('button', { name: 'Enable sound', exact: true }).click()
+  await setSoundThroughOptions(page, true)
   await page.evaluate(async nearby => {
     const s = window.testScene,
       w = s.world

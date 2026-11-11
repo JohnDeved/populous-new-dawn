@@ -177,6 +177,13 @@ function checkpointNotice(status: CheckpointReadStatus, hasCheckpoint: boolean) 
         : 'No usable saved checkpoint was found in this browser.'
   }
 }
+/** Close while the dialog is still modal and connected, so the browser can
+ * restore its opener before the parent removes the menu from the document. */
+function continuePauseMenu(dialog: HTMLDialogElement | null, onContinue: () => void) {
+  dialog?.close()
+  onContinue()
+}
+
 export function OriginalPauseMenu(props: Props) {
   const dialog = useRef<HTMLDialogElement>(null)
   const [panel, setPanel] = useState<Panel>('root')
@@ -249,7 +256,7 @@ export function OriginalPauseMenu(props: Props) {
     props.onRetryCheckpoint()
   }
   function back() {
-    if (panel === 'root') props.onContinue()
+    if (panel === 'root') continuePauseMenu(dialog.current, props.onContinue)
     else setPanel('root')
   }
   function open(next: Panel, label: string) {
@@ -315,7 +322,7 @@ export function OriginalPauseMenu(props: Props) {
       'Quit Level': 'quit-level',
       'Quit Game': 'quit-game',
     }
-    if (label === 'Continue Game') props.onContinue()
+    if (label === 'Continue Game') continuePauseMenu(dialog.current, props.onContinue)
     else if (label === 'Yes' && confirmation) once(confirmation.action)
     else if (label === 'No') setPanel('root')
     else if (targets[label]) open(targets[label], label)
@@ -426,7 +433,7 @@ export function OriginalPauseMenu(props: Props) {
             />
           )}
         </nav>
-        {panel === 'options' && props.renderOptions(back)}
+        {panel === 'options' && props.renderOptions(() => setPanel('root'))}
         {!confirmation && panel !== 'root' && panel !== 'options' && (
           <section
             className={`${styles.panel} ${shared.rows} ${styles.rows}`}
