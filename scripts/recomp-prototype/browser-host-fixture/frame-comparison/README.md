@@ -11,7 +11,7 @@ Run from repository root:
 
 ```sh
 for f in scripts/recomp-prototype/browser-host-fixture/frame-comparison/test*.mjs; do
-  timeout --kill-after=2s 15s node --max-old-space-size=64 "$f"
+  timeout --kill-after=2s 15s node --max-old-space-size=64 "$f" || exit "$?"
 done
 ```
 

@@ -181,7 +181,7 @@
   },
   {
     "path": "browser-host-fixture/frame-comparison/README.md",
-    "sha256": "8691b55b04499746d1b464cde1363619dd09a51642fa03eafe1c51160ac399dc"
+    "sha256": "94ed88f9bf85d1db77d875cfcd7cfbd3b60af10b9a0b94e2d3173e684125d1da"
   },
   {
     "path": "browser-host-fixture/frame-comparison/capture-surface.mjs",
@@ -217,7 +217,7 @@
   },
   {
     "path": "browser-host-fixture/c-presentation/README.md",
-    "sha256": "ed91d644d256e8cc4b63385d7609e9156c9893f761f8985a4ff65fd3359dad0b"
+    "sha256": "b2071b6fdbb6dfdc395a9c452b7f45b1a40834c64fe2ccc205e107b6ac75bb57"
   },
   {
     "path": "browser-host-fixture/c-presentation/capture.c",
