@@ -10,7 +10,7 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
   const { openCampaignFromMainMenu } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-new-game.mjs')))
   const { collapseObservedCampaignMessages } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/public-keyboard-owner.mjs')))
   mkdirSync(output, { recursive: false })
-  const report = { status: 'running', expectedCommit, cases: [], images: [], errors: [], warnings: [], cleanup: [],
+  const report = { status: 'running', expectedCommit, cases: [], images: [], siteSearches: [], errors: [], warnings: [], cleanup: [],
     limits: ['Ordinary public input with read-only World/Scene and rendered preview observations. No game state, clock, handlers or storage are assigned.',
       'One fresh context at 1440x1000 DPR 1. Software-rendered browser behavior, not native consumer parity, hardware performance or complete checkpoint equivalence.'] }
   const save = () => writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(report, null, 2) + '\n')
@@ -40,6 +40,8 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
         buildings: w.buildings.filter(b => b.team === 'blue').map(b => ({ id: b.id, kind: b.kind, x: b.x, z: b.z, angle: b.angle })),
         selected: [...w.selected], sceneCurrent: s.world === w && s.renderer.domElement.isConnected,
         gesture: !!s.pointerGesture, cursor: { visible: s.cursor.visible, invalid: s.cursor.userData.invalid, point: s.pointer && { x: s.pointer.x, z: s.pointer.z } },
+        pointerScreen: s.pointerScreen && { x: s.pointerScreen.clientX, y: s.pointerScreen.clientY },
+        camera: { viewPoint: { x: s.viewPoint.x, z: s.viewPoint.z }, zoom: s.viewZoom, overview: s.overviewActive },
         renderer: ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
         viewport: [innerWidth, innerHeight], dpr: devicePixelRatio }
     })
@@ -70,17 +72,28 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
     const validSite = async () => {
       const rect = await page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.', { exact: true }).boundingBox()
       assert.ok(rect)
+      assert.ok(report.siteSearches.length < 32, 'Bound diagnostic site-search records')
+      const search = { index: report.siteSearches.length, rect, samples: [] }
+      report.siteSearches.push(search); save()
       for (const fy of [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]) {
         for (const fx of [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]) {
           const point = { x: rect.x + rect.width * fx, y: rect.y + rect.height * fy }
-          const exposed = await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.renderer.domElement, point)
-          if (!exposed) continue
+          const hit = await page.evaluate(p => {
+            const target = document.elementFromPoint(p.x, p.y)
+            return { exposed: target === window.testSceneRef.current.renderer.domElement, tag: target?.tagName,
+              class: target?.getAttribute('class'), label: target?.getAttribute('aria-label') }
+          }, point)
+          if (!hit.exposed) { search.samples.push({ point, hit, pointerMoveIssued: false }); save(); continue }
           await page.mouse.move(point.x, point.y); await settle()
           const state = await observe()
-          if (state.mode === 'hut' && state.cursor.visible && state.cursor.invalid === false) return point
+          search.samples.push({ point, hit, pointerMoveIssued: true, state }); save()
+          if (state.mode === 'hut' && state.cursor.visible && state.cursor.invalid === false) { search.accepted = point; save(); return point }
         }
       }
-      throw Error('No exposed valid hut preview found within the bounded ordinary pointer grid')
+      search.failure = 'No exposed valid hut preview found within the bounded ordinary pointer grid'
+      try { await shot('diagnostic-no-valid-preview-' + search.index) }
+      catch (error) { search.screenshotFailure = String(error); save() }
+      throw Error(search.failure)
     }
     const click = async (point, downKeys = [], upKeys = downKeys, mouseButton = 'left') => {
       const keys = new Set([...downKeys, ...upKeys])
