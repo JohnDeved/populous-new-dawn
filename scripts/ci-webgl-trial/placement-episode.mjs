@@ -95,13 +95,46 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
           const hit = await page.evaluate(p => {
             const target = document.elementFromPoint(p.x, p.y)
             return { exposed: target === window.testSceneRef.current.renderer.domElement, tag: target?.tagName,
-              class: target?.getAttribute('class'), label: target?.getAttribute('aria-label') }
+              class: target?.getAttribute('class'), label: target?.getAttribute('aria-label'),
+              panel: target?.closest('.training-panel,[role="group"]')?.getAttribute('class'),
+              panelLabel: target?.closest('[role="group"]')?.getAttribute('aria-label') }
           }, point)
           if (!hit.exposed) { search.samples.push({ point, hit, pointerMoveIssued: false }); save(); continue }
           await page.mouse.move(point.x, point.y); await settle()
           const state = await observe()
           search.samples.push({ point, hit, pointerMoveIssued: true, state }); save()
           if (state.mode === 'hut' && state.cursor.visible && state.cursor.invalid === false) { search.accepted = point; save(); return point }
+        }
+      }
+      // Revisit only transiently occluded original grid points once. Retreat
+      // through ordinary pointer input; never hide panels or force clicks.
+      const occluded = search.samples.filter(sample => !sample.hit.exposed).map(sample => sample.point)
+      const parking = [...search.samples].reverse().find(sample => sample.hit.exposed && sample.point.y >= rect.y + rect.height * 0.8)
+      if (occluded.length && parking) {
+        const parkingExposed = await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.renderer.domElement, parking.point)
+        search.revisit = { candidates: occluded, parking: parking.point, parkingExposed, samples: [] }; save()
+        if (parkingExposed) {
+          await page.mouse.move(parking.point.x, parking.point.y); await settle()
+          try {
+            await page.waitForFunction(points => points.every(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.renderer.domElement), occluded, { timeout: 2000 })
+          } catch (error) {
+            if (error.name !== 'TimeoutError') throw error
+            search.revisit.naturalExposureTimeout = true
+          }
+          for (const point of occluded) {
+            const hit = await page.evaluate(p => {
+              const target = document.elementFromPoint(p.x, p.y)
+              return { exposed: target === window.testSceneRef.current.renderer.domElement, tag: target?.tagName,
+                class: target?.getAttribute('class'), label: target?.getAttribute('aria-label'),
+                panel: target?.closest('.training-panel,[role="group"]')?.getAttribute('class'),
+                panelLabel: target?.closest('[role="group"]')?.getAttribute('aria-label') }
+            }, point)
+            if (!hit.exposed) { search.revisit.samples.push({ point, hit, pointerMoveIssued: false }); save(); continue }
+            await page.mouse.move(point.x, point.y); await settle()
+            const state = await observe()
+            search.revisit.samples.push({ point, hit, pointerMoveIssued: true, state }); save()
+            if (state.mode === 'hut' && state.cursor.visible && state.cursor.invalid === false) { search.accepted = point; search.acceptedOnRevisit = true; save(); return point }
+          }
         }
       }
       search.failure = 'No exposed valid hut preview found within the bounded ordinary pointer grid'
