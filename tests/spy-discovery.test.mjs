@@ -244,7 +244,7 @@ for (const owner of ['flight', 'entry', 'fight'])
     assert.equal(world.objectCells.objects.get(unit.id), person)
   })
 
-test('the current Save/Load store keeps revealed disguise and does not inherit pending frontend input', async () => {
+test('the current Save/Load store preserves consumed disguise and subsequent turns', async () => {
   const { world, unit } = fixture()
   const store = createGameStore()
   Object.assign(store.getWorld(), world)
