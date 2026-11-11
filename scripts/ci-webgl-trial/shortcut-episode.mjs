@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 
 export async function runShortcutEpisode({ browser, sourceRoot, output, expectedCommit }) {
-  assert.equal(expectedCommit, '3c7d9c80b4eabbb2b36c4831bd941fd6ce3c0059')
+  assert.equal(expectedCommit, '33f6a87ac7ae7e2087ce47cfe2516531716ae32a')
   const { bindGame } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-game.mjs')))
   const { openCampaignFromMainMenu } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-new-game.mjs')))
   const { collapseObservedCampaignMessages } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/public-keyboard-owner.mjs')))

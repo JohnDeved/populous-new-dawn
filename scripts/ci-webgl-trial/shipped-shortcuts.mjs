@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url'
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
 const side = 'hud-shortcuts'
 assert.ok(rootArg && outputArg)
-assert.equal(expectedCommit, '3c7d9c80b4eabbb2b36c4831bd941fd6ce3c0059')
+assert.equal(expectedCommit, '33f6a87ac7ae7e2087ce47cfe2516531716ae32a')
 const root = resolve(rootArg), output = resolve(outputArg)
 assert.ok(!existsSync(output), 'Use a fresh evidence directory')
 mkdirSync(output, { recursive: true })
