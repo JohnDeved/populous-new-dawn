@@ -378,9 +378,11 @@
         "app/selection-mesh.ts",
         "app/world-picking.ts",
         "app/blast-targeting.ts",
-        "app/unit-animation-source.ts"
+        "app/unit-animation-source.ts",
+        "app/live-spy-discovery.ts"
       ],
       "researchPaths": [
+        "tests/spy-discovery.test.mjs",
         "tests/painter-order.test.mjs",
         "tests/blast-targeting.test.mjs",
         "decomp/research/blast-targeting.md"
