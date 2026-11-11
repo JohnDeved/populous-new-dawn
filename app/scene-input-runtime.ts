@@ -401,8 +401,13 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
     if (
-      event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey &&
-      !scene.overviewActive && !scene.world.mode && !scene.world.selected.length
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode &&
+      !scene.world.selected.length
     ) {
       const point = scene.pick(event)
       if (point) {

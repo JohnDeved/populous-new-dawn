@@ -17,15 +17,28 @@ export function removeOwnedSwamp(
     if (building && tribeForTeam(building.team) === tribe) return false
   }
   // Preserve the earlier class-10/model-16 action when the live registry supplies it.
-  const picked = pickedId == null ? undefined : w.objectCells.objects.get(pickedId)
+  const picked =
+    pickedId === null || pickedId === undefined ? undefined : w.objectCells.objects.get(pickedId)
   if (
-    picked && !(picked.flags2 & 1) &&
-    'class' in picked && picked.class === 10 && 'model' in picked && picked.model === 16
-  ) return false
+    picked &&
+    !(picked.flags2 & 1) &&
+    'class' in picked &&
+    picked.class === 10 &&
+    'model' in picked &&
+    picked.model === 16
+  )
+    return false
   // Effects are appended oldest first; native lookup visits the most recent trap first.
   for (let i = w.effects.length - 1; i >= 0; i--) {
-    const fx = w.effects[i], swamp = fx.swamp
-    if (fx.age >= fx.duration || !swamp || swamp.tribe !== tribe || !swampContainsPoint(swamp, point)) continue
+    const fx = w.effects[i],
+      { swamp } = fx
+    if (
+      fx.age >= fx.duration ||
+      !swamp ||
+      swamp.tribe !== tribe ||
+      !swampContainsPoint(swamp, point)
+    )
+      continue
     // Leave object/victim/renderer cleanup to the normal logical effect pass.
     swamp.remaining = 0
     return true

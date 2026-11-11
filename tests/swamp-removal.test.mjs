@@ -140,7 +140,7 @@ test('actual live wrapper retires before reading units or creating person state'
   const live=new Function(`${stripTypeScriptTypes(body)}; return stepLiveSwamp`)()
   for(const remaining of [-1,0,1]) {
     const swamp={...trap(),counter:255,remaining}
-    const world={get units(){assert.fail('expired trap must not inspect or materialize people')}}
+    const world={get units(){return assert.fail('expired trap must not inspect or materialize people')}}
     assert.equal(live(world,swamp),false)
     assert.equal(swamp.remaining,remaining-1)
     assert.equal(swamp.counter,0)
