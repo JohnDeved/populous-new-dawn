@@ -31,6 +31,7 @@ import {
   type Point,
 } from './model'
 import { command } from './live-command.ts'
+import { removeOwnedSwamp } from './swamp-removal.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { minimapPick } from './minimap.ts'
 import { pointerBrackets } from './world-picking.ts'
@@ -399,6 +400,23 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
+    if (
+      event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey &&
+      !scene.overviewActive && !scene.world.mode && !scene.world.selected.length
+    ) {
+      const point = scene.pick(event)
+      if (point) {
+        const position = nativePosition(scene.world, point)
+        if (removeOwnedSwamp(scene.world, position, scene.picking.pick(event))) {
+          const marker = commandMarkerPoint(position, 0)
+          if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+          scene.acknowledgePointer(0)
+          scene.onSound(0x6a)
+          scene.onChange()
+          return
+        }
+      }
+    }
     cancelInteraction(scene.world)
     scene.onChange()
     return
