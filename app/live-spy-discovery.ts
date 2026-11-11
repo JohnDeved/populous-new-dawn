@@ -1,12 +1,12 @@
 import type { World, Unit } from './world-types.ts'
 import { unitAnimationSource } from './unit-animation-source.ts'
 import { spyDisguisedFrom } from './computer-selection.ts'
-import { unitInvisibleToPlayer } from './spell-effects-runtime.ts'
+import { unitInvisibleToPlayer } from './person-visibility.ts'
 
 const personFor = (unit: Unit) =>
   unitAnimationSource(unit) ?? unit.native ?? unit.entry?.person ?? unit.builder?.person
 
-type Discovery = {
+interface Discovery {
   unit: Unit
   id: number
   person: NonNullable<ReturnType<typeof personFor>>

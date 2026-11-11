@@ -429,13 +429,7 @@ export function setUnitInvisibility(w: World, u: Unit, turns: number) {
   }
 }
 
-export function unitInvisibleToPlayer(w: World, u: Unit) {
-  return !!(
-    u.invisibility &&
-    u.team !== teamForTribe(w.manaWorld.playerTribe) &&
-    !(w.manaTribes[w.manaWorld.playerTribe]?.flags2 & 8)
-  )
-}
+export { unitInvisibleToPlayer } from './person-visibility.ts'
 
 export function unitInvisibilityRenderBit(w: World, u: Unit) {
   return u.team !== teamForTribe(w.manaWorld.playerTribe) &&
