@@ -101,7 +101,7 @@ for (const [code, tab] of shortcuts) {
     ['campaign popup', { bindings: { messageDetails: { current: new Map([[1, { open: true }]]) } } }],
     ['masked world', { world: { inputMask: 1 } }],
     ['masked introduction', { world: { inputMask: 64, flyby: { flags: 1 } } }],
-    ['victory', { world: { status: 'victory' } }],
+    ['victory', { world: { status: 'won' } }],
     ['defeat', { world: { status: 'lost' } }],
   ]) test(`${code} respects ${name}`, () => {
     const f = fixture(options), before = structuredClone(f.world)
