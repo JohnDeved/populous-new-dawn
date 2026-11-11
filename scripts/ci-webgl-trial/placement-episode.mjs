@@ -201,6 +201,12 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
     const afterCancel = await observe()
     assert.deepEqual(afterCancel.buildings, beforeCancel.buildings); assert.equal(afterCancel.mode, null)
     record('right-release-cancels', beforeCancel, afterCancel)
+    // Isolate checkpoint continuation from the already verified finish/cancel group.
+    await replace('isolate-checkpoint-baseline-by-public-restart', async () => {
+      await button('Game settings').click(); await menu.waitFor({ state: 'visible' })
+      await menu.getByRole('button', { name: 'Restart Level', exact: true }).click()
+      await menu.getByRole('button', { name: 'Yes', exact: true }).click(); await menu.waitFor({ state: 'hidden' })
+    })
     // Save a mode-null checkpoint, then create a retained plan before loading it.
     await button('Game settings').click(); await menu.waitFor({ state: 'visible' })
     await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
