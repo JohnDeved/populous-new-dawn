@@ -68,7 +68,7 @@ export async function runPlacementEpisode({ browser, sourceRoot, output, expecte
     // Find a site by moving the real pointer and reading the shipped preview.
     // Do not invoke placement validators, pickers, camera methods or handlers.
     const validSite = async () => {
-      const rect = await page.locator('.world-viewport canvas').boundingBox()
+      const rect = await page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.', { exact: true }).boundingBox()
       assert.ok(rect)
       for (const fy of [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]) {
         for (const fx of [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8]) {
