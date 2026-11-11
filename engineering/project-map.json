@@ -1252,6 +1252,7 @@
         "decomp/research/mission11-reactive-noop.md",
         "decomp/research/mission12-opening.md",
         "decomp/research/mission12-spy-sabotage.md",
+        "decomp/research/spy-manual-discovery.md",
         "decomp/research/mission13-opening.md",
         "decomp/research/mission13-balloon.md",
         "decomp/research/mission14-linked-angel.md",
@@ -1317,6 +1318,7 @@
         "scripts/check-native-mission11-reactive-noop.py",
         "scripts/check-native-mission12-opening.py",
         "scripts/check-native-mission12-spy-sabotage.py",
+        "scripts/check-native-spy-discovery.py",
         "scripts/check-native-mission13-opening.py",
         "scripts/check-native-balloon.py",
         "scripts/check-native-mission14-rewards.py",
@@ -1522,6 +1524,10 @@
         {
           "path": "decomp/research/mission12-spy-sabotage.md",
           "heading": "Mission 12 Spy disguise and sabotage"
+        },
+        {
+          "path": "decomp/research/spy-manual-discovery.md",
+          "heading": "Manual right-click Spy discovery"
         },
         {
           "path": "decomp/research/mission13-opening.md",
