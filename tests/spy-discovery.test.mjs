@@ -116,12 +116,26 @@ for (const [name, change] of [
   ['replaced person', f => { f.unit.native = structuredClone(f.person) }],
   ['dead unit', f => { f.unit.hp = 0 }],
   ['removed person', f => { f.person.flags2 |= 1 }],
-]) test(`queued discovery drops a ${name}`, () => {
+  ['changed unit kind', f => { f.unit.kind = 'brave' }],
+  ['changed person class', f => { f.person.class = 2 }],
+  ['changed person model', f => { f.person.model = 1 }],
+]) test(`queued discovery drops a ${name} and releases its slot`, () => {
   const f = fixture()
   assert.equal(requestSpyDiscovery(f.world, f.unit.id), true)
   change(f)
   assert.equal(processSpyDiscovery(f.world), false)
   assert.equal(f.person.disguise, 0)
+  assert.equal(processSpyDiscovery(f.world), false, 'discarded command cannot reappear')
+  const next = api.addUnit(f.world, 'red', 'spy', { x: 11, z: 30 })
+  const nextPerson = (next.native = createLivePerson(f.world, next))
+  nextPerson.disguise = 0
+  registerLivePerson(f.world, nextPerson)
+  assert.equal(requestSpyDiscovery(f.world, next.id), true, 'stale command releases the slot')
+  assert.equal(nextPerson.disguise, 0, 'follow-up remains delayed until consumption')
+  assert.equal(processSpyDiscovery(f.world), true)
+  assert.equal(nextPerson.disguise, 64)
+  assert.equal(f.person.disguise, 0, 'discarded target stays unchanged')
+  assert.equal(processSpyDiscovery(f.world), false, 'follow-up consumes exactly once')
 })
 
 test('consumer does not repeat the apparent-tribe gate after an admitted input', () => {
