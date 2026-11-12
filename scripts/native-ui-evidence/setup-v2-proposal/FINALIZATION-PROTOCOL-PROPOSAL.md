@@ -11,3 +11,11 @@ Supplied tests cover late/replayed/wrong-role/nonce/identity responses, descript
 This module is not cryptographic authentication or an OS ownership proof. Descriptor token fields model a claim from the same trusted actor, not an actual retained FD; worker implementation must enforce the design. A ready-for-outer-owner manifest is not authoritative success. acceptOuterOutcome assumes the caller independently verified the candidate and external outcome, not attacker-supplied booleans. No before/after hash worker, bounded receipt writer, IPC transport or metadata-only qualification has been implemented.
 
 Failed kernel evidence remains immutable atfcd661a3. No kernel retry, real process/FD/filesystem operation, deadline change, workflow activation or production integration. Next gate: independent source review, then separately admitted supplied tests only.
+
+## Source-review repairs (unexecuted)
+
+The core now pins before/after combined metadata phase ceilings at7000ms each (source2s plus executable5s), kernel cases at10000ms and commit at2000ms. Caller capMs cannot expand those or the shared remaining work allowance. The combined before/after gate does not enforce the internal2s/5s subdivision; trusted metadata runtime must separately enforce those reviewed substage ceilings. Boundary and one-ms-over controls cover all four phases.
+
+Mandatory hash identities are coordinator, watchdog, harness, supervisor, observer, metadataWorker, receiptWriter, protocol and node. All must be present in the admitted expected closure and every hash response. Parent/metadata/writer actor source pins must match their corresponding closure entries. Additional admitted dependency/runtime inputs are allowed up to the bounded32-entry map, and before/after equality includes those extras. These mandatory names are necessary, not an automatic dependency resolver: trusted admission must supply the complete transitive input/runtime closure, including any interpreters or non-builtin dependencies. The pure gate cannot discover missing unlisted dependencies. Tests reject one-key maps, each mandatory omission, actor/closure mismatch and response omissions.
+
+The resulting52 supplied cases remain unrun pending fresh independent source review. No metadata qualification or kernel retry.
