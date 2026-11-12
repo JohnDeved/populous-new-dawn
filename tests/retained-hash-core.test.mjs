@@ -103,3 +103,62 @@ test('finite read quota bounds a nonadvancing supplied clock', async () => {
   await assert.rejects(f.run({ chunkBytes: 1, now: () => 0 }), /quota/)
   assert.equal(f.options.trace.bytesHashed, 1024)
 })
+
+test('EOF accounting includes exactly one extra read including empty files', async () => {
+  for (const text of ['', 'abc', 'x'.repeat(1024)]) {
+    const f = fixture(text)
+    const result = await f.run({ chunkBytes: 1, now: () => 0 })
+    assert.equal(result.readOperations, text.length)
+    assert.equal(f.state.calls.filter(value => value === 'read').length, text.length + 1)
+    assert.equal(f.state.stats, 2)
+  }
+})
+for (const phase of ['eof', 'stat-after']) {
+  test('pending ' + phase + ' cannot publish digest after retirement', async () => {
+    const f = fixture('x'), read = f.handle.read, stat = f.handle.stat
+    let finish, entered = 0
+    const pending = new Promise(resolve => { finish = resolve })
+    if (phase === 'eof') {
+      f.handle.read = async (...args) => {
+        if (args[3] === f.bytes.length) { entered++; await pending }
+        return read(...args)
+      }
+    } else {
+      f.handle.stat = async options => {
+        if (f.state.stats === 1) { entered++; await pending }
+        return stat(options)
+      }
+    }
+    // Supplied clock avoids expiring before the selected phase is entered;
+    // real pending-operation timer is the boundary under test.
+    const result = f.run({ budgetMs: 10, now: () => 0 })
+    await assert.rejects(result, /pending-I\/O deadline/)
+    assert.equal(entered, 1)
+    assert.equal(f.options.trace.phase, phase)
+    assert.equal(f.options.trace.pending, true)
+    assert.equal(f.options.trace.teardownRequired, true)
+    finish()
+    await new Promise(resolve => setImmediate(resolve))
+    const settledCalls = [...f.state.calls]
+    await new Promise(resolve => setImmediate(resolve))
+    assert.deepEqual(f.state.calls, settledCalls)
+    assert.equal(f.options.trace.pending, false)
+    assert.equal(f.options.trace.status, 'failed')
+    assert.equal(f.options.trace.teardownRequired, true)
+    assert.equal(f.state.stats, phase === 'eof' ? 1 : 2)
+  })
+  test('original ' + phase + ' rejection identity is preserved', async () => {
+    const f = fixture('x'), read = f.handle.read, stat = f.handle.stat
+    const original = Object.freeze(Error(phase + ' rejected'))
+    if (phase === 'eof') {
+      f.handle.read = (...args) => args[3] === f.bytes.length
+        ? Promise.reject(original) : read(...args)
+    } else {
+      f.handle.stat = options => f.state.stats === 1
+        ? Promise.reject(original) : stat(options)
+    }
+    await assert.rejects(f.run(), reason => reason === original)
+    assert.equal(f.options.trace.status, 'failed')
+    assert.notEqual(f.options.trace.teardownRequired, true)
+  })
+}
