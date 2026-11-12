@@ -2,15 +2,15 @@
 // Trusted runtime glue must authenticate private endpoints and actual FD ownership.
 const roles = ['parent', 'metadata', 'writer']
 const phases = [
-  ['before', 'metadata'], ['cases', 'parent'], ['after', 'metadata'], ['commit', 'writer'],
+  ['before', 'metadata', 7000], ['cases', 'parent', 10000], ['after', 'metadata', 7000], ['commit', 'writer', 2000],
 ]
-const sha = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
+export const requiredHashKeys = Object.freeze(['coordinator', 'watchdog', 'harness', 'supervisor', 'observer',\n  'metadataWorker', 'receiptWriter', 'protocol', 'node'])\nconst sha = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
 const nonce = value => typeof value === 'string' && value.length >= 8 && value.length <= 128
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const hashes = value => {
   if (!value || Object.getPrototypeOf(value) !== Object.prototype) throw Error('Plain hash closure required')
   const keys = Object.keys(value).sort()
-  if (!keys.length || keys.length > 32 || keys.some(key => key.length > 128 || !sha(value[key])))
+  if (requiredHashKeys.some(key => !keys.includes(key)) || keys.length > 32 || keys.some(key => key.length > 128 || !sha(value[key])))
     throw Error('Invalid hash closure')
   return Object.fromEntries(keys.map(key => [key, value[key]]))
 }
@@ -23,7 +23,7 @@ export function createFinalizationGate({ runNonce, startMs, expectedSources, exp
   if (!expectedSources || !same(Object.keys(expectedSources).sort(), [...roles].sort()) ||
       roles.some(role => !sha(expectedSources[role]))) throw Error('Pinned actor sources required')
   const sources = { ...expectedSources }, expected = hashes(expectedHashes)
-  const actors = new Map(), usedNonces = new Set([runNonce])
+  if (sources.parent !== expected.harness || sources.metadata !== expected.metadataWorker || sources.writer !== expected.receiptWriter)\n    throw Error('Actor sources differ from admitted hash closure')\n  const actors = new Map(), usedNonces = new Set([runNonce])
   let previous = startMs, failure, failed = false, next = 0, pending, descriptor, candidate
   let cleanupStart
   const fail = message => { failed = true; failure ??= message; throw Error(message) }
@@ -63,7 +63,7 @@ export function createFinalizationGate({ runNonce, startMs, expectedSources, exp
       if (pending || next >= phases.length || name !== phases[next][0] || actors.size !== roles.length ||
           !nonce(phaseNonce) || usedNonces.has(phaseNonce) || !Number.isFinite(capMs) || capMs <= 0)
         return fail('Phase admission mismatch')
-      if (capMs > startMs + workMs - time) return fail('Phase exceeds remaining global budget')
+      if (capMs > phases[next][2]) return fail('Phase exceeds fixed ceiling')\n      if (capMs > startMs + workMs - time) return fail('Phase exceeds remaining global budget')
       const role = phases[next][1]
       live(role)
       if (name === 'before' || name === 'after') { live('parent'); live('metadata') }
