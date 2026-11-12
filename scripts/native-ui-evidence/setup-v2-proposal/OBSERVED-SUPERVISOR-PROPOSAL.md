@@ -18,4 +18,8 @@ Log writes loop on actual positive write progress; only bytes actually written a
 
 Exactc8203367214e30623434a114b88f94edef2ba7c3 passed16/16 under Node24.22.1, exit0 in0.565827521s, no controller intervention, three source hashes unchanged, empty stderr. Runner used15s timeout+2s kill grace,64MiB Node heap, one test process/concurrency1. Evidence: evidence/observed-supervisor-supplied-01.json at46604627470a4239d9fa0ce78e3b200c8ab363ad. Independent result review recomputed all three exact-source hashes and both stream lengths/hashes; no reviewer rerun.
 
-Acceptance remains supplied EventEmitter/fake child signal/observer boundaries only. No real pilot kernel run, descendant cleanup, production integration or activation. Optional additional control remains TERM then leader exit then delayed close, to directly test cancellation of an already scheduled escalation.
+Acceptance remains supplied EventEmitter/fake child signal/observer boundaries only. No real pilot kernel run, descendant cleanup, production integration or activation. The additional TERM then leader exit then delayed close control subsequently passed in the17-case run below.
+
+## Escalation cancellation coverage
+
+Exactf746bcc15b66d78181bf11cdf68aff8fd170713b passed17/17 supplied tests, exit0 in0.616838195s, three inputs unchanged, empty stderr, no controller intervention. Supervisor source remained unchanged. Evidence: evidence/observed-supervisor-supplied-02.json at3f55b6ceba405b3e7dd2797908ef0e7752e5560e. Independent review recomputed all source and raw stream hashes and accepted the bounded result without rerun. The new control observes TERM, emits leader exit before delayed close, verifies no scheduled KILL, and retains deadline failure. Real timer scheduling is not precise kernel timing proof. All real-kernel/descendant/production gates remain open.
