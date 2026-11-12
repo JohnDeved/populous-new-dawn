@@ -156,6 +156,12 @@ function createHudPreferenceStore() {
   }
 }
 
+const HUD_TAB_SHORTCUTS = {
+  buildings: { code: 'Insert', label: 'Insert' },
+  spells: { code: 'Home', label: 'Home' },
+  followers: { code: 'PageUp', label: 'Page Up' },
+} as const
+
 export default function Home() {
   const [store] = useState(createGameStore)
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
@@ -614,6 +620,38 @@ export default function Home() {
           e.preventDefault()
           engine.current?.skipIntroduction()
         }
+        return
+      }
+      let nextTab: 'buildings' | 'spells' | 'followers' | null = null
+      switch (e.code) {
+        case 'Insert':
+          nextTab = 'buildings'
+          break
+        case 'Home':
+          nextTab = 'spells'
+          break
+        case 'PageUp':
+          nextTab = 'followers'
+          break
+      }
+      if (nextTab) {
+        if (
+          e.defaultPrevented ||
+          e.repeat ||
+          e.shiftKey ||
+          selectorOpen ||
+          world.status !== 'playing' ||
+          store.getWorld() !== world ||
+          engine.current?.world !== world ||
+          (e.target as HTMLElement).closest('textarea,select,a,[contenteditable]')
+        )
+          return
+        e.preventDefault()
+        setTab(nextTab)
+        store.change(w => {
+          w.mode = null
+        })
+        setHover(null)
         return
       }
       const s =
@@ -1308,7 +1346,8 @@ export default function Home() {
             <button
               key={t}
               aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
-              title={t}
+              title={`${t} · ${HUD_TAB_SHORTCUTS[t].label}`}
+              aria-keyshortcuts={HUD_TAB_SHORTCUTS[t].code}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
               onClick={() => {
