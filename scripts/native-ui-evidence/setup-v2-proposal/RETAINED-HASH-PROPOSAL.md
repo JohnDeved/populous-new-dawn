@@ -1,0 +1,11 @@
+# Inactive retained-descriptor hash engine
+
+Base8d0b7c8a1aa973d69c32fdbc3b1dd5fc2ecbd9a1. Source-only first metadata implementation piece; no worker, IPC, actual file open/hash/close or kernel retry is performed by the supplied tests. Caller must own the same live FileHandle for both before/after invocations. The engine never opens a pathname, reopens a descriptor or closes its caller's handle.
+
+Inputs bind descriptor number, expected device/inode and admitted size. Before/after bigint metadata is compared, an explicit EOF probe rejects growth, and every byte is hashed through at-most1MiB buffers. The engine limits file size to256MiB, each allowance to5s and read operations to1024. Partial positive reads are accumulated; zero-before-EOF/oversized/wrong-buffer reads fail. Core returns the digest; trusted protocol/admission must compare it against the expected complete manifest, not mistake any computed digest for a match.
+
+Each async stat/read is raced against the remaining same allowance, with monotonic checks after settlement and hashing. Late successful completion cannot resume the retired function. Pending-I/O timeout marks sticky trace.teardownRequired. Timeout is NOT cancellation: the owned worker/controller must resolve or terminate pending work under its separately reviewed global/cleanup budget. Synchronous injected code, stalled OS scheduling and uninterruptible I/O still require an external owner; this engine is not a hard whole-process watchdog.
+
+Caller must enforce shared global remaining time and internal source2s/executable5s substage limits; budgetMs cannot be reset across retries to bypass those. The same metadata worker/retained FD lifetime, private IPC phase binding and durable per-file start/end receipts are NOT implemented here. Matching fd/dev/inode fields alone is not anti-reuse proof. No atomic immutable-file-snapshot guarantee is made; expected full digest plus controlled ownership remain required.
+
+Seventeen supplied-handle tests cover complete/empty/partial reads, descriptor and metadata change, EOF growth, original read rejection, late read/stat timeout, clock faults, admission limits and finite quotas. Tests are unrun pending independent source review. No actual126.9MB executable hash or metadata qualification has occurred. Failed kernel attempt remains failed and immutable.
