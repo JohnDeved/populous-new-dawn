@@ -1,0 +1,46 @@
+{
+  "sourceRef": "068eb33bc9a78a9f4157cd22e8cb56fa730f77f4",
+  "admission": "Root authorized pure supplied tests after independent source acceptance. Fresh visible ps only sandbox/shell/ps,MemAvailable9611512kB,Node24.22.1. Other workers listed completed; lane announced to continuity and released. No prior denial bypass.",
+  "runner": "import hashlib,json,os,signal,subprocess,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nout=root/'test-attempt-01';out.mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/finalization-protocol.mjs','tests/finalization-protocol.test.mjs']\nexpected=['f1a49d4cd8c5899a6744442d87acb8ee2c75dd4b39b8ebf9fb6eed2b9f117809','676351e134f05296525a07a7cbb94f1e28538476d76859d68551b43c42b50372']\ndef hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}\ndef save(n,v):(out/n).write_text(json.dumps(v,indent=2)+'\\n')\nfor p in ['home','tmp']:(out/p).mkdir()\ncmd=['/usr/bin/timeout','--kill-after=2s','15s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=64','--test-isolation=none','--test','--test-concurrency=1',str(root/paths[1])]\nbefore=hashes();assert list(before.values())==expected;save('before.json',{'sourceRef':'068eb33bc9a78a9f4157cd22e8cb56fa730f77f4','inputs':before,'command':cmd})\nstarted=time.monotonic();intervened=False\nwith (out/'stdout.log').open('wb') as stdout,(out/'stderr.log').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=root,env={'PATH':'/usr/bin:/bin','HOME':str(out/'home'),'TMPDIR':str(out/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=20)\n except subprocess.TimeoutExpired:\n  intervened=True;os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nafter=hashes();save('result.json',{'exit':code,'elapsedSeconds':time.monotonic()-started,'controllerIntervened':intervened,'inputsUnchanged':before==after,'after':after,'streams':{n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ['stdout.log','stderr.log']},'scope':'Pure supplied protocol only; no real IPC, FD, metadata hashing, workers or kernel retry'})\n",
+  "before": {
+    "sourceRef": "068eb33bc9a78a9f4157cd22e8cb56fa730f77f4",
+    "inputs": {
+      "scripts/native-ui-evidence/setup-v2-proposal/finalization-protocol.mjs": "f1a49d4cd8c5899a6744442d87acb8ee2c75dd4b39b8ebf9fb6eed2b9f117809",
+      "tests/finalization-protocol.test.mjs": "676351e134f05296525a07a7cbb94f1e28538476d76859d68551b43c42b50372"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "/workspace/scratch/69fd8163d94e/finalization-protocol-syntax-20261112/tests/finalization-protocol.test.mjs"
+    ]
+  },
+  "result": {
+    "exit": 0,
+    "elapsedSeconds": 0.16469886199956818,
+    "controllerIntervened": false,
+    "inputsUnchanged": true,
+    "after": {
+      "scripts/native-ui-evidence/setup-v2-proposal/finalization-protocol.mjs": "f1a49d4cd8c5899a6744442d87acb8ee2c75dd4b39b8ebf9fb6eed2b9f117809",
+      "tests/finalization-protocol.test.mjs": "676351e134f05296525a07a7cbb94f1e28538476d76859d68551b43c42b50372"
+    },
+    "streams": {
+      "stdout.log": {
+        "bytes": 3553,
+        "sha256": "563429bfc25c352614701c1cc28eceff3b462e8292d255eac582d7c1aef27841"
+      },
+      "stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "scope": "Pure supplied protocol only; no real IPC, FD, metadata hashing, workers or kernel retry"
+  },
+  "stdout": "\u2714 candidate requires all reaps plus independently bound outer completion (7.28279ms)\n\u2714 outer outcome rejects wrong run (0.824837ms)\n\u2714 outer outcome rejects wrong candidate (0.727004ms)\n\u2714 outer outcome rejects writer artifact unvalidated (0.284157ms)\n\u2714 outer outcome rejects late error (0.213098ms)\n\u2714 outer outcome rejects intervention (0.334128ms)\n\u2714 outer outcome rejects coordinator failed (0.223526ms)\n\u2714 outer outcome rejects coordinator unreaped (0.402778ms)\n\u2714 outer outcome rejects watchdog failed (0.278751ms)\n\u2714 outer outcome rejects service incomplete (0.528342ms)\n\u2714 candidate ack alone never certifies writer exit (0.796211ms)\n\u2714 writer error after candidate ack invalidates the run (0.419022ms)\n\u2714 commit cannot precede metadata and parent reap (0.196555ms)\n\u2714 phase response rejects wrong run (0.263819ms)\n\u2714 phase response rejects wrong phase (0.132046ms)\n\u2714 phase response rejects wrong nonce (0.096734ms)\n\u2714 phase response rejects wrong sequence (0.442567ms)\n\u2714 phase response rejects wrong role (0.110226ms)\n\u2714 phase response rejects wrong pid (0.094597ms)\n\u2714 phase response rejects wrong starttime (0.142796ms)\n\u2714 phase response rejects wrong channel (0.181223ms)\n\u2714 before response cannot be replayed for after hash (0.413063ms)\n\u2714 descriptor replacement fails even with matching digest (0.6687ms)\n\u2714 changed hash closure fails finalization after verified cases (0.368122ms)\n\u2714 metadata worker cannot exit and reacquire the descriptor before after hash (1.080535ms)\n\u2714 late phase completion cannot become success (0.298718ms)\n\u2714 bootstrap time counts before first phase (0.381763ms)\n\u2714 phase cannot reset the global remaining budget (0.331928ms)\n\u2714 all live handles share one cleanup deadline and one escalation (1.494541ms)\n\u2714 exited handles are never included in destructive cleanup plans (0.461156ms)\n\u2714 actor identity snapshots cannot be mutated after binding (0.456955ms)\n\u2714 backward global clock fails closed (0.429455ms)\n\u2714 before admits its fixed ceiling without expanding global time (0.370013ms)\n\u2714 before rejects one millisecond over fixed ceiling (0.234268ms)\n\u2714 cases admits its fixed ceiling without expanding global time (0.192699ms)\n\u2714 cases rejects one millisecond over fixed ceiling (0.264062ms)\n\u2714 after admits its fixed ceiling without expanding global time (0.401709ms)\n\u2714 after rejects one millisecond over fixed ceiling (0.227058ms)\n\u2714 commit admits its fixed ceiling without expanding global time (0.714582ms)\n\u2714 commit rejects one millisecond over fixed ceiling (0.27301ms)\n\u2714 one-key digest equality is not an admitted complete mandatory closure (0.323383ms)\n\u2714 mandatory hash identity cannot be omitted: coordinator (0.361146ms)\n\u2714 mandatory hash identity cannot be omitted: watchdog (0.159877ms)\n\u2714 mandatory hash identity cannot be omitted: harness (0.167892ms)\n\u2714 mandatory hash identity cannot be omitted: supervisor (0.12269ms)\n\u2714 mandatory hash identity cannot be omitted: observer (0.118691ms)\n\u2714 mandatory hash identity cannot be omitted: metadataWorker (0.182309ms)\n\u2714 mandatory hash identity cannot be omitted: receiptWriter (0.131966ms)\n\u2714 mandatory hash identity cannot be omitted: protocol (0.116136ms)\n\u2714 mandatory hash identity cannot be omitted: node (0.137638ms)\n\u2714 actor identity must match its mandatory closure digest (0.196894ms)\n\u2714 response cannot omit a mandatory digest from an admitted closure (0.269564ms)\n\u2139 tests 52\n\u2139 suites 0\n\u2139 pass 52\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 69.638101\n",
+  "stderr": ""
+}
