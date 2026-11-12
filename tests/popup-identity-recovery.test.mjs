@@ -18,7 +18,7 @@ function fixture(details = [popup()]) {
   const read = requested => JSON.parse(JSON.stringify(evaluate(observePreparationIdentity, { expected, requested })))
   return { details, world, scene, context, read }
 }
-test('real observations retain open and closed identity', () => {
+test('supplied-DOM observations retain open and closed identity', () => {
   const f = fixture(); f.read({ serial: '7', open: true }); f.details[0].open = false
   assert.deepEqual(f.read({ serial: '7', open: false }), [{ serial: '7', open: false }])
 })
