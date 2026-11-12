@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import vm from 'node:vm'
 import { readFileSync } from 'node:fs'
-import { worldCanvasFocusState } from '../scripts/native-ui-evidence/setup-v2-proposal/browser-world-input.mjs'
+import { worldCanvasFocusState, worldRendererSelector } from '../scripts/native-ui-evidence/setup-v2-proposal/browser-world-input.mjs'
 
 function witness(change = {}) {
   const canvas = { isConnected: true }, world = {}
@@ -29,4 +29,26 @@ test('current-page popup uses retained structural body and canvas ownership chec
   assert.equal(source.includes('[data-native-campaign-panel]'), false)
   assert.equal(source.includes("page.locator('.world-viewport').focus"), false)
   assert.ok(source.includes('canvas.evaluate(worldCanvasFocusState)'))
+})
+
+test('renderer selector excludes the nested hidden tooltip canvas', () => {
+  // Supplied DOM-shaped locator boundary, not a real browser selector engine.
+  const viewport = { className: 'world-viewport' }
+  const tooltip = { parentElement: viewport, hidden: true }
+  const renderer = { tagName: 'CANVAS', className: 'battlefield', parentElement: viewport }
+  const tooltipCanvas = { tagName: 'CANVAS', className: '', parentElement: tooltip }
+  const canvases = [renderer, tooltipCanvas]
+  const page = { locator(selector) {
+    assert.equal(selector, '.world-viewport > canvas.battlefield')
+    const matches = canvases.filter(node => node.tagName === 'CANVAS' &&
+      node.className.split(/\\s+/).includes('battlefield') && node.parentElement === viewport)
+    return { count: () => matches.length, selected: matches }
+  } }
+  assert.equal(canvases.length, 2)
+  assert.equal(tooltip.hidden, true)
+  assert.equal(page.locator(worldRendererSelector).count(), 1)
+  assert.equal(page.locator(worldRendererSelector).selected[0], renderer)
+  const source = readFileSync(new URL('../scripts/native-ui-evidence/setup-v2-proposal/browser-world-input.mjs', import.meta.url), 'utf8')
+  assert.ok(source.includes('page.locator(worldRendererSelector)'))
+  assert.equal(source.includes("page.locator('.world-viewport canvas')"), false)
 })

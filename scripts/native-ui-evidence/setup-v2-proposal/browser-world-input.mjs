@@ -17,6 +17,8 @@ export function campaignPopupSnapshot() {
 
 // Current plain Home renders a focusable renderer canvas, not a focusable viewport.
 // Read-only post-focus ownership witness; successful focus() alone is not proof.
+export const worldRendererSelector = '.world-viewport > canvas.battlefield'
+
 export function worldCanvasFocusState(canvas) {
   const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
   const connected = !!canvas?.isConnected
@@ -129,7 +131,7 @@ export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = 
       // Pointer-only callers use the completed post-close observation above.
       // Keyboard callers must move summary focus before sending world input.
       if (!keyboardFocus) return collapsed
-      const canvas = page.locator('.world-viewport canvas')
+      const canvas = page.locator(worldRendererSelector)
       assert.equal(await phase('count-world-canvases', () => canvas.count()), 1, 'Exactly one world canvas required')
       await phase('focus-world-canvas', () => canvas.focus({ timeout: remaining() }))
       trace.focus = await phase('verify-world-canvas-focus', () => canvas.evaluate(worldCanvasFocusState))
