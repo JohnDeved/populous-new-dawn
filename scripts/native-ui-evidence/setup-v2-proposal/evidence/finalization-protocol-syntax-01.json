@@ -1,0 +1,21 @@
+{
+  "sourceRef": "068eb33bc9a78a9f4157cd22e8cb56fa730f77f4",
+  "scope": "Syntax only. No module import or test execution.",
+  "repair": "Five literal backslash-n sequences outside strings replaced with source line feeds.",
+  "checks": [
+    {
+      "path": "scripts/native-ui-evidence/setup-v2-proposal/finalization-protocol.mjs",
+      "sha256": "f1a49d4cd8c5899a6744442d87acb8ee2c75dd4b39b8ebf9fb6eed2b9f117809",
+      "command": "timeout --kill-after=2s 10s node --check <path>",
+      "exit": 0,
+      "rawOutput": ""
+    },
+    {
+      "path": "tests/finalization-protocol.test.mjs",
+      "sha256": "676351e134f05296525a07a7cbb94f1e28538476d76859d68551b43c42b50372",
+      "command": "timeout --kill-after=2s 10s node --check <path>",
+      "exit": 0,
+      "rawOutput": ""
+    }
+  ]
+}
