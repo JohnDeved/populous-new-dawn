@@ -1,0 +1,26 @@
+{
+  "at": "2026-11-12T18:59:43.714066+00:00",
+  "command": [
+    "timeout",
+    "--kill-after=2s",
+    "15s",
+    "node",
+    "--max-old-space-size=64",
+    "--test-isolation=none",
+    "--test",
+    "--test-concurrency=1",
+    "policy-tuple.test.mjs"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.22642298900063906,
+  "before": {
+    "policy-tuple.mjs": "5a0f266edb2b7ffd1065acd59098e8b5bf4cf865d4d4f01854c701cd816ddd12",
+    "policy-tuple.test.mjs": "2b24c87194d19076489ff978df1b685da4365697a4465b1f0fbe93475885a1fb"
+  },
+  "after": {
+    "policy-tuple.mjs": "5a0f266edb2b7ffd1065acd59098e8b5bf4cf865d4d4f01854c701cd816ddd12",
+    "policy-tuple.test.mjs": "2b24c87194d19076489ff978df1b685da4365697a4465b1f0fbe93475885a1fb"
+  },
+  "scope": "Supplied metadata equality only; no scanner/install/runtime authorization",
+  "nodeVersion": "v24.22.1"
+}
