@@ -99,6 +99,7 @@ export async function runOwnedGroupProbe({ output, admission }) {
   } catch (error) {
     hasPrimary = true; primary = error; report.status = 'failed'; report.error = failureText(error)
   } finally {
+    try {
     if (child && !closed) {
       report.cleanup.killRequested = true
       // Kill only our unreaped direct ChildProcess, never an arbitrary group.
@@ -116,6 +117,12 @@ export async function runOwnedGroupProbe({ output, admission }) {
       stderr: { bytes: stderr.length, sha256: hash(resolve(output, 'stderr.log')) } }
     if (report.cleanup.status === 'unverified' || report.cleanup.killRequested || !report.inputsUnchanged) report.status = 'failed'
     save()
+    } catch (receiptError) {
+      // A failed final write/hash must not replace the original probe failure.
+      if (!hasPrimary) { hasPrimary = true; primary = receiptError }
+      report.status = 'failed'; report.receiptError = failureText(receiptError)
+      try { save() } catch {} // Outer controller retains thrown primary/raw logs.
+    }
   }
   if (hasPrimary) throw primary
   assert.equal(report.status, 'passed')
