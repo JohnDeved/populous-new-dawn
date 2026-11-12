@@ -76,7 +76,10 @@ export function createIdentityLease(page, trace, { cleanupMs = 250 } = {}) {
     },
     observe(requested) {
       if (closed || !handle) throw Error('Identity lease unavailable')
-      return track(Promise.resolve().then(() => { if (closed) throw Error('Identity lease closed'); return page.evaluate(observePreparationIdentity, { expected: handle, requested }) }))
+      return track(Promise.resolve().then(() => { if (closed) throw Error('Identity lease closed'); return page.evaluate(observePreparationIdentity, { expected: handle, requested }) }).then(value => {
+        if (closed) throw Error('Identity lease closed during observation')
+        return value
+      }))
     },
     async close() {
       if (closed) throw Error('Identity lease already closed')
