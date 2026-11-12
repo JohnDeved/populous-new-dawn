@@ -23,6 +23,8 @@ on:
           - hud-preference-ssr
           - tower-collection
           - melee-capture-diagnostic
+          - owned-swamp-diagnostic
+          - spy-discovery-diagnostic
 
 permissions:
   contents: read
@@ -47,6 +49,13 @@ jobs:
       NODE_V8_COVERAGE: ''
       WRANGLER_SEND_METRICS: 'false'
     steps:
+      # Source-only integration: no gameplay capacity/install owner is admitted.
+      # This unconditional kind guard cannot be enabled by an input or env flag.
+      - name: Reject unadmitted gameplay diagnostics before checkout or install
+        if: ${{ inputs.evidence_kind == 'owned-swamp-diagnostic' || inputs.evidence_kind == 'spy-discovery-diagnostic' }}
+        run: |
+          printf '%s\n' 'Gameplay diagnostic integration is source-only; pre-install admission and runtime review are not complete.' >&2
+          exit 1
       - name: Validate normalized evidence kind before checkout or install
         run: |
           node --input-type=module -e "import assert from 'node:assert/strict'; assert.ok(['native-ui', 'material-lifecycle', 'options-controls', 'hud-preference-ssr', 'tower-collection', 'melee-capture-diagnostic'].includes(process.env.PND_EVIDENCE_KIND), 'Unsupported evidence kind')"
