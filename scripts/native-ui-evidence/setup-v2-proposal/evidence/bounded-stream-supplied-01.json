@@ -1,0 +1,42 @@
+{
+  "scope": "Supplied byte chunks only; no stream attachment, drainer, worker lifecycle, admission or kernel qualification.",
+  "before": {
+    "sourceRef": "e7a7df8b3a5e688614ebee33e29d034fc6e0e21f",
+    "hashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/bounded-stream-record.mjs": "072fca5dc61b884a886e32b55271f88e295d9bf619f412ff690adca61c448438",
+      "tests/bounded-stream-record.test.mjs": "072f2e5ae5b55f0329d59ab65d83d53d995a5c58c2943b5af4d9262ef4ffbffb"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "tests/bounded-stream-record.test.mjs"
+    ],
+    "admission": "Root admitted following independent review. Visible ps sandbox/bash/ps only; MemAvailable9509804kB; team workers completed, no competing test lane. Supplied byte chunks only."
+  },
+  "result": {
+    "exitCode": 0,
+    "elapsedSeconds": 0.16426351300003716,
+    "controllerIntervention": null,
+    "afterHashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/bounded-stream-record.mjs": "072fca5dc61b884a886e32b55271f88e295d9bf619f412ff690adca61c448438",
+      "tests/bounded-stream-record.test.mjs": "072f2e5ae5b55f0329d59ab65d83d53d995a5c58c2943b5af4d9262ef4ffbffb"
+    },
+    "stdout": {
+      "bytes": 776,
+      "sha256": "9639ab627d081fca29e64bda130a13a5bab68a06a7bf21098dcfcfac5222f0c3"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inputsUnchanged": true
+  },
+  "stdout": "\u2714 empty stream is open until end and then complete (4.755247ms)\n\u2714 exact ceiling is complete and digest binds all bytes (0.39823ms)\n\u2714 overflow preserves only bounded prefix and never claims complete (0.560614ms)\n\u2714 later drain bytes remain bounded after overflow (0.263107ms)\n\u2714 uses encoded bytes rather than character count (0.348876ms)\n\u2714 copies exact subarray and isolates returned snapshots (1.809227ms)\n\u2714 data after end invalidates later terminal snapshots (0.71696ms)\n\u2714 duplicate end is a protocol failure (0.458631ms)\n\u2714 original falsy failure survives overflow and end (0.447895ms)\n\u2714 strings and invalid limits fail closed (0.569979ms)\n\u2139 tests 10\n\u2139 suites 0\n\u2139 pass 10\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 46.906743\n",
+  "stderr": ""
+}
