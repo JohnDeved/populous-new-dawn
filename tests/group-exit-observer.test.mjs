@@ -60,3 +60,7 @@ test('hung pause cannot prevent terminal receipt or restart probing', async () =
   assert.equal(result.status, 'unverified'); assert.match(result.error.message, /pause exceeded deadline/)
   resolve(); await new Promise(done => setImmediate(done)); assert.equal(polls, 1)
 })
+test('invalid budgets never invoke probe or pause', async () => {
+  for (const options of [{ capMs: 0 }, { capMs: Infinity }, { capMs: 5001 }, { intervalMs: Number.MIN_VALUE }, { intervalMs: NaN }])
+    await assert.rejects(observeGroupExit(42, { ...options, probe: () => assert.fail('unexpected probe'), pause: () => assert.fail('unexpected pause') }), /budget/)
+})
