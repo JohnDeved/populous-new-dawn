@@ -139,3 +139,17 @@ test('partial write followed by error retains actual written count and failure',
   assert.equal(result.status, 'failed'); assert.equal(result.logBytes, 2)
   assert.equal(readFileSync(join(f.root, 'raw.log'), 'utf8'), 'ab')
 })
+test('leader exit after TERM cancels pending escalation before delayed stream close', async t => {
+  const f = fixture(t), pending = f.start(5)
+  await new Promise(resolve => setTimeout(resolve, 20))
+  assert.deepEqual(f.signals, ['SIGTERM'])
+  f.child.emit('exit', 0, null)
+  await new Promise(resolve => setTimeout(resolve, 130))
+  assert.deepEqual(f.signals, ['SIGTERM'], 'Retired leader must not receive scheduled SIGKILL')
+  f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed')
+  assert.match(result.failure, /deadline/)
+  assert.equal(result.groupCleanup.status, 'absent')
+  assert.deepEqual(f.signals, ['SIGTERM'])
+})
