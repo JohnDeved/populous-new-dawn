@@ -24,8 +24,9 @@ function fixture() {
     removeOwnedSwamp() { calls.remove++; return true },
     cancelInteraction() { calls.cancel++ },
   })
-  vm.runInContext(['pointerMove', 'pointerUp', 'cancelPointerGesture'].map(body).join('\n'), context)
+  vm.runInContext(['pointerDown', 'pointerMove', 'pointerUp', 'cancelPointerGesture'].map(body).join('\n'), context)
   const scene = {
+    renderer: { domElement: { setPointerCapture() {} } },
     modalSuspended: false, pointerGesture: { pointerId: 1, button: 2, moved: false },
     world: { inputMask: 0, selected: [], mode: null }, overviewStage: 0, overviewActive: false,
     down: { x: 0, y: 0 }, dragLast: { x: 0, y: 0 }, cameraMotion: {},
@@ -37,7 +38,8 @@ function fixture() {
   }
   const event = (x, y, extra = {}) => ({ pointerId: 1, button: 2, buttons: 2,
     clientX: x, clientY: y, shiftKey: true, ctrlKey: false, altKey: false, metaKey: false, ...extra })
-  return { scene, calls, move: (x, y, extra) => context.pointerMove(scene, event(x, y, extra)),
+  return { scene, calls, down: (x = 0, y = 0, extra) => context.pointerDown(scene, event(x, y, extra)),
+    move: (x, y, extra) => context.pointerMove(scene, event(x, y, extra)),
     up: (x = 0, y = 0, extra) => context.pointerUp(scene, event(x, y, { buttons: 0, ...extra })),
     cancel: () => context.cancelPointerGesture(scene, 1) }
 }
@@ -74,6 +76,17 @@ test('unmodified out-and-back release keeps ordinary cancellation', () => {
   const f = fixture(); f.move(20, 0); f.move(0, 0); f.up(0, 0, { shiftKey: false })
   assert.equal(f.calls.remove, 0); assert.equal(f.calls.cancel, 1)
 })
-test('each actual pointerDown initializes a fresh movement latch', () => {
-  assert.ok(source.includes('scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }'))
+test('actual pointerDown clears prior drag latch for a fresh stationary gesture', () => {
+  const f = fixture(); f.down(); f.move(20, 0); f.move(0, 0); f.up()
+  assert.equal(f.calls.remove, 0)
+  f.down()
+  assert.equal(f.scene.pointerGesture.moved, false)
+  f.up()
+  assert.equal(f.calls.remove, 1); assert.equal(f.calls.ack, 1)
+})
+test('modal-suspended pointerDown does not replace the owned gesture', () => {
+  const f = fixture(); f.scene.modalSuspended = true
+  const previous = f.scene.pointerGesture
+  f.down(10, 10, { pointerId: 2 })
+  assert.equal(f.scene.pointerGesture, previous)
 })
