@@ -1,0 +1,11 @@
+# Inactive bounded stream record
+
+Source-only primitive for future stdout/stderr/event accounting. No stream attachment, child launch, filesystem access, timers, admission or activation. Ten supplied-data tests are authored but unrun pending independent source review.
+
+A recorder allocates one buffer of at most 65536 bytes. append accepts Uint8Array byte views and copies only the remaining prefix. Overflow throws and permanently marks failure/truncation; the caller must initiate its separately bounded failure/cleanup path, not ignore the exception. Further data may be accounted while draining but cannot increase retained storage. The observed byte count covers accepted byte chunks before end; data after end is rejected and marks lateData, so that counter is not a claim to know bytes beyond terminal protocol failure. Counter overflow also fails rather than representing an inexact count.
+
+snapshot returns a defensive copy and a SHA256 explicitly of captured bytes, not necessarily the whole original stream. A truncated UTF-8 prefix is bytes only, never claimed to be valid text. Each snapshot allocates up to the same cap; callers must bound snapshot frequency and retained copies. The recorder does not bound caller-supplied chunks already allocated elsewhere, original error object size, or time spent by its caller. Error identity (including falsy errors) is retained privately for failure preservation; a future receipt serializer must safely bound its encoding rather than JSON-serializing arbitrary originalFailure.
+
+A complete snapshot only says the caller declared end without an error known at that moment. Late data or errors invalidate subsequent snapshots. It is not authoritative process/IO success. The owner must wait for actual stream close, owned process exit/reap, writer completion, all pending callbacks and its global terminal barrier before accepting a final record. end is a once-only adapter operation; a future adapter must not call it separately for both stream end and close.
+
+Concurrent draining, quota enforcement before event decoding, watchdog coverage of blocking I/O, admission provenance and actual FD/kernel qualification are not implemented. These controls cannot justify a metadata diagnostic or kernel retry.
