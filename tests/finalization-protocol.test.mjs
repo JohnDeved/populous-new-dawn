@@ -1,13 +1,13 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createFinalizationGate, acceptOuterOutcome } from '../scripts/native-ui-evidence/setup-v2-proposal/finalization-protocol.mjs'
+import { createFinalizationGate, acceptOuterOutcome, requiredHashKeys } from '../scripts/native-ui-evidence/setup-v2-proposal/finalization-protocol.mjs'
 const digest = 'a'.repeat(64), other = 'b'.repeat(64)
-const sources = { parent: digest, metadata: digest, writer: digest }, expectedHashes = { node: digest, source: digest }
+const sources = { parent: digest, metadata: digest, writer: digest }, expectedHashes = Object.fromEntries(requiredHashKeys.map(key => [key, digest]))
 const descriptor = { device: '1', inode: '2', token: 'owned-fd-1' }
-function fixture() {
+function fixture(workMs = 100) {
   let time = 0
   const gate = createFinalizationGate({ runNonce: 'run-nonce-01', startMs: 0, expectedSources: sources,
-    expectedHashes, now: () => time, workMs: 100, cleanupMs: 20 })
+    expectedHashes, now: () => time, workMs, cleanupMs: 20 })
   const identities = {}
   for (const [index, role] of ['parent', 'metadata', 'writer'].entries()) {
     identities[role] = { pid: 10 + index, starttime: '100', sourceSha256: digest, channelNonce: 'channel-' + role }
@@ -119,4 +119,39 @@ test('actor identity snapshots cannot be mutated after binding', () => {
 test('backward global clock fails closed', () => {
   const f = fixture(); f.time(20); f.phase('before'); f.time(19)
   assert.throws(() => f.begin('cases'), /backward/)
+})
+function preparePhase(f, name) {
+  if (name === 'before') return
+  f.phase('before')
+  if (name === 'cases') return
+  f.phase('cases')
+  if (name === 'after') return
+  f.phase('after'); f.retire('parent'); f.retire('metadata')
+}
+for (const [name, ceiling] of [['before', 7000], ['cases', 10000], ['after', 7000], ['commit', 2000]]) {
+  test(name + ' admits its fixed ceiling without expanding global time', () => {
+    const f = fixture(26000); preparePhase(f, name)
+    assert.equal(f.gate.begin(name, 'boundary-nonce', ceiling).phase, name)
+  })
+  test(name + ' rejects one millisecond over fixed ceiling', () => {
+    const f = fixture(26000); preparePhase(f, name)
+    assert.throws(() => f.gate.begin(name, 'overlimit-nonce', ceiling + 1), /fixed ceiling/)
+  })
+}
+test('one-key digest equality is not an admitted complete mandatory closure', () => {
+  assert.throws(() => createFinalizationGate({ runNonce: 'run-nonce-01', startMs: 0,
+    expectedSources: sources, expectedHashes: { node: digest }, now: () => 0 }), /hash closure/)
+})
+for (const missing of requiredHashKeys) test('mandatory hash identity cannot be omitted: ' + missing, () => {
+  const incomplete = { ...expectedHashes }; delete incomplete[missing]
+  assert.throws(() => createFinalizationGate({ runNonce: 'run-nonce-01', startMs: 0,
+    expectedSources: sources, expectedHashes: incomplete, now: () => 0 }), /hash closure/)
+})
+test('actor identity must match its mandatory closure digest', () => {
+  assert.throws(() => createFinalizationGate({ runNonce: 'run-nonce-01', startMs: 0,
+    expectedSources: { ...sources, metadata: other }, expectedHashes, now: () => 0 }), /Actor sources differ/)
+})
+test('response cannot omit a mandatory digest from an admitted closure', () => {
+  const f = fixture(), incomplete = { ...expectedHashes }; delete incomplete.node
+  assert.throws(() => f.phase('before', { hashes: incomplete }), /Invalid hash response/)
 })
