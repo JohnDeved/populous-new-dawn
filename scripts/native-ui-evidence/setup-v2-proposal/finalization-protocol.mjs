@@ -52,7 +52,7 @@ export function createFinalizationGate({ runNonce, startMs, expectedSources, exp
       if (!roles.includes(role) || actors.has(role) || next !== 0 || pending) return fail('Actor bind out of order')
       if (!identity || !Number.isSafeInteger(identity.pid) || identity.pid <= 1 ||
           !/^\d+$/.test(identity.starttime ?? '') || identity.sourceSha256 !== sources[role] ||
-          !nonce(identity.channelNonce) || usedNonces.has(identity.channelNonce))
+          !nonce(identity.channelNonce) || usedNonces.has(identity.channelNonce) || [...actors.values()].some(actor => actor.pid === identity.pid))
         return fail('Actor identity mismatch')
       usedNonces.add(identity.channelNonce)
       actors.set(role, { pid: identity.pid, starttime: identity.starttime, sourceSha256: identity.sourceSha256,
@@ -143,7 +143,10 @@ export function createFinalizationGate({ runNonce, startMs, expectedSources, exp
 }
 export function acceptOuterOutcome(manifest, outcome) {
   if (manifest?.status !== 'ready-for-outer-owner' || manifest.allActorsReaped !== true ||
-      manifest.phaseCount !== 4 || !sha(manifest.candidateSha256) ||
+      manifest.phaseCount !== 4 || !nonce(manifest.runNonce) || !sha(manifest.candidateSha256) ||
+      outcome?.runNonce !== manifest.runNonce || outcome?.candidateSha256 !== manifest.candidateSha256 ||
+      outcome?.candidateValidated !== true || !Array.isArray(outcome?.lateErrors) || outcome.lateErrors.length !== 0 ||
+      !Array.isArray(outcome?.interventions) || outcome.interventions.length !== 0 ||
       outcome?.coordinatorExit !== 0 || outcome.coordinatorReaped !== true ||
       outcome.watchdogFailed !== false || outcome.serviceCompleted !== true || outcome.serviceSucceeded !== true)
     throw Error('Whole-run outcome unverified')
