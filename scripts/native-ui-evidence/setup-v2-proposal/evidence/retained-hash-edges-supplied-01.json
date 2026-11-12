@@ -1,0 +1,42 @@
+{
+  "scope": "Supplied handles and clocks only; no actual FD ownership, executable hashing, metadata qualification or kernel retry.",
+  "before": {
+    "sourceRef": "1082e4e66a2c88a1833d4219d56ef2f98fc4b193",
+    "hashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/retained-hash-core.mjs": "01846c7d55fb5bc1d2e2f7c3d4c42252d83f80e130d4208d8bec1d55a6ba11e9",
+      "tests/retained-hash-core.test.mjs": "be96a0f1032f61296f799c1b73c0437fc14aefd1a34660f4e09244dfdcc0bd6d"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "tests/retained-hash-core.test.mjs"
+    ],
+    "admission": "Root admitted after independent source acceptance; continuity released lane; fresh visible ps only sandbox/bash/ps, MemAvailable 9621264 kB. Supplied handles only."
+  },
+  "result": {
+    "exitCode": 0,
+    "elapsedSeconds": 0.26482623600168154,
+    "controllerIntervention": null,
+    "afterHashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/retained-hash-core.mjs": "01846c7d55fb5bc1d2e2f7c3d4c42252d83f80e130d4208d8bec1d55a6ba11e9",
+      "tests/retained-hash-core.test.mjs": "be96a0f1032f61296f799c1b73c0437fc14aefd1a34660f4e09244dfdcc0bd6d"
+    },
+    "stdout": {
+      "bytes": 1550,
+      "sha256": "6bc0d00771d5d298b5bbeae24c1a0e0915986231e447150c94f7eddbf4d83923"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inputsUnchanged": true
+  },
+  "stdout": "\u2714 chunked retained handle yields complete digest and never closes it (5.292288ms)\n\u2714 empty retained file is checked for EOF and metadata (0.663086ms)\n\u2714 positive partial reads are fully hashed (1.059327ms)\n\u2714 rejects zero before end (1.70737ms)\n\u2714 rejects oversized count (1.403549ms)\n\u2714 rejects wrong returned buffer (1.32398ms)\n\u2714 changed descriptor integer fails before digest acceptance (0.615614ms)\n\u2714 device/inode mismatch fails before reading (0.354069ms)\n\u2714 metadata change invalidates complete byte digest (0.780377ms)\n\u2714 file growth at explicit EOF probe is rejected (0.870752ms)\n\u2714 original frozen read error is preserved (0.533832ms)\n\u2714 late successful read cannot pass a retired deadline (9.82154ms)\n\u2714 pending stat deadline requires owner teardown (4.702703ms)\n\u2714 after-read clock expiry rejects success even before timer callback (0.501959ms)\n\u2714 backward clock fails closed (0.288563ms)\n\u2714 invalid allocation or budget admission performs no operations (0.822601ms)\n\u2714 finite read quota bounds a nonadvancing supplied clock (35.974937ms)\n\u2714 EOF accounting includes exactly one extra read including empty files (24.588796ms)\n\u2714 pending eof cannot publish digest after retirement (10.530632ms)\n\u2714 original eof rejection identity is preserved (0.601387ms)\n\u2714 pending stat-after cannot publish digest after retirement (10.462476ms)\n\u2714 original stat-after rejection identity is preserved (0.235615ms)\n\u2139 tests 22\n\u2139 suites 0\n\u2139 pass 22\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 143.515533\n",
+  "stderr": ""
+}
