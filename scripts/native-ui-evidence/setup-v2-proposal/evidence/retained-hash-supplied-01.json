@@ -1,0 +1,42 @@
+{
+  "scope": "Inactive supplied-handle hash engine only; no actual FD/file hashing, metadata qualification, or kernel retry. Read counters exclude EOF probe.",
+  "before": {
+    "sourceRef": "51157826779444871a4597e2178fa36feb0e03d5",
+    "hashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/retained-hash-core.mjs": "01846c7d55fb5bc1d2e2f7c3d4c42252d83f80e130d4208d8bec1d55a6ba11e9",
+      "tests/retained-hash-core.test.mjs": "220a953af2822bb6641ac7c40d4ec51248a7ce094f4ee54294967772183bfafe"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "tests/retained-hash-core.test.mjs"
+    ],
+    "admission": "Independent source review accepted; accounting documentation corrected. Fresh visible process preflight no competing workload; MemAvailable 9601784 kB; team workers completed. Supplied handles only."
+  },
+  "result": {
+    "exitCode": 0,
+    "elapsedSeconds": 0.21452991499972995,
+    "controllerIntervention": null,
+    "afterHashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/retained-hash-core.mjs": "01846c7d55fb5bc1d2e2f7c3d4c42252d83f80e130d4208d8bec1d55a6ba11e9",
+      "tests/retained-hash-core.test.mjs": "220a953af2822bb6641ac7c40d4ec51248a7ce094f4ee54294967772183bfafe"
+    },
+    "stdout": {
+      "bytes": 1187,
+      "sha256": "06ff664b17404419d40431d9febff779dded73356a9aab6a46fbaeaf0d58cc31"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inputsUnchanged": true
+  },
+  "stdout": "\u2714 chunked retained handle yields complete digest and never closes it (4.631675ms)\n\u2714 empty retained file is checked for EOF and metadata (0.472293ms)\n\u2714 positive partial reads are fully hashed (1.299518ms)\n\u2714 rejects zero before end (1.442106ms)\n\u2714 rejects oversized count (0.29798ms)\n\u2714 rejects wrong returned buffer (0.293532ms)\n\u2714 changed descriptor integer fails before digest acceptance (0.595434ms)\n\u2714 device/inode mismatch fails before reading (0.451969ms)\n\u2714 metadata change invalidates complete byte digest (0.640873ms)\n\u2714 file growth at explicit EOF probe is rejected (0.76235ms)\n\u2714 original frozen read error is preserved (0.528446ms)\n\u2714 late successful read cannot pass a retired deadline (9.904315ms)\n\u2714 pending stat deadline requires owner teardown (3.707157ms)\n\u2714 after-read clock expiry rejects success even before timer callback (0.435796ms)\n\u2714 backward clock fails closed (0.303431ms)\n\u2714 invalid allocation or budget admission performs no operations (0.357589ms)\n\u2714 finite read quota bounds a nonadvancing supplied clock (32.101265ms)\n\u2139 tests 17\n\u2139 suites 0\n\u2139 pass 17\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 92.761922\n",
+  "stderr": ""
+}
