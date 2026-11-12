@@ -2,17 +2,18 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
 import { PassThrough } from 'node:stream'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createObservedSupervisor } from '../scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs'
 
-function fixture(t, { observation = async () => ({ status: 'absent' }), signalFailure } = {}) {
+function fixture(t, { observation = async () => ({ status: 'absent' }), signalFailure, writeLog } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'observed-owner-'))
   t.after(() => rmSync(root, { recursive: true, force: true }))
   const child = Object.assign(new EventEmitter(), { pid: 42, stdout: new PassThrough(), stderr: new PassThrough() })
   const signals = [], requests = []
   const run = createObservedSupervisor({
+    ...(writeLog ? { writeLog } : {}),
     spawnProcess(command, args, options) { assert.equal(options.detached, true); return child },
     signalChild(target, signal) { assert.equal(target, child); signals.push(signal); if (signalFailure) throw signalFailure },
     observe: async (pid, options) => { requests.push({ pid, options }); return observation() },
@@ -112,4 +113,29 @@ test('a still-present group after normal close is never signalled', async t => {
   f.child.emit('close', 0, null)
   const result = await pending
   assert.deepEqual(f.signals, []); assert.equal(result.status, 'failed')
+})
+test('partial writes retain every byte with exact accounting', async t => {
+  const f = fixture(t, { writeLog: (fd, data, offset, length) => writeSync(fd, data, offset, Math.min(length, 2)) })
+  const pending = f.start(); f.child.stdout.write('seven!!'); f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'passed'); assert.equal(result.logBytes, 7)
+  assert.equal(readFileSync(join(f.root, 'raw.log'), 'utf8'), 'seven!!')
+})
+test('zero write progress fails and never certifies missing bytes', async t => {
+  const f = fixture(t, { writeLog: () => 0 }), pending = f.start()
+  f.child.stdout.write('missing'); f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.equal(result.logBytes, 0)
+  assert.match(result.failure, /zero log write/)
+})
+test('partial write followed by error retains actual written count and failure', async t => {
+  let writes = 0
+  const f = fixture(t, { writeLog: (fd, data, offset, length) => {
+    if (++writes > 1) throw Error('disk full')
+    return writeSync(fd, data, offset, 2)
+  } }), pending = f.start()
+  f.child.stdout.write('abcdef'); f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.equal(result.logBytes, 2)
+  assert.equal(readFileSync(join(f.root, 'raw.log'), 'utf8'), 'ab')
 })
