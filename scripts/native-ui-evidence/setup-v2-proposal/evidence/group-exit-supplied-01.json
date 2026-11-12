@@ -1,0 +1,46 @@
+{
+  "sourceRef": "9e2ff22cfe77c7aea3bedf909ed75b91f74fe61d",
+  "admission": "Root authorized supplied-boundary run after independent source acceptance. Visible ps only sandbox/shell/ps; MemAvailable9520940kB; Node24.22.1. No prior denial bypass. This is not a global scheduler or kernel group cleanup claim.",
+  "runner": "import hashlib,json,os,signal,subprocess,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nout=root/'attempt-01';out.mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs','tests/group-exit-observer.test.mjs']\ndef hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}\ndef save(n,v):(out/n).write_text(json.dumps(v,indent=2)+'\\n')\nfor p in ['home','tmp']:(out/p).mkdir()\ncmd=['/usr/bin/timeout','--kill-after=2s','15s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=64','--test-isolation=none','--test','--test-concurrency=1',str(root/paths[1])]\nbefore=hashes();save('before.json',{'sourceRef':'9e2ff22cfe77c7aea3bedf909ed75b91f74fe61d','inputs':before,'command':cmd})\nstarted=time.monotonic();intervened=False\nwith (out/'stdout.log').open('wb') as stdout,(out/'stderr.log').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=root,env={'PATH':'/usr/bin:/bin','HOME':str(out/'home'),'TMPDIR':str(out/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=20)\n except subprocess.TimeoutExpired:\n  intervened=True;os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nafter=hashes();save('result.json',{'exit':code,'elapsedSeconds':time.monotonic()-started,'controllerIntervened':intervened,'inputsUnchanged':before==after,'after':after,'streams':{n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ['stdout.log','stderr.log']},'scope':'Supplied process probe, clock and pause boundaries only; no kernel group observation, supervisor integration or cleanup proof'})\n",
+  "before": {
+    "sourceRef": "9e2ff22cfe77c7aea3bedf909ed75b91f74fe61d",
+    "inputs": {
+      "scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec",
+      "tests/group-exit-observer.test.mjs": "52da4b8d16a259a1e6c7826e88bcf55da8ad9186efe611692e6586c2c4e3c29b"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "/workspace/scratch/69fd8163d94e/group-exit-test-20261112/tests/group-exit-observer.test.mjs"
+    ]
+  },
+  "result": {
+    "exit": 0,
+    "elapsedSeconds": 0.11456689599998526,
+    "controllerIntervened": false,
+    "inputsUnchanged": true,
+    "after": {
+      "scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec",
+      "tests/group-exit-observer.test.mjs": "52da4b8d16a259a1e6c7826e88bcf55da8ad9186efe611692e6586c2c4e3c29b"
+    },
+    "streams": {
+      "stdout.log": {
+        "bytes": 920,
+        "sha256": "aac2eac824a38b8e685348cb72b8b3e1583ac10edb5c24a3b6b829916dbf4fe4"
+      },
+      "stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "scope": "Supplied process probe, clock and pause boundaries only; no kernel group observation, supervisor integration or cleanup proof"
+  },
+  "stdout": "\u2714 probe uses only negative owned group and signal zero (2.431746ms)\n\u2714 only ESRCH is evidence of absence (0.883096ms)\n\u2714 invalid group IDs never invoke the probe (0.263089ms)\n\u2714 immediate absence yields affirmative bounded observation (0.495442ms)\n\u2714 present then absent is distinct from mere signal delivery (0.616843ms)\n\u2714 still-present group remains unverified at deadline (0.583653ms)\n\u2714 permission rejection remains unverified and preserves original error (0.300885ms)\n\u2714 absence returned after observation deadline is not accepted (0.462064ms)\n\u2714 backward clock fails closed (0.549022ms)\n\u2714 nonadvancing clock cannot poll indefinitely (1.157021ms)\n\u2714 hung pause cannot prevent terminal receipt or restart probing (5.919935ms)\n\u2714 invalid budgets never invoke probe or pause (0.45272ms)\n\u2139 tests 12\n\u2139 suites 0\n\u2139 pass 12\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 34.675113\n",
+  "stderr": ""
+}
