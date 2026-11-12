@@ -53,8 +53,17 @@ export function createGameplayJournal(file, { maxBytes = 262144, failureReserve 
   return {
     record(stage, value) { append(stage, value, false) },
     failure(error) {
-      // Deliberately bounded explicit normalization, not arbitrary error serialization.
-      append('failure', { message: String(error).slice(0, 1024) }, true)
+      // Coercion may itself throw. Size the complete UTF-8 JSON line, not the
+      // message's UTF-16 length: escaping and the envelope consume the reserve.
+      let message
+      try { message = String(error).slice(0, 1024) }
+      catch { message = 'Failure (message unavailable)' }
+      const size = () => Buffer.byteLength(JSON.stringify({ sequence, stage: 'failure', value: { message } }) + '\n')
+      while (size() > failureReserve) {
+        const points = Array.from(message)
+        message = points.slice(0, Math.floor(points.length / 2)).join('')
+      }
+      append('failure', { message }, true)
     },
     close() { if (!closed) { closed = true; closeSync(fd) } },
     get bytes() { return bytes },
