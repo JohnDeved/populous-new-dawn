@@ -1,0 +1,46 @@
+{
+  "sourceRef": "bf54d1fa5444571c192a7cf6fff08288bc3941d6",
+  "admission": "Root authorized after independent narrow source review; fresh visible process check only sandbox/shell/ps, MemAvailable9518020kB, load0/0/0. Not a global scheduler proof. No prior denial bypass.",
+  "runner": "import hashlib,json,os,signal,subprocess,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nout=root/'primitive-attempt-01';out.mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/popup-identity.mjs','tests/popup-identity-recovery.test.mjs']\ndef hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}\ndef save(n,v):(out/n).write_text(json.dumps(v,indent=2)+'\\n')\nfor p in ['home','tmp']:(out/p).mkdir()\ncmd=['/usr/bin/timeout','--kill-after=2s','15s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=64','--test-isolation=none','--test','--test-concurrency=1',str(root/paths[1])]\nbefore=hashes();save('before.json',{'sourceRef':'bf54d1fa5444571c192a7cf6fff08288bc3941d6','inputs':before,'command':cmd})\nstarted=time.monotonic();intervened=False\nwith (out/'stdout.log').open('wb') as stdout,(out/'stderr.log').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=root,env={'PATH':'/usr/bin:/bin','HOME':str(out/'home'),'TMPDIR':str(out/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=20)\n except subprocess.TimeoutExpired:\n  intervened=True;os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nafter=hashes();save('result.json',{'exit':code,'elapsedSeconds':time.monotonic()-started,'controllerIntervened':intervened,'inputsUnchanged':before==after,'after':after,'streams':{n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ['stdout.log','stderr.log']},'scope':'Supplied DOM and lease promises only, not integrated helper/browser/outer teardown'})\n",
+  "before": {
+    "sourceRef": "bf54d1fa5444571c192a7cf6fff08288bc3941d6",
+    "inputs": {
+      "scripts/native-ui-evidence/setup-v2-proposal/popup-identity.mjs": "9681dd112113c8d88bc25e5091589191a1ab0cfc2fbde75e4be7748353b0bd56",
+      "tests/popup-identity-recovery.test.mjs": "f0aa299dc75684a3d0a8874f71024a7b11eec8838bc7ea5f37f81428377b7e48"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "/workspace/scratch/69fd8163d94e/popup-integration-recovery-20261112/tests/popup-identity-recovery.test.mjs"
+    ]
+  },
+  "result": {
+    "exit": 0,
+    "elapsedSeconds": 0.16453079000007165,
+    "controllerIntervened": false,
+    "inputsUnchanged": true,
+    "after": {
+      "scripts/native-ui-evidence/setup-v2-proposal/popup-identity.mjs": "9681dd112113c8d88bc25e5091589191a1ab0cfc2fbde75e4be7748353b0bd56",
+      "tests/popup-identity-recovery.test.mjs": "f0aa299dc75684a3d0a8874f71024a7b11eec8838bc7ea5f37f81428377b7e48"
+    },
+    "streams": {
+      "stdout.log": {
+        "bytes": 1079,
+        "sha256": "9df8fee12a3b0e91bd901d34e9e7f4aac25b9af93874addb7c7d72961afc7423"
+      },
+      "stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "scope": "Supplied DOM and lease promises only, not integrated helper/browser/outer teardown"
+  },
+  "stdout": "\u2714 supplied-DOM observations retain open and closed identity (5.739713ms)\n\u2714 empty entry binds original World and Scene (2.580866ms)\n\u2714 rejects same serial replacement (1.650005ms)\n\u2714 rejects body replacement (1.990848ms)\n\u2714 rejects removal (1.637506ms)\n\u2714 rejects disconnected body (1.489263ms)\n\u2714 rejects duplicate serial (3.733352ms)\n\u2714 new owner becomes identity-bound (1.214429ms)\n\u2714 hidden wait is insufficient when retained body remains visible (1.639058ms)\n\u2714 normal lease disposes once and rejects reuse (1.510455ms)\n\u2714 late acquisition disposes without exposing a reusable handle (6.713109ms)\n\u2714 disposal rejection remains a teardown requirement (0.331079ms)\n\u2714 hung observation demands teardown without replay (5.876349ms)\n\u2714 closing before acquisition RPC starts never starts it (0.17283ms)\n\u2714 observation settling during cleanup rejects retired success (0.28611ms)\n\u2714 original observation error survives lease retirement (0.378651ms)\n\u2139 tests 16\n\u2139 suites 0\n\u2139 pass 16\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 61.850588\n",
+  "stderr": ""
+}
