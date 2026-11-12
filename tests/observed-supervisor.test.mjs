@@ -17,7 +17,7 @@ function fixture(t, { observation = async () => ({ status: 'absent' }), signalFa
     signalGroup(pid, signal) { assert.equal(pid, 42); signals.push(signal); if (signalFailure) throw signalFailure },
     observe: async (pid, options) => { requests.push({ pid, options }); return observation() },
   })
-  return { root, child, signals, requests, start: () => run(['-e', ''], { cwd: root, log: join(root, 'raw.log'), capMs: 1000 }) }
+  return { root, child, signals, requests, start: (capMs = 1000) => run(['-e', ''], { cwd: root, log: join(root, 'raw.log'), capMs }) }
 }
 test('exit zero awaits absent observation before passed receipt', async t => {
   let finish
@@ -81,4 +81,20 @@ test('spawn failure without a group rejects original error without signalling', 
   const pending = f.start(); const rejected = assert.rejects(pending, reason => reason === error)
   f.child.emit('error', error); f.child.emit('close', -1, null)
   await rejected; assert.deepEqual(f.signals, []); assert.deepEqual(f.requests, [])
+})
+test('timeout remains failed even when child later exits zero and group is absent', async t => {
+  const f = fixture(t), pending = f.start(5)
+  await new Promise(resolve => setTimeout(resolve, 20))
+  f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.match(result.failure, /deadline/)
+  assert.deepEqual(f.signals, ['SIGTERM', 'SIGKILL'])
+})
+test('uncooperative supplied child gets escalation before close and cannot pass', async t => {
+  const f = fixture(t), pending = f.start(5)
+  await new Promise(resolve => setTimeout(resolve, 130))
+  assert.deepEqual(f.signals, ['SIGTERM', 'SIGKILL'])
+  f.child.emit('close', null, 'SIGKILL')
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.equal(result.groupCleanup.status, 'absent')
 })
