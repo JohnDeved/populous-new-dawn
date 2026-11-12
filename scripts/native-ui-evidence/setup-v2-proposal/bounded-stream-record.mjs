@@ -14,16 +14,17 @@ export function createBoundedStreamRecord(capBytes = 65536) {
         const error = Error('Stream chunks must be bytes')
         fail(error); throw error
       }
-      if (ended) {
-        lateData = true
-        const error = Error('Stream data after terminal end')
-        fail(error); throw error
-      }
       if (observed > Number.MAX_SAFE_INTEGER - bytes.byteLength) {
         const error = Error('Stream observed-byte counter exceeded')
         fail(error); throw error
       }
       observed += bytes.byteLength
+      if (ended) {
+        lateData = true
+        if (bytes.byteLength > 0) overflow = true
+        const error = Error('Stream data after terminal end')
+        fail(error); throw error
+      }
       const take = Math.min(bytes.byteLength, capBytes - captured)
       // Copy the exact view, not unrelated bytes in its underlying allocation.
       storage.set(bytes.subarray(0, take), captured)
