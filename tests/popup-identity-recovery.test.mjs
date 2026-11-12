@@ -69,13 +69,31 @@ test('disposal rejection remains a teardown requirement', async () => {
 test('hung observation demands teardown without replay', async () => {
   const wait = deferred(); let calls = 0
   const trace = {}, lease = createIdentityLease({ evaluateHandle: async () => ({ dispose: async () => {} }), evaluate: () => { calls++; return wait.promise } }, trace, { cleanupMs: 5 })
-  await lease.acquire(); const observed = lease.observe(); await Promise.resolve()
+  await lease.acquire(); const observed = lease.observe(); const rejection = assert.rejects(observed, /closed during observation/); await Promise.resolve()
   await assert.rejects(lease.close(), /teardown/); assert.equal(calls, 1)
-  wait.resolve([]); await observed; assert.equal(trace.teardownRequired, true)
+  wait.resolve([]); await rejection; assert.equal(trace.teardownRequired, true)
+  assert.throws(() => lease.observe(), /unavailable/); assert.equal(calls, 1)
 })
 test('closing before acquisition RPC starts never starts it', async () => {
   let calls = 0
   const trace = {}, lease = createIdentityLease({ evaluateHandle: () => { calls++; throw Error('unexpected') } }, trace)
   const acquire = lease.acquire(), rejection = assert.rejects(acquire, /closed/)
   await lease.close(); await rejection; assert.equal(calls, 0)
+})
+
+test('observation settling during cleanup rejects retired success', async () => {
+  const wait = deferred()
+  const trace = {}, lease = createIdentityLease({ evaluateHandle: async () => ({ dispose: async () => {} }), evaluate: () => wait.promise }, trace)
+  await lease.acquire(); const observation = lease.observe()
+  const rejected = assert.rejects(observation, /closed during observation/)
+  await Promise.resolve(); const closed = lease.close(); wait.resolve([])
+  await rejected; await closed; assert.equal(trace.identityCleanup.status, 'settled')
+})
+test('original observation error survives lease retirement', async () => {
+  const wait = deferred(), original = Error('original evaluate rejection')
+  const trace = {}, lease = createIdentityLease({ evaluateHandle: async () => ({ dispose: async () => {} }), evaluate: () => wait.promise }, trace)
+  await lease.acquire(); const observation = lease.observe()
+  const rejected = assert.rejects(observation, error => error === original)
+  await Promise.resolve(); const closed = lease.close(); wait.reject(original)
+  await rejected; await closed
 })
