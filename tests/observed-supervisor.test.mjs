@@ -1,0 +1,84 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { EventEmitter } from 'node:events'
+import { PassThrough } from 'node:stream'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { createObservedSupervisor } from '../scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs'
+
+function fixture(t, { observation = async () => ({ status: 'absent' }), signalFailure } = {}) {
+  const root = mkdtempSync(join(tmpdir(), 'observed-owner-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const child = Object.assign(new EventEmitter(), { pid: 42, stdout: new PassThrough(), stderr: new PassThrough() })
+  const signals = [], requests = []
+  const run = createObservedSupervisor({
+    spawnProcess(command, args, options) { assert.equal(options.detached, true); return child },
+    signalGroup(pid, signal) { assert.equal(pid, 42); signals.push(signal); if (signalFailure) throw signalFailure },
+    observe: async (pid, options) => { requests.push({ pid, options }); return observation() },
+  })
+  return { root, child, signals, requests, start: () => run(['-e', ''], { cwd: root, log: join(root, 'raw.log'), capMs: 1000 }) }
+}
+test('exit zero awaits absent observation before passed receipt', async t => {
+  let finish
+  const f = fixture(t, { observation: () => new Promise(resolve => { finish = resolve }) })
+  let settled = false
+  const result = f.start().then(value => { settled = true; return value })
+  f.child.stdout.write('actual supplied raw output')
+  f.child.emit('close', 0, null)
+  await Promise.resolve(); assert.equal(settled, false)
+  finish({ status: 'absent' })
+  assert.equal((await result).status, 'passed')
+  assert.deepEqual(f.signals, ['SIGKILL'])
+  assert.equal(f.requests[0].pid, 42)
+  assert.equal(readFileSync(join(f.root, 'raw.log'), 'utf8'), 'actual supplied raw output')
+})
+test('unverified group prevents success even after zero exit', async t => {
+  const f = fixture(t, { observation: async () => ({ status: 'unverified', error: Error('still present') }) })
+  const pending = f.start(); f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.match(result.failure, /disappearance unverified/)
+})
+test('observer rejection becomes explicit unverified cleanup', async t => {
+  const f = fixture(t, { observation: async () => { throw Error('probe denied') } })
+  const pending = f.start(); f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.groupCleanup.status, 'unverified'); assert.match(result.groupCleanup.error, /probe denied/)
+})
+test('nonzero command exit remains failed even after absent group', async t => {
+  const f = fixture(t), pending = f.start(); f.child.emit('close', 3, null)
+  assert.equal((await pending).status, 'failed')
+})
+test('signal denial stays failed despite later absent observation', async t => {
+  const f = fixture(t, { signalFailure: Object.assign(Error('denied'), { code: 'EPERM' }) })
+  const pending = f.start(); f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.equal(result.signalErrors.length, 1)
+})
+test('already absent signal ESRCH is not a signal failure', async t => {
+  const f = fixture(t, { signalFailure: Object.assign(Error('missing'), { code: 'ESRCH' }) })
+  const pending = f.start(); f.child.emit('close', 0, null)
+  assert.equal((await pending).status, 'passed')
+})
+test('log overflow triggers termination and remains failed after close', async t => {
+  const f = fixture(t), pending = f.start()
+  f.child.stdout.write(Buffer.alloc(65537))
+  f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.match(result.failure, /Log budget/)
+  assert.deepEqual(f.signals, ['SIGTERM', 'SIGKILL']); assert.equal(result.logBytes, 0)
+})
+test('live child error does not reject before owned close cleanup', async t => {
+  const f = fixture(t), pending = f.start()
+  f.child.emit('error', Error('live error'))
+  f.child.emit('close', 0, null)
+  const result = await pending
+  assert.equal(result.status, 'failed'); assert.match(result.failure, /live error/)
+  assert.deepEqual(f.signals, ['SIGTERM', 'SIGKILL'])
+})
+test('spawn failure without a group rejects original error without signalling', async t => {
+  const f = fixture(t), error = Error('spawn failure'); f.child.pid = undefined
+  const pending = f.start(); const rejected = assert.rejects(pending, reason => reason === error)
+  f.child.emit('error', error); f.child.emit('close', -1, null)
+  await rejected; assert.deepEqual(f.signals, []); assert.deepEqual(f.requests, [])
+})
