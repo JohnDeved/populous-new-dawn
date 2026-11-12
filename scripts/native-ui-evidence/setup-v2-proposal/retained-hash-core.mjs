@@ -13,26 +13,27 @@ export async function hashRetainedDescriptor(handle, { dev, ino, expectedSize,
     throw Error('Invalid retained-descriptor hash admission')
   const fd = handle.fd, started = now()
   if (!Number.isFinite(started)) throw Error('Invalid hash clock')
-  let previous = started, active = true, reads = 0
+  let previous = started, active = true, reads = 0, pendingIO = false
   Object.assign(trace, { status: 'running', phase: 'start', pending: false, bytesHashed: 0, readOperations: 0 })
   const check = () => {
     const time = now()
     if (!Number.isFinite(time) || time < previous) throw Error('Hash clock moved backward')
     previous = time
-    trace.elapsedMs = time - started
-    if (!active || trace.elapsedMs >= budgetMs) throw Error('Retained hash deadline exceeded')
+    const elapsed = time - started
+    trace.elapsedMs = elapsed
+    if (!active || elapsed >= budgetMs) throw Error('Retained hash deadline exceeded')
     if (handle.fd !== fd) throw Error('Retained descriptor changed or closed')
-    return budgetMs - trace.elapsedMs
+    return budgetMs - elapsed
   }
   const call = async (phase, action) => {
     const remaining = check()
-    trace.phase = phase; trace.pending = true
+    trace.phase = phase; trace.pending = true; pendingIO = true
     let timer
     const operation = Promise.resolve().then(() => {
       if (!active) throw Error('Retained hash already retired')
       return action()
     })
-    operation.then(() => { trace.pending = false }, () => { trace.pending = false })
+    operation.then(() => { pendingIO = false; trace.pending = false }, () => { pendingIO = false; trace.pending = false })
     try {
       const result = await Promise.race([operation, new Promise((_, reject) => {
         timer = setTimeout(() => reject(Error('Retained hash pending-I/O deadline exceeded')), remaining)
@@ -40,7 +41,7 @@ export async function hashRetainedDescriptor(handle, { dev, ino, expectedSize,
       check()
       return result
     } catch (error) {
-      if (trace.pending) trace.teardownRequired = true
+      if (pendingIO) trace.teardownRequired = true
       throw error
     } finally { clearTimeout(timer) }
   }
