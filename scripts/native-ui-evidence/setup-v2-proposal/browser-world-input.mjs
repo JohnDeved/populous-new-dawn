@@ -15,6 +15,19 @@ export function campaignPopupSnapshot() {
     .map(detail => ({ serial: detail.getAttribute('data-message-serial'), open: detail.open }))
 }
 
+// Current plain Home renders a focusable renderer canvas, not a focusable viewport.
+// Read-only post-focus ownership witness; successful focus() alone is not proof.
+export function worldCanvasFocusState(canvas) {
+  const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
+  const connected = !!canvas?.isConnected
+  const rendererMatches = !!scene && scene.renderer?.domElement === canvas
+  const worldMatches = !!world && scene?.world === world
+  const focused = document.activeElement === canvas
+  const loading = !!document.querySelector('.loading-world')
+  return { ready: connected && rendererMatches && worldMatches && focused && !loading,
+    connected, rendererMatches, worldMatches, focused, loading }
+}
+
 async function withinInputDeadline(timeout, run, trace = {}, signal) {
   if (!Number.isFinite(timeout) || timeout <= 0) throw new RangeError('Invalid world input timeout')
   const started = performance.now(), deadline = started + timeout
@@ -76,10 +89,15 @@ async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, tr
   const retained = retainedPopup(snapshot, serial)
   Object.assign(trace, { serial, requestedOpen: open, observedOpen: retained.open })
   const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
+  // Current Home retains one direct body div even when details is closed.
+  // Absence must not satisfy a hidden wait as the old styled-only marker did.
+  const body = detail.locator(':scope > div')
+  assert.equal(await phase('count-retained-body', () => body.count()), 1, 'Exactly one retained campaign body required')
   if (retained.open !== open)
     await phase('public-summary-click', () => detail.locator('summary').click({ timeout: remaining() }))
   await phase(open ? 'wait-body-visible' : 'wait-body-hidden', () =>
-    detail.locator('[data-native-campaign-panel]').waitFor({ state: open ? 'visible' : 'hidden', timeout: remaining() }))
+    body.waitFor({ state: open ? 'visible' : 'hidden', timeout: remaining() }))
+  assert.equal(await phase('verify-retained-body-count', () => body.count()), 1, 'Campaign body must remain present')
   const after = await observePopups(page, phase, trace, 'verify-retained-popup-and-owners')
   trace.observedOpen = retainedPopup(after, serial).open
   assert.equal(trace.observedOpen, open)
@@ -111,7 +129,11 @@ export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = 
       // Pointer-only callers use the completed post-close observation above.
       // Keyboard callers must move summary focus before sending world input.
       if (!keyboardFocus) return collapsed
-      await phase('focus-world-viewport', () => page.locator('.world-viewport').focus({ timeout: remaining() }))
+      const canvas = page.locator('.world-viewport canvas')
+      assert.equal(await phase('count-world-canvases', () => canvas.count()), 1, 'Exactly one world canvas required')
+      await phase('focus-world-canvas', () => canvas.focus({ timeout: remaining() }))
+      trace.focus = await phase('verify-world-canvas-focus', () => canvas.evaluate(worldCanvasFocusState))
+      assert.equal(trace.focus.ready, true, 'Focused canvas must belong to the current connected scene and World')
       snapshot = await observePopups(page, phase, trace, 'reobserve-popup-owners')
       if (!snapshot.some(detail => detail.open)) return collapsed
     }
