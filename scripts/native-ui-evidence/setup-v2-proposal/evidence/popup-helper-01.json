@@ -1,0 +1,56 @@
+{
+  "sourceRef": "434d9dba971704bccf8cdfaa12ecf6e40dde47b2",
+  "admission": "Root authorized after independent source review; immediate visible process list only sandbox/shell/ps, MemAvailable9524824kB, load0.14/0.06/0.02. Not a global scheduler proof. No prior denial bypass.",
+  "runner": "import hashlib,json,os,signal,subprocess,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nout=root/'helper-attempt-01';out.mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/popup-identity.mjs','scripts/native-ui-evidence/setup-v2-proposal/browser-world-input.mjs','scripts/native-ui-evidence/setup-v2-proposal/browser-space-ownership.mjs','tests/popup-identity-recovery.test.mjs','tests/popup-helper-identity.test.mjs','tests/gameplay-setup-dom.test.mjs']\ndef hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}\ndef save(n,v):(out/n).write_text(json.dumps(v,indent=2)+'\\n')\nfor p in ['home','tmp']:(out/p).mkdir()\ncmd=['/usr/bin/timeout','--kill-after=2s','15s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=64','--test-isolation=none','--test','--test-concurrency=1',*[str(root/p) for p in paths if p.startswith('tests/')]]\nbefore=hashes();save('before.json',{'sourceRef':'434d9dba971704bccf8cdfaa12ecf6e40dde47b2','inputs':before,'command':cmd})\nstarted=time.monotonic();intervened=False\nwith (out/'stdout.log').open('wb') as stdout,(out/'stderr.log').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=root,env={'PATH':'/usr/bin:/bin','HOME':str(out/'home'),'TMPDIR':str(out/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=20)\n except subprocess.TimeoutExpired:\n  intervened=True;os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nafter=hashes();save('result.json',{'exit':code,'elapsedSeconds':time.monotonic()-started,'controllerIntervened':intervened,'inputsUnchanged':before==after,'after':after,'streams':{n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ['stdout.log','stderr.log']},'scope':'Supplied DOM, actual inactive helper with supplied Playwright boundary, and lease promises; not browser/native input or outer teardown'})\n",
+  "before": {
+    "sourceRef": "434d9dba971704bccf8cdfaa12ecf6e40dde47b2",
+    "inputs": {
+      "scripts/native-ui-evidence/setup-v2-proposal/popup-identity.mjs": "9681dd112113c8d88bc25e5091589191a1ab0cfc2fbde75e4be7748353b0bd56",
+      "scripts/native-ui-evidence/setup-v2-proposal/browser-world-input.mjs": "c3f16b5b03d5c26212f3295eea542f01b5038c629e1de7098665d410454ecf90",
+      "scripts/native-ui-evidence/setup-v2-proposal/browser-space-ownership.mjs": "53bb9520e9e381aa77f7f03a5cc784b553082627421423d3e0bd5e207cf85962",
+      "tests/popup-identity-recovery.test.mjs": "f0aa299dc75684a3d0a8874f71024a7b11eec8838bc7ea5f37f81428377b7e48",
+      "tests/popup-helper-identity.test.mjs": "c70e90367130c18265d88fc6675e610815c378f23051c2e8eb2fdcf203ae80c5",
+      "tests/gameplay-setup-dom.test.mjs": "5dd28f7d2750e1d94202604c3aef2f55e00a27a64d1563f9ca283d5b4ba61657"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "/workspace/scratch/69fd8163d94e/popup-integration-recovery-20261112/tests/popup-identity-recovery.test.mjs",
+      "/workspace/scratch/69fd8163d94e/popup-integration-recovery-20261112/tests/popup-helper-identity.test.mjs",
+      "/workspace/scratch/69fd8163d94e/popup-integration-recovery-20261112/tests/gameplay-setup-dom.test.mjs"
+    ]
+  },
+  "result": {
+    "exit": 0,
+    "elapsedSeconds": 0.5657598779999944,
+    "controllerIntervened": false,
+    "inputsUnchanged": true,
+    "after": {
+      "scripts/native-ui-evidence/setup-v2-proposal/popup-identity.mjs": "9681dd112113c8d88bc25e5091589191a1ab0cfc2fbde75e4be7748353b0bd56",
+      "scripts/native-ui-evidence/setup-v2-proposal/browser-world-input.mjs": "c3f16b5b03d5c26212f3295eea542f01b5038c629e1de7098665d410454ecf90",
+      "scripts/native-ui-evidence/setup-v2-proposal/browser-space-ownership.mjs": "53bb9520e9e381aa77f7f03a5cc784b553082627421423d3e0bd5e207cf85962",
+      "tests/popup-identity-recovery.test.mjs": "f0aa299dc75684a3d0a8874f71024a7b11eec8838bc7ea5f37f81428377b7e48",
+      "tests/popup-helper-identity.test.mjs": "c70e90367130c18265d88fc6675e610815c378f23051c2e8eb2fdcf203ae80c5",
+      "tests/gameplay-setup-dom.test.mjs": "5dd28f7d2750e1d94202604c3aef2f55e00a27a64d1563f9ca283d5b4ba61657"
+    },
+    "streams": {
+      "stdout.log": {
+        "bytes": 3479,
+        "sha256": "a5fb922cda394ec6c83f404038755566dc644c724261cf1abeb8bfb3164078eb"
+      },
+      "stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "scope": "Supplied DOM, actual inactive helper with supplied Playwright boundary, and lease promises; not browser/native input or outer teardown"
+  },
+  "stdout": "\u2714 current connected focused renderer canvas is observed, not focused by witness (2.975213ms)\n\u2714 focus witness rejects outside focus (1.007555ms)\n\u2714 focus witness rejects disconnected canvas (1.111151ms)\n\u2714 focus witness rejects replaced renderer (1.012893ms)\n\u2714 focus witness rejects replaced World (1.025011ms)\n\u2714 focus witness rejects loading overlay (1.038792ms)\n\u2714 current-page popup uses retained structural body and canvas ownership checks (0.734394ms)\n\u2714 renderer selector excludes the nested hidden tooltip canvas (0.527833ms)\n\u2714 unchanged helper close preserves one click and disposes entry handle (5.94711ms)\n\u2714 replacement during hidden wait rejects World and Scene without replay (2.566588ms)\n\u2714 replacement during hidden wait rejects same serial detail without replay (1.724472ms)\n\u2714 replacement during hidden wait rejects body without replay (1.867397ms)\n\u2714 empty popup preparation rejects coherent World replacement during focus (2.336032ms)\n\u2714 pre-aborted helper never acquires or delivers input (1.147706ms)\n\u2714 successful input cannot hide disposal failure (2.815482ms)\n\u2714 helper deadline preserves failure and disposes late handle without input (257.158475ms)\n\u2714 timeout during pending body-count requires teardown and forbids continuation (26.702169ms)\n\u2714 timeout during pending summary-click requires teardown and forbids continuation (26.198884ms)\n\u2714 timeout during pending body-wait requires teardown and forbids continuation (26.068239ms)\n\u2714 timeout during pending canvas-focus requires teardown and forbids continuation (25.799302ms)\n\u2714 timeout during pending canvas-evaluate requires teardown and forbids continuation (26.430706ms)\n\u2714 abort during pending body-count requires teardown and forbids continuation (1.711643ms)\n\u2714 abort during pending summary-click requires teardown and forbids continuation (1.477421ms)\n\u2714 abort during pending body-wait requires teardown and forbids continuation (1.465634ms)\n\u2714 abort during pending canvas-focus requires teardown and forbids continuation (3.130076ms)\n\u2714 abort during pending canvas-evaluate requires teardown and forbids continuation (1.332914ms)\n\u2714 falsy rejection undefined survives cleanup failure (1.332943ms)\n\u2714 falsy rejection null survives cleanup failure (1.196759ms)\n\u2714 falsy rejection 0 survives cleanup failure (0.937559ms)\n\u2714 falsy rejection  survives cleanup failure (0.989447ms)\n\u2714 supplied-DOM observations retain open and closed identity (1.340064ms)\n\u2714 empty entry binds original World and Scene (1.318612ms)\n\u2714 rejects same serial replacement (1.003378ms)\n\u2714 rejects body replacement (1.109357ms)\n\u2714 rejects removal (1.180435ms)\n\u2714 rejects disconnected body (1.08413ms)\n\u2714 rejects duplicate serial (1.109889ms)\n\u2714 new owner becomes identity-bound (1.017299ms)\n\u2714 hidden wait is insufficient when retained body remains visible (1.660666ms)\n\u2714 normal lease disposes once and rejects reuse (0.322125ms)\n\u2714 late acquisition disposes without exposing a reusable handle (5.994482ms)\n\u2714 disposal rejection remains a teardown requirement (0.193121ms)\n\u2714 hung observation demands teardown without replay (5.537374ms)\n\u2714 closing before acquisition RPC starts never starts it (0.203285ms)\n\u2714 observation settling during cleanup rejects retired success (0.203426ms)\n\u2714 original observation error survives lease retirement (0.189374ms)\n\u2139 tests 46\n\u2139 suites 0\n\u2139 pass 46\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 488.454048\n",
+  "stderr": ""
+}
