@@ -5,8 +5,8 @@ import { prepareWorldInput } from '../scripts/native-ui-evidence/setup-v2-propos
 
 // Actual helper; supplied Playwright boundary evaluating actual observer bytes.
 // This does not execute a browser, CSS selector engine or native event delivery.
-function fixture({ empty = false, afterWait, afterFocus } = {}) {
-  const state = { clicks: 0, disposals: 0, world: {}, details: [] }
+function fixture({ empty = false, afterWait, afterFocus, hold } = {}) {
+  const state = { clicks: 0, disposals: 0, world: {}, details: [], rpcs: [] }
   const canvas = { isConnected: true }
   state.scene = { world: state.world, renderer: { domElement: canvas } }
   function popup() {
@@ -20,20 +20,21 @@ function fixture({ empty = false, afterWait, afterFocus } = {}) {
   const context = vm.createContext({ window: { testSceneRef: { get current() { return state.scene } },
     testStore: { getWorld: () => state.world } }, document, getComputedStyle: () => ({ visibility: 'visible' }) })
   const evaluate = (fn, arg) => { context.arg = arg; return vm.runInContext(`(${fn})(arg)`, context) }
+  const rpc = async (name, action) => { state.rpcs.push(name); await hold?.(name); return action() }
   const page = {
     evaluateHandle: async fn => ({ bundle: evaluate(fn), dispose: async () => { state.disposals++ } }),
     evaluate: async (fn, arg) => evaluate(fn, { ...arg, expected: arg.expected.bundle }),
     locator(selector) {
       if (selector === '.world-viewport > canvas.battlefield') return {
-        count: async () => 1,
-        focus: async () => { document.activeElement = canvas; afterFocus?.(state, popup) },
-        evaluate: async fn => evaluate(fn, canvas),
+        count: () => rpc('canvas-count', () => 1),
+        focus: () => rpc('canvas-focus', () => { document.activeElement = canvas; afterFocus?.(state, popup) }),
+        evaluate: fn => rpc('canvas-evaluate', () => evaluate(fn, canvas)),
       }
       assert.equal(selector, '.campaign-messages details[data-message-serial="7"]')
       return { locator(part) {
-        if (part === ':scope > div') return { count: async () => 1, waitFor: async () => { afterWait?.(state, popup) } }
+        if (part === ':scope > div') return { count: () => rpc('body-count', () => 1), waitFor: () => rpc('body-wait', () => { afterWait?.(state, popup) }) }
         assert.equal(part, 'summary')
-        return { click: async () => { state.clicks++; state.details[0].open = false } }
+        return { click: () => rpc('summary-click', () => { state.clicks++; state.details[0].open = false }) }
       } }
     },
   }
@@ -91,4 +92,39 @@ test('helper deadline preserves failure and disposes late handle without input',
   handle.dispose = async () => { await originalDispose(); disposed() }
   deliver(handle); await disposal
   assert.equal(state.disposals, 1); assert.equal(state.clicks, 0)
+})
+
+for (const kind of ['timeout', 'abort']) for (const target of ['body-count', 'summary-click', 'body-wait', 'canvas-focus', 'canvas-evaluate']) {
+  test(`${kind} during pending ${target} requires teardown and forbids continuation`, async () => {
+    let release
+    const pending = new Promise(resolve => { release = resolve })
+    const controller = new AbortController(), reason = Error('abort pending RPC')
+    const { page, state } = fixture({ empty: target.startsWith('canvas'), hold: name => {
+      if (name !== target) return
+      if (kind === 'abort') controller.abort(reason)
+      return pending
+    } })
+    const trace = {}
+    await assert.rejects(prepareWorldInput(page, { keyboardFocus: target.startsWith('canvas'), timeout: 25,
+      signal: controller.signal, trace }), error => kind === 'abort' ? error === reason : /timed out/.test(error.message))
+    assert.equal(trace.teardownRequired, true)
+    assert.equal(trace.inputCleanup, 'requires-context-teardown')
+    assert.ok(trace.pendingPhaseAtFailure)
+    const rpcs = [...state.rpcs]
+    release()
+    // Drain the supplied RPC and helper continuation; no browser cancellation claim.
+    await new Promise(resolve => setImmediate(resolve))
+    assert.deepEqual(state.rpcs, rpcs, 'No later RPC may begin after terminal failure')
+    assert.equal(trace.teardownRequired, true, 'Late settlement must not clear teardown requirement')
+    assert.equal(state.disposals, 1)
+  })
+}
+for (const original of [undefined, null, 0, '']) test(`falsy rejection ${String(original)} survives cleanup failure`, async () => {
+  const { page } = fixture(), trace = {}, acquire = page.evaluateHandle
+  page.evaluateHandle = async fn => { const handle = await acquire(fn); handle.dispose = async () => { throw Error('cleanup error') }; return handle }
+  page.evaluate = async () => { throw original }
+  let caught = false
+  try { await prepareWorldInput(page, { trace }) }
+  catch (error) { caught = true; assert.equal(error, original) }
+  assert.equal(caught, true); assert.equal(trace.teardownRequired, true)
 })
