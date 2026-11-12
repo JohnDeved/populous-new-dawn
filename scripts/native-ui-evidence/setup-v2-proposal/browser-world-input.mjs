@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { createIdentityLease } from './popup-identity.mjs'
 import { popupRejectedSpace, pressObservedSpace } from './browser-space-ownership.mjs'
 
 // Read only the rendered notification owners. A closed summary retains its
@@ -73,8 +74,8 @@ async function withinInputDeadline(timeout, run, trace = {}, signal) {
   } finally { expired = true; clearTimeout(timer); signal?.removeEventListener('abort', abort) }
 }
 
-async function observePopups(page, phase, trace, name) {
-  const snapshot = await phase(name, () => page.evaluate(campaignPopupSnapshot))
+async function observePopups(lease, phase, trace, name, requested) {
+  const snapshot = await phase(name, () => lease.observe(requested))
   trace.owners = Array.from(snapshot).filter(detail => detail.open).map(({ serial }) => ({ serial }))
   trace.ownersObservedMs = trace.elapsedMs
   return snapshot
@@ -87,7 +88,7 @@ function retainedPopup(snapshot, serial) {
   return retained[0]
 }
 
-async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, trace) {
+async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, trace, lease) {
   const retained = retainedPopup(snapshot, serial)
   Object.assign(trace, { serial, requestedOpen: open, observedOpen: retained.open })
   const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
@@ -100,7 +101,7 @@ async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, tr
   await phase(open ? 'wait-body-visible' : 'wait-body-hidden', () =>
     body.waitFor({ state: open ? 'visible' : 'hidden', timeout: remaining() }))
   assert.equal(await phase('verify-retained-body-count', () => body.count()), 1, 'Campaign body must remain present')
-  const after = await observePopups(page, phase, trace, 'verify-retained-popup-and-owners')
+  const after = await observePopups(lease, phase, trace, 'verify-retained-popup-and-owners', { serial, open })
   trace.observedOpen = retainedPopup(after, serial).open
   assert.equal(trace.observedOpen, open)
   // This same read observes any different authored owner opened during the close.
@@ -108,23 +109,39 @@ async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, tr
 }
 
 // Public summary clicks only, including when restoring a popup for layout/F8 QA.
-export async function setCampaignPopupOpen(page, serial, open, { timeout = 2500, trace = {} } = {}) {
+async function withIdentity(page, timeout, trace, signal, run) {
+  const lease = createIdentityLease(page, trace)
+  let primary
+  try {
+    return await withinInputDeadline(timeout, async (remaining, phase) => {
+      await phase('capture-preparation-identity', () => lease.acquire())
+      return run(lease, remaining, phase)
+    }, trace, signal)
+  } catch (error) { primary = error; throw error }
+  finally {
+    try { await lease.close() }
+    catch (cleanupError) { if (!primary) throw cleanupError }
+  }
+}
+
+export async function setCampaignPopupOpen(page, serial, open, { timeout = 2500, trace = {}, signal } = {}) {
   assert.match(serial, /^\d+$/, 'A real retained campaign notification serial is required')
-  return withinInputDeadline(timeout, async (remaining, phase) => {
-    const snapshot = await observePopups(page, phase, trace, 'observe-retained-popups')
-    await applyPopupOpen(page, serial, open, snapshot, remaining, phase, trace)
-  }, trace)
+  assert.equal(typeof open, 'boolean')
+  return withIdentity(page, timeout, trace, signal, async (lease, remaining, phase) => {
+    const snapshot = await observePopups(lease, phase, trace, 'observe-retained-popups')
+    await applyPopupOpen(page, serial, open, snapshot, remaining, phase, trace, lease)
+  })
 }
 
 export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = true, trace = {}, signal } = {}) {
   assert.equal(typeof keyboardFocus, 'boolean')
-  return withinInputDeadline(timeout, async (remaining, phase) => {
+  return withIdentity(page, timeout, trace, signal, async (lease, remaining, phase) => {
     const collapsed = []
-    let snapshot = await observePopups(page, phase, trace, 'observe-popup-owners')
+    let snapshot = await observePopups(lease, phase, trace, 'observe-popup-owners')
     for (;;) {
       const owner = snapshot.find(detail => detail.open)
       if (owner) {
-        snapshot = await applyPopupOpen(page, owner.serial, false, snapshot, remaining, phase, trace)
+        snapshot = await applyPopupOpen(page, owner.serial, false, snapshot, remaining, phase, trace, lease)
         collapsed.push({ serial: owner.serial })
         continue
       }
@@ -136,10 +153,10 @@ export async function prepareWorldInput(page, { timeout = 2500, keyboardFocus = 
       await phase('focus-world-canvas', () => canvas.focus({ timeout: remaining() }))
       trace.focus = await phase('verify-world-canvas-focus', () => canvas.evaluate(worldCanvasFocusState))
       assert.equal(trace.focus.ready, true, 'Focused canvas must belong to the current connected scene and World')
-      snapshot = await observePopups(page, phase, trace, 'reobserve-popup-owners')
+      snapshot = await observePopups(lease, phase, trace, 'reobserve-popup-owners')
       if (!snapshot.some(detail => detail.open)) return collapsed
     }
-  }, trace, signal)
+  })
 }
 
 export async function pressWorldSpace(page, { timeout = 2500 } = {}) {
@@ -188,3 +205,4 @@ export async function setWorldPaused(page, paused, { timeout = 2500, trace = {},
     }
   }, trace, signal)
 }
+
