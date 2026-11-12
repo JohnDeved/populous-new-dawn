@@ -45,9 +45,22 @@ test('copies exact subarray and isolates returned snapshots', () => {
   assert.deepEqual([...r.snapshot().bytes], [1, 2])
 })
 test('data after end invalidates later terminal snapshots', () => {
-  const r = createBoundedStreamRecord(); r.end()
-  assert.throws(() => r.append(Buffer.from('x')), /after terminal/)
-  assert.equal(r.snapshot().lateData, true); assert.equal(r.snapshot().status, 'failed')
+  for (const prefix of ['', 'abc']) {
+    const r = createBoundedStreamRecord()
+    r.append(Buffer.from(prefix)); r.end()
+    assert.throws(() => r.append(Buffer.from('x')), /after terminal/)
+    let s = r.snapshot()
+    assert.equal(s.lateData, true); assert.equal(s.status, 'failed')
+    assert.equal(s.observedBytes, prefix.length + 1)
+    assert.equal(s.capturedBytes, prefix.length)
+    assert.equal(s.truncated, true); assert.equal(s.bytes.toString(), prefix)
+    const original = s.originalFailure
+    assert.throws(() => r.append(Buffer.from('yz')), /after terminal/)
+    s = r.snapshot()
+    assert.equal(s.observedBytes, prefix.length + 3)
+    assert.equal(s.capturedBytes, prefix.length)
+    assert.equal(s.originalFailure, original)
+  }
 })
 test('duplicate end is a protocol failure', () => {
   const r = createBoundedStreamRecord(); r.end()
