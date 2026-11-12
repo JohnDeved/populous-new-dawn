@@ -11,7 +11,7 @@ export async function observeGroupExit(pgid, { capMs = 1000, intervalMs = 25,
   probe = process.kill, now = () => performance.now(), pause = ms => new Promise(resolve => setTimeout(resolve, ms)) } = {}) {
   if (!Number.isSafeInteger(pgid) || pgid <= 1) throw Error('Owned process-group ID required')
   if (!Number.isFinite(capMs) || capMs <= 0 || capMs > 5000 ||
-      !Number.isFinite(intervalMs) || intervalMs <= 0 || intervalMs > capMs)
+      !Number.isFinite(intervalMs) || intervalMs < 1 || intervalMs > capMs)
     throw Error('Invalid process-group observation budget')
   const started = now()
   if (!Number.isFinite(started)) throw Error('Invalid process-group observation clock')
