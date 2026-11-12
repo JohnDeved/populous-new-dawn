@@ -1,0 +1,32 @@
+# Inactive metadata-only retained-descriptor qualification proposal
+
+Base: 044c836c0f27a2d6fe8be8028a66f0f1c4944b7c. Design only: not an executable, admission, or kernel retry. The failed kernel attempt remains failed. Accepted supplied-handle evidence is not actual-descriptor evidence.
+
+## Question and limited result
+Can one owned metadata worker read its own actual executable twice through the same retained FileHandle, with complete admitted SHA256 and metadata agreement, within separately bounded stages, and exit/reap cleanly with durable phase evidence? This isolates the suspected large-executable hashing/finalization cost without running either kernel child case. Success would qualify only that worker executable and this metadata path. It would NOT establish binding to a different live parent, cross-process /proc identity, private IPC authentication for the full protocol, descendant cleanup, or production readiness.
+
+## Fixed workload and identity
+A reviewed worker imports only the exact retained-hash core and Node builtins. No arbitrary path or executable arguments, shell, package loader, candidate application, network, install, or descendants. The controller launches the explicitly admitted Node executable with a 64 MiB heap cap and exact reviewed source bytes, controlled environment and a fresh private output directory.
+
+The worker opens /proc/self/exe read-only ONCE. Following that particular proc executable link is intentional; it is not a general user-supplied symlink policy. It retains that same live FileHandle until both digests and final metadata are collected. Record worker PID, parent PID, /proc/self/stat starttime, descriptor number, dev/ino/size, and nanosecond mtime/ctime. Do not reopen by pathname or by /proc PID after worker exit. FileHandle close must finish before the worker emits its terminal candidate and exits. A close timeout or rejection fails qualification, even if both digests match.
+
+Before admission, pin the exact expected executable digest and size, rather than accepting a freshly calculated hash merely because two calculations agree. A previous environment's Node digest is not automatically valid in a replacement environment. Acquiring or validating this admission input is itself a separately bounded metadata step, with its source and limits recorded; do not silently spend unbounded setup hashing outside the qualification controller. If a trusted exact-runtime manifest is unavailable, stop and report the missing admission input.
+
+## Phases and limits to implement and review
+Use fresh run nonce and strictly ordered phase identifiers on a private controller-owned pipe. Record start/end, bytes, data-read count, elapsed time, and original failures for open/stat, before digest, after digest, close, and candidate completion. The EOF probe adds one actual read to the data-read counter. Reject duplicate, oversized, out-of-order, wrong-run and post-retirement messages; maximum 64 messages and 64 KiB total encoded event bytes. Preserve raw stdout/stderr separately with strict byte ceilings.
+
+Proposed work deadline: 16 seconds total from the outer controller's first operation, including bootstrap, source validation, output creation and launch; not merely time spent waiting for the worker. Source/bootstrap allowance at most 2 seconds, descriptor open/stat at most 1 second, each complete executable digest at most 5 seconds, close at most 1 second, and final evidence commit at most 2 seconds. These maxima consume all work budget, so every transition is additionally limited by global remaining time; they are not a promise of available overhead or a reason to increase the deadline. All limits are proposed until exact implementation review and resource admission.
+
+Reserve one additional shared 4 seconds for cleanup of all owned handles. Only direct retained child handles may receive TERM then KILL, with destructive signaling retired individually on exit; no negative numeric PGID signals. Concurrent cleanup uses one shared deadline, not a new timeout per handle. Stream close, worker exit/reap, receipt writer lifecycle and pending IO must all have terminal outcomes. Read-only process-group observation is optional evidence, never ownership or escaped-descendant proof.
+
+The external owner must bound controller launch and all filesystem/pipe operations, not only subprocess.wait. If the available execution service cannot enforce the proposed whole-invocation bound, do not label it a hard wall-clock guarantee or run this diagnostic as though it had one. A controller timer cannot interrupt its own synchronous blocked filesystem call; move potentially blocking work to bounded owned actors or rely on an explicitly reviewed external service boundary. Never reuse the earlier controller without repairing this limitation.
+
+## Authoritative outcome
+A worker candidate is not a pass. Accept only after both exact full digests match the admitted manifest and each other; metadata and retained descriptor identity agree; worker and any writer have exited and been reaped successfully; no outstanding input/IO, timeout, late error, overflow, or intervention remains; and the outer owner has completed successfully with a verified terminal manifest binding raw stream lengths/hashes and source identities. Preserve partial phase evidence on any failure. Receipt-write failure must not overwrite an earlier error, including falsy rejection values. If artifact persistence is uncertain, report that uncertainty rather than retrying the diagnostic.
+
+## Review and execution gates
+1. Independently review this limited design and exact source closure before runtime implementation is treated as executable.
+2. Implement controller/worker in an isolated inactive branch; supplied controls must cover pending open/read/close, late messages, digest mismatch, changed metadata, writer failure, budget exhaustion, exit versus stream close, and primary-error preservation.
+3. Independently review source and supplied-test evidence, including whole-invocation boundary and exact runtime admission.
+4. Obtain serialized resource admission, then perform at most one metadata-only qualification; preserve and independently review all results. No automatic retry.
+5. A successful metadata-only result still does not authorize a kernel retry. The full retained-parent-descriptor/IPC integration requires its own review, binding evidence and admission.
