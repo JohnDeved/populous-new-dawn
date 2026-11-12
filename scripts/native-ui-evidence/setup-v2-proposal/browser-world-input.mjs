@@ -111,16 +111,25 @@ async function applyPopupOpen(page, serial, open, snapshot, remaining, phase, tr
 // Public summary clicks only, including when restoring a popup for layout/F8 QA.
 async function withIdentity(page, timeout, trace, signal, run) {
   const lease = createIdentityLease(page, trace)
-  let primary
+  let hasPrimary = false
   try {
     return await withinInputDeadline(timeout, async (remaining, phase) => {
       await phase('capture-preparation-identity', () => lease.acquire())
       return run(lease, remaining, phase)
     }, trace, signal)
-  } catch (error) { primary = error; throw error }
-  finally {
+  } catch (error) {
+    hasPrimary = true
+    // Deadline/abort is not cancellation of the current Playwright RPC.
+    // This sticky snapshot survives late phase settlement and handle disposal.
+    if (trace.pending) {
+      trace.teardownRequired = true
+      trace.pendingPhaseAtFailure = trace.phase
+      trace.inputCleanup = 'requires-context-teardown'
+    }
+    throw error
+  } finally {
     try { await lease.close() }
-    catch (cleanupError) { if (!primary) throw cleanupError }
+    catch (cleanupError) { if (!hasPrimary) throw cleanupError }
   }
 }
 
