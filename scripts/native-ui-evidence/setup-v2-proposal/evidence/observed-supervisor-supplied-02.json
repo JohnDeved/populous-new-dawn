@@ -1,0 +1,48 @@
+{
+  "sourceRef": "f746bcc15b66d78181bf11cdf68aff8fd170713b",
+  "admission": "Root authorized cleanup verification after independent source acceptance; coordinated tiny lane with continuity before run, released after. Immediate visible ps only sandbox/shell/ps; MemAvailable9543472kB at preflight. No prior denial bypass.",
+  "runner": "import hashlib,json,os,signal,subprocess,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nout=root/'attempt-01';out.mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs','scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs','tests/observed-supervisor.test.mjs']\ndef hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}\ndef save(n,v):(out/n).write_text(json.dumps(v,indent=2)+'\\n')\nfor p in ['home','tmp']:(out/p).mkdir()\ncmd=['/usr/bin/timeout','--kill-after=2s','15s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=64','--test-isolation=none','--test','--test-concurrency=1',str(root/paths[2])]\nbefore=hashes();save('before.json',{'sourceRef':'f746bcc15b66d78181bf11cdf68aff8fd170713b','inputs':before,'command':cmd})\nstarted=time.monotonic();intervened=False\nwith (out/'stdout.log').open('wb') as stdout,(out/'stderr.log').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=root,env={'PATH':'/usr/bin:/bin','HOME':str(out/'home'),'TMPDIR':str(out/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=20)\n except subprocess.TimeoutExpired:\n  intervened=True;os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nafter=hashes();save('result.json',{'exit':code,'elapsedSeconds':time.monotonic()-started,'controllerIntervened':intervened,'inputsUnchanged':before==after,'after':after,'streams':{n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ['stdout.log','stderr.log']},'scope':'Supplied EventEmitter, fake child signal and observer boundaries only; no kernel signal, supervisor integration or descendant cleanup proof'})\n",
+  "before": {
+    "sourceRef": "f746bcc15b66d78181bf11cdf68aff8fd170713b",
+    "inputs": {
+      "scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs": "f054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb",
+      "scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec",
+      "tests/observed-supervisor.test.mjs": "ec3bfd18a9c57e164e94e0a08aba7151d6d7dc867e470af0dab87c4ec9f2da05"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "/workspace/scratch/69fd8163d94e/supervisor-exit-cancel-test-20261112/tests/observed-supervisor.test.mjs"
+    ]
+  },
+  "result": {
+    "exit": 0,
+    "elapsedSeconds": 0.6168381950001276,
+    "controllerIntervened": false,
+    "inputsUnchanged": true,
+    "after": {
+      "scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs": "f054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb",
+      "scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec",
+      "tests/observed-supervisor.test.mjs": "ec3bfd18a9c57e164e94e0a08aba7151d6d7dc867e470af0dab87c4ec9f2da05"
+    },
+    "streams": {
+      "stdout.log": {
+        "bytes": 1534,
+        "sha256": "10a3c38418277afb03470a2a48fd1632ae2dcb095714c877be76242b0772d5d7"
+      },
+      "stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "scope": "Supplied EventEmitter, fake child signal and observer boundaries only; no kernel signal, supervisor integration or descendant cleanup proof"
+  },
+  "stdout": "\u2714 exit zero awaits absent observation before passed receipt (8.194967ms)\n\u2714 unverified group prevents success even after zero exit (4.163973ms)\n\u2714 observer rejection becomes explicit unverified cleanup (2.530414ms)\n\u2714 nonzero command exit remains failed even after absent group (0.987311ms)\n\u2714 signal denial stays failed despite later absent observation (1.887163ms)\n\u2714 direct-child ESRCH does not create a signal failure but preserves triggering failure (1.38533ms)\n\u2714 log overflow triggers termination and remains failed after close (1.200754ms)\n\u2714 live child error does not reject before owned close cleanup (2.370556ms)\n\u2714 spawn failure without a group rejects original error without signalling (2.597614ms)\n\u2714 timeout remains failed even when child later exits zero and group is absent (21.384293ms)\n\u2714 uncooperative supplied child gets escalation before close and cannot pass (130.509844ms)\n\u2714 leader exit retires signalling before delayed close or possible group reuse (131.564352ms)\n\u2714 a still-present group after normal close is never signalled (0.937238ms)\n\u2714 partial writes retain every byte with exact accounting (0.872126ms)\n\u2714 zero write progress fails and never certifies missing bytes (1.273538ms)\n\u2714 partial write followed by error retains actual written count and failure (1.334957ms)\n\u2714 leader exit after TERM cancels pending escalation before delayed stream close (151.587343ms)\n\u2139 tests 17\n\u2139 suites 0\n\u2139 pass 17\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 494.045151\n",
+  "stderr": ""
+}
