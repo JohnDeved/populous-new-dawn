@@ -1,0 +1,107 @@
+{
+  "sourceRef": "ebbca5294eb8337e57c709d271d8f6032ba880ec",
+  "admission": "Root explicitly authorized one narrow owned-child probe after independent source correction acceptance. Preflight visible ps only sandbox/shell/ps, MemAvailable9513564kB,58GiB free. External10s timeout+2s kill and controller15s bound. No prior denial bypass.",
+  "runner": "import hashlib,json,os,signal,subprocess,time\nfrom pathlib import Path\nroot=Path(__file__).resolve().parent\nout=root/'controller-attempt-01';out.mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/group-kernel-probe.mjs','scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs']\ndef hashes():return {p:hashlib.sha256((root/p).read_bytes()).hexdigest() for p in paths}\ndef save(n,v):(out/n).write_text(json.dumps(v,indent=2)+'\\n')\nfor p in ['home','tmp']:(out/p).mkdir()\nscript='import { runOwnedGroupProbe } from '+json.dumps((root/paths[0]).as_uri())+'; await runOwnedGroupProbe({output:'+json.dumps(str(out/'probe'))+',admission:\"owned-child-group-observation-v1\"});'\ncmd=['/usr/bin/timeout','--kill-after=2s','10s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=128','--input-type=module','-e',script]\nbefore=hashes();save('before.json',{'sourceRef':'ebbca5294eb8337e57c709d271d8f6032ba880ec','inputs':before,'command':cmd})\nstarted=time.monotonic();intervened=False\nwith (out/'stdout.log').open('wb') as stdout,(out/'stderr.log').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=root,env={'PATH':'/usr/bin:/bin','HOME':str(out/'home'),'TMPDIR':str(out/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=15)\n except subprocess.TimeoutExpired:\n  intervened=True;os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nafter=hashes();save('result.json',{'exit':code,'elapsedSeconds':time.monotonic()-started,'controllerIntervened':intervened,'inputsUnchanged':before==after,'after':after,'streams':{n:{'bytes':(out/n).stat().st_size,'sha256':hashlib.sha256((out/n).read_bytes()).hexdigest()} for n in ['stdout.log','stderr.log']},'scope':'One directly owned fixed child group through normal exit; no descendant/escaped-process/browser/general cleanup proof'})\n",
+  "controllerBefore": {
+    "sourceRef": "ebbca5294eb8337e57c709d271d8f6032ba880ec",
+    "inputs": {
+      "scripts/native-ui-evidence/setup-v2-proposal/group-kernel-probe.mjs": "fb043a7024b40ca48e8136882fafb7fefb5faf9d55fd2a7ba9471a1aa0770006",
+      "scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "10s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=128",
+      "--input-type=module",
+      "-e",
+      "import { runOwnedGroupProbe } from \"file:///workspace/scratch/69fd8163d94e/owned-group-kernel-20261112/scripts/native-ui-evidence/setup-v2-proposal/group-kernel-probe.mjs\"; await runOwnedGroupProbe({output:\"/workspace/scratch/69fd8163d94e/owned-group-kernel-20261112/controller-attempt-01/probe\",admission:\"owned-child-group-observation-v1\"});"
+    ]
+  },
+  "controllerResult": {
+    "exit": 0,
+    "elapsedSeconds": 1.0171815400000241,
+    "controllerIntervened": false,
+    "inputsUnchanged": true,
+    "after": {
+      "scripts/native-ui-evidence/setup-v2-proposal/group-kernel-probe.mjs": "fb043a7024b40ca48e8136882fafb7fefb5faf9d55fd2a7ba9471a1aa0770006",
+      "scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec"
+    },
+    "streams": {
+      "stdout.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "scope": "One directly owned fixed child group through normal exit; no descendant/escaped-process/browser/general cleanup proof"
+  },
+  "controllerStdout": "",
+  "controllerStderr": "",
+  "probeResult": {
+    "status": "passed",
+    "scope": "One owned direct child group; no descendant/escape/production proof",
+    "nodeVersion": "v24.22.1",
+    "before": {
+      "probe": "fb043a7024b40ca48e8136882fafb7fefb5faf9d55fd2a7ba9471a1aa0770006",
+      "observer": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec",
+      "node": "61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d"
+    },
+    "phases": [
+      "spawn",
+      "bind-owned-group",
+      "request-normal-exit",
+      "observe-group-absence"
+    ],
+    "cleanup": {
+      "status": "child-close-observed",
+      "killRequested": false,
+      "childExit": {
+        "code": 0,
+        "signal": null
+      }
+    },
+    "owner": {
+      "pid": 16,
+      "ppid": 9,
+      "pgrp": 16,
+      "session": 16,
+      "starttime": "38930"
+    },
+    "childExit": {
+      "code": 0,
+      "signal": null
+    },
+    "observation": {
+      "pgid": 16,
+      "capMs": 250,
+      "intervalMs": 10,
+      "status": "absent",
+      "polls": 1,
+      "elapsedMs": 0.3899380000000292
+    },
+    "after": {
+      "probe": "fb043a7024b40ca48e8136882fafb7fefb5faf9d55fd2a7ba9471a1aa0770006",
+      "observer": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec",
+      "node": "61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d"
+    },
+    "inputsUnchanged": true,
+    "streams": {
+      "stdout": {
+        "bytes": 9,
+        "sha256": "6c28f892a022e2d7a0c74392a3d1a44fbe8733bd6f954ca2d9e560836454b7e8"
+      },
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "probeStdout": "READY 16\n",
+  "probeStderr": "",
+  "childSource": "let input = ''\nprocess.stdin.on('data', data => {\n  input += data.toString()\n  if (input === 'EXIT\\n') process.exit(0)\n  if (input.length > 5) process.exit(4)\n})\nsetTimeout(() => process.exit(3), 2000)\nprocess.stdout.write('READY ' + process.pid + '\\n')\n"
+}
