@@ -35,13 +35,13 @@ test('renderer selector excludes the nested hidden tooltip canvas', () => {
   // Supplied DOM-shaped locator boundary, not a real browser selector engine.
   const viewport = { className: 'world-viewport' }
   const tooltip = { parentElement: viewport, hidden: true }
-  const renderer = { tagName: 'CANVAS', className: 'battlefield', parentElement: viewport }
+  const renderer = { tagName: 'CANVAS', className: 'active battlefield', parentElement: viewport }
   const tooltipCanvas = { tagName: 'CANVAS', className: '', parentElement: tooltip }
   const canvases = [renderer, tooltipCanvas]
   const page = { locator(selector) {
     assert.equal(selector, '.world-viewport > canvas.battlefield')
     const matches = canvases.filter(node => node.tagName === 'CANVAS' &&
-      node.className.split(/\\s+/).includes('battlefield') && node.parentElement === viewport)
+      node.className.split(/\s+/).includes('battlefield') && node.parentElement === viewport)
     return { count: () => matches.length, selected: matches }
   } }
   assert.equal(canvases.length, 2)
