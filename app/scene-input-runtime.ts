@@ -222,7 +222,7 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
   if (scene.modalSuspended) return
-  scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -306,6 +306,8 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
     scene.pointerGesture?.pointerId === event.pointerId &&
     (event.buttons === 2 || event.buttons === 4)
   ) {
+    // A camera drag remains a drag even if it returns to its press position.
+    scene.pointerGesture.moved ||= Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0
@@ -401,6 +403,7 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
     if (
+      !gesture.moved &&
       event.shiftKey &&
       !event.ctrlKey &&
       !event.altKey &&
