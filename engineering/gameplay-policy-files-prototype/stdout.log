@@ -1,0 +1,33 @@
+✔ supplied matching observation fragment, never execution admission (5.543595ms)
+✔ rejects new untracked npmrc (0.789975ms)
+✔ rejects dangling hook symlink (0.44108ms)
+✔ rejects directory (0.34112ms)
+✔ rejects unreadable not absent (0.400371ms)
+✔ rejects digest mismatch (1.582421ms)
+✔ rejects length mismatch (0.352179ms)
+✔ rejects missing tracked binding (0.184408ms)
+✔ rejects candidate mismatch (0.224943ms)
+✔ rejects extra manifest binding (0.435108ms)
+✔ rejects duplicate profile (0.26221ms)
+✔ rejects duplicate observation (0.467348ms)
+✔ rejects unsafe path (0.2338ms)
+✔ rejects root alias (0.325461ms)
+✔ rejects parent alias (0.34153ms)
+✔ rejects hardlink (0.834185ms)
+✔ rejects inode replacement (0.302338ms)
+✔ rejects changed before open (0.249937ms)
+✔ rejects unsupported field (0.230757ms)
+✔ rejects missing identity (0.210007ms)
+✔ rejects oversize file (0.173593ms)
+✔ rejects oversize list (0.203461ms)
+✔ rejects sparse list (0.180064ms)
+✔ aggregate cap rejected before observation consumption (0.5468ms)
+✔ late absence change requires fresh rejection, not token reuse (0.997896ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.663342
