@@ -510,7 +510,9 @@ export function animatePerson(
       },
       scene.view.config
     )
-    arrow.visible = !!r && r.width > 0 && r.height > 0
+    // A cloned loading texture has a version before its shared image arrives.
+    // Keep it out of the render list until there is image data to upload.
+    arrow.visible = !!arrow.material.map?.image && !!r && r.width > 0 && r.height > 0
     if (r && arrow.visible) {
       arrow.scale.set(r.width, r.height, 1)
       arrow.center.set(-r.x / r.width, 1 + r.y / r.height)
