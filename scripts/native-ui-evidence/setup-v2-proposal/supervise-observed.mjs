@@ -45,6 +45,9 @@ export function createObservedSupervisor({ spawnProcess = spawn,
       monitor = setInterval(() => { try { inspect() } catch (error) { stop(text(error)) } }, 25)
       child.once('error', error => {
         if (settled) return
+        if (Number.isSafeInteger(child.pid) && child.pid > 1) {
+          stop('Child process error: ' + text(error)); return
+        }
         settled = true; clear()
         try { closeLog() } catch {}
         reject(error)
