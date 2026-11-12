@@ -37,6 +37,15 @@ against its Git object. Assume-unchanged flags are refused. The adapter never ch
 the source index, sparse configuration, tracked paths, existing installs or permissions.
 The new runtime is not advertised as a clean Git checkout and cannot be committed.
 
+For a filtered partial clone, tree enumeration reads paths, modes and object IDs
+without asking for every blob's size. Build scope requests missing object sizes
+only for selected runtime inputs, so sparse-omitted research excluded from the
+build is not fetched. Every present tracked file is still authenticated, including
+excluded files. Selected missing inputs may be fetched through Git's configured
+promisor remote; an unavailable selected object fails preparation before outputs.
+Full scope still requires all tracked inputs. This changes neither network
+permissions nor the separate admission for package installation or execution.
+
 ## Prepare and verify
 
 Use persistent disk, not `/tmp` when `/tmp` is tmpfs. Inspect actual destination
