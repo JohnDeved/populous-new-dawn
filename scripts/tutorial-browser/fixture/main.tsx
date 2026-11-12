@@ -1,10 +1,11 @@
 // Opt-in supplied Spy discovery state in the test host, never the shipped entry.
 if (new URLSearchParams(location.search).get('spy-discovery-fixture') === '1') {
-  void import('../spy-discovery-fixture.mjs').then(fixture => {
-    Object.defineProperty(globalThis, '__pndSpyDiscoveryFixture', {
-      value: Object.freeze({ ...fixture }), writable: false, configurable: false,
-    })
+  const fixtureReady = import('../spy-discovery-fixture.mjs')
+  Object.defineProperty(globalThis, '__pndSpyDiscoveryFixtureReady', {
+    value: fixtureReady, writable: false, configurable: false,
   })
+  // The runner must await this exact promise; rejected imports remain failures.
+  void fixtureReady.catch(() => {})
 }
 // Supplied worship-slot boundary in the test host only.
 if (new URLSearchParams(location.search).get('worship-panel-lifecycle') === '1') {
