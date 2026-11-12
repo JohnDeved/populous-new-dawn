@@ -8,7 +8,7 @@ const text = error => { try { return String(error) } catch { return 'Unserializa
 // Injectable boundaries exist solely for supplied tests. Production integration
 // must retain infrastructure-owned defaults and cannot take candidate overrides.
 export function createObservedSupervisor({ spawnProcess = spawn,
-  signalGroup = (pid, signal) => process.kill(-pid, signal), observe = observeGroupExit } = {}) {
+  signalChild = (child, signal) => child.kill(signal), observe = observeGroupExit } = {}) {
   return async function superviseObserved(args, { cwd, log, capMs, env = process.env, inspect = () => {} }) {
     assert.ok(Number.isFinite(capMs) && capMs >= 1 && capMs <= 5000)
     const fd = openSync(log, 'wx')
@@ -18,15 +18,16 @@ export function createObservedSupervisor({ spawnProcess = spawn,
       cwd, env: { ...env, NODE_OPTIONS: '', NODE_PATH: '', NODE_COMPILE_CACHE: '', NODE_V8_COVERAGE: '' },
       detached: true, stdio: ['ignore', 'pipe', 'pipe'],
     }) } catch (error) { closeSync(fd); throw error }
-    let bytes = 0, failure = null, settled = false, fdClosed = false, timer, force, monitor
+    let bytes = 0, failure = null, settled = false, leaderExited = false, fdClosed = false, timer, force, monitor
     const signalErrors = []
     const fail = reason => { if (failure === null) failure = reason }
     const closeLog = () => { if (!fdClosed) { fdClosed = true; closeSync(fd) } }
     const clear = () => { clearTimeout(timer); clearTimeout(force); clearInterval(monitor) }
     const kill = signal => {
+      if (leaderExited) return
       if (!Number.isSafeInteger(child.pid) || child.pid <= 1) { fail('Owned child group unavailable'); return }
-      try { signalGroup(child.pid, signal) }
-      catch (error) { if (error?.code !== 'ESRCH') { signalErrors.push(text(error)); fail('Owned group signal failed') } }
+      try { if (signalChild(child, signal) === false) fail('Owned child signal was not delivered') }
+      catch (error) { if (error?.code !== 'ESRCH') { signalErrors.push(text(error)); fail('Owned child signal failed') } }
     }
     const stop = reason => {
       if (settled || failure !== null) return
@@ -52,14 +53,15 @@ export function createObservedSupervisor({ spawnProcess = spawn,
         try { closeLog() } catch {}
         reject(error)
       })
+      child.once('exit', () => { leaderExited = true; clearTimeout(force) })
       child.once('close', (exitCode, signal) => {
         if (settled) return
-        settled = true; clear()
+        settled = true; leaderExited = true; clear()
         if (performance.now() - started >= capMs) fail('Command deadline exceeded')
         const finalize = async () => {
           try { closeLog() } catch (error) { fail('Log close failed: ' + text(error)) }
-          // Preserve existing owner intent but never equate signal delivery with absence.
-          kill('SIGKILL')
+          // Never signal a numeric group after its leader exits or is reaped.
+          // Remaining/reused groups yield unverified cleanup, not destructive action.
           let groupCleanup
           try {
             const { error, ...receipt } = await observe(child.pid, { capMs: 250, intervalMs: 10 })
