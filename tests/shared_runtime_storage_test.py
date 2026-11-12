@@ -1204,6 +1204,78 @@ for suffix in ('', '.stdout', '.stderr'):
         with self.assertRaises(ValueError):
             self.verify()
 
+    def partial_clone(self, *, omit_asset=False, offline=True):
+        """Tiny local promisor remote; no external network or package runtime."""
+        (self.source / 'docs').mkdir()
+        (self.source / 'docs/omitted.txt').write_text('excluded research bytes\n')
+        self.git('add', '.'); self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        self.git('config', 'uploadpack.allowFilter', 'true')
+        origin = self.root / 'origin'
+        self.source.rename(origin)
+        subprocess.check_output(['git', '-c', 'protocol.file.allow=always', 'clone',
+                                 '--quiet', '--filter=blob:none', '--no-checkout',
+                                 origin.as_uri(), str(self.source)], stderr=subprocess.PIPE)
+        patterns = ['/*', '!/docs/']
+        if omit_asset:
+            patterns.append('!/public/original/')
+        self.git('sparse-checkout', 'set', '--no-cone', *patterns)
+        self.git('checkout', '--quiet', 'HEAD')
+        omitted_oid = self.git('rev-parse', 'HEAD:docs/omitted.txt').strip()
+        self.assertIn('?' + omitted_oid, self.git('rev-list', '--objects', '--missing=print', 'HEAD'))
+        if offline:
+            origin.rename(self.root / 'offline-origin')
+        return omitted_oid
+
+    def test_build_partial_clone_does_not_fetch_excluded_blobs(self):
+        omitted = self.partial_clone()
+        objects = self.source / '.git/objects'
+        before = {p.relative_to(objects): p.read_bytes() for p in objects.rglob('*') if p.is_file()}
+        trace = self.root / 'git.trace'
+        with mock.patch.dict(os.environ, {'GIT_TRACE': str(trace)}):
+            result = self.prepare()
+            self.assertEqual(self.verify()['status'], 'verified')
+        self.assertEqual(result['sourceSparseOmittedFiles'], 1)
+        self.assertFalse((self.runtime / 'docs').exists())
+        self.assertIn('?' + omitted, self.git('rev-list', '--objects', '--missing=print', 'HEAD'))
+        self.assertEqual(before, {p.relative_to(objects): p.read_bytes()
+                                  for p in objects.rglob('*') if p.is_file()})
+        self.assertNotIn('fetch', trace.read_text())
+
+    def test_selected_sparse_asset_still_fetches_and_authenticates(self):
+        omitted = self.partial_clone(omit_asset=True, offline=False)
+        result = self.prepare()
+        self.assertEqual(result['sharedAssetBytes'], 30)
+        self.assertEqual(self.verify()['status'], 'verified')
+        self.assertIn('?' + omitted, self.git('rev-list', '--objects', '--missing=print', 'HEAD'))
+        record = next(e for e in json.loads((self.runtime / storage.MANIFEST).read_text())['entries']
+                      if e['path'].startswith(storage.ASSETS + '/'))
+        self.assertEqual(record['bytes'], 30)
+        self.assertEqual(record['oid'], storage.blob_oid(self.asset_blob().read_bytes()))
+
+    def test_unavailable_selected_partial_clone_blob_refuses_before_outputs(self):
+        self.partial_clone(omit_asset=True)
+        with self.assertRaises((ValueError, subprocess.CalledProcessError)):
+            self.prepare()
+        self.assertFalse(self.pool.exists())
+        self.assertFalse(self.runtime.exists())
+
+    def test_full_scope_does_not_silently_drop_missing_research(self):
+        self.partial_clone()
+        with self.assertRaises((ValueError, subprocess.CalledProcessError)):
+            storage.prepare(self.source, self.revision, self.pool, self.runtime, 1024 * 1024, 'full')
+        self.assertFalse(self.pool.exists())
+        self.assertFalse(self.runtime.exists())
+
+    def test_present_excluded_sparse_file_is_still_authenticated(self):
+        self.partial_clone()
+        (self.source / 'docs').mkdir()
+        (self.source / 'docs/omitted.txt').write_text('hidden changed research bytes\n')
+        with self.assertRaises(ValueError):
+            self.prepare()
+        self.assertFalse(self.pool.exists())
+        self.assertFalse(self.runtime.exists())
+
     def test_all_dependency_cache_root_and_nested_links_are_refused(self):
         self.prepare()
         modules = self.runtime / 'node_modules'; modules.mkdir()
