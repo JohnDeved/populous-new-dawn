@@ -71,10 +71,13 @@ def main():
     child = None
     started = time.monotonic()
     primary = None
+    cleanup_attempted = False
     def finish_owned_parent():
+        nonlocal cleanup_attempted
         # Popen methods target only our direct unreaped child, never its numeric group.
-        if child is None or child.poll() is not None:
+        if child is None or child.poll() is not None or cleanup_attempted:
             return
+        cleanup_attempted = True
         report['interventions'].append('direct-parent-SIGTERM')
         child.terminate()
         try:
