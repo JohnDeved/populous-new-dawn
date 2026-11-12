@@ -8,7 +8,7 @@ const text = error => { try { return String(error) } catch { return 'Unserializa
 // Injectable boundaries exist solely for supplied tests. Production integration
 // must retain infrastructure-owned defaults and cannot take candidate overrides.
 export function createObservedSupervisor({ spawnProcess = spawn,
-  signalChild = (child, signal) => child.kill(signal), observe = observeGroupExit } = {}) {
+  signalChild = (child, signal) => child.kill(signal), observe = observeGroupExit, writeLog = writeSync } = {}) {
   return async function superviseObserved(args, { cwd, log, capMs, env = process.env, inspect = () => {} }) {
     assert.ok(Number.isFinite(capMs) && capMs >= 1 && capMs <= 5000)
     const fd = openSync(log, 'wx')
@@ -25,20 +25,30 @@ export function createObservedSupervisor({ spawnProcess = spawn,
     const clear = () => { clearTimeout(timer); clearTimeout(force); clearInterval(monitor) }
     const kill = signal => {
       if (leaderExited) return
-      if (!Number.isSafeInteger(child.pid) || child.pid <= 1) { fail('Owned child group unavailable'); return }
+      if (!Number.isSafeInteger(child.pid) || child.pid <= 1) { fail('Owned child identity unavailable'); return }
       try { if (signalChild(child, signal) === false) fail('Owned child signal was not delivered') }
       catch (error) { if (error?.code !== 'ESRCH') { signalErrors.push(text(error)); fail('Owned child signal failed') } }
     }
     const stop = reason => {
       if (settled || failure !== null) return
-      fail(reason); kill('SIGTERM')
+      fail(reason)
+      if (leaderExited) return
+      kill('SIGTERM')
       force = setTimeout(() => kill('SIGKILL'), 100)
     }
     return new Promise((resolve, reject) => {
       const chunk = data => {
         if (settled) return
         if (bytes + data.length > 65536) { stop('Log budget exceeded'); return }
-        try { writeSync(fd, data); bytes += data.length }
+        try {
+          let offset = 0
+          while (offset < data.length) {
+            const written = writeLog(fd, data, offset, data.length - offset)
+            if (!Number.isSafeInteger(written) || written <= 0 || written > data.length - offset)
+              throw Error('Invalid or zero log write progress')
+            offset += written; bytes += written
+          }
+        }
         catch (error) { stop('Log write failed: ' + text(error)) }
       }
       child.stdout.on('data', chunk); child.stderr.on('data', chunk)
