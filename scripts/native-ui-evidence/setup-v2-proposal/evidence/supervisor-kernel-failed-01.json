@@ -1,0 +1,73 @@
+{
+  "sourceRef": "ed3f1661860a86222942d47fa40640264b996ae6",
+  "outcome": "failed",
+  "admission": "Root explicitly authorized after independent controller source acceptance and preflight: visible ps only sandbox/shell/ps,MemAvailable9615452kB,58GiB free,Node24.22.1. No prior denial bypass.",
+  "observations": "Parent10s wait expired; direct-parentSIGTERM,exit-15,reaped. Both child cases durable verified with group absence; overall harness running/no after hashes and controller failed. No retry or destructive cleanup. Current visible namespace after run contained no Node workload; not a global process claim. Final synchronous input hashing is the likely delay from source/receipt position, not a sampled stack proof. Node executable126939688bytes.",
+  "files": {
+    "wrapper-attempt-01/after.sha256": {
+      "bytes": 802,
+      "sha256": "beb81b3589cf28f6705632e05b34e045f9c0bd5d677d74153ddb376753105fa3",
+      "text": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs\nd24d5d55950facf2d9141f35b1c0f0e573423fbc0d96cd2a9366b4734774eaef  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/run-supervisor-kernel-cases.py\nf054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs\ned8db5da8640e67916bd574970916f9ba13e581edae2ede5f48942a2d5e8576e  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/supervisor-kernel-cases.mjs\n"
+    },
+    "wrapper-attempt-01/before.sha256": {
+      "bytes": 802,
+      "sha256": "beb81b3589cf28f6705632e05b34e045f9c0bd5d677d74153ddb376753105fa3",
+      "text": "3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/group-exit-observer.mjs\nd24d5d55950facf2d9141f35b1c0f0e573423fbc0d96cd2a9366b4734774eaef  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/run-supervisor-kernel-cases.py\nf054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/supervise-observed.mjs\ned8db5da8640e67916bd574970916f9ba13e581edae2ede5f48942a2d5e8576e  /workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/supervisor-kernel-cases.mjs\n"
+    },
+    "wrapper-attempt-01/exit.txt": {
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "text": "1\n"
+    },
+    "wrapper-attempt-01/finished.txt": {
+      "bytes": 31,
+      "sha256": "224341da0d07f977edfa1b857d978079114d349cde933e65e65bc4b943c05aa1",
+      "text": "2026-11-12T20:04:18.131608877Z\n"
+    },
+    "wrapper-attempt-01/started.txt": {
+      "bytes": 31,
+      "sha256": "190a8fc26f4cc28c0a4268049dc418521272ef6f2d272216f48a4a201332dd78",
+      "text": "2026-11-12T20:03:51.893550997Z\n"
+    },
+    "wrapper-attempt-01/stderr.log": {
+      "bytes": 2041,
+      "sha256": "550a272a153c1d7f03b9301fd78c661b1c84d65f57e9588dc05a71cb13e084b0",
+      "text": "Traceback (most recent call last):\n  File \"/workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/run-supervisor-kernel-cases.py\", line 101, in main\n    report['exit'] = child.wait(timeout=10)\n                     ^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py\", line 1264, in wait\n    return self._wait(timeout=timeout)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/subprocess.py\", line 2045, in _wait\n    raise TimeoutExpired(self.args, timeout)\nsubprocess.TimeoutExpired: Command '['/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node', '--max-old-space-size=128', '--input-type=module', '-e', 'import { runSupervisorKernelCases } from \"file:///workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/supervisor-kernel-cases.mjs\"; await runSupervisorKernelCases({output:\"/workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/probe-attempt-01/probe\",admission:\"observed-supervisor-two-owned-children-v1\"});']' timed out after 10 seconds\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/run-supervisor-kernel-cases.py\", line 165, in <module>\n    main()\n  File \"/workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/run-supervisor-kernel-cases.py\", line 160, in main\n    raise primary\n  File \"/workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/run-supervisor-kernel-cases.py\", line 106, in main\n    raise RuntimeError('Parent deadline exceeded; pilot descendant cleanup remains unverified')\nRuntimeError: Parent deadline exceeded; pilot descendant cleanup remains unverified\n"
+    },
+    "wrapper-attempt-01/stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "probe-attempt-01/controller-result.json": {
+      "bytes": 2151,
+      "sha256": "507f19cbb612713476eff1912a9a064c29fe6345343fb3bdc4496a5e9db626a5",
+      "text": "{\n  \"status\": \"failed\",\n  \"sourceRef\": \"a28a7938165aa896604893a9fad91e4bfc6eed55\",\n  \"inputsBefore\": {\n    \"supervisor-kernel-cases.mjs\": \"ed8db5da8640e67916bd574970916f9ba13e581edae2ede5f48942a2d5e8576e\",\n    \"supervise-observed.mjs\": \"f054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb\",\n    \"group-exit-observer.mjs\": \"3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec\",\n    \"node\": \"61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d\"\n  },\n  \"command\": [\n    \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node\",\n    \"--max-old-space-size=128\",\n    \"--input-type=module\",\n    \"-e\",\n    \"import { runSupervisorKernelCases } from \\\"file:///workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/scripts/native-ui-evidence/setup-v2-proposal/supervisor-kernel-cases.mjs\\\"; await runSupervisorKernelCases({output:\\\"/workspace/scratch/69fd8163d94e/supervisor-kernel-run-20261112/probe-attempt-01/probe\\\",admission:\\\"observed-supervisor-two-owned-children-v1\\\"});\"\n  ],\n  \"interventions\": [\n    \"direct-parent-SIGTERM\"\n  ],\n  \"scope\": \"Two direct-child cases only\",\n  \"parentIdentity\": {\n    \"pid\": 9,\n    \"ppid\": 8,\n    \"pgrp\": 9,\n    \"session\": 9,\n    \"starttime\": \"1464293\"\n  },\n  \"timeout\": true,\n  \"exit\": -15,\n  \"error\": \"RuntimeError('Parent deadline exceeded; pilot descendant cleanup remains unverified')\",\n  \"elapsedSeconds\": 11.876741930998833,\n  \"parentReaped\": true,\n  \"inputsAfter\": {\n    \"supervisor-kernel-cases.mjs\": \"ed8db5da8640e67916bd574970916f9ba13e581edae2ede5f48942a2d5e8576e\",\n    \"supervise-observed.mjs\": \"f054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb\",\n    \"group-exit-observer.mjs\": \"3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec\",\n    \"node\": \"61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d\"\n  },\n  \"inputsUnchanged\": true,\n  \"streams\": {\n    \"stdout.log\": {\n      \"bytes\": 0,\n      \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    \"stderr.log\": {\n      \"bytes\": 0,\n      \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    }\n  }\n}\n"
+    },
+    "probe-attempt-01/probe/deadline.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "probe-attempt-01/probe/normal.log": {
+      "bytes": 13,
+      "sha256": "3fce8d2418c560e4daf178c43fc1db675599d307ee4096643b2680b2dcae35df",
+      "text": "owned-normal\n"
+    },
+    "probe-attempt-01/probe/result.json": {
+      "bytes": 2311,
+      "sha256": "67d386a731ccf72467316d6d6866501123b6c25d7635345d8f09358ea10b6ec1",
+      "text": "{\n  \"status\": \"running\",\n  \"nodeVersion\": \"v24.22.1\",\n  \"before\": {\n    \"harness\": \"ed8db5da8640e67916bd574970916f9ba13e581edae2ede5f48942a2d5e8576e\",\n    \"supervisor\": \"f054431d6809e92613dc33e82919e35363cd69b1df072953f77673087d0a97bb\",\n    \"observer\": \"3b838399e916c15ea008501535f2ae3c23b2cf44aa85a481dd50bcacc020cbec\",\n    \"node\": \"61ab14cd750fc24d5db53490ec5fc40f756e4b6e136b78cf7004265471d9bd1d\"\n  },\n  \"cases\": [\n    {\n      \"name\": \"normal\",\n      \"code\": \"console.log(\\\"owned-normal\\\")\",\n      \"capMs\": 2000,\n      \"status\": \"verified\",\n      \"result\": {\n        \"command\": [\n          \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node\",\n          \"--max-old-space-size=64\",\n          \"-e\",\n          \"console.log(\\\"owned-normal\\\")\"\n        ],\n        \"exitCode\": 0,\n        \"signal\": null,\n        \"capMs\": 2000,\n        \"logBytes\": 13,\n        \"failure\": null,\n        \"signalErrors\": [],\n        \"groupCleanup\": {\n          \"pgid\": 16,\n          \"capMs\": 250,\n          \"intervalMs\": 10,\n          \"status\": \"absent\",\n          \"polls\": 1,\n          \"elapsedMs\": 0.9874400000007881\n        },\n        \"status\": \"passed\"\n      },\n      \"rawLog\": {\n        \"bytes\": 13,\n        \"sha256\": \"3fce8d2418c560e4daf178c43fc1db675599d307ee4096643b2680b2dcae35df\"\n      }\n    },\n    {\n      \"name\": \"deadline\",\n      \"code\": \"setTimeout(() => {}, 2000)\",\n      \"capMs\": 100,\n      \"status\": \"verified\",\n      \"result\": {\n        \"command\": [\n          \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node\",\n          \"--max-old-space-size=64\",\n          \"-e\",\n          \"setTimeout(() => {}, 2000)\"\n        ],\n        \"exitCode\": null,\n        \"signal\": \"SIGTERM\",\n        \"capMs\": 100,\n        \"logBytes\": 0,\n        \"failure\": \"Command deadline exceeded\",\n        \"signalErrors\": [],\n        \"groupCleanup\": {\n          \"pgid\": 23,\n          \"capMs\": 250,\n          \"intervalMs\": 10,\n          \"status\": \"absent\",\n          \"polls\": 1,\n          \"elapsedMs\": 0.2630719999997382\n        },\n        \"status\": \"failed\"\n      },\n      \"rawLog\": {\n        \"bytes\": 0,\n        \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n      }\n    }\n  ],\n  \"scope\": \"Two direct child pilot cases; no descendants, browser, production or general cleanup proof\"\n}\n"
+    },
+    "probe-attempt-01/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    },
+    "probe-attempt-01/stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    }
+  }
+}
