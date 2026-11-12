@@ -1,0 +1,43 @@
+✔ identical independently supplied tuple matches but grants no execution (6.155315ms)
+✔ rejects candidate (2.743287ms)
+✔ rejects infrastructure (0.764731ms)
+✔ rejects kind (1.112464ms)
+✔ rejects manager (1.079819ms)
+✔ rejects bootstrap bytes (0.947107ms)
+✔ rejects node bytes (1.144872ms)
+✔ rejects platform (1.050798ms)
+✔ rejects install flags (1.241207ms)
+✔ rejects unknown field (1.704094ms)
+✔ rejects unknown nested field (0.703315ms)
+✔ rejects new config (0.525414ms)
+✔ rejects absent becomes present (0.3981ms)
+✔ rejects missing lock (0.367142ms)
+✔ rejects changed lock (0.346772ms)
+✔ rejects symlink file (0.266016ms)
+✔ rejects new policy file (0.246777ms)
+✔ rejects new hook (0.272716ms)
+✔ rejects local source (0.429871ms)
+✔ rejects git source (0.30726ms)
+✔ rejects different registry (0.548559ms)
+✔ rejects different integrity (0.267415ms)
+✔ rejects unsupported feature (0.306212ms)
+✔ rejects duplicate config (0.495597ms)
+✔ rejects duplicate path (0.270714ms)
+✔ rejects duplicate package (0.360542ms)
+✔ rejects sparse array (0.257188ms)
+✔ rejects accessor field (0.253238ms)
+✔ unsupported metadata is rejected even if present in both inputs (0.20713ms)
+✔ comparison is fresh, not a reusable authorization token (0.533686ms)
+✔ rejects identical malformed SHA-512 integrity: short digest (0.396417ms)
+✔ rejects identical malformed SHA-512 integrity: missing padding (0.900139ms)
+✔ rejects identical malformed SHA-512 integrity: extra padding (0.628046ms)
+✔ rejects identical malformed SHA-512 integrity: noncanonical padding bits (0.185063ms)
+✔ rejects identical malformed SHA-512 integrity: wrong digest length (0.186972ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.395593
