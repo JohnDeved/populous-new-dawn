@@ -1,0 +1,35 @@
+{
+  "at": "2026-11-12T22:01:03.311357+00:00",
+  "command": [
+    "timeout",
+    "--kill-after=2s",
+    "15s",
+    "node",
+    "--max-old-space-size=64",
+    "--test-isolation=none",
+    "--test",
+    "--test-concurrency=1",
+    "policy-files.test.mjs"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.18898437300231308,
+  "before": {
+    "policy-files.mjs": "b7696954180934d29de92f77825d7adacc84ddcf760460d06eca6fe02c6e6c45",
+    "policy-files.test.mjs": "8f5eb2790a61e118bdb7ac1529a6ab9c11edff89f4c53f275a0e7c94f7a0b35a"
+  },
+  "after": {
+    "policy-files.mjs": "b7696954180934d29de92f77825d7adacc84ddcf760460d06eca6fe02c6e6c45",
+    "policy-files.test.mjs": "8f5eb2790a61e118bdb7ac1529a6ab9c11edff89f4c53f275a0e7c94f7a0b35a"
+  },
+  "scope": "Supplied observation consistency only, no actual byte hashing or IO; synthetic partial profiles allowed",
+  "streams": {
+    "stdout.log": {
+      "bytes": 1261,
+      "sha256": "d383e8c21df637abeaf3b229f79c6060d532e4aac67a41315b6d24bedc9a050d"
+    },
+    "stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}
