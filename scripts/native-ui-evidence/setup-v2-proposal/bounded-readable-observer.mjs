@@ -11,6 +11,7 @@ export function observeBoundedReadable(stream, { capBytes = 65536, deadlineMs = 
   if (!Number.isFinite(started)) throw Error('Invalid readable clock')
   let previous = started, ended = false, closed = false, retired = false, detached = false
   let teardownRequired = false, notified = false, resolveCompletion, resolveFailure, timer
+  let setupFailed = false, ownerReleased = false
   const completion = new Promise(resolve => { resolveCompletion = resolve })
   const failure = new Promise(resolve => { resolveFailure = resolve })
   const fail = reason => {
@@ -49,22 +50,36 @@ export function observeBoundedReadable(stream, { capBytes = 65536, deadlineMs = 
     }
   }
   const listeners = [['data', onData], ['error', onError], ['end', onEnd], ['close', onClose]]
+  const detach = () => {
+    let removed = true
+    for (const [name, listener] of listeners) {
+      try { stream.off(name, listener) } catch (error) { removed = false; fail(error) }
+    }
+    detached = removed
+    return removed
+  }
   try {
     // Attach data last: a real readable can begin flowing when this listener is added.
     for (const name of ['error', 'end', 'close', 'data']) stream.on(name, listeners.find(([key]) => key === name)[1])
     timer = setTimeout(() => retire(Error('Readable observation pending-close deadline exceeded')), deadlineMs)
     if (closed) clearTimeout(timer)
   } catch (error) {
+    setupFailed = true
     retire(error)
   }
   return Object.freeze({
     completion, failure,
-    snapshot() { return { ...record.snapshot(), ended, closed, retired, detached, teardownRequired } },
+    snapshot() { return { ...record.snapshot(), ended, closed, retired, detached, teardownRequired, setupFailed, ownerReleased } },
     disposeAfterClose() {
       if (!closed) throw Error('Cannot detach before owned stream close')
       if (detached) return
-      for (const [name, listener] of listeners) stream.off(name, listener)
-      detached = true
+      return detach()
+    },
+    disposeAfterOwnerTeardown() {
+      if (!retired) throw Error('Owner teardown release requires retired observation')
+      // External ownership assertion, not evidence of close or successful cleanup.
+      ownerReleased = true
+      return detach()
     },
   })
 }
