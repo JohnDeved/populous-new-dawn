@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto'
 import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { assertLive, assertCancelled, assertRetired, readWitness } from './witness.mjs'
+import { createDeadline } from './deadline.mjs'
 
 // First bounded rendered episode only. Not the full PR acceptance suite.
 // The owner supplies a reviewed browser, built URL and outer deadline; this module never launches one.
@@ -19,9 +20,14 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
   ] }
   const save = () => writeFileSync(resolve(output, 'owned-swamp-episode.json'), JSON.stringify(report, null, 2) + '\n')
   const stage = (name, data) => { report.stages.push({ name, time: new Date().toISOString(), data }); save() }
-  let context, page, failure, timer
+  // Arm before the first asynchronous browser operation. This cannot extend the inherited deadline.
+  const episodeDeadlineAt = Math.min(Date.now() + 90000, deadlineAt - 10000)
+  const deadline = createDeadline(episodeDeadlineAt)
+  let context, page, failure, ownershipClosed = false, closePromise
   const closeBounded = async () => {
-    if (!context) return true
+    if (!context) return false
+    if (closePromise) return closePromise
+    closePromise = (async () => {
     let closeTimer
     try {
       await Promise.race([context.close(), new Promise((_, reject) => {
@@ -30,48 +36,55 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
       return true
     } catch (error) { report.errors.push(String(error)); return false }
     finally { clearTimeout(closeTimer) }
+    })()
+    return closePromise
   }
   try {
     // Keep 10 seconds of the inherited budget for diagnostics and context teardown.
-    const budget = Math.min(90000, deadlineAt - Date.now() - 10000)
+    const budget = episodeDeadlineAt - Date.now()
     assert.ok(budget > 0, 'No episode budget remains')
-    context = await browser.newContext({ viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 })
+    const contextCreation = browser.newContext({ viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 })
+    // A context arriving after timeout still belongs to this episode and must be closed.
+    // Never claim its cleanup was verified in the already-final receipt.
+    void contextCreation.then(late => {
+      if (ownershipClosed || deadline.expired) void late.close().catch(() => {})
+    }, () => {})
+    context = await deadline.run(() => contextCreation)
     context.on('page', p => {
       p.on('pageerror', e => report.errors.push(String(e)))
       p.on('console', m => { if (m.type() === 'error') report.errors.push(m.text()) })
       p.on('crash', () => report.errors.push('Page crashed'))
     })
-    timer = setTimeout(() => { report.timedOut = true; save(); void closeBounded() }, budget)
-    page = await context.newPage()
+    page = await deadline.run(() => context.newPage())
     page.setDefaultTimeout(Math.min(10000, budget))
     const target = new URL(url); target.searchParams.set('owned-swamp-evidence', '1')
-    await page.goto(target.href, { waitUntil: 'domcontentloaded' })
+    await deadline.run(() => page.goto(target.href, { waitUntil: 'domcontentloaded' }))
     const button = name => page.getByRole('button', { name, exact: true })
-    await waitForStartupMenu(page); await button('New Game').click()
-    await page.locator('[data-original-tutorial-recommendation]').waitFor()
-    await button('No').click(); await button('Start Mission 1').click(); await bindGame(page)
-    const startup = await page.waitForFunction(() => {
+    await deadline.run(() => waitForStartupMenu(page)); await deadline.run(() => button('New Game').click())
+    await deadline.run(() => page.locator('[data-original-tutorial-recommendation]').waitFor())
+    await deadline.run(() => button('No').click()); await deadline.run(() => button('Start Mission 1').click()); await deadline.run(() => bindGame(page))
+    const startup = await deadline.run(() => page.waitForFunction(() => {
       const w = window.testStore.getWorld(), skip = document.querySelector('button.skip-introduction')
       if (!w.inputMask && w.levelStart.every(s => s.phase === 4)) return 'ready'
       return skip && skip.getClientRects().length && !skip.disabled ? 'skip' : false
-    })
-    const startupValue = await startup.jsonValue(); await startup.dispose()
-    if (startupValue === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await page.evaluate(async () => {
+    }))
+    const startupValue = await deadline.run(() => startup.jsonValue()); await deadline.run(() => startup.dispose())
+    if (startupValue === 'skip') await deadline.run(() => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    await deadline.run(() => page.waitForFunction(() => !window.testStore.getWorld().inputMask))
+    await deadline.run(() => page.evaluate(async () => {
       const fixture = await window.__pndOwnedSwampFixtureReady
       if (typeof fixture?.advanceGame !== 'function') throw Error('Production clock fixture unavailable')
-    })
-    stage('bootstrap', await page.evaluate(() => {
+    }))
+    stage('bootstrap', await deadline.run(() => page.evaluate(() => {
       const s = window.testSceneRef.current, gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
       return { level: s.world.outcome.level, turn: s.world.turn,
         vendor: gl.getParameter(gl.VENDOR), renderer: gl.getParameter(gl.RENDERER),
         unmaskedRenderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : null }
-    }))
+    })))
     // Clear ordinary selection through actual right click before supplying the trap.
     const canvas = page.locator('.world-viewport canvas').first()
-    await canvas.click({ button: 'right', position: { x: 400, y: 300 } })
-    const setup = await page.evaluate(() => {
+    await deadline.run(() => canvas.click({ button: 'right', position: { x: 400, y: 300 } }))
+    const setup = await deadline.run(() => page.evaluate(() => {
       const s = window.testSceneRef.current, w = s.world
       if (w !== window.testStore.getWorld() || w.paused || w.inputMask || w.mode || w.selected.length)
         throw Error('Playable unselected current world required')
@@ -86,29 +99,29 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
       w.effects.push(fx); s.focus(fx); s.onChange()
       window.__ownedSwampWitness = { scene: s, world: w, fx, oldSpeed, group: null }
       return { id: fx.id, cell, supplied: 'trap fields/nextId/speed0/focus; center h0', originalSpeed: oldSpeed }
-    })
+    }))
     stage('supplied-setup', setup)
-    await page.waitForFunction(() => {
+    await deadline.run(() => page.waitForFunction(() => {
       const h = window.__ownedSwampWitness
       const group = h.scene.fxMeshes.get(h.fx.id)
       if (!group || !group.children.every(c => !c.material?.map || c.material.map.image?.complete)) return false
       h.group = group; return true
-    })
+    }))
     const capture = async name => {
       const file = `owned-swamp-${name}.png`, path = resolve(output, file)
-      await page.screenshot({ path, timeout: 5000 })
+      await deadline.run(() => page.screenshot({ path, timeout: 5000 }))
       report.screenshots.push({ file, sha256: createHash('sha256').update(readFileSync(path)).digest('hex') }); save()
     }
-    const point = await page.evaluate(() => {
+    const point = await deadline.run(() => page.evaluate(() => {
       const h = window.__ownedSwampWitness, s = h.scene, p = s.screen(h.fx), r = s.renderer.domElement.getBoundingClientRect()
       const x = r.left + (p.x + 1) * r.width / 2, y = r.top + (1 - p.y) * r.height / 2
       if (document.elementFromPoint(x, y) !== s.renderer.domElement) throw Error('Trap point is not owned by canvas')
       const hit = s.pick({ clientX: x, clientY: y })
       if (!hit || Math.hypot(hit.x - h.fx.x, hit.z - h.fx.z) > 0.5) throw Error('Actual terrain pick misses supplied trap')
       return { x, y, hit }
-    })
-    assertLive(await page.evaluate(readWitness))
-    const pixels = await page.evaluate(() => {
+    }))
+    assertLive(await deadline.run(() => page.evaluate(readWitness)))
+    const pixels = await deadline.run(() => page.evaluate(() => {
       const h = window.__ownedSwampWitness, s = h.scene, gl = s.renderer.getContext()
       const read = () => {
         s.view.painter.render(s.renderer, s.scene, s.camera)
@@ -124,40 +137,46 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
       for (let i = 0; i < before.length; i += 4)
         if (before[i] !== hidden[i] || before[i + 1] !== hidden[i + 1] || before[i + 2] !== hidden[i + 2]) count++
       return count
-    })
+    }))
     stage('trap-pixel-contribution', { pixels, method: 'same-frame group visibility differential; no screenshot fabrication' })
     assert.ok(pixels > 20, 'Trap must visibly contribute actual renderer pixels')
     await capture('before')
     for (const modifiers of [[], ['Shift', 'Control'], ['Shift', 'Alt'], ['Shift', 'Meta']]) {
-      for (const modifier of modifiers) await page.keyboard.down(modifier)
-      try { await page.mouse.click(point.x, point.y, { button: 'right' }) }
-      finally { for (const modifier of [...modifiers].reverse()) await page.keyboard.up(modifier) }
-      const w = await page.evaluate(readWitness); assertLive(w); stage('live-control-' + (modifiers.join('-') || 'plain'), w)
+      for (const modifier of modifiers) await deadline.run(() => page.keyboard.down(modifier))
+      try { await deadline.run(() => page.mouse.click(point.x, point.y, { button: 'right' })) }
+      finally { for (const modifier of [...modifiers].reverse()) await deadline.run(() => page.keyboard.up(modifier)) }
+      const w = await deadline.run(() => page.evaluate(readWitness)); assertLive(w); stage('live-control-' + (modifiers.join('-') || 'plain'), w)
     }
-    await page.keyboard.down('Shift')
-    try { await page.mouse.click(point.x, point.y, { button: 'right' }) }
-    finally { await page.keyboard.up('Shift') }
-    const cancelled = await page.evaluate(readWitness); assertCancelled(cancelled); stage('immediate-cancellation', cancelled)
-    await page.evaluate(async () => {
+    await deadline.run(() => page.keyboard.down('Shift'))
+    try { await deadline.run(() => page.mouse.click(point.x, point.y, { button: 'right' })) }
+    finally { await deadline.run(() => page.keyboard.up('Shift')) }
+    const cancelled = await deadline.run(() => page.evaluate(readWitness)); assertCancelled(cancelled); stage('immediate-cancellation', cancelled)
+    await deadline.run(() => page.evaluate(async () => {
       const h = window.__ownedSwampWitness, { advanceGame } = await window.__pndOwnedSwampFixtureReady
       h.world.speed = 1
       try { advanceGame(h.world, h.scene.gameClock, 1 / 12) } finally { h.world.speed = 0 }
-    })
-    await page.waitForFunction(() => {
+    }))
+    await deadline.run(() => page.waitForFunction(() => {
       const h = window.__ownedSwampWitness
       return !h.world.effects.includes(h.fx) && !h.scene.fxMeshes.has(h.fx.id)
-    })
-    const retired = await page.evaluate(readWitness); assertRetired(retired); stage('logical-renderer-retirement', retired)
+    }))
+    const retired = await deadline.run(() => page.evaluate(readWitness)); assertRetired(retired); stage('logical-renderer-retirement', retired)
     await capture('after')
     assert.deepEqual(report.errors, [])
     assert.notEqual(report.timedOut, true)
     report.status = 'passed'
-  } catch (error) { failure = error; report.errors.push(String(error)); report.status = 'failed'; save() }
+  } catch (error) {
+    failure = error; report.timedOut = deadline.expired
+    report.errors.push(String(error)); report.status = 'failed'; save()
+  }
   finally {
-    clearTimeout(timer)
-    if (page && failure) {
-      try { await page.screenshot({ path: resolve(output, 'owned-swamp-failure.png'), timeout: 2000 }) }
+    ownershipClosed = true
+    deadline.dispose()
+    if (page && failure && !report.timedOut) {
+      const diagnostic = createDeadline(Math.min(deadlineAt - 5000, Date.now() + 2000))
+      try { await diagnostic.run(() => page.screenshot({ path: resolve(output, 'owned-swamp-failure.png'), timeout: 2000 })) }
       catch (e) { report.diagnosticError = String(e) }
+      finally { diagnostic.dispose() }
     }
     report.contextClosed = await closeBounded()
     if (!report.contextClosed || report.errors.length || report.timedOut) report.status = 'failed'
