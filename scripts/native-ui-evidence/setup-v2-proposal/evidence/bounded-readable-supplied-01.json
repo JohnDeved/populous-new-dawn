@@ -1,0 +1,45 @@
+{
+  "scope": "Supplied EventEmitter only; no actual readable pipe, owner teardown, worker lifecycle, metadata or kernel qualification.",
+  "before": {
+    "sourceRef": "d259849091008b8949b6ab4c2d47b0bd5a6a2878",
+    "hashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/bounded-stream-record.mjs": "072fca5dc61b884a886e32b55271f88e295d9bf619f412ff690adca61c448438",
+      "scripts/native-ui-evidence/setup-v2-proposal/bounded-readable-observer.mjs": "c546df8d87cfaf563ba5e751d01b33e8379f59f94fea056fed8784dc43bddc45",
+      "tests/bounded-readable-observer.test.mjs": "e045aaed3c219f21de57e4cbd8698f9835c1bb99fb439354489fb90700b0f71a"
+    },
+    "command": [
+      "/usr/bin/timeout",
+      "--kill-after=2s",
+      "15s",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=64",
+      "--test-isolation=none",
+      "--test",
+      "--test-concurrency=1",
+      "tests/bounded-readable-observer.test.mjs"
+    ],
+    "admission": "Root admitted after independent review; clear visible process preflight, MemAvailable9622580kB; serialized team lane confirmed. Supplied EventEmitter only."
+  },
+  "result": {
+    "exitCode": 0,
+    "elapsedSeconds": 0.1646117090003827,
+    "controllerIntervention": null,
+    "afterHashes": {
+      "scripts/native-ui-evidence/setup-v2-proposal/bounded-stream-record.mjs": "072fca5dc61b884a886e32b55271f88e295d9bf619f412ff690adca61c448438",
+      "scripts/native-ui-evidence/setup-v2-proposal/bounded-readable-observer.mjs": "c546df8d87cfaf563ba5e751d01b33e8379f59f94fea056fed8784dc43bddc45",
+      "tests/bounded-readable-observer.test.mjs": "e045aaed3c219f21de57e4cbd8698f9835c1bb99fb439354489fb90700b0f71a"
+    },
+    "stdout": {
+      "bytes": 1488,
+      "sha256": "a44f44f6d879d697d0bf1100d46ad119ac8a23a345d9a353cbe575528d1cece8"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "inputsUnchanged": true
+  },
+  "stdout": "\u2714 end alone does not settle completion; close does (6.376576ms)\n\u2714 premature close fails even though completion says closed (0.489615ms)\n\u2714 overflow notifies owner promptly and keeps draining bounded bytes (0.482715ms)\n\u2714 pending close timeout requires teardown and late close never clears it (5.961372ms)\n\u2714 original falsy stream failure survives timeout (4.738736ms)\n\u2714 late data and error remain observable until owner disposal (0.409695ms)\n\u2714 close checks elapsed time even before timer callback (3.814058ms)\n\u2714 duplicate events fail closed without replacing original error (0.415985ms)\n\u2714 owner releases failed attachment at error attached=false (0.691148ms)\n\u2714 owner releases failed attachment at error attached=true (0.504758ms)\n\u2714 owner releases failed attachment at end attached=false (0.404368ms)\n\u2714 owner releases failed attachment at end attached=true (0.442605ms)\n\u2714 owner releases failed attachment at close attached=false (0.288353ms)\n\u2714 owner releases failed attachment at close attached=true (0.321163ms)\n\u2714 owner releases failed attachment at data attached=false (0.341533ms)\n\u2714 owner releases failed attachment at data attached=true (0.219169ms)\n\u2714 synchronous end and close while attaching data does not leave a timer failure (16.080688ms)\n\u2714 failed listener removal remains explicit and retry preserves primary failure (5.891748ms)\n\u2139 tests 18\n\u2139 suites 0\n\u2139 pass 18\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 80.320396\n",
+  "stderr": "",
+  "runnerSource": "import pathlib,subprocess,hashlib,json,time,os,signal\nb=pathlib.Path(__file__).resolve().parent;o=b/'attempt-01';o.mkdir();(o/'home').mkdir();(o/'tmp').mkdir()\npaths=['scripts/native-ui-evidence/setup-v2-proposal/bounded-stream-record.mjs','scripts/native-ui-evidence/setup-v2-proposal/bounded-readable-observer.mjs','tests/bounded-readable-observer.test.mjs']\ndef hashes():return {p:hashlib.sha256((b/p).read_bytes()).hexdigest() for p in paths}\ncmd=['/usr/bin/timeout','--kill-after=2s','15s','/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node','--max-old-space-size=64','--test-isolation=none','--test','--test-concurrency=1',paths[2]]\nbefore={'sourceRef':'d259849091008b8949b6ab4c2d47b0bd5a6a2878','hashes':hashes(),'command':cmd,'admission':'Root admitted after independent review; clear visible process preflight, MemAvailable9622580kB; serialized team lane confirmed. Supplied EventEmitter only.'};(o/'before.json').write_text(json.dumps(before,indent=2));start=time.monotonic();intervention=None\nwith (o/'stdout').open('wb') as stdout,(o/'stderr').open('wb') as stderr:\n p=subprocess.Popen(cmd,cwd=b,env={'PATH':'/usr/bin:/bin','HOME':str(o/'home'),'TMPDIR':str(o/'tmp')},stdout=stdout,stderr=stderr,start_new_session=True)\n try:code=p.wait(timeout=20)\n except subprocess.TimeoutExpired:\n  intervention='controller SIGKILL';os.killpg(p.pid,signal.SIGKILL);code=p.wait(timeout=2)\nr={'exitCode':code,'elapsedSeconds':time.monotonic()-start,'controllerIntervention':intervention,'afterHashes':hashes()}\nfor n in ['stdout','stderr']:\n data=(o/n).read_bytes();r[n]={'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}\nr['inputsUnchanged']=r['afterHashes']==before['hashes'];(o/'result.json').write_text(json.dumps(r,indent=2));print(json.dumps(r));print((o/'stdout').read_text());print((o/'stderr').read_text())\n"
+}
