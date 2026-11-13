@@ -10,3 +10,9 @@ Continuation of guard-post-preview-lifecycle.md at a2c8b01e66e48b0a3afba22b86c6b
 
 ## Exact remaining gate
 Generated004ba5d0.c and00503080.c return404. Code search finds callsites, not the former body. Recover these bodies/bytes before asserting exit cleanup or specialized post removal/save effects. Existing renderer, input and save lifecycle cannot safely be replaced from this partial trace. No gameplay changes, tests, browser or performance claim.
+
+## Ordinary footprint interaction (daily continuity follow-up)
+
+Verified against main 532cd9efb13acf0a36f2b9774c8892b18f918be6. In decomp/generated/004b9190.c (blob a2cecfad1c1038b74f63bec519a2b525253b9e78), mode0 visits shape-footprint cells whose shape byte has bit1. After earlier validity checks, it traverses the terrain-cell unit chain; class10/model16 marks land_flags_1 bit0x200000, cell flags bit0x100 and tribe field0x93d bit0x20000000, then stops scanning that cell. There is no preview-pointer exclusion in this specific loop. This is bounded source evidence that ordinary footprint validity treats such objects as obstruction, not proof of the missing Guard Post placement predicate or lifecycle.
+
+004b8f50.c (blob ec73ee3892590b03cfbe10e0dccacccb8f6645f2) routes menu model17 away from the ordinary 004b9190 preview path and into 004b98f0 plus its separate preview object. Therefore reusing the ordinary building-footprint validator for Guard Posts would contradict this branch distinction. The specialized validator, preview exit cleanup, committed removal and save semantics remain unresolved. No implementation or tests performed.
