@@ -83,19 +83,33 @@ export default async function comingSoon({ page, context, url, output, receipt }
   checks.push('Uniform 4:3 resize and keyboard sound control preserve media/menu ownership')
 
   const errorsBefore = receipt.errors.length
-  await context.route('**/original/coming-soon/trailer.webm', route => route.fulfill({ status: 404, body: '' }))
-  await row.click()
-  await trailer.getByText('The original trailer could not be played. You can return to the menu.', { exact: true }).waitFor()
-  await screenshot('trailer-injected-media-failure')
-  await trailer.getByRole('button', { name: 'Skip trailer', exact: true }).click()
-  await returned()
-  await context.unroute('**/original/coming-soon/trailer.webm')
+  const failMedia = route => route.fulfill({ status: 404, body: '' })
+  await context.route('**/original/coming-soon/trailer.webm', failMedia)
+  const mediaFailures = []
+  try {
+    await row.click()
+    await trailer.getByText('The original trailer could not be played. You can return to the menu.', { exact: true }).waitFor()
+    await screenshot('trailer-injected-media-failure')
+    await trailer.getByRole('button', { name: 'Skip trailer', exact: true }).click()
+    await returned()
+  } catch (error) {
+    mediaFailures.push(error)
+  } finally {
+    try {
+      await context.unroute('**/original/coming-soon/trailer.webm', failMedia)
+    } catch (error) {
+      mediaFailures.push(error)
+    }
+    if (mediaFailures.length === 1) throw mediaFailures[0]
+    if (mediaFailures.length > 1) throw new AggregateError(mediaFailures, 'Coming Soon media failure scenario and cleanup failed')
+  }
   const expectedFailureErrors = receipt.errors.slice(errorsBefore)
   assert.ok(expectedFailureErrors.every(error => /404/.test(error)))
   assert.equal(errorsBefore, 0)
   checks.push('Labelled 404 failure remains truthful and exit-capable')
   for (const key of ['Enter', 'Space']) {
     let receiveRequest, pendingRequest, keyHeld = false
+    const failures = []
     const request = new Promise(resolve => { receiveRequest = resolve })
     const failWhileHeld = route => receiveRequest(route)
     await context.route('**/original/coming-soon/trailer.webm', failWhileHeld)
@@ -122,10 +136,19 @@ export default async function comingSoon({ page, context, url, output, receipt }
       const heldErrors = receipt.errors.slice(heldErrorsBefore)
       assert.ok(heldErrors.every(error => /404/.test(error)))
       expectedFailureErrors.push(...heldErrors)
+    } catch (error) {
+      failures.push(error)
     } finally {
-      if (keyHeld) await page.keyboard.up(key)
-      if (pendingRequest) await pendingRequest.abort()
-      await context.unroute('**/original/coming-soon/trailer.webm', failWhileHeld)
+      // Attempt every release even if an earlier cleanup rejects.
+      for (const cleanup of [
+        async () => { if (keyHeld) await page.keyboard.up(key) },
+        async () => { if (pendingRequest) await pendingRequest.abort() },
+        () => context.unroute('**/original/coming-soon/trailer.webm', failWhileHeld),
+      ]) {
+        try { await cleanup() } catch (error) { failures.push(error) }
+      }
+      if (failures.length === 1) throw failures[0]
+      if (failures.length > 1) throw new AggregateError(failures, 'Coming Soon scenario and cleanup failed')
     }
   }
   checks.push('Labelled 404 while Enter/Space is held retains release focus and returns once after explicit Skip')
@@ -136,3 +159,4 @@ export default async function comingSoon({ page, context, url, output, receipt }
   writeFileSync(resolve(output, 'coming-soon.json'), JSON.stringify(result, null, 2))
   return result
 }
+
