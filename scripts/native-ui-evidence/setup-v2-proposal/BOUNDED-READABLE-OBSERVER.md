@@ -1,6 +1,6 @@
 # Inactive readable observation adapter
 
-Eighteen supplied EventEmitter tests are authored and unrun. The adapter uses the accepted bounded recorder; it attaches listeners only, with no child launch, signal, stream destruction, filesystem access or runtime admission. It is not wired into any active runner.
+Independent source and result reviews accepted eighteen supplied EventEmitter tests: 18/18 passed, exit 0 in 0.164612 seconds, three input hashes unchanged and no controller intervention. Evidence is preserved at d840f17dd65b1e51da190dabf73f6f333ab3bf83 in evidence/bounded-readable-supplied-01.json. This is not actual pipe or owner-teardown qualification. The adapter uses the accepted bounded recorder; it attaches listeners only, with no child launch, signal, stream destruction, filesystem access or runtime admission. It is not wired into any active runner.
 
 Attach to an owned, not-yet-flowing binary readable before its lifecycle starts. Error/end/close listeners are attached before data. No setEncoding strings are supported. A caller must enforce this ownership/startup contract; the adapter does not infer past events or validate native stream provenance. Custom synchronous event methods and clocks are trusted supplied boundaries, not sandboxed code.
 
