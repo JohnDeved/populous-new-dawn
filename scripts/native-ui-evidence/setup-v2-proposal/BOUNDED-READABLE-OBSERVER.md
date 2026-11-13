@@ -1,6 +1,6 @@
 # Inactive readable observation adapter
 
-Eight supplied EventEmitter tests are authored and unrun. The adapter uses the accepted bounded recorder; it attaches listeners only, with no child launch, signal, stream destruction, filesystem access or runtime admission. It is not wired into any active runner.
+Eighteen supplied EventEmitter tests are authored and unrun. The adapter uses the accepted bounded recorder; it attaches listeners only, with no child launch, signal, stream destruction, filesystem access or runtime admission. It is not wired into any active runner.
 
 Attach to an owned, not-yet-flowing binary readable before its lifecycle starts. Error/end/close listeners are attached before data. No setEncoding strings are supported. A caller must enforce this ownership/startup contract; the adapter does not infer past events or validate native stream provenance. Custom synchronous event methods and clocks are trusted supplied boundaries, not sandboxed code.
 
@@ -13,3 +13,8 @@ disposeAfterClose refuses to detach before close. At the final owned lifecycle b
 The local allowance is 1..5000 ms. A close checks monotonic elapsed time as well as the timer, so a delayed timer cannot make an overdue close succeed. An external owner still must bound setup/attachment and all cleanup/receipt I/O. This adapter is not the missing whole-invocation owner and does not satisfy runtime-manifest, actual-FD metadata or kernel-retry gates.
 
 Review requirements before execution: exact source plus recorder closure, supplied error/overflow/timeout/late-event semantics and owner-release contract. Supplied tests cannot establish real Node pipe draining or process lifecycle readiness. No actual stream exercise is authorized by this source proposal.
+
+## Failed setup ownership
+A supplied on() may install a listener and then throw. The adapter marks setupFailed, preserves the original failure, retires, and does not pretend it can observe close if the close listener never installed. It retains its error listener while the owner handles teardown. Only after the external owner has independently finished teardown or taken over all future event/error ownership may it call disposeAfterOwnerTeardown(). This is an explicit trusted owner assertion, not observed cleanup evidence: ownerReleased records it, while closed is unchanged and sticky teardownRequired/status failed never become success. The method is available only for retired observations.
+
+Both disposal paths attempt removal of every private listener, including possibly installed listeners from a throwing on(). They preserve earlier errors, return false if any off() throws, and leave detached false so the owner can handle unresolved release or retry after fixing that boundary. Do not interpret ownerReleased as verified removal; detached is separate. The adapter never removes the owner's own error handler. Tests model such a handler during failed attachment. Actual owner teardown remains unimplemented and unqualified.
