@@ -1,0 +1,16 @@
+test_absence_appears_at_final_recheck (test_policy_observer.ObserverTests.test_absence_appears_at_final_recheck) ... ok
+test_aggregate_cap (test_policy_observer.ObserverTests.test_aggregate_cap) ... ok
+test_change_during_read_rejected (test_policy_observer.ObserverTests.test_change_during_read_rejected) ... ok
+test_file_cap (test_policy_observer.ObserverTests.test_file_cap) ... ok
+test_owned_descriptors_closed_after_failure (test_policy_observer.ObserverTests.test_owned_descriptors_closed_after_failure) ... ok
+test_permission_error_not_absence (test_policy_observer.ObserverTests.test_permission_error_not_absence) ... ok
+test_regular_and_absent (test_policy_observer.ObserverTests.test_regular_and_absent) ... ok
+test_reject_bad_names_and_identity (test_policy_observer.ObserverTests.test_reject_bad_names_and_identity) ... ok
+test_reject_directory_fifo (test_policy_observer.ObserverTests.test_reject_directory_fifo) ... ok
+test_reject_hardlink (test_policy_observer.ObserverTests.test_reject_hardlink) ... ok
+test_reject_symlink_and_dangling_symlink (test_policy_observer.ObserverTests.test_reject_symlink_and_dangling_symlink) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.003s
+
+OK
