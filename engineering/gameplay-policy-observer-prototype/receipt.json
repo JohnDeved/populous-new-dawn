@@ -1,0 +1,35 @@
+{
+  "at": "2026-11-13T00:11:22.381244+00:00",
+  "command": [
+    "timeout",
+    "--kill-after=2s",
+    "15s",
+    "python",
+    "-B",
+    "-m",
+    "unittest",
+    "-v",
+    "test_policy_observer"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.13307304399950226,
+  "before": {
+    "policy_observer.py": "62f36bc0e736e5a01ce688ea67e096458ade92e0fbc79a86ca71320957675613",
+    "test_policy_observer.py": "6592b0f2becad40cfd2f5eb661e78a0568429db739ffdd7abd199a65e3d65529"
+  },
+  "after": {
+    "policy_observer.py": "62f36bc0e736e5a01ce688ea67e096458ade92e0fbc79a86ca71320957675613",
+    "test_policy_observer.py": "6592b0f2becad40cfd2f5eb661e78a0568429db739ffdd7abd199a65e3d65529"
+  },
+  "scope": "Fresh private temporary fixture directory FD only; no real candidate/profile access or pathname alias proof",
+  "streams": {
+    "stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stderr.log": {
+      "bytes": 1243,
+      "sha256": "7b38c74c59e8d58a150ef5acd20ce24c593b57d393959cae8765861b63e0b691"
+    }
+  }
+}
