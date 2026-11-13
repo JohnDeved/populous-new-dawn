@@ -1,0 +1,44 @@
+✔ body -1/undefined cleanup false (2.945043ms)
+✔ body -1/undefined cleanup true (0.356537ms)
+✔ body -1/false cleanup false (0.260823ms)
+✔ body -1/false cleanup true (0.247863ms)
+✔ body -1/Error: body cleanup false (0.58512ms)
+✔ body -1/Error: body cleanup true (0.293762ms)
+✔ body 0/undefined cleanup false (0.553132ms)
+✔ body 0/undefined cleanup true (1.445666ms)
+✔ body 0/false cleanup false (0.293892ms)
+✔ body 0/false cleanup true (0.237537ms)
+✔ body 0/Error: body cleanup false (0.18581ms)
+✔ body 0/Error: body cleanup true (0.082134ms)
+✔ body 1/undefined cleanup false (0.216405ms)
+✔ body 1/undefined cleanup true (0.158128ms)
+✔ body 1/false cleanup false (0.170476ms)
+✔ body 1/false cleanup true (0.157186ms)
+✔ body 1/Error: body cleanup false (0.124918ms)
+✔ body 1/Error: body cleanup true (0.147973ms)
+✔ body 2/undefined cleanup false (0.134512ms)
+✔ body 2/undefined cleanup true (0.165058ms)
+✔ body 2/false cleanup false (0.147432ms)
+✔ body 2/false cleanup true (0.262305ms)
+✔ body 2/Error: body cleanup false (0.247202ms)
+✔ body 2/Error: body cleanup true (0.290537ms)
+✔ body 3/undefined cleanup false (0.241714ms)
+✔ body 3/undefined cleanup true (0.226201ms)
+✔ body 3/false cleanup false (0.163897ms)
+✔ body 3/false cleanup true (0.221353ms)
+✔ body 3/Error: body cleanup false (0.504519ms)
+✔ body 3/Error: body cleanup true (0.257748ms)
+✔ body 4/undefined cleanup false (0.189015ms)
+✔ body 4/undefined cleanup true (0.178358ms)
+✔ body 4/false cleanup false (0.304027ms)
+✔ body 4/false cleanup true (0.144137ms)
+✔ body 4/Error: body cleanup false (0.132109ms)
+✔ body 4/Error: body cleanup true (0.339581ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 164.117803
