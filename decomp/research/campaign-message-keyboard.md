@@ -57,9 +57,12 @@ The other `004af440` callers are `0041be57`, `0041bf60`, `00431400`, `0044a05b`,
 - calls `00431bb0(slot)` when `0089bb86 != 0xff`. The message stays in the strip. If
   its flags hold `0x400|0x20`, it calls `00417ca0` with the message cell (inferred camera move).
   If they hold `0x1` and `0x200`, it sets `0x8|0x2`;
-- calls `00479f00(10, tribe, 0)` and `004af1c0(0x10)`. That clears pause reason `0x10`.
-  When no other reason remains, it also clears `0x10000000`, the DirectInput buffer and
-  the key arrays;
+- calls `00479f00(10, tribe, 0)` and `004af1c0(0x10)`. On this Enter path `004a9d90` has
+  set `005cdb78 = 1`, so `004af1c0` only defers the release: `level_flags_1 |= 0x04000000`
+  and `0089c6b5 |= 0x10`. The input frame then runs the deferred call (`004aa6b6`: on
+  `level_flags_1 & 0x04000000` it calls `004af1c0(0089c6b5)`). That clears pause reason
+  `0x10`. When no other reason remains, it also clears `0x10000000`, the DirectInput buffer
+  and the key arrays;
 - sets `0089bb81 = 4` (closing animation) when `0089bb87` is set.
 
 Because `004a9d90` returns after `process_cmd(0xb0)`, the same press never reaches the
@@ -74,8 +77,9 @@ open. That gate was added in `8589d16b3` so that Escape could not open the Game 
 over a message. It matched the original for every key except Enter, which the browser
 swallowed instead of closing the box. Now a fresh Enter press (keypad included;
 Shift/Ctrl/Alt ignored; Meta left to the browser) closes every open message and is
-consumed. The ready, menu, cheats, `input`/`dialog` and replaced-world gates still come
-first, and a focused summary or dismiss button keeps its native Enter activation.
+consumed. The ready, menu, cheats and `input`/`dialog` gates still come first. Any focused
+`button` or `summary` keeps its native Enter activation. The effect is re-registered for
+each `world`.
 Closing by Enter does not dismiss the message and does not move the camera, the same
 as collapsing through the summary.
 
@@ -89,5 +93,10 @@ as collapsing through the summary.
 - **Camera on close.** For `0x400|0x20` messages the original calls `00417ca0` (inferred camera
   move) when the box closes (`00431bb0`). The browser focuses positioned messages on a user
   open, as documented in the [presentation note](campaign-message-presentation.md).
+- **Flags on close.** On close, `00431bb0` sets `0x8|0x2` on `0x1&0x200` messages. No
+  browser close path does this.
+- **Focused summary.** After a click collapses a message, its summary keeps focus. If
+  another message then auto-opens, Enter activates the focused summary and reopens the
+  old message instead of closing the new one. The original has no focusable controls.
 
 Evidence type: static disassembly. This is not an original-game execution witness.

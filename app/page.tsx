@@ -611,7 +611,7 @@ export default function Home() {
       // Native 004af440 puts the message box in state 0089bb81 = 2/3. While it is
       // shown, 004a9d90 drops every key except an Enter/keypad-Enter press (any
       // modifiers), which reaches process_cmd 0xb0 and closes the box without
-      // leaving World View. Focused summary/dismiss buttons keep their own Enter.
+      // leaving World View. Any focused button/summary keeps its own Enter activation.
       const openMessages = [...messageDetails.current.values()].filter(details => details.open)
       if (openMessages.length) {
         if (
