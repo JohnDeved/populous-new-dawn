@@ -128,7 +128,8 @@ test('cached effect frame retains pose, HFX UV/visibility/opacity and original f
     hit.x = -3
     hit.z = 5
     hit.height = 2
-    hit.age = 2 / 12
+    // Hit flashes carry effect-61 counters (#214): the frame follows f1, not age.
+    hit.animation.f1 = 8
     birth.animation.f1 = 8
     group.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
     group.userData.nativeHeading = 512
@@ -150,11 +151,13 @@ test('cached effect frame retains pose, HFX UV/visibility/opacity and original f
     assertFrame(fixture, world)
     assert.equal(birthSprite.visible, false)
     birth.animation.object = nativeEffects.animations.birth[0].source
+    hit.animation.f1 = 20
     hit.age = 0.45
     assertFrame(fixture, world)
     assert.equal(birthSprite.visible, true)
     assertSprite(sprite, nativeEffects.animations.hit[5])
-    assert.ok(Math.abs(sprite.material.opacity - 0.25) < 1e-12)
+    // Counter-owned sprites stay opaque, like the existing order-marker flash.
+    assert.equal(sprite.material.opacity, 1)
     hit.kind = 'death'
     assertFrame(fixture, world)
     assert.equal(fixture.scene.fxMeshes.get(hit.id), group)

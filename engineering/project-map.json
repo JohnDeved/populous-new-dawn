@@ -748,7 +748,9 @@
         "scripts/animation-cadence-audit.mjs",
         "scripts/animation-cadence-families.json",
         "tests/animation-cadence-audit.test.mjs",
-        "tests/unit-fallback-cadence.test.mjs"
+        "tests/unit-fallback-cadence.test.mjs",
+        "tests/animation-cadence-effects.test.mjs",
+        "scripts/import-armageddon-sparkle.py"
       ],
       "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/object-panels.ts", "app/building-panels.ts", "app/scene-secondary-effects.ts", "app/page.tsx"],
       "entrySymbols": [

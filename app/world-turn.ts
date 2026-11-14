@@ -106,6 +106,7 @@ import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.t
 import {
   sound,
   effect,
+  animateEffectSprite,
   createGift,
   createAngel,
   shotVisual,
@@ -667,7 +668,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       }
       if (event.expired) {
         sound(w, 0xb2, fx)
-        effect(w, 'death', fx)
+        // Non-unit death smoke: HFX1224 is set only by effect 66 (0x509c10 case 65), draw 44.
+        animateEffectSprite(effect(w, 'death', fx), 44, 1224)
         fx.duration = fx.age
       }
     }
@@ -702,8 +704,13 @@ function stepTurn(w: World, metrics?: { steps: number }) {
           return orbit.id
         },
         sparkle: position => {
-          const sparkle = effect(w, 'trail', browserPosition(position))
-          sparkle.sprite = { sequence: 'sparkle', frame: 6 }
+          // 0x512700 allocates effect 61: draw 46/HFX1294, as the level-start wave.
+          const sparkle = animateEffectSprite(
+            effect(w, 'trail', browserPosition(position)),
+            46,
+            1294
+          )
+          sparkle.sprite = { sequence: 'hit', frame: 0 }
           sparkle.height = position.h / 45
           sparkle.duration = 6 / TURNS_PER_SECOND
         },
@@ -1858,7 +1865,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       w.campaignAIs[tribeForTeam(b.team)]?.defenceRadius ?? 11,
       true
     )
-    if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
+    if (!b.terrainState?.reason && !b.dismantled)
+      animateEffectSprite(effect(w, 'death', b), 44, 1224)
   }
   // Native person epilogue decrements the arrival-voice cooldown after its state body.
   for (const u of w.units) {

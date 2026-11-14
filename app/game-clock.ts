@@ -10,6 +10,12 @@ export interface GameClock extends TurnObserver {
   animationFrame: number
   worshipVisit?: () => void
   presentationHidden?: () => boolean
+  // One original draw-loop iteration (main_3 0x4a4450 -> draw_main). The
+  // original keeps drawing while paused (land_flags_1 & 2); only 0x4ee770's
+  // sprite animation stops. Running visits coincide with the 24 Hz presentation
+  // visit; paused visits continue at the same adapter rate of elapsed time.
+  drawVisit?: () => void
+  pausedDrawTime?: number
 }
 
 interface TurnPhase {
@@ -66,7 +72,7 @@ export function advanceGame(
 ) {
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid elapsed game time')
   const presentation = clock.worshipVisit && !clock.presentationHidden?.()
-  if (w.paused && !presentation) return
+  if (w.paused && !presentation && !clock.drawVisit) return
   const interval = 1 / 24,
     phase = turnPhase(clock)
   while (seconds > 0) {
@@ -77,11 +83,14 @@ export function advanceGame(
         active && w.speed > 0
           ? Math.max(0, (1 / TURNS_PER_SECOND - w.pendingTime) / w.speed)
           : Infinity,
+      untilDraw =
+        !active && clock.drawVisit ? Math.max(0, interval - (clock.pausedDrawTime ?? 0)) : Infinity,
       elapsed = Math.min(
         seconds,
         active ? interval - clock.animationTime : Infinity,
         untilUi,
-        untilTurn
+        untilTurn,
+        untilDraw
       )
     const previousTurn = w.turn
     try {
@@ -108,6 +117,15 @@ export function advanceGame(
       stepMessages(w.messages, () => sound(w, 0xe4, HOME))
       clock.animationFrame++
       w.secondaryEffects.animationFrame++
+      clock.drawVisit?.()
+    }
+    if (active) clock.pausedDrawTime = 0
+    else if (clock.drawVisit) {
+      clock.pausedDrawTime = (clock.pausedDrawTime ?? 0) + elapsed
+      if (clock.pausedDrawTime + 1e-9 >= interval) {
+        clock.pausedDrawTime = 0
+        clock.drawVisit()
+      }
     }
     if (presentation && ui.elapsed + 1e-7 >= ui.nextVisit) {
       const preLimiter = ui.limiter

@@ -281,17 +281,26 @@
       "id": "lightning-branches",
       "group": "spells",
       "family": "Lightning bolt branch jitter",
-      "browserRule": "lightningLines re-rolled on every rendered RAF frame (60 fps at a 60 Hz display; refresh dependent), consuming cosmetic RNG",
-      "browserFps": 60,
-      "nativeRule": "0x475350 re-rolls per drawn frame, i.e. once per native draw iteration (presentation visit under the adapter)",
+      "browserRule": "lightningDrawVisit rolls one shape per visible segment on each GameClock.drawVisit (the 24 Hz presentation visit; 24 Hz of elapsed time while paused); rendering only places shapes",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "0x475350 via draw-polygons case 19 (0x46b16a), once per drawn segment per draw-loop iteration (main_3 0x4a4450 -> draw_main -> draw_land); the loop keeps drawing while paused",
       "nativePerVisit": 1,
       "nativeVisits": "presentation",
-      "nativeEvidence": "app/lightning.ts 0x475350 note",
-      "note": "Bolt lives 3 turns (0.25 s). Cosmetic RNG consumption also becomes refresh dependent.",
+      "nativeEvidence": "decomp/research/animation-cadence.md#lightning-draw-visits",
+      "note": "Bolt lives 3 turns (0.25 s). Cosmetic RNG use now follows draw visits, not display refresh. Paused draws continue at the adapter rate; modal pause menus suspend presentation entirely.",
       "anchors": [
         {
           "file": "app/scene-effects.ts",
-          "pattern": "lightningLines\\(from\\.x, from\\.y, to\\.x, to\\.y, scene\\.world\\.cosmeticRandom\\)"
+          "pattern": ": rollLightningBranches\\(scene\\.world\\.cosmeticRandom\\)"
+        },
+        {
+          "file": "app/game-clock.ts",
+          "pattern": "clock\\.drawVisit\\?\\.\\(\\)"
+        },
+        {
+          "file": "app/scene.ts",
+          "pattern": "drawVisit: \\(\\) => lightningDrawVisit\\(this\\)"
         }
       ]
     },
@@ -307,24 +316,6 @@
         {
           "file": "app/scene-input-runtime.ts",
           "pattern": "now \\* 12"
-        }
-      ]
-    },
-    {
-      "id": "armageddon-arrival-sparkle",
-      "group": "spells",
-      "family": "Armageddon arrival sparkle (draw 44 / HFX1401)",
-      "browserRule": "1401 lies outside the sparkle sequence (1288..1303); index clamps to frame 15, frozen",
-      "browserFps": 0,
-      "nativeRule": "draw 44 mode 1 step 4 hold 16 on presentation visits (setters 004d4c5e/004d4d77/004dfb94, no 0x40000)",
-      "nativePerVisit": 1,
-      "nativeVisits": "presentation",
-      "nativeEvidence": "decomp/research/animation-cadence/native-setters.json",
-      "note": "Artwork/sequence gap rather than a rate defect.",
-      "anchors": [
-        {
-          "file": "app/live-people.ts",
-          "pattern": "visual\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}"
         }
       ]
     },
@@ -448,28 +439,34 @@
     {
       "sequence": "hit",
       "id": "combat-hit",
-      "family": "combat hit flash (effect 'hit', no counters)",
-      "browserRule": "(sprite.frame) + floor(age x 12), game time; age accumulates 1/12 per turn",
-      "browserFps": 12,
-      "note": "Summed 1/12 ages floor one frame short at some turns (e.g. 6), skipping a frame.",
+      "family": "combat hit flash (effect 61 counters)",
+      "browserRule": "effect() gives kind hit draw 46/HFX1294 counters on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
       "anchors": [
         {
-          "file": "app/scene-effects.ts",
-          "pattern": "Math\\.floor\\(f\\.age \\* 12\\)"
+          "file": "app/world-effects.ts",
+          "pattern": "if \\(kind === 'hit'\\) animateEffectSprite\\(f, 46, 1294\\)"
         }
       ]
     },
     {
       "sequence": "sparkle",
       "id": "spell-sparkle",
-      "family": "spell sparkle (Shield/Invisibility/Bloodlust/Teleport/Convert/Flatten, no counters)",
-      "browserRule": "(sprite.frame) + floor(age x 12), game time",
-      "browserFps": 12,
+      "family": "spell sparkle (Shield/Invisibility/Bloodlust/Teleport/Convert, effect 60 counters)",
+      "browserRule": "animateEffectSprite draw 44/HFX1288 counters on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
       "nativeDraw": 44,
+      "note": "Browser cast visuals; the artwork is effect 60, whose rule they now follow.",
       "anchors": [
         {
           "file": "app/spell-effects-runtime.ts",
-          "pattern": "fx\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}"
+          "pattern": "animateEffectSprite\\(fx, 44, 1288\\)\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}"
+        },
+        {
+          "file": "app/spell-effects-runtime.ts",
+          "pattern": "animateEffectSprite\\(effect\\(w, 'trail', fx\\), 44, 1288\\)"
         }
       ]
     },
@@ -489,15 +486,47 @@
       ]
     },
     {
-      "sequence": "smoke",
-      "id": "death-smoke",
-      "family": "non-unit death smoke (no counters)",
-      "browserRule": "floor(age x 12), game time",
-      "browserFps": 12,
+      "sequence": "hit",
+      "id": "flatten-sparkle",
+      "family": "Flatten sparkle (effect 61 counters)",
+      "browserRule": "animateEffectSprite draw 46/HFX1294 counters on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "note": "Formerly sparkle frames 6-11 at floor(age x 12); 0x512700 allocates effect 61.",
       "anchors": [
         {
-          "file": "app/scene-effects.ts",
-          "pattern": "Math\\.floor\\(f\\.age \\* 12\\)"
+          "file": "app/world-turn.ts",
+          "pattern": "animateEffectSprite\\(\\s*effect\\(w, 'trail', browserPosition\\(position\\)\\),\\s*46,\\s*1294\\s*\\)"
+        }
+      ]
+    },
+    {
+      "sequence": "armageddonSparkle",
+      "id": "armageddon-arrival",
+      "family": "Armageddon arrival sparkle (draw 44 / HFX1401-1416)",
+      "browserRule": "imported armageddonSparkle sequence with draw 44 counters on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeEvidence": "decomp/research/animation-cadence/native-setters.json (004d4c5e/004d4d77/004dfb94)",
+      "note": "Formerly frozen: 1401 lay outside the sparkle sequence. Tribe effect palette remains unrendered.",
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "visual\\.sprite = \\{ sequence: 'armageddonSparkle', frame: 0 \\}"
+        }
+      ]
+    },
+    {
+      "sequence": "smoke",
+      "id": "death-smoke",
+      "family": "non-unit death smoke (effect 66 counters)",
+      "browserRule": "animateEffectSprite draw 44/HFX1224 counters on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "anchors": [
+        {
+          "file": "app/world-turn.ts",
+          "pattern": "animateEffectSprite\\(effect\\(w, 'death', b\\), 44, 1224\\)"
         }
       ]
     },

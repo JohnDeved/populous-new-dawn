@@ -17,7 +17,13 @@ import {
   type Gift,
 } from './model'
 import { scaledEffectSize, spriteCoordinate } from './projection.ts'
-import { lightningLines, lineQuad, type Lightning } from './lightning.ts'
+import {
+  lineQuad,
+  placeLightningBranches,
+  rollLightningBranches,
+  type Lightning,
+  type LightningBranch,
+} from './lightning.ts'
 import { spellHalo, haloBucket } from './spell-halo.ts'
 import nativeUnits from './original-units.json'
 import nativeEffects from './original-effects.json'
@@ -445,6 +451,47 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
   }
 }
 
+// Branch shapes from the latest native draw visit, per bolt segment (null when
+// that segment was culled). Presentation only; never stored in World/checkpoints.
+const lightningBranches = new WeakMap<Lightning, (readonly LightningBranch[] | null)[]>()
+
+function lightningScreen(scene: GameScene, p: { x: number; y: number; h: number }) {
+  const point = browserPosition(p),
+    q = scene.view.project(point, p.h / 45)
+  let x = q.screenX,
+    y = q.screenY
+  if (scene.overviewActive) {
+    const clip = scene.view.screen(new THREE.Vector3(point.x, p.h / 128, point.z), scene.camera)
+    x = ((clip.x + 1) * scene.container.clientWidth) / 2
+    y = ((1 - clip.y) * scene.container.clientHeight) / 2
+  }
+  return { x: (Math.trunc(x) << 16) >> 16, y: (Math.trunc(y) << 16) >> 16, flags: q.flags }
+}
+
+const lightningCulled = (scene: GameScene, from: { flags: number }) =>
+  !scene.overviewActive && from.flags >>> 0 > 0x80000000
+
+// One original draw-loop iteration (GameClock.drawVisit). Draw-polygons case 19
+// (0x46b16a) calls 0x475350 once per drawn segment, so each visible segment rolls
+// one new branch shape from the cosmetic RNG. The clock supplies these visits at
+// the 24 Hz presentation adapter, including during ordinary pause: the original
+// draw loop keeps drawing then, while only 0x4ee770's sprite animation honors
+// pause. Display refresh rate no longer changes shape cadence or RNG consumption.
+export function lightningDrawVisit(scene: GameScene) {
+  for (const f of scene.world.effects) {
+    const b = f.lightning
+    if (!b?.segments.length) continue
+    lightningBranches.set(
+      b,
+      b.segments.map(segment =>
+        lightningCulled(scene, lightningScreen(scene, segment.from))
+          ? null
+          : rollLightningBranches(scene.world.cosmeticRandom)
+      )
+    )
+  }
+}
+
 export function animateLightning(scene: GameScene, mesh: THREE.Mesh, b: Lightning) {
   mesh.visible = !!b.segments.length
   if (!mesh.visible) return
@@ -452,24 +499,21 @@ export function animateLightning(scene: GameScene, mesh: THREE.Mesh, b: Lightnin
     uv: number[] = [],
     opacity: number[] = [],
     width = scene.container.clientWidth,
-    height = scene.container.clientHeight
-  const screen = (p: { x: number; y: number; h: number }) => {
-    const point = browserPosition(p),
-      q = scene.view.project(point, p.h / 45)
-    let x = q.screenX,
-      y = q.screenY
-    if (scene.overviewActive) {
-      const clip = scene.view.screen(new THREE.Vector3(point.x, p.h / 128, point.z), scene.camera)
-      x = ((clip.x + 1) * width) / 2
-      y = ((1 - clip.y) * height) / 2
-    }
-    return { x: (Math.trunc(x) << 16) >> 16, y: (Math.trunc(y) << 16) >> 16, flags: q.flags }
-  }
-  for (const segment of b.segments) {
-    const from = screen(segment.from),
-      to = screen(segment.to)
-    if (!scene.overviewActive && from.flags >>> 0 > 0x80000000) continue
-    for (const line of lightningLines(from.x, from.y, to.x, to.y, scene.world.cosmeticRandom)) {
+    height = scene.container.clientHeight,
+    branches = lightningBranches.get(b)
+  for (const [index, segment] of b.segments.entries()) {
+    const from = lightningScreen(scene, segment.from),
+      to = lightningScreen(scene, segment.to)
+    if (lightningCulled(scene, from)) continue
+    // Rendering only places the latest visit's shapes and never consumes RNG.
+    // Before a segment's first draw visit only its parent line is available.
+    for (const line of placeLightningBranches(
+      from.x,
+      from.y,
+      to.x,
+      to.y,
+      branches?.[index] ?? []
+    )) {
       const q = lineQuad(line)
       for (const i of [0, 1, 2, 0, 2, 3]) {
         positions.push((q[i * 2] * 2) / width - 1, 1 - (q[i * 2 + 1] * 2) / height, 0)
