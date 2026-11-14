@@ -63,7 +63,9 @@ only; no original input).
   - table Enter → `0x9c`
 
   The modal paths in `004a9d90` (for example the `0089bb81` dialog states) bypass this
-  table; their Enter handling is separate.
+  table; their Enter handling is separate. The campaign message box uses those states
+  (2/3). Only an Enter press passes, and it closes the box; see
+  [campaign-message-keyboard.md](../campaign-message-keyboard.md).
 
 ## Original bindings that answer open browser issues
 
