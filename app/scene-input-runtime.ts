@@ -461,21 +461,19 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   if (scene.world.mode) {
     const mode = scene.world.mode
     const spell = SPELLS.some(s => s.id === mode)
-    // Placement bindings use the release modifiers, with Ctrl and Alt as alternatives.
-    if (!spell && (event.shiftKey || (event.ctrlKey && event.altKey))) return
+    // Release modifiers select exact records: placement 0x77 / Ctrl or Alt 0x78
+    // retains; spell targeting 0x6a / Ctrl 0x6b retains. Other masks dispatch neither.
+    if (event.shiftKey || (event.ctrlKey && event.altKey) || (spell && event.altKey)) return
+    const retain = event.ctrlKey || event.altKey
     const ok = spell
       ? cast(
           scene.world,
           mode as Parameters<typeof cast>[1],
           p,
-          directBlast ? picked?.id : undefined
+          directBlast ? picked?.id : undefined,
+          retain
         )
-      : placeBuilding(
-          scene.world,
-          mode as Parameters<typeof placeBuilding>[1],
-          p,
-          event.ctrlKey || event.altKey
-        )
+      : placeBuilding(scene.world, mode as Parameters<typeof placeBuilding>[1], p, retain)
     if (!ok) scene.onSound(0x25)
     else if (!spell) scene.onSound(0x24)
     else if (directBlast) {

@@ -618,7 +618,8 @@ export function spellTargetError(w: World, spell: Spell, p: Point) {
   return null
 }
 
-export function cast(w: World, spell: Spell, p: Point, personId?: number) {
+// Retention follows the accepted input record: Ctrl release (0x6b) keeps the spell.
+export function cast(w: World, spell: Spell, p: Point, personId?: number, retain = false) {
   if (w.paused || w.status !== 'playing') return false
   const direct =
     personId !== undefined && blastPersonTargeting(spell, w.manaWorld.gameFlags)
@@ -664,7 +665,7 @@ export function cast(w: World, spell: Spell, p: Point, personId?: number) {
   // Releasing a browser fight/task must not discard its native animation phase.
   if (person) shaman.native = person
   beginCast(w, shaman, spell, p, direct ? personId : undefined)
-  w.mode = null
+  if (!retain) w.mode = null
   return true
 }
 

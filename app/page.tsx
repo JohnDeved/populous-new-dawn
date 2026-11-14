@@ -101,6 +101,7 @@ import {
   spellHudCanCharge,
   spellHudPermanent,
 } from './spell-visibility'
+import { rightClickSpellCharging } from './spell-charging'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
@@ -1517,7 +1518,7 @@ export default function Home() {
                       title={
                         undiscovered
                           ? 'Undiscovered spell'
-                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
+                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging · Ctrl: charge only this · Shift: all' : ''}`
                       }
                       onClick={() => {
                         if (!interactive) return
@@ -1528,12 +1529,18 @@ export default function Home() {
                       onContextMenu={e => {
                         e.preventDefault()
                         if (undiscovered) return
-                        if (canCharge)
+                        // macOS reports Ctrl + primary button as a context menu; the
+                        // native left callback 0x49e5c0 ignores modifiers and selects.
+                        if (e.button === 0 && e.ctrlKey) {
+                          if (interactive)
+                            store.change(w => {
+                              w.mode = w.mode === s.id ? null : s.id
+                            })
+                          return
+                        }
+                        if (spellHudCanCharge(world, s))
                           store.change(w => {
-                            const bit = 1 << (s.model - 1)
-                            w.manaWorld.spells[player].disabled ^= bit
-                            if (s.id === 'blast')
-                              w.charging = !(w.manaWorld.spells[player].disabled & bit)
+                            rightClickSpellCharging(w, s, e)
                           })
                       }}
                       data-tooltip-hud={s.id === 'blast' && !undiscovered ? 'blast' : undefined}
@@ -1975,6 +1982,13 @@ export default function Home() {
                     <strong>Scatter selected followers · Selection and orders are kept</strong>
                     <span>F / G / Space / Esc</span>
                     <strong>Focus selection / guard shaman / pause / cancel</strong>
+                    <span>Ctrl-click with a spell</span>
+                    <strong>Cast and keep the spell selected · Plain click casts once</strong>
+                    <span>Right-click a spell · Ctrl · Shift</span>
+                    <strong>
+                      Pause or resume its charging · Charge only that spell (repeat to restore) ·
+                      Pause or resume all spells together
+                    </strong>
                     <span>Ctrl+Alt-click</span>
                     <strong>
                       Add a patrol point (one point guards that area; two to eight points loop) ·

@@ -381,6 +381,7 @@
   "app/spell-audio-cues.ts",
   "app/spell-button.ts",
   "app/spell-casting.ts",
+  "app/spell-charging.ts",
   "app/spell-effects-runtime.ts",
   "app/spell-halo.ts",
   "app/spell-test-cheats.ts",

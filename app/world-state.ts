@@ -204,6 +204,8 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
       spellProgress: Array(22).fill(0),
       shamanGuards: 0,
       shamanGuardChanged: 0,
+      chargeFocusMask: 0,
+      chargeFocusModel: 0,
     })),
     routeNotice: null,
     levelStart: [],

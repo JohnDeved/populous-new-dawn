@@ -5363,3 +5363,12 @@ right-release cancel and shadowed Escape records. A reproducible native probe ke
 its supplied gate states and allocation interception explicit. App pointer tests
 preserve existing worker and validation policy; rendered acceptance and downstream
 native placement-consumer parity remain separate claims.
+
+## Spell Ctrl casting and modified charging
+
+[Spell modifier evidence](research/spell-modifier-controls.md) binds spell-mode release
+records `0x6a`/`0x6b` (exact none/Ctrl; only `0x6a` leaves the spell), the right-click
+producer's Ctrl > Shift > plain branches, the emitter-to-`process_tribe_cmd` packet
+path and the `0x56`/`0x74`/`0x75` paused-mask and focus-memory transitions.
+`scripts/check-static-spell-modifiers.py` re-verifies the bytes. Static evidence only;
+the out-of-range approach cast and message cleanup remain unported.

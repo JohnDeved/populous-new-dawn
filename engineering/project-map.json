@@ -395,7 +395,10 @@
         "scripts/check-browser-follower-groups.mjs",
         "tests/building-placement-controls.test.mjs",
         "scripts/check-native-placement-controls.py",
-        "decomp/research/building-placement-controls.md"
+        "decomp/research/building-placement-controls.md",
+        "tests/spell-modifier-controls.test.mjs",
+        "scripts/check-static-spell-modifiers.py",
+        "decomp/research/spell-modifier-controls.md"
       ],
       "sharedPaths": [
         "app/model.ts", "app/scene.ts", "app/render-view.ts",
@@ -423,6 +426,7 @@
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
         { "path": "decomp/research/follower-groups.md", "heading": "Numbered follower groups" },
         { "path": "decomp/research/building-placement-controls.md", "heading": "Building placement controls" },
+        { "path": "decomp/research/spell-modifier-controls.md", "heading": "Spell Ctrl casting and modified charging" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
@@ -1092,6 +1096,7 @@
         "app/original-messages.json",
         "app/reincarnation.ts",
         "app/spell-casting.ts",
+        "app/spell-charging.ts",
         "app/spell-effects-runtime.ts",
         "app/tribe-turns.ts",
         "app/vault.ts",
