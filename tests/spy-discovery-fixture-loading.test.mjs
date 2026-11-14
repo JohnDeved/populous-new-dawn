@@ -58,9 +58,9 @@ test('enabled gate exposes the exact pending import Promise synchronously', asyn
   assert.equal(descriptor.enumerable, false)
   assert.equal(Reflect.set(result.context, slot, Promise.resolve({})), false)
   assert.equal(Reflect.deleteProperty(result.context, slot), false)
-  const module = Object.freeze({ prepareDiscoveryFixture() {}, discoveryFixtureReady() {} })
-  load.resolve(module)
-  assert.equal(await result.ready, module)
+  const fixtureModule = Object.freeze({ prepareDiscoveryFixture() {}, discoveryFixtureReady() {} })
+  load.resolve(fixtureModule)
+  assert.equal(await result.ready, fixtureModule)
   assert.equal(result.context[slot], load.promise)
 })
 
@@ -76,8 +76,8 @@ test('a rejected import stays rejected for a later awaiting runner', async () =>
 })
 
 test('the existing worship route does not require the Spy query', async () => {
-  const worship = '../worship-panel-fixture.mjs', module = { marker: 'worship' },
-    result = launch('?worship-panel-lifecycle=1', { [worship]: Promise.resolve(module) }, bothGates)
+  const worship = '../worship-panel-fixture.mjs', worshipModule = { marker: 'worship' },
+    result = launch('?worship-panel-lifecycle=1', { [worship]: Promise.resolve(worshipModule) }, bothGates)
   await new Promise(resolve => setImmediate(resolve))
   assert.deepEqual(result.requested, [worship])
   assert.equal(result.context.__pndWorshipPanelFixture.marker, 'worship')

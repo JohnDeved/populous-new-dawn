@@ -112,7 +112,18 @@ test('a second target cannot replace the pending discovery', () => {
 
 for (const [name, change] of [
   ['removed unit', f => { f.world.units = f.world.units.filter(unit => unit !== f.unit) }],
-  ['reused ID', f => { f.world.units[f.world.units.indexOf(f.unit)] = { ...f.unit } }],
+  // The checkpointed command stores only the ID, so a reused ID is a different live
+  // owner registered under that ID (here a Brave), not a shallow copy of the same person.
+  ['reused ID', f => {
+    const index = f.world.units.indexOf(f.unit)
+    const reuse = api.addUnit(f.world, 'red', 'brave', { x: 10, z: 30 })
+    f.world.units.splice(f.world.units.indexOf(reuse), 1)
+    reuse.id = f.unit.id
+    const reusePerson = (reuse.native = createLivePerson(f.world, reuse))
+    f.world.units[index] = reuse
+    registerLivePerson(f.world, reusePerson)
+  }],
+  ['unregistered person', f => { f.world.objectCells.objects.delete(f.unit.id) }],
   ['replaced person', f => { f.unit.native = structuredClone(f.person) }],
   ['dead unit', f => { f.unit.hp = 0 }],
   ['removed person', f => { f.person.flags2 |= 1 }],
@@ -164,19 +175,64 @@ test('actual logical tick consumes discovery before tribe/object work and preser
   assert.equal(restored.randomState, world.randomState)
 })
 
-test('paused simulation retains its input, but cloning/replacing a World does not inherit frontend events', () => {
+test('paused simulation retains its input, and a checkpoint taken while pending continues identically', () => {
   const { world, unit, person } = fixture()
   world.paused = true
   assert.equal(requestSpyDiscovery(world, unit.id), true)
   api.tick(world, 1 / 12)
   assert.equal(person.disguise, 0)
-  const replacement = api.migrateCheckpoint(structuredClone(world))
-  replacement.paused = false
-  api.tick(replacement, 1 / 12)
-  assert.equal(replacement.units.find(candidate => candidate.id === unit.id).native.disguise, 0)
-  world.paused = false
-  api.tick(world, 1 / 12)
+  assert.deepEqual(world.spyDiscovery, { id: unit.id })
+  const restored = api.migrateCheckpoint(structuredClone(world))
+  assert.deepEqual(restored.spyDiscovery, { id: unit.id })
+  assert.equal(requestSpyDiscovery(restored, unit.id), false, 'restored slot remains occupied')
+  for (const candidate of [world, restored]) {
+    candidate.paused = false
+    api.tick(candidate, 1 / 12)
+  }
   assert.equal(person.disguise, 64)
+  const copy = restored.units.find(candidate => candidate.id === unit.id)
+  assert.equal(copy.native.disguise, 64)
+  assert.equal(restored.spyDiscovery, null)
+  assert.deepEqual(restored.units, world.units)
+  assert.equal(restored.randomState, world.randomState)
+  assert.equal(restored.turn, world.turn)
+})
+
+test('the current Save/Load store saved while pending loads into the same continuation', async () => {
+  const { world, unit } = fixture()
+  const store = createGameStore()
+  Object.assign(store.getWorld(), world)
+  const current = store.getWorld()
+  current.paused = true
+  assert.equal(requestSpyDiscovery(current, unit.id), true)
+  await store.saveCheckpoint()
+  assert.equal(store.loadCheckpoint(), true)
+  const restored = store.getWorld()
+  assert.notEqual(restored, current)
+  assert.deepEqual(restored.spyDiscovery, { id: unit.id })
+  restored.paused = current.paused = false
+  for (let turn = 0; turn < 3; turn++) {
+    api.tick(current, 1 / 12)
+    api.tick(restored, 1 / 12)
+  }
+  assert.equal(current.units.find(candidate => candidate.id === unit.id).native.disguise, 64)
+  assert.deepEqual(restored.units, current.units)
+  assert.equal(restored.spyDiscovery, null)
+  assert.equal(restored.randomState, current.randomState)
+  assert.equal(restored.turn, current.turn)
+})
+
+test('a fresh World owns no pending discovery and a checkpoint without the slot is rejected', async () => {
+  const { world } = fixture()
+  assert.equal(world.spyDiscovery, null)
+  assert.equal(api.migrateCheckpoint(structuredClone(seed)).spyDiscovery, null)
+  for (const invalid of [undefined, { id: 1.5 }, { id: '1' }]) {
+    const store = createGameStore()
+    Object.assign(store.getWorld(), structuredClone(world))
+    if (invalid === undefined) delete store.getWorld().spyDiscovery
+    else store.getWorld().spyDiscovery = invalid
+    await assert.rejects(store.saveCheckpoint(), /incompatible with this development version/)
+  }
 })
 
 function pointerFixture(t) {

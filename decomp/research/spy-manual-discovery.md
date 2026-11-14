@@ -124,15 +124,19 @@ painter hit; discovery does not scan nearby or hidden people. The adapter uses t
 existing live animation/native person and checks viewer-colour completed disguise,
 removed/dead/inside/vehicle/invisible status, input selection/mode and native gates.
 `stepTurn` consumes the staged discovery before tribe/object work, resetting only
-the same person's disguise. Removed/replaced units or person owners are discarded.
+the same person's disguise. The command stores only the target ID; at consumption
+the ID must still name a living Spy whose person (class 1, model 5, not removed) is
+the registered object owner. Removed/replaced units or person owners are discarded.
 No sound, panel, order, RNG or invisibility mutation is added by discovery.
 
 This deliberately narrow browser adapter is not a port of the shared tribe-command
 scheduler: other player actions still dispatch through their existing owners. The
-pending event is World-owned frontend input and is not checkpoint state. Pausing
-retains it on the same World until a logical tick; replacing/loading the World
-starts without it. Once consumed, the existing person's disguise is checkpointed
-normally, without a format change. Original save/pause scheduling was not probed.
+pending command is serializable World state (`world.spyDiscovery = { id } | null`),
+so pausing retains it and a checkpoint saved while it is pending loads into the
+same continuation as the unsaved World. New-game/restart Worlds start with `null`.
+Under the development save contract, a current-version checkpoint without a valid
+slot is rejected as incompatible rather than defaulted. Original save/pause
+scheduling was not probed.
 
 The portable tests supply a Spy and dry terrain inside the compatibility grid,
 exercise the actual pointer handlers with supplied picker/DOM ports, and run real

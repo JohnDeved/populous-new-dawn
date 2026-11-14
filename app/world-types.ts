@@ -543,6 +543,8 @@ export type World = {
   randomState: number
   cosmeticRandom: { randomState: number }
   worshipAcquisition: WorshipAcquisitionRuntime
+  // One pending manual Spy discovery (native one-slot tribe command); checkpointed.
+  spyDiscovery: { id: number } | null
   effectCounter: number
   secondaryEffects: SecondaryEffects
   nextId: number

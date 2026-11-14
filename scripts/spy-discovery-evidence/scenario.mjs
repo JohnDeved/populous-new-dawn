@@ -32,10 +32,38 @@ const readSpy = () => {
 async function runCase({ browser, url, output, deadline, caseName, report }) {
   const record = { caseName, stages: [], screenshots: [], errors: [] }
   report.cases.push(record)
+  let page
+  try { await runCaseBody({ browser, url, output, deadline, caseName, report, record, setPage: value => { page = value } }) }
+  catch (error) {
+    // Bounded best-effort failure capture; the original failure is always rethrown.
+    if (page && !deadline.expired) {
+      const file = `spy-${caseName}-failure.png`
+      let t
+      try {
+        await Promise.race([page.screenshot({ path: resolve(output, file), timeout: 2000 }),
+          new Promise((_, reject) => { t = setTimeout(() => reject(Error('failure screenshot >2.5s')), 2500) })])
+        record.failureScreenshot = file
+      } catch (e) { record.diagnosticError = String(e) }
+      finally { clearTimeout(t) }
+    }
+    report.save()
+    throw error
+  }
+}
+
+async function runCaseBody({ browser, url, output, deadline, caseName, report, record, setPage }) {
   const stage = (name, data) => { record.stages.push({ name, time: new Date().toISOString(), data }); report.save() }
-  const context = await deadline.run(() => browser.newContext({ viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 }))
+  // Track the creation itself: a context arriving after a deadline still belongs to this
+  // episode and is closed by the episode owner (never claimed as verified cleanup).
+  const creation = browser.newContext({ viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 })
+  report.creations.push(creation)
+  void creation.then(late => {
+    if (report.closing && !report.contexts.includes(late)) { report.lateContextsClosedUnverified++; void late.close().catch(() => {}) }
+  }, () => {})
+  const context = await deadline.run(() => creation)
   report.contexts.push(context)
   const page = await deadline.run(() => context.newPage())
+  setPage(page)
   page.on('pageerror', e => record.errors.push(String(e)))
   page.on('console', m => { if (m.type() === 'error') record.errors.push(m.text()) })
   page.on('crash', () => record.errors.push('Page crashed'))
@@ -105,8 +133,9 @@ async function runCase({ browser, url, output, deadline, caseName, report }) {
   report.renderer ??= bootstrap
   // Wait for the supplied Spy to have a rendered mesh in the paused frame.
   await deadline.run(() => page.waitForFunction(() => {
-    const h = window.__spyDiscoveryWitness
-    return window.testSceneRef.current.unitMeshes?.has?.(h.spyId) ?? true
+    const h = window.__spyDiscoveryWitness, meshes = window.testSceneRef.current.unitMeshes
+    if (!(meshes instanceof Map)) throw Error('Scene unit mesh registry unavailable')
+    return meshes.has(h.spyId)
   }))
   await deadline.run(() => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))))
   const locate = () => deadline.run(() => page.evaluate(() => {
@@ -178,9 +207,17 @@ async function runCase({ browser, url, output, deadline, caseName, report }) {
     assert.ok(revealed.paused.sameUnit && revealed.paused.samePerson && revealed.paused.ownerRegistered && revealed.paused.hp > 0)
     await capture('after')
   } else {
-    // Ineligible supplied cases: a plain right click at the Spy's projected location
-    // (or its picked pixel when the picker can see it) must not change its disguise.
-    const point = target.point ?? { x: target.ground.x, y: target.ground.y - 12 }
+    // Ineligible supplied cases. Visible ineligible Spies must be hit by the production
+    // person picker (so the control is not a pick miss). The invisible Spy must yield no
+    // picker hit at all; its right click uses the projected point above its ground position.
+    let point
+    if (caseName === 'invisible') {
+      assert.equal(target.hitCount, 0, 'Invisible Spy must not be pickable')
+      point = { x: target.ground.x, y: target.ground.y - 12 }
+    } else {
+      assert.ok(target.point && target.hitCount > 0, `${caseName} Spy must be pickable by the production person picker`)
+      point = target.point
+    }
     await capture('before')
     await deadline.run(() => page.mouse.click(point.x, point.y, { button: 'right' }))
     const control = await resumeTurns(3, 'ineligible-resumed')
@@ -202,9 +239,10 @@ async function runCase({ browser, url, output, deadline, caseName, report }) {
 
 export default async function spyDiscoveryEpisode({ browser, url, output, deadlineAt, cases = ['visible', 'own', 'other-colour', 'changing', 'invisible'] }) {
   assert.ok(Number.isFinite(deadlineAt) && deadlineAt > Date.now())
-  const report = { status: 'running', cases: [], contexts: [], errors: [], limits: spyDiscoveryLimits }
+  const report = { status: 'running', cases: [], contexts: [], creations: [], closing: false,
+    lateContextsClosedUnverified: 0, errors: [], limits: spyDiscoveryLimits }
   report.save = () => writeFileSync(resolve(output, 'spy-discovery-episode.json'),
-    JSON.stringify({ ...report, contexts: report.contexts.length, save: undefined }, null, 2) + '\n')
+    JSON.stringify({ ...report, contexts: report.contexts.length, creations: report.creations.length, save: undefined }, null, 2) + '\n')
   const deadline = createDeadline(Math.min(Date.now() + 150000, deadlineAt - 10000))
   try {
     for (const caseName of cases) await runCase({ browser, url, output, deadline, caseName, report })
@@ -213,6 +251,16 @@ export default async function spyDiscoveryEpisode({ browser, url, output, deadli
     report.status = 'failed'; report.errors.push(String(error?.stack ?? error)); report.timedOut = deadline.expired
   } finally {
     deadline.dispose()
+    report.closing = true
+    // Adopt any creation that settles within a short bound; later arrivals close on arrival.
+    for (const creation of report.creations) {
+      let t
+      const settled = await Promise.race([creation.catch(() => null),
+        new Promise(done => { t = setTimeout(() => done(undefined), 5000) })])
+      clearTimeout(t)
+      if (settled === undefined) { report.pendingContextCreation = true; report.errors.push('Context creation unsettled at teardown') }
+      else if (settled && !report.contexts.includes(settled)) report.contexts.push(settled)
+    }
     const closed = []
     for (const context of report.contexts) {
       let t
