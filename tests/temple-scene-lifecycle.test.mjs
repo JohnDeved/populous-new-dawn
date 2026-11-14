@@ -178,7 +178,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       { world, presentationBinding },
       scene
     )
-    scene.gameClock = execute(`return ${field('gameClock')}`, {}, scene)
+    // Lightning draw visits are effect presentation, stubbed like updateEffectsFrame.
+    scene.gameClock = execute(`return ${field('gameClock')}`, { lightningDrawVisit: nop }, scene)
     scene.animate = execute(
       `return ${field('animate')}`,
       {
