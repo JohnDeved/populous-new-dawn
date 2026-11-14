@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
 import { pageEffect } from './support/follower-nearby-page.mjs'
+import { quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 
 // Execute the shipped Page listener and camera entry/exit functions. Scene
 // preparation and completed-transition boundaries are supplied explicitly.
@@ -58,7 +59,7 @@ function fixture(overrides = {}) {
     } },
     engine: { current: scene }, audio: { current: null },
     setTab: value => tabs.push(value), update: () => updates++,
-    openMenu: noOp, cancelInteraction: noOp, guardShaman: noOp, select: noOp,
+    openMenu: noOp, cancelInteraction: noOp, guardShaman: noOp, quickCameraAction, quickCameraTarget,
     HOME: {}, tutorialLevel: 79, rotateBuildingPlan: () => false,
     ...overrides,
   }

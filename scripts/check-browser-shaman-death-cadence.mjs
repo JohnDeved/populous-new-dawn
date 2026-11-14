@@ -22,7 +22,12 @@ try {
     s.world.speed = 0
   })
   await page.locator('.world-viewport canvas.battlefield').focus()
-  await page.keyboard.press('h')
+  await page.evaluate(async () => {
+    // H now moves the camera to the reincarnation site (native action 0x96);
+    // select the Shaman exclusively through the shipped selection owner instead.
+    const { select } = await import('/app/model.ts')
+    globalThis.testStore.change(world => select(world, 'shaman'))
+  })
   report.death = await page.evaluate(async () => {
     const s = window.testScene, w = s.world
     cancelAnimationFrame(s.frame)
