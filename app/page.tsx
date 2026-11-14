@@ -1940,8 +1940,8 @@ export default function Home() {
                     <strong>Shaman / focus / guard shaman / pause / cancel</strong>
                     <span>Ctrl+Alt-click</span>
                     <strong>
-                      Add a patrol point (one point guards that area, up to eight loop) · On your
-                      shaman: guard her
+                      Add a patrol point (one point guards that area; two to eight points loop) ·
+                      On your shaman: guard her
                     </strong>
                     <span>N</span>
                     <strong>Patrolling followers leave for their next queued order</strong>

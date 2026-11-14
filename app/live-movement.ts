@@ -1067,6 +1067,9 @@ export function stopLivePatrols(w: World, tribe: number) {
     recoverPersonMovement(w, p, (person, object) =>
       setLivePersonAnimation(w, person as LivePerson, object)
     )
+    // Publish the restarted order to its live owner, as queue advancement does
+    // (entry for 8/10, builder for 6, work for 27/33).
+    adoptLiveOrders(w, u, p)
     count++
   }
   return count

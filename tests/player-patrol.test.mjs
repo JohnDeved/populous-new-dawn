@@ -2,6 +2,7 @@ import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mj
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  addBuilding,
   addUnit,
   command,
   tick,
@@ -224,6 +225,8 @@ test('N switches every tribe patroller with a later action with one RNG step eac
   assert.equal(stopLivePatrols(w, 1), 0, 'other tribes are not affected')
   // Fighting people (state != 10) are untouched.
   b.state = 12
+  // A non-empty selection that does not include the switched person stays.
+  w.selected = [w.units[2].id]
   // 0x4364d0 slot removal also releases a fight/formation assignment (bit 32)
   // with its own 0x4d4f40 draw; the restart itself draws exactly once.
   const probe = { randomState: w.randomState }
@@ -236,7 +239,8 @@ test('N switches every tribe patroller with a later action with one RNG step eac
   assert.equal(w.buildingOrders.records[a.commands[3]].model, 11, 'later route slots survive')
   assert.deepEqual(models(w, b), [25, 25, 3, 11])
   assert.deepEqual(c.commands, lone, 'a route with nothing queued after it continues')
-  assert.deepEqual(w.selected, [], 'selection is unchanged')
+  assert.deepEqual(w.selected, [w.units[2].id], 'selection is unchanged')
+  assert.equal(w.orderCursor, 0, 'planning is unchanged')
   b.state = 10
   // Unselected people are switched too, and the move actually executes.
   assert.equal(releasePlayerPatrols(w), 1)
@@ -268,6 +272,98 @@ test('N exits a single-point area guard into its queued action', () => {
   turn(w, 300)
   assert.ok(near(w.units[0], C, 2))
   assert.equal(w.buildingOrders.active, 0)
+})
+
+test('N hands the queued action to its live owner (hut entry, tree, attack)', () => {
+  // Hut entry (command 8) needs the entry adapter after the restart.
+  {
+    const w = world(1)
+    const hut = addBuilding(w, 'blue', 'hut', { x: 10, z: 18 }, true)
+    command(w, A, route)
+    command(w, B, route)
+    command(w, hut, { ctrlKey: true })
+    cancelInteraction(w)
+    const u = w.units[0]
+    assert.deepEqual(models(w, u.native), [25, 25, 8])
+    turn(w, 30)
+    assert.equal(releasePlayerPatrols(w), 1)
+    assert.equal(u.work, hut.id)
+    for (let i = 0; i < 600 && u.inside !== hut.id; i++) turn(w, 1)
+    assert.equal(u.inside, hut.id, 'the released brave enters the queued hut')
+  }
+  // Queued tree (command 7) and enemy (command 28) continue the same way.
+  {
+    const w = world(1)
+    w.trees.push({ id: w.nextId++, x: 8, z: 20, logs: 4, model: 1 })
+    const tree = w.trees.at(-1)
+    command(w, A, route)
+    command(w, B, route)
+    command(w, tree, { ctrlKey: true })
+    cancelInteraction(w)
+    const u = w.units[0]
+    assert.deepEqual(models(w, u.native), [25, 25, 7])
+    turn(w, 30)
+    assert.equal(releasePlayerPatrols(w), 1)
+    let cargo = 0
+    for (let i = 0; i < 1200 && !cargo; i++) {
+      turn(w, 1)
+      cargo = u.cargo
+    }
+    assert.ok(cargo > 0, 'the released brave gathers the queued tree')
+  }
+  {
+    const w = world(1)
+    const enemy = addUnit(w, 'red', 'brave', { x: 6, z: 20 })
+    w.selected = [w.units[0].id]
+    command(w, A, route)
+    command(w, B, route)
+    command(w, enemy, { ctrlKey: true })
+    cancelInteraction(w)
+    const u = w.units[0]
+    assert.deepEqual(models(w, u.native), [25, 25, 28])
+    turn(w, 30)
+    assert.equal(releasePlayerPatrols(w), 1)
+    const hp = enemy.hp
+    for (let i = 0; i < 600 && enemy.hp === hp; i++) turn(w, 1)
+    assert.ok(enemy.hp < hp, 'the released brave attacks the queued enemy')
+  }
+  // Queued construction (command 6) and enemy-building attack (command 19).
+  {
+    const w = world(1)
+    const plan = addBuilding(w, 'blue', 'hut', { x: 10, z: 18 }, false)
+    command(w, A, route)
+    command(w, B, route)
+    command(w, plan, { ctrlKey: true })
+    cancelInteraction(w)
+    const u = w.units[0]
+    assert.deepEqual(models(w, u.native), [25, 25, 6])
+    turn(w, 30)
+    assert.equal(releasePlayerPatrols(w), 1)
+    // Without timber the plan cannot progress; the ordinary [3, 6] queue ends
+    // in this same builder state (crew slot, work, standing at the plan).
+    for (let i = 0; i < 600 && !plan.builders?.includes(u.id); i++) turn(w, 1)
+    turn(w, 300)
+    assert.ok(plan.builders.includes(u.id), 'the released brave joins the construction crew')
+    assert.equal(u.work, plan.id)
+    assert.ok(u.builder)
+    assert.equal(currentPersonOrder(w.buildingOrders, u.builder.person ?? u.native).model, 6)
+    assert.ok(Math.hypot(u.x - plan.x, u.z - plan.z) < 4)
+  }
+  {
+    const w = world(1)
+    const target = addBuilding(w, 'red', 'hut', { x: 10, z: 18 }, true)
+    command(w, A, route)
+    command(w, B, route)
+    command(w, target, { ctrlKey: true })
+    cancelInteraction(w)
+    const u = w.units[0]
+    assert.deepEqual(models(w, u.native), [25, 25, 19])
+    turn(w, 30)
+    assert.equal(releasePlayerPatrols(w), 1)
+    const hp = target.hp
+    for (let i = 0; i < 1200 && target.hp === hp; i++) turn(w, 1)
+    assert.ok(target.hp < hp, 'the released brave attacks the queued building')
+  }
 })
 
 test('a new plain command replaces the patrol', () => {
