@@ -19,7 +19,8 @@ import { parseOptions, runLocalBrowser } from './local-render/harness.mjs'
 const escortPoint = { x: -20, z: -105 },
   stagedPoint = { x: -43, z: -107 },
   waypointPoint = { x: -25, z: -100 }
-const traceTurnLimit = 900,
+// Room for a full 840-turn sermon cutoff plus the walk to the waypoint.
+const traceTurnLimit = 1100,
   continuationTimeout = 150000
 
 // Hold the clock while the canvas is used: rendering a frame at the previous
@@ -164,6 +165,8 @@ async function installTrace({ preacher, immediate, queue }) {
   }
   s.gameClock.afterTurn = () => {
     original?.()
+    // The comparison window ends at completion; later turns are not recorded.
+    if (trace.completed) return
     try {
       observation = observeCampaignConversions(w, observation)
       trace.events = observation.events
@@ -238,6 +241,24 @@ function assertContinuation(trace, ids, label) {
   assert.deepEqual(retired.commands, ids.queue, `${label}: retirement changed queue ownership`)
   assert.equal(retired.cursor, 1, `${label}: retirement did not advance to the retained waypoint`)
   assert.equal(retired.order, 3, `${label}: retained waypoint is not the current movement order`)
+  // Classify retirement: conversion of a listener, or no listener before the
+  // 840-turn cutoff. A cutoff retirement is outside this acceptance.
+  assert.ok(
+    retired.timer < 840,
+    `${label}: sermon reached the 840-turn cutoff (timer ${retired.timer})`
+  )
+  const converted = trace.events.filter(
+    event =>
+      event.turnAfter <= retired.turn &&
+      event.victims.some(victim => victim.state === 23 && victim.workTarget === ids.preacher)
+  )
+  const mode = converted.length ? 'conversion' : 'no-listener'
+  if (mode === 'no-listener')
+    assert.deepEqual(
+      trace.turns.find(row => row.turn === retired.turn - 1)?.listeners ?? [],
+      [],
+      `${label}: unconverted listener at retirement`
+    )
   const completed = trace.completed
   assert.equal(completed.commands[1], 0, `${label}: waypoint slot not released`)
   assert.equal(completed.commands[0], ids.queue[0], `${label}: Ctrl-staged slot lost its ownership`)
@@ -249,6 +270,7 @@ function assertContinuation(trace, ids, label) {
     Math.hypot(completed.x - retired.x, completed.z - retired.z) > 10,
     `${label}: Preacher did not move after retirement`
   )
+  return mode
 }
 
 const options = parseOptions(process.argv.slice(2))
@@ -267,13 +289,15 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
         at: {
           x: bounds.left + ((projected.x + 1) * bounds.width) / 2,
           y: bounds.top + ((1 - projected.y) * bounds.height) / 2,
+          inside: Math.abs(projected.x) <= 1 && Math.abs(projected.y) <= 1,
         },
       }
     }, unit)
     const view = page.viewportSize()
     await page.screenshot({ path: resolve(output, name) })
     const entry = { file: name, turn: state.turn, caption, viewport: view }
-    if (state.at) {
+    // No crop when the unit projects outside the canvas.
+    if (state.at?.inside) {
       const width = 400,
         height = 280,
         clip = {
@@ -507,10 +531,11 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   })
   await waitForTrace(page, 'completed')
   const expected = await readTrace(page)
-  assertContinuation(expected, ids, 'same-page')
+  const expectedMode = assertContinuation(expected, ids, 'same-page')
+  // The listener must be the authored Yellow Brave at (-43,-107), not any unit.
   assert.ok(
-    expected.turns.some(row => row.listeners.length) || expected.start.listeners.length,
-    'No authored enemy listened during the automatic sermon'
+    [expected.start, ...expected.turns].some(row => row.listeners.includes(acquired.victim)),
+    'The authored Yellow Brave never listened during the automatic sermon'
   )
 
   // 6. Fresh page: main menu Load Game; observe the replacement boundary.
@@ -591,7 +616,7 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   )
   await waitForTrace(page, 'completed')
   const loaded = await readTrace(page)
-  assertContinuation(loaded, ids, 'fresh-page')
+  assert.equal(assertContinuation(loaded, ids, 'fresh-page'), expectedMode)
   // The fresh-page continuation reproduces the same-page result turn for turn.
   const byTurn = new Map(expected.turns.map(row => [row.turn, row]))
   const overlap = loaded.turns.filter(row => byTurn.has(row.turn))
@@ -639,6 +664,7 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   })
   const result = {
     acquired,
+    retirementMode: expectedMode,
     escort: escort.point,
     staged: staged.point,
     waypoint: waypoint.point,
