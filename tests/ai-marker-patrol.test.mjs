@@ -1,8 +1,19 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { addUnit, command, cancelInteraction, tick, nativePosition, releasePlayerPatrols } from '../app/model.ts'
+import {
+  addUnit,
+  browserPosition,
+  command,
+  cancelInteraction,
+  createWorld,
+  tick,
+  nativePosition,
+  releasePlayerPatrols,
+} from '../app/model.ts'
 import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
+import { syncLivePersonCells } from '../app/live-people.ts'
+import { missionData } from '../app/mission-data.ts'
 import { appendLiveGuardOrders } from '../app/live-movement.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { unitAnimationSource } from '../app/unit-animation-source.ts'
@@ -11,7 +22,8 @@ import { unitAnimationSource } from '../app/unit-animation-source.ts'
 // records that 0x43b010 rewrites to a command-25 route. Command 25 completes
 // through the shared movement body and 0x4366b0 keeps the repeat slot, for every
 // tribe (decomp/research/player-patrol.md P5-P6, guard-posts.md section 6).
-const A = { x: -10, z: 8 }, B = { x: 0, z: 18 }
+const A = { x: -10, z: 8 },
+  B = { x: 0, z: 18 }
 
 function world(count = 2) {
   const w = createStartedWorld()
@@ -121,7 +133,9 @@ test('ordinary M16 Red marker patrols cycle through public Save/Load and are nev
   const patrols = v =>
     v.units.filter(u => {
       const p = u.native
-      return u.team === 'red' && u.hp > 0 && p && currentPersonOrder(v.buildingOrders, p)?.model === 25
+      return (
+        u.team === 'red' && u.hp > 0 && p && currentPersonOrder(v.buildingOrders, p)?.model === 25
+      )
     })
   while (w.turn < 400) tick(w, 1 / 12)
   const routeRecords = v =>
@@ -157,4 +171,40 @@ test('ordinary M16 Red marker patrols cycle through public Save/Load and are nev
   // records are never retired and replaced; later records only add new people.
   const live = routeRecords(w)
   for (const id of records) assert.ok(live.includes(id), `route record ${id} stays live`)
+})
+
+test('M5 raid recruitment publishes ownership so a marker task cannot draft a staged raid member', () => {
+  // Supplied focus as in mission5-opening: the player Shaman at the Angel head
+  // (marker 10) triggers the authored raid; the Red marker patrols keep cycling.
+  const w = createWorld(5),
+    shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
+    marker = missionData(5).level.markers[10]
+  Object.assign(shaman, browserPosition({ x: (marker & 255) * 256, y: (marker >>> 8) * 256 }), {
+    native: undefined,
+  })
+  syncLivePersonCells(w)
+  let recruited = 0
+  for (let turn = 0; turn < 400; turn++) {
+    tick(w, 1 / 12)
+    const owners = new Map()
+    w.ai.tasks.forEach((task, index) => {
+      if (!(task.flags & 1)) return
+      for (const id of task.members) {
+        assert.ok(
+          !owners.has(id),
+          `turn ${w.turn}: ${id} owned by tasks ${owners.get(id)} and ${index}`
+        )
+        owners.set(id, index)
+      }
+      if (task.type !== 20 || task.phase < 4) return
+      // 0x4cb7e4..0x4cb7ff: every recruited person carries +af = index + 1.
+      for (const id of task.members) {
+        const u = w.units.find(u => u.id === id && u.hp > 0)
+        if (!u?.native) continue
+        assert.equal(u.native.computerAssignment, index + 1, `turn ${w.turn}: ${id}`)
+        recruited++
+      }
+    })
+  }
+  assert.ok(recruited > 0, 'the authored raid recruits and stages')
 })
