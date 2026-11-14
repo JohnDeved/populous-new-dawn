@@ -759,6 +759,7 @@
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
         { "path": "decomp/research/game-options-static/findings.md", "heading": "Original Game options: bounded keyboard adapter" },
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
+        { "path": "decomp/research/instant-overview.md", "heading": "Instant World View: Shift/Ctrl+Return (#1006)" },
         { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
         {
           "path": "references/modern-performance.md",
