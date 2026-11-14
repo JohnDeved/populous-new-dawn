@@ -199,7 +199,9 @@ rendered browser check, this probe.
 
 ## Browser implementation (#1010)
 
-Steps 1–7 above are ported. Owners: `app/guard-posts.ts` (store, `00502eb0` visit,
+Steps 1–7 above are ported. Browser divergence: a fixed-slot attach (`00436d00`) that
+lands on an occupied slot releases the old record first; native overwrites it and leaks
+the reference, which would violate the browser's checkpoint ownership invariant. Owners: `app/guard-posts.ts` (store, `00502eb0` visit,
 `005030c0` eviction/divisor, removal), `app/live-command.ts` (`004b98f0`, tribe command
 `0x62`, `004ba9b0`, click/Shift+right producers, `0x7a` chain reset),
 `app/scene-input-runtime.ts`, `app/page.tsx` (ninth panel button), `app/scene-entities.ts`
@@ -212,7 +214,9 @@ at `+0x37`; record 8 is HFX 1036 / model 17.
 Not ported: the fire-face animation (`004f0f60`), sunlight item `(3,4,0)`, sound `0xc0`,
 the class-7/model-3 smoke body and sprite (`0050bf60` sets animation `0x13a`; records
 are allocated with the cosmetic-RNG draws but not drawn), the camera-cycle callback
-`0049da00`, counting the preview in the divisor, the native toroidal distance
+`0049da00`, counting the preview (`005030c0` counts every 10/16, so a visible preview
+also counts toward the divisor and the 64-post eviction, and can itself be evicted), the
+native toroidal distance
 approximation used for all-zero-age eviction, and post hover tooltips. Hovered-post
 lookup uses the pointed ground cell, not the object picker.
 

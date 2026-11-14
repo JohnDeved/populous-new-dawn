@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 import mission3BuildingScreen, {
   requireLoadBoundary,
   requireRestartBoundary,
@@ -172,7 +173,7 @@ export function readMission3Continuation(root, receipt) {
     birth: acquisition.epochs.fresh.birth,
     activeSave: acquisition.activeSave,
     validateSaved(committed) {
-      assert.equal(committed?.version, 3, 'Current checkpoint required; obsolete profile saves are not migrated')
+      assert.equal(committed?.version, CHECKPOINT_VERSION, 'Current checkpoint required; obsolete profile saves are not migrated')
       assertMission3SerializedCheckpoint(
         committed.snapshot,
         acquisition.activeSave.boundary.snapshot

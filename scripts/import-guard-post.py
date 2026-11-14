@@ -100,18 +100,23 @@ def main():
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     data, (width, height, rgba), decoder = decode(args.source)
+
+    def owned(path):
+        w, h, pixels = decoder.read_owned_rgba_png(path)
+        return (w, h, bytes(pixels))
+
     text = json.dumps(data, separators=(',', ':')) + '\n'
     output = ROOT / 'app/original-guard-post.json'
     icon = ROOT / 'public/original/guard-post-icon.png'
     if args.check:
         if output.read_text() != text:
             raise ValueError('Imported Guard Post data differs from original')
-        if decoder.read_owned_rgba_png(icon)[2] != bytes(rgba):
-            raise ValueError('Guard Post icon pixels differ from original')
+        if owned(icon) != (width, height, bytes(rgba)):
+            raise ValueError('Guard Post icon size or pixels differ from original')
     else:
         if output.exists() and output.read_text() != text:
             raise ValueError('Refusing to overwrite differing Guard Post data')
-        if icon.exists() and decoder.read_owned_rgba_png(icon)[2] != bytes(rgba):
+        if icon.exists() and owned(icon) != (width, height, bytes(rgba)):
             raise ValueError('Refusing to overwrite a differing Guard Post icon')
         output.write_text(text)
         if not icon.exists():

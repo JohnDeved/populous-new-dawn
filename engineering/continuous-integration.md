@@ -380,7 +380,10 @@ original source hashes and caps; they are not acceptance for this new policy.
 
 Passive integration-reader support recognizes a separately approved
 `spell-visuals-nine-v2` policy only with an explicit `browserCheckpointVersion: 4`.
-The existing eight-job workflow and v3 checkpoint writer remain unchanged.
+The existing eight-job workflow remains unchanged. Note (#1010, PR #1047): the app
+checkpoint writer is now v4 (Guard Posts). These integration-queue readers still pin
+v3 for older policies and reserve v4 for `spell-visuals-nine-v2`; reconciling those
+pins is a separate parent decision and is not changed by that PR.
 Older policies still demand exact old job inventories and v3 checkpoints; v4 is
 never inferred from candidate data. No ninth job, runner, credentials, protection
 change, persistent controller or external trusted-pin update is included.

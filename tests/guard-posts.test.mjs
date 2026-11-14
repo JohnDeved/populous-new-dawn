@@ -297,6 +297,61 @@ test('post updates draw only the cosmetic RNG; smoke follows the divisor gate', 
   assert.equal(smoke.position.h, post.position.h + 110)
 })
 
+// Every live record reference must have exactly one person owner (capacity policy).
+function assertOwnership(w) {
+  const owners = new Map()
+  for (const u of w.units)
+    for (const p of new Set([u.native, u.flight, u.fight?.motion, u.entry?.person, u.builder?.person]))
+      for (const id of p ? [p.immediateCommand, ...p.commands] : [])
+        if (id) owners.set(id, (owners.get(id) ?? 0) + 1)
+  w.buildingOrders.records.forEach((order, id) => {
+    if (id) assert.equal(order.references, owners.get(id) ?? 0, `record ${id} references`)
+  })
+}
+
+test('a chained post on an occupied slot releases the old record (no orphan reference)', async () => {
+  const w = world(2)
+  const [u1, u2] = w.units
+  for (const point of [A, B, C]) guardPostClick(w, point)
+  assert.deepEqual(models(w, u2.native), [25, 25, 25])
+  const old = u2.native.commands[1]
+  resetGuardPostChain(w)
+  w.selected = [u1.id]
+  guardPostClick(w, { x: 10, z: 8 })
+  w.selected = [u1.id]
+  guardPostClick(w, { x: 10, z: 18 }) // chain 1 for u1 only
+  w.selected = [u2.id]
+  guardPostClick(w, { x: 20, z: 18 }) // chain 2: u2 slot 2 was occupied
+  w.selected = [u2.id]
+  assert.notEqual(u2.native.commands[2], old)
+  assertOwnership(w)
+  const store = createGameStore()
+  Object.assign(store.getWorld(), structuredClone(w))
+  store.getWorld().paused = true
+  await store.saveCheckpoint()
+  assert.equal(store.loadCheckpoint(), true)
+  const restored = store.getWorld()
+  restored.paused = w.paused = false
+  for (let i = 0; i < 60; i++) {
+    tick(w, 1 / 12)
+    tick(restored, 1 / 12)
+  }
+  assert.deepEqual(restored.units, w.units)
+  assertOwnership(restored)
+})
+
+test('guard death releases the shared guard record; the post stays a marker', () => {
+  const w = world(2)
+  guardPostClick(w, A)
+  cancelInteraction(w)
+  turn(w, 10)
+  assert.equal(w.buildingOrders.active, 1)
+  for (const u of w.units) u.hp = 0
+  turn(w, 200)
+  assert.equal(w.buildingOrders.active, 0)
+  assert.equal(guardPostCount(w.secondaryEffects), 1)
+})
+
 test('checkpoints carry posts and the chain; a world without the chain is rejected', async () => {
   assert.equal(CHECKPOINT_VERSION, 4)
   const w = world(1)

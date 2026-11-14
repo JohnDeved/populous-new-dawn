@@ -432,6 +432,11 @@ export function appendPersonOrders(
     if (!acceptsPersonOrder(person, command.model)) continue
     if (replace) clearPersonOrders(pool, person, effects)
     const slot = fixedSlot ?? freePersonOrderSlot(person)
+    // Browser divergence: native 00436d00 overwrites an occupied fixed slot and
+    // leaks the old record's reference. Release it so every reference keeps an
+    // owner (checkpoint ownership invariant, capacity-policy.ts).
+    if (fixedSlot !== undefined && person.commands[slot] && person.commands[slot] !== id)
+      removePersonOrder(pool, person, slot, effects)
     effects.prepare(pool.records[id], command.model, command.a, command.b, command.flags)
     attachPersonOrder(pool, person, id, slot, effects)
     if (!first) first = person.id
