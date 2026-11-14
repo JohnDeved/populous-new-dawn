@@ -2028,8 +2028,8 @@ export default function Home() {
                     </strong>
                     <span>Shift+Backspace · , (comma)</span>
                     <strong>
-                      Add the followers you last gave an order back to the selection · Hold to show
-                      every group number
+                      Add back the followers you last ordered or deselected · Hold to show every
+                      group number
                     </strong>
                     <span>7 / 8 / 9 / 0 · B</span>
                     <strong>
