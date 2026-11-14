@@ -388,7 +388,8 @@
         "tests/follower-groups.test.mjs",
         "decomp/research/follower-groups.md",
         "decomp/research/follower-groups-evidence",
-        "scripts/check-static-follower-groups.py"
+        "scripts/check-static-follower-groups.py",
+        "scripts/check-browser-follower-groups.mjs"
       ],
       "sharedPaths": [
         "app/model.ts", "app/scene.ts", "app/render-view.ts",

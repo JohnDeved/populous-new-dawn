@@ -8,8 +8,6 @@ import type { Point, Unit, World } from './world-types.ts'
 // decomp/research/follower-groups.md. Each person carries its own membership
 // mask (native person +0x7a bits 1..6); there is no separate group table, so
 // death and replacement (conversion/hypnotise) drop membership with the person.
-export const FOLLOWER_GROUP_SLOTS = 6
-
 export type FollowerGroupShortcut =
   | { slot: number; action: 'assign' }
   | { slot: number; action: 'recall'; additive: boolean; focus: boolean }
