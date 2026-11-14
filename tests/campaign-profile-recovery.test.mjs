@@ -92,9 +92,9 @@ for (const [name, latest] of [
   })
 }
 
-for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classic', true], [2, 'classic', false], [2, 'scalable', false], [3, 'classic', false], [3, 'scalable', false]])
+for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classic', true], [2, 'classic', false], [2, 'scalable', false], [3, 'classic', false], [3, 'scalable', false], [4, 'classic', false], [4, 'scalable', false]])
   test(`v${version}/${mode}/missing=${missingPolicy} accepts only the current scalable contract`, async () => {
-    const world = createWorld(1, mode), accepted = version === 3 && mode === 'scalable'
+    const world = createWorld(1, mode), accepted = version === 4 && mode === 'scalable'
     world.turn = 217
     world.randomState = 0x12345678
     if (missingPolicy) delete world.capacityPolicy
@@ -114,8 +114,8 @@ for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classi
     })
   })
 
-for (const invalid of ['detached resident route owner', 'missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
-  test(`v3 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
+for (const invalid of ['detached resident route owner', 'missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'missing guard post chain', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
+  test(`v4 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
     const world = createWorld(1, 'scalable')
     if (invalid === 'detached resident route owner') {
       const unit = world.units.find(u => u.native), person = createLivePerson(world, unit)
@@ -126,6 +126,7 @@ for (const invalid of ['detached resident route owner', 'missing policy', 'missi
     if (invalid === 'missing route sidecar') delete world.motionRoutes.references
     if (invalid === 'invalid route sidecar') world.motionRoutes.references[1] = 1
     if (invalid === 'missing current secondary state') delete world.secondaryEffects
+    if (invalid === 'missing guard post chain') delete world.guardPostChain
     if (invalid === 'hidden stale shrine ID') world.shrines[0].linkedShrine = { ...world.shrines[1], id: world.nextId }
     if (invalid === 'unknown mode') world.capacityPolicy.mode = 'unknown'
     if (invalid === 'stale reservation') world.nextId = 20
@@ -133,7 +134,7 @@ for (const invalid of ['detached resident route owner', 'missing policy', 'missi
     if (invalid === 'undercounted owners')
       world.units.find(u => u.native?.commands[0] === 2).native.commands[1] = 1
     if (invalid === 'overcounted owners') world.buildingOrders.records[1].references = 2
-    await withStorage({ latest: { version: 3, world }, profile }, async ({ createGameStore, records, writes }) => {
+    await withStorage({ latest: { version: 4, world }, profile }, async ({ createGameStore, records, writes }) => {
       const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
       assert.equal(await store.restoreCheckpoint(), false)
       assert.equal(store.getCheckpointReadStatus(), 'incompatible')
@@ -145,11 +146,11 @@ for (const invalid of ['detached resident route owner', 'missing policy', 'missi
     })
   })
 
-test('new checkpoints write v3 while database/profile stay v1; invalid saves do not replace a good record', async () => {
+test('new checkpoints write v4 while database/profile stay v1; invalid saves do not replace a good record', async () => {
   await withStorage({ profile }, async ({ createGameStore, records, writes }) => {
     const store = createGameStore()
     assert.equal(await store.saveCheckpoint(), true)
-    assert.equal(records.get('latest').version, 3)
+    assert.equal(records.get('latest').version, 4)
     assert.equal(records.get('latest').world.capacityPolicy.mode, 'scalable')
     assert.equal(records.get('profile').version, 1)
     const before = structuredClone(records), writeCount = writes.length

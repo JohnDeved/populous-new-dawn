@@ -554,7 +554,11 @@ export type World = {
   footprints: Footprints
   selected: number[]
   orderCursor: number
-  mode: Spell | BuildingKind | null
+  // 'guardPost' is the building-panel model-17 placement tool (#1010).
+  mode: Spell | BuildingKind | 'guardPost' | null
+  // Tribe +0xc5c Guard Post chain index per tribe: 0 starts a new guard,
+  // later Ctrl/Alt posts extend a route (004ba9b0). Reset by tribe command 0x7a.
+  guardPostChain: number[]
   buildingDirections: Record<BuildingKind, number>
   paused: boolean
   speed: number

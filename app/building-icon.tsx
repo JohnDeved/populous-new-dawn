@@ -1,4 +1,5 @@
 import original from './original-building-icons.json'
+import guardPost from './original-guard-post.json'
 import type { BuildingKind } from './world-types'
 
 // Exact normal-art identities from native descriptors 005cc458 + 66 * slot.
@@ -21,6 +22,26 @@ export function BuildingIcon({ kind }: { kind: BuildingKind }) {
         backgroundImage: "url('/original/building-icons.png')",
         backgroundRepeat: 'no-repeat',
         backgroundPosition: `-${icon.x}px -${icon.y}px`,
+      }}
+    />
+  )
+}
+
+// Ninth panel descriptor icon HFX1036 (scripts/import-guard-post.py).
+export function GuardPostIcon() {
+  const { width, height } = guardPost.icon
+  return (
+    <i
+      aria-hidden="true"
+      style={{
+        display: 'inline-block',
+        width,
+        height,
+        flex: 'none',
+        pointerEvents: 'none',
+        imageRendering: 'pixelated',
+        backgroundImage: "url('/original/guard-post-icon.png')",
+        backgroundRepeat: 'no-repeat',
       }}
     />
   )

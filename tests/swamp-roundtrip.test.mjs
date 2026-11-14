@@ -22,6 +22,8 @@ function fixture() {
     dragCamera() { calls.camera++ }, browserPosition() { return {} },
     nativePosition() { return { x: 0, y: 0 } }, commandMarkerPoint() { return null },
     removeOwnedSwamp() { calls.remove++; return true },
+    // Guard Post action 0x7a precedes Swamp removal; no post is hovered here.
+    removeHoveredGuardPost() { return false },
     cancelInteraction() { calls.cancel++ },
   })
   vm.runInContext(['pointerDown', 'pointerMove', 'pointerUp', 'cancelPointerGesture'].map(body).join('\n'), context)
