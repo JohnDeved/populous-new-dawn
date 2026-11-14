@@ -903,8 +903,9 @@ function guardPostGroup(scene: GameScene, name: string) {
 // ponytail: the fire-face animation (004f0f60), sunlight item (3,4,0), smoke
 // sprite (animation 0x13a) and sound 0xc0 are not drawn yet.
 function updateGuardPosts(scene: GameScene) {
+  scene.guardPostMeshes ??= new Map()
   const owner = scene.world.secondaryEffects,
-    meshes = (scene.guardPostMeshes ??= new Map()),
+    meshes = scene.guardPostMeshes,
     live = new Set<number>()
   for (const slot of owner.order) {
     const post = owner.slots[slot]
@@ -924,8 +925,7 @@ function updateGuardPosts(scene: GameScene) {
       scene.releaseGroup(group)
       meshes.delete(serial)
     }
-  const w = scene.world,
-    pointer = scene.pointer,
+  const { world: w, pointer } = scene,
     preview = w.mode === 'guardPost' && !!pointer && !w.inputMask && w.status === 'playing'
   if (preview && !scene.guardPostPreview)
     scene.guardPostPreview = guardPostGroup(scene, 'guard-post-preview')

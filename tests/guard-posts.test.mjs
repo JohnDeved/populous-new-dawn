@@ -100,13 +100,20 @@ test('one post assigns every selected person, Shaman included, a shared command 
   const people = w.units.map(u => u.native)
   for (const p of people) assert.deepEqual(models(w, p), [11])
   const id = people[0].commands[0]
-  assert.ok(people.every(p => p.commands[0] === id), 'one shared record')
+  assert.ok(
+    people.every(p => p.commands[0] === id),
+    'one shared record'
+  )
   const order = w.buildingOrders.records[id]
   assert.equal(order.a, cell)
   assert.equal(order.b, 0x606, 'fixed extents 6,6')
   assert.equal(order.references, 3)
   assert.equal(w.guardPostChain[0], 1)
-  assert.deepEqual(w.selected, w.units.map(u => u.id), 'placement keeps the selection')
+  assert.deepEqual(
+    w.selected,
+    w.units.map(u => u.id),
+    'placement keeps the selection'
+  )
 })
 
 test('Ctrl/Alt placement extends the chain into a command-25 patrol; 0x7a resets it', () => {
@@ -223,10 +230,7 @@ test('Shift+right removal deletes the hovered post only outside placement mode',
 })
 
 test('divisor thresholds and the 64-post cap evict the oldest, else the farthest', () => {
-  assert.deepEqual(
-    [0, 12, 13, 21, 22, 32, 33, 64].map(guardPostDivisor),
-    [2, 2, 4, 4, 8, 8, 0, 0]
-  )
+  assert.deepEqual([0, 12, 13, 21, 22, 32, 33, 64].map(guardPostDivisor), [2, 2, 4, 4, 8, 8, 0, 0])
   const land = world(0).land
   const w = {
     land,
@@ -242,13 +246,19 @@ test('divisor thresholds and the 64-post cap evict the oldest, else the farthest
   w.secondaryEffects.slots[slots[10]].age = 9
   allocateGuardPost(w, cell(63))
   assert.equal(guardPostCount(w.secondaryEffects), GUARD_POST_CAP - 1)
-  assert.equal(w.secondaryEffects.slots[slots[10]]?.kind, undefined, 'first strict maximum in list order')
+  assert.equal(
+    w.secondaryEffects.slots[slots[10]]?.kind,
+    undefined,
+    'first strict maximum in list order'
+  )
   assert.equal(w.secondaryEffects.slots[oldest]?.age, 9)
   for (const slot of guardPostSlots(w.secondaryEffects)) w.secondaryEffects.slots[slot].age = 0
   const newest = allocateGuardPost(w, cell(70))
   assert.equal(guardPostCount(w.secondaryEffects), GUARD_POST_CAP - 1)
   const origin = w.secondaryEffects.slots[newest].position
-  const remaining = guardPostSlots(w.secondaryEffects).map(s => w.secondaryEffects.slots[s].position)
+  const remaining = guardPostSlots(w.secondaryEffects).map(
+    s => w.secondaryEffects.slots[s].position
+  )
   assert.ok(
     !remaining.some(p => p.x === origin.x && p.y === origin.y && p !== origin),
     'newest kept'

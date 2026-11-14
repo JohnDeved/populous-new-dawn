@@ -57,7 +57,10 @@ export function guardPostCount(state: SecondaryEffects) {
 
 // 005030c0/00503230: smoke divisor from the post count (0 disables smoke).
 export function guardPostDivisor(count: number) {
-  return count < 13 ? 2 : count < 22 ? 4 : count < 33 ? 8 : 0
+  if (count < 13) return 2
+  if (count < 22) return 4
+  if (count < 33) return 8
+  return 0
 }
 
 export function guardPostsInCell(state: SecondaryEffects, cell: number) {
@@ -118,7 +121,7 @@ function evictGuardPosts(state: SecondaryEffects, newest: number) {
   let victim = -1,
     best = 0
   for (const slot of guardPostSlots(state)) {
-    const age = (state.slots[slot] as GuardPost).age
+    const { age } = state.slots[slot] as GuardPost
     if (age > best) {
       best = age
       victim = slot
@@ -180,7 +183,7 @@ export function stepGuardPost(w: GuardPostWorld, slot: number, post: GuardPost) 
       ;(state.slots[smoke] as GuardPostSmoke).lifetime = (random(w.cosmeticRandom) & 31) + 4
     }
   }
-  const age = post.age
+  const { age } = post
   post.age = age + 1
   if (
     age > GUARD_POST_MAX_AGE ||
