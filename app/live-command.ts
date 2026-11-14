@@ -596,7 +596,14 @@ export function issueGuardPostCommand(w: World, tribe: number, cell: number) {
   if (guardPostPointAllowed(w, cell, true)) assignGuardPostFollowers(w, tribe, cell)
   const team = teamForTribe(tribe)
   for (const u of w.units) {
-    if (u.team !== team || w.selected.includes(u.id)) continue
+    // Only people standing on the cell (native cell chain); test it before the
+    // browser owner adapter, which may create a native person.
+    if (
+      u.team !== team ||
+      w.selected.includes(u.id) ||
+      guardPostCell(u.native ?? nativePosition(w, u)) !== cell
+    )
+      continue
     const p = scatterOwner(w, u)
     if (
       !p ||

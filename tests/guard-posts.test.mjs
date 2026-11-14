@@ -155,6 +155,16 @@ test('tribe command 0x62 scatters unselected idle people standing on the cell', 
   assert.equal(idle.native.previousState, state)
 })
 
+test('the 0x62 scatter leaves people off the cell untouched', () => {
+  const w = world(1)
+  const away = addUnit(w, 'blue', 'brave', C)
+  const before = away.native
+  w.selected = [w.units[0].id]
+  assert.equal(guardPostClick(w, A), 'placed')
+  assert.equal(away.native, before, 'no native person is created for a distant follower')
+  assert.notEqual(away.native?.state, 43)
+})
+
 test('a plain click on a post with followers selected orders command 11 there', () => {
   const w = world(1)
   w.selected = []
