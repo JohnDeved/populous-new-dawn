@@ -36,9 +36,9 @@ test('exact value 1 publishes original pending Promise immediately, once', async
   pending.then(() => { settled = true })
   await Promise.resolve()
   assert.equal(settled, false, 'Published Promise is not completed readiness')
-  const advanceGame = () => {}, module = { advanceGame }
-  resolve(module)
-  assert.equal(await globals[key], module)
+  const advanceGame = () => {}, fixtureModule = { advanceGame }
+  resolve(fixtureModule)
+  assert.equal(await globals[key], fixtureModule)
   assert.equal((await globals[key]).advanceGame, advanceGame, 'Supplied reference identity, not production identity')
 })
 

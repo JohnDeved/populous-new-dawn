@@ -307,7 +307,8 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
     (event.buttons === 2 || event.buttons === 4)
   ) {
     // A camera drag remains a drag even if it returns to its press position.
-    scene.pointerGesture.moved ||= Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
+    scene.pointerGesture.moved ||=
+      Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0

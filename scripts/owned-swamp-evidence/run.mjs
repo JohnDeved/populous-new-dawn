@@ -43,13 +43,14 @@ try {
   verifySource(); save()
   receipt.build = await new Promise((done, reject) => {
     const child = spawn(process.execPath, [resolve(root, 'scripts/tutorial-browser/build-home.mjs'), fixture, dist], { stdio: ['ignore', 'pipe', 'pipe'] })
-    const chunks = []; let timedOut = false
+    const chunks = []; let timedOut = false, force
     child.stdout.on('data', b => chunks.push(b)); child.stderr.on('data', b => chunks.push(b))
-    const t = setTimeout(() => { timedOut = true; child.kill('SIGTERM') }, buildCapMs)
-    child.on('error', e => { clearTimeout(t); reject(e) })
-    child.on('close', (exitCode, signal) => { clearTimeout(t); writeFileSync(resolve(out, 'build.log'), Buffer.concat(chunks)); done({ exitCode, signal, timedOut }) })
+    // Same escalation as the Tutorial runner: SIGTERM at the cap, SIGKILL after a 5s grace.
+    const t = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); force = setTimeout(() => child.kill('SIGKILL'), 5000) }, buildCapMs)
+    child.on('error', e => { clearTimeout(t); clearTimeout(force); reject(e) })
+    child.on('close', (exitCode, signal) => { clearTimeout(t); clearTimeout(force); writeFileSync(resolve(out, 'build.log'), Buffer.concat(chunks)); done({ exitCode, signal, timedOut }) })
   })
-  save(); assert.equal(receipt.build.exitCode, 0, 'Build must pass')
+  save(); assert.equal(receipt.build.exitCode, 0, 'Build must pass'); assert.equal(receipt.build.timedOut, false)
   for (const entry of readdirSync(resolve(root, 'public'))) {
     const target = resolve(dist, entry); assert.equal(existsSync(target), false, 'Public asset collision')
     symlinkSync(resolve(root, 'public', entry), target, lstatSync(resolve(root, 'public', entry)).isDirectory() ? 'dir' : 'file')

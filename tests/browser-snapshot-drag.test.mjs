@@ -11,11 +11,29 @@ const root = resolve(import.meta.dirname, '..')
 const looseLogProfileId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-v1'
 // Historical readers use pinned source data, not evolving live owners.
 // A separate live-source check below keeps current unreviewed owners fail-closed.
+// Literal inverse of PR1026's reviewed owned-Swamp drag latch, only for historical
+// readers. Production admission never strips or normalizes candidate source.
+const swampDragLatchDeltas = [
+  ['app/scene-input-runtime.ts', `    // A camera drag remains a drag even if it returns to its press position.
+    scene.pointerGesture.moved ||=
+      Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
+`, ``],
+  ['app/scene.ts', `  pointerGesture: { pointerId: number; button: number; moved?: boolean } | null = null`,
+    `  pointerGesture: { pointerId: number; button: number } | null = null`],
+]
+function liveRead(path) {
+  let source = readFileSync(resolve(root, path), 'utf8')
+  for (const [owner, current, previous] of swampDragLatchDeltas) if (path === owner) {
+    assert.equal(source.split(current).length, 2, 'exact reviewed drag-latch inverse boundary')
+    source = source.replace(current, previous)
+  }
+  return source
+}
 const preModalFixtures = JSON.parse(readFileSync(resolve(root,
   'tests/fixtures/snapshot-drag-pre-modal-scene.json'), 'utf8'))
 function preModalRead(path) {
   const fixture = preModalFixtures[path]
-  if (!fixture) return readFileSync(resolve(root, path), 'utf8')
+  if (!fixture) return liveRead(path)
   assert.equal(createHash('sha256').update(fixture.source).digest('hex'), fixture.sha256)
   return fixture.source
 }
@@ -25,9 +43,19 @@ const modalFixtures = JSON.parse(readFileSync(resolve(root,
   'tests/fixtures/snapshot-drag-modal-owners.json'), 'utf8'))
 function modalRead(path) {
   const fixture = modalFixtures[path]
-  if (!fixture) return readFileSync(resolve(root, path), 'utf8')
+  if (!fixture) return liveRead(path)
   assert.equal(createHash('sha256').update(fixture.source).digest('hex'), fixture.sha256)
   return fixture.source
+}
+// Historical modal owners plus exactly the forward PR1026 drag-latch delta.
+function swampDragLatchRead(path) {
+  if (path === 'app/scene-input-runtime.ts') return readFileSync(resolve(root, path), 'utf8')
+  let source = modalRead(path)
+  for (const [owner, current, previous] of swampDragLatchDeltas) if (path === owner) {
+    assert.equal(source.split(previous).length, 2, 'exact reviewed drag-latch forward boundary')
+    source = source.replace(previous, current)
+  }
+  return source
 }
 // Literal inverse of PR831's reviewed resource route, only for historical fixtures.
 // Production admission never strips or normalizes candidate source.
@@ -383,7 +411,7 @@ test('source-owner admission selects one exact bounded route; projection kernel 
   assert.equal(admitted.status, 'admitted'); assert.equal(admitted.version, 2)
   assert.equal(admitted.profiles.filter(profile => profile.status === 'admitted').length, 1)
   const profile = dragSourceProfiles.find(profile => profile.id === admitted.profile)
-  assert.ok(profile); assert.equal(profile.slices.length, profile.id === "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1" ? 22 : profile.id === "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1" ? 23 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
+  assert.ok(profile); assert.equal(profile.slices.length, ["owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1", "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-swamp-drag-latch-v1"].includes(profile.id) ? 22 : profile.id === "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1" ? 23 : profile.id === looseLogProfileId ? 19 : [renderCpuProfileId, combinedCpuProfileId].includes(profile.id) ? 18 : ['owned-numeric-terrain-neutral-cursor-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-v1', 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-v1', cpuProfileId].includes(profile.id) ? 17 : 16)
   for (const slice of profile.slices) {
     const changed = inspectDragSource(root, path => {
       if (path !== slice.path) return read(path)
@@ -461,6 +489,7 @@ test('pick-path and recording-epoch admission preserve exact historical source c
     'generic-terrain-v1', 'owned-numeric-terrain-v1', oldId, newId, epochId, cpuProfileId, renderCpuProfileId, combinedCpuProfileId, looseLogProfileId,
     "owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1",
     "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1",
+    "owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-swamp-drag-latch-v1",
   ])
   assert.equal(historical.slices.length, 17)
   assert.equal(candidate.slices.length, 17)
@@ -735,7 +764,9 @@ test('production held-right pointer callback calls native object query before or
   scene.pick = () => { calls.push(['ordinary', prefix]); prefix = 'new'; return null }
   scene.pointerScreen = { ...point }; scene.pointerButtons = 2; scene.pointerState = ''
   scene.cameraPosition = { x: 40192, y: 23808, angle: 0 }; scene.cameraVelocity = { turn: 0, forward: 0, side: 0 }
-  scene.pointerGesture = { pointerId: 1, button: 2 }; scene.dragLast = { x: point.clientX, y: point.clientY }
+  // GameScene always owns the press origin that pointerDown records; the drag latch reads it.
+  scene.down = { x: point.clientX, y: point.clientY, button: 2, unit: undefined, extend: false }
+  scene.pointerGesture = { pointerId: 1, button: 2, moved: false }; scene.dragLast = { x: point.clientX, y: point.clientY }
   scene.cameraMotion = { active: 0 }; scene.captureCamera = () => {}; scene.updateView = () => {}
   pointerMove(scene, { pointerId: 1, buttons: 2, clientX: point.clientX + 1, clientY: point.clientY })
   assert.equal(scene.cameraPosition.angle, 1); assert.deepEqual(scene.cameraVelocity, { turn: 0, forward: 0, side: 0 })
@@ -845,7 +876,8 @@ test('loose-log source admission is additive and binds the exact shared queue ow
 test('modal render demand admission preserves historical routes and binds every new owner atomically', () => {
   const read = modalRead
   const old = dragSourceProfiles.find(profile => profile.id === looseLogProfileId)
-  const next = dragSourceProfiles.at(-1)
+  // The modal route keeps its exact historical position; PR1026's latch is a later sibling.
+  const next = dragSourceProfiles.at(-2)
   assert.equal(next.id, looseLogProfileId.replace(/-v1$/, '-modal-render-demand-v1'))
   assert.equal(inspectDragSource(root, read).profile, next.id)
   assert.equal(inspectDragSource(root, preModalRead).profile, old.id)
@@ -880,5 +912,36 @@ test('modal render demand admission preserves historical routes and binds every 
     assert.notEqual(mixed, current)
     assert.equal(inspectDragSource(root, path => path === slice.path ? mixed : read(path)).status,
       'unsupported-source-contract', `mixed historical ${id}`)
+  }
+})
+
+
+test('owned-Swamp drag latch admission is additive and binds both changed owners atomically', () => {
+  const modalId = looseLogProfileId.replace(/-v1$/, '-modal-render-demand-v1')
+  const modal = dragSourceProfiles.find(profile => profile.id === modalId)
+  const next = dragSourceProfiles.at(-1)
+  assert.equal(next.id, modalId.replace(/-v1$/, '-swamp-drag-latch-v1'))
+  assert.equal(inspectDragSource(root, swampDragLatchRead).profile, next.id)
+  assert.equal(inspectDragSource(root, modalRead).profile, modal.id)
+  assert.equal(next.slices.length, modal.slices.length)
+  for (let i = 0; i < modal.slices.length; i++) {
+    const before = modal.slices[i], after = next.slices[i]
+    if (['input-move', 'modal-scene-owner'].includes(before.id)) {
+      assert.notEqual(after.sha256, before.sha256)
+      assert.deepEqual({ ...after, sha256: before.sha256 }, before)
+    } else assert.deepEqual(after, before)
+  }
+  // Mixed routes (latched input with historical gesture field, or the reverse) are not admitted.
+  for (const historical of ['app/scene-input-runtime.ts', 'app/scene.ts']) {
+    const mixed = inspectDragSource(root, path => path === historical ? modalRead(path) : swampDragLatchRead(path))
+    assert.equal(mixed.status, 'unsupported-source-contract', historical)
+    assert.equal(mixed.profile, null)
+  }
+  for (const id of ['input-move', 'modal-scene-owner']) {
+    const slice = next.slices.find(owner => owner.id === id)
+    const changed = inspectDragSource(root, path => path !== slice.path ? swampDragLatchRead(path)
+      : slice.start === null ? `${swampDragLatchRead(path)}\n`
+        : swampDragLatchRead(path).replace(slice.start, `${slice.start}\n/* changed admission */`))
+    assert.equal(changed.status, 'unsupported-source-contract', id)
   }
 })
