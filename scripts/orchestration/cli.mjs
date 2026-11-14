@@ -1131,9 +1131,11 @@ function fileHash(repo, path) {
   const absolute = safeRepoPath(repo, path, { mustExist: false })
   if (!existsSync(absolute)) return null
   if (lstatSync(absolute).isFile()) return hash(readFileSync(absolute))
-  const paths = discoveredPaths(repo)
-  const nested = [...paths]
-    .filter(candidate => candidate.startsWith(`${path.replace(/\/$/, '')}/`))
+  // An untracked nested repository/worktree is listed as `dir/`; never treat the
+  // directory entry itself as one of its own children (unbounded recursion).
+  const prefix = `${path.replace(/\/$/, '')}/`
+  const nested = [...discoveredPaths(repo)]
+    .filter(candidate => candidate !== path && candidate !== prefix && candidate.startsWith(prefix))
     .sort()
   return hash(JSON.stringify(nested.map(candidate => [candidate, fileHash(repo, candidate)])))
 }

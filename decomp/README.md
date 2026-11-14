@@ -7,6 +7,11 @@ public entry, native fidelity or rendered acceptance.
 [Spell-control preview inputs](research/native-help/spell-control.md) narrows the
 29 kind-4 illustration dependency without activating the renderer.
 
+[Native default input bindings](research/native-input-bindings/README.md) decodes all
+188 original default key/mouse records and resolves each action through both
+`process_cmd` switches (`scripts/native-input-bindings.py`, read-only). Use it first
+for shortcut/control questions; it is static evidence, not behavior acceptance.
+
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved
