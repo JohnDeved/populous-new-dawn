@@ -42,6 +42,7 @@ import {
   cancelInteraction,
   tell,
   guardShaman,
+  scatterSelected,
   disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
@@ -645,6 +646,15 @@ export default function Home() {
         return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
+      // Original D (no modifier, press edge) scatters; it is no longer a camera alias.
+      if (
+        e.key.toLowerCase() === 'd' &&
+        !e.repeat &&
+        !e.shiftKey &&
+        !selectorOpen &&
+        store.getWorld() === world
+      )
+        scatterSelected(world)
       if (e.key.toLowerCase() === 'h') select(world, 'shaman')
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
@@ -1877,7 +1887,7 @@ export default function Home() {
                     <span>Right / middle drag</span>
                     <strong>Right drag turns the view · middle drag moves it</strong>
                     <span>Scroll · = / −</span>
-                    <strong>Switch view · WASD to move · Q / E to turn</strong>
+                    <strong>Switch view · W / A / S to move · Q / E to turn</strong>
                     <span>↑ / ↓ · ← / →</span>
                     <strong>
                       Move forward / back ·{' '}
@@ -1907,6 +1917,8 @@ export default function Home() {
                     <strong>Rotate the entrance before placing</strong>
                     <span>F8</span>
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
+                    <span>D</span>
+                    <strong>Scatter selected followers · Selection and orders are kept</strong>
                     <span>H / F / G / Space / Esc</span>
                     <strong>Shaman / focus / guard shaman / pause / cancel</strong>
                   </div>

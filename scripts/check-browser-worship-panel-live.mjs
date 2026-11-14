@@ -367,14 +367,14 @@ async function assertSelectionAndFocus(page, panel, headId) {
     assert.equal(await button.evaluate(node => document.activeElement === node), true)
   })
   const camera = await page.evaluate(() => ({ ...window.testScene.cameraPosition }))
-  await page.keyboard.down('d')
+  await page.keyboard.down('Numpad6')
   try {
     await page.waitForFunction(before => {
       const p = window.testScene.cameraPosition
       return p.x !== before.x || p.y !== before.y
     }, camera)
   } finally {
-    await page.keyboard.up('d')
+    await page.keyboard.up('Numpad6')
   }
   await button.click({ button: 'right' })
   await page.waitForFunction(id => !!window.testScene.objectPanels.panels.get(id)?.key, person)
@@ -534,7 +534,7 @@ async function assertEdgeClamping(page, id) {
         for (let step = 1; step <= 120 && !geometry.clamped; step++) {
           // Wall-clock key holds can skip the visible clamp window on a busy renderer.
           // Keep real keyboard input, but sample every ordinary 24 Hz scene step.
-          await page.keyboard.down('d')
+          await page.keyboard.down('Numpad6')
           try {
             await page.evaluate(() => {
               const scene = window.testScene
@@ -545,7 +545,7 @@ async function assertEdgeClamping(page, id) {
               }
             })
           } finally {
-            await page.keyboard.up('d')
+            await page.keyboard.up('Numpad6')
           }
           geometry = await edgeSnapshot(page, id, originalNode, originalLabel)
           trial.steps.push({ step, ...geometry })

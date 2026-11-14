@@ -61,6 +61,9 @@ import {
   queueBuildingInspection,
 } from './scene-tooltip-runtime.ts'
 
+// W/A/S/Q/E are port camera aliases: W/Q/E have no default original binding and the
+// original A/S actions (0xa0-0xa2, 0x63) are not implemented. Original D (record
+// 005d61fc) scatters through the page handler, so right pan stays on arrow/keypad.
 const cameraKeys: Record<string, number> = {
   w: 1,
   arrowup: 1,
@@ -68,7 +71,6 @@ const cameraKeys: Record<string, number> = {
   arrowdown: 2,
   a: 199,
   arrowleft: 5,
-  d: 200,
   arrowright: 6,
   q: 201,
   e: 202,

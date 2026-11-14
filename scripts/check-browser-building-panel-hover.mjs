@@ -478,9 +478,9 @@ async function edgeGeometry(page, id) {
     await control.focus()
     let geometry = await measure(id)
     for (let step = 0; step < 96 && !geometry.clamped; step++) {
-      await page.keyboard.down('d')
+      await page.keyboard.down('Numpad6')
       await page.waitForTimeout(50)
-      await page.keyboard.up('d')
+      await page.keyboard.up('Numpad6')
       geometry = await measure(id)
       if (!geometry.visible || geometry.hidden)
         throw new Error(

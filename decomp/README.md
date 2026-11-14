@@ -76,6 +76,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
+[Player scatter (D) and person state 43](research/player-scatter.md),
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Native melee attack animation ownership](research/melee-attack-animation.md),
@@ -2453,7 +2454,7 @@ cleanup are intercepted; their complete UI/cache effects are **not** certified.
 
 The browser check uses real DOM key and pointer events, eight camera outputs
 captured from the original keyboard routine, and deterministic presentation steps.
-It covers Q/E, WASD/arrows, simultaneous/opposing keys, render-rate independence,
+It covers Q/E, W/A/S/keypad 6/arrows, simultaneous/opposing keys, render-rate independence,
 release without drift, paused/locked controls, a focused HUD button, focus
 interruption, rotated panning and horizontal/vertical mouse dragging. The existing
 focus, projection and opening-tour checks remain part of the regression workflow.
@@ -2586,7 +2587,7 @@ gates are the compared scope. Existing complete keyboard/drag movement checks
 still cover 8,192 / 6,153 calls after these requests reach the shared movement code.
 
 Browser input now uses original arrows, Ctrl, Shift, Delete/Page Down and keypad
-navigation. WASD/QE remain convenience aliases. Keypad 2 no longer also selects
+navigation. W/A/S/Q/E remain convenience aliases; D is the original scatter key. Keypad 2 no longer also selects
 Land Bridge. Modifiers affect already-held arrows. Pointer tracking covers the
 whole client area, clears on leave/blur/cancellation and suppresses scrolling
 during rotation/pan drags, modal dialogs, input locks and overview. DOM checks
