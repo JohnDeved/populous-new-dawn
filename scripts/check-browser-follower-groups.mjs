@@ -24,6 +24,17 @@ async function collapseMessages(page) {
   assert.equal(await page.locator('.campaign-messages details[open]').count(), 0)
 }
 const idleBraves = page => page.getByRole('button', { name: 'Idle Braves', exact: true })
+// Visible F00T8 digit sprites per person, read back from the rendered unit groups.
+const shownDigits = page => page.evaluate(() => {
+  const scene = window.testSceneRef.current
+  return [...scene.unitMeshes].filter(([, g]) => g.visible).map(([id, g]) => [id,
+    (g.userData.groupDigits ?? []).filter(sprite => sprite.visible).map(sprite =>
+      sprite.userData.atlasTransform.z)]).filter(([, digits]) => digits.length)
+})
+const frames = page => page.evaluate(() => new Promise(done =>
+  requestAnimationFrame(() => requestAnimationFrame(done))))
+// Digit columns for an id list: x offsets of '1' (0) and '2' (7/47) in the atlas.
+const column = (shown, id) => shown.find(([unit]) => unit === id)?.[1].map(x => Math.round(x * 47))
 
 export default async function followerGroups({ page, output, openMission, receipt }) {
   await openMission(1)
@@ -42,7 +53,7 @@ export default async function followerGroups({ page, output, openMission, receip
   await page.keyboard.press('Shift+Digit1')
   let s = await state(page)
   assert.deepEqual(s.selected, braves, 'assignment keeps the selection')
-  assert.deepEqual(s.groups.map(([id]) => id), braves)
+  assert.deepEqual(s.groups.filter(([, groups]) => groups & 2).map(([id]) => id), braves)
 
   // H is now the reincarnation-site camera (#1032); select the Shaman through her portrait.
   await selectShamanByPortrait(page)
@@ -90,6 +101,40 @@ export default async function followerGroups({ page, output, openMission, receip
   assert.notDeepEqual([arrived.camera.x, arrived.camera.y], [before.camera.x, before.camera.y])
   await page.screenshot({ path: resolve(output, 'alt-1-focused.png') })
 
+  // Holding Comma (0xb7) shows every group number above members until release (0xb8).
+  assert.deepEqual(await shownDigits(page), [], 'numbers fade after the group key')
+  await page.keyboard.down('Comma')
+  await frames(page)
+  const held = await shownDigits(page)
+  for (const id of braves) assert.deepEqual(column(held, id), [0], `brave ${id} shows 1`)
+  assert.deepEqual(column(held, shaman[0]), [7], 'the Shaman shows 2')
+  assert.equal(held.length, braves.length + 1, 'only group members carry numbers')
+  const view = page.viewportSize()
+  await page.screenshot({ path: resolve(output, 'comma-group-numbers.png') })
+  await page.screenshot({ path: resolve(output, 'comma-group-numbers-zoom.png'),
+    clip: { x: view.width / 2 - 160, y: view.height / 2 - 200, width: 320, height: 280 } })
+  await page.keyboard.up('Comma')
+  await frames(page)
+  assert.deepEqual(await shownDigits(page), [], 'Comma release clears every number')
+  // A held number key keeps its group's numbers (004adbb0) and recalls the group.
+  await page.keyboard.down('Digit1')
+  for (let i = 0; i < 12; i++) await frames(page)
+  const digit = await shownDigits(page)
+  assert.deepEqual(digit.map(([id]) => id).sort(), [...braves].sort())
+  await page.screenshot({ path: resolve(output, 'digit-1-held-zoom.png'),
+    clip: { x: view.width / 2 - 160, y: view.height / 2 - 200, width: 320, height: 280 } })
+  await page.keyboard.up('Digit1')
+
+  // Shift+Backspace adds the previous order selection: Escape (0x1e) snapshots the braves.
+  await page.keyboard.press('Escape')
+  assert.deepEqual((await state(page)).selected, [])
+  await selectShamanByPortrait(page)
+  await page.mouse.move(900, 400)
+  await page.keyboard.press('Shift+Backspace')
+  assert.deepEqual(new Set((await state(page)).selected), new Set([...shaman, ...braves]),
+    'slot 0 adds the snapshot to the current selection')
+  await page.screenshot({ path: resolve(output, 'shift-backspace-recalled.png') })
+
   // Current checkpoint save/load retains membership on the restored people.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   const gameMenu = page.getByRole('dialog', { name: 'Game menu', exact: true })
@@ -124,8 +169,8 @@ export default async function followerGroups({ page, output, openMission, receip
     return gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER)
   })
   assert.deepEqual(receipt.errors, [])
-  const result = { braves, shaman, focus: { before: before.camera, arrived }, renderer,
-    limitations: 'Headless rendering; Mission 1 opening roster; browser-reserved chords (Ctrl/Alt+digit on some platforms) are not exercised.' }
+  const result = { braves, shaman, focus: { before: before.camera, arrived }, renderer, held, digit,
+    limitations: 'Headless rendering; Mission 1 opening roster; browser-reserved chords (Ctrl/Alt+digit on some platforms) are not exercised. Digit identity is read from sprite atlas offsets; no native screenshot comparison.' }
   writeFileSync(resolve(output, 'follower-groups.json'), JSON.stringify(result, null, 2) + '\n')
   return result
 }

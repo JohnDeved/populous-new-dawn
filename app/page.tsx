@@ -2026,6 +2026,11 @@ export default function Home() {
                       Store selected followers as group 1–6 · Select that group (Ctrl adds) · Select
                       it and move the camera to it
                     </strong>
+                    <span>Shift+Backspace · , (comma)</span>
+                    <strong>
+                      Add the followers you last gave an order back to the selection · Hold to show
+                      every group number
+                    </strong>
                     <span>7 / 8 / 9 / 0 · B</span>
                     <strong>
                       Browser additions: choose Firestorm / Earthquake / Tornado / Shield · Open

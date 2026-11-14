@@ -41,6 +41,10 @@ import { dragCamera, cameraCommand, cameraEdgeButtons, mergeCameraInput } from '
 import { beginGlobeDrag } from './globe.ts'
 import { cameraBookmark } from './scene-camera-runtime.ts'
 import {
+  followerGroupDisplayKey,
+  releaseFollowerGroupDisplayKeys,
+} from './follower-group-display.ts'
+import {
   dragEndpoint,
   dragCommand,
   dragCorners,
@@ -552,6 +556,13 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
     }
     return
   }
+  if (
+    !scene.modalSuspended &&
+    !(event.target as HTMLElement | null)?.closest?.(
+      'input,textarea,select,dialog,[contenteditable]'
+    )
+  )
+    followerGroupDisplayKey(scene.groupDisplay, event, true)
   const key = (
     event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
   ).toLowerCase()
@@ -628,6 +639,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   scene.listen(window, 'keydown', scene.keyDown)
   scene.listen(window, 'keyup', e => {
     const event = e as KeyboardEvent
+    followerGroupDisplayKey(scene.groupDisplay, event, false)
     scene.keys.delete(event.key.toLowerCase())
     scene.keys.delete(event.code.toLowerCase())
     if (event.ctrlKey) scene.keys.add('control')
@@ -657,6 +669,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     scene.previous = null
     scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
     scene.keys.clear()
+    releaseFollowerGroupDisplayKeys(scene.groupDisplay)
     scene.world.paused = true
     scene.onChange()
   }

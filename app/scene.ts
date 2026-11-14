@@ -10,6 +10,11 @@ import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
+import {
+  createFollowerGroupDisplay,
+  releaseFollowerGroupDisplayKeys,
+  stepFollowerGroupDisplay,
+} from './follower-group-display.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
@@ -306,6 +311,7 @@ export class GameScene {
   selectionOverlay: SelectionOverlay
   dragActive = { value: false }
   keys = new Set<string>()
+  groupDisplay = createFollowerGroupDisplay()
   resize: ResizeObserver
   frame = 0
   started = false
@@ -348,6 +354,7 @@ export class GameScene {
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
+    releaseFollowerGroupDisplayKeys(this.groupDisplay)
     const pointerId = this.pointerGesture?.pointerId
     if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
       this.renderer.domElement.releasePointerCapture(pointerId)
@@ -470,6 +477,7 @@ export class GameScene {
           ['effects', loadTexture('effects'), false],
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
+          ['group-digits', loadTexture('group-digits'), false],
           [this.environment.landscape.modelAtlas, atlasAsset, true],
           ...(this.environment.landscape.modelAtlas === 'atlas'
             ? []
@@ -990,6 +998,7 @@ export class GameScene {
       if (this.disposed) return
       if (!flying) this.updateView()
     }
+    stepFollowerGroupDisplay(this.groupDisplay, dt)
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip(pointerMetrics)

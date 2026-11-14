@@ -22,6 +22,13 @@ WINDOWS = {
     '004fee90-004feec7.asm': (0x4fee90, 0x4feec7),
     '00469515-0046960a.asm': (0x469515, 0x46960a),
     '0041c120-0041c13b.asm': (0x41c120, 0x41c13b),
+    # Overlay layout/drawing, held-digit refresh, Comma, snapshot and mode-0xc entry.
+    '0046960a-004697a5.asm': (0x46960a, 0x4697a5),
+    '004ae0fc-004ae1c8.asm': (0x4ae0fc, 0x4ae1c8),
+    '004aba5a-004aba98.asm': (0x4aba5a, 0x4aba98),
+    '00435c10-00435c39.asm': (0x435c10, 0x435c39),
+    '004450cb-004450e5.asm': (0x4450cb, 0x4450e5),
+    '0047a691-0047a6b0.asm': (0x47a691, 0x47a6b0),
 }
 # Independently reviewed instructions; see the research note for their meaning.
 EXPECTED = [
@@ -48,6 +55,24 @@ EXPECTED = [
     # Group-number overlay above members while a group timer is nonzero.
     (0x469518, 'test', 'al, 0x7e'), (0x4695ff, 'mov', 'byte ptr [esp + ebx + 0x2c0], 1'),
     (0x41c12c, 'dec', 'cl'),
+    # 0041c120 skips signed <= 0, so Comma's 0xff hold never counts down.
+    (0x41c12a, 'jle', '0x41c134'),
+    # Layout: font slot 0087cbf0 (F00T8); y = y - h(A) - (selected ? frame : frame*24/32);
+    # x = x - w(A)/2; each later digit 24/32 of h(A) higher; tribe colour 005a89c8 + owner*5.
+    (0x469610, 'mov', 'eax, dword ptr [0x87cbf0]'), (0x46962a, 'call', '0x46c310'),
+    (0x469634, 'test', 'byte ptr [esp + 0x6c], 0x80'), (0x46964d, 'lea', 'eax, [esi + esi*2]'),
+    (0x469668, 'call', '0x46c2f0'), (0x469684, 'lea', 'ecx, [eax + eax*4 + 0x5a89c8]'),
+    (0x4696a0, 'push', '0x59da18'), (0x469782, 'call', '0x46c310'), (0x46978a, 'lea', 'eax, [eax + eax*2]'),
+    # 004adbb0 tail: a held number-row key (scancodes 2..7) refreshes its timer unless 0xff.
+    (0x4ae0fc, 'cmp', 'byte ptr [0x984593], 0'), (0x4ae117, 'mov', 'byte ptr [0x89d168], 6'),
+    (0x4ae1c1, 'mov', 'byte ptr [0x89d16d], 6'),
+    # Comma 0xb7 holds all six at 0xff; 0xb8 clears them.
+    (0x4aba5f, 'mov', 'byte ptr [0x89d168], al'), (0x4aba87, 'mov', 'dword ptr [eax], 0'),
+    # 00435c10 copies selection bit 7 into bit 0 for every tribe person; 00444f60 calls it.
+    (0x435c21, 'test', 'cl, 0x80'), (0x435c26, 'or', 'cl, 1'), (0x435c2b, 'and', 'cl, 0xfe'),
+    (0x4450dd, 'call', '0x435c10'),
+    # 0047a550 entering mode 0xc with a selection: 0048a050(0, 0x62, 1).
+    (0x47a6a7, 'push', '0x62'), (0x47a6ab, 'call', '0x48a050'),
 ]
 
 
@@ -108,10 +133,29 @@ def main():
         found = struct.unpack('<I', read(0x4422c0 + entry * 4, 4))[0]
         if found != target:
             failures.append(f'command {command:#x} -> {found:08x}, expected {target:08x}')
+    # Order finalization 00444f60 is the process_tribe_cmd case for every player order
+    # type below; F00T8's 0x120-byte resource record ends with slot 0087cbf0; cue 0x62
+    # (table 005acf60) names first sample 0, which the one-based SDT banks do not hold.
+    for command in [0x1e, 0x26, 0x27, *range(0x37, 0x3f), *range(0x57, 0x5f)]:
+        entry = read(0x4423f0 + command - 0xc, 1)[0]
+        found = struct.unpack('<I', read(0x4422c0 + entry * 4, 4))[0]
+        if found != 0x43edea:
+            failures.append(f'command {command:#x} -> {found:08x}, expected 0043edea')
+    if (read(0x5a4670, 17) != b'data\\f00t8-0.dat\0'
+            or struct.unpack('<II', read(0x5a477e, 8)) != (0x9848c0, 0x87cbf0)):
+        failures.append('F00T8 resource record does not own font slot 0087cbf0')
+    # 0047a550's mode switch: entering mode 0xc dispatches 0047a860[0xc] -> 0047a691.
+    entry = read(0x47a860 + 0xc, 1)[0]
+    found = struct.unpack('<I', read(0x47a840 + entry * 4, 4))[0]
+    if found != 0x47a691:
+        failures.append(f'mode 0xc -> {found:08x}, expected 0047a691')
+    if read(0x5acf60 + 0x62 * 12, 12) != bytes.fromhex('00000000ff0101ff00007f00'):
+        failures.append('cue 0x62 record changed')
     if failures:
         print('\n'.join(failures), file=sys.stderr)
         return 1
-    print(f'follower-groups static evidence: {len(EXPECTED)} instructions, 4 table entries verified')
+    print(f'follower-groups static evidence: {len(EXPECTED)} instructions, '
+          '24 table entries and 2 data records verified')
     return 0
 
 
