@@ -738,7 +738,17 @@
         "app/game-clock.ts",
         "app/unit-motion.ts",
         "app/tooltip-controller.ts",
-        "app/scene-tooltip-runtime.ts"
+        "app/scene-tooltip-runtime.ts",
+        "app/animation.ts"
+      ],
+      "researchPaths": [
+        "decomp/research/animation-cadence.md",
+        "decomp/research/animation-cadence/native-setters.json",
+        "scripts/native-animation-setters.py",
+        "scripts/animation-cadence-audit.mjs",
+        "scripts/animation-cadence-families.json",
+        "tests/animation-cadence-audit.test.mjs",
+        "tests/unit-fallback-cadence.test.mjs"
       ],
       "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/object-panels.ts", "app/building-panels.ts", "app/scene-secondary-effects.ts", "app/page.tsx"],
       "entrySymbols": [
@@ -761,6 +771,7 @@
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
         { "path": "decomp/research/instant-overview.md", "heading": "Instant World View: Shift/Ctrl+Return (#1006)" },
         { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
+        { "path": "decomp/research/animation-cadence.md", "heading": "Animation cadence audit (#214)" },
         {
           "path": "references/modern-performance.md",
           "heading": "Ground camera presentation between native steps"
@@ -768,7 +779,7 @@
         { "path": "decomp/README.md", "heading": "Native desktop camera input" }
       ],
       "nativeAddresses": ["0x439950", "0x438ae0", "0x4199b0"],
-      "checkIds": ["clock-portable", "camera-native", "camera-browser"],
+      "checkIds": ["clock-portable", "animation-cadence-portable", "camera-native", "camera-browser"],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "Simulation, input, animation, effects, audio, and high-refresh preview clocks must remain independent."

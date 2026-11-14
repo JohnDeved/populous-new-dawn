@@ -222,6 +222,17 @@
       "recording": "Read-only hash-pinned PE extraction emits JSON to stdout; compare scratch output before replacing retained spans. Assembly is objdump 2.44 disassembly of those same bounded ranges, documented in the adjacent README. No original execution or emulation."
     },
     {
+      "id": "animation-setter-static-evidence",
+      "kind": "native-evidence",
+      "generator": { "executable": ".tools/decomp/oracle/bin/python", "args": ["-I", "scripts/native-animation-setters.py", "<hash-verified-original-exe>", "--output", "decomp/research/animation-cadence/native-setters.json"] },
+      "callers": ["scripts/native-animation-setters.py", "scripts/animation-cadence-audit.mjs"],
+      "inputs": ["decomp/tools.json", "decomp/research/animation-cadence.md"],
+      "outputs": [
+        { "path": "decomp/research/animation-cadence/native-setters.json", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned Capstone 5.0.7 static read of direct 004ee700 calls and bounded caller bodies. No original execution or emulation. Compare scratch output before replacing the retained file."
+    },
+    {
       "id": "frontend-badge-vectors",
       "kind": "imported-assets",
       "generator": { "executable": "python3", "args": ["scripts/sanitize-frontend-badge-vectors.py", "<reviewed-local-input-directory>"] },

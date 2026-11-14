@@ -56,6 +56,7 @@ import {
 import { morphCoordinate } from './morph.ts'
 import { modelHighlight } from './model-lighting.ts'
 import { spriteAtlasOrigin, spriteLayers } from './sprite-layers.ts'
+import { fallbackFramesPerSecond } from './animation.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
@@ -415,7 +416,11 @@ export function animatePerson(
     Math.round(((Math.PI - heading) * 1024) / Math.PI)
   )
   const cycle = directions[direction],
-    step = frameNumber ?? Math.floor(age * nativeUnits.fps),
+    // Ages are differences of turn/12 times; the epsilon keeps exact turn
+    // boundaries from flooring one frame short (e.g. 2/12 * 6 = 0.999...).
+    step =
+      frameNumber ??
+      Math.floor(age * fallbackFramesPerSecond(g.userData.draw ?? 14, nativeUnits.fps) + 1e-6),
     index =
       cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length]
   const frame = nativeUnits.frames[index]

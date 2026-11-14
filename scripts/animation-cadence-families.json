@@ -1,0 +1,456 @@
+{
+  "description": "Curated animation cadence families for scripts/animation-cadence-audit.mjs (#214). Rates: browserPerVisit/nativePerVisit are frames per visit; *Visits is 'presentation' (24 Hz browser adapter for one native draw iteration) or 'logical' (12 Hz x speed world turns). browserFps/nativeFps give a fixed rate. status overrides the computed verdict only where no single rate applies. Anchors are regexes that must still match the owning source; a miss is reported as STALE.",
+  "families": [
+    {
+      "id": "native-person/models-2-7",
+      "group": "people",
+      "family": "native person counters, models 2-7 (Brave, Warrior, Preacher, Spy, Firewarrior, Shaman)",
+      "browserRule": "stepObjectAnimation on logical visits for gated mode 1/2/4; mode 3 and morph transitions on presentation visits",
+      "nativeRule": "004d23ed ORs flags3 0x40100; 004ee7b0 advances gated modes only on stamped logical visits",
+      "nativeEvidence": "decomp/research/sprite-logical-visits.md (#217)",
+      "status": "matched",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "source\\.model >= 2 && source\\.model <= 7 && animationUsesLogicalVisits" }]
+    },
+    {
+      "id": "native-person/wild-model-1",
+      "group": "people",
+      "family": "native wild person counters (model 1: flight, fight, conversion records)",
+      "browserRule": "draw 13 (mode 2 step 0) on every 24 Hz presentation visit: createLivePerson supplies no 0x40000 gate for model 1",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "004d23d0 ORs flags3 0x40100 at 004d23ed before the model switch; the model-1 branch 004d2417 and tail 004d26d1 do not clear it (static read; callee 004d5920 only partly read) -> logical visits",
+      "nativePerVisit": 1,
+      "nativeVisits": "logical",
+      "nativeEvidence": "decomp/research/animation-cadence.md#wild-people-gate",
+      "note": "Not sampled in ordinary AI play; needs a player conversion/flight witness and the full creation path before a repair.",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "model >= 2 && model <= 7 \\? 0x40000 : 0" }]
+    },
+    {
+      "id": "legacy-unit/rounding",
+      "group": "people",
+      "family": "legacy fallback step rounding (all kinds)",
+      "browserRule": "floor(age x rate + 1e-6) with age = (turn - since)/12",
+      "nativeRule": "integral frames per logical turn (mode 2 counters)",
+      "nativeEvidence": "app/animation.ts stepObjectAnimation",
+      "status": "matched",
+      "note": "Before #214 audit fix, floor((a/12 - b/12) x 12) fell one frame short for ~19% of turn pairs, shortening/doubling frames.",
+      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "fallbackFramesPerSecond\\(g\\.userData\\.draw \\?\\? 14, nativeUnits\\.fps\\) \\+ 1e-6" }]
+    },
+    {
+      "id": "legacy-unit/melee-knockback",
+      "group": "people",
+      "family": "legacy melee knockback pose phase (no native recoil owner)",
+      "browserRule": "p.f2 = floor(elapsed x 12) once at knockback start, independent of draw",
+      "browserFps": 12,
+      "nativeRule": "substate 7 retains the processed recoil counters; for draw 18 (Firewarrior) one frame per two logical turns",
+      "nativeFps": null,
+      "nativeEvidence": "decomp/research/melee-recoil-animation.md",
+      "status": "unknown",
+      "note": "Only reached without nativeRecoilAnimation; one-time phase sample, not a running rate.",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "Math\\.floor\\(elapsed \\* sprites\\.fps\\)" }]
+    },
+    {
+      "id": "unit-death/legacy",
+      "group": "people",
+      "family": "legacy short death sprite (no reincarnation effect)",
+      "browserRule": "Scene.animatePerson(f.age, once) through the descriptor-aware fallback; die tables are 1 frame (Shaman 680 via catalog)",
+      "nativeRule": "native death is the Shaman model-12 / follower corpse owners",
+      "status": "not-applicable",
+      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "scene\\.animatePerson\\(g, f\\.unit\\.heading, directions, f\\.age, true\\)" }]
+    },
+    {
+      "id": "follower-corpse",
+      "group": "people",
+      "family": "follower corpse (draws 13-18, rows 18-20)",
+      "browserRule": "native f2 latched before each presentation step; rise frozen",
+      "nativeRule": "same descriptor on presentation visits",
+      "nativeEvidence": "decomp/research/follower-death-sprites.md",
+      "status": "matched",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "latchFollowerCorpseFrame\\(f\\)" }]
+    },
+    {
+      "id": "shaman-death",
+      "group": "people",
+      "family": "Shaman model-12 death / reincarnation body",
+      "browserRule": "draw 14 f2 latched per presentation visit",
+      "nativeRule": "004ee7b0 per eligible visit, draws before advance",
+      "nativeEvidence": "decomp/research/shaman-death-cadence.md",
+      "status": "matched",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "latchShamanDeathFrame\\(f\\)" }]
+    },
+    {
+      "id": "stone-head",
+      "group": "scenery",
+      "family": "Stone Head model 45 body (draw 4)",
+      "browserRule": "logical visits with 0x40000; morph transition on presentation",
+      "nativeRule": "class5/model9 creation sets 0x40000; state10 processor stamps",
+      "nativeEvidence": "decomp/research/stone-head-logical-visits.md (#218)",
+      "status": "matched",
+      "anchors": [{ "file": "app/game-clock.ts", "pattern": "animateStoneHeads\\(w, 'logical'\\)" }]
+    },
+    {
+      "id": "angel",
+      "group": "spells",
+      "family": "Angel of Death model 69/62 (draw 4)",
+      "browserRule": "f1 +4 per presentation visit; strike morphTimer +4",
+      "nativeRule": "mode 4 per presentation visit, flags3 without 0x40000",
+      "nativeEvidence": "decomp/research/angel-presentation/README.md",
+      "status": "matched",
+      "anchors": [{ "file": "app/game-clock.ts", "pattern": "animateAngelPresentations\\(w\\)" }]
+    },
+    {
+      "id": "vault-knowledge-glow",
+      "group": "scenery",
+      "family": "Vault of Knowledge glow (draw 43, 14 frames)",
+      "browserRule": "displayed frame latched, then +1 per presentation visit",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "draw 43 mode 1 step 4, setter bodies 004fa9e0/004fc570 without 0x40000",
+      "nativePerVisit": 1,
+      "nativeVisits": "presentation",
+      "nativeEvidence": "decomp/research/vault-knowledge-world-assets.md",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "shrine\\.knowledgeGlow\\.displayedFrame = " }]
+    },
+    {
+      "id": "hut-smoke/root-and-puffs",
+      "group": "buildings",
+      "family": "hut occupancy smoke root and puffs (HFX1329/1385, draw 40)",
+      "browserRule": "(secondaryEffects.animationFrame - frameStart) % 16, +1 per presentation visit",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "descriptor 40 mode 1 hold 16 step 4; 0050c150 body sets no 0x40000",
+      "nativePerVisit": 1,
+      "nativeVisits": "presentation",
+      "nativeEvidence": "decomp/research/hut-occupancy-smoke.md; decomp/research/hut-smoke-secondary-phase.md",
+      "anchors": [
+        { "file": "app/scene-entities.ts", "pattern": "\\(\\(\\(owner\\.animationFrame - puff\\.frameStart\\) % 16\\) \\+ 16\\) % 16" }
+      ]
+    },
+    {
+      "id": "scenery-fire",
+      "group": "scenery",
+      "family": "burning scenery fire mesh",
+      "browserRule": "frame = (frame + 1) % 9 frames per world turn (stepSceneryFire)",
+      "browserPerVisit": 1,
+      "browserVisits": "logical",
+      "nativeRule": "class-5 fire object scheduling not integrated; per-object stagger unknown",
+      "nativeEvidence": "app/scene-effects.ts comment (class-5 scheduling)",
+      "status": "unknown",
+      "anchors": [{ "file": "app/scenery-fire.ts", "pattern": "fire\\.frame = \\(fire\\.frame \\+ 1\\) % artwork\\.frames\\.length" }]
+    },
+    {
+      "id": "temple-shared-anibl",
+      "group": "buildings",
+      "family": "temple / shared ANIBL world material tiles",
+      "browserRule": "counter + 1 per worship visit (40 Hz nominal, 20 Hz during acquisition), wall time, runs while paused",
+      "nativeRule": "update_bl320_sprites 0044fbd0; documented browser compatibility policy, not exact original cadence",
+      "nativeEvidence": "decomp/research/shared-temple-material-contract.md",
+      "status": "unknown",
+      "anchors": [{ "file": "app/shared-anibl.ts", "pattern": "\\(state\\.counter \\+ 1\\) % templeFrames\\.length" }]
+    },
+    {
+      "id": "worship-acquisition",
+      "group": "ui",
+      "family": "worship / building acquisition pulse and particles",
+      "browserRule": "+1 frame per worship visit (worshipDeadline, 12-60 Hz)",
+      "nativeRule": "native worship visit limiter port",
+      "nativeEvidence": "decomp/research/worship-acquisition-vfx.md",
+      "status": "matched",
+      "anchors": [{ "file": "app/game-clock.ts", "pattern": "ui\\.nextVisit = worshipDeadline\\(ui, preLimiter\\)" }]
+    },
+    {
+      "id": "swamp-bubbles",
+      "group": "spells",
+      "family": "Swamp bubbles",
+      "browserRule": "(animationFrame + i) % 10 per presentation visit",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "display-frame dependent in the original (per draw iteration)",
+      "nativePerVisit": 1,
+      "nativeVisits": "presentation",
+      "nativeEvidence": "decomp/research/swamp-presentation.md",
+      "anchors": [{ "file": "app/swamp-presentation.ts", "pattern": "% 10" }]
+    },
+    {
+      "id": "tornado-column",
+      "group": "spells",
+      "family": "Tornado column frame",
+      "browserRule": "frame sampled once at birth from secondaryEffects.animationFrame; palette travels per logical visit",
+      "nativeRule": "decomp/research/tornado-appearance.md",
+      "nativeEvidence": "decomp/research/tornado-appearance.md",
+      "status": "not-applicable",
+      "anchors": [{ "file": "app/tornado-appearance.ts", "pattern": "frame: \\(birthPhase - ordinal\\) & 15" }]
+    },
+    {
+      "id": "lightning-branches",
+      "group": "spells",
+      "family": "Lightning bolt branch jitter",
+      "browserRule": "lightningLines re-rolled on every rendered RAF frame (60 fps at a 60 Hz display; refresh dependent), consuming cosmetic RNG",
+      "browserFps": 60,
+      "nativeRule": "0x475350 re-rolls per drawn frame, i.e. once per native draw iteration (presentation visit under the adapter)",
+      "nativePerVisit": 1,
+      "nativeVisits": "presentation",
+      "nativeEvidence": "app/lightning.ts 0x475350 note",
+      "note": "Bolt lives 3 turns (0.25 s). Cosmetic RNG consumption also becomes refresh dependent.",
+      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "lightningLines\\(from\\.x, from\\.y, to\\.x, to\\.y, scene\\.world\\.cosmeticRandom\\)" }]
+    },
+    {
+      "id": "spell-halo",
+      "group": "spells",
+      "family": "spell range halo sprites (HFX1466)",
+      "browserRule": "floor(now x 12 / 1000) on the RAF timestamp; wall time, runs while paused",
+      "browserFps": 12,
+      "nativeRule": "not traced",
+      "nativeFps": null,
+      "anchors": [{ "file": "app/scene-input-runtime.ts", "pattern": "now \\* 12" }]
+    },
+    {
+      "id": "armageddon-arrival-sparkle",
+      "group": "spells",
+      "family": "Armageddon arrival sparkle (draw 44 / HFX1401)",
+      "browserRule": "1401 lies outside the sparkle sequence (1288..1303); index clamps to frame 15, frozen",
+      "browserFps": 0,
+      "nativeRule": "draw 44 mode 1 step 4 hold 16 on presentation visits (setters 004d4c5e/004d4d77/004dfb94, no 0x40000)",
+      "nativePerVisit": 1,
+      "nativeVisits": "presentation",
+      "nativeEvidence": "decomp/research/animation-cadence/native-setters.json",
+      "note": "Artwork/sequence gap rather than a rate defect.",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "visual\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}" }]
+    },
+    {
+      "id": "spy-disguise-flicker",
+      "group": "people",
+      "family": "Spy disguise owner flicker",
+      "browserRule": "apparent owner toggles on animationFrame & 2 (period 4 presentation visits)",
+      "browserPerVisit": 0.25,
+      "browserVisits": "presentation",
+      "nativeRule": "not traced",
+      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "scene\\.gameClock\\.animationFrame & 2" }]
+    },
+    {
+      "id": "bloodlust-overlay",
+      "group": "spells",
+      "family": "Bloodlust overlay blink",
+      "browserRule": "visible when bloodlust >= 128 or !(turn & 2)",
+      "browserPerVisit": 0.25,
+      "browserVisits": "logical",
+      "nativeRule": "not traced",
+      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "!\\(scene\\.world\\.turn & 2\\)" }]
+    },
+    {
+      "id": "impact-shake",
+      "group": "buildings",
+      "family": "wave/blast building, vault and tree shake",
+      "browserRule": "phase = animationFrame - start + 1 over 3 presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "not traced",
+      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "scene\\.gameClock\\.animationFrame," }]
+    },
+    {
+      "id": "water",
+      "group": "terrain",
+      "family": "water heights and light",
+      "browserRule": "phase = (turn & 255) x 257 per world turn",
+      "browserPerVisit": 1,
+      "browserVisits": "logical",
+      "nativeRule": "not traced",
+      "anchors": [{ "file": "app/water.ts", "pattern": "257" }]
+    },
+    {
+      "id": "pointer-brackets",
+      "group": "ui",
+      "family": "pointer brackets pulse",
+      "browserRule": "opacity from presentation frame f % 12",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeRule": "not traced",
+      "anchors": [{ "file": "app/world-picking.ts", "pattern": "% 12" }]
+    },
+    {
+      "id": "hud-blinks",
+      "group": "ui",
+      "family": "HUD portrait flash, population blink, panel warning/dismantle blinks",
+      "browserRule": "presentation frame bits (portrait & 4, population & 0x124) and turn bits (panels & 4 / & 2)",
+      "nativeRule": "not traced",
+      "status": "unknown",
+      "anchors": [{ "file": "app/hud-population.ts", "pattern": "0x124" }]
+    },
+    {
+      "id": "frontend-menu-glow",
+      "group": "ui",
+      "family": "main menu glow",
+      "browserRule": "(f + 1) % 8 per setInterval(101 ms), about 9.9 fps wall",
+      "browserFps": 9.9,
+      "nativeRule": "not traced",
+      "anchors": [{ "file": "app/original-main-menu.tsx", "pattern": "101" }]
+    },
+    {
+      "sequence": "hit",
+      "id": "order-marker",
+      "family": "order marker hit flash (native counters)",
+      "browserRule": "f.animation draw 46 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "anchors": [{ "file": "app/world-effects.ts", "pattern": "setAnimationObject\\(f\\.animation, 46, 1294\\)" }]
+    },
+    {
+      "sequence": "hit",
+      "id": "combat-hit",
+      "family": "combat hit flash (effect 'hit', no counters)",
+      "browserRule": "(sprite.frame) + floor(age x 12), game time; age accumulates 1/12 per turn",
+      "browserFps": 12,
+      "note": "Summed 1/12 ages floor one frame short at some turns (e.g. 6), skipping a frame.",
+      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "Math\\.floor\\(f\\.age \\* 12\\)" }]
+    },
+    {
+      "sequence": "sparkle",
+      "id": "spell-sparkle",
+      "family": "spell sparkle (Shield/Invisibility/Bloodlust/Teleport/Convert/Flatten, no counters)",
+      "browserRule": "(sprite.frame) + floor(age x 12), game time",
+      "browserFps": 12,
+      "nativeDraw": 44,
+      "anchors": [{ "file": "app/spell-effects-runtime.ts", "pattern": "fx\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}" }]
+    },
+    {
+      "sequence": "sparkle",
+      "id": "site-orbit",
+      "family": "start-site orbit sparkle (native counters)",
+      "browserRule": "animatedSiteEffect draw 44 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeDraw": 44,
+      "anchors": [{ "file": "app/site-wave-effects.ts", "pattern": "fx\\.animation = \\{" }]
+    },
+    {
+      "sequence": "smoke",
+      "id": "death-smoke",
+      "family": "non-unit death smoke (no counters)",
+      "browserRule": "floor(age x 12), game time",
+      "browserFps": 12,
+      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "Math\\.floor\\(f\\.age \\* 12\\)" }]
+    },
+    {
+      "sequence": "splash",
+      "id": "splash",
+      "family": "Splash (native counters, logical)",
+      "browserRule": "draw 44 with 0x40400 on logical visits",
+      "browserPerVisit": 1,
+      "browserVisits": "logical",
+      "nativeEvidence": "decomp/research/sprite-logical-visits.md (#217)",
+      "anchors": [{ "file": "app/live-people.ts", "pattern": "f\\.kind === 'splash'" }]
+    },
+    {
+      "sequence": "impact",
+      "id": "blast-impact",
+      "family": "Blast impact (native counters)",
+      "browserRule": "draw 30 on presentation visits, hidden after one cycle",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeDraw": 30,
+      "anchors": [{ "file": "app/world-effects.ts", "pattern": "draw 30/HFX1099" }]
+    },
+    {
+      "sequence": "birth",
+      "id": "birth",
+      "family": "hut birth flash (native counters)",
+      "browserRule": "draw 41 on presentation visits (hold 8)",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "anchors": [{ "file": "app/world-effects.ts", "pattern": "41/HFX1441" }]
+    },
+    {
+      "sequence": "hypnotise",
+      "id": "hypnotise",
+      "family": "Hypnotise flash (native counters)",
+      "browserRule": "draw 44 on presentation visits, hidden after one cycle",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeEvidence": "decomp/research/hypnotise-artwork.md",
+      "anchors": [{ "file": "app/world-effects.ts", "pattern": "setAnimationObject\\(f\\.animation, 44, 1264\\)" }]
+    },
+    {
+      "sequence": "buildingSmoke",
+      "id": "building-smoke",
+      "family": "building / damage smoke (native counters)",
+      "browserRule": "draw 48 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "anchors": [{ "file": "app/building-smoke.ts", "pattern": "setAnimationObject\\(smoke, 48, 1345\\)" }]
+    },
+    {
+      "sequence": "startConversion",
+      "id": "start-conversion",
+      "family": "level-start conversion flash (native counters)",
+      "browserRule": "draw 45 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeEvidence": "decomp/research/conversion-flash.md",
+      "anchors": [{ "file": "app/site-wave-effects.ts", "pattern": "fx\\.animation = \\{" }]
+    },
+    {
+      "sequence": "startStoneDust",
+      "id": "start-stone-dust",
+      "family": "level-start stone dust (native counters)",
+      "browserRule": "draw 37 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "anchors": [{ "file": "app/site-wave-effects.ts", "pattern": "fx\\.animation = \\{" }]
+    },
+    {
+      "sequence": "blastTrail",
+      "id": "spell-trail",
+      "family": "blast/spell trails (native counters)",
+      "browserRule": "createSpellTrail draw 1 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeDraw": 1,
+      "anchors": [{ "file": "app/world-effects.ts", "pattern": "fx\\.animation = trail" }]
+    },
+    {
+      "sequence": "spellTrail",
+      "id": "spell-trail",
+      "family": "spell trail (native counters)",
+      "browserRule": "createSpellTrail draw 1 on presentation visits",
+      "browserPerVisit": 1,
+      "browserVisits": "presentation",
+      "nativeDraw": 1,
+      "anchors": [{ "file": "app/level-start-runtime.ts", "pattern": "spellTrail" }]
+    },
+    {
+      "sequence": "hutSmokeFull",
+      "id": "hut-smoke",
+      "family": "full hut smoke sprite sequence",
+      "browserRule": "see hut-smoke/root-and-puffs",
+      "status": "not-applicable"
+    },
+    {
+      "sequence": "hutSmokePartial",
+      "id": "hut-smoke",
+      "family": "partial hut smoke sprite sequence",
+      "browserRule": "see hut-smoke/root-and-puffs",
+      "status": "not-applicable"
+    },
+    {
+      "sequence": "blastShot",
+      "id": "fixed",
+      "family": "blast shot (fixed frame)",
+      "browserRule": "fixed frame",
+      "status": "not-applicable"
+    },
+    {
+      "sequence": "halo",
+      "id": "spell-halo",
+      "family": "spell halo sequence",
+      "browserRule": "see spell-halo",
+      "status": "not-applicable"
+    },
+    {
+      "sequence": "lightning",
+      "id": "hidden",
+      "family": "lightning flash sprite (hidden 0x650 in the browser)",
+      "browserRule": "hidden",
+      "status": "not-applicable"
+    }
+  ]
+}
