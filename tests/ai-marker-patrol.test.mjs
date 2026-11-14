@@ -48,6 +48,16 @@ const marker = (w, point) => {
 const models = (w, p) => p.commands.filter(Boolean).map(id => w.buildingOrders.records[id].model)
 const near = (u, point, r = 1.5) => Math.hypot(u.x - point.x, u.z - point.z) < r
 
+const patrols = v =>
+  v.units.filter(u => {
+    const p = u.native
+    return (
+      u.team === 'red' && u.hp > 0 && p && currentPersonOrder(v.buildingOrders, p)?.model === 25
+    )
+  })
+const routeRecords = v =>
+  v.buildingOrders.records.flatMap((r, id) => (r.model === 25 && r.references ? [id] : []))
+
 function patrol(w, units = w.units.filter(u => u.team === 'red')) {
   appendLiveGuardOrders(w, units, marker(w, A), marker(w, B))
   return units
@@ -59,7 +69,7 @@ test('a computer two-marker guard becomes a shared command-25 route that walks a
   assert.deepEqual(models(w, first), [25, 25])
   assert.deepEqual(first.commands, second.commands, 'the group shares one record per marker')
   assert.ok(first.flags2 & 16)
-  const u = w.units[0],
+  const [u] = w.units,
     cursors = [first.commandCursor],
     reached = new Set()
   for (let i = 0; i < 4000 && cursors.length < 6; i++) {
@@ -73,7 +83,7 @@ test('a computer two-marker guard becomes a shared command-25 route that walks a
     assert.equal(unitAnimationSource(u), first, `turn ${w.turn}: native person is the source`)
   }
   assert.deepEqual(cursors, [0, 1, 0, 1, 0, 1], 'repeats 0→1→0 at least twice')
-  assert.deepEqual([...reached].sort(), ['A', 'B'], 'it actually walks to both markers')
+  assert.deepEqual([...reached].toSorted(), ['A', 'B'], 'it actually walks to both markers')
   assert.deepEqual(models(w, first), [25, 25], 'route slots stay queued')
   assert.equal(currentPersonOrder(w.buildingOrders, second).model, 25)
 })
@@ -89,7 +99,7 @@ test('N releases only player patrols; a computer route keeps cycling', () => {
   command(w, { x: 10, z: -40 }, { ctrlKey: true })
   cancelInteraction(w)
   turn(w, 40)
-  const commands = red.native.commands.slice(),
+  const commands = [...red.native.commands],
     cursor = red.native.commandCursor
   assert.equal(releasePlayerPatrols(w), 1)
   assert.equal(currentPersonOrder(w.buildingOrders, blue.native).model, 3)
@@ -130,19 +140,10 @@ test('ordinary M16 Red marker patrols cycle through public Save/Load and are nev
   const store = createGameStore()
   store.startMission(16)
   const w = store.getWorld()
-  const patrols = v =>
-    v.units.filter(u => {
-      const p = u.native
-      return (
-        u.team === 'red' && u.hp > 0 && p && currentPersonOrder(v.buildingOrders, p)?.model === 25
-      )
-    })
   while (w.turn < 400) tick(w, 1 / 12)
-  const routeRecords = v =>
-      v.buildingOrders.records.flatMap((r, id) => (r.model === 25 && r.references ? [id] : [])),
-    records = routeRecords(w),
+  const records = routeRecords(w),
     watched = patrols(w).map(u => u.id),
-    routes = new Map(patrols(w).map(u => [u.id, u.native.commands.slice()]))
+    routes = new Map(patrols(w).map(u => [u.id, [...u.native.commands]]))
   assert.ok(watched.length >= 8, 'both authored type-24 patrol groups are staffed')
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
@@ -153,7 +154,7 @@ test('ordinary M16 Red marker patrols cycle through public Save/Load and are nev
     tick(w, 1 / 12)
     tick(replay, 1 / 12)
     for (const id of watched) {
-      const u = w.units.find(u => u.id === id)
+      const u = w.units.find(unit => unit.id === id)
       if (!u || u.hp <= 0) continue
       assert.equal(u.native.state, 10, `turn ${w.turn}: patroller ${id} stays on its route`)
       if (u.native.commandCursor !== last.get(id)) transitions.set(id, transitions.get(id) + 1)
@@ -162,7 +163,7 @@ test('ordinary M16 Red marker patrols cycle through public Save/Load and are nev
   }
   assert.deepEqual(replay, w)
   for (const id of watched) {
-    const u = w.units.find(u => u.id === id)
+    const u = w.units.find(unit => unit.id === id)
     if (!u || u.hp <= 0) continue
     assert.ok(transitions.get(id) >= 2, `patroller ${id} cycled ${transitions.get(id)} times`)
     assert.deepEqual(u.native.commands, routes.get(id), `patroller ${id} keeps its original route`)
@@ -178,13 +179,13 @@ test('M5 raid recruitment publishes ownership so a marker task cannot draft a st
   // (marker 10) triggers the authored raid; the Red marker patrols keep cycling.
   const w = createWorld(5),
     shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
-    marker = missionData(5).level.markers[10]
-  Object.assign(shaman, browserPosition({ x: (marker & 255) * 256, y: (marker >>> 8) * 256 }), {
+    head = missionData(5).level.markers.at(10)
+  Object.assign(shaman, browserPosition({ x: (head & 255) * 256, y: (head >>> 8) * 256 }), {
     native: undefined,
   })
   syncLivePersonCells(w)
   let recruited = 0
-  for (let turn = 0; turn < 400; turn++) {
+  while (w.turn < 400) {
     tick(w, 1 / 12)
     const owners = new Map()
     w.ai.tasks.forEach((task, index) => {
@@ -199,7 +200,7 @@ test('M5 raid recruitment publishes ownership so a marker task cannot draft a st
       if (task.type !== 20 || task.phase < 4) return
       // 0x4cb7e4..0x4cb7ff: every recruited person carries +af = index + 1.
       for (const id of task.members) {
-        const u = w.units.find(u => u.id === id && u.hp > 0)
+        const u = w.units.find(unit => unit.id === id && unit.hp > 0)
         if (!u?.native) continue
         assert.equal(u.native.computerAssignment, index + 1, `turn ${w.turn}: ${id}`)
         recruited++

@@ -258,7 +258,7 @@ test('historical c44 Balloon checkpoint without the Green patrol guard destroys 
         .map(u => u.id)
     )
   assert.deepEqual(route.map(id => world.buildingOrders.records[id].model), [25, 25])
-  assert.deepEqual([...guard].sort((a, b) => a - b), [10, 11, 12])
+  assert.deepEqual([...guard].toSorted((a, b) => a - b), [10, 11, 12])
   retainFixtureUnits(world, u => !guard.has(u.id))
   await assertTowerContinuation(flight, {
     inputPhase: [3233, 161],
