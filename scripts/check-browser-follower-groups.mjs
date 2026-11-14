@@ -91,9 +91,14 @@ export default async function followerGroups({ page, output, openMission, receip
 
   // Current checkpoint save/load retains membership on the restored people.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  const gameMenu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await gameMenu.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await gameMenu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  const back = gameMenu.getByRole('button', { name: 'Back', exact: true })
+  if (await back.isVisible()) await back.click()
+  await gameMenu.getByRole('button', { name: 'Load Game', exact: true }).click()
+  await gameMenu.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.waitForFunction(() => !document.querySelector('dialog[open]'))
