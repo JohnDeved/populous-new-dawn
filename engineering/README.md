@@ -104,6 +104,19 @@ pnpm run orchestration:receipt --output work/orchestration/task/check.json -- pn
 pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pnpm run build
 ```
 
+When a change rebinds, removes or repurposes a key, list every tracked script, test
+and QA input that presses it before review. `orchestration:plan` does not map key
+usage to checks:
+
+```sh
+node scripts/key-consumers.mjs --key d --key KeyD
+```
+
+`direct` and `event` hits press the key. `indirect` hits are key literals inside
+arrays that a file presses through a variable, so confirm them by hand. Reconcile
+each consumer without weakening its assertions, then run the affected rendered
+checks.
+
 - `context` retrieves bounded mapped evidence, current parity scope, source hashes,
   and omitted paths/headings. It rebuilds a stale ignored index. Follow relevant
   omitted sources; a packet is not an exhaustive proof inventory.
