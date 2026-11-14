@@ -1,17 +1,17 @@
-| Record | Input | Event | Action | Predicate | Gate | Handler case | Pseudocode excerpt (inferred) |
+| Record | Input | Event | Action | Predicate / callback | Gate | Handler case | Pseudocode excerpt (inferred) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 005d5de8 | Up (any modifiers) | continuous | 0x01 | 004ae200 | 1 | not dispatched | - |
-| 005d5df4 | Numpad 8 (any modifiers) | continuous | 0x01 | 004ae200 | 1 | not dispatched | - |
-| 005d5e00 | Down (any modifiers) | continuous | 0x02 | 004ae200 | 1 | not dispatched | - |
-| 005d5e0c | Numpad 2 (any modifiers) | continuous | 0x02 | 004ae200 | 1 | not dispatched | - |
-| 005d5e18 | Delete (any modifiers) | continuous | 0x03 | 004ae200 | 1 | not dispatched | - |
-| 005d5e24 | Numpad 4 (any modifiers) | continuous | 0xc7 | 004ae200 | 1 | not dispatched | - |
-| 005d5e30 | Page Down (any modifiers) | continuous | 0x04 | 004ae200 | 1 | not dispatched | - |
-| 005d5e3c | Numpad 6 (any modifiers) | continuous | 0xc8 | 004ae200 | 1 | not dispatched | - |
-| 005d5e48 | Left (any modifiers) | continuous | 0x05 | 004ae200 | 1 | not dispatched | - |
-| 005d5e54 | Numpad 7 (any modifiers) | continuous | 0xc9 | 004ae200 | 1 | not dispatched | - |
-| 005d5e60 | Right (any modifiers) | continuous | 0x06 | 004ae200 | 1 | not dispatched | - |
-| 005d5e6c | Numpad 9 (any modifiers) | continuous | 0xca | 004ae200 | 1 | not dispatched | - |
+| 005d5de8 | Up (any modifiers) | continuous | 0x01 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5df4 | Numpad 8 (any modifiers) | continuous | 0x01 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e00 | Down (any modifiers) | continuous | 0x02 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e0c | Numpad 2 (any modifiers) | continuous | 0x02 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e18 | Delete (any modifiers) | continuous | 0x03 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e24 | Numpad 4 (any modifiers) | continuous | 0xc7 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e30 | Page Down (any modifiers) | continuous | 0x04 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e3c | Numpad 6 (any modifiers) | continuous | 0xc8 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e48 | Left (any modifiers) | continuous | 0x05 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e54 | Numpad 7 (any modifiers) | continuous | 0xc9 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e60 | Right (any modifiers) | continuous | 0x06 | callback 004ae200 | 1 | continuous callback (00489520) | - |
+| 005d5e6c | Numpad 9 (any modifiers) | continuous | 0xca | callback 004ae200 | 1 | continuous callback (00489520) | - |
 | 005d5e78 | Home | press | 0xaa | 004ff3e0 | 1 | 004ab8ed (shared) | uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(sho... |
 | 005d5e84 | End | press | 0xab | 004ff3e0 | 1 | 004ab8ed (shared) | uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(sho... |
 | 005d5e90 | P | press | 0x0f | - | 0 | 004aabfe | if ((DAT_0089c6e7 != '\x04') && (iVar15 = FUN_00451370(2), iVar15 == 0)) { if ((land_flags_1 & 8) == 0) { F... |
@@ -39,7 +39,7 @@
 | 005d5f98 | Ctrl+F1 | press | 0x17 | - | 3 | 004aad21 | FUN_00486b60(); |
 | 005d5fa4 | F2 | press | 0x1b | - | 3 | 004abbe2 (no-op) | - |
 | 005d5fb0 | F3 | press | 0x1c | - | 3 | 004abbe2 (no-op) | - |
-| 005d5fbc | F4 | press | 0x1a | - | 3 | not dispatched | - |
+| 005d5fbc | F4 | press | 0x1a | - | 3 | 004ad5b9 (no-op) | - |
 | 005d5fc8 | F5 | press | 0x19 | - | 3 | 004abbe2 (no-op) | - |
 | 005d5fd4 | Shift+F1 | press | 0x1d | - | 3 | 004abbe2 (no-op) | - |
 | 005d5fe0 | ] | press | 0x2c | - | 3 | 004abbe2 (no-op) | - |

@@ -66,9 +66,11 @@ without changing stored data. Explicit classic/native research fixtures are sepa
 - **Missing dependencies.** If `pnpm run` reports `ERR_PNPM_VERIFY_DEPS_BEFORE_RUN`,
   install the committed profile with `pnpm install --frozen-lockfile --ignore-scripts`
   in that checkout/worktree.
-- **Parallel workers on one host.** Serialize full checks, builds and browser runs
-  through one shared lock. Example: `lockf -k /tmp/pnd-heavy.lock <command>` on macOS, or
-  `flock /tmp/pnd-heavy.lock <command>` on Linux. Give each browser server its own port.
+- **Parallel workers on one host.** Follow `engineering/performance-queue.md` for
+  competing jobs. For ad-hoc foreground full checks, builds and browser runs inside one
+  stable host scope, a shared lock is enough: `lockf -k /tmp/pnd-heavy.lock <command>`
+  (macOS) or `flock /tmp/pnd-heavy.lock <command>` (Linux). Never use it for timing
+  measurements, and give each browser server its own port.
 
 GitHub owns task status; `parity.json` owns verified gameplay coverage. No delivery
 clock, browser watcher, separate reviewer chat, or Local Dev release step is required.

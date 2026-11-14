@@ -28,15 +28,22 @@ only; no original input).
 - **12-byte record.** Byte 0 is the key; a zero key terminates the table. Bytes 1–4 hold the
   action. Byte 5 holds the flags: `0x08` = DirectInput scancode, `0x10` = character translated
   by `00401a90`, `0x02` = continuous/held list at `+0x400`, `0x01` = press, `0x04` = release.
-  Byte 6 is the modifier mask, byte 7 the gate flags, and bytes 8–11 the predicate.
+  Byte 6 is the modifier mask and byte 7 the gate flags. Bytes 8–11 are the predicate for
+  press/release records and the per-tick callback for continuous records.
 - **Mouse pseudo-keys.** The DirectInput mouse producer
   (`original-startup-movies/input-player/mouse-producer.asm`) emits `0xf0` for left,
   `0xf1` for right and `0xf2` for buttons 2/3.
 - **Modifiers.** `004a9d90` collapses Shift (`2a`/`36`) to 1, Ctrl (`1d`/`9d`) to 2 and
   Alt (`38`/`b8`) to 4. It passes event 1 on press and 4 on release. Matcher `00489470`
-  requires `mask & 7` and ignores `(mask >> 3) & 7`; bit `0x40` accepts any modifiers.
-  It walks each key's records in table order and returns the first one whose event,
-  modifiers, gate and predicate pass.
+  requires the current modifiers to equal `mask & 7` exactly on every bit not ignored by
+  `(mask >> 3) & 7`; bit `0x40` accepts any modifiers. It walks each key's records in table
+  order and returns the first one whose event, modifiers, gate and predicate pass.
+- **Continuous records.** `00489520` (called from `004aa6d9` with the held-key array
+  `0098e928`) consumes the `+0x400` list differently. Every matching record fires, not just
+  the first. The modifier byte must equal the current modifiers exactly or be exactly
+  `0x40`, and `+6` is called as `callback(action)`. All 12 default continuous records are
+  camera rows with mask `0x40` and callback `004ae200`; the tool fails closed on any other
+  continuous mask shape.
 - **Dispatch.** `process_cmd` (`004aab80`) has two byte-indexed switches.
   - Stage 1 handles actions `0x0d`–`0xce`: index `004ad740`, jump `004ad5c4`.
   - Its default (`004aabd1`) clears edi and enters stage 2 at `004abbe2`. Stage 2 handles
@@ -44,10 +51,13 @@ only; no original input).
     `0089c661 & 2` is clear.
   - A stage-1 case that jumps straight to `004abbe2` exits with edi = 1, so it is a no-op
     there.
-  - Continuous camera actions `0x01`–`0x06` and `0xc7`–`0xca` are not dispatched by
+  - An action with no case in either switch (for example F4 → `0x1a`) reaches the exit
+    `004ad5b9` and is also a no-op there. Continuous camera actions are not routed through
     `process_cmd`.
-- **Shadowed records.** Three default records can never match because an earlier record
-  with the same key, event, modifiers and gate has no predicate:
+- **Shadowed records.** At least three default records can never match because an earlier
+  record with the same key, event, modifiers and gate has no predicate. This is an
+  exact-duplicate test only; overlaps after char translation, earlier any-modifier records
+  and gate subsets are not detected:
   - Ctrl+F6 → `0x3a`
   - Ctrl+F7 → `0x3b`
   - table Enter → `0x9c`
@@ -61,9 +71,9 @@ only; no original input).
 | --- | --- | --- | --- |
 | Period | `0x5d`: if the player's Shaman exists, queue chunk `0x16` with Shaman cell + tribe angle | no binding | #1006 |
 | H | `0x96`: queue chunk `0x16` with tribe `+0x911`/`+0x913` + tribe angle | selects the Shaman | #1006 |
-| Shift+Enter, Ctrl+Enter | `0xc5` (separate case from plain Enter `0x15`) | same as Enter | #1006 |
+| Shift+Enter, Ctrl+Enter | `0xc5` (separate case from plain Enter `0x15`) | Shift+Enter same as Enter; Ctrl+Enter ignored | #1006 |
 | D | `0xc0`: `set_tribe_command(tribe, 0x7e, 0, 0)` | camera pan right (port alias) | #1004 |
-| Shift+1…6 | `0x84`–`0x89`: `FUN_0047c350(slot, 0, 0, 0)` | spells | #1005 |
+| Shift+1…6 | `0x84`–`0x89`: `FUN_0047c350(slot, 0, 0, 0)` | none (`e.key` is `!`…`^`) | #1005 |
 | 1…6 (Ctrl ignored, predicate `004fee90`) | `0x8a`–`0x8f`: `FUN_0047c350(slot, 1, 0, ctrlUp)` | spells | #1005 |
 | Alt+1…6 (Ctrl ignored, predicate `004fee90`) | `0x90`–`0x95`: `FUN_0047c350(slot, 1, 1, ctrlUp)` | none (Alt rejected) | #1005 |
 | Shift+Backspace | `0x98`: `FUN_0047c350(0, 1, 0, 0)` | none | #1005 |
@@ -76,12 +86,14 @@ only; no original input).
 `ctrlUp` is 0 while either Ctrl key is held. The case reads the key-down/key-up arrays
 `00984591`/`00984691` at Ctrl scancodes `1d`/`9d`, which `004a9d90` maintains.
 
-`+0x911` is the reincarnation-site cell centre:
+`+0x911` is consistent with the reincarnation-site cell centre (inferred; `004da0f0`'s
+class-7 object identity is not exported):
 - `00477890` allocates each tribe's starting people at `+0x911`.
 - `004da0f0(7, tribe, +0x911, 0)` creates the site object at `+0x89d`.
 - `00419810` re-derives `+0x911` from that object's position (`+0x3d`), snapped to the
   cell centre.
-- `00475a70` uses `+0x911` instead of the Shaman position when the Shaman is absent.
+- `00475a70` uses `+0x911` instead of the Shaman position while `game_state+4` bit `0x20`
+  is set.
 
 ## Limits
 

@@ -114,11 +114,23 @@ def key_label(code, kind):
     return DIK.get(code, f'DIK {code:#04x}')
 
 
-def modifiers(mask):
+def modifiers(mask, continuous=False):
+    """Matcher 00489470 needs (mask|ignored)&7 == (current|ignored)&7; bit 0x40
+    accepts any modifiers. Continuous consumer 00489520 instead needs the byte to
+    equal the current modifiers exactly, or be exactly 0x40."""
+    if mask & ~0x7f:
+        raise ValueError(f'Unknown modifier mask bits {mask:#04x}')
+    if mask & 0x40:
+        if continuous and mask != 0x40:
+            raise ValueError(f'Unsupported continuous modifier mask {mask:#04x}')
+        return {'required': [], 'ignored': 'any', 'raw': mask}
+    if continuous:
+        if mask & ~0x07:
+            raise ValueError(f'Unsupported continuous modifier mask {mask:#04x}')
+        return {'required': [name for bit, name in MODIFIERS if mask & bit], 'ignored': [],
+                'exact': True, 'raw': mask}
     required = mask & 7
     ignored = (mask >> 3) & 7
-    if mask & 0x40:
-        return {'required': [], 'ignored': 'any', 'raw': mask}
     if mask & ~0x3f:
         raise ValueError(f'Unknown modifier mask bits {mask:#04x}')
     return {
@@ -145,16 +157,20 @@ def decode_record(address, raw):
         raise ValueError(f'{address:08x}: action {action:#x} exceeds one byte')
     if gate & ~0x03:
         raise ValueError(f'{address:08x}: unknown gate flags {gate:#04x}')
-    return {
+    record = {
         'address': f'{address:08x}',
         'key': {'code': code, 'kind': kind, 'label': key_label(code, kind)},
         'event': 'continuous' if continuous else EVENTS[event],
-        'modifiers': modifiers(mods),
+        'modifiers': modifiers(mods, continuous),
         'action': action,
         'gateFlags': gate,
-        'predicate': f'{predicate:08x}' if predicate else None,
+        'predicate': f'{predicate:08x}' if predicate and not continuous else None,
         'flags': flags,
     }
+    if continuous:
+        # 00489520 calls +6 as the per-tick handler fn(action) for every match.
+        record['callback'] = f'{predicate:08x}' if predicate else None
+    return record
 
 
 def decode_records(read, start):
@@ -182,6 +198,8 @@ def decode_dispatch(read):
 
     A stage-1 case that jumps straight to the shared break (004abbe2, edi still
     1) exits without work; it is reported as a no-op rather than a stage-2 case.
+    An action with no case in either switch reaches the exit (004ad5b9) and is
+    also a no-op.
     """
     first, second = (decode_stage(read, stage) for stage in STAGES)
     resolved = {}
@@ -190,9 +208,7 @@ def decode_dispatch(read):
         if case != STAGES[0]['fallthrough']:
             resolved[action] = (1, case)
             continue
-        case = second.get(action, STAGES[1]['fallthrough'])
-        if case != STAGES[1]['fallthrough']:
-            resolved[action] = (2, case)
+        resolved[action] = (2, second.get(action, STAGES[1]['fallthrough']))
     return resolved
 
 
@@ -247,7 +263,8 @@ def build(exe, pseudocode=PSEUDOCODE):
     for action, handler in actions.items():
         shared.setdefault(handler, []).append(action)
     for record in records:
-        handler = actions.get(record['action'])
+        # Continuous records are consumed by 00489520's callback, not process_cmd.
+        handler = None if record['event'] == 'continuous' else actions[record['action']]
         record['handler'] = None if handler is None else {
             'stage': handler[0],
             'case': f'{handler[1]:08x}',
@@ -279,9 +296,15 @@ def mark_shadowed(records):
     """Matcher 00489470 walks each bucket in table order and returns the first
     record whose event, modifiers, gate and predicate pass. A later record with
     identical key, event, modifier mask and gate flags behind an earlier record
-    without a predicate can never match. Other overlaps are left unmarked."""
+    without a predicate can never match. This exact-duplicate test is a lower
+    bound: char/scancode translation overlaps, earlier any-modifier records and
+    gate subsets are not detected. Continuous records (00489520) fire every
+    match, so they are never shadowed."""
     first = {}
     for record in records:
+        if record['event'] == 'continuous':
+            record['shadowedBy'] = None
+            continue
         key = (record['key']['kind'], record['key']['code'], record['flags'],
                record['modifiers']['raw'], record['gateFlags'])
         earlier = first.get(key)
@@ -303,7 +326,7 @@ def chord(record):
 
 def markdown(atlas):
     rows = [
-        '| Record | Input | Event | Action | Predicate | Gate | Handler case | Pseudocode excerpt (inferred) |',
+        '| Record | Input | Event | Action | Predicate / callback | Gate | Handler case | Pseudocode excerpt (inferred) |',
         '| --- | --- | --- | --- | --- | --- | --- | --- |',
     ]
     for r in atlas['records']:
@@ -312,16 +335,17 @@ def markdown(atlas):
         if len(excerpt) > 110:
             excerpt = excerpt[:107] + '...'
         shared = handler.get('sharedWith')
-        case = handler.get('case', 'not dispatched')
+        case = handler.get('case', 'continuous callback (00489520)')
         if handler.get('noop'):
             case += ' (no-op)'
         elif shared:
             case += ' (shared)'
         if r['shadowedBy']:
             case += f" (shadowed by {r['shadowedBy']})"
+        condition = r['predicate'] or ('callback ' + r['callback'] if r.get('callback') else '-')
         rows.append(
             f"| {r['address']} | {chord(r)} | {r['event']} | {r['action']:#04x} | "
-            f"{r['predicate'] or '-'} | {r['gateFlags']} | {case} | {excerpt or '-'} |"
+            f"{condition} | {r['gateFlags']} | {case} | {excerpt or '-'} |"
         )
     return '\n'.join(rows) + '\n'
 

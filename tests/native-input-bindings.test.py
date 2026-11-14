@@ -49,8 +49,32 @@ class RecordTests(unittest.TestCase):
         self.assertIsNone(h['predicate'])
         held = bindings.decode_record(0, record(0xc8, 1, 0x0a, 0x40, 1, 0x4ae200))
         self.assertEqual((held['event'], held['modifiers']['ignored']), ('continuous', 'any'))
+        self.assertEqual((held['predicate'], held['callback']), (None, '004ae200'))
         self.assertEqual(bindings.key_label(0x34, 'scancode'), 'Period')
         self.assertEqual(bindings.key_label(0x20, 'char'), 'Space')
+
+    def test_continuous_records_use_exact_masks_and_callbacks(self):
+        held = bindings.decode_record(0, record(0xc8, 1, 0x0a, 0x02, 1, 0x4ae200))
+        self.assertEqual(held['modifiers'], {'required': ['Ctrl'], 'ignored': [], 'exact': True, 'raw': 2})
+        self.assertIsNone(held['predicate'])
+        self.assertEqual(held['callback'], '004ae200')
+        for mask in (0x08, 0x48, 0xc0):  # ignore bits or 0x40 plus extras are unsupported
+            with self.assertRaises(ValueError):
+                bindings.decode_record(0, record(0xc8, 1, 0x0a, mask))
+
+    def test_shadowing_is_exact_duplicate_only(self):
+        rows = [bindings.decode_record(a, r) for a, r in (
+            (0x10, record(0x40, 0x36, 0x09, 0x02, 3)),          # unconditional
+            (0x20, record(0x40, 0x3a, 0x09, 0x02, 3)),          # shadowed by 0x10
+            (0x30, record(0x41, 0x37, 0x09, 0x02, 3, 0x4ff000)), # has predicate
+            (0x40, record(0x41, 0x3b, 0x09, 0x02, 3)),          # not shadowed (earlier predicate)
+            (0x50, record(0x40, 0x3c, 0x09, 0x02, 1)),          # different gate
+            (0x60, record(0xc8, 1, 0x0a, 0x40, 1)),             # continuous
+            (0x70, record(0xc8, 2, 0x0a, 0x40, 1)),             # continuous never shadowed
+        )]
+        bindings.mark_shadowed(rows)
+        self.assertEqual([r['shadowedBy'] for r in rows],
+                         [None, '00000010', None, None, None, None, None])
 
     def test_unknown_layout_bits_fail_closed(self):
         for raw in (
@@ -59,6 +83,7 @@ class RecordTests(unittest.TestCase):
             record(1, 1, 0x08),        # no event and not continuous
             record(1, 0x100, 0x09),    # action wider than one byte
             record(1, 1, 0x09, 0x80),  # unknown modifier bit
+            record(1, 1, 0x09, 0xc0),  # unknown bit beside "any"
             record(1, 1, 0x09, 0, 4),  # unknown gate bit
         ):
             with self.assertRaises(ValueError):
@@ -92,8 +117,14 @@ class DispatchTests(unittest.TestCase):
         self.assertEqual(resolved[0x5d], (1, 0x4ab44b))  # stage 1 wins
         self.assertEqual(resolved[0x84], (2, 0x4ad035))
         self.assertEqual(resolved[0x85], (2, 0x4ad035))
-        self.assertNotIn(0x01, resolved)  # below both biases
-        self.assertNotIn(0x20, resolved)  # both stages fall through
+        exit = bindings.STAGES[1]['break']
+        self.assertEqual(resolved[0x01], (2, exit))  # below both biases: exit, no case
+        self.assertEqual(resolved[0x20], (2, exit))  # both stages fall through
+
+    def test_stage_one_break_is_a_noop_not_a_stage_two_case(self):
+        brk = bindings.STAGES[0]['break']
+        memory = self.memory({0x1b: brk}, {0x1b: 0x4ad999})
+        self.assertEqual(bindings.decode_dispatch(memory.read)[0x1b], (1, brk))
 
     def test_changed_dispatch_bytes_fail_closed(self):
         memory = self.memory({}, {})
