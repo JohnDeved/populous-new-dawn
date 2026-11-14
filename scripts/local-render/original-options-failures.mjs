@@ -36,7 +36,10 @@ export default async function({page,root,output,receipt}) {
   await page.evaluate(()=>{AudioContext.prototype.resume=window.resumeForOptions})
   await button('♫ Enable sound').click();await button('♪ Sound on').waitFor()
   await page.evaluate(()=>document.activeElement?.blur())
-  const frozen=await page.evaluate(()=>JSON.stringify(window.testStore.getWorld()));await page.keyboard.press('h');await page.keyboard.press('Space');assert.equal(await page.evaluate(()=>JSON.stringify(window.testStore.getWorld())),frozen)
+  // H is now the native reincarnation-site camera key (action 0x96): the open menu must own it,
+  // so freeze the camera as well as the World.
+  const frozenView=()=>page.evaluate(()=>{const s=window.testSceneRef?.current??window.testScene;return JSON.stringify({world:window.testStore.getWorld(),camera:s.cameraPosition,motion:s.cameraMotion.active,view:s.viewPoint})})
+  const frozen=await frozenView();await page.keyboard.press('h');await page.keyboard.press('Space');assert.equal(await frozenView(),frozen)
   await page.keyboard.press('Escape');assert.equal(await options.getAttribute('data-category'),'Game')
   assert.equal(await button('Browser compatibility and help').evaluate(b=>b===document.activeElement),true)
   await page.keyboard.press('Escape');assert.equal(await button('Options').evaluate(b=>b===document.activeElement),true)

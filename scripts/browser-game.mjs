@@ -94,10 +94,17 @@ export async function selectShamanByPortrait(page) {
   const read = () => page.evaluate(() => {
     const w = globalThis.testStore?.getWorld() ?? globalThis.testScene.world,
       shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
-    return { mode: w.mode, selected: [...w.selected], shaman: shaman?.id ?? null }
+    return { mode: w.mode, selected: [...w.selected], shaman: shaman?.id ?? null,
+      status: w.status, inputMask: w.inputMask, paused: w.paused,
+      openMessages: document.querySelectorAll('.campaign-messages details[open]').length,
+      active: document.activeElement?.tagName ?? null }
   })
   const exact = state => state.selected.length === 1 && state.selected[0] === state.shaman
+  // An open campaign message owns gameplay shortcuts; collapse it publicly first.
+  for (const summary of await page.locator('.campaign-messages details[open] > summary').all())
+    await summary.click()
   let state = await read()
+  if (state.openMessages) throw Error(`Campaign messages still own the keyboard: ${JSON.stringify(state)}`)
   if (state.shaman === null) throw Error('No live Blue Shaman to select')
   for (let attempt = 0; attempt < 2 && (state.mode || (state.selected.length && !exact(state))); attempt++) {
     await page.keyboard.press('Escape')
