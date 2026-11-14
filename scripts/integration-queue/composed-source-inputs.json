@@ -145,6 +145,7 @@
   "app/hut-smoke-runtime.ts",
   "app/hut-upgrade.ts",
   "app/indexed-search.ts",
+  "app/instant-overview.ts",
   "app/land-bridge.ts",
   "app/layout.tsx",
   "app/level-eight.ts",

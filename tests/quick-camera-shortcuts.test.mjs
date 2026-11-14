@@ -7,6 +7,7 @@ import { browserPosition } from '../app/world-coordinates.ts'
 import {
   REINCARNATION_CAMERA_ACTION,
   SHAMAN_CAMERA_ACTION,
+  overviewShortcut,
   quickCameraAction,
   quickCameraTarget,
 } from '../app/quick-camera-shortcuts.ts'
@@ -25,10 +26,10 @@ function keyboard(overrides = {}) {
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn),
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
-    setTab: noOp, engine: { current: { focus: (target, options) => focuses.push({ target, options }) } },
+    setTab: noOp, engine: { current: { world, focus: (target, options) => focuses.push({ target, options }) } },
     audio: { current: null }, update: noOp, openMenu: noOp, cancelInteraction: noOp,
     guardShaman: noOp, HOME: {}, tutorialLevel: 0, rotateBuildingPlan: () => false,
-    quickCameraAction, quickCameraTarget, ...overrides,
+    quickCameraAction, quickCameraTarget, overviewShortcut, ...overrides,
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
   return { world, focuses, cleanup, key(extra = {}) {
@@ -102,4 +103,34 @@ test('existing gates still own the quick camera keys', () => {
   masked.key({ key: 'h', code: 'KeyH' })
   assert.deepEqual(masked.focuses, [])
   masked.cleanup()
+})
+
+test('after scene replacement only the listener of the current world moves its camera', () => {
+  const engine = { current: null }, store = {}
+  const old = keyboard({ engine, store }), next = keyboard({ engine, store })
+  const scenes = new Map([old, next].map(k => [k, { world: k.world, focuses: [],
+    focus(target, options) { this.focuses.push({ target, options }) } }]))
+  const own = k => {
+    engine.current = scenes.get(k)
+    store.getWorld = () => k.world
+    store.change = action => action(k.world)
+  }
+  own(old)
+  old.key()
+  assert.equal(scenes.get(old).focuses.length, 1)
+  // Load/restart replaced the world and scene before React re-registered the listener.
+  own(next)
+  old.key()
+  old.key({ key: 'h', code: 'KeyH' })
+  engine.current = null
+  old.key()
+  assert.equal(scenes.get(old).focuses.length, 1)
+  assert.deepEqual(scenes.get(next).focuses, [])
+  old.cleanup()
+  own(next)
+  const site = next.world.reincarnationSites[0]
+  next.key({ key: 'h', code: 'KeyH' })
+  assert.deepEqual(scenes.get(next).focuses, [{ target: browserPosition(site), options: { animate: true } }])
+  assert.equal(scenes.get(old).focuses.length, 1)
+  next.cleanup()
 })

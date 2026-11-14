@@ -15,6 +15,7 @@ import { createTempleManualSteps } from '../scripts/local-render/temple-manual-i
 import { createMission1VaultInput } from '../scripts/local-render/mission1-vault-input.mjs'
 import { findEntityInput, inspectEntityPoint } from '../qa/erosion-ordinary/input.mjs'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
+import { overviewShortcut } from '../app/quick-camera-shortcuts.ts'
 import {
   assertTempleTrainInput,
   assertTempleFreshRequest,
@@ -80,6 +81,7 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     'cancelInteraction',
     'update',
     'followerGroupShortcut',
+    'overviewShortcut',
     `return ${code}`
   )(
     true,
@@ -96,7 +98,8 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     0,
     api.cancelInteraction,
     nop,
-    followerGroupShortcut
+    followerGroupShortcut,
+    overviewShortcut
   )
 }
 async function fixture(t, mode = 'expiry', options = {}) {

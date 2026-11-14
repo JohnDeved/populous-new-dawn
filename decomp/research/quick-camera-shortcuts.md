@@ -67,4 +67,4 @@ Not recovered:
   meanings, so the browser applies only its own Page keyboard gates.
 - When the native Shaman pointer clears (death or vehicle occupancy) is not proven.
   The browser treats a dead or ghost Shaman as absent.
-- Shift+Return instant overview is separate work.
+- Shift+Return instant overview is documented in [instant-overview.md](instant-overview.md).

@@ -28,6 +28,24 @@ export function quickCameraAction(event: {
   return null
 }
 
+// Native default records 005d5f68 (Enter → action 0x15) and 005d5f74/005d5f80
+// (Shift+Enter / Ctrl+Enter → 0xc5) are press-only with exact modifier masks, so
+// Shift+Ctrl, Alt and repeats match nothing. 0x15 runs the animated World View
+// transition (00418890); 0xc5 enters or leaves at once (0041d4b0). Keypad Enter
+// remains the browser's alias for Enter. See decomp/research/instant-overview.md.
+export function overviewShortcut(event: {
+  key: string
+  repeat: boolean
+  shiftKey?: boolean
+  ctrlKey?: boolean
+  altKey?: boolean
+  metaKey?: boolean
+}): { instant: boolean } | null {
+  if (event.key !== 'Enter' || event.repeat || event.altKey || event.metaKey) return null
+  if (event.shiftKey && event.ctrlKey) return null
+  return { instant: !!(event.shiftKey || event.ctrlKey) }
+}
+
 // Camera-only targets. Action 0x5d does nothing without a current-tribe Shaman,
 // and action 0x96 reads the tribe's reincarnation-site cell centre (+0x911);
 // neither changes selection or issues a tribe command.

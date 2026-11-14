@@ -4,7 +4,7 @@ import { createWorld } from '../app/world-initialization.ts'
 import { SPELLS } from '../app/world-rules.ts'
 import { spellHudVisibility } from '../app/spell-visibility.ts'
 import { pageEffect, noOp } from './support/follower-nearby-page.mjs'
-import { quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
+import { overviewShortcut, quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
 
 // Execute the shipped Page effect, not a duplicate keyboard implementation.
@@ -21,7 +21,7 @@ function keyboard(overrides = {}) {
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
     setTab: tab => tabs.push(tab), engine: { current: null }, audio: { current: null },
     update: noOp, openMenu: noOp, cancelInteraction: noOp,
-    guardShaman: noOp, HOME: {}, tutorialLevel: 0, quickCameraAction, quickCameraTarget,
+    guardShaman: noOp, HOME: {}, tutorialLevel: 0, quickCameraAction, quickCameraTarget, overviewShortcut,
     rotateBuildingPlan: () => false, ...overrides,
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
@@ -102,7 +102,9 @@ test('input masks and native availability gates remain authoritative', () => {
 
 test('Space still pauses once per press, and continuous focus routing is unchanged', () => {
   let focuses = 0
-  const k = keyboard({ engine: { current: { focus: () => focuses++ } } })
+  const engine = { current: null }
+  const k = keyboard({ engine })
+  engine.current = { world: k.world, focus: () => focuses++ }
   const paused = k.world.paused
   k.key({ key: ' ', code: 'Space' })
   assert.equal(k.world.paused, !paused)

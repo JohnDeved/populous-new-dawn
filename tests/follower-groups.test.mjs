@@ -11,6 +11,7 @@ import {
   recallFollowerGroup,
 } from '../app/follower-groups.ts'
 import { createFollowerGroupDisplay } from '../app/follower-group-display.ts'
+import { overviewShortcut } from '../app/quick-camera-shortcuts.ts'
 import { SPELLS } from '../app/world-rules.ts'
 import { command } from '../app/live-command.ts'
 import { cancelInteraction, setSelection } from '../app/selection-runtime.ts'
@@ -187,7 +188,7 @@ function pageKeyboard(overrides = {}) {
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
     messageDetails: { current: new Map() }, SPELLS: [{ id: 'blast', key: '1' }],
-    spellHudVisibility: () => 'visible', followerGroupShortcut,
+    spellHudVisibility: () => 'visible', followerGroupShortcut, overviewShortcut,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: noOp },
     setTab: tab => tabs.push(tab), engine, audio: { current: null },
