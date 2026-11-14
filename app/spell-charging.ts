@@ -34,8 +34,10 @@ export function spellChargingCommand(
   if (!spellHudCanCharge(world, spell)) return null
   const player = world.manaWorld.playerTribe,
     paused = !charging(world.manaWorld, player, spell.model)
-  if (modifiers.ctrlKey) return { command: SpellChargingCommand.Focus, model: spell.model, enable: false }
-  if (modifiers.shiftKey) return { command: SpellChargingCommand.All, model: spell.model, enable: paused }
+  if (modifiers.ctrlKey)
+    return { command: SpellChargingCommand.Focus, model: spell.model, enable: false }
+  if (modifiers.shiftKey)
+    return { command: SpellChargingCommand.All, model: spell.model, enable: paused }
   if (!spellHudPermanent(world, spell)) return null
   return { command: SpellChargingCommand.Toggle, model: spell.model, enable: paused }
 }
