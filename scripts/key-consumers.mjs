@@ -11,7 +11,7 @@
 //   indirect  a matching string literal inside an array in a file that presses keys from a
 //             variable (e.g. `for (const key of ['w', 'd']) keyboard.down(key)`); verify by hand
 import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { readFileSync, realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -122,7 +122,8 @@ function main(argv) {
     'indirect hits need manual confirmation.\n')
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Compare real paths: /tmp is a symlink on macOS, so a resolved argv path can differ.
+if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
   try {
     main(process.argv.slice(2))
   } catch (error) {

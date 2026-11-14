@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
@@ -68,4 +68,14 @@ test('only tracked scripts/tests/qa files are scanned and the CLI reports them',
   const usage = spawnSync(process.execPath, [tool, '--root', repo], { encoding: 'utf8' })
   assert.equal(usage.status, 2)
   assert.match(usage.stderr, /Usage/)
+})
+
+test('the CLI runs when invoked through a symlinked path', t => {
+  const dir = mkdtempSync(join(tmpdir(), 'pnd-key-consumers-link-'))
+  t.after(() => rmSync(dir, { recursive: true, force: true }))
+  const link = join(dir, 'key-consumers.mjs')
+  symlinkSync(tool, link)
+  const cli = spawnSync(process.execPath, [link], { encoding: 'utf8' })
+  assert.equal(cli.status, 2, 'main() must run (usage error) rather than silently exit 0')
+  assert.match(cli.stderr, /Usage/)
 })
