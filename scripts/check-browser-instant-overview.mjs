@@ -53,7 +53,7 @@ try {
   const opened = (await state()).openMessages
   if (opened) {
     await page.keyboard.press('Shift+Enter')
-    const s = step('shift-enter-closes-messages', await state())
+    const s = step('shift-enter-closes-messages', { openedBefore: opened, ...(await state()) })
     assert.equal(s.openMessages, 0, 'Shift+Return closes the open campaign messages')
     assert.equal(s.overview, false, 'the closing press does not reach World View')
     assert.equal(s.stage, null)
@@ -92,12 +92,16 @@ try {
   assert.ok(globe.darkFraction > ground.darkFraction + 0.2,
     `World View shows the space backdrop (${globe.darkFraction} vs ${ground.darkFraction})`)
 
-  // Held repeats do not toggle back.
+  // A held chord toggles once (leave), its repeats do not re-enter; a fresh press re-enters.
   await page.keyboard.down('Shift')
   for (let i = 0; i < 4; i++) await page.keyboard.down('Enter')
   await page.keyboard.up('Enter')
   await page.keyboard.up('Shift')
-  assert.equal((await state()).overview, true, 'a held Shift+Return toggles only once')
+  s = step('held-shift-enter', await state())
+  assert.equal(s.overview, false, 'a held Shift+Return toggles only once')
+  assert.equal(s.stage, null)
+  await page.keyboard.press('Shift+Enter')
+  assert.equal((await state()).overview, true)
 
   // Shift+Ctrl and Alt match no native overview record.
   await page.keyboard.press('Shift+Control+Enter')
