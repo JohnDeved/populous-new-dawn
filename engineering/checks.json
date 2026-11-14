@@ -4812,6 +4812,44 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "animation-cadence-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check the read-only animation cadence audit and the descriptor-aware legacy unit fallback cadence (#214).",
+      "coveredBehavior": [
+        "Audit classification, static gate evidence, stale anchors (synthetic and shipped registry)",
+        "Legacy fallback holds per draw descriptor through advanceGame and the Scene unit loop at 1x/2x and 30-144 Hz"
+      ],
+      "knownLimits": [
+        "Original absolute draw rate is not established; presentation-visit rows are relative to the 24 Hz adapter."
+      ],
+      "executable": "node",
+      "args": ["--test", "tests/animation-cadence-audit.test.mjs", "tests/unit-fallback-cadence.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/animation.ts",
+        "app/scene-entities.ts",
+        "app/unit-kinds.ts",
+        "app/unit-animation-source.ts",
+        "app/selection-runtime.ts",
+        "app/game-clock.ts",
+        "app/original-effects.json",
+        "app/original-rules.json",
+        "app/original-units.json",
+        "scripts/animation-cadence-audit.mjs",
+        "scripts/animation-cadence-families.json",
+        "decomp/research/animation-cadence/native-setters.json",
+        "tests/animation-cadence-audit.test.mjs",
+        "tests/unit-fallback-cadence.test.mjs",
+        "tests/support/bloodlust-scene.mjs"
+      ],
+      "prerequisites": ["Installed locked dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "camera-native",
       "kind": "native",
       "automation": "safe",
