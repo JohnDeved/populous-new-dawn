@@ -343,7 +343,7 @@ export default async function missionThreeSwarm({ page, openMission, output, sig
     await input.view(report.target)
     await inPage('preloadMissionThreeSwarm')
     await input.action('Spells category', () =>
-      page.getByRole('button', { name: 'spells 1–3', exact: true }).click()
+      page.getByRole('button', { name: 'spells', exact: true }).click()
     )
     await input.action('Swarm card', () =>
       page.getByRole('button', { name: /^Swarm, \d+ shots$/ }).click()

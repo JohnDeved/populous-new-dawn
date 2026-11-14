@@ -2,7 +2,7 @@
 import {collapseCampaignMessages} from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import {chromium} from '@playwright/test'
-import {openGame} from './browser-game.mjs'
+import {openGame,chooseSpell} from './browser-game.mjs'
 import fixture from '../tests/fixtures/spell-button.json' with {type:'json'}
 import hud from '../app/original-hud.json' with {type:'json'}
 const browser=await chromium.launch({headless:true})
@@ -27,9 +27,10 @@ try {
   await page.evaluate(()=>{const s=window.testScene;s.world.shots.bridge=0;s.world.shots.lightning=0;s.onChange()})
   await page.waitForFunction(()=>document.querySelectorAll('.spell-card[aria-label="Undiscovered spell"]').length===2)
   await page.keyboard.press('4')
-  assert.equal(await page.evaluate(()=>window.testScene.world.mode),null,'an absent mission spell has no shortcut')
+  assert.equal(await page.evaluate(()=>window.testScene.world.mode),null,'number 4 recalls follower group 4, never a spell')
+  assert.equal(await chooseSpell(page,'Flatten'),false,'an absent mission spell has no card')
   await page.evaluate(()=>{const s=window.testScene;s.world.shots.flatten=1;s.onChange()})
-  await page.keyboard.press('4')
+  assert.equal(await chooseSpell(page,'Flatten'),true)
   assert.equal(await page.evaluate(()=>window.testScene.world.mode),'flatten','stocked spell remains reachable for integration')
   await page.evaluate(()=>{const s=window.testScene;s.world.mode=null;s.world.shots.flatten=0;s.onChange()})
   let checked=0,placeholders=0

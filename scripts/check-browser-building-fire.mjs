@@ -2,7 +2,7 @@ import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // Start npm run dev, then node scripts/check-browser-building-fire.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame, effectPixels } from './browser-game.mjs'
+import { openGame, effectPixels, chooseSpell } from './browser-game.mjs'
 import { buildingFirePoints } from '../app/building-shapes.ts'
 import { spriteDirection } from '../app/projection.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
@@ -26,7 +26,7 @@ try {
     scene.focus(window.burningBuilding)
     scene.onChange()
   })
-  await page.keyboard.press('3')
+  await chooseSpell(page,'Lightning')
   const target = await page.evaluate(() => {
     const scene = window.testScene, point = scene.screen(window.burningBuilding)
     const rect = scene.container.getBoundingClientRect()

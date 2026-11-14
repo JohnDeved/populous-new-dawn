@@ -1,7 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-spell-cursor.mjs.
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
-import {openGame,collapseCampaignMessages} from './browser-game.mjs';
+import {openGame,collapseCampaignMessages,chooseSpell} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
  // Shared public startup: opening logo/main menu -> New Game -> Mission 1 -> Skip Introduction.
@@ -25,7 +25,7 @@ try{
  async function moveWithoutMode(){
   const p=await page.evaluate(p=>{const s=window.testScene,q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect();return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2};},near);await page.mouse.move(p.x,p.y);
  }
- await page.keyboard.press('1');await expect(['point41']);
+ await chooseSpell(page,'Blast');await expect(['point41']);
  const placement=await page.locator('.spell-pointer').evaluate(e=>{const s=window.testScene,r=e.children[0].getBoundingClientRect();return {x:r.x-s.pointerScreen.clientX,y:r.y-s.pointerScreen.clientY,ring:s.cursor.visible,background:getComputedStyle(e.children[0]).backgroundImage};});
  assert.equal(placement.x,0);assert.equal(placement.y,-16);assert.equal(placement.ring,false);assert.match(placement.background,/original\/hud.png/);
  await page.screenshot({path:'/private/tmp/populous-cursor-ready.png'});
@@ -61,7 +61,7 @@ try{
  await page.mouse.move(100,500);await page.waitForFunction(()=>document.querySelector('.spell-pointer').hidden&&window.testScene.pointer===null);
  await page.keyboard.press('Escape');
  await page.evaluate(()=>{const s=window.testScene,u=s.world.units.find(u=>u.team==='blue'&&u.kind==='shaman');Object.assign(u,{x:0,z:46});s.focus({x:1,z:46});s.onChange();});
- const edge={x:1,z:46};await page.keyboard.press('1');await move(edge);await expect(['point41']);
+ const edge={x:1,z:46};await chooseSpell(page,'Blast');await move(edge);await expect(['point41']);
  assert.ok(await page.evaluate(edge=>window.testScene.y(edge)>0,edge),'out-of-crop browser target is dry land');
  const position=await move(edge),edgeBefore=await page.evaluate(()=>window.testScene.world.shots.blast);await page.mouse.click(position.x,position.y);await page.waitForFunction(()=>window.testScene.world.mode===null&&document.querySelector('.spell-pointer').hidden);
  assert.equal(await page.evaluate(()=>window.testScene.world.shots.blast),edgeBefore-1);

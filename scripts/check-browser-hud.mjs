@@ -40,7 +40,7 @@ try{
  await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.testScene.world.mode),null);
  await page.getByRole('button',{name:'buildings B',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true}).isDisabled(),true);
  await page.getByRole('button',{name:'Hut, 3 wood',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.world.mode),'hut');await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'spells 1–3',exact:true}).click();
+ await page.getByRole('button',{name:'spells',exact:true}).click();
  // The removed label is replaced by a real mesh hit, for hover and orders.
  const target=await page.evaluate(()=>{
   const s=window.testScene,head=s.world.shrines.find(h=>h.kind==='bridge'),r=s.renderer.domElement.getBoundingClientRect();

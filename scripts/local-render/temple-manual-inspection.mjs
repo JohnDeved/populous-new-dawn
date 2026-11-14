@@ -128,7 +128,7 @@ export function createTempleManualSteps({ output }) {
         context,
         async ({ page, input, targetId, wait, act, down, up, end, entry }) => {
           await input.view(context.target)
-          await input.button('spells 1–3')
+          await input.button('spells')
           // An actual supported HUD visit changes category; Escape alone does not.
           await act('hover-Blast', () =>
             page

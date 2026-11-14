@@ -2,7 +2,7 @@
 import { collapseCampaignMessages } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, chooseSpell } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
@@ -59,7 +59,7 @@ try {
   assert.equal(await highlight(head.id),0)
   await page.mouse.up()
   await page.waitForFunction(id=>window.testScene.hoveredObject===id,head.id)
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   await page.waitForFunction(()=>window.testScene.hoveredObject===null)
   assert.equal(await highlight(head.id),0)
   await page.keyboard.press('Escape')

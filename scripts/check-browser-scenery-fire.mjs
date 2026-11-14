@@ -2,7 +2,7 @@ import { setSoundThroughOptions } from './browser-options-audio.mjs'
 // Start npm run dev, then node scripts/check-browser-scenery-fire.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame, effectPixels } from './browser-game.mjs'
+import { openGame, effectPixels, chooseSpell } from './browser-game.mjs'
 import { fireUV } from '../app/scenery-fire.ts'
 
 const browser = await chromium.launch({ headless: true })
@@ -51,7 +51,7 @@ try {
   await page.evaluate(() => window.treeShadowBaseline(false))
   await page.screenshot({ path: '/private/tmp/populous-scenery-shadows-after.png' })
   await page.evaluate(() => { window.testScene.world.speed = 0.25 })
-  await page.keyboard.press('3')
+  await chooseSpell(page,'Lightning')
   const target = await page.evaluate(() => {
     const scene = window.testScene, point = scene.screen(window.burnTree)
     const rect = scene.container.getBoundingClientRect()
