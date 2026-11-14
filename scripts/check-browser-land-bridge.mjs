@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { chromium } from '@playwright/test'
-import { openGame, effectPixels } from './browser-game.mjs'
+import { openGame, effectPixels, chooseSpell } from './browser-game.mjs'
 
 const baseline = 'f1d7cba42eb0afe2a2f4fad9441269a81697b426'
 const source = execFileSync('git', ['show', `${baseline}:app/scene.ts`], { encoding: 'utf8' })
@@ -31,7 +31,7 @@ try {
     w.speed = 0.2
     s.focus({ x: 0, z: 14 })
   })
-  await page.keyboard.press('2')
+  await chooseSpell(page,'Land Bridge')
   const target = await page.evaluate(() => {
     const s = window.testScene,
       p = s.screen({ x: 0, z: 4 }),

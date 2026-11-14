@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
-import { effectPixels } from '../browser-game.mjs'
+import { effectPixels, chooseSpell } from '../browser-game.mjs'
 
 // Explicit supplied stock/person fixture; casting still uses the shipped hotkey and click.
 export default async function ({ page, output, openMission }) {
@@ -35,7 +35,7 @@ export default async function ({ page, output, openMission }) {
     s.focus({ x: 12, z: 31 })
     s.onChange()
   })
-  await page.keyboard.press('6')
+  await chooseSpell(page,'Swamp')
   const point = await page.evaluate(() => {
     const s = window.testScene, p = s.screen({ x: 12, z: 31 }), r = s.container.getBoundingClientRect()
     return { x: r.left + (p.x + 1) * r.width / 2, y: r.top + (1 - p.y) * r.height / 2 }

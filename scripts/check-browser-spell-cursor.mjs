@@ -1,6 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-spell-cursor.mjs.
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
+import {chooseSpell} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
@@ -25,7 +26,7 @@ try{
  async function moveWithoutMode(){
   const p=await page.evaluate(p=>{const s=window.testScene,q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect();return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2};},near);await page.mouse.move(p.x,p.y);
  }
- await page.keyboard.press('1');await expect(['point41']);
+ await chooseSpell(page,'Blast');await expect(['point41']);
  const placement=await page.locator('.spell-pointer').evaluate(e=>{const s=window.testScene,r=e.children[0].getBoundingClientRect();return {x:r.x-s.pointerScreen.clientX,y:r.y-s.pointerScreen.clientY,ring:s.cursor.visible,background:getComputedStyle(e.children[0]).backgroundImage};});
  assert.equal(placement.x,0);assert.equal(placement.y,-16);assert.equal(placement.ring,false);assert.match(placement.background,/original\/hud.png/);
  await page.screenshot({path:'/private/tmp/populous-cursor-ready.png'});
@@ -36,12 +37,12 @@ try{
  const before=await page.evaluate(()=>window.testScene.world.shots.blast);await page.mouse.click(out.x,out.y);
  assert.equal(await page.evaluate(()=>window.testScene.world.shots.blast),before);
  assert.equal(await page.evaluate(()=>window.testScene.world.mode),'blast');
- await page.keyboard.press('2');await move(near);await expect(['point48','589']); // No gifted stock.
+ await chooseSpell(page,'Land Bridge');await move(near);await expect(['point48','589']); // No gifted stock.
  await page.evaluate(()=>window.testScene.world.shots.bridge=1);await expect(['point48']);
  // A wet target within range must display the warning, without the range walker.
  const sea=await page.evaluate(()=>{const s=window.testScene,u=s.world.units.find(u=>u.team==='blue'&&u.kind==='shaman');for(let z=24;z<42;z++)for(let x=12;x<40;x++)if(s.y({x,z})<=0&&Math.hypot(x-u.x,z-u.z)<10)return {x,z};throw Error('No nearby shoreline fixture');});
  await move(sea);await expect(['point48','589']);
- await page.keyboard.press('3');await move(near);await expect(['point49','589']);
+ await chooseSpell(page,'Lightning');await move(near);await expect(['point49','589']);
  await page.evaluate(()=>window.testScene.world.shots.lightning=1);await expect(['point49']);
  await page.evaluate(()=>window.testScene.world.units.find(u=>u.team==='blue'&&u.kind==='shaman').lift=1);await expect(['point49','589']);
  await page.evaluate(()=>window.testScene.world.units.find(u=>u.team==='blue'&&u.kind==='shaman').lift=0);await expect(['point49']);
@@ -51,7 +52,7 @@ try{
  await page.mouse.move(100,500);await page.waitForFunction(()=>document.querySelector('.spell-pointer').hidden&&window.testScene.pointer===null);
  await page.keyboard.press('Escape');
  await page.evaluate(()=>{const s=window.testScene,u=s.world.units.find(u=>u.team==='blue'&&u.kind==='shaman');Object.assign(u,{x:0,z:46});s.focus({x:1,z:46});s.onChange();});
- const edge={x:1,z:46};await page.keyboard.press('1');await move(edge);await expect(['point41']);
+ const edge={x:1,z:46};await chooseSpell(page,'Blast');await move(edge);await expect(['point41']);
  assert.ok(await page.evaluate(edge=>window.testScene.y(edge)>0,edge),'out-of-crop browser target is dry land');
  const position=await move(edge),edgeBefore=await page.evaluate(()=>window.testScene.world.shots.blast);await page.mouse.click(position.x,position.y);await page.waitForFunction(()=>window.testScene.world.mode===null&&document.querySelector('.spell-pointer').hidden);
  assert.equal(await page.evaluate(()=>window.testScene.world.shots.blast),edgeBefore-1);

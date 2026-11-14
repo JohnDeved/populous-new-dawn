@@ -374,6 +374,7 @@
       "implementationPaths": [
         "app/drag-selection.ts",
         "app/person-selection.ts",
+        "app/follower-groups.ts",
         "app/scene-picking.ts",
         "app/selection-mesh.ts",
         "app/world-picking.ts",
@@ -383,7 +384,11 @@
       "researchPaths": [
         "tests/painter-order.test.mjs",
         "tests/blast-targeting.test.mjs",
-        "decomp/research/blast-targeting.md"
+        "decomp/research/blast-targeting.md",
+        "tests/follower-groups.test.mjs",
+        "decomp/research/follower-groups.md",
+        "decomp/research/follower-groups-evidence",
+        "scripts/check-static-follower-groups.py"
       ],
       "sharedPaths": [
         "app/model.ts", "app/scene.ts", "app/render-view.ts",
@@ -409,6 +414,7 @@
       ],
       "evidence": [
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
+        { "path": "decomp/research/follower-groups.md", "heading": "Numbered follower groups" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },

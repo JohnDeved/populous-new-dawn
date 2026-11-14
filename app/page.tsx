@@ -58,6 +58,7 @@ import { OriginalPauseStatus } from './original-pause-status'
 import { pauseStatusLayout } from './pause-status-layout'
 import { SpellTestMenu } from './spell-test-menu'
 import { CHEAT_SAVE_NOTICE, spellTestShortcut } from './spell-test-cheats'
+import { followerGroupShortcut } from './follower-groups.ts'
 import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -603,12 +604,21 @@ export default function Home() {
         cheatsOpen ||
         [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
-        e.ctrlKey ||
-        e.metaKey ||
-        e.altKey ||
         (e.target as HTMLElement).closest('input,dialog')
       )
         return
+      // Original number-row records own 1–6 (with Shift/Ctrl/Alt); spells do not.
+      const group = followerGroupShortcut(e)
+      if (group || (/^Digit[1-6]$/.test(e.code) && !e.metaKey)) {
+        // Claim held/unsupported chords too, so Alt+digit cannot reach browser menus.
+        e.preventDefault()
+        if (group && store.getWorld() === world && engine.current?.world === world) {
+          engine.current.followerGroup(group)
+          update()
+        }
+        return
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return
       if (world.inputMask) {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
           e.preventDefault()
@@ -1307,7 +1317,7 @@ export default function Home() {
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
             <button
               key={t}
-              aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
+              aria-label={`${t} ${t === 'buildings' ? 'B' : ''}`}
               title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
@@ -1901,8 +1911,16 @@ export default function Home() {
                     </strong>
                     <span>Screen edges</span>
                     <strong>Move the pointer to an outer edge to scroll</strong>
-                    <span>1–3 / B</span>
-                    <strong>Choose a spell / open buildings</strong>
+                    <span>Shift 1–6 · 1–6 · Alt 1–6</span>
+                    <strong>
+                      Store selected followers as group 1–6 · Select that group (Ctrl adds) · Select
+                      it and move the camera to it
+                    </strong>
+                    <span>7 / 8 / 9 / 0 · B</span>
+                    <strong>
+                      Choose Firestorm / Earthquake / Tornado / Shield · Open buildings · Pick other
+                      spells from the spells tab
+                    </strong>
                     <span>Space with a building plan</span>
                     <strong>Rotate the entrance before placing</strong>
                     <span>F8</span>

@@ -7,6 +7,7 @@ import { checkMission10FollowerStrip } from '../scripts/local-render/mission10-b
 
 import { mission10ExpectedSelection } from '../scripts/local-render/mission10-selection.mjs'
 import { mission10QueryFixture } from './support/mission10-profile-receipt.mjs'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
 
 const party = [63, 111, 112, 113, 114]
 function fixture(occupied, fault) {
@@ -37,7 +38,7 @@ function fixture(occupied, fault) {
   // selection adapter leaves are supplied; no neutral-Escape branch is copied.
   const cleanupKeyboard = pageEffect("window.addEventListener('keydown', key)", {
     world: live, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS: [],
+    messageDetails: { current: new Map() }, SPELLS: [], followerGroupShortcut,
     store: window.testStore = { getWorld: () => live, change: fn => fn(live) },
     engine: window.testSceneRef, tutorialLevel: 79,
     openMenu: showMenu, cancelInteraction: world => { world.selected = [] },

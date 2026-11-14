@@ -106,6 +106,26 @@ export async function openGame(browser, mission = 1) {
   return { page, errors }
 }
 
+// The original number row recalls follower groups (#1005), so checks arm spells
+// through the actual HUD spell card. DOM activation keeps the pointer in place.
+// Returns false when the mission roster has no card for that spell.
+export async function chooseSpell(page, name) {
+  await page.evaluate(() => {
+    const tab = document.querySelector('button[title="spells"]')
+    if (tab?.getAttribute('aria-pressed') !== 'true') tab?.click()
+  })
+  await page.waitForFunction(
+    () => document.querySelector('button[title="spells"]')?.getAttribute('aria-pressed') === 'true'
+  )
+  return page.evaluate(name => {
+    const card = [...document.querySelectorAll('.spell-card')].find(card =>
+      card.getAttribute('aria-label')?.startsWith(`${name}, `)
+    )
+    card?.click()
+    return !!card
+  }, name)
+}
+
 export async function effectPixels(page, ids) {
   return page.evaluate(ids => {
     const scene = window.testScene, groups = ids.map(id => scene.fxMeshes.get(id))

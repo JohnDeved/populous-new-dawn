@@ -1,4 +1,4 @@
-import { showAllMissions } from './browser-game.mjs'
+import { showAllMissions, chooseSpell } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -54,7 +54,7 @@ try {
     () => !globalThis.testScene.cameraMotion.active && !globalThis.testScene.viewTransition
   )
 
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   const target = await page.evaluate(point => {
     const scene = globalThis.testScene,
       projected = scene.screen(point),

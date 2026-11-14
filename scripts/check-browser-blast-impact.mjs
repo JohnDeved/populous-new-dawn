@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict'
 import {writeFileSync} from 'node:fs'
 import {chromium} from '@playwright/test'
-import {openGame,effectPixels} from './browser-game.mjs'
+import {openGame,effectPixels,chooseSpell} from './browser-game.mjs'
 import fixture from '../tests/fixtures/blast-impact.json' with {type:'json'}
 
 const browser=await chromium.launch({headless:true})
@@ -17,7 +17,7 @@ try {
     w.units=[shaman];w.selected=[shaman.id];w.castingTribes[0].cooldown=0;w.shots.blast=4
     s.focus({x:12,z:31});s.onChange()
   })
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   const point=await page.evaluate(()=>{
     const s=window.testScene,p=s.screen({x:12,z:31}),r=s.container.getBoundingClientRect()
     return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}

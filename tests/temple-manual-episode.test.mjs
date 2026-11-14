@@ -14,6 +14,7 @@ import { assertTempleManualObservation } from '../scripts/local-render/temple-ma
 import { createTempleManualSteps } from '../scripts/local-render/temple-manual-inspection.mjs'
 import { createMission1VaultInput } from '../scripts/local-render/mission1-vault-input.mjs'
 import { findEntityInput, inspectEntityPoint } from '../qa/erosion-ordinary/input.mjs'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
 import {
   assertTempleTrainInput,
   assertTempleFreshRequest,
@@ -78,6 +79,7 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     'tutorialLevel',
     'cancelInteraction',
     'update',
+    'followerGroupShortcut',
     `return ${code}`
   )(
     true,
@@ -93,7 +95,8 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     nop,
     0,
     api.cancelInteraction,
-    nop
+    nop,
+    followerGroupShortcut
   )
 }
 async function fixture(t, mode = 'expiry', options = {}) {
@@ -434,9 +437,10 @@ test('actual idle host step composes with maintained input and the observed Scen
     },
     getByRole(role, options) {
       assert.equal(role, 'button')
-      const source = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8'),
-        suffix = source.match(/t === 'spells' \? '([^']+)'/)[1]
-      assert.equal(options.name, `spells ${suffix}`, 'Driver uses the actual public Page label')
+      const source = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
+      // Spells carry no tab shortcut suffix; the accessible name is the trimmed tab name.
+      assert.ok(source.includes("aria-label={`${t} ${t === 'buildings' ? 'B' : ''}`}"))
+      assert.equal(options.name, 'spells', 'Driver uses the actual public Page label')
       return {
         async click() {
           spellsVisible = true
@@ -496,7 +500,7 @@ test('actual idle host step composes with maintained input and the observed Scen
   assert(screenshots[0].status.frame && !screenshots[0].status.reused)
   assert(screenshots[1].status.heldVisits >= 4 && !screenshots[1].status.released)
   assert.equal(screenshots[2].status.complete, 'expiry')
-  assert.deepEqual(labels, ['spells 1–3'])
+  assert.deepEqual(labels, ['spells'])
   assert.equal(window.templeManual, undefined)
 })
 
