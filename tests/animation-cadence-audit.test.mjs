@@ -127,3 +127,16 @@ test('curated rows report stale anchors and explicit unknowns', () => {
   assert.match(table, /Summary \(all rows\): mismatched 0, unknown 1, matched 1/)
   assert.deepEqual(summarize(rows), { mismatched: 0, unknown: 1, matched: 1, 'not-applicable': 0 })
 })
+
+test('the shipped audit has no stale anchors and every row has a known status', async () => {
+  const { buildAudit } = await import('../scripts/animation-cadence-audit.mjs')
+  const report = await buildAudit()
+  assert.deepEqual(report.rows.filter(row => row.stale).map(row => row.id), [])
+  for (const row of report.rows) assert.ok(['mismatched', 'unknown', 'matched', 'not-applicable'].includes(row.status), row.id)
+  assert.equal(report.rates[1].presentation, 24)
+  assert.equal(report.rates[1].logical, 12)
+  // The descriptor-aware fallback keeps every reachable legacy Firewarrior row matched.
+  const firewarrior = report.rows.filter(row => /^legacy-unit\/(blue|red)-firewarrior\//.test(row.id) && row.status !== 'not-applicable')
+  assert.ok(firewarrior.length >= 20)
+  assert.deepEqual(firewarrior.filter(row => row.status !== 'matched').map(row => row.id), [])
+})

@@ -264,6 +264,7 @@ export async function sampleLegacyExposure(missions = [1, 2, 3, 5, 7, 10, 13, 16
   const { createWorld, tick } = await import('../app/model.ts')
   const { unitRenderAnimationSource } = await import('../app/unit-animation-source.ts')
   const { unitAnimation } = await import('../app/selection-runtime.ts')
+  const { animationTeam } = await import('../app/world-types.ts')
   const counts = {}
   for (const mission of missions) {
     const w = createWorld(mission)
@@ -273,7 +274,8 @@ export async function sampleLegacyExposure(missions = [1, 2, 3, 5, 7, 10, 13, 16
       for (const u of w.units) {
         if (u.inside !== null && !u.entry) continue
         if (unitRenderAnimationSource(u)) continue
-        const team = u.team === 'wild' ? 'wild' : u.team,
+        // Same table signature as Scene.updateUnitsFrame (Shamans keep their tribe).
+        const team = u.kind === 'shaman' ? u.team : animationTeam(u.team),
           key = `legacy-unit/${team}-${u.kind}/${unitAnimation(w, u)}`
         counts[key] = (counts[key] ?? 0) + 1
       }

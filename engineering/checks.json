@@ -4817,7 +4817,7 @@
       "automation": "safe",
       "purpose": "Check the read-only animation cadence audit and the descriptor-aware legacy unit fallback cadence (#214).",
       "coveredBehavior": [
-        "Audit classification, static gate evidence, stale anchors",
+        "Audit classification, static gate evidence, stale anchors (synthetic and shipped registry)",
         "Legacy fallback holds per draw descriptor through advanceGame and the Scene unit loop at 1x/2x and 30-144 Hz"
       ],
       "knownLimits": [
@@ -4831,6 +4831,10 @@
         "app/animation.ts",
         "app/scene-entities.ts",
         "app/unit-kinds.ts",
+        "app/unit-animation-source.ts",
+        "app/selection-runtime.ts",
+        "app/game-clock.ts",
+        "app/original-effects.json",
         "app/original-rules.json",
         "app/original-units.json",
         "scripts/animation-cadence-audit.mjs",

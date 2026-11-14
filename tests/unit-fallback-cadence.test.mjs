@@ -120,7 +120,7 @@ for (const [speed, refresh] of [
   })
 }
 
-test('fallback cadence is presentation-only: simulation outcomes are unchanged', async () => {
+test('rendering the fallback does not change simulation outcomes (rendered vs unrendered run)', async () => {
   const a = await observe(1, 60, 2), b = await legacyWalkers()
   const clock = { animationTime: 0, animationFrame: 0 }
   for (let i = 0; i < 120; i++) b.api.advanceGame(b.world, clock, 1 / 60)

@@ -9,7 +9,12 @@
       "nativeRule": "004d23ed ORs flags3 0x40100; 004ee7b0 advances gated modes only on stamped logical visits",
       "nativeEvidence": "decomp/research/sprite-logical-visits.md (#217)",
       "status": "matched",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "source\\.model >= 2 && source\\.model <= 7 && animationUsesLogicalVisits" }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "source\\.model >= 2 && source\\.model <= 7 && animationUsesLogicalVisits"
+        }
+      ]
     },
     {
       "id": "native-person/wild-model-1",
@@ -23,7 +28,12 @@
       "nativeVisits": "logical",
       "nativeEvidence": "decomp/research/animation-cadence.md#wild-people-gate",
       "note": "Not sampled in ordinary AI play; needs a player conversion/flight witness and the full creation path before a repair.",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "model >= 2 && model <= 7 \\? 0x40000 : 0" }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "model >= 2 && model <= 7 \\? 0x40000 : 0"
+        }
+      ]
     },
     {
       "id": "legacy-unit/rounding",
@@ -34,7 +44,12 @@
       "nativeEvidence": "app/animation.ts stepObjectAnimation",
       "status": "matched",
       "note": "Before #214 audit fix, floor((a/12 - b/12) x 12) fell one frame short for ~19% of turn pairs, shortening/doubling frames.",
-      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "fallbackFramesPerSecond\\(g\\.userData\\.draw \\?\\? 14, nativeUnits\\.fps\\) \\+ 1e-6" }]
+      "anchors": [
+        {
+          "file": "app/scene-entities.ts",
+          "pattern": "fallbackFramesPerSecond\\(g\\.userData\\.draw \\?\\? 14, nativeUnits\\.fps\\) \\+ 1e-6"
+        }
+      ]
     },
     {
       "id": "legacy-unit/melee-knockback",
@@ -46,8 +61,31 @@
       "nativeFps": null,
       "nativeEvidence": "decomp/research/melee-recoil-animation.md",
       "status": "unknown",
-      "note": "Only reached without nativeRecoilAnimation; one-time phase sample, not a running rate.",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "Math\\.floor\\(elapsed \\* sprites\\.fps\\)" }]
+      "note": "Only reached without nativeRecoilAnimation; one-time phase sample, not a running rate. Since the descriptor-aware fallback, a Firewarrior's preceding legacy recoil pose runs at 6 fps, so this 12 fps sample can jump from frame k to about 2k at knockback start (person-record field; needs its own owner review).",
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "Math\\.floor\\(elapsed \\* sprites\\.fps\\)"
+        }
+      ]
+    },
+    {
+      "id": "legacy-unit/firewarrior-shooting",
+      "group": "people",
+      "family": "Firewarrior legacy u.fighting shooting (attack table)",
+      "browserRule": "legacy 'attack' table (source 120 punch artwork) at the draw-18 fallback rate",
+      "browserFps": 6,
+      "nativeRule": "firing uses source 56 with draw 13 (mode 2 step 0) on logical visits",
+      "nativePerVisit": 1,
+      "nativeVisits": "logical",
+      "nativeEvidence": "app/original-rules.json personAnimationObjects state 15 model 6 -> object 94 (56, 13)",
+      "note": "Artwork gap as well as rate: the legacy path shows punch artwork; command 28 shooting is not adopted by a native owner.",
+      "anchors": [
+        {
+          "file": "app/world-turn.ts",
+          "pattern": "u\\.fighting = true\\s+if \\(!u\\.cooldown\\) launchFirewarrior\\(w, u, target\\)"
+        }
+      ]
     },
     {
       "id": "unit-death/legacy",
@@ -56,7 +94,12 @@
       "browserRule": "Scene.animatePerson(f.age, once) through the descriptor-aware fallback; die tables are 1 frame (Shaman 680 via catalog)",
       "nativeRule": "native death is the Shaman model-12 / follower corpse owners",
       "status": "not-applicable",
-      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "scene\\.animatePerson\\(g, f\\.unit\\.heading, directions, f\\.age, true\\)" }]
+      "anchors": [
+        {
+          "file": "app/scene-effects.ts",
+          "pattern": "scene\\.animatePerson\\(g, f\\.unit\\.heading, directions, f\\.age, true\\)"
+        }
+      ]
     },
     {
       "id": "follower-corpse",
@@ -66,7 +109,12 @@
       "nativeRule": "same descriptor on presentation visits",
       "nativeEvidence": "decomp/research/follower-death-sprites.md",
       "status": "matched",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "latchFollowerCorpseFrame\\(f\\)" }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "latchFollowerCorpseFrame\\(f\\)"
+        }
+      ]
     },
     {
       "id": "shaman-death",
@@ -76,7 +124,12 @@
       "nativeRule": "004ee7b0 per eligible visit, draws before advance",
       "nativeEvidence": "decomp/research/shaman-death-cadence.md",
       "status": "matched",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "latchShamanDeathFrame\\(f\\)" }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "latchShamanDeathFrame\\(f\\)"
+        }
+      ]
     },
     {
       "id": "stone-head",
@@ -86,7 +139,12 @@
       "nativeRule": "class5/model9 creation sets 0x40000; state10 processor stamps",
       "nativeEvidence": "decomp/research/stone-head-logical-visits.md (#218)",
       "status": "matched",
-      "anchors": [{ "file": "app/game-clock.ts", "pattern": "animateStoneHeads\\(w, 'logical'\\)" }]
+      "anchors": [
+        {
+          "file": "app/game-clock.ts",
+          "pattern": "animateStoneHeads\\(w, 'logical'\\)"
+        }
+      ]
     },
     {
       "id": "angel",
@@ -96,7 +154,12 @@
       "nativeRule": "mode 4 per presentation visit, flags3 without 0x40000",
       "nativeEvidence": "decomp/research/angel-presentation/README.md",
       "status": "matched",
-      "anchors": [{ "file": "app/game-clock.ts", "pattern": "animateAngelPresentations\\(w\\)" }]
+      "anchors": [
+        {
+          "file": "app/game-clock.ts",
+          "pattern": "animateAngelPresentations\\(w\\)"
+        }
+      ]
     },
     {
       "id": "vault-knowledge-glow",
@@ -109,7 +172,12 @@
       "nativePerVisit": 1,
       "nativeVisits": "presentation",
       "nativeEvidence": "decomp/research/vault-knowledge-world-assets.md",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "shrine\\.knowledgeGlow\\.displayedFrame = " }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "shrine\\.knowledgeGlow\\.displayedFrame = "
+        }
+      ]
     },
     {
       "id": "hut-smoke/root-and-puffs",
@@ -123,7 +191,10 @@
       "nativeVisits": "presentation",
       "nativeEvidence": "decomp/research/hut-occupancy-smoke.md; decomp/research/hut-smoke-secondary-phase.md",
       "anchors": [
-        { "file": "app/scene-entities.ts", "pattern": "\\(\\(\\(owner\\.animationFrame - puff\\.frameStart\\) % 16\\) \\+ 16\\) % 16" }
+        {
+          "file": "app/scene-entities.ts",
+          "pattern": "\\(\\(\\(owner\\.animationFrame - puff\\.frameStart\\) % 16\\) \\+ 16\\) % 16"
+        }
       ]
     },
     {
@@ -136,7 +207,12 @@
       "nativeRule": "class-5 fire object scheduling not integrated; per-object stagger unknown",
       "nativeEvidence": "app/scene-effects.ts comment (class-5 scheduling)",
       "status": "unknown",
-      "anchors": [{ "file": "app/scenery-fire.ts", "pattern": "fire\\.frame = \\(fire\\.frame \\+ 1\\) % artwork\\.frames\\.length" }]
+      "anchors": [
+        {
+          "file": "app/scenery-fire.ts",
+          "pattern": "fire\\.frame = \\(fire\\.frame \\+ 1\\) % artwork\\.frames\\.length"
+        }
+      ]
     },
     {
       "id": "temple-shared-anibl",
@@ -146,7 +222,12 @@
       "nativeRule": "update_bl320_sprites 0044fbd0; documented browser compatibility policy, not exact original cadence",
       "nativeEvidence": "decomp/research/shared-temple-material-contract.md",
       "status": "unknown",
-      "anchors": [{ "file": "app/shared-anibl.ts", "pattern": "\\(state\\.counter \\+ 1\\) % templeFrames\\.length" }]
+      "anchors": [
+        {
+          "file": "app/shared-anibl.ts",
+          "pattern": "\\(state\\.counter \\+ 1\\) % templeFrames\\.length"
+        }
+      ]
     },
     {
       "id": "worship-acquisition",
@@ -156,7 +237,12 @@
       "nativeRule": "native worship visit limiter port",
       "nativeEvidence": "decomp/research/worship-acquisition-vfx.md",
       "status": "matched",
-      "anchors": [{ "file": "app/game-clock.ts", "pattern": "ui\\.nextVisit = worshipDeadline\\(ui, preLimiter\\)" }]
+      "anchors": [
+        {
+          "file": "app/game-clock.ts",
+          "pattern": "ui\\.nextVisit = worshipDeadline\\(ui, preLimiter\\)"
+        }
+      ]
     },
     {
       "id": "swamp-bubbles",
@@ -169,7 +255,12 @@
       "nativePerVisit": 1,
       "nativeVisits": "presentation",
       "nativeEvidence": "decomp/research/swamp-presentation.md",
-      "anchors": [{ "file": "app/swamp-presentation.ts", "pattern": "% 10" }]
+      "anchors": [
+        {
+          "file": "app/swamp-presentation.ts",
+          "pattern": "% 10"
+        }
+      ]
     },
     {
       "id": "tornado-column",
@@ -179,7 +270,12 @@
       "nativeRule": "decomp/research/tornado-appearance.md",
       "nativeEvidence": "decomp/research/tornado-appearance.md",
       "status": "not-applicable",
-      "anchors": [{ "file": "app/tornado-appearance.ts", "pattern": "frame: \\(birthPhase - ordinal\\) & 15" }]
+      "anchors": [
+        {
+          "file": "app/tornado-appearance.ts",
+          "pattern": "frame: \\(birthPhase - ordinal\\) & 15"
+        }
+      ]
     },
     {
       "id": "lightning-branches",
@@ -192,7 +288,12 @@
       "nativeVisits": "presentation",
       "nativeEvidence": "app/lightning.ts 0x475350 note",
       "note": "Bolt lives 3 turns (0.25 s). Cosmetic RNG consumption also becomes refresh dependent.",
-      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "lightningLines\\(from\\.x, from\\.y, to\\.x, to\\.y, scene\\.world\\.cosmeticRandom\\)" }]
+      "anchors": [
+        {
+          "file": "app/scene-effects.ts",
+          "pattern": "lightningLines\\(from\\.x, from\\.y, to\\.x, to\\.y, scene\\.world\\.cosmeticRandom\\)"
+        }
+      ]
     },
     {
       "id": "spell-halo",
@@ -202,7 +303,12 @@
       "browserFps": 12,
       "nativeRule": "not traced",
       "nativeFps": null,
-      "anchors": [{ "file": "app/scene-input-runtime.ts", "pattern": "now \\* 12" }]
+      "anchors": [
+        {
+          "file": "app/scene-input-runtime.ts",
+          "pattern": "now \\* 12"
+        }
+      ]
     },
     {
       "id": "armageddon-arrival-sparkle",
@@ -215,7 +321,12 @@
       "nativeVisits": "presentation",
       "nativeEvidence": "decomp/research/animation-cadence/native-setters.json",
       "note": "Artwork/sequence gap rather than a rate defect.",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "visual\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}" }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "visual\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}"
+        }
+      ]
     },
     {
       "id": "spy-disguise-flicker",
@@ -225,7 +336,12 @@
       "browserPerVisit": 0.25,
       "browserVisits": "presentation",
       "nativeRule": "not traced",
-      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "scene\\.gameClock\\.animationFrame & 2" }]
+      "anchors": [
+        {
+          "file": "app/scene-entities.ts",
+          "pattern": "scene\\.gameClock\\.animationFrame & 2"
+        }
+      ]
     },
     {
       "id": "bloodlust-overlay",
@@ -235,7 +351,12 @@
       "browserPerVisit": 0.25,
       "browserVisits": "logical",
       "nativeRule": "not traced",
-      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "!\\(scene\\.world\\.turn & 2\\)" }]
+      "anchors": [
+        {
+          "file": "app/scene-entities.ts",
+          "pattern": "!\\(scene\\.world\\.turn & 2\\)"
+        }
+      ]
     },
     {
       "id": "impact-shake",
@@ -245,7 +366,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeRule": "not traced",
-      "anchors": [{ "file": "app/scene-entities.ts", "pattern": "scene\\.gameClock\\.animationFrame," }]
+      "anchors": [
+        {
+          "file": "app/scene-entities.ts",
+          "pattern": "scene\\.gameClock\\.animationFrame,"
+        }
+      ]
     },
     {
       "id": "water",
@@ -255,7 +381,12 @@
       "browserPerVisit": 1,
       "browserVisits": "logical",
       "nativeRule": "not traced",
-      "anchors": [{ "file": "app/water.ts", "pattern": "257" }]
+      "anchors": [
+        {
+          "file": "app/water.ts",
+          "pattern": "257"
+        }
+      ]
     },
     {
       "id": "pointer-brackets",
@@ -265,7 +396,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeRule": "not traced",
-      "anchors": [{ "file": "app/world-picking.ts", "pattern": "% 12" }]
+      "anchors": [
+        {
+          "file": "app/world-picking.ts",
+          "pattern": "% 12"
+        }
+      ]
     },
     {
       "id": "hud-blinks",
@@ -274,7 +410,12 @@
       "browserRule": "presentation frame bits (portrait & 4, population & 0x124) and turn bits (panels & 4 / & 2)",
       "nativeRule": "not traced",
       "status": "unknown",
-      "anchors": [{ "file": "app/hud-population.ts", "pattern": "0x124" }]
+      "anchors": [
+        {
+          "file": "app/hud-population.ts",
+          "pattern": "0x124"
+        }
+      ]
     },
     {
       "id": "frontend-menu-glow",
@@ -283,7 +424,12 @@
       "browserRule": "(f + 1) % 8 per setInterval(101 ms), about 9.9 fps wall",
       "browserFps": 9.9,
       "nativeRule": "not traced",
-      "anchors": [{ "file": "app/original-main-menu.tsx", "pattern": "101" }]
+      "anchors": [
+        {
+          "file": "app/original-main-menu.tsx",
+          "pattern": "101"
+        }
+      ]
     },
     {
       "sequence": "hit",
@@ -292,7 +438,12 @@
       "browserRule": "f.animation draw 46 on presentation visits",
       "browserPerVisit": 1,
       "browserVisits": "presentation",
-      "anchors": [{ "file": "app/world-effects.ts", "pattern": "setAnimationObject\\(f\\.animation, 46, 1294\\)" }]
+      "anchors": [
+        {
+          "file": "app/world-effects.ts",
+          "pattern": "setAnimationObject\\(f\\.animation, 46, 1294\\)"
+        }
+      ]
     },
     {
       "sequence": "hit",
@@ -301,7 +452,12 @@
       "browserRule": "(sprite.frame) + floor(age x 12), game time; age accumulates 1/12 per turn",
       "browserFps": 12,
       "note": "Summed 1/12 ages floor one frame short at some turns (e.g. 6), skipping a frame.",
-      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "Math\\.floor\\(f\\.age \\* 12\\)" }]
+      "anchors": [
+        {
+          "file": "app/scene-effects.ts",
+          "pattern": "Math\\.floor\\(f\\.age \\* 12\\)"
+        }
+      ]
     },
     {
       "sequence": "sparkle",
@@ -310,7 +466,12 @@
       "browserRule": "(sprite.frame) + floor(age x 12), game time",
       "browserFps": 12,
       "nativeDraw": 44,
-      "anchors": [{ "file": "app/spell-effects-runtime.ts", "pattern": "fx\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}" }]
+      "anchors": [
+        {
+          "file": "app/spell-effects-runtime.ts",
+          "pattern": "fx\\.sprite = \\{ sequence: 'sparkle', frame: 0 \\}"
+        }
+      ]
     },
     {
       "sequence": "sparkle",
@@ -320,7 +481,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeDraw": 44,
-      "anchors": [{ "file": "app/site-wave-effects.ts", "pattern": "fx\\.animation = \\{" }]
+      "anchors": [
+        {
+          "file": "app/site-wave-effects.ts",
+          "pattern": "fx\\.animation = \\{"
+        }
+      ]
     },
     {
       "sequence": "smoke",
@@ -328,7 +494,12 @@
       "family": "non-unit death smoke (no counters)",
       "browserRule": "floor(age x 12), game time",
       "browserFps": 12,
-      "anchors": [{ "file": "app/scene-effects.ts", "pattern": "Math\\.floor\\(f\\.age \\* 12\\)" }]
+      "anchors": [
+        {
+          "file": "app/scene-effects.ts",
+          "pattern": "Math\\.floor\\(f\\.age \\* 12\\)"
+        }
+      ]
     },
     {
       "sequence": "splash",
@@ -338,7 +509,12 @@
       "browserPerVisit": 1,
       "browserVisits": "logical",
       "nativeEvidence": "decomp/research/sprite-logical-visits.md (#217)",
-      "anchors": [{ "file": "app/live-people.ts", "pattern": "f\\.kind === 'splash'" }]
+      "anchors": [
+        {
+          "file": "app/live-people.ts",
+          "pattern": "f\\.kind === 'splash'"
+        }
+      ]
     },
     {
       "sequence": "impact",
@@ -348,7 +524,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeDraw": 30,
-      "anchors": [{ "file": "app/world-effects.ts", "pattern": "draw 30/HFX1099" }]
+      "anchors": [
+        {
+          "file": "app/world-effects.ts",
+          "pattern": "draw 30/HFX1099"
+        }
+      ]
     },
     {
       "sequence": "birth",
@@ -357,7 +538,12 @@
       "browserRule": "draw 41 on presentation visits (hold 8)",
       "browserPerVisit": 1,
       "browserVisits": "presentation",
-      "anchors": [{ "file": "app/world-effects.ts", "pattern": "41/HFX1441" }]
+      "anchors": [
+        {
+          "file": "app/world-effects.ts",
+          "pattern": "41/HFX1441"
+        }
+      ]
     },
     {
       "sequence": "hypnotise",
@@ -367,7 +553,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeEvidence": "decomp/research/hypnotise-artwork.md",
-      "anchors": [{ "file": "app/world-effects.ts", "pattern": "setAnimationObject\\(f\\.animation, 44, 1264\\)" }]
+      "anchors": [
+        {
+          "file": "app/world-effects.ts",
+          "pattern": "setAnimationObject\\(f\\.animation, 44, 1264\\)"
+        }
+      ]
     },
     {
       "sequence": "buildingSmoke",
@@ -376,7 +567,12 @@
       "browserRule": "draw 48 on presentation visits",
       "browserPerVisit": 1,
       "browserVisits": "presentation",
-      "anchors": [{ "file": "app/building-smoke.ts", "pattern": "setAnimationObject\\(smoke, 48, 1345\\)" }]
+      "anchors": [
+        {
+          "file": "app/building-smoke.ts",
+          "pattern": "setAnimationObject\\(smoke, 48, 1345\\)"
+        }
+      ]
     },
     {
       "sequence": "startConversion",
@@ -386,7 +582,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeEvidence": "decomp/research/conversion-flash.md",
-      "anchors": [{ "file": "app/site-wave-effects.ts", "pattern": "fx\\.animation = \\{" }]
+      "anchors": [
+        {
+          "file": "app/site-wave-effects.ts",
+          "pattern": "fx\\.animation = \\{"
+        }
+      ]
     },
     {
       "sequence": "startStoneDust",
@@ -395,7 +596,12 @@
       "browserRule": "draw 37 on presentation visits",
       "browserPerVisit": 1,
       "browserVisits": "presentation",
-      "anchors": [{ "file": "app/site-wave-effects.ts", "pattern": "fx\\.animation = \\{" }]
+      "anchors": [
+        {
+          "file": "app/site-wave-effects.ts",
+          "pattern": "fx\\.animation = \\{"
+        }
+      ]
     },
     {
       "sequence": "blastTrail",
@@ -405,7 +611,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeDraw": 1,
-      "anchors": [{ "file": "app/world-effects.ts", "pattern": "fx\\.animation = trail" }]
+      "anchors": [
+        {
+          "file": "app/world-effects.ts",
+          "pattern": "fx\\.animation = trail"
+        }
+      ]
     },
     {
       "sequence": "spellTrail",
@@ -415,7 +626,12 @@
       "browserPerVisit": 1,
       "browserVisits": "presentation",
       "nativeDraw": 1,
-      "anchors": [{ "file": "app/level-start-runtime.ts", "pattern": "spellTrail" }]
+      "anchors": [
+        {
+          "file": "app/level-start-runtime.ts",
+          "pattern": "spellTrail"
+        }
+      ]
     },
     {
       "sequence": "hutSmokeFull",

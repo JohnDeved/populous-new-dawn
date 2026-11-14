@@ -26,7 +26,7 @@ The audit is read only. Its synthetic test is `tests/animation-cadence-audit.tes
 
 - **Visit rates are measured, not assumed.** The audit steps the actual
   `advanceGame` clock in Node. It currently reports 24 presentation visits per wall
-  second at both 1× and 2×, plus 12 logical turns per game second (24 at 2×).
+  second at both 1× and 2×, plus 12 logical turns per wall second at 1× (24 at 2×).
 - **Native rules use the original's units.** A rule is a number of frames per
   visit, and the visit is either a *presentation* visit or a *logical* visit:
   - A *presentation* visit is one native draw-loop iteration. The browser stands it
@@ -78,11 +78,16 @@ pray, carry, airborne and dance.
 - **Where players see it.** The Firewarrior uses the fallback whenever no native
   owner is active. Examples:
   - walking authored or computer routes (Missions 10, 18 and 22 at start);
-  - legacy `u.fighting` shooting (`attack`, command 28 is not adopted);
+  - legacy `u.fighting` shooting. This path shows the `attack` table (source 120,
+    the punch artwork). The original fires with source 56 under draw 13, step 0,
+    about 12 fps. Here the fix only halves the rate of artwork that is already
+    wrong. The audit row `firewarrior-legacy-shooting` records this artwork gap;
+    it does not claim parity for this path;
   - selected idle in mixed handoffs, the case the #214 G witness reported.
 - **Pre-existing rounding jitter.** The same code computed
   `floor((turn - since) / 12 × 12)`. Floating-point rounding put that one frame
-  short for about 19% of turn pairs, so every kind's fallback could show doubled
+  short for a large share of turn pairs (19% of 160,000 pairs with
+  `since` in 0–399 and gaps 0–399), so every kind's fallback could show doubled
   frames followed by a skip. This affected Brave, Warrior, wild and route walkers.
 - **Fix.** `fallbackFramesPerSecond(draw, 12)` in `app/animation.ts` now applies
   the descriptor hold, and the step adds a `1e-6` epsilon.
@@ -91,7 +96,7 @@ pray, carry, airborne and dance.
     1×/60 Hz, 2×/144 Hz and 1×/30 Hz.
   - It failed first on base `3c44131c` with "Firewarrior 1 turns/step".
 
-**After the fix**, the full audit reports 6 mismatched, 11 unknown, 178 matched and
+**After the fix**, the full audit reports 7 mismatched, 11 unknown, 178 matched and
 172 not-applicable rows. The remaining mismatches, by likely visibility:
 
 1. **Lightning branch jitter** (`too-fast`, refresh dependent).
@@ -119,11 +124,28 @@ pray, carry, airborne and dance.
 4. **Armageddon arrival sparkle** (`setAnimationObject(44, 1401)`). 1401 lies
    outside the `sparkle` sequence, so the browser freezes on frame 15. This is an
    artwork/sequence gap, not a rate defect.
+5. **Firewarrior legacy shooting** (`too-slow`, plus an artwork gap).
+   - `u.fighting` shows the punch `attack` table (source 120) at the draw-18 rate,
+     which is now 6 fps. The original fires with source 56 under draw 13, which is
+     12 fps.
+   - Before this fix, wrong artwork ran at a rate that happened to match.
+   - The real repair is to adopt the native command-28 firing owner, not to tune
+     this fallback.
 
 Unknown rows have no traced native rule. They include the spell halo (wall 12 fps,
 runs while paused), spy disguise flicker, bloodlust blink, shake, water, pointer
 brackets, HUD blinks, scenery fire, the temple ANIBL compatibility policy, the menu
 glow and the legacy knockback phase sample.
+
+The knockback sample needs a note:
+
+- Without `nativeRecoilAnimation`, `startMeleeKnockback` (`live-people.ts`) still
+  sets `f2 = floor(elapsed × 12)` once.
+- The descriptor-aware fallback now shows a Firewarrior's preceding legacy recoil
+  pose at 6 fps. As a result, the pose can jump from frame k to about 2k when
+  knockback starts.
+- This field belongs to the person record, so it was left unchanged here. It needs
+  its own owner review.
 
 ## Boundaries
 
@@ -131,7 +153,8 @@ glow and the legacy knockback phase sample.
   RNG and checkpoints are untouched; the fallback cadence is presentation-only.
 - The fallback is keyed by the Scene's draw (`nativeUnitDraw(kind)`, or the native
   source's draw), not by the per-state native object. Every reachable legacy state
-  maps to the kind's draw, except `firing` (draw 13), which only the native
-  catalog reaches.
+  maps to the kind's draw or to a draw with the same step. For example, the Shaman's
+  walk uses draw 13 against the kind's 14, and both are step 0. The exception is
+  `firing` (draw 13), which only the native catalog reaches.
 - The static read is not a CFG recovery. Effect gates set by allocators or callees
   would be missed. Treat `presentation` gates from it as body-scan evidence.
