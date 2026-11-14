@@ -7831,7 +7831,8 @@ This is category-0/on-foot HUD behavior. Full specialist/vehicle/passenger owner
 category-specific controls, assignment priority writers, exact native tribe-list
 allocation/ties, input consumption/buffering and full keyboard/settings ownership
 remain unverified. The portrait/H combined select/focus shortcut is unchanged and
-not credited as a recovered native binding. Runtime selection uses elapsed-free
+not credited as a recovered native binding (historical: since #1032, H follows
+the recovered native record and focuses the reincarnation site without selecting). Runtime selection uses elapsed-free
 input operations; no render-frame work, FPS cap or replacement simulation owner
 was added. Modern Ctrl-click compatibility and CPU measurements are documented
 in `modern-performance.md`.

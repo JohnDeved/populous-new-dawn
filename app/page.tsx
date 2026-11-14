@@ -38,7 +38,6 @@ import {
   BUILDINGS,
   SPELLS,
   HOME,
-  select,
   cancelInteraction,
   tell,
   guardShaman,
@@ -51,6 +50,7 @@ import {
   ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
+import { quickCameraAction, quickCameraTarget } from './quick-camera-shortcuts'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
@@ -645,7 +645,12 @@ export default function Home() {
         return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
-      if (e.key.toLowerCase() === 'h') select(world, 'shaman')
+      const quickCamera = quickCameraAction(e)
+      if (quickCamera !== null) {
+        e.preventDefault()
+        const target = quickCameraTarget(world, quickCamera)
+        if (target) engine.current?.focus(target, { animate: true })
+      }
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
         engine.current?.focus(u ?? HOME, { animate: true })
@@ -1337,7 +1342,7 @@ export default function Home() {
             className="portrait"
             aria-label="Select shaman"
             aria-describedby="shaman-portrait-instructions"
-            title="Shaman · Click: add to selection · Right-click: focus · H: select"
+            title="Shaman · Click: add to selection · Right-click: focus · Period: camera to Shaman"
             disabled={!shaman || shaman.hp <= 0}
             {...followerControl(7)}
           >
@@ -1907,8 +1912,10 @@ export default function Home() {
                     <strong>Rotate the entrance before placing</strong>
                     <span>F8</span>
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
-                    <span>H / F / G / Space / Esc</span>
-                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
+                    <span>. (period) / H</span>
+                    <strong>Camera to the Shaman / to your reincarnation site</strong>
+                    <span>F / G / Space / Esc</span>
+                    <strong>Focus selection / guard shaman / pause / cancel</strong>
                   </div>
                   <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">

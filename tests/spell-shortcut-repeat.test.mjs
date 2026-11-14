@@ -4,6 +4,7 @@ import { createWorld } from '../app/world-initialization.ts'
 import { SPELLS } from '../app/world-rules.ts'
 import { spellHudVisibility } from '../app/spell-visibility.ts'
 import { pageEffect, noOp } from './support/follower-nearby-page.mjs'
+import { quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 
 // Execute the shipped Page effect, not a duplicate keyboard implementation.
 function keyboard(overrides = {}) {
@@ -17,7 +18,7 @@ function keyboard(overrides = {}) {
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
     setTab: tab => tabs.push(tab), engine: { current: null }, audio: { current: null },
     update: noOp, openMenu: noOp, cancelInteraction: noOp,
-    guardShaman: noOp, select: noOp, HOME: {}, tutorialLevel: 0,
+    guardShaman: noOp, HOME: {}, tutorialLevel: 0, quickCameraAction, quickCameraTarget,
     rotateBuildingPlan: () => false, ...overrides,
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
