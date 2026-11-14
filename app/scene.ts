@@ -10,10 +10,7 @@ import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
-import {
-  createFollowerGroupDisplay,
-  stepFollowerGroupDisplay,
-} from './follower-group-display.ts'
+import { createFollowerGroupDisplay, stepFollowerGroupDisplay } from './follower-group-display.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'

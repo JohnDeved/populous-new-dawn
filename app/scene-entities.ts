@@ -750,7 +750,10 @@ function updateGroupDigits(g: THREE.Group, u: Unit, selected: boolean, shown: In
       ? followerGroupDigits(u.groups!, shown)
       : undefined
   if (!digits?.length && !sprites) return
-  sprites ??= g.userData.groupDigits = []
+  if (!sprites) {
+    sprites = []
+    g.userData.groupDigits = sprites
+  }
   const count = digits?.length ?? 0
   for (let i = 0; i < count; i++) {
     let sprite = sprites[i]

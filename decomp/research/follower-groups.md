@@ -10,7 +10,7 @@ Issue [#1005](https://github.com/JohnDeved/populous-new-dawn/issues/1005), base 
 Static reads of the original `d3dpoptb.exe`, SHA-256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`, with Capstone 5.0.7.
 Nothing was executed or emulated. `scripts/check-static-follower-groups.py EXE` re-verifies
-the reviewed instructions, table entries and data records below (exit 0: 55 instructions,
+the reviewed instructions, table entries and data records below (exit 0: 56 instructions,
 24 table entries, 2 data records); `--listing DIR` regenerates the `.asm` windows retained in
 [follower-groups-evidence/](follower-groups-evidence/). The jump-table `.hex` dump and
 `process_tribe_cmd-cases.txt` were retained by hand from the same reads; the probe
@@ -72,8 +72,9 @@ the transition calls `0048a050(0, 0x62, 1)`). An empty or wholly unavailable gro
 nothing. No selection voice is emitted.
 
 **Slot 0 (Shift+Backspace)** adds (never replaces) people whose bit 0 is set: the people
-last ordered, plus anyone ever assigned to a group (assign sets bit 0, unassign never
-clears it). It is a previous-selection recall, not a seventh group.
+selected at the last order or deselection, plus anyone assigned to a group since then
+(assign sets bit 0, unassign never clears it; the next full snapshot does). It is a
+previous-selection recall, not a seventh group.
 
 ## Previous-order snapshot (bit 0)
 
@@ -84,9 +85,11 @@ The only writers of `+0x7a` bit 0 are (full scan of byte writes to `[reg+0x7a]`)
 - Its only caller is `004450dd`, the common tail of order finalization `00444f60`. Every
   path through `00444f60` reaches it, including out-of-range types (`ja 004450d8`).
   `process_tribe_cmd` sends tribe command types `0x1e`, `0x26`, `0x27`, `0x37`–`0x3e` and
-  `0x57`–`0x5e` to `00444f60` (case `0043edea`; all 19 entries are probe-verified). These
-  are the player order packets (the `0x37`/`0x57` route families, see
-  [player-patrol.md](player-patrol.md)) and the right-click/Escape deselect `0x1e`. The
+  `0x57`–`0x5e` to `00444f60` (case `0043edea`, which calls it at `0043edfa`; all 19
+  entries and the call are probe-verified). `0x37`–`0x3e`/`0x57`–`0x5e` are the player
+  order packets (route families, see [player-patrol.md](player-patrol.md)) and `0x1e` is
+  the right-click/Escape deselect. The producers of `0x26` and `0x27` were not identified
+  (`0x27` comes from `process_cmd` action `0x80`, which has no default key record). The
   snapshot is taken whether or not any person accepted the order.
 - Assign `0x46` (`0043f552`) sets bit 0 for selected people.
 - `004d2b59`, the person state-14 initializer (the computer-player selection lock;
@@ -200,8 +203,9 @@ compatibility choice, not recovered behavior.
   the layout. Group keys start a timer through `followerGroup`. The scene key-down/key-up
   listeners track held Digit1–6 and Comma (physical codes, ignored in editable fields and
   while a modal suspends the scene). The frame loop steps the timers at the existing 24 Hz
-  `draw_main` presentation convention. Losing focus or opening a modal releases held keys
-  and a Comma hold.
+  `draw_main` presentation convention. Losing window focus or hiding the tab releases held
+  keys and a Comma hold. A modal does not: key-up still reaches the scene listener, and
+  modal frames do not step the timers.
 - **Rendering.** `updateUnitsFrame` adds digit sprites to a person's group on first use.
   They sit in the existing painter order next to the selection arrow and health gauge.
 - **Art.** `scripts/import-group-digits.py` imports the F00T8 digits 1–6 into
@@ -210,6 +214,10 @@ compatibility choice, not recovered behavior.
   local player is always tribe 0.
 
 ## Not implemented / open
+
+- Tribe commands `0x26`/`0x27` also snapshot natively; their producers are not mirrored.
+- The overlay is not gated on input masks, the globe overview or open dialogs (unlike the
+  browser health gauge); native behaviour there was not established.
 
 - `00434d50`'s bit-0 clear in one order-processing branch is not mirrored. Its trigger
   was not decoded.

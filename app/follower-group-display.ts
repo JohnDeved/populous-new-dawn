@@ -5,7 +5,7 @@ import art from './original-group-digits.json' with { type: 'json' }
 // count native draw_main iterations, run here on the browser's 24 Hz
 // presentation convention. -1 is Comma's 0xff hold, which never counts down.
 // `last` is the previous step's clock reading and `time` the partial tick.
-export type FollowerGroupDisplay = {
+export interface FollowerGroupDisplay {
   timers: Int8Array
   held: number
   time: number
@@ -46,7 +46,7 @@ export function followerGroupDisplayKey(d: FollowerGroupDisplay, event: DisplayK
   }
 }
 
-// Focus loss or a modal drops held keys without key-up events: release them.
+// Window blur or a hidden tab drops held keys without key-up events: release them.
 export function releaseFollowerGroupDisplayKeys(d: FollowerGroupDisplay) {
   d.held = 0
   if (d.timers.includes(-1)) d.timers.fill(0)

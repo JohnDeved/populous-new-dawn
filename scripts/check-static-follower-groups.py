@@ -29,6 +29,7 @@ WINDOWS = {
     '00435c10-00435c39.asm': (0x435c10, 0x435c39),
     '004450cb-004450e5.asm': (0x4450cb, 0x4450e5),
     '0047a691-0047a6b0.asm': (0x47a691, 0x47a6b0),
+    '0043edea-0043ee07.asm': (0x43edea, 0x43ee07),
 }
 # Independently reviewed instructions; see the research note for their meaning.
 EXPECTED = [
@@ -70,7 +71,7 @@ EXPECTED = [
     (0x4aba5f, 'mov', 'byte ptr [0x89d168], al'), (0x4aba87, 'mov', 'dword ptr [eax], 0'),
     # 00435c10 copies selection bit 7 into bit 0 for every tribe person; 00444f60 calls it.
     (0x435c21, 'test', 'cl, 0x80'), (0x435c26, 'or', 'cl, 1'), (0x435c2b, 'and', 'cl, 0xfe'),
-    (0x4450dd, 'call', '0x435c10'),
+    (0x4450dd, 'call', '0x435c10'), (0x43edfa, 'call', '0x444f60'),
     # 0047a550 entering mode 0xc with a selection: 0048a050(0, 0x62, 1).
     (0x47a6a7, 'push', '0x62'), (0x47a6ab, 'call', '0x48a050'),
 ]

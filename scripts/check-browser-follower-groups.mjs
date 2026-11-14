@@ -53,7 +53,8 @@ export default async function followerGroups({ page, output, openMission, receip
   await page.keyboard.press('Shift+Digit1')
   let s = await state(page)
   assert.deepEqual(s.selected, braves, 'assignment keeps the selection')
-  assert.deepEqual(s.groups.filter(([, groups]) => groups & 2).map(([id]) => id), braves)
+  // Bit 0 is the previous-order snapshot (Shift+Backspace), not a group number.
+  assert.deepEqual(s.groups.filter(([, groups]) => groups & 0x7e).map(([id]) => id), braves)
 
   // H is now the reincarnation-site camera (#1032); select the Shaman through her portrait.
   await selectShamanByPortrait(page)
