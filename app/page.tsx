@@ -102,6 +102,7 @@ import {
   spellHudCanCharge,
   spellHudPermanent,
 } from './spell-visibility'
+import { rightClickSpellCharging, spellChargingCommand } from './spell-charging'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
@@ -220,6 +221,7 @@ export default function Home() {
     ['tower', towerButton],
   ])
   const followerPress = useRef<{ target: EventTarget; scene: GameScene } | null>(null)
+  const spellPress = useRef<EventTarget | null>(null)
   const nearbyPress = useRef<{
     scene: GameScene
     pointer?: number
@@ -1522,6 +1524,12 @@ export default function Home() {
                       gifts: world.giftCounts[s.id],
                       progress: world.manaTribes[player].spellProgress[s.model],
                     })
+                  const chooseSpell = () => {
+                    if (!interactive) return
+                    store.change(w => {
+                      w.mode = w.mode === s.id ? null : s.id
+                    })
+                  }
                   return (
                     <button
                       key={s.id}
@@ -1544,23 +1552,31 @@ export default function Home() {
                       title={
                         undiscovered
                           ? 'Undiscovered spell'
-                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
+                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging · Ctrl: charge only this · Shift: all' : ''}`
                       }
-                      onClick={() => {
-                        if (!interactive) return
-                        store.change(w => {
-                          w.mode = w.mode === s.id ? null : s.id
-                        })
+                      onPointerDown={e => {
+                        spellPress.current = e.button === 0 ? e.currentTarget : null
+                      }}
+                      onPointerCancel={() => {
+                        spellPress.current = null
+                      }}
+                      // The native left callback 0x49e5c0 ignores modifiers. macOS emits
+                      // contextmenu instead of click for Ctrl + primary, so that release
+                      // selects once here and the click path ignores pointer Ctrl clicks.
+                      onPointerUp={e => {
+                        const pressed = spellPress.current === e.currentTarget
+                        spellPress.current = null
+                        if (pressed && e.button === 0 && e.ctrlKey) chooseSpell()
+                      }}
+                      onClick={e => {
+                        if (!e.ctrlKey || !e.detail) chooseSpell()
                       }}
                       onContextMenu={e => {
                         e.preventDefault()
-                        if (undiscovered) return
-                        if (canCharge)
+                        if (undiscovered || (e.button === 0 && e.ctrlKey)) return
+                        if (spellChargingCommand(world, s, e))
                           store.change(w => {
-                            const bit = 1 << (s.model - 1)
-                            w.manaWorld.spells[player].disabled ^= bit
-                            if (s.id === 'blast')
-                              w.charging = !(w.manaWorld.spells[player].disabled & bit)
+                            rightClickSpellCharging(w, s, e)
                           })
                       }}
                       data-tooltip-hud={s.id === 'blast' && !undiscovered ? 'blast' : undefined}
@@ -2025,6 +2041,13 @@ export default function Home() {
                     <strong>Scatter selected followers · Selection and orders are kept</strong>
                     <span>F / G / Space / Esc</span>
                     <strong>Focus selection / guard shaman / pause / cancel</strong>
+                    <span>Ctrl-click with a spell</span>
+                    <strong>Cast and keep the spell selected · Plain click casts once</strong>
+                    <span>Right-click a spell · Ctrl · Shift</span>
+                    <strong>
+                      Pause or resume its charging · Charge only that spell (repeat to restore) ·
+                      Pause or resume all spells together
+                    </strong>
                     <span>Ctrl+Alt-click</span>
                     <strong>
                       Add a patrol point (one point guards that area; two to eight points loop) ·

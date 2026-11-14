@@ -1094,6 +1094,7 @@
         "app/original-messages.json",
         "app/reincarnation.ts",
         "app/spell-casting.ts",
+        "app/spell-charging.ts",
         "app/spell-effects-runtime.ts",
         "app/tribe-turns.ts",
         "app/vault.ts",
@@ -1411,7 +1412,10 @@
         "tests/human-training-orders.test.mjs",
         "decomp/research/loading-art.md",
         "scripts/check-static-loading-art.py",
-        "decomp/research/vault-side-fire.md"
+        "decomp/research/vault-side-fire.md",
+        "tests/spell-modifier-controls.test.mjs",
+        "scripts/check-static-spell-modifiers.py",
+        "decomp/research/spell-modifier-controls.md"
       ],
       "sharedPaths": [
         "app/armageddon.ts",
@@ -1620,7 +1624,8 @@
         {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"},
         {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"},
-        {"path": "decomp/research/vault-prayer-panel-anchor.md", "heading": "Static source contract"}
+        {"path": "decomp/research/vault-prayer-panel-anchor.md", "heading": "Static source contract"},
+        {"path": "decomp/research/spell-modifier-controls.md", "heading": "Spell Ctrl casting and modified charging"}
       ],
       "nativeAddresses": [
         "0x40bce0",
