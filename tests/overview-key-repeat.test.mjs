@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
 import { pageEffect } from './support/follower-nearby-page.mjs'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
 
 // Execute the shipped Page listener and camera entry/exit functions. Scene
 // preparation and completed-transition boundaries are supplied explicitly.
@@ -49,7 +50,7 @@ function fixture(overrides = {}) {
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
     messageDetails: { current: new Map() },
-    SPELLS: [{ id: 'blast', key: '1' }], spellHudVisibility: () => 'visible',
+    SPELLS: [{ id: 'firestorm', key: '7' }], spellHudVisibility: () => 'visible', followerGroupShortcut,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => {
       assert.equal(name, 'keydown'); assert.equal(listeners.size, 0); listeners.set(name, fn)
@@ -164,9 +165,9 @@ test('Space and spell toggles stay single-press; continuous focus stays repeatab
   assert.equal(f.world.paused, true)
   f.press({ key: ' ', code: 'Space', repeat: true })
   assert.equal(f.world.paused, true)
-  f.press({ key: '1', code: 'Digit1' })
-  f.press({ key: '1', code: 'Digit1', repeat: true })
-  assert.equal(f.world.mode, 'blast')
+  f.press({ key: '7', code: 'Digit7' })
+  f.press({ key: '7', code: 'Digit7', repeat: true })
+  assert.equal(f.world.mode, 'firestorm')
   assert.deepEqual(f.tabs, ['spells'])
   for (const repeat of [false, true]) f.press({ key: 'f', code: 'KeyF', repeat })
   assert.equal(f.counts().focuses, 2)
@@ -177,7 +178,7 @@ test('open campaign details refuse overview, spells, pause and Escape before any
   const details = { open: true }, messageDetails = { current: new Map([[57, details]]) }
   const f = fixture({ messageDetails })
   const before = structuredClone(f.world)
-  for (const [key, code] of [['Enter', 'Enter'], ['1', 'Digit1'], [' ', 'Space'], ['Escape', 'Escape']])
+  for (const [key, code] of [['Enter', 'Enter'], ['7', 'Digit7'], ['1', 'Digit1'], [' ', 'Space'], ['Escape', 'Escape']])
     for (const repeat of [false, true]) f.press({ key, code, repeat,
       stopImmediatePropagation: () => assert.fail('Message-owned Escape must not be consumed') })
   assert.deepEqual(f.world, before)

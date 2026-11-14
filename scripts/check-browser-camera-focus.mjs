@@ -1,7 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-camera-focus.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, chooseSpell } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
@@ -13,7 +13,7 @@ try {
   await page.waitForFunction(()=>window.testScene.viewPreset===3&&!window.testScene.viewTransition)
   const before=await page.evaluate(()=>{const s=window.testScene;return {point:s.viewPoint,angle:Math.round(s.cameraBearing*1024/Math.PI)&2047,preset:s.viewPreset}})
   assert.notEqual(before.angle,0);assert.notEqual(before.preset,0)
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
   const moving=await page.evaluate(()=>{const s=window.testScene;return {motion:s.cameraMotion,point:s.viewPoint,preset:s.viewPreset,mode:s.world.mode}})
   assert.equal(moving.motion.active,1,'Focus must start an original camera journey')

@@ -118,8 +118,9 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Mission 22 rewards and transport](research/mission22-rewards.md),
 [Mission 23 linked zero-mana gift](research/mission23-gifts.md),
 [Mission 23 enemy settlements and housing growth](research/mission23-settlement.md),
-[vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
-[camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
+[vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md),
+[camera bookmarks](research/camera-bookmarks.md), and
+[numbered follower groups](research/follower-groups.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
 
 | Original entries | Browser implementation | Evidence and limit |

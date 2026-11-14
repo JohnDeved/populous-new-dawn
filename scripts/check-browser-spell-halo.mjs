@@ -1,6 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-spell-halo.mjs.
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
+import {chooseSpell} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.setDefaultTimeout(15000);
@@ -20,7 +21,7 @@ try{
  for(const g of geometry){assert.equal(g.y*128,g.h);assert.ok(g.frame>=1466&&g.frame<=1477);assert.ok(g.sprites);assert.deepEqual(g.size,[32,32]);assert.deepEqual(g.center,[.5,0]);assert.match(g.shadow,/effects.png$/);}
  await page.mouse.move(820,600);await page.waitForFunction(()=>!window.testScene.range.visible);
  const hidden=await page.evaluate(()=>window.testScene.halo.angle);await page.waitForTimeout(100);assert.equal(await page.evaluate(()=>window.testScene.halo.angle),hidden);
- await page.keyboard.press('1');await page.waitForFunction(()=>window.testScene.range.visible&&window.testScene.range.userData.model===2);
+ await chooseSpell(page,'Blast');await page.waitForFunction(()=>window.testScene.range.visible&&window.testScene.range.userData.model===2);
  const before=await page.evaluate(()=>({angle:window.testScene.halo.angle,frame:window.testScene.range.children[0].userData.halo.frame,random:window.testScene.world.randomState}));
  await page.waitForTimeout(180);
  const after=await page.evaluate(()=>({angle:window.testScene.halo.angle,frame:window.testScene.range.children[0].userData.halo.frame,random:window.testScene.world.randomState}));
@@ -35,7 +36,7 @@ try{
  // Selected spell takes priority over hover; hover remains a preview on cancel.
  await page.getByRole('button',{name:/^Lightning, \d+ shots$/}).hover();assert.equal(await page.evaluate(()=>window.testScene.range.userData.model),2);
  await page.keyboard.press('Escape');await page.waitForFunction(()=>window.testScene.range.visible&&window.testScene.range.userData.model===3);
- await page.mouse.move(820,600);await page.keyboard.press('2');await page.waitForFunction(()=>window.testScene.range.visible&&window.testScene.range.userData.model===12);
+ await page.mouse.move(820,600);await chooseSpell(page,'Land Bridge');await page.waitForFunction(()=>window.testScene.range.visible&&window.testScene.range.userData.model===12);
  await page.keyboard.down('q');await page.waitForTimeout(200);await page.keyboard.up('q');
  await page.screenshot({path:'/private/tmp/populous-halo-bridge.png'});
  // Pausing simulation does not freeze the presentation halo.
@@ -45,7 +46,7 @@ try{
  await page.evaluate(()=>window.testScene.world.units.push(window.savedShaman));await page.waitForFunction(()=>window.testScene.range.visible);
  await page.keyboard.press('Escape');await page.waitForFunction(()=>!window.testScene.range.visible);
  // The shared effect-atlas update must still render a real spell impact.
- await page.evaluate(()=>{const s=window.testScene;s.world.speed=1;s.focus({x:2,z:30});});await page.keyboard.press('1');
+ await page.evaluate(()=>{const s=window.testScene;s.world.speed=1;s.focus({x:2,z:30});});await chooseSpell(page,'Blast');
  const target=await page.evaluate(()=>{const s=window.testScene,q=s.screen({x:10,z:33}),r=s.container.getBoundingClientRect();return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2};});
  await page.mouse.click(target.x,target.y);
  await page.waitForFunction(()=>{const s=window.testScene;return s.world.effects.some(f=>f.kind==='blast'&&s.fxMeshes.has(f.id));});

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import {writeFileSync} from 'node:fs'
 import {chromium} from '@playwright/test'
-import {openGame} from './browser-game.mjs'
+import {openGame,chooseSpell} from './browser-game.mjs'
 
 const browser=await chromium.launch({headless:true})
 try {
@@ -16,7 +16,7 @@ try {
     w.selected=[shaman.id];w.shots.lightning=1;w.speed=.2
     s.focus({x:13,z:32});s.onChange()
   })
-  await page.keyboard.press('3')
+  await chooseSpell(page,'Lightning')
   const target=await page.evaluate(()=>{
     const s=window.testScene,p=s.screen({x:14,z:33}),r=s.container.getBoundingClientRect()
     return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}

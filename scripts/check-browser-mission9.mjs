@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, chooseSpell } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
@@ -1517,7 +1517,7 @@ try {
       scene.renderer.render(scene.scene, scene.camera)
       cancelAnimationFrame(scene.frame)
     })
-    await page.keyboard.press('1')
+    await chooseSpell(page,'Blast')
     const blastPoint = await page.evaluate(target => {
       const scene = globalThis.testScene,
         projected = scene.screen(target),
