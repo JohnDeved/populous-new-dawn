@@ -274,6 +274,7 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
     spyDiscovery: null,
     effectCounter: 0,
     secondaryEffects: createSecondaryEffects(),
+    guardPostChain: [0, 0, 0, 0],
     nextId: capacityMode === 'scalable' ? 1024 : 1,
     footprints: createFootprints(),
     selected: [],

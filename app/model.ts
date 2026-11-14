@@ -38,6 +38,7 @@ export {
   placeBuilding,
   scatterSelected,
   releasePlayerPatrols,
+  resetGuardPostChain,
   spellTargetError,
   tell,
   walkable,

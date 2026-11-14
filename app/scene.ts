@@ -244,6 +244,9 @@ export class GameScene {
   vehicleMeshes = new Map<number, THREE.Group>()
   buildingMeshes = new Map<number, THREE.Group>()
   hutSmokePuffs = new Map<number, THREE.Group>()
+  // Player Guard Posts by secondary serial, plus the placement-mode preview.
+  guardPostMeshes = new Map<number, THREE.Group>()
+  guardPostPreview: THREE.Group | null = null
   hoveredObject: number | null = null
   pointerAck = { target: 0, until: 0 }
   pointerSignature = ''

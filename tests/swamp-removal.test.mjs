@@ -101,7 +101,7 @@ import { stripTypeScriptTypes } from 'node:module'
 const source=readFileSync(new URL('../app/scene-input-runtime.ts',import.meta.url),'utf8')
 const owner=source.slice(source.indexOf('export function pointerUp('),source.indexOf('export function keyDown(')).replace('export ','')
 const createPointerUp=new Function('removeOwnedSwamp','nativePosition','queueBuildingInspection','cancelInteraction',
-  'cancelPointerGesture','commandMarkerPoint','effect','browserPosition',
+  'cancelPointerGesture','commandMarkerPoint','effect','browserPosition','removeHoveredGuardPost',
   `${stripTypeScriptTypes(owner)}; return pointerUp`)
 function pointerFixture() {
   const world=fixture(),events=[]
@@ -112,16 +112,23 @@ function pointerFixture() {
     onChange:()=>events.push('change'),onSound:id=>events.push(['sound',id]),
     acknowledgePointer:id=>events.push(['ack',id])}
   const up=createPointerUp(removeOwnedSwamp,(_w,p)=>p,()=>{},w=>{events.push('cancel');w.mode=null;w.selected=[]},
-    s=>{s.pointerGesture=null},p=>p,(_w,kind,p)=>events.push(['effect',kind,p]),p=>p)
+    s=>{s.pointerGesture=null},p=>p,(_w,kind,p)=>events.push(['effect',kind,p]),p=>p,
+    // Guard Post action 0x7a precedes Swamp removal; none is hovered here.
+    (w,p)=>{events.push(['guardPost',p]);return !!w.hoveredGuardPost})
   const event={pointerId:1,button:2,buttons:0,clientX:10,clientY:10,shiftKey:true,ctrlKey:false,altKey:false,metaKey:false}
   return {world,scene,events,run:()=>up(scene,event),event}
 }
 test('actual right release removes a trap and emits existing command feedback',()=>{
   const f=pointerFixture();f.run()
   assert.equal(f.world.effects[0].swamp.remaining,0)
-  assert.deepEqual(f.events,[['effect','orderMarker',point],['ack',0],['sound',0x6a],'change'])
+  assert.deepEqual(f.events,[['guardPost',point],['effect','orderMarker',point],['ack',0],['sound',0x6a],'change'])
   assert.equal(f.scene.pointerGesture,null)
-  f.run();assert.equal(f.events.length,4,'repeated release without a new gesture has no effect')
+  f.run();assert.equal(f.events.length,5,'repeated release without a new gesture has no effect')
+})
+test('a hovered Guard Post (action 0x7a) takes the Shift+right release before Swamp removal',()=>{
+  const f=pointerFixture();f.world.hoveredGuardPost=true;f.run()
+  assert.equal(f.world.effects[0].swamp.remaining,100)
+  assert.deepEqual(f.events,[['guardPost',point],'change'])
 })
 for(const [name,edit] of Object.entries({
   plain:f=>f.event.shiftKey=false,ctrl:f=>f.event.ctrlKey=true,alt:f=>f.event.altKey=true,meta:f=>f.event.metaKey=true,

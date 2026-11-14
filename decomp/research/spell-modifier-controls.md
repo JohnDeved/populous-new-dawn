@@ -39,9 +39,12 @@ acceptance, not on the later cast outcome. There is no automatic repeat.
 physical Ctrl key is down. The browser has no approach-and-cast path, so it still
 rejects out-of-range targets. That is a separate gap.
 
-`00437750` ranks contexts for ordinary orders in modes 0/`0xc`, through `0x7e/0x7f`
-(predicate `004ff480`: mode `0xc` or `0x10`). It is not reached in spell mode `0xd`, so
-Ctrl+Alt patrol points (#1003/#1041) and Ctrl spell retention do not compete.
+`00437750` ranks contexts for ordinary orders. Its caller `00437010` runs from several
+sites (`0047a6e1`, `004aa9a1`, `004ada11`) and may run in any mode. Its result is only
+consumed by actions `0x7e/0x7f`, whose predicate `004ff480` requires mode `0xc` (with
+`0089c6e8 == 0`) or `0x10`. In spell mode `0xd`, the left release dispatches through
+`0x6a/0x6b` instead, so Ctrl+Alt patrol points (#1003/#1041) and Ctrl spell retention
+do not compete.
 
 ## Charging: right-click producer `0049e650`
 

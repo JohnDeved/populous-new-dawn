@@ -76,6 +76,9 @@ function requireCurrentCheckpoint(world: World) {
     !validSceneryProvenance(world) ||
     !(world.objectCells.heads instanceof Float64Array) ||
     !world.secondaryEffects ||
+    !Array.isArray(world.guardPostChain) ||
+    world.guardPostChain.length !== 4 ||
+    !world.guardPostChain.every(n => Number.isInteger(n) && n >= 0 && n <= 255) ||
     !world.worshipAcquisition ||
     !(
       world.spyDiscovery === null ||

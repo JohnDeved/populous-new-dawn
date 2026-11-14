@@ -1,6 +1,6 @@
 'use client'
 
-import { BuildingIcon } from './building-icon'
+import { BuildingIcon, GuardPostIcon } from './building-icon'
 
 import { QueryControlArt } from './query-control.tsx'
 
@@ -43,6 +43,7 @@ import {
   guardShaman,
   scatterSelected,
   releasePlayerPatrols,
+  resetGuardPostChain,
   disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
@@ -105,6 +106,13 @@ import { rightClickSpellCharging, spellChargingCommand } from './spell-charging'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
+// Building-panel model 17 (#1010): a player-local marker, not a wood-built hut.
+const GUARD_POST = {
+  name: 'Guard Post',
+  description:
+    'Select followers, then click open ground: they guard that spot. Ctrl-click more posts to make them patrol between them. Click a post again or Shift+right-click it to remove it.',
+}
+
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -606,11 +614,27 @@ export default function Home() {
         !ready ||
         menu ||
         cheatsOpen ||
-        [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         (e.target as HTMLElement).closest('input,dialog')
       )
         return
+      // Native 004af440 puts the message box in state 0089bb81 = 2/3. While it is
+      // shown, 004a9d90 drops every key except an Enter/keypad-Enter press (any
+      // modifiers), which reaches process_cmd 0xb0 and closes the box without
+      // leaving World View. Any focused button/summary keeps its own Enter activation.
+      const openMessages = [...messageDetails.current.values()].filter(details => details.open)
+      if (openMessages.length) {
+        if (
+          e.key === 'Enter' &&
+          !e.repeat &&
+          !e.metaKey &&
+          !(e.target as HTMLElement).closest('button,summary')
+        ) {
+          e.preventDefault()
+          for (const details of openMessages) details.open = false
+        }
+        return
+      }
       // Original number-row records own 1–6 (with Shift/Ctrl/Alt); spells do not.
       const group = followerGroupShortcut(e)
       if (group || (/^Digit[1-6]$/.test(e.code) && !e.metaKey)) {
@@ -971,9 +995,12 @@ export default function Home() {
     selected = blue.filter(u => world.selected.includes(u.id))
   const focused =
     SPELLS.find(s => s.id === (hover ?? world.mode)) ??
-    BUILDINGS.find(b => b.id === (hover ?? world.mode))
+    BUILDINGS.find(b => b.id === (hover ?? world.mode)) ??
+    ((hover ?? world.mode) === 'guardPost' ? GUARD_POST : undefined)
   const modeName =
-    SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
+    SPELLS.find(s => s.id === world.mode)?.name ??
+    BUILDINGS.find(b => b.id === world.mode)?.name ??
+    (world.mode === 'guardPost' ? GUARD_POST.name : undefined)
   function blockLoadingInteraction(event: SyntheticEvent) {
     if (
       ready ||
@@ -1587,8 +1614,10 @@ export default function Home() {
                   aria-label={`${b.name}, ${b.cost} wood`}
                   aria-pressed={world.mode === b.id}
                   title={`${b.name} · Space rotates the plan`}
-                  onClick={() =>
+                  onClick={event =>
                     store.change(w => {
+                      // 0049d9b0: without Shift, tribe command 0x7a restarts the Guard Post chain.
+                      if (!event.shiftKey) resetGuardPostChain(w)
                       w.mode = w.mode === b.id ? null : b.id
                     })
                   }
@@ -1600,6 +1629,27 @@ export default function Home() {
                   <BuildingIcon kind={b.id} />
                 </button>
               ))}
+              {/* Ninth panel descriptor (005cc458 + 8 * 0x42): menu model 17. */}
+              <button
+                key="guardPost"
+                disabled={!world.unlockedGuardPost}
+                className={`building-card ${world.mode === 'guardPost' ? 'active' : ''}`}
+                aria-label={`${GUARD_POST.name}, no wood`}
+                aria-pressed={world.mode === 'guardPost'}
+                title={`${GUARD_POST.name} · Ctrl-click to keep placing`}
+                onClick={event =>
+                  store.change(w => {
+                    if (!event.shiftKey) resetGuardPostChain(w)
+                    w.mode = w.mode === 'guardPost' ? null : 'guardPost'
+                  })
+                }
+                onMouseEnter={() => setHover('guardPost')}
+                onMouseLeave={() => setHover(null)}
+                onFocus={() => setHover('guardPost')}
+                onBlur={() => setHover(null)}
+              >
+                <GuardPostIcon />
+              </button>
             </div>
           )}
           {tab === 'followers' && selected.some(u => u.kind === 'spy') && (
@@ -2005,6 +2055,8 @@ export default function Home() {
                     </strong>
                     <span>N</span>
                     <strong>Patrolling followers leave for their next queued order</strong>
+                    <span>Shift+right-click</span>
+                    <strong>Remove a Guard Post (its guards stay)</strong>
                   </div>
                   <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">
