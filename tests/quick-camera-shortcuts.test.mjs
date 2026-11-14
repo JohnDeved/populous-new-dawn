@@ -10,6 +10,7 @@ import {
   quickCameraAction,
   quickCameraTarget,
 } from '../app/quick-camera-shortcuts.ts'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
 import { pageEffect, noOp } from './support/follower-nearby-page.mjs'
 
 // Native default records 005d622c (DIK 0x34 -> action 0x5d) and 005d63a0
@@ -20,7 +21,7 @@ function keyboard(overrides = {}) {
   world.inputMask = 0
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS, spellHudVisibility,
+    messageDetails: { current: new Map() }, SPELLS, spellHudVisibility, followerGroupShortcut,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn),
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },
