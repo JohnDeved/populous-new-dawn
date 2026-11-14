@@ -41,6 +41,13 @@ export function createSwamp(
   }
 }
 
+// 0049a220: the trap center snaps to even native cells; the clicked cell does not.
+export function swampContainsPoint(swamp: Swamp, point: Pick<Position, 'x' | 'y'>) {
+  const dx = Math.abs(((swamp.center.x >>> 8) & 254) - ((point.x >>> 8) & 255)),
+    dy = Math.abs(((swamp.center.y >>> 8) & 254) - ((point.y >>> 8) & 255))
+  return Math.min(dx, 256 - dx) <= 3 && Math.min(dy, 256 - dy) <= 3
+}
+
 // Input is oldest first. Native scans newest first, so ties discard the new trap.
 export function excessSwamp(swamps: Swamp[]) {
   if (swamps.length <= 29) return null
@@ -62,7 +69,7 @@ export function stepSwamp(
     sound: () => void
   }
 ) {
-  if (!--swamp.remaining) return false
+  if (--swamp.remaining <= 0) return false
   effects.sound()
   if (special || swamp.counter & 3) return true
 

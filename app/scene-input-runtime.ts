@@ -31,6 +31,7 @@ import {
   type Point,
 } from './model'
 import { command } from './live-command.ts'
+import { removeOwnedSwamp } from './swamp-removal.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { minimapPick } from './minimap.ts'
 import { pointerBrackets } from './world-picking.ts'
@@ -221,7 +222,7 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
   if (scene.modalSuspended) return
-  scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -305,6 +306,8 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
     scene.pointerGesture?.pointerId === event.pointerId &&
     (event.buttons === 2 || event.buttons === 4)
   ) {
+    // A camera drag remains a drag even if it returns to its press position.
+    scene.pointerGesture.moved ||= Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0
@@ -399,6 +402,29 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode &&
+      !scene.world.selected.length
+    ) {
+      const point = scene.pick(event)
+      if (point) {
+        const position = nativePosition(scene.world, point)
+        if (removeOwnedSwamp(scene.world, position, scene.picking.pick(event))) {
+          const marker = commandMarkerPoint(position, 0)
+          if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+          scene.acknowledgePointer(0)
+          scene.onSound(0x6a)
+          scene.onChange()
+          return
+        }
+      }
+    }
     cancelInteraction(scene.world)
     scene.onChange()
     return
