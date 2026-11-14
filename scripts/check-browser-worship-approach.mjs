@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, selectShamanByPortrait } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
@@ -31,7 +31,7 @@ try {
   })
 
   await page.keyboard.press('Escape')
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   assert.deepEqual(
     await page.evaluate(() => globalThis.testScene.world.selected),
     [target.shaman],

@@ -12,7 +12,7 @@ import {
   assertOriginalOverlay,
   criticalState,
 } from './lib/bloodlust-acceptance.mjs'
-import { openGame, bindGame } from './browser-game.mjs'
+import { openGame, bindGame, selectShamanByPortrait } from './browser-game.mjs'
 import artwork from '../app/original-bloodlust.json' with { type: 'json' }
 
 const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
@@ -190,7 +190,7 @@ try {
   assert.equal(reward.gifts, 1)
   saveStage('normal six-Brave walk/worship reward', reward)
   await page.locator('.world-viewport canvas.battlefield').focus()
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   await clickTarget('walk')
   saveStage('normal Shaman walk', await advanceUntil('walk', 2200))
   await page.getByRole('button', { name: 'Bloodlust, 1 shots', exact: true }).click()

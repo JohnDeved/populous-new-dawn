@@ -169,7 +169,9 @@ combat produces the model12 body. In the shortened Node preflight, phase1
 death-point terrain/body height changed174→184. These observed turns/coordinates
 are not forced acceptance inputs.
 
-The prepared browser driver uses actual Mission/H selection and canvas/HUD
+The prepared browser driver uses actual Mission/H selection (historical; since
+#1032 H is the native reincarnation-site camera key and the driver uses Escape +
+Shaman portrait selection) and canvas/HUD
 clicks for worship, movement, attack and spells. It holds RAF and supplies normal
 fixed turns explicitly, keeping camera/input preparation between turns. This is
 **controlled-clock rendered integration, not a real-clock ordinary journey**.

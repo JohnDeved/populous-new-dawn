@@ -1,15 +1,15 @@
-// Authored Mission 2 -> H selection -> normal attack command -> combat death.
+// Authored Mission 2 -> Escape + Shaman portrait selection -> normal attack command -> combat death.
 // Only pacing/camera controls and read-only inspection are test-driven: no HP,
 // position, entity, effect, timer, RNG, AI or outcome injection.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { chromium } from '@playwright/test'
-import { openGame, bindGame } from './browser-game.mjs'
+import { openGame, bindGame, selectShamanByPortrait } from './browser-game.mjs'
 
 const dir = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? 'work/orchestration/worker5-30/browser')
 mkdirSync(dir, { recursive: true })
-const report = { mission: 2, adapter: 'H selection; normal command/tick on authored warrior 13; deterministic RAF pacing', stages: [] }
+const report = { mission: 2, adapter: 'Escape + Shaman portrait selection; normal command/tick on authored warrior 13; deterministic RAF pacing', stages: [] }
 const browser = await chromium.launch({ headless: true })
 let page
 try {
@@ -22,13 +22,13 @@ try {
     s.world.speed = 0
   })
   await page.locator('.world-viewport canvas.battlefield').focus()
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   report.death = await page.evaluate(async () => {
     const s = window.testScene, w = s.world
     cancelAnimationFrame(s.frame)
     const { command, tick } = await import('/app/model.ts')
     const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
-    if (!w.selected.includes(shaman.id)) throw Error('H did not select the authored Shaman')
+    if (!w.selected.includes(shaman.id)) throw Error('Portrait selection did not select the authored Shaman')
     const target = w.units.find(u => u.id === 13)
     if (target?.kind !== 'warrior' || target.team === 'blue') throw Error('Missing authored Matak warrior 13')
     const before = { id: shaman.id, x: shaman.x, z: shaman.z, hp: shaman.hp, turn: w.turn }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, openGame, selectShamanByPortrait } from './browser-game.mjs'
 
 async function moveSelectedUnit(page, kind, mission) {
   const order = await page.evaluate(
@@ -1376,7 +1376,7 @@ try {
     ),
     bridgeEscorts.map(() => true)
   )
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   assert.deepEqual(await page.evaluate(() => globalThis.testScene.world.selected), [bridgeShaman.id])
 
   const firstBridgeSource = { x: -91, z: 61 },
@@ -1617,7 +1617,7 @@ try {
     return hut.id
   })
 
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   await page.getByLabel('Select brave').click()
   await page.evaluate(async id => {
     const scene = globalThis.testScene,
@@ -1765,7 +1765,7 @@ try {
     return follower ?? null
   }, { vehicleId: launchedBalloon.id, driverId: launchedBalloon.driver })
   if (!followerId) {
-    await page.keyboard.press('h')
+    await selectShamanByPortrait(page)
     const follower = await braveClickPoint(page, launchedBalloon.driver)
     await page.mouse.click(follower.click.x, follower.click.y)
     balloonClick = await vehicleClickPoint(page, launchedBalloon.id)
@@ -1875,7 +1875,7 @@ try {
     JSON.stringify(completedBalloonFlight)
   )
 
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   await page.getByLabel('Select brave', { exact: true }).click()
   assert.ok(
     await page.evaluate(() => {

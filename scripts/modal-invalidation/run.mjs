@@ -54,8 +54,15 @@ async function prepareHeldCast(page) {
     }
   }
   if (messageFailed) throw messageFailure
-  // H preserves exclusive selection; portrait primary activation is additive.
-  await page.keyboard.press('h')
+  // H is now the native reincarnation-site camera key (action 0x96). Portrait
+  // primary activation is additive and is consumed by the next logical turn, so
+  // wait for the exact single-Shaman result.
+  await button('Select shaman').click()
+  await page.waitForFunction(() => {
+    const world = window.testSceneRef.current.world,
+      shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    return world.selected.length === 1 && world.selected[0] === shaman?.id
+  })
   await button('Select shaman').click({ button: 'right' })
   await page.waitForFunction(() => {
     const scene = window.testSceneRef.current

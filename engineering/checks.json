@@ -6037,7 +6037,7 @@
       "automation": "manual",
       "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
       "coveredBehavior": [
-        "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
+        "Shipped setup/portrait Shaman selection/ordinary attack and natural model12 lifecycle",
         "Deferred wave visit, orbit pixels, successful respawn and cleanup",
         "Fresh-page checkpoint and responsive rendering",
         "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",
