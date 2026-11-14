@@ -11,7 +11,8 @@
         "Composed spell-integration source readers stay consistent with that inventory"
       ],
       "knownLimits": [
-        "Inventory and composed-source structure only; no gameplay, browser or build behavior."
+        "Inventory and composed-source structure only; no gameplay, browser or build behavior.",
+        "Reads git's cached index: a new app file is detected only once it is staged or committed."
       ],
       "executable": "node",
       "args": ["--test", "--test-concurrency=1", "tests/integration-composed-spells.test.mjs"],
@@ -24,12 +25,16 @@
       ],
       "inputs": [
         "app",
-        "scripts/integration-queue/composed-source-inputs.json",
+        "scripts/integration-queue",
+        "scripts/artifact-zip.mjs",
+        "scripts/tutorial-browser/mission10-crew-receipt.mjs",
         "tests/integration-composed-spells.test.mjs",
-        "tests/support/composed-browser-reader.mjs"
+        "tests/support"
       ],
-      "prerequisites": ["Node.js >=22.13.0"],
-      "sideEffects": ["Reads tracked sources only; no browser, build, network or file writes."],
+      "prerequisites": ["Node.js >=22.13.0", "Git"],
+      "sideEffects": [
+        "Spawns `git ls-files --cached -z -- app/` in the checkout. Creates and removes owned temporary passive-reader fixture/receipt directories under the OS temporary directory. No browser, build or network."
+      ],
       "resources": [],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
