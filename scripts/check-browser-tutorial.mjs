@@ -2,6 +2,41 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame, settleView } from './browser-game.mjs'
 
+// Wait until no message is still pending its one-shot auto-open (0x20000 / 2), then
+// close whatever is open through one ordinary Enter press. Fails if Enter leaves any
+// message open, reaches overview, or dismisses (removes) a message.
+async function closeOpenMessagesWithEnter(page) {
+  await page.waitForFunction(() =>
+    window.testScene.world.messages.slots.every(message => !message || !(message.flags & 0x20002))
+  )
+  const open = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('.campaign-messages details[open] > div > p')].map(
+        paragraph => paragraph.textContent
+      )
+    )
+  const closed = await open(),
+    serials = await page.evaluate(() =>
+      window.testScene.world.messages.slots.filter(Boolean).map(message => message.serial)
+    )
+  if (closed.length) await page.keyboard.press('Enter')
+  assert.deepEqual(await open(), [], 'one Enter press closes every open campaign message')
+  assert.deepEqual(
+    await page.evaluate(() =>
+      window.testScene.world.messages.slots.filter(Boolean).map(message => message.serial)
+    ),
+    serials,
+    'closing with Enter keeps messages in the notification strip'
+  )
+  const after = await page.evaluate(() => ({
+    drawMode: window.testScene.world.drawMode,
+    overview: window.testScene.overviewActive,
+    overviewStage: window.testScene.overviewStage,
+    stage: window.testScene.world.ai.variables[9],
+  }))
+  return { closed, after }
+}
+
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
@@ -27,6 +62,16 @@ try {
     })),
     { level: 79, drawMode: 2, overview: true, stage: 2, rendered: true }
   )
+  // Original 004a9d90: while the auto-opened lesson box is shown (0089bb81 = 2/3),
+  // the only key that passes is an Enter press, which closes it (process_cmd 0xb0)
+  // without leaving World View. The next ordinary Enter is the lesson's overview exit.
+  const lesson = await closeOpenMessagesWithEnter(page)
+  assert.ok(lesson.closed.length > 0, 'the World View lesson opens automatically')
+  assert.ok(
+    lesson.closed.some(text => /World View/i.test(text)),
+    `the closed lesson is the World View instruction: ${JSON.stringify(lesson.closed)}`
+  )
+  assert.deepEqual(lesson.after, { drawMode: 2, overview: true, overviewStage: null, stage: 2 })
   await page.keyboard.press('Enter')
   await settleView(page)
   await page.waitForFunction(() => window.testScene.world.ai.variables[9] === 3)
@@ -170,13 +215,24 @@ try {
   await page.keyboard.down('ArrowRight')
   await page.waitForFunction(angle => window.testScene.cameraPosition.angle !== angle, returned)
   await page.keyboard.up('ArrowRight')
+  // An open lesson box also swallows Escape in the original; close it with Enter first.
+  const beforeExit = await closeOpenMessagesWithEnter(page)
+  assert.equal(beforeExit.after.overview, false, 'closing Enter does not enter World View')
   await page.keyboard.press('Escape')
-  await page.getByRole('button', { name: 'Quit to Main Menu', exact: true }).waitFor()
-  assert.equal(await page.getByRole('button', { name: 'Save checkpoint', exact: true }).count(), 0)
-  await page.getByRole('button', { name: 'Quit to Main Menu', exact: true }).click()
-  await page.getByRole('heading', { name: 'Choose your world', exact: true }).waitFor()
+  // The Tutorial Game menu has no Load/Save/Restart/Quit Level rows.
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await menu.waitFor()
+  assert.deepEqual(
+    await menu.locator('nav button').evaluateAll(buttons => buttons.map(button => button.getAttribute('aria-label'))),
+    ['Continue Game', 'Options', 'Quit Game', 'Back']
+  )
+  await menu.getByRole('button', { name: 'Quit Game', exact: true }).click()
+  await menu.getByRole('button', { name: 'Yes', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
+  assert.equal(await page.locator('.world-viewport canvas').count(), 0)
   assert.deepEqual(errors, [])
-  console.log('PASS: Tutorial camera, Shaman selection, Obelisk worship, and normal exit')
+  console.log('Closed with Enter:', JSON.stringify({ lesson: lesson.closed, beforeExit: beforeExit.closed }))
+  console.log('PASS: Tutorial Enter-closes-lesson, camera, Shaman selection, Obelisk worship, and normal exit')
 } finally {
   await browser.close()
 }
