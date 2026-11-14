@@ -168,9 +168,12 @@ exports in `decomp/generated/`, never executed):
   which calls draw-polygons `004673b0` (`0046733d`).
 - Draw-polygons case 19 (`0046b16a`) calls `00475350` once for each queued bolt
   segment. `00475350` re-rolls the branches from the cosmetic RNG `0089bc72`.
-- Nothing on this chain tests pause (`land_flags_1 & 2`). `draw_land` only freezes
-  its tick count. Only `004ee770`, the sprite animation pass after `draw_1`, skips
-  paused frames. **So the original keeps re-rolling branches while paused.**
+- No function on this consumer chain tests pause (`land_flags_1 & 2`).
+  `draw_land` only freezes its tick count. Only `004ee770`, the sprite animation
+  pass after `draw_1`, skips paused frames. **So the original keeps re-rolling
+  branches while paused**, provided segments stay queued.
+- Not inspected: the routine that queues the bolt segments for case 19 during
+  `draw_land`. Its pause behavior is inferred, not read.
 
 Browser implementation:
 
@@ -198,6 +201,14 @@ Browser adaptations:
   bolts freeze there.
 - Native rolls follow the native painter order and viewport. The browser rolls in
   `world.effects` order and uses its own culling.
+- Shapes are keyed by the segment array that `stepLightning` rebuilds each turn.
+  When a turn falls between draw visits, new geometry shows only its parent lines
+  until the next visit.
+- Culling at the visit uses the previous frame's camera. While the camera moves, a
+  segment entering view can show only its parent line for up to 1/24 s.
+- A hidden tab pauses rendering. When the tab returns, a paused, visible bolt
+  catches up its missed draw visits, so cosmetic RNG use grows with the hidden
+  time. This mirrors the existing catch-up of worship visits on return.
 
 Static lead, not a claim: the frame limiter in `main_3` waits for
 `1000 / FUN_0049cfe0()` ms in game when the `game_state` byte at `+858460` is
@@ -233,6 +244,18 @@ descriptor hold and freezes during pause. The producers:
 
 These sprites now render opaque, as the existing counter-owned order marker and
 level-start sparkles already do. The browser lifetimes are unchanged.
+
+Known limits of this repair:
+
+- **First frame.** `advanceGame` runs a turn before a coincident presentation
+  visit. An effect created in that turn therefore first renders with `f1 = 4`
+  (frame 1). The original draws before it animates (`draw_1`, then `004ee770`), so
+  it shows frame 0 first. The order is shared by every counter-owned effect
+  (Splash, site sparkles) and is not changed here.
+- **Lifetimes.** Native effects 60 and 66 live 16 processor visits. The browser
+  keeps its own lifetimes: 1.7 s for death smoke and the Shield, Invisibility and
+  Bloodlust visuals. That is 40.8 visits, so these sprites now end mid-cycle with
+  no fade. The native lifetimes remain to be adopted.
 
 ### Armageddon arrival sparkle
 

@@ -116,9 +116,15 @@ test('cached effect frame retains pose, HFX UV/visibility/opacity and original f
   const { api, world } = await worldWithEffects(1),
     hit = world.effects[0],
     birth = api.effect(world, 'birth', { x: 2, z: -4 }),
-    fixture = await makeEffectScene(world)
+    // A sprite effect without native counters keeps the elapsed-time fallback.
+    plain = api.effect(world, 'trail', { x: 4, z: -4 })
+  plain.sprite = { sequence: 'sparkle', frame: 0 }
+  plain.duration = 0.5
+  const fixture = await makeEffectScene(world)
   try {
     assertFrame(fixture, world)
+    const plainSprite = fixture.scene.fxMeshes.get(plain.id).userData.sprite
+    assertSprite(plainSprite, nativeEffects.animations.sparkle[0])
     const group = fixture.scene.fxMeshes.get(hit.id),
       sprite = group.userData.sprite,
       birthGroup = fixture.scene.fxMeshes.get(birth.id),
@@ -131,6 +137,7 @@ test('cached effect frame retains pose, HFX UV/visibility/opacity and original f
     // Hit flashes carry effect-61 counters (#214): the frame follows f1, not age.
     hit.animation.f1 = 8
     birth.animation.f1 = 8
+    plain.age = 2 / 12
     group.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2)
     group.userData.nativeHeading = 512
     assertFrame(fixture, world)
@@ -143,6 +150,8 @@ test('cached effect frame retains pose, HFX UV/visibility/opacity and original f
     assertSprite(birthSprite, nativeEffects.animations.birth[2])
     assert.equal(sprite.material.opacity, 1)
     assert.equal(birthSprite.material.opacity, 1)
+    assertSprite(plainSprite, nativeEffects.animations.sparkle[2])
+    assert.equal(plainSprite.material.opacity, 1)
     birth.animation.renderFlags |= 16
     assertFrame(fixture, world)
     assert.equal(birthSprite.visible, false)
@@ -153,7 +162,10 @@ test('cached effect frame retains pose, HFX UV/visibility/opacity and original f
     birth.animation.object = nativeEffects.animations.birth[0].source
     hit.animation.f1 = 20
     hit.age = 0.45
+    plain.age = 0.45
     assertFrame(fixture, world)
+    assertSprite(plainSprite, nativeEffects.animations.sparkle[5])
+    assert.ok(Math.abs(plainSprite.material.opacity - 0.25) < 1e-12)
     assert.equal(birthSprite.visible, true)
     assertSprite(sprite, nativeEffects.animations.hit[5])
     // Counter-owned sprites stay opaque, like the existing order-marker flash.

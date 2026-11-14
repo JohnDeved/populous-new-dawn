@@ -452,8 +452,13 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
 }
 
 // Branch shapes from the latest native draw visit, per bolt segment (null when
-// that segment was culled). Presentation only; never stored in World/checkpoints.
-const lightningBranches = new WeakMap<Lightning, (readonly LightningBranch[] | null)[]>()
+// that segment was culled), keyed by the segment array stepLightning rebuilds
+// each turn so new geometry never reuses old shapes. Presentation only; never
+// stored in World/checkpoints.
+const lightningBranches = new WeakMap<
+  Lightning['segments'],
+  (readonly LightningBranch[] | null)[]
+>()
 
 function lightningScreen(scene: GameScene, p: { x: number; y: number; h: number }) {
   const point = browserPosition(p),
@@ -482,7 +487,7 @@ export function lightningDrawVisit(scene: GameScene) {
     const b = f.lightning
     if (!b?.segments.length) continue
     lightningBranches.set(
-      b,
+      b.segments,
       b.segments.map(segment =>
         lightningCulled(scene, lightningScreen(scene, segment.from))
           ? null
@@ -500,13 +505,13 @@ export function animateLightning(scene: GameScene, mesh: THREE.Mesh, b: Lightnin
     opacity: number[] = [],
     width = scene.container.clientWidth,
     height = scene.container.clientHeight,
-    branches = lightningBranches.get(b)
+    branches = lightningBranches.get(b.segments)
   for (const [index, segment] of b.segments.entries()) {
     const from = lightningScreen(scene, segment.from),
       to = lightningScreen(scene, segment.to)
     if (lightningCulled(scene, from)) continue
     // Rendering only places the latest visit's shapes and never consumes RNG.
-    // Before a segment's first draw visit only its parent line is available.
+    // Until new geometry's first draw visit only its parent line is available.
     for (const line of placeLightningBranches(
       from.x,
       from.y,

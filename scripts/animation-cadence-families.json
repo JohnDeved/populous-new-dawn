@@ -527,6 +527,10 @@
         {
           "file": "app/world-turn.ts",
           "pattern": "animateEffectSprite\\(effect\\(w, 'death', b\\), 44, 1224\\)"
+        },
+        {
+          "file": "app/world-turn.ts",
+          "pattern": "animateEffectSprite\\(effect\\(w, 'death', fx\\), 44, 1224\\)"
         }
       ]
     },

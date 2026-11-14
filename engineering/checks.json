@@ -4856,6 +4856,7 @@
         "app/world-turn.ts",
         "app/spell-effects-runtime.ts",
         "app/live-people.ts",
+        "app/scene.ts",
         "public/original/effects.png"
       ],
       "prerequisites": ["Installed locked dependencies"],
