@@ -14,8 +14,8 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
   const report = { status: 'running', stages: [], errors: [], screenshots: [], limits: [
     'Supplied trap allocation, camera focus and frozen simulation speed; not ordinary earning/casting or native allocation parity',
     'Actual mounted Home/Scene, DOM mouse/key delivery and production advanceGame/render retirement',
-    'This first episode covers plain-right, modifier-right and stationary Shift-right only',
-    'Out-and-back drag, focus loss, pointer cancellation, modal/navigation and save/load/restart/new-game remain unimplemented',
+    'This episode covers plain-right, modifier-right, Shift-right out-and-back drag and stationary Shift-right only',
+    'Focus loss, pointer cancellation, modal/navigation and save/load/restart/new-game remain unimplemented',
     'No full dependency integrity, performance, deployment or current-main integration claim',
   ] }
   const save = () => writeFileSync(resolve(output, 'owned-swamp-episode.json'), JSON.stringify(report, null, 2) + '\n')
@@ -112,7 +112,7 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
       await deadline.run(() => page.screenshot({ path, timeout: 5000 }))
       report.screenshots.push({ file, sha256: createHash('sha256').update(readFileSync(path)).digest('hex') }); save()
     }
-    const point = await deadline.run(() => page.evaluate(() => {
+    const resolvePoint = () => deadline.run(() => page.evaluate(() => {
       const h = window.__ownedSwampWitness, s = h.scene, p = s.screen(h.fx), r = s.renderer.domElement.getBoundingClientRect()
       const x = r.left + (p.x + 1) * r.width / 2, y = r.top + (1 - p.y) * r.height / 2
       if (document.elementFromPoint(x, y) !== s.renderer.domElement) throw Error('Trap point is not owned by canvas')
@@ -120,6 +120,7 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
       if (!hit || Math.hypot(hit.x - h.fx.x, hit.z - h.fx.z) > 0.5) throw Error('Actual terrain pick misses supplied trap')
       return { x, y, hit }
     }))
+    let point = await resolvePoint()
     assertLive(await deadline.run(() => page.evaluate(readWitness)))
     const pixels = await deadline.run(() => page.evaluate(() => {
       const h = window.__ownedSwampWitness, s = h.scene, gl = s.renderer.getContext()
@@ -147,6 +148,29 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
       finally { for (const modifier of [...modifiers].reverse()) await deadline.run(() => page.keyboard.up(modifier)) }
       const w = await deadline.run(() => page.evaluate(readWitness)); assertLive(w); stage('live-control-' + (modifiers.join('-') || 'plain'), w)
     }
+    // Additive control (2026-11-14): Shift-right press, drag beyond the 7px camera threshold
+    // and back to the press point, then release. The latched drag must not remove the trap.
+    await deadline.run(() => page.keyboard.down('Shift'))
+    let releasePick
+    try {
+      await deadline.run(() => page.mouse.move(point.x, point.y))
+      await deadline.run(() => page.mouse.down({ button: 'right' }))
+      await deadline.run(() => page.mouse.move(point.x + 24, point.y, { steps: 4 }))
+      await deadline.run(() => page.mouse.move(point.x, point.y, { steps: 4 }))
+      await deadline.run(() => page.mouse.up({ button: 'right' }))
+      releasePick = await deadline.run(() => page.evaluate(([x, y]) => {
+        const h = window.__ownedSwampWitness, hit = h.scene.pick({ clientX: x, clientY: y })
+        return hit ? { hit, distance: Math.hypot(hit.x - h.fx.x, hit.z - h.fx.z) } : null
+      }, [point.x, point.y]))
+    } finally { await deadline.run(() => page.keyboard.up('Shift')) }
+    const dragged = await deadline.run(() => page.evaluate(readWitness)); assertLive(dragged)
+    stage('live-control-shift-out-and-back-drag', { ...dragged, releasePick, displacementPx: 24 })
+    // The release point must still resolve onto the trap, so the control is not a pick miss.
+    assert.ok(releasePick && releasePick.distance <= 0.5, 'Out-and-back release must still pick the supplied trap')
+    // Re-resolve the screen point after the camera gesture before the stationary removal.
+    await deadline.run(() => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))))
+    point = await resolvePoint()
+    stage('post-drag-point', point)
     await deadline.run(() => page.keyboard.down('Shift'))
     try { await deadline.run(() => page.mouse.click(point.x, point.y, { button: 'right' })) }
     finally { await deadline.run(() => page.keyboard.up('Shift')) }
