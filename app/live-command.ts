@@ -462,7 +462,7 @@ export function disguiseSelectedSpies(w: World, tribe: number) {
   return result.accepted
 }
 
-export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
+export function placeBuilding(w: World, kind: BuildingKind, p: Point, retain = false) {
   if (w.paused || w.status !== 'playing') return false
   const spec = BUILDINGS.find(b => b.id === kind)
   if (
@@ -522,7 +522,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point) {
       }
     }
   }
-  w.mode = null
+  if (!retain) w.mode = null
   tell(w, `${spec.name} planned. Braves will fetch ${spec.cost} logs from nearby trees.`)
   return true
 }

@@ -430,16 +430,24 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   if (!p) return
   if (scene.world.mode) {
     const mode = scene.world.mode
-    const ok = SPELLS.some(s => s.id === mode)
+    const spell = SPELLS.some(s => s.id === mode)
+    // Placement bindings use the release modifiers, with Ctrl and Alt as alternatives.
+    if (!spell && (event.shiftKey || (event.ctrlKey && event.altKey))) return
+    const ok = spell
       ? cast(
           scene.world,
           mode as Parameters<typeof cast>[1],
           p,
           directBlast ? picked?.id : undefined
         )
-      : placeBuilding(scene.world, mode as Parameters<typeof placeBuilding>[1], p)
+      : placeBuilding(
+          scene.world,
+          mode as Parameters<typeof placeBuilding>[1],
+          p,
+          event.ctrlKey || event.altKey
+        )
     if (!ok) scene.onSound(0x25)
-    else if (!SPELLS.some(s => s.id === mode)) scene.onSound(0x24)
+    else if (!spell) scene.onSound(0x24)
     else if (directBlast) {
       const id = picked?.id ?? 0,
         marker = commandMarkerPoint(nativePosition(scene.world, p), id)

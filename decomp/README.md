@@ -5334,3 +5334,12 @@ the guarded startup call, fresh-down clip interruption, recovered BLOGO bytes,
 640×352 centered display geometry and full decoded-frame conversion equality.
 This bounded restoration does not establish the initial timed page, New Game
 intro, held-input native behavior, or complete startup parity.
+
+## Building placement controls
+
+[Placement input evidence](research/building-placement-controls.md) binds original
+ordered default lookup, release-time Ctrl/Alt retention, exact modifier combinations,
+right-release cancel and shadowed Escape records. A reproducible native probe keeps
+its supplied gate states and allocation interception explicit. App pointer tests
+preserve existing worker and validation policy; rendered acceptance and downstream
+native placement-consumer parity remain separate claims.
