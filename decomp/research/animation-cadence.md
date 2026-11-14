@@ -81,7 +81,7 @@ pray, carry, airborne and dance.
   - legacy `u.fighting` shooting. This path shows the `attack` table (source 120,
     the punch artwork). The original fires with source 56 under draw 13, step 0,
     about 12 fps. Here the fix only halves the rate of artwork that is already
-    wrong. The audit row `firewarrior-legacy-shooting` records this artwork gap;
+    wrong. The audit row `legacy-unit/firewarrior-shooting` records this artwork gap;
     it does not claim parity for this path;
   - selected idle in mixed handoffs, the case the #214 G witness reported.
 - **Pre-existing rounding jitter.** The same code computed

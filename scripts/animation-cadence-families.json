@@ -73,7 +73,7 @@
       "id": "legacy-unit/firewarrior-shooting",
       "group": "people",
       "family": "Firewarrior legacy u.fighting shooting (attack table)",
-      "browserRule": "legacy 'attack' table (source 120 punch artwork) at the draw-18 fallback rate",
+      "browserRule": "legacy 'attack' table (source 120 punch artwork) at the draw-18 fallback rate (browserFps is a snapshot of fallbackFramesPerSecond(18, 12))",
       "browserFps": 6,
       "nativeRule": "firing uses source 56 with draw 13 (mode 2 step 0) on logical visits",
       "nativePerVisit": 1,

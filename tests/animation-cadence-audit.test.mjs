@@ -139,4 +139,8 @@ test('the shipped audit has no stale anchors and every row has a known status', 
   const firewarrior = report.rows.filter(row => /^legacy-unit\/(blue|red)-firewarrior\//.test(row.id) && row.status !== 'not-applicable')
   assert.ok(firewarrior.length >= 20)
   assert.deepEqual(firewarrior.filter(row => row.status !== 'matched').map(row => row.id), [])
+  // The curated shooting row snapshots the same fallback rate; keep it in sync.
+  const { fallbackFramesPerSecond } = await import('../app/animation.ts')
+  const shooting = report.rows.find(row => row.id === 'legacy-unit/firewarrior-shooting')
+  assert.equal(shooting.browser.fps, fallbackFramesPerSecond(18, 12))
 })
