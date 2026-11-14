@@ -704,7 +704,7 @@ export default function Home() {
         scatterSelected(world)
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
-        engine.current?.focus(u ?? HOME, { animate: true })
+        camera?.focus(u ?? HOME, { animate: true })
       }
       if (e.key.toLowerCase() === 'b') {
         setTab('buildings')

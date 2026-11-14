@@ -102,7 +102,9 @@ test('input masks and native availability gates remain authoritative', () => {
 
 test('Space still pauses once per press, and continuous focus routing is unchanged', () => {
   let focuses = 0
-  const k = keyboard({ engine: { current: { focus: () => focuses++ } } })
+  const engine = { current: null }
+  const k = keyboard({ engine })
+  engine.current = { world: k.world, focus: () => focuses++ }
   const paused = k.world.paused
   k.key({ key: ' ', code: 'Space' })
   assert.equal(k.world.paused, !paused)

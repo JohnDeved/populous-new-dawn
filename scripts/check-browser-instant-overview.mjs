@@ -51,13 +51,14 @@ try {
   // Mission 1 opens with campaign messages. While one is open, any Enter press (Shift
   // included) only closes it, like native 004a9d90 → process_cmd 0xb0 (#1045).
   const opened = (await state()).openMessages
-  if (opened) {
+  assert.ok(opened > 0, 'Mission 1 opens with a campaign message to close')
+  {
     await page.keyboard.press('Shift+Enter')
     const s = step('shift-enter-closes-messages', { openedBefore: opened, ...(await state()) })
     assert.equal(s.openMessages, 0, 'Shift+Return closes the open campaign messages')
     assert.equal(s.overview, false, 'the closing press does not reach World View')
     assert.equal(s.stage, null)
-  } else step('shift-enter-closes-messages', { notExercised: 'no open campaign message at start' })
+  }
 
   await page.evaluate(() => {
     const s = window.testScene
@@ -143,8 +144,10 @@ try {
   await shot('3-enter-transition')
   for (let i = 0; i < 60 && ((await state()).stage !== null); i++) await frame()
   s = step('enter-complete', await state())
-  assert.equal(s.overview, true)
-  assert.equal(s.drawMode, 2)
+  // The real animated path ends in the same state the instant chord produced.
+  const instantEntry = report.steps.find(step => step.name === 'shift-enter')
+  for (const key of ['overview', 'stage', 'drawMode', 'preset', 'angle', 'bearing', 'transition', 'morph'])
+    assert.deepEqual(s[key], instantEntry[key], `animated entry end state: ${key}`)
 
   // An animated entry composes with an instant exit to the same saved view.
   await page.keyboard.press('Shift+Enter')
@@ -154,15 +157,24 @@ try {
   assert.equal(s.preset, original.preset)
   assert.equal(s.angle, 333)
 
+  // The real animated exit ends in the same state as the instant exit (Ctrl+Return).
+  await page.keyboard.press('Shift+Enter')
+  assert.equal((await state()).overview, true)
+  await page.keyboard.press('Enter')
+  assert.equal((await state()).stage, 'exit')
+  for (let i = 0; i < 80 && ((await state()).stage !== null); i++) await frame()
+  s = step('enter-exit-complete', await state())
+  const instantExit = report.steps.find(step => step.name === 'ctrl-enter')
+  for (const key of ['overview', 'stage', 'drawMode', 'preset', 'angle', 'bearing', 'transition', 'morph', 'center'])
+    assert.deepEqual(s[key], instantExit[key], `animated exit end state: ${key}`)
+
   // The instant chord is ignored during an ordinary zoom transition (0089ce34).
   await page.keyboard.press('Equal')
-  s = await state()
-  if (s.transition > 0) {
-    await page.keyboard.press('Shift+Enter')
-    s = step('shift-enter-during-zoom', await state())
-    assert.equal(s.overview, false, 'Shift+Return is ignored during a ground zoom')
-    assert.ok(s.transition > 0)
-  } else step('shift-enter-during-zoom', { notExercised: 'zoom key started no transition', ...s })
+  assert.ok((await state()).transition > 0, 'the zoom key starts a ground transition')
+  await page.keyboard.press('Shift+Enter')
+  s = step('shift-enter-during-zoom', await state())
+  assert.equal(s.overview, false, 'Shift+Return is ignored during a ground zoom')
+  assert.ok(s.transition > 0)
 
   assert.deepEqual(errors, [])
   report.status = 'passed'

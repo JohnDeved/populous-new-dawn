@@ -5,8 +5,13 @@ Static research, 2026-11-14. Capstone 5.0.7 (private venv) disassembled the orig
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`, pinned in
 `decomp/tools.json`). The executable was read as data only and never ran. The retained
 Ghidra exports `decomp/generated/004aab80.c`, `00418890.c`, `00418950.c`, `0041d4b0.c`,
-`0041d450.c`, `0041d410.c`, `0041d680.c`, `00479f00.c` and `0047a930.c` were checked
-against the bytes. Their names and types are inferred.
+`0041d450.c`, `0041d410.c`, `0041d680.c`, `0041fb10.c`, `00479f00.c` and `0047a930.c`
+were checked against the bytes. Their names and types are inferred.
+
+Some statements rest on Capstone disassembly only, with no retained export. They are
+marked *(Capstone only)* below. They cover `0041fad0`, `00418810`, `0041cdc0`/`0041cdf0`,
+`0041ce00`, the `0089c6ec` view-config index address (Ghidra: `vconfig_index_start`)
+and the `0047a461` write.
 
 ## Bindings
 
@@ -45,7 +50,7 @@ Then they differ:
 - **Leave** (`draw_mode == 2`). It calls `0041fb10`, then `0041d450(100000, 0xe)`.
   - That starts the globe morph `005fe400` from its current value to `0x100` over
     `005fe428` frames. `0041ce00` initialises that count to 6 (`0041d2ff` also writes
-    it).
+    it) *(Capstone only)*.
   - The morph is ignored while one is already running (`005fe420`).
   - When the morph ends, `0041d680` calls `set_draw_mode(0)` and stores state `0xe` in
     `0089ce36`.
@@ -57,7 +62,7 @@ Then they differ:
     mode 7 calls `004b9150`/`004ba5d0`; both then call `004b00c0`.
   - If `0089ce36 == 0`, it stores state `0xb`. This path does not test `0089ce34` or
     `005fe420`.
-  - State `0xb` saves the angle (`0041cdc0` → `005fe42c`) and selects view-config index
+  - State `0xb` saves the angle (`0041cdc0` → `005fe42c`, *Capstone only*) and selects view-config index
     4. It arms the countdown `0089ce34` from the frame rate (¾ of it, even, clamped to
     8–32, then rescaled while a `level_flags_1` bit is set). Over that countdown the
     angle rotates to 0.
@@ -70,7 +75,8 @@ Then they differ:
 `005fe420 != 0` (globe morph) or `0089ce34 != 0` (view-config countdown). The ordinary
 zoom-level change (`00479f00` case `0xb`, write at `0047a461`) also arms `0089ce34`. So
 the instant chord is ignored during any animated overview transition **and** during an
-ordinary zoom transition. Plain Enter tests only `0089ce36`.
+ordinary zoom transition. Plain Enter's entry branch tests only `0089ce36`. Its leave
+branch tests only `005fe420`, inside `0041d450`.
 
 **Enter (argument 1).** It does the following in one call, with no `0089ce36` state and
 no morph:
@@ -81,7 +87,8 @@ no morph:
 - sets `0089ce35 = 0`;
 - saves view-config index `0089c6ec` into `0089c6eb` and sets it to 4;
 - saves the tribe angle (`+0x32`) into `005fe42c` and zeroes it;
-- calls `00418810`, the same panel side effects as the animated entry;
+- calls `00418810`, the same panel side effects as the animated entry *(Capstone only:
+  its bytes repeat the `0089c6e7` 9/7 branches of `00418890`)*;
 - calls `set_draw_mode(2)`;
 - sets tribe `+0x34 = 0x100`.
 
