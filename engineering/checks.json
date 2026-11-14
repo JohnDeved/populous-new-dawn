@@ -2,6 +2,58 @@
   "version": 1,
   "checks": [
     {
+      "id": "composed-source-inventory",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Fail fast when an application file is added, removed or renamed without updating the composed source inventory.",
+      "coveredBehavior": [
+        "Every tracked app/ file is bound exactly once by scripts/integration-queue/composed-source-inputs.json",
+        "Composed spell-integration source readers stay consistent with that inventory"
+      ],
+      "knownLimits": [
+        "Inventory and composed-source structure only; no gameplay, browser or build behavior.",
+        "Reads git's cached index: a new app file is detected only once it is staged or committed."
+      ],
+      "executable": "node",
+      "args": ["--test", "--test-concurrency=1", "tests/integration-composed-spells.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "app",
+        "scripts/integration-queue/composed-source-inputs.json",
+        "tests/integration-composed-spells.test.mjs"
+      ],
+      "inputs": [
+        "app",
+        "engineering/test-resources.json",
+        "public/original/atlas.png",
+        "public/original/tornado.png",
+        "public/original/unit-layers.png",
+        "scripts/artifact-zip.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-performance/snapshot-setup.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/checkpoint-readback.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/integration-queue",
+        "scripts/local-render",
+        "scripts/tutorial-browser",
+        "tests/fixtures/follower-source-artwork.json",
+        "tests/fixtures/follower-source-witness.json",
+        "tests/fixtures/tornado-original.json",
+        "tests/integration-composed-spells.test.mjs",
+        "tests/level-start-fixture.mjs",
+        "tests/support"
+      ],
+      "prerequisites": ["Node.js >=22.13.0", "Git"],
+      "sideEffects": [
+        "Spawns `git ls-files --cached -z -- app/` in the checkout. Creates and removes owned temporary passive-reader fixture/receipt directories under the OS temporary directory. No browser, build or network."
+      ],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "hud-preference-ssr-evidence-tests",
       "kind": "portable",
       "automation": "safe",
