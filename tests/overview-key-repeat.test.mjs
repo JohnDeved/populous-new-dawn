@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
-import { pageEffect } from './support/follower-nearby-page.mjs'
+import { pageEffect, messageBoxBindings } from './support/follower-nearby-page.mjs'
 import { overviewShortcut, quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 import { instantOverview } from '../app/instant-overview.ts'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
@@ -26,6 +26,10 @@ const methods = ['overview', 'leaveOverview'].map(name => {
 }).join('\n')
 const wrapper = stripTypeScriptTypes('class BoundScene {\n' + methods + '\n}')
 const noOp = () => {}
+const messageBox = open => {
+  const box = { open, inside: [], contains: node => box.inside.includes(node) }
+  return box
+}
 
 function fixture(overrides = {}) {
   const listeners = new Map(), starts = [], morphs = [], tabs = []
@@ -53,7 +57,7 @@ function fixture(overrides = {}) {
   })
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() },
+    messageDetails: { current: new Map() }, ...messageBoxBindings,
     SPELLS: [{ id: 'firestorm', key: '7' }], spellHudVisibility: () => 'visible', followerGroupShortcut,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => {
@@ -68,12 +72,14 @@ function fixture(overrides = {}) {
     ...overrides,
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
+  // One element per focus kind; closest returns it like the DOM would.
+  const controls = Object.fromEntries(['button', 'summary', 'input', 'dialog'].map(kind => [kind, { kind }]))
   return {
-    scene, world, starts, morphs, tabs, listeners, cleanup,
+    scene, world, starts, morphs, tabs, listeners, cleanup, controls,
     press(extra = {}, target = 'body') {
       listeners.get('keydown')({ key: 'Enter', code: 'Enter', repeat: false,
         ctrlKey: false, metaKey: false, altKey: false,
-        target: { closest: selector => selector.split(',').includes(target) },
+        target: { closest: selector => selector.split(',').includes(target) ? controls[target] : null },
         preventDefault: () => prevented++, ...extra })
     },
     // The end states stepViewChange leaves after startGroundView(4, 0) plus the
@@ -192,7 +198,7 @@ test('Space and spell toggles stay single-press; continuous focus stays repeatab
 
 
 test('open campaign details refuse overview, spells, pause and Escape before any gameplay action', () => {
-  const details = { open: true }, messageDetails = { current: new Map([[57, details]]) }
+  const details = messageBox(true), messageDetails = { current: new Map([[57, details]]) }
   const f = fixture({ messageDetails })
   const before = structuredClone(f.world)
   for (const [key, code] of [['7', 'Digit7'], ['1', 'Digit1'], [' ', 'Space'], ['Escape', 'Escape']])
@@ -217,7 +223,7 @@ test('open campaign details refuse overview, spells, pause and Escape before any
 // 004a9d90: while 0089bb81 is 2/3 only an Enter/keypad-Enter press passes, as
 // process_cmd 0xb0, which closes the box. The same press never reaches 0x15.
 test('Enter closes every open campaign message without toggling overview', () => {
-  const first = { open: true }, second = { open: true }, closed = { open: false }
+  const first = messageBox(true), second = messageBox(true), closed = messageBox(false)
   const f = fixture({ messageDetails: { current: new Map([[3, first], [4, closed], [5, second]]) } })
   const before = structuredClone(f.world)
   f.press()
@@ -234,7 +240,7 @@ test('Enter closes every open campaign message without toggling overview', () =>
 
 test('message-closing Enter ignores Shift/Ctrl/Alt and keypad origin like the native modal path', () => {
   for (const extra of [{ code: 'NumpadEnter' }, { shiftKey: true }, { ctrlKey: true }, { altKey: true }]) {
-    const details = { open: true }
+    const details = messageBox(true)
     const f = fixture({ messageDetails: { current: new Map([[1, details]]) } })
     f.press(extra)
     assert.equal(details.open, false, JSON.stringify(extra))
@@ -244,17 +250,40 @@ test('message-closing Enter ignores Shift/Ctrl/Alt and keypad origin like the na
   }
 })
 
-test('message-closing Enter leaves browser, focused-control, editable and modal owners alone', () => {
+test('message-closing Enter leaves the box controls, browser, editable and modal owners alone', () => {
   for (const [bindings, target, extra] of [
     [{}, 'button'], [{}, 'summary'], [{}, 'input'], [{}, 'dialog'], [{}, 'body', { metaKey: true }],
     [{ ready: false }, 'body'], [{ menu: true }, 'body'], [{ cheatsOpen: true }, 'body'],
   ]) {
-    const details = { open: true }
+    const details = messageBox(true)
     const f = fixture({ ...bindings, messageDetails: { current: new Map([[1, details]]) } })
+    // The open box's own summary and dismiss button keep native activation.
+    details.inside = [f.controls.button, f.controls.summary]
     f.press(extra, target)
     assert.equal(details.open, true, JSON.stringify([bindings, target, extra]))
     assert.deepEqual(f.starts, [])
     assert.equal(f.counts().prevented, 0)
+  }
+})
+
+// #1046 focus edge case: a summary that kept focus after a click collapse must
+// not reopen its old message when Enter should close the newly opened box.
+test('Enter from a control outside the open box closes the box instead of activating it', () => {
+  for (const target of ['summary', 'button']) {
+    const details = messageBox(true), stale = messageBox(false)
+    let synced = 0
+    const f = fixture({ messageDetails: { current: new Map([[1, stale], [2, details]]) },
+      syncMessageModal: () => synced++ })
+    f.press({}, target)
+    assert.deepEqual([details.open, stale.open], [false, false], target)
+    assert.equal(f.counts().prevented, 1, 'the focused control does not activate')
+    assert.equal(synced, 1, 'closing ends the modal pause at once')
+    assert.deepEqual(f.starts, [])
+    // Space would activate the focused control too; it is refused, not used.
+    details.open = true
+    f.press({ key: ' ', code: 'Space' }, target)
+    assert.deepEqual([details.open, stale.open, f.world.paused], [true, false, false], target)
+    assert.equal(f.counts().prevented, 2)
   }
 })
 

@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { runInNewContext } from 'node:vm'
-import { pageEffect } from './support/follower-nearby-page.mjs'
+import { pageEffect, messageBoxBindings } from './support/follower-nearby-page.mjs'
 import { createWorld } from '../app/world-initialization.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { boardLiveVehicle } from '../app/live-vehicles.ts'
@@ -123,7 +123,7 @@ function historyPage(w) {
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", {
     world: w, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS: [], followerGroupShortcut, overviewShortcut, store, engine: { current: scene },
+    messageDetails: { current: new Map() }, ...messageBoxBindings, SPELLS: [], followerGroupShortcut, overviewShortcut, store, engine: { current: scene },
     tutorialLevel: 79, cancelInteraction,
     openMenu: () => { priorPause = w.paused; w.paused = true; menu.open = true; menu.isConnected = true },
     window: { addEventListener: (name, fn) => { assert.equal(listeners.size, 0); listeners.set(name, fn) },

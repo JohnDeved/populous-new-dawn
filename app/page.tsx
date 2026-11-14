@@ -78,6 +78,7 @@ import {
   type GamePreferences,
 } from './game-preferences'
 import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
+import { messageBoxKey, openMessageBox, showMessageBox } from './campaign-message-modal'
 import {
   HudSprite,
   FollowerNumber,
@@ -256,22 +257,6 @@ export default function Home() {
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
   }, [hudSize])
-  useEffect(() => {
-    const opened: number[] = []
-    for (const message of world.messages.slots) {
-      if (!message || !(message.flags & 2)) continue
-      const details = messageDetails.current.get(message.serial)
-      if (!details) continue
-      details.open = true
-      opened.push(message.serial)
-    }
-    if (!opened.length) return
-    const serials = new Set(opened)
-    store.change(w => {
-      for (const message of w.messages.slots)
-        if (message && serials.has(message.serial)) message.flags &= ~2
-    })
-  })
   const [hover, setHover] = useState<string | null>(null)
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
@@ -320,6 +305,65 @@ export default function Home() {
     }
     pendingMenuCamera.current = []
   }
+  // Native 004af440 shows one box (0089bb81 state 2/3). While it is open,
+  // 004a5590 runs 004af640 instead of every simulation turn. 004af640 pauses
+  // through 00479f00(10, tribe, 1), the same pause branch as the P key (0089c661
+  // bit 2, "Paused" status, paused sound). Closing calls 00479f00(10, tribe, 0).
+  // The browser restores the prior pause state, which is unpaused for every
+  // auto-opened box because auto-open needs running presentation visits.
+  const messageSession = useRef<{ world: typeof world; paused: boolean } | null>(null)
+  const syncMessageModal = useCallback(() => {
+    const box = openMessageBox(messageDetails.current.values()),
+      current = store.getWorld(),
+      session = messageSession.current
+    if (session && (session.world !== current || !box)) {
+      messageSession.current = null
+      if (session.world === current)
+        store.change(w => {
+          w.paused = session.paused
+        })
+      if (engine.current?.world === session.world) engine.current.setMessageModal(false)
+    }
+    if (box && !messageSession.current) {
+      messageSession.current = { world: current, paused: current.paused }
+      cancelNearbyInput()
+      store.change(w => {
+        w.paused = true
+      })
+      if (engine.current?.world === current) engine.current.setMessageModal(true)
+    }
+  }, [store, cancelNearbyInput])
+  useEffect(() => {
+    // A replaced world never inherits the previous world's open box.
+    for (const details of messageDetails.current.values()) details.open = false
+  }, [world])
+  useEffect(() => {
+    const opened: number[] = []
+    for (const message of world.messages.slots) {
+      if (!message || !(message.flags & 2)) continue
+      const details = messageDetails.current.get(message.serial)
+      if (!details) continue
+      // A newer request replaces the open box.
+      showMessageBox(messageDetails.current.values(), details)
+      opened.push(message.serial)
+    }
+    if (opened.length) {
+      // A summary that kept focus must not take the next key (focus edge case).
+      const focused = document.activeElement
+      if (
+        focused instanceof HTMLElement &&
+        focused.closest('.campaign-messages') &&
+        !openMessageBox(messageDetails.current.values())?.contains(focused)
+      )
+        focused.blur()
+      const serials = new Set(opened)
+      store.change(w => {
+        for (const message of w.messages.slots)
+          if (message && serials.has(message.serial)) message.flags &= ~2
+      })
+    }
+    syncMessageModal()
+  })
   function openSelector() {
     cancelNearbyInput()
     if (engine.current) engine.current.nearbyFollowersHudActive = false
@@ -509,7 +553,10 @@ export default function Home() {
     if (startup !== 'playing') return
     let disposed = false,
       scene: GameScene | null = null
-    const selectAcquisitionPanel = (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => {
+    const selectAcquisitionPanel = (
+      model: WorshipTargetModel,
+      family: WorshipAcquisitionFamily
+    ) => {
       if (disposed || store.getWorld() !== world) return null
       // The scene task owns this synchronous commit; React does not call it
       // during render. Automatic native selection preserves spell/build mode.
@@ -557,6 +604,7 @@ export default function Home() {
         created.gamePreferences = gamePreferencesRef.current
         scene = created
         engine.current = created
+        if (messageSession.current?.world === world) created.setMessageModal(true)
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
         if (world.drawMode === 2) created.overview()
         return created.ready.then(() => {
@@ -621,17 +669,14 @@ export default function Home() {
       // Native 004af440 puts the message box in state 0089bb81 = 2/3. While it is
       // shown, 004a9d90 drops every key except an Enter/keypad-Enter press (any
       // modifiers), which reaches process_cmd 0xb0 and closes the box without
-      // leaving World View. Any focused button/summary keeps its own Enter activation.
-      const openMessages = [...messageDetails.current.values()].filter(details => details.open)
-      if (openMessages.length) {
-        if (
-          e.key === 'Enter' &&
-          !e.repeat &&
-          !e.metaKey &&
-          !(e.target as HTMLElement).closest('button,summary')
-        ) {
-          e.preventDefault()
-          for (const details of openMessages) details.open = false
+      // leaving World View. Only the box's own summary/button keeps activation.
+      const box = openMessageBox(messageDetails.current.values())
+      if (box) {
+        const action = messageBoxKey(e, box)
+        if (action === 'close' || action === 'block') e.preventDefault()
+        if (action === 'close') {
+          for (const details of messageDetails.current.values()) details.open = false
+          syncMessageModal()
         }
         return
       }
@@ -725,7 +770,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen])
+  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen, syncMessageModal])
   useEffect(() => {
     // N (default record 005d6208: plain press, exact modifier mask 0) issues
     // tribe command 0x68: patrols and area guards continue with their next
@@ -1005,6 +1050,21 @@ export default function Home() {
     SPELLS.find(s => s.id === world.mode)?.name ??
     BUILDINGS.find(b => b.id === world.mode)?.name ??
     (world.mode === 'guardPost' ? GUARD_POST.name : undefined)
+  // 004aa1c0: while the box is open only a left-button release reaches it
+  // (process_cmd 0x66 -> 004af780). HUD and world presses do nothing. The
+  // browser fullscreen control and desktop notice stay usable.
+  function blockMessageModalInteraction(event: SyntheticEvent) {
+    if (
+      messageSession.current?.world !== world ||
+      (event.target as Element).closest(
+        '.campaign-messages,[data-fullscreen-control],.desktop-recommendation,dialog'
+      )
+    )
+      return false
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }
   function blockLoadingInteraction(event: SyntheticEvent) {
     if (
       ready ||
@@ -1119,9 +1179,7 @@ export default function Home() {
                           ? [
                               {
                                 text: 'Board two followers onto the provided Boat',
-                                done: world.vehicles.some(
-                                  vehicle => vehicle.passengerCount >= 2
-                                ),
+                                done: world.vehicles.some(vehicle => vehicle.passengerCount >= 2),
                               },
                               {
                                 text: 'Worship the Totem Pole across the water',
@@ -1214,11 +1272,11 @@ export default function Home() {
     <main
       ref={shell}
       className="game-shell"
-      onPointerDownCapture={blockLoadingInteraction}
-      onPointerUpCapture={blockLoadingInteraction}
-      onContextMenuCapture={blockLoadingInteraction}
+      onPointerDownCapture={e => blockLoadingInteraction(e) || blockMessageModalInteraction(e)}
+      onPointerUpCapture={e => blockLoadingInteraction(e) || blockMessageModalInteraction(e)}
+      onContextMenuCapture={e => blockLoadingInteraction(e) || blockMessageModalInteraction(e)}
       onClickCapture={e => {
-        if (blockLoadingInteraction(e)) return
+        if (blockLoadingInteraction(e) || blockMessageModalInteraction(e)) return
         if (
           world.inputMask &&
           !(e.target as Element).closest(
@@ -1277,6 +1335,12 @@ export default function Home() {
                   if (element) messageDetails.current.set(message!.serial, element)
                   else messageDetails.current.delete(message!.serial)
                 }}
+                onToggle={event => {
+                  // A user-opened box replaces the open one, like a new 004af440 call.
+                  if (event.currentTarget.open)
+                    showMessageBox(messageDetails.current.values(), event.currentTarget)
+                  syncMessageModal()
+                }}
                 data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
                 style={
                   {
@@ -1288,10 +1352,7 @@ export default function Home() {
                 <summary
                   aria-label="Read campaign message"
                   onClick={event => {
-                    if (
-                      store.getWorld() !== world ||
-                      world.messages.slots[slot] !== message
-                    ) {
+                    if (store.getWorld() !== world || world.messages.slots[slot] !== message) {
                       event.preventDefault()
                       return
                     }
@@ -1357,8 +1418,13 @@ export default function Home() {
           </div>
         )}
       </div>
-      {ready && startup === 'playing' && world.paused && !menu && !selectorOpen &&
-        !cheatsOpen && world.status === 'playing' && <OriginalPauseStatus />}
+      {ready &&
+        startup === 'playing' &&
+        world.paused &&
+        !menu &&
+        !selectorOpen &&
+        !cheatsOpen &&
+        world.status === 'playing' && <OriginalPauseStatus />}
       {world.mode && (
         <div className="target-prompt">
           <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
@@ -2063,8 +2129,8 @@ export default function Home() {
                     </strong>
                     <span>Ctrl+Alt-click</span>
                     <strong>
-                      Add a patrol point (one point guards that area; two to eight points loop) ·
-                      On your shaman: guard her
+                      Add a patrol point (one point guards that area; two to eight points loop) · On
+                      your shaman: guard her
                     </strong>
                     <span>N</span>
                     <strong>Patrolling followers leave for their next queued order</strong>

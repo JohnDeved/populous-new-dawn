@@ -17,7 +17,7 @@ import { command } from '../app/live-command.ts'
 import { cancelInteraction, setSelection } from '../app/selection-runtime.ts'
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import { quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
-import { pageEffect, noOp } from './support/follower-nearby-page.mjs'
+import { pageEffect, noOp, messageBoxBindings } from './support/follower-nearby-page.mjs'
 
 const key = (code, extra = {}) => ({
   code, repeat: false, shiftKey: false, ctrlKey: false, altKey: false, metaKey: false, ...extra,
@@ -187,7 +187,7 @@ function pageKeyboard(overrides = {}) {
   const engine = { current: { world, followerGroup: shortcut => groups.push(shortcut), focus: noOp } }
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS: [{ id: 'blast', key: '1' }],
+    messageDetails: { current: new Map() }, ...messageBoxBindings, SPELLS: [{ id: 'blast', key: '1' }],
     spellHudVisibility: () => 'visible', followerGroupShortcut, overviewShortcut,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn), removeEventListener: noOp },
