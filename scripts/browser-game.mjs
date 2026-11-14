@@ -202,7 +202,8 @@ export const originalSkyShaders = {
 }
 
 // An open campaign message owns gameplay keyboard shortcuts (app/page.tsx key
-// handler), and missions such as 1 and 13 open their first message at start.
+// handler; as in the original only an Enter press passes, and it closes the
+// message), and missions such as 1 and 13 open their first message at start.
 // Checks that press gameplay keys collapse every open message through its public
 // summary first. Never dismisses a message or edits World data; fails if any stays open.
 export async function collapseCampaignMessages(page) {

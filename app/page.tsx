@@ -604,11 +604,27 @@ export default function Home() {
         !ready ||
         menu ||
         cheatsOpen ||
-        [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
         (e.target as HTMLElement).closest('input,dialog')
       )
         return
+      // Native 004af440 puts the message box in state 0089bb81 = 2/3. While it is
+      // shown, 004a9d90 drops every key except an Enter/keypad-Enter press (any
+      // modifiers), which reaches process_cmd 0xb0 and closes the box without
+      // leaving World View. Any focused button/summary keeps its own Enter activation.
+      const openMessages = [...messageDetails.current.values()].filter(details => details.open)
+      if (openMessages.length) {
+        if (
+          e.key === 'Enter' &&
+          !e.repeat &&
+          !e.metaKey &&
+          !(e.target as HTMLElement).closest('button,summary')
+        ) {
+          e.preventDefault()
+          for (const details of openMessages) details.open = false
+        }
+        return
+      }
       // Original number-row records own 1–6 (with Shift/Ctrl/Alt); spells do not.
       const group = followerGroupShortcut(e)
       if (group || (/^Digit[1-6]$/.test(e.code) && !e.metaKey)) {

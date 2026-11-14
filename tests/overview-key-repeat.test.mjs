@@ -179,9 +179,12 @@ test('open campaign details refuse overview, spells, pause and Escape before any
   const details = { open: true }, messageDetails = { current: new Map([[57, details]]) }
   const f = fixture({ messageDetails })
   const before = structuredClone(f.world)
-  for (const [key, code] of [['Enter', 'Enter'], ['7', 'Digit7'], ['1', 'Digit1'], [' ', 'Space'], ['Escape', 'Escape']])
+  for (const [key, code] of [['7', 'Digit7'], ['1', 'Digit1'], [' ', 'Space'], ['Escape', 'Escape']])
     for (const repeat of [false, true]) f.press({ key, code, repeat,
       stopImmediatePropagation: () => assert.fail('Message-owned Escape must not be consumed') })
+  // A held Enter that began before the box opened is not a fresh native press.
+  f.press({ repeat: true })
+  assert.equal(details.open, true)
   assert.deepEqual(f.world, before)
   assert.deepEqual(f.starts, [])
   assert.deepEqual(f.morphs, [])
@@ -193,4 +196,47 @@ test('open campaign details refuse overview, spells, pause and Escape before any
   assert.deepEqual(f.starts, [[4, 0]])
   f.cleanup()
   assert.equal(f.listeners.size, 0)
+})
+
+// 004a9d90: while 0089bb81 is 2/3 only an Enter/keypad-Enter press passes, as
+// process_cmd 0xb0, which closes the box. The same press never reaches 0x15.
+test('Enter closes every open campaign message without toggling overview', () => {
+  const first = { open: true }, second = { open: true }, closed = { open: false }
+  const f = fixture({ messageDetails: { current: new Map([[3, first], [4, closed], [5, second]]) } })
+  const before = structuredClone(f.world)
+  f.press()
+  assert.deepEqual([first.open, second.open, closed.open], [false, false, false])
+  assert.deepEqual(f.world, before)
+  assert.deepEqual(f.starts, [])
+  assert.deepEqual(f.counts(), { captures: 0, focuses: 0, prevented: 1, updates: 0 })
+  f.press({ repeat: true })
+  assert.equal(f.scene.overviewStage, null, 'a held closing Enter does not continue into overview')
+  f.press()
+  assert.equal(f.scene.overviewStage, 'enter', 'the next fresh Enter is the ordinary overview press')
+  assert.deepEqual(f.starts, [[4, 0]])
+})
+
+test('message-closing Enter ignores Shift/Ctrl/Alt and keypad origin like the native modal path', () => {
+  for (const extra of [{ code: 'NumpadEnter' }, { shiftKey: true }, { ctrlKey: true }, { altKey: true }]) {
+    const details = { open: true }
+    const f = fixture({ messageDetails: { current: new Map([[1, details]]) } })
+    f.press(extra)
+    assert.equal(details.open, false, JSON.stringify(extra))
+    assert.deepEqual(f.starts, [])
+    assert.equal(f.counts().prevented, 1)
+  }
+})
+
+test('message-closing Enter leaves browser, focused-control, editable and modal owners alone', () => {
+  for (const [bindings, target, extra] of [
+    [{}, 'button'], [{}, 'summary'], [{}, 'input'], [{}, 'dialog'], [{}, 'body', { metaKey: true }],
+    [{ ready: false }, 'body'], [{ menu: true }, 'body'], [{ cheatsOpen: true }, 'body'],
+  ]) {
+    const details = { open: true }
+    const f = fixture({ ...bindings, messageDetails: { current: new Map([[1, details]]) } })
+    f.press(extra, target)
+    assert.equal(details.open, true, JSON.stringify([bindings, target, extra]))
+    assert.deepEqual(f.starts, [])
+    assert.equal(f.counts().prevented, 0)
+  }
 })
