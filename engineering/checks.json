@@ -2,6 +2,38 @@
   "version": 1,
   "checks": [
     {
+      "id": "composed-source-inventory",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Fail fast when an application file is added, removed or renamed without updating the composed source inventory.",
+      "coveredBehavior": [
+        "Every tracked app/ file is bound exactly once by scripts/integration-queue/composed-source-inputs.json",
+        "Composed spell-integration source readers stay consistent with that inventory"
+      ],
+      "knownLimits": [
+        "Inventory and composed-source structure only; no gameplay, browser or build behavior."
+      ],
+      "executable": "node",
+      "args": ["--test", "--test-concurrency=1", "tests/integration-composed-spells.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "app",
+        "scripts/integration-queue/composed-source-inputs.json",
+        "tests/integration-composed-spells.test.mjs"
+      ],
+      "inputs": [
+        "app",
+        "scripts/integration-queue/composed-source-inputs.json",
+        "tests/integration-composed-spells.test.mjs",
+        "tests/support/composed-browser-reader.mjs"
+      ],
+      "prerequisites": ["Node.js >=22.13.0"],
+      "sideEffects": ["Reads tracked sources only; no browser, build, network or file writes."],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "hud-preference-ssr-evidence-tests",
       "kind": "portable",
       "automation": "safe",
