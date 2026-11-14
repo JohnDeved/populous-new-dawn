@@ -1,0 +1,5478 @@
+{
+ "source": {
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "loader": "004f1820 call 004f1868",
+  "constructor": "00489300",
+  "defaults": "005d5de8",
+  "dispatch": [
+   {
+    "stage": 1,
+    "bias": 13,
+    "span": 193,
+    "index": "004ad740",
+    "jump": "004ad5c4",
+    "fallthrough": "004aabd1",
+    "break": "004abbe2",
+    "gate": null
+   },
+   {
+    "stage": 2,
+    "bias": 15,
+    "span": 183,
+    "index": "004ad8dc",
+    "jump": "004ad814",
+    "fallthrough": "004ad5b9",
+    "break": "004ad5b9",
+    "gate": "0089c661 & 2 clear"
+   }
+  ],
+  "pseudocode": "decomp/generated/004aab80.c",
+  "pseudocodeSha256": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8"
+ },
+ "records": [
+  {
+   "address": "005d5de8",
+   "key": {
+    "code": 200,
+    "kind": "scancode",
+    "label": "Up"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 1,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5df4",
+   "key": {
+    "code": 72,
+    "kind": "scancode",
+    "label": "Numpad 8"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 1,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e00",
+   "key": {
+    "code": 208,
+    "kind": "scancode",
+    "label": "Down"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 2,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e0c",
+   "key": {
+    "code": 80,
+    "kind": "scancode",
+    "label": "Numpad 2"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 2,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e18",
+   "key": {
+    "code": 211,
+    "kind": "scancode",
+    "label": "Delete"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 3,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e24",
+   "key": {
+    "code": 75,
+    "kind": "scancode",
+    "label": "Numpad 4"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 199,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e30",
+   "key": {
+    "code": 209,
+    "kind": "scancode",
+    "label": "Page Down"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 4,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e3c",
+   "key": {
+    "code": 77,
+    "kind": "scancode",
+    "label": "Numpad 6"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 200,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e48",
+   "key": {
+    "code": 203,
+    "kind": "scancode",
+    "label": "Left"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 5,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e54",
+   "key": {
+    "code": 71,
+    "kind": "scancode",
+    "label": "Numpad 7"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 201,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e60",
+   "key": {
+    "code": 205,
+    "kind": "scancode",
+    "label": "Right"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 6,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e6c",
+   "key": {
+    "code": 73,
+    "kind": "scancode",
+    "label": "Numpad 9"
+   },
+   "event": "continuous",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 202,
+   "gateFlags": 1,
+   "predicate": "004ae200",
+   "flags": 10,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e78",
+   "key": {
+    "code": 199,
+    "kind": "scancode",
+    "label": "Home"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 170,
+   "gateFlags": 1,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     166,
+     167,
+     168,
+     169,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e84",
+   "key": {
+    "code": 207,
+    "kind": "scancode",
+    "label": "End"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 171,
+   "gateFlags": 1,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     166,
+     167,
+     168,
+     169,
+     170
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e90",
+   "key": {
+    "code": 112,
+    "kind": "char",
+    "label": "P"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 15,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aabfe",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((DAT_0089c6e7 != '\\x04') && (iVar15 = FUN_00451370(2), iVar15 == 0)) { if ((land_flags_1 & 8) == 0) { FUN_00479f00(5,iVar23,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5e9c",
+   "key": {
+    "code": 116,
+    "kind": "char",
+    "label": "T"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 16,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aac4f",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((DAT_0089c6e7 != '\\x04') && (iVar15 = FUN_00451370(2), iVar15 == 0)) { set_tribe_command(player_tribe_num,0x1f,0,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ea8",
+   "key": {
+    "code": 28,
+    "kind": "scancode",
+    "label": "Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 176,
+   "gateFlags": 0,
+   "predicate": "004ff530",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab959",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((DAT_0089bb81 == '\\x02') || (DAT_0089bb81 == '\\x03')) { DAT_0089bb81 = '\\0'; DAT_0089bb83 = '\\x01';"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5eb4",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 186,
+   "gateFlags": 1,
+   "predicate": "004ff0e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abae9",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "iVar15 = FUN_00451370(2); if (iVar15 == 0) { FUN_0045db60(1);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ec0",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 185,
+   "gateFlags": 1,
+   "predicate": "004ff0e0",
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004aba98",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "iVar15 = FUN_00451370(2); if (iVar15 == 0) { FUN_0047a550(CONCAT22(player_tribe_num >> 7,(short)DAT_0089c6ea),"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ecc",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 185,
+   "gateFlags": 1,
+   "predicate": "004ff0e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aba98",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "iVar15 = FUN_00451370(2); if (iVar15 == 0) { FUN_0047a550(CONCAT22(player_tribe_num >> 7,(short)DAT_0089c6ea),"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ed8",
+   "key": {
+    "code": 28,
+    "kind": "scancode",
+    "label": "Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 70,
+   "gateFlags": 1,
+   "predicate": "004ff550",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab137",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_00486b60();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ee4",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 70,
+   "gateFlags": 1,
+   "predicate": "004ff550",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab137",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_00486b60();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ef0",
+   "key": {
+    "code": 15,
+    "kind": "scancode",
+    "label": "Tab"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 79,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab289",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 2;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5efc",
+   "key": {
+    "code": 15,
+    "kind": "scancode",
+    "label": "Tab"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 80,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004ab295",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xfffd;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f08",
+   "key": {
+    "code": 87,
+    "kind": "scancode",
+    "label": "F11"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 81,
+   "gateFlags": 0,
+   "predicate": "004ff420",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab2a3",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 0x8000) == 0) { DAT_0098e908 = DAT_0098e908 & 0xfffd; FUN_004aee40(4,5);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f14",
+   "key": {
+    "code": 59,
+    "kind": "scancode",
+    "label": "F1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 82,
+   "gateFlags": 2,
+   "predicate": "004ff420",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab34d",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x31,0,10000); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f20",
+   "key": {
+    "code": 60,
+    "kind": "scancode",
+    "label": "F2"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 84,
+   "gateFlags": 2,
+   "predicate": "004ff420",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab39c",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x41,0,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f2c",
+   "key": {
+    "code": 61,
+    "kind": "scancode",
+    "label": "F3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 85,
+   "gateFlags": 2,
+   "predicate": "004ff420",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab3c2",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x44,0,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f38",
+   "key": {
+    "code": 62,
+    "kind": "scancode",
+    "label": "F4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 86,
+   "gateFlags": 2,
+   "predicate": "004ff420",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab3e8",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x45,0,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f44",
+   "key": {
+    "code": 63,
+    "kind": "scancode",
+    "label": "F5"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 83,
+   "gateFlags": 2,
+   "predicate": "004ff420",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab376",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x76,0,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f50",
+   "key": {
+    "code": 68,
+    "kind": "scancode",
+    "label": "F10"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 19,
+   "gateFlags": 3,
+   "predicate": "004ff400",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaca5",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_00479f00(8,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f5c",
+   "key": {
+    "code": 88,
+    "kind": "scancode",
+    "label": "F12"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 20,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aacb8",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x17,1,1); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f68",
+   "key": {
+    "code": 28,
+    "kind": "scancode",
+    "label": "Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 21,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aacde",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (DAT_0059ce08 == 0) { if ((game_state._838239_1_ & 1) == 0) { FUN_0041fad0();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f74",
+   "key": {
+    "code": 28,
+    "kind": "scancode",
+    "label": "Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 197,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abb83",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (DAT_0059ce08 == 0) { if ((game_state._838239_1_ & 1) == 0) { FUN_0041fad0();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f80",
+   "key": {
+    "code": 28,
+    "kind": "scancode",
+    "label": "Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 197,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abb83",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (DAT_0059ce08 == 0) { if ((game_state._838239_1_ & 1) == 0) { FUN_0041fad0();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f8c",
+   "key": {
+    "code": 59,
+    "kind": "scancode",
+    "label": "F1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 22,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aad12",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_0045db60(0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5f98",
+   "key": {
+    "code": 59,
+    "kind": "scancode",
+    "label": "F1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 23,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aad21",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_00486b60();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fa4",
+   "key": {
+    "code": 60,
+    "kind": "scancode",
+    "label": "F2"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 27,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     25,
+     28,
+     29,
+     44,
+     45,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fb0",
+   "key": {
+    "code": 61,
+    "kind": "scancode",
+    "label": "F3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 28,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     25,
+     27,
+     29,
+     44,
+     45,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fbc",
+   "key": {
+    "code": 62,
+    "kind": "scancode",
+    "label": "F4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 26,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": null,
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fc8",
+   "key": {
+    "code": 63,
+    "kind": "scancode",
+    "label": "F5"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 25,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     27,
+     28,
+     29,
+     44,
+     45,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fd4",
+   "key": {
+    "code": 59,
+    "kind": "scancode",
+    "label": "F1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 29,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     25,
+     27,
+     28,
+     44,
+     45,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fe0",
+   "key": {
+    "code": 93,
+    "kind": "char",
+    "label": "]"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 44,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     25,
+     27,
+     28,
+     29,
+     45,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5fec",
+   "key": {
+    "code": 91,
+    "kind": "char",
+    "label": "["
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 45,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     25,
+     27,
+     28,
+     29,
+     44,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d5ff8",
+   "key": {
+    "code": 64,
+    "kind": "scancode",
+    "label": "F6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 54,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaec9",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "z_pos_camera = z_pos_camera + 200; if (0x6e00 < z_pos_camera) { z_pos_camera = 0x6e00;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6004",
+   "key": {
+    "code": 65,
+    "kind": "scancode",
+    "label": "F7"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 55,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaeee",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "z_pos_camera = z_pos_camera + -200; if (z_pos_camera < -0x6e00) { z_pos_camera = -0x6e00;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6010",
+   "key": {
+    "code": 64,
+    "kind": "scancode",
+    "label": "F6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 56,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf13",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "maybe_fog = maybe_fog + '\\x01';"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d601c",
+   "key": {
+    "code": 65,
+    "kind": "scancode",
+    "label": "F7"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 57,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf1e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "maybe_fog = maybe_fog + -1;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6028",
+   "key": {
+    "code": 64,
+    "kind": "scancode",
+    "label": "F6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 58,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf29",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0089ce49 = DAT_0089ce49 + 200; if (0x6e00 < DAT_0089ce49) { DAT_0089ce49 = 0x6e00;"
+   },
+   "shadowedBy": "005d5ff8"
+  },
+  {
+   "address": "005d6034",
+   "key": {
+    "code": 65,
+    "kind": "scancode",
+    "label": "F7"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 59,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf4e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0089ce49 = DAT_0089ce49 + -200; if (DAT_0089ce49 < -0x6e00) { DAT_0089ce49 = -0x6e00;"
+   },
+   "shadowedBy": "005d6004"
+  },
+  {
+   "address": "005d6040",
+   "key": {
+    "code": 64,
+    "kind": "scancode",
+    "label": "F6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift",
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 3
+   },
+   "action": 60,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf73",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0089ce42 = DAT_0089ce42 + '\\x01';"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d604c",
+   "key": {
+    "code": 65,
+    "kind": "scancode",
+    "label": "F7"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift",
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 3
+   },
+   "action": 61,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf7e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0089ce42 = DAT_0089ce42 + -1;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6058",
+   "key": {
+    "code": 45,
+    "kind": "char",
+    "label": "-"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 43,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abcdc",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     42
+    ],
+    "pseudocode": "if ((game_state._838239_1_ & 1) == 0) { FUN_00479f00(0xf,0,(-(uint)(param_1 == 0x2a) & 2) - 1);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6064",
+   "key": {
+    "code": 43,
+    "kind": "char",
+    "label": "+"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 42,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abcdc",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     43
+    ],
+    "pseudocode": "if ((game_state._838239_1_ & 1) == 0) { FUN_00479f00(0xf,0,(-(uint)(param_1 == 0x2a) & 2) - 1);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6070",
+   "key": {
+    "code": 45,
+    "kind": "char",
+    "label": "-"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 62,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aaf89",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (((load_level_flags & 0x4000000) == 0) && (((land_flags_1 & 8) == 0 || ((land_flags_1 & 0x8000) != 0)))) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x15,0xffffffff,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d607c",
+   "key": {
+    "code": 43,
+    "kind": "char",
+    "label": "+"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 63,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aafc5",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (((load_level_flags & 0x4000000) == 0) && (((land_flags_1 & 8) == 0 || ((land_flags_1 & 0x8000) != 0)))) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x15,1,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6088",
+   "key": {
+    "code": 66,
+    "kind": "scancode",
+    "label": "F8"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 64,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab001",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (((load_level_flags & 0x4000000) == 0) || ((land_flags_1 & 0x8000) != 0)) { if ((land_flags_1 & 8) == 0) { FUN_00479f00(6,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6094",
+   "key": {
+    "code": 66,
+    "kind": "scancode",
+    "label": "F8"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 65,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab04a",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (((load_level_flags & 0x4000000) == 0) || ((land_flags_1 & 0x8000) != 0)) { if ((land_flags_1 & 8) == 0) { FUN_00479f00(6,1,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60a0",
+   "key": {
+    "code": 67,
+    "kind": "scancode",
+    "label": "F9"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 66,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab093",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (((load_level_flags & 0x4000000) == 0) || ((land_flags_1 & 0x8000) != 0)) { if ((land_flags_1 & 8) == 0) { FUN_00479f00(7,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60ac",
+   "key": {
+    "code": 67,
+    "kind": "scancode",
+    "label": "F9"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 67,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab0dc",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((((load_level_flags & 0x4000000) == 0) || ((land_flags_1 & 0x8000) != 0)) && ((land_flags_1 & 8) == 0)) { FUN_00479f00(7,0xc,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60b8",
+   "key": {
+    "code": 66,
+    "kind": "scancode",
+    "label": "F8"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift",
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 3
+   },
+   "action": 68,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab112",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) != 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x14,iVar23,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60c4",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 155,
+   "gateFlags": 1,
+   "predicate": "004fee70",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab61a",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if (DAT_0059ce08 == 0) { if ((land_flags_1 & 8) == 0) { FUN_00418810();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60d0",
+   "key": {
+    "code": 28,
+    "kind": "scancode",
+    "label": "Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 156,
+   "gateFlags": 1,
+   "predicate": "004ff450",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab6e2",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "switch(DAT_0089ce5a) {"
+   },
+   "shadowedBy": "005d5f68"
+  },
+  {
+   "address": "005d60dc",
+   "key": {
+    "code": 156,
+    "kind": "scancode",
+    "label": "Numpad Enter"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 156,
+   "gateFlags": 1,
+   "predicate": "004ff450",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab6e2",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "switch(DAT_0089ce5a) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60e8",
+   "key": {
+    "code": 121,
+    "kind": "char",
+    "label": "Y"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 156,
+   "gateFlags": 1,
+   "predicate": "004ff450",
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab6e2",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "switch(DAT_0089ce5a) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d60f4",
+   "key": {
+    "code": 110,
+    "kind": "char",
+    "label": "N"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 157,
+   "gateFlags": 1,
+   "predicate": "004ff450",
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab895",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_005fcb14 = 2; land_flags_1 = land_flags_1 & 0x7fffffff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6100",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 157,
+   "gateFlags": 1,
+   "predicate": "004ff450",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab895",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_005fcb14 = 2; land_flags_1 = land_flags_1 & 0x7fffffff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d610c",
+   "key": {
+    "code": 111,
+    "kind": "char",
+    "label": "O"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 71,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab141",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 1;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6118",
+   "key": {
+    "code": 111,
+    "kind": "char",
+    "label": "O"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 72,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 20,
+   "handler": {
+    "stage": 1,
+    "case": "004ab14d",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xfffe;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6124",
+   "key": {
+    "code": 200,
+    "kind": "scancode",
+    "label": "Up"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 74,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab19e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_00895d9a = DAT_00895d9a + -1; if (DAT_00895d9a < 0) { DAT_00895d9a = DAT_00895d9e + -1;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6130",
+   "key": {
+    "code": 208,
+    "kind": "scancode",
+    "label": "Down"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 73,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab15b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_00895d9a = DAT_00895d9a + 1; sVar7 = DAT_00895d9a; if (DAT_00895d9e + -1 < (int)DAT_00895d9a) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d613c",
+   "key": {
+    "code": 72,
+    "kind": "scancode",
+    "label": "Numpad 8"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 74,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab19e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_00895d9a = DAT_00895d9a + -1; if (DAT_00895d9a < 0) { DAT_00895d9a = DAT_00895d9e + -1;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6148",
+   "key": {
+    "code": 80,
+    "kind": "scancode",
+    "label": "Numpad 2"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 73,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab15b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_00895d9a = DAT_00895d9a + 1; sVar7 = DAT_00895d9a; if (DAT_00895d9e + -1 < (int)DAT_00895d9a) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6154",
+   "key": {
+    "code": 203,
+    "kind": "scancode",
+    "label": "Left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 76,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab203",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, *(undefined4 *)(&DAT_005a8ac1 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6160",
+   "key": {
+    "code": 205,
+    "kind": "scancode",
+    "label": "Right"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 75,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab1d5",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, -*(int *)(&DAT_005a8ac1 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d616c",
+   "key": {
+    "code": 75,
+    "kind": "scancode",
+    "label": "Numpad 4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 76,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab203",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, *(undefined4 *)(&DAT_005a8ac1 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6178",
+   "key": {
+    "code": 77,
+    "kind": "scancode",
+    "label": "Numpad 6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 75,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab1d5",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, -*(int *)(&DAT_005a8ac1 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6184",
+   "key": {
+    "code": 203,
+    "kind": "scancode",
+    "label": "Left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 78,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab25d",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, *(undefined4 *)(&DAT_005a8ac5 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6190",
+   "key": {
+    "code": 205,
+    "kind": "scancode",
+    "label": "Right"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 77,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab22f",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, -*(int *)(&DAT_005a8ac5 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d619c",
+   "key": {
+    "code": 75,
+    "kind": "scancode",
+    "label": "Numpad 4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 78,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab25d",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, *(undefined4 *)(&DAT_005a8ac5 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61a8",
+   "key": {
+    "code": 77,
+    "kind": "scancode",
+    "label": "Numpad 6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 77,
+   "gateFlags": 2,
+   "predicate": "004ff3d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab22f",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31((int3)cVar11,player_tribe_num),0x17,(int)DAT_00895d9a, -*(int *)(&DAT_005a8ac5 + DAT_00895d9a * 0x34));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61b4",
+   "key": {
+    "code": 55,
+    "kind": "char",
+    "label": "7"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 87,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab40e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "sunlight_init_2(); set_landscape_c_4_and_texture(0,0x40);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61c0",
+   "key": {
+    "code": 48,
+    "kind": "char",
+    "label": "0"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 88,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab424",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((game_state._838239_1_ & 1) == 0) { FUN_00479f00(0xd,CONCAT22(uVar19,(short)vconfig_index_start),0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61cc",
+   "key": {
+    "code": 109,
+    "kind": "char",
+    "label": "M"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 95,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abdef",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 8) != 0) { FUN_004aee40(4,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61d8",
+   "key": {
+    "code": 98,
+    "kind": "char",
+    "label": "B"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 191,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad2bc",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(player_tribe_num,0x7c,0,0); write_str_to_debug_buffer(DAT_00973020,0x10,player_tribe_num,0); DAT_0089c6a1 = 0xffffffff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61e4",
+   "key": {
+    "code": 43,
+    "kind": "scancode",
+    "label": "Backslash"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 96,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004abe13",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "FUN_00419a60(3,0,0); FUN_00419a20(0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61f0",
+   "key": {
+    "code": 43,
+    "kind": "scancode",
+    "label": "Backslash"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 97,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004abe36",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (*(short *)&game_state.tribes_array[player_tribe_num].field_0xa37 != 0) { puVar24 = (unit_struct *)0x0; iVar17 = 0xfffffff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d61fc",
+   "key": {
+    "code": 100,
+    "kind": "char",
+    "label": "D"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 192,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad2fe",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(iVar23,0x7e,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6208",
+   "key": {
+    "code": 110,
+    "kind": "char",
+    "label": "N"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 98,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abf0f",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(iVar23,0x68,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6214",
+   "key": {
+    "code": 115,
+    "kind": "char",
+    "label": "S"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 99,
+   "gateFlags": 1,
+   "predicate": "004ff430",
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab498",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((10 < game_state.offset_counter_2) && ((load_level_flags & 0x4000000) == 0)) { if ((land_flags_1 & 0x6000000) == 0) { level_flags_1 = level_flags_1 ^ 0x20;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6220",
+   "key": {
+    "code": 103,
+    "kind": "char",
+    "label": "G"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 193,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad318",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "uVar16 = FUN_004999d0(0); set_tribe_command(iVar23,0x82,uVar16);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d622c",
+   "key": {
+    "code": 52,
+    "kind": "scancode",
+    "label": "Period"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 93,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab44b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "puVar21 = game_state.tribes_array[iVar23].shaman; if (puVar21 != (unit_struct *)0x0) { set_data_to_rddata_chunk"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6238",
+   "key": {
+    "code": 40,
+    "kind": "scancode",
+    "label": "Apostrophe"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 100,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab4ea",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "_render_state_flags = _render_state_flags | 8;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6244",
+   "key": {
+    "code": 40,
+    "kind": "scancode",
+    "label": "Apostrophe"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 101,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004ab4f6",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "_render_state_flags = _render_state_flags & 0xfffffff7;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6250",
+   "key": {
+    "code": 51,
+    "kind": "scancode",
+    "label": "Comma"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 183,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aba5a",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "_DAT_0089d168 = 0xffffffff; DAT_0089d16c = 0xffff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d625c",
+   "key": {
+    "code": 51,
+    "kind": "scancode",
+    "label": "Comma"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 184,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004aba82",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "_DAT_0089d168 = 0; DAT_0089d16c = 0;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6268",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Shift",
+     "Ctrl"
+    ],
+    "raw": 24
+   },
+   "action": 196,
+   "gateFlags": 0,
+   "predicate": "004ff030",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ad41a",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "iVar17 = FUN_004c28a0(player_tribe_num * 0xc65 + 0x89d1c8,(int)DAT_0089ce81); if (iVar17 != 3) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6274",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [],
+    "raw": 4
+   },
+   "action": 194,
+   "gateFlags": 0,
+   "predicate": "004feef0",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ad339",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     195
+    ],
+    "pseudocode": "cVar12 = FUN_004c2830(); if (cVar12 != '\\0') { local_320._1_3_ = (undefined3)(minimap_state_and_cache >> 8);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6280",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [],
+    "raw": 4
+   },
+   "action": 195,
+   "gateFlags": 0,
+   "predicate": "004feef0",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ad339",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     194
+    ],
+    "pseudocode": "cVar12 = FUN_004c2830(); if (cVar12 != '\\0') { local_320._1_3_ = (undefined3)(minimap_state_and_cache >> 8);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d628c",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 106,
+   "gateFlags": 0,
+   "predicate": "004fefe0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ac172",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     107
+    ],
+    "pseudocode": "if (draw_mode != 2) { iVar17 = FUN_004c28a0(player_tribe_num * 0xc65 + 0x89d1c8,(int)DAT_0089ce81); uVar22 = (uint)(iVar17 == 3);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6298",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 107,
+   "gateFlags": 0,
+   "predicate": "004fefe0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ac172",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     106
+    ],
+    "pseudocode": "if (draw_mode != 2) { iVar17 = FUN_004c28a0(player_tribe_num * 0xc65 + 0x89d1c8,(int)DAT_0089ce81); uVar22 = (uint)(iVar17 == 3);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62a4",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 109,
+   "gateFlags": 0,
+   "predicate": "004ff090",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ac45b",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if ((draw_mode != 2) && (game_state.tribes_array[player_tribe_num].shaman != (unit_struct *)0x0) ) { local_320 = _minimap_related_pos;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62b0",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 108,
+   "gateFlags": 0,
+   "predicate": "004ff080",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ac406",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (draw_mode != 2) { set_tribe_command(player_tribe_num,0x6f,0,0); FUN_0047a550(0,player_tribe_num * 0xc65 + 0x89d1c8);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62bc",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 108,
+   "gateFlags": 0,
+   "predicate": "004ff080",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ac406",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (draw_mode != 2) { set_tribe_command(player_tribe_num,0x6f,0,0); FUN_0047a550(0,player_tribe_num * 0xc65 + 0x89d1c8);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62c8",
+   "key": {
+    "code": 49,
+    "kind": "char",
+    "label": "1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 132,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad035",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     133,
+     134,
+     135,
+     136,
+     137
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62d4",
+   "key": {
+    "code": 50,
+    "kind": "char",
+    "label": "2"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 133,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad035",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     132,
+     134,
+     135,
+     136,
+     137
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62e0",
+   "key": {
+    "code": 51,
+    "kind": "char",
+    "label": "3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 134,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad035",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     132,
+     133,
+     135,
+     136,
+     137
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62ec",
+   "key": {
+    "code": 52,
+    "kind": "char",
+    "label": "4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 135,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad035",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     132,
+     133,
+     134,
+     136,
+     137
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d62f8",
+   "key": {
+    "code": 53,
+    "kind": "char",
+    "label": "5"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 136,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad035",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     132,
+     133,
+     134,
+     135,
+     137
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6304",
+   "key": {
+    "code": 54,
+    "kind": "char",
+    "label": "6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 137,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad035",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     132,
+     133,
+     134,
+     135,
+     136
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6310",
+   "key": {
+    "code": 49,
+    "kind": "char",
+    "label": "1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 16
+   },
+   "action": 138,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad052",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     139,
+     140,
+     141,
+     142,
+     143
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d631c",
+   "key": {
+    "code": 50,
+    "kind": "char",
+    "label": "2"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 16
+   },
+   "action": 139,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad052",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     138,
+     140,
+     141,
+     142,
+     143
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6328",
+   "key": {
+    "code": 51,
+    "kind": "char",
+    "label": "3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 16
+   },
+   "action": 140,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad052",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     138,
+     139,
+     141,
+     142,
+     143
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6334",
+   "key": {
+    "code": 52,
+    "kind": "char",
+    "label": "4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 16
+   },
+   "action": 141,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad052",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     138,
+     139,
+     140,
+     142,
+     143
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6340",
+   "key": {
+    "code": 53,
+    "kind": "char",
+    "label": "5"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 16
+   },
+   "action": 142,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad052",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     138,
+     139,
+     140,
+     141,
+     143
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d634c",
+   "key": {
+    "code": 54,
+    "kind": "char",
+    "label": "6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 16
+   },
+   "action": 143,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad052",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     138,
+     139,
+     140,
+     141,
+     142
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6358",
+   "key": {
+    "code": 49,
+    "kind": "char",
+    "label": "1"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 20
+   },
+   "action": 144,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad099",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     145,
+     146,
+     147,
+     148,
+     149
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6364",
+   "key": {
+    "code": 50,
+    "kind": "char",
+    "label": "2"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 20
+   },
+   "action": 145,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad099",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     144,
+     146,
+     147,
+     148,
+     149
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6370",
+   "key": {
+    "code": 51,
+    "kind": "char",
+    "label": "3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 20
+   },
+   "action": 146,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad099",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     144,
+     145,
+     147,
+     148,
+     149
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d637c",
+   "key": {
+    "code": 52,
+    "kind": "char",
+    "label": "4"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 20
+   },
+   "action": 147,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad099",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     144,
+     145,
+     146,
+     148,
+     149
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6388",
+   "key": {
+    "code": 53,
+    "kind": "char",
+    "label": "5"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 20
+   },
+   "action": 148,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad099",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     144,
+     145,
+     146,
+     147,
+     149
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6394",
+   "key": {
+    "code": 54,
+    "kind": "char",
+    "label": "6"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [
+     "Ctrl"
+    ],
+    "raw": 20
+   },
+   "action": 149,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad099",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     144,
+     145,
+     146,
+     147,
+     148
+    ],
+    "pseudocode": "uVar16 = 1; if (((DAT_009845ae != '\\0') && (DAT_009846ae == '\\0')) || ((DAT_0098462e != '\\0' && (DAT_0098472e == '\\0')))) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63a0",
+   "key": {
+    "code": 104,
+    "kind": "char",
+    "label": "H"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 150,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ad0e0",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "iVar17 = (int)player_tribe_num; local_320 = CONCAT31(local_320._1_3_, (char)((ushort)*(undefined2 *)&game_state.tribes_array[iVar17].field_0x911"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63ac",
+   "key": {
+    "code": 108,
+    "kind": "char",
+    "label": "L"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 151,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab51f",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((game_state.tribes_array[iVar23].field_0x93d & 0x80) == 0) { set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x5f,1,0); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63b8",
+   "key": {
+    "code": 108,
+    "kind": "char",
+    "label": "L"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 180,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab9fc",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "iVar15 = FUN_004999d0(); if (iVar15 == 0) { FUN_004999f0();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63c4",
+   "key": {
+    "code": 118,
+    "kind": "char",
+    "label": "V"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [],
+    "raw": 4
+   },
+   "action": 158,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ab",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_00479f00(0xb,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63d0",
+   "key": {
+    "code": 90,
+    "kind": "char",
+    "label": "Z"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 30,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad2b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     31,
+     32,
+     33
+    ],
+    "pseudocode": "FUN_0047c590(param_1 + -0x1e);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63dc",
+   "key": {
+    "code": 88,
+    "kind": "char",
+    "label": "X"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 31,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad2b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     30,
+     32,
+     33
+    ],
+    "pseudocode": "FUN_0047c590(param_1 + -0x1e);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63e8",
+   "key": {
+    "code": 67,
+    "kind": "char",
+    "label": "C"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 32,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad2b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     30,
+     31,
+     33
+    ],
+    "pseudocode": "FUN_0047c590(param_1 + -0x1e);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d63f4",
+   "key": {
+    "code": 86,
+    "kind": "char",
+    "label": "V"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 33,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad2b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     30,
+     31,
+     32
+    ],
+    "pseudocode": "FUN_0047c590(param_1 + -0x1e);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6400",
+   "key": {
+    "code": 90,
+    "kind": "char",
+    "label": "Z"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 34,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad3c",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     35,
+     36,
+     37
+    ],
+    "pseudocode": "if ((*(uint *)&game_state.tribes_array[iVar23].field_0x941 & 1 << (cVar12 - 0x20U & 0x1f)) != 0) { local_220 = (unit_struct *)"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d640c",
+   "key": {
+    "code": 88,
+    "kind": "char",
+    "label": "X"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 35,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad3c",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     34,
+     36,
+     37
+    ],
+    "pseudocode": "if ((*(uint *)&game_state.tribes_array[iVar23].field_0x941 & 1 << (cVar12 - 0x20U & 0x1f)) != 0) { local_220 = (unit_struct *)"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6418",
+   "key": {
+    "code": 67,
+    "kind": "char",
+    "label": "C"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 36,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad3c",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     34,
+     35,
+     37
+    ],
+    "pseudocode": "if ((*(uint *)&game_state.tribes_array[iVar23].field_0x941 & 1 << (cVar12 - 0x20U & 0x1f)) != 0) { local_220 = (unit_struct *)"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6424",
+   "key": {
+    "code": 86,
+    "kind": "char",
+    "label": "V"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 37,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004aad3c",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     34,
+     35,
+     36
+    ],
+    "pseudocode": "if ((*(uint *)&game_state.tribes_array[iVar23].field_0x941 & 1 << (cVar12 - 0x20U & 0x1f)) != 0) { local_220 = (unit_struct *)"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6430",
+   "key": {
+    "code": 14,
+    "kind": "scancode",
+    "label": "Backspace"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 175,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab91d",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "iVar15 = FUN_00451370(2); if ((iVar15 == 0) && (DAT_0089bb89 != 0)) { FUN_004af440(DAT_0089bb82,(int)DAT_0089bb89);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d643c",
+   "key": {
+    "code": 14,
+    "kind": "scancode",
+    "label": "Backspace"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 152,
+   "gateFlags": 0,
+   "predicate": "004fee90",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ad144",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "FUN_0047c350(0,1,0,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6448",
+   "key": {
+    "code": 242,
+    "kind": "scancode",
+    "label": "Mouse button 2/3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 153,
+   "gateFlags": 1,
+   "predicate": "004ff4b0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab558",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0089ce6a = (undefined2)param_3; DAT_0089ce68 = (undefined2)param_2; if ((int)(screen_height * 0xd + (screen_height * 0xd >> 0x1f & 0xfU)) >> 4 < param_3) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6454",
+   "key": {
+    "code": 242,
+    "kind": "scancode",
+    "label": "Mouse button 2/3"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 154,
+   "gateFlags": 1,
+   "predicate": "004fefc0",
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004ab609",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e910 = '\\0'; DAT_0089ce6c = 0;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6460",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 116,
+   "gateFlags": 0,
+   "predicate": "004ff150",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004aca73",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "uVar22 = (_minimap_centre_x & 0xfe) * 2 | _minimap_centre_x & 0xfe00; set_tribe_command(CONCAT31((int3)((_minimap_centre_x & 0xfe00) >> 8),player_tribe_num),0x2b, (&game_state.level_data[0].unit_index_2)[uVar22 * 2] & 0x3ff,0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d646c",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 118,
+   "gateFlags": 0,
+   "predicate": "004ff270",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acb52",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x67,1,unit_index_2); if (unit_index_2 != 0) { DAT_0089bc20 = unit_index_2;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6478",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Shift",
+     "Alt"
+    ],
+    "raw": 40
+   },
+   "action": 110,
+   "gateFlags": 0,
+   "predicate": "004fef20",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ac5a7",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     111
+    ],
+    "pseudocode": "if (draw_mode == 2) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6484",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [
+     "Shift",
+     "Alt"
+    ],
+    "raw": 42
+   },
+   "action": 111,
+   "gateFlags": 0,
+   "predicate": "004fef20",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ac5a7",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     110
+    ],
+    "pseudocode": "if (draw_mode == 2) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6490",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 113,
+   "gateFlags": 0,
+   "predicate": "004fefa0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ac90a",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (DAT_0089c6e7 == '\\t') { set_data_to_rddata_chunk(0x6c,(DAT_0098e908 & 0x100) != 0,_minimap_related_1); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d649c",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 119,
+   "gateFlags": 0,
+   "predicate": "004ff3c0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acbad",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     120
+    ],
+    "pseudocode": "bVar3 = false; bVar4 = false; bVar6 = true;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64a8",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 120,
+   "gateFlags": 0,
+   "predicate": "004ff3c0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acbad",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     119
+    ],
+    "pseudocode": "bVar3 = false; bVar4 = false; bVar6 = true;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64b4",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [],
+    "raw": 4
+   },
+   "action": 120,
+   "gateFlags": 0,
+   "predicate": "004ff3c0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acbad",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [
+     119
+    ],
+    "pseudocode": "bVar3 = false; bVar4 = false; bVar6 = true;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64c0",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 124,
+   "gateFlags": 0,
+   "predicate": "004ff3c0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ace71",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "FUN_004b9150(); FUN_004ba5d0(); FUN_0047a550(0,player_tribe_num * 0xc65 + 0x89d1c8);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64cc",
+   "key": {
+    "code": 32,
+    "kind": "char",
+    "label": "Space"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 123,
+   "gateFlags": 0,
+   "predicate": "004ff3c0",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004ace3a",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "pcVar1 = &DAT_005a885a + DAT_00895de0 * 0x12; cVar12 = *pcVar1; *pcVar1 = cVar12 + '\\x01';"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64d8",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 121,
+   "gateFlags": 0,
+   "predicate": "004ff2d0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acdc1",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x11,0,_minimap_centre_x); FUN_0044b100();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64e4",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 122,
+   "gateFlags": 0,
+   "predicate": "004ff360",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acdea",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "puVar21 = (unit_struct *)0x0; if (((unit_index_2 != 0) && (puVar24 = unit_land_array[unit_index_2], (*(byte *)&puVar24->flags_2 & 1) == 0)) &&"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64f0",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 124,
+   "gateFlags": 0,
+   "predicate": "004ff3c0",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004ace71",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "FUN_004b9150(); FUN_004ba5d0(); FUN_0047a550(0,player_tribe_num * 0xc65 + 0x89d1c8);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d64fc",
+   "key": {
+    "code": 54,
+    "kind": "scancode",
+    "label": "Right Shift"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 187,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abb5b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 0x400;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6508",
+   "key": {
+    "code": 54,
+    "kind": "scancode",
+    "label": "Right Shift"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 188,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004abb64",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xfbff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6514",
+   "key": {
+    "code": 42,
+    "kind": "scancode",
+    "label": "Left Shift"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 187,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abb5b",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 0x400;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6520",
+   "key": {
+    "code": 42,
+    "kind": "scancode",
+    "label": "Left Shift"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 188,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004abb64",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xfbff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d652c",
+   "key": {
+    "code": 184,
+    "kind": "scancode",
+    "label": "Right Alt"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 189,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abb6f",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 0x800;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6538",
+   "key": {
+    "code": 184,
+    "kind": "scancode",
+    "label": "Right Alt"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 190,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004abb78",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xf7ff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6544",
+   "key": {
+    "code": 56,
+    "kind": "scancode",
+    "label": "Left Alt"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 189,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abb6f",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 0x800;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6550",
+   "key": {
+    "code": 56,
+    "kind": "scancode",
+    "label": "Left Alt"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 190,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 1,
+    "case": "004abb78",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xf7ff;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d655c",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Shift",
+     "Alt"
+    ],
+    "raw": 40
+   },
+   "action": 126,
+   "gateFlags": 0,
+   "predicate": "004ff480",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acf2e",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (draw_mode != 2) { uVar22 = FUN_004999d0(); if ((DAT_0098e908 & 0x800) != 0) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6568",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [
+     "Shift",
+     "Alt"
+    ],
+    "raw": 42
+   },
+   "action": 127,
+   "gateFlags": 0,
+   "predicate": "004ff480",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acf85",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (draw_mode != 2) { uVar22 = FUN_004999d0(); if ((DAT_0098e908 & 0x800) != 0) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6574",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 131,
+   "gateFlags": 0,
+   "predicate": "004ff460",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acffb",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (draw_mode != 2) { set_tribe_command(player_tribe_num,0x1e,0,0); FUN_004199b0(&DAT_00895de6);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6580",
+   "key": {
+    "code": 1,
+    "kind": "scancode",
+    "label": "Escape"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [
+     "Shift",
+     "Alt"
+    ],
+    "raw": 40
+   },
+   "action": 131,
+   "gateFlags": 0,
+   "predicate": "004ff460",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004acffb",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (draw_mode != 2) { set_tribe_command(player_tribe_num,0x1e,0,0); FUN_004199b0(&DAT_00895de6);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d658c",
+   "key": {
+    "code": 240,
+    "kind": "scancode",
+    "label": "Mouse left"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 117,
+   "gateFlags": 0,
+   "predicate": "004ff1d0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004acaf7",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "set_tribe_command(CONCAT31(uVar18,player_tribe_num),0x60,unit_index_2,0); if (unit_index_2 != 0) { DAT_0089bc20 = unit_index_2;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6598",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 114,
+   "gateFlags": 1,
+   "predicate": "004feed0",
+   "flags": 9,
+   "handler": {
+    "stage": 2,
+    "case": "004aca13",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "iVar17 = FUN_00451370(2); if (((iVar17 == 0) && ((level_flags_1 & 0x20) == 0)) && (cVar12 = FUN_0047ae00(1,1), cVar12 != '\\0')) {"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65a4",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 115,
+   "gateFlags": 1,
+   "predicate": "004ff3f0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004aca5f",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xff7f;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65b0",
+   "key": {
+    "code": 87,
+    "kind": "scancode",
+    "label": "F11"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Alt"
+    ],
+    "ignored": [],
+    "raw": 4
+   },
+   "action": 17,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     25,
+     27,
+     28,
+     29,
+     44,
+     45,
+     159
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65bc",
+   "key": {
+    "code": 87,
+    "kind": "scancode",
+    "label": "F11"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 18,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004aac87",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "if ((land_flags_1 & 0x8000) != 0) { FUN_004b36e0(1,1); }"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65c8",
+   "key": {
+    "code": 32,
+    "kind": "char",
+    "label": "Space"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 90,
+   "gateFlags": 0,
+   "predicate": "004ff510",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abd76",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "FUN_00483930();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65d4",
+   "key": {
+    "code": 32,
+    "kind": "char",
+    "label": "Space"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 91,
+   "gateFlags": 0,
+   "predicate": "004ff4f0",
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abd86",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (10 < game_state.offset_counter_2) { if ((load_level_flags & 0x4000000) != 0) { FUN_0041b4f0();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65e0",
+   "key": {
+    "code": 32,
+    "kind": "char",
+    "label": "Space"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 89,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 2,
+    "case": "004abd0d",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "if (-1 < DAT_0089c6a1) { local_320 = CONCAT22(local_320._2_2_,(short)DAT_0089c6a1); iVar17 = local_320;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65ec",
+   "key": {
+    "code": 97,
+    "kind": "char",
+    "label": "A"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 160,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8be",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 8;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d65f8",
+   "key": {
+    "code": 97,
+    "kind": "char",
+    "label": "A"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Ctrl"
+    ],
+    "ignored": [],
+    "raw": 2
+   },
+   "action": 162,
+   "gateFlags": 3,
+   "predicate": null,
+   "flags": 17,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8e1",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 | 0x20;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6604",
+   "key": {
+    "code": 97,
+    "kind": "char",
+    "label": "A"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 161,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 20,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ca",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     163
+    ],
+    "pseudocode": "DAT_0098e908 = DAT_0098e908 & 0xffd7;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6610",
+   "key": {
+    "code": 200,
+    "kind": "scancode",
+    "label": "Up"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 164,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     165,
+     166,
+     167,
+     168,
+     169,
+     170,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d661c",
+   "key": {
+    "code": 208,
+    "kind": "scancode",
+    "label": "Down"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 165,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     166,
+     167,
+     168,
+     169,
+     170,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6628",
+   "key": {
+    "code": 203,
+    "kind": "scancode",
+    "label": "Left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 166,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     167,
+     168,
+     169,
+     170,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6634",
+   "key": {
+    "code": 205,
+    "kind": "scancode",
+    "label": "Right"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 167,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     166,
+     168,
+     169,
+     170,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6640",
+   "key": {
+    "code": 203,
+    "kind": "scancode",
+    "label": "Left"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 168,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     166,
+     167,
+     169,
+     170,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d664c",
+   "key": {
+    "code": 205,
+    "kind": "scancode",
+    "label": "Right"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 169,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     166,
+     167,
+     168,
+     170,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6658",
+   "key": {
+    "code": 199,
+    "kind": "scancode",
+    "label": "Home"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 170,
+   "gateFlags": 3,
+   "predicate": "004ff3e0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab8ed",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [
+     164,
+     165,
+     166,
+     167,
+     168,
+     169,
+     171
+    ],
+    "pseudocode": "uVar22 = CONCAT22(uVar19,DAT_0098e908) & 0xffff0020; FUN_00479ef0(param_1,CONCAT31((int3)(uVar22 >> 8),(short)uVar22 == 0));"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6664",
+   "key": {
+    "code": 242,
+    "kind": "scancode",
+    "label": "Mouse button 2/3"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 159,
+   "gateFlags": 1,
+   "predicate": "004ff4d0",
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbe2",
+    "noop": true,
+    "gate": null,
+    "sharedWith": [
+     17,
+     25,
+     27,
+     28,
+     29,
+     44,
+     45
+    ],
+    "pseudocode": ""
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6670",
+   "key": {
+    "code": 82,
+    "kind": "scancode",
+    "label": "Numpad 0"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 174,
+   "gateFlags": 1,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004ab90e",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_00417aa0(0);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d667c",
+   "key": {
+    "code": 241,
+    "kind": "scancode",
+    "label": "Mouse right"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [
+     "Shift"
+    ],
+    "ignored": [],
+    "raw": 1
+   },
+   "action": 179,
+   "gateFlags": 0,
+   "predicate": "004ff0f0",
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ad1f0",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "iVar17 = FUN_0049a220(_minimap_centre_x & 0xffff,iVar23); if (iVar17 != 0) { set_tribe_command(iVar23,0x78,0,minimap_state_and_cache);"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6688",
+   "key": {
+    "code": 183,
+    "kind": "scancode",
+    "label": "Print Screen"
+   },
+   "event": "release",
+   "modifiers": {
+    "required": [],
+    "ignored": [],
+    "raw": 0
+   },
+   "action": 198,
+   "gateFlags": 2,
+   "predicate": null,
+   "flags": 12,
+   "handler": {
+    "stage": 2,
+    "case": "004ad5b2",
+    "noop": false,
+    "gate": "0089c661 & 2 clear",
+    "sharedWith": [],
+    "pseudocode": "level_flags_2 = level_flags_2 ^ 2;"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d6694",
+   "key": {
+    "code": 210,
+    "kind": "scancode",
+    "label": "Insert"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 205,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbd6",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_0044bb50();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d66a0",
+   "key": {
+    "code": 199,
+    "kind": "scancode",
+    "label": "Home"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 204,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbcf",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_0044bb30();"
+   },
+   "shadowedBy": null
+  },
+  {
+   "address": "005d66ac",
+   "key": {
+    "code": 201,
+    "kind": "scancode",
+    "label": "Page Up"
+   },
+   "event": "press",
+   "modifiers": {
+    "required": [],
+    "ignored": "any",
+    "raw": 64
+   },
+   "action": 206,
+   "gateFlags": 0,
+   "predicate": null,
+   "flags": 9,
+   "handler": {
+    "stage": 1,
+    "case": "004abbdd",
+    "noop": false,
+    "gate": null,
+    "sharedWith": [],
+    "pseudocode": "FUN_0044bb60();"
+   },
+   "shadowedBy": null
+  }
+ ]
+}

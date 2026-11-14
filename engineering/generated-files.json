@@ -1011,6 +1011,21 @@
         }
       ],
       "recording": "Hash-pinned EXE, HFX and palette data-only import. Existing outputs must match; --check is read-only. --reuse-assets hardlinks only byte-verified decoded PNGs. Does not run the original game, replace shared assets or claim restored Query behavior."
+    },
+    {
+      "id": "native-input-bindings-static-evidence",
+      "kind": "native-evidence",
+      "generator": {
+        "executable": "python3",
+        "args": ["-B", "scripts/native-input-bindings.py", "<hash-verified-original-exe>"]
+      },
+      "callers": ["scripts/native-input-bindings.py"],
+      "inputs": ["decomp/tools.json", "decomp/generated/004aab80.c"],
+      "outputs": [
+        { "path": "decomp/research/native-input-bindings/bindings.json", "type": "file", "tracked": true, "protected": true },
+        { "path": "decomp/research/native-input-bindings/bindings.md", "type": "file", "tracked": true, "protected": true }
+      ],
+      "recording": "Read-only hash-pinned PE decode of the default binding table and process_cmd dispatch; JSON to stdout, --markdown for the table. Compare scratch output with the retained files before replacing them. No original execution or emulation."
     }
   ]
 }
