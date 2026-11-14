@@ -255,7 +255,7 @@ function assertContinuation(trace, ids, label) {
   const mode = converted.length ? 'conversion' : 'no-listener'
   if (mode === 'no-listener')
     assert.deepEqual(
-      trace.turns.find(row => row.turn === retired.turn - 1)?.listeners ?? [],
+      [trace.start, ...trace.turns].find(row => row.turn === retired.turn - 1)?.listeners,
       [],
       `${label}: unconverted listener at retirement`
     )
@@ -620,7 +620,7 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   // The fresh-page continuation reproduces the same-page result turn for turn.
   const byTurn = new Map(expected.turns.map(row => [row.turn, row]))
   const overlap = loaded.turns.filter(row => byTurn.has(row.turn))
-  assert.ok(overlap.length >= loaded.turns.length - 1 && overlap.length > 0)
+  assert.ok(overlap.length === loaded.turns.length && overlap.length > 0)
   for (const row of overlap)
     assert.deepEqual(
       row,
