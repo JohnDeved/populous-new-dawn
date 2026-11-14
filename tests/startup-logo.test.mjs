@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import ts from 'typescript'
+import { messageBoxRequested } from '../app/campaign-message-modal.ts'
 import { evaluatePage, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
 const require = createRequire(import.meta.url)
@@ -124,10 +125,10 @@ test('Home capture permits logo controls during loading and with a restored inpu
   const messageBox = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockMessageModalInteraction')
   for (const ready of [false, true]) for (const inputMask of [0, 64]) {
     const blockLoadingInteraction = evaluatePage(`(${loading.getText(pageSource)})`, { ready })
-    const world = { inputMask }
+    const world = { inputMask, messages: { slots: [] } }
     // No campaign message box session is open here.
     const blockMessageModalInteraction = evaluatePage(`(${messageBox.getText(pageSource)})`, {
-      world, messageSession: { current: null },
+      world, messageSession: { current: null }, messageBoxRequested,
     })
     const capture = evaluatePage(click.initializer.expression.getText(pageSource), {
       blockLoadingInteraction, blockMessageModalInteraction, world,

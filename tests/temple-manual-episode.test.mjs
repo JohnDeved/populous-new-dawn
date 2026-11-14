@@ -86,6 +86,7 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     'openMessageBox',
     'messageBoxKey',
     'syncMessageModal',
+    'messageBoxRequested',
     `return ${code}`
   )(
     true,
@@ -106,7 +107,8 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     overviewShortcut,
     messageBoxBindings.openMessageBox,
     messageBoxBindings.messageBoxKey,
-    messageBoxBindings.syncMessageModal
+    messageBoxBindings.syncMessageModal,
+    messageBoxBindings.messageBoxRequested
   )
 }
 async function fixture(t, mode = 'expiry', options = {}) {

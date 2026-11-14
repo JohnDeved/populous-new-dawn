@@ -268,6 +268,22 @@ test('message-closing Enter leaves the box controls, browser, editable and modal
 
 // #1046 focus edge case: a summary that kept focus after a click collapse must
 // not reopen its old message when Enter should close the newly opened box.
+// 004a5985: once the box is requested (transient bit 2) the game is already modal,
+// before the page has opened the box. No Menu, pause, spell or overview in the gap.
+test('a pending box request refuses gameplay keys before the box opens', () => {
+  const f = fixture()
+  f.world.messages = { slots: [null, { flags: 0x10 | 2 }] }
+  const before = structuredClone(f.world)
+  for (const [key, code] of [['Enter', 'Enter'], ['Escape', 'Escape'], [' ', 'Space'], ['7', 'Digit7'], ['1', 'Digit1']])
+    f.press({ key, code, stopImmediatePropagation: () => assert.fail('no Menu in the gap') })
+  assert.deepEqual(f.world, before)
+  assert.deepEqual(f.starts, [])
+  assert.deepEqual(f.counts(), { captures: 0, focuses: 0, prevented: 0, updates: 0 })
+  f.world.messages.slots[1].flags = 0x10
+  f.press()
+  assert.equal(f.scene.overviewStage, 'enter', 'ordinary Enter returns once the request is consumed')
+})
+
 test('Enter from a control outside the open box closes the box instead of activating it', () => {
   for (const target of ['summary', 'button']) {
     const details = messageBox(true), stale = messageBox(false)

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript'
-import { messageBoxKey, openMessageBox } from '../../app/campaign-message-modal.ts'
+import { messageBoxKey, messageBoxRequested, openMessageBox } from '../../app/campaign-message-modal.ts'
 
 export const pageSource = ts.createSourceFile('page.tsx', readFileSync(new URL('../../app/page.tsx', import.meta.url), 'utf8'), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX)
 export function pageNode(predicate) {
@@ -54,7 +54,9 @@ export function pageNearby(scene, overrides = {}) {
 }
 export const noOp = () => {}
 // Leaves the Page keyboard handler evaluates for the campaign message box.
-export const messageBoxBindings = { openMessageBox, messageBoxKey, syncMessageModal: noOp }
+// Fixture worlds without a message state have no pending box request.
+export const messageBoxBindings = { openMessageBox, messageBoxKey, syncMessageModal: noOp,
+  messageBoxRequested: messages => !!messages && messageBoxRequested(messages) }
 export function nearbyEvent(extra = {}) {
   return { button: 0, detail: 1, pointerId: 9, clientX: 10, clientY: 10,
     shiftKey: false, ctrlKey: false, preventDefault: noOp,

@@ -1,5 +1,5 @@
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
-import { showAllMissions } from './browser-game.mjs'
+import { collapseCampaignMessages, showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -330,6 +330,9 @@ try {
   const instruction = page.locator('.campaign-messages details').filter({ hasText: tornadoInstruction })
   await instruction.locator('summary').click()
   await instruction.getByText(tornadoInstruction, { exact: true }).waitFor()
+  // #1046: an open box pauses the game (and the flyby) and refuses HUD presses.
+  // Close it as a player would before waiting on the flyby or using the Menu.
+  await collapseCampaignMessages(page)
   const positioned = page.locator('.campaign-messages details').filter({ hasText: tornadoGuidance })
   assert.equal(await positioned.locator('summary img').getAttribute('src'), '/original/message.png')
   await page.waitForFunction(() => !(globalThis.testScene.world.inputMask & 64))
@@ -342,6 +345,7 @@ try {
     }),
     { x: 0xcd00, y: 0x6100 }
   )
+  await collapseCampaignMessages(page)
   await assertMatakSwarm(page)
   await assertMatakRaid(page)
   const counterattack = await page.evaluate(async () => {

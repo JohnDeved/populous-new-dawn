@@ -78,7 +78,12 @@ import {
   type GamePreferences,
 } from './game-preferences'
 import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
-import { messageBoxKey, openMessageBox, showMessageBox } from './campaign-message-modal'
+import {
+  messageBoxKey,
+  messageBoxRequested,
+  openMessageBox,
+  showMessageBox,
+} from './campaign-message-modal'
 import {
   HudSprite,
   FollowerNumber,
@@ -680,6 +685,8 @@ export default function Home() {
         }
         return
       }
+      // A requested box is already modal natively (004a5985) before the page opens it.
+      if (messageBoxRequested(world.messages)) return
       // Original number-row records own 1–6 (with Shift/Ctrl/Alt); spells do not.
       const group = followerGroupShortcut(e)
       if (group || (/^Digit[1-6]$/.test(e.code) && !e.metaKey)) {
@@ -1055,7 +1062,7 @@ export default function Home() {
   // browser fullscreen control and desktop notice stay usable.
   function blockMessageModalInteraction(event: SyntheticEvent) {
     if (
-      messageSession.current?.world !== world ||
+      (messageSession.current?.world !== world && !messageBoxRequested(world.messages)) ||
       (event.target as Element).closest(
         '.campaign-messages,[data-fullscreen-control],.desktop-recommendation,dialog'
       )

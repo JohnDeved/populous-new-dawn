@@ -12,7 +12,7 @@ import {
   openMessageBox,
   showMessageBox,
 } from '../app/campaign-message-modal.ts'
-import { evaluatePage, pageNode, pageSource } from './support/follower-nearby-page.mjs'
+import { evaluatePage, pageEffect, pageNode, pageSource } from './support/follower-nearby-page.mjs'
 
 // Native evidence: decomp/research/campaign-message-keyboard.md (#1045, #1046).
 const box = (open = false, inside = []) => ({ open, contains: node => inside.includes(node) })
@@ -243,8 +243,8 @@ test('a replaced world never inherits the previous box or its pause', () => {
 // 004aa1c0: only the box takes a press. Execute the actual Page capture guard.
 const guardSource = () => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockMessageModalInteraction').getText(pageSource)
 test('an open box refuses HUD and world presses; the box and browser controls stay usable', () => {
-  const world = {}, session = { current: { world, paused: false } }
-  const guard = evaluatePage(`(${guardSource()})`, { world, messageSession: session })
+  const world = { messages: { slots: [null, { flags: 0 }] } }, session = { current: { world, paused: false } }
+  const guard = evaluatePage(`(${guardSource()})`, { world, messageSession: session, messageBoxRequested })
   const press = allowed => {
     const event = { prevented: false, stopped: false,
       target: { closest: selector => (allowed && selector.split(',').includes(allowed) ? {} : null) },
@@ -258,9 +258,41 @@ test('an open box refuses HUD and world presses; the box and browser controls st
   assert.deepEqual(press(null), [false, false, false], 'no open box')
   session.current = { world: {}, paused: false }
   assert.deepEqual(press(null), [false, false, false], 'a retired world session does not block')
+  // A requested box is modal before the page opens it (no Menu/pause in the gap).
+  world.messages.slots[1].flags = 2
+  assert.deepEqual(press(null), [true, true, true], 'pending box request')
+  assert.deepEqual(press('.campaign-messages'), [false, false, false])
   // Every pointer/click capture of the game shell routes through the guard.
   const main = pageNode(node => ts.isJsxOpeningElement(node) && node.tagName.getText(pageSource) === 'main')
   for (const name of ['onPointerDownCapture', 'onPointerUpCapture', 'onContextMenuCapture', 'onClickCapture'])
     assert.match(main.attributes.properties.find(node => node.name?.text === name).getText(pageSource),
       /blockLoadingInteraction\(e\) \|\| blockMessageModalInteraction\(e\)/, name)
+})
+
+// Execute the actual Page auto-open effect: a request (bit 2) opens one box,
+// replaces the open one, blurs a stale strip control, clears the request and
+// starts the modal pause in the same pass.
+test('auto-open shows one box, blurs a stale summary and consumes the request', () => {
+  class Element { constructor(inStrip) { this.inStrip = inStrip; this.blurred = 0 }
+    closest(selector) { return selector === '.campaign-messages' && this.inStrip ? {} : null }
+    blur() { this.blurred++ } }
+  const stale = new Element(true), hud = new Element(false)
+  for (const focused of [stale, hud]) {
+    const older = box(true, []), newer = box(false, [])
+    const world = { messages: { slots: [{ serial: 1, flags: 0x10 }, { serial: 2, flags: 0x10 | 2 }] } }
+    const events = []
+    const run = pageEffect('showMessageBox(messageDetails.current.values(), details)', {
+      world, messageDetails: { current: new Map([[1, older], [2, newer]]) }, showMessageBox, openMessageBox,
+      document: { activeElement: focused }, HTMLElement: Element,
+      store: { change: action => { action(world); events.push('change') } },
+      syncMessageModal: () => events.push('sync'),
+    })
+    run()
+    assert.deepEqual([older.open, newer.open], [false, true], 'the request replaces the open box')
+    assert.equal(world.messages.slots[1].flags & 2, 0, 'the one-shot request is consumed')
+    assert.deepEqual(events, ['change', 'sync'], 'consumed and paused in the same pass')
+    assert.equal(focused.blurred, focused === stale ? 1 : 0, 'only a stale strip control loses focus')
+    run()
+    assert.deepEqual(events, ['change', 'sync', 'sync'], 'no request: only the modal state is synced')
+  }
 })
