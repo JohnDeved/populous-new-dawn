@@ -41,6 +41,12 @@ import {
 } from './hut-occupancy-smoke.ts'
 import { unitHealthGauge } from './unit-health.ts'
 import {
+  followerGroupDigitArt,
+  followerGroupDigitPlacement,
+  followerGroupDigits,
+  followerGroupDisplayActive,
+} from './follower-group-display.ts'
+import {
   spriteDirection,
   spriteCoordinate,
   spriteBucket,
@@ -591,6 +597,9 @@ export function updateUnitsFrame(scene: GameScene) {
     !scene.world.inputMask &&
     !scene.overviewStage &&
     !document.querySelector('dialog[open]')
+  const groupsShown = followerGroupDisplayActive(scene.groupDisplay)
+    ? scene.groupDisplay.timers
+    : null
   for (const u of scene.world.units) {
     let g = scene.unitMeshes.get(u.id)
     if (g && g.userData.signature !== `${u.team}-${u.kind}`) {
@@ -728,7 +737,47 @@ export function updateUnitsFrame(scene: GameScene) {
       health.center.set(-gauge.x / gauge.width, 1 + gauge.y / gauge.height)
       health.userData.atlasTransform.set(1 / 25, 1, Math.max(0, Math.min(24, gauge.fill)) / 25, 0)
     }
+    updateGroupDigits(g, u, selectedIds.has(u.id), groupsShown)
   }
+}
+
+// Group numbers above the local player's people (00469515). Digit sprites are
+// created on first use and follow the person in the existing painter order.
+function updateGroupDigits(g: THREE.Group, u: Unit, selected: boolean, shown: Int8Array | null) {
+  let sprites = g.userData.groupDigits as THREE.Sprite[] | undefined
+  const digits =
+    shown && u.team === 'blue' && (u.groups ?? 0) & 0x7e
+      ? followerGroupDigits(u.groups!, shown)
+      : undefined
+  if (!digits?.length && !sprites) return
+  if (!sprites) {
+    sprites = []
+    g.userData.groupDigits = sprites
+  }
+  const count = digits?.length ?? 0
+  for (let i = 0; i < count; i++) {
+    let sprite = sprites[i]
+    if (!sprite) {
+      sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: texture('group-digits'),
+          alphaTest: 0.5,
+          depthWrite: false,
+          toneMapped: false,
+        })
+      )
+      sprite.userData.atlasTransform = new THREE.Vector4()
+      sprites.push(sprite)
+      g.add(sprite)
+    }
+    const art = followerGroupDigitArt(digits![i]),
+      at = followerGroupDigitPlacement(i, selected, g.userData.frameHeight ?? 0)
+    sprite.visible = true
+    sprite.scale.set(art.width, art.height, 1)
+    sprite.center.set(-at.x / art.width, 1 + at.y / art.height)
+    ;(sprite.userData.atlasTransform as THREE.Vector4).set(...art.uv)
+  }
+  for (let i = count; i < sprites.length; i++) sprites[i].visible = false
 }
 
 export function updateVehiclesFrame(scene: GameScene) {

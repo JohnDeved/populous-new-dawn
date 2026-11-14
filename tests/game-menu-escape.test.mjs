@@ -23,6 +23,7 @@ function namedFunction(path, name) {
   return between(text, marker, '\n}\n').replace('export function', 'function') + '\n}\n'
 }
 const cancellationSource = namedFunction('../app/selection-runtime.ts', 'cancelInteraction') +
+  namedFunction('../app/selection-runtime.ts', 'recordPreviousSelection') +
   namedFunction('../app/person-orders.ts', 'deselectPerson')
 const { cancelInteraction } = new Function(stripTypeScriptTypes(cancellationSource) + '\nreturn { cancelInteraction }')()
 const compile = (text, bindings) => new Function(...Object.keys(bindings), text)(...Object.values(bindings))

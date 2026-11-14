@@ -10,8 +10,13 @@ import {
   followerGroupShortcut,
   recallFollowerGroup,
 } from '../app/follower-groups.ts'
+import { createFollowerGroupDisplay } from '../app/follower-group-display.ts'
 import { overviewShortcut } from '../app/quick-camera-shortcuts.ts'
 import { SPELLS } from '../app/world-rules.ts'
+import { command } from '../app/live-command.ts'
+import { cancelInteraction, setSelection } from '../app/selection-runtime.ts'
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
+import { quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 import { pageEffect, noOp } from './support/follower-nearby-page.mjs'
 
 const key = (code, extra = {}) => ({
@@ -56,16 +61,17 @@ test('assignment replaces membership from the current selection, mixes classes a
   const { world, ids } = roster()
   world.selected = [ids[0], ids[2]]
   assignFollowerGroup(world, 1)
-  assert.deepEqual(world.units.map(u => u.groups ?? 0), [2, 0, 2, 0])
+  // 0043f552: a selected member also gains bit 0, the Shift+Backspace snapshot.
+  assert.deepEqual(world.units.map(u => u.groups ?? 0), [3, 0, 3, 0])
   assert.deepEqual(world.selected, [ids[0], ids[2]])
   world.selected = [ids[1]]
   assignFollowerGroup(world, 2)
   world.selected = [ids[2], ids[3]]
   assignFollowerGroup(world, 1) // Replacement, not addition.
-  assert.deepEqual(world.units.map(u => u.groups ?? 0), [0, 4, 2, 2])
+  assert.deepEqual(world.units.map(u => u.groups ?? 0), [1, 5, 3, 3])
   world.selected = []
-  assignFollowerGroup(world, 1) // Assigning nothing empties the group.
-  assert.deepEqual(world.units.map(u => u.groups ?? 0), [0, 4, 0, 0])
+  assignFollowerGroup(world, 1) // Assigning nothing empties the group; bit 0 stays.
+  assert.deepEqual(world.units.map(u => u.groups ?? 0), [1, 5, 1, 1])
 })
 
 test('recall replaces the selection, Ctrl adds, and an empty group changes nothing', () => {
@@ -128,7 +134,7 @@ test('recalling a boarded member selects its whole crew; membership survives the
   assignFollowerGroup(world, 2)
   world.selected = []
   const saved = structuredClone(world)
-  assert.deepEqual(saved.units.map(u => u.groups ?? 0), [4, 0])
+  assert.deepEqual(saved.units.map(u => u.groups ?? 0), [5, 0])
   assert.equal(recallFollowerGroup(saved, 2, false), true)
   assert.deepEqual(saved.selected, crew.map(u => u.id))
   const fresh = createWorld(22)
@@ -139,7 +145,7 @@ test('scene owner gates masks/transitions, keeps native recall predicate and foc
   const { world, people, ids } = roster()
   const calls = []
   const scene = {
-    world, overviewStage: null, overviewActive: false,
+    world, overviewStage: null, overviewActive: false, groupDisplay: createFollowerGroupDisplay(),
     focus: (point, options) => calls.push(['focus', point, options]),
     objectPanels: { open: id => calls.push(['panel', id]) },
     onChange: () => calls.push(['change']),
@@ -164,6 +170,7 @@ test('scene owner gates masks/transitions, keeps native recall predicate and foc
   assert.deepEqual(calls[1], ['panel', ids[2]], 'camera target ignores availability')
   assert.deepEqual(calls[0][2], { animate: true })
   assert.deepEqual(world.selected, [ids[3]])
+  assert.deepEqual([...scene.groupDisplay.timers], [6, 0, 0, 0, 0, 0], 'an accepted group key shows its numbers')
   // Globe overview: like HUD selection, plain recall waits; Alt focus may leave it.
   scene.overviewActive = true
   world.selected = []
@@ -187,7 +194,8 @@ function pageKeyboard(overrides = {}) {
     setTab: tab => tabs.push(tab), engine, audio: { current: null },
     update: noOp, openMenu: noOp, cancelInteraction: noOp,
     guardShaman: noOp, select: noOp, HOME: {}, tutorialLevel: 0,
-    rotateBuildingPlan: () => false, ...overrides,
+    rotateBuildingPlan: () => false, quickCameraAction, quickCameraTarget, scatterSelected: noOp,
+    ...overrides,
   }
   pageEffect("window.addEventListener('keydown', key)", bindings)()
   return {
@@ -234,4 +242,68 @@ test('Page group keys respect modal, editable and replaced-world gates', () => {
   const replaced = pageKeyboard({ store: { getWorld: () => ({}), change: noOp } })
   replaced.press()
   assert.deepEqual(replaced.groups, [])
+})
+
+test('Shift+Backspace is the original slot-0 record: additive recall only, no other chord', () => {
+  assert.deepEqual(followerGroupShortcut(key('Backspace', { shiftKey: true })),
+    { slot: 0, action: 'recall', additive: true, focus: false })
+  for (const event of [
+    key('Backspace'), key('Backspace', { shiftKey: true, ctrlKey: true }),
+    key('Backspace', { shiftKey: true, altKey: true }), key('Backspace', { shiftKey: true, metaKey: true }),
+    key('Backspace', { shiftKey: true, repeat: true }), key('Delete', { shiftKey: true }),
+  ]) assert.equal(followerGroupShortcut(event), null, JSON.stringify(event))
+})
+
+test('orders and deselection snapshot the selection; slot 0 adds it back without replacing', () => {
+  const w = createStartedWorld(1)
+  retainFixtureUnits(w, () => false)
+  w.buildings = []; w.trees = []; w.shrines = []
+  w.terrain.fill(3); w.terrainVersion++
+  w.inputMask = 0; w.manaWorld.gameFlags = 0
+  const people = [0, 1, 2, 3].map(i => {
+    const u = addUnit(w, 'blue', 'brave', { x: 1 + i, z: -1 })
+    u.native = createLivePerson(w, u)
+    return u
+  })
+  addUnit(w, 'red', 'brave', { x: 40, z: -40 })
+  const [a, b, c, d] = people.map(u => u.id)
+  setSelection(w, [a, b])
+  assert.ok(command(w, { x: 17, z: -1 }), 'an ordinary player order')
+  assert.deepEqual(people.map(u => u.groups ?? 0), [1, 1, 0, 0], '00444f60 → 00435c10 snapshot')
+  setSelection(w, [c]) // Plain selection never touches the snapshot.
+  assert.deepEqual(people.map(u => u.groups ?? 0), [1, 1, 0, 0])
+  const scene = {
+    world: w, overviewStage: null, overviewActive: false, groupDisplay: createFollowerGroupDisplay(),
+    focus: noOp, objectPanels: { open: noOp }, onChange: noOp,
+  }
+  const slot0 = followerGroupShortcut(key('Backspace', { shiftKey: true }))
+  w.mode = 'blast'
+  assert.equal(followerGroup(scene, slot0), true)
+  assert.deepEqual(new Set(w.selected), new Set([a, b, c]), 'additive: the current selection stays')
+  assert.equal(w.mode, null, 'group-selection mode leaves the armed spell')
+  assert.deepEqual([...scene.groupDisplay.timers], [0, 0, 0, 0, 0, 0], 'slot 0 shows no numbers')
+  // Escape/right-click deselection (command 0x1e) also snapshots before clearing.
+  cancelInteraction(w)
+  assert.deepEqual(w.selected, [])
+  assert.deepEqual(people.map(u => u.groups ?? 0), [1, 1, 1, 0])
+  // Assignment adds bit 0 and unassignment keeps it.
+  setSelection(w, [d])
+  assignFollowerGroup(w, 2)
+  setSelection(w, [])
+  assignFollowerGroup(w, 2)
+  assert.equal(followerGroup(scene, slot0), true)
+  assert.deepEqual(new Set(w.selected), new Set([a, b, c, d]))
+  // The recall predicate 004fee90 still applies.
+  setSelection(w, [])
+  w.manaWorld.gameFlags |= 32
+  assert.equal(followerGroup(scene, slot0), false)
+  assert.deepEqual(w.selected, [])
+})
+
+test('Page routes Shift+Backspace to slot 0 and leaves plain Backspace alone', () => {
+  const k = pageKeyboard()
+  k.press({ key: 'Backspace', code: 'Backspace', shiftKey: true })
+  k.press({ key: 'Backspace', code: 'Backspace' })
+  assert.deepEqual(k.groups, [{ slot: 0, action: 'recall', additive: true, focus: false }])
+  assert.equal(k.prevented, 1)
 })

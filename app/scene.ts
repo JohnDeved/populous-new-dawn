@@ -10,6 +10,7 @@ import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
+import { createFollowerGroupDisplay, stepFollowerGroupDisplay } from './follower-group-display.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
@@ -307,6 +308,7 @@ export class GameScene {
   selectionOverlay: SelectionOverlay
   dragActive = { value: false }
   keys = new Set<string>()
+  groupDisplay = createFollowerGroupDisplay()
   resize: ResizeObserver
   frame = 0
   started = false
@@ -471,6 +473,7 @@ export class GameScene {
           ['effects', loadTexture('effects'), false],
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
+          ['group-digits', loadTexture('group-digits'), false],
           [this.environment.landscape.modelAtlas, atlasAsset, true],
           ...(this.environment.landscape.modelAtlas === 'atlas'
             ? []
@@ -1050,6 +1053,7 @@ export class GameScene {
   }
 
   private updateUnitsFrame() {
+    stepFollowerGroupDisplay(this.groupDisplay, performance.now() / 1000)
     updateUnitsFrame(this)
   }
 

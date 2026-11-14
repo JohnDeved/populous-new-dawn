@@ -1,4 +1,5 @@
 import rules from './original-rules.json' with { type: 'json' }
+import { showFollowerGroup, type FollowerGroupDisplay } from './follower-group-display.ts'
 import { markPersonSelected } from './person-selection.ts'
 import { hudPeople } from './selection-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -20,7 +21,13 @@ type ShortcutEvent = Pick<
 // Default key records 005d62c8..005d6394: Shift+1..6 assign (Ctrl not ignored);
 // 1..6 and Alt+1..6 recall with Ctrl ignored by the matcher but read as additive.
 // Physical number-row codes keep Shift/Option characters from changing the slot.
+// Record 005d643c, Shift+Backspace (action 0x98), is 0047c350(0, 1, 0, 0): an
+// additive recall of slot 0, the previous-order selection snapshot.
 export function followerGroupShortcut(event: ShortcutEvent): FollowerGroupShortcut | null {
+  if (event.code === 'Backspace')
+    return event.shiftKey && !event.ctrlKey && !event.altKey && !event.metaKey && !event.repeat
+      ? { slot: 0, action: 'recall', additive: true, focus: false }
+      : null
   const match = /^Digit([1-6])$/.exec(event.code)
   if (!match || event.repeat || event.metaKey) return null
   const slot = Number(match[1])
@@ -32,13 +39,15 @@ const playerPerson = (u: Unit) => u.team === 'blue' && u.hp > 0
 
 // Tribe command 0x46 (process_tribe_cmd 0043f525): every person of the tribe
 // gains the bit when selected and loses it otherwise. Assigning with nothing
-// selected therefore empties the group. Selection itself is unchanged.
+// selected therefore empties the group. Selection itself is unchanged. A
+// selected person also gains bit 0 (or al,1 at 0043f552), so Shift+Backspace
+// recalls it; unassigning never clears bit 0.
 export function assignFollowerGroup(w: World, slot: number) {
   const bit = 1 << slot,
     selected = new Set(w.selected)
   for (const u of w.units) {
     if (!playerPerson(u)) continue
-    const groups = selected.has(u.id) ? (u.groups ?? 0) | bit : (u.groups ?? 0) & ~bit
+    const groups = selected.has(u.id) ? (u.groups ?? 0) | bit | 1 : (u.groups ?? 0) & ~bit
     if (groups) u.groups = groups
     else delete u.groups
   }
@@ -101,6 +110,7 @@ export function followerGroupFocus(w: World, slot: number) {
 
 type GroupScene = {
   world: World
+  groupDisplay: FollowerGroupDisplay
   overviewStage: unknown
   overviewActive: boolean
   focus(point: Point, options: { animate: boolean }): void
@@ -112,12 +122,14 @@ type GroupScene = {
 // which rejects game flag 0x20; assignment has none. Alt focuses through the
 // existing camera/panel owners before the recall command is applied. Like the
 // HUD follower controls, plain recall waits for the globe overview to end;
-// Alt may leave it because focusing cancels the overview.
+// Alt may leave it because focusing cancels the overview. Like 0047c350's
+// tail, an accepted key for slots 1-6 shows that group's numbers.
 export function followerGroup(scene: GroupScene, shortcut: FollowerGroupShortcut) {
   const w = scene.world
   if (w.inputMask || scene.overviewStage) return false
   if (shortcut.action === 'assign') {
     assignFollowerGroup(w, shortcut.slot)
+    showFollowerGroup(scene.groupDisplay, shortcut.slot)
     scene.onChange()
     return true
   }
@@ -128,6 +140,7 @@ export function followerGroup(scene: GroupScene, shortcut: FollowerGroupShortcut
     scene.objectPanels.open(target.id)
   }
   recallFollowerGroup(w, shortcut.slot, shortcut.additive)
+  showFollowerGroup(scene.groupDisplay, shortcut.slot)
   scene.onChange()
   return true
 }

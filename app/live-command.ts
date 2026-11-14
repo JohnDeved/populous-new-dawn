@@ -48,7 +48,12 @@ import {
   startLiveOrder,
   stopLivePatrols,
 } from './live-movement.ts'
-import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
+import {
+  canOrder,
+  cancelInteraction,
+  recordPreviousSelection,
+  selectionPeople,
+} from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import {
@@ -837,6 +842,9 @@ export function command(
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
+  // Every player order packet reaches 00444f60, which snapshots the selection
+  // (00435c10) whether or not any follower accepts the order.
+  recordPreviousSelection(w)
   const sharedVehicleMovement =
     model === 3 &&
     w.units.some(
