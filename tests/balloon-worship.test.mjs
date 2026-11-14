@@ -124,9 +124,11 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
     tick(world, 1 / 12)
   }
   // Dry Boat acquisition is later; retain all 105 rejections and one admission.
+  // Cycling computer marker patrols (0x4366b0) advance the shared RNG, so the
+  // Shaman's acquisition walks draw other speeds and this flight point is 6 turns later.
   assert.deepEqual(
     attempts,
-    Array.from({ length: 106 }, (_, index) => 3455 + index)
+    Array.from({ length: 106 }, (_, index) => 3461 + index)
   )
   const worship = currentPersonOrder(world.buildingOrders, shaman.native)
   assert.equal(worship.model, 27)
@@ -159,9 +161,9 @@ test('supplied-focus Mission22 Balloon worship lands, rewards once and continues
   }
   assert.equal(landings, 1)
   assert.equal(rewards, 1)
-  assert.equal(landed, 3603)
+  assert.equal(landed, 3609)
   // Worship checks its standing phase on even person counters.
-  assert.equal(rewarded, 3806)
+  assert.equal(rewarded, 3810)
   assert.equal(north.uses, 1)
   assert.equal(worship.references, 0)
   assert.equal(shaman.native.vehicle, 0)

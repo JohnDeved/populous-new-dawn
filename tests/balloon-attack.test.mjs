@@ -190,10 +190,11 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
   assert.equal(timedAssertions, 4)
   assert.deepEqual([firstFight, firstOpponent], [expected.fight, expected.opponent])
   assert.equal(target.hp, expected.targetHp ?? 0)
-  // Preserve each actual browser outcome and its ownership cleanup. Historical
-  // acquisition destroys the Tower and rests locally; fresh physical Boat travel
-  // reaches a guard-interception phase that kills the Shaman before any damage.
-  // Neither chronology is a claim of native damage/death parity.
+  // Preserve each actual browser outcome and its ownership cleanup. Both fresh
+  // physical Boat travel and the historical acquisition now reach the Green marker
+  // patrol (Warriors 10/11/12) that cycles beside Tower 105 (0x4366b0), which kills
+  // the Shaman before any damage. Neither chronology is a claim of native
+  // damage/death parity; the survivor branch remains for a resting outcome.
   assert.equal(targetDeath, expected.targetDeath)
   assert.equal(retired, expected.retired)
   assert.equal(death, expected.death)
@@ -218,36 +219,39 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
 }
 
 // Fresh physical Boat acquisition retains its actual failed direct-attack chronology.
-// The historical case below still requires Tower destruction and Warrior11 interception.
+// Computer marker patrols cycle and advance the shared RNG, so the Shaman's walks
+// draw other speeds (+6 turns) and patrol Warrior12 is the first interceptor.
 test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
   await assertTowerContinuation(prepareEarnedFlight(), {
-    inputPhase: [3535, 207],
-    cancel: 3555,
-    cancelRest: [16640, 32512],
-    departure: 3824,
-    fight: 3832,
-    opponent: 11,
+    inputPhase: [3541, 213],
+    cancel: 3561,
+    cancelRest: [16128, 32512],
+    departure: 3828,
+    fight: 3842,
+    opponent: 12,
     targetHp: 260,
     targetDeath: 0,
-    retired: 3921,
-    death: 3921,
+    retired: 3927,
+    death: 3927,
   })
 })
 
 // This hash-verified c44dadfc campaign checkpoint uses supplied spell-focus setup.
-// It preserves the original combat witness independently of current acquisition.
-test('historical c44 supplied-focus Balloon checkpoint retains Warrior11, Tower105 destruction and local Shaman rest through Save/Load', async () => {
+// It is historical input, not a promise of the old outcome. Its Red marker patrol
+// now cycles from turn 2308, so the shared RNG differs; Warrior11 still intercepts
+// first, but the Green patrol group (10/11/12) joins and kills the Shaman.
+test('historical c44 supplied-focus Balloon checkpoint retains Warrior11 interception and patrol-group Shaman death through Save/Load', async () => {
   await assertTowerContinuation(await loadHistoricalMission22Balloon(), {
     inputPhase: [3233, 161],
     cancel: 3253,
     cancelRest: [16128, 32512],
     departure: 3520,
-    fight: 3526,
+    fight: 3528,
     opponent: 11,
-    targetDeath: 5350,
-    retired: 5351,
-    death: 0,
-    survivor: { hp: 100.75, x: 29, z: 120.75, state: 19, anchorX: 9472, anchorY: 32576 },
+    targetHp: 260,
+    targetDeath: 0,
+    retired: 3557,
+    death: 3557,
   })
 })
 

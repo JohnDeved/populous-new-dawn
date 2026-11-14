@@ -53,6 +53,7 @@ const historicalPins = {
     acquisitionOnly: true,
     turn: 3653,
     settledPose: [16128, 32512, 44],
+    firstX: 16096,
     events: [3881, 3886, 17],
   },
   successor: {
@@ -69,29 +70,33 @@ const historicalPins = {
     emptyCounters: [73, 144],
   },
 }
+// Cycling computer marker patrols (0x4366b0) advance the shared RNG, so fresh
+// acquisition reaches this flight point 6 turns later; the idle Ctrl28 target,
+// Preacher17, now patrols with the Green group, so the transport follows it longer.
 const freshPins = {
-  input: [3555, 227],
-  waypointCounters: [32, 108],
-  retirements: [3616, 3692],
+  input: [3561, 233],
+  waypointCounters: [36, 112],
+  retirements: [3620, 3696],
   idle: {
     acquisitionOnly: false,
-    turn: 3643,
-    settledPose: [16128, 32512, 32],
-    events: [3871, 3876, 10, 3979],
-    retainedLife: 179, // Qualified browser-owned lethal damage retains last positive native life.
+    turn: 3646,
+    settledPose: [16640, 32512, 36],
+    firstX: 16609,
+    events: [4014, 4017, 12, 4047],
+    retainedLife: 307, // Qualified browser-owned lethal damage retains last positive native life.
   },
   successor: {
-    references: [[3616, [1, 2]], [3617, [0, 2]], [3673, [0, 1]], [3862, [0, 0]]],
-    firstRetirementTurn: 3616,
-    firstRetirementCounters: [32, 103],
+    references: [[3620, [1, 2]], [3621, [0, 2]], [3675, [0, 1]], [3866, [0, 0]]],
+    firstRetirementTurn: 3620,
+    firstRetirementCounters: [36, 107],
     firstRetirementModels: [27, 3],
     waitingActor: 0,
-    secondRetirementTurn: 3617,
-    secondRetirementCounters: [33, 104],
-    seatTransferTurn: 3645,
-    seatTransferCounters: [61, 132],
-    emptyTurn: 3646,
-    emptyCounters: [62, 133],
+    secondRetirementTurn: 3621,
+    secondRetirementCounters: [37, 108],
+    seatTransferTurn: 3648,
+    seatTransferCounters: [64, 135],
+    emptyTurn: 3649,
+    emptyCounters: [65, 136],
   },
 }
 
@@ -321,7 +326,7 @@ async function assertStagedTransport({ store, world, shaman, balloon, createCont
     assert.deepEqual(comparable(idleReplay), comparable(idle))
     if (i === 0) {
       assert.equal(idlePerson.counter, (idleCounter + 1) & 255)
-      assert.equal(idleCraft.x, 16096)
+      assert.equal(idleCraft.x, pins.idle.firstX)
     }
     if (beforeVehicle && !idlePerson.vehicle) {
       boundedGroundAttackDeparture(idleUnit, beforeSeat)
