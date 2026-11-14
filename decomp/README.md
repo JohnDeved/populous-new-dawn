@@ -76,6 +76,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
+[Player scatter (D) and person state 43](research/player-scatter.md),
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Native melee attack animation ownership](research/melee-attack-animation.md),

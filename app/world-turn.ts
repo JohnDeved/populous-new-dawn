@@ -1378,7 +1378,12 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         continue
       }
       u.cooldown = Math.max(0, u.cooldown - dt)
-      if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
+      if (
+        u.native?.state === 41 ||
+        u.native?.state === 26 ||
+        u.native?.state === 31 ||
+        u.native?.state === 43
+      ) {
         if (personPass) personPass.step(u)
         else stepLivePerson(w, u)
         continue
