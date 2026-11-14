@@ -61,7 +61,8 @@ import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
-import { changeLivePersonState, registerLivePerson } from './live-people.ts'
+import { changeLivePersonState, createLivePerson, registerLivePerson } from './live-people.ts'
+import { nativeScatterEligible, SCATTER_STATE } from './person-scatter.ts'
 import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
 import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
 
@@ -374,6 +375,73 @@ export function guardShaman(w: World) {
     }
   }
   tell(w, 'Selected followers will guard your shaman.')
+}
+
+// Ordinary owners whose retained queue/task can resume after state 43. Other
+// live adapters and states are skipped rather than approximated; the complete
+// list is in decomp/research/player-scatter.md (Port-only admission limits).
+const scatterResumableOrders = [3, 7, 16, 18, 22, 27, 28, 30]
+function scatterOwner(w: World, u: Unit) {
+  const p = u.native,
+    registeredRoute = w.pathfinding.people.get(u.id)
+  if (
+    u.team !== 'blue' ||
+    u.hp <= 0 ||
+    u.ghost ||
+    u.inside !== null ||
+    u.flight ||
+    u.fight ||
+    u.casting ||
+    u.lift ||
+    u.entry ||
+    u.builder ||
+    u.work !== null ||
+    u.tree !== null ||
+    u.harvest ||
+    u.delivery ||
+    u.vault ||
+    u.attackReservation ||
+    (registeredRoute && registeredRoute !== p)
+  )
+    return null
+  if (!p) return u.path.length || registeredRoute ? null : createLivePerson(w, u)
+  if (
+    p.class !== 1 ||
+    ![1, 10, 17, 19, SCATTER_STATE].includes(p.state) ||
+    p.guardInputPending ||
+    p.workFlags ||
+    p.flags2 & 0x80000 ||
+    p.flags4 & 0x800
+  )
+    return null
+  const ids = [p.immediateCommand, ...p.commands].filter(Boolean)
+  return ids.every(id => scatterResumableOrders.includes(w.buildingOrders.records[id]?.model ?? 0))
+    ? p
+    : null
+}
+
+// Default D (005d61fc) -> process_cmd 0xc0 -> tribe command 0x7e (0x441c62).
+// Visit the player's selected people in roster order. Each admitted person keeps
+// its selection and queued orders, saves its state and initializes state 43.
+// The port applies the queued tribe command at input time, before the next turn,
+// matching the native per-tick order where commands precede person processing.
+export function scatterSelected(w: World) {
+  // land_flags_1 & 2 gates process_cmd stage 2; & 0x800 makes 0x479cf0 drop the command.
+  if (w.paused || w.status !== 'playing' || w.inputMask || w.land.landFlags & 0x802) return 0
+  const selected = new Set(w.selected)
+  let count = 0
+  for (const u of w.units) {
+    if (!selected.has(u.id)) continue
+    const p = scatterOwner(w, u)
+    if (!p) continue
+    p.selectionFlags |= 128
+    if (!nativeScatterEligible(p)) continue
+    u.native = p
+    registerLivePerson(w, p)
+    changeLivePersonState(w, u, SCATTER_STATE, p)
+    count++
+  }
+  return count
 }
 
 export function disguiseSelectedSpies(w: World, tribe: number) {

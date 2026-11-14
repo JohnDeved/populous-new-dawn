@@ -28,7 +28,7 @@ function fixture(rotation='cursor',flipRotation=false){
 const rows=[
  ['arrowleft',16,4],['arrowright',32,8],['delete',4,16],['pagedown',8,32],
  ['arrowup',1,1],['arrowdown',2,2],['w',1,1],['s',2,2],
- ['a',4,4],['d',8,8],['q',16,16],['e',32,32],
+ ['a',4,4],['q',16,16],['e',32,32],
  ['numpad8',1,1],['numpad2',2,2],['numpad4',4,4],['numpad6',8,8],['numpad7',16,16],['numpad9',32,32],
 ]
 const reversed=value=>value===16?32:value===32?16:value
@@ -45,6 +45,16 @@ for(const rotation of ['cursor','control-cursor'])for(const flip of [false,true]
    scene.keys.clear();assert.equal(navigation(scene),0,`${key} release`)
   }
  })
+
+// Original default record 005d61fc binds D to scatter (#1004); it is not a camera key.
+test('D does not pan the camera in any rotation setting',()=>{
+ for(const rotation of ['cursor','control-cursor'])for(const flip of [false,true]){
+  const {scene,navigation}=fixture(rotation,flip)
+  for(const keys of [['d'],['d','shift'],['d','control']]){
+   scene.keys=new Set(keys);assert.equal(navigation(scene),0,keys.join('+'))
+  }
+ }
+})
 
 test('actual navigation caller reads current choices, without constructing a replacement scene',()=>{
  const {scene,navigation}=fixture(),identity=scene,world=scene.world

@@ -41,6 +41,7 @@ import {
   cancelInteraction,
   tell,
   guardShaman,
+  scatterSelected,
   disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
@@ -661,6 +662,15 @@ export default function Home() {
         const target = quickCameraTarget(world, quickCamera)
         if (target) engine.current?.focus(target, { animate: true })
       }
+      // Original D (no modifier, press edge) scatters; it is no longer a camera alias.
+      if (
+        e.key.toLowerCase() === 'd' &&
+        !e.repeat &&
+        !e.shiftKey &&
+        !selectorOpen &&
+        store.getWorld() === world
+      )
+        scatterSelected(world)
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
         engine.current?.focus(u ?? HOME, { animate: true })
@@ -1892,7 +1902,7 @@ export default function Home() {
                     <span>Right / middle drag</span>
                     <strong>Right drag turns the view · middle drag moves it</strong>
                     <span>Scroll · = / −</span>
-                    <strong>Switch view · WASD to move · Q / E to turn</strong>
+                    <strong>Switch view · W / A / S to move · Q / E to turn</strong>
                     <span>↑ / ↓ · ← / →</span>
                     <strong>
                       Move forward / back ·{' '}
@@ -1932,6 +1942,8 @@ export default function Home() {
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
                     <span>. (period) / H</span>
                     <strong>Camera to the Shaman / to your reincarnation site</strong>
+                    <span>D</span>
+                    <strong>Scatter selected followers · Selection and orders are kept</strong>
                     <span>F / G / Space / Esc</span>
                     <strong>Focus selection / guard shaman / pause / cancel</strong>
                   </div>
