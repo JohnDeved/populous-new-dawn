@@ -5961,6 +5961,7 @@
         "app/live-command.ts",
         "scripts/check-browser-shaman-death-ground.mjs",
         "scripts/browser-game.mjs",
+        "scripts/browser-new-game.mjs",
         "scripts/hud-texture-readiness.mjs",
         "scripts/campaign-start-readiness.mjs",
         "scripts/local-render/harness.mjs",

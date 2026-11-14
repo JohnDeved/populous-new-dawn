@@ -1,15 +1,15 @@
 // Start npm run dev, then node scripts/check-browser-spell-cursor.mjs.
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
+import {openGame,collapseCampaignMessages} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
- const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
+ // Shared public startup: opening logo/main menu -> New Game -> Mission 1 -> Skip Introduction.
+ const {page,errors}=await openGame(browser);
  page.setDefaultTimeout(15000);
- page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
- await page.goto(process.env.POPULOUS_URL??'http://localhost:3000',{waitUntil:'networkidle'});await page.waitForSelector('.world-viewport canvas');
- await page.evaluate(()=>{let f=document.querySelector('main');f=f[Object.keys(f).find(k=>k.startsWith('__reactFiber'))];for(;f;f=f.return)for(let h=f.memoizedState;h;h=h.next)if(h.memoizedState?.current?.unitMeshes)window.testScene=h.memoizedState.current;});
- await page.waitForFunction(()=>window.testScene.world.flyby.flags&1,{},{timeout:15000});await page.keyboard.press('Escape');
  await page.waitForFunction(()=>!window.testScene.world.inputMask&&window.testScene.terrainTextures);
+ // The opening campaign message owns gameplay keys; collapse it before keyboard spell selection.
+ await collapseCampaignMessages(page);
  await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30});s.onChange();});
  const near={x:10,z:33},far={x:0,z:44};
  async function move(p){
@@ -36,12 +36,22 @@ try{
  const before=await page.evaluate(()=>window.testScene.world.shots.blast);await page.mouse.click(out.x,out.y);
  assert.equal(await page.evaluate(()=>window.testScene.world.shots.blast),before);
  assert.equal(await page.evaluate(()=>window.testScene.world.mode),'blast');
- await page.keyboard.press('2');await move(near);await expect(['point48','589']); // No gifted stock.
+ // A zero-stock reward spell is an undiscovered HUD placeholder, so arm it through its stocked
+ // HUD card, then remove the fixture stock while armed to show the no-stock frame.
+ await page.evaluate(()=>{const s=window.testScene;s.world.shots.bridge=1;s.onChange();});
+ await page.getByRole('button',{name:'Land Bridge, 1 shots',exact:true}).click();await move(near);await expect(['point48']);
+ await page.evaluate(()=>window.testScene.world.shots.bridge=0);await expect(['point48','589']); // No gifted stock.
  await page.evaluate(()=>window.testScene.world.shots.bridge=1);await expect(['point48']);
  // A wet target within range must display the warning, without the range walker.
- const sea=await page.evaluate(()=>{const s=window.testScene,u=s.world.units.find(u=>u.team==='blue'&&u.kind==='shaman');for(let z=24;z<42;z++)for(let x=12;x<40;x++)if(s.y({x,z})<=0&&Math.hypot(x-u.x,z-u.z)<10)return {x,z};throw Error('No nearby shoreline fixture');});
+ // Since the native terrain-category predicate replaced the old "two dry shores" rule, sea-level
+ // shore cells can be valid; choose the nearest wet cell whose native category rejects a bridge.
+ const sea=await page.evaluate(async()=>{const s=window.testScene,w=s.world,u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),rules=(await import('/app/original-rules.json')).default,{nativePosition}=await import('/app/model.ts');
+  let best=null;for(let z=Math.floor(u.z)-14;z<=u.z+14;z++)for(let x=Math.floor(u.x)-14;x<=u.x+14;x++){const t=nativePosition(w,{x,z}),cell=((t.y&65535)>>9)*128+((t.x&65535)>>9),d=Math.hypot(x-u.x,z-u.z);if(s.y({x,z})<=0&&rules.terrainCategoryFlags[w.land.categories[cell]&15]&2&&(!best||d<best.d))best={x,z,d};}
+  if(!best)throw Error('No nearby shoreline fixture');return {x:best.x,z:best.z};});
  await move(sea);await expect(['point48','589']);
- await page.keyboard.press('3');await move(near);await expect(['point49','589']);
+ await page.evaluate(()=>{const s=window.testScene;s.world.shots.lightning=1;s.onChange();});
+ await page.getByRole('button',{name:'Lightning, 1 shots',exact:true}).click();await move(near);await expect(['point49']);
+ await page.evaluate(()=>window.testScene.world.shots.lightning=0);await expect(['point49','589']); // No gifted stock.
  await page.evaluate(()=>window.testScene.world.shots.lightning=1);await expect(['point49']);
  await page.evaluate(()=>window.testScene.world.units.find(u=>u.team==='blue'&&u.kind==='shaman').lift=1);await expect(['point49','589']);
  await page.evaluate(()=>window.testScene.world.units.find(u=>u.team==='blue'&&u.kind==='shaman').lift=0);await expect(['point49']);

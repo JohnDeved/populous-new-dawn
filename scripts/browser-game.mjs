@@ -144,3 +144,33 @@ export const originalSkyShaders = {
     void main(){skyUV=uv;gl_Position=vec4(position.x,1.-(1.-position.y)*height,1.,1.);}`,
   fragmentShader: 'uniform sampler2D map; varying vec2 skyUV; void main(){gl_FragColor=texture2D(map,skyUV);}',
 }
+
+// An open campaign message owns gameplay keyboard shortcuts (app/page.tsx key
+// handler), and missions such as 1 and 13 open their first message at start.
+// Checks that press gameplay keys collapse every open message through its public
+// summary first. Never dismisses a message or edits World data; fails if any stays open.
+export async function collapseCampaignMessages(page) {
+  const open = page.locator('.campaign-messages details[open] > summary[aria-label="Read campaign message"]')
+  // Collapsing re-indexes the open set, so always close the first remaining message.
+  for (let count = await open.count(), limit = 32; count && limit; count = await open.count(), limit--)
+    await open.first().click()
+  await page.waitForFunction(() => !document.querySelector('.campaign-messages details[open]'))
+}
+
+// Ordinary hover inspection of retained building panels (Huts, training Huts) only
+// runs with no armed mode and an empty selection. Clear both through the shipped
+// Escape binding (mode first, then selection); fails if the pause menu opens instead.
+export async function clearSelectionWithEscape(page) {
+  await collapseCampaignMessages(page)
+  const busy = () => page.evaluate(() => {
+    const w = window.testStore.getWorld()
+    return !!w.mode || w.selected.length > 0
+  })
+  for (let attempt = 0; attempt < 2 && await busy(); attempt++) await page.keyboard.press('Escape')
+  if (await page.locator('dialog[data-original-pause-menu][open]').count())
+    throw new Error('Escape opened the pause menu instead of clearing the selection')
+  await page.waitForFunction(() => {
+    const w = window.testStore.getWorld()
+    return !w.mode && w.selected.length === 0
+  })
+}

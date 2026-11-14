@@ -1,4 +1,5 @@
 // Start npm run dev, then node scripts/check-browser-camera-focus.mjs.
+import { collapseCampaignMessages } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -6,6 +7,8 @@ const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   await page.evaluate(() => { const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30}) })
+  // The opening campaign message owns gameplay keys (1, f); collapse it publicly first.
+  await collapseCampaignMessages(page)
   const canvas=page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.',{exact:true})
   await canvas.hover()
   await page.keyboard.down('q');await page.waitForTimeout(180);await page.keyboard.up('q')

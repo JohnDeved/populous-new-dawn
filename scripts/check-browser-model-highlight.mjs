@@ -1,4 +1,5 @@
 // npm run dev, then node scripts/check-browser-model-highlight.mjs.
+import { collapseCampaignMessages } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -6,6 +7,8 @@ const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   await page.evaluate(() => { window.testScene.world.speed = 0 })
+  // The opening campaign message owns gameplay keys; collapse it publicly first.
+  await collapseCampaignMessages(page)
   async function target(kind) {
     const id = await page.evaluate(kind => {
       const s = window.testScene
