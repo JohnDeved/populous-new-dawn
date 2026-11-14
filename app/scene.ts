@@ -829,8 +829,8 @@ export class GameScene {
   startGroundView(preset: number, bearing?: number) {
     startGroundView(this, preset, bearing)
   }
-  overview() {
-    overview(this)
+  overview(options?: { instant?: boolean }) {
+    overview(this, options)
   }
   leaveOverview(preset: number) {
     leaveOverview(this, preset)

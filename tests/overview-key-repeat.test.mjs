@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
 import { pageEffect } from './support/follower-nearby-page.mjs'
-import { quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
+import { overviewShortcut, quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
 
 // Execute the shipped Page listener and camera entry/exit functions. Scene
@@ -17,7 +17,7 @@ const declaration = name => {
   assert.equal(matches.length, 1, 'one actual camera function ' + name)
   return matches[0][0].replace(/^export /, '')
 }
-const cameraFunctions = stripTypeScriptTypes(declaration('overview') + '\n' + declaration('leaveOverview'))
+const cameraFunctions = stripTypeScriptTypes(['overview', 'leaveOverview', 'snapOverview'].map(declaration).join('\n'))
 const methods = ['overview', 'leaveOverview'].map(name => {
   const matches = [...sceneSource.matchAll(new RegExp('^  ' + name + '\\([^]*?^  }', 'gm'))]
   assert.equal(matches.length, 1, 'one actual Scene wrapper ' + name)
@@ -28,9 +28,9 @@ const noOp = () => {}
 
 function fixture(overrides = {}) {
   const listeners = new Map(), starts = [], morphs = [], tabs = []
-  let captures = 0, focuses = 0, prevented = 0, updates = 0
+  let captures = 0, focuses = 0, prevented = 0, updates = 0, views = 0
   const world = { inputMask: 0, mode: null, paused: false, units: [], selected: [],
-    flyby: { flags: 0 }, outcome: { level: 1 }, status: 'playing' }
+    flyby: { flags: 0 }, outcome: { level: 1 }, status: 'playing', drawMode: 0 }
   const functions = new Function('beginGlobeMorph', cameraFunctions + '\nreturn { overview, leaveOverview }')(
     (state, entering) => { morphs.push(entering); state.active = true }
   )
@@ -39,11 +39,13 @@ function fixture(overrides = {}) {
   )
   const scene = Object.assign(new BoundScene(), {
     world, overviewActive: false, overviewStage: null,
-    overviewReturn: { preset: 0, bearing: 0 }, viewPreset: 1, cameraBearing: 0.5,
+    overviewReturn: { preset: 0, bearing: 0 }, viewPreset: 1, cameraBearing: Math.PI / 4,
+    cameraPosition: { x: 1000, y: 2000, angle: 256 }, viewTransition: null, viewZoom: 3,
     view: { center: { x: 100, y: 200 } }, cameraMotion: { active: 1 },
     globeMotion: { dragging: true, velocity: { x: 1, y: 1 }, position: {} },
-    globeMorph: { active: false },
+    globeMorph: { active: false, value: 256, target: 256 },
     captureCamera: () => captures++,
+    updateView: () => views++,
     startGroundView: (...args) => starts.push(args),
     focus: () => focuses++,
     skipIntroduction: noOp,
@@ -61,7 +63,7 @@ function fixture(overrides = {}) {
     engine: { current: scene }, audio: { current: null },
     setTab: value => tabs.push(value), update: () => updates++,
     openMenu: noOp, cancelInteraction: noOp, guardShaman: noOp, quickCameraAction, quickCameraTarget,
-    HOME: {}, tutorialLevel: 79, rotateBuildingPlan: () => false,
+    overviewShortcut, HOME: {}, tutorialLevel: 79, rotateBuildingPlan: () => false,
     ...overrides,
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", bindings)()
@@ -73,18 +75,26 @@ function fixture(overrides = {}) {
         target: { closest: selector => selector.split(',').includes(target) },
         preventDefault: () => prevented++, ...extra })
     },
+    // The end states stepViewChange leaves after startGroundView(4, 0) plus the
+    // entry morph, and after the exit morph plus the return ground transition.
     completeEntry() {
       assert.equal(scene.overviewStage, 'enter')
-      scene.overviewActive = true
-      scene.overviewStage = null
+      Object.assign(scene, { overviewActive: true, overviewStage: null, viewPreset: 4, cameraBearing: 0 })
+      scene.cameraPosition.angle = 0
+      Object.assign(scene.globeMorph, { active: false, value: 0, target: 0 })
+      world.drawMode = 2
     },
     completeExit() {
       assert.equal(scene.overviewStage, 'exit')
-      scene.overviewActive = false
-      scene.overviewStage = null
-      scene.globeMorph.active = false
+      const angle = Math.round((scene.overviewReturn.bearing * 1024) / Math.PI) & 2047
+      Object.assign(scene, { overviewActive: false, overviewStage: null,
+        viewPreset: scene.overviewReturn.preset, cameraBearing: (angle * Math.PI) / 1024 })
+      scene.cameraPosition.angle = angle
+      Object.assign(scene.globeMorph, { active: false, value: 256, target: 256 })
+      world.drawMode = 0
     },
     counts: () => ({ captures, focuses, prevented, updates }),
+    views: () => views,
   }
 }
 
@@ -144,20 +154,25 @@ for (const target of ['button', 'input', 'dialog']) {
 }
 
 test('modifier, readiness, modal and input-mask exclusions remain authoritative', () => {
-  for (const modifier of ['ctrlKey', 'metaKey', 'altKey']) {
+  for (const extra of [{ metaKey: true }, { altKey: true }, { shiftKey: true, ctrlKey: true },
+    { shiftKey: true, altKey: true }, { ctrlKey: true, metaKey: true }]) {
     const f = fixture()
-    f.press({ [modifier]: true })
-    assert.deepEqual(f.starts, [])
+    f.press(extra)
+    assert.deepEqual(f.starts, [], JSON.stringify(extra))
+    assert.equal(f.scene.overviewActive, false, JSON.stringify(extra))
   }
   for (const bindings of [{ ready: false }, { menu: true }, { cheatsOpen: true }]) {
     const f = fixture(bindings)
     f.press()
     assert.deepEqual(f.starts, [])
   }
-  const f = fixture()
-  f.world.inputMask = 1
-  f.press()
-  assert.deepEqual(f.starts, [])
+  for (const extra of [{}, { shiftKey: true }, { ctrlKey: true }]) {
+    const f = fixture()
+    f.world.inputMask = 1
+    f.press(extra)
+    assert.deepEqual(f.starts, [])
+    assert.equal(f.scene.overviewActive, false)
+  }
 })
 
 test('Space and spell toggles stay single-press; continuous focus stays repeatable', () => {
@@ -223,6 +238,7 @@ test('message-closing Enter ignores Shift/Ctrl/Alt and keypad origin like the na
     f.press(extra)
     assert.equal(details.open, false, JSON.stringify(extra))
     assert.deepEqual(f.starts, [])
+    assert.equal(f.scene.overviewActive, false, 'the closing press never reaches 0xc5 either')
     assert.equal(f.counts().prevented, 1)
   }
 })
@@ -239,4 +255,170 @@ test('message-closing Enter leaves browser, focused-control, editable and modal 
     assert.deepEqual(f.starts, [])
     assert.equal(f.counts().prevented, 0)
   }
+})
+
+// Native default records 005d5f68 (Enter → 0x15) and 005d5f74/005d5f80
+// (Shift+Enter / Ctrl+Enter → 0xc5); exact modifier masks, press only.
+test('Enter keeps the animated action; exactly Shift or Ctrl selects the instant action', () => {
+  const event = extra => ({ key: 'Enter', code: 'Enter', repeat: false, shiftKey: false,
+    ctrlKey: false, altKey: false, metaKey: false, ...extra })
+  assert.deepEqual(overviewShortcut(event()), { instant: false })
+  assert.deepEqual(overviewShortcut(event({ code: 'NumpadEnter' })), { instant: false })
+  assert.deepEqual(overviewShortcut(event({ shiftKey: true })), { instant: true })
+  assert.deepEqual(overviewShortcut(event({ ctrlKey: true })), { instant: true })
+  for (const extra of [{ repeat: true }, { shiftKey: true, repeat: true }, { shiftKey: true, ctrlKey: true },
+    { altKey: true }, { metaKey: true }, { ctrlKey: true, altKey: true }, { key: 'a', code: 'KeyA' }])
+    assert.equal(overviewShortcut(event(extra)), null, JSON.stringify(extra))
+})
+
+// 0041d4b0(1): no 0089ce36 state machine or 0041d410 morph; the angle is saved
+// and zeroed, vconfig index 4 and draw_mode 2 are applied in the same call.
+test('Shift+Enter enters World View in one step with the completed entry state', () => {
+  const f = fixture()
+  f.press({ shiftKey: true })
+  const s = f.scene
+  assert.equal(s.overviewActive, true)
+  assert.equal(s.overviewStage, null)
+  assert.equal(f.world.drawMode, 2)
+  assert.equal(s.viewPreset, 4)
+  assert.equal(s.viewZoom, 0)
+  assert.equal(s.viewTransition, null)
+  assert.equal(s.cameraPosition.angle, 0)
+  assert.equal(s.cameraBearing, 0)
+  assert.deepEqual({ ...s.globeMorph }, { active: false, value: 0, target: 0 })
+  assert.deepEqual(s.overviewReturn, { preset: 1, bearing: Math.PI / 4 })
+  assert.deepEqual({ x: s.cameraPosition.x, y: s.cameraPosition.y }, { x: 1000, y: 2000 })
+  assert.deepEqual(s.globeMotion, { dragging: false, velocity: { x: 0, y: 0 }, position: { x: 100, y: 200 } })
+  assert.equal(s.cameraMotion.active, 0)
+  assert.equal(f.world.mode, null)
+  assert.deepEqual(f.starts, [], 'no animated ground transition')
+  assert.deepEqual(f.morphs, [], 'no globe morph')
+  assert.equal(f.counts().captures, 1)
+  assert.ok(f.views() > 0, 'the view is updated in the same press')
+})
+
+// 0041d4b0(0): restores the saved angle and vconfig index with draw_mode 0.
+test('Ctrl+Enter leaves World View in one step back to the saved ground view', () => {
+  const f = fixture()
+  f.press({ ctrlKey: true })
+  f.world.mode = 'blast'
+  f.scene.globeMotion.dragging = true
+  f.press({ ctrlKey: true })
+  const s = f.scene
+  assert.equal(s.overviewActive, false)
+  assert.equal(s.overviewStage, null)
+  assert.equal(f.world.drawMode, 0)
+  assert.equal(s.viewPreset, 1)
+  assert.equal(s.viewZoom, 0)
+  assert.equal(s.viewTransition, null)
+  assert.equal(s.cameraPosition.angle, 256)
+  assert.equal(s.cameraBearing, Math.PI / 4)
+  assert.deepEqual({ ...s.globeMorph }, { active: false, value: 256, target: 256 })
+  assert.equal(s.globeMotion.dragging, false)
+  assert.equal(f.world.mode, null)
+  assert.deepEqual(f.starts, [])
+  assert.deepEqual(f.morphs, [])
+})
+
+test('held instant chords toggle once per press', () => {
+  const f = fixture()
+  f.press({ shiftKey: true })
+  for (let i = 0; i < 4; i++) f.press({ shiftKey: true, repeat: true })
+  assert.equal(f.scene.overviewActive, true)
+  f.press({ shiftKey: true })
+  for (let i = 0; i < 4; i++) f.press({ shiftKey: true, repeat: true })
+  assert.equal(f.scene.overviewActive, false)
+  assert.equal(f.counts().captures, 1)
+})
+
+// Both paths share the saved angle (0041cdc0/0041cdf0 and 0041d4b0 use 005fe42c).
+test('animated and instant entry/exit compose through the same saved return view', () => {
+  const animatedIn = fixture()
+  animatedIn.press()
+  animatedIn.completeEntry()
+  animatedIn.press({ shiftKey: true })
+  assert.equal(animatedIn.scene.overviewActive, false)
+  assert.equal(animatedIn.scene.overviewStage, null)
+  assert.equal(animatedIn.scene.viewPreset, 1)
+  assert.equal(animatedIn.scene.cameraPosition.angle, 256)
+  assert.equal(animatedIn.world.drawMode, 0)
+  assert.deepEqual(animatedIn.morphs, [], 'the instant exit starts no morph')
+  const instantIn = fixture()
+  instantIn.press({ ctrlKey: true })
+  instantIn.press()
+  assert.equal(instantIn.scene.overviewStage, 'exit')
+  assert.deepEqual(instantIn.morphs, [false])
+  instantIn.completeExit()
+  assert.equal(instantIn.scene.viewPreset, 1)
+  assert.equal(instantIn.scene.cameraPosition.angle, 256)
+})
+
+// 0041d4b0 returns while 0089ce36, 005fe420 or 0089ce34 is nonzero. 0089ce34 is
+// also armed by the ordinary zoom-level change (00479f00 case 0xb).
+test('instant chords are ignored while an overview or ground zoom transition runs', () => {
+  const entering = fixture()
+  entering.press()
+  entering.press({ shiftKey: true })
+  assert.equal(entering.scene.overviewStage, 'enter')
+  assert.equal(entering.scene.overviewActive, false)
+  assert.deepEqual(entering.starts, [[4, 0]])
+  entering.scene.overviewActive = true
+  entering.scene.globeMorph.active = true
+  entering.press({ ctrlKey: true })
+  assert.equal(entering.scene.overviewStage, 'enter', 'the entry morph still owns the transition')
+  assert.equal(entering.world.drawMode, 0)
+  const leaving = fixture()
+  leaving.press()
+  leaving.completeEntry()
+  leaving.press()
+  leaving.press({ shiftKey: true })
+  assert.equal(leaving.scene.overviewStage, 'exit')
+  assert.equal(leaving.scene.overviewActive, true)
+  const zooming = fixture()
+  const transition = { remaining: 3 }
+  zooming.scene.viewTransition = transition
+  zooming.press({ shiftKey: true })
+  assert.equal(zooming.scene.overviewActive, false)
+  assert.equal(zooming.scene.viewTransition, transition)
+  assert.equal(zooming.counts().captures, 0)
+  zooming.press()
+  assert.equal(zooming.scene.overviewStage, 'enter', 'plain Enter (00418890) does not test 0089ce34')
+})
+
+test('modified Enter leaves focused controls, editable fields and dialogs alone', () => {
+  for (const target of ['button', 'input', 'dialog'])
+    for (const extra of [{ shiftKey: true }, { ctrlKey: true }]) {
+      const f = fixture()
+      f.press(extra, target)
+      assert.equal(f.scene.overviewActive, false, target)
+      assert.equal(f.counts().captures, 0)
+    }
+})
+
+test('a stale Page listener cannot drive a replacement scene; the new listener drives only it', () => {
+  const engine = { current: null }, store = {}
+  const old = fixture({ engine, store }), next = fixture({ engine, store })
+  const own = f => {
+    engine.current = f.scene
+    store.getWorld = () => f.world
+    store.change = action => action(f.world)
+  }
+  own(old)
+  old.press({ shiftKey: true })
+  assert.equal(old.scene.overviewActive, true)
+  // Load/restart replaced the world and scene before React re-registered the listener.
+  own(next)
+  for (const extra of [{}, { shiftKey: true }, { ctrlKey: true }]) old.press(extra)
+  engine.current = null
+  old.press({ shiftKey: true })
+  assert.equal(old.scene.overviewActive, true)
+  assert.equal(next.scene.overviewActive, false)
+  assert.equal(next.scene.overviewStage, null)
+  assert.equal(next.counts().captures, 0)
+  old.cleanup()
+  own(next)
+  next.press({ ctrlKey: true })
+  assert.equal(next.scene.overviewActive, true)
+  assert.equal(next.world.drawMode, 2)
+  assert.equal(old.scene.overviewActive, true)
 })

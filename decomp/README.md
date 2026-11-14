@@ -75,6 +75,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Original Game options and bounded keyboard preferences](research/game-options-static/findings.md),
+[Instant World View: Shift/Ctrl+Return](research/instant-overview.md),
 [Player Ctrl+Alt patrol routes and N queued-action exit](research/player-patrol.md),
 [Eight-Brave Temple entry composition](research/training-entry-composition.md),
 [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),

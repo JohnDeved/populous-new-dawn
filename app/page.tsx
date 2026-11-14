@@ -53,7 +53,7 @@ import {
   ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
-import { quickCameraAction, quickCameraTarget } from './quick-camera-shortcuts'
+import { overviewShortcut, quickCameraAction, quickCameraTarget } from './quick-camera-shortcuts'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
@@ -646,7 +646,9 @@ export default function Home() {
         }
         return
       }
-      if (e.ctrlKey || e.metaKey || e.altKey) return
+      // Enter animates World View (action 0x15); exactly Shift or Ctrl (0xc5) snaps it.
+      const overviewKey = overviewShortcut(e)
+      if ((e.ctrlKey && !overviewKey) || e.metaKey || e.altKey) return
       if (world.inputMask) {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
           e.preventDefault()
@@ -663,8 +665,10 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
-        engine.current?.overview()
+      // A listener left over from a replaced world must not drive the new scene.
+      const camera =
+        store.getWorld() === world && engine.current?.world === world ? engine.current : null
+      if (overviewKey && !(e.target as HTMLElement).closest('button')) camera?.overview(overviewKey)
       if (e.key === 'Escape') {
         const current = store.getWorld()
         if (current !== world || current.status !== 'playing' || selectorOpen) return
@@ -687,7 +691,7 @@ export default function Home() {
       if (quickCamera !== null) {
         e.preventDefault()
         const target = quickCameraTarget(world, quickCamera)
-        if (target) engine.current?.focus(target, { animate: true })
+        if (target) camera?.focus(target, { animate: true })
       }
       // Original D (no modifier, press edge) scatters; it is no longer a camera alias.
       if (
@@ -2035,6 +2039,10 @@ export default function Home() {
                     <strong>Rotate the entrance before placing</strong>
                     <span>F8</span>
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
+                    <span>Return · Shift / Ctrl + Return</span>
+                    <strong>
+                      Enter or leave the World View · Instantly, without the transition
+                    </strong>
                     <span>. (period) / H</span>
                     <strong>Camera to the Shaman / to your reincarnation site</strong>
                     <span>D</span>
