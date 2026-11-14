@@ -269,8 +269,10 @@ def build(exe, pseudocode=PSEUDOCODE):
             'stage': handler[0],
             'case': f'{handler[1]:08x}',
             'noop': handler[1] == STAGES[handler[0] - 1]['break'],
-            'gate': STAGES[handler[0] - 1]['gate'],
-            'sharedWith': [a for a in shared[handler] if a != record['action']],
+            # The shared exit is not a case: no stage gate or sharing applies.
+            'gate': None if handler[1] == STAGES[1]['break'] else STAGES[handler[0] - 1]['gate'],
+            'sharedWith': [] if handler[1] == STAGES[1]['break']
+            else [a for a in shared[handler] if a != record['action']],
             'pseudocode': excerpts.get(record['action']),
         }
     mark_shadowed(records)
