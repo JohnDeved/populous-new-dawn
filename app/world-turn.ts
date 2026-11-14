@@ -1,4 +1,5 @@
 import { requestAngelStrikePresentation } from './angel-presentation.ts'
+import { processSpyDiscovery } from './live-spy-discovery.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
   assignVehicleAllocationCounter,
@@ -475,6 +476,7 @@ export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { 
   }
 }
 function stepTurn(w: World, metrics?: { steps: number }) {
+  processSpyDiscovery(w)
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return

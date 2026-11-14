@@ -32,6 +32,7 @@ import {
 } from './model'
 import { command } from './live-command.ts'
 import { removeOwnedSwamp } from './swamp-removal.ts'
+import { requestSpyDiscovery } from './live-spy-discovery.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { minimapPick } from './minimap.ts'
 import { pointerBrackets } from './world-picking.ts'
@@ -232,6 +233,8 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
     !scene.world.inputMask &&
     !scene.overviewActive
   ) {
+    if (event.currentTarget === scene.renderer.domElement)
+      requestSpyDiscovery(scene.world, scene.picking.pickPerson(event))
     const object = scene.pickUnit(event) ?? scene.pickWorldObject(event)
     const vehicle = scene.world.vehicles.find(v => v.id === object?.id && v.active)
     if (

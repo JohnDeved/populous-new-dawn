@@ -77,6 +77,10 @@ function requireCurrentCheckpoint(world: World) {
     !(world.objectCells.heads instanceof Float64Array) ||
     !world.secondaryEffects ||
     !world.worshipAcquisition ||
+    !(
+      world.spyDiscovery === null ||
+      (typeof world.spyDiscovery === 'object' && Number.isInteger(world.spyDiscovery?.id))
+    ) ||
     !Array.isArray(world.campaignAIs) ||
     !Array.isArray(world.vehicles) ||
     !Array.isArray(world.levelStart) ||
