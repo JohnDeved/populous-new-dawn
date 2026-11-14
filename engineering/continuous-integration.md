@@ -20,7 +20,7 @@ native, rendered-browser or hardware-performance acceptance.
    differ from event`. The gate compares against the event's base and head SHAs.
    Before the transition:
    - query `gh pr view <N> --json mergeable,baseRefOid,headRefOid` so GitHub
-     recomputes the merge;
+     recomputes the merge, repeating while `mergeable` is `UNKNOWN`;
    - force-fetch `+refs/pull/<N>/merge`;
    - confirm its parents equal that `baseRefOid` and `headRefOid`, and that those
      are the current main and the pushed head.
