@@ -305,6 +305,11 @@ export default function Home() {
     }
     pendingMenuCamera.current = []
   }
+  function openSelector() {
+    cancelNearbyInput()
+    if (engine.current) engine.current.nearbyFollowersHudActive = false
+    setSelectorOpen(true)
+  }
   // Native 004af440 shows one box (0089bb81 state 2/3). While it is open,
   // 004a5590 runs 004af640 instead of every simulation turn. 004af640 pauses
   // through 00479f00(10, tribe, 1), the same pause branch as the P key (0089c661
@@ -364,11 +369,6 @@ export default function Home() {
     }
     syncMessageModal()
   })
-  function openSelector() {
-    cancelNearbyInput()
-    if (engine.current) engine.current.nearbyFollowersHudActive = false
-    setSelectorOpen(true)
-  }
   useEffect(() => {
     const scene = engine.current
     if (!scene) return

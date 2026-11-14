@@ -121,10 +121,16 @@ test('Home capture permits logo controls during loading and with a restored inpu
   const loading = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockLoadingInteraction')
   const main = pageNode(node => ts.isJsxOpeningElement(node) && node.tagName.getText(pageSource) === 'main')
   const click = main.attributes.properties.find(node => node.name?.text === 'onClickCapture')
+  const messageBox = pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockMessageModalInteraction')
   for (const ready of [false, true]) for (const inputMask of [0, 64]) {
     const blockLoadingInteraction = evaluatePage(`(${loading.getText(pageSource)})`, { ready })
+    const world = { inputMask }
+    // No campaign message box session is open here.
+    const blockMessageModalInteraction = evaluatePage(`(${messageBox.getText(pageSource)})`, {
+      world, messageSession: { current: null },
+    })
     const capture = evaluatePage(click.initializer.expression.getText(pageSource), {
-      blockLoadingInteraction, world: { inputMask },
+      blockLoadingInteraction, blockMessageModalInteraction, world,
     })
     const logo = event({ detail: 1, target: {
       closest: selector => selector.includes('[data-startup-logo]') ? {} : null,

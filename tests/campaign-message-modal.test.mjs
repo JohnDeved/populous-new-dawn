@@ -239,3 +239,28 @@ test('a replaced world never inherits the previous box or its pause', () => {
   assert.equal(f.world.paused, true, 'the retired world is not written')
   assert.deepEqual(f.modal, [true, false])
 })
+
+// 004aa1c0: only the box takes a press. Execute the actual Page capture guard.
+const guardSource = () => pageNode(node => ts.isFunctionDeclaration(node) && node.name?.text === 'blockMessageModalInteraction').getText(pageSource)
+test('an open box refuses HUD and world presses; the box and browser controls stay usable', () => {
+  const world = {}, session = { current: { world, paused: false } }
+  const guard = evaluatePage(`(${guardSource()})`, { world, messageSession: session })
+  const press = allowed => {
+    const event = { prevented: false, stopped: false,
+      target: { closest: selector => (allowed && selector.split(',').includes(allowed) ? {} : null) },
+      preventDefault() { this.prevented = true }, stopPropagation() { this.stopped = true } }
+    return [guard(event), event.prevented, event.stopped]
+  }
+  assert.deepEqual(press(null), [true, true, true], 'HUD/world press')
+  for (const allowed of ['.campaign-messages', '[data-fullscreen-control]', '.desktop-recommendation', 'dialog'])
+    assert.deepEqual(press(allowed), [false, false, false], allowed)
+  session.current = null
+  assert.deepEqual(press(null), [false, false, false], 'no open box')
+  session.current = { world: {}, paused: false }
+  assert.deepEqual(press(null), [false, false, false], 'a retired world session does not block')
+  // Every pointer/click capture of the game shell routes through the guard.
+  const main = pageNode(node => ts.isJsxOpeningElement(node) && node.tagName.getText(pageSource) === 'main')
+  for (const name of ['onPointerDownCapture', 'onPointerUpCapture', 'onContextMenuCapture', 'onClickCapture'])
+    assert.match(main.attributes.properties.find(node => node.name?.text === name).getText(pageSource),
+      /blockLoadingInteraction\(e\) \|\| blockMessageModalInteraction\(e\)/, name)
+})
