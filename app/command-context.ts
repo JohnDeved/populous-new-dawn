@@ -14,7 +14,9 @@ export const CommandContext = {
   Obelisk: 512,
   Vehicle: 1024,
   Head: 2048,
-  Flatten: 4096,
+  // Native 0x1000 (not Flatten): area-guard route context for command 11, set by a
+  // Ctrl+Alt ground point (#1003) or a pointed Guard Post (#1010).
+  AreaGuard: 4096,
   SpyEscape: 8192,
   Guard: 16384,
   Dismantling: 32768,
@@ -25,7 +27,8 @@ export const CommandContext = {
   Force: 1048576,
   Prison: 2097152,
   Sabotage: 4194304,
-  FlattenValid: 8388608,
+  // Native 0x800000: 0x4b98f0 accepted the pointed cell as an area-guard point.
+  AreaGuardPoint: 8388608,
   ForcedEnemy: 16777216,
 } as const
 
@@ -55,7 +58,7 @@ export function chooseContextCommand(flags: number, people: number) {
     accept(34, has(c.Sabotage) && has(c.Force)) ||
     accept(plan, has(c.Plan)) ||
     accept(building, has(c.Completed)) ||
-    accept(11, has(c.Flatten)) ||
+    accept(11, has(c.AreaGuard)) ||
     accept(20, has(c.Obelisk) && people === 128) ||
     accept(29, has(c.Convert)) ||
     accept(27, has(c.Head)) ||
@@ -77,6 +80,43 @@ export function moveCommandAllowed(
   const strict = !!(tribeFlags & 32)
   const collision = restingCellCollision(cell, walkMask, point, !strict)
   return collision === 0 || (!strict && collision === 4 && !!(tribeFlags & 64))
+}
+
+// 0x437010 modifier context: Shift, or Alt (0x800) with either Ctrl key, forces
+// the command (own-Shaman guard/sabotage); only Ctrl+Alt adds the route context.
+export function modifierContext(modifiers: {
+  ctrlKey?: boolean
+  shiftKey?: boolean
+  altKey?: boolean
+}) {
+  const route = !!(modifiers.ctrlKey && modifiers.altKey)
+  return (
+    (modifiers.shiftKey || route ? CommandContext.Force : 0) |
+    (route ? CommandContext.AreaGuard : 0)
+  )
+}
+
+// 0x4b98f0(cell, tribe, allowMarker): an area-guard point needs a strictly
+// walkable resting cell (0x518200 without coast allowance), no building id, and
+// no class-5 scenery other than dormant trees (model 0x11). A class-10/type-16
+// Guard Post marker blocks only when allowMarker is false (Guard Post placement).
+// Ctrl+Alt route input uses allowMarker = true. The placement preview is not a
+// cell object here.
+export function areaGuardPointAllowed(
+  cell: Pick<CollisionCell, 'flags' | 'category' | 'building'>,
+  walkMask: ArrayLike<number>,
+  point: { x: number; y: number },
+  objects: Iterable<{ class: number; model: number }>,
+  allowMarker = true
+) {
+  if (restingCellCollision(cell, walkMask, point, false) || cell.building & 1023) return false
+  for (const object of objects)
+    if (
+      (object.class === 5 && object.model !== 17) ||
+      (!allowMarker && object.class === 10 && object.model === 16)
+    )
+      return false
+  return true
 }
 
 // 0x4aa8b0: ground feedback uses the coarse terrain-cell center. Pointed
