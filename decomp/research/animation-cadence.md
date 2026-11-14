@@ -147,6 +147,130 @@ The knockback sample needs a note:
 - This field belongs to the person record, so it was left unchanged here. It needs
   its own owner review.
 
+## Effect repairs
+
+This follow-up moves five rows from mismatched to matched and adds a Flatten
+sparkle row. The audit now reports **2 mismatched, 11 unknown, 184 matched and
+172 not-applicable** rows. The two left are the wild-person counter gate and the
+Firewarrior shooting artwork. Behavior is covered by
+`tests/animation-cadence-effects.test.mjs`. It drives the real `advanceGame` and
+the `scene-effects` renderer at 30/60/144 Hz, 1× and 2×, and while paused. Every
+case in it failed first on base `94881ba0`.
+
+### <a id="lightning-draw-visits"></a>Lightning draw visits
+
+Native chain (static read of the verified EXE: direct-call scan plus the Ghidra
+exports in `decomp/generated/`, never executed):
+
+- `main_3` (`004a4450`) runs one iteration per frame. It increments
+  `sprite_animation_counter`, then calls `draw_main` (`004a4755`).
+- `draw_main` calls `draw_1` (`004a4c07`), which calls `draw_land` (`005226ce`),
+  which calls draw-polygons `004673b0` (`0046733d`).
+- Draw-polygons case 19 (`0046b16a`) calls `00475350` once for each queued bolt
+  segment. `00475350` re-rolls the branches from the cosmetic RNG `0089bc72`.
+- No function on this consumer chain tests pause (`land_flags_1 & 2`).
+  `draw_land` only freezes its tick count. Only `004ee770`, the sprite animation
+  pass after `draw_1`, skips paused frames. **So the original keeps re-rolling
+  branches while paused**, provided segments stay queued.
+- Not inspected: the routine that queues the bolt segments for case 19 during
+  `draw_land`. Its pause behavior is inferred, not read.
+
+Browser implementation:
+
+- `GameClock.drawVisit` stands in for one draw-loop iteration.
+  - While running, `advanceGame` calls it on each 24 Hz presentation visit, after
+    the sprite animation pass.
+  - While paused (ordinary Space pause), it keeps calling it at the same 24 Hz rate
+    of elapsed time. The paused phase restarts at each pause, and no turns or
+    sprite visits run.
+- `lightningDrawVisit` (`scene-effects.ts`) rolls one shape per visible segment
+  with `rollLightningBranches`. It keeps the existing culling test.
+- `animateLightning` only places the stored shapes at the current projection, so
+  rendering no longer consumes RNG. A segment that has not had a draw visit yet
+  shows only its parent line, for at most one 24 Hz interval.
+- `lightningLines` remains the exact composition of roll and place.
+  `check-native-lightning.py` (256 branch streams) and
+  `check-native-hut-smoke-render-rng.py` still pass.
+- Effect: display refresh no longer changes branch cadence or cosmetic RNG use.
+  That RNG is shared with hut smoke, worship poses and other world consumers, so
+  their outcomes stopped depending on the refresh rate too.
+
+Browser adaptations:
+
+- The modal pause menu suspends presentation entirely (existing scene policy), so
+  bolts freeze there.
+- Native rolls follow the native painter order and viewport. The browser rolls in
+  `world.effects` order and uses its own culling.
+- Shapes are keyed by the segment array that `stepLightning` rebuilds each turn.
+  When a turn falls between draw visits, new geometry shows only its parent lines
+  until the next visit.
+- Culling at the visit uses the previous frame's camera. While the camera moves, a
+  segment entering view can show only its parent line for up to 1/24 s.
+- A hidden tab pauses rendering. When the tab returns, a paused, visible bolt
+  catches up its missed draw visits, so cosmetic RNG use grows with the hidden
+  time. This mirrors the existing catch-up of worship visits on return.
+
+Static lead, not a claim: the frame limiter in `main_3` waits for
+`1000 / FUN_0049cfe0()` ms in game when the `game_state` byte at `+858460` is
+nonzero. That is 24, 20 or 14 fps for bits 1, 4 and 2, and 60 fps otherwise. When
+the byte is zero it waits for `1000 / DAT_0089ce62` ms instead. The absolute
+original draw rate therefore still depends on runtime configuration. It is not
+established here, and the 24 Hz adapter is unchanged.
+
+### Effects without counters
+
+`0x509c10` (`init_unit_type_7`, switch on model − 1) sets these sprite objects
+with no `0x40000` gate write. The second number is the effect's processor
+lifetime.
+
+| model | lifetime | draw | object |
+| --- | --- | --- | --- |
+| 60 | 16 | 44 | HFX1288 |
+| 61 | 6 | 46 | HFX1294 |
+| 66 | 16 | 44 | HFX1224 |
+| 71 | 4 | 47 | HFX1288 |
+
+Producers that showed these artworks at `floor(age × 12)` now carry the same native
+counters through `animateEffectSprite` (`world-effects.ts`). `animateLiveObjects`
+advances those counters on presentation visits, so each frame loops over the
+descriptor hold and freezes during pause. The producers:
+
+- every `hit` effect: effect 61;
+- non-unit `death` smoke from buildings and an expired Angel: effect 66;
+- the Shield, Invisibility, Bloodlust, Teleport and Convert sparkle visuals:
+  effect 60's artwork and rule;
+- Flatten's sparkle, which `0x512700` allocates as effect 61. It previously showed
+  sparkle frames 6–11, the same HFX1294–1299 pixels.
+
+These sprites now render opaque, as the existing counter-owned order marker and
+level-start sparkles already do. The browser lifetimes are unchanged.
+
+Known limits of this repair:
+
+- **First frame.** `advanceGame` runs a turn before a coincident presentation
+  visit. An effect created in that turn therefore first renders with `f1 = 4`
+  (frame 1). The original draws before it animates (`draw_1`, then `004ee770`), so
+  it shows frame 0 first. The order is shared by every counter-owned effect
+  (Splash, site sparkles) and is not changed here.
+- **Lifetimes.** Native effects 60 and 66 live 16 processor visits. The browser
+  keeps its own lifetimes: 1.7 s for death smoke and the Shield, Invisibility and
+  Bloodlust visuals. That is 40.8 visits, so these sprites now end mid-cycle with
+  no fade. The native lifetimes remain to be adopted.
+
+### Armageddon arrival sparkle
+
+`0x4dfac0` (`004dfb94`) sets draw 44 / HFX1401 on the arrival visual. Descriptor
+44 holds 16 frames, so the cycle is HFX1401–1416. The bank shows that range as 16
+frames of 12×34, followed by an 81×68 sprite.
+
+- The new append-only `scripts/import-armageddon-sparkle.py` (hash-pinned inputs,
+  read-only `--check`) adds them as the `armageddonSparkle` sequence.
+- The live special-battle allocation now uses that sequence.
+- `import-hypnotise.py --check` now ignores rows appended after it, which keeps the
+  check valid.
+- Limit: the tribe effect palette that `special-battle.ts` writes is still not
+  rendered.
+
 ## Boundaries
 
 - No global clock or presentation-rate change. Native-counter owners, simulation,

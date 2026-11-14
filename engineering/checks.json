@@ -4815,16 +4815,22 @@
       "id": "animation-cadence-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Check the read-only animation cadence audit and the descriptor-aware legacy unit fallback cadence (#214).",
+      "purpose": "Check the read-only animation cadence audit, the descriptor-aware legacy unit fallback cadence and the effect draw-visit cadence (#214).",
       "coveredBehavior": [
         "Audit classification, static gate evidence, stale anchors (synthetic and shipped registry)",
-        "Legacy fallback holds per draw descriptor through advanceGame and the Scene unit loop at 1x/2x and 30-144 Hz"
+        "Legacy fallback holds per draw descriptor through advanceGame and the Scene unit loop at 1x/2x and 30-144 Hz",
+        "Lightning branch shapes and cosmetic RNG per draw visit (also while paused), effect 60/61/66 sprite counters and the Armageddon arrival HFX1401-1416 cycle through advanceGame and scene-effects at 1x/2x and 30-144 Hz"
       ],
       "knownLimits": [
         "Original absolute draw rate is not established; presentation-visit rows are relative to the 24 Hz adapter."
       ],
       "executable": "node",
-      "args": ["--test", "tests/animation-cadence-audit.test.mjs", "tests/unit-fallback-cadence.test.mjs"],
+      "args": [
+        "--test",
+        "tests/animation-cadence-audit.test.mjs",
+        "tests/unit-fallback-cadence.test.mjs",
+        "tests/animation-cadence-effects.test.mjs"
+      ],
       "cwd": ".",
       "env": [],
       "inputs": [
@@ -4842,7 +4848,16 @@
         "decomp/research/animation-cadence/native-setters.json",
         "tests/animation-cadence-audit.test.mjs",
         "tests/unit-fallback-cadence.test.mjs",
-        "tests/support/bloodlust-scene.mjs"
+        "tests/animation-cadence-effects.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "app/lightning.ts",
+        "app/scene-effects.ts",
+        "app/world-effects.ts",
+        "app/world-turn.ts",
+        "app/spell-effects-runtime.ts",
+        "app/live-people.ts",
+        "app/scene.ts",
+        "public/original/effects.png"
       ],
       "prerequisites": ["Installed locked dependencies"],
       "sideEffects": [],

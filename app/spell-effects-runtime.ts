@@ -29,6 +29,7 @@ import {
 } from './object-cells.ts'
 import { unitAnimationSource } from './selection-runtime.ts'
 import {
+  animateEffectSprite,
   createFire,
   createAngel,
   effect,
@@ -1176,7 +1177,7 @@ export function stepLiveConvertWild(w: World, fx: Effect) {
       flash.startConversionLink = replacement.id
     },
     sparkle: (position, turns) => {
-      const sparkle = effect(w, 'trail', browserPosition(position))
+      const sparkle = animateEffectSprite(effect(w, 'trail', browserPosition(position)), 44, 1288)
       sparkle.sprite = { sequence: 'sparkle', frame: 0 }
       sparkle.height = position.h / 45
       sparkle.duration = turns / TURNS_PER_SECOND
@@ -1291,7 +1292,7 @@ export function stepTeleport(w: World, fx: Effect) {
                 ? 12
                 : Infinity
   if (visit === 1) {
-    const visual = effect(w, 'trail', fx)
+    const visual = animateEffectSprite(effect(w, 'trail', fx), 44, 1288)
     visual.sprite = { sequence: 'sparkle', frame: 0 }
     visual.duration = 12 / TURNS_PER_SECOND
   }
@@ -1483,13 +1484,13 @@ function finishCast(
         oldest.duration = oldest.age
       }
     } else if (spell === 'shield') {
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      animateEffectSprite(fx, 44, 1288).sprite = { sequence: 'sparkle', frame: 0 }
       shieldFollowers(w, p, shaman.team)
     } else if (spell === 'invisibility') {
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      animateEffectSprite(fx, 44, 1288).sprite = { sequence: 'sparkle', frame: 0 }
       if (invisibilityFollowers(w, p, shaman.team).length) sound(w, 0x31, p)
     } else if (spell === 'bloodlust') {
-      fx.sprite = { sequence: 'sparkle', frame: 0 }
+      animateEffectSprite(fx, 44, 1288).sprite = { sequence: 'sparkle', frame: 0 }
       bloodlustFollowers(w, p, shaman.team)
     } else if (spell === 'swarm') {
       const center = nativePosition(w, p)

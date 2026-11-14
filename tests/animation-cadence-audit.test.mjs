@@ -143,4 +143,15 @@ test('the shipped audit has no stale anchors and every row has a known status', 
   const { fallbackFramesPerSecond } = await import('../app/animation.ts')
   const shooting = report.rows.find(row => row.id === 'legacy-unit/firewarrior-shooting')
   assert.equal(shooting.browser.fps, fallbackFramesPerSecond(18, 12))
+  // Repaired effect families stay matched; their clock behavior is exercised by
+  // tests/animation-cadence-effects.test.mjs at several refresh rates.
+  for (const id of [
+    'lightning-branches',
+    'effect-sequence/hit/combat-hit',
+    'effect-sequence/hit/flatten-sparkle',
+    'effect-sequence/sparkle/spell-sparkle',
+    'effect-sequence/smoke/death-smoke',
+    'effect-sequence/armageddonSparkle/armageddon-arrival',
+  ])
+    assert.equal(report.rows.find(row => row.id === id)?.status, 'matched', id)
 })

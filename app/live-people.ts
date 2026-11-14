@@ -712,7 +712,8 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
           height: point => terrainPointHeight(w.land, point),
           allocate: (_unitClass, _model, _tribe, point) => {
             const visual = effect(w, 'trail', browserPosition(point))
-            visual.sprite = { sequence: 'sparkle', frame: 0 }
+            // 0x4dfac0 then sets draw 44/HFX1401 (004dfb94): the HFX1401-1416 cycle.
+            visual.sprite = { sequence: 'armageddonSparkle', frame: 0 }
             visual.duration = 15 / 12
             visual.animation = {
               object: 0,

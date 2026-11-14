@@ -104,6 +104,7 @@ import { instantOverview } from './instant-overview.ts'
 import {
   animateFx,
   animateLightning,
+  lightningDrawVisit,
   makeFx,
   updateEffectsFrame,
   updateSpellHalo,
@@ -379,6 +380,7 @@ export class GameScene {
       this.worshipPresentation.visit()
     },
     presentationHidden: () => document.hidden,
+    drawVisit: () => lightningDrawVisit(this),
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
