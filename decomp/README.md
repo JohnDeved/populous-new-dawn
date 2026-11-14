@@ -105,6 +105,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Mission 11 first settlement](research/mission11-first-settlement.md),
 [Mission 12 opening](research/mission12-opening.md),
 [Mission 12 Spy disguise and sabotage](research/mission12-spy-sabotage.md),
+[Manual right-click Spy discovery](research/spy-manual-discovery.md),
 [Mission 13 opening](research/mission13-opening.md),
 [Mission 13 Balloon transport](research/mission13-balloon.md),
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
@@ -619,6 +620,18 @@ and the correction that command 34 assigns training-building entry rather than
 sabotage. Rendering, canvas input, fire effects, and checkpoint restoration remain
 browser/portable evidence. See the
 [focused evidence and limits](research/mission12-spy-sabotage.md).
+
+## Manual Spy discovery
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-spy-discovery.py /path/to/d3dpoptb.exe
+```
+
+The supplied-state CPU probe executes original right-press input admission, the
+inspection producer and command 0x4e consumer. It covers completed disguise, busy
+command slots, deferred mutation and stale target guards. It does not implement
+browser discovery or establish native picking/occlusion or full gameplay parity.
+See [findings, resource limits and remaining integration](research/spy-manual-discovery.md).
 
 ## Mission 13 opening
 
