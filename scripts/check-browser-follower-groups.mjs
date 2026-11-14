@@ -17,11 +17,18 @@ const state = page => page.evaluate(() => {
     camera: { ...scene.cameraPosition },
   }
 })
+// An open campaign message owns gameplay keys; collapse it through its public summary.
+async function collapseMessages(page) {
+  for (const summary of await page.locator('.campaign-messages details[open] > summary').all())
+    await summary.click()
+  assert.equal(await page.locator('.campaign-messages details[open]').count(), 0)
+}
 const idleBraves = page => page.getByRole('button', { name: 'Idle Braves', exact: true })
 
 export default async function followerGroups({ page, output, openMission, receipt }) {
   await openMission(1)
   await page.evaluate(() => window.testStore.change(world => { world.speed = 0 }))
+  await collapseMessages(page)
   await page.getByTitle('followers', { exact: true }).click()
   await page.mouse.move(900, 400)
   // Mission 1 starts with the Shaman selected; Escape clears it through the shipped path.
@@ -91,6 +98,7 @@ export default async function followerGroups({ page, output, openMission, receip
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.waitForFunction(() => !document.querySelector('dialog[open]'))
   await page.evaluate(() => window.testStore.change(world => { world.speed = 0; world.selected = [] }))
+  await collapseMessages(page)
   await page.mouse.move(900, 400)
   await page.keyboard.press('Digit1')
   s = await state(page)
