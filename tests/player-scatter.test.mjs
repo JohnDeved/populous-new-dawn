@@ -14,6 +14,7 @@ import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mj
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { setSelection } from '../app/selection-runtime.ts'
 import { boardLiveVehicle } from '../app/live-vehicles.ts'
+import { migrateCheckpoint } from '../app/game-store.ts'
 import { nativeScatterEligible, stepPersonScatter } from '../app/person-scatter.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 
@@ -192,13 +193,14 @@ test('a new order during scatter replaces it immediately', () => {
 })
 
 test('paused, masked, finished and stale-selection inputs do not scatter', () => {
-  for (const block of ['paused', 'mask', 'status', 'land']) {
+  for (const block of ['paused', 'mask', 'status', 'land', 'drop']) {
     const { w, units } = setup(['warrior'])
     setSelection(w, [units[0].id])
     if (block === 'paused') w.paused = true
     else if (block === 'mask') w.inputMask = 1
     else if (block === 'status') w.status = 'lost'
-    else w.land.landFlags |= 2
+    else if (block === 'land') w.land.landFlags |= 2
+    else w.land.landFlags |= 0x800
     const before = structuredClone(units[0].native), rng = w.randomState
     assert.equal(scatterSelected(w), 0, block)
     assert.deepEqual(units[0].native, before)
@@ -263,7 +265,9 @@ test('checkpoint clone mid-scatter continues identically', () => {
   const { w, units } = setup(['warrior', 'firewarrior'])
   setSelection(w, units.map(u => u.id)); scatterSelected(w)
   for (let i = 0; i < 4; i++) tick(w, 1 / 12)
-  const copy = structuredClone(w)
+  // Store restore path: clone, then the current-format runtime normalization.
+  const copy = migrateCheckpoint(structuredClone(w))
+  assert.ok(copy.units.filter(u => u.native?.state === 43).length === 2)
   for (let i = 0; i < 12; i++) { tick(w, 1 / 12); tick(copy, 1 / 12) }
   const view = world => world.units.map(u => [u.id, u.x, u.z, u.native?.state, u.native?.anchorX])
   assert.deepEqual(view(copy), view(w))

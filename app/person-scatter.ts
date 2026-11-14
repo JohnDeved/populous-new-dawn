@@ -4,7 +4,7 @@ import { defaultPersonState, randomPersonSpeed, type StatefulPerson } from './pe
 import { setPersonAnchor } from './person-order-update.ts'
 
 // Player scatter: default D record 005d61fc -> action 0xc0 -> tribe command 0x7e
-// -> person state 43. See decomp/research/scatter/README.md.
+// -> person state 43. See decomp/research/player-scatter.md.
 export const SCATTER_STATE = 43
 
 interface Point {

@@ -378,8 +378,8 @@ export function guardShaman(w: World) {
 }
 
 // Ordinary owners whose retained queue/task can resume after state 43. Other
-// live adapters (flight, melee, casting, entry, construction, preaching, building
-// attack, gathering, vault, vehicle) are skipped rather than approximated.
+// live adapters and states are skipped rather than approximated; the complete
+// list is in decomp/research/player-scatter.md (Port-only admission limits).
 const scatterResumableOrders = [3, 7, 16, 18, 22, 27, 28, 30]
 function scatterOwner(w: World, u: Unit) {
   const p = u.native,
@@ -426,7 +426,8 @@ function scatterOwner(w: World, u: Unit) {
 // The port applies the queued tribe command at input time, before the next turn,
 // matching the native per-tick order where commands precede person processing.
 export function scatterSelected(w: World) {
-  if (w.paused || w.status !== 'playing' || w.inputMask || w.land.landFlags & 2) return 0
+  // land_flags_1 & 2 gates process_cmd stage 2; & 0x800 makes 0x479cf0 drop the command.
+  if (w.paused || w.status !== 'playing' || w.inputMask || w.land.landFlags & 0x802) return 0
   const selected = new Set(w.selected)
   let count = 0
   for (const u of w.units) {

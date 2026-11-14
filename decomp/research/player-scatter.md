@@ -9,8 +9,7 @@ No original execution, probe, fixture recording or parity claim.
 ## Native chain
 
 - **Binding.** Default record `005d61fc`: char `d`, press, no modifiers, no predicate,
-  gate 0 -> action `0xc0` (the binding atlas, `scripts/native-input-bindings.py` on
-  the `feat/native-input-binding-atlas` branch). Shift/Ctrl/Alt+D do not match it.
+  gate 0 -> action `0xc0` (binding atlas, [PR #1030](https://github.com/JohnDeved/populous-new-dawn/pull/1030)). Shift/Ctrl/Alt+D do not match it.
   `0xc0` is a stage-2 `process_cmd` case, so it is ignored while `land_flags_1 & 2`
   (pause) is set.
 - **Producer.** `process_cmd` case `0xc0` (`004ad2fe`): only
@@ -62,12 +61,33 @@ native applies it at the start of the next tick before people move, so ordering
 against the person pass is equivalent. The one-slot same-tick collision with another
 tribe command (for example G and D in one tick) is not modelled.
 
-Port-only admission limits: the native predicate is applied, but the person must
-also have an ordinary owner that can resume afterwards. Skipped selected people:
-airborne/impulse, melee, casting, building entry/occupancy, construction, gathering
-(`work`/`tree`/`harvest`/`delivery`), vault, attack reservation, ghost, pending G,
-native work groups, preaching/building-attack orders, and legacy walks without a
-native owner. Natively these (except vehicle/building/fight) would scatter.
+`scatterSelected` returns without effect while paused, outside `playing`, with an
+input mask, or with `landFlags & 0x802` (stage-2 pause gate `2`, and the
+`00479cf0` command-drop gate `0x800`).
+
+### Port-only admission limits
+
+The native predicate is applied, but the person must also have an ordinary owner
+that can resume afterwards (`scatterOwner`, `app/live-command.ts`). A selected
+person is skipped when any of these hold:
+
+- not Blue, dead, ghost, or `inside` a building/vehicle record;
+- browser adapters: `flight` (airborne/impulse), `fight` (melee), `casting`, `lift`,
+  `entry` (building entry), `builder` (construction), `work`, `tree`, `harvest`,
+  `delivery` (gathering/assigned work), `vault`, `attackReservation`;
+- a registered route record that is not the person's own native record, or a
+  legacy walk (`path`/registered route) with no native record;
+- native record not class 1, or native state outside `[1, 10, 17, 19, 43]`, so for
+  example panic 26/31, casting 22, conversion 23, tornado 24, transport rest 30,
+  route recovery 33, fight recovery 36, special battle 39 and celebration 41;
+- pending G (`guardInputPending`), nonzero work group (`workFlags`), airborne
+  `flags2 & 0x80000`, or ghost `flags4 & 0x800`;
+- any queued/immediate order model outside `[3, 7, 16, 18, 22, 27, 28, 30]`, for
+  example construction 6, building entry/training 8/10, building attack
+  11/15/19/21, preaching 17/31/32 and vault 33.
+
+Natively all of these except vehicle, building occupancy and fighting 25/29 would
+scatter.
 
 `D` (no modifier, no repeat) now issues scatter from the page keyboard handler,
 behind the existing ready/menu/cheats/popup/selector/editable/input-mask gates

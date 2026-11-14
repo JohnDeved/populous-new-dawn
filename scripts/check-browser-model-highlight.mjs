@@ -62,9 +62,9 @@ try {
   await page.keyboard.press('Escape')
   await page.waitForFunction(id=>window.testScene.hoveredObject===id,head.id)
   // Pan off the centered target; native ArrowRight rotates around it.
-  await page.keyboard.down('d')
+  await page.keyboard.down('Numpad6')
   await page.waitForFunction(id=>window.testScene.hoveredObject!==id,head.id)
-  await page.keyboard.up('d')
+  await page.keyboard.up('Numpad6')
   assert.equal(await highlight(head.id),0)
   const enemy=await target('enemy')
   await page.mouse.move(enemy.x,enemy.y)
