@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { effectPixels, chooseSpell } from '../browser-game.mjs'
 
-// Explicit supplied stock/person fixture; casting still uses the shipped hotkey and click.
+// Explicit supplied stock/person fixture; casting uses the shipped HUD spell card and click.
 export default async function ({ page, output, openMission }) {
   await openMission(1)
   await page.evaluate(async () => {

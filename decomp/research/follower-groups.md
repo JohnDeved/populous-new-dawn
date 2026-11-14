@@ -11,8 +11,10 @@ Static reads of the original `d3dpoptb.exe`, SHA-256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`, with Capstone 5.0.7.
 Nothing was executed or emulated. `scripts/check-static-follower-groups.py EXE` re-verifies
 the reviewed instructions and table entries below (exit 0: 34 instructions, 4 table
-entries); `--listing DIR` regenerates the windows retained in
-[follower-groups-evidence/](follower-groups-evidence/). Default key records come from the
+entries); `--listing DIR` regenerates the `.asm` windows retained in
+[follower-groups-evidence/](follower-groups-evidence/). The jump-table `.hex` dump and
+`process_tribe_cmd-cases.txt` were retained by hand from the same reads; the probe
+verifies their table entries but does not rewrite them. Default key records come from the
 input-binding atlas (PR #1030, `scripts/native-input-bindings.py`).
 
 ## Keys and dispatcher (`004ad035`–`004ad15f`)
@@ -95,8 +97,19 @@ the replaceable native person records, so representation handoffs cannot drop it
 part of the current checkpoint (`structuredClone(world)`); absent means no groups, which is
 also the correct state for any checkpoint written before groups existed. Recall reuses the
 HUD selection crew traversal and clears `world.mode`; Alt reuses `scene.focus` and
-`objectPanels.open`. Spell aliases moved off 1–6 (7/8/9/0 remain); the original has no
-numeric spell bindings.
+`objectPanels.open`. Plain recall waits for the browser globe overview to end, like the
+HUD follower controls; Alt may leave it because focusing cancels the overview.
+
+Spell aliases moved off 1–6. The original has no numeric spell bindings: its only other
+digit records are gate-3 actions `0x57` (7, `sunlight_init_2`) and `0x58` (0), and 8/9 are
+unbound. The browser keeps 7/8/9/0 for Firestorm/Earthquake/Tornado/Shield as labelled
+browser additions.
+
+The browser matches physical number-row codes (`Digit1`…`Digit6`), so Shift/Option
+characters cannot change the slot. The original matches layout-translated characters
+`'1'`…`'6'` (`00401a90`), so on non-US layouts (for example AZERTY, where the digits
+need Shift) the native keys and the browser keys differ. This is a deliberate browser
+compatibility choice, not recovered behavior.
 
 ## Not implemented / open
 
@@ -108,5 +121,8 @@ numeric spell bindings.
   and interaction modes 9/15 have no established browser equivalents.
 - Browsers reserve some chords: Ctrl+1–6 switches tabs in Chrome/Edge on Windows/Linux
   and Alt+1–6 on Linux Chrome; pages cannot always intercept them.
+- Group keys act while the browser game is paused or after the mission result. Native
+  input queues a tribe command that is processed per turn, so pausing semantics were not
+  matched. They also act during a rubber-band drag, unlike the HUD category controls.
 - Native save-file inclusion and the native person-list order versus `world.units` order
   were not independently verified.

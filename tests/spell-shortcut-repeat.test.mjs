@@ -83,6 +83,17 @@ test('input masks and native availability gates remain authoritative', () => {
   assert.equal(k.world.mode, null)
   k.world.manaWorld.gameFlags &= ~32
   k.world.shots.firestorm = 0
+  // A permanent availability bit alone keeps the alias live; without stock or bit it is absent.
+  const tribe = k.world.manaWorld.playerTribe
+  const owner = k.world.manaTribes[tribe].spellOwner
+  k.world.manaWorld.spells[owner].available |= 1 << 8
+  k.key()
+  assert.equal(k.world.mode, 'firestorm')
+  k.key()
+  assert.equal(k.world.mode, null)
+  assert.deepEqual(k.tabs, ['spells', 'spells'])
+  k.tabs.length = 0
+  k.world.manaWorld.spells[owner].available &= ~(1 << 8)
   k.key()
   assert.equal(k.world.mode, null)
   assert.deepEqual(k.tabs, [])

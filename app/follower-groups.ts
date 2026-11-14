@@ -102,6 +102,7 @@ export function followerGroupFocus(w: World, slot: number) {
 type GroupScene = {
   world: World
   overviewStage: unknown
+  overviewActive: boolean
   focus(point: Point, options: { animate: boolean }): void
   objectPanels: { open(id: number): void }
   onChange(): void
@@ -109,7 +110,9 @@ type GroupScene = {
 
 // Scene owner for the keyboard path. Recall records use predicate 004fee90,
 // which rejects game flag 0x20; assignment has none. Alt focuses through the
-// existing camera/panel owners before the recall command is applied.
+// existing camera/panel owners before the recall command is applied. Like the
+// HUD follower controls, plain recall waits for the globe overview to end;
+// Alt may leave it because focusing cancels the overview.
 export function followerGroup(scene: GroupScene, shortcut: FollowerGroupShortcut) {
   const w = scene.world
   if (w.inputMask || scene.overviewStage) return false
@@ -118,7 +121,7 @@ export function followerGroup(scene: GroupScene, shortcut: FollowerGroupShortcut
     scene.onChange()
     return true
   }
-  if (w.manaWorld.gameFlags & 32) return false
+  if (w.manaWorld.gameFlags & 32 || (!shortcut.focus && scene.overviewActive)) return false
   const target = shortcut.focus ? followerGroupFocus(w, shortcut.slot) : undefined
   if (target) {
     scene.focus(browserPosition(target), { animate: true })

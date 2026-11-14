@@ -1317,7 +1317,7 @@ export default function Home() {
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
             <button
               key={t}
-              aria-label={`${t} ${t === 'buildings' ? 'B' : ''}`}
+              aria-label={t === 'buildings' ? 'buildings B' : t}
               title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
@@ -1918,8 +1918,8 @@ export default function Home() {
                     </strong>
                     <span>7 / 8 / 9 / 0 · B</span>
                     <strong>
-                      Choose Firestorm / Earthquake / Tornado / Shield · Open buildings · Pick other
-                      spells from the spells tab
+                      Browser additions: choose Firestorm / Earthquake / Tornado / Shield · Open
+                      buildings · Pick other spells from the spells tab
                     </strong>
                     <span>Space with a building plan</span>
                     <strong>Rotate the entrance before placing</strong>

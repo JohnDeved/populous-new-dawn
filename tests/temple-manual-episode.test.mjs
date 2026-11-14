@@ -438,8 +438,8 @@ test('actual idle host step composes with maintained input and the observed Scen
     getByRole(role, options) {
       assert.equal(role, 'button')
       const source = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
-      // Spells carry no tab shortcut suffix; the accessible name is the trimmed tab name.
-      assert.ok(source.includes("aria-label={`${t} ${t === 'buildings' ? 'B' : ''}`}"))
+      // Spells carry no tab shortcut suffix; the accessible name is the tab name.
+      assert.ok(source.includes("aria-label={t === 'buildings' ? 'buildings B' : t}"))
       assert.equal(options.name, 'spells', 'Driver uses the actual public Page label')
       return {
         async click() {

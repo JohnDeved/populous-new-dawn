@@ -138,7 +138,7 @@ test('scene owner gates masks/transitions, keeps native recall predicate and foc
   const { world, people, ids } = roster()
   const calls = []
   const scene = {
-    world, overviewStage: null,
+    world, overviewStage: null, overviewActive: false,
     focus: (point, options) => calls.push(['focus', point, options]),
     objectPanels: { open: id => calls.push(['panel', id]) },
     onChange: () => calls.push(['change']),
@@ -162,6 +162,13 @@ test('scene owner gates masks/transitions, keeps native recall predicate and foc
   assert.deepEqual(calls.map(call => call[0]), ['focus', 'panel', 'change'])
   assert.deepEqual(calls[1], ['panel', ids[2]], 'camera target ignores availability')
   assert.deepEqual(calls[0][2], { animate: true })
+  assert.deepEqual(world.selected, [ids[3]])
+  // Globe overview: like HUD selection, plain recall waits; Alt focus may leave it.
+  scene.overviewActive = true
+  world.selected = []
+  assert.equal(followerGroup(scene, { slot: 1, action: 'recall', additive: false, focus: false }), false)
+  assert.deepEqual(world.selected, [])
+  assert.equal(followerGroup(scene, { slot: 1, action: 'recall', additive: false, focus: true }), true)
   assert.deepEqual(world.selected, [ids[3]])
 })
 
