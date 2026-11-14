@@ -4,13 +4,19 @@ import art from './original-group-digits.json' with { type: 'json' }
 // decomp/research/follower-groups.md. Timers 0089d168..0089d16d (groups 1-6)
 // count native draw_main iterations, run here on the browser's 24 Hz
 // presentation convention. -1 is Comma's 0xff hold, which never counts down.
-export type FollowerGroupDisplay = { timers: Int8Array; held: number; time: number }
+// `last` is the previous step's clock reading and `time` the partial tick.
+export type FollowerGroupDisplay = {
+  timers: Int8Array
+  held: number
+  time: number
+  last: number | null
+}
 
 const TICK = 1 / 24,
   SHOW = 6
 
 export function createFollowerGroupDisplay(): FollowerGroupDisplay {
-  return { timers: new Int8Array(6), held: 0, time: 0 }
+  return { timers: new Int8Array(6), held: 0, time: 0, last: null }
 }
 
 function show(d: FollowerGroupDisplay, slot: number) {
@@ -47,9 +53,11 @@ export function releaseFollowerGroupDisplayKeys(d: FollowerGroupDisplay) {
 }
 
 // Per draw_main iteration: input service 004aa4e0 refreshes held digits, then
-// 0041c120 decrements every positive timer. After 6 iterations nothing else
-// changes, so long frames are bounded.
-export function stepFollowerGroupDisplay(d: FollowerGroupDisplay, dt: number) {
+// 0041c120 decrements every positive timer. `now` is a monotonic clock in
+// seconds; after 6 iterations nothing else changes, so long gaps are bounded.
+export function stepFollowerGroupDisplay(d: FollowerGroupDisplay, now: number) {
+  const dt = d.last === null ? 0 : Math.max(0, now - d.last)
+  d.last = now
   d.time += dt
   const ticks = Math.floor((d.time + 1e-9) / TICK)
   if (!ticks) return

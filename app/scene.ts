@@ -12,7 +12,6 @@ import type { FollowerTask } from './hud-tasks.ts'
 import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
 import {
   createFollowerGroupDisplay,
-  releaseFollowerGroupDisplayKeys,
   stepFollowerGroupDisplay,
 } from './follower-group-display.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
@@ -354,7 +353,6 @@ export class GameScene {
     this.neutralCursor?.reset()
     this.previous = null
     this.keys.clear()
-    releaseFollowerGroupDisplayKeys(this.groupDisplay)
     const pointerId = this.pointerGesture?.pointerId
     if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
       this.renderer.domElement.releasePointerCapture(pointerId)
@@ -998,7 +996,6 @@ export class GameScene {
       if (this.disposed) return
       if (!flying) this.updateView()
     }
-    stepFollowerGroupDisplay(this.groupDisplay, dt)
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
     this.renderTooltip(pointerMetrics)
@@ -1057,6 +1054,7 @@ export class GameScene {
   }
 
   private updateUnitsFrame() {
+    stepFollowerGroupDisplay(this.groupDisplay, performance.now() / 1000)
     updateUnitsFrame(this)
   }
 

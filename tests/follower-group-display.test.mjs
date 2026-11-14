@@ -19,6 +19,13 @@ const key = (code, extra = {}) => ({
 })
 const tick = 1 / 24
 const timers = d => [...d.timers]
+// The scene passes a monotonic clock; the first reading only starts it.
+const clocks = new WeakMap()
+const step = (d, dt) => {
+  if (!clocks.has(d)) stepFollowerGroupDisplay(d, 1000)
+  clocks.set(d, (clocks.get(d) ?? 1000) + dt)
+  stepFollowerGroupDisplay(d, clocks.get(d))
+}
 
 test('0047c350 tail: group keys 1-6 start a six-iteration timer that 0041c120 counts down', () => {
   const d = createFollowerGroupDisplay()
@@ -27,29 +34,40 @@ test('0047c350 tail: group keys 1-6 start a six-iteration timer that 0041c120 co
   assert.deepEqual(timers(d), [0, 0, 0, 0, 0, 0])
   showFollowerGroup(d, 3)
   assert.deepEqual(timers(d), [0, 0, 6, 0, 0, 0])
-  stepFollowerGroupDisplay(d, tick / 2)
+  step(d, tick / 2)
   assert.deepEqual(timers(d), [0, 0, 6, 0, 0, 0], 'a partial 24 Hz tick does not count')
   for (let i = 5; i >= 0; i--) {
-    stepFollowerGroupDisplay(d, tick)
+    step(d, tick)
     assert.equal(d.timers[2], i)
   }
   assert.equal(followerGroupDisplayActive(d), false)
   showFollowerGroup(d, 6)
-  stepFollowerGroupDisplay(d, 60) // A long hidden-tab frame is bounded and still settles.
+  step(d, 60) // A long hidden-tab frame is bounded and still settles.
   assert.deepEqual(timers(d), [0, 0, 0, 0, 0, 0])
+})
+
+test('the scene clock: the first reading only starts it and a backwards reading never counts', () => {
+  const d = createFollowerGroupDisplay()
+  showFollowerGroup(d, 2)
+  stepFollowerGroupDisplay(d, 50)
+  assert.deepEqual(timers(d), [0, 6, 0, 0, 0, 0])
+  stepFollowerGroupDisplay(d, 40)
+  assert.deepEqual(timers(d), [0, 6, 0, 0, 0, 0])
+  stepFollowerGroupDisplay(d, 40 + 2 * tick)
+  assert.deepEqual(timers(d), [0, 4, 0, 0, 0, 0])
 })
 
 test('held number-row keys refresh their timer whatever the modifiers; release lets it run out', () => {
   const d = createFollowerGroupDisplay()
   followerGroupDisplayKey(d, key('Digit2', { shiftKey: true, altKey: true }), true)
-  for (let i = 0; i < 30; i++) stepFollowerGroupDisplay(d, tick)
+  for (let i = 0; i < 30; i++) step(d, tick)
   assert.deepEqual(timers(d), [0, 5, 0, 0, 0, 0], 'refreshed to 6, then decremented, every iteration')
   followerGroupDisplayKey(d, key('Digit2'), false)
-  for (let i = 0; i < 5; i++) stepFollowerGroupDisplay(d, tick)
+  for (let i = 0; i < 5; i++) step(d, tick)
   assert.deepEqual(timers(d), [0, 0, 0, 0, 0, 0])
   followerGroupDisplayKey(d, key('Digit7'), true)
   followerGroupDisplayKey(d, key('Numpad1'), true)
-  stepFollowerGroupDisplay(d, tick)
+  step(d, tick)
   assert.equal(followerGroupDisplayActive(d), false)
 })
 
@@ -64,7 +82,7 @@ test('Comma press holds all six at 0xff, only unmodified; any release clears all
   assert.deepEqual(timers(d), [-1, -1, -1, -1, -1, -1])
   showFollowerGroup(d, 4) // The 0xff guard keeps a group key from shortening the hold.
   followerGroupDisplayKey(d, key('Digit5'), true)
-  for (let i = 0; i < 20; i++) stepFollowerGroupDisplay(d, tick)
+  for (let i = 0; i < 20; i++) step(d, tick)
   assert.deepEqual(timers(d), [-1, -1, -1, -1, -1, -1], 'a held 0xff never counts down')
   followerGroupDisplayKey(d, key('Digit5'), false)
   followerGroupDisplayKey(d, key('Comma', { shiftKey: true }), false)
@@ -79,7 +97,7 @@ test('focus loss releases held digits and a Comma hold, but not an ordinary coun
   followerGroupDisplayKey(d, key('Digit1'), true)
   showFollowerGroup(d, 1)
   releaseFollowerGroupDisplayKeys(d)
-  stepFollowerGroupDisplay(d, tick)
+  step(d, tick)
   assert.deepEqual(timers(d), [5, 0, 0, 0, 0, 0])
   followerGroupDisplayKey(d, key('Comma'), true)
   releaseFollowerGroupDisplayKeys(d)
