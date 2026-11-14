@@ -86,6 +86,9 @@ without changing stored data. Explicit classic/native research fixtures are sepa
   gate the combined tree once, and merge with a merge commit so every PR records as
   merged. Before `gh pr ready` and before merging, confirm that `refs/pull/<N>/merge`
   parents are current main and the head.
+  After another PR merges, GitHub can keep serving a stale merge ref for many minutes.
+  If the parents still show the old main, run `gh pr update-branch <N>`, which merges
+  main into the head, and re-verify before `gh pr ready`.
 
 GitHub owns task status; `parity.json` owns verified gameplay coverage. No delivery
 clock, browser watcher, separate reviewer chat, or Local Dev release step is required.
