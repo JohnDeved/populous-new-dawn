@@ -31,6 +31,7 @@ import {
   type Shrine,
 } from './model'
 import { terrainPointHeight } from './native-terrain.ts'
+import { guardPostCell, guardPostCellCentre } from './guard-posts.ts'
 import { buildingSocketPoint } from './building-shapes.ts'
 import {
   observeHutOccupancy,
@@ -886,6 +887,57 @@ export function updateBuildingsFrame(scene: GameScene) {
     g.userData.nativeRoll = b.damageState?.roll ?? 0
   }
   updateHutSmokePuffs(scene)
+  updateGuardPosts(scene)
+}
+
+function guardPostGroup(scene: GameScene, name: string) {
+  const group = new THREE.Group()
+  group.name = name
+  group.add(nativeModel(7, 2, 4, false, scene.environment))
+  scene.objects.add(group)
+  return group
+}
+
+// Player-local Guard Posts (bank-2 object 7) from their secondary records, and
+// the placement preview at the pointed cell centre while the tool is active.
+// ponytail: the fire-face animation (004f0f60), sunlight item (3,4,0), smoke
+// sprite (animation 0x13a) and sound 0xc0 are not drawn yet.
+function updateGuardPosts(scene: GameScene) {
+  const owner = scene.world.secondaryEffects,
+    meshes = (scene.guardPostMeshes ??= new Map()),
+    live = new Set<number>()
+  for (const slot of owner.order) {
+    const post = owner.slots[slot]
+    if (post?.kind !== 'guardPost') continue
+    live.add(post.serial)
+    let group = meshes.get(post.serial)
+    if (!group) {
+      group = guardPostGroup(scene, 'guard-post')
+      group.userData.guardPostCell = post.cell
+      meshes.set(post.serial, group)
+    }
+    scene.locate(group, browserPosition(post.position), post.position.h / 45)
+  }
+  for (const [serial, group] of meshes)
+    if (!live.has(serial)) {
+      group.removeFromParent()
+      scene.releaseGroup(group)
+      meshes.delete(serial)
+    }
+  const w = scene.world,
+    pointer = scene.pointer,
+    preview = w.mode === 'guardPost' && !!pointer && !w.inputMask && w.status === 'playing'
+  if (preview && !scene.guardPostPreview)
+    scene.guardPostPreview = guardPostGroup(scene, 'guard-post-preview')
+  if (!scene.guardPostPreview) return
+  scene.guardPostPreview.visible = preview
+  if (!preview) return
+  const centre = guardPostCellCentre(guardPostCell(nativePosition(w, pointer!)))
+  scene.locate(
+    scene.guardPostPreview,
+    browserPosition(centre),
+    terrainPointHeight(w.land, centre) / 45
+  )
 }
 
 export function updateShrinesFrame(scene: GameScene) {

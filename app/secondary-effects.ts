@@ -9,6 +9,10 @@ type SecondaryContent =
   | { kind: 'hutRoot'; building: number; position: NativePoint }
   | { kind: 'hutPuff'; position: NativePoint; lifetime: number; frameStart: number }
   | { kind: 'orderMarker'; effect: number }
+  // Player-local class-10/model-16 Guard Post (app/guard-posts.ts). `age` is +0x70.
+  | { kind: 'guardPost'; cell: number; position: NativePoint; age: number }
+  // Class-7/model-3 smoke requested by a Guard Post update (00502eb0).
+  | { kind: 'guardPostSmoke'; position: NativePoint; lifetime: number }
 export type SecondaryEffect = SecondaryBase & SecondaryContent
 export interface SecondaryEffects {
   slots: (SecondaryEffect | null)[]

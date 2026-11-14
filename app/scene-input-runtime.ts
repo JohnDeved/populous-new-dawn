@@ -30,7 +30,7 @@ import {
   type Building,
   type Point,
 } from './model'
-import { command } from './live-command.ts'
+import { command, guardPostClick, removeHoveredGuardPost } from './live-command.ts'
 import { removeOwnedSwamp } from './swamp-removal.ts'
 import { requestSpyDiscovery } from './live-spy-discovery.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -102,8 +102,14 @@ export function updatePlacement(scene: GameScene) {
   const w = scene.world,
     kind = w.mode as Building['kind'],
     p = scene.pointer
+  // The Guard Post tool draws its own class-10/model-16 preview (scene-entities).
   scene.cursor.visible =
-    !!p && !!kind && !SPELLS.some(s => s.id === w.mode) && !w.inputMask && w.status === 'playing'
+    !!p &&
+    !!kind &&
+    w.mode !== 'guardPost' &&
+    !SPELLS.some(s => s.id === w.mode) &&
+    !w.inputMask &&
+    w.status === 'playing'
   syncSecondaryReservations(scene)
   if (!p || !scene.cursor.visible) {
     scene.placementState = ''
@@ -408,6 +414,24 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
+    // Action 0x7a (Shift+right release, 005d64e4) precedes Swamp removal and
+    // right-click deselection: outside placement mode it deletes the hovered
+    // Guard Post locally. Placement mode is cancelled below (action 0x7c).
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode
+    ) {
+      const point = scene.pick(event)
+      if (point && removeHoveredGuardPost(scene.world, point)) {
+        scene.onChange()
+        return
+      }
+    }
     if (
       !gesture.moved &&
       event.shiftKey &&
@@ -463,6 +487,17 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
     const spell = SPELLS.some(s => s.id === mode)
     // Placement bindings use the release modifiers, with Ctrl and Alt as alternatives.
     if (!spell && (event.shiftKey || (event.ctrlKey && event.altKey))) return
+    if (mode === 'guardPost') {
+      // Model-17 placement (004acbe2): a plain click (0x77) that places also
+      // leaves the mode; Ctrl or Alt (0x78) stays. Removing posts keeps it.
+      const result = guardPostClick(scene.world, p)
+      if (result === 'placed') {
+        scene.onSound(0x24)
+        if (!event.ctrlKey && !event.altKey) scene.world.mode = null
+      } else if (result === 'rejected') scene.onSound(0x25)
+      scene.onChange()
+      return
+    }
     const ok = spell
       ? cast(
           scene.world,

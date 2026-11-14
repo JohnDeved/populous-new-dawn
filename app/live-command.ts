@@ -1,5 +1,6 @@
 import { writeLivePersonOrder as writePersonOrder } from './live-person-order.ts'
 import {
+  teamForTribe,
   tribeForTeam,
   type Building,
   type BuildingKind,
@@ -69,6 +70,16 @@ import { changeLivePersonState, createLivePerson, registerLivePerson } from './l
 import { nativeScatterEligible, SCATTER_STATE } from './person-scatter.ts'
 import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
 import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
+import {
+  allocateGuardPost,
+  GUARD_POST_CHAIN_LIMIT,
+  guardPostCell,
+  guardPostCellObjects,
+  guardPostLandIndex,
+  guardPostsInCell,
+  removeGuardPost,
+  removeGuardPostsInCell,
+} from './guard-posts.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
@@ -150,7 +161,7 @@ export function liveCommandContext(
       w.land.walkMasks[0],
       nativePosition(w, point),
       // Browser class-5 scenery: trees/rocks/logs and stone heads (model 9).
-      // Guard Post markers (#1010) have no browser store yet.
+      // Guard Posts never block a route point (allowMarker).
       [
         ...w.trees
           .filter(t => t.logs > 0 && cell(t) === index)
@@ -160,6 +171,10 @@ export function liveCommandContext(
     )
   )
     flags |= Context.AreaGuardPoint
+  // 0x437010: a Guard Post in the pointed cell sets the area-guard context and
+  // its validity (0x801000) directly, so a click on it orders command 11.
+  if (guardPostsInCell(w.secondaryEffects, guardPostCell(nativePosition(w, point))).length)
+    flags |= Context.AreaGuard | Context.AreaGuardPoint
   if (building) {
     flags |=
       building.progress === 1
@@ -514,6 +529,119 @@ export function disguiseSelectedSpies(w: World, tribe: number) {
     result.accepted ? 'Your spies are preparing their disguises.' : 'No command slots available.'
   )
   return result.accepted
+}
+
+// 004b98f0(cell, tribe, allowMarker) for a packed native cell: the area-guard
+// point predicate shared by Ctrl+Alt routes and Guard Post placement. Posts
+// block only placement (allowMarker false), never an assignment.
+export function guardPostPointAllowed(w: World, cell: number, allowMarker: boolean) {
+  const index = guardPostLandIndex(cell),
+    inCell = (p: Point) => {
+      const n = nativePosition(w, p)
+      return ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
+    }
+  return areaGuardPointAllowed(
+    {
+      flags: w.land.flags[index],
+      category: w.land.categories[index],
+      building: w.land.buildingIds[index],
+    },
+    w.land.walkMasks[0],
+    { x: (cell & 0xfe) << 8, y: cell & 0xfe00 },
+    [
+      ...w.trees
+        .filter(t => t.logs > 0 && inCell(t) === index)
+        .map(t => ({ class: 5, model: t.model })),
+      ...w.shrines
+        .filter(h => h.active && h.kind !== 'vault' && inCell(h) === index)
+        .map(() => ({ class: 5, model: 9 })),
+      ...guardPostCellObjects(w.secondaryEffects, cell),
+    ],
+    allowMarker
+  )
+}
+
+// 004ba9b0(tribe, 1, 0, cell): every selected person (Shaman included) gets
+// one shared command-11 record, a = cell and extents 6,6, at slot = chain
+// index. Chain 0 clears the queue first; two or more route slots normalize to
+// command 25. Without a selection or at chain 8 nothing changes.
+function assignGuardPostFollowers(w: World, tribe: number, cell: number) {
+  const chain = w.guardPostChain[tribe] ?? 0
+  // Only the local player owns a browser selection (tribe +0x931).
+  if (tribe !== w.manaWorld.playerTribe || chain >= GUARD_POST_CHAIN_LIMIT) return false
+  const team = teamForTribe(tribe)
+  const selected = w.units.filter(u => u.team === team && canOrder(u) && w.selected.includes(u.id))
+  if (!selected.length) return false
+  const units = selected.filter(u => acceptsPersonOrder(combatPerson(u), 11))
+  for (const u of units) {
+    const person = u.native ?? u.entry?.person ?? u.builder?.person,
+      active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
+    if ([17, 31, 32].includes(active)) continue
+    if (!chain) releaseForPlayerOrder(w, u)
+    else if (!person || ![3, 6, 7, 8, 10, 11, 15, 19, 22, 25, 27, 28, 30].includes(active))
+      release(w, u)
+  }
+  const order = emptyPersonOrder()
+  writePersonOrder(order, 11, 0x606, cell, 0)
+  if (units.length) appendLivePlayerOrders(w, units, order, !chain, chain)
+  w.guardPostChain[tribe] = chain + 1
+  return true
+}
+
+// Tribe command 0x62 (0x440822), applied at input time like the other player
+// tribe commands: assign selected followers, scatter unselected idle people
+// standing on the cell (state 43), then allocate the owner-local marker.
+export function issueGuardPostCommand(w: World, tribe: number, cell: number) {
+  cell &= 0xfefe
+  if (guardPostPointAllowed(w, cell, true)) assignGuardPostFollowers(w, tribe, cell)
+  const team = teamForTribe(tribe)
+  for (const u of w.units) {
+    if (u.team !== team || w.selected.includes(u.id)) continue
+    const p = scatterOwner(w, u)
+    if (
+      !p ||
+      p.selectionFlags & 128 ||
+      guardPostCell(p) !== cell ||
+      !(rules.personStateFlags[p.state] & 8) ||
+      p.flags2 & 0x100000
+    )
+      continue
+    u.native = p
+    registerLivePerson(w, p)
+    changeLivePersonState(w, u, SCATTER_STATE, p)
+  }
+  if (tribe === w.manaWorld.playerTribe && guardPostPointAllowed(w, cell, false))
+    return allocateGuardPost(w, cell) !== null
+  return false
+}
+
+// Tribe command 0x7a from a building-panel button without Shift (0049d9b0).
+export function resetGuardPostChain(w: World, tribe = w.manaWorld.playerTribe) {
+  if (tribe >= 0 && tribe < 4) w.guardPostChain[tribe] = 0
+}
+
+// process_cmd 0x77/0x78 for building-panel model 17 (004acbe2): a valid cell
+// places (tribe command 0x62); a cell holding posts loses all of them;
+// anything else is rejected. The caller owns sounds and leaving the mode.
+export function guardPostClick(w: World, p: Point): 'placed' | 'removed' | 'rejected' {
+  if (w.paused || w.status !== 'playing' || !w.unlockedGuardPost) return 'rejected'
+  syncNativeTerrain(w)
+  syncLandscapeObjects(w)
+  const cell = guardPostCell(nativePosition(w, p))
+  if (guardPostPointAllowed(w, cell, false)) {
+    issueGuardPostCommand(w, w.manaWorld.playerTribe, cell)
+    return 'placed'
+  }
+  if (removeGuardPostsInCell(w.secondaryEffects, cell)) return 'removed'
+  return 'rejected'
+}
+
+// Action 0x7a (Shift+right release, predicate 004ff360): outside placement
+// mode, delete the hovered post locally (004ef180). No tribe command.
+export function removeHoveredGuardPost(w: World, p: Point) {
+  if (w.paused || w.status !== 'playing' || w.inputMask || w.mode) return false
+  const posts = guardPostsInCell(w.secondaryEffects, guardPostCell(nativePosition(w, p)))
+  return !!posts.length && removeGuardPost(w.secondaryEffects, posts[0].slot)
 }
 
 export function placeBuilding(w: World, kind: BuildingKind, p: Point, retain = false) {

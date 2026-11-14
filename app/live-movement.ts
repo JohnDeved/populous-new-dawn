@@ -1,3 +1,4 @@
+import { guardPostCell, guardPostCellObjects } from './guard-posts.ts'
 import { departVehiclePerson } from './vehicle-unload.ts'
 import { populationCeiling } from './capacity-policy.ts'
 import { buildingPose } from './building-shapes.ts'
@@ -290,13 +291,16 @@ export function appendLiveOrders(w: World, units: Unit[], command: PersonOrder, 
 
 // 0x444f60's generic player-input tail restarts command28 as well. Direct
 // 0x43b670 attachment and existing computer callers retain their separate path.
+// `slot` attaches at a fixed queue slot (004ba9b0 Guard Post chain index)
+// instead of each person's first free slot.
 export function appendLivePlayerOrders(
   w: World,
   units: Unit[],
   command: PersonOrder,
-  replace: boolean
+  replace: boolean,
+  slot?: number
 ) {
-  return issueLiveOrders(w, units, command, replace, false, command.model === 28)
+  return issueLiveOrders(w, units, command, replace, false, command.model === 28, slot)
 }
 
 // Ordinary training input clears the entire selection before allocating once.
@@ -311,7 +315,8 @@ function issueLiveOrders(
   command: PersonOrder,
   replace: boolean,
   playerReplacement: boolean,
-  restartDirectTarget = false
+  restartDirectTarget = false,
+  slot?: number
 ) {
   let count = 0
   const bindings = units.map(unit => {
@@ -414,7 +419,8 @@ function issueLiveOrders(
       },
       special: unsupported,
     },
-    replace
+    replace,
+    slot
   )
   for (const p of accepted || playerReplacement ? preachers : [])
     if (![17, 31, 32].includes(currentPersonOrder(w.buildingOrders, p)?.model ?? 0))
@@ -1115,10 +1121,9 @@ export function stepLiveOrderQueue(
         if (vehicle) vehicle.apparentTribe = p.disguise >>> 6
       },
       effectiveTribe: () => (p.disguise & 63 ? p.tribe : p.disguise >>> 6),
-      // Command-25 arrival resets the age of a class-10/type-16 Guard Post in the
-      // target cell. Guard Posts (#1010) have no browser store yet, so no cell
-      // holds one; their store supplies this lookup when it lands.
-      cellObjects: () => [],
+      // Command-25 arrival resets the age of the class-10/type-16 Guard Post in
+      // the target cell (0043292e). Posts are player-local secondary records.
+      cellObjects: point => guardPostCellObjects(w.secondaryEffects, guardPostCell(point)),
       arrival: unsupported,
       leaveVehicle: () => {
         const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
