@@ -7,7 +7,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { chromium } from '@playwright/test'
-import { bindGame, openGame } from './browser-game.mjs'
+import { bindGame, collapseCampaignMessages, openGame } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 import { superviseBrowserCheck } from './performance-queue.mjs'
 
@@ -63,9 +63,15 @@ async function waitNormalFollowerInput(page) {
 }
 
 async function setHudSize(page, value) {
+  // The shipped HUD size control lives under Options -> Browser compatibility and help.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByLabel('HUD size').selectOption(value)
-  await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await menu.getByRole('button', { name: 'Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(value)
+  await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.waitForFunction(value => {
     const fit = Math.min(innerWidth / 640, innerHeight / 480),
       preferred =
@@ -594,15 +600,20 @@ async function assertEdgeClamping(page, id) {
 }
 
 async function checkpoint(page, id) {
+  // Save/Load checkpoint rows live in the pause menu's Save Game / Load Game panels.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
   await page.evaluate(id => {
     window.oldScene = window.testScene
     window.oldPanel = window.testScene.objectPanels.panels.get(id).element
     window.oldSelection = [...window.testScene.world.selected]
   }, id)
-  await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Load Game', exact: true }).click()
+  await menu.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(
     () => window.testScene !== window.oldScene && !window.testScene.world.inputMask
@@ -636,6 +647,8 @@ async function modeThreePlaceholder(browser) {
     await page.waitForFunction(
       () => !window.testScene.overviewStage && window.testScene.world.ai.variables[9] === 2
     )
+    // Open Tutorial messages own gameplay keys; collapse them publicly before Enter.
+    await collapseCampaignMessages(page)
     await page.keyboard.press('Enter')
     await page.waitForFunction(
       () => !window.testScene.overviewStage && window.testScene.world.ai.variables[9] === 3
