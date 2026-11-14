@@ -3,7 +3,7 @@ import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { openGame } from './browser-game.mjs'
+import { openGame, selectShamanByPortrait } from './browser-game.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
@@ -298,7 +298,7 @@ try {
     escorts.push(escort.id)
   }
   await page.keyboard.press('g')
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   assert.deepEqual(await page.evaluate(() => globalThis.testScene.world.selected), [shaman.id])
 
   const firstBridgeSource = { x: -91, z: 61 },

@@ -22,7 +22,7 @@ The browser checker has **not been executed**, even in a preflight mode.
 | Select the authored six Braves | page Escape -> cancelInteraction; Shift `Select brave` -> followerControl/chooseFollowers | Clear initial Shaman selection, assert exact six authored IDs, no replacement people |
 | Worship the left Bloodlust head | canvas pointerUp -> `live-command.command`; native commandStatus27 -> existing worship/reward path | Pick actual head geometry; all selected people enter worship; no position/work/reward injection |
 | Acquire one stock | authored head6 at(-33,-13), existing linked reward and gift handoff | uses1, giftCount1, stock1 before cast |
-| Shaman approach | H selection, normal ground pointer command toward(-26,-13) | Wait for actual movement into range; no teleport |
+| Shaman approach | H selection (historical; since #1032 H is the native reincarnation-site camera key and the driver uses Escape + Shaman portrait selection), normal ground pointer command toward(-26,-13) | Wait for actual movement into range; no teleport |
 | Cast | Bloodlust1shot HUD button sets mode; canvas pointerUp -> cast -> projectile/status owner | Exactly six original Braves receive Bloodlust; stock becomes0 |
 | Render | `GameScene.animate` calls existing advanceGame, then updateUnitsFrame -> animatePerson | HFX1478..1487 and original alpha/anchor, not procedural ring |
 | Checkpoint | `createGameStore.saveCheckpoint/loadCheckpoint`, structuredClone and migrateCheckpoint | Critical gameplay/RNG/status fields unchanged; no repeat reward or stock consumption |

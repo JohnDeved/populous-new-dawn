@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { bindGame, showAllMissions, effectPixels, readShamanReadiness } from './browser-game.mjs'
+import { bindGame, showAllMissions, effectPixels, readShamanReadiness, selectShamanByPortrait } from './browser-game.mjs'
 
 export default async function checkReincarnationWave({ page, url, root, output, signal }) {
 const baseline = process.env.POPULOUS_REINCARNATION_BASELINE === '1'
@@ -51,12 +51,7 @@ try {
   assert.equal(report.startup.samples.at(-1).level, 2)
   await page.evaluate(() => { window.testScene.world.speed = 0 })
   await page.locator('.world-viewport canvas.battlefield').focus()
-  await page.evaluate(async () => {
-    // H now moves the camera to the reincarnation site (native action 0x96);
-    // select the Shaman exclusively through the shipped selection owner instead.
-    const { select } = await import('/app/model.ts')
-    globalThis.testStore.change(world => select(world, 'shaman'))
-  })
+  await selectShamanByPortrait(page)
   report.death = await page.evaluate(async () => {
     const s = window.testScene, w = s.world
     const { command, tick } = await import('/app/model.ts')
@@ -76,7 +71,7 @@ try {
     if (!body || !injured || !fighting || w.units.includes(shaman)) throw Error('Ordinary combat did not produce one real Shaman death')
     return { before, turn: w.turn, fighting, injured, body: body.id, remaining: Math.round(w.respawns[0] * 12) }
   })
-  report.stages.push('Shipped Mission2 setup, H selection and ordinary authored combat death')
+  report.stages.push('Shipped Mission2 setup, Escape + Shaman portrait selection and ordinary authored combat death')
 
   const drawAtSite = async () => {
     signal.throwIfAborted()

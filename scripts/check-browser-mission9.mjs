@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, selectShamanByPortrait } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
@@ -1271,12 +1271,7 @@ try {
     )
   }, { boatId: launchedMission10.boatId, followerIds: secondLegWarriors })
 
-  await page.evaluate(async () => {
-    // H now moves the camera to the reincarnation site (native action 0x96);
-    // select the Shaman exclusively through the shipped selection owner instead.
-    const { select } = await import('/app/model.ts')
-    globalThis.testStore.change(world => select(world, 'shaman'))
-  })
+  await selectShamanByPortrait(page)
   const secondLegShaman = await page.evaluate(() => {
     const world = globalThis.testScene.world,
       shaman = world.units.find(
@@ -1429,12 +1424,7 @@ try {
   }, { boatId: launchedMission10.boatId, followerIds: secondLegParty })
 
   await page.keyboard.press('Escape')
-  await page.evaluate(async () => {
-    // H now moves the camera to the reincarnation site (native action 0x96);
-    // select the Shaman exclusively through the shipped selection owner instead.
-    const { select } = await import('/app/model.ts')
-    globalThis.testStore.change(world => select(world, 'shaman'))
-  })
+  await selectShamanByPortrait(page)
   await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
   const assignSecondTotem = async () => {
     const point = await page.evaluate(async () => {
@@ -1496,12 +1486,7 @@ try {
   })
 
   for (let shot = 0; shot < 4; shot++) {
-    await page.evaluate(async () => {
-      // H now moves the camera to the reincarnation site (native action 0x96);
-      // select the Shaman exclusively through the shipped selection owner instead.
-      const { select } = await import('/app/model.ts')
-      globalThis.testStore.change(world => select(world, 'shaman'))
-    })
+    await selectShamanByPortrait(page)
     const target = await page.evaluate(async () => {
       const scene = globalThis.testScene,
         world = scene.world,
@@ -1585,12 +1570,7 @@ try {
     scene.onChange()
   })
   await page.keyboard.press('Escape')
-  await page.evaluate(async () => {
-    // H now moves the camera to the reincarnation site (native action 0x96);
-    // select the Shaman exclusively through the shipped selection owner instead.
-    const { select } = await import('/app/model.ts')
-    globalThis.testStore.change(world => select(world, 'shaman'))
-  })
+  await selectShamanByPortrait(page)
   await page.getByLabel('Select warrior').click({ modifiers: ['Control'] })
   await assignSecondTotem()
 

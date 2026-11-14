@@ -86,6 +86,35 @@ export async function waitForShamanReadiness(page, { timeout = 30000, polling = 
 }
 
 // Shared setup for desktop checks; keep test access out of the shipped game API.
+// Exclusive Shaman selection through ordinary input. H is the native
+// reincarnation-site camera key (action 0x96), so it no longer selects. Escape
+// cancels an armed mode, then the selection; the primary Shaman portrait click
+// then adds the live Shaman to the empty selection. Fails visibly otherwise.
+export async function selectShamanByPortrait(page) {
+  const read = () => page.evaluate(() => {
+    const w = globalThis.testStore?.getWorld() ?? globalThis.testScene.world,
+      shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+    return { mode: w.mode, selected: [...w.selected], shaman: shaman?.id ?? null }
+  })
+  const exact = state => state.selected.length === 1 && state.selected[0] === state.shaman
+  let state = await read()
+  if (state.shaman === null) throw Error('No live Blue Shaman to select')
+  for (let attempt = 0; attempt < 2 && (state.mode || (state.selected.length && !exact(state))); attempt++) {
+    await page.keyboard.press('Escape')
+    state = await read()
+  }
+  if (state.mode || (state.selected.length && !exact(state)))
+    throw Error(`Escape did not clear the interaction: ${JSON.stringify(state)}`)
+  if (await page.locator('dialog[data-original-pause-menu][open]').count())
+    throw Error('Escape opened the pause menu instead of clearing the selection')
+  if (!exact(state)) await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  await page.waitForFunction(() => {
+    const w = globalThis.testStore?.getWorld() ?? globalThis.testScene.world,
+      shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+    return w.selected.length === 1 && w.selected[0] === shaman?.id
+  }, undefined, { timeout: 10000 })
+}
+
 export async function openGame(browser, mission = 1) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage()

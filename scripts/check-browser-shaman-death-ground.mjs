@@ -7,7 +7,7 @@ import { writeFileSync, readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
-import { bindGame, effectPixels, readShamanReadiness } from './browser-game.mjs'
+import { bindGame, effectPixels, readShamanReadiness, selectShamanByPortrait } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 import { installCombinedGroundWitness } from './shaman-worship-ground-observer.mjs'
 
@@ -151,10 +151,10 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
     assert.deepEqual(await page.evaluate(() => ({ speed: window.testScene.world.speed, paused: window.testScene.world.paused })), { speed: 1, paused: false })
     await page.evaluate(installCombinedGroundWitness); armed = true
     await page.locator('.world-viewport canvas.battlefield').focus()
-    await page.keyboard.press('h')
+    await selectShamanByPortrait(page)
     report.shaman = await page.evaluate(() => {
       const w = window.testScene.world, u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
-      if (!u || !w.selected.includes(u.id)) throw Error('H did not select the authored Blue Shaman')
+      if (!u || !w.selected.includes(u.id)) throw Error('Portrait selection did not select the authored Blue Shaman')
       return { id: u.id, hp: u.hp, turn: w.turn }
     })
   // Find an actual rendered hit. For spell targets, preserve beginCast's native

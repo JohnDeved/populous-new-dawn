@@ -4,8 +4,10 @@ import { tribeForTeam, type Point, type World } from './world-types.ts'
 
 // Native default key records (table 0x5d5de8, loaded by 004f1820): DIK 0x34
 // (period) issues process_cmd action 0x5d, and character 'h' issues 0x96. Both
-// records are press-only with an exact empty modifier mask and no predicate. See
-// decomp/research/quick-camera-shortcuts.md.
+// records are press-only with an exact empty modifier mask and no predicate.
+// Not modelled: H's record gate flag 1 and its stage-2 dispatch gate
+// (0089c661 & 2 clear). Their meanings are unestablished, so only the Page
+// keyboard gates apply. See decomp/research/quick-camera-shortcuts.md.
 export const SHAMAN_CAMERA_ACTION = 0x5d
 export const REINCARNATION_CAMERA_ACTION = 0x96
 
