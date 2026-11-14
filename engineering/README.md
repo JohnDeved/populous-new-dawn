@@ -104,19 +104,6 @@ pnpm run orchestration:receipt --output work/orchestration/task/check.json -- pn
 pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pnpm run build
 ```
 
-When a change rebinds, removes or repurposes a key, list every tracked script, test
-and QA input that presses it before review. `orchestration:plan` does not map key
-usage to checks:
-
-```sh
-node scripts/key-consumers.mjs --key d --key KeyD
-```
-
-`direct` and `event` hits press the key. `indirect` hits are key literals inside
-arrays that a file presses through a variable, so confirm them by hand. Reconcile
-each consumer without weakening its assertions, then run the affected rendered
-checks.
-
 - `context` retrieves bounded mapped evidence, current parity scope, source hashes,
   and omitted paths/headings. It rebuilds a stale ignored index. Follow relevant
   omitted sources; a packet is not an exhaustive proof inventory.
@@ -146,6 +133,25 @@ checks.
   Production verification retains raw-only command capture; decoded diagnostics are
   optional allowance-bounded derivatives, not automatic duplicate files. See
   [command diagnostics](contracts.md#on-demand-command-diagnostics) for safe materialization.
+
+When a change rebinds, removes or repurposes a key, find likely consumers in
+tracked scripts, tests and QA inputs before review. `orchestration:plan` does
+not map key usage to checks:
+
+```sh
+node scripts/key-consumers.mjs --key d
+```
+
+What each hit kind means:
+
+- `direct` and `event` hits press or handle the key.
+- `state` hits inject held-key state such as `scene.keys.add('q')`, bypassing bindings.
+- `indirect` hits are key literals inside arrays in files that press keys from
+  variables or handle key events. Confirm them by hand.
+
+The scan is heuristic. It does not trace computed key strings, helpers defined in
+other files, or untracked files, so also grep for the literal. Reconcile each
+consumer without weakening its assertions, then run the affected rendered checks.
 
 There is no mandatory Local Dev binding, source-release handshake, delivery-clock
 ledger, separate reviewer chat, or browser-driven worker watcher. Use the executor's

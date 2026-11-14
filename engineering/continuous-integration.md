@@ -17,9 +17,13 @@ native, rendered-browser or hardware-performance acceptance.
    one is pending; continue independent work in another branch or review/research.
    Immediately after a push or a main move, GitHub may still serve the previous
    synthetic merge. The run then fails before any test with `Synthetic merge parents
-   differ from event`. Before the transition, force-fetch
-   `+refs/pull/<N>/merge` and confirm its parents are exactly the current main
-   and the pushed head.
+   differ from event`. The gate compares against the event's base and head SHAs.
+   Before the transition:
+   - query `gh pr view <N> --json mergeable,baseRefOid,headRefOid` so GitHub
+     recomputes the merge;
+   - force-fetch `+refs/pull/<N>/merge`;
+   - confirm its parents equal that `baseRefOid` and `headRefOid`, and that those
+     are the current main and the pushed head.
 3. Repair failures with focused feedback and push. After review of the exact new
    head, return an already-ready PR to draft and mark it ready once. A synchronize
    event does not start this workflow. Never weaken assertions, omit test files or

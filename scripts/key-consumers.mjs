@@ -1,17 +1,19 @@
 #!/usr/bin/env node
-// List every tracked script/test/QA input that presses a given key, so a binding
-// change can reconcile all consumers before review. Read-only; no browser runs.
+// Find likely tracked script/test/QA consumers of a key, so a binding change can
+// reconcile them before review. Heuristic and read-only; no browser runs.
 //
 //   node scripts/key-consumers.mjs --key d
 //   node scripts/key-consumers.mjs --key h --key period --json
 //
 // Kinds:
 //   direct    keyboard.press/down/up/type('Shift+D'), locator.press('d'), page.press(sel, 'd')
-//   event     KeyboardEvent-style { key: 'd' } / { code: 'KeyD' } in files that build key events
-//   indirect  a matching string literal inside an array in a file that presses keys from a
-//             variable (e.g. `for (const key of ['w', 'd']) keyboard.down(key)`); verify by hand
+//   state     injected key state such as scene.keys.add('q') (bypasses bindings)
+//   event     { key: 'd' } / { code: 'KeyD' } in files that build or handle key events
+//   indirect  a matching literal inside an array (may span lines) in a file that presses keys
+//             from variables/templates or handles key events; verify by hand
+// Not traced: computed key strings, helpers defined in other files, untracked files.
 import { execFileSync } from 'node:child_process'
-import { readFileSync, realpathSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -38,9 +40,9 @@ export function keyToken(name) {
   return lower
 }
 
-// The final segment of a Playwright chord such as 'Shift+D' or 'Control++'.
-function chordKey(chord) {
-  if (chord.length > 1 && chord.endsWith('++')) return '+'
+// The final segment of a Playwright chord such as 'Shift+D', 'Control++' or '+'.
+export function chordKey(chord) {
+  if (chord === '+' || (chord.length > 1 && chord.endsWith('++'))) return '+'
   const parts = chord.split('+')
   return parts[parts.length - 1]
 }
@@ -50,40 +52,69 @@ const DIRECT = [
   /\.press\(\s*(['"`])((?:(?!\1).){1,40})\1\s*[,)]/g,
   /\.press\(\s*[^,()]+,\s*(['"`])((?:(?!\1).){1,40})\1/g,
 ]
+// Injected key state, e.g. `scene.keys.add('q')` inside page.evaluate, bypasses bindings.
+const STATE = /\bkeys\.(?:add|delete|has)\(\s*(['"`])((?:(?!\1).){1,24})\1/g
 const EVENT = /\b(?:key|code)\s*:\s*(['"`])((?:(?!\1).){1,24})\1/g
-const VARIABLE_PRESS = /keyboard\.(?:press|down|up)\(\s*[A-Za-z_$][\w$.]*\s*[,)]/
+// Includes handler calls fed through `{ key, code }` shorthand properties.
+const EVENT_FILE = /KeyboardEvent|dispatchKeyEvent|key-?down|key-?up|\.keys\s*=|keys\.(?:add|delete)\(|[{,]\s*key\s*[,}]/i
+const PRESS_CALL = /keyboard\.(?:press|down|up)\(\s*/g
 const ARRAY = /\[[^\[\]]*\]/g
 const LITERAL = /(['"`])((?:(?!\1).){1,24})\1/g
 
+// True when a file presses keys from a non-literal argument: identifiers, indexes,
+// member expressions or templates with substitutions.
+export function pressesFromVariables(text) {
+  for (const match of text.matchAll(PRESS_CALL)) {
+    const rest = text.slice(match.index + match[0].length, match.index + match[0].length + 80)
+    const quote = rest[0]
+    if (quote === "'" || quote === '"') continue
+    if (quote === '`') {
+      const close = rest.indexOf('`', 1)
+      if (close > 0 && !rest.slice(1, close).includes('${')) continue
+    }
+    return true
+  }
+  return false
+}
+
 export function scanSource(text, wanted) {
   const hits = []
-  const buildsEvents = /KeyboardEvent|dispatchKeyEvent|keydown|keyup/.test(text)
-  const variablePress = VARIABLE_PRESS.test(text)
-  text.split('\n').forEach((line, index) => {
-    const found = new Set()
-    const add = (kind, key) => {
-      const id = `${kind}:${key}`
-      if (!found.has(id)) {
-        found.add(id)
-        hits.push({ line: index + 1, kind, key, text: line.trim().slice(0, 160) })
-      }
+  const lines = text.split('\n')
+  const starts = [0]
+  for (const line of lines) starts.push(starts[starts.length - 1] + line.length + 1)
+  const lineAt = offset => {
+    let low = 0, high = lines.length - 1
+    while (low < high) {
+      const mid = (low + high + 1) >> 1
+      if (starts[mid] <= offset) low = mid
+      else high = mid - 1
     }
+    return low
+  }
+  const seen = new Set()
+  const add = (index, kind, key) => {
+    const id = `${index}:${kind}:${key}`
+    if (seen.has(id)) return
+    seen.add(id)
+    hits.push({ line: index + 1, kind, key, text: lines[index].trim().slice(0, 160) })
+  }
+  const keyEvents = EVENT_FILE.test(text)
+  lines.forEach((line, index) => {
     for (const pattern of DIRECT) {
-      for (const match of line.matchAll(pattern)) {
-        const key = chordKey(match[2])
-        if (wanted.has(keyToken(key))) add('direct', match[2])
-      }
+      for (const match of line.matchAll(pattern)) if (wanted.has(keyToken(chordKey(match[2])))) add(index, 'direct', match[2])
     }
-    if (buildsEvents) {
-      for (const match of line.matchAll(EVENT)) if (wanted.has(keyToken(match[2]))) add('event', match[2])
-    }
-    if (variablePress) {
-      for (const array of line.matchAll(ARRAY)) {
-        for (const match of array[0].matchAll(LITERAL)) if (wanted.has(keyToken(match[2]))) add('indirect', match[2])
-      }
-    }
+    for (const match of line.matchAll(STATE)) if (wanted.has(keyToken(match[2]))) add(index, 'state', match[2])
+    if (keyEvents) for (const match of line.matchAll(EVENT)) if (wanted.has(keyToken(match[2]))) add(index, 'event', match[2])
   })
-  return hits
+  // Arrays may span lines; only count them in files that press or inject keys indirectly.
+  if (keyEvents || pressesFromVariables(text)) {
+    for (const array of text.matchAll(ARRAY)) {
+      for (const match of array[0].matchAll(LITERAL)) {
+        if (wanted.has(keyToken(match[2]))) add(lineAt(array.index + match.index), 'indirect', match[2])
+      }
+    }
+  }
+  return hits.sort((a, b) => a.line - b.line)
 }
 
 export function trackedFiles(root) {
@@ -96,6 +127,7 @@ export function findKeyConsumers(root, keys) {
   const self = 'scripts/key-consumers.mjs'
   return trackedFiles(root)
     .filter(path => path !== self && !path.startsWith('tests/key-consumers'))
+    .filter(path => existsSync(join(root, path))) // deleted in the working tree
     .flatMap(path => scanSource(readFileSync(join(root, path), 'utf8'), wanted).map(hit => ({ path, ...hit })))
 }
 
@@ -104,7 +136,7 @@ function main(argv) {
   let json = false
   let root = resolve(fileURLToPath(new URL('..', import.meta.url)))
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--key') keys.push(argv[++i])
+    if (argv[i] === '--key') keys.push(argv[++i] === undefined ? undefined : chordKey(argv[i]))
     else if (argv[i] === '--json') json = true
     else if (argv[i] === '--root') root = resolve(argv[++i])
     else throw new Error(`Unknown argument: ${argv[i]}`)
@@ -123,7 +155,15 @@ function main(argv) {
 }
 
 // Compare real paths: /tmp is a symlink on macOS, so a resolved argv path can differ.
-if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))) {
+function invokedDirectly() {
+  try {
+    return Boolean(process.argv[1]) && realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url))
+  } catch {
+    return false
+  }
+}
+
+if (invokedDirectly()) {
   try {
     main(process.argv.slice(2))
   } catch (error) {

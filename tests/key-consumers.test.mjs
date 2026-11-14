@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { findKeyConsumers, keyToken, scanSource } from '../scripts/key-consumers.mjs'
+import { chordKey, findKeyConsumers, keyToken, pressesFromVariables, scanSource } from '../scripts/key-consumers.mjs'
 
 const tool = fileURLToPath(new URL('../scripts/key-consumers.mjs', import.meta.url))
 
@@ -79,3 +79,45 @@ test('the CLI runs when invoked through a symlinked path', t => {
   assert.equal(cli.status, 2, 'main() must run (usage error) rather than silently exit 0')
   assert.match(cli.stderr, /Usage/)
 })
+
+test('chords, variable/template presses, injected state, handlers and multi-line arrays (review misses)', () => {
+  assert.equal(chordKey('+'), '+')
+  assert.equal(chordKey('Control++'), '+')
+  assert.equal(chordKey('Shift+D'), 'D')
+  assert.deepEqual(scanSource("await page.keyboard.press('+')", new Set(['+'])).map(hit => hit.kind), ['direct'])
+
+  assert.equal(pressesFromVariables("page.keyboard.press(keys[i])"), true)
+  assert.equal(pressesFromVariables("page.keyboard.press(`Shift+${keys[i]}`)"), true)
+  assert.equal(pressesFromVariables("page.keyboard.press(`Shift+D`)"), false)
+  assert.equal(pressesFromVariables("page.keyboard.press('d')"), false)
+  const bookmarks = "const bookmarkKeys = ['z', 'x', 'c', 'v']\nawait page.keyboard.press(`Shift+${bookmarkKeys[i]}`)"
+  assert.deepEqual(scanSource(bookmarks, new Set(['c'])).map(hit => [hit.line, hit.kind]), [[1, 'indirect']])
+
+  assert.deepEqual(scanSource("page.evaluate(() => { s.keys.add('q') })", new Set(['q'])).map(hit => hit.kind), ['state'])
+  const rows = "const rows = [\n  ['a', 4], ['d', 8],\n]\nfor (const [key] of rows) scene.keys = new Set([key])"
+  assert.deepEqual(scanSource(rows, new Set(['d'])).map(hit => [hit.line, hit.kind]), [[2, 'indirect']])
+
+  const handler = "for (const key of ['F8', 'h']) assert.equal(owner.keyDown(event({ key })), false)\nowner.keyDown(event({ key: 'Escape' }))"
+  assert.deepEqual(scanSource(handler, new Set(['h', 'escape'])).map(hit => [hit.line, hit.kind, hit.key]),
+    [[1, 'indirect', 'h'], [2, 'event', 'Escape']])
+  const shorthand = "for (const key of ['Escape', 'h']) {\n  pageEscape()({ key, code: key })\n}"
+  assert.deepEqual(scanSource(shorthand, new Set(['h'])).map(hit => [hit.line, hit.kind]), [[1, 'indirect']])
+})
+
+test('chord arguments, deleted tracked files and non-script imports are handled', t => {
+  const repo = mkdtempSync(join(tmpdir(), 'pnd-key-consumers-deleted-'))
+  t.after(() => rmSync(repo, { recursive: true, force: true }))
+  execFileSync('git', ['init', '-q'], { cwd: repo })
+  mkdirSync(join(repo, 'scripts'))
+  writeFileSync(join(repo, 'scripts/a.mjs'), "await page.keyboard.press('d')\n")
+  writeFileSync(join(repo, 'scripts/gone.mjs'), "await page.keyboard.press('d')\n")
+  execFileSync('git', ['add', '.'], { cwd: repo })
+  rmSync(join(repo, 'scripts/gone.mjs'))
+  const cli = spawnSync(process.execPath, [tool, '--root', repo, '--key', 'Shift+D', '--json'], { encoding: 'utf8' })
+  assert.equal(cli.status, 0, cli.stderr)
+  assert.deepEqual(JSON.parse(cli.stdout).hits.map(hit => hit.path), ['scripts/a.mjs'])
+  const imported = spawnSync(process.execPath, ['-e', `import(${JSON.stringify(tool)}).then(() => console.log('ok'))`, 'missing-arg'], { encoding: 'utf8' })
+  assert.equal(imported.status, 0, imported.stderr)
+  assert.equal(imported.stdout.trim(), 'ok')
+})
+
