@@ -553,6 +553,7 @@
         "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
         "scripts/extract-shaman-guard-vectors.mjs",
+        "scripts/check-static-guard-posts.py",
         "tests/shaman-guard-native.test.mjs",
         "tests/shaman-guard-input.test.mjs",
         "tests/boarding-origin-lifetime.test.mjs",
@@ -591,6 +592,7 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
         { "path": "decomp/research/shaman-guard-input.md", "heading": "Live integration boundary" },
+        { "path": "decomp/research/guard-posts.md", "heading": "Implementation plan" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
