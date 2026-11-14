@@ -8,7 +8,7 @@ try{
  const {page,errors}=await openGame(browser);
  page.setDefaultTimeout(15000);
  await page.waitForFunction(()=>!window.testScene.world.inputMask&&window.testScene.terrainTextures);
- // The opening campaign message owns gameplay keys; collapse it before keyboard spell selection.
+ // The opening campaign message owns gameplay keys; collapse it before spell selection and input.
  await collapseCampaignMessages(page);
  await page.evaluate(()=>{const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30});s.onChange();});
  const near={x:10,z:33},far={x:0,z:44};

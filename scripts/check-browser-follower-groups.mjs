@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { bindGame, chooseSpell } from './browser-game.mjs'
+import { bindGame, chooseSpell, selectShamanByPortrait } from './browser-game.mjs'
 
 const state = page => page.evaluate(() => {
   const scene = window.testSceneRef.current, world = scene.world
@@ -44,7 +44,8 @@ export default async function followerGroups({ page, output, openMission, receip
   assert.deepEqual(s.selected, braves, 'assignment keeps the selection')
   assert.deepEqual(s.groups.map(([id]) => id), braves)
 
-  await page.keyboard.press('KeyH')
+  // H is now the reincarnation-site camera (#1032); select the Shaman through her portrait.
+  await selectShamanByPortrait(page)
   const shaman = (await state(page)).selected
   assert.equal(shaman.length, 1)
   await page.keyboard.press('Shift+Digit2')
