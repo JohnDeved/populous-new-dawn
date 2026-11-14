@@ -16,7 +16,7 @@ try {
   // Fresh Mission 1 (0049e800/004c3110/004c31e0): permanent chargeable Blast plus two
   // current-level reward sources shown as undiscovered placeholders.
   const roster=()=>page.locator('.spell-card').evaluateAll(bs=>bs.map(b=>[b.title,b.getAttribute('aria-label'),b.getAttribute('aria-disabled')]))
-  const charge='Blast · Right-click to pause or resume charging'
+  const charge='Blast · Right-click to pause or resume charging · Ctrl: charge only this · Shift: all'
   assert.deepEqual((await roster()).map(([title,,disabled])=>[title,disabled]),[[charge,'false'],['Undiscovered spell','true'],['Undiscovered spell','true']])
   // Stock wins over the placeholder and exposes 004c2fe0 mana-cost ordering.
   await page.evaluate(()=>{const s=window.testScene;s.world.shots.bridge=1;s.world.shots.lightning=1;s.onChange()})
