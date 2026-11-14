@@ -106,16 +106,23 @@ angle saved at entry, and the reverse also holds.
   and Shift+Ctrl match nothing.
   - Keypad Enter remains the existing browser alias for Enter, so Shift/Ctrl+keypad
     Enter is also instant.
-- `overview(scene, { instant })` in `app/scene-camera-runtime.ts` still owns both paths.
-  - With `instant`, it is ignored while `overviewStage`, a ground `viewTransition`
-    (the `0089ce34` analogue) or a globe morph is active.
-  - `snapOverview` applies the end state of the animated path at once:
+- `GameScene.overview({ instant })` is the single entry. Plain Enter still reaches the
+  animated `overview()`/`leaveOverview()` owners in `app/scene-camera-runtime.ts`.
+  The instant chord reaches `instantOverview` in `app/instant-overview.ts`, which uses
+  the same scene state (`overviewActive`, `overviewStage`, `overviewReturn`,
+  `globeMorph`, `viewPreset`, camera pose, `world.drawMode`).
+  - It is a separate file because the performance source admission
+    (`scripts/browser-performance/snapshot-drag-contract.mjs`) pins all of
+    `scene-camera-runtime.ts` byte for byte. Editing that file would need a new
+    reviewed drag-source profile.
+  - It is ignored while `overviewStage`, a ground `viewTransition` (the `0089ce34`
+    analogue) or a globe morph is active, and under the input mask.
+  - It applies the end state of the animated path at once:
     - entry: preset 4, angle 0, completed globe morph (0), `drawMode = 2`;
     - leave: saved preset and angle, flat morph (256), `drawMode = 0`.
   - Both directions clear the stage and the view transition and update the view.
-  - Entry keeps the existing animated-entry resets: camera capture, globe-motion reset,
-    armed spell/plan cleared, focus motion stopped. Leave keeps the existing leave
-    resets.
+  - Entry keeps the animated entry's resets: camera capture, globe-motion reset, armed
+    spell/plan cleared, focus motion stopped. Leave keeps the animated leave's resets.
 - The Page keyboard gates (ready, menu, cheats, editable/dialog targets, focused
   button, input mask, open campaign messages) apply unchanged. Enter with any modifier
   still only closes an open campaign message ([note](campaign-message-keyboard.md)).

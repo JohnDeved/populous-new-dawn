@@ -99,6 +99,7 @@ import {
   updateView,
   zoom,
 } from './scene-camera-runtime.ts'
+import { instantOverview } from './instant-overview.ts'
 import {
   animateFx,
   animateLightning,
@@ -830,7 +831,8 @@ export class GameScene {
     startGroundView(this, preset, bearing)
   }
   overview(options?: { instant?: boolean }) {
-    overview(this, options)
+    if (options?.instant) instantOverview(this)
+    else overview(this)
   }
   leaveOverview(preset: number) {
     leaveOverview(this, preset)

@@ -4,6 +4,7 @@ import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
 import { pageEffect } from './support/follower-nearby-page.mjs'
 import { overviewShortcut, quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
+import { instantOverview } from '../app/instant-overview.ts'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
 
 // Execute the shipped Page listener and camera entry/exit functions. Scene
@@ -17,7 +18,7 @@ const declaration = name => {
   assert.equal(matches.length, 1, 'one actual camera function ' + name)
   return matches[0][0].replace(/^export /, '')
 }
-const cameraFunctions = stripTypeScriptTypes(['overview', 'leaveOverview', 'snapOverview'].map(declaration).join('\n'))
+const cameraFunctions = stripTypeScriptTypes(declaration('overview') + '\n' + declaration('leaveOverview'))
 const methods = ['overview', 'leaveOverview'].map(name => {
   const matches = [...sceneSource.matchAll(new RegExp('^  ' + name + '\\([^]*?^  }', 'gm'))]
   assert.equal(matches.length, 1, 'one actual Scene wrapper ' + name)
@@ -34,8 +35,8 @@ function fixture(overrides = {}) {
   const functions = new Function('beginGlobeMorph', cameraFunctions + '\nreturn { overview, leaveOverview }')(
     (state, entering) => { morphs.push(entering); state.active = true }
   )
-  const BoundScene = new Function('overview', 'leaveOverview', wrapper + '\nreturn BoundScene')(
-    functions.overview, functions.leaveOverview
+  const BoundScene = new Function('overview', 'leaveOverview', 'instantOverview', wrapper + '\nreturn BoundScene')(
+    functions.overview, functions.leaveOverview, instantOverview
   )
   const scene = Object.assign(new BoundScene(), {
     world, overviewActive: false, overviewStage: null,

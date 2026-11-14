@@ -623,23 +623,10 @@ export function startGroundView(scene: GameScene, preset: number, bearing?: numb
   scene.updateView()
 }
 
-// Enter (action 0x15, 00418890) animates both ways. Shift/Ctrl+Enter (0xc5)
-// calls 0041d4b0, which enters or leaves in one call and is ignored while the
-// overview state machine (0089ce36), globe morph (005fe420) or view-config
-// countdown (0089ce34, also armed by ordinary zoom) runs.
-// See decomp/research/instant-overview.md.
-export function overview(scene: GameScene, { instant = false } = {}) {
+export function overview(scene: GameScene) {
   if (scene.world.inputMask || scene.overviewStage) return
-  if (instant && (scene.viewTransition || scene.globeMorph.active)) return
   if (scene.overviewActive) {
-    if (!instant) {
-      scene.leaveOverview(scene.overviewReturn.preset)
-      return
-    }
-    scene.globeMotion.dragging = false
-    scene.globeMotion.velocity = { x: 0, y: 0 }
-    scene.world.mode = null
-    snapOverview(scene, false)
+    scene.leaveOverview(scene.overviewReturn.preset)
     return
   }
   scene.captureCamera()
@@ -650,26 +637,7 @@ export function overview(scene: GameScene, { instant = false } = {}) {
   scene.globeMotion.position = { ...scene.view.center }
   scene.world.mode = null
   scene.cameraMotion.active = 0
-  if (instant) snapOverview(scene, true)
-  else scene.startGroundView(4, 0)
-}
-
-// The end state of the animated path without its frames: entry leaves view
-// preset 4, angle 0 and the completed globe morph (0); exit restores the saved
-// preset and angle (005fe42c) with the flat ground (256).
-export function snapOverview(scene: GameScene, entering: boolean) {
-  const angle = entering ? 0 : Math.round((scene.overviewReturn.bearing * 1024) / Math.PI) & 2047
-  scene.globeMorph.active = false
-  scene.globeMorph.value = scene.globeMorph.target = entering ? 0 : 256
-  scene.viewTransition = null
-  scene.viewZoom = 0
-  scene.viewPreset = entering ? 4 : scene.overviewReturn.preset
-  scene.cameraPosition.angle = angle
-  scene.cameraBearing = (angle * Math.PI) / 1024
-  scene.overviewStage = null
-  scene.overviewActive = entering
-  scene.world.drawMode = entering ? 2 : 0
-  scene.updateView()
+  scene.startGroundView(4, 0)
 }
 
 export function leaveOverview(scene: GameScene, preset: number) {
