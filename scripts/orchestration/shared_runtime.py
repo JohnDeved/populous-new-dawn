@@ -71,8 +71,9 @@ def safe_relative(name):
     return p
 
 
-def source_state(source, revision):
+def source_state(source, revision, scope='full'):
     source = physical(source)
+    require(scope in ('build', 'full'), 'Unknown runtime scope')
     require(revision and len(revision) == 40 and all(c in '0123456789abcdef' for c in revision),
             'An exact 40-character revision is required')
     actual = run_git(source, 'rev-parse', 'HEAD').decode().strip()
@@ -82,17 +83,19 @@ def source_state(source, revision):
     require(run_git(source, 'rev-parse', '--show-object-format').decode().strip() == 'sha1',
             'Only explicitly supported SHA-1 Git repositories are accepted')
     entries = []
-    for record in run_git(source, 'ls-tree', '-r', '-z', '-l', revision).split(b'\0'):
+    # Tree identities do not require blob contents. Asking ls-tree for sizes can
+    # hydrate every omitted blob in a partial clone, including excluded research.
+    for record in run_git(source, 'ls-tree', '-r', '-z', revision).split(b'\0'):
         if not record:
             continue
         metadata, raw_name = record.split(b'\t', 1)
-        mode, kind, oid, size = metadata.decode().split()
+        mode, kind, oid = metadata.decode().split()
         name = raw_name.decode('utf-8')
         safe_relative(name)
         require(kind == 'blob' and mode in ('100644', '100755'),
                 f'Unsupported tracked symlink or non-file: {name}')
         require(name != MANIFEST, 'Runtime manifest name is reserved')
-        entries.append({'path': name, 'mode': mode, 'oid': oid, 'bytes': int(size)})
+        entries.append({'path': name, 'mode': mode, 'oid': oid, 'bytes': None})
     require(any(e['path'].startswith(ASSETS + '/') for e in entries), 'No committed game assets')
     flags = {record[2:].decode('utf-8'): chr(record[0])
              for record in run_git(source, 'ls-files', '-v', '-z').split(b'\0') if record}
@@ -103,12 +106,27 @@ def source_state(source, revision):
         path = source / entry['path']
         if path.exists() or path.is_symlink():
             physical(path.parent)
+            entry['bytes'] = path.lstat().st_size
             regular_bytes(path, entry)
             require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'),
                     f'Source executable mode changed: {entry["path"]}')
         else:
             require(flags.get(entry['path']) == 'S', f'Missing non-sparse source: {entry["path"]}')
             sparse_omitted += 1
+    # Only selected sparse inputs need object sizes. Present files were already
+    # authenticated by their Git blob identity above, even outside this scope.
+    missing = [e for e in entries if e['bytes'] is None and selected(e, scope)]
+    if missing:
+        output = subprocess.check_output(
+            ['git', '-C', str(source), 'cat-file', '--batch-check'],
+            input=''.join(e['oid'] + '\n' for e in missing).encode(), stderr=subprocess.PIPE)
+        rows = output.splitlines()
+        require(len(rows) == len(missing), 'Incomplete Git object size response')
+        for entry, row in zip(missing, rows):
+            fields = row.decode().split()
+            require(len(fields) == 3 and fields[0] == entry['oid'] and fields[1] == 'blob'
+                    and fields[2].isdigit(), 'Missing or invalid selected Git object')
+            entry['bytes'] = int(fields[2])
     return {'source': str(source), 'revision': revision,
             'tree': run_git(source, 'rev-parse', revision + '^{tree}').decode().strip(),
             'assetTree': run_git(source, 'rev-parse', revision + ':' + ASSETS).decode().strip(),
@@ -297,7 +315,7 @@ def check_allocation_filesystems(pool, runtime, asset_tree, missing_blobs):
 
 
 def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
-    state = source_state(source, revision)
+    state = source_state(source, revision, scope)
     source = Path(state['source'])
     pool = physical(pool, absent=True)
     runtime = physical(runtime, absent=True)
@@ -346,7 +364,7 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     try:
         # The initial plan is not a reservation. Revalidate after acquiring the
         # publisher lock, before creating the runtime or any CAS/content files.
-        require(source_state(source, revision) == state, 'Source changed during allocation planning')
+        require(source_state(source, revision, scope) == state, 'Source changed during allocation planning')
         for path, identity in roots.items():
             physical(path)
             require((path.stat().st_dev, path.stat().st_ino) == identity, 'Allocation filesystem root changed')
@@ -414,7 +432,6 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
 
 
 def verify(source, revision, pool, runtime):
-    state = source_state(source, revision)
     pool = physical(pool)
     runtime = physical(runtime)
     require(not (runtime / '.git').exists() and not (runtime / '.git').is_symlink(), 'Runtime must not be a Git checkout')
@@ -427,11 +444,12 @@ def verify(source, revision, pool, runtime):
             manifest.get('kind') == 'non-git-runtime-view', 'Unknown runtime manifest')
     if version == 2:
         require(manifest.get('assetLayout') == ASSET_LAYOUT, 'Unknown asset layout')
+    require(manifest.get('scope') in ('build', 'full'), 'Invalid runtime scope')
+    state = source_state(source, revision, manifest['scope'])
     require(manifest.get('source') == state['source'] and manifest.get('revision') == revision and
             manifest.get('tree') == state['tree'] and manifest.get('assetTree') == state['assetTree'],
             'Runtime/source identity mismatch')
     require(manifest.get('runtime') == str(runtime) and manifest.get('pool') == str(pool), 'Runtime/store binding changed')
-    require(manifest.get('scope') in ('build', 'full'), 'Invalid runtime scope')
     expected = [e for e in state['entries'] if selected(e, manifest['scope'])]
     records = manifest.get('entries')
     require(isinstance(records, list) and len(records) == len(expected), 'Runtime inventory mismatch')

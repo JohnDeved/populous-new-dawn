@@ -383,6 +383,9 @@
       "researchPaths": [
         "tests/painter-order.test.mjs",
         "tests/blast-targeting.test.mjs",
+        "tests/building-placement-controls.test.mjs",
+        "scripts/check-native-placement-controls.py",
+        "decomp/research/building-placement-controls.md",
         "decomp/research/blast-targeting.md"
       ],
       "sharedPaths": [
@@ -409,6 +412,7 @@
       ],
       "evidence": [
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
+        { "path": "decomp/research/building-placement-controls.md", "heading": "Building placement controls" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
