@@ -71,6 +71,21 @@ without changing stored data. Explicit classic/native research fixtures are sepa
   stable host scope, a shared lock is enough: `lockf -k /tmp/pnd-heavy.lock <command>`
   (macOS) or `flock /tmp/pnd-heavy.lock <command>` (Linux). Never use it for timing
   measurements, and give each browser server its own port.
+- **Before review.** Run every portable check that `orchestration:plan` lists, not a
+  hand-picked subset, and lint/format the changed files. Register new `app/` files in
+  `scripts/integration-queue/composed-source-inputs.json`.
+  - When you rebind a key, run `node scripts/key-consumers.mjs --key <k>` and reconcile
+    every hit, including rendered scripts that use the key only for setup.
+  - Page keyboard harness tests must supply every binding the handler evaluates.
+  - A local macOS full check has host-only failures, so leave the full gate to the
+    hosted Ready check.
+- **Several Ready PRs that overlap.** Merging them one at a time invalidates each later
+  gate. Instead, compose them in dependency order on one integration branch. Resolve
+  conflicts there, run the rendered checks of each PR on the combined tree, and audit
+  rebound keys across the whole tree. Then get a fresh review of the resolutions only,
+  gate the combined tree once, and merge with a merge commit so every PR records as
+  merged. Before `gh pr ready` and before merging, confirm that `refs/pull/<N>/merge`
+  parents are current main and the head.
 
 GitHub owns task status; `parity.json` owns verified gameplay coverage. No delivery
 clock, browser watcher, separate reviewer chat, or Local Dev release step is required.
