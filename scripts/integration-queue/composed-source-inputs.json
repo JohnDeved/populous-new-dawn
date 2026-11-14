@@ -390,6 +390,7 @@
   "app/stone-head-animation.ts",
   "app/stone-head-orientation.ts",
   "app/swamp-presentation.ts",
+  "app/swamp-removal.ts",
   "app/swamp.ts",
   "app/swarm.ts",
   "app/temple-art.ts",
