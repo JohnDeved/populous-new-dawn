@@ -55,6 +55,23 @@ without changing stored data. Explicit classic/native research fixtures are sepa
    authorized main merges. Workers never push main. Report useful results and
    concrete blockers, not repeated status snapshots.
 
+## Fast paths
+
+- **Controls and shortcuts.** Start from the
+  [native input-binding atlas](../../../decomp/research/native-input-bindings/README.md).
+  For a quick lookup, run
+  `python3 -B scripts/native-input-bindings.py "$POPULOUS_EXE" --markdown --key <key|0xACTION>`.
+  It gives every default chord, its action and its `process_cmd` case. Do not
+  re-derive bindings from fan guides.
+- **Missing dependencies.** If `pnpm run` reports `ERR_PNPM_VERIFY_DEPS_BEFORE_RUN`,
+  install the committed profile with `pnpm install --frozen-lockfile --ignore-scripts`
+  in that checkout/worktree.
+- **Parallel workers on one host.** Follow `engineering/performance-queue.md` for
+  competing jobs. For ad-hoc foreground full checks, builds and browser runs inside one
+  stable host scope, a shared lock is enough: `lockf -k /tmp/pnd-heavy.lock <command>`
+  (macOS) or `flock /tmp/pnd-heavy.lock <command>` (Linux). Never use it for timing
+  measurements, and give each browser server its own port.
+
 GitHub owns task status; `parity.json` owns verified gameplay coverage. No delivery
 clock, browser watcher, separate reviewer chat, or Local Dev release step is required.
 Retain all evidence boundaries and permissions. A denied operation does not authorize

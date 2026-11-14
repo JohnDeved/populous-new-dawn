@@ -1762,3 +1762,17 @@ test('preflight CLI preserves failed child stdout and stderr before the final re
   assert.equal(report.results.at(-1).exitCode, 2)
   assert.equal(report.results.at(-1).error, null)
 })
+
+test('an untracked nested worktree directory is fingerprinted without unbounded recursion', () =>
+  withRepo(repo => {
+    const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
+    const nested = join(repo, '.claude/worktrees/agent')
+    mkdirSync(nested, { recursive: true })
+    run(nested, 'git', 'init', '-q')
+    put(repo, '.claude/worktrees/agent/app/a.ts', 'export const a = 2\n')
+    const record = changedPaths(repo, base).records.find(change =>
+      change.path.startsWith('.claude/worktrees/agent')
+    )
+    assert.equal(record?.source, 'untracked')
+    assert.match(record.hash, /^[0-9a-f]{64}$/)
+  }))
