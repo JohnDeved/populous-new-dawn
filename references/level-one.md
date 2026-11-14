@@ -26,7 +26,7 @@ The reproducible importer is `scripts/import-level.py`. Run it against the extra
 
 ## Planet and grounding
 
-The ocean is a complete sphere. Map points and followers are mapped to its surface; units, trees and buildings align with the local surface normal. Right/middle drag and WASD orbit the planet centre. Zoom changes altitude, with a closer oblique view over the active settlement. Enter or the planet button gives an overview; F and the minimap focus a surface location.
+The ocean is a complete sphere. Map points and followers are mapped to its surface; units, trees and buildings align with the local surface normal. Right/middle drag and W/A/S (with arrows/keypad) orbit the planet centre; D scatters selected followers. Zoom changes altitude, with a closer oblique view over the active settlement. Enter or the planet button gives an overview; F and the minimap focus a surface location.
 
 All building supports share one tangent plane. Supporting terrain vertices are placed on that plane, including the wall base, fence and doorway. Simulation sampling uses the same triangle diagonal as the renderer. Placement checks the complete footprint, slope, dry land, settlement proximity and spacing. Land Bridge preserves existing foundations. Construction uses scaffolding instead of scaling the house through the ground. Regression checks verify each supporting vertex and interpolated points against the plane before and after bridge casts.
 

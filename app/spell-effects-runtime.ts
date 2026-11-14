@@ -429,13 +429,7 @@ export function setUnitInvisibility(w: World, u: Unit, turns: number) {
   }
 }
 
-export function unitInvisibleToPlayer(w: World, u: Unit) {
-  return !!(
-    u.invisibility &&
-    u.team !== teamForTribe(w.manaWorld.playerTribe) &&
-    !(w.manaTribes[w.manaWorld.playerTribe]?.flags2 & 8)
-  )
-}
+export { unitInvisibleToPlayer } from './person-visibility.ts'
 
 export function unitInvisibilityRenderBit(w: World, u: Unit) {
   return u.team !== teamForTribe(w.manaWorld.playerTribe) &&
@@ -1053,6 +1047,12 @@ export function stepSwarm(w: World, fx: Effect) {
 }
 
 export function stepLiveSwamp(w: World, swamp: Swamp) {
+  swamp.counter = (swamp.counter + 1) & 255
+  // A cancelled/expiring trap retires before discovering or materializing victims.
+  if (swamp.remaining <= 1) {
+    swamp.remaining--
+    return false
+  }
   const units = new Map<number, Unit>(),
     people = new Map<number, LivePerson>(),
     cells = new Map<number, SwampTarget[]>()
@@ -1081,7 +1081,6 @@ export function stepLiveSwamp(w: World, swamp: Swamp) {
     })
     cells.set(cell, row)
   }
-  swamp.counter = (swamp.counter + 1) & 255
   return stepSwamp(w.land, swamp, !!(w.manaWorld.gameFlags & 2), {
     cell: packed => cells.get(((packed >>> 9) & 127) * 128 + ((packed & 254) >>> 1)) ?? [],
     kill: target => {

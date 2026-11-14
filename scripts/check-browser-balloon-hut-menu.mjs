@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict'
+import { collapseCampaignMessages } from './browser-game.mjs'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { openGame } from './browser-game.mjs'
+import { openGame, selectShamanByPortrait } from './browser-game.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
@@ -287,6 +288,9 @@ try {
     globalThis.testScene.onChange()
   })
 
+  // The opening campaign message owns gameplay keys (G guard, Shaman selection);
+  // collapse it publicly before the party is commanded.
+  await collapseCampaignMessages(page)
   const shaman = await unitClickPoint(page, 'shaman')
   await page.mouse.click(shaman.click.x, shaman.click.y)
   const escorts = []
@@ -298,7 +302,7 @@ try {
     escorts.push(escort.id)
   }
   await page.keyboard.press('g')
-  await page.keyboard.press('h')
+  await selectShamanByPortrait(page)
   assert.deepEqual(await page.evaluate(() => globalThis.testScene.world.selected), [shaman.id])
 
   const firstBridgeSource = { x: -91, z: 61 },
@@ -486,9 +490,13 @@ try {
 
   const panel = page.locator('.training-panel[aria-label^="Balloon Hut:"]:not([hidden])')
   const hoverHut = async () => {
-    const point = await renderedBuildingPoint(page, hutId)
+    // Leave first: a still-hovered or focus-held workshop panel covers the Hut's rendered
+    // pick points. Return keyboard focus to the battlefield (no world command) so it closes.
     await page.mouse.move(1400, 50)
     await page.waitForFunction(() => globalThis.testScene.hoveredObject === null)
+    await page.locator('.world-viewport canvas.battlefield').focus()
+    await panel.waitFor({ state: 'hidden' })
+    const point = await renderedBuildingPoint(page, hutId)
     await page.mouse.move(point.x, point.y)
     await page.waitForFunction(
       ({ id, point }) => {

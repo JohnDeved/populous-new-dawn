@@ -86,6 +86,42 @@ export async function waitForShamanReadiness(page, { timeout = 30000, polling = 
 }
 
 // Shared setup for desktop checks; keep test access out of the shipped game API.
+// Exclusive Shaman selection through ordinary input. H is the native
+// reincarnation-site camera key (action 0x96), so it no longer selects. Escape
+// cancels an armed mode, then the selection; the primary Shaman portrait click
+// then adds the live Shaman to the empty selection. Fails visibly otherwise.
+export async function selectShamanByPortrait(page) {
+  const read = () => page.evaluate(() => {
+    const w = globalThis.testStore?.getWorld() ?? globalThis.testScene.world,
+      shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+    return { mode: w.mode, selected: [...w.selected], shaman: shaman?.id ?? null,
+      status: w.status, inputMask: w.inputMask, paused: w.paused,
+      openMessages: document.querySelectorAll('.campaign-messages details[open]').length,
+      active: document.activeElement?.tagName ?? null }
+  })
+  const exact = state => state.selected.length === 1 && state.selected[0] === state.shaman
+  // An open campaign message owns gameplay shortcuts; collapse it publicly first.
+  for (const summary of await page.locator('.campaign-messages details[open] > summary').all())
+    await summary.click()
+  let state = await read()
+  if (state.openMessages) throw Error(`Campaign messages still own the keyboard: ${JSON.stringify(state)}`)
+  if (state.shaman === null) throw Error('No live Blue Shaman to select')
+  for (let attempt = 0; attempt < 2 && (state.mode || (state.selected.length && !exact(state))); attempt++) {
+    await page.keyboard.press('Escape')
+    state = await read()
+  }
+  if (state.mode || (state.selected.length && !exact(state)))
+    throw Error(`Escape did not clear the interaction: ${JSON.stringify(state)}`)
+  if (await page.locator('dialog[data-original-pause-menu][open]').count())
+    throw Error('Escape opened the pause menu instead of clearing the selection')
+  if (!exact(state)) await page.getByRole('button', { name: 'Select shaman', exact: true }).click()
+  await page.waitForFunction(() => {
+    const w = globalThis.testStore?.getWorld() ?? globalThis.testScene.world,
+      shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman' && u.hp > 0)
+    return w.selected.length === 1 && w.selected[0] === shaman?.id
+  }, undefined, { timeout: 10000 })
+}
+
 export async function openGame(browser, mission = 1) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await context.newPage()
@@ -104,6 +140,26 @@ export async function openGame(browser, mission = 1) {
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })
   return { page, errors }
+}
+
+// The original number row recalls follower groups (#1005), so checks arm spells
+// through the actual HUD spell card. DOM activation keeps the pointer in place.
+// Returns false when the mission roster has no card for that spell.
+export async function chooseSpell(page, name) {
+  await page.evaluate(() => {
+    const tab = document.querySelector('button[title="spells"]')
+    if (tab?.getAttribute('aria-pressed') !== 'true') tab?.click()
+  })
+  await page.waitForFunction(
+    () => document.querySelector('button[title="spells"]')?.getAttribute('aria-pressed') === 'true'
+  )
+  return page.evaluate(name => {
+    const card = [...document.querySelectorAll('.spell-card')].find(card =>
+      card.getAttribute('aria-label')?.startsWith(`${name}, `)
+    )
+    card?.click()
+    return !!card
+  }, name)
 }
 
 export async function effectPixels(page, ids) {
@@ -143,4 +199,34 @@ export const originalSkyShaders = {
   vertexShader: `uniform float height; varying vec2 skyUV;
     void main(){skyUV=uv;gl_Position=vec4(position.x,1.-(1.-position.y)*height,1.,1.);}`,
   fragmentShader: 'uniform sampler2D map; varying vec2 skyUV; void main(){gl_FragColor=texture2D(map,skyUV);}',
+}
+
+// An open campaign message owns gameplay keyboard shortcuts (app/page.tsx key
+// handler), and missions such as 1 and 13 open their first message at start.
+// Checks that press gameplay keys collapse every open message through its public
+// summary first. Never dismisses a message or edits World data; fails if any stays open.
+export async function collapseCampaignMessages(page) {
+  const open = page.locator('.campaign-messages details[open] > summary[aria-label="Read campaign message"]')
+  // Collapsing re-indexes the open set, so always close the first remaining message.
+  for (let count = await open.count(), limit = 32; count && limit; count = await open.count(), limit--)
+    await open.first().click()
+  await page.waitForFunction(() => !document.querySelector('.campaign-messages details[open]'))
+}
+
+// Ordinary hover inspection of retained building panels (Huts, training Huts) only
+// runs with no armed mode and an empty selection. Clear both through the shipped
+// Escape binding (mode first, then selection); fails if the pause menu opens instead.
+export async function clearSelectionWithEscape(page) {
+  await collapseCampaignMessages(page)
+  const busy = () => page.evaluate(() => {
+    const w = window.testStore.getWorld()
+    return !!w.mode || w.selected.length > 0
+  })
+  for (let attempt = 0; attempt < 2 && await busy(); attempt++) await page.keyboard.press('Escape')
+  if (await page.locator('dialog[data-original-pause-menu][open]').count())
+    throw new Error('Escape opened the pause menu instead of clearing the selection')
+  await page.waitForFunction(() => {
+    const w = window.testStore.getWorld()
+    return !w.mode && w.selected.length === 0
+  })
 }

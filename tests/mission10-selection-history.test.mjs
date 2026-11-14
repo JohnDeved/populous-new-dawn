@@ -10,6 +10,7 @@ import { readMission10Selection } from '../scripts/tutorial-browser/mission10-in
 import { mission10EscapePreserved, mission10SelectionPreserved } from '../scripts/local-render/mission10-selection.mjs'
 import { checkMission10FollowerStrip, clearMission10Selection } from '../scripts/local-render/mission10-boat-checkpoint.mjs'
 import { validateMission10SelectionEvidence } from '../scripts/local-render/mission10-selection-evidence.mjs'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
 
 const party = [63, 111, 112, 113, 114], capturedExtra = [116, 118, 120, 122]
 function world() {
@@ -121,7 +122,7 @@ function historyPage(w) {
   }
   const cleanup = pageEffect("window.addEventListener('keydown', key)", {
     world: w, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS: [], store, engine: { current: scene },
+    messageDetails: { current: new Map() }, SPELLS: [], followerGroupShortcut, store, engine: { current: scene },
     tutorialLevel: 79, cancelInteraction,
     openMenu: () => { priorPause = w.paused; w.paused = true; menu.open = true; menu.isConnected = true },
     window: { addEventListener: (name, fn) => { assert.equal(listeners.size, 0); listeners.set(name, fn) },

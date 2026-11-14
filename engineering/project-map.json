@@ -374,19 +374,28 @@
       "implementationPaths": [
         "app/drag-selection.ts",
         "app/person-selection.ts",
+        "app/follower-groups.ts",
         "app/scene-picking.ts",
         "app/selection-mesh.ts",
         "app/world-picking.ts",
         "app/blast-targeting.ts",
-        "app/unit-animation-source.ts"
+        "app/unit-animation-source.ts",
+        "app/live-spy-discovery.ts",
+        "app/person-visibility.ts"
       ],
       "researchPaths": [
+        "tests/spy-discovery.test.mjs",
         "tests/painter-order.test.mjs",
         "tests/blast-targeting.test.mjs",
+        "decomp/research/blast-targeting.md",
+        "tests/follower-groups.test.mjs",
+        "decomp/research/follower-groups.md",
+        "decomp/research/follower-groups-evidence",
+        "scripts/check-static-follower-groups.py",
+        "scripts/check-browser-follower-groups.mjs",
         "tests/building-placement-controls.test.mjs",
         "scripts/check-native-placement-controls.py",
-        "decomp/research/building-placement-controls.md",
-        "decomp/research/blast-targeting.md"
+        "decomp/research/building-placement-controls.md"
       ],
       "sharedPaths": [
         "app/model.ts", "app/scene.ts", "app/render-view.ts",
@@ -412,6 +421,7 @@
       ],
       "evidence": [
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
+        { "path": "decomp/research/follower-groups.md", "heading": "Numbered follower groups" },
         { "path": "decomp/research/building-placement-controls.md", "heading": "Building placement controls" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
@@ -540,6 +550,7 @@
         "app/person-order-update.ts",
         "app/person-orders.ts",
         "app/person-routes.ts",
+        "app/person-scatter.ts",
         "app/shaman-guard.ts",
         "app/vehicle-boarding-orders.ts",
         "app/route-advance.ts",
@@ -555,6 +566,7 @@
         "scripts/extract-shaman-guard-vectors.mjs",
         "tests/shaman-guard-native.test.mjs",
         "tests/shaman-guard-input.test.mjs",
+        "tests/player-scatter.test.mjs",
         "tests/boarding-origin-lifetime.test.mjs",
         "tests/boarding-origin-runtime.test.mjs",
         "tests/automatic-boat-crossing.test.mjs",
@@ -572,6 +584,7 @@
         { "path": "app/live-command.ts", "symbol": "command" },
         { "path": "app/live-command.ts", "symbol": "findPath" },
         { "path": "app/live-command.ts", "symbol": "guardShaman" },
+        { "path": "app/live-command.ts", "symbol": "scatterSelected" },
         { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
         { "path": "app/world-turn.ts", "symbol": "stepTurn" }
       ],
@@ -591,6 +604,8 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
         { "path": "decomp/research/shaman-guard-input.md", "heading": "Live integration boundary" },
+        { "path": "decomp/research/player-scatter.md", "heading": "Native chain" },
+        { "path": "decomp/research/player-patrol.md", "heading": "Findings" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
@@ -1256,6 +1271,7 @@
         "decomp/research/mission11-reactive-noop.md",
         "decomp/research/mission12-opening.md",
         "decomp/research/mission12-spy-sabotage.md",
+        "decomp/research/spy-manual-discovery.md",
         "decomp/research/mission13-opening.md",
         "decomp/research/mission13-balloon.md",
         "decomp/research/mission14-linked-angel.md",
@@ -1321,6 +1337,7 @@
         "scripts/check-native-mission11-reactive-noop.py",
         "scripts/check-native-mission12-opening.py",
         "scripts/check-native-mission12-spy-sabotage.py",
+        "scripts/check-native-spy-discovery.py",
         "scripts/check-native-mission13-opening.py",
         "scripts/check-native-balloon.py",
         "scripts/check-native-mission14-rewards.py",
@@ -1526,6 +1543,10 @@
         {
           "path": "decomp/research/mission12-spy-sabotage.md",
           "heading": "Mission 12 Spy disguise and sabotage"
+        },
+        {
+          "path": "decomp/research/spy-manual-discovery.md",
+          "heading": "Manual right-click Spy discovery"
         },
         {
           "path": "decomp/research/mission13-opening.md",

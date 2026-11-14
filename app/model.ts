@@ -36,6 +36,8 @@ export {
   findPath,
   guardShaman,
   placeBuilding,
+  scatterSelected,
+  releasePlayerPatrols,
   spellTargetError,
   tell,
   walkable,

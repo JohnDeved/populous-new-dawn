@@ -1,11 +1,14 @@
 // npm run dev, then node scripts/check-browser-model-highlight.mjs.
+import { collapseCampaignMessages } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, chooseSpell } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   await page.evaluate(() => { window.testScene.world.speed = 0 })
+  // The opening campaign message owns gameplay keys; collapse it publicly first.
+  await collapseCampaignMessages(page)
   async function target(kind) {
     const id = await page.evaluate(kind => {
       const s = window.testScene
@@ -56,15 +59,15 @@ try {
   assert.equal(await highlight(head.id),0)
   await page.mouse.up()
   await page.waitForFunction(id=>window.testScene.hoveredObject===id,head.id)
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   await page.waitForFunction(()=>window.testScene.hoveredObject===null)
   assert.equal(await highlight(head.id),0)
   await page.keyboard.press('Escape')
   await page.waitForFunction(id=>window.testScene.hoveredObject===id,head.id)
   // Pan off the centered target; native ArrowRight rotates around it.
-  await page.keyboard.down('d')
+  await page.keyboard.down('Numpad6')
   await page.waitForFunction(id=>window.testScene.hoveredObject!==id,head.id)
-  await page.keyboard.up('d')
+  await page.keyboard.up('Numpad6')
   assert.equal(await highlight(head.id),0)
   const enemy=await target('enemy')
   await page.mouse.move(enemy.x,enemy.y)

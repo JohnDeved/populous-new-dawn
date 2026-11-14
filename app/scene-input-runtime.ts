@@ -31,6 +31,8 @@ import {
   type Point,
 } from './model'
 import { command } from './live-command.ts'
+import { removeOwnedSwamp } from './swamp-removal.ts'
+import { requestSpyDiscovery } from './live-spy-discovery.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { minimapPick } from './minimap.ts'
 import { pointerBrackets } from './world-picking.ts'
@@ -61,6 +63,9 @@ import {
   queueBuildingInspection,
 } from './scene-tooltip-runtime.ts'
 
+// W/A/S/Q/E are port camera aliases: W/Q/E have no default original binding and the
+// original A/S actions (0xa0-0xa2, 0x63) are not implemented. Original D (record
+// 005d61fc) scatters through the page handler, so right pan stays on arrow/keypad.
 const cameraKeys: Record<string, number> = {
   w: 1,
   arrowup: 1,
@@ -68,7 +73,6 @@ const cameraKeys: Record<string, number> = {
   arrowdown: 2,
   a: 199,
   arrowleft: 5,
-  d: 200,
   arrowright: 6,
   q: 201,
   e: 202,
@@ -221,7 +225,7 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
   if (scene.modalSuspended) return
-  scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -231,6 +235,8 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
     !scene.world.inputMask &&
     !scene.overviewActive
   ) {
+    if (event.currentTarget === scene.renderer.domElement)
+      requestSpyDiscovery(scene.world, scene.picking.pickPerson(event))
     const object = scene.pickUnit(event) ?? scene.pickWorldObject(event)
     const vehicle = scene.world.vehicles.find(v => v.id === object?.id && v.active)
     if (
@@ -305,6 +311,9 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
     scene.pointerGesture?.pointerId === event.pointerId &&
     (event.buttons === 2 || event.buttons === 4)
   ) {
+    // A camera drag remains a drag even if it returns to its press position.
+    scene.pointerGesture.moved ||=
+      Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0
@@ -399,6 +408,29 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode &&
+      !scene.world.selected.length
+    ) {
+      const point = scene.pick(event)
+      if (point) {
+        const position = nativePosition(scene.world, point)
+        if (removeOwnedSwamp(scene.world, position, scene.picking.pick(event))) {
+          const marker = commandMarkerPoint(position, 0)
+          if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+          scene.acknowledgePointer(0)
+          scene.onSound(0x6a)
+          scene.onChange()
+          return
+        }
+      }
+    }
     cancelInteraction(scene.world)
     scene.onChange()
     return

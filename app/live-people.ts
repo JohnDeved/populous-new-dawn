@@ -57,6 +57,7 @@ import {
   stepPersonReaction,
 } from './person-update.ts'
 import { stepPersonPanic, stepVolcanoPanic, ignitePeopleInFireCell } from './person-panic.ts'
+import { SCATTER_STATE, stepPersonScatter } from './person-scatter.ts'
 import { strikeLightning } from './lightning.ts'
 import { stepPersonOrders } from './person-order-update.ts'
 import {
@@ -1349,6 +1350,7 @@ function stepLivePhysicsImpl(
     )
   }
   if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
+  else if (p.state === SCATTER_STATE) updateLiveScatter(w, u, stateContext(), p)
   if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
   if (ctx) w.randomState = ctx.state.randomState
   if (resting) {
@@ -1410,7 +1412,7 @@ function stepLiveImpulseImpl(w: World, u: Unit, owned = false) {
     u.flight = undefined
     if (
       u.native === p &&
-      ![26, 41, 44].includes(p.state) &&
+      ![26, 41, 43, 44].includes(p.state) &&
       !currentPersonOrder(w.buildingOrders, p)
     )
       u.native = null
@@ -1450,6 +1452,28 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
       u.native = null
       releasePersonRoute(w.motionRoutes, p)
     } else if (p.state === 10) adoptLiveOrders(w, u, p)
+  }
+}
+
+// 0x4e2fe0 visit. An owned native queue resumes through state 10. Without one,
+// the same record stays in ordinary state 10 (as cancelLiveResting leaves it):
+// retained browser tasks or idle resting own the next visit with this identity.
+function updateLiveScatter(w: World, u: Unit, ctx: ReturnType<typeof context>, p: LivePerson) {
+  const next = stepPersonScatter(ctx.state, p, w.manaWorld.gameFlags, {
+    release: () => releasePersonRoute(w.motionRoutes, p),
+    setAnimation: object => setLivePersonAnimation(w, p, object),
+    outside: point => {
+      const cell = ((point.y & 65535) >> 9) * 128 + ((point.x & 65535) >> 9)
+      if (!(w.land.flags[cell] & 512)) return point
+      const shape = liveBuildingShape(w, w.land.buildingIds[cell] & 1023)
+      return shape ? { ...point, ...buildingOutsidePoint(shape) } : point
+    },
+  })
+  if (next && !(p.flags2 & 0x100000)) {
+    p.previousState = p.state
+    p.state = next
+    initializeLivePerson(w, u, ctx, p)
+    if (p.state === 10 && currentPersonOrder(w.buildingOrders, p)) adoptLiveOrders(w, u, p)
   }
 }
 
@@ -1546,6 +1570,8 @@ function stepLivePersonBody(w: World, u: Unit, synchronize: () => Map<number, Li
   if (p.state === 41) stepCelebration(state, p, effects)
   else if (p.state === 26) {
     updateLivePanic(w, u, ctx, p)
+  } else if (p.state === SCATTER_STATE) {
+    updateLiveScatter(w, u, ctx, p)
   } else if (p.state === 31) {
     updateLiveVolcanoPanic(w, u, ctx, p)
   } else if (p.state === 10) {

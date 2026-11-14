@@ -38,10 +38,11 @@ import {
   BUILDINGS,
   SPELLS,
   HOME,
-  select,
   cancelInteraction,
   tell,
   guardShaman,
+  scatterSelected,
+  releasePlayerPatrols,
   disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
@@ -51,6 +52,7 @@ import {
   ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
+import { quickCameraAction, quickCameraTarget } from './quick-camera-shortcuts'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
@@ -58,6 +60,7 @@ import { OriginalPauseStatus } from './original-pause-status'
 import { pauseStatusLayout } from './pause-status-layout'
 import { SpellTestMenu } from './spell-test-menu'
 import { CHEAT_SAVE_NOTICE, spellTestShortcut } from './spell-test-cheats'
+import { followerGroupShortcut } from './follower-groups.ts'
 import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -603,12 +606,21 @@ export default function Home() {
         cheatsOpen ||
         [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
-        e.ctrlKey ||
-        e.metaKey ||
-        e.altKey ||
         (e.target as HTMLElement).closest('input,dialog')
       )
         return
+      // Original number-row records own 1–6 (with Shift/Ctrl/Alt); spells do not.
+      const group = followerGroupShortcut(e)
+      if (group || (/^Digit[1-6]$/.test(e.code) && !e.metaKey)) {
+        // Claim held/unsupported chords too, so Alt+digit cannot reach browser menus.
+        e.preventDefault()
+        if (group && store.getWorld() === world && engine.current?.world === world) {
+          engine.current.followerGroup(group)
+          update()
+        }
+        return
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return
       if (world.inputMask) {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
           e.preventDefault()
@@ -645,7 +657,21 @@ export default function Home() {
         return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
-      if (e.key.toLowerCase() === 'h') select(world, 'shaman')
+      const quickCamera = quickCameraAction(e)
+      if (quickCamera !== null) {
+        e.preventDefault()
+        const target = quickCameraTarget(world, quickCamera)
+        if (target) engine.current?.focus(target, { animate: true })
+      }
+      // Original D (no modifier, press edge) scatters; it is no longer a camera alias.
+      if (
+        e.key.toLowerCase() === 'd' &&
+        !e.repeat &&
+        !e.shiftKey &&
+        !selectorOpen &&
+        store.getWorld() === world
+      )
+        scatterSelected(world)
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
         engine.current?.focus(u ?? HOME, { animate: true })
@@ -670,6 +696,34 @@ export default function Home() {
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
   }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen])
+  useEffect(() => {
+    // N (default record 005d6208: plain press, exact modifier mask 0) issues
+    // tribe command 0x68: patrols and area guards continue with their next
+    // queued order. Shift/Ctrl/Alt/Meta+N do not match; repeats do not re-issue.
+    const release = (e: KeyboardEvent) => {
+      if (
+        e.key.toLowerCase() !== 'n' ||
+        e.repeat ||
+        e.shiftKey ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        !ready ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        store.getWorld() !== world ||
+        world.inputMask ||
+        [...messageDetails.current.values()].some(details => details.open) ||
+        (e.target as HTMLElement).closest('input,dialog')
+      )
+        return
+      releasePlayerPatrols(world)
+      update()
+    }
+    globalThis.addEventListener('keydown', release)
+    return () => globalThis.removeEventListener('keydown', release)
+  }, [world, update, store, ready, menu, cheatsOpen, selectorOpen, messageDetails])
   useEffect(() => {
     const sound = audio.current
     if (!sound) return
@@ -1307,7 +1361,7 @@ export default function Home() {
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
             <button
               key={t}
-              aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
+              aria-label={t === 'buildings' ? 'buildings B' : t}
               title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
@@ -1337,7 +1391,7 @@ export default function Home() {
             className="portrait"
             aria-label="Select shaman"
             aria-describedby="shaman-portrait-instructions"
-            title="Shaman · Click: add to selection · Right-click: focus · H: select"
+            title="Shaman · Click: add to selection · Right-click: focus · Period: camera to Shaman"
             disabled={!shaman || shaman.hp <= 0}
             {...followerControl(7)}
           >
@@ -1877,7 +1931,7 @@ export default function Home() {
                     <span>Right / middle drag</span>
                     <strong>Right drag turns the view · middle drag moves it</strong>
                     <span>Scroll · = / −</span>
-                    <strong>Switch view · WASD to move · Q / E to turn</strong>
+                    <strong>Switch view · W / A / S to move · Q / E to turn</strong>
                     <span>↑ / ↓ · ← / →</span>
                     <strong>
                       Move forward / back ·{' '}
@@ -1901,14 +1955,33 @@ export default function Home() {
                     </strong>
                     <span>Screen edges</span>
                     <strong>Move the pointer to an outer edge to scroll</strong>
-                    <span>1–3 / B</span>
-                    <strong>Choose a spell / open buildings</strong>
+                    <span>Shift 1–6 · 1–6 · Alt 1–6</span>
+                    <strong>
+                      Store selected followers as group 1–6 · Select that group (Ctrl adds) · Select
+                      it and move the camera to it
+                    </strong>
+                    <span>7 / 8 / 9 / 0 · B</span>
+                    <strong>
+                      Browser additions: choose Firestorm / Earthquake / Tornado / Shield · Open
+                      buildings · Pick other spells from the spells tab
+                    </strong>
                     <span>Space with a building plan</span>
                     <strong>Rotate the entrance before placing</strong>
                     <span>F8</span>
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
-                    <span>H / F / G / Space / Esc</span>
-                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
+                    <span>. (period) / H</span>
+                    <strong>Camera to the Shaman / to your reincarnation site</strong>
+                    <span>D</span>
+                    <strong>Scatter selected followers · Selection and orders are kept</strong>
+                    <span>F / G / Space / Esc</span>
+                    <strong>Focus selection / guard shaman / pause / cancel</strong>
+                    <span>Ctrl+Alt-click</span>
+                    <strong>
+                      Add a patrol point (one point guards that area; two to eight points loop) ·
+                      On your shaman: guard her
+                    </strong>
+                    <span>N</span>
+                    <strong>Patrolling followers leave for their next queued order</strong>
                   </div>
                   <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">

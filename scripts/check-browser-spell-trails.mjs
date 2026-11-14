@@ -2,6 +2,7 @@
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
 import atlas from '../app/original-effects.json' with {type:'json'};
+import {chooseSpell} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.setDefaultTimeout(15000);
@@ -10,9 +11,9 @@ try{
  await page.evaluate(()=>{let f=document.querySelector('main');f=f[Object.keys(f).find(k=>k.startsWith('__reactFiber'))];for(;f;f=f.return)for(let h=f.memoizedState;h;h=h.next)if(h.memoizedState?.current?.unitMeshes)window.testScene=h.memoizedState.current;});
  await page.waitForFunction(()=>window.testScene.world.flyby.flags&1);await page.keyboard.press('Escape');
  await page.waitForFunction(()=>!window.testScene.world.inputMask&&window.testScene.terrainTextures);
- for(const [spell,key,sequence,start] of [['blast','1','blastTrail',314],['lightning','3','spellTrail',322],['bridge','2','spellTrail',322]]){
+ for(const [spell,name,sequence,start] of [['blast','Blast','blastTrail',314],['lightning','Lightning','spellTrail',322],['bridge','Land Bridge','spellTrail',322]]){
   await page.evaluate(spell=>{const s=window.testScene,w=s.world;w.paused=false;w.speed=0.25;w.shots[spell]=4;w.castingTribes[0].cooldown=0;s.focus({x:8,z:30});s.onChange();},spell);
-  await page.keyboard.press(key);
+  await chooseSpell(page,name);
   const target=await page.evaluate(()=>{const s=window.testScene,q=s.screen({x:16,z:33}),r=s.container.getBoundingClientRect();return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2};});
   await page.mouse.click(target.x,target.y);
   await page.waitForFunction(sequence=>{

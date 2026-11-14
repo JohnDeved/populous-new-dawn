@@ -1,7 +1,7 @@
 // Real desktop casting, native flight height, visible sprites/shadows and landing.
 import assert from 'node:assert/strict'
 import {chromium} from '@playwright/test'
-import {openGame} from './browser-game.mjs'
+import {openGame,chooseSpell} from './browser-game.mjs'
 const browser=await chromium.launch({headless:true})
 try {
  const {page,errors}=await openGame(browser)
@@ -17,7 +17,7 @@ try {
   s.focus({x:11,z:31});s.startGroundView(2);s.onChange()
  })
  await page.waitForFunction(()=>!window.testScene.cameraMotion.active&&!window.testScene.viewTransition)
- await page.keyboard.press('1')
+ await chooseSpell(page,'Blast')
  const point=await page.evaluate(()=>{
   const s=window.testScene,p=s.screen({x:11,z:31}),r=s.container.getBoundingClientRect()
   return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}

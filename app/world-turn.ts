@@ -1,4 +1,5 @@
 import { requestAngelStrikePresentation } from './angel-presentation.ts'
+import { processSpyDiscovery } from './live-spy-discovery.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
   assignVehicleAllocationCounter,
@@ -475,6 +476,7 @@ export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { 
   }
 }
 function stepTurn(w: World, metrics?: { steps: number }) {
+  processSpyDiscovery(w)
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return
@@ -1378,7 +1380,12 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         continue
       }
       u.cooldown = Math.max(0, u.cooldown - dt)
-      if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
+      if (
+        u.native?.state === 41 ||
+        u.native?.state === 26 ||
+        u.native?.state === 31 ||
+        u.native?.state === 43
+      ) {
         if (personPass) personPass.step(u)
         else stepLivePerson(w, u)
         continue
@@ -1637,6 +1644,11 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         u.native &&
         (u.native.guardInputPending ||
           [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+          // Command 25 (a route of 2+ area-guard points) shares the command-3
+          // movement body and repeats. ponytail: computer marker patrols keep their
+          // existing adapter until their campaign baselines are re-recorded; the
+          // native body is tribe-independent, so only this gate needs removing.
+          (activeOrder?.model === 25 && nativePersonTribe(u) === w.manaWorld.playerTribe) ||
           (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
           (activeOrder?.model === 28 &&
             nativePersonTribe(u) === w.manaWorld.playerTribe &&

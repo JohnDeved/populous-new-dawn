@@ -19,7 +19,9 @@ import {
 } from './building-shapes.ts'
 import {
   chooseContextCommand,
+  modifierContext,
   moveCommandAllowed,
+  areaGuardPointAllowed,
   CommandContext as Context,
 } from './command-context.ts'
 import { acceptLivePath, findLivePath, planLivePath } from './live-pathfinding.ts'
@@ -28,6 +30,7 @@ import {
   acceptsPersonOrder,
   allocatePersonOrder,
   attachPersonOrder,
+  clearPersonOrders,
   currentPersonOrder,
   emptyPersonOrder,
   playerOrderInput,
@@ -42,6 +45,7 @@ import {
   replaceLiveTrainingOrders,
   startLiveConstructionOrder,
   startLiveOrder,
+  stopLivePatrols,
 } from './live-movement.ts'
 import { canOrder, cancelInteraction, selectionPeople } from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
@@ -61,13 +65,19 @@ import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
-import { changeLivePersonState, registerLivePerson } from './live-people.ts'
+import { changeLivePersonState, createLivePerson, registerLivePerson } from './live-people.ts'
+import { nativeScatterEligible, SCATTER_STATE } from './person-scatter.ts'
 import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
 import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
-export function liveCommandContext(w: World, point: Point & { id?: number }) {
+// Modifiers are the ones held at button release (action 0x7f/0x7e).
+export function liveCommandContext(
+  w: World,
+  point: Point & { id?: number },
+  modifiers: { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean } = {}
+) {
   const selectedIds = new Set(w.selected)
   const selected = w.units.filter(u => selectedIds.has(u.id))
   const team = selected[0]?.team ?? 'blue'
@@ -128,7 +138,28 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
             cell(u) === index
         )
       : undefined
-  let flags: number = Context.Ground
+  let flags: number = Context.Ground | modifierContext(modifiers)
+  if (
+    flags & Context.AreaGuard &&
+    areaGuardPointAllowed(
+      {
+        flags: w.land.flags[index],
+        category: w.land.categories[index],
+        building: w.land.buildingIds[index],
+      },
+      w.land.walkMasks[0],
+      nativePosition(w, point),
+      // Browser class-5 scenery: trees/rocks/logs and stone heads (model 9).
+      // Guard Post markers (#1010) have no browser store yet.
+      [
+        ...w.trees
+          .filter(t => t.logs > 0 && cell(t) === index)
+          .map(t => ({ class: 5, model: t.model })),
+        ...(shrine && shrine.kind !== 'vault' ? [{ class: 5, model: 9 }] : []),
+      ]
+    )
+  )
+    flags |= Context.AreaGuardPoint
   if (building) {
     flags |=
       building.progress === 1
@@ -153,14 +184,17 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
     (w.vehicles.some(v => v.active && v.team === team && !(rules.vehicleRestFlags[v.model] & 1))
       ? 64
       : 0)
+  // 0x4380f0 case 11: an invalid route point issues nothing (no move fallback).
   const enabled =
-    model !== 3 ||
-    moveCommandAllowed(
-      { flags: w.land.flags[index], category: w.land.categories[index] },
-      w.land.walkMasks[0],
-      nativePosition(w, point),
-      tribeFlags
-    )
+    model === 11
+      ? !!(flags & Context.AreaGuardPoint)
+      : model !== 3 ||
+        moveCommandAllowed(
+          { flags: w.land.flags[index], category: w.land.categories[index] },
+          w.land.walkMasks[0],
+          nativePosition(w, point),
+          tribeFlags
+        )
   return {
     model,
     enabled,
@@ -170,6 +204,18 @@ export function liveCommandContext(w: World, point: Point & { id?: number }) {
     person: enemy ?? nearby,
     vehicle: pointedVehicle,
   }
+}
+
+// Player replacement (0x435c40) clears each selected person's whole queue. The
+// shared cancellation keeps route command 25 for AI marker guards, so player
+// producers release a current route here before the ordinary task release.
+function releaseForPlayerOrder(w: World, u: Unit) {
+  const p = u.native
+  if (p && currentPersonOrder(w.buildingOrders, p)?.model === 25) {
+    clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+    releasePersonRoute(w.motionRoutes, p)
+  }
+  return release(w, u)
 }
 
 export function walkable(terrain: number[], p: Point) {
@@ -238,8 +284,10 @@ function ordinaryGuardOwner(w: World, u: Unit) {
   )
     return false
   const ids = [p.immediateCommand, ...p.commands].filter(Boolean)
-  if (ids.some(id => ![3, 30].includes(w.buildingOrders.records[id]?.model ?? 0))) return false
-  if (![0, 3, 30].includes(p.commandStatus)) return false
+  // Area guards (11) and routes (25) are ordinary native queue owners as well.
+  if (ids.some(id => ![3, 11, 25, 30].includes(w.buildingOrders.records[id]?.model ?? 0)))
+    return false
+  if (![0, 3, 11, 25, 30].includes(p.commandStatus)) return false
   // Empty legacy state10 has no native order owner. A genuine pending G may
   // have an empty queue after cancellation or exhausted allocation.
   return p.state !== 10 || ids.length > 0 || !!p.guardInputPending
@@ -376,6 +424,80 @@ export function guardShaman(w: World) {
   tell(w, 'Selected followers will guard your shaman.')
 }
 
+// Ordinary owners whose retained queue/task can resume after state 43. Other
+// live adapters and states are skipped rather than approximated; the complete
+// list is in decomp/research/player-scatter.md (Port-only admission limits).
+const scatterResumableOrders = [3, 7, 16, 18, 22, 27, 28, 30]
+function scatterOwner(w: World, u: Unit) {
+  const p = u.native,
+    registeredRoute = w.pathfinding.people.get(u.id)
+  if (
+    u.team !== 'blue' ||
+    u.hp <= 0 ||
+    u.ghost ||
+    u.inside !== null ||
+    u.flight ||
+    u.fight ||
+    u.casting ||
+    u.lift ||
+    u.entry ||
+    u.builder ||
+    u.work !== null ||
+    u.tree !== null ||
+    u.harvest ||
+    u.delivery ||
+    u.vault ||
+    u.attackReservation ||
+    (registeredRoute && registeredRoute !== p)
+  )
+    return null
+  if (!p) return u.path.length || registeredRoute ? null : createLivePerson(w, u)
+  if (
+    p.class !== 1 ||
+    ![1, 10, 17, 19, SCATTER_STATE].includes(p.state) ||
+    p.guardInputPending ||
+    p.workFlags ||
+    p.flags2 & 0x80000 ||
+    p.flags4 & 0x800
+  )
+    return null
+  const ids = [p.immediateCommand, ...p.commands].filter(Boolean)
+  return ids.every(id => scatterResumableOrders.includes(w.buildingOrders.records[id]?.model ?? 0))
+    ? p
+    : null
+}
+
+// Default D (005d61fc) -> process_cmd 0xc0 -> tribe command 0x7e (0x441c62).
+// Visit the player's selected people in roster order. Each admitted person keeps
+// its selection and queued orders, saves its state and initializes state 43.
+// The port applies the queued tribe command at input time, before the next turn,
+// matching the native per-tick order where commands precede person processing.
+export function scatterSelected(w: World) {
+  // land_flags_1 & 2 gates process_cmd stage 2; & 0x800 makes 0x479cf0 drop the command.
+  if (w.paused || w.status !== 'playing' || w.inputMask || w.land.landFlags & 0x802) return 0
+  const selected = new Set(w.selected)
+  let count = 0
+  for (const u of w.units) {
+    if (!selected.has(u.id)) continue
+    const p = scatterOwner(w, u)
+    if (!p) continue
+    p.selectionFlags |= 128
+    if (!nativeScatterEligible(p)) continue
+    u.native = p
+    registerLivePerson(w, p)
+    changeLivePersonState(w, u, SCATTER_STATE, p)
+    count++
+  }
+  return count
+}
+
+// N (default record 005d6208 → action 0x62 → tribe command 0x68) for the player
+// tribe. Unlike G it ignores the selection; see stopLivePatrols.
+export function releasePlayerPatrols(w: World) {
+  if (w.paused || w.status !== 'playing') return 0
+  return stopLivePatrols(w, w.manaWorld.playerTribe)
+}
+
 export function disguiseSelectedSpies(w: World, tribe: number) {
   if (w.paused || w.status !== 'playing' || tribe < 0 || tribe > 3) return false
   const units = w.units.filter(
@@ -448,7 +570,7 @@ export function placeBuilding(w: World, kind: BuildingKind, p: Point, retain = f
     if (order) {
       writePersonOrder(w.buildingOrders.records[order], 6, b.id, 0, 0)
       for (const { u } of workers) {
-        release(w, u)
+        releaseForPlayerOrder(w, u)
         startLiveOrder(w, u, order)
         if (startLiveConstructionOrder(w, u)) route(w, u, entrance(w, b), true)
       }
@@ -575,7 +697,7 @@ export function command(
   if (w.paused || w.status !== 'playing') return false
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
-  const context = liveCommandContext(w, p)
+  const context = liveCommandContext(w, p, modifiers)
   if (!context?.enabled) return false
   const { model } = context
   w.lastOrderTurn = w.turn
@@ -627,7 +749,7 @@ export function command(
     let count = 0
     for (const u of units) {
       if (!order) continue
-      release(w, u)
+      releaseForPlayerOrder(w, u)
       const path = planLivePath(w, u, point, undefined, false, true)
       if (!path) continue
       u.native = path
@@ -692,8 +814,10 @@ export function command(
     return true
   }
   if (
+    model === 11 ||
     model === 15 ||
     model === 19 ||
+    model === 30 ||
     model === 33 ||
     sharedBoarding ||
     sharedVehicleMovement ||
@@ -722,7 +846,7 @@ export function command(
         active = person ? (currentPersonOrder(w.buildingOrders, person)?.model ?? 0) : 0
       if (
         ![17, 31, 32].includes(active) &&
-        (!slot || !person || ![3, 6, 7, 8, 10, 15, 19, 22, 27, 28].includes(active))
+        (!slot || !person || ![3, 6, 7, 8, 10, 11, 15, 19, 22, 25, 27, 28, 30].includes(active))
       ) {
         release(w, u, model === 33)
         if (model === 33 && person) u.native = person
@@ -732,7 +856,10 @@ export function command(
       to = nativePosition(w, p)
     let first =
       context.person?.id ?? context.building?.id ?? context.shrine?.id ?? context.vehicle?.id ?? 0
-    if (model === 19) first = 0
+    // Ctrl+Alt route points carry zero drag extents (0x4382c8 without drag mode 2).
+    if (model === 19 || model === 11) first = 0
+    // Shift or Ctrl+Alt over the player's own Shaman: command 30 saves her identity.
+    else if (model === 30) first = p.id!
     else if (model === 7) first = rules.sceneryResourceFlags[context.tree!.model] & 16 ? 1 : 2
     writePersonOrder(order, model, first, ((to.x >>> 8) & 255) | (to.y & 0xff00), input.flags)
     const result = appendLivePlayerOrders(w, units, order, slot === 0)
@@ -840,7 +967,7 @@ export function command(
       continue
     }
     if (friendly && friendly.progress < 1 && !dismantling) assignBuilder(friendly.builders!, u.id)
-    release(w, u)
+    releaseForPlayerOrder(w, u)
     if (order) {
       if (path) releasePersonRoute(w.motionRoutes, path)
       startLiveOrder(w, u, order)

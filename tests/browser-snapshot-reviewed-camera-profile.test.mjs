@@ -6,7 +6,7 @@ const hash = value => createHash('sha256').update(JSON.stringify(value)).digest(
 const cameraId = 'owned-numeric-terrain-chronological-camera-disposed-cpu-render-cpu-leases-loose-log-post-drain-retirement-tooltip-retirement-bookmark-retirement-hud-focus-boundary-modal-input-freeze-modal-sprite-sync-overview-gate-publication-v1'
 const modalId = 'owned-numeric-terrain-neutral-cursor-pick-paths-epoch-disposed-cpu-render-cpu-leases-loose-log-modal-render-demand-v1'
 test('all nine historical trusted-main profiles remain exact', () => {
-  assert.equal(dragSourceProfiles.length, 11)
+  assert.equal(dragSourceProfiles.length, 12)
   assert.equal(hash(dragSourceProfiles.slice(0, 9)), '82475e1af1f3f44c1bf7487ddee1071b912e565bee93c1dd31dce703245d5706')
 })
 test('the exact reviewed complete camera profile remains at its historical position and frozen', () => {
@@ -48,4 +48,12 @@ test('the exact reviewed modal profile is the sole additive successor', () => {
   assert.strictEqual(modal, dragSourceProfiles[10])
   assert.equal(modal.slices.length, 22)
   assert.equal(hash(modal), '194a4e3460fa33f3d2ad523da7ebf180a4dde3b3cbd0d02a4a10fc7d14ad9082')
+})
+
+test('the exact reviewed owned-Swamp drag-latch profile is the sole successor of the modal profile', () => {
+  const latch = dragSourceProfiles.find(profile => profile.id === modalId.replace(/-v1$/, '-swamp-drag-latch-v1'))
+  assert.ok(latch)
+  assert.strictEqual(latch, dragSourceProfiles[11])
+  assert.equal(latch.slices.length, 22)
+  assert.equal(hash(latch), '308b307b8d03e3187f35b90fc822792a82b5016a0b9c23e326a32669af8e690b')
 })

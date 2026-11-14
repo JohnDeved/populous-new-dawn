@@ -269,6 +269,7 @@ export function createWorldState(missionNumber = 1, capacityMode: CapacityMode =
     randomState: 1,
     cosmeticRandom: { randomState: 1 },
     worshipAcquisition: createWorshipAcquisitionRuntime(),
+    spyDiscovery: null,
     effectCounter: 0,
     secondaryEffects: createSecondaryEffects(),
     nextId: capacityMode === 'scalable' ? 1024 : 1,

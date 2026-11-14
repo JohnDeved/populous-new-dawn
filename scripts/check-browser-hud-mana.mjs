@@ -1,7 +1,7 @@
 // Actual production-meter pixels and live charging controls.
 import assert from 'node:assert/strict'
 import {chromium} from '@playwright/test'
-import {openGame} from './browser-game.mjs'
+import {openGame,chooseSpell} from './browser-game.mjs'
 import hud from '../app/original-hud.json' with {type:'json'}
 import fixture from '../tests/fixtures/hud-mana.json' with {type:'json'}
 const browser=await chromium.launch({headless:true})
@@ -48,7 +48,7 @@ try{
     const p=s.screen({x:u.x+2,z:u.z+2}),r=s.renderer.domElement.getBoundingClientRect()
     return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}
   })
-  await page.keyboard.press('1');await page.mouse.click(cast.x,cast.y)
+  await chooseSpell(page,'Blast');await page.mouse.click(cast.x,cast.y)
   await page.waitForFunction(()=>{const w=window.testScene.world;return w.shots.blast<4&&w.manaTribes[0].estimatedRate>0&&w.manaTribes[0].previousRate>0}).catch(async error=>{console.log(await page.evaluate(()=>{const w=window.testScene.world;return {turn:w.turn,paused:w.paused,speed:w.speed,mode:w.mode,shots:w.shots.blast,mana:w.manaTribes[0],clock:w.manaWorld.turnsPerSecond,mask:w.inputMask}}));throw error})
   await page.getByRole('button',{name:/^Blast, \d+ shots$/}).click({button:'right'})
   await page.waitForFunction(()=>[...document.querySelectorAll('.mana-meter i')].length===44&&window.testScene.world.manaWorld.manaFlags&1)

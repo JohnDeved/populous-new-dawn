@@ -185,6 +185,9 @@ export type Battle = Point & {
 export type Unit = Point & {
   // Raw person byte +0x7f. Its Mission 12 script mutation is known; the later consumer is not.
   nativeFlags7f?: number
+  // Numbered follower-group membership (native person +0x7a bits 1..6). Kept on
+  // the unit rather than its replaceable native records; absent means none.
+  groups?: number
   attackReservation?: AttackReservation
   damageAttacker?: number
   supportHeight?: number
@@ -543,6 +546,8 @@ export type World = {
   randomState: number
   cosmeticRandom: { randomState: number }
   worshipAcquisition: WorshipAcquisitionRuntime
+  // One pending manual Spy discovery (native one-slot tribe command); checkpointed.
+  spyDiscovery: { id: number } | null
   effectCounter: number
   secondaryEffects: SecondaryEffects
   nextId: number

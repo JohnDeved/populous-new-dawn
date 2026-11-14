@@ -9,6 +9,7 @@ import { templeArt } from './temple-art.ts'
 import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
+import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
@@ -296,7 +297,7 @@ export class GameScene {
   hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
-  pointerGesture: { pointerId: number; button: number } | null = null
+  pointerGesture: { pointerId: number; button: number; moved?: boolean } | null = null
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
   selectionOverlay: SelectionOverlay
@@ -804,6 +805,9 @@ export class GameScene {
     category?: FollowerTask
   ) {
     chooseFollowers(this, model, modifiers, focus, category)
+  }
+  followerGroup(shortcut: FollowerGroupShortcut) {
+    return followerGroup(this, shortcut)
   }
   chooseTransport(
     kind: TransportKind,
