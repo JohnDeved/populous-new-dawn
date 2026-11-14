@@ -5,6 +5,7 @@ import { addUnit, command, cancelInteraction, tick, nativePosition, releasePlaye
 import { createGameStore, migrateCheckpoint } from '../app/game-store.ts'
 import { appendLiveGuardOrders } from '../app/live-movement.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { unitAnimationSource } from '../app/unit-animation-source.ts'
 
 // Computer two-marker guards (task 24 through 0x4cedd0) queue two command-11
 // records that 0x43b010 rewrites to a command-25 route. Command 25 completes
@@ -55,6 +56,9 @@ test('a computer two-marker guard becomes a shared command-25 route that walks a
     if (near(u, A)) reached.add('A')
     if (near(u, B)) reached.add('B')
     assert.equal(first.state, 10, `turn ${w.turn}: the patroller never falls idle`)
+    // The route runs the command-3 movement body, so the native person owns
+    // the position and animation that registration and targeting read.
+    assert.equal(unitAnimationSource(u), first, `turn ${w.turn}: native person is the source`)
   }
   assert.deepEqual(cursors, [0, 1, 0, 1, 0, 1], 'repeats 0→1→0 at least twice')
   assert.deepEqual([...reached].sort(), ['A', 'B'], 'it actually walks to both markers')
