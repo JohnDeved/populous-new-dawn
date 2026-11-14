@@ -259,3 +259,26 @@ test('consumer index conventions: loops use available bit(index), paused bits us
   assert.equal(tribe.chargeFocusMask, 1 | (1 << 9))
   assert.equal(w.spells[0].disabled, 1 << 8)
 })
+
+test('store save/load continues focus memory; a save without it is rejected unchanged', async () => {
+  const { createGameStore } = await import('../app/game-store.ts')
+  // The store's own current-format World (Mission 1, permanent Blast only).
+  const store = createGameStore(), w = store.getWorld()
+  assert.ok(w.manaWorld.spells[0].available & (1 << 2))
+  rightClickSpellCharging(w, spell('blast'), { ctrlKey: true, shiftKey: false })
+  await store.saveCheckpoint()
+  assert.equal(store.loadCheckpoint(), true)
+  const restored = store.getWorld()
+  assert.equal(restored.manaTribes[0].chargeFocusModel, 2)
+  assert.ok(rightClickSpellCharging(restored, spell('blast'), { ctrlKey: true, shiftKey: false }))
+  assert.equal(restored.manaWorld.spells[0].disabled, 0, 'restore after load')
+  assert.equal(restored.manaTribes[0].chargeFocusModel, 0, 'the loaded marker selects restore, not refocus')
+  for (const key of ['chargeFocusMask', 'chargeFocusModel']) {
+    const saved = store.getWorld().manaTribes[1][key]
+    delete store.getWorld().manaTribes[1][key]
+    await assert.rejects(store.saveCheckpoint(), /incompatible with this development version/)
+    store.getWorld().manaTribes[1][key] = saved
+  }
+  assert.equal(store.loadCheckpoint(), true, 'the rejected attempts keep the prior checkpoint')
+  assert.equal(store.getWorld().manaTribes[0].chargeFocusModel, 2)
+})

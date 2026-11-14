@@ -81,6 +81,10 @@ function requireCurrentCheckpoint(world: World) {
       world.spyDiscovery === null ||
       (typeof world.spyDiscovery === 'object' && Number.isInteger(world.spyDiscovery?.id))
     ) ||
+    // Spell-panel focus memory (#1008): no defaulting for saves that predate it.
+    !world.manaTribes.every(
+      t => Number.isInteger(t.chargeFocusMask) && Number.isInteger(t.chargeFocusModel)
+    ) ||
     !Array.isArray(world.campaignAIs) ||
     !Array.isArray(world.vehicles) ||
     !Array.isArray(world.levelStart) ||

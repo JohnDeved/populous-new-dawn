@@ -7,7 +7,7 @@ with Capstone 5.0.7. Nothing was executed or emulated. It continues the source-o
 checkpoint on `research/spell-live-wrapper-20261113` (`b33348e8`) and closes its
 open emitter-to-consumer gate.
 
-Reproduce with `python3 -B scripts/check-static-spell-modifiers.py <exe>`
+Reproduce with `python3 -I -B scripts/check-static-spell-modifiers.py <exe>` (Capstone 5.0.7 venv)
 (6 records, 82 instructions, 8 switch entries).
 
 ## Casting: records 0x6a/0x6b, not 0x77/0x78

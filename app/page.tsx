@@ -101,7 +101,7 @@ import {
   spellHudCanCharge,
   spellHudPermanent,
 } from './spell-visibility'
-import { rightClickSpellCharging } from './spell-charging'
+import { rightClickSpellCharging, spellChargingCommand } from './spell-charging'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
@@ -213,6 +213,7 @@ export default function Home() {
     ['tower', towerButton],
   ])
   const followerPress = useRef<{ target: EventTarget; scene: GameScene } | null>(null)
+  const spellPress = useRef<EventTarget | null>(null)
   const nearbyPress = useRef<{
     scene: GameScene
     pointer?: number
@@ -1496,6 +1497,12 @@ export default function Home() {
                       gifts: world.giftCounts[s.id],
                       progress: world.manaTribes[player].spellProgress[s.model],
                     })
+                  const chooseSpell = () => {
+                    if (!interactive) return
+                    store.change(w => {
+                      w.mode = w.mode === s.id ? null : s.id
+                    })
+                  }
                   return (
                     <button
                       key={s.id}
@@ -1520,25 +1527,27 @@ export default function Home() {
                           ? 'Undiscovered spell'
                           : `${s.name}${canCharge ? ' · Right-click to pause or resume charging · Ctrl: charge only this · Shift: all' : ''}`
                       }
-                      onClick={() => {
-                        if (!interactive) return
-                        store.change(w => {
-                          w.mode = w.mode === s.id ? null : s.id
-                        })
+                      onPointerDown={e => {
+                        spellPress.current = e.button === 0 ? e.currentTarget : null
+                      }}
+                      onPointerCancel={() => {
+                        spellPress.current = null
+                      }}
+                      // The native left callback 0x49e5c0 ignores modifiers. macOS emits
+                      // contextmenu instead of click for Ctrl + primary, so that release
+                      // selects once here and the click path ignores pointer Ctrl clicks.
+                      onPointerUp={e => {
+                        const pressed = spellPress.current === e.currentTarget
+                        spellPress.current = null
+                        if (pressed && e.button === 0 && e.ctrlKey) chooseSpell()
+                      }}
+                      onClick={e => {
+                        if (!e.ctrlKey || !e.detail) chooseSpell()
                       }}
                       onContextMenu={e => {
                         e.preventDefault()
-                        if (undiscovered) return
-                        // macOS reports Ctrl + primary button as a context menu; the
-                        // native left callback 0x49e5c0 ignores modifiers and selects.
-                        if (e.button === 0 && e.ctrlKey) {
-                          if (interactive)
-                            store.change(w => {
-                              w.mode = w.mode === s.id ? null : s.id
-                            })
-                          return
-                        }
-                        if (spellHudCanCharge(world, s))
+                        if (undiscovered || (e.button === 0 && e.ctrlKey)) return
+                        if (spellChargingCommand(world, s, e))
                           store.change(w => {
                             rightClickSpellCharging(w, s, e)
                           })
