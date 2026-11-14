@@ -218,7 +218,6 @@ compatibility choice, not recovered behavior.
 - Tribe commands `0x26`/`0x27` also snapshot natively; their producers are not mirrored.
 - The overlay is not gated on input masks, the globe overview or open dialogs (unlike the
   browser health gauge); native behaviour there was not established.
-
 - `00434d50`'s bit-0 clear in one order-processing branch is not mirrored. Its trigger
   was not decoded.
 - Display timing uses the browser's 24 Hz presentation tick. The native draw_main rate is
