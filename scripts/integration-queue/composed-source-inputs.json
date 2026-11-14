@@ -323,6 +323,7 @@
   "app/person-physics.ts",
   "app/person-route-recovery.ts",
   "app/person-routes.ts",
+  "app/person-scatter.ts",
   "app/person-selection.ts",
   "app/person-state.ts",
   "app/person-update.ts",
