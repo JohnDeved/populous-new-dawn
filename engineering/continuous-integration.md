@@ -15,6 +15,11 @@ native, rendered-browser or hardware-performance acceptance.
    typecheck, every discovered top-level test across four shards, parity and
    orchestration checks, and a production build of the exact synthetic candidate. Do not launch a duplicate local full gate while this
    one is pending; continue independent work in another branch or review/research.
+   Immediately after a push or a main move, GitHub may still serve the previous
+   synthetic merge. The run then fails before any test with `Synthetic merge parents
+   differ from event`. Before the transition, force-fetch
+   `+refs/pull/<N>/merge` and confirm its parents are exactly the current main
+   and the pushed head.
 3. Repair failures with focused feedback and push. After review of the exact new
    head, return an already-ready PR to draft and mark it ready once. A synchronize
    event does not start this workflow. Never weaken assertions, omit test files or
