@@ -1033,6 +1033,45 @@ export function stepLiveMovement(
   else adoptLiveOrders(w, u, p)
 }
 
+// 0x43d6e0, tribe command 0x68 (N). Every state-10 person of the tribe, selected
+// or not, whose current order is an area guard (11) or route (25) skips ahead to
+// the next later queued non-route order without wrapping: earlier slots are
+// removed, the order restarts (0x432df0) and 0x4d4f40 draws one speed. People
+// with nothing queued after their route keep guarding. Selection, planning and
+// route slots after the found order are untouched. Returns the switched count.
+export function stopLivePatrols(w: World, tribe: number) {
+  let count = 0
+  for (const u of w.units) {
+    const p = personSource(u)
+    if (!p || p.tribe !== tribe || p.state !== 10) continue
+    const current = p.commands[p.commandCursor]
+    if (!current || ![11, 25].includes(w.buildingOrders.records[current].model)) continue
+    let found = -1
+    for (let slot = p.commandCursor; slot < 8; slot++) {
+      const id = p.commands[slot],
+        order = id ? w.buildingOrders.records[id] : undefined
+      if (!order || order.flags & 1 || [11, 25].includes(order.model)) continue
+      found = slot
+      break
+    }
+    if (found < 0) continue
+    for (let slot = 0; slot < found; slot++)
+      removePersonOrder(w.buildingOrders, p, slot, orderEffects(w))
+    p.commandCursor = found
+    // Browser area-attack adapter state belongs to the dropped guard order.
+    u.target = null
+    clearLivePath(w, u)
+    const { state, effects } = orderContext(w, p, w)
+    configurePersonOrder(state, p, effects)
+    w.randomState = state.randomState
+    recoverPersonMovement(w, p, (person, object) =>
+      setLivePersonAnimation(w, person as LivePerson, object)
+    )
+    count++
+  }
+  return count
+}
+
 // Shared native state-10 completion: entry and movement advance the same queue.
 export function stepLiveOrderQueue(
   w: World,
@@ -1073,7 +1112,10 @@ export function stepLiveOrderQueue(
         if (vehicle) vehicle.apparentTribe = p.disguise >>> 6
       },
       effectiveTribe: () => (p.disguise & 63 ? p.tribe : p.disguise >>> 6),
-      cellObjects: unsupported,
+      // Command-25 arrival resets the age of a class-10/type-16 Guard Post in the
+      // target cell. Guard Posts (#1010) have no browser store yet, so no cell
+      // holds one; their store supplies this lookup when it lands.
+      cellObjects: () => [],
       arrival: unsupported,
       leaveVehicle: () => {
         const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)

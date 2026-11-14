@@ -1637,6 +1637,11 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         u.native &&
         (u.native.guardInputPending ||
           [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+          // Command 25 (a route of 2+ area-guard points) shares the command-3
+          // movement body and repeats. ponytail: computer marker patrols keep their
+          // existing adapter until their campaign baselines are re-recorded; the
+          // native body is tribe-independent, so only this gate needs removing.
+          (activeOrder?.model === 25 && nativePersonTribe(u) === w.manaWorld.playerTribe) ||
           (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
           (activeOrder?.model === 28 &&
             nativePersonTribe(u) === w.manaWorld.playerTribe &&

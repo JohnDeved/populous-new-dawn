@@ -42,6 +42,7 @@ import {
   cancelInteraction,
   tell,
   guardShaman,
+  releasePlayerPatrols,
   disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
@@ -670,6 +671,34 @@ export default function Home() {
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
   }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen])
+  useEffect(() => {
+    // N (default record 005d6208: plain press, exact modifier mask 0) issues
+    // tribe command 0x68: patrols and area guards continue with their next
+    // queued order. Shift/Ctrl/Alt/Meta+N do not match; repeats do not re-issue.
+    const release = (e: KeyboardEvent) => {
+      if (
+        e.key.toLowerCase() !== 'n' ||
+        e.repeat ||
+        e.shiftKey ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        !ready ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        store.getWorld() !== world ||
+        world.inputMask ||
+        [...messageDetails.current.values()].some(details => details.open) ||
+        (e.target as HTMLElement).closest('input,dialog')
+      )
+        return
+      releasePlayerPatrols(world)
+      update()
+    }
+    globalThis.addEventListener('keydown', release)
+    return () => globalThis.removeEventListener('keydown', release)
+  }, [world, update, store, ready, menu, cheatsOpen, selectorOpen, messageDetails])
   useEffect(() => {
     const sound = audio.current
     if (!sound) return
@@ -1909,6 +1938,13 @@ export default function Home() {
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
                     <span>H / F / G / Space / Esc</span>
                     <strong>Shaman / focus / guard shaman / pause / cancel</strong>
+                    <span>Ctrl+Alt-click</span>
+                    <strong>
+                      Add a patrol point (one point guards that area, up to eight loop) · On your
+                      shaman: guard her
+                    </strong>
+                    <span>N</span>
+                    <strong>Patrolling followers leave for their next queued order</strong>
                   </div>
                   <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">
