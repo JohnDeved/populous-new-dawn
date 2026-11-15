@@ -158,7 +158,7 @@ try {
     htmlSha256: hash(resolve(output, 'initial-ssr.html')), bytes: Buffer.byteLength(html) }
   browser = await chromium.launch(config.launch)
   receipt.browserVersion = browser.version()
-  assert.equal(receipt.browserVersion, '156.0.8078.79')
+  assert.equal(receipt.browserVersion, '157.0.8103.50')
   timer = setTimeout(() => {
     receipt.timedOut = true; save()
     void browser.close()

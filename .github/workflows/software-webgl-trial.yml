@@ -68,7 +68,7 @@ jobs:
           chrome_version="$(/opt/google/chrome/chrome --version)"
           printf '%s\n' "$chrome_version"
           case "$chrome_version" in
-            'Google Chrome 156.0.8078.79'|'Google Chrome 156.0.8078.79 ') ;;
+            'Google Chrome 157.0.8103.50'|'Google Chrome 157.0.8103.50 ') ;;
             *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
