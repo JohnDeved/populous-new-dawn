@@ -10,8 +10,9 @@ test('document and social metadata agree on the current name and development sco
   for (const metadata of [siteMetadata, siteMetadata.openGraph, siteMetadata.twitter]) {
     assert.equal(metadata.title, siteTitle)
     assert.equal(metadata.description, siteDescription)
-    assert.equal(Object.hasOwn(metadata, 'images'), false)
   }
+  assert.deepEqual(siteMetadata.openGraph.images, [])
+  assert.deepEqual(siteMetadata.twitter.images, [])
   assert.equal(siteMetadata.twitter.card, 'summary')
 })
 

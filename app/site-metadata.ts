@@ -11,9 +11,12 @@ export const siteMetadata = {
     title: siteTitle,
     description: siteDescription,
     type: 'website' as const,
+    images: [],
   },
   twitter: {
+    // Explicitly opt out of automatic file-based image discovery.
     card: 'summary' as const,
+    images: [],
     title: siteTitle,
     description: siteDescription,
   },

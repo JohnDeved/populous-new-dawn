@@ -1,0 +1,12 @@
+diff --git a/dist/server/metadata-routes.js b/dist/server/metadata-routes.js
+index e76d8328d2ab52454a7602572d40380c657cc650..bd6622916f148160de4416a0cb5871ff84ba6772 100644
+--- a/dist/server/metadata-routes.js
++++ b/dist/server/metadata-routes.js
+@@ -352,6 +352,7 @@ function getMetadataServedUrl(metaType, config, ext, isDynamic, suffix, routeBas
+ function matchMetadataFileBaseName(metaType, baseName) {
+ 	if (baseName === metaType) return baseName;
+ 	if (metaType === "icon" || metaType === "apple-icon" || metaType === "opengraph-image" || metaType === "twitter-image") {
++		if (!baseName.startsWith(metaType)) return null;
+ 		const suffix = baseName.slice(metaType.length);
+ 		if (/^\d$/.test(suffix)) return baseName;
+ 	}
