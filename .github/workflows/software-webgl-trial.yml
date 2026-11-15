@@ -1,8 +1,8 @@
-name: Plain Vite Home Mission10 and corpse admission
+name: Observed original melee encounter diagnostics
 
 on:
   push:
-    branches: [ci/spy-modal-1079-20261115]
+    branches: [ci/melee-diagnostics-1090-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Plain Vite Home Mission10 and corpse admission
+    name: Observed original melee encounter diagnostics
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 27bc4bf4d2fa501bf4a036b1c418acc3a9bf6dcd
+      PND_CANDIDATE_SHA: 2a1f8574fcc28d26aaba82d85dd25d9c971698b4
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed Mission10 and corpse candidate
+      - name: Check out exact reviewed observation-only candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 27bc4bf4d2fa501bf4a036b1c418acc3a9bf6dcd
+          ref: 2a1f8574fcc28d26aaba82d85dd25d9c971698b4
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -78,22 +78,10 @@ jobs:
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/spy-source*.test.mjs tests/mission10*.test.mjs tests/follower-corpse-camera.test.mjs tests/follower-corpse-browser-evidence.test.mjs tests/melee-recoil-camera.test.mjs tests/melee-attack-browser-evidence.test.mjs tests/gameplay-recorder-failures.test.mjs tests/gameplay-frame-recording.test.mjs tests/gameplay-resource-observer.test.mjs tests/gameplay-resource-gate.test.mjs
+          node --test tests/spy-source*.test.mjs tests/mission10*.test.mjs tests/follower-corpse-camera.test.mjs tests/follower-corpse-browser-evidence.test.mjs tests/melee-recoil-camera.test.mjs tests/melee-attack-browser-evidence.test.mjs tests/melee-attack-running-evidence.test.mjs tests/melee-recoil-browser-wrapper.test.mjs tests/gameplay-recorder-failures.test.mjs tests/gameplay-frame-recording.test.mjs tests/gameplay-resource-observer.test.mjs tests/gameplay-resource-gate.test.mjs
           # Original runner retains every episode and its existing 180s cap.
           # Infrastructure SHA is not the reviewed candidate source identity.
           env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=gameplay-frames node scripts/tutorial-browser/run.mjs ../outputs/gameplay-frames
-      - name: Mission 10 full crew save and reload in two processes
-        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
-        timeout-minutes: 8
-        run: |
-          cd after-source
-          # Do not continue after an unverified timeout/cleanup or source mutation.
-          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; const r=JSON.parse(fs.readFileSync("../outputs/gameplay-frames/receipt.json","utf8")); assert.equal(r.cleanupVerified,true); assert.equal(r.sourceAfter,"identical"); assert.deepEqual(r.dependencyChanges,[]); assert.match(r.dependenciesBeforeSha256,/^[a-f0-9]{64}$/i); assert.equal(r.dependenciesAfterSha256,r.dependenciesBeforeSha256)'
-          test "$(df --output=avail -B1 . | tail -1 | tr -d ' ')" -ge 4294967296
-          test "$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)" -ge 3932160
-          test "$(df --output=iavail . | tail -1 | tr -d ' ')" -ge 50000
-          # Original complete Mission 10 runner, including cross-process profile continuity.
-          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=mission10-profile node scripts/tutorial-browser/run.mjs ../outputs/mission10-profile
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -103,7 +91,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: frame-mission10-spy-27bc4bf4-${{ github.run_id }}-${{ github.run_attempt }}
+          name: melee-diagnostics-2a1f8574-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
