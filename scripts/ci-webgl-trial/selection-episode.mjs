@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 export async function runSelectionEpisode({ browser, sourceRoot, output, expectedCommit }) {
-  assert.equal(expectedCommit, 'a6670699d94611110d08a74148323093abf2dc75')
+  assert.equal(expectedCommit, '2f2ebb6485244de6ea7828b770a7b9b220f35eac')
   const { bindGame, settleOpeningMessages } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-game.mjs')))
   const { openCampaignFromMainMenu } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-new-game.mjs')))
   const { collapseObservedCampaignMessages } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/public-keyboard-owner.mjs')))

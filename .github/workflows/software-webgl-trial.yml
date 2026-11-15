@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: a6670699d94611110d08a74148323093abf2dc75
+      PND_CANDIDATE_SHA: 2f2ebb6485244de6ea7828b770a7b9b220f35eac
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed selection texture candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: a6670699d94611110d08a74148323093abf2dc75
+          ref: 2f2ebb6485244de6ea7828b770a7b9b220f35eac
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -101,7 +101,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-selection-a6670699-${{ github.run_id }}-${{ github.run_attempt }}
+          name: shipped-selection-2f2ebb64-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/shipped-selection/*.json
             outputs/shipped-selection/*.log
