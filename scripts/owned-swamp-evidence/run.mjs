@@ -31,7 +31,7 @@ accessSync(browserConfig.browserPath, constants.X_OK)
 const receipt = {
   status: 'running', startedAt: new Date().toISOString(), commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'),
   trackedDiff: git('status', '--short', '--untracked-files=no'), port, browserCapMs,
-  sources: Object.fromEntries(['run', 'scenario', 'witness', 'deadline', 'fixture'].map(n => [n, hash(resolve(root, `scripts/owned-swamp-evidence/${n}.mjs`))])),
+  sources: Object.fromEntries(['run', 'scenario', 'witness', 'deadline', 'fixture', 'interruption'].map(n => [n, hash(resolve(root, `scripts/owned-swamp-evidence/${n}.mjs`))])),
   fixtureMainSha256: hash(resolve(fixture, 'main.tsx')), builderSha256: hash(resolve(root, 'scripts/tutorial-browser/build-home.mjs')),
   browserPath: browserConfig.browserPath, browserPathSource: browserConfig.browserPathSource, launch: browserConfig.launch,
   browserBinaryVersion: execFileSync(browserConfig.browserPath, ['--version'], { encoding: 'utf8' }).trim(),

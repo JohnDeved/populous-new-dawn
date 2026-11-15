@@ -6,6 +6,7 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { assertLive, assertCancelled, assertRetired, readWitness } from './witness.mjs'
 import { createDeadline } from './deadline.mjs'
+import { interruptOwnedSwamp } from './interruption.mjs'
 
 // First bounded rendered episode only. Not the full PR acceptance suite.
 // The owner supplies a reviewed browser, built URL and outer deadline; this module never launches one.
@@ -14,8 +15,8 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
   const report = { status: 'running', stages: [], errors: [], screenshots: [], limits: [
     'Supplied trap allocation, camera focus and frozen simulation speed; not ordinary earning/casting or native allocation parity',
     'Actual mounted Home/Scene, DOM mouse/key delivery and production advanceGame/render retirement',
-    'This episode covers plain-right, modifier-right, Shift-right out-and-back drag and stationary Shift-right only',
-    'Focus loss, pointer cancellation, modal/navigation and save/load/restart/new-game remain unimplemented',
+    'Plain-right, modifier-right, Shift-right out-and-back drag, synthetic pointercancel/blur interruptions and fresh stationary Shift-right',
+    'Interruption events are synthetic DOM delivery through installed handlers, not operating-system focus loss; modal/navigation and save/load/restart/new-game are not covered',
     'No full dependency integrity, performance, deployment or current-main integration claim',
   ] }
   const save = () => writeFileSync(resolve(output, 'owned-swamp-episode.json'), JSON.stringify(report, null, 2) + '\n')
@@ -171,6 +172,7 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
     await deadline.run(() => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done)))))
     point = await resolvePoint()
     stage('post-drag-point', point)
+    await interruptOwnedSwamp({ page, deadline, point, stage })
     await deadline.run(() => page.keyboard.down('Shift'))
     try { await deadline.run(() => page.mouse.click(point.x, point.y, { button: 'right' })) }
     finally { await deadline.run(() => page.keyboard.up('Shift')) }
