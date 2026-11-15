@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
 import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs'
 import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { meleeCameraInput, meleeTargetPoint, readMeleeRouteState, assertMeleeRouteReady,
@@ -195,8 +195,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     const startup = await page.waitForFunction(m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip')
-      await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    await action('Settle opening messages and introduction', () => settleOpeningMessages(page))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
