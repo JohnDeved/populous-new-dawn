@@ -21,7 +21,7 @@ const turn = (w, n = 1) => {
 const models = (w, p) => p.commands.filter(Boolean).map(id => w.buildingOrders.records[id].model)
 const centreOf = marker =>
   browserPosition({ x: ((marker & 254) + 1) << 8, y: (((marker >>> 8) & 254) + 1) << 8 })
-const wrapped = (a, b) => Math.abs((((a - b + 32768) & 65535) + 65536) % 65536 - 32768)
+const wrapped = (a, b) => Math.abs(((((a - b + 32768) & 65535) + 65536) % 65536) - 32768)
 // Native distance from the marker cell centre (person position units).
 const offset = (w, u, marker) => {
   const n = nativePosition(w, u),
@@ -126,7 +126,7 @@ test('ordinary M15 single-marker guards commit native queues and continue throug
   const store = createGameStore()
   store.startMission(15)
   const w = store.getWorld(),
-    markers = missionData(15).level.markers
+    { markers } = missionData(15).level
   // Yellow (tribe 2) task 1 stages marker 0 with four Warriors and one Preacher (restored at turn 29).
   let task
   while (w.turn < 200 && !task) {
