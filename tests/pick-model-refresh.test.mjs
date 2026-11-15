@@ -159,7 +159,7 @@ test('person model, appearance and visibility changes re-pick the stationary poi
 test('a person top layer the last render did not submit re-picks the stationary pointer', async t => {
   // ScenePicking resolves a person through its top visible sprite layer. Authored
   // Mission 5 Preachers alternate between three and four layers; a fourth layer shown
-  // on an advancing frame has no painter command at that frame's (turn-driven) pick.
+  // on an advancing frame has no current painter command at that frame's (turn-driven) pick.
   const { api, world, scene, frame } = await pickScene(t, 5)
   const update = () => scene.updateUnitsFrame()
   assert.deepEqual(frame(update), repicked, 'initial person models')

@@ -636,6 +636,7 @@ export function updateUnitsFrame(scene: GameScene) {
       continue
     }
     // A hidden person was absent from the last painter submission ScenePicking reads.
+    // Hiding needs no re-pick: picking skips invisible groups on the same frame.
     const shown = g.visible
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
@@ -722,7 +723,8 @@ export function updateUnitsFrame(scene: GameScene) {
     // without logging/allocating per frame or hiding a still-live legacy unit.
     if (source !== undefined && !catalogDirections) g.userData.missingNativeSource = source
     // ScenePicking resolves a person through its top visible layer's painter command.
-    // A top layer that is new or was hidden at the last render has none until rendered.
+    // A top layer that is new or was hidden at the last render has no current command
+    // (at best a stale range from an older render) until it is rendered again.
     const layers = g.userData.layers as THREE.Sprite[]
     let submitted = 0
     for (let i = 0; i < layers.length; i++) if (layers[i].visible) submitted |= 1 << i
