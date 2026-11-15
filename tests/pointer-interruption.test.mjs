@@ -327,3 +327,50 @@ for (const [first, last] of [
     })
   }
 }
+
+for (const reason of ['canvas pointercancel', 'window pointercancel', 'blur']) {
+  test(`${reason} rejects a stale stationary Shift-right Swamp release but permits a fresh one`, t => {
+    const { scene, world, event, emit } = fixture(t)
+    // Supplied trap and terrain pick isolate pointer ownership, not earning/casting,
+    // actual spell availability, DOM dispatch, rendered pixels or native parity.
+    const point = { x: 12, z: 31 }, center = api.nativePosition(world, point)
+    const cell = ((center.y & 65535) >>> 9) * 128 + ((center.x & 65535) >>> 9)
+    assert.equal(world.land.flags[cell] & 0x400, 0, 'fixture requires an unoccupied cell')
+    const trap = { id: world.nextId++, x: point.x, z: point.z, kind: 'swamp',
+      age: 0, duration: Infinity, height: 0,
+      swamp: { center, tribe: world.manaWorld.playerTribe, remaining: 100, counter: 1, kills: 0, variant: 0 } }
+    world.effects.push(trap)
+    scene.pick = () => point
+    scene.picking.pick = () => undefined
+    const sounds = []
+    scene.onSound = id => sounds.push(id)
+    const down = id => event(id, { button: 2, buttons: 2, shiftKey: true })
+    const up = id => event(id, { button: 2, buttons: 0, shiftKey: true })
+    const canvas = scene.renderer.domElement
+    emit(canvas, 'pointerdown', down(1))
+    assert.equal(scene.pointerGesture.pointerId, 1)
+    assert.equal(scene.pointerGesture.moved, false)
+    if (reason === 'blur') emit(window, 'blur')
+    else emit(reason.startsWith('canvas') ? canvas : window, 'pointercancel', down(1))
+    assert.equal(scene.pointerGesture, null)
+    assert.equal(scene.pointerButtons, 0)
+    if (reason === 'blur') {
+      assert.equal(world.paused, true)
+      // Supplied resume removes pause as an alternative reason for rejection.
+      // The cancelled gesture must stay invalid even after the world runs again.
+      world.paused = false
+    }
+    const before = structuredClone(world), effects = world.effects
+    emit(canvas, 'pointerup', up(1))
+    emit(canvas, 'pointerup', up(1))
+    assert.deepEqual(world, before, 'stale repeated release must not mutate gameplay or effects')
+    assert.equal(world.effects, effects)
+    assert.equal(trap.swamp.remaining, 100)
+    assert.deepEqual(sounds, [])
+    emit(canvas, 'pointerdown', down(2))
+    emit(canvas, 'pointerup', up(2))
+    assert.equal(trap.swamp.remaining, 0, 'a fresh matching gesture still removes the owned trap')
+    assert.deepEqual(sounds, [0x6a])
+    assert.equal(world.effects.includes(trap), true, 'logical retirement remains deferred')
+  })
+}
