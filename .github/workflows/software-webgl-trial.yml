@@ -1,8 +1,8 @@
-name: Plain Vite Home profile recovery
+name: Plain Vite Home frame and resource admission
 
 on:
   push:
-    branches: [ci/profile-modal-1035-20261115]
+    branches: [ci/frame-modal-1075-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Plain Vite Home profile recovery
+    name: Plain Vite Home frame and resource admission
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 5c0d4303081d90fa7feed6071daa888c203231f7
+      PND_CANDIDATE_SHA: 46fb6dd21a4d655e6cbb16720f9e3589bd0d740c
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed profile recovery candidate
+      - name: Check out exact reviewed frame and resource candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 5c0d4303081d90fa7feed6071daa888c203231f7
+          ref: 46fb6dd21a4d655e6cbb16720f9e3589bd0d740c
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -69,19 +69,31 @@ jobs:
           printf '%s\n' "$chrome_version"
           case "$chrome_version" in
             'Google Chrome 157.0.8103.50'|'Google Chrome 157.0.8103.50 ') ;;
-            *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
+            *) printf 'Unreviewed browser version\n' >&2; exit 1 ;;
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Build production Home and exercise profile recovery
+      - name: Frame recording with original melee and corpse episodes
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/profile-recovery-hosted.test.mjs
-          # Focused head replay, not a PR merge event: retain exact source in receipt;
-          # the outer workflow SHA identifies harness infrastructure, not candidate.
-          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=profile-recovery node scripts/tutorial-browser/run.mjs ../outputs/profile-recovery
+          node --test tests/gameplay-recorder-failures.test.mjs tests/gameplay-frame-recording.test.mjs tests/gameplay-resource-observer.test.mjs tests/gameplay-resource-gate.test.mjs
+          # Original runner retains every episode and its existing 180s cap.
+          # Infrastructure SHA is not the reviewed candidate source identity.
+          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=gameplay-frames node scripts/tutorial-browser/run.mjs ../outputs/gameplay-frames
+      - name: Resource lifecycle with three original workloads and two restarts
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        timeout-minutes: 8
+        run: |
+          cd after-source
+          # Do not continue after an unverified timeout/cleanup or source mutation.
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; const r=JSON.parse(fs.readFileSync("../outputs/gameplay-frames/receipt.json","utf8")); assert.equal(r.cleanupVerified,true); assert.equal(r.sourceAfter,"identical"); assert.deepEqual(r.dependencyChanges,[]); assert.equal(r.dependenciesAfterSha256,r.dependenciesBeforeSha256)'
+          test "$(df --output=avail -B1 . | tail -1 | tr -d ' ')" -ge 4294967296
+          test "$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)" -ge 3932160
+          test "$(df --output=iavail . | tail -1 | tr -d ' ')" -ge 50000
+          # Match required CI's three-cycle profile, not the smaller default.
+          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=gameplay-resources node scripts/tutorial-browser/run.mjs ../outputs/gameplay-resources --gameplay-resource-profile=three-cycle-v1
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -91,13 +103,12 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: profile-modal-5c0d4303-${{ github.run_id }}-${{ github.run_attempt }}
+          name: frame-resource-modal-46fb6dd2-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/profile-recovery/**/*.json
-            outputs/profile-recovery/**/*.log
-            outputs/profile-recovery/**/*.html
-            outputs/profile-recovery/**/*.png
-            outputs/profile-recovery/*.v8
+            outputs/**/*.json
+            outputs/**/*.log
+            outputs/**/*.html
+            outputs/**/*.png
+            outputs/*.v8
           if-no-files-found: warn
           retention-days: 7
-
