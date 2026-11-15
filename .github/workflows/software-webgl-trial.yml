@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: d365bec2c33b550c1cd28db812f408f0c33f2f23
+      PND_CANDIDATE_SHA: dbe2ee072ceed92e8b581b5003865b73f9d28a2d
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed combined F9 candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: d365bec2c33b550c1cd28db812f408f0c33f2f23
+          ref: dbe2ee072ceed92e8b581b5003865b73f9d28a2d
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -91,7 +91,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: frontend-f9-d365bec2-${{ github.run_id }}-${{ github.run_attempt }}
+          name: frontend-f9-dbe2ee07-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
