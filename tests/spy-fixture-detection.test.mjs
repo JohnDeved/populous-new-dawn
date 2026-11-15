@@ -32,10 +32,15 @@ function run(accelerated, disguiseTurn = 170, commandTurn = 251) {
   return { w, spy, target, rows }
 }
 
-test('historical accelerated hut birth reproduces reveal283 and live combat handoff284', () => {
-  const { rows } = run(true), reveal = rows.find(r => r.turn === 283), handoff = rows.find(r => r.turn === 284)
+// The M1 opening's single-marker guard (0x4cedd0, #1059) no longer takes a
+// command-3 leg, which shifts the shared RNG and allocation IDs: the newborn
+// detector is 2179 and the reveal/handoff turns are 281/286 (were 283/284).
+test('historical accelerated hut birth reproduces reveal281 and live combat handoff286', () => {
+  const { rows } = run(true), reveal = rows.find(r => r.turn === 281), handoff = rows.find(r => r.turn === 286)
+  assert.equal(rows.find(r => r.person.disguise === 0), reveal, 'first undisguised visit')
+  assert.equal(rows.find(r => !r.native), handoff, 'first combat-owned visit')
   assert.equal(reveal.person.disguise, 0); assert.equal(reveal.person.timer, 9)
-  const detector = reveal.actors.find(u => u.id === 2178)
+  const detector = reveal.actors.find(u => u.id === 2179)
   assert.equal(detector.kind, 'brave')
   for (const axis of ['x', 'y']) {
     const a = (detector[axis] & 65535) >> 9, b = (reveal.person[axis] & 65535) >> 9

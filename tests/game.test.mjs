@@ -559,7 +559,8 @@ test('mission-one ordinary marker guard patrols and answers nearby enemies',asyn
  assert.deepEqual(task&&{extra:task.extra,route:task.route[0]},{extra:0,route:{marker:0,secondary:-1,quotas:[0,1,0,0]}});
  until(w,()=>task.phase===6,1);
  const p=chosen.native,orders=()=>p.commands.filter(Boolean).map(id=>w.buildingOrders.records[id]);
- assert.deepEqual(orders().map(o=>[o.model,o.a,o.b]),[[3,2176,4736],[11,level.markers[0],0x606]]);
+ // 0x4cedd0 single marker: a non-Preacher gets only the command-11 guard, no leading move.
+ assert.deepEqual(orders().map(o=>[o.model,o.a,o.b]),[[11,level.markers[0],0x606]]);
  until(w,()=>currentPersonOrder(w.buildingOrders,p)?.model===11&&p.commandAux===1,10);
  const marker=nativeCellPoint(level.markers[0]),building=addBuilding(w,'blue','hut',{x:marker.x+4,z:marker.z+4},true);
  const outside=addUnit(w,'blue','warrior',{x:marker.x+8,z:marker.z});p.counter=1;tick(w,1/12);
@@ -2293,7 +2294,12 @@ test('live native routes release query ownership, expire failures and walk low s
  select(w,'shaman');command(w,shore);assert.ok(u.path.length);assert.deepEqual(u.path.at(-1),shore);
  assert.ok(w.pathfinding.people.get(u.id)?.motionGroup);assert.equal(u.native.state,10);assert.equal(u.native.commandStatus,3);assert.equal(unitAnimationSource(u),u.native,'native movement owns its original animation');
  until(w,()=>u.native.commandStatus===0,15);advance(w,1);assert.ok(w.units.includes(u));assert.equal(u.hp,maxHp('shaman'));
- for(let id=1;id<=400;id++)assert.equal(new DataView(w.motionRoutes.records.buffer).getInt16(id*109,true),0);
+ // Every route reference has exactly its live owners; the Shaman holds none. Other
+ // AI walkers may still be on their routes at this turn (shared-RNG timing).
+ {const routes=new DataView(w.motionRoutes.records.buffer),owners=new Map();
+ for(const [,person] of w.pathfinding.people)if(person.motionGroup)owners.set(person.motionGroup,(owners.get(person.motionGroup)??0)+1);
+ for(let id=1;id<=400;id++)assert.equal(routes.getInt16(id*109,true),owners.get(id)??0,`route ${id} owners`);
+ assert.equal(w.pathfinding.people.get(u.id)?.motionGroup??0,0,'the Shaman released its route');}
  w.pathfinding.solver.tribeRequests.fill(123);tick(w,1/12);assert.ok(w.pathfinding.solver.tribeRequests.every(n=>n<123),'request limits observe this turn only');
 });
 
