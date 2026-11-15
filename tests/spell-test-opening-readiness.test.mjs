@@ -6,6 +6,49 @@ import vm from 'node:vm'
 const source = readFileSync(new URL('../scripts/tutorial-browser/spell-test-menu.mjs', import.meta.url), 'utf8')
 const body = source.match(/waitReady = async phase => \{([\s\S]*?)\n    \}\n  try/)[1]
 
+const iconSource = readFileSync(new URL('../scripts/tutorial-browser/spell-icon-states.mjs', import.meta.url), 'utf8')
+const iconBody = iconSource.match(/const open = async \(observedBrowser, mission = 1\) => \{([\s\S]*?)\n  \}/)[1]
+
+test('spell icon opening settles messages before unchanged unlocked-input acceptance', async () => {
+  for (const skip of [false, true]) {
+    const calls = []
+    const page = {
+      setDefaultTimeout: value => assert.equal(value, 10000), goto: async () => {},
+      getByRole: () => ({ focus: async () => {}, click: async () => calls.push('skip') }),
+      keyboard: { press: async () => {} }, evaluate: async () => calls.push('scene'),
+      waitForFunction: async predicate => {
+        calls.push(predicate.toString().includes('skip-introduction') ? 'introduction' : 'unlocked')
+        return { jsonValue: async () => skip ? 'skip' : 'ready', dispose: async () => calls.push('dispose') }
+      },
+    }
+    const open = vm.runInNewContext(`(async (observedBrowser, mission = 1) => {${iconBody}})`, {
+      url: 'https://unused.invalid', showAllMissions: async () => {}, bindGame: async () => {},
+      settleOpeningMessages: async () => calls.push('settle'),
+    })
+    await open({ newContext: async () => ({ newPage: async () => page }) })
+    assert.deepEqual(calls, ['introduction', ...(skip ? ['skip'] : []), 'dispose', 'settle', 'unlocked', 'scene'])
+  }
+  assert.match(iconSource, /spellIconEpisodeLimitMs = 75000/)
+})
+
+test('spell icon opening settlement failure prevents unlocked-input acceptance', async () => {
+  const failure = Error('opening modal remains'), calls = []
+  const open = vm.runInNewContext(`(async (observedBrowser, mission = 1) => {${iconBody}})`, {
+    url: 'https://unused.invalid', showAllMissions: async () => {}, bindGame: async () => {},
+    settleOpeningMessages: async () => { throw failure },
+  })
+  const page = {
+    setDefaultTimeout() {}, goto: async () => {}, getByRole: () => ({ focus: async () => {} }),
+    keyboard: { press: async () => {} }, evaluate: async () => calls.push('scene'),
+    waitForFunction: async predicate => {
+      calls.push(predicate.toString().includes('skip-introduction') ? 'introduction' : 'unlocked')
+      return { jsonValue: async () => 'ready', dispose: async () => {} }
+    },
+  }
+  await assert.rejects(open({ newContext: async () => ({ newPage: async () => page }) }), error => error === failure)
+  assert.deepEqual(calls, ['introduction'])
+})
+
 test('F9 readiness settles public opening messages before its original unlocked-input wait', async () => {
   const calls = []
   const page = {
