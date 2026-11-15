@@ -225,6 +225,13 @@ export function installMeleeFrameObserver(input) {
       Object.assign(diagnostic, { stage: 'observed', actorInspected: true,
         alive: !!unit && unit.hp > 0, hp: unit?.hp ?? null,
         action: fight?.action ?? null, started: fight?.started ?? null,
+        // Fixed-size scalar diagnostics only: retain the first encounter's
+        // identity and sampled RNG without consuming it or scanning other actors.
+        // These are post-render observations, not exact random-call provenance.
+        randomState: world.randomState ?? null, actorX: unit?.x ?? null, actorZ: unit?.z ?? null,
+        orderTarget: unit?.target ?? null, fightGroup: fight?.group ?? null,
+        opponent: fight?.opponent ?? null, remaining: fight?.remaining ?? null,
+        personId: fight?.motion?.id ?? null, personState: fight?.motion?.state ?? null,
         f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')

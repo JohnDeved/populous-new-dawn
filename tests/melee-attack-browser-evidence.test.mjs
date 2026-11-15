@@ -942,3 +942,56 @@ test('melee admission settles opening before unchanged natural-turn and attack g
   assert.match(source.slice(start, pause), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
   assert.match(source, /export const meleeAttackLimitMs = 75000/)
 })
+
+
+test('pre-entry scalar diagnostics retain encounter identity and RNG without consuming or replacing the episode', () => {
+  withObserverFixture(({ world, scene, next, observation, drawCalls }) => {
+    const actor = world.units[0]
+    Object.assign(actor, { x: 12.5, z: -3, target: 20 })
+    actor.fight.action = 'encounter'
+    actor.fight.opponent = 19
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(world, before)
+    const first = observation.result.visits[0]
+    assert.deepEqual(Object.fromEntries(['randomState', 'actorX', 'actorZ', 'orderTarget',
+      'fightGroup', 'opponent', 'remaining', 'personId', 'personState'].map(key => [key, first[key]])), {
+      randomState: 12345, actorX: 12.5, actorZ: -3, orderTarget: 20,
+      fightGroup: 1252, opponent: 19, remaining: 3, personId: 54, personState: 25,
+    })
+    assert.equal(observation.result.entry, null)
+    assert.equal(drawCalls.length, 0)
+    // Supplied next-render state, not an observer-induced game advance.
+    world.turn++
+    world.randomState = 67890
+    actor.fight.opponent = 13
+    actor.fight.action = 'ready'
+    scene.renderer.info.render.frame++
+    const nextWorld = structuredClone(world)
+    next()
+    assert.deepEqual(world, nextWorld)
+    assert.equal(observation.result.visits[1].randomState, 67890)
+    assert.equal(observation.result.visits[1].opponent, 13)
+    assert.equal(first.randomState, 12345)
+    assert.equal(first.opponent, 19)
+    assert.equal(observation.result.firstAttackTurn, null)
+  })
+})
+
+test('diagnostics preserve actor-death failure before the first attack rather than waiting for another actor', () => {
+  withObserverFixture(({ world, next, observation }) => {
+    world.units = []
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(world, before)
+    assert.match(observation.result.error, /Authored Shaman54 disappeared or died/)
+    const visit = observation.result.visits[0]
+    assert.equal(visit.randomState, 12345)
+    for (const key of ['actorX', 'actorZ', 'orderTarget', 'fightGroup', 'opponent', 'remaining', 'personId', 'personState'])
+      assert.equal(visit[key], null)
+    assert.equal(observation.result.terminal.reason, 'error')
+    assert.equal(observation.result.firstAttackTurn, null)
+    assert.equal(observation.result.samples.length, 0)
+    assert.equal(observation.result.crops.length, 0)
+  })
+})
