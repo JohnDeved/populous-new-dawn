@@ -576,3 +576,17 @@ test('M2 separates visible modal layout captures from nonmodal pointer input', (
   assert.match(opening, /page\.keyboard\.press\('Enter'\)/)
   assert.doesNotMatch(opening, /force:|\.dispatchEvent|\.open\s*=|\.paused\s*=/)
 })
+
+
+test('default admission reduces only setup viewport, preserving explicit coverage and deadline', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  assert.match(source, /const admissionViewport = compactMessages \|\| pickingPaths \|\| campaignCallbacks\s*\? \{ width: 1440, height: 1000 \}\s*: \{ width: 1280, height: 720 \}/)
+  assert.match(source, /viewport: admissionViewport/)
+  assert.match(source, /await page.setViewportSize\(admissionViewport\)/)
+  assert.match(source, /scenario,\s*admissionViewport,/)
+  for (const size of ['[640, 480]', '[900, 360]', '[1280, 720]', '[1440, 1000]'])
+    assert.ok(source.includes(size))
+  assert.match(source, /\[900, 400, true\]/)
+  assert.match(source, /keyboard: width === 1280/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})

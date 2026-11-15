@@ -166,13 +166,19 @@ export async function runCompactDiagnosticEpisodes({ report, ...options }, runEp
 export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, campaignCallbacks = false }) {
   assert.ok([compactMessages, pickingPaths, campaignCallbacks].filter(Boolean).length <= 1, 'Diagnostic episodes must have independent contexts')
   const scenario = campaignCallbacks ? 'campaign-message-ownership' : pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
+  // Functional admission does not need to render the largest capture continuously.
+  // Keep all explicit viewport proofs below and the other episodes unchanged.
+  const admissionViewport = compactMessages || pickingPaths || campaignCallbacks
+    ? { width: 1440, height: 1000 }
+    : { width: 1280, height: 720 }
   const context = await browser.newContext({
-    viewport: { width: 1440, height: 1000 },
+    viewport: admissionViewport,
     deviceScaleFactor: 1,
   })
   const report = {
     status: 'running',
     scenario,
+    admissionViewport,
     setup: fixture.receipt,
     errors: [],
     samples: [],
@@ -311,7 +317,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     await desktopNotice.waitFor({ state: 'hidden' })
     report.compactNoticeDismissed = true
     stage('compact-admitted')
-    await page.setViewportSize({ width: 1440, height: 1000 })
+    await page.setViewportSize(admissionViewport)
     // An open authored box owns pause and blocks world input. Witness its real
     // visible text first, then close it before establishing the input baseline.
     report.authoredMessageReady = await openM2AuthoredMessage(page)
@@ -429,8 +435,8 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         report.samples.push(world ? await moveAndObserve(x, y, true) : await moveToHud())
       }
       stage('initial-pointer-routes-matched')
-      // The restored-wide capture below covers this unchanged layout too; avoid
-      // another large PNG encode inside the bounded functional episode.
+      // All four explicit layout captures below remain required, including 1440.
+      // Avoid an extra admission-only PNG inside the bounded functional episode.
       const beforeCamera = await observe()
       report.cameraBefore = beforeCamera
       assert.equal(beforeCamera.camera.preset, 0, 'Loaded ground view begins at normal preset')
