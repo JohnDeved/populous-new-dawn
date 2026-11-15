@@ -7,9 +7,9 @@ import { resolve, isAbsolute } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
-const side = 'scenery-placement'
+const side = 'm2-modal-admission'
 assert.ok(rootArg && outputArg)
-assert.equal(expectedCommit, '1b65b5131b947d1c918e2e6860e1600833be8cf0')
+assert.equal(expectedCommit, '9eee7483a69b2cf67919c83fa96da7a2a08a662f')
 const root = resolve(rootArg), output = resolve(outputArg)
 assert.ok(!existsSync(output), 'Use a fresh evidence directory')
 mkdirSync(output, { recursive: true })
@@ -37,7 +37,8 @@ const trialInputs = Object.fromEntries(['shipped-selection.mjs']
 const require = createRequire(resolve(root, 'package.json'))
 const { chromium } = require('@playwright/test')
 const { browserConfiguration } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/browser-config.mjs')).href)
-const { default: runSceneryPlacement } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')).href)
+const { default: runM2Functional } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/m2-pointer-f8.mjs')).href)
+const { createM2Checkpoint } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/m2-checkpoint.mjs')).href)
 const config = browserConfiguration()
 assert.deepEqual(config.launch.args, ['--headless', '--remote-debugging-pipe'])
 assert.equal(config.launch.chromiumSandbox, true)
@@ -57,7 +58,7 @@ const receipt = {
   runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT,
   workflowCommit: process.env.GITHUB_SHA, startedAt: new Date().toISOString(), errors: [], warnings: [],
   runtime, trialInputs, checks: [], captures: [], limits: ['Exact candidate shipped Vinext/Cloudflare bundle served by separately pinned official workerd v1.20261110.1 via the supported MINIFLARE_WORKERD_PATH override; not the old locked runtime, deployed Cloudflare edge or a synthetic merge.',
-    'Exact candidate public Mission 1 scenery preview, rejected placement and accepted plan; retained scenery remains unchanged. No completed construction, depletion or replant claim. No supplied world state, storage seeds or synthetic rendered pixels. Scenario inherits a plain-Vite limitation string; this wrapper instead verifies the shipped Vinext/Cloudflare bundle.',
+    'Exact-source imported Mission 2 test checkpoint, not user save or campaign unlock proof. Four fresh bounded contexts: pointer/F8, compact messages, picking readout and controlled stale callback scheduling. Public Load and full checkpoint equality retained; no synthetic rendered pixels. Scenario inherits a plain-Vite limitation string; this wrapper instead verifies the shipped Vinext/Cloudflare bundle.',
     'No native execution, audio/fullscreen, development StrictMode or current-main merge acceptance. Modal-loaded visibility is required only after public return and presentation resumes.',
     'Software rendering is not hardware performance or original-game framebuffer equivalence.'],
 }
@@ -98,7 +99,7 @@ function startOwned(args, logName) {
   owned.push(owner)
   return owner
 }
-let browser, timer, buildInputs
+let browser, timer, buildInputs, m2Fixture
 
 try {
   save()
@@ -163,18 +164,48 @@ try {
     receipt.timedOut = true; save()
     void browser.close()
   }, 240000)
-  receipt.episode = await runSceneryPlacement({ browser, url: origin, output })
-  assert.equal(receipt.episode.status, 'passed')
-  assert.equal(receipt.episode.contextClosed, true)
-  assert.deepEqual(receipt.episode.errors, [])
-  assert.deepEqual(receipt.episode.failures, [])
-  receipt.captures = ['scenery-placement-preview.png', 'scenery-placement-rejected.png', 'scenery-placement-accepted.png']
-    .map(name => ({ name, sha256: hash(resolve(output, name)) }))
+  m2Fixture = await createM2Checkpoint(output, { commit: expectedCommit, files: source })
+  receipt.fixture = m2Fixture.receipt
+  receipt.episodes = []
+  const episodeFailures = []
+  let unsafeContinuation = false
+  for (const [name, options] of [
+    ['pointer', {}], ['compact', { compactMessages: true }],
+    ['picking', { pickingPaths: true }], ['callbacks', { campaignCallbacks: true }],
+  ]) {
+    if (unsafeContinuation) {
+      receipt.episodes.push({ name, status: 'not-run', reason: 'Previous context cleanup, outer deadline or browser connection prevents safe continuation' })
+      continue
+    }
+    const episodeOutput = resolve(output, name)
+    mkdirSync(episodeOutput)
+    try {
+      const episode = await runM2Functional({ browser, url: origin, output: episodeOutput, fixture: m2Fixture, ...options })
+      assert.equal(episode.status, 'passed')
+      assert.equal(episode.contextClosed, true)
+      assert.deepEqual(episode.errors, [])
+      receipt.episodes.push({ name, status: 'passed', episode })
+    } catch (error) {
+      receipt.episodes.push({ name, status: 'failed', failure: String(error) })
+      episodeFailures.push(error)
+    }
+    for (const file of readdirSync(episodeOutput).filter(file => file.endsWith('.png')))
+      receipt.captures.push({ name: name + '/' + file, sha256: hash(resolve(episodeOutput, file)) })
+    const continuation = { connected: browser.isConnected(), timedOut: !!receipt.timedOut, contexts: browser.contexts().length }
+    receipt.episodes.at(-1).continuation = continuation
+    if (!continuation.connected || continuation.timedOut || continuation.contexts !== 0) {
+      unsafeContinuation = true
+      episodeFailures.push(Error('Unsafe episode continuation: ' + JSON.stringify(continuation)))
+    }
+    save()
+  }
+  assert.equal(receipt.episodes.length, 4)
+  if (episodeFailures.length) throw new AggregateError(episodeFailures, 'M2 episodes failed; see individual receipts')
   assert.equal(receipt.timedOut, undefined)
   receipt.status = 'passed-awaiting-pixel-review'
 } catch (error) {
   receipt.status = 'failed'; receipt.failure = error?.stack ?? String(error); process.exitCode = 1
-  // Do not add failure screenshots beyond the retained three-image selection cap.
+  // Each bounded episode retains its own diagnostic failure screenshot.
 } finally {
   clearTimeout(timer)
   receipt.cleanupErrors = []
@@ -188,6 +219,11 @@ try {
     assert.equal(hash(runtimePath), runtime.sha256, 'Official runtime bytes changed')
     if (buildInputs) for (const [path, digest] of Object.entries(buildInputs)) assert.equal(hash(resolve(root, 'dist', path)), digest, 'Build input changed: ' + path)
     for (const [name, digest] of Object.entries(trialInputs)) assert.equal(hash(new URL(name, import.meta.url)), digest, name)
+    if (m2Fixture) {
+      assert.equal(hash(resolve(output, 'm2-checkpoint-transfer.json')), m2Fixture.receipt.transferSha256)
+      assert.equal(hash(resolve(output, 'm2-checkpoint.v8')), m2Fixture.receipt.checkpointSha256)
+      receipt.fixtureUnchanged = true
+    }
     receipt.inputsUnchanged = true
   } catch (error) { receipt.inputFailure = String(error); receipt.status = 'failed'; process.exitCode = 1 }
   receipt.cleanupVerified = receipt.cleanupErrors.length === 0

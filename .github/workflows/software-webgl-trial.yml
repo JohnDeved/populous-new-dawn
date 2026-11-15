@@ -1,8 +1,8 @@
-name: Isolated shipped scenery placement readiness
+name: Isolated shipped M2 modal admission readiness
 
 on:
   push:
-    branches: [ci/scenery-opening-1035-20261115]
+    branches: [ci/m2-modal-1035-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped scenery placement readiness
+    name: Shipped M2 modal admission readiness
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 1b65b5131b947d1c918e2e6860e1600833be8cf0
+      PND_CANDIDATE_SHA: 9eee7483a69b2cf67919c83fa96da7a2a08a662f
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed scenery placement candidate
+      - name: Check out exact reviewed M2 modal admission candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 1b65b5131b947d1c918e2e6860e1600833be8cf0
+          ref: 9eee7483a69b2cf67919c83fa96da7a2a08a662f
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -101,15 +101,13 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: scenery-placement-1b65b513-${{ github.run_id }}-${{ github.run_attempt }}
+          name: m2-modal-9eee7483-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            outputs/shipped-selection/*.json
-            outputs/shipped-selection/*.log
-            outputs/shipped-selection/*.html
-            outputs/shipped-selection/*.png
-            outputs/shipped-selection/selection-episode/*.json
-            outputs/shipped-selection/selection-episode/*.html
-            outputs/shipped-selection/selection-episode/*.png
+            outputs/shipped-selection/**/*.json
+            outputs/shipped-selection/**/*.log
+            outputs/shipped-selection/**/*.html
+            outputs/shipped-selection/**/*.png
+            outputs/shipped-selection/*.v8
           if-no-files-found: warn
           retention-days: 7
 
