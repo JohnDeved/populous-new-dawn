@@ -3,7 +3,7 @@ import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { openGame } from './browser-game.mjs'
+import { clearSelectionWithEscape, openGame } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 
 const projectRoot = process.cwd(),
@@ -66,9 +66,15 @@ async function waitHud(page) {
 }
 
 async function setHudSize(page, value) {
+  // The shipped HUD size control lives under Options -> Browser compatibility and help.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByLabel('HUD size').selectOption(value)
-  await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await menu.getByRole('button', { name: 'Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(value)
+  await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.waitForFunction(value => {
     const fit = Math.min(innerWidth / 640, innerHeight / 480),
       preferred =
@@ -220,6 +226,8 @@ async function ordinaryMissionTwoTrainingHut(page) {
 }
 
 async function openPanel(page, id) {
+  // Hover inspection of retained Hut/training panels requires no selection or mode.
+  await clearSelectionWithEscape(page)
   const point = await renderedBuildingPoint(page, id)
   await page.mouse.move(1400, 40)
   await page.waitForFunction(() => window.testScene.hoveredObject === null)
@@ -478,9 +486,9 @@ async function edgeGeometry(page, id) {
     await control.focus()
     let geometry = await measure(id)
     for (let step = 0; step < 96 && !geometry.clamped; step++) {
-      await page.keyboard.down('d')
+      await page.keyboard.down('Numpad6')
       await page.waitForTimeout(50)
-      await page.keyboard.up('d')
+      await page.keyboard.up('Numpad6')
       geometry = await measure(id)
       if (!geometry.visible || geometry.hidden)
         throw new Error(

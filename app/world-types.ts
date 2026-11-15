@@ -185,6 +185,10 @@ export type Battle = Point & {
 export type Unit = Point & {
   // Raw person byte +0x7f. Its Mission 12 script mutation is known; the later consumer is not.
   nativeFlags7f?: number
+  // Numbered follower-group membership (native person +0x7a bits 1..6) and bit 0,
+  // the previous-order selection snapshot recalled by Shift+Backspace. Kept on
+  // the unit rather than its replaceable native records; absent means none.
+  groups?: number
   attackReservation?: AttackReservation
   damageAttacker?: number
   supportHeight?: number
@@ -543,13 +547,19 @@ export type World = {
   randomState: number
   cosmeticRandom: { randomState: number }
   worshipAcquisition: WorshipAcquisitionRuntime
+  // One pending manual Spy discovery (native one-slot tribe command); checkpointed.
+  spyDiscovery: { id: number } | null
   effectCounter: number
   secondaryEffects: SecondaryEffects
   nextId: number
   footprints: Footprints
   selected: number[]
   orderCursor: number
-  mode: Spell | BuildingKind | null
+  // 'guardPost' is the building-panel model-17 placement tool (#1010).
+  mode: Spell | BuildingKind | 'guardPost' | null
+  // Tribe +0xc5c Guard Post chain index per tribe: 0 starts a new guard,
+  // later Ctrl/Alt posts extend a route (004ba9b0). Reset by tribe command 0x7a.
+  guardPostChain: number[]
   buildingDirections: Record<BuildingKind, number>
   paused: boolean
   speed: number

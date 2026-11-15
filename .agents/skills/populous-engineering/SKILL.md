@@ -55,6 +55,41 @@ without changing stored data. Explicit classic/native research fixtures are sepa
    authorized main merges. Workers never push main. Report useful results and
    concrete blockers, not repeated status snapshots.
 
+## Fast paths
+
+- **Controls and shortcuts.** Start from the
+  [native input-binding atlas](../../../decomp/research/native-input-bindings/README.md).
+  For a quick lookup, run
+  `python3 -B scripts/native-input-bindings.py "$POPULOUS_EXE" --markdown --key <key|0xACTION>`.
+  It gives every default chord, its action and its `process_cmd` case. Do not
+  re-derive bindings from fan guides.
+- **Missing dependencies.** If `pnpm run` reports `ERR_PNPM_VERIFY_DEPS_BEFORE_RUN`,
+  install the committed profile with `pnpm install --frozen-lockfile --ignore-scripts`
+  in that checkout/worktree.
+- **Parallel workers on one host.** Follow `engineering/performance-queue.md` for
+  competing jobs. For ad-hoc foreground full checks, builds and browser runs inside one
+  stable host scope, a shared lock is enough: `lockf -k /tmp/pnd-heavy.lock <command>`
+  (macOS) or `flock /tmp/pnd-heavy.lock <command>` (Linux). Never use it for timing
+  measurements, and give each browser server its own port.
+- **Before review.** Run every portable check that `orchestration:plan` lists, not a
+  hand-picked subset, and lint/format the changed files. Register new `app/` files in
+  `scripts/integration-queue/composed-source-inputs.json`.
+  - When you rebind a key, run `node scripts/key-consumers.mjs --key <k>` and reconcile
+    every hit, including rendered scripts that use the key only for setup.
+  - Page keyboard harness tests must supply every binding the handler evaluates.
+  - A local macOS full check has host-only failures, so leave the full gate to the
+    hosted Ready check.
+- **Several Ready PRs that overlap.** Merging them one at a time invalidates each later
+  gate. Instead, compose them in dependency order on one integration branch. Resolve
+  conflicts there, run the rendered checks of each PR on the combined tree, and audit
+  rebound keys across the whole tree. Then get a fresh review of the resolutions only,
+  gate the combined tree once, and merge with a merge commit so every PR records as
+  merged. Before `gh pr ready` and before merging, confirm that `refs/pull/<N>/merge`
+  parents are current main and the head.
+  After another PR merges, GitHub can keep serving a stale merge ref for many minutes.
+  If the parents still show the old main, run `gh pr update-branch <N>`, which merges
+  main into the head, and re-verify before `gh pr ready`.
+
 GitHub owns task status; `parity.json` owns verified gameplay coverage. No delivery
 clock, browser watcher, separate reviewer chat, or Local Dev release step is required.
 Retain all evidence boundaries and permissions. A denied operation does not authorize

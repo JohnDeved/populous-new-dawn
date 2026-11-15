@@ -48,7 +48,8 @@ test('original c textures and pre-existing model values stay intact while p pres
   // Pin every original decoded pixel and frame value instead, independently
   // of the appended native-frame oracle. Never rebaseline this old prefix.
   const effectAtlas = png('effects')
-  assert.deepEqual([effectAtlas.width, effectAtlas.height], [2048, 7168])
+  // The Armageddon arrival sparkle (#214) appends two more rows after Hypnotise.
+  assert.deepEqual([effectAtlas.width, effectAtlas.height], [2048, 7168 + 512])
   assert.equal(
     hash(effectAtlas.pixels.subarray(0, 2048 * 6656 * 4)),
     '123d0f355757e31cd51fd3ed081d1b05d6165702b38224e26863218c2e18282b'
@@ -56,6 +57,7 @@ test('original c textures and pre-existing model values stay intact while p pres
   const oldEffects = structuredClone(effects)
   oldEffects.height = 6656
   delete oldEffects.animations.hypnotise
+  delete oldEffects.animations.armageddonSparkle
   assert.equal(hash(JSON.stringify(oldEffects)),
     '8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb')
   // The authenticated Balloon Hut append adds only87–90; every prior model

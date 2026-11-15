@@ -1,0 +1,53 @@
+{
+  "source": "Populous: The Beginning supplied F00T8 in-game font, digits 1-6",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "inputs": {
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/f00t8-0.dat": "133d57af1e55af9777a557b3eb6b19e515bd248086c7c8d9ee69f8a773d5a78f"
+  },
+  "colourIndex": 219,
+  "reference": {
+    "w": 9,
+    "h": 15
+  },
+  "width": 47,
+  "height": 15,
+  "rects": {
+    "1": {
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 15
+    },
+    "2": {
+      "x": 7,
+      "y": 0,
+      "w": 7,
+      "h": 15
+    },
+    "3": {
+      "x": 15,
+      "y": 0,
+      "w": 7,
+      "h": 15
+    },
+    "4": {
+      "x": 23,
+      "y": 0,
+      "w": 7,
+      "h": 15
+    },
+    "5": {
+      "x": 31,
+      "y": 0,
+      "w": 7,
+      "h": 15
+    },
+    "6": {
+      "x": 39,
+      "y": 0,
+      "w": 7,
+      "h": 15
+    }
+  }
+}

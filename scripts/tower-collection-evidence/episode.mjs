@@ -196,8 +196,15 @@ export async function runTowerCollectionEpisode({ browser, url, output, signal, 
     }
     if (messageFailed) throw messageFailure
     check()
-    // H preserves the exact single-Shaman selection required below.
-    await page.keyboard.press('h')
+    // H is now the native reincarnation-site camera key (action 0x96). Portrait
+    // primary activation is additive and is consumed by the next logical turn, so
+    // wait for the exact single-Shaman result.
+    await button('Select shaman').click()
+    await page.waitForFunction(() => {
+      const world = window.testStore.getWorld(),
+        shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+      return world.selected.length === 1 && world.selected[0] === shaman?.id
+    })
     await button('Select shaman').click({ button: 'right' })
     check(); assert.ok(report.controlledFrames < 24000, 'Admit the zero-delta picker presentation visit')
     const target = await page.evaluate(() => {

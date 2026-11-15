@@ -23,7 +23,7 @@ try {
     [['a'],[64832,472,333]], [['ArrowRight'],[65000,200,359]],
     [['q'],[65000,200,307]], [['e'],[65000,200,359]],
     [['w','a','e'],[65140,629,359]],
-    [['w','s','a','d','q','e'],[65140,629,359]],
+    [['w','s','a','Numpad6','q','e'],[65140,629,359]],
   ]
   for (const [keys,[x,y,angle]] of cases) {
     await reset()
@@ -47,7 +47,7 @@ try {
   await page.keyboard.up('w');await page.evaluate(()=>{window.testScene.world.inputMask=0})
   // Focused HUD buttons must not swallow camera keys; pan interrupts focus.
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
-  await page.keyboard.down('d');await step();await page.keyboard.up('d')
+  await page.keyboard.down('Numpad6');await step();await page.keyboard.up('Numpad6')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
   const canvas=page.locator('canvas[aria-label="Island battlefield. Click to select, right-click to move, drag to select a group."]'),rect=await canvas.boundingBox()
   const center={x:Math.round(rect.x+rect.width/2),y:Math.round(rect.y+rect.height/2)}

@@ -1,7 +1,7 @@
 // npm run dev, then node scripts/check-browser-unit-shadows.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, chooseSpell } from './browser-game.mjs'
 import { spriteShadow, spriteBucket } from '../app/projection.ts'
 import effects from '../app/original-effects.json' with { type: 'json' }
 import units from '../app/original-units.json' with { type: 'json' }
@@ -45,7 +45,7 @@ try {
     assert.deepEqual(item.layers, draws.map(d=>({piece:d.piece,size:[d.w,d.h,1]})))
   }
   assert.ok(new Set(initial.map(p => p.bucket)).size > 1, 'Units use their actual depth, not a fixed bucket')
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   const target = await page.evaluate(() => {
     const s = window.testScene, p = s.screen(window.shadowTarget), r = s.container.getBoundingClientRect()
     s.world.speed = 0.25

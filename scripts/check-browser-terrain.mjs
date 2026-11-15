@@ -1,6 +1,7 @@
 // Start npm run dev, then: node scripts/check-browser-terrain.mjs
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
+import {chooseSpell} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];
@@ -27,7 +28,7 @@ try{
   window.terrainBefore=s.terrainMap.image.data.slice();window.versionBefore=w.terrainVersion;
   window.tileUpdates=[];const update=s.updateTerrainTexture.bind(s);s.updateTerrainTexture=()=>{const old=s.terrainAtlasState;update();if(old!==s.terrainAtlasState)window.tileUpdates.push(s.terrainAtlasState.updated);};
  });
- await page.keyboard.press('2');
+ await chooseSpell(page,'Land Bridge');
  await page.waitForFunction(()=>window.testScene.world.mode==='bridge');
  await page.waitForTimeout(100);
  const target=await page.evaluate(()=>{const s=window.testScene,p=s.screen({x:0,z:4}),r=s.renderer.domElement.getBoundingClientRect();return {x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2};});

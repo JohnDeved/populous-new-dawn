@@ -143,21 +143,23 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
     const person = u.native,
       order = currentPersonOrder(w.buildingOrders, person)
     assert.equal(w.objectCells.objects.get(430), person)
-    if (w.turn === 1486) assert.equal(ai.selectionOwner, taskIndex)
-    if (!commit && person.commands.includes(45)) {
+    // Computer marker patrols keep cycling, so the type-24 marker task no longer
+    // holds the selection lock at 1474..1485 re-selecting idled patrollers.
+    if (w.turn === 1474) assert.equal(ai.selectionOwner, taskIndex)
+    if (!commit && person.commands.includes(42)) {
       commit = w.turn
       assert.equal(person, p)
       assert.equal(ai.selectionOwner === taskIndex, false)
       assert.equal(w.buildingOrders.records[3].references, 0)
       assert.deepEqual(owners(3), [])
-      assert.deepEqual(owners(45), [430])
+      assert.deepEqual(owners(42), [430])
       assert.equal(order.references, 1)
     }
     if (commit && !preaching && order?.model === 17 && person.substate === 3) preaching = w.turn
     if (w.turn === 3521) assert.equal(active(w).filter(t => t.type === 11).length, 0)
   }
-  assert.equal(commit, 1490)
-  assert.equal(preaching, 1849)
+  assert.equal(commit, 1478)
+  assert.equal(preaching, 1824)
   assert.equal(u.native, p)
   assert.ok(
     u.x !== origin.x || u.z !== origin.z,
@@ -166,7 +168,7 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
   const order = currentPersonOrder(w.buildingOrders, u.native)
   assert.deepEqual([order.model, order.a, order.b], [17, 25728, 640])
   assert.equal(order.references, 1)
-  assert.deepEqual(owners(45), [430])
+  assert.deepEqual(owners(42), [430])
   assert.equal(w.buildingOrders.records[3].references, 0)
   assert.equal(u.native.substate, 3)
   assert.ok(u.hp > 0)

@@ -2,6 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
+import { overviewShortcut } from '../app/quick-camera-shortcuts.ts'
+import { messageBoxBindings } from './support/follower-nearby-page.mjs'
 
 // Execute complete actual Home owners with supplied event/store/Scene ports.
 // No React, JSX, browser event dispatch or whole selection module is evaluated.
@@ -21,6 +24,7 @@ function namedFunction(path, name) {
   return between(text, marker, '\n}\n').replace('export function', 'function') + '\n}\n'
 }
 const cancellationSource = namedFunction('../app/selection-runtime.ts', 'cancelInteraction') +
+  namedFunction('../app/selection-runtime.ts', 'recordPreviousSelection') +
   namedFunction('../app/person-orders.ts', 'deselectPerson')
 const { cancelInteraction } = new Function(stripTypeScriptTypes(cancellationSource) + '\nreturn { cancelInteraction }')()
 const compile = (text, bindings) => new Function(...Object.keys(bindings), text)(...Object.values(bindings))
@@ -50,7 +54,7 @@ function fixture({ level = 2, paused = false, mode = null, selected = [], inputM
   }
   const disposeEffect = compile('return (' + stripTypeScriptTypes(effectSource) + ')', {
     ...bindings, ...page, ready, menu: menuOpen, cheatsOpen, selectorOpen,
-    messageDetails: { current: new Map([[0, { open: popupOpen }]]) }, SPELLS: [], tutorialLevel: 79,
+    messageDetails: { current: new Map([[0, { open: popupOpen }]]) }, ...messageBoxBindings, SPELLS: [], tutorialLevel: 79, followerGroupShortcut, overviewShortcut,
     cancelInteraction, update() {}, window: events, globalThis: events,
   })()
   function escape(overrides = {}) {

@@ -146,6 +146,8 @@ function openingFixture(label, { detail = 1, nested = false, paused = false, inH
   }
   const capture = compiledFunction(expression(attrs(shell).get('onClickCapture')), {
     world, blockLoadingInteraction: () => loadingBlocked,
+    // No campaign message box is open in these launcher cases.
+    blockMessageModalInteraction: () => false,
   })
   const openMenu = compiledFunction(openMenuCall.arguments[0].getText(source), bindings)
   const closeMenu = compiledFunction(functions.get('closeMenu').getText(source), bindings)

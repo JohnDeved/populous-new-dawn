@@ -23,6 +23,6 @@ export function syncSecondaryReservations(scene: GameScene) {
   scene.world.secondaryEffects.reservations = [
     ...[...(scene.objectPanels?.panels.keys() ?? [])].map(id => `object-panel:${id}`),
     ...[...buildingOwners].map(id => `building-panel:${id}`),
-    ...(scene.cursor?.visible ? ['placement-preview'] : []),
+    ...(scene.cursor?.visible || scene.guardPostPreview?.visible ? ['placement-preview'] : []),
   ]
 }

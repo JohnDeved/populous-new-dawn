@@ -2,6 +2,58 @@
   "version": 1,
   "checks": [
     {
+      "id": "composed-source-inventory",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Fail fast when an application file is added, removed or renamed without updating the composed source inventory.",
+      "coveredBehavior": [
+        "Every tracked app/ file is bound exactly once by scripts/integration-queue/composed-source-inputs.json",
+        "Composed spell-integration source readers stay consistent with that inventory"
+      ],
+      "knownLimits": [
+        "Inventory and composed-source structure only; no gameplay, browser or build behavior.",
+        "Reads git's cached index: a new app file is detected only once it is staged or committed."
+      ],
+      "executable": "node",
+      "args": ["--test", "--test-concurrency=1", "tests/integration-composed-spells.test.mjs"],
+      "cwd": ".",
+      "env": [],
+      "triggerPaths": [
+        "app",
+        "scripts/integration-queue/composed-source-inputs.json",
+        "tests/integration-composed-spells.test.mjs"
+      ],
+      "inputs": [
+        "app",
+        "engineering/test-resources.json",
+        "public/original/atlas.png",
+        "public/original/tornado.png",
+        "public/original/unit-layers.png",
+        "scripts/artifact-zip.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/browser-new-game.mjs",
+        "scripts/browser-performance/snapshot-setup.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/checkpoint-readback.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/integration-queue",
+        "scripts/local-render",
+        "scripts/tutorial-browser",
+        "tests/fixtures/follower-source-artwork.json",
+        "tests/fixtures/follower-source-witness.json",
+        "tests/fixtures/tornado-original.json",
+        "tests/integration-composed-spells.test.mjs",
+        "tests/level-start-fixture.mjs",
+        "tests/support"
+      ],
+      "prerequisites": ["Node.js >=22.13.0", "Git"],
+      "sideEffects": [
+        "Spawns `git ls-files --cached -z -- app/` in the checkout. Creates and removes owned temporary passive-reader fixture/receipt directories under the OS temporary directory. No browser, build or network."
+      ],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "hud-preference-ssr-evidence-tests",
       "kind": "portable",
       "automation": "safe",
@@ -4760,6 +4812,59 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "animation-cadence-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check the read-only animation cadence audit, the descriptor-aware legacy unit fallback cadence and the effect draw-visit cadence (#214).",
+      "coveredBehavior": [
+        "Audit classification, static gate evidence, stale anchors (synthetic and shipped registry)",
+        "Legacy fallback holds per draw descriptor through advanceGame and the Scene unit loop at 1x/2x and 30-144 Hz",
+        "Lightning branch shapes and cosmetic RNG per draw visit (also while paused), effect 60/61/66 sprite counters and the Armageddon arrival HFX1401-1416 cycle through advanceGame and scene-effects at 1x/2x and 30-144 Hz"
+      ],
+      "knownLimits": [
+        "Original absolute draw rate is not established; presentation-visit rows are relative to the 24 Hz adapter."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/animation-cadence-audit.test.mjs",
+        "tests/unit-fallback-cadence.test.mjs",
+        "tests/animation-cadence-effects.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/animation.ts",
+        "app/scene-entities.ts",
+        "app/unit-kinds.ts",
+        "app/unit-animation-source.ts",
+        "app/selection-runtime.ts",
+        "app/game-clock.ts",
+        "app/original-effects.json",
+        "app/original-rules.json",
+        "app/original-units.json",
+        "scripts/animation-cadence-audit.mjs",
+        "scripts/animation-cadence-families.json",
+        "decomp/research/animation-cadence/native-setters.json",
+        "tests/animation-cadence-audit.test.mjs",
+        "tests/unit-fallback-cadence.test.mjs",
+        "tests/animation-cadence-effects.test.mjs",
+        "tests/support/bloodlust-scene.mjs",
+        "app/lightning.ts",
+        "app/scene-effects.ts",
+        "app/world-effects.ts",
+        "app/world-turn.ts",
+        "app/spell-effects-runtime.ts",
+        "app/live-people.ts",
+        "app/scene.ts",
+        "public/original/effects.png"
+      ],
+      "prerequisites": ["Installed locked dependencies"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "camera-native",
       "kind": "native",
       "automation": "safe",
@@ -5909,6 +6014,7 @@
         "app/live-command.ts",
         "scripts/check-browser-shaman-death-ground.mjs",
         "scripts/browser-game.mjs",
+        "scripts/browser-new-game.mjs",
         "scripts/hud-texture-readiness.mjs",
         "scripts/campaign-start-readiness.mjs",
         "scripts/local-render/harness.mjs",
@@ -6037,7 +6143,7 @@
       "automation": "manual",
       "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
       "coveredBehavior": [
-        "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
+        "Shipped setup/portrait Shaman selection/ordinary attack and natural model12 lifecycle",
         "Deferred wave visit, orbit pixels, successful respawn and cleanup",
         "Fresh-page checkpoint and responsive rendering",
         "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",

@@ -152,7 +152,7 @@ async function installLoadObserver(page) {
     const unsubscribe = store.subscribe(() => {
       const world = store.getWorld()
       if (world === before) return
-      window.recoveryLoadBoundary = { version: 3, world: structuredClone(world) }
+      window.recoveryLoadBoundary = { version: 4, world: structuredClone(world) }
       unsubscribe()
     })
   })

@@ -76,7 +76,18 @@ function requireCurrentCheckpoint(world: World) {
     !validSceneryProvenance(world) ||
     !(world.objectCells.heads instanceof Float64Array) ||
     !world.secondaryEffects ||
+    !Array.isArray(world.guardPostChain) ||
+    world.guardPostChain.length !== 4 ||
+    !world.guardPostChain.every(n => Number.isInteger(n) && n >= 0 && n <= 255) ||
     !world.worshipAcquisition ||
+    !(
+      world.spyDiscovery === null ||
+      (typeof world.spyDiscovery === 'object' && Number.isInteger(world.spyDiscovery?.id))
+    ) ||
+    // Spell-panel focus memory (#1008): no defaulting for saves that predate it.
+    !world.manaTribes.every(
+      t => Number.isInteger(t.chargeFocusMask) && Number.isInteger(t.chargeFocusModel)
+    ) ||
     !Array.isArray(world.campaignAIs) ||
     !Array.isArray(world.vehicles) ||
     !Array.isArray(world.levelStart) ||

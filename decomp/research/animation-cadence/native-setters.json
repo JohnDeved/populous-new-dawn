@@ -1,0 +1,1165 @@
+{
+ "tool": "scripts/native-animation-setters.py",
+ "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+ "capstone": "5.0.7",
+ "python": "3.9.6",
+ "setter": "004ee700",
+ "calls": 94,
+ "constant": 64,
+ "records": [
+  {
+   "call": "0040300e",
+   "draw": null,
+   "object": 154,
+   "objectPush": "00402fe8",
+   "drawPush": "0040300c",
+   "agreement": "1/2",
+   "kind": "dynamic",
+   "function": "00402ec0",
+   "gateWrites": []
+  },
+  {
+   "call": "004030fd",
+   "draw": 10,
+   "object": null,
+   "objectPush": "004030f9",
+   "drawPush": "004030fa",
+   "agreement": "28/28",
+   "kind": "dynamic",
+   "function": "00402ec0",
+   "gateWrites": []
+  },
+  {
+   "call": "00403159",
+   "draw": 10,
+   "object": null,
+   "objectPush": "00403155",
+   "drawPush": "00403156",
+   "agreement": "27/27",
+   "kind": "dynamic",
+   "function": "00402ec0",
+   "gateWrites": []
+  },
+  {
+   "call": "004031f1",
+   "draw": null,
+   "object": null,
+   "objectPush": "004031d8",
+   "drawPush": "004031ef",
+   "agreement": "16/17",
+   "kind": "dynamic",
+   "function": "00402ec0",
+   "gateWrites": []
+  },
+  {
+   "call": "00404a0d",
+   "draw": null,
+   "object": null,
+   "objectPush": "004049e8",
+   "drawPush": "00404a0b",
+   "agreement": "3/4",
+   "kind": "dynamic",
+   "function": "00404640",
+   "gateWrites": []
+  },
+  {
+   "call": "00404a5d",
+   "draw": null,
+   "object": null,
+   "objectPush": "00404a5a",
+   "drawPush": "00404a5b",
+   "agreement": "25/25",
+   "kind": "dynamic",
+   "function": "00404640",
+   "gateWrites": []
+  },
+  {
+   "call": "00404f56",
+   "draw": 41,
+   "object": 1441,
+   "objectPush": "00404f45",
+   "drawPush": "00404f53",
+   "agreement": "20/20",
+   "kind": "constant",
+   "function": "00404c80",
+   "gateWrites": []
+  },
+  {
+   "call": "00406ea8",
+   "draw": 10,
+   "object": null,
+   "objectPush": "00406ea4",
+   "drawPush": "00406ea5",
+   "agreement": "31/31",
+   "kind": "dynamic",
+   "function": "00406e90",
+   "gateWrites": []
+  },
+  {
+   "call": "00406f04",
+   "draw": 10,
+   "object": null,
+   "objectPush": "00406f00",
+   "drawPush": "00406f01",
+   "agreement": "27/27",
+   "kind": "dynamic",
+   "function": "00406e90",
+   "gateWrites": []
+  },
+  {
+   "call": "0040713c",
+   "draw": null,
+   "object": null,
+   "objectPush": "00407128",
+   "drawPush": "0040713a",
+   "agreement": "4/7",
+   "kind": "dynamic",
+   "function": "00407060",
+   "gateWrites": []
+  },
+  {
+   "call": "0043cbbd",
+   "draw": null,
+   "object": null,
+   "objectPush": "0043cbb2",
+   "drawPush": "0043cbbb",
+   "agreement": "3/4",
+   "kind": "dynamic",
+   "function": "0043c7a0",
+   "gateWrites": []
+  },
+  {
+   "call": "004459b6",
+   "draw": 6,
+   "object": 0,
+   "objectPush": "004459b1",
+   "drawPush": "004459b3",
+   "agreement": "27/27",
+   "kind": "constant",
+   "function": "00445940",
+   "gateWrites": []
+  },
+  {
+   "call": "00445a28",
+   "draw": 6,
+   "object": 0,
+   "objectPush": "00445a23",
+   "drawPush": "00445a25",
+   "agreement": "27/28",
+   "kind": "constant",
+   "function": "00445940",
+   "gateWrites": []
+  },
+  {
+   "call": "00445a9a",
+   "draw": 6,
+   "object": 0,
+   "objectPush": "00445a95",
+   "drawPush": "00445a97",
+   "agreement": "28/28",
+   "kind": "constant",
+   "function": "00445940",
+   "gateWrites": []
+  },
+  {
+   "call": "00445b18",
+   "draw": 6,
+   "object": 0,
+   "objectPush": "00445b13",
+   "drawPush": "00445b15",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00445940",
+   "gateWrites": []
+  },
+  {
+   "call": "00445b8a",
+   "draw": 6,
+   "object": 0,
+   "objectPush": "00445b85",
+   "drawPush": "00445b87",
+   "agreement": "23/23",
+   "kind": "constant",
+   "function": "00445940",
+   "gateWrites": []
+  },
+  {
+   "call": "00445bd8",
+   "draw": 6,
+   "object": 0,
+   "objectPush": "00445bd3",
+   "drawPush": "00445bd5",
+   "agreement": "27/27",
+   "kind": "constant",
+   "function": "00445940",
+   "gateWrites": []
+  },
+  {
+   "call": "00448089",
+   "draw": 4,
+   "object": 0,
+   "objectPush": "00448084",
+   "drawPush": "00448086",
+   "agreement": "30/30",
+   "kind": "constant",
+   "function": "00447fd0",
+   "gateWrites": []
+  },
+  {
+   "call": "00448273",
+   "draw": null,
+   "object": null,
+   "objectPush": "00448270",
+   "drawPush": "00448271",
+   "agreement": "24/24",
+   "kind": "dynamic",
+   "function": "00448200",
+   "gateWrites": []
+  },
+  {
+   "call": "00463c6e",
+   "draw": 2,
+   "object": null,
+   "objectPush": "00463c6a",
+   "drawPush": "00463c6b",
+   "agreement": "28/28",
+   "kind": "dynamic",
+   "function": "00463ba0",
+   "gateWrites": []
+  },
+  {
+   "call": "004a6730",
+   "draw": null,
+   "object": null,
+   "objectPush": "004a6729",
+   "drawPush": "004a672e",
+   "agreement": "24/28",
+   "kind": "dynamic",
+   "function": "004a66c0",
+   "gateWrites": []
+  },
+  {
+   "call": "004bac90",
+   "draw": 41,
+   "object": 1433,
+   "objectPush": "004bac85",
+   "drawPush": "004bac8d",
+   "agreement": "24/24",
+   "kind": "constant",
+   "function": "004bab10",
+   "gateWrites": []
+  },
+  {
+   "call": "004bb38e",
+   "draw": 40,
+   "object": 1120,
+   "objectPush": "004bb386",
+   "drawPush": "004bb38b",
+   "agreement": "26/26",
+   "kind": "constant",
+   "function": "004bb350",
+   "gateWrites": []
+  },
+  {
+   "call": "004bbd3a",
+   "draw": 29,
+   "object": 1120,
+   "objectPush": "004bbd2f",
+   "drawPush": "004bbd37",
+   "agreement": "19/19",
+   "kind": "constant",
+   "function": "004bbcf0",
+   "gateWrites": []
+  },
+  {
+   "call": "004bc549",
+   "draw": 29,
+   "object": 1248,
+   "objectPush": "004bc53e",
+   "drawPush": "004bc543",
+   "agreement": "26/26",
+   "kind": "constant",
+   "function": "004bc500",
+   "gateWrites": []
+  },
+  {
+   "call": "004d269f",
+   "draw": 0,
+   "object": 0,
+   "objectPush": "004d2697",
+   "drawPush": "004d2699",
+   "agreement": "28/33",
+   "kind": "constant",
+   "function": "004d23d0",
+   "gateWrites": [
+    "004d23ed"
+   ]
+  },
+  {
+   "call": "004d40d2",
+   "draw": null,
+   "object": null,
+   "objectPush": "004d40cf",
+   "drawPush": "004d40d0",
+   "agreement": "24/24",
+   "kind": "dynamic",
+   "function": "004d4040",
+   "gateWrites": []
+  },
+  {
+   "call": "004d4153",
+   "draw": null,
+   "object": null,
+   "objectPush": "004d4150",
+   "drawPush": "004d4151",
+   "agreement": "22/22",
+   "kind": "dynamic",
+   "function": "004d4040",
+   "gateWrites": []
+  },
+  {
+   "call": "004d41a7",
+   "draw": null,
+   "object": null,
+   "objectPush": "004d41a4",
+   "drawPush": "004d41a5",
+   "agreement": "26/26",
+   "kind": "dynamic",
+   "function": "004d4040",
+   "gateWrites": []
+  },
+  {
+   "call": "004d4c5e",
+   "draw": 44,
+   "object": 1401,
+   "objectPush": "004d4c4d",
+   "drawPush": "004d4c5b",
+   "agreement": "20/20",
+   "kind": "constant",
+   "function": "004d4b50",
+   "gateWrites": []
+  },
+  {
+   "call": "004d4d77",
+   "draw": 44,
+   "object": 1401,
+   "objectPush": "004d4d66",
+   "drawPush": "004d4d74",
+   "agreement": "19/19",
+   "kind": "constant",
+   "function": "004d4d10",
+   "gateWrites": []
+  },
+  {
+   "call": "004dbcf6",
+   "draw": 43,
+   "object": 1210,
+   "objectPush": "004dbce0",
+   "drawPush": "004dbcf3",
+   "agreement": "16/16",
+   "kind": "constant",
+   "function": "004db5e0",
+   "gateWrites": []
+  },
+  {
+   "call": "004dce00",
+   "draw": 4,
+   "object": 69,
+   "objectPush": "004dcdf5",
+   "drawPush": "004dcdf7",
+   "agreement": "24/24",
+   "kind": "constant"
+  },
+  {
+   "call": "004dd57c",
+   "draw": 31,
+   "object": 1108,
+   "objectPush": "004dd559",
+   "drawPush": "004dd55e",
+   "agreement": "4/4",
+   "kind": "constant"
+  },
+  {
+   "call": "004de4da",
+   "draw": 4,
+   "object": null,
+   "objectPush": "004de4d6",
+   "drawPush": "004de4d7",
+   "agreement": "36/36",
+   "kind": "dynamic",
+   "function": "004de440",
+   "gateWrites": []
+  },
+  {
+   "call": "004de516",
+   "draw": 4,
+   "object": null,
+   "objectPush": "004de512",
+   "drawPush": "004de513",
+   "agreement": "35/35",
+   "kind": "dynamic",
+   "function": "004de440",
+   "gateWrites": []
+  },
+  {
+   "call": "004dfb94",
+   "draw": 44,
+   "object": 1401,
+   "objectPush": "004dfb83",
+   "drawPush": "004dfb91",
+   "agreement": "19/19",
+   "kind": "constant",
+   "function": "004df670",
+   "gateWrites": []
+  },
+  {
+   "call": "004e2731",
+   "draw": null,
+   "object": null,
+   "objectPush": "004e272e",
+   "drawPush": "004e272f",
+   "agreement": "26/26",
+   "kind": "dynamic"
+  },
+  {
+   "call": "004fa584",
+   "draw": 0,
+   "object": 14,
+   "objectPush": "004fa57f",
+   "drawPush": "004fa581",
+   "agreement": "20/20",
+   "kind": "constant",
+   "function": "004fa530",
+   "gateWrites": []
+  },
+  {
+   "call": "004fa5f0",
+   "draw": 2,
+   "object": 13,
+   "objectPush": "004fa5eb",
+   "drawPush": "004fa5ed",
+   "agreement": "22/22",
+   "kind": "constant",
+   "function": "004fa530",
+   "gateWrites": []
+  },
+  {
+   "call": "004fa633",
+   "draw": 2,
+   "object": 13,
+   "objectPush": "004fa62e",
+   "drawPush": "004fa630",
+   "agreement": "22/22",
+   "kind": "constant",
+   "function": "004fa530",
+   "gateWrites": []
+  },
+  {
+   "call": "004fa672",
+   "draw": 0,
+   "object": 0,
+   "objectPush": "004fa66d",
+   "drawPush": "004fa66f",
+   "agreement": "20/20",
+   "kind": "constant",
+   "function": "004fa530",
+   "gateWrites": []
+  },
+  {
+   "call": "004fa6fd",
+   "draw": 10,
+   "object": null,
+   "objectPush": "004fa6f9",
+   "drawPush": "004fa6fa",
+   "agreement": "25/25",
+   "kind": "dynamic",
+   "function": "004fa530",
+   "gateWrites": []
+  },
+  {
+   "call": "004faccf",
+   "draw": 0,
+   "object": null,
+   "objectPush": "004facc8",
+   "drawPush": "004faccc",
+   "agreement": "29/29",
+   "kind": "dynamic",
+   "function": "004fa9e0",
+   "gateWrites": []
+  },
+  {
+   "call": "004fad70",
+   "draw": 0,
+   "object": null,
+   "objectPush": "004fad69",
+   "drawPush": "004fad6d",
+   "agreement": "29/29",
+   "kind": "dynamic",
+   "function": "004fa9e0",
+   "gateWrites": []
+  },
+  {
+   "call": "004faea8",
+   "draw": 43,
+   "object": 1417,
+   "objectPush": "004fae9d",
+   "drawPush": "004faea5",
+   "agreement": "25/27",
+   "kind": "constant",
+   "function": "004fa9e0",
+   "gateWrites": []
+  },
+  {
+   "call": "004fb223",
+   "draw": 2,
+   "object": 31,
+   "objectPush": "004fb21b",
+   "drawPush": "004fb220",
+   "agreement": "24/24",
+   "kind": "constant",
+   "function": "004fb1d0",
+   "gateWrites": []
+  },
+  {
+   "call": "004fc55b",
+   "draw": null,
+   "object": null,
+   "objectPush": "004fc552",
+   "drawPush": "004fc559",
+   "agreement": "17/17",
+   "kind": "dynamic",
+   "function": "004fc330",
+   "gateWrites": []
+  },
+  {
+   "call": "004fc5de",
+   "draw": 0,
+   "object": null,
+   "objectPush": "004fc5d7",
+   "drawPush": "004fc5db",
+   "agreement": "29/29",
+   "kind": "dynamic",
+   "function": "004fc570",
+   "gateWrites": []
+  },
+  {
+   "call": "004fc718",
+   "draw": 43,
+   "object": 1417,
+   "objectPush": "004fc70d",
+   "drawPush": "004fc715",
+   "agreement": "26/28",
+   "kind": "constant",
+   "function": "004fc570",
+   "gateWrites": []
+  },
+  {
+   "call": "00500aff",
+   "draw": 9,
+   "object": 0,
+   "objectPush": "00500afa",
+   "drawPush": "00500afc",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00500a30",
+   "gateWrites": []
+  },
+  {
+   "call": "00500ca8",
+   "draw": 2,
+   "object": 7,
+   "objectPush": "00500ca3",
+   "drawPush": "00500ca5",
+   "agreement": "28/28",
+   "kind": "constant",
+   "function": "00500a30",
+   "gateWrites": []
+  },
+  {
+   "call": "00502499",
+   "draw": 25,
+   "object": 24,
+   "objectPush": "00502494",
+   "drawPush": "00502496",
+   "agreement": "22/22",
+   "kind": "constant",
+   "function": "00502460",
+   "gateWrites": []
+  },
+  {
+   "call": "00502a2b",
+   "draw": null,
+   "object": null,
+   "objectPush": "00502a28",
+   "drawPush": "00502a29",
+   "agreement": "26/26",
+   "kind": "dynamic",
+   "function": "005029d0",
+   "gateWrites": []
+  },
+  {
+   "call": "00502ab9",
+   "draw": null,
+   "object": null,
+   "objectPush": "00502ab6",
+   "drawPush": "00502ab7",
+   "agreement": "26/26",
+   "kind": "dynamic",
+   "function": "005029d0",
+   "gateWrites": []
+  },
+  {
+   "call": "00502b26",
+   "draw": null,
+   "object": null,
+   "objectPush": "00502b23",
+   "drawPush": "00502b24",
+   "agreement": "23/26",
+   "kind": "dynamic",
+   "function": "005029d0",
+   "gateWrites": []
+  },
+  {
+   "call": "00502be4",
+   "draw": null,
+   "object": null,
+   "objectPush": "00502be1",
+   "drawPush": "00502be2",
+   "agreement": "30/30",
+   "kind": "dynamic",
+   "function": "005029d0",
+   "gateWrites": []
+  },
+  {
+   "call": "00509c49",
+   "draw": 8,
+   "object": 0,
+   "objectPush": "00509c41",
+   "drawPush": "00509c46",
+   "agreement": "33/33",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "00509e21",
+   "draw": 26,
+   "object": 0,
+   "objectPush": "00509e19",
+   "drawPush": "00509e1e",
+   "agreement": "33/33",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "00509e77",
+   "draw": 30,
+   "object": 1090,
+   "objectPush": "00509e6f",
+   "drawPush": "00509e74",
+   "agreement": "14/14",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "00509f29",
+   "draw": 30,
+   "object": 1099,
+   "objectPush": "00509f21",
+   "drawPush": "00509f26",
+   "agreement": "16/16",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "00509f7f",
+   "draw": 31,
+   "object": 1108,
+   "objectPush": "00509f77",
+   "drawPush": "00509f7c",
+   "agreement": "14/14",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "00509fdd",
+   "draw": 34,
+   "object": 1136,
+   "objectPush": "00509fd5",
+   "drawPush": "00509fda",
+   "agreement": "22/22",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a0ea",
+   "draw": 38,
+   "object": 1584,
+   "objectPush": "0050a0e2",
+   "drawPush": "0050a0e7",
+   "agreement": "26/34",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a13a",
+   "draw": 45,
+   "object": 1240,
+   "objectPush": "0050a132",
+   "drawPush": "0050a137",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a181",
+   "draw": 44,
+   "object": 1264,
+   "objectPush": "0050a179",
+   "drawPush": "0050a17e",
+   "agreement": "26/26",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a1c8",
+   "draw": 44,
+   "object": 1288,
+   "objectPush": "0050a1c0",
+   "drawPush": "0050a1c5",
+   "agreement": "26/26",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a20b",
+   "draw": 46,
+   "object": 1294,
+   "objectPush": "0050a203",
+   "drawPush": "0050a208",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a248",
+   "draw": 39,
+   "object": 1180,
+   "objectPush": "0050a240",
+   "drawPush": "0050a245",
+   "agreement": "14/14",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a29e",
+   "draw": 40,
+   "object": 1194,
+   "objectPush": "0050a296",
+   "drawPush": "0050a29b",
+   "agreement": "14/14",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a2fa",
+   "draw": 41,
+   "object": 1280,
+   "objectPush": "0050a2f2",
+   "drawPush": "0050a2f7",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a333",
+   "draw": 44,
+   "object": 1224,
+   "objectPush": "0050a32b",
+   "drawPush": "0050a330",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a360",
+   "draw": 43,
+   "object": 1210,
+   "objectPush": "0050a358",
+   "drawPush": "0050a35d",
+   "agreement": "27/27",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a3cb",
+   "draw": 47,
+   "object": 1288,
+   "objectPush": "0050a3c3",
+   "drawPush": "0050a3c8",
+   "agreement": "25/25",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050a48f",
+   "draw": 31,
+   "object": 1369,
+   "objectPush": "0050a484",
+   "drawPush": "0050a48c",
+   "agreement": "28/28",
+   "kind": "constant",
+   "function": "00509c10",
+   "gateWrites": []
+  },
+  {
+   "call": "0050bd27",
+   "draw": 0,
+   "object": 0,
+   "objectPush": "0050bd1f",
+   "drawPush": "0050bd24",
+   "agreement": "24/24",
+   "kind": "constant",
+   "function": "0050bcd0",
+   "gateWrites": []
+  },
+  {
+   "call": "0050bef6",
+   "draw": null,
+   "object": null,
+   "objectPush": "0050bef0",
+   "drawPush": "0050bef1",
+   "agreement": "28/28",
+   "kind": "dynamic",
+   "function": "0050beb0",
+   "gateWrites": []
+  },
+  {
+   "call": "0050bfb4",
+   "draw": 1,
+   "object": 314,
+   "objectPush": "0050bfa5",
+   "drawPush": "0050bfb1",
+   "agreement": "16/16",
+   "kind": "constant",
+   "function": "0050bf60",
+   "gateWrites": []
+  },
+  {
+   "call": "0050c0a4",
+   "draw": 51,
+   "object": 1574,
+   "objectPush": "0050c095",
+   "drawPush": "0050c0a1",
+   "agreement": "17/25",
+   "kind": "constant",
+   "function": "0050bf60",
+   "gateWrites": []
+  },
+  {
+   "call": "0050c1bb",
+   "draw": 40,
+   "object": 1329,
+   "objectPush": "0050c1b4",
+   "drawPush": "0050c1b5",
+   "agreement": "21/23",
+   "kind": "constant",
+   "function": "0050c150",
+   "gateWrites": []
+  },
+  {
+   "call": "0050c3df",
+   "draw": 1,
+   "object": 322,
+   "objectPush": "0050c3c5",
+   "drawPush": "0050c3cd",
+   "agreement": "10/10",
+   "kind": "constant",
+   "function": "0050c380",
+   "gateWrites": []
+  },
+  {
+   "call": "0050c464",
+   "draw": 29,
+   "object": 1120,
+   "objectPush": "0050c452",
+   "drawPush": "0050c461",
+   "agreement": "15/15",
+   "kind": "constant",
+   "function": "0050c410",
+   "gateWrites": []
+  },
+  {
+   "call": "0050c4e4",
+   "draw": 40,
+   "object": 1248,
+   "objectPush": "0050c4d2",
+   "drawPush": "0050c4e1",
+   "agreement": "16/16",
+   "kind": "constant",
+   "function": "0050c490",
+   "gateWrites": []
+  },
+  {
+   "call": "0050cde2",
+   "draw": 43,
+   "object": 1210,
+   "objectPush": "0050cdd3",
+   "drawPush": "0050cddc",
+   "agreement": "23/23",
+   "kind": "constant",
+   "function": "0050ccd0",
+   "gateWrites": []
+  },
+  {
+   "call": "0050ea20",
+   "draw": 44,
+   "object": 1264,
+   "objectPush": "0050ea18",
+   "drawPush": "0050ea1d",
+   "agreement": "29/29",
+   "kind": "constant",
+   "function": "0050e060",
+   "gateWrites": []
+  },
+  {
+   "call": "00511a4a",
+   "draw": 48,
+   "object": 1345,
+   "objectPush": "00511a26",
+   "drawPush": "00511a2f",
+   "agreement": "3/3",
+   "kind": "constant",
+   "function": "005119d0",
+   "gateWrites": []
+  },
+  {
+   "call": "00511aae",
+   "draw": 35,
+   "object": 0,
+   "objectPush": "00511aa2",
+   "drawPush": "00511aab",
+   "agreement": "23/23",
+   "kind": "constant",
+   "function": "00511a60",
+   "gateWrites": []
+  },
+  {
+   "call": "00511fbc",
+   "draw": 41,
+   "object": 1361,
+   "objectPush": "00511f9d",
+   "drawPush": "00511fb9",
+   "agreement": "8/10",
+   "kind": "constant",
+   "function": "00511f70",
+   "gateWrites": []
+  },
+  {
+   "call": "005136af",
+   "draw": 0,
+   "object": null,
+   "objectPush": "005136ab",
+   "drawPush": "005136ac",
+   "agreement": "32/32",
+   "kind": "dynamic",
+   "function": "00513620",
+   "gateWrites": []
+  },
+  {
+   "call": "00513715",
+   "draw": 32,
+   "object": 1152,
+   "objectPush": "0051370a",
+   "drawPush": "00513712",
+   "agreement": "23/23",
+   "kind": "constant",
+   "function": "005136d0",
+   "gateWrites": []
+  },
+  {
+   "call": "00513807",
+   "draw": 37,
+   "object": 1160,
+   "objectPush": "005137fc",
+   "drawPush": "00513804",
+   "agreement": "23/23",
+   "kind": "constant",
+   "function": "005137c0",
+   "gateWrites": []
+  },
+  {
+   "call": "0051387f",
+   "draw": 44,
+   "object": 1304,
+   "objectPush": "00513877",
+   "drawPush": "0051387c",
+   "agreement": "27/27",
+   "kind": "constant",
+   "function": "00513830",
+   "gateWrites": [
+    "005138a2"
+   ]
+  },
+  {
+   "call": "00514cc3",
+   "draw": 47,
+   "object": 1288,
+   "objectPush": "00514cb4",
+   "drawPush": "00514cbd",
+   "agreement": "23/23",
+   "kind": "constant",
+   "function": "00514c90",
+   "gateWrites": []
+  },
+  {
+   "call": "00514fbe",
+   "draw": 43,
+   "object": 1210,
+   "objectPush": "00514fb3",
+   "drawPush": "00514fbb",
+   "agreement": "24/24",
+   "kind": "constant",
+   "function": "00514f60",
+   "gateWrites": []
+  }
+ ],
+ "drawsByObject": {
+  "0": [
+   0,
+   4,
+   6,
+   8,
+   9,
+   26,
+   35
+  ],
+  "7": [
+   2
+  ],
+  "13": [
+   2
+  ],
+  "14": [
+   0
+  ],
+  "24": [
+   25
+  ],
+  "31": [
+   2
+  ],
+  "69": [
+   4
+  ],
+  "314": [
+   1
+  ],
+  "322": [
+   1
+  ],
+  "1090": [
+   30
+  ],
+  "1099": [
+   30
+  ],
+  "1108": [
+   31
+  ],
+  "1120": [
+   29,
+   40
+  ],
+  "1136": [
+   34
+  ],
+  "1152": [
+   32
+  ],
+  "1160": [
+   37
+  ],
+  "1180": [
+   39
+  ],
+  "1194": [
+   40
+  ],
+  "1210": [
+   43
+  ],
+  "1224": [
+   44
+  ],
+  "1240": [
+   45
+  ],
+  "1248": [
+   29,
+   40
+  ],
+  "1264": [
+   44
+  ],
+  "1280": [
+   41
+  ],
+  "1288": [
+   44,
+   47
+  ],
+  "1294": [
+   46
+  ],
+  "1304": [
+   44
+  ],
+  "1329": [
+   40
+  ],
+  "1345": [
+   48
+  ],
+  "1361": [
+   41
+  ],
+  "1369": [
+   31
+  ],
+  "1401": [
+   44
+  ],
+  "1417": [
+   43
+  ],
+  "1433": [
+   41
+  ],
+  "1441": [
+   41
+  ],
+  "1574": [
+   51
+  ],
+  "1584": [
+   38
+  ]
+ }
+}

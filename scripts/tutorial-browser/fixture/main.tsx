@@ -1,3 +1,21 @@
+// Query-gated evidence references belong only to this test-host entry.
+if (new URLSearchParams(location.search).get('owned-swamp-evidence') === '1') {
+  const evidence = import('../../owned-swamp-evidence/fixture.mjs')
+  Object.defineProperty(globalThis, '__pndOwnedSwampFixtureReady', {
+    value: evidence, writable: false, configurable: false,
+  })
+  // The evidence runner must await this promise; rejected imports remain failures.
+  void evidence.catch(() => {})
+}
+// Opt-in supplied Spy discovery state in the test host, never the shipped entry.
+if (new URLSearchParams(location.search).get('spy-discovery-fixture') === '1') {
+  const fixtureReady = import('../spy-discovery-fixture.mjs')
+  Object.defineProperty(globalThis, '__pndSpyDiscoveryFixtureReady', {
+    value: fixtureReady, writable: false, configurable: false,
+  })
+  // The runner must await this exact promise; rejected imports remain failures.
+  void fixtureReady.catch(() => {})
+}
 // Supplied worship-slot boundary in the test host only.
 if (new URLSearchParams(location.search).get('worship-panel-lifecycle') === '1') {
   void import('../worship-panel-fixture.mjs').then(fixture => {

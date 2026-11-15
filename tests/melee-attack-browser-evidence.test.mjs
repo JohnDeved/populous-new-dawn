@@ -231,8 +231,8 @@ test('ordinary M2 center fighter keeps each attack entry but can choose a differ
     previous = entry
   }
   assert.deepEqual(entries, [
-    { started: 395, action: 'special', opponent: 13, group: 1252 },
-    { started: 400, action: 'attack', opponent: 1207, group: 1252 },
+    { started: 382, action: 'special', opponent: 1207, group: 1254 },
+    { started: 387, action: 'attack', opponent: 19, group: 1254 },
   ])
 })
 

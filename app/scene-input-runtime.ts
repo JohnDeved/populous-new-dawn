@@ -30,7 +30,9 @@ import {
   type Building,
   type Point,
 } from './model'
-import { command } from './live-command.ts'
+import { command, guardPostClick, removeHoveredGuardPost } from './live-command.ts'
+import { removeOwnedSwamp } from './swamp-removal.ts'
+import { requestSpyDiscovery } from './live-spy-discovery.ts'
 import { focusHudPerson } from './hud-selection.ts'
 import { minimapPick } from './minimap.ts'
 import { pointerBrackets } from './world-picking.ts'
@@ -38,6 +40,10 @@ import { commandMarkerPoint } from './command-context.ts'
 import { dragCamera, cameraCommand, cameraEdgeButtons, mergeCameraInput } from './camera-input.ts'
 import { beginGlobeDrag } from './globe.ts'
 import { cameraBookmark } from './scene-camera-runtime.ts'
+import {
+  followerGroupDisplayKey,
+  releaseFollowerGroupDisplayKeys,
+} from './follower-group-display.ts'
 import {
   dragEndpoint,
   dragCommand,
@@ -61,6 +67,9 @@ import {
   queueBuildingInspection,
 } from './scene-tooltip-runtime.ts'
 
+// W/A/S/Q/E are port camera aliases: W/Q/E have no default original binding and the
+// original A/S actions (0xa0-0xa2, 0x63) are not implemented. Original D (record
+// 005d61fc) scatters through the page handler, so right pan stays on arrow/keypad.
 const cameraKeys: Record<string, number> = {
   w: 1,
   arrowup: 1,
@@ -68,7 +77,6 @@ const cameraKeys: Record<string, number> = {
   arrowdown: 2,
   a: 199,
   arrowleft: 5,
-  d: 200,
   arrowright: 6,
   q: 201,
   e: 202,
@@ -98,8 +106,14 @@ export function updatePlacement(scene: GameScene) {
   const w = scene.world,
     kind = w.mode as Building['kind'],
     p = scene.pointer
+  // The Guard Post tool draws its own class-10/model-16 preview (scene-entities).
   scene.cursor.visible =
-    !!p && !!kind && !SPELLS.some(s => s.id === w.mode) && !w.inputMask && w.status === 'playing'
+    !!p &&
+    !!kind &&
+    w.mode !== 'guardPost' &&
+    !SPELLS.some(s => s.id === w.mode) &&
+    !w.inputMask &&
+    w.status === 'playing'
   syncSecondaryReservations(scene)
   if (!p || !scene.cursor.visible) {
     scene.placementState = ''
@@ -220,8 +234,9 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 }
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
-  if (scene.modalSuspended) return
-  scene.pointerGesture = { pointerId: event.pointerId, button: event.button }
+  // 004aa1c0: an open message box only takes a left release on the box itself.
+  if (scene.modalSuspended || scene.messageModal) return
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -231,6 +246,8 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
     !scene.world.inputMask &&
     !scene.overviewActive
   ) {
+    if (event.currentTarget === scene.renderer.domElement)
+      requestSpyDiscovery(scene.world, scene.picking.pickPerson(event))
     const object = scene.pickUnit(event) ?? scene.pickWorldObject(event)
     const vehicle = scene.world.vehicles.find(v => v.id === object?.id && v.active)
     if (
@@ -305,6 +322,9 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
     scene.pointerGesture?.pointerId === event.pointerId &&
     (event.buttons === 2 || event.buttons === 4)
   ) {
+    // A camera drag remains a drag even if it returns to its press position.
+    scene.pointerGesture.moved ||=
+      Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
     const dx = event.clientX - scene.dragLast.x,
       dy = event.clientY - scene.dragLast.y
     scene.cameraMotion.active = 0
@@ -368,7 +388,7 @@ export function updateDrag(
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
-  if (scene.modalSuspended) return
+  if (scene.modalSuspended || scene.messageModal) return
   const gesture = scene.pointerGesture
   if (!gesture || gesture.pointerId !== event.pointerId) return
   if (gesture.button !== event.button) {
@@ -399,6 +419,47 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
   if (moved > 7 && event.button !== 0) return
   if (event.button === 2) {
+    // Action 0x7a (Shift+right release, 005d64e4) precedes Swamp removal and
+    // right-click deselection: outside placement mode it deletes the hovered
+    // Guard Post locally. Placement mode is cancelled below (action 0x7c).
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode
+    ) {
+      const point = scene.pick(event)
+      if (point && removeHoveredGuardPost(scene.world, point)) {
+        scene.onChange()
+        return
+      }
+    }
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode &&
+      !scene.world.selected.length
+    ) {
+      const point = scene.pick(event)
+      if (point) {
+        const position = nativePosition(scene.world, point)
+        if (removeOwnedSwamp(scene.world, position, scene.picking.pick(event))) {
+          const marker = commandMarkerPoint(position, 0)
+          if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+          scene.acknowledgePointer(0)
+          scene.onSound(0x6a)
+          scene.onChange()
+          return
+        }
+      }
+    }
     cancelInteraction(scene.world)
     scene.onChange()
     return
@@ -428,16 +489,33 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   if (!p) return
   if (scene.world.mode) {
     const mode = scene.world.mode
-    const ok = SPELLS.some(s => s.id === mode)
+    const spell = SPELLS.some(s => s.id === mode)
+    // Release modifiers select exact records: placement 0x77 / Ctrl or Alt 0x78
+    // retains; spell targeting 0x6a / Ctrl 0x6b retains. Other masks dispatch neither.
+    if (event.shiftKey || (event.ctrlKey && event.altKey) || (spell && event.altKey)) return
+    const retain = event.ctrlKey || event.altKey
+    if (mode === 'guardPost') {
+      // Model-17 placement (004acbe2): a plain click (0x77) that places also
+      // leaves the mode; Ctrl or Alt (0x78) stays. Removing posts keeps it.
+      const result = guardPostClick(scene.world, p)
+      if (result === 'placed') {
+        scene.onSound(0x24)
+        if (!event.ctrlKey && !event.altKey) scene.world.mode = null
+      } else if (result === 'rejected') scene.onSound(0x25)
+      scene.onChange()
+      return
+    }
+    const ok = spell
       ? cast(
           scene.world,
           mode as Parameters<typeof cast>[1],
           p,
-          directBlast ? picked?.id : undefined
+          directBlast ? picked?.id : undefined,
+          retain
         )
-      : placeBuilding(scene.world, mode as Parameters<typeof placeBuilding>[1], p)
+      : placeBuilding(scene.world, mode as Parameters<typeof placeBuilding>[1], p, retain)
     if (!ok) scene.onSound(0x25)
-    else if (!SPELLS.some(s => s.id === mode)) scene.onSound(0x24)
+    else if (!spell) scene.onSound(0x24)
     else if (directBlast) {
       const id = picked?.id ?? 0,
         marker = commandMarkerPoint(nativePosition(scene.world, p), id)
@@ -479,6 +557,16 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
     }
     return
   }
+  // 004a9d90: an open message box drops every key but Enter (page owned), and
+  // 004aa532 skips the held camera list 00489520 (cursor keys).
+  if (scene.messageModal) return
+  if (
+    !scene.modalSuspended &&
+    !(event.target as HTMLElement | null)?.closest?.(
+      'input,textarea,select,dialog,[contenteditable]'
+    )
+  )
+    followerGroupDisplayKey(scene.groupDisplay, event, true)
   const key = (
     event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
   ).toLowerCase()
@@ -547,7 +635,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   )
   scene.listen(scene.renderer.domElement, 'contextmenu', e => e.preventDefault())
   scene.listen(scene.renderer.domElement, 'wheel', e => {
-    if (!scene.world.inputMask) {
+    if (!scene.world.inputMask && !scene.messageModal) {
       e.preventDefault()
       if ((e as WheelEvent).deltaY) scene.zoom((e as WheelEvent).deltaY < 0)
     }
@@ -555,6 +643,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   scene.listen(window, 'keydown', scene.keyDown)
   scene.listen(window, 'keyup', e => {
     const event = e as KeyboardEvent
+    followerGroupDisplayKey(scene.groupDisplay, event, false)
     scene.keys.delete(event.key.toLowerCase())
     scene.keys.delete(event.code.toLowerCase())
     if (event.ctrlKey) scene.keys.add('control')
@@ -584,6 +673,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     scene.previous = null
     scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
     scene.keys.clear()
+    releaseFollowerGroupDisplayKeys(scene.groupDisplay)
     scene.world.paused = true
     scene.onChange()
   }
@@ -594,7 +684,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     if (document.hidden) pause()
   })
   scene.listen(minimap, 'pointerdown', e => {
-    if ((e as PointerEvent).button !== 0 || scene.world.inputMask) return
+    if ((e as PointerEvent).button !== 0 || scene.world.inputMask || scene.messageModal) return
     const p = e as PointerEvent,
       rect = minimap.getBoundingClientRect()
     scene.focus(
@@ -617,7 +707,13 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
 }
 
 export function navigationButtons(scene: GameScene) {
-  if (scene.world.inputMask || scene.overviewStage || document.querySelector('dialog[open]'))
+  // 004aa532 skips 00489520 (held keys) and 004adbb0 (screen edge) under an open box.
+  if (
+    scene.world.inputMask ||
+    scene.messageModal ||
+    scene.overviewStage ||
+    document.querySelector('dialog[open]')
+  )
     return 0
   let buttons = 0
   for (const key of scene.keys)

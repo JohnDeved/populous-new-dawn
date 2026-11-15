@@ -89,16 +89,20 @@ export function stepLightning(land: Ground, b: Lightning, game: { randomState: n
   }
 }
 
-// 0x475350. Branches are screen-space, use the cosmetic RNG, and consume new
-// draws each rendered frame. The parent line is emitted by 0x46b0f5 first.
-export function lightningLines(
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  cosmetic: { randomState: number }
-) {
-  const lines: LightningLine[] = [{ x1, y1, x2, y2, alpha: 200, width: 3 }]
+// One branch line of 0x475350, relative to the parent segment's start point.
+export interface LightningBranch {
+  x: number
+  y: number
+  dx: number
+  alpha: number
+}
+
+// 0x475350's random branch shape. Draw-polygons case 19 (0x46b16a) calls it once
+// per drawn bolt segment on every native draw-loop iteration, consuming the
+// cosmetic RNG (0x89bc72). Offsets are relative, so the shape is independent of
+// the projected position and can be rolled before that frame is drawn.
+export function rollLightningBranches(cosmetic: { randomState: number }) {
+  const branches: LightningBranch[] = []
   let drawAlpha = 200 // 0x5da07c is shared across recursive calls, not restored.
   function branch(x: number, y: number, alpha: number, length: number) {
     if (length <= 4) return
@@ -108,17 +112,44 @@ export function lightningLines(
     drawAlpha = (alpha * 7) >> 3
     const childAlpha = drawAlpha
     for (let i = 0; i < count; i++) {
-      const dx = (random(cosmetic) % 12) * (side ? 1 : -1),
-        nx = short(x + dx),
-        ny = short(y + 12)
-      lines.push({ x1: x, y1: y, x2: x + dx, y2: y + 12, alpha: drawAlpha, width: 2 })
-      x = nx
-      y = ny
+      const dx = (random(cosmetic) % 12) * (side ? 1 : -1)
+      branches.push({ x, y, dx, alpha: drawAlpha })
+      x += dx
+      y += 12
       if (!(random(cosmetic) & 3)) branch(x, y, childAlpha, length)
     }
   }
-  branch(short(x1), short(y1), 128, 100)
+  branch(0, 0, 128, 100)
+  return branches
+}
+
+// Screen lines for one segment. The parent line is emitted by 0x46b0f5 first;
+// branch starts wrap to 16 bits exactly as 0x475350's short coordinates do.
+export function placeLightningBranches(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  branches: readonly LightningBranch[]
+) {
+  const lines: LightningLine[] = [{ x1, y1, x2, y2, alpha: 200, width: 3 }]
+  for (const b of branches) {
+    const x = short(x1 + b.x),
+      y = short(y1 + b.y)
+    lines.push({ x1: x, y1: y, x2: x + b.dx, y2: y + 12, alpha: b.alpha, width: 2 })
+  }
   return lines
+}
+
+// 0x475350 for one segment: roll a new shape and place it.
+export function lightningLines(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  cosmetic: { randomState: number }
+) {
+  return placeLightningBranches(x1, y1, x2, y2, rollLightningBranches(cosmetic))
 }
 
 // 0x516500: integer-angle, ceil-rounded textured strip corners. Native UVs

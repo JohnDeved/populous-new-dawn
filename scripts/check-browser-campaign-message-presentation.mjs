@@ -372,6 +372,14 @@ try {
     { width: 25, height: 18, src: '/original/message-type1.png' }
   )
   await page.screenshot({ path: resolve(output, 'message-641-settled.png') })
+  // #1046: the open box is the original modal box. It pauses the game (and with
+  // it the flyby) and refuses HUD presses, so close it before the flyby and Menu.
+  assert.deepEqual(
+    await page.evaluate(() => ({ paused: window.testStore.getWorld().paused, modal: window.testScene.messageModal })),
+    { paused: true, modal: true }
+  )
+  await opening.locator('summary').click()
+  await page.waitForFunction(() => !window.testScene.messageModal)
 
   // The remaining 0x40 input gate is flyby/presentation-owned. Let the shipped
   // scene presentation release it, then freeze again before geometry assertions.
@@ -433,6 +441,9 @@ try {
     width => document.querySelector('.native-hud').getBoundingClientRect().width === width,
     250
   )
+  // Reopen the box from the strip to check the open popup body on the seam.
+  await opening.locator('summary').click()
+  await page.waitForFunction(() => window.testScene.messageModal)
   const automatic3440 = await assertComposedRect(page, 641, 3440, 1440)
   assert.equal(automatic3440.layout.summary.left, 250)
   assert.equal(automatic3440.layout.popup?.left, 250)

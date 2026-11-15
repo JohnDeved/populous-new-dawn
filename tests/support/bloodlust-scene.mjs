@@ -45,7 +45,10 @@ export async function loadSceneFixture() {
   const { advanceGame } = await import('../../app/game-clock.ts')
   const { migrateCheckpoint } = await import('../../app/game-store.ts')
   const { cameraPreset } = await import('../../app/projection.ts')
-  loaded = { ...sceneCode, ...model, advanceGame, migrateCheckpoint, cameraPreset }
+  const { createFollowerGroupDisplay } = await import('../../app/follower-group-display.ts')
+  loaded = {
+    ...sceneCode, ...model, advanceGame, migrateCheckpoint, cameraPreset, createFollowerGroupDisplay,
+  }
   return loaded
 }
 
@@ -103,6 +106,7 @@ export async function makeSceneFixture(world, options = {}) {
     objects: new THREE.Group(),
     unitMeshes: new Map(),
     keys: new Set(),
+    groupDisplay: api.createFollowerGroupDisplay(),
     overviewStage: 0,
     cameraBearing: options.heading ?? 0,
     gameClock: { animationTime: 0, animationFrame: options.frame ?? 0 },

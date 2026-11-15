@@ -60,8 +60,8 @@ test('current store new-game, mission, restart and tutorial replacements initial
   })
 })
 
-test('current v3 checkpoint persistence round-trips present booleans without reinitialization', async () => {
-  assert.equal(CHECKPOINT_VERSION, 3)
+test('current v4 checkpoint persistence round-trips present booleans without reinitialization', async () => {
+  assert.equal(CHECKPOINT_VERSION, 4)
   for (const values of [[false, true], [true, false]]) {
     await withStorage({}, async fixture => {
       const store = await fixture.freshStore(), world = store.getWorld()
@@ -70,7 +70,7 @@ test('current v3 checkpoint persistence round-trips present booleans without rei
       const existing = existingOwners.map(([, field]) => world[field])
       assert.equal(await store.saveCheckpoint(), true)
       const saved = structuredClone(fixture.records.get('latest'))
-      assert.equal(saved.version, 3)
+      assert.equal(saved.version, 4)
       assert.deepEqual(knowledge(saved.world), values)
       world.unlockedHut = !values[0]
       world.unlockedGuardPost = !values[1]
@@ -89,7 +89,7 @@ test('current v3 checkpoint persistence round-trips present booleans without rei
   }
 })
 
-test('existing v3 absence stays unknown through normalization, restore, load and later save', async () => {
+test('existing v4 absence stays unknown through normalization, restore, load and later save', async () => {
   const legacy = createWorld(1, 'scalable')
   delete legacy.unlockedHut
   delete legacy.unlockedGuardPost
@@ -99,7 +99,7 @@ test('existing v3 absence stays unknown through normalization, restore, load and
       assert.deepEqual(readHelpBuildingKnowledge(world, model), { kind: 'unsupported', reason: 'unowned-building-bit' })
   }
   assertAbsent(migrateCheckpoint(structuredClone(legacy)))
-  await withStorage({ latest: { version: 3, world: legacy } }, async fixture => {
+  await withStorage({ latest: { version: 4, world: legacy } }, async fixture => {
     const stored = structuredClone(fixture.records.get('latest')), store = await fixture.freshStore()
     assert.equal(await store.restoreCheckpoint(), true)
     assert.equal(store.getCheckpointReadStatus(), 'read')

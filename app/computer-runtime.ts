@@ -1415,6 +1415,23 @@ function assignDefensePerson(u: Unit, p: LivePerson, owner: number) {
   if (!owner) p.flags3 = (p.flags3 & ~0x2000) >>> 0
 }
 
+// 0x4cb7b9..0x4cb807: recruitment completion stamps every state-14 person in
+// the tribe list with +af = task index + 1 through 0x4f2440, so other selectors
+// (computerSelectionWorld treats +af as busy) cannot take a staged raid member.
+// The conditional flags3 0x2000 stamp from task byte +0x31 is not ported.
+// 0x4f2520 later clears every person still owned by that index.
+function publishAttackAssignment(w: World, tribe: number, index: number, assign: boolean) {
+  const team = campaignTeam(w, tribe),
+    owner = (index + 1) & 255
+  for (const u of w.units) {
+    const p = u.team === team ? (unitAnimationSource(u) ?? u.native) : null
+    if (!p || (assign ? p.state !== 14 : p.computerAssignment !== owner)) continue
+    if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+    p.computerAssignment = assign ? owner : 0
+    if (!assign) p.flags3 = (p.flags3 & ~0x2000) >>> 0
+  }
+}
+
 //0x43b540 allocates before clearing, and does not restart the current state.
 function retargetDefensePerson(w: World, u: Unit, p: LivePerson, cell: number) {
   const id = allocatePersonOrder(w.buildingOrders)
@@ -1938,6 +1955,7 @@ export function stepComputerTasks(w: World, tribe: number) {
     if (task.type === 20) {
       let selection: ReturnType<typeof computerSelectionWorld> | undefined,
         loadedOrigin: number | undefined
+      const recruiting = task.phase === 3
       if (w.ai.constructionBase === undefined && [1, 2, 3, 4, 5, 6].includes(w.outcome.level)) {
         const team = campaignTeam(w, tribe)
         if (team === 'wild') throw new Error('Invalid computer staging tribe')
@@ -2075,6 +2093,9 @@ export function stepComputerTasks(w: World, tribe: number) {
           }
         }
       }
+      if (recruiting && task.phase === 4) publishAttackAssignment(w, tribe, index, true)
+      // 0x4cca6b: retirement (phase 23) clears that ownership through 0x4f2520.
+      else if (!(task.flags & 1)) publishAttackAssignment(w, tribe, index, false)
       return
     }
     if (task.type !== 6) throw new Error(`Unbound computer task ${task.type}`)

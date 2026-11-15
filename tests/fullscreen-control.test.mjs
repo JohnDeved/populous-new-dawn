@@ -212,7 +212,8 @@ test('shipped app mounts control once and keeps fullscreen available through loa
   const component = readFileSync(new URL('../app/fullscreen-control.tsx', import.meta.url), 'utf8')
   const scene = readFileSync(new URL('../app/scene.ts', import.meta.url), 'utf8')
   assert.equal(page.match(/<FullscreenControl \/>/g)?.length, 1)
-  assert.equal(page.match(/\[data-fullscreen-control\]/g)?.length, 2)
+  // Loading, input-mask and campaign message box guards each exempt the control.
+  assert.equal(page.match(/\[data-fullscreen-control\]/g)?.length, 3)
   assert.match(component, /observer\.disconnect\(\)/)
   assert.match(component, /node\.remove\(\)/)
   assert.match(component, /onClick=.*session\.current\?\.toggle/)

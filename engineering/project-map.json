@@ -374,16 +374,28 @@
       "implementationPaths": [
         "app/drag-selection.ts",
         "app/person-selection.ts",
+        "app/follower-groups.ts",
         "app/scene-picking.ts",
         "app/selection-mesh.ts",
         "app/world-picking.ts",
         "app/blast-targeting.ts",
-        "app/unit-animation-source.ts"
+        "app/unit-animation-source.ts",
+        "app/live-spy-discovery.ts",
+        "app/person-visibility.ts"
       ],
       "researchPaths": [
+        "tests/spy-discovery.test.mjs",
         "tests/painter-order.test.mjs",
         "tests/blast-targeting.test.mjs",
-        "decomp/research/blast-targeting.md"
+        "decomp/research/blast-targeting.md",
+        "tests/follower-groups.test.mjs",
+        "decomp/research/follower-groups.md",
+        "decomp/research/follower-groups-evidence",
+        "scripts/check-static-follower-groups.py",
+        "scripts/check-browser-follower-groups.mjs",
+        "tests/building-placement-controls.test.mjs",
+        "scripts/check-native-placement-controls.py",
+        "decomp/research/building-placement-controls.md"
       ],
       "sharedPaths": [
         "app/model.ts", "app/scene.ts", "app/render-view.ts",
@@ -409,6 +421,8 @@
       ],
       "evidence": [
         { "path": "decomp/research/blast-targeting.md", "heading": "Blast person targeting" },
+        { "path": "decomp/research/follower-groups.md", "heading": "Numbered follower groups" },
+        { "path": "decomp/research/building-placement-controls.md", "heading": "Building placement controls" },
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
         { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
@@ -536,6 +550,7 @@
         "app/person-order-update.ts",
         "app/person-orders.ts",
         "app/person-routes.ts",
+        "app/person-scatter.ts",
         "app/shaman-guard.ts",
         "app/vehicle-boarding-orders.ts",
         "app/route-advance.ts",
@@ -549,8 +564,10 @@
         "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
         "scripts/extract-shaman-guard-vectors.mjs",
+        "scripts/check-static-guard-posts.py",
         "tests/shaman-guard-native.test.mjs",
         "tests/shaman-guard-input.test.mjs",
+        "tests/player-scatter.test.mjs",
         "tests/boarding-origin-lifetime.test.mjs",
         "tests/boarding-origin-runtime.test.mjs",
         "tests/automatic-boat-crossing.test.mjs",
@@ -568,6 +585,7 @@
         { "path": "app/live-command.ts", "symbol": "command" },
         { "path": "app/live-command.ts", "symbol": "findPath" },
         { "path": "app/live-command.ts", "symbol": "guardShaman" },
+        { "path": "app/live-command.ts", "symbol": "scatterSelected" },
         { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
         { "path": "app/world-turn.ts", "symbol": "stepTurn" }
       ],
@@ -587,6 +605,9 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
         { "path": "decomp/research/shaman-guard-input.md", "heading": "Live integration boundary" },
+        { "path": "decomp/research/player-scatter.md", "heading": "Native chain" },
+        { "path": "decomp/research/player-patrol.md", "heading": "Findings" },
+        { "path": "decomp/research/guard-posts.md", "heading": "Implementation plan" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
@@ -717,7 +738,19 @@
         "app/game-clock.ts",
         "app/unit-motion.ts",
         "app/tooltip-controller.ts",
-        "app/scene-tooltip-runtime.ts"
+        "app/scene-tooltip-runtime.ts",
+        "app/animation.ts"
+      ],
+      "researchPaths": [
+        "decomp/research/animation-cadence.md",
+        "decomp/research/animation-cadence/native-setters.json",
+        "scripts/native-animation-setters.py",
+        "scripts/animation-cadence-audit.mjs",
+        "scripts/animation-cadence-families.json",
+        "tests/animation-cadence-audit.test.mjs",
+        "tests/unit-fallback-cadence.test.mjs",
+        "tests/animation-cadence-effects.test.mjs",
+        "scripts/import-armageddon-sparkle.py"
       ],
       "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/object-panels.ts", "app/building-panels.ts", "app/scene-secondary-effects.ts", "app/page.tsx"],
       "entrySymbols": [
@@ -738,7 +771,9 @@
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
         { "path": "decomp/research/game-options-static/findings.md", "heading": "Original Game options: bounded keyboard adapter" },
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
+        { "path": "decomp/research/instant-overview.md", "heading": "Instant World View: Shift/Ctrl+Return (#1006)" },
         { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
+        { "path": "decomp/research/animation-cadence.md", "heading": "Animation cadence audit (#214)" },
         {
           "path": "references/modern-performance.md",
           "heading": "Ground camera presentation between native steps"
@@ -746,7 +781,7 @@
         { "path": "decomp/README.md", "heading": "Native desktop camera input" }
       ],
       "nativeAddresses": ["0x439950", "0x438ae0", "0x4199b0"],
-      "checkIds": ["clock-portable", "camera-native", "camera-browser"],
+      "checkIds": ["clock-portable", "animation-cadence-portable", "camera-native", "camera-browser"],
       "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "Simulation, input, animation, effects, audio, and high-refresh preview clocks must remain independent."
@@ -1073,6 +1108,7 @@
         "app/original-messages.json",
         "app/reincarnation.ts",
         "app/spell-casting.ts",
+        "app/spell-charging.ts",
         "app/spell-effects-runtime.ts",
         "app/tribe-turns.ts",
         "app/vault.ts",
@@ -1252,6 +1288,7 @@
         "decomp/research/mission11-reactive-noop.md",
         "decomp/research/mission12-opening.md",
         "decomp/research/mission12-spy-sabotage.md",
+        "decomp/research/spy-manual-discovery.md",
         "decomp/research/mission13-opening.md",
         "decomp/research/mission13-balloon.md",
         "decomp/research/mission14-linked-angel.md",
@@ -1317,6 +1354,7 @@
         "scripts/check-native-mission11-reactive-noop.py",
         "scripts/check-native-mission12-opening.py",
         "scripts/check-native-mission12-spy-sabotage.py",
+        "scripts/check-native-spy-discovery.py",
         "scripts/check-native-mission13-opening.py",
         "scripts/check-native-balloon.py",
         "scripts/check-native-mission14-rewards.py",
@@ -1388,7 +1426,10 @@
         "tests/human-training-orders.test.mjs",
         "decomp/research/loading-art.md",
         "scripts/check-static-loading-art.py",
-        "decomp/research/vault-side-fire.md"
+        "decomp/research/vault-side-fire.md",
+        "tests/spell-modifier-controls.test.mjs",
+        "scripts/check-static-spell-modifiers.py",
+        "decomp/research/spell-modifier-controls.md"
       ],
       "sharedPaths": [
         "app/armageddon.ts",
@@ -1524,6 +1565,10 @@
           "heading": "Mission 12 Spy disguise and sabotage"
         },
         {
+          "path": "decomp/research/spy-manual-discovery.md",
+          "heading": "Manual right-click Spy discovery"
+        },
+        {
           "path": "decomp/research/mission13-opening.md",
           "heading": "Mission 13 native opening findings"
         },
@@ -1593,7 +1638,8 @@
         {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"},
         {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"},
-        {"path": "decomp/research/vault-prayer-panel-anchor.md", "heading": "Static source contract"}
+        {"path": "decomp/research/vault-prayer-panel-anchor.md", "heading": "Static source contract"},
+        {"path": "decomp/research/spell-modifier-controls.md", "heading": "Spell Ctrl casting and modified charging"}
       ],
       "nativeAddresses": [
         "0x40bce0",
