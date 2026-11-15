@@ -1,8 +1,8 @@
-name: Plain Vite Home frontend and F9 opening admission
+name: Plain Vite Home held-Ctrl placement witness
 
 on:
   push:
-    branches: [ci/f9-opening-1077-20261115]
+    branches: [ci/held-ctrl-1086-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Plain Vite Home frontend and F9 opening admission
+    name: Plain Vite Home held-Ctrl placement witness
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 0e9c3ecd285b9e75c0167df03bd462198f305263
+      PND_CANDIDATE_SHA: db2b196abf2ffada890618d70d9cc4051f54a5ed
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed combined F9 candidate
+      - name: Check out exact reviewed held-Ctrl candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 0e9c3ecd285b9e75c0167df03bd462198f305263
+          ref: db2b196abf2ffada890618d70d9cc4051f54a5ed
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -73,25 +73,25 @@ jobs:
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Check frontend held Escape and F9 on exact combined source
+      - name: Check held-Ctrl placement on exact reviewed source
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/spell-test-opening-readiness.test.mjs tests/spell-test-browser-diagnostics.test.mjs tests/spell-test-browser-read-batch.test.mjs tests/spell-test-failure-accounting.test.mjs tests/spell-test-menu-lifetime.test.mjs tests/spell-test-observation-groups.test.mjs
-          # Original scenario retains frontend keyboard coverage and full F9 episode.
-          # Source SHA is distinct from this infrastructure commit; existing caps unchanged.
-          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=frontend-held-escape node scripts/tutorial-browser/run.mjs ../outputs/frontend-f9
+          node --test tests/held-ctrl-placement-browser.test.mjs tests/scenery-placement-browser.test.mjs tests/building-placement-controls.test.mjs tests/qualify-capture-inputs.test.mjs tests/capture-preimport.test.mjs tests/globe-held-enter-hosted.test.mjs tests/query-art-integration.test.mjs tests/ordinary-pointer-trace-integration.test.mjs tests/ordinary-pointer-calibration-integration.test.mjs tests/building-icon-integration.test.mjs
+          # Dedicated 90s owner includes context setup and 60s episode cleanup.
+          # This unchanged eight-minute step also bounds final owner teardown.
+          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=held-ctrl-placement node scripts/tutorial-browser/run.mjs ../outputs/held-ctrl
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain plain Home coverage receipts and screenshots
+      - name: Retain held-Ctrl receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: frontend-f9-0e9c3ecd-${{ github.run_id }}-${{ github.run_attempt }}
+          name: held-ctrl-db2b196a-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
@@ -100,3 +100,4 @@ jobs:
             outputs/*.v8
           if-no-files-found: warn
           retention-days: 7
+
