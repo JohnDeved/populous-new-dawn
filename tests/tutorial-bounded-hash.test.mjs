@@ -28,3 +28,9 @@ test('Tutorial uses the existing bounded helper for unchanged source and browser
   assert.match(source, /browserSha256: hash\(browserPath\)/)
   assert.match(source, /hash\(resolve\(root, name\)\)/)
 })
+
+test('capture qualification pin remains exact for the changed Tutorial consumer', () => {
+  const pins = JSON.parse(readFileSync(new URL('../scripts/tutorial-browser/capture-qualified-inputs.json', import.meta.url), 'utf8'))
+  const runner = new URL('../scripts/tutorial-browser/run.mjs', import.meta.url)
+  assert.equal(pins['scripts/tutorial-browser/run.mjs'], fileSha256(runner))
+})
