@@ -1,3 +1,4 @@
+import { installCorpseCameraFollow } from './follower-corpse-camera.mjs'
 import assert from 'node:assert/strict'
 import { collapseObservedCampaignMessages } from '../public-keyboard-owner.mjs'
 import { createHash } from 'node:crypto'
@@ -118,7 +119,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s unchanged shared 180-second browser cap.',
       'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
     source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
-      'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
+      'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-camera.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
       'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
       'app/page.tsx', 'app/original-pause-menu.tsx', 'scripts/public-keyboard-owner.mjs']
@@ -244,12 +245,15 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.deepEqual(report.order.selected, [report.actorId]); assert.equal(report.order.target, 20); assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'The actual public attack must issue an order on this observed logical timeline'); save()
+    await page.evaluate(installCorpseCameraFollow, { order: report.order })
     phase('ordinary-combat')
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result
       return r.error || r.samples.some(s => s.phase === 1 && !s.paused && s.cropFile)
     }, null, { timeout: budget.remaining() })
     assert.equal(await page.evaluate(() => window.__pndCorpseObservation.result.error), null)
+    report.cameraFollow = await page.evaluate(() => window.__pndCorpseCameraFollow.stop('combat-complete'))
+    assert.equal(report.cameraFollow.error, null)
     report.effectId = await page.evaluate(() => window.__pndCorpseObservation.result.effectId)
     phase('pause-and-save')
     await button('Pause game')
@@ -322,6 +326,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   } finally {
     budget.dispose()
     finishPhase(!failure && !report.timedOut)
+    if (!page.isClosed()) try { report.cameraFollow ??= await page.evaluate(() => window.__pndCorpseCameraFollow?.stop('cleanup') ?? null) }
+    catch (error) { report.errors.push(`Corpse camera cleanup: ${error}`) }
     try { await retain() } catch (error) { report.errors.push(`Corpse retention: ${error}`) }
     try { await context.close(); report.contextClosed = true } catch (error) { report.errors.push(`Corpse cleanup: ${error}`) }
     report.status = failure || report.errors.length || report.timedOut ? 'failed' : 'passed'
