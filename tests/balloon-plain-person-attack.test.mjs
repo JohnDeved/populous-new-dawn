@@ -115,12 +115,13 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   assert.equal(target.kind, 'preacher')
   // Supplied team-only boundary, not an ordinary mixed-campaign claim:
   // the existing grounded Brave keeps legacy targeting beside the real passenger.
-  // The same Green Brave born at 7,127 is fresh allocation 271: cycling computer
-  // marker patrols move through 0x5018c0 and allocate more marching formations first.
+  // The same Green Brave born at 7,127 is fresh allocation 286: cycling computer
+  // marker patrols move through 0x5018c0 and allocate more marching formations first,
+  // and the native single-marker guards (#1059) shift that allocation order again.
   const mixed = structuredClone(world),
     mixedShaman = mixed.units.find(u => u.id === shaman.id),
     mixedPerson = mixedShaman.native,
-    grounded = mixed.units.find(u => u.id === (historical ? 173 : referenceId(271)))
+    grounded = mixed.units.find(u => u.id === (historical ? 173 : referenceId(286)))
   assert.equal(grounded.kind, 'brave')
   assert.ok(grounded.hp > 0)
   assert.ok(!grounded.native && !grounded.flight && !grounded.entry)
@@ -312,16 +313,18 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     // First contact retains selected Preacher17; guard reinforcement and actual
     // melee opponent writes yield this exact existing grounded-adapter outcome.
     // Preacher17 now cycles with the Green marker patrol (0x4366b0), so the
-    // transport follows a moving target before the grounded departure.
-    assert.equal(departure, 4000)
-    assert.equal(firstFight, 4003)
+    // transport follows a moving target before the grounded departure. The
+    // native single-marker guards (#1059) shift the shared RNG from turn 10, so
+    // the chase is shorter and patrol Warrior10 makes the fatal interception.
+    assert.equal(departure, 3956)
+    assert.equal(firstFight, 3959)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [4003, 17],
-      [4031, 11],
+      [3959, 17],
+      [3986, 10],
     ])
-    assert.equal(death, 4040)
+    assert.equal(death, 3989)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)

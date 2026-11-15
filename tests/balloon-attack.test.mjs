@@ -224,19 +224,20 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
 
 // Fresh physical Boat acquisition retains its actual failed direct-attack chronology.
 // Computer marker patrols cycle and advance the shared RNG, so the Shaman's walks
-// draw other speeds (+6 turns) and patrol Warrior12 is the first interceptor.
+// draw other speeds. The native single-marker guards (#1059) shift that RNG again
+// from turn 10 (+6 turns), and patrol Warrior10 is now the first interceptor.
 test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
   await assertTowerContinuation(prepareEarnedFlight(), {
-    inputPhase: [3541, 213],
-    cancel: 3561,
-    cancelRest: [16128, 32512],
-    departure: 3828,
-    fight: 3842,
-    opponent: 12,
+    inputPhase: [3547, 219],
+    cancel: 3567,
+    cancelRest: [16640, 32512],
+    departure: 3836,
+    fight: 3888,
+    opponent: 10,
     targetHp: 260,
     targetDeath: 0,
-    retired: 3927,
-    death: 3927,
+    retired: 3935,
+    death: 3935,
   })
 })
 
