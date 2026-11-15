@@ -131,14 +131,16 @@ export function m2AuthoredMessageReady(expectedText) {
 // Observe the actual authored modal, separately from subsequent world-input tests.
 // Closing and reopening use the shipped summary; no message or pause state is forced.
 export async function openM2AuthoredMessage(page) {
-  const serial = await page.evaluate(() => {
+  const { serial, open } = await page.evaluate(() => {
     const message = window.testStore.getWorld().messages.slots.find(message => message?.stringId === 641)
     if (!message) throw Error('Authored Mission 2 message 641 is missing')
-    return message.serial
+    const details = document.querySelector(`.campaign-messages details[data-message-serial="${message.serial}"]`)
+    return { serial: message.serial, open: details?.open === true }
   })
   const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
-  await detail.waitFor({ state: 'visible' })
-  if (await detail.getAttribute('open') === null) {
+  // Click already waits for visible/actionable summary; the predicate below also
+  // requires actual visible text when the same box is already open.
+  if (!open) {
     await detail.locator('summary').click()
   }
   const ready = await page.waitForFunction(m2AuthoredMessageReady, originalMessages.messages[102].text)

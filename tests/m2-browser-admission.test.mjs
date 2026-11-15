@@ -574,7 +574,7 @@ test('M2 separates visible modal layout captures from nonmodal pointer input', (
   const opening = source.slice(source.indexOf('export async function openM2AuthoredMessage'), source.indexOf('// Keep the legacy'))
   assert.match(opening, /detail\.locator\('summary'\)\.click\(\)/)
   assert.match(opening, /page\.keyboard\.press\('Enter'\)/)
-  assert.doesNotMatch(opening, /force:|\.dispatchEvent|\.open\s*=|\.paused\s*=/)
+  assert.doesNotMatch(opening, /force:|\.dispatchEvent|\.open\s*=(?!=)|\.paused\s*=(?!=)/)
 })
 
 
@@ -589,4 +589,16 @@ test('default admission reduces only setup viewport, preserving explicit coverag
   assert.match(source, /\[900, 400, true\]/)
   assert.match(source, /keyboard: width === 1280/)
   assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+
+test('M2 reopening combines read-only state probes without dropping visible readiness', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const helper = source.slice(source.indexOf('export async function openM2AuthoredMessage'), source.indexOf('// Native modal Enter'))
+  assert.match(helper, /const \{ serial, open \} = await page.evaluate/)
+  assert.match(helper, /open: details\?\.open === true/)
+  assert.match(helper, /if \(!open\) \{\s*await detail.locator\('summary'\).click\(\)/)
+  assert.match(helper, /waitForFunction\(m2AuthoredMessageReady/)
+  assert.match(helper, /assert.equal\(witness.serial, serial/)
+  assert.doesNotMatch(helper, /detail.waitFor|detail.getAttribute|force:|dispatchEvent|\.open\s*=(?!=)|\.paused\s*=(?!=)/)
 })

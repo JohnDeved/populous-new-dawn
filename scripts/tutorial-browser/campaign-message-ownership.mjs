@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
-import { bindGame, settleOpeningMessages, collapseCampaignMessages } from '../browser-game.mjs'
-import { openM2AuthoredMessage } from './m2-pointer-f8.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
+import { openM2AuthoredMessage, closeM2AuthoredMessage } from './m2-pointer-f8.mjs'
 
 export function assertDelayedCampaignCallbacks(checks) {
   assert.deepEqual(Object.keys(checks).sort(), ['summaryRejected', 'summaryPreserved', 'dismissPreserved', 'oldSlotPreserved', 'currentSlotPreserved'].sort())
@@ -17,8 +17,8 @@ export async function checkCampaignMessageOwnership({ page, output, stage, repor
     'Authored message 641 has no camera target; this episode does not establish stale focus or same-world slot-replacement behavior',
   ]
   const detail = page.locator('.campaign-messages details').filter({ has: page.locator('p', { hasText: expectedText }) })
-  await detail.locator('summary').click()
-  assert.equal(await detail.getAttribute('open'), null, 'Public summary closes the authored message')
+  await closeM2AuthoredMessage(page)
+  assert.equal(await detail.getAttribute('open'), null, 'Public modal close preserves the authored message')
   report.captured = await page.evaluate(captureMountedCampaignCallbacks)
   stage('campaign-mounted-handlers-retained')
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
@@ -28,9 +28,11 @@ export async function checkCampaignMessageOwnership({ page, output, stage, repor
   await bindGame(page)
   await page.waitForFunction(() => window.testStore.getWorld() !== window.campaignCallbackWitness.world)
   await settleOpeningMessages(page)
+  stage('campaign-reloaded-introduction-ready')
   report.afterLoadMessage = await openM2AuthoredMessage(page)
+  stage('campaign-reloaded-message-ready')
   assert.equal(report.afterLoadMessage.text, expectedText)
-  await collapseCampaignMessages(page)
+  await closeM2AuthoredMessage(page)
   await page.waitForFunction(() => !window.testSceneRef.current.messageModal && !window.testStore.getWorld().inputMask)
   await page.getByRole('button', { name: 'Pause game', exact: true }).click()
   await page.waitForFunction(() => window.testStore.getWorld().paused)
@@ -38,7 +40,7 @@ export async function checkCampaignMessageOwnership({ page, output, stage, repor
   assert.equal(reopened.serial, report.afterLoadMessage.serial, 'Reopen the same freshly loaded authored message')
   // Publicly close the fresh message; the serial-keyed DOM may be reused by
   // React, so a detached-node click would be vacuous and is deliberately avoided.
-  await detail.locator('summary').click()
+  await closeM2AuthoredMessage(page)
   assert.equal(await detail.getAttribute('open'), null)
   report.delayed = await page.evaluate(replayMountedCampaignCallbacks)
   stage('campaign-delayed-callbacks-observed')
@@ -66,6 +68,7 @@ export async function checkCampaignMessageOwnership({ page, output, stage, repor
       inputs: window.campaignCallbackInputs }
   })
   assertCurrentCampaignDismiss(report.currentDismiss)
+  stage('campaign-live-dismiss-assertions-verified')
   await page.screenshot({ path: resolve(output, 'campaign-message-after-public-dismiss.png') })
   stage('campaign-public-dismiss-verified')
   assertDelayedCampaignCallbacks(report.delayedChecks)
