@@ -892,6 +892,7 @@ export function updateBuildingsFrame(scene: GameScene) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.buildingMeshes.delete(id)
+      scene.pickModelsChanged = true
     }
   for (const b of scene.world.buildings) {
     if (b.preparation) continue
@@ -916,6 +917,7 @@ export function updateBuildingsFrame(scene: GameScene) {
       g = makeBuilding(scene, b, stage, !!temple)
       scene.buildingMeshes.set(b.id, g)
       scene.objects.add(g)
+      scene.pickModelsChanged = true
       if (b.progress < 1) {
         scene.releaseGroup(scene.decorations)
         scene.decorations.clear()
@@ -1122,5 +1124,12 @@ export function renderSceneFrame(
   scene.view.painter.cells = scene.world.objectCells
   scene.view.prepare(scene.scene)
   scene.view.painter.render(scene.renderer, scene.scene, scene.camera)
+  // ScenePicking resolves models through this painter submission, so a building
+  // model added or replaced this frame was unpickable at this frame's pointer
+  // update. Re-pick on the next frame even with an unchanged pointer, view and turn.
+  if (scene.pickModelsChanged) {
+    scene.pickModelsChanged = false
+    scene.pointerState = ''
+  }
   scene.worshipPresentation.rememberBodies()
 }

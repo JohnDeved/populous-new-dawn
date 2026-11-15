@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict'
-import { collapseCampaignMessages } from './browser-game.mjs'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { openGame, selectShamanByPortrait } from './browser-game.mjs'
+import { collapseCampaignMessages, openGame, selectShamanByPortrait } from './browser-game.mjs'
 
 const projectRoot = process.cwd(),
   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),

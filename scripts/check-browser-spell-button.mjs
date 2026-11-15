@@ -1,8 +1,7 @@
 // Compare live React spell art with native draw-call captures.
-import {collapseCampaignMessages} from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import {chromium} from '@playwright/test'
-import {openGame,chooseSpell} from './browser-game.mjs'
+import {openGame,chooseSpell,collapseCampaignMessages} from './browser-game.mjs'
 import fixture from '../tests/fixtures/spell-button.json' with {type:'json'}
 import hud from '../app/original-hud.json' with {type:'json'}
 const browser=await chromium.launch({headless:true})
@@ -89,7 +88,9 @@ try {
   }
   assert.equal(checked,16);assert.equal(placeholders,8)
   await page.mouse.move(500,900)
-  await page.evaluate(()=>{const s=window.testScene;s.world.mode=null;s.world.charging=true;s.world.mana=3.333;s.onChange()})
+  // Screenshot a third-charged Blast through the per-model progress the HUD reads.
+  await page.evaluate(()=>{const s=window.testScene,w=s.world;w.mode=null;w.charging=true;w.manaTribes[w.manaWorld.playerTribe].spellProgress[2]=3333;s.onChange()})
+  await page.waitForFunction(()=>!!document.querySelector('.native-charge'))
   await page.screenshot({path:'/private/tmp/populous-spell-panel-v114.png'})
   const blast=page.getByRole('button',{name:/^Blast, \d+ shots$/})
   await blast.click({button:'right'});assert.equal(await page.evaluate(()=>window.testScene.world.charging),false)
