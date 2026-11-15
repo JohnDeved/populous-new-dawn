@@ -395,6 +395,7 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
     }
   }
   scene.shrineMeshes.set(shrine.id, { g })
+  scene.pickModelsChanged = true
 }
 
 export function makeShrines(scene: GameScene) {
@@ -596,6 +597,7 @@ export function updateUnitsFrame(scene: GameScene) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.unitMeshes.delete(id)
+      scene.pickModelsChanged = true
     }
   const showHealth =
     scene.keys.has('quote') &&
@@ -617,6 +619,7 @@ export function updateUnitsFrame(scene: GameScene) {
       g = makeUnit(u)
       scene.unitMeshes.set(u.id, g)
       scene.objects.add(g)
+      scene.pickModelsChanged = true
     }
     scene.unitMotion.position(scene.world, u, g.position)
     g.quaternion.identity()
@@ -632,10 +635,13 @@ export function updateUnitsFrame(scene: GameScene) {
       g.visible = false
       continue
     }
+    // A hidden person was absent from the last painter submission ScenePicking reads.
+    const shown = g.visible
     g.visible =
       (u.inside === null || (!!u.entry && !(u.entry.person.renderFlags & 16))) &&
       !unitInvisibleToPlayer(scene.world, u)
     if (!g.visible) continue
+    if (!shown) scene.pickModelsChanged = true
     const shield = g.userData.shield as THREE.Mesh
     shield.visible = !!u.shield
     if (shield.visible) {
@@ -715,6 +721,11 @@ export function updateUnitsFrame(scene: GameScene) {
     // Presentation-only diagnostic: unknown native sources remain observable
     // without logging/allocating per frame or hiding a still-live legacy unit.
     if (source !== undefined && !catalogDirections) g.userData.missingNativeSource = source
+    // ScenePicking resolves a person through its top visible layer's painter command.
+    // A top layer that is new or was hidden at the last render has none until rendered.
+    const layers = g.userData.layers as THREE.Sprite[]
+    let submitted = 0
+    for (let i = 0; i < layers.length; i++) if (layers[i].visible) submitted |= 1 << i
     scene.animatePerson(
       g,
       u.heading,
@@ -724,6 +735,11 @@ export function updateUnitsFrame(scene: GameScene) {
       nativeDirections ? animationSource!.f2 : undefined,
       selectedIds
     )
+    for (let i = layers.length - 1; i >= 0; i--)
+      if (layers[i].visible) {
+        if (!(submitted & (1 << i))) scene.pickModelsChanged = true
+        break
+      }
     const gauge = unitHealthGauge({
       enabled: !!showHealth,
       owner: g.userData.owner,
@@ -798,6 +814,7 @@ export function updateVehiclesFrame(scene: GameScene) {
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.vehicleMeshes.delete(id)
+      scene.pickModelsChanged = true
     }
   let vehicles = vehicleFrameViews.get(scene)
   if (!vehicles) {
@@ -817,6 +834,7 @@ export function updateVehiclesFrame(scene: GameScene) {
       g = makeVehicle(scene, v)
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
+      scene.pickModelsChanged = true
     }
     const appearanceTeam = teamForTribe(vehicleApparentTribe(v))
     if (g.userData.vehicleTeam !== appearanceTeam) {
@@ -1014,6 +1032,7 @@ export function updateShrinesFrame(scene: GameScene) {
       scene.objects.remove(entry.g)
       scene.releaseGroup(entry.g)
       scene.shrineMeshes.delete(id)
+      scene.pickModelsChanged = true
     }
   for (const shrine of scene.world.shrines)
     if (shrine.model && !scene.shrineMeshes.has(shrine.id)) makeShrine(scene, shrine)
@@ -1054,6 +1073,7 @@ export function updateShrinesFrame(scene: GameScene) {
       mesh.material.dispose()
       mesh = nativeModel(model, 2, 4, false, scene.environment)
       entry.g.add(mesh)
+      scene.pickModelsChanged = true
     }
     const stone = initializeStoneHead(shrine, scene.world.outcome.level)
     if (stone) {
@@ -1089,9 +1109,11 @@ export function updateShrinesFrame(scene: GameScene) {
         mesh.userData.morphStart = morph.started
       }
     }
-    const activeHead = !!stone || shrine.active
+    const activeHead = !!stone || shrine.active,
+      shown = entry.g.visible
     entry.g.visible =
       activeHead || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
+    if (entry.g.visible && !shown) scene.pickModelsChanged = true
   }
 }
 
@@ -1124,9 +1146,10 @@ export function renderSceneFrame(
   scene.view.painter.cells = scene.world.objectCells
   scene.view.prepare(scene.scene)
   scene.view.painter.render(scene.renderer, scene.scene, scene.camera)
-  // ScenePicking resolves models through this painter submission, so a building
-  // model added or replaced this frame was unpickable at this frame's pointer
-  // update. Re-pick on the next frame even with an unchanged pointer, view and turn.
+  // ScenePicking resolves models and people through this painter submission, so a
+  // pickable building, shrine, tree, vehicle or person model added, replaced or newly
+  // shown this frame was unpickable at this frame's pointer update. Re-pick on the
+  // next frame even with an unchanged pointer, view and turn.
   if (scene.pickModelsChanged) {
     scene.pickModelsChanged = false
     scene.pointerState = ''
