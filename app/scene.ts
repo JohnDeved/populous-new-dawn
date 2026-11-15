@@ -10,7 +10,12 @@ import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
-import { createFollowerGroupDisplay, stepFollowerGroupDisplay } from './follower-group-display.ts'
+import {
+  createFollowerGroupDisplay,
+  releaseFollowerGroupDisplayKeys,
+  stepFollowerGroupDisplay,
+} from './follower-group-display.ts'
+import { messageBoxRequested } from './campaign-message-modal.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
@@ -48,7 +53,13 @@ import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
 import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, retryFailedTexture, sceneTextureRevision, texture } from './scene-assets.ts'
+import {
+  loadTexture,
+  releaseGroup,
+  retryFailedTexture,
+  sceneTextureRevision,
+  texture,
+} from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -359,6 +370,23 @@ export class GameScene {
     this.cancelNearbyFollowers()
     this.cancelTooltipInspection()
   }
+  // An open campaign message box (0089bb81 state 2/3). The page pauses the
+  // world; this blocks camera and world input while the frame keeps drawing.
+  messageModal = false
+  setMessageModal(open: boolean) {
+    if (this.messageModal === open) return
+    this.messageModal = open
+    if (!open) return
+    this.keys.clear()
+    releaseFollowerGroupDisplayKeys(this.groupDisplay)
+    this.navigationPointer = null
+    const pointerId = this.pointerGesture?.pointerId
+    if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
+      this.renderer.domElement.releasePointerCapture(pointerId)
+    cancelPointerGesture(this)
+    this.cancelNearbyFollowers()
+    this.cancelTooltipInspection()
+  }
   uiTimer = 0
   unitMotion = new UnitMotion()
   projectileMotion = new ProjectileMotion()
@@ -381,6 +409,7 @@ export class GameScene {
     },
     presentationHidden: () => document.hidden,
     drawVisit: () => lightningDrawVisit(this),
+    messageBoxRequested: () => messageBoxRequested(this.world.messages),
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
@@ -601,7 +630,9 @@ export class GameScene {
       this.focus(browserPosition(camera))
     } else this.focus(shaman ?? HOME)
     this.drawMinimap()
-    this.listen(this.renderer.domElement, 'webglcontextrestored', () => this.invalidateModalRender())
+    this.listen(this.renderer.domElement, 'webglcontextrestored', () =>
+      this.invalidateModalRender()
+    )
     this.listen(document, 'visibilitychange', () => this.invalidateModalRender())
     this.listen(window, 'focus', () => this.invalidateModalRender())
     this.resize = new ResizeObserver(() => this.setSize())
@@ -940,7 +971,9 @@ export class GameScene {
       if (redraw) {
         const renderStart = diagnostic ? performance.now() : 0
         if (diagnostic)
-          diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+          diagnostic.renderGpu(() =>
+            this.view.painter.render(this.renderer, this.scene, this.camera)
+          )
         else this.view.painter.render(this.renderer, this.scene, this.camera)
         renderMs = diagnostic ? performance.now() - renderStart : 0
         // A throw leaves the request dirty. Capture before rendering so an

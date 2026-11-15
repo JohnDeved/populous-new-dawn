@@ -1,7 +1,7 @@
 // This validates the public-input witness's assertions, not browser/game behavior.
 import test from 'node:test'
 import { runInNewContext } from 'node:vm'
-import { pageEffect } from './support/follower-nearby-page.mjs'
+import { pageEffect, messageBoxBindings } from './support/follower-nearby-page.mjs'
 import assert from 'node:assert/strict'
 import { checkMission10FollowerStrip } from '../scripts/local-render/mission10-boat-checkpoint.mjs'
 
@@ -39,7 +39,7 @@ function fixture(occupied, fault) {
   // selection adapter leaves are supplied; no neutral-Escape branch is copied.
   const cleanupKeyboard = pageEffect("window.addEventListener('keydown', key)", {
     world: live, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS: [], followerGroupShortcut, overviewShortcut,
+    messageDetails: { current: new Map() }, ...messageBoxBindings, SPELLS: [], followerGroupShortcut, overviewShortcut,
     store: window.testStore = { getWorld: () => live, change: fn => fn(live) },
     engine: window.testSceneRef, tutorialLevel: 79,
     openMenu: showMenu, cancelInteraction: world => { world.selected = [] },

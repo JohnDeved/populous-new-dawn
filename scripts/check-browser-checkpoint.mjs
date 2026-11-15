@@ -1,5 +1,5 @@
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
-import { showAllMissions } from './browser-game.mjs'
+import { collapseCampaignMessages, showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -12,8 +12,11 @@ const tornadoGuidance =
 const tornadoInstruction =
   'Use the Tornado Spell to destroy the Enemy and their buildings before they have a chance to react.'
 
+// Opens message 641 from the strip when it is closed (#1046: it may have been closed
+// as a modal box during live play), checks it, and closes the box again.
 async function assertMissionTwoMessage(page) {
   const details = page.locator('.campaign-messages details').filter({ hasText: missionTwoMessage })
+  if (!(await details.evaluate(node => node.open))) await details.locator('summary').click()
   await details.getByText(missionTwoMessage, { exact: true }).waitFor()
   const icon = details.locator('summary img')
   assert.equal(await icon.getAttribute('src'), '/original/message-type1.png')
@@ -26,6 +29,26 @@ async function assertMissionTwoMessage(page) {
     return { top, bottom, height, viewport: innerHeight }
   })
   assert.ok(popup.height > 40 && popup.top >= 0 && popup.bottom <= popup.viewport, popup)
+  await collapseCampaignMessages(page)
+}
+
+// #1046: an auto-opened campaign message box pauses the game like the original.
+// While waiting on live play, close each box through its summary as a player would.
+async function waitClosingBoxes(page, predicate) {
+  for (const deadline = Date.now() + 90_000; ; ) {
+    if (await page.evaluate(predicate)) return
+    if (await page.evaluate(() => !!globalThis.testScene?.messageModal)) await collapseCampaignMessages(page)
+    if (Date.now() > deadline) throw new Error('Timed out waiting on live play')
+    await page.waitForTimeout(100)
+  }
+}
+
+// Let every pending message auto-open and close it: an open box pauses the world,
+// paused worlds refuse scripted player commands, and the box refuses HUD presses.
+async function settleMessageBoxes(page) {
+  await waitClosingBoxes(page, () =>
+    !globalThis.testScene.messageModal &&
+    globalThis.testStore.getWorld().messages.slots.every(message => !message || !(message.flags & 0x20002)))
 }
 
 async function waitForScene(page) {
@@ -233,6 +256,9 @@ try {
     tick(world, 1 / 12)
     globalThis.testStore.update()
   })
+  // A box that auto-opens around the win pauses the outcome presentation (#1046).
+  await waitClosingBoxes(page, () =>
+    [...document.querySelectorAll('button')].some(button => /Continue to Mission 2/.test(button.textContent)))
   await page.getByRole('button', { name: 'Continue to Mission 2', exact: false }).click()
   await waitForScene(page)
   await page.waitForFunction(() => globalThis.testScene.world === globalThis.testStore.getWorld())
@@ -244,7 +270,7 @@ try {
   assert.equal(original.level, 2)
   await page.locator('.loading-world').waitFor({ state: 'detached' })
   await page.keyboard.press('Escape')
-  await page.waitForFunction(() => {
+  await waitClosingBoxes(page, () => {
     const world = globalThis.testStore.getWorld(),
       enemyTeam = world.units.find(
         unit => unit.kind === 'shaman' && unit.team !== 'blue' && unit.team !== 'wild'
@@ -268,7 +294,7 @@ try {
       world.messages.slots[world.lastMessage]?.stringId === 641
     )
   })
-  await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
+  await waitClosingBoxes(page, () => !globalThis.testStore.getWorld().inputMask)
   await assertMissionTwoMessage(page)
   const guidance = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
@@ -330,6 +356,9 @@ try {
   const instruction = page.locator('.campaign-messages details').filter({ hasText: tornadoInstruction })
   await instruction.locator('summary').click()
   await instruction.getByText(tornadoInstruction, { exact: true }).waitFor()
+  // #1046: an open box pauses the game (and the flyby) and refuses HUD presses.
+  // Close it as a player would before waiting on the flyby or using the Menu.
+  await collapseCampaignMessages(page)
   const positioned = page.locator('.campaign-messages details').filter({ hasText: tornadoGuidance })
   assert.equal(await positioned.locator('summary img').getAttribute('src'), '/original/message.png')
   await page.waitForFunction(() => !(globalThis.testScene.world.inputMask & 64))
@@ -342,6 +371,8 @@ try {
     }),
     { x: 0xcd00, y: 0x6100 }
   )
+  await collapseCampaignMessages(page)
+  await settleMessageBoxes(page)
   await assertMatakSwarm(page)
   await assertMatakRaid(page)
   const counterattack = await page.evaluate(async () => {
@@ -377,6 +408,7 @@ try {
     const { sound } = await import('/app/model.ts')
     sound(scene.world, 0x37, scene.world.units[0])
   })
+  await settleMessageBoxes(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   const load = page.getByRole('button', { name: 'Load checkpoint', exact: true })
   assert.equal(await load.isDisabled(), true)

@@ -83,20 +83,79 @@ each `world`.
 Closing by Enter does not dismiss the message and does not move the camera, the same
 as collapsing through the summary.
 
+## What `004af640` does each turn (#1046)
+
+Static Capstone read of the same executable. `004af640` is the whole replacement for
+the per-turn block at `004a5985`; it runs no simulation, script, AI, message motion or
+animation work:
+
+- If `0089c661 & 2` is already set it returns at once (`004af643`/`004af64c`).
+- Otherwise it calls `00479f00(10, player_tribe, 1)`. Cases 5 and 10 of `00479f00`
+  share the branch at `0047a1ba`; case 5 is the P binding (action `0x0f`, `004aabfe`)
+  and toggles `0089c661 ^= 2`, while case 10 sets (`1`) or clears (`0`) it. With the
+  bit set, the branch calls `0048b4b0` (walks the sound list `0089ce6d` through an
+  interface method; inferred sound pause), sets `008922ee |= 2` and copies 0x50 bytes
+  from `[00972f44]` into `00892397` (inferred: the pause label).
+  `00523200` then draws that status. Its alternative branch (`0052322d`..`00523241`)
+  needs `level_flags_1 & 0x10000000` together with a pause reason in `0xce`; the box
+  reason `0x10` is not in that mask, so an open box shows the ordinary "Paused" status.
+- Outside the key dispatcher it sets pause reason `0089c6b1 |= 0x10`, clears
+  `0x08000000` and, once, sets `level_flags_1 |= 0x10000000`, drains DirectInput and
+  clears the key arrays and the six held-input words `00984560`..`00984574`. Inside the
+  dispatcher it defers through `0089c6b5 |= 0x10` and `level_flags_1 |= 0x08000000`.
+
+So an open box is the ordinary game pause. Other per-frame owners follow that pause:
+the flyby step `00449320` returns early on `0089c661 & 2` (`00449332`), and message
+motion stays still because `004314c0` only ages records on `offset_counter_2` changes.
+The closing `00479f00(10, tribe, 0)` clears the pause unconditionally.
+
+The input frame `004aa4e0` skips the whole block from `004aa53f` to `004aa6ed` when
+`level_flags_1 & 0x10000000` is set (`004aa532`). That block calls the held camera list
+`00489520` (`004aa6d9`), the screen-edge scroll `004adbb0` (`004aa6de`), `00480100` and
+`0041ce30`. Edge scrolling therefore stops as well as cursor-key rotation.
+
+## Browser mapping (#1046)
+
+- **Freeze.** Opening a campaign message box sets `world.paused` (the browser's
+  ordinary pause; Space and the HUD pause button) and shows the original "Paused"
+  status. The world, flyby, sprite animation, message motion and paused sound follow
+  the existing pause owners. Closing restores the pause state from before the box.
+  Every auto-opened box starts unpaused (auto-open needs running presentation visits),
+  so closing it resumes, as `00479f00(10, tribe, 0)` does. A box the player opens from
+  the strip while already paused keeps that pause after closing; this is a deliberate
+  browser difference, because the native pause bit has a single owner.
+- **No turn before the pause.** `messageBoxRequested` (transient bit 2) holds
+  `advanceGame` from the presentation visit that requested the box until the page has
+  opened it and paused, so no turn runs in between, as at `004a5985`. The page keyboard
+  handler and press guard already treat that pending request as an open box, so the
+  Menu, Space and HUD cannot change the pause in the gap. Headless callers without the
+  hook are unchanged.
+- **Input.** While a box is open the Scene drops cursor/held camera keys, zoom keys and
+  wheel, bookmarks, group-display keys, the screen edge, world presses and minimap
+  presses. The page drops HUD presses. Only the box (its summary and dismiss button),
+  the browser fullscreen control and the desktop notice take presses. Enter keeps the
+  #1045 behavior; Escape still does not open the menu.
+- **One box.** The strip keeps every message, but at most one `<details>` is open. A
+  newer auto-open or a player opening another message replaces the open box, like a
+  new `004af440` call. Keeping the strip of collapsed messages is the #457 modern-screen
+  presentation; only the open element is the modal box.
+- **Focus edge case.** Only controls inside the open box keep native Enter/Space
+  activation. Enter from any other focused control closes the box, and Enter/Space are
+  refused for those controls. An auto-open also blurs a stale strip summary.
+
 ## Remaining divergences (not changed here)
 
-- **No freeze.** The browser does not freeze the simulation, and the Scene camera keys
-  (cursor keys, zoom, bookmarks) still work while a message is open. World clicks are
-  not blocked either. The original freezes all of these (see above).
-- **Several open boxes.** The browser can show several open messages at once. The
-  original has a single box, and a new `004af440` call replaces it.
 - **Camera on close.** For `0x400|0x20` messages the original calls `00417ca0` (inferred camera
   move) when the box closes (`00431bb0`). The browser focuses positioned messages on a user
   open, as documented in the [presentation note](campaign-message-presentation.md).
 - **Flags on close.** On close, `00431bb0` sets `0x8|0x2` on `0x1&0x200` messages. No
   browser close path does this.
-- **Focused summary.** After a click collapses a message, its summary keeps focus. If
-  another message then auto-opens, Enter activates the focused summary and reopens the
-  old message instead of closing the new one. The original has no focusable controls.
+- **Pause owner.** See the freeze bullet above: a player-opened box over an existing
+  pause keeps that pause on close. The browser also pauses when the window loses
+  focus; if that happens while a box is open, closing the box still restores the
+  pause state from before the box, so the game resumes on that explicit close.
+- **Box controls.** `004af780` hit-tests the mode-dependent box controls (`0089bbf2`
+  entries). The browser box has its summary and dismiss button instead.
 
-Evidence type: static disassembly. This is not an original-game execution witness.
+Evidence type: static disassembly (Capstone 5.0.7 on the hash above for the #1046
+additions). This is not an original-game execution witness.

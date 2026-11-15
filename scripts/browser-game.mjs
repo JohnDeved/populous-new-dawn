@@ -136,6 +136,14 @@ export async function openGame(browser, mission = 1) {
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
   await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  // An auto-opened campaign message box pauses the game, and with it the opening
+  // flyby, like the original (#1046). Close it through its public summary as a
+  // player would; the flyby then finishes on its own.
+  for (let limit = 8; limit; limit--) {
+    await page.waitForFunction(() => !window.testScene.world.inputMask || window.testScene.messageModal)
+    if (!(await page.evaluate(() => window.testScene.messageModal))) break
+    await collapseCampaignMessages(page)
+  }
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })
@@ -201,17 +209,22 @@ export const originalSkyShaders = {
   fragmentShader: 'uniform sampler2D map; varying vec2 skyUV; void main(){gl_FragColor=texture2D(map,skyUV);}',
 }
 
-// An open campaign message owns gameplay keyboard shortcuts (app/page.tsx key
-// handler; as in the original only an Enter press passes, and it closes the
-// message), and missions such as 1 and 13 open their first message at start.
-// Checks that press gameplay keys collapse every open message through its public
-// summary first. Never dismisses a message or edits World data; fails if any stays open.
+// An open campaign message is the original modal box (app/page.tsx; #1045, #1046):
+// only an Enter press passes, and it closes the box; the game stays paused and
+// camera, world and HUD input do nothing until it closes. Missions such as 1 and
+// 13 open their first message at start. Checks that press gameplay keys or drive
+// real time collapse every open message through its public summary first. The
+// clicked summary is blurred afterwards so a later Enter/Space cannot reopen it.
+// Never dismisses a message or edits World data; fails if any stays open.
 export async function collapseCampaignMessages(page) {
   const open = page.locator('.campaign-messages details[open] > summary[aria-label="Read campaign message"]')
   // Collapsing re-indexes the open set, so always close the first remaining message.
   for (let count = await open.count(), limit = 32; count && limit; count = await open.count(), limit--)
     await open.first().click()
   await page.waitForFunction(() => !document.querySelector('.campaign-messages details[open]'))
+  await page.evaluate(() => {
+    if (document.activeElement?.closest('.campaign-messages')) document.activeElement.blur()
+  })
 }
 
 // Ordinary hover inspection of retained building panels (Huts, training Huts) only
