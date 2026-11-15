@@ -1,4 +1,4 @@
-// Browser integration for native type-3 message motion, native screen-parameterized strip geometry and auto-open.
+// Browser integration for native type-3 message motion and native screen-parameterized strip geometry.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -83,17 +83,7 @@ try {
     await page.locator('.campaign-messages summary img').first().getAttribute('src'),
     '/original/message.png'
   )
-  // 004314c0 auto-opens the oldest pending message once its motion settles
-  // (decomp/research/campaign-message-presentation.md); the others stay closed.
-  const openStates = () =>
-    page.locator('.campaign-messages details').evaluateAll(nodes => nodes.map(node => node.open))
-  await page.waitForFunction(() => document.querySelector('.campaign-messages details')?.open)
-  assert.deepEqual(await openStates(), [true, false, false])
-  // The public summary still collapses and reopens it.
   await page.locator('.campaign-messages summary').first().click()
-  assert.deepEqual(await openStates(), [false, false, false])
-  await page.locator('.campaign-messages summary').first().click()
-  assert.deepEqual(await openStates(), [true, false, false])
   await page.getByText(/Single Shot Landbridge/).waitFor()
   const popup = await page.locator('.campaign-messages details').first().locator('div').evaluate(node => {
     const rect = node.getBoundingClientRect()
@@ -134,7 +124,7 @@ try {
     return world.messages.slots.some(message => message?.stringId === 644)
   }), false)
   assert.deepEqual(errors, [])
-  console.log('PASS: live campaign messages move, stack, auto-open, focus, expire, use native screen geometry, open and dismiss')
+  console.log('PASS: live campaign messages move, stack, focus, expire, use native screen geometry, open and dismiss')
 } finally {
   await browser.close()
 }

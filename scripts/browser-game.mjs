@@ -134,19 +134,31 @@ export async function openGame(browser, mission = 1) {
   await page.keyboard.press('Enter')
   await bindGame(page)
   await page.waitForFunction(() => window.testScene.world.flyby.flags & 1 || !window.testScene.world.inputMask)
-  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
-  // An auto-opened campaign message box pauses the game, and with it the opening
-  // flyby, like the original (#1046). Close it through its public summary as a
-  // player would; the flyby then finishes on its own.
-  for (let limit = 8; limit; limit--) {
-    await page.waitForFunction(() => !window.testScene.world.inputMask || window.testScene.messageModal)
-    if (!(await page.evaluate(() => window.testScene.messageModal))) break
-    await collapseCampaignMessages(page)
-  }
-  await page.waitForFunction(() => !window.testScene.world.inputMask)
+  await settleOpeningMessages(page)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })
   return { page, errors }
+}
+
+// An auto-opened campaign message box pauses the game, and with it the opening
+// flyby, like the original (#1046). Skip the introduction and close each box through
+// its public summary as a player would. A box that opens over the flyby also
+// swallows Skip Introduction, so skip again after closing it. A message the opening
+// requests at the input release (for example Mission 1's 611) opens a few draws
+// later; settle it too, so checks never start under a box that pauses the world
+// and drops their input.
+export async function settleOpeningMessages(page) {
+  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  for (let limit = 8; limit; limit--) {
+    await page.waitForFunction(() => {
+      const s = window.testScene, w = s.world
+      return s.messageModal || (!w.inputMask && w.messages.slots.every(m => !m || !(m.flags & 0x20002)))
+    })
+    if (!(await page.evaluate(() => window.testScene.messageModal))) break
+    await collapseCampaignMessages(page)
+    await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  }
+  await page.waitForFunction(() => !window.testScene.world.inputMask && !window.testScene.messageModal)
 }
 
 // The original number row recalls follower groups (#1005), so checks arm spells

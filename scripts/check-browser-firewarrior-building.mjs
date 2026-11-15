@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { bindGame, effectPixels, showAllMissions } from './browser-game.mjs'
+import { bindGame, effectPixels, settleOpeningMessages, showAllMissions } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
@@ -14,6 +14,8 @@ try {
   await page.getByRole('button', { name: 'Mission 10', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => globalThis.testScene.world.outcome.level === 10)
+  // Mission 10's opening message box pauses the world and refuses HUD presses (#1046).
+  await settleOpeningMessages(page)
   page.setDefaultTimeout(15_000)
   await page.getByLabel('Select brave').click()
   const school = await page.evaluate(async () => {

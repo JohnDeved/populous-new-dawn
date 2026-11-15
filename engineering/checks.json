@@ -6006,6 +6006,7 @@
         "POPULOUS_ARTIFACT_DIR"
       ],
       "inputs": [
+        "app/campaign-message-modal.ts",
         "app/world-turn.ts",
         "app/reincarnation.ts",
         "app/shaman-death-vfx.ts",
