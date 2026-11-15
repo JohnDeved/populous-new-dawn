@@ -379,6 +379,7 @@
   "app/shaman-death-vfx.ts",
   "app/shaman-guard.ts",
   "app/shared-anibl.ts",
+  "app/site-metadata.ts",
   "app/site-wave-effects.ts",
   "app/sky-environment.ts",
   "app/sky-motion.ts",

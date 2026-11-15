@@ -1,6 +1,6 @@
-# Populous · The Journey Begins
+# Populous: New Dawn
 
-The original first mission, rebuilt for desktop browsers with original-game visual styling and a spherical world. Terrain and initial objects come from the user-supplied game; behavior is being reconstructed and compared against its executable. Spell-head work and delayed gifts are CPU-compared; follower eligibility and world scheduling remain approximate.
+An in-development single-player remake of Populous: The Beginning for desktop browsers. Terrain, authored levels and visual assets come from the original game; gameplay is being reconstructed and compared against its executable. Campaign coverage, behavior and presentation remain works in progress.
 
 ## Run
 
