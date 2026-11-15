@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 8a37f1d6ed59c3ee56f0f1021b85683a95bbecca
+      PND_CANDIDATE_SHA: 5c014af7f109ae28b44cd27823744a86229a460c
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed held-Ctrl candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 8a37f1d6ed59c3ee56f0f1021b85683a95bbecca
+          ref: 5c014af7f109ae28b44cd27823744a86229a460c
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -91,7 +91,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: held-ctrl-8a37f1d6-${{ github.run_id }}-${{ github.run_attempt }}
+          name: held-ctrl-5c014af7-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
