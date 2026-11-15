@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import {
   assertPlacementStep,
   inspectPlacementProbe,
+  createPlacementProbeSearch,
   finishHeldCtrlPlacement,
   heldCtrlPlacementLimitMs,
 } from '../scripts/tutorial-browser/held-ctrl-placement.mjs'
@@ -138,4 +139,67 @@ test('probe observation distinguishes live canvas, occlusion and missing target 
     assert.equal(result.element?.tag ?? null, hit?.tagName ?? null)
     assert.equal(JSON.stringify(scene), before)
   }
+})
+
+test('candidate search consumes once while freshly validating each later placement', async () => {
+  const inspected = [],
+    hovered = [],
+    skipped = [],
+    observed = []
+  let world = 0
+  const search = createPlacementProbeSearch([0, 1, 2, 3, 4], {
+    inspect: async point => {
+      inspected.push([point, world])
+      return { canvasOwned: point !== 2, point }
+    },
+    hover: async point => {
+      hovered.push([point, world])
+      return { cursor: { invalid: point === 0 } }
+    },
+    skipped: target => skipped.push(target.point),
+    observed: point => observed.push(point),
+  })
+  assert.equal(await search(), 1)
+  world = 1
+  assert.equal(await search(), 3)
+  world = 2
+  assert.equal(await search(), 4)
+  await assert.rejects(search(), /No distinct valid/)
+  assert.deepEqual(inspected, [
+    [0, 0],
+    [1, 0],
+    [2, 1],
+    [3, 1],
+    [4, 2],
+  ])
+  assert.deepEqual(hovered, [
+    [0, 0],
+    [1, 0],
+    [3, 1],
+    [4, 2],
+  ])
+  assert.deepEqual(skipped, [2])
+  assert.deepEqual(observed, [0, 1, 3, 4])
+})
+test('candidate search propagates inspection and hover failures unchanged', async () => {
+  for (const phase of ['inspect', 'hover'])
+    for (const failure of [undefined, Error('timeout')]) {
+      const search = createPlacementProbeSearch([0], {
+        inspect: async () => {
+          if (phase === 'inspect') throw failure
+          return { canvasOwned: true }
+        },
+        hover: async () => {
+          throw failure
+        },
+        skipped: () => assert.fail('not a skip'),
+        observed: () => assert.fail('not observed'),
+      })
+      let caught = false
+      await search().catch(error => {
+        caught = true
+        assert.equal(error, failure)
+      })
+      assert.equal(caught, true)
+    }
 })

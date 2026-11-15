@@ -37,6 +37,25 @@ export async function inspectPlacementProbe(page, point) {
   }, point)
 }
 
+// Consume each bounded candidate once across placements; always validate its live state.
+export function createPlacementProbeSearch(probes, { inspect, hover, skipped, observed }) {
+  let next = 0
+  return async () => {
+    while (next < probes.length) {
+      const point = probes[next++]
+      const target = await inspect(point)
+      if (!target.canvasOwned) {
+        skipped(target)
+        continue
+      }
+      const state = await hover(point)
+      observed(point, state)
+      if (!state.cursor.invalid) return point
+    }
+    throw Error('No distinct valid visible Hut footprint within bounded authored settlement probes')
+  }
+}
+
 export async function finishHeldCtrlPlacement({
   context,
   report,
@@ -55,6 +74,13 @@ export async function finishHeldCtrlPlacement({
   if (report.errors.length)
     failures.push(Error(`Held-Ctrl runtime errors: ${JSON.stringify(report.errors)}`))
   if (report.timedOut) failures.push(Error('Held-Ctrl placement exceeded its 60-second bound'))
+  const unique = new Set(report.previews.map(probe => `${probe.point.x},${probe.point.y}`)).size
+  report.probeMetrics = {
+    observed: report.previews.length,
+    unique,
+    repeated: report.previews.length - unique,
+    skipped: report.skippedProbes?.length ?? 0,
+  }
   report.status = failures.length ? 'failed' : 'passed'
   report.failures = failures.map(error => ({ message: String(error), stack: error?.stack }))
   writeFileSync(resolve(output, 'held-ctrl-placement.json'), JSON.stringify(report, null, 2) + '\n')
@@ -78,6 +104,7 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
     contextClosed: false,
     limits: [
       'One authored Mission 1 scene; no injected entities or forced ticks',
+      'Each candidate consumed once; may miss a newly valid earlier site; exhaustion fails, not proof no terrain exists',
       'Real Ctrl-held valid-invalid-valid then plain valid click; no save/load/restart or native raster claim',
       'Actual Home through plain Vite; not Vinext/Cloudflare/RSC or native raster equivalence',
       'Headless renderer recorded below; no hardware FPS or timing claim',
@@ -202,19 +229,13 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
       const state = await read()
       return state
     }
-    const findValid = async () => {
-      for (const point of probes) {
-        const target = await inspectPlacementProbe(page, point)
-        if (!target.canvasOwned) {
-          report.skippedProbes.push(target)
-          continue
-        }
-        const state = await hover(point)
-        report.previews.push({ point, cursor: state.cursor, pointer: state.pointer })
-        if (!state.cursor.invalid) return point
-      }
-      throw Error('No distinct valid visible Hut footprint within 50 authored settlement probes')
-    }
+    const findValid = createPlacementProbeSearch(probes, {
+      inspect: point => inspectPlacementProbe(page, point),
+      hover,
+      skipped: target => report.skippedProbes.push(target),
+      observed: (point, state) =>
+        report.previews.push({ point, cursor: state.cursor, pointer: state.pointer }),
+    })
     const click = async (point, previous, added, mode, label) => {
       const preview = await hover(point)
       assert.equal(Boolean(preview.cursor.invalid), added === 0)
