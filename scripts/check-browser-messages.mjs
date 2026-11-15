@@ -1,11 +1,13 @@
 // Browser integration for native type-3 message motion and native screen-parameterized strip geometry.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleOpeningMessages } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
+  // Mission 1's opening box (611) would pause the world and drop input (#1046).
+  await settleOpeningMessages(page)
   const sound = await page.evaluate(async () => {
     const scene = window.testScene, world = scene.world
     const { addMessage } = await import('/app/messages.ts')

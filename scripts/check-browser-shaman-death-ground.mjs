@@ -113,7 +113,14 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
           : goal === 'ground-samples' ? rows.length === bound
           : goal === 'turns' ? w.turn - startTurn >= bound : false
         const ready = () => reachedGoal() || (goal !== 'startup' && box())
-        const remaining = bound - (w.turn - startTurn)
+        // A resumed goal keeps the original turn and frame bounds across every box.
+        const remaining = bound - (w.turn - startTurn), framesUsed = previous?.framesUsed ?? 0
+        if (previous && (remaining <= 0 || 2 * bound + 8 - framesUsed <= 0) && goal !== 'position')
+          throw Error(`Controlled-frame goal missed its bound (${goal}, resumed after a message box)`)
+        if (previous && (remaining <= 0 || 2 * bound + 8 - framesUsed <= 0)) {
+          window.combinedResume = null // A position goal may end unreached, as before.
+          return { goal, reached: false, frames: 0, turns: 0, messageBox: false, turn: w.turn, rows }
+        }
         const budget = { goal, bound, startTurn, resume: !!previous, result: null }
         window.combinedFrames.reports.push(budget)
         window.combinedDriving = true
@@ -121,7 +128,7 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
         try {
           budget.result = await runSceneFrames({ scene, currentScene: () => window.testSceneRef.current,
             currentWorld: () => window.testStore.getWorld(), until: ready, frameMs: 1000 / 24,
-            maxFrames: Math.min(2 * remaining + 8, 10000 - window.combinedFrames.total), maxTurns: Math.max(1, remaining),
+            maxFrames: Math.min(2 * bound + 8 - framesUsed, 10000 - window.combinedFrames.total), maxTurns: remaining,
             batchFrames: 8, allowPaused: true, requireGoal: !['startup', 'position'].includes(goal),
             deadline, aborted: () => !!window.combinedAbort,
             validate: () => {
@@ -143,7 +150,8 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
         } catch (error) { budget.failure = String(error.stack ?? error); throw error }
         finally { window.combinedDriving = false; window.captureCombinedGroundSteps = false }
         const messageBox = !reachedGoal() && goal !== 'startup' && box()
-        window.combinedResume = messageBox ? { goal, startTurn, rows, sampledTurn } : null
+        window.combinedResume = messageBox
+          ? { goal, startTurn, rows, sampledTurn, framesUsed: framesUsed + budget.result.frames } : null
         const u = shaman(), f = body()
         return { goal, ...budget.result, messageBox, turn: w.turn, status: w.status, stock: w.shots.bridge,
           shaman: u && { id: u.id, x: u.x, z: u.z, hp: u.hp, fighting: !!u.fight },

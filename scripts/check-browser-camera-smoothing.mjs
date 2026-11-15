@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleOpeningMessages } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
+  // Mission 1's opening box (611) would pause the world and drop input (#1046).
+  await settleOpeningMessages(page)
   await page.evaluate(() => {
     const s = window.testScene
     cancelAnimationFrame(s.frame)
