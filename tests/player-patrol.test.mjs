@@ -20,7 +20,9 @@ import { random } from '../app/native-math.ts'
 // Ctrl+Alt left release (action 0x7f with Alt bit 0x800) and N (tribe command
 // 0x68); decomp/research/player-patrol.md P1-P8.
 const route = { ctrlKey: true, altKey: true }
-const A = { x: -10, z: 8 }, B = { x: 0, z: 8 }, C = { x: 0, z: 18 }
+const A = { x: -10, z: 8 },
+  B = { x: 0, z: 8 },
+  C = { x: 0, z: 18 }
 
 function world(count = 2, kind = 'brave') {
   const w = createStartedWorld()
@@ -35,7 +37,9 @@ function world(count = 2, kind = 'brave') {
   w.selected = w.units.map(u => u.id)
   return w
 }
-const turn = (w, n) => { for (let i = 0; i < n; i++) tick(w, 1 / 12) }
+const turn = (w, n) => {
+  for (let i = 0; i < n; i++) tick(w, 1 / 12)
+}
 const cellOf = (w, point) => {
   const n = nativePosition(w, point)
   return ((n.y & 65535) >> 9) * 128 + ((n.x & 65535) >> 9)
@@ -48,7 +52,10 @@ test('Ctrl+Alt points share one record per click, convert to a route and cycle a
   for (const point of [A, B, C]) assert.equal(command(w, point, route), true)
   const [first, second] = w.units.map(u => u.native)
   assert.equal(w.orderCursor, 3, 'Ctrl+Alt stays in the staged family and keeps planning')
-  assert.deepEqual(w.selected, w.units.map(u => u.id))
+  assert.deepEqual(
+    w.selected,
+    w.units.map(u => u.id)
+  )
   assert.deepEqual(models(w, first), [25, 25, 25])
   assert.deepEqual(first.commands, second.commands, 'each click is one shared record')
   for (const id of first.commands.filter(Boolean)) {
@@ -75,7 +82,8 @@ test('a route actually walks to each point and back', () => {
   command(w, B, route)
   cancelInteraction(w)
   const u = w.units[0]
-  let reachedA = 0, reachedB = 0
+  let reachedA = 0,
+    reachedB = 0
   for (let i = 0; i < 2400; i++) {
     turn(w, 1)
     if (near(u, A)) reachedA++
@@ -146,7 +154,11 @@ test('Ctrl+Alt or Shift over the own Shaman issues Shaman guard (command 30)', (
     assert.deepEqual(models(w, p), [30])
     assert.equal(currentPersonOrder(w.buildingOrders, p).a, shaman.id)
     turn(w, 300)
-    assert.ok(w.units.filter(u => u.kind === 'brave').every(u => Math.hypot(u.x - shaman.x, u.z - shaman.z) < 5))
+    assert.ok(
+      w.units
+        .filter(u => u.kind === 'brave')
+        .every(u => Math.hypot(u.x - shaman.x, u.z - shaman.z) < 5)
+    )
   }
   const w = world(2)
   const shaman = addUnit(w, 'blue', 'shaman', { x: 10, z: 8 })
@@ -161,14 +173,20 @@ test('the eighth Ctrl+Alt point finalizes and deselects; Alt on a plain final cl
   assert.equal(w.orderCursor, 0)
   assert.deepEqual(w.selected, [])
   assert.deepEqual(models(w, p), [25, 25, 25, 25, 25, 25, 25, 25])
-  assert.deepEqual(p.commands.map(id => w.buildingOrders.records[id].flags & 128), [128, 128, 128, 128, 128, 128, 128, 0])
+  assert.deepEqual(
+    p.commands.map(id => w.buildingOrders.records[id].flags & 128),
+    [128, 128, 128, 128, 128, 128, 128, 0]
+  )
   const before = w.buildingOrders.active
   w.selected = [p.id]
   command(w, A, route)
   assert.equal(w.buildingOrders.active, 1, 'a new sequence (slot 0) replaces the full route')
   assert.ok(before === 8)
   command(w, B, { ctrlKey: true, altKey: true, shiftKey: true })
-  assert.deepEqual(p.commands.filter(Boolean).map(id => w.buildingOrders.records[id].flags & 64), [0, 64])
+  assert.deepEqual(
+    p.commands.filter(Boolean).map(id => w.buildingOrders.records[id].flags & 64),
+    [0, 64]
+  )
   command(w, C, { altKey: true })
   assert.deepEqual(w.selected, [], 'Alt inverts keep-selection on the final plain click')
   assert.deepEqual(models(w, p), [25, 25, 3])
@@ -230,7 +248,7 @@ test('N switches every tribe patroller with a later action with one RNG step eac
   // 0x4364d0 slot removal also releases a fight/formation assignment (bit 32)
   // with its own 0x4d4f40 draw; the restart itself draws exactly once.
   const probe = { randomState: w.randomState }
-  for (let i = a.assignment & 32 ? 2 : 1; i--; ) random(probe)
+  for (let i = a.assignment & 32 ? 2 : 1; i--;) random(probe)
   assert.equal(releasePlayerPatrols(w), 1)
   assert.equal(w.randomState, probe.randomState, 'one restart draw for the one switched person')
   assert.equal(currentPersonOrder(w.buildingOrders, a).model, 3)
@@ -244,12 +262,27 @@ test('N switches every tribe patroller with a later action with one RNG step eac
   b.state = 10
   // Unselected people are switched too, and the move actually executes.
   assert.equal(releasePlayerPatrols(w), 1)
-  const reached = new Set()
+  // Each released move completes by native arrival (0x43bb60: square overlap of
+  // the Brave radius 384 and 56 around the move record's point) as the cursor
+  // leaves slot 2.
+  const moves = [a, b].map(p => ({ ...w.buildingOrders.records[p.commands[2]] }))
+  assert.deepEqual(
+    moves.map(o => o.model),
+    [3, 3]
+  )
+  const reached = new Map()
   for (let i = 0; i < 400; i++) {
+    const before = [a, b].map(p => p.commandCursor)
     turn(w, 1)
-    for (const u of w.units.slice(0, 2)) if (near(u, C, 2)) reached.add(u.id)
+    ;[a, b].forEach((p, index) => {
+      if (before[index] !== 2 || p.commandCursor !== 3) return
+      const { a: x, b: y } = moves[index],
+        wrap = d => Math.min(Math.abs(d), 65536 - Math.abs(d))
+      reached.set(p.id, Math.max(wrap((p.x & 65535) - x), wrap((p.y & 65535) - y)))
+    })
   }
   assert.equal(reached.size, 2, 'both released people walk to the queued move')
+  for (const [id, offset] of reached) assert.ok(offset < 384 + 56, `${id} arrived at the move`)
   // The surviving later point (slot 3) is a single area guard and holds.
   for (const p of [a, b]) assert.equal(currentPersonOrder(w.buildingOrders, p).model, 11)
 })

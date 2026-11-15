@@ -133,72 +133,99 @@ test('destroying an occupied tower releases its native record and display height
   assert.equal(w.buildingOrders.active, 0)
 })
 
-for (const targetHp of [25, 50]) test(`a tower Firewarrior owns one impact per volley (${targetHp}HP target)`, () => {
-  const {
-    w,
-    b,
-    people: [guard],
-  } = scenario('blue', 2, 'firewarrior')
-  until(w, () => guard.inside === b.id)
-  retainFixtureUnits(w, u => u === guard)
-  w.effects = []
-  guard.cooldown = 0
-  guard.entry.person.counter = 0
-  guard.entry.person.flags3 &= ~0x800
-  addBuilding(w, 'red', 'hut', { x: guard.x - 6, z: guard.z }, true)
-  const ally = addUnit(w, 'blue', 'brave', { x: guard.x + 2, z: guard.z }),
-    hidden = addUnit(w, 'red', 'brave', { x: guard.x + 4, z: guard.z }),
-    target = addUnit(w, 'red', 'brave', { x: guard.x + 8, z: guard.z })
-  hidden.invisibility = 10
-  target.hp = targetHp
-  target.x = guard.x + 3383 / 256
-  assert.equal(towerFirewarriorReady(w, guard, target), true)
-  target.x = guard.x + 3384 / 256
-  assert.equal(towerFirewarriorReady(w, guard, target), false)
-  target.x = guard.x + 8
-  target.native = createLivePerson(w, target)
-  target.native.damageAttacker = 3
-  let scanTurns = 0
-  while (!w.effects.some(effect => effect.firewarriorShot) && scanTurns++ < 4) tick(w, 1 / 12)
-  assert.ok(scanTurns >= 1 && scanTurns <= 4)
-  const shots = w.effects.filter(effect => effect.firewarriorShot)
-  assert.equal(shots.length, 2)
-  assert.ok(shots.every(shot => shot.firewarriorShot.target === target.id))
-  assert.equal(guard.cooldown, 36 / 12)
-  assert.ok(
-    shots.every(
-      shot =>
-        shot.height * 45 ===
-        Math.max(guard.entry.person.h, nativePosition(w, shot).h) +
-          guard.entry.person.supportHeight +
-          16
-    )
-  )
-  assert.equal(ally.hp, 50)
-  assert.equal(hidden.hp, 50)
-  assert.deepEqual(shots.map(shot => shot.firewarriorShot.impact), [false, true])
-  if (targetHp === 25) {
-    // The original damage consumer belongs to one marked 25 HP tower shot.
-    // Preserve the existing lethal ownership witness and its32-turn bound.
-    until(w, () => !w.units.some(unit => unit.id === target.id), 32)
-    assert.equal(w.killCredits[0][1], 1)
-  } else {
-    const firstLaunchTurn = w.turn, firstIds = new Set(shots.map(shot => shot.id))
-    until(w, () => !w.effects.some(effect => firstIds.has(effect.id)), 16)
-    assert.equal(target.hp, 25, 'one marked impact cannot kill the 50 HP target')
-    assert.equal(w.killCredits[0][1], 0)
-    until(w, () => w.effects.some(effect => effect.firewarriorShot && !firstIds.has(effect.id)), 36)
-    assert.equal(w.turn - firstLaunchTurn, 36, 'the next volley keeps the original tower cooldown')
-    const next = w.effects.filter(effect => effect.firewarriorShot && !firstIds.has(effect.id))
-    assert.equal(next.length, 2)
-    assert.deepEqual(next.map(effect => effect.firewarriorShot.impact), [false, true])
+for (const targetHp of [25, 50])
+  test(`a tower Firewarrior owns one impact per volley (${targetHp}HP target)`, () => {
+    const {
+      w,
+      b,
+      people: [guard],
+    } = scenario('blue', 2, 'firewarrior')
+    until(w, () => guard.inside === b.id)
+    retainFixtureUnits(w, u => u === guard)
+    w.effects = []
+    guard.cooldown = 0
+    guard.entry.person.counter = 0
+    guard.entry.person.flags3 &= ~0x800
+    addBuilding(w, 'red', 'hut', { x: guard.x - 6, z: guard.z }, true)
+    const ally = addUnit(w, 'blue', 'brave', { x: guard.x + 2, z: guard.z }),
+      hidden = addUnit(w, 'red', 'brave', { x: guard.x + 4, z: guard.z }),
+      target = addUnit(w, 'red', 'brave', { x: guard.x + 8, z: guard.z })
+    hidden.invisibility = 10
+    target.hp = targetHp
+    target.x = guard.x + 3383 / 256
+    assert.equal(towerFirewarriorReady(w, guard, target), true)
+    target.x = guard.x + 3384 / 256
+    assert.equal(towerFirewarriorReady(w, guard, target), false)
+    target.x = guard.x + 8
+    target.native = createLivePerson(w, target)
+    target.native.damageAttacker = 3
+    let scanTurns = 0
+    while (!w.effects.some(effect => effect.firewarriorShot) && scanTurns++ < 4) tick(w, 1 / 12)
+    assert.ok(scanTurns >= 1 && scanTurns <= 4)
+    const shots = w.effects.filter(effect => effect.firewarriorShot)
+    assert.equal(shots.length, 2)
+    assert.ok(shots.every(shot => shot.firewarriorShot.target === target.id))
     assert.equal(guard.cooldown, 36 / 12)
-    // Normal combat can reveal/retarget the hidden enemy between volleys.
-    assert.ok(next.every(effect => w.units.some(unit => unit.id === effect.firewarriorShot.target && unit.team === 'red')))
-  }
-  assert.equal(w.killCredits[3][1], 0)
-  assert.equal(guard.inside, b.id)
-})
+    assert.ok(
+      shots.every(
+        shot =>
+          shot.height * 45 ===
+          Math.max(guard.entry.person.h, nativePosition(w, shot).h) +
+            guard.entry.person.supportHeight +
+            16
+      )
+    )
+    assert.equal(ally.hp, 50)
+    assert.equal(hidden.hp, 50)
+    assert.deepEqual(
+      shots.map(shot => shot.firewarriorShot.impact),
+      [false, true]
+    )
+    if (targetHp === 25) {
+      // The original damage consumer belongs to one marked 25 HP tower shot. The
+      // regeneration turn (0x4d43a0, turn & 7 == 0) before the impact leaves 0.2.
+      const firstIds = new Set(shots.map(shot => shot.id))
+      until(w, () => !w.effects.some(effect => firstIds.has(effect.id)), 16)
+      assert.equal(target.hp, 0.2, 'exactly one marked 25 HP impact')
+      // Later volleys reveal and kill the hidden enemy, then the resting target;
+      // every kill is credited to the tower's tribe.
+      const hiddenId = hidden.id
+      until(w, () => !w.units.some(unit => unit.id === target.id), 120)
+      assert.ok(!w.units.some(unit => unit.id === hiddenId))
+      assert.equal(w.killCredits[0][1], 2)
+    } else {
+      const firstLaunchTurn = w.turn,
+        firstIds = new Set(shots.map(shot => shot.id))
+      until(w, () => !w.effects.some(effect => firstIds.has(effect.id)), 16)
+      assert.equal(target.hp, 25, 'one marked impact cannot kill the 50 HP target')
+      assert.equal(w.killCredits[0][1], 0)
+      until(
+        w,
+        () => w.effects.some(effect => effect.firewarriorShot && !firstIds.has(effect.id)),
+        36
+      )
+      assert.equal(
+        w.turn - firstLaunchTurn,
+        36,
+        'the next volley keeps the original tower cooldown'
+      )
+      const next = w.effects.filter(effect => effect.firewarriorShot && !firstIds.has(effect.id))
+      assert.equal(next.length, 2)
+      assert.deepEqual(
+        next.map(effect => effect.firewarriorShot.impact),
+        [false, true]
+      )
+      assert.equal(guard.cooldown, 36 / 12)
+      // Normal combat can reveal/retarget the hidden enemy between volleys.
+      assert.ok(
+        next.every(effect =>
+          w.units.some(unit => unit.id === effect.firewarriorShot.target && unit.team === 'red')
+        )
+      )
+    }
+    assert.equal(w.killCredits[3][1], 0)
+    assert.equal(guard.inside, b.id)
+  })
 
 test('tower preachers hand occupancy to command 31 and cleanly leave or die', () => {
   const entered = scenario('blue', 2, 'preacher'),
