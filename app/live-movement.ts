@@ -467,16 +467,20 @@ function issueLiveOrders(
   return { accepted, count }
 }
 
-// 0x4cedd0 commits movement and persistent guard as one native command group.
+// 0x4cedd0 phase 5 (0x4cf150..0x4cf1c6, decomp/research/computer-marker-guards.md).
+// A single marker commits two separate groups. First a command-3 move goes only
+// to selected Preachers (0x4359b0 model filter 4), and 0x41b180(14, 4) restores
+// those state-14 Preachers at once, which starts the move. Then one command-11
+// guard goes to every selected person, replacing the Preachers' started move.
+// Everyone else stays in state 14 until the caller's 0x418ce0 restore starts the
+// guard. Two markers commit one [11, 11] group, which 0x43b010 rewrites to a
+// command-25 route.
 export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, secondary = -1) {
   const group = {
     records: Array.from({ length: 8 }, emptyPersonOrder),
     count: 0,
     cursor: 0,
   }
-  if (secondary === -1) queuePersonOrder(group, 3, 0, marker)
-  queuePersonOrder(group, 11, 0x606, marker)
-  if (secondary !== -1) queuePersonOrder(group, 11, 0x606, secondary)
   const people = units.map(u => {
     const p = u.native ?? createLivePerson(w, u)
     u.native = p
@@ -484,9 +488,9 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
     registerLivePerson(w, p)
     return p
   })
-  return commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], {
+  const effects = {
     ...orderEffects(w),
-    prepare: (order, model, a, b, flags = 0) => {
+    prepare: (order: PersonOrder, model: number, a: number, b: number, flags = 0) => {
       if (model === 3)
         prepareMovementOrder(order, { x: a, y: b }, flags, w.land, id =>
           buildingOutsidePoint(liveBuildingShape(w, id)!)
@@ -494,7 +498,24 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
       else if (model === 11) prepareCellOrder(order, { a, b }, flags, w.land.categories, model)
       else unsupported()
     },
-  })
+  }
+  if (secondary === -1) {
+    queuePersonOrder(group, 3, 0, marker)
+    commitPersonOrders(w.buildingOrders, group, people, [4, -1, -1], effects)
+    // 0x41b180 visits the tribe's state-14 model-4 people. Browser scope: the
+    // task's own members, as the caller's 0x418ce0 restore does.
+    for (const [index, p] of people.entries()) {
+      if (p.state !== 14 || p.model !== 4) continue
+      resetPersonMotion(p)
+      if (p.flags2 & 0x100000) continue
+      changeLivePersonState(w, units[index], defaultPersonState(p, w.manaWorld.gameFlags), p)
+    }
+    queuePersonOrder(group, 11, 0x606, marker)
+  } else {
+    queuePersonOrder(group, 11, 0x606, marker)
+    queuePersonOrder(group, 11, 0x606, secondary)
+  }
+  return commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], effects)
 }
 
 export function movementOrder(w: World, to: { x: number; y: number }) {
