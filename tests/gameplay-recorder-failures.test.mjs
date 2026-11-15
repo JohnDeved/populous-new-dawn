@@ -79,6 +79,7 @@ function fixture(options = {}) {
     },
     readFileSync: () => '{}',
     bindGame: async () => {}, showAllMissions: async () => {},
+    settleOpeningMessages: async () => { events.push('opening:settle'); raise('opening') },
     assertResourceScenario: () => {}, assertResourceLive: () => {},
     summarizeGameplayPhase: () => ({ rawSha256: 'fixture', analysis: { sampleCount: 16 }, turnsAdvanced: 1, work: {} }),
     gameplayThreeCycleProfile: 'three-cycle-v1',
@@ -113,12 +114,26 @@ function sameReasons(error, expected) {
 test('ordinary supplied success preserves phase order and releases only both camera keys', async () => {
   const f = fixture(), report = await f.run()
   assert.equal(report.status, 'passed')
+  assert.equal(f.events.filter(e => e === 'opening:settle').length, 1)
   assert.deepEqual([...report.phases].map(p => p.name), [...plan.phases].map(p => p.name))
   assert.equal(f.saved.at(-1).status, 'passed')
   assert.deepEqual(f.events.filter(e => e.startsWith('key:up:')),
     ['key:up:ArrowRight:1', 'key:up:w:1', 'key:up:ArrowRight:2', 'key:up:w:2'])
   assert.ok(!f.events.includes('observer:cleanup'))
   assert.ok(!f.events.includes('heap:detach'))
+})
+
+test('opening admission failure is retained before any measured phase', async () => {
+  const reason = new Error('opening remains modal'), f = fixture({ opening: reason })
+  assert.equal(await rejection(f.run), reason)
+  assert.equal(f.saved.at(-1).status, 'failed')
+  assert.deepEqual(f.saved.at(-1).phases, [])
+  assert.equal(f.saved.at(-1).failure.message, String(reason))
+})
+
+test('initial and restart admission both settle messages before retained readiness assertions', () => {
+  assert.equal((source.match(/await settleOpeningMessages\(page\)/g) ?? []).length, 2)
+  assert.equal((source.match(/await settleOpeningMessages\(page\)\s+await page.waitForFunction\(\(\) => !window.testStore.getWorld\(\).inputMask && !window.testStore.getWorld\(\).paused\)/g) ?? []).length, 2)
 })
 
 for (const [index, reason] of values.entries()) {
