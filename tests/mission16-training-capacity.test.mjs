@@ -97,7 +97,7 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
         )
         assert.equal(w.objectCells.objects.has(id), false)
       }
-      for (const id of [424, 425, 426].map(referenceId)) {
+      for (const id of [417, 418, 419].map(referenceId)) {
         const u = w.units.find(u => u.id === id)
         assert.equal(u.kind, 'warrior')
         assert.equal(u.hp, 90)
@@ -119,12 +119,12 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
   assert.deepEqual(
     [...conversions],
     [
-      [referenceId(424), 588],
-      [referenceId(425), 588],
-      [referenceId(426), 588],
-      [referenceId(767), 1540],
-      [referenceId(768), 1540],
-      [referenceId(848), 1808],
+      [referenceId(417), 588],
+      [referenceId(418), 588],
+      [referenceId(419), 588],
+      [referenceId(738), 1540],
+      [referenceId(739), 1540],
+      [referenceId(823), 1808],
     ]
   )
 })

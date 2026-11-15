@@ -35,7 +35,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   assert.ok(command(world, { ...convertHead, id: convertHead.id }))
   assert.equal(currentPersonOrder(world.buildingOrders, warrior.native)?.model, 27)
   while (!world.shots.convertWild && world.turn < 1500) tick(world, 1 / 12)
-  assert.equal(world.turn, 326)
+  assert.equal(world.turn, 334)
   assert.ok(world.shots.convertWild > 0)
 
   const shaman = world.units.find(u => u.id === 111),
@@ -43,7 +43,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   selectUnit(world, shaman.id, false)
   assert.ok(command(world, { ...tower, id: tower.id }))
   while (shaman.inside !== tower.id && world.turn < 2000) tick(world, 1 / 12)
-  assert.deepEqual([world.turn, shaman.inside], [590, tower.id])
+  assert.deepEqual([world.turn, shaman.inside], [598, tower.id])
   const wild = world.units.find(u => u.id === 107 && u.team === 'wild')
   assert.ok(wild)
   assert.ok(spellRange(world, shaman, 17) > 48)
@@ -57,14 +57,14 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
     .sort(
       (a, b) => Math.hypot(a.x - head.x, a.z - head.z) - Math.hypot(b.x - head.x, b.z - head.z)
     )[0]
-  assert.deepEqual([world.turn, actor.id], [610, referenceId(491)])
+  assert.deepEqual([world.turn, actor.id], [618, referenceId(430)])
   selectUnit(world, actor.id, false)
   assert.ok(command(world, { ...head, id: head.id }))
   const worship = currentPersonOrder(world.buildingOrders, actor.native)
   assert.equal(worship.model, 27)
   const worshipId =
     actor.native.immediateCommand || actor.native.commands[actor.native.commandCursor]
-  while (world.turn < 719) tick(world, 1 / 12)
+  while (world.turn < 727) tick(world, 1 / 12)
   assert.deepEqual(
     [
       head.uses,
@@ -95,7 +95,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   assert.ok(boat)
   assert.deepEqual(
     [boat.id, boat.x, boat.y, boat.counter, boat.life, boat.speed, world.vehicleAllocationSeed],
-    [referenceId(665), 58340, 12314, 1, 4999, 0, 2]
+    [referenceId(593), 58340, 12314, 1, 4999, 0, 2]
   )
   assert.deepEqual(boat.rewardInitialization, {
     state: 1,
@@ -133,7 +133,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
     boarding = currentPersonOrder(world.buildingOrders, person)
   assert.equal(boarding.model, 22)
   while (!boat.passengers.includes(actor.id) && world.turn < 1700) step()
-  assert.equal(world.turn, 756)
+  assert.equal(world.turn, 763)
   assert.equal(actor.native, person)
   assert.equal(world.objectCells.objects.get(actor.id), person)
   assert.deepEqual([boat.passengerCount, person.vehicle], [1, boat.id])
@@ -156,7 +156,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   const sail = dispatch({ x: -33, z: -53 })
   assert.equal(sail.model, 3)
   for (let i = 0; i < 24; i++) step()
-  assert.deepEqual([world.turn, boat.x, boat.y], [900, 59136, 11520])
+  assert.deepEqual([world.turn, boat.x, boat.y], [907, 59136, 11520])
   assert.equal(actor.native, person)
   assert.equal(world.objectCells.objects.get(actor.id), person)
   assert.equal(person.vehicle, boat.id)
@@ -169,7 +169,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
     world.turn < 1498
   )
     step()
-  assert.equal(world.turn, 919)
+  assert.equal(world.turn, 926)
   assert.deepEqual(
     [boat.x, boat.y, boat.speed, person.state, person.commandStatus],
     [58624, 12032, 0, 30, 0]
@@ -196,8 +196,8 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
       launches.push(world.turn)
     }
   }
-  assert.deepEqual(launches, [925])
-  assert.equal(world.turn, 929)
+  assert.deepEqual(launches, [932])
+  assert.equal(world.turn, 936)
   assert.equal(actor.native, person)
   assert.equal(world.objectCells.objects.get(actor.id), person)
   assert.equal(actor.hp, 50)
@@ -210,7 +210,7 @@ test('earned Mission5 Boat is allocated, retires its template, and boards a real
   const reboard = dispatch({ ...browserPosition(boat), id: boat.id })
   assert.equal(reboard.model, 22)
   while (!person.vehicle && actor.hp > 0 && world.turn < 1600) step()
-  assert.equal(world.turn, 930)
+  assert.equal(world.turn, 937)
   assert.deepEqual(boat.passengers, [actor.id])
   assert.equal(person.vehicle, boat.id)
   assert.equal(actor.hp, 50)

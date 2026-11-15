@@ -184,7 +184,7 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
   const patrolRecords = []
   for (let id = 1; id < w.buildingOrders.records.length; id++)
     if (w.buildingOrders.records[id].model === 25) patrolRecords.push(id)
-  assert.deepEqual(patrolRecords, [33, 34, 35, 36, 38, 39, 42, 43, 48, 49, 50, 51])
+  assert.deepEqual(patrolRecords, [33, 34, 35, 36, 38, 39, 42, 43, 49, 50, 51, 52])
   for (const [id, expected] of [
     [33, first],
     [34, first],
@@ -194,19 +194,26 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
     [39, [275, 276, 278, 279]],
     [42, [273, 274]],
     [43, [273, 274]],
-    [48, [277]],
     [49, [277]],
-    [50, [referenceId(424)]],
-    [51, [referenceId(424)]],
+    [50, [277]],
+    [51, [referenceId(417)]],
+    [52, [referenceId(417)]],
   ])
     assert.deepEqual(owners(id), expected)
-  for (const id of [7, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 37, 40, 41, 47]) {
+  // Single-marker Preacher277 (0x4cedd0 phase 5) takes only command-3 record 40
+  // and preaches (command-17 record 44) on arrival. No command-11 record is
+  // committed, so 41 is never allocated, and the later records shift by one.
+  assert.deepEqual(
+    [40, 41, 44].map(id => w.buildingOrders.records[id].model),
+    [3, 0, 17]
+  )
+  for (const id of [7, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 37, 40, 44, 48]) {
     assert.equal(w.buildingOrders.records[id].references, 0)
     assert.deepEqual(owners(id), [])
   }
-  const trained = w.units.find(u => u.id === referenceId(424))
+  const trained = w.units.find(u => u.id === referenceId(417))
   assert.equal(trained.kind, 'warrior')
-  assert.equal(w.objectCells.objects.get(referenceId(424)), owner(trained))
+  assert.equal(w.objectCells.objects.get(referenceId(417)), owner(trained))
   assert.equal(
     w.units.filter(
       u =>
