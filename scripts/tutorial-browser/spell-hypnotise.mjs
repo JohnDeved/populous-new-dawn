@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { withHypnotiseContext } from './hypnotise-budget.mjs'
 import { observeHypnotiseLoad, validateHypnotiseLoad } from './hypnotise-checkpoint.mjs'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
 import {
   installHypnotiseObserver,
   validateHypnotiseObservation,
@@ -73,13 +73,9 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         await showAllMissions(page)
         await button('Mission 22').click()
         await bindGame(page)
-        await page.waitForFunction(
-          () =>
-            !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction')
-        )
-        if (await page.locator('.skip-introduction').isVisible())
-          await page.locator('.skip-introduction').click()
-        await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+        // Mission 22's opening message can pause the world after input releases.
+        // Close it publicly before the explicit pause and earned-stock setup.
+        await settleOpeningMessages(page)
         await button('Pause game').click()
         report.preparationStart = await page.evaluate(() =>
           window.__pndHypnotiseFixture.hypnotisePreparationState(window.testSceneRef.current.world)
