@@ -149,7 +149,7 @@ test('earned M22 Swarm pursues a unique occupied hut, ejects residents and retur
   const residents = w.units.filter(u => u.inside === hut.id)
   assert.deepEqual(
     residents.map(u => u.id),
-    [162, 372, 513].map(referenceId)
+    [164, 394, 555].map(referenceId)
   )
   assert.ok(residents.every(u => u.hp === 50))
   assert.ok(cast(w, 'swarm', { x: hut.x + 2, z: hut.z }))

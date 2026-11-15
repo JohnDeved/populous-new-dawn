@@ -70,33 +70,34 @@ const historicalPins = {
     emptyCounters: [73, 144],
   },
 }
-// Cycling computer marker patrols (0x4366b0) advance the shared RNG, so fresh
-// acquisition reaches this flight point 6 turns later; the idle Ctrl28 target,
-// Preacher17, now patrols with the Green group, so the transport follows it longer.
+// Cycling computer marker patrols (0x4366b0) and the native single-marker guards
+// (#1059, from turn 10) advance the shared RNG, so fresh acquisition reaches this
+// flight point 6 turns later than before #1059; the idle Ctrl28 target, Preacher17,
+// is now its own first opponent.
 const freshPins = {
-  input: [3561, 233],
-  waypointCounters: [36, 112],
-  retirements: [3620, 3696],
+  input: [3567, 239],
+  waypointCounters: [44, 120],
+  retirements: [3628, 3704],
   idle: {
     acquisitionOnly: false,
-    turn: 3646,
-    settledPose: [16640, 32512, 36],
-    firstX: 16609,
-    events: [4014, 4017, 12, 4047],
-    retainedLife: 307, // Qualified browser-owned lethal damage retains last positive native life.
+    turn: 3655,
+    settledPose: [16128, 32512, 44],
+    firstX: 16097,
+    events: [3955, 3958, 17, 4019],
+    retainedLife: 85, // Qualified browser-owned lethal damage retains last positive native life.
   },
   successor: {
-    references: [[3620, [1, 2]], [3621, [0, 2]], [3675, [0, 1]], [3866, [0, 0]]],
-    firstRetirementTurn: 3620,
-    firstRetirementCounters: [36, 107],
+    references: [[3628, [1, 2]], [3629, [0, 2]], [3685, [0, 1]], [3878, [0, 0]]],
+    firstRetirementTurn: 3628,
+    firstRetirementCounters: [44, 115],
     firstRetirementModels: [27, 3],
     waitingActor: 0,
-    secondRetirementTurn: 3621,
-    secondRetirementCounters: [37, 108],
-    seatTransferTurn: 3648,
-    seatTransferCounters: [64, 135],
-    emptyTurn: 3649,
-    emptyCounters: [65, 136],
+    secondRetirementTurn: 3629,
+    secondRetirementCounters: [45, 116],
+    seatTransferTurn: 3657,
+    seatTransferCounters: [73, 144],
+    emptyTurn: 3658,
+    emptyCounters: [74, 145],
   },
 }
 
