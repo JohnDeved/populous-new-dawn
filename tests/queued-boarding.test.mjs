@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import assert from 'node:assert/strict'
 import { stepMovementOrder } from '../app/person-orders.ts'
-import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
+import { addUnit, browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
 test('grounded staged boarding retains and visits the preceding waypoint', async () => {
   const stepUntil = (w, done, limit) => {
       for (let i = 0; i < limit; i++) {
@@ -48,6 +48,27 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     command(western, { ...browserPosition(westernBoat), id: westernBoat.id }, { ctrlKey: true })
   )
   const westernSecond = westernShaman.native.commands[1]
+  // Supplied lethal contrast: the authored Red patrol no longer idles on this
+  // detour, so two supplied Red Warriors hold the western waypoint instead. The
+  // Shaman dies while holding both queued records, which must both retire.
+  const lethal = structuredClone(world),
+    lethalShaman = lethal.units.find(u => u.id === shaman.id),
+    lethalBoat = lethal.vehicles.find(v => v.id === boat.id),
+    guards = [
+      addUnit(lethal, 'red', 'warrior', { x: 0, z: -45 }),
+      addUnit(lethal, 'red', 'warrior', { x: 0.5, z: -45 }),
+    ]
+  selectUnit(lethal, lethalShaman.id, false)
+  assert.ok(command(lethal, { x: 0, z: -45 }, { ctrlKey: true }))
+  const [lethalFirst] = lethalShaman.native.commands
+  assert.ok(
+    command(lethal, { ...browserPosition(lethalBoat), id: lethalBoat.id }, { ctrlKey: true })
+  )
+  const lethalSecond = lethalShaman.native.commands.at(1)
+  let lethalFight = 0,
+    lethalOpponent = 0,
+    lethalDeath = 0,
+    lethalHeld = null
   let westernFight = 0,
     westernOpponent = 0,
     westernDeath = 0,
@@ -100,6 +121,14 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     }
     if (westernShaman.hp <= 0 && !westernDeath) westernDeath = western.turn
     if (westernBoat.passengerCount && !westernBoarded) westernBoarded = western.turn
+    const lethalRefs = [lethalFirst, lethalSecond].map(id => lethal.buildingOrders.records[id].references)
+    tick(lethal, 1 / 12)
+    if (lethalShaman.hp <= 0 && !lethalDeath) lethalHeld = lethalRefs
+    if (lethalShaman.fight && !lethalFight) {
+      lethalFight = lethal.turn
+      lethalOpponent = lethalShaman.fight.opponent
+    }
+    if (lethalShaman.hp <= 0 && !lethalDeath) lethalDeath = lethal.turn
     const controlHadReference = control.buildingOrders.records[first].references,
       controlBefore = controlHadReference ? structuredClone(controlOwner) : null,
       controlOrderBefore = controlHadReference ? structuredClone(control.buildingOrders.records[first]) : null
@@ -134,6 +163,14 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     closest = Math.min(closest, Math.hypot(shaman.x - 22, shaman.z + 39))
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
+  assert.deepEqual(lethalHeld, [1, 1], 'both queued records are held until death')
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1376, guards[0].id, 1424])
+  assert.equal(lethalShaman.hp, 0)
+  assert.equal(lethal.units.includes(lethalShaman), false)
+  assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
+  assert.equal(lethal.buildingOrders.records[lethalFirst].references, 0)
+  assert.equal(lethal.buildingOrders.records[lethalSecond].references, 0)
+  assert.deepEqual(lethalBoat.passengers, [])
   assert.ok(westernClosest < 1)
   assert.deepEqual([westernFight, westernOpponent, westernDeath, westernBoarded], [0, 0, 0, 1525])
   assert.equal(westernShaman.hp, 58.6)
