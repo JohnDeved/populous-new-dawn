@@ -4,8 +4,8 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 export async function runSelectionEpisode({ browser, sourceRoot, output, expectedCommit }) {
-  assert.equal(expectedCommit, 'cd967306e82d42d60f731e1d90e808e46b7fa00e')
-  const { bindGame } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-game.mjs')))
+  assert.equal(expectedCommit, 'a6670699d94611110d08a74148323093abf2dc75')
+  const { bindGame, settleOpeningMessages } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-game.mjs')))
   const { openCampaignFromMainMenu } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/browser-new-game.mjs')))
   const { collapseObservedCampaignMessages } = await import(pathToFileURL(resolve(sourceRoot, 'scripts/public-keyboard-owner.mjs')))
   mkdirSync(output, { recursive: false })
@@ -64,10 +64,10 @@ export async function runSelectionEpisode({ browser, sourceRoot, output, expecte
       stage = 'public-entry'
       const response = await page.goto('http://127.0.0.1:5198/', { waitUntil: 'domcontentloaded' }); assert.equal(response.status(),200)
       await openCampaignFromMainMenu(page); await button('Start Mission 1').click(); await bindGame(page)
-      await page.waitForFunction(() => window.testStore.getWorld().flyby.flags & 1 || !window.testStore.getWorld().inputMask)
-      if (await page.evaluate(() => !!window.testStore.getWorld().inputMask)) await page.getByRole('button',{name:/Skip introduction/}).click()
-      await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-      await button('Pause game').click(); await page.waitForFunction(() => window.testStore.getWorld().paused)
+      // Current campaign messages own the opening flyby and must close publicly.
+      await settleOpeningMessages(page)
+      if (!(await page.evaluate(() => window.testStore.getWorld().paused))) await button('Pause game').click()
+      await page.waitForFunction(() => window.testStore.getWorld().paused)
       await collapseObservedCampaignMessages(page)
       await page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.',{exact:true}).click({position:{x:250,y:200}})
       await page.waitForFunction(() => {
