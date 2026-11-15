@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, settleOpeningMessages, collapseCampaignMessages } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
@@ -138,12 +138,22 @@ export async function openM2AuthoredMessage(page) {
   })
   const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
   await detail.waitFor({ state: 'visible' })
-  if (await detail.getAttribute('open') === null) await detail.locator('summary').click()
+  if (await detail.getAttribute('open') === null) {
+    await detail.locator('summary').click()
+  }
   const ready = await page.waitForFunction(m2AuthoredMessageReady, originalMessages.messages[102].text)
   const witness = await ready.jsonValue()
   await ready.dispose()
   assert.equal(witness.serial, serial, 'Reopen the same authored message, never a replacement')
   return witness
+}
+
+// Native modal Enter closes the box without waiting for moving screen geometry.
+// This is an actual keyboard event through the public modal owner, not DOM mutation.
+export async function closeM2AuthoredMessage(page) {
+  if (await page.locator('.campaign-messages details[open]').count())
+    await page.keyboard.press('Enter')
+  await page.waitForFunction(() => !window.testScene.messageModal && !document.querySelector('.campaign-messages details[open]'))
 }
 
 // Keep the legacy compact episode within its original deadline. The expanded
@@ -306,7 +316,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     // visible text first, then close it before establishing the input baseline.
     report.authoredMessageReady = await openM2AuthoredMessage(page)
     stage('authored-message-ready')
-    await collapseCampaignMessages(page)
+    await closeM2AuthoredMessage(page)
     await page.waitForFunction(() => !window.testScene.messageModal && !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
@@ -469,16 +479,19 @@ export default async function runM2Functional({ browser, url, output, fixture, c
           report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
           stage(`export-${width}-verified`)
         }
+        const visibleMessage = await openM2AuthoredMessage(page)
+        assert.equal(visibleMessage.serial, report.authoredMessageReady.serial)
         const layout = await graph.evaluate(m2DiagnosticLayout)
         report.layouts ??= []
         report.layouts.push({ viewport: [width, height], ...layout })
         assertM2DiagnosticLayout(layout, width, height)
+        await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
+        stage(`viewport-${width}x${height}-captured`)
+        await closeM2AuthoredMessage(page)
         const routed = await moveAndObserve(width - 60, height - 100, true)
         const sidebar = await moveToHud()
         report.samples.push({ viewport: [width, height], layout, routed, sidebar })
         stage(`viewport-${width}x${height}-asserted`)
-        await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
-        stage(`viewport-${width}x${height}-captured`)
       }
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })

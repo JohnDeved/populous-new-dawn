@@ -560,3 +560,19 @@ test('native export target uses rendered bounds and real input without invoking 
   assert.match(helper, /examined > 128/)
   assert.equal(m2FunctionalLimitMs, 45000)
 })
+
+test('M2 separates visible modal layout captures from nonmodal pointer input', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const loop = source.slice(source.indexOf('const visibleMessage = await openM2AuthoredMessage(page)'), source.indexOf("stage('f8-reset-matched')"))
+  const order = ['assert.equal(visibleMessage.serial', 'graph.evaluate(m2DiagnosticLayout)', 'assertM2DiagnosticLayout(layout', 'await page.screenshot', 'await closeM2AuthoredMessage(page)', 'const routed = await moveAndObserve']
+  let previous = -1
+  for (const step of order) {
+    const index = loop.indexOf(step)
+    assert.ok(index > previous, `Expected ordered modal/input step: ${step}`)
+    previous = index
+  }
+  const opening = source.slice(source.indexOf('export async function openM2AuthoredMessage'), source.indexOf('// Keep the legacy'))
+  assert.match(opening, /detail\.locator\('summary'\)\.click\(\)/)
+  assert.match(opening, /page\.keyboard\.press\('Enter'\)/)
+  assert.doesNotMatch(opening, /force:|\.dispatchEvent|\.open\s*=|\.paused\s*=/)
+})

@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
-import { collapseCampaignMessages } from '../browser-game.mjs'
 import { checkPickingPathReadout, pickingPathMetricIds } from './picking-path-readout.mjs'
 import {
   assertM2DiagnosticLayout,
   m2DiagnosticLayout,
   m2RectanglesOverlap,
   openM2AuthoredMessage,
+  closeM2AuthoredMessage,
 } from './m2-pointer-f8.mjs'
 
 export const compactMessageCases = Object.freeze([
@@ -234,7 +234,7 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
 // Input controls must run outside modal ownership. Reopen the same authored
 // message for layout witnesses; never mutate message/pause state in the page.
 async function closeCampaignForInput(page) {
-  await collapseCampaignMessages(page)
+  await closeM2AuthoredMessage(page)
   await page.waitForFunction(() => !window.testSceneRef.current.messageModal && window.testStore.getWorld().paused)
 }
 
@@ -277,6 +277,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       await page.setViewportSize({ width, height })
       await settle()
       await graph.waitFor({ state: 'hidden' })
+      stage(`compact-${preference}-${width}x${height}-baseline-ready`)
       const before = await page.evaluate(compactMessageWitness)
       assert.equal(before.preference, preference)
       assert.equal(before.statusLayout, 'contents', 'Ordinary layout must remain ungrouped')
@@ -284,6 +285,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'visible' })
       await openM2AuthoredMessage(page)
+      stage(`compact-${preference}-${width}x${height}-diagnostics-open`)
       await page.waitForFunction(() =>
         /\d+\.\d \/ \d+\.\d ms/.test(
           document.querySelector('.fps-graph [data-metric="pointer-tail"]')?.textContent ?? ''
@@ -306,6 +308,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       report.cases.push(sample)
       await page.screenshot({ path: resolve(output, screenshot) })
       assertCompactMessageWitness(layout, witness, width, height)
+      stage(`compact-${preference}-${width}x${height}-geometry-verified`)
       await closeCampaignForInput(page)
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })
