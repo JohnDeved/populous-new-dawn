@@ -9,7 +9,7 @@ export function installHypnotiseObserver({ observationMs }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock,
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
-    result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], nonAdvancingCallbacks: 0, crops: [], bornTurn: null,
+    result = { done: false, error: null, visits: 0, samples: [], turnSamples: [], targetStates: [], nonAdvancingCallbacks: 0, crops: [], bornTurn: null,
       terminal: null, logicalExpiry: null, birthHook: { installed: false, restored: false, foreign: false }, hook: { installed: false, restored: false, foreign: false } }
   let raf, flash, stopped = false, lastKey, lastObservedTurn, originalDescriptor, ownedDescriptor, hookActive = false
   let beforeDescriptor, ownedBeforeDescriptor, beforeActive = false
@@ -71,10 +71,19 @@ export function installHypnotiseObserver({ observationMs }) {
     if (result.samples.length + result.turnSamples.length >= 2048)
       throw Error('Hypnotise sample storage exceeded')
   }
+  const targetBoundaries = new Set()
+  const observeTargets = boundary => {
+    if (targetBoundaries.has(boundary)) return
+    const observe = window.__pndHypnotiseFixture?.hypnotiseTargetWitness
+    if (typeof observe !== 'function') return // Older isolated callback fixtures.
+    targetBoundaries.add(boundary)
+    result.targetStates.push({ boundary, state: observe(world, flash ?? undefined) })
+  }
   const acquireBirth = boundary => {
     if (flash) return
     flash = world.effects.find(f => f.kind === 'hypnotise' && f.team === 'blue')
     if (!flash) return
+    observeTargets('birth')
     result.bornTurn = world.turn
     lastObservedTurn = world.turn
     result.birth = { boundary, id: flash.id, remaining: flash.turnsRemaining,
@@ -91,6 +100,7 @@ export function installHypnotiseObserver({ observationMs }) {
         current()
         // Observe actual birth before the next fixed turn can decrement it; never backdate RAF state.
         acquireBirth('before-turn')
+        if (flash?.turnsRemaining === 12) observeTargets('before-fifth-visit')
       } catch (error) { recordError(error); stop('error') }
     }
     if (threw) throw failure
@@ -121,6 +131,7 @@ export function installHypnotiseObserver({ observationMs }) {
             // afterTurn follows the fixed World turn, before deferred phases/animation/presentation.
             result.turnSamples.push({ turn: world.turn, id: flash.id, remaining: flash.turnsRemaining,
               converted: world.units.filter(u => u.hypnotise?.originalTeam === 'red' && u.team === 'blue').map(u => u.id) })
+            if (flash.turnsRemaining === 11) observeTargets('after-fifth-visit')
             lastObservedTurn = world.turn
           }
         }
@@ -206,6 +217,7 @@ export function installHypnotiseObserver({ observationMs }) {
     },
   }
   try {
+    observeTargets('installed-before-cast')
     originalDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn')
     if (!originalDescriptor || typeof originalDescriptor.value !== 'function')
       throw Error('Hypnotise requires the actual own afterTurn callback')

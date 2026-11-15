@@ -2,6 +2,8 @@
 // Accelerated ordinary simulation preparation, NOT real-time earned gameplay.
 import { tick, command, selectUnit } from '../../app/model.ts'
 import { spellTargetError } from '../../app/live-command.ts'
+import { hypnotiseTargets } from '../../app/spell-effects-runtime.ts'
+import { unitAnimationSource } from '../../app/selection-runtime.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
 
 // M22's authored idle cohort generates 37 per four-turn mana scan. Budget
@@ -17,6 +19,28 @@ export const hypnotisePreparationState = world => ({
 })
 
 export const hypnotiseTarget = Object.freeze({ x: 15, z: -31 })
+// Read-only diagnostic state, not an eligibility oracle or supplied targets.
+// The bounded nearest cohort and actual selector IDs expose drift/exclusion while
+// retaining the unchanged fifth-visit conversion assertion in the observer.
+export function hypnotiseTargetWitness(world, point = hypnotiseTarget) {
+  const selected = hypnotiseTargets(world, point, 'blue').map(({ u }) => u.id)
+  const enemies = world.units.filter(unit => unit.team !== 'blue')
+  const nearby = enemies.toSorted((a, b) =>
+    Math.hypot(a.x - point.x, a.z - point.z) - Math.hypot(b.x - point.x, b.z - point.z)
+  ).slice(0, 32).map(unit => {
+    const native = unitAnimationSource(unit)
+    return {
+      id: unit.id, team: unit.team, kind: unit.kind, x: unit.x, z: unit.z,
+      hp: unit.hp, inside: unit.inside, invisibility: unit.invisibility,
+      native: native && { id: native.id, class: native.class, model: native.model,
+        tribe: native.tribe, x: native.x, y: native.y,
+        flags2: native.flags2, flags4: native.flags4 },
+    }
+  })
+  return { turn: world.turn, point: { x: point.x, z: point.z }, selected,
+    enemyCount: enemies.length, omitted: Math.max(0, enemies.length - nearby.length), nearby }
+}
+
 const requireState = (condition, message) => {
   if (!condition) throw Error(message)
 }
