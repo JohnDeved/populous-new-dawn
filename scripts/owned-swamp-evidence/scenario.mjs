@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { assertLive, assertCancelled, assertRetired, readWitness } from './witness.mjs'
 import { createDeadline } from './deadline.mjs'
@@ -71,6 +71,7 @@ export default async function ownedSwampEpisode({ browser, url, output, deadline
     }))
     const startupValue = await deadline.run(() => startup.jsonValue()); await deadline.run(() => startup.dispose())
     if (startupValue === 'skip') await deadline.run(() => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    await deadline.run(() => settleOpeningMessages(page))
     await deadline.run(() => page.waitForFunction(() => !window.testStore.getWorld().inputMask))
     await deadline.run(() => page.evaluate(async () => {
       const fixture = await window.__pndOwnedSwampFixtureReady
