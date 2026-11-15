@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
 import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
@@ -559,7 +559,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     const startup = await page.waitForFunction(m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip') await action('Skip introduction', () => page.getByRole('button', { name: /^Skip introduction/ }).click())
+    await action('Settle opening messages and introduction', () => settleOpeningMessages(page))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld()
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
