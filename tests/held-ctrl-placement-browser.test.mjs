@@ -94,3 +94,19 @@ test('falsey original rejection remains a failure after cleanup', async () =>
     )
     assert.equal(options.read().status, 'failed')
   }))
+
+test('dedicated owner bounds setup and episode without changing prior caps', () => {
+  assert.equal(browserCapMs('held-ctrl-placement'), 90000)
+  assert.equal(browserCapMs('building-panel-edges'), 90000)
+  assert.equal(browserCapMs('frontend-held-escape'), 180000)
+  const source = readFileSync(
+    new URL('../scripts/tutorial-browser/run.mjs', import.meta.url),
+    'utf8'
+  )
+  assert.match(source, /heldCtrlScenarioSha256: hash\(heldCtrlScenario\)/)
+  assert.match(source, /receipt\.heldCtrlPlacement = await/)
+  assert.ok(
+    source.indexOf('}, receipt.browserCapMs)') < source.indexOf('receipt.heldCtrlPlacement = await')
+  )
+  assert.match(source, /held-ctrl-placement.json/)
+})
