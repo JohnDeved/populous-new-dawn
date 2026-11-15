@@ -9,7 +9,7 @@ import { pathToFileURL } from 'node:url'
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
 const side = 'm2-modal-admission'
 assert.ok(rootArg && outputArg)
-assert.equal(expectedCommit, 'abda95e4fba5664cb45f90233e6581646e786383')
+assert.equal(expectedCommit, '072dbc4e9b5ad0bd2a5a0a96b681f4b0515a4acd')
 const root = resolve(rootArg), output = resolve(outputArg)
 assert.ok(!existsSync(output), 'Use a fresh evidence directory')
 mkdirSync(output, { recursive: true })
