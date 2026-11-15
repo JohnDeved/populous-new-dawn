@@ -20,16 +20,20 @@ export function readSpySourceReadiness(mode = 'snapshot') {
       flybyFrame: world?.flyby.frame ?? null,
       flybyWarmup: world?.flyby.warmup ?? null,
       skipVisible,
+      openMessageSerial: document.querySelector('.campaign-messages details[open]')?.getAttribute('data-message-serial') ?? null,
+      messageRequested: !!world?.messages?.slots.some(message => message && (message.flags & 0x20002)),
       action: 'wait',
     }
   if (snapshot.sceneStoreMatch && snapshot.canvasConnected && !snapshot.loading) {
-    if (snapshot.inputMask === 0) snapshot.action = 'ready'
+    if (snapshot.openMessageSerial !== null) snapshot.action = 'close-message'
+    else if (scene.messageModal || snapshot.messageRequested) snapshot.action = 'wait'
+    else if (snapshot.inputMask === 0) snapshot.action = 'ready'
     // Active (1), interruptible (16), not already interrupted/completing (64).
     else if (snapshot.inputMask === 64 && (snapshot.flybyFlags & 0x51) === 0x11 && skipVisible)
       snapshot.action = 'skip'
   }
   return mode === 'snapshot' || snapshot.action === 'ready' ||
-    (mode === 'actionable' && snapshot.action === 'skip') ? snapshot : false
+    (mode === 'actionable' && ['skip', 'close-message'].includes(snapshot.action)) ? snapshot : false
 }
 
 export async function awaitSpySourceReadiness({ page, report, action, save, deadlineAt }) {
@@ -95,6 +99,18 @@ export async function awaitSpySourceReadiness({ page, report, action, save, dead
     save()
     observation.actionable = await wait('actionable')
     save()
+    observation.closedMessages = []
+    while (observation.actionable.action === 'close-message') {
+      const serial = observation.actionable.openMessageSerial
+      if (!/^\d+$/.test(serial) || observation.closedMessages.length >= 32)
+        throw Error('Invalid Spy opening campaign message ownership')
+      await within(() => action('Public collapse campaign message', () => within(() =>
+        page.locator(`.campaign-messages details[open][data-message-serial="${serial}"] > summary[aria-label="Read campaign message"]`)
+          .click({ timeout: remaining() }))))
+      observation.closedMessages.push(serial)
+      observation.actionable = await wait('actionable')
+      save()
+    }
     if (observation.actionable.action === 'skip')
       await within(() => action('Public Skip introduction', () => within(() =>
         page.getByRole('button', { name: /^Skip introduction/ }).click({ timeout: remaining() }))))

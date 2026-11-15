@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 
 export async function finishInspection({ context, observation, output, episodes, helpEntry, errors, failure, diagnostics }) {
   const cleanup = { observationDisconnected: false, contextClosed: false, errors: [] }
@@ -100,8 +100,7 @@ export default async function ({ browser, url, output }) {
     await button('No').click()
     await selector.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
     await bindGame(page)
-    await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    await settleOpeningMessages(page)
     observation = await observeGame(page)
     const read = () => page.evaluate(observer => observer.read(), observation)
     const retained = state => {

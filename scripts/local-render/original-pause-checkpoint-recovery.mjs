@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { settleOpeningMessages } from '../browser-game.mjs'
 import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
@@ -151,6 +152,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     if (await desktop.isVisible()) await desktop.click()
     const action = await waitForPauseStartup(page)
     if (action === 'skip') await skipPauseIntroduction(page)
+    await settleOpeningMessages(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     renderers.push(await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()

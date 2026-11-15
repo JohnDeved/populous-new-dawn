@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
 import { assertReplacement, assertCompletion } from './building-panel-identity.mjs'
@@ -37,19 +37,15 @@ export default async function buildingPanelEdges({ browser, url, output }) {
     await waitForStartupMenu(page); await button('New Game').click()
     await page.locator('[data-original-tutorial-recommendation]').waitFor()
     await button('No').click(); await button('Start Mission 1').click(); await bindGame(page)
-    const startup = await page.waitForFunction(() => {
-      const world = window.testStore.getWorld()
-      if (!world.inputMask && world.levelStart.every(site => site.phase === 4)) return 'ready'
-      const skip = document.querySelector('button.skip-introduction')
-      return skip && skip.getClientRects().length && !skip.disabled ? 'skip' : false
-    })
-    if ((await startup.jsonValue()) === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await startup.dispose()
+    timing.mark('startup:opening-messages')
+    await settleOpeningMessages(page)
+    timing.mark('startup:readiness')
     await page.waitForFunction(() => {
       const world = window.testStore.getWorld()
       return !world.inputMask && window.__pndBuildingPanelFixture && world.levelStart.every(site =>
         site.phase === 4 && !site.wave && !site.carriers.length && site.stoneTurns.every(turn => turn === null || world.turn - turn >= 20))
     })
+    timing.mark('startup:ready')
     report.renderer = await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()
       const debug = gl.getExtension('WEBGL_debug_renderer_info')
@@ -129,7 +125,13 @@ export default async function buildingPanelEdges({ browser, url, output }) {
     report.completed = await page.evaluate(() => window.__pndBuildingPanelFixture.advanceDismantle(window.buildingIdentity, true))
     assertCompletion(report.completed)
     await capture('completed'); timing.mark('episode:complete')
-  } catch (error) { failure = error }
+  } catch (error) {
+    failure = error
+    report.failureStage = report.timing.entries.at(-1)?.stage ?? 'startup:public-menu'
+    if (page && !page.isClosed()) {
+      try { await capture('failure') } catch (captureError) { report.errors.push(String(captureError)) }
+    }
+  }
   finally {
     clearTimeout(timer)
     try { await context.close(); report.contextClosed = true } catch (error) { report.errors.push(String(error)) }

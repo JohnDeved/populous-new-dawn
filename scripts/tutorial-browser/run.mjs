@@ -109,7 +109,7 @@ if (selectedScenario === 'query-art-evidence') {
   assert.ok(policy.queryArtSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Query art evidence requires exact-head same-repository Ready label')
 }
-if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
+if (captureProtocolEnabled) assert.equal(selectedScenario, 'building-panel-edges', 'Capture diagnostic requires single-browser building identity route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
 const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
@@ -387,7 +387,9 @@ try {
   receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
-  if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await withCaptureProtocolWindow(
+  // Keep the complete identity episode in the already-required building lane.
+  // Its 90s outer bound is unchanged; Tutorial retains all 80 icon cases.
+  if (selectedScenario === 'building-panel-edges') receipt.buildingPanelIdentity = await withCaptureProtocolWindow(
     captureProtocolEnabled, line => process.stderr.write(line),
     async () => (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out }),
   )
@@ -416,7 +418,8 @@ try {
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
   else if (selectedScenario === 'building-icon-evidence') receipt.failureEvidence = 'building-icon-evidence.json'
-  else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = 'building-panel-edges.json'
+  else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = receipt.buildingPanelEdges?.status === 'passed'
+    ? 'building-panel-identity.json' : 'building-panel-edges.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 

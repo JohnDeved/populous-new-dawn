@@ -16,7 +16,7 @@ export async function runIntegratedCaptureProtocol({ enabled = false, cwd, runne
   for (const key of ['NODE_OPTIONS','NODE_PATH','NODE_COMPILE_CACHE','NODE_V8_COVERAGE','PWDEBUG','PW_INSTRUMENT_MODULES'])
     if (snapshot[key]) throw Error('Capture diagnostic forbids inherited runtime instrumentation')
   const childEnv = Object.freeze(captureDiagnosticEnvironment({ ...snapshot,
-    POPULOUS_BROWSER_SCENARIO: 'tutorial' }, true))
+    POPULOUS_BROWSER_SCENARIO: 'building-panel-edges' }, true))
   // run.mjs owns this exact port; do not falsely certify cleanup of another URL.
   if (childEnv.POPULOUS_URL !== 'http://127.0.0.1:5198' || childEnv.PND_QUEUE_PORTS !== '5198')
     throw Error('Capture runner must declare its exact internally hosted URL and port')
@@ -31,7 +31,7 @@ export async function runIntegratedCaptureProtocol({ enabled = false, cwd, runne
       }),
     })
   } catch {
-    // Failed Tutorial runs are the diagnostic target. Preserve only the exact
+    // Failed building identity runs are the diagnostic target. Preserve only the exact
     // bound observer's metadata, never a supervisor/child exception payload.
     supervisorFailed = true
   }
