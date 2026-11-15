@@ -280,7 +280,8 @@ export class GameScene {
   pointer: Point | null = null
   pointerScreen: { clientX: number; clientY: number } | null = null
   pointerState = ''
-  // Set when a building model is added/replaced/removed; cleared after its render.
+  // Set when a pickable model/person is added, replaced, removed or newly shown;
+  // cleared after its painter render, which re-picks a stationary pointer.
   pickModelsChanged = false
   pointerButtons = 0
   navigationPointer: { x: number; y: number; buttons: number } | null = null
@@ -778,6 +779,8 @@ export class GameScene {
     updateWater(this, metrics)
   }
   makeDecorations() {
+    // Trees, scenery and loose logs are rebuilt as new pickable decorations.
+    this.pickModelsChanged = true
     makeDecorations(this)
   }
   makeShrines() {

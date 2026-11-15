@@ -183,6 +183,9 @@ export function visitHudTooltip(
   }
 }
 
+// 0044b070 + 0044b090. A no-handler visit (no object, no valid cell) runs no owner
+// helper, so a retained object/cell owner blocks this reset and same-object re-entry
+// keeps its dwell (decomp/research/tooltip-owner-no-handler.md, issue #1056).
 export function finishOrdinaryTooltip(controller: TooltipController, state: TooltipState) {
   if (!state.draw) {
     state.scroll = 0
