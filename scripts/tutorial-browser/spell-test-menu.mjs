@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { SPELLS } from '../../app/world-rules.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
@@ -132,6 +132,8 @@ export default async function spellTestMenu({ browser, url, output }) {
       const state = await page.waitForFunction(() => !window.testStore.getWorld().inputMask || document.querySelector('.skip-introduction'))
       if (await page.locator('.skip-introduction').isVisible()) await page.locator('.skip-introduction').click()
       await state.dispose()
+      diagnostics.stage(`${phase}: settle opening messages`)
+      await settleOpeningMessages(page)
       diagnostics.stage(`${phase}: await unlocked input`)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     }

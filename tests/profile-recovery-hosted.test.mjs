@@ -151,13 +151,23 @@ test('hosted readiness uses exact production eligibility without a served source
   )
 })
 
-test('profile load and new mission reuse reviewed public introduction readiness', () => {
+test('profile load and new mission settle public modal ownership before unchanged readiness', () => {
   const scenario = read('scripts/local-render/campaign-profile-recovery.mjs')
   assert.match(
     scenario,
-    /import \{ pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
+    /import \{ recoverVisibleIntroduction \} from '.\/original-pause-checkpoint-recovery.mjs'/
   )
-  assert.equal((scenario.match(/waitForFunction\(pauseStartupReady\)/g) || []).length, 2)
-  assert.equal((scenario.match(/await skipPauseIntroduction\(page\)/g) || []).length, 2)
+  assert.equal((scenario.match(/await settleOpeningMessages\(page\)/g) || []).length, 2)
+  assert.match(scenario, /await settleOpeningMessages\(page\)\s+await page.waitForFunction\(\(\) => !window.testStore.getWorld\(\).inputMask\)/)
+  assert.match(scenario, /await settleOpeningMessages\(page\)\s+entry.readiness = await waitRecoveryReadiness\(page, \{ signal, onBlocked: recoverVisibleIntroduction\(page\) \}\)/)
+  assert.doesNotMatch(scenario, /\.inputMask\s*=|\.paused\s*=/)
   assert.doesNotMatch(scenario, /skip.isVisible|skip.click/)
+})
+
+test('Tornado startup and public restart settle modal ownership before unchanged readiness', () => {
+  const source = read('scripts/check-browser-tornado-appearance.mjs')
+  assert.equal((source.match(/await settleOpeningMessages\(page\)/g) ?? []).length, 2)
+  for (const field of ['readiness', 'restartReadiness'])
+    assert.ok(source.includes(`await settleOpeningMessages(page)\n        episode.${field} = await waitRecoveryReadiness(page, {\n          timeout: 12000,`))
+  assert.equal((source.match(/timeout: 12000,/g) ?? []).length, 2)
 })

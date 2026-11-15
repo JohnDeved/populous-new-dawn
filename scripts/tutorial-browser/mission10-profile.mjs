@@ -7,7 +7,7 @@ import { resolve } from 'node:path'
 import { acquireProfile, sourceReceipt, profileInputReceipt, persistentLaunchOptions } from '../local-render/owned-profile.mjs'
 import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs'
 import scenario from '../local-render/mission10-boat-checkpoint.mjs'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { pauseStartupReady, skipPauseIntroduction } from '../local-render/original-pause-checkpoint-recovery.mjs'
 import { createMission10Input, mission10BoatPoint } from './mission10-input.mjs'
@@ -125,6 +125,7 @@ export default async function runMission10Profile({ chromium, launch, url, root,
             const ready = await page.waitForFunction(pauseStartupReady)
             const action = await ready.jsonValue(); await ready.dispose()
             if (action === 'skip') await skipPauseIntroduction(page)
+            await settleOpeningMessages(page)
             await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
           }
           const result = await scenario({ page, openMission, output: phaseOutput, receipt: phase,

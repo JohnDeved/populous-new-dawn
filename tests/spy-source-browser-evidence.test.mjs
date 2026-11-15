@@ -249,7 +249,7 @@ test('Spy readiness observes actual owners and clicks only the public interrupti
         report = {}, calls = []
       globalThis.window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
       globalThis.document = { querySelector: selector => selector === '.loading-world'
-        ? (mode === 'loading' ? {} : null) : button }
+        ? (mode === 'loading' ? {} : null) : selector === 'button.skip-introduction' ? button : null }
       globalThis.getComputedStyle = () => ({ visibility: mode === 'hidden' ? 'hidden' : 'visible' })
       const snapshot = readSpySourceReadiness()
       assert.deepEqual(world, before, 'observation is read-only')

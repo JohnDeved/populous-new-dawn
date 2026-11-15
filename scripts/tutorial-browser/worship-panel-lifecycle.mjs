@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { assertWorshipFocusObservation, installWorshipFocusObserver } from './worship-focus-observer.mjs'
 
 export const worshipPanelLifecycleLimitMs = 35000
@@ -34,12 +34,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     await button('New Game').click()
     await page.locator('[data-original-tutorial-recommendation]').waitFor()
     await button('No').click(); await button('Start Mission 1').click(); await bindGame(page)
-    const startup = await page.waitForFunction(() => {
-      const w = window.testStore.getWorld(), skip = document.querySelector('button.skip-introduction')
-      return !w.inputMask && w.levelStart.every(s => s.phase === 4) ? 'ready' : skip && skip.getClientRects().length && !skip.disabled ? 'skip' : false
-    })
-    if ((await startup.jsonValue()) === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await startup.dispose()
+    await settleOpeningMessages(page)
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld()
       return window.__pndWorshipPanelFixture && !w.inputMask && w.levelStart.every(s => s.phase === 4 && !s.wave && !s.carriers.length && s.stoneTurns.every(t => t === null || w.turn - t >= 20))

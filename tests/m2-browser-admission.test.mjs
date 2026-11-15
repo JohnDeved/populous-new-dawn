@@ -152,7 +152,9 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /name: \/\^Skip introduction\//)
+  assert.match(source, /await settleOpeningMessages\(page\)/)
+  const shared = readFileSync(new URL('../scripts/browser-game.mjs', import.meta.url), 'utf8')
+  assert.match(shared, /document.querySelector\('\.skip-introduction'\)\?\.click\(\)/)
   assert.doesNotMatch(source, /name: 'Skip introduction', exact: true/)
 })
 
@@ -214,9 +216,9 @@ test('M2 waits for delayed public Skip or naturally ready input, not one-shot vi
 function authoredMessageFixture() {
   const expectedText = originalMessages.messages[102].text,
     message = { serial: 7, stringId: 641, flags: 0x40010, position: 60000 },
-    world = { turn: 71, status: 'playing', paused: false, inputMask: 0,
+    world = { turn: 71, status: 'playing', paused: true, inputMask: 0,
       outcome: { level: 2 }, messages: { slots: [message] } },
-    canvas = { isConnected: true }, scene = { world, renderer: { domElement: canvas } },
+    canvas = { isConnected: true }, scene = { world, messageModal: true, renderer: { domElement: canvas } },
     paragraph = { textContent: expectedText, visible: true, visibility: 'visible',
       getClientRects() { return this.visible ? [{}] : [] } },
     details = { open: true, serial: 7, querySelector(selector) {
@@ -246,7 +248,8 @@ test('authored M2 readiness rejects missing, entering, pending, closed and hidde
     f => { f.paragraph.visible = false },
     f => { f.paragraph.visibility = 'hidden' },
     f => { f.paragraph.textContent = 'unrelated message' },
-    f => { f.world.paused = true },
+    f => { f.world.paused = false },
+    f => { f.scene.messageModal = false },
     f => { f.world.inputMask = 64 },
     f => { f.world.status = 'lost' },
     f => { f.world.outcome.level = 3 },
@@ -556,4 +559,46 @@ test('native export target uses rendered bounds and real input without invoking 
   assert.ok(helper.indexOf("filename.replace('.json', '-native-summary.json')") < helper.indexOf('assert.ok(nativeDiagnostics.nativeWorkFrames'))
   assert.match(helper, /examined > 128/)
   assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+test('M2 separates visible modal layout captures from nonmodal pointer input', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const loop = source.slice(source.indexOf('const visibleMessage = await openM2AuthoredMessage(page)'), source.indexOf("stage('f8-reset-matched')"))
+  const order = ['assert.equal(visibleMessage.serial', 'graph.evaluate(m2DiagnosticLayout)', 'assertM2DiagnosticLayout(layout', 'await page.screenshot', 'await closeM2AuthoredMessage(page)', 'const routed = await moveAndObserve']
+  let previous = -1
+  for (const step of order) {
+    const index = loop.indexOf(step)
+    assert.ok(index > previous, `Expected ordered modal/input step: ${step}`)
+    previous = index
+  }
+  const opening = source.slice(source.indexOf('export async function openM2AuthoredMessage'), source.indexOf('// Keep the legacy'))
+  assert.match(opening, /detail\.locator\('summary'\)\.click\(\)/)
+  assert.match(opening, /page\.keyboard\.press\('Enter'\)/)
+  assert.doesNotMatch(opening, /force:|\.dispatchEvent|\.open\s*=(?!=)|\.paused\s*=(?!=)/)
+})
+
+
+test('default and compact admission reduce only setup viewport, preserving explicit coverage and deadline', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  assert.match(source, /const admissionViewport = pickingPaths \|\| campaignCallbacks\s*\? \{ width: 1440, height: 1000 \}\s*: \{ width: 1280, height: 720 \}/)
+  assert.match(source, /viewport: admissionViewport/)
+  assert.match(source, /await page.setViewportSize\(admissionViewport\)/)
+  assert.match(source, /scenario,\s*admissionViewport,/)
+  for (const size of ['[640, 480]', '[900, 360]', '[1280, 720]', '[1440, 1000]'])
+    assert.ok(source.includes(size))
+  assert.match(source, /\[900, 400, true\]/)
+  assert.match(source, /keyboard: width === 1280/)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})
+
+
+test('M2 reopening combines read-only state probes without dropping visible readiness', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
+  const helper = source.slice(source.indexOf('export async function openM2AuthoredMessage'), source.indexOf('// Native modal Enter'))
+  assert.match(helper, /const \{ serial, open \} = await page.evaluate/)
+  assert.match(helper, /open: details\?\.open === true/)
+  assert.match(helper, /if \(!open\) \{\s*await detail.locator\('summary'\).click\(\)/)
+  assert.match(helper, /waitForFunction\(m2AuthoredMessageReady/)
+  assert.match(helper, /assert.equal\(witness.serial, serial/)
+  assert.doesNotMatch(helper, /detail.waitFor|detail.getAttribute|force:|dispatchEvent|\.open\s*=(?!=)|\.paused\s*=(?!=)/)
 })
