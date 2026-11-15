@@ -225,12 +225,44 @@ async function ordinaryMissionTwoTrainingHut(page) {
   return camp
 }
 
+// A rendered blank terrain cell (the ordinary tooltip 'cell' route) with no model,
+// person or building under it, searched from the top-right of the battlefield.
+async function blankGroundPoint(page) {
+  return page.evaluate(async () => {
+    const s = window.testScene,
+      { nativePosition } = await import('/app/model.ts'),
+      r = s.renderer.domElement.getBoundingClientRect()
+    for (let y = r.top + 40; y < r.bottom - 40; y += 20)
+      for (let x = r.right - 40; x > r.left + 40; x -= 20) {
+        const event = { clientX: x, clientY: y }
+        if (document.elementFromPoint(x, y) !== s.renderer.domElement) continue
+        if (s.picking.pick(event) !== null) continue
+        const ground = s.pick(event)
+        if (!ground) continue
+        const point = nativePosition(s.world, ground),
+          cell = ((point.x >> 8) & 254) | (point.y & 0xfe00),
+          index = (cell >> 9) * 128 + ((cell & 255) >> 1)
+        if (!(s.world.land.flags[index] & (0x400 | 0x10000 | 0x4000000))) return { x, y }
+      }
+    throw new Error('No rendered blank terrain cell to move the pointer away to')
+  })
+}
+
 async function openPanel(page, id) {
   // Hover inspection of retained Hut/training panels requires no selection or mode.
   await clearSelectionWithEscape(page)
   const point = await renderedBuildingPoint(page, id)
-  await page.mouse.move(1400, 40)
-  await page.waitForFunction(() => window.testScene.hoveredObject === null)
+  // Leave the building over a blank terrain cell so re-entry is a new ordinary
+  // tooltip visit. A sky or off-canvas departure (the former fixed (1400, 40) at
+  // HUD Auto) keeps the previous object's tooltip owner, so re-entering the same
+  // building never reaches a first display and creates no hover inspection.
+  const away = await blankGroundPoint(page)
+  await page.mouse.move(away.x, away.y)
+  await page.waitForFunction(
+    () =>
+      window.testScene.hoveredObject === null &&
+      window.testScene.tooltipController?.category !== 'object'
+  )
   await page.mouse.move(point.x, point.y)
   await page.waitForFunction(id => window.testScene.hoveredObject === id, id)
   const panel = page.locator('.training-panel:not([hidden])')

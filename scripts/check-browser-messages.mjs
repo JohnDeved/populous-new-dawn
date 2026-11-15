@@ -1,4 +1,4 @@
-// Browser integration for native type-3 message motion and modern uniform HUD scaling.
+// Browser integration for native type-3 message motion, native screen-parameterized strip geometry and auto-open.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -35,23 +35,65 @@ try {
       return { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
     })
   )
-  assert.deepEqual(messages, [
-    { left: 200, top: 910, width: 64, height: 50 },
-    { left: 200, top: 860, width: 64, height: 50 },
-    { left: 200, top: 810, width: 64, height: 50 },
-  ])
+  // 72f5978d5 (decomp/research/campaign-message-presentation.md): the strip is anchored
+  // at the browser HUD/world seam; width and each record's position/height use the
+  // native 0x44a1f0/0x44a210 screen parameterization, not the uniform HUD scale.
+  const native = await page.evaluate(() => {
+    const screenX = (value, width) => {
+        const product = Math.imul(width, value)
+        return (product + ((product >> 31) & 0xffff)) >> 16
+      },
+      screenY = (value, height) => {
+        const product = (Math.imul(height, value) + Math.trunc(height / 2)) | 0
+        return (product + ((product >> 31) & 0xffff)) >> 16
+      }
+    let normalized = 0x0ccc
+    if (screenX(normalized, innerWidth) & 1) normalized += 0x66
+    return {
+      seam: document.querySelector('.world-viewport').getBoundingClientRect().left,
+      records: window.testScene.world.messages.slots
+        .filter(Boolean)
+        .sort((a, b) => b.age - a.age)
+        .map(message => ({
+          top: screenY(message.position, innerHeight),
+          width: screenX(normalized, innerWidth),
+          height: screenY(message.height, innerHeight),
+        })),
+    }
+  })
+  assert.equal(native.seam, 200)
+  assert.deepEqual(
+    messages,
+    native.records.map(record => ({ left: native.seam, ...record }))
+  )
+  // Three type-3 messages stack upward from the bottom edge without overlapping.
+  assert.equal(messages.length, 3)
+  assert.equal(messages[0].top + messages[0].height, 999)
+  for (let i = 1; i < messages.length; i++)
+    assert.equal(messages[i].top + messages[i].height, messages[i - 1].top, JSON.stringify(messages))
   assert.deepEqual(
     await page.locator('.campaign-messages summary img').first().evaluate(node => {
       const rect = node.getBoundingClientRect()
-      return { width: rect.width, height: rect.height }
+      return { width: rect.width, height: rect.height, natural: [node.naturalWidth, node.naturalHeight] }
     }),
-    { width: 30, height: 44 }
+    // Native message sprite at its own pixel size (public/original/message.png).
+    { width: 15, height: 22, natural: [15, 22] }
   )
   assert.equal(
     await page.locator('.campaign-messages summary img').first().getAttribute('src'),
     '/original/message.png'
   )
+  // 004314c0 auto-opens the oldest pending message once its motion settles
+  // (decomp/research/campaign-message-presentation.md); the others stay closed.
+  const openStates = () =>
+    page.locator('.campaign-messages details').evaluateAll(nodes => nodes.map(node => node.open))
+  await page.waitForFunction(() => document.querySelector('.campaign-messages details')?.open)
+  assert.deepEqual(await openStates(), [true, false, false])
+  // The public summary still collapses and reopens it.
   await page.locator('.campaign-messages summary').first().click()
+  assert.deepEqual(await openStates(), [false, false, false])
+  await page.locator('.campaign-messages summary').first().click()
+  assert.deepEqual(await openStates(), [true, false, false])
   await page.getByText(/Single Shot Landbridge/).waitFor()
   const popup = await page.locator('.campaign-messages details').first().locator('div').evaluate(node => {
     const rect = node.getBoundingClientRect()
@@ -92,7 +134,7 @@ try {
     return world.messages.slots.some(message => message?.stringId === 644)
   }), false)
   assert.deepEqual(errors, [])
-  console.log('PASS: live campaign messages move, stack, focus, expire, scale, open and dismiss')
+  console.log('PASS: live campaign messages move, stack, auto-open, focus, expire, use native screen geometry, open and dismiss')
 } finally {
   await browser.close()
 }

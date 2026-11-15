@@ -114,7 +114,11 @@ try {
   const beforeModal = await page.evaluate(() => window.bookmarkSounds.length)
   await page.keyboard.press('x')
   assert.equal(await page.evaluate(() => window.bookmarkSounds.length), beforeModal, 'modal blocks recall')
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  // The original pause menu (b80f878ea) resumes through its Continue Game row.
+  await page
+    .getByRole('dialog', { name: 'Game menu', exact: true })
+    .getByRole('button', { name: 'Continue Game', exact: true })
+    .click()
   assert.equal(await page.evaluate(async () => {
     const { AUDIO_CUES } = await import('/app/audio.ts')
     return AUDIO_CUES.includes(221) && AUDIO_CUES.includes(222)

@@ -7,11 +7,10 @@ import { writeFileSync, readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
-import { bindGame, effectPixels, readShamanReadiness, selectShamanByPortrait } from './browser-game.mjs'
+import { bindGame, collapseCampaignMessages, effectPixels, readShamanReadiness, selectShamanByPortrait } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { installCombinedGroundWitness } from './shaman-worship-ground-observer.mjs'
-import { collapseCampaignMessages } from './browser-game.mjs'
 
 function assertBridgeWitness(evidence) {
   assert.deepEqual(evidence.errors, [])
@@ -201,7 +200,10 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
           const point = s.pick(event)
           if (!point) { diagnostics.noTerrain++; continue }
           const person = kind === 'ground' ? s.picking.pickPerson(event) : null,
-            object = kind === 'ground' ? s.pickWorldObject(event)?.id ?? null : null,
+            // Since bfcca5fc1 an ordinary selected click also resolves a ScenePicking
+            // model hit (e.g. a tree); a pointed model owns its own highlight and emits
+            // no ground marker (0x4aa8b0), so a ground target excludes every model hit.
+            object = kind === 'ground' ? s.pickWorldObject(event)?.id ?? s.picking.pick(event) ?? null : null,
             distance = Math.hypot(point.x - p.x, point.z - p.z),
             candidate = { x: event.clientX, y: event.clientY, point, distance, person, object }
           if (!diagnostics.nearest || distance < diagnostics.nearest.distance) diagnostics.nearest = candidate

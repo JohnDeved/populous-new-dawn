@@ -101,8 +101,7 @@ export async function selectShamanByPortrait(page) {
   })
   const exact = state => state.selected.length === 1 && state.selected[0] === state.shaman
   // An open campaign message owns gameplay shortcuts; collapse it publicly first.
-  for (const summary of await page.locator('.campaign-messages details[open] > summary').all())
-    await summary.click()
+  await collapseCampaignMessages(page)
   let state = await read()
   if (state.openMessages) throw Error(`Campaign messages still own the keyboard: ${JSON.stringify(state)}`)
   if (state.shaman === null) throw Error('No live Blue Shaman to select')
