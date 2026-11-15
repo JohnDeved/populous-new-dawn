@@ -101,8 +101,7 @@ export async function selectShamanByPortrait(page) {
   })
   const exact = state => state.selected.length === 1 && state.selected[0] === state.shaman
   // An open campaign message owns gameplay shortcuts; collapse it publicly first.
-  for (const summary of await page.locator('.campaign-messages details[open] > summary').all())
-    await summary.click()
+  await collapseCampaignMessages(page)
   let state = await read()
   if (state.openMessages) throw Error(`Campaign messages still own the keyboard: ${JSON.stringify(state)}`)
   if (state.shaman === null) throw Error('No live Blue Shaman to select')
@@ -138,16 +137,37 @@ export async function openGame(browser, mission = 1) {
   await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
   // An auto-opened campaign message box pauses the game, and with it the opening
   // flyby, like the original (#1046). Close it through its public summary as a
-  // player would; the flyby then finishes on its own.
+  // player would; the flyby then finishes on its own. A box that opens over the
+  // flyby also swallows Skip Introduction, so skip again after closing it.
   for (let limit = 8; limit; limit--) {
     await page.waitForFunction(() => !window.testScene.world.inputMask || window.testScene.messageModal)
     if (!(await page.evaluate(() => window.testScene.messageModal))) break
     await collapseCampaignMessages(page)
+    await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
   }
   await page.waitForFunction(() => !window.testScene.world.inputMask)
   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
   await page.evaluate(() => { window.testScene = window.testSceneRef.current })
   return { page, errors }
+}
+
+// Opt-in for checks that must start with no campaign message box at all. A message
+// the opening requests at the input release (for example Mission 1's 611) opens a
+// few draws after openGame returns, pausing the world and dropping input. Skip the
+// introduction, then close every box through its summary until none is requested
+// or open. openGame itself leaves that opening state to checks that exercise it.
+export async function settleOpeningMessages(page) {
+  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  for (let limit = 8; limit; limit--) {
+    await page.waitForFunction(() => {
+      const s = window.testScene, w = s.world
+      return s.messageModal || (!w.inputMask && w.messages.slots.every(m => !m || !(m.flags & 0x20002)))
+    })
+    if (!(await page.evaluate(() => window.testScene.messageModal))) break
+    await collapseCampaignMessages(page)
+    await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
+  }
+  await page.waitForFunction(() => !window.testScene.world.inputMask && !window.testScene.messageModal)
 }
 
 // The original number row recalls follower groups (#1005), so checks arm spells

@@ -1,7 +1,6 @@
-import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { bindGame, effectPixels } from './browser-game.mjs'
+import { bindGame, effectPixels, settleOpeningMessages, showAllMissions } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
@@ -15,6 +14,8 @@ try {
   await page.getByRole('button', { name: 'Mission 10', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => globalThis.testScene.world.outcome.level === 10)
+  // Mission 10's opening message box pauses the world and refuses HUD presses (#1046).
+  await settleOpeningMessages(page)
   page.setDefaultTimeout(15_000)
   await page.getByLabel('Select brave').click()
   const school = await page.evaluate(async () => {
@@ -98,9 +99,20 @@ try {
       building = hostiles.toSorted((a, b) => nearest(b) - nearest(a))[0]
     if (!source || !building || !world.selected.includes(source.id))
       throw new Error('Shipped Firewarrior selection or authored target is unavailable')
+    // Move the hostile people into the farthest hostile Hut. The isolated target is
+    // the authored Guard Tower whose authored Preacher stands at the tower; an
+    // `inside` flag alone left that person in place, the live admission owner later
+    // released it beside the Firewarrior, and the next fresh command-21 scan shot it
+    // instead of the building.
+    const shelter = hostiles
+      .filter(candidate => candidate.kind === 'hut' && candidate !== building)
+      .toSorted((a, b) =>
+        Math.hypot(b.x - building.x, b.z - building.z) - Math.hypot(a.x - building.x, a.z - building.z)
+      )[0]
+    if (!shelter) throw new Error('Mission 10 has no authored hostile Hut to shelter its people')
     for (const unit of world.units)
       if (unit.team !== 'blue')
-        Object.assign(unit, { inside: building.id, target: null, path: [] })
+        Object.assign(unit, { x: shelter.x, z: shelter.z, inside: shelter.id, target: null, path: [] })
     Object.assign(source, {
       x: building.x + 2,
       z: building.z,

@@ -6,13 +6,19 @@ import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import sharp from 'sharp'
-import { openGame } from './browser-game.mjs'
+import { openGame, settleOpeningMessages } from './browser-game.mjs'
 
 const captures = process.argv[2] ?? 'work/instant-overview'
 mkdirSync(captures, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
+  // Mission 1's opening box (611) opens around the input release, so openGame may
+  // already have closed it, or it may open a few draws later (#1055). Settle it, then
+  // reopen it through its public summary so a modal box is deterministically open.
+  await settleOpeningMessages(page)
+  await page.locator('.campaign-messages summary[aria-label="Read campaign message"]').first().click()
+  await page.waitForFunction(() => window.testScene.messageModal)
   const viewport = page.locator('.world-viewport canvas.battlefield')
   await viewport.focus()
   const state = () => page.evaluate(() => {

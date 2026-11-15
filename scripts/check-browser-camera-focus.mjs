@@ -1,8 +1,7 @@
 // Start npm run dev, then node scripts/check-browser-camera-focus.mjs.
-import { collapseCampaignMessages } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame, chooseSpell } from './browser-game.mjs'
+import { collapseCampaignMessages, openGame, chooseSpell } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)

@@ -7,11 +7,10 @@ import { writeFileSync, readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { resolve } from 'node:path'
-import { bindGame, effectPixels, readShamanReadiness, selectShamanByPortrait } from './browser-game.mjs'
+import { bindGame, collapseCampaignMessages, effectPixels, readShamanReadiness, selectShamanByPortrait } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 import { openCampaignFromMainMenu } from './browser-new-game.mjs'
 import { installCombinedGroundWitness } from './shaman-worship-ground-observer.mjs'
-import { collapseCampaignMessages } from './browser-game.mjs'
 
 function assertBridgeWitness(evidence) {
   assert.deepEqual(evidence.errors, [])
@@ -45,7 +44,7 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
     bounds: { frameMilliseconds: 1000 / 24, batchFrames: 8, maximumFrames: 10000, browserWallMilliseconds: 420000 },
     limits: 'Controlled-elapsed integration through public gameplay controls with explicit camera-only assistance. Not a real-clock journey, native raster oracle or hardware performance claim. Pixel attribution is an isolated post-frame render diagnostic.',
     baselineScope: baseline ? 'Combined presentation source without the phase1 ground fix; old PR212 baseline receipts are not relabeled' : 'Combined production source with phase1 ground fix',
-    actions: [], picking: [] }
+    actions: [], picking: [], messageBoxes: [] }
   const errors = [], save = failed => writeFileSync(resolve(output, failed ? 'shaman-ground-failed.json' : 'shaman-ground.json'), JSON.stringify(report, null, 2) + '\n')
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
@@ -92,14 +91,19 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
     await page.evaluate(async () => {
       const { runSceneFrames } = await import('/scripts/controlled-scene-frames.mjs'),
         { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs'),
+        { messageBoxRequested } = await import('/app/campaign-message-modal.ts'),
         scene = window.testSceneRef.current, world = scene.world, deadline = performance.now() + 420000
       window.combinedFrames = { total: 0, reports: [] }
-      window.runCombinedFrames = async (goal, bound, detail = {}) => {
-        const w = world, startTurn = w.turn, rows = []
-        let sampledTurn = startTurn
+      // An auto-opened campaign message box pauses the world (#1046). Frames stop at
+      // its request so the driver can close it publicly, then resume the same goal.
+      const box = () => scene.messageModal || messageBoxRequested(world.messages)
+      window.runCombinedFrames = async (goal, bound, detail = {}, resume = false) => {
+        const w = world, previous = resume && window.combinedResume?.goal === goal ? window.combinedResume : null,
+          startTurn = previous?.startTurn ?? w.turn, rows = previous?.rows ?? []
+        let sampledTurn = previous?.sampledTurn ?? startTurn
         const shaman = () => w.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
           body = () => w.effects.find(f => f.reincarnation?.team === 'blue')
-        const ready = () => goal === 'startup' ? campaignShamanReadiness(w).ready === true
+        const reachedGoal = () => goal === 'startup' ? campaignShamanReadiness(w).ready === true
           : goal === 'stock' ? w.shots.bridge >= 4
           : goal === 'position' ? !!shaman() && Math.hypot(shaman().x - detail.x, shaman().z - detail.z) <= detail.tolerance
           : goal === 'injured' ? !!shaman() && shaman().hp <= 45
@@ -108,20 +112,30 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
           : goal === 'phase1' ? body()?.reincarnation.phase === 1
           : goal === 'ground-samples' ? rows.length === bound
           : goal === 'turns' ? w.turn - startTurn >= bound : false
-        const budget = { goal, bound, startTurn, result: null }
+        const ready = () => reachedGoal() || (goal !== 'startup' && box())
+        // A resumed goal keeps the original turn and frame bounds across every box.
+        const remaining = bound - (w.turn - startTurn), framesUsed = previous?.framesUsed ?? 0
+        if (previous && (remaining <= 0 || 2 * bound + 8 - framesUsed <= 0) && goal !== 'position')
+          throw Error(`Controlled-frame goal missed its bound (${goal}, resumed after a message box)`)
+        if (previous && (remaining <= 0 || 2 * bound + 8 - framesUsed <= 0)) {
+          window.combinedResume = null // A position goal may end unreached, as before.
+          return { goal, reached: false, frames: 0, turns: 0, messageBox: false, turn: w.turn, rows }
+        }
+        const budget = { goal, bound, startTurn, resume: !!previous, result: null }
         window.combinedFrames.reports.push(budget)
         window.combinedDriving = true
         window.captureCombinedGroundSteps = goal === 'ground-samples'
         try {
           budget.result = await runSceneFrames({ scene, currentScene: () => window.testSceneRef.current,
             currentWorld: () => window.testStore.getWorld(), until: ready, frameMs: 1000 / 24,
-            maxFrames: Math.min(2 * bound + 8, 10000 - window.combinedFrames.total), maxTurns: bound,
-            batchFrames: 8, allowPaused: goal === 'startup', requireGoal: !['startup', 'position'].includes(goal),
+            maxFrames: Math.min(2 * bound + 8 - framesUsed, 10000 - window.combinedFrames.total), maxTurns: remaining,
+            batchFrames: 8, allowPaused: true, requireGoal: !['startup', 'position'].includes(goal),
             deadline, aborted: () => !!window.combinedAbort,
             validate: () => {
               if (!scene.started || scene.disposed || !scene.renderer.domElement.isConnected || document.hidden)
                 throw Error('Controlled full-frame caller is not current, started and visible')
               if (w.status !== 'playing') throw Error(`Outcome changed during ${goal}`)
+              if (goal !== 'startup' && w.paused && !box()) throw Error('Controlled gameplay unexpectedly paused')
             },
             onFrame: () => {
               window.combinedFrames.total++
@@ -135,8 +149,11 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
             } })
         } catch (error) { budget.failure = String(error.stack ?? error); throw error }
         finally { window.combinedDriving = false; window.captureCombinedGroundSteps = false }
+        const messageBox = !reachedGoal() && goal !== 'startup' && box()
+        window.combinedResume = messageBox
+          ? { goal, startTurn, rows, sampledTurn, framesUsed: framesUsed + budget.result.frames } : null
         const u = shaman(), f = body()
-        return { goal, ...budget.result, turn: w.turn, status: w.status, stock: w.shots.bridge,
+        return { goal, ...budget.result, messageBox, turn: w.turn, status: w.status, stock: w.shots.bridge,
           shaman: u && { id: u.id, x: u.x, z: u.z, hp: u.hp, fighting: !!u.fight },
           body: f && { id: f.id, x: f.x, z: f.z, phase: f.reincarnation.phase },
           bridges: w.effects.filter(f => f.bridge).map(f => ({ id: f.id, turn: f.bridge.turn })), rows }
@@ -201,7 +218,10 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
           const point = s.pick(event)
           if (!point) { diagnostics.noTerrain++; continue }
           const person = kind === 'ground' ? s.picking.pickPerson(event) : null,
-            object = kind === 'ground' ? s.pickWorldObject(event)?.id ?? null : null,
+            // Since bfcca5fc1 an ordinary selected click also resolves a ScenePicking
+            // model hit (e.g. a tree); a pointed model owns its own highlight and emits
+            // no ground marker (0x4aa8b0), so a ground target excludes every model hit.
+            object = kind === 'ground' ? s.pickWorldObject(event)?.id ?? s.picking.pick(event) ?? null : null,
             distance = Math.hypot(point.x - p.x, point.z - p.z),
             candidate = { x: event.clientX, y: event.clientY, point, distance, person, object }
           if (!diagnostics.nearest || distance < diagnostics.nearest.distance) diagnostics.nearest = candidate
@@ -287,8 +307,24 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
   }
 
   async function advance(goal, bound, detail = {}) {
-    signal.throwIfAborted()
-    const result = await page.evaluate(({ goal, bound, detail }) => window.runCombinedFrames(goal, bound, detail), { goal, bound, detail })
+    let result
+    for (let boxes = 0; ; boxes++) {
+      signal.throwIfAborted()
+      result = await page.evaluate(({ goal, bound, detail, resume }) => window.runCombinedFrames(goal, bound, detail, resume),
+        { goal, bound, detail, resume: boxes > 0 })
+      if (!result.messageBox) break
+      assert.ok(boxes < 16, `Too many campaign message boxes during ${goal}`)
+      // The page opens the requested box on its next store render (RAF is held here, so
+      // publish one with no elapsed time), then close it publicly, as a player would,
+      // and resume the goal.
+      await page.evaluate(() => window.testStore.update())
+      await page.waitForFunction(() => window.testSceneRef.current.messageModal, undefined, { polling: 50 })
+      report.messageBoxes.push({ goal, turn: result.turn, messages: await page.evaluate(() =>
+        window.testStore.getWorld().messages.slots.filter(Boolean).map(m => m.stringId)) })
+      await collapseCampaignMessages(page)
+      await page.waitForFunction(() => !window.testSceneRef.current.messageModal && !window.testStore.getWorld().paused,
+        undefined, { polling: 50 })
+    }
     report.progress = result
     save(false)
     return result

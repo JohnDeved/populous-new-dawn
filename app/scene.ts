@@ -280,6 +280,8 @@ export class GameScene {
   pointer: Point | null = null
   pointerScreen: { clientX: number; clientY: number } | null = null
   pointerState = ''
+  // Set when a building model is added/replaced/removed; cleared after its render.
+  pickModelsChanged = false
   pointerButtons = 0
   navigationPointer: { x: number; y: number; buttons: number } | null = null
   spellPointer = document.createElement('div')
