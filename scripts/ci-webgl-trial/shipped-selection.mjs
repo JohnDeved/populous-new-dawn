@@ -7,9 +7,9 @@ import { resolve, isAbsolute } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const [rootArg, outputArg, expectedCommit] = process.argv.slice(2)
-const side = 'selection-texture'
+const side = 'scenery-placement'
 assert.ok(rootArg && outputArg)
-assert.equal(expectedCommit, '2f2ebb6485244de6ea7828b770a7b9b220f35eac')
+assert.equal(expectedCommit, '1b65b5131b947d1c918e2e6860e1600833be8cf0')
 const root = resolve(rootArg), output = resolve(outputArg)
 assert.ok(!existsSync(output), 'Use a fresh evidence directory')
 mkdirSync(output, { recursive: true })
@@ -32,12 +32,12 @@ const dependencies = path => {
   return createHash('sha256').update(JSON.stringify(result)).digest('hex')
 }
 const depsBefore = dependencies(resolve(root, 'node_modules'))
-const trialInputs = Object.fromEntries(['shipped-selection.mjs', 'selection-episode.mjs']
+const trialInputs = Object.fromEntries(['shipped-selection.mjs']
   .map(name => [name, hash(new URL(name, import.meta.url))]))
 const require = createRequire(resolve(root, 'package.json'))
 const { chromium } = require('@playwright/test')
 const { browserConfiguration } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/browser-config.mjs')).href)
-const { runSelectionEpisode } = await import('./selection-episode.mjs')
+const { default: runSceneryPlacement } = await import(pathToFileURL(resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')).href)
 const config = browserConfiguration()
 assert.deepEqual(config.launch.args, ['--headless', '--remote-debugging-pipe'])
 assert.equal(config.launch.chromiumSandbox, true)
@@ -57,7 +57,7 @@ const receipt = {
   runId: process.env.GITHUB_RUN_ID, runAttempt: process.env.GITHUB_RUN_ATTEMPT,
   workflowCommit: process.env.GITHUB_SHA, startedAt: new Date().toISOString(), errors: [], warnings: [],
   runtime, trialInputs, checks: [], captures: [], limits: ['Exact candidate shipped Vinext/Cloudflare bundle served by separately pinned official workerd v1.20261110.1 via the supported MINIFLARE_WORKERD_PATH override; not the old locked runtime, deployed Cloudflare edge or a synthetic merge.',
-    'Exact candidate public campaign in two fresh contexts: one held then real-released selection.png response, one aborted selection.png request. These are explicit network-fault fixtures, not ordinary network acceptance. No supplied world state, storage seeds or synthetic rendered pixels.',
+    'Exact candidate public Mission 1 scenery preview, rejected placement and accepted plan; retained scenery remains unchanged. No completed construction, depletion or replant claim. No supplied world state, storage seeds or synthetic rendered pixels. Scenario inherits a plain-Vite limitation string; this wrapper instead verifies the shipped Vinext/Cloudflare bundle.',
     'No native execution, audio/fullscreen, development StrictMode or current-main merge acceptance. Modal-loaded visibility is required only after public return and presentation resumes.',
     'Software rendering is not hardware performance or original-game framebuffer equivalence.'],
 }
@@ -163,11 +163,13 @@ try {
     receipt.timedOut = true; save()
     void browser.close()
   }, 240000)
-  receipt.episode = await runSelectionEpisode({ browser, sourceRoot: root,
-    output: resolve(output, 'selection-episode'), expectedCommit })
-  assert.equal(receipt.episode.status, 'passed-awaiting-pixel-review')
-  assert.equal(receipt.episode.images.length, 3)
-  receipt.captures = receipt.episode.images
+  receipt.episode = await runSceneryPlacement({ browser, url: origin, output })
+  assert.equal(receipt.episode.status, 'passed')
+  assert.equal(receipt.episode.contextClosed, true)
+  assert.deepEqual(receipt.episode.errors, [])
+  assert.deepEqual(receipt.episode.failures, [])
+  receipt.captures = ['scenery-placement-preview.png', 'scenery-placement-rejected.png', 'scenery-placement-accepted.png']
+    .map(name => ({ name, sha256: hash(resolve(output, name)) }))
   assert.equal(receipt.timedOut, undefined)
   receipt.status = 'passed-awaiting-pixel-review'
 } catch (error) {

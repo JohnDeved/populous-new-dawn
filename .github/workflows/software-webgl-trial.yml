@@ -1,8 +1,8 @@
-name: Isolated shipped selection texture readiness
+name: Isolated shipped scenery placement readiness
 
 on:
   push:
-    branches: [ci/selection-current-20261115]
+    branches: [ci/scenery-opening-1035-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Shipped selection texture readiness
+    name: Shipped scenery placement readiness
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 2f2ebb6485244de6ea7828b770a7b9b220f35eac
+      PND_CANDIDATE_SHA: 1b65b5131b947d1c918e2e6860e1600833be8cf0
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed selection texture candidate
+      - name: Check out exact reviewed scenery placement candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 2f2ebb6485244de6ea7828b770a7b9b220f35eac
+          ref: 1b65b5131b947d1c918e2e6860e1600833be8cf0
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -101,7 +101,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: shipped-selection-2f2ebb64-${{ github.run_id }}-${{ github.run_attempt }}
+          name: scenery-placement-1b65b513-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/shipped-selection/*.json
             outputs/shipped-selection/*.log
