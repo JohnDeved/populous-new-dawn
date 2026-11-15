@@ -163,3 +163,11 @@ test('profile load and new mission settle public modal ownership before unchange
   assert.doesNotMatch(scenario, /\.inputMask\s*=|\.paused\s*=/)
   assert.doesNotMatch(scenario, /skip.isVisible|skip.click/)
 })
+
+test('Tornado startup and public restart settle modal ownership before unchanged readiness', () => {
+  const source = read('scripts/check-browser-tornado-appearance.mjs')
+  assert.equal((source.match(/await settleOpeningMessages\(page\)/g) ?? []).length, 2)
+  for (const field of ['readiness', 'restartReadiness'])
+    assert.ok(source.includes(`await settleOpeningMessages(page)\n        episode.${field} = await waitRecoveryReadiness(page, {\n          timeout: 12000,`))
+  assert.equal((source.match(/timeout: 12000,/g) ?? []).length, 2)
+})

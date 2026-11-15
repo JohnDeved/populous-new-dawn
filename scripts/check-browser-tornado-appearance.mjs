@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { bindGame, showAllMissions } from './browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages } from './browser-game.mjs'
 import { waitRecoveryReadiness } from './tutorial-browser/profile-readiness.mjs'
 import { recoverVisibleIntroduction } from './local-render/original-pause-checkpoint-recovery.mjs'
 import { originalTornadoPairs, checkTornadoReadback } from './lib/tornado-pixel-oracle.mjs'
@@ -59,6 +59,7 @@ export async function runTornadoAppearance(
       const { page, errors } = await openTornadoGame(browser, url)
       page.setDefaultTimeout(8000)
       try {
+        await settleOpeningMessages(page)
         episode.readiness = await waitRecoveryReadiness(page, {
           timeout: 12000,
           onBlocked: recoverVisibleIntroduction(page),
@@ -387,6 +388,7 @@ export async function runTornadoAppearance(
             globalThis.testScene.world !== globalThis.tornadoProbe.oldWorld &&
             !document.querySelector('.loading-world')
         )
+        await settleOpeningMessages(page)
         episode.restartReadiness = await waitRecoveryReadiness(page, {
           timeout: 12000,
           onBlocked: recoverVisibleIntroduction(page),
