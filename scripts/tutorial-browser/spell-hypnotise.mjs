@@ -124,11 +124,16 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
         assert.equal(report.reframed.paused, true)
         assert.equal(report.reframed.stock, 1)
         assert.ok(report.reframed.turn >= saved.turn)
+        report.encounter = await page.evaluate(() =>
+          window.__pndHypnotiseFixture.prepareHypnotiseEncounter(window.testSceneRef.current)
+        )
+        assert.deepEqual(report.encounter.cohort, [97, 98])
+        save()
         await page.getByRole('button', { name: 'Hypnotise, 1 shots', exact: true }).click()
         const target = await page.evaluate(() => {
           const scene = window.testSceneRef.current,
             canvas = scene.renderer.domElement,
-            p = scene.screen(window.__pndHypnotiseFixture.hypnotiseTarget),
+            p = scene.screen(window.__pndHypnotiseFixture.hypnotiseEncounterTarget),
             r = canvas.getBoundingClientRect(),
             x = r.left + ((p.x + 1) * r.width) / 2,
             y = r.top + ((1 - p.y) * r.height) / 2
@@ -137,7 +142,7 @@ export default async function spellHypnotise({ browser, url, output, deadlineAt 
           return { x, y }
         })
         await button('Resume game').click()
-        await page.evaluate(installHypnotiseObserver, { observationMs: hypnotiseObservationMs })
+        await page.evaluate(installHypnotiseObserver, { observationMs: hypnotiseObservationMs, target: report.encounter.target })
         await page.mouse.click(target.x, target.y)
         await page.waitForFunction(() => window.__pndHypnotiseObservation.result.done, null, {
           timeout: hypnotiseObservationMs + 1000,

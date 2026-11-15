@@ -5,7 +5,7 @@ export const hypnotiseObservationMs = 12000
 
 // RAF artwork observation plus owned, transparent before/afterTurn witnesses. No
 // forced ticks, hidden groups, changed frame/UV, stock injection or camera pursuit.
-export function installHypnotiseObserver({ observationMs }) {
+export function installHypnotiseObserver({ observationMs, target }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock,
     canvas = scene.renderer.domElement, started = performance.now(), copies = [], keys = new Set(),
@@ -77,7 +77,7 @@ export function installHypnotiseObserver({ observationMs }) {
     const observe = window.__pndHypnotiseFixture?.hypnotiseTargetWitness
     if (typeof observe !== 'function') return // Older isolated callback fixtures.
     targetBoundaries.add(boundary)
-    result.targetStates.push({ boundary, state: observe(world, flash ?? undefined) })
+    result.targetStates.push({ boundary, state: observe(world, flash ?? target) })
   }
   const acquireBirth = boundary => {
     if (flash) return
