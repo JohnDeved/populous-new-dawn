@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages, collapseCampaignMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
@@ -117,7 +117,7 @@ export function m2StartupReady() {
 export function m2AuthoredMessageReady(expectedText) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   if (scene !== window.testScene || scene?.world !== world || !scene.renderer.domElement.isConnected ||
-    world.outcome.level !== 2 || world.status !== 'playing' || world.paused || world.inputMask) return false
+    world.outcome.level !== 2 || world.status !== 'playing' || !world.paused || !scene.messageModal || world.inputMask) return false
   const message = world.messages.slots.find(message => message?.stringId === 641)
   if (!message || !(message.flags & 0x40000) || (message.flags & 0x20000)) return false
   const details = document.querySelector(`.campaign-messages details[data-message-serial="${message.serial}"]`),
@@ -126,6 +126,24 @@ export function m2AuthoredMessageReady(expectedText) {
     getComputedStyle(paragraph).visibility !== 'visible' || paragraph.textContent !== expectedText) return false
   return { turn: world.turn, serial: message.serial, stringId: message.stringId,
     flags: message.flags, position: message.position, text: paragraph.textContent, open: details.open }
+}
+
+// Observe the actual authored modal, separately from subsequent world-input tests.
+// Closing and reopening use the shipped summary; no message or pause state is forced.
+export async function openM2AuthoredMessage(page) {
+  const serial = await page.evaluate(() => {
+    const message = window.testStore.getWorld().messages.slots.find(message => message?.stringId === 641)
+    if (!message) throw Error('Authored Mission 2 message 641 is missing')
+    return message.serial
+  })
+  const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
+  await detail.waitFor({ state: 'visible' })
+  if (await detail.getAttribute('open') === null) await detail.locator('summary').click()
+  const ready = await page.waitForFunction(m2AuthoredMessageReady, originalMessages.messages[102].text)
+  const witness = await ready.jsonValue()
+  await ready.dispose()
+  assert.equal(witness.serial, serial, 'Reopen the same authored message, never a replacement')
+  return witness
 }
 
 // Keep the legacy compact episode within its original deadline. The expanded
@@ -272,9 +290,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.startup = await startup.jsonValue()
     await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    await settleOpeningMessages(page)
     stage('introduction-ready')
     // Admit the compact viewport through its shipped public notice before the
     // paused no-orders baseline: Continue intentionally resumes the simulation.
@@ -286,14 +302,19 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.compactNoticeDismissed = true
     stage('compact-admitted')
     await page.setViewportSize({ width: 1440, height: 1000 })
-    // Pausing freezes message motion; retain the authored popup only after its
-    // settled state and matching React details are both observable.
-    const messageReady = await page.waitForFunction(m2AuthoredMessageReady, originalMessages.messages[102].text)
-    report.authoredMessageReady = await messageReady.jsonValue()
-    await messageReady.dispose()
+    // An open authored box owns pause and blocks world input. Witness its real
+    // visible text first, then close it before establishing the input baseline.
+    report.authoredMessageReady = await openM2AuthoredMessage(page)
     stage('authored-message-ready')
+    await collapseCampaignMessages(page)
+    await page.waitForFunction(() => !window.testScene.messageModal && !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
+    if (compactMessages || pickingPaths || campaignCallbacks) {
+      const reopened = await openM2AuthoredMessage(page)
+      assert.equal(reopened.serial, report.authoredMessageReady.serial)
+      report.pausedAuthoredMessage = reopened
+    }
     const observe = () =>
       page.evaluate(() => {
         const s = window.testSceneRef.current,

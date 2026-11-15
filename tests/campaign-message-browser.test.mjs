@@ -81,3 +81,15 @@ test('new browser episode follows every existing compact episode and uses a fres
   assert.match(m2, /await checkCampaignMessageOwnership\(/)
   assert.match(runner, /campaignMessageOwnershipSha256: hash/)
 })
+
+test('public reload witnesses modal text then establishes explicit pause before stale callback capture', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/campaign-message-ownership.mjs', import.meta.url), 'utf8')
+  const load = source.slice(source.indexOf('await settleOpeningMessages(page)'), source.indexOf('// Publicly close the fresh message;'))
+  assert.match(load, /report.afterLoadMessage = await openM2AuthoredMessage\(page\)/)
+  assert.match(load, /await collapseCampaignMessages\(page\)/)
+  assert.match(load, /!window.testSceneRef.current.messageModal/)
+  assert.match(load, /name: 'Pause game', exact: true/)
+  assert.ok(load.indexOf('collapseCampaignMessages') < load.indexOf("name: 'Pause game'"))
+  assert.ok(load.indexOf("name: 'Pause game'") < load.indexOf('const reopened'))
+  assert.match(load, /assert.equal\(reopened.serial, report.afterLoadMessage.serial/)
+})

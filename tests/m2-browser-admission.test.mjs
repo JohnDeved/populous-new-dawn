@@ -152,7 +152,9 @@ test('ordinary null-mode pointer witnesses use processed tooltip cells, not plac
     new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url),
     'utf8'
   )
-  assert.match(source, /name: \/\^Skip introduction\//)
+  assert.match(source, /await settleOpeningMessages\(page\)/)
+  const shared = readFileSync(new URL('../scripts/browser-game.mjs', import.meta.url), 'utf8')
+  assert.match(shared, /document.querySelector\('\.skip-introduction'\)\?\.click\(\)/)
   assert.doesNotMatch(source, /name: 'Skip introduction', exact: true/)
 })
 
@@ -214,9 +216,9 @@ test('M2 waits for delayed public Skip or naturally ready input, not one-shot vi
 function authoredMessageFixture() {
   const expectedText = originalMessages.messages[102].text,
     message = { serial: 7, stringId: 641, flags: 0x40010, position: 60000 },
-    world = { turn: 71, status: 'playing', paused: false, inputMask: 0,
+    world = { turn: 71, status: 'playing', paused: true, inputMask: 0,
       outcome: { level: 2 }, messages: { slots: [message] } },
-    canvas = { isConnected: true }, scene = { world, renderer: { domElement: canvas } },
+    canvas = { isConnected: true }, scene = { world, messageModal: true, renderer: { domElement: canvas } },
     paragraph = { textContent: expectedText, visible: true, visibility: 'visible',
       getClientRects() { return this.visible ? [{}] : [] } },
     details = { open: true, serial: 7, querySelector(selector) {
@@ -246,7 +248,8 @@ test('authored M2 readiness rejects missing, entering, pending, closed and hidde
     f => { f.paragraph.visible = false },
     f => { f.paragraph.visibility = 'hidden' },
     f => { f.paragraph.textContent = 'unrelated message' },
-    f => { f.world.paused = true },
+    f => { f.world.paused = false },
+    f => { f.scene.messageModal = false },
     f => { f.world.inputMask = 64 },
     f => { f.world.status = 'lost' },
     f => { f.world.outcome.level = 3 },

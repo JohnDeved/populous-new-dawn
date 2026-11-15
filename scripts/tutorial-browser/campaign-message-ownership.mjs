@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages, collapseCampaignMessages } from '../browser-game.mjs'
+import { openM2AuthoredMessage } from './m2-pointer-f8.mjs'
 
 export function assertDelayedCampaignCallbacks(checks) {
   assert.deepEqual(Object.keys(checks).sort(), ['summaryRejected', 'summaryPreserved', 'dismissPreserved', 'oldSlotPreserved', 'currentSlotPreserved'].sort())
@@ -9,7 +10,7 @@ export function assertDelayedCampaignCallbacks(checks) {
 
 // Actual mounted React callbacks, retained across a public Load. The delayed
 // invocation is explicitly controlled test scheduling, not a natural user race.
-export async function checkCampaignMessageOwnership({ page, output, stage, report, messageReady, expectedText }) {
+export async function checkCampaignMessageOwnership({ page, output, stage, report, expectedText }) {
   report.limits = [
     'Explicit imported Mission 2 checkpoint, not earned progression or user save',
     'Mounted React callbacks retained before public Load and invoked afterward with controlled scheduling; not a naturally reproduced stale-click race',
@@ -26,15 +27,15 @@ export async function checkCampaignMessageOwnership({ page, output, stage, repor
   await menu.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(() => window.testStore.getWorld() !== window.campaignCallbackWitness.world)
-  const skip = page.getByRole('button', { name: /^Skip introduction/ })
-  await page.waitForFunction(() => !!document.querySelector('.skip-introduction') || !window.testStore.getWorld().inputMask)
-  if (await skip.isVisible()) await skip.click()
-  await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-  const ready = await page.waitForFunction(messageReady, expectedText)
-  report.afterLoadMessage = await ready.jsonValue()
-  await ready.dispose()
+  await settleOpeningMessages(page)
+  report.afterLoadMessage = await openM2AuthoredMessage(page)
+  assert.equal(report.afterLoadMessage.text, expectedText)
+  await collapseCampaignMessages(page)
+  await page.waitForFunction(() => !window.testSceneRef.current.messageModal && !window.testStore.getWorld().inputMask)
   await page.getByRole('button', { name: 'Pause game', exact: true }).click()
   await page.waitForFunction(() => window.testStore.getWorld().paused)
+  const reopened = await openM2AuthoredMessage(page)
+  assert.equal(reopened.serial, report.afterLoadMessage.serial, 'Reopen the same freshly loaded authored message')
   // Publicly close the fresh message; the serial-keyed DOM may be reused by
   // React, so a detached-node click would be vacuous and is deliberately avoided.
   await detail.locator('summary').click()
