@@ -21,7 +21,13 @@ export async function interruptOwnedSwamp({ page, deadline, point, stage }) {
       await deadline.run(() => page.mouse.down({ button: 'right' }))
       delivered = await deadline.run(() => page.evaluate(dispatchInterruption, kind))
       const interrupted = await deadline.run(() => page.evaluate(readWitness))
-      if (interrupted.paused) await deadline.run(() => page.getByRole('button', { name: 'Resume game', exact: true }).click())
+      if (interrupted.paused) {
+        // Keep the right mouse press intact: a left click here forms a button chord.
+        // Activate the shipped button through trusted keyboard input without moving the pointer.
+        await deadline.run(() => page.getByRole('button', { name: 'Resume game', exact: true }).focus())
+        await deadline.run(() => page.keyboard.press('Enter'))
+        await deadline.run(() => page.waitForFunction(() => !window.testStore.getWorld().paused))
+      }
       // A stationary stale release must still hit the trap in an admitted world.
       const release = await deadline.run(() => page.evaluate(({ x, y }) => {
         const h = window.__ownedSwampWitness, s = window.testSceneRef.current

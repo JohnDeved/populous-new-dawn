@@ -16,8 +16,9 @@ function harness(change = false, paused = false, miss = false) {
       if (kind) { calls.push(kind); return { kind, syntheticInterruption: true } }
       calls.push('observe-press')
     },
-    getByRole: (_, opts) => ({ click: async () => calls.push(opts.name) }),
-    keyboard: { down: async key => calls.push('down-' + key), up: async key => calls.push('up-' + key) },
+    getByRole: (_, opts) => ({ focus: async () => calls.push(opts.name) }),
+    waitForFunction: async () => calls.push('unpaused'),
+    keyboard: { press: async key => calls.push('press-' + key), down: async key => calls.push('down-' + key), up: async key => calls.push('up-' + key) },
     mouse: { move: async () => calls.push('move'), down: async () => calls.push('press'), up: async () => calls.push('release') },
   }
   return { calls, stages, page, deadline: { run: fn => fn() }, point: { x: 100, y: 100 }, stage: (name, data) => stages.push({ name, data }) }
@@ -41,7 +42,7 @@ test('blur-like pause is publicly resumed before stale release', async () => {
   const h = harness(false, true)
   await interruptOwnedSwamp(h)
   assert.ok(h.calls.indexOf('Resume game') > h.calls.indexOf('canvas-pointercancel'))
-  assert.ok(h.calls.indexOf('Resume game') < h.calls.indexOf('release'))
+  assert.deepEqual(h.calls.slice(h.calls.indexOf('Resume game'), h.calls.indexOf('release')), ['Resume game', 'press-Enter', 'unpaused', 'move'])
 })
 test('a pick miss cannot count as interruption acceptance', async () => {
   await assert.rejects(interruptOwnedSwamp(harness(false, false, true)), /still pick trap/)
@@ -62,3 +63,11 @@ for (const fault of ['unarmed', 'mismatched', 'moved', 'not-cleared']) {
     assert.throws(() => dispatchInterruption('canvas-pointercancel'), /matching armed|immediately clear/)
   })
 }
+
+test('failed Resume readiness cannot reach stale release', async () => {
+  const h = harness(false, true)
+  h.page.waitForFunction = async () => { throw Error('still paused') }
+  await assert.rejects(interruptOwnedSwamp(h), /still paused/)
+  assert.equal(h.calls.includes('release'), false)
+  assert.equal(h.calls.at(-1), 'up-Shift')
+})
