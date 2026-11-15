@@ -3,7 +3,7 @@ import { setSoundThroughOptions } from './browser-options-audio.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
-import { openGame, effectPixels } from './browser-game.mjs'
+import { openGame, effectPixels, chooseSpell } from './browser-game.mjs'
 
 const headed = process.argv.includes('--headed')
 const nearby = process.argv.includes('--nearby')
@@ -91,7 +91,7 @@ try {
     }
   }, nearby)
   await page.waitForTimeout(100)
-  await page.keyboard.press('3')
+  await chooseSpell(page,'Lightning')
   const target = await page.evaluate(async () => {
     const s = window.testScene,
       b = window.panicBuilding,

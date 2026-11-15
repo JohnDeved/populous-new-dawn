@@ -1,5 +1,6 @@
 import angelStrike from './original-angel-strike.json' with { type: 'json' }
 import angel from './original-angel-presentation.json' with { type: 'json' }
+import guardPost from './original-guard-post.json' with { type: 'json' }
 import models from './original-models.json' with { type: 'json' }
 import bank6 from './original-models-bank6.json' with { type: 'json' }
 import shapes from './original-shapes.json' with { type: 'json' }
@@ -7,6 +8,8 @@ import type { NativeModel } from './model-faces.ts'
 
 export const nativeModels: Record<number, NativeModel> = {
   ...models,
+  // Guard Post mesh: 00500a30 case 0x10 unit_set_object(obj, 2, 7).
+  7: guardPost.model,
   62: angelStrike.baseGeometry,
   69: angel.baseGeometry,
 }

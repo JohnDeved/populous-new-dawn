@@ -30,8 +30,11 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   assert.equal(acquired.contextLost, false)
   assert.equal(acquired.speed, 1)
   await page.screenshot({ path: resolve(output, 'natural-blue-sermon.png') })
+  // The pause menu opens its Save Game panel before the one checkpoint row.
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+  const gameMenu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await gameMenu.getByRole('button', { name: 'Save Game', exact: true }).click()
+  await gameMenu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   // Read back the persisted state: an in-session save alone does not prove a
   // fresh-page checkpoint. No storage writes outside the shipped save control.
   const persisted = await waitForCheckpointReadback(() => page.evaluate(async ids => {
@@ -51,7 +54,8 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
     } finally { db.close() }
   }, acquired.ids))
   assert.equal(persisted, true, 'Saved checkpoint never persisted its state23/owner')
-  await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
+  await gameMenu.getByRole('button', { name: 'Back', exact: true }).click()
+  await gameMenu.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.waitForFunction(() => !window.testStore.getWorld().paused)
   const cancelled = await page.evaluate(async () => {
     const scene = window.testScene

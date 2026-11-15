@@ -45,7 +45,7 @@ test('original operation deadline remains enforced with delayed timer scheduling
 test('whole owner cleanup reaching deadline cannot report pass',async()=>{let now=0;const h=harness({now:()=>now,perform:complete,browser:{async close(){now=180000}}});try{await assert.rejects(run(h.options));assert.equal(h.receipt.cleanupConfirmed,false)}finally{h.dispose()}})
 test('third context and excessive screenshot bytes are refused before acceptance',async()=>{for(const perform of [async({ownContext})=>{for(let i=0;i<3;i++)ownContext({async close(){}})},async({write})=>write('building-icon-test.png',Buffer.alloc(buildingIconPolicy.screenshotBytes+1))]){const h=harness({perform});try{await assert.rejects(run(h.options));assert.equal(h.receipt.status,'failed')}finally{h.dispose()}}})
 test('actual bounded Tab entry retains intervening public controls before first building',async()=>{
-  const actions=[],visits=['spells 1–3','followers','Nearby followers','Menu','Hut, 3 wood'].map((label,i)=>({label,tag:'BUTTON',cardIndex:i===4?0:-1}))
+  const actions=[],visits=['spells','followers','Nearby followers','Menu','Hut, 3 wood'].map((label,i)=>({label,tag:'BUTTON',cardIndex:i===4?0:-1}))
   const pending=structuredClone(visits)
   const page={getByRole:()=>({focus:async()=>actions.push('focus-buildings')}),keyboard:{press:async key=>actions.push(key)},evaluate:async()=>pending.shift()}
   assert.deepEqual(await module.tabToFirstBuilding(page,fn=>fn()),visits)

@@ -14,6 +14,7 @@ import {
   releaseSecondaryEffect,
   rebuildSecondaryLists,
 } from './secondary-effects.ts'
+import { stepGuardPost, stepGuardPostSmoke } from './guard-posts.ts'
 
 const eligible = (b: Building) =>
   b.kind === 'hut' &&
@@ -101,7 +102,9 @@ export function stepSecondaryEffects(w: World) {
       }
     } else if (effect.kind === 'hutPuff') {
       if (--effect.lifetime === 0) releaseSecondaryEffect(owner, slot)
-    } else {
+    } else if (effect.kind === 'guardPost') stepGuardPost(w, slot, effect)
+    else if (effect.kind === 'guardPostSmoke') stepGuardPostSmoke(owner, slot, effect)
+    else {
       const root = owner.roots[effect.building]?.state.root
       if (!root) {
         releaseSecondaryEffect(owner, slot)

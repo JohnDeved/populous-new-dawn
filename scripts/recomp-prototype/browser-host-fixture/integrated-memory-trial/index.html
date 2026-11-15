@@ -1,0 +1,25 @@
+<!doctype html><meta charset="utf-8"><link rel="icon" href="data:,"><title>Synthetic C memory/thread/frame integration</title>
+<style>body{background:#17212b;color:#fff;font:18px sans-serif;margin:32px}canvas{width:256px;height:256px;image-rendering:pixelated;border:1px solid #aaa}</style>
+<h1>Synthetic C → sparse memory → Canvas2D</h1>
+<p>Boundary fixture only. Not Populous gameplay or visual parity.</p>
+<canvas id="frame" width="4" height="4"></canvas><pre id="status">Waiting for compiled C worker.</pre>
+<script type="module">
+import createModule from './integrated-thread-frame.mjs';
+window.receipt={ticks:0,output:[],errors:[],exit:null,isolated:crossOriginIsolated,canvasBytes:null};
+const timer=setInterval(()=>window.receipt.ticks++,20);
+window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
+function accept(line){
+ window.receipt.output.push(line);
+ try{
+  const data=JSON.parse(line);
+  if(data.width!==4||data.height!==4||!data.passed||!data.tlsIsolated||!/^[0-9a-f]{128}$/.test(data.rgbaHex))throw Error('bad C framebuffer receipt');
+  const rgba=Uint8ClampedArray.from(data.rgbaHex.match(/../g),x=>parseInt(x,16));
+  const ctx=document.querySelector('#frame').getContext('2d');
+  if(!ctx)throw Error('Canvas2D unavailable');
+  ctx.putImageData(new ImageData(rgba,4,4),0,0);
+  window.receipt.canvasBytes=Array.from(ctx.getImageData(0,0,4,4).data);
+  document.querySelector('#status').textContent='C worker snapshot rendered: 4 × 4 pixels.\nNo game code or assets executed.';
+ }catch(e){window.receipt.errors.push(String(e));}
+}
+createModule({print:accept,printErr:x=>window.receipt.errors.push(x),onAbort:x=>window.receipt.errors.push(String(x)),onExit:code=>{window.receipt.exit=code;clearInterval(timer);}}).catch(e=>{window.receipt.errors.push(String(e));clearInterval(timer);});
+</script>

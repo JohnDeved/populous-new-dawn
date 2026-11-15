@@ -101,7 +101,8 @@ export function loadTexture(kind: string) {
     kind === 'vault-knowledge-camp' ||
     kind === 'vault-knowledge-tower' ||
     kind === 'selection' ||
-    kind === 'unit-health'
+    kind === 'unit-health' ||
+    kind === 'group-digits'
   ) {
     t.minFilter = THREE.NearestFilter
     t.magFilter = THREE.NearestFilter

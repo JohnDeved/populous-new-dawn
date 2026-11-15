@@ -1,0 +1,11 @@
+<!doctype html><meta charset="utf-8"><link rel="icon" href="data:,"><title>Synthetic C pthread trial</title>
+<p>No original game code or assets.</p>
+<script type="module">
+import createModule from './synthetic-thread-stack.mjs';
+const mode=new URL(location).searchParams.get('mode');
+if(!['resume','timeout'].includes(mode))throw Error('invalid fixture mode');
+window.receipt={mode,ticks:0,output:[],errors:[],exit:null,isolated:crossOriginIsolated};
+const timer=setInterval(()=>window.receipt.ticks++,20);
+window.addEventListener('pagehide',()=>clearInterval(timer),{once:true});
+createModule({arguments:mode==='timeout'?['timeout']:[],print:x=>window.receipt.output.push(x),printErr:x=>window.receipt.errors.push(x),onAbort:x=>window.receipt.errors.push(String(x)),onExit:code=>{window.receipt.exit=code;clearInterval(timer);}}).catch(e=>{window.receipt.errors.push(String(e));clearInterval(timer);});
+</script>

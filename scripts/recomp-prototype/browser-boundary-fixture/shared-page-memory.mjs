@@ -1,0 +1,17 @@
+// Synthetic trusted-worker model. Fixed backing, no unmap/reuse, globally serialized.
+export function createSharedPages(maxPages=4){if(!Number.isInteger(maxPages)||maxPages<1||maxPages>4)throw new RangeError('Page budget');const control=new SharedArrayBuffer(16),table=new SharedArrayBuffer(65536*4),data=new SharedArrayBuffer(maxPages*65536);new Int32Array(control)[2]=maxPages;return {control,table,data};}
+export class SharedPages {
+  #capacity;
+  constructor(descriptor){if(!['control','table','data'].every(k=>descriptor[k] instanceof SharedArrayBuffer))throw new TypeError('Shared buffers required');this.control=new Int32Array(descriptor.control);this.table=new Int32Array(descriptor.table);this.data=new Uint8Array(descriptor.data);if(this.control.length!==4||this.table.length!==65536||this.control[2]<1||this.control[2]>4||this.data.length!==this.control[2]*65536)throw new RangeError('Shared descriptor');this.#capacity=this.data.length/65536;}
+  #lock(){const deadline=performance.now()+500;while(performance.now()<deadline){if(Atomics.compareExchange(this.control,0,0,1)===0)return;Atomics.wait(this.control,0,1,Math.min(50,Math.max(1,deadline-performance.now())));}throw Error('Shared lock deadline');}
+  #unlock(){Atomics.store(this.control,0,0);Atomics.notify(this.control,0);}
+  #range(address,length){if(!Number.isSafeInteger(address)||!Number.isSafeInteger(length)||address<65536||length<1||address+length>0x100000000)throw new RangeError('Guest address');}
+  mapPage(address){this.#range(address,65536);if(address%65536)throw new RangeError('Alignment');this.#lock();try{const page=address/65536,old=Atomics.load(this.table,page);if(old)return Math.abs(old)-1;const slot=Atomics.load(this.control,1);if(slot>=this.#capacity)throw new RangeError('Page budget');this.data.fill(0,slot*65536,(slot+1)*65536);Atomics.store(this.table,page,slot+1);Atomics.store(this.control,1,slot+1);return slot;}finally{this.#unlock();}}
+  #offsets(address,write){this.#range(address,4);const offsets=[];for(let i=0;i<4;i++){const a=address+i,entry=Atomics.load(this.table,Math.floor(a/65536));if(!entry||write&&entry<0)throw new RangeError('Unmapped/readonly');offsets.push((Math.abs(entry)-1)*65536+a%65536);}return offsets;}
+  #read(offsets){return (this.data[offsets[0]]|this.data[offsets[1]]<<8|this.data[offsets[2]]<<16|this.data[offsets[3]]<<24)>>>0;}
+  read32(address){this.#lock();try{return this.#read(this.#offsets(address,false));}finally{this.#unlock();}}
+  write32(address,value){if(!Number.isInteger(value)||value<0||value>0xffffffff)throw new RangeError('Value');this.#lock();try{const offsets=this.#offsets(address,true);for(let i=0;i<4;i++)this.data[offsets[i]]=value>>>(8*i)&255;}finally{this.#unlock();}}
+  add32(address,delta){if(!Number.isInteger(delta)||delta<0||delta>0xffffffff)throw new RangeError('Delta');this.#lock();try{const offsets=this.#offsets(address,true),v=(this.#read(offsets)+delta)>>>0;for(let i=0;i<4;i++)this.data[offsets[i]]=v>>>(8*i)&255;return v;}finally{this.#unlock();}}
+  protectPage(address,writable){this.#range(address,65536);if(address%65536||typeof writable!=='boolean')throw new RangeError('Protection');this.#lock();try{const page=address/65536,entry=Atomics.load(this.table,page);if(!entry)throw new RangeError('Unmapped');Atomics.store(this.table,page,writable?Math.abs(entry):-Math.abs(entry));}finally{this.#unlock();}}
+  get mappedPages(){return Atomics.load(this.control,1);}
+}

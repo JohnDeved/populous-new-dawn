@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict'; import {createHash} from 'node:crypto';
+import {indexedFrame,gamePoint,replay,syntheticScene} from './framebuffer.mjs';
+let p=new Uint32Array(256); p[1]=0x123456;p[2]=0xabcdef;
+assert.deepEqual([...indexedFrame(Uint8Array.of(1,2,99,2,1,99),2,2,3,p)],[18,52,86,255,171,205,239,255,171,205,239,255,18,52,86,255]);
+assert.throws(()=>indexedFrame(new Uint8Array(2),2,2,2,p),RangeError);
+assert.deepEqual(gamePoint(410,320,{left:10,top:20,width:800,height:600},640,480),{x:320,y:240});
+assert.equal(gamePoint(10,20,{left:10,top:20,width:1000,height:600},640,480),null);
+const events=[{frame:0,type:'keyDown',code:'ControlLeft'},{frame:2,type:'pointerDown',x:20,y:30},{frame:2,type:'keyUp',code:'ControlLeft'}];
+let a=[],b=[];replay(events,4,e=>a.push(e));replay(events,4,e=>b.push(e));assert.deepEqual(a,b);assert.deepEqual(a,events);
+assert.throws(()=>replay([...events].reverse(),4,()=>{}),RangeError);
+const s=syntheticScene(),frame=indexedFrame(s.pixels,s.width,s.height,s.pitch,s.palette);
+console.log(JSON.stringify({status:'passed',scope:'synthetic CPU buffer/input only; not browser-rendered or original runtime',width:s.width,height:s.height,rgba_sha256:createHash('sha256').update(frame).digest('hex'),bytes:frame.length}));

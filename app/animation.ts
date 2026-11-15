@@ -143,6 +143,15 @@ export function stepObjectAnimation(
   }
 }
 
+// Elapsed-time adapter for person artwork without a native frame owner. Gated
+// people (0x40000) advance mode-2 frames on logical turns, holding each frame for
+// `step` extra visits; e.g. the Firewarrior's descriptor 18 shows one frame per
+// two turns. Rate is in frames per game second at `turnsPerSecond`.
+export function fallbackFramesPerSecond(draw: number, turnsPerSecond: number) {
+  const d = rules.animationDescriptors[draw]
+  return d?.mode === 2 ? turnsPerSecond / (d.step + 1) : turnsPerSecond
+}
+
 // 0x4ee770 visits the two allocation lists in order and honors native pause.
 export function stepAnimations(
   lists: readonly (readonly AnimatedUnit[])[],

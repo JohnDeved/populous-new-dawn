@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {captureSurface as c} from './capture-surface.mjs';
+import {GuestMemory} from '../../browser-boundary-fixture/guest-memory.mjs';
+const m=new GuestMemory();m.map(0xfe000000,0x20000);
+m.writeSpan(0xfe00fffe,Uint8Array.of(0,248,224,7));m.writeSpan(0xfe010006,Uint8Array.of(31,0,255,255));
+const reads=[];const config={base:0xfe00fffe,width:2,height:2,pitch:8,format:'rgb565le',readSpan:(a,n)=>{reads.push([a,n]);return m.readSpan(a,n);}};
+const out=c(config);assert.deepEqual([...out.rgba],[255,0,0,255,0,255,0,255,0,0,255,255,255,255,255,255]);assert.deepEqual(reads,[[0xfe00fffe,4],[0xfe010006,4]]);
+let count=0;assert.throws(()=>c({...config,base:0xfffffffe,readSpan:()=>{count++;}}),/overflow/);assert.equal(count,0);
+assert.throws(()=>c({...config,readSpan:()=>new Uint8Array(3)}),/copied row/);
+assert.throws(()=>c({...config,base:0xfd000000}),/./);
+const edge=new GuestMemory();edge.map(0xffff0000,65536);edge.write8(0xfffffffd,1);edge.write8(0xffffffff,2);
+const palette=new Uint32Array(256);palette[1]=0x123456;palette[2]=0xabcdef;
+const edgeReads=[];const snap=c({base:0xfffffffd,width:1,height:2,pitch:2,format:'indexed8',palette,readSpan:(a,n)=>{edgeReads.push([a,n]);return edge.readSpan(a,n);}});
+assert.deepEqual(edgeReads,[[0xfffffffd,1],[0xffffffff,1]]);assert.deepEqual([...snap.rgba],[18,52,86,255,171,205,239,255]);
+edge.write8(0xffffffff,1);palette[2]=0;assert.equal(snap.rgba[4],171);
+console.log(JSON.stringify({scope:'synthetic sparse guest surface capture',passed:5}));

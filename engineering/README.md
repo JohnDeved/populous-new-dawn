@@ -134,6 +134,25 @@ pnpm run orchestration:receipt --output work/orchestration/task/build.json -- pn
   optional allowance-bounded derivatives, not automatic duplicate files. See
   [command diagnostics](contracts.md#on-demand-command-diagnostics) for safe materialization.
 
+When a change rebinds, removes or repurposes a key, find likely consumers in
+tracked scripts, tests and QA inputs before review. `orchestration:plan` does
+not map key usage to checks:
+
+```sh
+node scripts/key-consumers.mjs --key d
+```
+
+What each hit kind means:
+
+- `direct` and `event` hits press or handle the key.
+- `state` hits inject held-key state such as `scene.keys.add('q')`, bypassing bindings.
+- `indirect` hits are key literals inside arrays in files that press keys from
+  variables or handle key events. Confirm them by hand.
+
+The scan is heuristic. It does not trace computed key strings, helpers defined in
+other files, or untracked files, so also grep for the literal. Reconcile each
+consumer without weakening its assertions, then run the affected rendered checks.
+
 There is no mandatory Local Dev binding, source-release handshake, delivery-clock
 ledger, separate reviewer chat, or browser-driven worker watcher. Use the executor's
 normal task controls and report useful results directly to the parent.

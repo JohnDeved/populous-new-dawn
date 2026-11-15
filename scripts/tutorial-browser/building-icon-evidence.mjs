@@ -127,7 +127,7 @@ export async function runBuildingIconCases({browser,url,check,write,receipt,ownC
       for(let index=1;index<8;index++){const before=await observe(page);await step(()=>page.keyboard.press('Tab'));const after=await observe(page);assert.equal(after.activeIndex,index);assert.equal(after.mode,'hut');receipt.interactions.push({action:'tab',before,after})}
       await capture(page,'building-icon-keyboard-focus-balloon.png',16,2)
       await step(()=>page.keyboard.press('Enter'));assert.equal((await observe(page)).mode,'balloonHut')
-      await step(()=>page.getByRole('button',{name:'spells 1–3',exact:true}).click())
+      await step(()=>page.getByRole('button',{name:'spells',exact:true}).click())
       await step(()=>page.getByRole('button',{name:'buildings B',exact:true}).click())
       const returned=await observe(page);assert.equal(returned.mode,null);acceptBuildingIconPanel(returned,atlas,16,2);receipt.tabReturn=returned
     }

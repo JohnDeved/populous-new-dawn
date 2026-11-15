@@ -91,7 +91,8 @@ test('capture manifest binds new runner without changing other trusted input che
 // entry path, without replacing gameplay input with a scene method invocation.
 test('both overview setup entries use the shipped gameplay Enter shortcut', () => {
   const page = read('app/page.tsx')
-  assert.ok(page.includes("if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))\n        engine.current?.overview()"))
+  assert.ok(page.includes('const overviewKey = overviewShortcut(e)'))
+  assert.ok(page.includes("if (overviewKey && !(e.target as HTMLElement).closest('button')) camera?.overview(overviewKey)"))
   assert.equal((route.match(/await page\.locator\('\.world-viewport canvas\.battlefield'\)\.focus\(\)\n {2}await page\.keyboard\.press\('Enter'\)/g) ?? []).length, 2)
   assert.doesNotMatch(route, /name: ?'Planet overview'|testScene\.overview\(/)
 })

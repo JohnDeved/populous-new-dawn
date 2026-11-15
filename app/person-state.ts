@@ -210,7 +210,7 @@ export function faceTribe(
 }
 
 // 0x4d2740: shared initialization for timed wait (1), orders (10), selection (14), fight
-// recovery (36), special battle (39) and victory (41).
+// recovery (36), special battle (39), victory (41) and scatter (43, generic part only).
 // Other state bodies are not silently approximated. World consumers remain
 // required callbacks until their native terrain, animation and list ports land.
 export function initializePersonState(
@@ -218,7 +218,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 30, 31, 33, 36, 39, 41, 44].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 30, 31, 33, 36, 39, 41, 43, 44].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]

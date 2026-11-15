@@ -1,6 +1,6 @@
 'use client'
 
-import { BuildingIcon } from './building-icon'
+import { BuildingIcon, GuardPostIcon } from './building-icon'
 
 import { QueryControlArt } from './query-control.tsx'
 
@@ -38,10 +38,12 @@ import {
   BUILDINGS,
   SPELLS,
   HOME,
-  select,
   cancelInteraction,
   tell,
   guardShaman,
+  scatterSelected,
+  releasePlayerPatrols,
+  resetGuardPostChain,
   disguiseSelectedSpies,
   rotateBuildingPlan,
   maxHp,
@@ -51,6 +53,7 @@ import {
   ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
+import { overviewShortcut, quickCameraAction, quickCameraTarget } from './quick-camera-shortcuts'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
 import { OriginalPauseMenu } from './original-pause-menu'
@@ -58,6 +61,7 @@ import { OriginalPauseStatus } from './original-pause-status'
 import { pauseStatusLayout } from './pause-status-layout'
 import { SpellTestMenu } from './spell-test-menu'
 import { CHEAT_SAVE_NOTICE, spellTestShortcut } from './spell-test-cheats'
+import { followerGroupShortcut } from './follower-groups.ts'
 import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
@@ -74,6 +78,12 @@ import {
   type GamePreferences,
 } from './game-preferences'
 import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
+import {
+  messageBoxKey,
+  messageBoxRequested,
+  openMessageBox,
+  showMessageBox,
+} from './campaign-message-modal'
 import {
   HudSprite,
   FollowerNumber,
@@ -98,9 +108,17 @@ import {
   spellHudCanCharge,
   spellHudPermanent,
 } from './spell-visibility'
+import { rightClickSpellCharging, spellChargingCommand } from './spell-charging'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
+// Building-panel model 17 (#1010): a player-local marker, not a wood-built hut.
+const GUARD_POST = {
+  name: 'Guard Post',
+  description:
+    'Select followers, then click open ground: they guard that spot. Ctrl-click more posts to make them patrol between them. Click a post again or Shift+right-click it to remove it.',
+}
+
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
     .toString()
@@ -209,6 +227,7 @@ export default function Home() {
     ['tower', towerButton],
   ])
   const followerPress = useRef<{ target: EventTarget; scene: GameScene } | null>(null)
+  const spellPress = useRef<EventTarget | null>(null)
   const nearbyPress = useRef<{
     scene: GameScene
     pointer?: number
@@ -243,22 +262,6 @@ export default function Home() {
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
   }, [hudSize])
-  useEffect(() => {
-    const opened: number[] = []
-    for (const message of world.messages.slots) {
-      if (!message || !(message.flags & 2)) continue
-      const details = messageDetails.current.get(message.serial)
-      if (!details) continue
-      details.open = true
-      opened.push(message.serial)
-    }
-    if (!opened.length) return
-    const serials = new Set(opened)
-    store.change(w => {
-      for (const message of w.messages.slots)
-        if (message && serials.has(message.serial)) message.flags &= ~2
-    })
-  })
   const [hover, setHover] = useState<string | null>(null)
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
@@ -312,6 +315,65 @@ export default function Home() {
     if (engine.current) engine.current.nearbyFollowersHudActive = false
     setSelectorOpen(true)
   }
+  // Native 004af440 shows one box (0089bb81 state 2/3). While it is open,
+  // 004a5590 runs 004af640 instead of every simulation turn. 004af640 pauses
+  // through 00479f00(10, tribe, 1), the same pause branch as the P key (0089c661
+  // bit 2, "Paused" status, paused sound). Closing calls 00479f00(10, tribe, 0).
+  // The browser restores the prior pause state, which is unpaused for every
+  // auto-opened box because auto-open needs running presentation visits.
+  const messageSession = useRef<{ world: typeof world; paused: boolean } | null>(null)
+  const syncMessageModal = useCallback(() => {
+    const box = openMessageBox(messageDetails.current.values()),
+      current = store.getWorld(),
+      session = messageSession.current
+    if (session && (session.world !== current || !box)) {
+      messageSession.current = null
+      if (session.world === current)
+        store.change(w => {
+          w.paused = session.paused
+        })
+      if (engine.current?.world === session.world) engine.current.setMessageModal(false)
+    }
+    if (box && !messageSession.current) {
+      messageSession.current = { world: current, paused: current.paused }
+      cancelNearbyInput()
+      store.change(w => {
+        w.paused = true
+      })
+      if (engine.current?.world === current) engine.current.setMessageModal(true)
+    }
+  }, [store, cancelNearbyInput])
+  useEffect(() => {
+    // A replaced world never inherits the previous world's open box.
+    for (const details of messageDetails.current.values()) details.open = false
+  }, [world])
+  useEffect(() => {
+    const opened: number[] = []
+    for (const message of world.messages.slots) {
+      if (!message || !(message.flags & 2)) continue
+      const details = messageDetails.current.get(message.serial)
+      if (!details) continue
+      // A newer request replaces the open box.
+      showMessageBox(messageDetails.current.values(), details)
+      opened.push(message.serial)
+    }
+    if (opened.length) {
+      // A summary that kept focus must not take the next key (focus edge case).
+      const focused = document.activeElement
+      if (
+        focused instanceof HTMLElement &&
+        focused.closest('.campaign-messages') &&
+        !openMessageBox(messageDetails.current.values())?.contains(focused)
+      )
+        focused.blur()
+      const serials = new Set(opened)
+      store.change(w => {
+        for (const message of w.messages.slots)
+          if (message && serials.has(message.serial)) message.flags &= ~2
+      })
+    }
+    syncMessageModal()
+  })
   useEffect(() => {
     const scene = engine.current
     if (!scene) return
@@ -496,7 +558,10 @@ export default function Home() {
     if (startup !== 'playing') return
     let disposed = false,
       scene: GameScene | null = null
-    const selectAcquisitionPanel = (model: WorshipTargetModel, family: WorshipAcquisitionFamily) => {
+    const selectAcquisitionPanel = (
+      model: WorshipTargetModel,
+      family: WorshipAcquisitionFamily
+    ) => {
       if (disposed || store.getWorld() !== world) return null
       // The scene task owns this synchronous commit; React does not call it
       // during render. Automatic native selection preserves spell/build mode.
@@ -544,6 +609,7 @@ export default function Home() {
         created.gamePreferences = gamePreferencesRef.current
         scene = created
         engine.current = created
+        if (messageSession.current?.world === world) created.setMessageModal(true)
         setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
         if (world.drawMode === 2) created.overview()
         return created.ready.then(() => {
@@ -601,14 +667,40 @@ export default function Home() {
         !ready ||
         menu ||
         cheatsOpen ||
-        [...messageDetails.current.values()].some(details => details.open) ||
         (e.key === 'Escape' && e.repeat) ||
-        e.ctrlKey ||
-        e.metaKey ||
-        e.altKey ||
         (e.target as HTMLElement).closest('input,dialog')
       )
         return
+      // Native 004af440 puts the message box in state 0089bb81 = 2/3. While it is
+      // shown, 004a9d90 drops every key except an Enter/keypad-Enter press (any
+      // modifiers), which reaches process_cmd 0xb0 and closes the box without
+      // leaving World View. Only the box's own summary/button keeps activation.
+      const box = openMessageBox(messageDetails.current.values())
+      if (box) {
+        const action = messageBoxKey(e, box)
+        if (action === 'close' || action === 'block') e.preventDefault()
+        if (action === 'close') {
+          for (const details of messageDetails.current.values()) details.open = false
+          syncMessageModal()
+        }
+        return
+      }
+      // A requested box is already modal natively (004a5985) before the page opens it.
+      if (messageBoxRequested(world.messages)) return
+      // Original number-row records own 1–6 (with Shift/Ctrl/Alt); spells do not.
+      const group = followerGroupShortcut(e)
+      if (group || (/^Digit[1-6]$/.test(e.code) && !e.metaKey)) {
+        // Claim held/unsupported chords too, so Alt+digit cannot reach browser menus.
+        e.preventDefault()
+        if (group && store.getWorld() === world && engine.current?.world === world) {
+          engine.current.followerGroup(group)
+          update()
+        }
+        return
+      }
+      // Enter animates World View (action 0x15); exactly Shift or Ctrl (0xc5) snaps it.
+      const overviewKey = overviewShortcut(e)
+      if ((e.ctrlKey && !overviewKey) || e.metaKey || e.altKey) return
       if (world.inputMask) {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
           e.preventDefault()
@@ -625,8 +717,10 @@ export default function Home() {
         })
         setTab('spells')
       }
-      if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))
-        engine.current?.overview()
+      // A listener left over from a replaced world must not drive the new scene.
+      const camera =
+        store.getWorld() === world && engine.current?.world === world ? engine.current : null
+      if (overviewKey && !(e.target as HTMLElement).closest('button')) camera?.overview(overviewKey)
       if (e.key === 'Escape') {
         const current = store.getWorld()
         if (current !== world || current.status !== 'playing' || selectorOpen) return
@@ -645,10 +739,24 @@ export default function Home() {
         return
       }
       if (e.key.toLowerCase() === 'g') guardShaman(world)
-      if (e.key.toLowerCase() === 'h') select(world, 'shaman')
+      const quickCamera = quickCameraAction(e)
+      if (quickCamera !== null) {
+        e.preventDefault()
+        const target = quickCameraTarget(world, quickCamera)
+        if (target) camera?.focus(target, { animate: true })
+      }
+      // Original D (no modifier, press edge) scatters; it is no longer a camera alias.
+      if (
+        e.key.toLowerCase() === 'd' &&
+        !e.repeat &&
+        !e.shiftKey &&
+        !selectorOpen &&
+        store.getWorld() === world
+      )
+        scatterSelected(world)
       if (e.key.toLowerCase() === 'f') {
         const u = world.units.find(u => world.selected.includes(u.id))
-        engine.current?.focus(u ?? HOME, { animate: true })
+        camera?.focus(u ?? HOME, { animate: true })
       }
       if (e.key.toLowerCase() === 'b') {
         setTab('buildings')
@@ -669,7 +777,35 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen])
+  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen, syncMessageModal])
+  useEffect(() => {
+    // N (default record 005d6208: plain press, exact modifier mask 0) issues
+    // tribe command 0x68: patrols and area guards continue with their next
+    // queued order. Shift/Ctrl/Alt/Meta+N do not match; repeats do not re-issue.
+    const release = (e: KeyboardEvent) => {
+      if (
+        e.key.toLowerCase() !== 'n' ||
+        e.repeat ||
+        e.shiftKey ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.altKey ||
+        !ready ||
+        menu ||
+        cheatsOpen ||
+        selectorOpen ||
+        store.getWorld() !== world ||
+        world.inputMask ||
+        [...messageDetails.current.values()].some(details => details.open) ||
+        (e.target as HTMLElement).closest('input,dialog')
+      )
+        return
+      releasePlayerPatrols(world)
+      update()
+    }
+    globalThis.addEventListener('keydown', release)
+    return () => globalThis.removeEventListener('keydown', release)
+  }, [world, update, store, ready, menu, cheatsOpen, selectorOpen, messageDetails])
   useEffect(() => {
     const sound = audio.current
     if (!sound) return
@@ -915,9 +1051,27 @@ export default function Home() {
     selected = blue.filter(u => world.selected.includes(u.id))
   const focused =
     SPELLS.find(s => s.id === (hover ?? world.mode)) ??
-    BUILDINGS.find(b => b.id === (hover ?? world.mode))
+    BUILDINGS.find(b => b.id === (hover ?? world.mode)) ??
+    ((hover ?? world.mode) === 'guardPost' ? GUARD_POST : undefined)
   const modeName =
-    SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
+    SPELLS.find(s => s.id === world.mode)?.name ??
+    BUILDINGS.find(b => b.id === world.mode)?.name ??
+    (world.mode === 'guardPost' ? GUARD_POST.name : undefined)
+  // 004aa1c0: while the box is open only a left-button release reaches it
+  // (process_cmd 0x66 -> 004af780). HUD and world presses do nothing. The
+  // browser fullscreen control and desktop notice stay usable.
+  function blockMessageModalInteraction(event: SyntheticEvent) {
+    if (
+      (messageSession.current?.world !== world && !messageBoxRequested(world.messages)) ||
+      (event.target as Element).closest(
+        '.campaign-messages,[data-fullscreen-control],.desktop-recommendation,dialog'
+      )
+    )
+      return false
+    event.preventDefault()
+    event.stopPropagation()
+    return true
+  }
   function blockLoadingInteraction(event: SyntheticEvent) {
     if (
       ready ||
@@ -1032,9 +1186,7 @@ export default function Home() {
                           ? [
                               {
                                 text: 'Board two followers onto the provided Boat',
-                                done: world.vehicles.some(
-                                  vehicle => vehicle.passengerCount >= 2
-                                ),
+                                done: world.vehicles.some(vehicle => vehicle.passengerCount >= 2),
                               },
                               {
                                 text: 'Worship the Totem Pole across the water',
@@ -1127,11 +1279,11 @@ export default function Home() {
     <main
       ref={shell}
       className="game-shell"
-      onPointerDownCapture={blockLoadingInteraction}
-      onPointerUpCapture={blockLoadingInteraction}
-      onContextMenuCapture={blockLoadingInteraction}
+      onPointerDownCapture={e => blockLoadingInteraction(e) || blockMessageModalInteraction(e)}
+      onPointerUpCapture={e => blockLoadingInteraction(e) || blockMessageModalInteraction(e)}
+      onContextMenuCapture={e => blockLoadingInteraction(e) || blockMessageModalInteraction(e)}
       onClickCapture={e => {
-        if (blockLoadingInteraction(e)) return
+        if (blockLoadingInteraction(e) || blockMessageModalInteraction(e)) return
         if (
           world.inputMask &&
           !(e.target as Element).closest(
@@ -1190,6 +1342,12 @@ export default function Home() {
                   if (element) messageDetails.current.set(message!.serial, element)
                   else messageDetails.current.delete(message!.serial)
                 }}
+                onToggle={event => {
+                  // A user-opened box replaces the open one, like a new 004af440 call.
+                  if (event.currentTarget.open)
+                    showMessageBox(messageDetails.current.values(), event.currentTarget)
+                  syncMessageModal()
+                }}
                 data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
                 style={
                   {
@@ -1201,10 +1359,7 @@ export default function Home() {
                 <summary
                   aria-label="Read campaign message"
                   onClick={event => {
-                    if (
-                      store.getWorld() !== world ||
-                      world.messages.slots[slot] !== message
-                    ) {
+                    if (store.getWorld() !== world || world.messages.slots[slot] !== message) {
                       event.preventDefault()
                       return
                     }
@@ -1270,8 +1425,13 @@ export default function Home() {
           </div>
         )}
       </div>
-      {ready && startup === 'playing' && world.paused && !menu && !selectorOpen &&
-        !cheatsOpen && world.status === 'playing' && <OriginalPauseStatus />}
+      {ready &&
+        startup === 'playing' &&
+        world.paused &&
+        !menu &&
+        !selectorOpen &&
+        !cheatsOpen &&
+        world.status === 'playing' && <OriginalPauseStatus />}
       {world.mode && (
         <div className="target-prompt">
           <span>◎</span> Choose where to {SPELLS.some(s => s.id === world.mode) ? 'cast' : 'build'}{' '}
@@ -1307,7 +1467,7 @@ export default function Home() {
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
             <button
               key={t}
-              aria-label={`${t} ${t === 'spells' ? '1–3' : t === 'buildings' ? 'B' : ''}`}
+              aria-label={t === 'buildings' ? 'buildings B' : t}
               title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}
@@ -1337,7 +1497,7 @@ export default function Home() {
             className="portrait"
             aria-label="Select shaman"
             aria-describedby="shaman-portrait-instructions"
-            title="Shaman · Click: add to selection · Right-click: focus · H: select"
+            title="Shaman · Click: add to selection · Right-click: focus · Period: camera to Shaman"
             disabled={!shaman || shaman.hp <= 0}
             {...followerControl(7)}
           >
@@ -1441,6 +1601,12 @@ export default function Home() {
                       gifts: world.giftCounts[s.id],
                       progress: world.manaTribes[player].spellProgress[s.model],
                     })
+                  const chooseSpell = () => {
+                    if (!interactive) return
+                    store.change(w => {
+                      w.mode = w.mode === s.id ? null : s.id
+                    })
+                  }
                   return (
                     <button
                       key={s.id}
@@ -1463,23 +1629,31 @@ export default function Home() {
                       title={
                         undiscovered
                           ? 'Undiscovered spell'
-                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging' : ''}`
+                          : `${s.name}${canCharge ? ' · Right-click to pause or resume charging · Ctrl: charge only this · Shift: all' : ''}`
                       }
-                      onClick={() => {
-                        if (!interactive) return
-                        store.change(w => {
-                          w.mode = w.mode === s.id ? null : s.id
-                        })
+                      onPointerDown={e => {
+                        spellPress.current = e.button === 0 ? e.currentTarget : null
+                      }}
+                      onPointerCancel={() => {
+                        spellPress.current = null
+                      }}
+                      // The native left callback 0x49e5c0 ignores modifiers. macOS emits
+                      // contextmenu instead of click for Ctrl + primary, so that release
+                      // selects once here and the click path ignores pointer Ctrl clicks.
+                      onPointerUp={e => {
+                        const pressed = spellPress.current === e.currentTarget
+                        spellPress.current = null
+                        if (pressed && e.button === 0 && e.ctrlKey) chooseSpell()
+                      }}
+                      onClick={e => {
+                        if (!e.ctrlKey || !e.detail) chooseSpell()
                       }}
                       onContextMenu={e => {
                         e.preventDefault()
-                        if (undiscovered) return
-                        if (canCharge)
+                        if (undiscovered || (e.button === 0 && e.ctrlKey)) return
+                        if (spellChargingCommand(world, s, e))
                           store.change(w => {
-                            const bit = 1 << (s.model - 1)
-                            w.manaWorld.spells[player].disabled ^= bit
-                            if (s.id === 'blast')
-                              w.charging = !(w.manaWorld.spells[player].disabled & bit)
+                            rightClickSpellCharging(w, s, e)
                           })
                       }}
                       data-tooltip-hud={s.id === 'blast' && !undiscovered ? 'blast' : undefined}
@@ -1517,8 +1691,10 @@ export default function Home() {
                   aria-label={`${b.name}, ${b.cost} wood`}
                   aria-pressed={world.mode === b.id}
                   title={`${b.name} · Space rotates the plan`}
-                  onClick={() =>
+                  onClick={event =>
                     store.change(w => {
+                      // 0049d9b0: without Shift, tribe command 0x7a restarts the Guard Post chain.
+                      if (!event.shiftKey) resetGuardPostChain(w)
                       w.mode = w.mode === b.id ? null : b.id
                     })
                   }
@@ -1530,6 +1706,27 @@ export default function Home() {
                   <BuildingIcon kind={b.id} />
                 </button>
               ))}
+              {/* Ninth panel descriptor (005cc458 + 8 * 0x42): menu model 17. */}
+              <button
+                key="guardPost"
+                disabled={!world.unlockedGuardPost}
+                className={`building-card ${world.mode === 'guardPost' ? 'active' : ''}`}
+                aria-label={`${GUARD_POST.name}, no wood`}
+                aria-pressed={world.mode === 'guardPost'}
+                title={`${GUARD_POST.name} · Ctrl-click to keep placing`}
+                onClick={event =>
+                  store.change(w => {
+                    if (!event.shiftKey) resetGuardPostChain(w)
+                    w.mode = w.mode === 'guardPost' ? null : 'guardPost'
+                  })
+                }
+                onMouseEnter={() => setHover('guardPost')}
+                onMouseLeave={() => setHover(null)}
+                onFocus={() => setHover('guardPost')}
+                onBlur={() => setHover(null)}
+              >
+                <GuardPostIcon />
+              </button>
             </div>
           )}
           {tab === 'followers' && selected.some(u => u.kind === 'spy') && (
@@ -1877,7 +2074,7 @@ export default function Home() {
                     <span>Right / middle drag</span>
                     <strong>Right drag turns the view · middle drag moves it</strong>
                     <span>Scroll · = / −</span>
-                    <strong>Switch view · WASD to move · Q / E to turn</strong>
+                    <strong>Switch view · W / A / S to move · Q / E to turn</strong>
                     <span>↑ / ↓ · ← / →</span>
                     <strong>
                       Move forward / back ·{' '}
@@ -1901,14 +2098,51 @@ export default function Home() {
                     </strong>
                     <span>Screen edges</span>
                     <strong>Move the pointer to an outer edge to scroll</strong>
-                    <span>1–3 / B</span>
-                    <strong>Choose a spell / open buildings</strong>
+                    <span>Shift 1–6 · 1–6 · Alt 1–6</span>
+                    <strong>
+                      Store selected followers as group 1–6 · Select that group (Ctrl adds) · Select
+                      it and move the camera to it
+                    </strong>
+                    <span>Shift+Backspace · , (comma)</span>
+                    <strong>
+                      Add back the followers you last ordered or deselected · Hold to show every
+                      group number
+                    </strong>
+                    <span>7 / 8 / 9 / 0 · B</span>
+                    <strong>
+                      Browser additions: choose Firestorm / Earthquake / Tornado / Shield · Open
+                      buildings · Pick other spells from the spells tab
+                    </strong>
                     <span>Space with a building plan</span>
                     <strong>Rotate the entrance before placing</strong>
                     <span>F8</span>
                     <strong>Toggle live FPS, frame times and CPU/render diagnostics</strong>
-                    <span>H / F / G / Space / Esc</span>
-                    <strong>Shaman / focus / guard shaman / pause / cancel</strong>
+                    <span>Return · Shift / Ctrl + Return</span>
+                    <strong>
+                      Enter or leave the World View · Instantly, without the transition
+                    </strong>
+                    <span>. (period) / H</span>
+                    <strong>Camera to the Shaman / to your reincarnation site</strong>
+                    <span>D</span>
+                    <strong>Scatter selected followers · Selection and orders are kept</strong>
+                    <span>F / G / Space / Esc</span>
+                    <strong>Focus selection / guard shaman / pause / cancel</strong>
+                    <span>Ctrl-click with a spell</span>
+                    <strong>Cast and keep the spell selected · Plain click casts once</strong>
+                    <span>Right-click a spell · Ctrl · Shift</span>
+                    <strong>
+                      Pause or resume its charging · Charge only that spell (repeat to restore) ·
+                      Pause or resume all spells together
+                    </strong>
+                    <span>Ctrl+Alt-click</span>
+                    <strong>
+                      Add a patrol point (one point guards that area; two to eight points loop) · On
+                      your shaman: guard her
+                    </strong>
+                    <span>N</span>
+                    <strong>Patrolling followers leave for their next queued order</strong>
+                    <span>Shift+right-click</span>
+                    <strong>Remove a Guard Post (its guards stay)</strong>
                   </div>
                   <BrowserHelpTips level={world.outcome.level} />
                   <div className="audio-settings">

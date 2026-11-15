@@ -9,6 +9,13 @@ import { templeArt } from './temple-art.ts'
 import towerArt from './original-tower-acquisition.json'
 import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
+import { followerGroup, type FollowerGroupShortcut } from './follower-groups.ts'
+import {
+  createFollowerGroupDisplay,
+  releaseFollowerGroupDisplayKeys,
+  stepFollowerGroupDisplay,
+} from './follower-group-display.ts'
+import { messageBoxRequested } from './campaign-message-modal.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
@@ -46,7 +53,13 @@ import pointerPalette from './original-pointer.json' with { type: 'json' }
 import nativeUnits from './original-units.json'
 import { vaultKnowledgeAtlas } from './vault-appearance.ts'
 import { ProjectileMotion } from './projectile-motion.ts'
-import { loadTexture, releaseGroup, retryFailedTexture, sceneTextureRevision, texture } from './scene-assets.ts'
+import {
+  loadTexture,
+  releaseGroup,
+  retryFailedTexture,
+  sceneTextureRevision,
+  texture,
+} from './scene-assets.ts'
 import { ScenePicking } from './scene-picking.ts'
 import { createSkyMotion } from './sky.ts'
 import { terrainAtlas, type TerrainTextures } from './terrain-texture.ts'
@@ -98,9 +111,11 @@ import {
   updateView,
   zoom,
 } from './scene-camera-runtime.ts'
+import { instantOverview } from './instant-overview.ts'
 import {
   animateFx,
   animateLightning,
+  lightningDrawVisit,
   makeFx,
   updateEffectsFrame,
   updateSpellHalo,
@@ -243,6 +258,9 @@ export class GameScene {
   vehicleMeshes = new Map<number, THREE.Group>()
   buildingMeshes = new Map<number, THREE.Group>()
   hutSmokePuffs = new Map<number, THREE.Group>()
+  // Player Guard Posts by secondary serial, plus the placement-mode preview.
+  guardPostMeshes = new Map<number, THREE.Group>()
+  guardPostPreview: THREE.Group | null = null
   hoveredObject: number | null = null
   pointerAck = { target: 0, until: 0 }
   pointerSignature = ''
@@ -262,6 +280,8 @@ export class GameScene {
   pointer: Point | null = null
   pointerScreen: { clientX: number; clientY: number } | null = null
   pointerState = ''
+  // Set when a building model is added/replaced/removed; cleared after its render.
+  pickModelsChanged = false
   pointerButtons = 0
   navigationPointer: { x: number; y: number; buttons: number } | null = null
   spellPointer = document.createElement('div')
@@ -296,12 +316,13 @@ export class GameScene {
   hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
-  pointerGesture: { pointerId: number; button: number } | null = null
+  pointerGesture: { pointerId: number; button: number; moved?: boolean } | null = null
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
     null
   selectionOverlay: SelectionOverlay
   dragActive = { value: false }
   keys = new Set<string>()
+  groupDisplay = createFollowerGroupDisplay()
   resize: ResizeObserver
   frame = 0
   started = false
@@ -351,6 +372,23 @@ export class GameScene {
     this.cancelNearbyFollowers()
     this.cancelTooltipInspection()
   }
+  // An open campaign message box (0089bb81 state 2/3). The page pauses the
+  // world; this blocks camera and world input while the frame keeps drawing.
+  messageModal = false
+  setMessageModal(open: boolean) {
+    if (this.messageModal === open) return
+    this.messageModal = open
+    if (!open) return
+    this.keys.clear()
+    releaseFollowerGroupDisplayKeys(this.groupDisplay)
+    this.navigationPointer = null
+    const pointerId = this.pointerGesture?.pointerId
+    if (pointerId !== undefined && this.renderer.domElement.hasPointerCapture(pointerId))
+      this.renderer.domElement.releasePointerCapture(pointerId)
+    cancelPointerGesture(this)
+    this.cancelNearbyFollowers()
+    this.cancelTooltipInspection()
+  }
   uiTimer = 0
   unitMotion = new UnitMotion()
   projectileMotion = new ProjectileMotion()
@@ -372,6 +410,8 @@ export class GameScene {
       this.worshipPresentation.visit()
     },
     presentationHidden: () => document.hidden,
+    drawVisit: () => lightningDrawVisit(this),
+    messageBoxRequested: () => messageBoxRequested(this.world.messages),
   }
   templeResourceSnapshot: SharedAniblSnapshot | null = null
   private presentationBinding?: PresentationBinding
@@ -466,6 +506,7 @@ export class GameScene {
           ['effects', loadTexture('effects'), false],
           ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
+          ['group-digits', loadTexture('group-digits'), false],
           [this.environment.landscape.modelAtlas, atlasAsset, true],
           ...(this.environment.landscape.modelAtlas === 'atlas'
             ? []
@@ -591,7 +632,9 @@ export class GameScene {
       this.focus(browserPosition(camera))
     } else this.focus(shaman ?? HOME)
     this.drawMinimap()
-    this.listen(this.renderer.domElement, 'webglcontextrestored', () => this.invalidateModalRender())
+    this.listen(this.renderer.domElement, 'webglcontextrestored', () =>
+      this.invalidateModalRender()
+    )
     this.listen(document, 'visibilitychange', () => this.invalidateModalRender())
     this.listen(window, 'focus', () => this.invalidateModalRender())
     this.resize = new ResizeObserver(() => this.setSize())
@@ -805,6 +848,9 @@ export class GameScene {
   ) {
     chooseFollowers(this, model, modifiers, focus, category)
   }
+  followerGroup(shortcut: FollowerGroupShortcut) {
+    return followerGroup(this, shortcut)
+  }
   chooseTransport(
     kind: TransportKind,
     model: number,
@@ -822,8 +868,9 @@ export class GameScene {
   startGroundView(preset: number, bearing?: number) {
     startGroundView(this, preset, bearing)
   }
-  overview() {
-    overview(this)
+  overview(options?: { instant?: boolean }) {
+    if (options?.instant) instantOverview(this)
+    else overview(this)
   }
   leaveOverview(preset: number) {
     leaveOverview(this, preset)
@@ -926,7 +973,9 @@ export class GameScene {
       if (redraw) {
         const renderStart = diagnostic ? performance.now() : 0
         if (diagnostic)
-          diagnostic.renderGpu(() => this.view.painter.render(this.renderer, this.scene, this.camera))
+          diagnostic.renderGpu(() =>
+            this.view.painter.render(this.renderer, this.scene, this.camera)
+          )
         else this.view.painter.render(this.renderer, this.scene, this.camera)
         renderMs = diagnostic ? performance.now() - renderStart : 0
         // A throw leaves the request dirty. Capture before rendering so an
@@ -1041,6 +1090,7 @@ export class GameScene {
   }
 
   private updateUnitsFrame() {
+    stepFollowerGroupDisplay(this.groupDisplay, performance.now() / 1000)
     updateUnitsFrame(this)
   }
 

@@ -444,7 +444,9 @@ test('Mission 6 Chumara converts Blue and retires its first mixed raid by return
       assert.ok(u && u.hp > 0)
       assert.equal(p, owners[index])
       assert.equal(raiding.objectCells.objects.get(id), p)
-      assert.equal(p.computerAssignment, 0)
+      // 0x4cb7e4 published +af = slot + 1 at recruitment; phase 23 clears it
+      // through 0x4f2520 when the task retires.
+      assert.equal(p.computerAssignment, retired ? 0 : raidSlot + 1)
     }
   }
   assert.ok(retired)

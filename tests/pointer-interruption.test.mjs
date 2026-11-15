@@ -39,6 +39,7 @@ function fixture(t) {
       listeners.push({ target, type, callback })
     },
     keys: new Set(),
+    groupDisplay: api.createFollowerGroupDisplay(),
     globeMotion: { dragging: false, velocity: { x: 0, y: 0 } },
     dragActive: { value: false },
     selectionOverlay: { visible: false, update() {} },

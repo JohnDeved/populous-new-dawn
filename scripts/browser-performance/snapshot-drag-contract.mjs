@@ -496,8 +496,21 @@ const reviewedModalDemandProfile = {
 ],
   ],
 }
+// PR #1026 owned-Swamp drag latch: one exact additive route over the modal-demand
+// profile. Only pointerMove's latched gesture flag and the GameScene gesture field type
+// change; every other owner/boundary stays byte-exact. Source admission only.
+const swampDragLatchHashes = {
+  "input-move": "c515909b9ccd5f8d5a7f6d7671ab2d57e66f1789039cd4cbf0ae8e6c21202d87",
+  "modal-scene-owner": "b7eb71c5a3412743bfddfccb47ca9e90f69be204f3dbd113c4cc545880bbd1db"
+}
+const reviewedSwampDragLatchProfile = {
+  id: reviewedModalDemandProfile.id.replace(/-v1$/, '-swamp-drag-latch-v1'),
+  slices: reviewedModalDemandProfile.slices.map(slice => ({
+    ...slice, sha256: swampDragLatchHashes[slice.id] ?? slice.sha256,
+  })),
+}
 export const dragSourceProfiles = Object.freeze([...historicalMainProfiles, ...[
-  reviewedCameraProfile, reviewedModalDemandProfile,
+  reviewedCameraProfile, reviewedModalDemandProfile, reviewedSwampDragLatchProfile,
 ].map(profile => Object.freeze({
   ...profile, slices: Object.freeze(profile.slices.map(slice => Object.freeze(slice))),
 }))])

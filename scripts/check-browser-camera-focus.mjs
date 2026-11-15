@@ -1,11 +1,13 @@
 // Start npm run dev, then node scripts/check-browser-camera-focus.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { collapseCampaignMessages, openGame, chooseSpell } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: true })
 try {
   const { page, errors } = await openGame(browser)
   await page.evaluate(() => { const s=window.testScene;s.world.speed=0;s.focus({x:2,z:30}) })
+  // The opening campaign message owns gameplay keys (1, f); collapse it publicly first.
+  await collapseCampaignMessages(page)
   const canvas=page.getByLabel('Island battlefield. Click to select, right-click to move, drag to select a group.',{exact:true})
   await canvas.hover()
   await page.keyboard.down('q');await page.waitForTimeout(180);await page.keyboard.up('q')
@@ -13,7 +15,7 @@ try {
   await page.waitForFunction(()=>window.testScene.viewPreset===3&&!window.testScene.viewTransition)
   const before=await page.evaluate(()=>{const s=window.testScene;return {point:s.viewPoint,angle:Math.round(s.cameraBearing*1024/Math.PI)&2047,preset:s.viewPreset}})
   assert.notEqual(before.angle,0);assert.notEqual(before.preset,0)
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
   const moving=await page.evaluate(()=>{const s=window.testScene;return {motion:s.cameraMotion,point:s.viewPoint,preset:s.viewPreset,mode:s.world.mode}})
   assert.equal(moving.motion.active,1,'Focus must start an original camera journey')
@@ -48,7 +50,7 @@ try {
   // Normal manual controls take over without a delayed snap to the old target.
   await page.getByRole('button',{name:'Focus Dakini tribe',exact:true}).click()
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),1)
-  await page.keyboard.down('d');await page.waitForTimeout(100);await page.keyboard.up('d')
+  await page.keyboard.down('Numpad6');await page.waitForTimeout(100);await page.keyboard.up('Numpad6')
   assert.equal(await page.evaluate(()=>window.testScene.cameraMotion.active),0)
   await page.getByRole('button',{name:'Select shaman',exact:true}).click({button:'right'})
   const worldRect=await canvas.boundingBox()

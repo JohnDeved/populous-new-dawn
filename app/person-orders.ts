@@ -418,7 +418,8 @@ export function appendPersonOrders(
     acknowledge: (first: number, counts: number[]) => void
     special: (parameter: number) => boolean
   },
-  replace = false
+  replace = false,
+  fixedSlot?: number
 ) {
   const d = descriptor(command.model)
   if (d.flags & 0x2000000) return command.model === 34 ? effects.special(command.a & 255) : true
@@ -430,7 +431,12 @@ export function appendPersonOrders(
     if (!(person.selectionFlags & 128)) continue
     if (!acceptsPersonOrder(person, command.model)) continue
     if (replace) clearPersonOrders(pool, person, effects)
-    const slot = freePersonOrderSlot(person)
+    const slot = fixedSlot ?? freePersonOrderSlot(person)
+    // Browser divergence: native 00436d00 overwrites an occupied fixed slot and
+    // leaks the old record's reference. Release it so every reference keeps an
+    // owner (checkpoint ownership invariant, capacity-policy.ts).
+    if (fixedSlot !== undefined && person.commands[slot] && person.commands[slot] !== id)
+      removePersonOrder(pool, person, slot, effects)
     effects.prepare(pool.records[id], command.model, command.a, command.b, command.flags)
     attachPersonOrder(pool, person, id, slot, effects)
     if (!first) first = person.id
