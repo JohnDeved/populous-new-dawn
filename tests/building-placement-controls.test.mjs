@@ -3,7 +3,7 @@ import test from 'node:test'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 
 const api = await loadSceneFixture()
-const { createStartedWorld } = await import('./level-start-fixture.mjs')
+const { createStartedWorld, finishLevelStart } = await import('./level-start-fixture.mjs')
 const { pointerDown, pointerUp, updateDrag, cancelPointerGesture } =
   await import('../app/scene-input-runtime.ts')
 const { skipIntroduction } = await import('../app/scene-camera-runtime.ts')
@@ -11,9 +11,9 @@ const { createPersonOrderPool } = await import('../app/person-orders.ts')
 
 // Actual World, placement validator, allocator, workers and pointer callers.
 // DOM capture and terrain picking are supplied; this is not rendered input evidence.
-function fixture() {
-  const world = createStartedWorld(), sounds = []
-  let point = { x: -2, z: 32 }
+function fixture(world = createStartedWorld(), initialPoint = { x: -2, z: 32 }) {
+  const sounds = []
+  let point = initialPoint
   const scene = {
     world,
     renderer: { domElement: { setPointerCapture() {} } },
@@ -198,3 +198,58 @@ test('replacement scene cannot inherit a retained mode or old pointer release', 
   assert.equal(after.world.buildings.length, newCount)
   assert.equal(after.world.mode, null)
 })
+
+// Real store lifecycle with supplied Scene/capture/picking, not React disposal,
+// rendered pointer delivery, IndexedDB persistence or original-game parity.
+const { createGameStore } = await import('../app/game-store.ts')
+for (const transition of ['restart', 'startMission']) {
+  test(`retained placement session save survives independent loads and ${transition}`, async () => {
+    assert.equal(typeof indexedDB, 'undefined', 'this test must not access persistent user saves')
+    const store = createGameStore()
+    const original = finishLevelStart(store.getWorld()), f = fixture(original)
+    const initialIds = new Set(original.buildings.map(building => building.id))
+    api.select(original, 'brave')
+    original.mode = 'hut'
+    f.click({ ctrlKey: true })
+    f.target(f.nextSite())
+    f.click({ altKey: true })
+    const plans = original.buildings.filter(building => !initialIds.has(building.id))
+    assert.equal(plans.length, 2)
+    assert.equal(original.mode, 'hut')
+    const savedPlans = structuredClone(plans)
+    assert.equal(await store.saveCheckpoint(false), false, 'in-session snapshot only')
+    const originalSnapshot = structuredClone(original), previous = []
+    for (let iteration = 0; iteration < 2; iteration++) {
+      assert.equal(store.loadCheckpoint(), true)
+      const loaded = store.getWorld()
+      assert.notEqual(loaded, original)
+      for (const prior of previous) assert.notEqual(loaded, prior.world)
+      assert.equal(loaded.mode, 'hut', 'store preserves the saved placement selection')
+      assert.deepEqual(loaded.buildings.filter(building => !initialIds.has(building.id)), savedPlans)
+      const next = fixture(loaded, f.nextSite())
+      next.target(next.nextSite())
+      next.click()
+      assert.equal(loaded.mode, null)
+      assert.equal(loaded.buildings.length, original.buildings.length + 1)
+      assert.deepEqual(next.sounds, [0x24])
+      assert.deepEqual(original.buildings.filter(building => !initialIds.has(building.id)), savedPlans)
+      for (const prior of previous) assert.deepEqual(prior.world, prior.snapshot)
+      previous.push({ world: loaded, snapshot: structuredClone(loaded) })
+    }
+    if (transition === 'restart') store.restart()
+    else store.startMission(2)
+    const replacement = store.getWorld()
+    assert.equal(replacement.outcome.level, transition === 'restart' ? 1 : 2)
+    assert.equal(replacement.mode, null)
+    assert.notEqual(replacement, original)
+    const fresh = api.createWorld(replacement.outcome.level, 'scalable')
+    assert.deepEqual(replacement.buildings, fresh.buildings, 'new mission has no inherited player plans')
+    for (const prior of previous) assert.deepEqual(prior.world, prior.snapshot)
+    assert.equal(store.loadCheckpoint(), true, 'mission replacement preserves the separate session save')
+    const restored = store.getWorld()
+    assert.equal(restored.outcome.level, 1)
+    assert.equal(restored.mode, 'hut')
+    assert.deepEqual(restored.buildings.filter(building => !initialIds.has(building.id)), savedPlans)
+    assert.deepEqual(original, originalSnapshot, 'store replacement and later placement cannot mutate the abandoned World')
+  })
+}
