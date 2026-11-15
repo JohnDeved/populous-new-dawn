@@ -84,7 +84,7 @@ test('production source identity and actual PNGs use existing retained output', 
 test('capture manifest binds new runner without changing other trusted input checks', () => {
   const pins = JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
   assert.equal(pins['scripts/tutorial-browser/run.mjs'], createHash('sha256').update(runner).digest('hex'))
-  assert.match(runner, /if \(captureProtocolEnabled\) assert.equal\(selectedScenario, 'tutorial'/)
+  assert.match(runner, /if \(captureProtocolEnabled\) assert.equal\(selectedScenario, 'building-panel-edges'/)
 })
 
 // The legacy dev scenario used a removed button. Verify the current shipped

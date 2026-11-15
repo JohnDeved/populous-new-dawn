@@ -2,6 +2,8 @@
 // Accelerated ordinary simulation preparation, NOT real-time earned gameplay.
 import { tick, command, selectUnit } from '../../app/model.ts'
 import { spellTargetError } from '../../app/live-command.ts'
+import { hypnotiseTargets } from '../../app/spell-effects-runtime.ts'
+import { unitAnimationSource } from '../../app/selection-runtime.ts'
 import rules from '../../app/original-rules.json' with { type: 'json' }
 
 // M22's authored idle cohort generates 37 per four-turn mana scan. Budget
@@ -17,6 +19,28 @@ export const hypnotisePreparationState = world => ({
 })
 
 export const hypnotiseTarget = Object.freeze({ x: 15, z: -31 })
+// Read-only diagnostic state, not an eligibility oracle or supplied targets.
+// The bounded nearest cohort and actual selector IDs expose drift/exclusion while
+// retaining the unchanged fifth-visit conversion assertion in the observer.
+export function hypnotiseTargetWitness(world, point = hypnotiseTarget) {
+  const selected = hypnotiseTargets(world, point, 'blue').map(({ u }) => u.id)
+  const enemies = world.units.filter(unit => unit.team !== 'blue')
+  const nearby = enemies.toSorted((a, b) =>
+    Math.hypot(a.x - point.x, a.z - point.z) - Math.hypot(b.x - point.x, b.z - point.z)
+  ).slice(0, 32).map(unit => {
+    const native = unitAnimationSource(unit)
+    return {
+      id: unit.id, team: unit.team, kind: unit.kind, x: unit.x, z: unit.z,
+      hp: unit.hp, inside: unit.inside, invisibility: unit.invisibility,
+      native: native && { id: native.id, class: native.class, model: native.model,
+        tribe: native.tribe, x: native.x, y: native.y,
+        flags2: native.flags2, flags4: native.flags4 },
+    }
+  })
+  return { turn: world.turn, point: { x: point.x, z: point.z }, selected,
+    enemyCount: enemies.length, omitted: Math.max(0, enemies.length - nearby.length), nearby }
+}
+
 const requireState = (condition, message) => {
   if (!condition) throw Error(message)
 }
@@ -111,4 +135,61 @@ export async function prepareEarnedHypnotise(scene, clock = {}) {
     shamanId: shaman.id,
     limit: 'Accelerated ordinary simulation and mana-focus adapter; no real-time earning claim',
   }
+}
+
+// The original warriors patrol during earned charging. Admit their next real
+// pass through the endpoint instead of casting at an empty historical position.
+export const hypnotiseEncounterTarget = Object.freeze({ x: 11, z: -29 })
+export async function prepareHypnotiseEncounter(scene, clock = {}) {
+  const world = scene.world, start = (clock.now ?? (() => performance.now()))(),
+    now = clock.now ?? (() => performance.now()),
+    yieldBatch = clock.yieldBatch ?? (() => new Promise(resolve => setTimeout(resolve, 0))),
+    shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
+    startedTurn = world.turn, target = hypnotiseEncounterTarget
+  let visits = 0
+  const current = () => {
+    requireState(scene.isCurrent() && scene.world === world && world.paused &&
+      shaman?.hp > 0 && world.outcome.level === 22 && world.shots.hypnotise === 1,
+    'Encounter admission requires the current paused Mission22 and earned stock')
+    requireState(visits <= 500 && now() - start < 5000, 'Hypnotise encounter admission exceeded 500 visits or 5s')
+  }
+  const cohort = () => hypnotiseTargets(world, target, 'blue').map(({ u }) => u.id).sort((a, b) => a - b)
+  const ready = () => JSON.stringify(cohort()) === '[97,98]' && !spellTargetError(world, 'hypnotise', target)
+  const advanceUntil = async predicate => {
+    while (!predicate()) {
+      current()
+      requireState(visits < 500 && now() - start < 5000, 'Hypnotise encounter admission exceeded 500 visits or 5s')
+      world.paused = false
+      try { tick(world, 1 / 12); visits++ } finally { world.paused = true }
+      if (visits % 20 === 0) await yieldBatch()
+    }
+    current()
+  }
+  const move = point => {
+    current()
+    world.paused = false
+    try {
+      if (!world.selected.includes(shaman.id)) selectUnit(world, shaman.id)
+      requireState(command(world, point), 'Encounter ordinary Shaman move rejected')
+    } finally { world.paused = true }
+  }
+  current()
+  for (const id of [97, 98]) requireState(world.units.some(u => u.id === id &&
+    u.team === 'red' && u.kind === 'warrior' && u.hp > 0), 'Original authored warrior unavailable')
+  if (spellTargetError(world, 'hypnotise', target)) {
+    move({ x: 16, z: -39 })
+    await advanceUntil(() => !spellTargetError(world, 'hypnotise', target))
+  }
+  // Stop through an ordinary move to the current position, not an actor write.
+  move({ x: shaman.x, z: shaman.z })
+  // A fresh entry avoids admitting the last few visits of a patrol window.
+  if (ready()) await advanceUntil(() => !ready())
+  await advanceUntil(ready)
+  const witness = hypnotiseTargetWitness(world, target)
+  scene.focus(target)
+  scene.onChange()
+  current()
+  return { startedTurn, readyTurn: world.turn, visits, elapsedMs: now() - start,
+    target, cohort: cohort(), witness, shaman: { id: shaman.id, x: shaman.x, z: shaman.z, hp: shaman.hp },
+    limit: 'Ordinary movement and simulation admission; no actors, stock or conversion outcomes supplied' }
 }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { checkFrameExport, m2NativePointerTarget } from './frame-export.mjs'
 import { checkpointCodec } from './checkpoint-codec.mjs'
@@ -117,7 +117,7 @@ export function m2StartupReady() {
 export function m2AuthoredMessageReady(expectedText) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   if (scene !== window.testScene || scene?.world !== world || !scene.renderer.domElement.isConnected ||
-    world.outcome.level !== 2 || world.status !== 'playing' || world.paused || world.inputMask) return false
+    world.outcome.level !== 2 || world.status !== 'playing' || !world.paused || !scene.messageModal || world.inputMask) return false
   const message = world.messages.slots.find(message => message?.stringId === 641)
   if (!message || !(message.flags & 0x40000) || (message.flags & 0x20000)) return false
   const details = document.querySelector(`.campaign-messages details[data-message-serial="${message.serial}"]`),
@@ -126,6 +126,36 @@ export function m2AuthoredMessageReady(expectedText) {
     getComputedStyle(paragraph).visibility !== 'visible' || paragraph.textContent !== expectedText) return false
   return { turn: world.turn, serial: message.serial, stringId: message.stringId,
     flags: message.flags, position: message.position, text: paragraph.textContent, open: details.open }
+}
+
+// Observe the actual authored modal, separately from subsequent world-input tests.
+// Closing and reopening use the shipped summary; no message or pause state is forced.
+export async function openM2AuthoredMessage(page) {
+  const { serial, open } = await page.evaluate(() => {
+    const message = window.testStore.getWorld().messages.slots.find(message => message?.stringId === 641)
+    if (!message) throw Error('Authored Mission 2 message 641 is missing')
+    const details = document.querySelector(`.campaign-messages details[data-message-serial="${message.serial}"]`)
+    return { serial: message.serial, open: details?.open === true }
+  })
+  const detail = page.locator(`.campaign-messages details[data-message-serial="${serial}"]`)
+  // Click already waits for visible/actionable summary; the predicate below also
+  // requires actual visible text when the same box is already open.
+  if (!open) {
+    await detail.locator('summary').click()
+  }
+  const ready = await page.waitForFunction(m2AuthoredMessageReady, originalMessages.messages[102].text)
+  const witness = await ready.jsonValue()
+  await ready.dispose()
+  assert.equal(witness.serial, serial, 'Reopen the same authored message, never a replacement')
+  return witness
+}
+
+// Native modal Enter closes the box without waiting for moving screen geometry.
+// This is an actual keyboard event through the public modal owner, not DOM mutation.
+export async function closeM2AuthoredMessage(page) {
+  if (await page.locator('.campaign-messages details[open]').count())
+    await page.keyboard.press('Enter')
+  await page.waitForFunction(() => !window.testScene.messageModal && !document.querySelector('.campaign-messages details[open]'))
 }
 
 // Keep the legacy compact episode within its original deadline. The expanded
@@ -138,13 +168,19 @@ export async function runCompactDiagnosticEpisodes({ report, ...options }, runEp
 export default async function runM2Functional({ browser, url, output, fixture, compactMessages = false, pickingPaths = false, campaignCallbacks = false }) {
   assert.ok([compactMessages, pickingPaths, campaignCallbacks].filter(Boolean).length <= 1, 'Diagnostic episodes must have independent contexts')
   const scenario = campaignCallbacks ? 'campaign-message-ownership' : pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
+  // Functional admission does not need to render the largest capture continuously.
+  // Keep all explicit viewport proofs below and the other episodes unchanged.
+  const admissionViewport = pickingPaths || campaignCallbacks
+    ? { width: 1440, height: 1000 }
+    : { width: 1280, height: 720 }
   const context = await browser.newContext({
-    viewport: { width: 1440, height: 1000 },
+    viewport: admissionViewport,
     deviceScaleFactor: 1,
   })
   const report = {
     status: 'running',
     scenario,
+    admissionViewport,
     setup: fixture.receipt,
     errors: [],
     samples: [],
@@ -272,9 +308,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     report.startup = await startup.jsonValue()
     await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    await settleOpeningMessages(page)
     stage('introduction-ready')
     // Admit the compact viewport through its shipped public notice before the
     // paused no-orders baseline: Continue intentionally resumes the simulation.
@@ -285,15 +319,20 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     await desktopNotice.waitFor({ state: 'hidden' })
     report.compactNoticeDismissed = true
     stage('compact-admitted')
-    await page.setViewportSize({ width: 1440, height: 1000 })
-    // Pausing freezes message motion; retain the authored popup only after its
-    // settled state and matching React details are both observable.
-    const messageReady = await page.waitForFunction(m2AuthoredMessageReady, originalMessages.messages[102].text)
-    report.authoredMessageReady = await messageReady.jsonValue()
-    await messageReady.dispose()
+    await page.setViewportSize(admissionViewport)
+    // An open authored box owns pause and blocks world input. Witness its real
+    // visible text first, then close it before establishing the input baseline.
+    report.authoredMessageReady = await openM2AuthoredMessage(page)
     stage('authored-message-ready')
+    await closeM2AuthoredMessage(page)
+    await page.waitForFunction(() => !window.testScene.messageModal && !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
+    if (compactMessages || pickingPaths || campaignCallbacks) {
+      const reopened = await openM2AuthoredMessage(page)
+      assert.equal(reopened.serial, report.authoredMessageReady.serial)
+      report.pausedAuthoredMessage = reopened
+    }
     const observe = () =>
       page.evaluate(() => {
         const s = window.testSceneRef.current,
@@ -398,8 +437,8 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         report.samples.push(world ? await moveAndObserve(x, y, true) : await moveToHud())
       }
       stage('initial-pointer-routes-matched')
-      // The restored-wide capture below covers this unchanged layout too; avoid
-      // another large PNG encode inside the bounded functional episode.
+      // All four explicit layout captures below remain required, including 1440.
+      // Avoid an extra admission-only PNG inside the bounded functional episode.
       const beforeCamera = await observe()
       report.cameraBefore = beforeCamera
       assert.equal(beforeCamera.camera.preset, 0, 'Loaded ground view begins at normal preset')
@@ -448,16 +487,19 @@ export default async function runM2Functional({ browser, url, output, fixture, c
           report.exports.push(await checkFrameExport({ page, output, keyboard: width === 1280 }))
           stage(`export-${width}-verified`)
         }
+        const visibleMessage = await openM2AuthoredMessage(page)
+        assert.equal(visibleMessage.serial, report.authoredMessageReady.serial)
         const layout = await graph.evaluate(m2DiagnosticLayout)
         report.layouts ??= []
         report.layouts.push({ viewport: [width, height], ...layout })
         assertM2DiagnosticLayout(layout, width, height)
+        await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
+        stage(`viewport-${width}x${height}-captured`)
+        await closeM2AuthoredMessage(page)
         const routed = await moveAndObserve(width - 60, height - 100, true)
         const sidebar = await moveToHud()
         report.samples.push({ viewport: [width, height], layout, routed, sidebar })
         stage(`viewport-${width}x${height}-asserted`)
-        await page.screenshot({ path: resolve(output, `m2-pointer-${width}.png`) })
-        stage(`viewport-${width}x${height}-captured`)
       }
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })

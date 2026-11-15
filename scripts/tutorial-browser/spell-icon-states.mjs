@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages, showAllMissions } from '../browser-game.mjs'
 import { runSpellIconMatrix, spellIconLimits } from '../spell-icon-state-browser.mjs'
 import { runSpellIconEvidence, spellIconSourceSnapshot, spellIconPartitions } from '../spell-icon-state-evidence.mjs'
 
@@ -31,6 +31,7 @@ export default async function spellIconStates({ browser, url, output, root, epis
     })
     if (await startup.jsonValue() === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
     await startup.dispose()
+    await settleOpeningMessages(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.evaluate(() => { window.testScene = window.testSceneRef.current })
     return { page }
