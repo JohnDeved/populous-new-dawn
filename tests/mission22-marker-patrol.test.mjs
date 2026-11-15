@@ -114,8 +114,9 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
   // instead of idling at the first. Cast when it next approaches the target.
   // Since the native single-marker guards (#1059) shifted the M22 timeline, the
   // passes at 6172, 6290 and 6402 convert a single Warrior that dies before its
-  // Hypnotise expires, and the 6519 pass's restored Warrior does not resume within
-  // this window, so wait for the 6629 pass, which converts both patrollers.
+  // Hypnotise expires, and the 6519 pass's restored Warrior is re-tasked by the AI
+  // onto a single-marker command-11 guard and never resumes the route, so wait for
+  // the 6629 pass, which converts both patrollers.
   while (w.turn < 6600) tick(w, 1 / 12)
   const patroller = u => {
     const person = u.native ?? u.flight ?? u.fight?.motion

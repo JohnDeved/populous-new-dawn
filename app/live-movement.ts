@@ -470,10 +470,11 @@ function issueLiveOrders(
 // 0x4cedd0 phase 5 (0x4cf150..0x4cf1c6, decomp/research/computer-marker-guards.md).
 // A single marker commits two separate groups. First a command-3 move goes only
 // to selected Preachers (0x4359b0 model filter 4), and 0x41b180(14, 4) restores
-// those state-14 Preachers at once, which starts the move. Then one command-11
-// guard goes to every selected person, replacing the Preachers' started move.
-// Everyone else stays in state 14 until the caller's 0x418ce0 restore starts the
-// guard. Two markers commit one [11, 11] group, which 0x43b010 rewrites to a
+// those state-14 Preachers at once, which starts the move; leaving state 14
+// deselects them (0x4d2740 -> 0x445750), so they keep only the move. Then one
+// command-11 guard goes to every person still selected (including a Preacher the
+// 0x100000 skip left in state 14). Everyone else stays in state 14 until the
+// caller's 0x418ce0 restore starts the guard. Two markers commit one [11, 11] group, which 0x43b010 rewrites to a
 // command-25 route.
 export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, secondary = -1) {
   const group = {

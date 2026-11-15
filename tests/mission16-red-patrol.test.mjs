@@ -201,13 +201,15 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
   ])
     assert.deepEqual(owners(id), expected)
   // Single-marker Preacher277 (0x4cedd0 phase 5) takes only command-3 record 40
-  // and preaches (command-17 record 44) on arrival. No command-11 record is
-  // committed, so 41 is never allocated, and the later records shift by one.
+  // and preaches (command-17 record 44) on arrival. The guard group still
+  // allocates record 41 (0x4359b0 allocates before visiting people), but the
+  // deselected Preacher never attaches it; the extra sermon record 44 shifts the
+  // later records by one.
   assert.deepEqual(
     [40, 41, 44].map(id => w.buildingOrders.records[id].model),
     [3, 0, 17]
   )
-  for (const id of [7, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 37, 40, 44, 48]) {
+  for (const id of [7, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 37, 40, 41, 44, 48]) {
     assert.equal(w.buildingOrders.records[id].references, 0)
     assert.deepEqual(owners(id), [])
   }
