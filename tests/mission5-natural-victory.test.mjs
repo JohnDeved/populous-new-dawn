@@ -198,6 +198,43 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       world.effects.some(e => e.bridge),
       false
     )
+    // Native single-marker tasks (0x4cedd0 phase 5, #1059) leave Red Preacher78
+    // preaching (command 17) at marker 1 beside Warrior64's command-11 post, and
+    // Preacher57 preaching 12 cells from Angel head 95. The old direct walk lost
+    // the Shaman to 78/64 and later idle Warrior67, and 57 converted the
+    // Warriors. The same five first clear 78, 64 and 67 with ordinary attack
+    // clicks, then take the Angel head as before; no member becomes a victim of 57.
+    assert.deepEqual(
+      [78, 64, 57].map(id => orderFor(id)?.model),
+      [17, 11, 17]
+    )
+    const clearings = []
+    for (const id of [78, 64, 67]) {
+      const target = world.units.find(u => u.id === id)
+      assert.equal(target.team, 'red')
+      for (const state of [world, restored]) {
+        cancelInteraction(state)
+        for (const [i, member] of five.entries()) selectUnit(state, member, i > 0)
+        assert.deepEqual(
+          [...state.selected].sort((a, b) => a - b),
+          five
+        )
+        const enemy = state.units.find(u => u.id === id)
+        assert.ok(command(state, { ...enemy, id: enemy.id }))
+      }
+      assert.deepEqual(restored, world)
+      while (target.hp > 0 && world.units.includes(target) && world.turn < 4000) step()
+      clearings.push([id, world.turn])
+    }
+    assert.deepEqual(clearings, [
+      [78, 3401],
+      [64, 3435],
+      [67, 3626],
+    ])
+    assert.deepEqual(
+      five.filter(id => world.units.some(u => u.id === id && u.team === 'blue' && u.hp > 0)),
+      five
+    )
     const angelHead = world.shrines.find(s => s.id === 95)
     for (const state of [world, restored]) {
       cancelInteraction(state)
@@ -214,7 +251,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     while (!world.effects.some(e => e.angel) && world.turn < 5700) step()
     const angel = world.effects.find(e => e.angel)
     assert.ok(angel)
-    assert.deepEqual([world.turn, angel.id, angel.team], [3856, referenceId(6034), 'blue'])
+    assert.deepEqual([world.turn, angel.id, angel.team], [3912, referenceId(5702), 'blue'])
     let conditionTurn
     const latch = []
     while (world.status === 'playing' && world.effects.includes(angel) && world.turn < 6500) {
@@ -236,15 +273,15 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       }
     }
     assert.equal(world.status, 'won')
-    assert.equal(world.turn, 4448)
+    assert.equal(world.turn, 4320)
     assert.equal(world.outcome.completedLevel, 4)
     assert.deepEqual(
       latch.map(e => e.var13),
       [1, 2, 3, 4, 9]
     )
     assert.deepEqual(store.getCompletedMissions(), [5])
-    assert.equal(conditionTurn, 4311)
-    assert.equal(world.units.filter(unit => unit.team === 'red' && unit.hp > 0).length, 26)
+    assert.equal(conditionTurn, 4187)
+    assert.equal(world.units.filter(unit => unit.team === 'red' && unit.hp > 0).length, 25)
     assert.ok(
       world.effects.includes(angel),
       'the live Blue Angel and absent Red Shaman trigger the authored override'
