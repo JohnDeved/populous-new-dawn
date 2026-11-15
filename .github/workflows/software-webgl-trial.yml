@@ -1,8 +1,8 @@
-name: Plain Vite Home frontend and F9 opening admission
+name: Plain Vite Home checkpoint startup validation
 
 on:
   push:
-    branches: [ci/f9-opening-1077-20261115]
+    branches: [ci/checkpoint-opening-1078-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Plain Vite Home frontend and F9 opening admission
+    name: Plain Vite Home checkpoint startup validation
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: d365bec2c33b550c1cd28db812f408f0c33f2f23
+      PND_CANDIDATE_SHA: 2e12fbb6d5bfa335b9f6a8abef2d2bf6851ae0ef
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed combined F9 candidate
+      - name: Check out exact reviewed isolated checkpoint candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: d365bec2c33b550c1cd28db812f408f0c33f2f23
+          ref: 2e12fbb6d5bfa335b9f6a8abef2d2bf6851ae0ef
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -73,15 +73,26 @@ jobs:
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Check frontend held Escape and F9 on exact combined source
+      - name: Check checkpoint recovery on exact source
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/spell-test-opening-readiness.test.mjs tests/spell-test-browser-diagnostics.test.mjs tests/spell-test-browser-read-batch.test.mjs tests/spell-test-failure-accounting.test.mjs tests/spell-test-menu-lifetime.test.mjs tests/spell-test-observation-groups.test.mjs
-          # Original scenario retains frontend keyboard coverage and full F9 episode.
-          # Source SHA is distinct from this infrastructure commit; existing caps unchanged.
-          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=frontend-held-escape node scripts/tutorial-browser/run.mjs ../outputs/frontend-f9
+          node --test tests/pause-opening-settlement.test.mjs tests/pause-checkpoint-recovery.test.mjs tests/public-keyboard-startup-preconditions.test.mjs tests/pause-checkpoint-style-hosted.test.mjs
+          # Original full recovery lane, including storage faults, Save/Load and ownership.
+          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=pause-checkpoint-recovery node scripts/tutorial-browser/run.mjs ../outputs/checkpoint-recovery
+      - name: Check checkpoint native and fallback styling on exact source
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        timeout-minutes: 8
+        run: |
+          cd after-source
+          # A failed assertion may continue only after verified safe cleanup.
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; const r=JSON.parse(fs.readFileSync("../outputs/checkpoint-recovery/receipt.json","utf8")); assert.equal(r.cleanupVerified,true); assert.equal(r.sourceAfter,"identical"); assert.deepEqual(r.dependencyChanges,[]); assert.match(r.dependenciesBeforeSha256,/^[0-9a-f]{64}$/); assert.equal(r.dependenciesAfterSha256,r.dependenciesBeforeSha256)'
+          test "$(df --output=avail -B1 . | tail -1 | tr -d ' ')" -ge 4294967296
+          test "$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)" -ge 3932160
+          test "$(df --output=iavail . | tail -1 | tr -d ' ')" -ge 50000
+          # Sequential independent lane retains native/fallback fonts and scroll checks.
+          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=pause-checkpoint-style node scripts/tutorial-browser/run.mjs ../outputs/checkpoint-style
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
@@ -91,7 +102,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: frontend-f9-d365bec2-${{ github.run_id }}-${{ github.run_attempt }}
+          name: checkpoint-opening-2e12fbb6-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
