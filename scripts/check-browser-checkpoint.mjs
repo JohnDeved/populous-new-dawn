@@ -43,6 +43,14 @@ async function waitClosingBoxes(page, predicate) {
   }
 }
 
+// Let every pending message auto-open and close it: an open box pauses the world,
+// paused worlds refuse scripted player commands, and the box refuses HUD presses.
+async function settleMessageBoxes(page) {
+  await waitClosingBoxes(page, () =>
+    !globalThis.testScene.messageModal &&
+    globalThis.testStore.getWorld().messages.slots.every(message => !message || !(message.flags & 0x20002)))
+}
+
 async function waitForScene(page) {
   await page.waitForSelector('.world-viewport canvas')
   await page.waitForFunction(() => {
@@ -248,6 +256,9 @@ try {
     tick(world, 1 / 12)
     globalThis.testStore.update()
   })
+  // A box that auto-opens around the win pauses the outcome presentation (#1046).
+  await waitClosingBoxes(page, () =>
+    [...document.querySelectorAll('button')].some(button => /Continue to Mission 2/.test(button.textContent)))
   await page.getByRole('button', { name: 'Continue to Mission 2', exact: false }).click()
   await waitForScene(page)
   await page.waitForFunction(() => globalThis.testScene.world === globalThis.testStore.getWorld())
@@ -361,6 +372,7 @@ try {
     { x: 0xcd00, y: 0x6100 }
   )
   await collapseCampaignMessages(page)
+  await settleMessageBoxes(page)
   await assertMatakSwarm(page)
   await assertMatakRaid(page)
   const counterattack = await page.evaluate(async () => {
@@ -396,6 +408,7 @@ try {
     const { sound } = await import('/app/model.ts')
     sound(scene.world, 0x37, scene.world.units[0])
   })
+  await settleMessageBoxes(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   const load = page.getByRole('button', { name: 'Load checkpoint', exact: true })
   assert.equal(await load.isDisabled(), true)
