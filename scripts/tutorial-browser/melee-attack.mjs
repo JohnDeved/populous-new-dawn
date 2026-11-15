@@ -408,6 +408,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(recoil, false, 'Capture diagnostic cannot run recoil')
     captureDiagnostic.budget.check()
   }
+  const followActor = !captureDiagnostic
   const label = recoil ? 'melee-recoil' : 'melee-attack'
   const context = captureDiagnostic ? captureDiagnostic.context : await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = captureDiagnostic ? captureDiagnostic.page : await context.newPage()
@@ -429,6 +430,11 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       'scripts/tutorial-browser/melee-attack-running-evidence.mjs',
       'qa/erosion-ordinary/minimap-input.mjs']
       .map(path => [path, sha256(readFileSync(resolve(root, path)))])) }
+  if (followActor && !recoil) {
+    report.method += ' After the public attack order, supported camera focus follows declared actor54 after each observer sample, without rotation, forced render or World advance; camera-relative terrain lighting and tooltip reset are disclosed. The first observed entry and all original crop validity assertions remain mandatory.'
+    report.source['scripts/tutorial-browser/melee-recoil-camera.mjs'] = sha256(readFileSync(resolve(root, 'scripts/tutorial-browser/melee-recoil-camera.mjs')))
+    report.limits.push('Actor-follow framing is a camera-only artwork fixture, not an unassisted fixed-view or performance result. Capture-diagnostic mode retains its historical fixed camera.')
+  }
   if (captureDiagnostic) for (const path of ['scripts/tutorial-browser/capture-probe.mjs',
     'scripts/tutorial-browser/melee-capture-diagnostic.mjs', 'scripts/tutorial-browser/capture-diagnostic-budget.mjs',
     'scripts/tutorial-browser/capture-diagnostic-png.mjs']) report.source[path] = sha256(readFileSync(resolve(root, path)))
@@ -667,9 +673,9 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'Public attack must record an issued command on the live logical timeline')
-    if (recoil) await page.evaluate(installRecoilCameraFollow, { order: report.order })
+    if (followActor) await page.evaluate(installRecoilCameraFollow, { order: report.order, protocol: report.protocol })
     await page.waitForFunction(() => window.__pndMeleeObservation.result.done || window.__pndRecoilCameraFollow?.result.error, null, { timeout: meleeAttackLimitMs })
-    if (recoil) {
+    if (followActor) {
       report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow.stop('observer-terminal'))
       assert.equal(report.cameraFollow.error, null)
       assert.ok(report.cameraFollow.visits.length > 0, 'Declared actor camera follow must execute')
@@ -706,7 +712,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   finally {
     clearTimeout(timer)
-    if (recoil && !page.isClosed()) {
+    if (followActor && !page.isClosed()) {
       try { report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow?.stop('cleanup') ?? null) }
       catch (error) { report.errors.push(`Camera follow cleanup: ${error}`) }
     }
