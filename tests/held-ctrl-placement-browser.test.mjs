@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   assertPlacementStep,
+  settlementProbeCandidates,
   inspectPlacementProbe,
   createPlacementProbeSearch,
   finishHeldCtrlPlacement,
@@ -202,4 +203,24 @@ test('candidate search propagates inspection and hover failures unchanged', asyn
       })
       assert.equal(caught, true)
     }
+})
+
+test('authored settlement candidates cover symmetric outer rings within unchanged fifty cap', () => {
+  const hut = Object.freeze({ x: -2.93, z: 40.95 })
+  const points = settlementProbeCandidates(hut)
+  assert.equal(points.length, 49)
+  assert.ok(points.length <= 50)
+  assert.equal(new Set(points.map(p => `${p.x},${p.z}`)).size, points.length)
+  assert.deepEqual(points[0], { ...hut, kind: 'settlement-ground', id: null })
+  for (const dx of [-16, -12, -8, 0, 8, 12, 16])
+    for (const dz of [-16, -12, -8, 0, 8, 12, 16])
+      assert.ok(points.some(p => p.x === hut.x + dx && p.z === hut.z + dz))
+  assert.deepEqual(settlementProbeCandidates(hut), points)
+  const translated = settlementProbeCandidates({ x: hut.x + 100, z: hut.z + 100 })
+  translated.forEach((p, i) => {
+    assert.ok(Math.abs(p.x - points[i].x - 100) < 1e-12)
+    assert.ok(Math.abs(p.z - points[i].z - 100) < 1e-12)
+    assert.equal(p.kind, points[i].kind)
+  })
+  assert.ok(points.every(p => !('valid' in p)))
 })

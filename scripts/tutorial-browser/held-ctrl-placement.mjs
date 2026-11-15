@@ -5,6 +5,24 @@ import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 
 export const heldCtrlPlacementLimitMs = 60000
 
+// Symmetric authored-settlement coverage, bounded independently of visibility.
+// These are candidates only; no offline placement result determines acceptance.
+export function settlementProbeCandidates(hut) {
+  const offsets = [-16, -12, -8, 0, 8, 12, 16]
+  return offsets
+    .flatMap(dx =>
+      offsets.map(dz => ({
+        x: hut.x + dx,
+        z: hut.z + dz,
+        kind: 'settlement-ground',
+        id: null,
+        ring: Math.max(Math.abs(dx), Math.abs(dz)),
+      }))
+    )
+    .sort((a, b) => a.ring - b.ring || a.x - b.x || a.z - b.z)
+    .map(({ ring, ...point }) => point)
+}
+
 export function assertPlacementStep(before, after, added, mode) {
   assert.equal(after.level, 1)
   assert.equal(after.paused, false)
@@ -177,7 +195,16 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
     })
     assert.ok(report.renderer.version.startsWith('WebGL 2.0'))
 
-    const probes = await page.evaluate(() => {
+    const hut = await page.evaluate(() => {
+      const hut = window.testSceneRef.current.world.buildings.find(
+        b => b.team === 'blue' && b.kind === 'hut'
+      )
+      if (!hut) throw Error('Authored Mission 1 Hut is missing')
+      return { x: hut.x, z: hut.z }
+    })
+    const candidates = settlementProbeCandidates(hut)
+    report.candidates = candidates
+    const probes = await page.evaluate(candidates => {
       const s = window.testSceneRef.current,
         rect = s.container.getBoundingClientRect(),
         points = []
@@ -194,16 +221,10 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
         )
           points.push({ x, y, kind, id })
       }
-      const hut = s.world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
-      if (!hut) throw Error('Authored Mission 1 Hut is missing')
-      add(hut, 'authored-hut', hut.id)
-      for (const tree of s.world.trees.filter(t => t.logs > 0).slice(0, 24))
-        add(tree, 'authored-tree', tree.id)
-      for (const dx of [-8, -4, 0, 4, 8])
-        for (const dz of [-8, -4, 0, 4, 8])
-          add({ x: hut.x + dx, z: hut.z + dz }, 'settlement-ground', null)
+      for (const point of candidates) add(point, point.kind, point.id)
       return points.slice(0, 50)
-    })
+    }, candidates)
+    report.projectedProbes = probes
     assert.ok(
       probes.length > 0,
       'Authored settlement must be visible without injected camera changes'
