@@ -2,7 +2,7 @@ name: Isolated shipped M2 modal admission readiness
 
 on:
   push:
-    branches: [ci/m2-modal-1035-20261115]
+    branches: [ci/m2-layout-1035-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 9eee7483a69b2cf67919c83fa96da7a2a08a662f
+      PND_CANDIDATE_SHA: d365844b0f44ff32b9e083bb529abe2e3641072c
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed M2 modal admission candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 9eee7483a69b2cf67919c83fa96da7a2a08a662f
+          ref: d365844b0f44ff32b9e083bb529abe2e3641072c
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -101,7 +101,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: m2-modal-9eee7483-${{ github.run_id }}-${{ github.run_attempt }}
+          name: m2-layout-d365844b-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/shipped-selection/**/*.json
             outputs/shipped-selection/**/*.log
