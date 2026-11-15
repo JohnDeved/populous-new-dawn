@@ -1,0 +1,98 @@
+name: Plain Vite Home compact and Hypnotise
+
+on:
+  push:
+    branches: [ci/hypnotise-target-state-1035-20261115]
+    paths:
+      - '.github/workflows/software-webgl-trial.yml'
+      - 'scripts/ci-webgl-trial/shipped-selection.mjs'
+      - 'scripts/ci-webgl-trial/selection-episode.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: software-webgl-trial-20261110
+  cancel-in-progress: false
+
+jobs:
+  screenshot:
+    name: Plain Vite Home compact and Hypnotise
+    if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      PND_CANDIDATE_SHA: f8f94dd116c058bf53d3cfc04a9da227bdbd4921
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+      CLOUDFLARE_CF_FETCH_ENABLED: 'false'
+    steps:
+      - name: Check out reviewed experiment only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          path: trial-infrastructure
+          persist-credentials: false
+          sparse-checkout: scripts/ci-webgl-trial
+      - name: Check out exact reviewed compact and Hypnotise candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: f8f94dd116c058bf53d3cfc04a9da227bdbd4921
+          path: after-source
+          persist-credentials: false
+      - name: Set up pinned Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install locked source profile and verify reviewed host Chrome
+        id: setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_RUN_ATTEMPT" = 1
+          test "$(git -C after-source rev-parse HEAD)" = "$PND_CANDIDATE_SHA"
+          test "$(df --output=avail -B1 . | tail -1 | tr -d ' ')" -ge 4294967296
+          test "$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)" -ge 3932160
+          test "$(df --output=iavail . | tail -1 | tr -d ' ')" -ge 50000
+          npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+          cd after-source
+          node --input-type=module -e 'import fs from "node:fs"; import assert from "node:assert/strict"; assert.equal(JSON.parse(fs.readFileSync("package.json","utf8")).packageManager,"pnpm@11.25.0")'
+          pnpm install --frozen-lockfile --ignore-scripts
+          test -x /opt/google/chrome/chrome
+          chrome_version="$(/opt/google/chrome/chrome --version)"
+          printf '%s\n' "$chrome_version"
+          case "$chrome_version" in
+            'Google Chrome 157.0.8103.50'|'Google Chrome 157.0.8103.50 ') ;;
+            *) printf 'Unreviewed HUD browser version\n' >&2; exit 1 ;;
+          esac
+          dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
+          sha256sum /opt/google/chrome/chrome
+      - name: Build production Home and exercise compact and Hypnotise
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        timeout-minutes: 8
+        run: node trial-infrastructure/scripts/ci-webgl-trial/shipped-selection.mjs "$PWD/after-source" "$PWD/outputs/shipped-selection" "$PND_CANDIDATE_SHA"
+      - name: Reject any tracked source or experiment mutation
+        if: ${{ always() && steps.setup.outcome == 'success' }}
+        run: |
+          git -C after-source diff --exit-code HEAD --
+          git -C trial-infrastructure diff --exit-code HEAD --
+      - name: Retain plain Home coverage receipts and screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: hypnotise-target-state-f8f94dd1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            outputs/shipped-selection/**/*.json
+            outputs/shipped-selection/**/*.log
+            outputs/shipped-selection/**/*.html
+            outputs/shipped-selection/**/*.png
+            outputs/shipped-selection/*.v8
+          if-no-files-found: warn
+          retention-days: 7
+
