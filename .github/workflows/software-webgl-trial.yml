@@ -2,7 +2,7 @@ name: Owned Swamp interruption replay
 
 on:
   push:
-    branches: [ci/owned-swamp-1084-20261115]
+    branches: [ci/owned-swamp-startup-1084-20261115]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 8f6a4526a495e9127ed389f48db09ff7dff6acb2
+      PND_CANDIDATE_SHA: 187389abc6380aac43f50403d07513c0ad0eaa8c
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed Swamp interruption candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 8f6a4526a495e9127ed389f48db09ff7dff6acb2
+          ref: 187389abc6380aac43f50403d07513c0ad0eaa8c
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -94,7 +94,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: owned-swamp-interruption-8f6a4526-${{ github.run_id }}-${{ github.run_attempt }}
+          name: owned-swamp-interruption-187389ab-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.jsonl

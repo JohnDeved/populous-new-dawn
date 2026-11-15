@@ -9,7 +9,7 @@ const observer = resolve(dirname(import.meta.filename), 'observe.py')
 const sha = data => createHash('sha256').update(data).digest('hex')
 assert.equal(sha(readFileSync(observer)), '3503c6027954bd6fad2d4b9b03f1e1d919adf2af0417d136b62e3d9ea17e055d')
 const source = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
-assert.equal(source, '8f6a4526a495e9127ed389f48db09ff7dff6acb2')
+assert.equal(source, '187389abc6380aac43f50403d07513c0ad0eaa8c')
 function metadata(path, prefix = '') {
   const result = {}
   for (const entry of readdirSync(path, { withFileTypes: true })) {
