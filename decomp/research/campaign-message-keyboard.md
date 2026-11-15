@@ -126,8 +126,10 @@ The input frame `004aa4e0` skips the whole block from `004aa53f` to `004aa6ed` w
   browser difference, because the native pause bit has a single owner.
 - **No turn before the pause.** `messageBoxRequested` (transient bit 2) holds
   `advanceGame` from the presentation visit that requested the box until the page has
-  opened it and paused, so no turn runs in between, as at `004a5985`. Headless callers
-  without the hook are unchanged.
+  opened it and paused, so no turn runs in between, as at `004a5985`. The page keyboard
+  handler and press guard already treat that pending request as an open box, so the
+  Menu, Space and HUD cannot change the pause in the gap. Headless callers without the
+  hook are unchanged.
 - **Input.** While a box is open the Scene drops cursor/held camera keys, zoom keys and
   wheel, bookmarks, group-display keys, the screen edge, world presses and minimap
   presses. The page drops HUD presses. Only the box (its summary and dismiss button),
@@ -149,7 +151,9 @@ The input frame `004aa4e0` skips the whole block from `004aa53f` to `004aa6ed` w
 - **Flags on close.** On close, `00431bb0` sets `0x8|0x2` on `0x1&0x200` messages. No
   browser close path does this.
 - **Pause owner.** See the freeze bullet above: a player-opened box over an existing
-  pause keeps that pause on close.
+  pause keeps that pause on close. The browser also pauses when the window loses
+  focus; if that happens while a box is open, closing the box still restores the
+  pause state from before the box, so the game resumes on that explicit close.
 - **Box controls.** `004af780` hit-tests the mode-dependent box controls (`0089bbf2`
   entries). The browser box has its summary and dismiss button instead.
 

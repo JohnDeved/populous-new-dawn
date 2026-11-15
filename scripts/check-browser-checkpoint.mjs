@@ -12,8 +12,11 @@ const tornadoGuidance =
 const tornadoInstruction =
   'Use the Tornado Spell to destroy the Enemy and their buildings before they have a chance to react.'
 
+// Opens message 641 from the strip when it is closed (#1046: it may have been closed
+// as a modal box during live play), checks it, and closes the box again.
 async function assertMissionTwoMessage(page) {
   const details = page.locator('.campaign-messages details').filter({ hasText: missionTwoMessage })
+  if (!(await details.evaluate(node => node.open))) await details.locator('summary').click()
   await details.getByText(missionTwoMessage, { exact: true }).waitFor()
   const icon = details.locator('summary img')
   assert.equal(await icon.getAttribute('src'), '/original/message-type1.png')
@@ -26,6 +29,18 @@ async function assertMissionTwoMessage(page) {
     return { top, bottom, height, viewport: innerHeight }
   })
   assert.ok(popup.height > 40 && popup.top >= 0 && popup.bottom <= popup.viewport, popup)
+  await collapseCampaignMessages(page)
+}
+
+// #1046: an auto-opened campaign message box pauses the game like the original.
+// While waiting on live play, close each box through its summary as a player would.
+async function waitClosingBoxes(page, predicate) {
+  for (const deadline = Date.now() + 90_000; ; ) {
+    if (await page.evaluate(predicate)) return
+    if (await page.evaluate(() => !!globalThis.testScene?.messageModal)) await collapseCampaignMessages(page)
+    if (Date.now() > deadline) throw new Error('Timed out waiting on live play')
+    await page.waitForTimeout(100)
+  }
 }
 
 async function waitForScene(page) {
@@ -244,7 +259,7 @@ try {
   assert.equal(original.level, 2)
   await page.locator('.loading-world').waitFor({ state: 'detached' })
   await page.keyboard.press('Escape')
-  await page.waitForFunction(() => {
+  await waitClosingBoxes(page, () => {
     const world = globalThis.testStore.getWorld(),
       enemyTeam = world.units.find(
         unit => unit.kind === 'shaman' && unit.team !== 'blue' && unit.team !== 'wild'
@@ -268,7 +283,7 @@ try {
       world.messages.slots[world.lastMessage]?.stringId === 641
     )
   })
-  await page.waitForFunction(() => !globalThis.testStore.getWorld().inputMask)
+  await waitClosingBoxes(page, () => !globalThis.testStore.getWorld().inputMask)
   await assertMissionTwoMessage(page)
   const guidance = await page.evaluate(async () => {
     const world = globalThis.testStore.getWorld(),
