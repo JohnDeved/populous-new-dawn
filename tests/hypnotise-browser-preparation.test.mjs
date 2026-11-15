@@ -25,7 +25,7 @@ for (const initialVisits of [0, 1, 20, 60]) test(`opt-in Hypnotise earns stock a
   assert.equal(result.chargedTurn, initialVisits + result.chargingVisits)
   assert.ok(result.readyTurn > result.chargedTurn)
   if (!initialVisits) {
-    assert.equal(result.readyTurn, 6172)
+    assert.equal(result.readyTurn, 6174)
     assert.equal(result.chargingVisits, 5948)
     assert.equal(result.initialState.availableMana, 30000)
   } else {

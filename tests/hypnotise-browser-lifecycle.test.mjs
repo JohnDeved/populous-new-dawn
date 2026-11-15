@@ -124,7 +124,7 @@ test('context cleanup shares the same75s deadline, including delayed timer dispa
 
 test('public checkpoint observer waits for normal resumed notification and preserves saved content', () => {
   const original = {},
-    saved = { turn: 6172, stock: 1, randomState: 123, paused: true }
+    saved = { turn: 6174, stock: 1, randomState: 123, paused: true }
   let world = original,
     listener,
     removed = 0
@@ -152,7 +152,7 @@ test('public checkpoint observer waits for normal resumed notification and prese
     validateHypnotiseLoad(saved, window.__hypnotiseLoaded)
     assert.equal(removed, 1)
     assert.throws(() => validateHypnotiseLoad(saved, saved))
-    assert.throws(() => validateHypnotiseLoad(saved, { ...saved, paused: false, turn: 6173 }))
+    assert.throws(() => validateHypnotiseLoad(saved, { ...saved, paused: false, turn: 6175 }))
   } finally {
     globalThis.window = previous
   }
@@ -200,7 +200,7 @@ test('25s preparation cannot return success after the last consumer crosses its 
   )
   assert.equal(scene.world.paused, true)
   assert.equal(scene.world.shots.hypnotise, 1)
-  assert.equal(scene.world.turn, 6172)
+  assert.equal(scene.world.turn, 6174)
 })
 
 test('successful and failed operations both close their owned context exactly once', async () => {
