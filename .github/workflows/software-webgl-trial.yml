@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 46fb6dd21a4d655e6cbb16720f9e3589bd0d740c
+      PND_CANDIDATE_SHA: fb99e9b365e664b5a60adc8073a589565e1a8f2b
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed frame and resource candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 46fb6dd21a4d655e6cbb16720f9e3589bd0d740c
+          ref: fb99e9b365e664b5a60adc8073a589565e1a8f2b
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -78,7 +78,7 @@ jobs:
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/gameplay-recorder-failures.test.mjs tests/gameplay-frame-recording.test.mjs tests/gameplay-resource-observer.test.mjs tests/gameplay-resource-gate.test.mjs
+          node --test tests/melee-attack-browser-evidence.test.mjs tests/gameplay-recorder-failures.test.mjs tests/gameplay-frame-recording.test.mjs tests/gameplay-resource-observer.test.mjs tests/gameplay-resource-gate.test.mjs
           # Original runner retains every episode and its existing 180s cap.
           # Infrastructure SHA is not the reviewed candidate source identity.
           env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=gameplay-frames node scripts/tutorial-browser/run.mjs ../outputs/gameplay-frames
@@ -103,7 +103,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: frame-resource-modal-46fb6dd2-${{ github.run_id }}-${{ github.run_attempt }}
+          name: frame-resource-modal-fb99e9b3-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
