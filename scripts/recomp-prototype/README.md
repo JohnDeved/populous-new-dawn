@@ -28,6 +28,53 @@ The C sparse adapter is single-owner; the separate shared JS model does not esta
 C pthread concurrency. Original startup, OS shims, memory escapes, actual renderer,
 save/input behavior and deterministic comparison remain unfinished.
 
+## Inspect original input identities
+
+Before planning any original-code experiment, use the data-only preflight below.
+It reads selected binaries as bytes and never loads, translates, executes, copies,
+modifies, downloads, or uploads them. Node 24 is sufficient; no third-party install
+or game runtime is needed. Keep reports outside the checkout.
+
+```sh
+node scripts/recomp-prototype/inspect-inputs.mjs \
+  --profile openpoptb-software --game-root /path/to/verified/game \
+  > /path/to/private/input-identity.json
+```
+
+`reference-inputs.json` pins the upstream project revision, original binary hashes,
+renderer, platform, and source/license links. `openpoptb-software` checks the base
+software executable plus both required DLLs. `populous-recomp-web` checks its own
+D3D executable pin separately; it is not the original software-renderer route.
+Names are matched case-insensitively only when unique. Missing, mismatched,
+ambiguous, nonregular, symlinked, changed, or oversized inputs fail with exit 1;
+unknown profiles fail with exit 1, and malformed argument lists fail with exit 2. There is no hash override or force option.
+Files are limited to 32 MiB each. Use an owned, immutable input directory with no
+symlink ancestors or `..` path components; this check is not a concurrent-writer
+security sandbox.
+
+Exit 0 means **only the selected binary hashes match the declared profile**. The
+report fingerprints this inspector and its profile manifest and explicitly leaves
+asset identities, the actual upstream checkout, toolchain, runtime readiness,
+licensing entitlement, startup, rendering and capture unverified. A report is not
+permission to execute code and cannot be reused after inputs change. Matching DLLs
+do not compensate for an unsupported executable. Original files and generated game
+output stay private; upstream MIT licensing does not cover them.
+
+Do not use the upstream OpenPopTB `build.sh` as a fail-closed gate: at the pinned
+revision its hash checks only warn, and it may also translate optional UW/D3D
+executables found in the same directory. This preflight is not a wrapper around
+that script and does not validate those optional files. A later bounded launch
+must independently enforce its exact input set and source/toolchain identities.
+No executable compatibility adaptation is provided here. The retained research
+D3D binary (`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`)
+does not match the browser candidate's pin. #1020 remains open.
+
+Run the authored regression without original files:
+
+```sh
+node --test tests/recomp-input-preflight.test.mjs
+```
+
 ## Reproduce focused checks
 
 From repository root (Node 24; no dependency install required):
