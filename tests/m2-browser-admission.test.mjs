@@ -578,9 +578,9 @@ test('M2 separates visible modal layout captures from nonmodal pointer input', (
 })
 
 
-test('default admission reduces only setup viewport, preserving explicit coverage and deadline', () => {
+test('default and compact admission reduce only setup viewport, preserving explicit coverage and deadline', () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/m2-pointer-f8.mjs', import.meta.url), 'utf8')
-  assert.match(source, /const admissionViewport = compactMessages \|\| pickingPaths \|\| campaignCallbacks\s*\? \{ width: 1440, height: 1000 \}\s*: \{ width: 1280, height: 720 \}/)
+  assert.match(source, /const admissionViewport = pickingPaths \|\| campaignCallbacks\s*\? \{ width: 1440, height: 1000 \}\s*: \{ width: 1280, height: 720 \}/)
   assert.match(source, /viewport: admissionViewport/)
   assert.match(source, /await page.setViewportSize\(admissionViewport\)/)
   assert.match(source, /scenario,\s*admissionViewport,/)

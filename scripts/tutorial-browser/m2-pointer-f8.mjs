@@ -170,7 +170,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const scenario = campaignCallbacks ? 'campaign-message-ownership' : pickingPaths ? 'picking-path-readout' : compactMessages ? 'compact-message-layout' : 'm2-pointer-f8'
   // Functional admission does not need to render the largest capture continuously.
   // Keep all explicit viewport proofs below and the other episodes unchanged.
-  const admissionViewport = compactMessages || pickingPaths || campaignCallbacks
+  const admissionViewport = pickingPaths || campaignCallbacks
     ? { width: 1440, height: 1000 }
     : { width: 1280, height: 720 }
   const context = await browser.newContext({
