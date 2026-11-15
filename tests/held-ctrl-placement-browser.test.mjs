@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   assertPlacementStep,
+  inspectPlacementProbe,
   finishHeldCtrlPlacement,
   heldCtrlPlacementLimitMs,
 } from '../scripts/tutorial-browser/held-ctrl-placement.mjs'
@@ -109,4 +110,32 @@ test('dedicated owner bounds setup and episode without changing prior caps', () 
     source.indexOf('}, receipt.browserCapMs)') < source.indexOf('receipt.heldCtrlPlacement = await')
   )
   assert.match(source, /held-ctrl-placement.json/)
+})
+
+test('probe observation distinguishes live canvas, occlusion and missing target without mutation', async () => {
+  const { runInNewContext } = await import('node:vm')
+  const canvas = { tagName: 'CANVAS', id: '', getAttribute: () => null }
+  const overlay = { tagName: 'DIV', id: 'query', getAttribute: () => 'dialog' }
+  const scene = {
+    renderer: { domElement: canvas },
+    cursor: { visible: true },
+    world: { mode: 'hut', inputMask: 0 },
+    pointerScreen: { clientX: 2, clientY: 3 },
+    pointer: { x: 4, z: 5 },
+    modalSuspended: false,
+  }
+  for (const hit of [canvas, overlay, null]) {
+    const before = JSON.stringify(scene)
+    const page = {
+      evaluate: async (fn, point) =>
+        runInNewContext(`(${fn})`, {
+          window: { testSceneRef: { current: scene } },
+          document: { elementFromPoint: () => hit },
+        })(point),
+    }
+    const result = await inspectPlacementProbe(page, { x: 2, y: 3 })
+    assert.equal(result.canvasOwned, hit === canvas)
+    assert.equal(result.element?.tag ?? null, hit?.tagName ?? null)
+    assert.equal(JSON.stringify(scene), before)
+  }
 })

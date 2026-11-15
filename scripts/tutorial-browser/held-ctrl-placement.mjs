@@ -18,6 +18,25 @@ export function assertPlacementStep(before, after, added, mode) {
   assert.equal(after.buildingIds.length, before.buildingIds.length + added)
 }
 
+// Observe current hit ownership before using an earlier projected candidate.
+export async function inspectPlacementProbe(page, point) {
+  return page.evaluate(point => {
+    const scene = window.testSceneRef.current
+    const hit = document.elementFromPoint(point.x, point.y)
+    return {
+      point,
+      canvasOwned: hit === scene.renderer.domElement,
+      element: hit ? { tag: hit.tagName, role: hit.getAttribute('role'), id: hit.id } : null,
+      pointerScreen: scene.pointerScreen,
+      pointer: scene.pointer ? { x: scene.pointer.x, z: scene.pointer.z } : null,
+      cursorVisible: scene.cursor.visible,
+      mode: scene.world.mode,
+      inputMask: scene.world.inputMask,
+      modalSuspended: scene.modalSuspended,
+    }
+  }, point)
+}
+
 export async function finishHeldCtrlPlacement({
   context,
   report,
@@ -55,6 +74,7 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
     status: 'running',
     errors: [],
     previews: [],
+    skippedProbes: [],
     contextClosed: false,
     limits: [
       'One authored Mission 1 scene; no injected entities or forced ticks',
@@ -79,7 +99,7 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
     page.on('console', message => {
       if (message.type() === 'error') report.errors.push(message.text())
     })
-    page.on('crash', () => report.errors.push('Scenery page crashed'))
+    page.on('crash', () => report.errors.push('Held-Ctrl page crashed'))
     const button = name => page.getByRole('button', { name, exact: true })
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await button('New Game').click()
@@ -162,6 +182,7 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
       'Authored settlement must be visible without injected camera changes'
     )
     const hover = async point => {
+      report.pendingProbe = point
       await page.mouse.move(point.x, point.y)
       await page.waitForFunction(
         point => {
@@ -183,6 +204,11 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
     }
     const findValid = async () => {
       for (const point of probes) {
+        const target = await inspectPlacementProbe(page, point)
+        if (!target.canvasOwned) {
+          report.skippedProbes.push(target)
+          continue
+        }
         const state = await hover(point)
         report.previews.push({ point, cursor: state.cursor, pointer: state.pointer })
         if (!state.cursor.invalid) return point
@@ -228,6 +254,12 @@ export default async function heldCtrlPlacement({ browser, url, output }) {
   } catch (error) {
     failure = error
     failed = true
+    try {
+      if (page && report.pendingProbe)
+        report.failedProbe = await inspectPlacementProbe(page, report.pendingProbe)
+    } catch (diagnosticError) {
+      report.probeDiagnosticError = String(diagnosticError)
+    }
     try {
       await page?.screenshot({
         path: resolve(output, 'held-ctrl-placement-failure.png'),
