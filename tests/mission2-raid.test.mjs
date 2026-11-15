@@ -179,7 +179,10 @@ test('Mission 2 combat casualty removes only the dead original owner and credits
   }
   assert.notEqual(casualty, null, 'a real original-cohort casualty must be observed')
   assert.equal(raid.phase, 16)
-  assert.deepEqual(fallbacks, [14], 'the original cohort has regrouped before this encounter; casualty does not regroup it again')
+  // With Green's command-25 marker patrol cycling, the cohort meets combat on its
+  // outbound march (phase 10 -> 15 attack branch), so no regroup leg (fallback 14)
+  // runs and the staging fallback 18 is still current.
+  assert.deepEqual(fallbacks, [18], 'the original cohort attacked from its outbound march; casualty does not regroup it')
   assert.ok(raid.flags & 1)
 })
 

@@ -112,7 +112,9 @@ test('ordinary Mission6 stages at marker0 and bridges to marker16 with checkpoin
   // Current deterministic campaign trace after native ground-cast ownership.
   // The original-source contract is staging/marker16 allocation and real terrain
   // connectivity above, not the former browser-only cast's global RNG schedule.
-  assert.equal(world.turn, 7339)
+  // Raid recruitment now publishes +af (0x4cb7e4), so the turn-6790 marker task
+  // no longer drafts staged raid members 1263/1293 (previously 7339).
+  assert.equal(world.turn, 7323)
   await store.saveCheckpoint()
   assert.ok(store.loadCheckpoint())
   assert.deepEqual(store.getWorld(), world)
