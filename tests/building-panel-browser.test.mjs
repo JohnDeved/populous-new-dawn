@@ -121,7 +121,7 @@ test('hosted building witness is query-gated and preserves finite cases within T
     assert.match(runner, new RegExp(`receipt\\.${name} = await`))
   assert.match(
     runner,
-    /if \(selectedScenario === 'tutorial'\) receipt\.buildingPanelIdentity = await/
+    /if \(selectedScenario === 'building-panel-edges'\) receipt\.buildingPanelIdentity = await/
   )
   assert.match(runner, /buildingIdentityScenarioSha256: hash\(buildingIdentityScenario\)/)
   assert.match(scenario, /await occupant\.click\(\)/)
