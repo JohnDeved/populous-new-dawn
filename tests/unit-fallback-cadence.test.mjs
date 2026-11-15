@@ -1,5 +1,6 @@
-// Legacy elapsed-time unit artwork cadence (#214). Authored Mission 10 people that
-// render through the shipped fallback branch (no native frame owner) are advanced
+// Legacy elapsed-time unit artwork cadence (#214). Mission 10 people that render
+// through the shipped fallback branch (no native frame owner; the step-1 Firewarrior
+// is a supplied area-guard witness, see legacyWalkers) are advanced
 // by the actual game clock and drawn by the actual Scene unit loop in Node.
 // The original advances person draw descriptors in mode 2 once per (step + 1)
 // logical visits; the Firewarrior's descriptor 18 has step 1, Braves' 14 step 0.
@@ -14,9 +15,21 @@ async function legacyWalkers() {
   const world = api.createWorld(10)
   for (let turn = 0; turn < 48; turn++) api.tick(world, 1 / 12)
   const legacy = u => !unitRenderAnimationSource(u) && api.unitAnimation(world, u) === 'walk'
+  // Authored computer Firewarriors walk command-25 marker routes through the
+  // native movement body (#1042), so no authored step-1 person uses the fallback.
+  // Supplied step-1 witness: a Firewarrior given an ordinary Ctrl+Alt area guard
+  // (command 11), whose walk still renders through the shipped fallback branch.
+  const { addUnit, command, cancelInteraction, selectUnit } = await import('../app/model.ts')
+  const shaman = world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+  const supplied = addUnit(world, 'blue', 'firewarrior', { x: shaman.x + 2, z: shaman.z })
+  selectUnit(world, supplied.id, false)
+  assert.ok(command(world, { x: supplied.x - 14, z: supplied.z }, { ctrlKey: true, altKey: true }))
+  cancelInteraction(world)
+  api.tick(world, 1 / 12)
+  assert.equal(world.objectCells.objects.get(supplied.id), supplied.native)
   const firewarrior = world.units.find(u => u.kind === 'firewarrior' && legacy(u))
   const brave = world.units.find(u => ['brave', 'warrior', 'preacher'].includes(u.kind) && u.team !== 'wild' && legacy(u))
-  assert.ok(firewarrior, 'authored legacy-walking Firewarrior')
+  assert.equal(firewarrior, supplied, 'supplied legacy-walking Firewarrior')
   assert.ok(brave, 'authored legacy-walking step-0 control (Brave/Warrior/Preacher)')
   return { api, world, ids: [firewarrior.id, brave.id], legacy }
 }

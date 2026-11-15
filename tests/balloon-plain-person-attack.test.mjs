@@ -115,10 +115,12 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
   assert.equal(target.kind, 'preacher')
   // Supplied team-only boundary, not an ordinary mixed-campaign claim:
   // the existing grounded Brave keeps legacy targeting beside the real passenger.
+  // The same Green Brave born at 7,127 is fresh allocation 271: cycling computer
+  // marker patrols move through 0x5018c0 and allocate more marching formations first.
   const mixed = structuredClone(world),
     mixedShaman = mixed.units.find(u => u.id === shaman.id),
     mixedPerson = mixedShaman.native,
-    grounded = mixed.units.find(u => u.id === (historical ? 173 : referenceId(173)))
+    grounded = mixed.units.find(u => u.id === (historical ? 173 : referenceId(271)))
   assert.equal(grounded.kind, 'brave')
   assert.ok(grounded.hp > 0)
   assert.ok(!grounded.native && !grounded.flight && !grounded.entry)
@@ -289,35 +291,44 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     assert.equal(firstOpponentTeam, 'green')
     // The old-source victory is retained in the paired historical evidence.
     // Correct native seat coordinates change the existing grounded attack exit.
-    assert.equal(death, 3578)
-    assert.equal(targetDeath, 0)
+    // The c44 Red marker patrol now cycles (0x4366b0) and advances the shared RNG,
+    // so this duel drifts away from the Green guards: the Shaman kills Preacher17,
+    // then the cycling Green patrol (11/10/12) intercepts and kills her.
+    assert.deepEqual(encounters, [
+      [3545, 17],
+      [4053, 11],
+      [4074, 10],
+      [4089, 12],
+    ])
+    assert.equal(death, 4089)
+    assert.equal(targetDeath, 3919)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)
     assert.equal(world.units.includes(shaman), false)
-    assert.equal(world.units.includes(target), true)
-    assert.equal(world.objectCells.objects.has(target.id), true)
-    assert.equal(target.hp, 55)
+    assert.equal(world.units.includes(target), false)
+    assert.equal(world.objectCells.objects.has(target.id), false)
+    assert.equal(target.hp, 0)
   } else {
     // First contact retains selected Preacher17; guard reinforcement and actual
     // melee opponent writes yield this exact existing grounded-adapter outcome.
-    assert.equal(departure, 3844)
-    assert.equal(firstFight, 3849)
+    // Preacher17 now cycles with the Green marker patrol (0x4366b0), so the
+    // transport follows a moving target before the grounded departure.
+    assert.equal(departure, 4000)
+    assert.equal(firstFight, 4003)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [3849, 17],
-      [3866, 10],
-      [3870, 12],
-      [3878, 10],
+      [4003, 17],
+      [4031, 11],
     ])
-    assert.equal(death, 3886)
+    assert.equal(death, 4040)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)
     assert.equal(world.units.includes(shaman), false)
     assert.equal(world.units.includes(target), true)
     assert.equal(world.objectCells.objects.has(target.id), true)
-    assert.equal(target.hp, 55)
+    assert.equal(target.hp, 55.1)
   }
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.equal(balloon.active, true)

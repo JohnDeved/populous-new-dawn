@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createWorld } from '../app/world-initialization.ts'
 import { SPELLS } from '../app/world-rules.ts'
 import { spellHudVisibility } from '../app/spell-visibility.ts'
-import { pageEffect, noOp } from './support/follower-nearby-page.mjs'
+import { pageEffect, noOp, messageBoxBindings } from './support/follower-nearby-page.mjs'
 import { overviewShortcut, quickCameraAction, quickCameraTarget } from '../app/quick-camera-shortcuts.ts'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
 
@@ -15,7 +15,7 @@ function keyboard(overrides = {}) {
   world.shots.firestorm = 1
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
-    messageDetails: { current: new Map() }, SPELLS, spellHudVisibility, followerGroupShortcut,
+    messageDetails: { current: new Map() }, ...messageBoxBindings, SPELLS, spellHudVisibility, followerGroupShortcut,
     store: { getWorld: () => world, change: action => action(world) },
     window: { addEventListener: (name, fn) => listeners.set(name, fn),
       removeEventListener: (name, fn) => { assert.equal(listeners.get(name), fn); listeners.delete(name) } },

@@ -35,6 +35,7 @@
   "app/camera-motion.ts",
   "app/camera-view.ts",
   "app/campaign-command-runtime.ts",
+  "app/campaign-message-modal.ts",
   "app/campaign-popup-layout.ts",
   "app/campaign-runtime.ts",
   "app/capacity-policy.ts",

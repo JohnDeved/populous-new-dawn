@@ -16,6 +16,10 @@ export interface GameClock extends TurnObserver {
   // visit; paused visits continue at the same adapter rate of elapsed time.
   drawVisit?: () => void
   pausedDrawTime?: number
+  // 004a5590 at 004a5985: once 004314c0 has requested the campaign message box
+  // (0089bb81 state 2/3), 004af640 replaces every later simulation turn. The
+  // page opens the box and pauses the world; until then nothing advances.
+  messageBoxRequested?: () => boolean
 }
 
 interface TurnPhase {
@@ -73,6 +77,7 @@ export function advanceGame(
   if (!Number.isFinite(seconds) || seconds < 0) throw new RangeError('Invalid elapsed game time')
   const presentation = clock.worshipVisit && !clock.presentationHidden?.()
   if (w.paused && !presentation && !clock.drawVisit) return
+  if (clock.messageBoxRequested?.()) return
   const interval = 1 / 24,
     phase = turnPhase(clock)
   while (seconds > 0) {
@@ -118,6 +123,7 @@ export function advanceGame(
       clock.animationFrame++
       w.secondaryEffects.animationFrame++
       clock.drawVisit?.()
+      if (clock.messageBoxRequested?.()) return
     }
     if (active) clock.pausedDrawTime = 0
     else if (clock.drawVisit) {

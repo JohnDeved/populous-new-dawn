@@ -35,10 +35,10 @@ async function prepare() {
   selectUnit(w, shaman.id, false)
   assert.ok(command(w, { x: 13, z: -31 }))
   until(() => spellTargetError(w, 'hypnotise', target) === null, 300)
-  assert.equal(w.turn, 6241)
+  assert.equal(w.turn, 6242)
   assert.ok(cast(w, 'hypnotise', target))
   until(() => w.effects.some(f => f.kind === 'hypnotise' && f.turnsRemaining === 12), 60)
-  assert.equal(w.turn, 6255)
+  assert.equal(w.turn, 6256)
   const effect = w.effects.find(f => f.kind === 'hypnotise')
   const center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [4352, 3840])
@@ -146,11 +146,13 @@ async function assertRegisteredConversion({ store, w, target, tower, effect }, e
   assert.equal(converted.hp, expected.checkpointHp)
   assert.equal(converted.hypnotise.remaining, expected.checkpointRemaining)
   // Preserve the original6323 casualty in the explicit historical case. The
-  // fresh route has a separately measured melee ledger and remains alive then.
-  if (expected.death === 6331) {
-    while (w.turn < 6323) step()
-    assert.equal(converted.hp, 9.55)
-    assert.equal(converted.hypnotise.remaining, 46)
+  // fresh route has a separately measured melee ledger: Red Braves, then the
+  // authored Red marker patrol (97/98) passing on its cycle, engage the
+  // converted Firewarrior; check it mid-ledger while still converted.
+  if (expected.death === 6322) {
+    while (w.turn < 6317) step()
+    assert.equal(converted.hp, 13.4)
+    assert.equal(converted.hypnotise.remaining, 48)
     assert.equal(converted.team, 'blue')
     assert.equal(w.objectCells.objects.get(converted.id), convertedOwner)
   }
@@ -181,7 +183,7 @@ async function assertRegisteredConversion({ store, w, target, tower, effect }, e
 
 test('fresh earned Hypnotise retains registered occupant conversion, measured damage and real death through Save/Load', async () => {
   await assertRegisteredConversion(await prepare(), {
-    checkpointHp: 16.9, checkpointRemaining: 48, beforeDeathHp: 2.1, death: 6331,
+    checkpointHp: 16.05, checkpointRemaining: 49, beforeDeathHp: 13.7, death: 6322,
   })
 })
 

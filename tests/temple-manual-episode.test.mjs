@@ -16,6 +16,7 @@ import { createMission1VaultInput } from '../scripts/local-render/mission1-vault
 import { findEntityInput, inspectEntityPoint } from '../qa/erosion-ordinary/input.mjs'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
 import { overviewShortcut } from '../app/quick-camera-shortcuts.ts'
+import { messageBoxBindings } from './support/follower-nearby-page.mjs'
 import {
   assertTempleTrainInput,
   assertTempleFreshRequest,
@@ -82,6 +83,10 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     'update',
     'followerGroupShortcut',
     'overviewShortcut',
+    'openMessageBox',
+    'messageBoxKey',
+    'syncMessageModal',
+    'messageBoxRequested',
     `return ${code}`
   )(
     true,
@@ -99,7 +104,11 @@ function pageEscape({ world, scene, api }, menu = false, cheatsOpen = false,
     api.cancelInteraction,
     nop,
     followerGroupShortcut,
-    overviewShortcut
+    overviewShortcut,
+    messageBoxBindings.openMessageBox,
+    messageBoxBindings.messageBoxKey,
+    messageBoxBindings.syncMessageModal,
+    messageBoxBindings.messageBoxRequested
   )
 }
 async function fixture(t, mode = 'expiry', options = {}) {

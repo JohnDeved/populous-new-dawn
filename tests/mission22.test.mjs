@@ -196,12 +196,14 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
     ['blue', [shaman.id], boat.id]
   )
 
-  // Original 0051f990 terrain clearance blocks tower 96 at 1336/1340. The first
-  // clear volley is 1344, impacting 1354 for 25 HP. Unlike the old through-ridge
-  // impact at 1347, this misses the 1352 healing tick; every later heal remains 1.6 HP.
-  assert.deepEqual(volleys, [[1344, 96, shaman.id]])
-  assert.deepEqual(health, [[1354, 75], [1360, 76.6], [1368, 78.2], [1376, 79.8]])
-  assert.deepEqual([world.turn, shaman.hp], [1378, 79.8])
+  // Original 0051f990 terrain clearance blocks tower 96 at 1340/1344/1348. The first
+  // clear volley is 1352, impacting 1362 for 25 HP, after the 1360 healing tick;
+  // every later heal remains 1.6 HP. Computer marker patrols cycle through the
+  // command-25 movement body from turn 5 (0x4366b0), so the shared RNG drew this
+  // Shaman's boat walk speed as 61 rather than 71 and the clear line is reached later.
+  assert.deepEqual(volleys, [[1352, 96, shaman.id]])
+  assert.deepEqual(health, [[1362, 75], [1368, 76.6], [1376, 78.2]])
+  assert.deepEqual([world.turn, shaman.hp], [1383, 78.2])
 
   world = migrateCheckpoint(structuredClone(world))
   shaman = world.units.find(unit => unit.id === shaman.id)
@@ -256,7 +258,7 @@ test('Mission 22 supplied-focus Shaman can steal, checkpoint and sail the author
   assert.equal(shaman.native.vehicle, 0)
   assert.ok(supportsFollower(world, shaman))
   // The extra public dry voyage permits full natural healing before landing.
-  assert.equal(world.turn, 1939)
+  assert.equal(world.turn, 1952)
   assert.equal(shaman.hp, 100.6)
   assert.equal(boat.team, 'blue')
 })

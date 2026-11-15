@@ -234,7 +234,8 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 }
 
 export function pointerDown(scene: GameScene, event: PointerEvent) {
-  if (scene.modalSuspended) return
+  // 004aa1c0: an open message box only takes a left release on the box itself.
+  if (scene.modalSuspended || scene.messageModal) return
   scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
@@ -387,7 +388,7 @@ export function updateDrag(
 }
 
 export function pointerUp(scene: GameScene, event: PointerEvent) {
-  if (scene.modalSuspended) return
+  if (scene.modalSuspended || scene.messageModal) return
   const gesture = scene.pointerGesture
   if (!gesture || gesture.pointerId !== event.pointerId) return
   if (gesture.button !== event.button) {
@@ -556,6 +557,9 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
     }
     return
   }
+  // 004a9d90: an open message box drops every key but Enter (page owned), and
+  // 004aa532 skips the held camera list 00489520 (cursor keys).
+  if (scene.messageModal) return
   if (
     !scene.modalSuspended &&
     !(event.target as HTMLElement | null)?.closest?.(
@@ -631,7 +635,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
   )
   scene.listen(scene.renderer.domElement, 'contextmenu', e => e.preventDefault())
   scene.listen(scene.renderer.domElement, 'wheel', e => {
-    if (!scene.world.inputMask) {
+    if (!scene.world.inputMask && !scene.messageModal) {
       e.preventDefault()
       if ((e as WheelEvent).deltaY) scene.zoom((e as WheelEvent).deltaY < 0)
     }
@@ -680,7 +684,7 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
     if (document.hidden) pause()
   })
   scene.listen(minimap, 'pointerdown', e => {
-    if ((e as PointerEvent).button !== 0 || scene.world.inputMask) return
+    if ((e as PointerEvent).button !== 0 || scene.world.inputMask || scene.messageModal) return
     const p = e as PointerEvent,
       rect = minimap.getBoundingClientRect()
     scene.focus(
@@ -703,7 +707,13 @@ export function installInputListeners(scene: GameScene, minimap: HTMLCanvasEleme
 }
 
 export function navigationButtons(scene: GameScene) {
-  if (scene.world.inputMask || scene.overviewStage || document.querySelector('dialog[open]'))
+  // 004aa532 skips 00489520 (held keys) and 004adbb0 (screen edge) under an open box.
+  if (
+    scene.world.inputMask ||
+    scene.messageModal ||
+    scene.overviewStage ||
+    document.querySelector('dialog[open]')
+  )
     return 0
   let buttons = 0
   for (const key of scene.keys)
