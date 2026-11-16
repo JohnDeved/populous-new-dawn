@@ -995,3 +995,41 @@ test('diagnostics preserve actor-death failure before the first attack rather th
     assert.equal(observation.result.crops.length, 0)
   })
 })
+
+test('first encounter snapshots bounded identity once without rewriting acquisition or selecting another fight', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    const actor = world.units[0]
+    actor.fight.action = 'encounter'
+    Object.assign(actor.fight.motion, { substate: 2, target: 20, workTarget: 2158, flags2: 123 })
+    actor.fight.opponent = 2158
+    const opponent = { id: 2158, kind: 'warrior', team: 'green', hp: 90, x: 1, z: 2,
+      inside: null, target: 54, fight: { group: 1252, opponent: 54, action: 'encounter' } }
+    world.units.push(opponent)
+    world.fights = [{ id: 1252, members: [54, 2158, 3, 4, 5, 6, 7] }]
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(world, before)
+    const visit = observation.result.visits[0]
+    assert.deepEqual([visit.acquisitionState, visit.acquisitionSubstate, visit.acquisitionTarget,
+      visit.acquisitionWorkTarget, visit.acquisitionFlags2], [25, 2, 20, 2158, 123])
+    const first = structuredClone(observation.result.firstEncounter)
+    assert.equal(first.caller, 'unobserved-post-render')
+    assert.equal(first.opponent.id, 2158)
+    assert.equal(first.opponent.kind, 'warrior')
+    assert.equal(first.memberCount, 7)
+    assert.equal(first.members.length, 6)
+    assert.equal(first.rosterTruncated, true)
+    opponent.hp = 1
+    actor.fight.group = 999
+    world.turn++; scene.renderer.info.render.frame++
+    next()
+    assert.deepEqual(observation.result.firstEncounter, first)
+    world.units = []
+    world.turn++; scene.renderer.info.render.frame++
+    next()
+    assert.match(observation.result.error, /Authored Shaman54 disappeared or died/)
+    assert.deepEqual(observation.result.firstEncounter, first)
+    assert.equal(observation.result.firstAttackTurn, null)
+    assert.deepEqual(observation.result.samples, [])
+  })
+})
