@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 6dddd036b13eccba754448c73279040f6209468e
+      PND_CANDIDATE_SHA: 895181aa7f8f05065215fb3cb813ab8640935351
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed Spy guard candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 6dddd036b13eccba754448c73279040f6209468e
+          ref: 895181aa7f8f05065215fb3cb813ab8640935351
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -112,7 +112,7 @@ jobs:
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/spy-guard-episode.test.mjs tests/spy-discovery-fixture-loading.test.mjs
+          node --test tests/spy-guard-episode.test.mjs tests/spy-discovery-fixture-loading.test.mjs tests/spy-startup-settlement.test.mjs
           # Existing 120s build, 180s browser owner, 150s episode caps remain.
           # This eight-minute step bounds final owner/server teardown as well.
           env -u GITHUB_SHA SPY_DISCOVERY_MODE=guards node scripts/spy-discovery-evidence/run.mjs ../outputs/spy-guards
@@ -128,7 +128,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: spy-guard-6dddd036-${{ github.run_id }}-${{ github.run_attempt }}
+          name: spy-guard-895181aa-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
