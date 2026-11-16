@@ -44,3 +44,9 @@ export async function spyGuardCycle({ kind, enter, leave, read, click, capture, 
   assert.equal(restored.overview, false)
   stage(`${kind}-restored`, restored)
 }
+
+export function spyEvidenceMode(value) {
+  const mode = value ?? 'discovery'
+  assert.ok(mode === 'discovery' || mode === 'guards', 'Unknown Spy evidence mode')
+  return mode
+}

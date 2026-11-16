@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { spyGuardCycle, assertSpyRetained } from '../scripts/spy-discovery-evidence/guards.mjs'
+import { spyGuardCycle, assertSpyRetained, spyEvidenceMode } from '../scripts/spy-discovery-evidence/guards.mjs'
 const state = () => ({ current: true, sameUnit: true, samePerson: true, ownerRegistered: true,
   turn: 3, paused: true, disguise: 0, hp: 50, tribe: 1, invisibility: 0, randomState: 7,
   mode: null, inputMask: 0, selected: [], position: { x: 1, z: 2 }, pending: null, modal: false, overview: false })
@@ -62,4 +62,15 @@ test('Options rejects unrelated noncanvas input and wrong dialog panel', async (
     const p = ports('options'); p.click = async () => admission
     await assert.rejects(spyGuardCycle(p))
   }
+})
+
+test('owner mode is explicit, preserves old default and rejects unknown input', () => {
+  assert.equal(spyEvidenceMode(undefined), 'discovery')
+  assert.equal(spyEvidenceMode('discovery'), 'discovery')
+  assert.equal(spyEvidenceMode('guards'), 'guards')
+  for (const value of ['', 'guard', 'visible', 'all', true]) assert.throws(() => spyEvidenceMode(value))
+  const owner = readFileSync(new URL('../scripts/spy-discovery-evidence/run.mjs', import.meta.url), 'utf8')
+  assert.ok(owner.includes("mode === 'guards' ? spyGuardEpisode : spyDiscoveryEpisode"))
+  assert.ok(owner.includes('browserCapMs = 180000, buildCapMs = 120000'))
+  assert.ok(owner.includes('"spy-discovery-evidence/guards"'))
 })
