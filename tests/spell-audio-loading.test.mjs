@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
+import { createWorld, tick } from '../app/model.ts'
+import { startPendingWorshipAcquisitions } from '../app/worship-acquisition-runtime.ts'
 import { Soundscape, cueVariant } from '../app/audio.ts'
 import { SPELL_CAST_CUES, SPELL_CAST_VOICES } from '../app/spell-audio-cues.ts'
 import native from '../app/original-sound.json' with { type: 'json' }
@@ -105,6 +107,33 @@ test('enable loads and plays the emitted Earthquake, Tornado, Erosion and Volcan
   for (const cue of effectCues) assertEveryVariant(sound, state, cue)
 })
 
+test('ordinary spell acquisition handoff plays its loaded cue exactly once', async t => {
+  const { sound, state } = fixture(t)
+  assert.equal(await sound.enable(), true)
+  const world = createWorld(), head = world.shrines.find(shrine => shrine.kind === 'bridge')
+  // Force the authored completion prerequisite, not the emitted cue or gift queue.
+  // This is a supplied completion fixture, not a natural worship/browser witness.
+  head.reset = false
+  head.forced = true
+  for (let i = 0; i < 7; i++) tick(world, 1 / 12)
+  const gift = world.gifts.find(gift => gift.reward === 'bridge')
+  assert.ok(gift?.ordinaryWorship)
+  assert.deepEqual(world.worshipAcquisition.requests, [gift.id])
+  const cues = [], before = state.starts.length
+  const bridge = {
+    cue: cue => { cues.push(cue); sound.cue(cue) },
+    geometry: () => null,
+    failed() {},
+  }
+  startPendingWorshipAcquisitions(world, bridge)
+  assert.deepEqual(cues, [0x71])
+  assert.equal(state.starts.length, before + 1, 'acquisition must not silently retire an unloaded sample')
+  assert.deepEqual(state.starts.at(-1), { key: 'sound-169', pitch: 1 })
+  startPendingWorshipAcquisitions(world, bridge)
+  assert.deepEqual(cues, [0x71], 'consumed handoff cannot replay its sound')
+  assert.equal(state.starts.length, before + 1)
+})
+
 test('literal sound calls in audited effect and building emitters stay loadable', async t => {
   const { sound, state } = fixture(t)
   assert.equal(await sound.enable(), true)
@@ -187,7 +216,7 @@ test('intentionally empty native Shield voice rows stay silent without consuming
   }
 })
 
-for (const [key, cue] of [['sound-226', SPELL_CAST_VOICES.blue.convertWild],
+for (const [key, cue] of [['sound-169', 0x71], ['sound-226', SPELL_CAST_VOICES.blue.convertWild],
   ['sound-357', 0xa4], ['sound-9', 0xb3], ['sound-38', 0x1a],
   ['sound-394', 0xc4], ['sound-34', 0x1b], ['sound-123', 9]]) {
   test(`new sample ${key} failure remains visible and an explicit retry recovers`, async t => {
