@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { observeBuildingPanelPointerTarget } from '../scripts/tutorial-browser/building-panel-pointer-target.mjs'
 
 const source = readFileSync(new URL('../scripts/tutorial-browser/building-panel-identity.mjs', import.meta.url), 'utf8')
 const stages = ['hold-input', 'held-snapshot', 'positive-frames', 'positive-visible', 'transition', 'hidden-frame', 'hidden-count']
@@ -17,12 +18,12 @@ for (const stage of stages) test(`actual ${stage} marks bracket settled transpor
   for (const hold of ['pointer', 'focus']) for (const reject of [false, true]) {
     const marks = [], calls = []; let release
     const pending = new Promise((resolve, fail) => { release = () => reject ? fail(null) : resolve() })
-    const op = async name => { calls.push(name); await pending }
+    const op = async name => { calls.push(name); await pending; return { x: 110, y: 115 } }
     const page = { mouse: { move: () => op('move') }, evaluate: () => op('evaluate'), waitForFunction: () => op('frame') }
-    const panel = { hover: () => op('hover'), locator: () => ({ focus: () => op('focus') }),
+    const panel = { locator: () => ({ focus: () => op('focus') }),
       isVisible: async () => { await op('visible'); return true }, count: async () => { await op('count'); return 0 } }
-    const run = new AsyncFunction('hold', 'boundary', 'timing', 'page', 'panel', 'assert', 'before', 'transition', '{' + block(stage) + '}')
-    const result = run(hold, 'ownership', { mark: x => marks.push(x) }, page, panel, assert, { frame: 1 }, { frame: 3 })
+    const run = new AsyncFunction('hold', 'boundary', 'timing', 'page', 'panel', 'assert', 'before', 'transition', 'observeBuildingPanelPointerTarget', '{' + block(stage) + '}')
+    const result = run(hold, 'ownership', { mark: x => marks.push(x) }, page, panel, assert, { frame: 1 }, { frame: 3 }, observeBuildingPanelPointerTarget)
     assert.deepEqual(marks, [`${hold}/ownership/${stage}:start`])
     assert.equal(calls.length, 1)
     const observed = result.then(() => ({ rejected: false }), error => ({ rejected: true, error }))
@@ -84,4 +85,42 @@ test('dismantle diagnostics add only six marks and retain the episode deadline',
   const added = source.split('\n').filter(line => line.includes("timing.mark('dismantle/"))
   assert.equal(added.length, 6)
   assert.ok(source.includes('buildingPanelIdentityLimitMs = 45000'))
+})
+
+const runInput = new AsyncFunction('hold', 'boundary', 'timing', 'page', 'panel', 'assert', 'observeBuildingPanelPointerTarget', '{' + block('hold-input') + '}')
+test('pointer hold-input mark spans separate observation and move settlement', async () => {
+  const calls = [], marks = []; let releaseObservation, releaseMove
+  const observed = new Promise(resolve => { releaseObservation = () => resolve({ x: 110, y: 115 }) }),
+    moved = new Promise(resolve => { releaseMove = resolve })
+  const page = { evaluate: callback => {
+    assert.equal(callback, observeBuildingPanelPointerTarget); calls.push('observe'); return observed
+  }, mouse: { move: (x, y) => { assert.deepEqual([x, y], [110, 115]); calls.push('move'); return moved } } }
+  const result = runInput('pointer', 'ownership', { mark: mark => marks.push(mark) }, page, {}, assert, observeBuildingPanelPointerTarget)
+  assert.deepEqual(calls, ['observe'])
+  assert.deepEqual(marks, ['pointer/ownership/hold-input:start'])
+  releaseObservation(); await Promise.resolve(); await Promise.resolve()
+  assert.deepEqual(calls, ['observe', 'move'])
+  assert.deepEqual(marks, ['pointer/ownership/hold-input:start'])
+  releaseMove(); await result
+  assert.deepEqual(marks, ['pointer/ownership/hold-input:start', 'pointer/ownership/hold-input:complete'])
+})
+
+for (const operation of ['observe', 'move']) test(`pointer hold-input retains falsey ${operation} failures before the completion mark`, async () => {
+  for (const failure of [undefined, null, false, 0, NaN, '', Error('transport failed')]) for (const synchronous of [false, true]) {
+    const calls = [], marks = []
+    const invoke = name => {
+      calls.push(name)
+      if (name !== operation) return { x: 110, y: 115 }
+      if (synchronous) throw failure
+      return Promise.reject(failure)
+    }
+    const page = { evaluate: callback => { assert.equal(callback, observeBuildingPanelPointerTarget); return invoke('observe') },
+      mouse: { move: () => invoke('move') } }
+    const result = await runInput('pointer', 'ownership', { mark: mark => marks.push(mark) }, page, {}, assert, observeBuildingPanelPointerTarget)
+      .then(() => ({ rejected: false }), error => ({ rejected: true, error }))
+    assert.equal(result.rejected, true)
+    assert.ok(Object.is(result.error, failure))
+    assert.deepEqual(calls, operation === 'observe' ? ['observe'] : ['observe', 'move'])
+    assert.deepEqual(marks, ['pointer/ownership/hold-input:start'])
+  }
 })
