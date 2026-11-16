@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSy
 import assert from 'node:assert/strict'
 import { parseGameplayResourceArguments, gameplayOwnershipSelection } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
+import { fileSha256 } from '../browser-performance/browser-runtime.mjs'
 import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
@@ -109,7 +110,7 @@ if (selectedScenario === 'query-art-evidence') {
   assert.ok(policy.queryArtSelection(JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')),
     process.env.GITHUB_EVENT_NAME, process.env.PR_HEAD_SHA, selectedScenario), 'Query art evidence requires exact-head same-repository Ready label')
 }
-if (captureProtocolEnabled) assert.equal(selectedScenario, 'tutorial', 'Capture diagnostic requires single-browser Tutorial route')
+if (captureProtocolEnabled) assert.equal(selectedScenario, 'building-panel-edges', 'Capture diagnostic requires single-browser building identity route')
 const resourceArguments = parseGameplayResourceArguments(process.argv.slice(2), selectedScenario)
 const out = resolve(resourceArguments.output || resolve(root, 'outputs/tutorial-browser'))
 const snapshotScenario = resolve(root, 'scripts/browser-performance/snapshot-smoke.mjs')
@@ -121,7 +122,7 @@ const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
 const dist = resolve(out, 'dist')
-const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
+const hash = fileSha256
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', env: descendantEnv }).trim()
 const commit = git('rev-parse', 'HEAD')
 if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact proposed merge required')
@@ -181,6 +182,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
   worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
+  worshipAcquisitionAudioSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-acquisition-audio.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -387,7 +389,9 @@ try {
   receipt.m2PointerF8 = await (await import(pathToFileURL(m2Scenario).href)).default({ browser, url, output: out, fixture: m2Fixture })
   }
   if (selectedScenario === 'tutorial') receipt.spellProjection = await (await import(pathToFileURL(spellProjectionScenario).href)).default({ browser, url, output: out, root, dist })
-  if (selectedScenario === 'tutorial') receipt.buildingPanelIdentity = await withCaptureProtocolWindow(
+  // Keep the complete identity episode in the already-required building lane.
+  // Its 90s outer bound is unchanged; Tutorial retains all 80 icon cases.
+  if (selectedScenario === 'building-panel-edges') receipt.buildingPanelIdentity = await withCaptureProtocolWindow(
     captureProtocolEnabled, line => process.stderr.write(line),
     async () => (await import(pathToFileURL(buildingIdentityScenario).href)).default({ browser, url, output: out }),
   )
@@ -416,7 +420,8 @@ try {
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
   else if (selectedScenario === 'building-icon-evidence') receipt.failureEvidence = 'building-icon-evidence.json'
-  else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = 'building-panel-edges.json'
+  else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = receipt.buildingPanelEdges?.status === 'passed'
+    ? 'building-panel-identity.json' : 'building-panel-edges.json'
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.failureEvidence = 'ordinary-pointer-trace/route.json'
   else if (selectedScenario === 'tutorial' && receipt.primaryTutorial?.contextClosed)
     receipt.failureEvidence = 'Independent episode failure; completed primary snapshot is in primary-tutorial-context.json' 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve, sep } from 'node:path'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { projectionCoverage, sha256 } from './spell-projection-coverage.mjs'
 
 export const spellProjectionLimitMs = 35000
@@ -103,20 +103,7 @@ export default async function spellProjection({ browser, url, output, root, dist
     await button('No').click()
     await button('Start Mission 1').click()
     await bindGame(page)
-    const startup = await page.waitForFunction(() => {
-      const world = window.testStore.getWorld(),
-        skip = document.querySelector('button.skip-introduction')
-      if (!world.inputMask) return 'ready'
-      return skip &&
-        skip.getClientRects().length &&
-        getComputedStyle(skip).visibility !== 'hidden' &&
-        !skip.disabled
-        ? 'skip'
-        : false
-    })
-    if ((await startup.jsonValue()) === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    await settleOpeningMessages(page)
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await page.evaluate(() => {

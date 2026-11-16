@@ -5,6 +5,8 @@ import {
   assertM2DiagnosticLayout,
   m2DiagnosticLayout,
   m2RectanglesOverlap,
+  openM2AuthoredMessage,
+  closeM2AuthoredMessage,
 } from './m2-pointer-f8.mjs'
 
 export const compactMessageCases = Object.freeze([
@@ -53,16 +55,22 @@ export const diagnosticMetricIds = Object.freeze([
 // Read real text fragments, including wrapping, rather than only an outer box.
 // This function is serialized into the page and never changes DOM or game state.
 export function compactMessageWitness() {
+  // A witness is synchronous and read-only. Never retain styles across captures.
+  const styles = new Map()
+  const styleOf = node => {
+    if (!styles.has(node)) styles.set(node, getComputedStyle(node))
+    return styles.get(node)
+  }
   const rect = node => {
     const r = node.getBoundingClientRect()
     return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }
   }
   const visible = node =>
-    node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+    node.getClientRects().length && styleOf(node).visibility !== 'hidden'
   const clips = node => {
     const result = []
     for (let parent = node; parent; parent = parent.parentElement) {
-      const style = getComputedStyle(parent)
+      const style = styleOf(parent)
       const paint = /\b(paint|content|strict)\b/.test(style.contain)
       const clipX = paint || /^(hidden|clip|scroll|auto)$/.test(style.overflowX)
       const clipY = paint || /^(hidden|clip|scroll|auto)$/.test(style.overflowY)
@@ -104,7 +112,7 @@ export function compactMessageWitness() {
   }
   const text = node => {
     const bounds = rect(node),
-      style = getComputedStyle(node),
+      style = styleOf(node),
       fragments = textRuns(node).flatMap(run => run.fragments)
     return {
       ...bounds,
@@ -120,7 +128,7 @@ export function compactMessageWitness() {
   }
   return {
     preference: localStorage.getItem('hud-size'),
-    scale: getComputedStyle(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
+    scale: styleOf(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
     viewport: [innerWidth, innerHeight],
     worldMessages: [...document.querySelectorAll('.world-message')].filter(visible).map(text),
     campaignText: [...document.querySelectorAll('.campaign-messages details[open]>div p')]
@@ -136,7 +144,7 @@ export function compactMessageWitness() {
     overflow:
       document.documentElement.scrollWidth > innerWidth ||
       document.documentElement.scrollHeight > innerHeight,
-    statusLayout: getComputedStyle(document.querySelector('.game-status')).display,
+    statusLayout: styleOf(document.querySelector('.game-status')).display,
   }
 }
 
@@ -229,7 +237,15 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
   }
 }
 
+// Input controls must run outside modal ownership. Reopen the same authored
+// message for layout witnesses; never mutate message/pause state in the page.
+async function closeCampaignForInput(page) {
+  await closeM2AuthoredMessage(page)
+  await page.waitForFunction(() => !window.testSceneRef.current.messageModal && window.testStore.getWorld().paused)
+}
+
 async function selectHudPreference(page, preference) {
+  await closeCampaignForInput(page)
   const button = name => page.getByRole('button', { name, exact: true })
   await page.setViewportSize({ width: 1440, height: 1000 })
   await button('Game settings').click()
@@ -242,6 +258,7 @@ async function selectHudPreference(page, preference) {
   await button('Back').click()
   await button('Continue Game').click()
   await page.locator('dialog[data-original-pause-menu]').waitFor({ state: 'hidden' })
+  await openM2AuthoredMessage(page)
 }
 
 export async function checkCompactMessages({ page, output, stage, report }) {
@@ -266,11 +283,15 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       await page.setViewportSize({ width, height })
       await settle()
       await graph.waitFor({ state: 'hidden' })
+      stage(`compact-${preference}-${width}x${height}-baseline-ready`)
       const before = await page.evaluate(compactMessageWitness)
       assert.equal(before.preference, preference)
       assert.equal(before.statusLayout, 'contents', 'Ordinary layout must remain ungrouped')
+      await closeCampaignForInput(page)
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'visible' })
+      await openM2AuthoredMessage(page)
+      stage(`compact-${preference}-${width}x${height}-diagnostics-open`)
       await page.waitForFunction(() =>
         /\d+\.\d \/ \d+\.\d ms/.test(
           document.querySelector('.fps-graph [data-metric="pointer-tail"]')?.textContent ?? ''
@@ -293,8 +314,11 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       report.cases.push(sample)
       await page.screenshot({ path: resolve(output, screenshot) })
       assertCompactMessageWitness(layout, witness, width, height)
+      stage(`compact-${preference}-${width}x${height}-geometry-verified`)
+      await closeCampaignForInput(page)
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })
+      await openM2AuthoredMessage(page)
       await settle()
       const restored = await page.evaluate(compactMessageWitness)
       sample.restored = restored
@@ -331,6 +355,7 @@ export async function checkExpandedPickingPaths({ page, output, stage, report })
       openCampaignDetails.push(detail)
       await detail.locator('summary').click()
     }
+  await closeCampaignForInput(page)
   await page.keyboard.press('F8')
   await graph.waitFor({ state: 'visible' })
   await page.waitForFunction(() => /^\d+\.\d{2}$/.test(document.querySelector('[data-metric="pick-numeric"]')?.textContent ?? ''))

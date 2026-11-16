@@ -578,7 +578,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
         })
         return true
       },
-      () => sound(w, 10, u)
+      () => sound(w, 11, u)
     )
   let admitted = false
   const next = stepLiveOrderQueue(w, u, p, {

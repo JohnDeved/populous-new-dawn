@@ -3,6 +3,7 @@ import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { settlePauseStyleViewport } from './pause-style-resize.mjs'
+import { settleOpeningMessages } from '../browser-game.mjs'
 import { openCampaignFromMainMenu } from '../browser-new-game.mjs'
 import { waitForPauseStartup, skipPauseIntroduction } from './original-pause-checkpoint-recovery.mjs'
 
@@ -44,6 +45,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       if (await desktop.isVisible()) await desktop.click()
       const action = await waitForPauseStartup(page)
       if (action === 'skip') await skipPauseIntroduction(page)
+      await settleOpeningMessages(page)
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.waitForFunction(() => window.testStore.getCheckpointReadStatus() === 'unavailable')
       await button('Menu').click()

@@ -1,12 +1,13 @@
 // Browser-serialized camera-only fixture. It follows one declared actor, never
 // searches for a more favorable episode, renders, or advances the simulation. Supported focus updates camera lighting metadata.
-export function installRecoilCameraFollow({ order }) {
+export function installRecoilCameraFollow({ order, protocol = 'running-native-recoil-entry-v1' }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const observer = window.__pndMeleeObservation
   const actor = world.units.find(unit => unit.id === 54)
   const require = (condition, message) => { if (!condition) throw Error(message) }
-  require(observer?.result.protocol === 'running-native-recoil-entry-v1', 'Recoil observer required')
-  require(observer.result.firstAttackTurn === null && !observer.result.done, 'Follow must arm before the first recoil')
+  require(['running-native-recoil-entry-v1', 'running-original-entry-v2'].includes(protocol), 'Known melee observer protocol required')
+  require(observer?.result.protocol === protocol, 'Matching melee observer required')
+  require(observer.result.firstAttackTurn === null && !observer.result.done, 'Follow must arm before the first observed entry')
   require(order?.target === 20 && order.selected.length === 1 && order.selected[0] === 54 &&
     order.lastOrderTurn === world.lastOrderTurn && order.paused === false, 'Recorded public54-to20 order required')
   require(actor && actor.kind === 'shaman' && actor.team === 'blue' && actor.hp > 0, 'Authored actor54 required')

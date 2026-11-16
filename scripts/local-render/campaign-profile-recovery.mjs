@@ -1,10 +1,10 @@
 import { dependencyReceipt } from '../orchestration/dependency-profile.mjs'
 import assert from 'node:assert/strict'
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
-import { pauseStartupReady, skipPauseIntroduction, recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
+import { recoverVisibleIntroduction } from './original-pause-checkpoint-recovery.mjs'
 import { waitRecoveryReadiness } from '../tutorial-browser/profile-readiness.mjs'
 import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-game.mjs'
-import { showSelectorControls } from '../browser-game.mjs'
+import { showSelectorControls, settleOpeningMessages } from '../browser-game.mjs'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -218,10 +218,7 @@ export default async function ({ browser, context: initialContext, page: initial
       return { turn: world.turn, randomState: world.randomState, drawMode: world.drawMode }
     })
     await bindGame(page)
-    const startup = await page.waitForFunction(pauseStartupReady)
-    const action = await startup.jsonValue()
-    await startup.dispose()
-    if (action === 'skip') await skipPauseIntroduction(page)
+    await settleOpeningMessages(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
@@ -306,10 +303,7 @@ export default async function ({ browser, context: initialContext, page: initial
       await startup.getByRole('button', { name: 'Panel Mission 1', exact: true }).click()
       await startup.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
       await bindGame(page)
-      const startupReady = await page.waitForFunction(pauseStartupReady)
-      const action = await startupReady.jsonValue()
-      await startupReady.dispose()
-      if (action === 'skip') await skipPauseIntroduction(page)
+      await settleOpeningMessages(page)
       entry.readiness = await waitRecoveryReadiness(page, { signal, onBlocked: recoverVisibleIntroduction(page) })
       await page.getByRole('button', { name: 'Game settings', exact: true }).click()
       const menu = page.locator('dialog[data-original-pause-menu]')

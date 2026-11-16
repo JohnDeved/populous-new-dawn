@@ -55,6 +55,7 @@ async function runEpisode(faults = {}) {
     bindings = {
       assert, writeFileSync(path, body) { assert.equal(path, '/supplied/f9-cheats.json'); writes.push(JSON.parse(body)) },
       resolve: (...parts) => parts.join('/'), bindGame: async () => {}, waitForStartupMenu: async () => {},
+      settleOpeningMessages: async () => {},
       SPELLS: [], rules: {}, beginOrdinaryCastingWitness: async () => ({}), waitForCastingWitness: async () => {},
       retainCastingWitness: async () => { retained++; rejectAt('retention'); return {} },
       prepareCastingF9: async () => ({

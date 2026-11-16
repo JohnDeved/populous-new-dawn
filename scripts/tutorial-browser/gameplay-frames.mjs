@@ -5,7 +5,7 @@ import { captureGameplayThreeCycleHeapSample, gameplayThreeCycleHeapPolicy, game
 import { captureGameplayMatchedHeapSample, gameplayMatchedHeapPolicy, gameplayMatchedHeapLimits, gameplayMatchedProtocol, gameplayHeapResourceLimits, validateGameplayMatchedHeapProbe, summarizeGameplayMatchedWorkload } from './gameplay-heap-observer.mjs'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, showAllMissions } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
 import { m2NativePointerTarget } from './frame-export.mjs'
 import { m2HudPoint, m2RouteReady, m2StartupReady } from './m2-pointer-f8.mjs'
 import { observeGameplayResources, captureRetiredGameplayScene, assertResourceLive, summarizeResourceRestart, assertResourceScenario } from './gameplay-resource-observer.mjs'
@@ -84,8 +84,8 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
     report.startup = await startup.jsonValue()
     await startup.dispose()
     assert.equal(report.startup.level, 2)
-    if (report.startup.action === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+    // Opening messages pause flyby skip; close them through the public UI before measuring.
+    await settleOpeningMessages(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
     const runCycle = async (report, prefix = '') => {
       await page.mouse.move(900, 400)
@@ -238,7 +238,7 @@ export default async function ({ page, url, output, expectedRevision, measuredPh
         const restarted = await page.waitForFunction(m2StartupReady)
         const ready = await restarted.jsonValue(); await restarted.dispose()
         assert.equal(ready.level, 2)
-        if (ready.action === 'skip') await page.getByRole('button', { name: /^Skip introduction/ }).click()
+        await settleOpeningMessages(page)
         await page.waitForFunction(() => !window.testStore.getWorld().inputMask && !window.testStore.getWorld().paused)
         const rendered = await page.waitForFunction(() => {
           const memory = window.testSceneRef?.current?.renderer.info.memory
