@@ -48,8 +48,10 @@ test('actual root layout emits matching restrained VideoGame JSON-LD and preserv
   }
 })
 
-test('framework file metadata cannot replace the explicitly image-free social cards', async () => {
+test('framework fallback boundary respects explicit empty social images', async () => {
   const { applyFileBasedMetadata } = await import(new URL('./server/file-based-metadata.js', import.meta.resolve('vinext')))
+  // This helper boundary excludes per-page sources; actual route discovery is
+  // covered below, and the deployed document is checked separately.
   const routes = ['openGraph', 'twitter'].map(kind => ({
     routePrefix: '', routeSegments: [],
     headData: { kind, href: '/unrelated-game-asset.png', type: 'image/png' },
@@ -57,4 +59,17 @@ test('framework file metadata cannot replace the explicitly image-free social ca
   const applied = await applyFileBasedMetadata(metadata, '/', {}, routes)
   assert.deepEqual(applied.openGraph.images, [])
   assert.deepEqual(applied.twitter.images, [])
+})
+
+// Scan the actual app tree: numeric gameplay asset names are not social routes.
+test('framework scanner accepts only actual metadata filenames', async () => {
+  const { scanMetadataFiles, matchMetadataFileBaseName } = await import(new URL('./server/metadata-routes.js', import.meta.resolve('vinext')))
+  for (const kind of ['icon', 'apple-icon', 'opengraph-image', 'twitter-image']) {
+    assert.equal(matchMetadataFileBaseName(kind, kind), kind)
+    assert.equal(matchMetadataFileBaseName(kind, `${kind}1`), `${kind}1`)
+    assert.equal(matchMetadataFileBaseName(kind, `${'x'.repeat(kind.length)}1`), null)
+  }
+  assert.equal(matchMetadataFileBaseName('twitter-image', 'stone-head-149'), null)
+  const routes = scanMetadataFiles(new URL('../app', import.meta.url).pathname)
+  assert.deepEqual(routes.filter(route => ['twitter-image', 'opengraph-image'].includes(route.type)), [])
 })
