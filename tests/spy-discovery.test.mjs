@@ -345,3 +345,59 @@ for (const owner of ['flight', 'entry'])
     assert.equal(person.disguise, 64)
     assert.equal(world.objectCells.objects.get(unit.id), person)
   })
+
+// Node owns only in-session checkpoints; never open a browser/user save database.
+assert.equal(typeof indexedDB, 'undefined')
+for (const transition of ['restart', 'startMission']) {
+  test(`same pending save reloads independently and ${transition} clears live pending discovery`, async () => {
+    const { world, unit } = fixture(), store = createGameStore()
+    Object.assign(store.getWorld(), world)
+    const original = store.getWorld(), originalPerson = original.units.find(u => u.id === unit.id).native
+    original.paused = true
+    assert.equal(requestSpyDiscovery(original, unit.id), true)
+    assert.equal(await store.saveCheckpoint(), false, 'session checkpoint only, no disk write')
+    const originalBefore = structuredClone(originalPerson), previous = []
+    for (let iteration = 0; iteration < 3; iteration++) {
+      assert.equal(store.loadCheckpoint(), true)
+      const restored = store.getWorld(), person = restored.units.find(u => u.id === unit.id).native
+      assert.notEqual(restored, original)
+      assert.notEqual(person, originalPerson)
+      for (const prior of previous) assert.notEqual(person, prior.person)
+      assert.deepEqual(restored.spyDiscovery, { id: unit.id })
+      assert.equal(person.disguise, 0, 'pending save was not mutated by a prior load')
+      assert.equal(restored.paused, true)
+      api.tick(restored, 1 / 12)
+      assert.deepEqual(restored.spyDiscovery, { id: unit.id }, 'paused load keeps pending input')
+      restored.paused = false
+      api.tick(restored, 1 / 12)
+      assert.equal(person.disguise, 64)
+      assert.equal(restored.spyDiscovery, null)
+      assert.equal(processSpyDiscovery(restored), false, 'same live command cannot replay')
+      for (const prior of previous) assert.deepEqual(prior.person, prior.snapshot)
+      assert.deepEqual(originalPerson, originalBefore)
+      previous.push({ person, snapshot: structuredClone(person) })
+    }
+    // Replace a live World while its command is still pending, not only after consumption.
+    assert.equal(store.loadCheckpoint(), true)
+    const abandoned = store.getWorld(), abandonedPerson = abandoned.units.find(u => u.id === unit.id).native
+    const abandonedBefore = structuredClone(abandonedPerson)
+    assert.deepEqual(abandoned.spyDiscovery, { id: unit.id })
+    if (transition === 'restart') store.restart()
+    else store.startMission(2)
+    const replacement = store.getWorld()
+    assert.notEqual(replacement, abandoned)
+    assert.equal(replacement.outcome.level, transition === 'restart' ? 1 : 2)
+    assert.equal(replacement.spyDiscovery, null)
+    assert.equal(processSpyDiscovery(replacement), false)
+    assert.deepEqual(abandonedPerson, abandonedBefore)
+    assert.deepEqual(abandoned.spyDiscovery, { id: unit.id }, 'replacement does not mutate old World')
+    // Restart/new mission intentionally preserves the separate session save.
+    assert.equal(store.loadCheckpoint(), true)
+    const loadedAgain = store.getWorld()
+    assert.deepEqual(loadedAgain.spyDiscovery, { id: unit.id })
+    assert.equal(loadedAgain.outcome.level, 1)
+    assert.equal(loadedAgain.units.find(u => u.id === unit.id).native.disguise, 0)
+    for (const prior of previous) assert.deepEqual(prior.person, prior.snapshot)
+    assert.deepEqual(originalPerson, originalBefore)
+  })
+}

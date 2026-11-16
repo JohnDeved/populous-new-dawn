@@ -22,7 +22,7 @@ function fixture({ focus } = {}) {
     cancelAnimationFrame: key => pending.delete(key) })
   const install = vm.runInContext(`(${installRecoilCameraFollow.toString()})`, context)
   const order = { target: 20, selected: [54], paused: false, lastOrderTurn: 100 }
-  const arm = () => install({ order })
+  const arm = protocol => install({ order, protocol })
   const tick = (recordObserver = true) => {
     timestamp += 16; scene.renderer.info.render.frame++
     if (recordObserver) observer.result.visits.push({ rafTimestampMs: timestamp, stamp: scene.renderer.info.render.frame, actorInspected: true })
@@ -107,4 +107,16 @@ test('actual production focus and updateView preserve all World fields except de
   assert.equal(world.lightView.y, scene.cameraPosition.y << 16 >> 16)
   assert.equal(scene.tooltip.draw, 0)
   assert.equal(scene.cameraPosition.angle, 523)
+})
+
+test('attack follower accepts only explicitly matching attack protocol with the same guards', () => {
+  const f = fixture()
+  f.observer.result.protocol = 'running-original-entry-v2'
+  assert.throws(() => f.arm(), /Matching melee observer/)
+  assert.throws(() => f.arm('arbitrary'), /Known melee observer/)
+  f.arm('running-original-entry-v2'); f.tick()
+  assert.equal(f.calls.length, 1)
+  assert.equal(f.window.__pndRecoilCameraFollow.result.error, null)
+  f.window.__pndRecoilCameraFollow.stop()
+  assert.equal(f.pending.size, 0)
 })

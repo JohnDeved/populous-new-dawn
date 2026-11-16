@@ -549,11 +549,17 @@ test('mission marker task sends one reserved brave to marker one',async()=>{
  until(w,()=>!(task.flags&1),1);assert.equal(w.ai.selectionOwner,10);assert.equal(w.ai.flags&2,0);
 });
 
-test('mission-one ordinary marker guard patrols and answers nearby enemies',async()=>{
+test('mission-one marker task on supplied land walks, guards and answers nearby enemies',async()=>{
  const {currentPersonOrder}=await import('../app/person-orders.ts');
+ const {withinCombatArea}=await import('../app/combat-pursuit.ts');
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
  for(const u of w.units)if(u.kind!=='shaman')u.hp=0;
- tick(w,1/12);const chosen=addUnit(w,'red','warrior',{x:10,z:-37});
+ tick(w,1/12);
+ // The authored Red island is wholly inside the command-11 admission area.
+ // Supply land beyond it so this task must walk without an obsolete command-3 leg.
+ w.terrain.fill(3);w.terrainVersion++;
+ const chosen=addUnit(w,'red','warrior',{x:20,z:-26});
+ const initial={x:chosen.x,z:chosen.z},markerPoint=nativeCellPoint(level.markers[0]);
  w.turn=39;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===24);
  assert.deepEqual(task&&{extra:task.extra,route:task.route[0]},{extra:0,route:{marker:0,secondary:-1,quotas:[0,1,0,0]}});
@@ -561,9 +567,13 @@ test('mission-one ordinary marker guard patrols and answers nearby enemies',asyn
  const p=chosen.native,orders=()=>p.commands.filter(Boolean).map(id=>w.buildingOrders.records[id]);
  // 0x4cedd0 single marker: a non-Preacher gets only the command-11 guard, no leading move.
  assert.deepEqual(orders().map(o=>[o.model,o.a,o.b]),[[11,level.markers[0],0x606]]);
+ assert.equal(withinCombatArea(p,orders()[0],undefined,{vehicleReady:()=>true,range:()=>0}),false,'the supplied guard starts outside its native admission area');
  until(w,()=>currentPersonOrder(w.buildingOrders,p)?.model===11&&p.commandAux===1,10);
+ assert.notDeepEqual({x:chosen.x,z:chosen.z},initial,'the selected guard must actually walk before reaching the guard phase');
+ assert.ok(Math.hypot(chosen.x-markerPoint.x,chosen.z-markerPoint.z)<Math.hypot(initial.x-markerPoint.x,initial.z-markerPoint.z),'the ordinary single-marker task must move the guard closer to its marker');
  const marker=nativeCellPoint(level.markers[0]),building=addBuilding(w,'blue','hut',{x:marker.x+4,z:marker.z+4},true);
- const outside=addUnit(w,'blue','warrior',{x:marker.x+8,z:marker.z});p.counter=1;tick(w,1/12);
+ // Leave room for ordinary hostile movement without crossing into the sensor area.
+ const outside=addUnit(w,'blue','warrior',{x:marker.x+12,z:marker.z});p.counter=1;tick(w,1/12);
  assert.deepEqual([p.commandAux,p.substate,p.workTarget],[1,0,0],'buildings and the outer cell do not wake the guard');
  const target=addUnit(w,'blue','warrior',{x:marker.x+6,z:marker.z});
  p.counter=0;tick(w,1/12);assert.equal(p.commandAux,1,'the sensor skips its alternate visit');
