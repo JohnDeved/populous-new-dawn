@@ -126,7 +126,8 @@ export default async function ({ page, openMission, output, receipt, observeChec
   const report = { method: 'Authored M10, trusted HUD/mouse input, real RAF, public Save and Load across browser termination',
     limits: 'Bounded boarding and same-shore unload; not sea traversal, mission completion, campaign unlock, native parity or hardware performance',
     source: receipt.source, phase: receipt.profile.mode, actions: [], observations: [], selection: [] }
-  const save = () => writeFileSync(resolve(output, 'boat-checkpoint.json'), JSON.stringify(report, null, 2) + '\n')
+  // Compact whitespace only: retain every field and every synchronous save point.
+  const save = () => writeFileSync(resolve(output, 'boat-checkpoint.json'), JSON.stringify(report) + '\n')
   const state = async label => {
     const row = await readMission10Observation(page, { label, party, boatId })
     report.observations.push(row); save(); return row
