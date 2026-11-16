@@ -1,8 +1,8 @@
-name: Plain Vite Home held-Ctrl placement witness
+name: Plain Vite Home Spy guard witness
 
 on:
   push:
-    branches: [ci/held-ctrl-1086-20261115]
+    branches: [ci/spy-guard-1095-20261116]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -17,12 +17,12 @@ concurrency:
 
 jobs:
   screenshot:
-    name: Plain Vite Home held-Ctrl placement witness
+    name: Plain Vite Home Spy guard witness
     if: ${{ github.repository == 'JohnDeved/populous-new-dawn' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 80d27e3de6da671ad3ffafb40eaeace665b9eeb3
+      PND_CANDIDATE_SHA: 6dddd036b13eccba754448c73279040f6209468e
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -38,10 +38,10 @@ jobs:
           path: trial-infrastructure
           persist-credentials: false
           sparse-checkout: scripts/ci-webgl-trial
-      - name: Check out exact reviewed held-Ctrl candidate
+      - name: Check out exact reviewed Spy guard candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 80d27e3de6da671ad3ffafb40eaeace665b9eeb3
+          ref: 6dddd036b13eccba754448c73279040f6209468e
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -73,25 +73,62 @@ jobs:
           esac
           dpkg-query --show --showformat='${Package} ${Version} ${Architecture}\n' google-chrome-stable
           sha256sum /opt/google/chrome/chrome
-      - name: Check held-Ctrl placement on exact reviewed source
+      - name: Snapshot dependency metadata before witness
+        id: dependencies
         if: ${{ !cancelled() && steps.setup.outcome == 'success' }}
+        run: |
+          mkdir -p outputs
+          cat > "$RUNNER_TEMP/spy-dependency-metadata.mjs" <<'NODE'
+          import { readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs'
+          import { resolve } from 'node:path'
+          import { createHash } from 'node:crypto'
+          import { runInNewContext } from 'node:vm'
+          import assert from 'node:assert/strict'
+          const source = readFileSync('after-source/scripts/tutorial-browser/run.mjs', 'utf8')
+          const start = source.indexOf('function metadata(path, prefix =')
+          const end = source.indexOf('function verifySource()', start)
+          assert.ok(start >= 0 && end > start, 'Existing Tutorial metadata owner required')
+          const helper = source.slice(start, end)
+          const metadata = runInNewContext(helper + '\nmetadata', { readdirSync, statSync, resolve })
+          const hash = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
+          const current = metadata(resolve('after-source/node_modules'))
+          const phase = process.argv[2]
+          assert.ok(phase === 'before' || phase === 'after')
+          writeFileSync(`outputs/spy-dependencies-${phase}.json`, JSON.stringify(current))
+          if (phase === 'before') {
+            writeFileSync('outputs/spy-dependency-integrity.json', JSON.stringify({ status: 'pending', helperSha256: createHash('sha256').update(helper).digest('hex'), beforeSha256: hash(current), scope: 'Existing Tutorial regular-file size/mtime metadata; not package-byte or symlink identity proof' }))
+          } else {
+            const before = JSON.parse(readFileSync('outputs/spy-dependencies-before.json', 'utf8'))
+            const changes = Object.keys({ ...before, ...current }).filter(key => JSON.stringify(before[key]) !== JSON.stringify(current[key]))
+            const receipt = JSON.parse(readFileSync('outputs/spy-dependency-integrity.json', 'utf8'))
+            Object.assign(receipt, { status: changes.length ? 'failed' : 'passed', afterSha256: hash(current), changes })
+            writeFileSync('outputs/spy-dependency-integrity.json', JSON.stringify(receipt))
+            assert.equal(changes.length, 0, 'Dependency metadata changed')
+          }
+          NODE
+          node "$RUNNER_TEMP/spy-dependency-metadata.mjs" before
+      - name: Check Spy guard on exact reviewed source
+        if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.dependencies.outcome == 'success' }}
         timeout-minutes: 8
         run: |
           cd after-source
-          node --test tests/held-ctrl-placement-browser.test.mjs tests/scenery-placement-browser.test.mjs tests/building-placement-controls.test.mjs tests/qualify-capture-inputs.test.mjs tests/capture-preimport.test.mjs tests/globe-held-enter-hosted.test.mjs tests/query-art-integration.test.mjs tests/ordinary-pointer-trace-integration.test.mjs tests/ordinary-pointer-calibration-integration.test.mjs tests/building-icon-integration.test.mjs
-          # Dedicated 90s owner includes context setup and 60s episode cleanup.
-          # This unchanged eight-minute step also bounds final owner teardown.
-          env -u GITHUB_SHA POPULOUS_BROWSER_SCENARIO=held-ctrl-placement node scripts/tutorial-browser/run.mjs ../outputs/held-ctrl
+          node --test tests/spy-guard-episode.test.mjs tests/spy-discovery-fixture-loading.test.mjs
+          # Existing 120s build, 180s browser owner, 150s episode caps remain.
+          # This eight-minute step bounds final owner/server teardown as well.
+          env -u GITHUB_SHA SPY_DISCOVERY_MODE=guards node scripts/spy-discovery-evidence/run.mjs ../outputs/spy-guards
+      - name: Verify dependency metadata even after witness failure
+        if: ${{ always() && steps.dependencies.outcome == 'success' }}
+        run: node "$RUNNER_TEMP/spy-dependency-metadata.mjs" after
       - name: Reject any tracked source or experiment mutation
         if: ${{ always() && steps.setup.outcome == 'success' }}
         run: |
           git -C after-source diff --exit-code HEAD --
           git -C trial-infrastructure diff --exit-code HEAD --
-      - name: Retain held-Ctrl receipts and screenshots
+      - name: Retain Spy guard receipts and screenshots
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: held-ctrl-80d27e3d-${{ github.run_id }}-${{ github.run_attempt }}
+          name: spy-guard-6dddd036-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
