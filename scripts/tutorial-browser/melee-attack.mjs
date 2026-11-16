@@ -159,13 +159,17 @@ export function installMeleeFrameObserver(input) {
   // countdown or a game getter. Keep a private copy for the entire episode.
   const mapping = structuredClone(originalMapping)
   const result = { protocol: recoil ? 'running-native-recoil-entry-v1' : 'running-original-entry-v2', samples: [], crops: [], visits: [], visitLimit,
-    error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null }
-  let raf, stopped = false, firstPerson = null, firstEntry = null
+    error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null, firstEncounter: null,
+    rosterDiagnostics: { records: [], cap: 512, droppedTransitions: 0, truncatedRecords: 0, terminal: null } }
+  let raf, stopped = false, firstPerson = null, firstEntry = null, lastRosterSignature = null
   const cropKeys = new Set(), copies = []
   const stop = (reason = 'stopped') => {
     if (!stopped) {
       result.terminal = { turn: world.turn, stamp: scene.renderer.info.render.frame, reason }
       stopped = true; cancelAnimationFrame(raf)
+      result.rosterDiagnostics.terminal = { ...result.terminal, lastSignature: lastRosterSignature,
+        recorded: result.rosterDiagnostics.records.length, droppedTransitions: result.rosterDiagnostics.droppedTransitions,
+        truncatedRecords: result.rosterDiagnostics.truncatedRecords }
     }
     return result
   }
@@ -222,12 +226,57 @@ export function installMeleeFrameObserver(input) {
         throw Error('Melee canvas disconnected or document hidden')
       if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
       const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
+      const acquisition = unit?.native ?? fight?.motion
       Object.assign(diagnostic, { stage: 'observed', actorInspected: true,
         alive: !!unit && unit.hp > 0, hp: unit?.hp ?? null,
         action: fight?.action ?? null, started: fight?.started ?? null,
+        // Per-visit scalar diagnostics retain acquisition state and sampled
+        // RNG without consuming it; the one-time roster snapshot is separate.
+        // These are post-render observations, not exact random-call provenance.
+        randomState: world.randomState ?? null, actorX: unit?.x ?? null, actorZ: unit?.z ?? null,
+        orderTarget: unit?.target ?? null, fightGroup: fight?.group ?? null,
+        opponent: fight?.opponent ?? null, remaining: fight?.remaining ?? null,
+        personId: fight?.motion?.id ?? null, personState: fight?.motion?.state ?? null,
+        acquisitionState: acquisition?.state ?? null, acquisitionSubstate: acquisition?.substate ?? null,
+        acquisitionTarget: acquisition?.target ?? null, acquisitionWorkTarget: acquisition?.workTarget ?? null,
+        acquisitionFlags2: acquisition?.flags2 ?? null,
         f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
+      // Bounded observational transitions, never gameplay admission or retry.
+      const group = fight ? world.fights?.find(group => group.id === fight.group) : undefined
+      const memberIds = group?.members ?? [], slotIds = group?.slots ?? []
+      const rosterState = { group: fight?.group ?? null,
+        presence: fight ? (group ? 'present' : 'missing') : 'no-fight',
+        memberCount: memberIds.length, slotCount: slotIds.length,
+        memberIds: memberIds.slice(0, 6), slotIds: slotIds.slice(0, 6), center: group?.center ?? null,
+        action: fight?.action ?? null, opponent: fight?.opponent ?? null,
+        actorState: acquisition?.state ?? null }
+      const signature = JSON.stringify(rosterState)
+      if (signature !== lastRosterSignature) {
+        lastRosterSignature = signature
+        const ledger = result.rosterDiagnostics
+        if (ledger.records.length >= ledger.cap) ledger.droppedTransitions++
+        else {
+          const members = rosterState.memberIds.map(id => {
+            const member = world.units.find(member => member.id === id)
+            return member ? { id: member.id, kind: member.kind, team: member.team, hp: member.hp,
+              x: member.x, z: member.z, inside: member.inside ?? null, target: member.target ?? null,
+              fightGroup: member.fight?.group ?? null, opponent: member.fight?.opponent ?? null,
+              action: member.fight?.action ?? null, remaining: member.fight?.remaining ?? null,
+              personState: (member.native ?? member.fight?.motion)?.state ?? null } : null
+          })
+          const record = { turn: world.turn, stamp: diagnostic.stamp, ...rosterState, members,
+            rosterTruncated: memberIds.length > 6, slotsTruncated: slotIds.length > 6 }
+          ledger.records.push(record)
+          if (record.rosterTruncated || record.slotsTruncated) ledger.truncatedRecords++
+          // First observed fight may already be in approach; caller is not observed.
+          if (fight && !result.firstEncounter) result.firstEncounter = {
+            ...record, caller: 'unobserved-post-render',
+            opponent: members.find(member => member?.id === fight.opponent) ?? null,
+            opponentIdentityUnavailable: !members.some(member => member?.id === fight.opponent) }
+        }
+      }
       // A recoil action can be assigned after this actor's controller visit.
       // Wait only for its first processed entry, never skip a processed episode.
       const pendingRecoil = recoil && fight?.action === 'recoil' && fight.remaining === undefined

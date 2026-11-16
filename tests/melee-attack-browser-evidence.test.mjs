@@ -942,3 +942,172 @@ test('melee admission settles opening before unchanged natural-turn and attack g
   assert.match(source.slice(start, pause), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
   assert.match(source, /export const meleeAttackLimitMs = 75000/)
 })
+
+
+test('pre-entry scalar diagnostics retain encounter identity and RNG without consuming or replacing the episode', () => {
+  withObserverFixture(({ world, scene, next, observation, drawCalls }) => {
+    const actor = world.units[0]
+    Object.assign(actor, { x: 12.5, z: -3, target: 20 })
+    actor.fight.action = 'encounter'
+    actor.fight.opponent = 19
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(world, before)
+    const first = observation.result.visits[0]
+    assert.deepEqual(Object.fromEntries(['randomState', 'actorX', 'actorZ', 'orderTarget',
+      'fightGroup', 'opponent', 'remaining', 'personId', 'personState'].map(key => [key, first[key]])), {
+      randomState: 12345, actorX: 12.5, actorZ: -3, orderTarget: 20,
+      fightGroup: 1252, opponent: 19, remaining: 3, personId: 54, personState: 25,
+    })
+    assert.equal(observation.result.entry, null)
+    assert.equal(drawCalls.length, 0)
+    // Supplied next-render state, not an observer-induced game advance.
+    world.turn++
+    world.randomState = 67890
+    actor.fight.opponent = 13
+    actor.fight.action = 'ready'
+    scene.renderer.info.render.frame++
+    const nextWorld = structuredClone(world)
+    next()
+    assert.deepEqual(world, nextWorld)
+    assert.equal(observation.result.visits[1].randomState, 67890)
+    assert.equal(observation.result.visits[1].opponent, 13)
+    assert.equal(first.randomState, 12345)
+    assert.equal(first.opponent, 19)
+    assert.equal(observation.result.firstAttackTurn, null)
+  })
+})
+
+test('diagnostics preserve actor-death failure before the first attack rather than waiting for another actor', () => {
+  withObserverFixture(({ world, next, observation }) => {
+    world.units = []
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(world, before)
+    assert.match(observation.result.error, /Authored Shaman54 disappeared or died/)
+    const visit = observation.result.visits[0]
+    assert.equal(visit.randomState, 12345)
+    for (const key of ['actorX', 'actorZ', 'orderTarget', 'fightGroup', 'opponent', 'remaining', 'personId', 'personState'])
+      assert.equal(visit[key], null)
+    assert.equal(observation.result.terminal.reason, 'error')
+    assert.equal(observation.result.firstAttackTurn, null)
+    assert.equal(observation.result.samples.length, 0)
+    assert.equal(observation.result.crops.length, 0)
+  })
+})
+
+test('first encounter snapshots bounded identity once without rewriting acquisition or selecting another fight', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    const actor = world.units[0]
+    actor.fight.action = 'encounter'
+    Object.assign(actor.fight.motion, { substate: 2, target: 20, workTarget: 2158, flags2: 123 })
+    actor.fight.opponent = 2158
+    const opponent = { id: 2158, kind: 'warrior', team: 'green', hp: 90, x: 1, z: 2,
+      inside: null, target: 54, fight: { group: 1252, opponent: 54, action: 'encounter' } }
+    world.units.push(opponent)
+    world.fights = [{ id: 1252, members: [54, 2158, 3, 4, 5, 6, 7] }]
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(world, before)
+    const visit = observation.result.visits[0]
+    assert.deepEqual([visit.acquisitionState, visit.acquisitionSubstate, visit.acquisitionTarget,
+      visit.acquisitionWorkTarget, visit.acquisitionFlags2], [25, 2, 20, 2158, 123])
+    const first = structuredClone(observation.result.firstEncounter)
+    assert.equal(first.caller, 'unobserved-post-render')
+    assert.equal(first.opponent.id, 2158)
+    assert.equal(first.opponent.kind, 'warrior')
+    assert.equal(first.memberCount, 7)
+    assert.equal(first.members.length, 6)
+    assert.equal(first.rosterTruncated, true)
+    opponent.hp = 1
+    actor.fight.group = 999
+    world.turn++; scene.renderer.info.render.frame++
+    next()
+    assert.deepEqual(observation.result.firstEncounter, first)
+    world.units = []
+    world.turn++; scene.renderer.info.render.frame++
+    next()
+    assert.match(observation.result.error, /Authored Shaman54 disappeared or died/)
+    assert.deepEqual(observation.result.firstEncounter, first)
+    assert.equal(observation.result.firstAttackTurn, null)
+    assert.deepEqual(observation.result.samples, [])
+  })
+})
+
+test('roster diagnostics deduplicate scalar changes and bound emitted identity lookups', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    const actor = world.units[0]
+    actor.fight.action = 'ready'
+    world.fights = [{ id: actor.fight.group, members: [54], slots: [54, 0], center: 54 }]
+    let finds = 0
+    const find = world.units.find
+    Object.defineProperty(world.units, 'find', { configurable: true, value: function (...args) { finds++; return find.apply(this, args) } })
+    const before = structuredClone(world)
+    next()
+    assert.deepEqual(structuredClone(world), before)
+    assert.equal(finds, 2, 'existing actor lookup plus one emitted member lookup')
+    const ledger = observation.result.rosterDiagnostics
+    const first = structuredClone(ledger.records[0])
+    actor.hp--
+    actor.fight.remaining--
+    world.turn++; scene.renderer.info.render.frame++; finds = 0; next()
+    assert.equal(finds, 1, 'HP/countdown alone emits no roster record or member scan')
+    assert.equal(ledger.records.length, 1)
+    assert.deepEqual(ledger.records[0], first)
+    world.fights[0].center = 99
+    next()
+    assert.equal(ledger.records.length, 2)
+    assert.equal(ledger.records[1].members[0].hp, actor.hp)
+    assert.equal(ledger.records[0].center, 54)
+    delete world.units.find
+  })
+})
+
+test('roster cap drops observed transitions not ticks and never hides original actor death', () => {
+  withObserverFixture(({ world, scene, next, observation }) => {
+    const actor = world.units[0]
+    actor.fight.action = 'ready'
+    world.fights = [{ id: actor.fight.group, members: [54], slots: [54], center: 54 }]
+    for (let i = 0; i < 520; i++) {
+      world.fights[0].center = i
+      world.turn++; scene.renderer.info.render.frame++; next()
+    }
+    const ledger = observation.result.rosterDiagnostics
+    assert.equal(ledger.records.length, 512)
+    assert.equal(ledger.droppedTransitions, 8)
+    next(); next()
+    assert.equal(ledger.droppedTransitions, 8)
+    assert.equal(observation.result.done, false)
+    const first = structuredClone(observation.result.firstEncounter)
+    world.units = []
+    world.turn++; scene.renderer.info.render.frame++; next()
+    assert.match(observation.result.error, /Authored Shaman54 disappeared or died/)
+    assert.equal(ledger.terminal.reason, 'error')
+    assert.equal(ledger.terminal.recorded, 512)
+    assert.equal(ledger.terminal.droppedTransitions, 8)
+    assert.deepEqual(observation.result.firstEncounter, first)
+    assert.equal(observation.result.visits.at(-1).alive, false)
+    assert.equal(observation.result.entry, null)
+  })
+})
+
+test('missing and empty roster differ and oversized slots explicitly truncate', () => {
+  withObserverFixture(({ world, next, observation }) => {
+    const actor = world.units[0]; actor.fight.action = 'ready'
+    world.fights = []
+    next()
+    const ledger = observation.result.rosterDiagnostics
+    assert.equal(ledger.records[0].presence, 'missing')
+    assert.equal(observation.result.firstEncounter.opponentIdentityUnavailable, true)
+    world.fights = [{ id: actor.fight.group, members: [], slots: [] }]
+    next()
+    assert.equal(ledger.records[1].presence, 'present')
+    assert.equal(ledger.records[1].memberCount, 0)
+    world.fights[0].slots = [1, 2, 3, 4, 5, 6, 7]
+    next()
+    assert.equal(ledger.records[2].slotsTruncated, true)
+    assert.equal(ledger.records[2].slotCount, 7)
+    assert.equal(ledger.records[2].slotIds.length, 6)
+    assert.equal(ledger.truncatedRecords, 1)
+  })
+})
