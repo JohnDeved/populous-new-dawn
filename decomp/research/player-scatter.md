@@ -82,7 +82,7 @@ person is skipped when any of these hold:
   route recovery 33, fight recovery 36, special battle 39 and celebration 41;
 - pending G (`guardInputPending`), nonzero work group (`workFlags`), airborne
   `flags2 & 0x80000`, or ghost `flags4 & 0x800`;
-- any queued/immediate order model outside `[3, 7, 16, 18, 22, 27, 28, 30]`, for
+- any queued/immediate order model outside `[3, 7, 16, 18, 22, 25, 27, 28, 30]`, for
   example construction 6, building entry/training 8/10, building attack
   11/15/19/21, preaching 17/31/32 and vault 33.
 
@@ -96,3 +96,19 @@ still pan right. W/A/S/Q/E remain port aliases (original A/S actions are not
 implemented here). Selection is retained; a new click order replaces the scatter.
 
 Tests: `tests/player-scatter.test.mjs`, `tests/game-preferences-navigation.test.mjs`.
+
+
+### Patrol queue continuation
+
+Order 25 is admitted only through the same ordinary-owner guards as the existing
+resumable orders. It shares command-3 movement in `person-order-update.ts`; no
+replacement-order release is invoked and the patrol queue remains owned.
+A supplied flat-world test uses the maintained patrol fixture (-25,8) to
+(-10,8)/(0,8), public command producer, and its existing 2400-turn source-test
+bound. The unchanged admission rejects that eligible patrol; narrow model-25
+admission preserves command-time RNG (one draw), queue records/references and
+selection, returns from scatter after twelve visits, and visits both destinations.
+A paired no-scatter control passes the same fixture. Earlier proposed short-route
+800-turn oracles failed with and without scatter and are not gameplay regression
+evidence. No browser input, original executable timing, arbitrary busy-owner
+resumption or full scatter parity is established by this supplied-world test.
