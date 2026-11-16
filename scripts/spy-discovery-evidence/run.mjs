@@ -33,7 +33,7 @@ accessSync(browserConfig.browserPath, constants.X_OK)
 const receipt = {
   mode, status: 'running', startedAt: new Date().toISOString(), commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'),
   trackedDiff: git('status', '--short', '--untracked-files=no'), port, browserCapMs,
-  sources: Object.fromEntries(["spy-discovery-evidence/run", "spy-discovery-evidence/scenario", "spy-discovery-evidence/deadline", "spy-discovery-evidence/guards", "tutorial-browser/spy-discovery-fixture"].map(n => [n, hash(resolve(root, `scripts/${n}.mjs`))])),
+  sources: Object.fromEntries(["spy-discovery-evidence/run", "spy-discovery-evidence/scenario", "spy-discovery-evidence/deadline", "spy-discovery-evidence/guards", "spy-discovery-evidence/startup", "tutorial-browser/spy-discovery-fixture"].map(n => [n, hash(resolve(root, `scripts/${n}.mjs`))])),
   fixtureMainSha256: hash(resolve(fixture, 'main.tsx')), builderSha256: hash(resolve(root, 'scripts/tutorial-browser/build-home.mjs')),
   browserPath: browserConfig.browserPath, browserPathSource: browserConfig.browserPathSource, launch: browserConfig.launch,
   browserBinaryVersion: execFileSync(browserConfig.browserPath, ['--version'], { encoding: 'utf8' }).trim(),

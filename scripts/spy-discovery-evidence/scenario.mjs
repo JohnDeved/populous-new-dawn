@@ -6,6 +6,7 @@ import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createDeadline } from './deadline.mjs'
 import { spyGuardCycle } from './guards.mjs'
+import { settleSpyStartup } from './startup.mjs'
 
 // Bounded rendered Spy discovery witness. The owner supplies a reviewed browser,
 // built test-host URL and outer deadline; this module never launches one.
@@ -89,8 +90,26 @@ async function runCaseBody({ browser, url, output, deadline, caseName, report, g
     if (typeof fixture?.prepareDiscoveryFixture !== 'function') throw Error('Spy discovery fixture unavailable')
     window.__spyDiscoveryFixture = fixture
   }))
-  await deadline.run(() => page.waitForFunction(() => window.__spyDiscoveryFixture.discoveryFixtureReady(window.testSceneRef.current),
-    null, { timeout: 60000, polling: 100 }))
+  await deadline.run(() => settleSpyStartup({
+    observe: async () => {
+      const handle = await page.waitForFunction(() => {
+        const scene = window.testSceneRef.current
+        const ready = window.__spyDiscoveryFixture.discoveryFixtureReady(scene)
+        return scene.messageModal || ready ? { ready, modal: !!scene.messageModal, turn: scene.world.turn, paused: scene.world.paused, inputMask: scene.world.inputMask } : false
+      }, null, { timeout: 60000, polling: 100 })
+      try { return await handle.jsonValue() } finally { await handle.dispose() }
+    },
+    dismiss: async () => {
+      // Same shipped summary used by collapseCampaignMessages, but a real
+      // Playwright click. No direct flags, pause, input-mask or clock mutation.
+      await page.locator('.campaign-messages details[open] > summary[aria-label="Read campaign message"]').first().click()
+    },
+    skip: async () => {
+      const skip = page.getByRole('button', { name: /^Skip introduction/ })
+      if (await skip.isVisible()) await skip.click()
+    },
+    record: state => stage('opening-readiness', state),
+  }))
   // Ordinary Escape clears the startup Shaman selection (no mode is armed here).
   await deadline.run(() => page.locator('.world-viewport canvas').first().focus())
   const interaction = () => deadline.run(() => page.evaluate(() => {
