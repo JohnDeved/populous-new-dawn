@@ -139,30 +139,53 @@ export function assertPauseCameraSample(sample, key) {
   assert.equal(sample.trusted, true)
   assert.equal(sample.type, 'keydown')
   assert.equal(sample.handled, true, 'Home must handle this key before observation')
+  assert.equal(sample.sameEvent, true, 'Capture and bubble must observe the same keydown')
+}
+
+// Full equality remains the oracle; this bounded list diagnoses changed fields.
+export function pauseWorldDifferences(before, after) {
+  const paths = []
+  let total = 0
+  function visit(a, b, path) {
+    if (Object.is(a, b)) return
+    if (a && b && typeof a === 'object' && typeof b === 'object') {
+      for (const key of new Set([...Object.keys(a), ...Object.keys(b)]))
+        visit(a[key], b[key], `${path}/${key}`)
+    } else {
+      total++
+      if (paths.length < 64) paths.push(path)
+    }
+  }
+  visit(JSON.parse(before), JSON.parse(after), '')
+  return { total, paths, truncated: total > paths.length }
 }
 
 export async function checkPauseCameraKeys(page, output) {
   const result = {}
-  const snap = () => page.evaluate(() => {
-    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-    return { paused: world.paused, world: JSON.stringify(world),
-      camera: JSON.stringify({ position: scene.cameraPosition, motion: scene.cameraMotion }),
-      active: scene.cameraMotion.active }
-  })
   // Observe the same keydown dispatch after Home's registered handler. H/Period
   // are not Scene camera keys; only Home's quick-camera branch cancels them.
   // Requiring defaultPrevented rejects an observer installed before that owner,
   // rather than reporting pre-dispatch state as a successful camera observation.
   await page.evaluate(() => {
-    window.pauseCameraKeyObserver = event => {
-      if (!['h', '.', ' '].includes(event.key)) return
+    const beforeByEvent = new WeakMap()
+    const snapshot = () => {
       const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-      window.pauseCameraKeySample = { trusted: event.isTrusted, key: event.key,
-        type: event.type, handled: event.defaultPrevented,
-        paused: world.paused, world: JSON.stringify(world),
+      return { paused: world.paused, world: JSON.stringify(world),
         camera: JSON.stringify({ position: scene.cameraPosition, motion: scene.cameraMotion }),
         active: scene.cameraMotion.active }
     }
+    window.pauseCameraKeyCapture = event => {
+      if (['h', '.', ' '].includes(event.key)) beforeByEvent.set(event, snapshot())
+    }
+    window.pauseCameraKeyObserver = event => {
+      if (!['h', '.', ' '].includes(event.key)) return
+      const before = beforeByEvent.get(event)
+      window.pauseCameraKeySample = { trusted: event.isTrusted, key: event.key,
+        type: event.type, handled: event.defaultPrevented, sameEvent: !!before,
+        before, ...snapshot() }
+      beforeByEvent.delete(event)
+    }
+    window.addEventListener('keydown', window.pauseCameraKeyCapture, true)
     window.addEventListener('keydown', window.pauseCameraKeyObserver)
   })
   const keySample = async key => {
@@ -175,10 +198,11 @@ export async function checkPauseCameraKeys(page, output) {
     await page.keyboard.press('Space')
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await page.evaluate(() => window.testSceneRef.current.focus({ x: 2, z: 30 }))
-    const before = await snap()
-    result.paused = before.paused
     await page.keyboard.press('h')
     const after = await keySample('h')
+    const before = after.before
+    result.paused = before.paused && after.paused
+    result.hWorldDifferences = pauseWorldDifferences(before.world, after.world)
     result.hWorldUnchanged = before.world === after.world
     result.hCameraUnchanged = before.camera === after.camera
     await page.screenshot({ path: resolve(output, 'paused-h-camera.png') })
@@ -198,7 +222,9 @@ export async function checkPauseCameraKeys(page, output) {
     return result
   } finally {
     await page.evaluate(() => {
+      window.removeEventListener('keydown', window.pauseCameraKeyCapture, true)
       window.removeEventListener('keydown', window.pauseCameraKeyObserver)
+      delete window.pauseCameraKeyCapture
       delete window.pauseCameraKeyObserver
       delete window.pauseCameraKeySample
     })
