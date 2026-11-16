@@ -4,7 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { assertWorshipFocusObservation, installWorshipFocusObserver } from './worship-focus-observer.mjs'
-import { assertWorshipAudio, installWorshipAudioProbe } from './worship-acquisition-audio.mjs'
+import { assertWorshipAudio, installWorshipAudioProbe, snapshotWorshipAudio } from './worship-acquisition-audio.mjs'
 
 export const worshipPanelLifecycleLimitMs = 35000
 export default async function worshipPanelLifecycle({ browser, url, output }) {
@@ -17,6 +17,8 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     'Passive one-shot observation checks inspection synchronously after the production target handler; delayed inspection is diagnostic, while delayed person-panel retention remains required',
     'A trusted test-host button enables actual Soundscape, decodes original sound-169 and submits supplied cue 0x71; not natural worship or physical speaker output',
   ] }
+  const started = performance.now()
+  let audioDiagnosticTimer, audioDiagnosticPending = false, audioDiagnosticAttempts = 0
   let page, failure
   const screenshot = async name => {
     const file = `worship-panel-${name}.png`, path = resolve(output, file)
@@ -116,7 +118,19 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
       } finally { h.scene.focus = h.focusOriginal; h.scene.onSound = h.soundOriginal; h.scene.onChange = h.changeOriginal }
     })
     assert.equal(report.stale.length, 5); assert.ok(report.stale.every(x => x.unchanged))
+    report.audioProbeStartedMs = performance.now() - started
     await page.evaluate(installWorshipAudioProbe)
+    // Keep only the latest scalar sample. The hard episode close never awaits diagnostics.
+    audioDiagnosticTimer = setInterval(async () => {
+      if (audioDiagnosticPending || audioDiagnosticAttempts >= 140) return
+      audioDiagnosticPending = true
+      audioDiagnosticAttempts++
+      try {
+        const snapshot = await page.evaluate(snapshotWorshipAudio)
+        report.audioDiagnostic = { elapsedMs: performance.now() - started, ...snapshot }
+      } catch { /* A closed page cannot erase the last pre-close observation. */ }
+      finally { audioDiagnosticPending = false }
+    }, 250)
     await page.locator('[data-worship-audio-probe]').click()
     await page.waitForFunction(() => window.__pndWorshipAudioProbe?.result.done && window.__pndWorshipAudioProbe.sound.context?.state === 'closed')
     report.acquisitionAudio = await page.evaluate(() => ({
@@ -132,6 +146,8 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     try { if (page && !page.isClosed()) await screenshot('failure') } catch (e) { report.diagnosticError = String(e) }
   } finally {
     clearTimeout(timer)
+    clearInterval(audioDiagnosticTimer)
+    report.audioDiagnosticAttempts = audioDiagnosticAttempts
     try {
       if (page && !page.isClosed()) await page.evaluate(() => {
         const h = window.worshipLifecycle
