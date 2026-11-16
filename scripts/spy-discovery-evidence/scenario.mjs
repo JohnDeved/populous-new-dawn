@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto'
 import { bindGame } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createDeadline } from './deadline.mjs'
+import { spyGuardCycle } from './guards.mjs'
+import { settleSpyStartup } from './startup.mjs'
 
 // Bounded rendered Spy discovery witness. The owner supplies a reviewed browser,
 // built test-host URL and outer deadline; this module never launches one.
@@ -22,6 +24,7 @@ const readSpy = () => {
   const person = unit && (unit.native ?? unit.entry?.person)
   return {
     current: s === h.scene && w === h.world && window.testStore.getWorld() === w && s.isCurrent(),
+    pending: w.spyDiscovery && { ...w.spyDiscovery }, modal: !!s.modalSuspended, overview: !!s.overviewActive,
     turn: w.turn, paused: w.paused, selected: [...w.selected], mode: w.mode, inputMask: w.inputMask,
     sameUnit: unit === h.unit, samePerson: person === h.person, ownerRegistered: w.objectCells.objects.get(h.spyId) === h.person,
     hp: unit?.hp ?? null, disguise: h.person.disguise, tribe: h.person.tribe, invisibility: unit?.invisibility ?? null,
@@ -29,11 +32,11 @@ const readSpy = () => {
   }
 }
 
-async function runCase({ browser, url, output, deadline, caseName, report }) {
+async function runCase({ browser, url, output, deadline, caseName, report, guards }) {
   const record = { caseName, stages: [], screenshots: [], errors: [] }
   report.cases.push(record)
   let page
-  try { await runCaseBody({ browser, url, output, deadline, caseName, report, record, setPage: value => { page = value } }) }
+  try { await runCaseBody({ browser, url, output, deadline, caseName, report, guards, record, setPage: value => { page = value } }) }
   catch (error) {
     // Bounded best-effort failure capture; the original failure is always rethrown.
     if (page && !deadline.expired) {
@@ -51,7 +54,7 @@ async function runCase({ browser, url, output, deadline, caseName, report }) {
   }
 }
 
-async function runCaseBody({ browser, url, output, deadline, caseName, report, record, setPage }) {
+async function runCaseBody({ browser, url, output, deadline, caseName, report, guards, record, setPage }) {
   const stage = (name, data) => { record.stages.push({ name, time: new Date().toISOString(), data }); report.save() }
   // Track the creation itself: a context arriving after a deadline still belongs to this
   // episode and is closed by the episode owner (never claimed as verified cleanup).
@@ -87,8 +90,26 @@ async function runCaseBody({ browser, url, output, deadline, caseName, report, r
     if (typeof fixture?.prepareDiscoveryFixture !== 'function') throw Error('Spy discovery fixture unavailable')
     window.__spyDiscoveryFixture = fixture
   }))
-  await deadline.run(() => page.waitForFunction(() => window.__spyDiscoveryFixture.discoveryFixtureReady(window.testSceneRef.current),
-    null, { timeout: 60000, polling: 100 }))
+  await deadline.run(() => settleSpyStartup({
+    observe: async () => {
+      const handle = await page.waitForFunction(() => {
+        const scene = window.testSceneRef.current
+        const ready = window.__spyDiscoveryFixture.discoveryFixtureReady(scene)
+        return scene.messageModal || ready ? { ready, modal: !!scene.messageModal, turn: scene.world.turn, paused: scene.world.paused, inputMask: scene.world.inputMask } : false
+      }, null, { timeout: 60000, polling: 100 })
+      try { return await handle.jsonValue() } finally { await handle.dispose() }
+    },
+    dismiss: async () => {
+      // Same shipped summary used by collapseCampaignMessages, but a real
+      // Playwright click. No direct flags, pause, input-mask or clock mutation.
+      await page.locator('.campaign-messages details[open] > summary[aria-label="Read campaign message"]').first().click()
+    },
+    skip: async () => {
+      const skip = page.getByRole('button', { name: /^Skip introduction/ })
+      if (await skip.isVisible()) await skip.click()
+    },
+    record: state => stage('opening-readiness', state),
+  }))
   // Ordinary Escape clears the startup Shaman selection (no mode is armed here).
   await deadline.run(() => page.locator('.world-viewport canvas').first().focus())
   const interaction = () => deadline.run(() => page.evaluate(() => {
@@ -177,6 +198,72 @@ async function runCaseBody({ browser, url, output, deadline, caseName, report, r
 
   if (caseName === 'visible') {
     assert.ok(target.point, 'Visible supplied Spy must be pickable by the production person picker')
+    if (guards) {
+      const canvas = page.locator('.world-viewport canvas').first()
+      for (const kind of ['options', 'overview']) {
+        await spyGuardCycle({ kind, read: witness, capture, stage,
+          enter: async () => {
+            if (kind === 'options') {
+              await deadline.run(() => button('Game settings').click())
+              await deadline.run(() => button('Options').click())
+              await deadline.run(() => page.waitForFunction(() => document.querySelector('dialog[data-original-pause-menu]')?.dataset.panel === 'options'))
+            } else {
+              await deadline.run(() => canvas.focus())
+              await deadline.run(() => page.keyboard.press('Enter'))
+              await deadline.run(() => page.waitForFunction(() => window.testSceneRef.current.overviewActive))
+            }
+          },
+          click: async () => {
+            // Reproject in the current camera. Options must receive the event inside its open dialog. Overview
+            // uses a projected production-picker hit, NOT visible Spy pixels:
+            // the overview ground parent hides world objects.
+            const point = await deadline.run(() => page.evaluate(kind => {
+              const h = window.__spyDiscoveryWitness, s = window.testSceneRef.current
+              const r = s.renderer.domElement.getBoundingClientRect(), p = s.screen(h.unit)
+              const x = Math.round(r.left + (p.x + 1) * r.width / 2), y = Math.round(r.top + (1 - p.y) * r.height / 2 - 12)
+              const owner = document.elementFromPoint(x, y)
+              if (kind === 'overview' && (owner !== s.renderer.domElement || s.picking.pickPerson({ clientX: x, clientY: y }) !== h.spyId))
+                throw Error('Overview projected actor must resolve through the production picker on canvas')
+              if (kind === 'options' && !document.querySelector('dialog[data-original-pause-menu]')?.open)
+                throw Error('Options dialog absent')
+              return { x, y }
+            }, kind))
+            await deadline.run(() => page.evaluate(() => {
+              window.__spyGuardPointer = null
+              window.__spyGuardListener = e => {
+                const dialog = document.querySelector('dialog[data-original-pause-menu]')
+                window.__spyGuardPointer = {
+                  trusted: e.isTrusted, canvas: e.target === window.testSceneRef.current.renderer.domElement,
+                  targetTag: e.target?.tagName ?? null,
+                  inOpenDialog: !!dialog?.open && dialog.contains(e.target),
+                  dialogPanel: dialog?.dataset.panel ?? null,
+                }
+              }
+              document.addEventListener('pointerdown', window.__spyGuardListener, true)
+            }))
+            try {
+              await deadline.run(() => page.mouse.click(point.x, point.y, { button: 'right' }))
+              return await deadline.run(() => page.evaluate(() => window.__spyGuardPointer))
+            } finally {
+              await deadline.run(() => page.evaluate(() => document.removeEventListener('pointerdown', window.__spyGuardListener, true)))
+            }
+          },
+          leave: async () => {
+            if (kind === 'options') {
+              await deadline.run(() => page.keyboard.press('Escape'))
+              await deadline.run(() => button('Continue Game').click())
+              await deadline.run(() => page.waitForFunction(() => !window.testSceneRef.current.modalSuspended))
+            } else {
+              await deadline.run(() => canvas.focus())
+              await deadline.run(() => page.keyboard.press('Enter'))
+              await deadline.run(() => page.waitForFunction(() => !window.testSceneRef.current.overviewActive))
+            }
+          },
+        })
+      }
+      target = await locate(); stage('target-after-guards', target)
+      assert.ok(target.point, 'Same Spy must be pickable after both guard recoveries')
+    }
     // Negative controls before the discovering press (all on the same World, while paused):
     // 1) Shift-right press on the Spy; 2) plain right press away from the Spy dragged onto it.
     await deadline.run(() => page.keyboard.down('Shift'))
@@ -237,15 +324,16 @@ async function runCaseBody({ browser, url, output, deadline, caseName, report, r
   record.status = 'passed'; report.save()
 }
 
-export default async function spyDiscoveryEpisode({ browser, url, output, deadlineAt, cases = ['visible', 'own', 'other-colour', 'changing', 'invisible'] }) {
+export default async function spyDiscoveryEpisode({ browser, url, output, deadlineAt, cases = ['visible', 'own', 'other-colour', 'changing', 'invisible'], guards = false }) {
   assert.ok(Number.isFinite(deadlineAt) && deadlineAt > Date.now())
-  const report = { status: 'running', cases: [], contexts: [], creations: [], closing: false,
-    lateContextsClosedUnverified: 0, errors: [], limits: spyDiscoveryLimits }
+  assert.ok(!guards || (cases.length === 1 && cases[0] === 'visible'), 'Guard evidence uses one supplied visible Spy')
+  const report = { guards, status: 'running', cases: [], contexts: [], creations: [], closing: false,
+    lateContextsClosedUnverified: 0, errors: [], limits: guards ? [...spyDiscoveryLimits.filter(line => !line.startsWith('No natural')), 'Supplied Spy: public Options dialog-targeted input and overview canvas input at a projected production-picker-resolved actor, not visible overview Spy pixels (ground parent hidden); then ordinary discovery recovery; no campaign message-modal coverage', 'No natural Spy acquisition, native pixel parity, save/load, performance or full-gate claim'] : spyDiscoveryLimits }
   report.save = () => writeFileSync(resolve(output, 'spy-discovery-episode.json'),
     JSON.stringify({ ...report, contexts: report.contexts.length, creations: report.creations.length, save: undefined }, null, 2) + '\n')
   const deadline = createDeadline(Math.min(Date.now() + 150000, deadlineAt - 10000))
   try {
-    for (const caseName of cases) await runCase({ browser, url, output, deadline, caseName, report })
+    for (const caseName of cases) await runCase({ browser, url, output, deadline, caseName, report, guards })
     report.status = 'passed'
   } catch (error) {
     report.status = 'failed'; report.errors.push(String(error?.stack ?? error)); report.timedOut = deadline.expired
@@ -275,3 +363,6 @@ export default async function spyDiscoveryEpisode({ browser, url, output, deadli
   assert.equal(report.status, 'passed', 'Spy discovery episode failed; inspect retained receipt')
   return { status: report.status, cases: report.cases.map(c => ({ caseName: c.caseName, status: c.status, screenshots: c.screenshots })) }
 }
+
+// Explicit opt-in; existing five-case evidence and its acceptance stay unchanged.
+export const spyGuardEpisode = options => spyDiscoveryEpisode({ ...options, cases: ['visible'], guards: true })
