@@ -159,7 +159,7 @@ export function installMeleeFrameObserver(input) {
   // countdown or a game getter. Keep a private copy for the entire episode.
   const mapping = structuredClone(originalMapping)
   const result = { protocol: recoil ? 'running-native-recoil-entry-v1' : 'running-original-entry-v2', samples: [], crops: [], visits: [], visitLimit,
-    error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null }
+    error: null, done: false, firstAttackTurn: null, entry: null, endpoint: null, terminal: null, retention: null, firstEncounter: null }
   let raf, stopped = false, firstPerson = null, firstEntry = null
   const cropKeys = new Set(), copies = []
   const stop = (reason = 'stopped') => {
@@ -222,12 +222,40 @@ export function installMeleeFrameObserver(input) {
         throw Error('Melee canvas disconnected or document hidden')
       if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
       const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
+      const acquisition = unit?.native ?? fight?.motion
       Object.assign(diagnostic, { stage: 'observed', actorInspected: true,
         alive: !!unit && unit.hp > 0, hp: unit?.hp ?? null,
         action: fight?.action ?? null, started: fight?.started ?? null,
+        // Per-visit scalar diagnostics retain acquisition state and sampled
+        // RNG without consuming it; the one-time roster snapshot is separate.
+        // These are post-render observations, not exact random-call provenance.
+        randomState: world.randomState ?? null, actorX: unit?.x ?? null, actorZ: unit?.z ?? null,
+        orderTarget: unit?.target ?? null, fightGroup: fight?.group ?? null,
+        opponent: fight?.opponent ?? null, remaining: fight?.remaining ?? null,
+        personId: fight?.motion?.id ?? null, personState: fight?.motion?.state ?? null,
+        acquisitionState: acquisition?.state ?? null, acquisitionSubstate: acquisition?.substate ?? null,
+        acquisitionTarget: acquisition?.target ?? null, acquisitionWorkTarget: acquisition?.workTarget ?? null,
+        acquisitionFlags2: acquisition?.flags2 ?? null,
         f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
         throw Error('Authored Shaman54 disappeared or died')
+      // One immutable first-encounter snapshot, never a replacement episode.
+      // Post-render state cannot identify the initiating call site or RNG draw.
+      if (fight && !result.firstEncounter) {
+        const group = world.fights?.find(group => group.id === fight.group)
+        const memberIds = group?.members ?? []
+        const identity = id => {
+          const member = world.units.find(member => member.id === id)
+          return member ? { id: member.id, kind: member.kind, team: member.team, hp: member.hp,
+            x: member.x, z: member.z, inside: member.inside ?? null,
+            target: member.target ?? null, fightGroup: member.fight?.group ?? null,
+            opponent: member.fight?.opponent ?? null, action: member.fight?.action ?? null } : null
+        }
+        result.firstEncounter = { turn: world.turn, stamp: diagnostic.stamp,
+          caller: 'unobserved-post-render', group: fight.group, opponent: identity(fight.opponent),
+          memberCount: memberIds.length, members: memberIds.slice(0, 6).map(identity),
+          rosterTruncated: memberIds.length > 6 }
+      }
       // A recoil action can be assigned after this actor's controller visit.
       // Wait only for its first processed entry, never skip a processed episode.
       const pendingRecoil = recoil && fight?.action === 'recoil' && fight.remaining === undefined
