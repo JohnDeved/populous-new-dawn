@@ -182,6 +182,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
   worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
+  worshipAcquisitionAudioSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-acquisition-audio.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),

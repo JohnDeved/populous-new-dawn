@@ -27,3 +27,4 @@ export function prepare(scene) {
   scene.onChange()
   return { scene, world, head, units }
 }
+export { Soundscape } from '../../app/audio.ts'
