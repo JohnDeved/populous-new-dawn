@@ -51,3 +51,29 @@ test('checker rejects untrusted input, absent source, suspended context and inco
   for (const [field, value] of Object.entries({ trusted: false, enabled: false, contextRunning: false, matchingSources: 0, released: false, contextClosed: false }))
     assert.throws(() => assertWorshipAudio({ ...good, [field]: value }), field)
 })
+
+test('trusted probe removes its control while real enable remains pending, without early cue or disposal', async () => {
+  let click, release, removed = 0
+  const calls = []
+  class Soundscape {
+    buffers = new Map([['sound-169', { duration: 1, length: 44100, numberOfChannels: 1, sampleRate: 44100 }]])
+    active = new Set()
+    context = { state: 'running' }
+    backgroundTimer = null
+    music = null
+    enable() { calls.push('enable'); return new Promise(resolve => { release = resolve }) }
+    cue(value) { calls.push(value); this.active.add({ buffer: this.buffers.get('sound-169') }) }
+    dispose() { calls.push('dispose'); this.active.clear(); this.buffers.clear(); this.context.state = 'closed' }
+  }
+  const button = { dataset: {}, addEventListener: (_, handler) => { click = handler }, remove: () => { removed++ } }
+  const window = { __pndWorshipPanelFixture: { Soundscape } }
+  vm.runInNewContext(`(${installWorshipAudioProbe.toString()})()`, { window, document: { createElement: () => button, body: { append() {} } } })
+  const pending = click({ isTrusted: true })
+  assert.equal(removed, 1)
+  assert.deepEqual(calls, ['enable'])
+  assert.equal(window.__pndWorshipAudioProbe.result.done, undefined)
+  release(true)
+  await pending
+  assert.deepEqual(calls, ['enable', 0x71, 'dispose'])
+  assertWorshipAudio({ ...window.__pndWorshipAudioProbe.result, contextClosed: true })
+})

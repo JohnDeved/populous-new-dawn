@@ -31,3 +31,17 @@ test('diagnostics retain cap, terminal assertions and no retry', () => {
   assert.match(source, /assertWorshipAudio\(report.acquisitionAudio\)/)
   assert.match(source, /assert.equal\(report.status, 'passed'/)
 })
+
+test('audio starts after pause and before panel work but completion remains after every stale assertion', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/worship-panel-lifecycle.mjs', import.meta.url), 'utf8')
+  const pause = source.indexOf("await button('Pause game').click()")
+  const start = source.indexOf('await page.evaluate(installWorshipAudioProbe)')
+  const click = source.indexOf("await page.locator('[data-worship-audio-probe]').click()")
+  const setup = source.indexOf('report.setup = await page.evaluate')
+  const stale = source.indexOf('assert.equal(report.stale.length, 5)')
+  const complete = source.indexOf('await page.waitForFunction(() => window.__pndWorshipAudioProbe')
+  const assertion = source.indexOf('assertWorshipAudio(report.acquisitionAudio)')
+  assert.ok(pause < start && start < click && click < setup && setup < stale && stale < complete && complete < assertion)
+  assert.equal(source.match(/page.evaluate\(installWorshipAudioProbe\)/g).length, 1)
+  assert.equal(source.match(/data-worship-audio-probe.*click\(\)/g).length, 1)
+})
