@@ -7,6 +7,8 @@ export function installWorshipAudioProbe() {
   button.textContent = 'Test worship acquisition audio'
   document.body.append(button)
   button.addEventListener('click', async event => {
+    // Do not leave the test control in panel screenshots while loading continues.
+    button.remove()
     const sound = new window.__pndWorshipPanelFixture.Soundscape()
     const result = { trusted: event.isTrusted }
     window.__pndWorshipAudioProbe = { sound, result }
