@@ -2,7 +2,7 @@ name: Observed original melee encounter diagnostics
 
 on:
   push:
-    branches: [ci/melee-acquisition-1090-20261116]
+    branches: [ci/melee-roster-1086-20261116]
     paths:
       - '.github/workflows/software-webgl-trial.yml'
       - 'scripts/ci-webgl-trial/shipped-selection.mjs'
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
-      PND_CANDIDATE_SHA: 7ed97fa325b434fd41b11c6d2e1a1246a81a2544
+      PND_CANDIDATE_SHA: 02944ae6893510b85fcf86d574703456b43e90db
       CI: 'true'
       NODE_OPTIONS: ''
       NODE_PATH: ''
@@ -41,7 +41,7 @@ jobs:
       - name: Check out exact reviewed observation-only candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: 7ed97fa325b434fd41b11c6d2e1a1246a81a2544
+          ref: 02944ae6893510b85fcf86d574703456b43e90db
           path: after-source
           persist-credentials: false
       - name: Set up pinned Node
@@ -91,7 +91,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: melee-acquisition-7ed97fa3-${{ github.run_id }}-${{ github.run_attempt }}
+          name: melee-roster-02944ae6-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             outputs/**/*.json
             outputs/**/*.log
