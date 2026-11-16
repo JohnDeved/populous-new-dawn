@@ -9,7 +9,7 @@ At base `1f76849ea332c1328553f13f4819d46f92f82ee7`, Home's keyboard owner has
 none of these branches. Its existing tab buttons already choose the tab, clear
 spell/building targeting and clear hover. The shortcut implementation uses those
 same state changes. It preserves selection, orders, mana, RNG and pause, and
-retains the existing B and numeric spell aliases. This is a missing input producer,
+retains the existing B shortcut and current numbered follower-group ownership. This is a missing input producer,
 not a new panel design or a rewrite of the original HUD artwork.
 
 ## Browser input policy
@@ -44,3 +44,29 @@ at standard, wide and high-DPI sizes; cover cancel/reopen, public Save/Load or
 Restart replacement and the adjacent Options/Menu flow. Compare original behavior
 where an exact native claim is needed. Helper tests alone do not satisfy those
 gates, complete #457/#60 or earn parity credit.
+
+
+## Current-main composition, 16 November 2026
+
+The refreshed branch composes main `25e11812`, including numbered follower groups,
+quick-camera/instant-overview keys and requested-message modal ownership. Preserve
+main's current tab accessible names (Buildings retains B; Spells no longer advertises
+obsolete numeric spell aliases). Tooltips and `aria-keyshortcuts` add only the three
+new dedicated-key bindings. The extracted-owner tests use current actual message,
+group and camera key parsers; explicit controls retain group and overview dispatch.
+Historical rendered evidence keeps its original source pins, not this composition.
+
+### Current hosted input supplement (prepared, not yet executed)
+
+The existing pause-checkpoint-recovery lane invokes a 20-second bounded HUD-key
+check after its actual Load checkpoint replacement assertions and before closing
+that gameplay page. All earlier recovery checks and its independent high-DPI
+empty-store case remain required, inside the unchanged 180-second outer budget.
+There is no new context, workflow, browser flag or injected world. This checks
+Insert/Home/PageUp, tooltips, preserved selection/scroll, spell-mode clearing,
+held-key rejection, Shift rejection, root/Options suppression and return ownership.
+Three screenshots cover the tabs on the existing 640×480 DPR1 loaded scene.
+This is narrower than earlier historical display evidence: no current DPR2/wide
+or Restart claim, and editable/loading exclusions retain extracted-effect tests
+rather than new rendered proof. Contract tests verify wiring and bounds only;
+they do not substitute for a fresh successful hosted browser receipt.

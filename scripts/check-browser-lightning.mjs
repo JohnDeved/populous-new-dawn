@@ -2,6 +2,7 @@
 import {chromium} from '@playwright/test';
 import assert from 'node:assert/strict';
 import {lightningTexture} from '../app/lightning.ts';
+import {chooseSpell} from './browser-game.mjs';
 const browser=await chromium.launch({headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:1000}}),errors=[];page.setDefaultTimeout(15000);
@@ -11,7 +12,7 @@ try{
  await page.waitForFunction(()=>window.testScene.world.flyby.flags&1);await page.keyboard.press('Escape');
  await page.waitForFunction(()=>!window.testScene.world.inputMask&&window.testScene.terrainTextures);
  // Slow simulation for phase snapshots; exact native timing is checked in Node/Unicorn.
- await page.evaluate(()=>{const s=window.testScene;s.world.shots.lightning=1;s.world.speed=.25;s.focus({x:8,z:30});s.onChange();});await page.keyboard.press('3');
+ await page.evaluate(()=>{const s=window.testScene;s.world.shots.lightning=1;s.world.speed=.25;s.focus({x:8,z:30});s.onChange();});await chooseSpell(page,'Lightning');
  const target=await page.evaluate(()=>{const s=window.testScene,q=s.screen({x:16,z:33}),r=s.container.getBoundingClientRect();return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2};});await page.mouse.click(target.x,target.y);
  await page.waitForFunction(()=>{const s=window.testScene,f=s.world.effects.find(f=>f.lightning?.turn===1&&s.fxMeshes.has(f.id));if(!f)return false;s.world.paused=true;window.testBolt=f;return true;});
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));

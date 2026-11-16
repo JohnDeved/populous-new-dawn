@@ -315,3 +315,11 @@ test('invoked gameplay chain keeps prior caps and exposes the committed-save pha
     assert.deepEqual(options, { viewport: { width: 960, height: 720 }, deviceScaleFactor: 1 }); throw stop
   } } }), error => error === stop)
 })
+
+test('corpse startup settles modal opening before unchanged natural-turn readiness', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/follower-corpse.mjs', import.meta.url), 'utf8')
+  const start = source.indexOf("await action('Settle opening messages and introduction', () => settleOpeningMessages(page))")
+  const next = source.indexOf("phase('public-combat-setup')", start)
+  assert.ok(start >= 0 && next > start)
+  assert.match(source.slice(start, next), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
+})

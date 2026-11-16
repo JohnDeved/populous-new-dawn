@@ -12,7 +12,7 @@ native runtime consumers have not been established for integration.
 - Ctrl swaps these two pairs in either setting. Up/Down still move forward/back.
 - Flip Rotation reverses keyboard turning, including Q/E and keypad turn aliases.
   It does not reverse sideways panning, mouse drag, or screen-edge scrolling.
-- WASD and fixed keypad movement aliases retain their direction. Shift accelerates
+- W/A/S and fixed keypad movement aliases retain their direction (D is the original scatter key). Shift accelerates
   panning only. Existing overview conversion, modal and input locks remain unchanged.
 
 Cursor/No are compatibility-preserving browser defaults, not a claim about original

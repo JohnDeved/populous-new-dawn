@@ -2,6 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
+import { followerGroupShortcut } from '../app/follower-groups.ts'
+import { overviewShortcut, quickCameraAction } from '../app/quick-camera-shortcuts.ts'
+import { messageBoxKey, messageBoxRequested, openMessageBox } from '../app/campaign-message-modal.ts'
 
 // Execute the actual Home keyboard owner with supplied event/store/Scene ports.
 // This is not browser event delivery or an original-game execution witness.
@@ -22,15 +25,20 @@ const shortcuts = [['Insert', 'buildings'], ['Home', 'spells'], ['PageUp', 'foll
 
 function fixture(options = {}) {
   const world = {
-    mode: 'blast', status: 'playing', selected: [7, 9], paused: false, inputMask: 0,
+    messages: { slots: [] }, mode: 'blast', status: 'playing', selected: [7, 9], paused: false, inputMask: 0,
     flyby: { flags: 0 }, orders: [{ unit: 7, target: 11 }], mana: 123, seed: 456,
     ...options.world,
   }
   let current = world
-  const engine = { current: { world, skipIntroduction() { throw Error('Unexpected introduction skip') } } }
+  const adjacentCalls = []
+  const engine = { current: { world,
+    followerGroup: action => adjacentCalls.push(['group', action]),
+    overview: action => adjacentCalls.push(['overview', action]),
+    skipIntroduction() { throw Error('Unexpected introduction skip') } } }
   let tab = 'followers', hover = 'spell', handler, changes = 0, removed = false
   const bindings = {
-    HUD_TAB_SHORTCUTS, world, engine, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
+    HUD_TAB_SHORTCUTS, followerGroupShortcut, overviewShortcut, quickCameraAction,
+    messageBoxKey, messageBoxRequested, openMessageBox, world, engine, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
     messageDetails: { current: new Map() }, SPELLS: [],
     store: { getWorld: () => current, change: action => { changes++; action(current) } },
     setTab(value) { tab = value }, setHover(value) { hover = value }, update() {},
@@ -42,7 +50,7 @@ function fixture(options = {}) {
   }
   const disposeEffect = new Function(...Object.keys(bindings), `return (${effect})()`)(...Object.values(bindings))
   return {
-    world, engine,
+    world, engine, adjacentCalls,
     get tab() { return tab }, get hover() { return hover }, get changes() { return changes },
     replace(value) { current = value },
     key(code, overrides = {}) {
@@ -99,6 +107,7 @@ for (const [code, tab] of shortcuts) {
     ['spell test menu', { bindings: { cheatsOpen: true } }],
     ['world selector', { bindings: { selectorOpen: true } }],
     ['campaign popup', { bindings: { messageDetails: { current: new Map([[1, { open: true }]]) } } }],
+    ['requested campaign popup', { world: { messages: { slots: [{ flags: 2 }] } } }],
     ['masked world', { world: { inputMask: 1 } }],
     ['masked introduction', { world: { inputMask: 64, flyby: { flags: 1 } } }],
     ['victory', { world: { status: 'won' } }],
@@ -172,5 +181,31 @@ test('the tab buttons advertise the bindings without renaming existing accessibl
   })
   assert.ok(source.includes('aria-keyshortcuts={HUD_TAB_SHORTCUTS[t].code}'))
   assert.ok(source.includes('title={`${t} · ${HUD_TAB_SHORTCUTS[t].label}`}'))
-  assert.ok(/aria-label=\{`\$\{t\} \$\{t === 'spells' \? '1–3' : t === 'buildings' \? 'B' : ''\}`\}/.test(source))
+  assert.ok(source.includes("aria-label={t === 'buildings' ? 'buildings B' : t}"))
+})
+
+
+test('current numbered follower groups keep their owner rather than choosing a HUD tab', () => {
+  const f = fixture(), before = structuredClone(f.world)
+  try {
+    assert.equal(f.key('Digit1', { key: '1' }), 1)
+    assert.deepEqual(f.adjacentCalls, [['group', { slot: 1, action: 'recall', additive: false, focus: false }]])
+    assert.equal(f.changes, 0)
+    assert.deepEqual(f.world, before)
+    assert.equal(f.tab, 'followers')
+  } finally { f.dispose() }
+})
+
+test('current ordinary and instant overview keep their camera owner', () => {
+  const f = fixture(), before = structuredClone(f.world)
+  try {
+    f.key('Enter', { key: 'Enter' })
+    f.key('Enter', { key: 'Enter', shiftKey: true })
+    f.key('Enter', { key: 'Enter', ctrlKey: true })
+    assert.deepEqual(f.adjacentCalls, [
+      ['overview', { instant: false }], ['overview', { instant: true }], ['overview', { instant: true }],
+    ])
+    assert.equal(f.changes, 0)
+    assert.deepEqual(f.world, before)
+  } finally { f.dispose() }
 })

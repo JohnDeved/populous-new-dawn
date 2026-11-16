@@ -18,11 +18,12 @@ export function unitAnimationSource(u: Unit) {
   if (u.flight) return u.flight
   if (u.fight?.action === 'encounter') return u.fight.motion!
   if (u.fight?.motion && ['walk', 'idle'].includes(u.fight.animation ?? '')) return u.fight.motion
+  // Command 25 routes run the command-3 movement body (0x432590 case 0x16).
   if (
     u.native &&
     (u.native.guardInputPending ||
       u.native.state !== 10 ||
-      [3, 6, 15, 16, 17, 18, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
+      [3, 6, 15, 16, 17, 18, 19, 21, 25, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
   )
     return u.native
   if (u.entry) return u.entry.person

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { waitForStartupMenu } from '../browser-new-game.mjs'
 import { createStageTiming } from './stage-timing.mjs'
 import { readCurrentBuildingPanel, assertCurrentBuildingPanel } from './building-panel-precondition.mjs'
@@ -154,14 +154,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
     timing.mark('mission-start:clicked')
     await bindGame(page)
     timing.mark('game:bound')
-    const startup = await page.waitForFunction(() => {
-      const world = window.testStore.getWorld()
-      if (!world.inputMask && world.levelStart.every(site => site.phase === 4)) return 'ready'
-      const skip = document.querySelector('button.skip-introduction')
-      return skip && skip.getClientRects().length && !skip.disabled ? 'skip' : false
-    })
-    if ((await startup.jsonValue()) === 'skip')
-      await page.getByRole('button', { name: /^Skip introduction/ }).click()
+    await settleOpeningMessages(page)
     await page.waitForFunction(() => {
       const world = window.testStore.getWorld()
       return (

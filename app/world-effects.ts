@@ -150,9 +150,33 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
       setAnimationObject(f.animation, kind === 'blast' ? 30 : 41, kind === 'blast' ? 1099 : 0x650)
     }
   }
+  // Effect 61 (0x509c10 case 60): draw 46/HFX1294, six processor visits.
+  if (kind === 'hit') animateEffectSprite(f, 46, 1294)
   if (kind === 'orderMarker' && !registerSecondaryMarker(w, f)) return f
   w.effects.push(f)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
+  return f
+}
+// Native sprite counters for a class-7 sprite effect (0x4ee700). Its mode-1 draw
+// loops one frame per draw visit without the 0x40000 logical gate, so
+// animateLiveObjects advances it on each 24 Hz presentation visit and holds it
+// during pause, independent of display refresh. Effects 60 (HFX1288), 61
+// (HFX1294) and 66 (HFX1224) set these draws in 0x509c10 with no gate write.
+export function animateEffectSprite(f: Effect, draw: number, object: number) {
+  f.animation = {
+    object: 0,
+    draw: 0,
+    morph: 0,
+    palette: 0,
+    renderFlags: 0,
+    f1: 0,
+    f2: 0,
+    stamp: 0,
+    flags3: 0,
+    morphTimer: 0,
+    morphFrames: 0,
+  }
+  setAnimationObject(f.animation, draw, object)
   return f
 }
 export function createGift(

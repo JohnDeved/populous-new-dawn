@@ -280,6 +280,20 @@ export function selectArea(
   for (const cue of selectedGroupVoices(group.map(nativePersonModel))) sound(w, cue, speaker)
 }
 
+// Order finalization 00444f60 ends every player order packet and the deselect
+// command 0x1e with 00435c10: each tribe person's +0x7a bit 0 becomes its current
+// selection bit. Shift+Backspace (follower-group slot 0) re-selects that snapshot.
+// It lives on Unit.groups beside groups 1-6 so representation handoffs keep it.
+export function recordPreviousSelection(w: World) {
+  const selected = new Set(w.selected)
+  for (const u of w.units) {
+    if (u.team !== 'blue' || u.hp <= 0) continue
+    const groups = ((u.groups ?? 0) & ~1) | (selected.has(u.id) ? 1 : 0)
+    if (groups) u.groups = groups
+    else delete u.groups
+  }
+}
+
 // Native right-click/Escape cancels a targeting mode before clearing followers.
 export function cancelInteraction(w: World) {
   if (w.mode) {
@@ -288,6 +302,7 @@ export function cancelInteraction(w: World) {
   }
   w.orderCursor = 0
   if (!w.selected.length) return
+  recordPreviousSelection(w)
   const selected = new Set(w.selected)
   for (const u of w.units) {
     if (u.team !== 'blue') continue

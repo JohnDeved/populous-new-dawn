@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { openGame, chooseSpell } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: true })
 try {
@@ -20,7 +20,7 @@ try {
     s.focus({ x: 12, z: 31 })
     s.onChange()
   })
-  await page.keyboard.press('5')
+  await chooseSpell(page,'Erosion')
   const point = await page.evaluate(() => {
     const s = window.testScene,
       p = s.screen({ x: 12, z: 31 }),

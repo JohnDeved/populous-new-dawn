@@ -198,9 +198,15 @@ test('Ctrl waypoints finish at a stone head without replacing the current route 
   const people = w.units.map(u => u.native),
     first = people[0].commands[0]
   advance(w, clock, 12)
-  command(w, head, { ctrlKey: true, shiftKey: true, altKey: true })
+  // Ctrl+Alt is the area-guard chord, which 0x437750 ranks above command 27
+  // (and 0x4b98f0 rejects the head cell), so it is not used to finish here.
+  const ignored = w.buildingOrders.active
+  assert.equal(command(w, head, { ctrlKey: true, shiftKey: true, altKey: true }), false)
+  assert.equal(w.buildingOrders.active, ignored)
+  const selected = w.selected.slice()
+  command(w, head, { ctrlKey: true, shiftKey: true })
   assert.equal(w.orderCursor, 0, 'native descriptor 0x2000 finishes even with Ctrl')
-  assert.deepEqual(w.selected, [])
+  assert.deepEqual(w.selected, selected, 'a plain final click keeps the selection without Alt')
   const last = w.buildingOrders.records[people[0].commands[1]]
   assert.equal(last.model, 27)
   assert.equal(last.flags, 64)

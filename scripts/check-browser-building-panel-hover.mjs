@@ -3,7 +3,7 @@ import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
-import { openGame } from './browser-game.mjs'
+import { clearSelectionWithEscape, openGame } from './browser-game.mjs'
 import { waitForHudTexture } from './hud-texture-readiness.mjs'
 
 const projectRoot = process.cwd(),
@@ -66,9 +66,15 @@ async function waitHud(page) {
 }
 
 async function setHudSize(page, value) {
+  // The shipped HUD size control lives under Options -> Browser compatibility and help.
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByLabel('HUD size').selectOption(value)
-  await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
+  const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
+  await menu.getByRole('button', { name: 'Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Browser compatibility and help', exact: true }).click()
+  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(value)
+  await menu.getByRole('button', { name: 'Back to Options', exact: true }).click()
+  await menu.getByRole('button', { name: 'Back', exact: true }).click()
+  await menu.getByRole('button', { name: 'Continue Game', exact: true }).click()
   await page.waitForFunction(value => {
     const fit = Math.min(innerWidth / 640, innerHeight / 480),
       preferred =
@@ -219,10 +225,44 @@ async function ordinaryMissionTwoTrainingHut(page) {
   return camp
 }
 
+// A rendered blank terrain cell (the ordinary tooltip 'cell' route) with no model,
+// person or building under it, searched from the top-right of the battlefield.
+async function blankGroundPoint(page) {
+  return page.evaluate(async () => {
+    const s = window.testScene,
+      { nativePosition } = await import('/app/model.ts'),
+      r = s.renderer.domElement.getBoundingClientRect()
+    for (let y = r.top + 40; y < r.bottom - 40; y += 20)
+      for (let x = r.right - 40; x > r.left + 40; x -= 20) {
+        const event = { clientX: x, clientY: y }
+        if (document.elementFromPoint(x, y) !== s.renderer.domElement) continue
+        if (s.picking.pick(event) !== null) continue
+        const ground = s.pick(event)
+        if (!ground) continue
+        const point = nativePosition(s.world, ground),
+          cell = ((point.x >> 8) & 254) | (point.y & 0xfe00),
+          index = (cell >> 9) * 128 + ((cell & 255) >> 1)
+        if (!(s.world.land.flags[index] & (0x400 | 0x10000 | 0x4000000))) return { x, y }
+      }
+    throw new Error('No rendered blank terrain cell to move the pointer away to')
+  })
+}
+
 async function openPanel(page, id) {
+  // Hover inspection of retained Hut/training panels requires no selection or mode.
+  await clearSelectionWithEscape(page)
   const point = await renderedBuildingPoint(page, id)
-  await page.mouse.move(1400, 40)
-  await page.waitForFunction(() => window.testScene.hoveredObject === null)
+  // Leave the building over a blank terrain cell so re-entry is a new ordinary
+  // tooltip visit. A sky or off-canvas departure (the former fixed (1400, 40) at
+  // HUD Auto) keeps the previous object's tooltip owner, so re-entering the same
+  // building never reaches a first display and creates no hover inspection.
+  const away = await blankGroundPoint(page)
+  await page.mouse.move(away.x, away.y)
+  await page.waitForFunction(
+    () =>
+      window.testScene.hoveredObject === null &&
+      window.testScene.tooltipController?.category !== 'object'
+  )
   await page.mouse.move(point.x, point.y)
   await page.waitForFunction(id => window.testScene.hoveredObject === id, id)
   const panel = page.locator('.training-panel:not([hidden])')
@@ -478,9 +518,9 @@ async function edgeGeometry(page, id) {
     await control.focus()
     let geometry = await measure(id)
     for (let step = 0; step < 96 && !geometry.clamped; step++) {
-      await page.keyboard.down('d')
+      await page.keyboard.down('Numpad6')
       await page.waitForTimeout(50)
-      await page.keyboard.up('d')
+      await page.keyboard.up('Numpad6')
       geometry = await measure(id)
       if (!geometry.visible || geometry.hidden)
         throw new Error(

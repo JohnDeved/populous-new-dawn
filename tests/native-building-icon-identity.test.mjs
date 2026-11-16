@@ -37,7 +37,7 @@ test('eight normal icons match independent native descriptor bytes, not placehol
 // Later reviewed owners legitimately change those files. Exercise the current
 // palette's identity, availability and mode callback instead of freezing them.
 function assertPalette(page) {
-  assert.equal(page.split("import { BuildingIcon } from './building-icon'").length, 2)
+  assert.equal(page.split("import { BuildingIcon, GuardPostIcon } from './building-icon'").length, 2)
   const start = page.indexOf('{BUILDINGS.map(b => (')
   const end = page.indexOf("{tab === 'followers'", start)
   assert.ok(start >= 0 && end > start)
@@ -46,11 +46,13 @@ function assertPalette(page) {
   assert.doesNotMatch(card, /<HudSprite\b/)
   const disabled = card.match(/disabled=\{([\s\S]*?)\n\s*\}\s+className=/)
   const pressed = card.match(/aria-pressed=\{([^\n]+)\}/)
-  const click = card.match(/onClick=\{\(\) =>\s*store\.change\(w => \{([\s\S]*?)\}\)/)
+  const click = card.match(/onClick=\{event =>\s*store\.change\(w => \{([\s\S]*?)\}\)/)
   assert.ok(disabled && pressed && click, 'current palette owners are present')
   const isDisabled = new Function('b', 'world', `return (${disabled[1]})`)
   const isPressed = new Function('b', 'world', `return (${pressed[1]})`)
-  const select = new Function('b', 'w', click[1])
+  // Every panel button also issues tribe command 0x7a (Guard Post chain reset)
+  // unless Shift is held (0049d9b0).
+  const select = new Function('b', 'w', 'event', 'resetGuardPostChain', click[1])
   const unlock = { tower: 'unlockedTower', camp: 'unlockedCamp', temple: 'unlockedTemple',
     spyHut: 'unlockedSpyHut', firewarriorHut: 'unlockedFirewarriorHut',
     boatHouse: 'unlockedBoatHouse', balloonHut: 'unlockedBalloonHut' }
@@ -61,9 +63,12 @@ function assertPalette(page) {
     assert.equal(isDisabled(building, world), false)
     for (const mode of [null, building.id, 'blast']) {
       assert.equal(isPressed(building, { mode }), mode === building.id)
-      const current = { mode }
-      select(building, current)
-      assert.equal(current.mode, mode === building.id ? null : building.id)
+      for (const shiftKey of [false, true]) {
+        const current = { mode }, resets = []
+        select(building, current, { shiftKey }, w => resets.push(w))
+        assert.equal(current.mode, mode === building.id ? null : building.id)
+        assert.deepEqual(resets, shiftKey ? [] : [current])
+      }
     }
   }
 }

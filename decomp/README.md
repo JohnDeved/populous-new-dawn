@@ -7,6 +7,11 @@ public entry, native fidelity or rendered acceptance.
 [Spell-control preview inputs](research/native-help/spell-control.md) narrows the
 29 kind-4 illustration dependency without activating the renderer.
 
+[Native default input bindings](research/native-input-bindings/README.md) decodes all
+188 original default key/mouse records and resolves each action through both
+`process_cmd` switches (`scripts/native-input-bindings.py`, read-only). Use it first
+for shortcut/control questions; it is static evidence, not behavior acceptance.
+
 [Result statistic producers](research/result-statistics/README.md) traces all ten
 original result rows to bounded increment/reset owners, identifies the two
 knowledge deduplication masks, and records browser ownership and unresolved
@@ -70,14 +75,19 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Original Game options and bounded keyboard preferences](research/game-options-static/findings.md),
+[Instant World View: Shift/Ctrl+Return](research/instant-overview.md),
+[Player Ctrl+Alt patrol routes and N queued-action exit](research/player-patrol.md),
 [Eight-Brave Temple entry composition](research/training-entry-composition.md),
 [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
 [Automatic Preacher sermons and raid ownership](research/automatic-preacher-and-raid-ownership.md),
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
+[Player scatter (D) and person state 43](research/player-scatter.md),
+[Player Guard Posts, follower guard/patrol assignment and N release](research/guard-posts.md),
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
+[Animation cadence audit across rendered families](research/animation-cadence.md),
 [Native melee attack animation ownership](research/melee-attack-animation.md),
 [Native recoil entry and push handoff](research/melee-recoil-animation.md),
 [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
@@ -105,6 +115,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Mission 11 first settlement](research/mission11-first-settlement.md),
 [Mission 12 opening](research/mission12-opening.md),
 [Mission 12 Spy disguise and sabotage](research/mission12-spy-sabotage.md),
+[Manual right-click Spy discovery](research/spy-manual-discovery.md),
 [Mission 13 opening](research/mission13-opening.md),
 [Mission 13 Balloon transport](research/mission13-balloon.md),
 [Mission 14 linked rewards and generic Angel](research/mission14-linked-angel.md),
@@ -118,8 +129,9 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Mission 22 rewards and transport](research/mission22-rewards.md),
 [Mission 23 linked zero-mana gift](research/mission23-gifts.md),
 [Mission 23 enemy settlements and housing growth](research/mission23-settlement.md),
-[vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md), and
-[camera bookmarks](research/camera-bookmarks.md). Consult these before repeating
+[vehicle damage, destruction, and passenger ejection](research/vehicle-destruction.md),
+[camera bookmarks](research/camera-bookmarks.md), and
+[numbered follower groups](research/follower-groups.md). Consult these before repeating
 research; publication and scratch handoff follow [native research](../engineering/native-research.md).
 
 | Original entries | Browser implementation | Evidence and limit |
@@ -619,6 +631,18 @@ and the correction that command 34 assigns training-building entry rather than
 sabotage. Rendering, canvas input, fire effects, and checkpoint restoration remain
 browser/portable evidence. See the
 [focused evidence and limits](research/mission12-spy-sabotage.md).
+
+## Manual Spy discovery
+
+```sh
+.tools/decomp/oracle/bin/python scripts/check-native-spy-discovery.py /path/to/d3dpoptb.exe
+```
+
+The supplied-state CPU probe executes original right-press input admission, the
+inspection producer and command 0x4e consumer. It covers completed disguise, busy
+command slots, deferred mutation and stale target guards. It does not implement
+browser discovery or establish native picking/occlusion or full gameplay parity.
+See [findings, resource limits and remaining integration](research/spy-manual-discovery.md).
 
 ## Mission 13 opening
 
@@ -2453,7 +2477,7 @@ cleanup are intercepted; their complete UI/cache effects are **not** certified.
 
 The browser check uses real DOM key and pointer events, eight camera outputs
 captured from the original keyboard routine, and deterministic presentation steps.
-It covers Q/E, WASD/arrows, simultaneous/opposing keys, render-rate independence,
+It covers Q/E, W/A/S/keypad 6/arrows, simultaneous/opposing keys, render-rate independence,
 release without drift, paused/locked controls, a focused HUD button, focus
 interruption, rotated panning and horizontal/vertical mouse dragging. The existing
 focus, projection and opening-tour checks remain part of the regression workflow.
@@ -2586,7 +2610,7 @@ gates are the compared scope. Existing complete keyboard/drag movement checks
 still cover 8,192 / 6,153 calls after these requests reach the shared movement code.
 
 Browser input now uses original arrows, Ctrl, Shift, Delete/Page Down and keypad
-navigation. WASD/QE remain convenience aliases. Keypad 2 no longer also selects
+navigation. W/A/S/Q/E remain convenience aliases; D is the original scatter key. Keypad 2 no longer also selects
 Land Bridge. Modifiers affect already-held arrows. Pointer tracking covers the
 whole client area, clears on leave/blur/cancellation and suppresses scrolling
 during rotation/pan drags, modal dialogs, input locks and overview. DOM checks
@@ -5333,3 +5357,21 @@ the guarded startup call, fresh-down clip interruption, recovered BLOGO bytes,
 640×352 centered display geometry and full decoded-frame conversion equality.
 This bounded restoration does not establish the initial timed page, New Game
 intro, held-input native behavior, or complete startup parity.
+
+## Building placement controls
+
+[Placement input evidence](research/building-placement-controls.md) binds original
+ordered default lookup, release-time Ctrl/Alt retention, exact modifier combinations,
+right-release cancel and shadowed Escape records. A reproducible native probe keeps
+its supplied gate states and allocation interception explicit. App pointer tests
+preserve existing worker and validation policy; rendered acceptance and downstream
+native placement-consumer parity remain separate claims.
+
+## Spell Ctrl casting and modified charging
+
+[Spell modifier evidence](research/spell-modifier-controls.md) binds spell-mode release
+records `0x6a`/`0x6b` (exact none/Ctrl; only `0x6a` leaves the spell), the right-click
+producer's Ctrl > Shift > plain branches, the emitter-to-`process_tribe_cmd` packet
+path and the `0x56`/`0x74`/`0x75` paused-mask and focus-memory transitions.
+`scripts/check-static-spell-modifiers.py` re-verifies the bytes. Static evidence only;
+the out-of-range approach cast and message cleanup remain unported.

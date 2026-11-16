@@ -96,8 +96,9 @@ test('ordinary M22 authored EVERY255 requests a real Firewarrior Tower garrison'
     }
     if (fw.inside === tower.id && !entered) entered = w.turn
   }
-  // Browser outcome, not a native completion-time parity claim.
-  assert.equal(entered, 274)
+  // Browser outcome, not a native completion-time parity claim. Cycling computer
+  // marker patrols (0x4366b0) advance the shared RNG, so this walk draws other speeds.
+  assert.equal(entered, 276)
   assert.equal(w.turn, 1200)
   assert.equal(fw.inside, tower.id)
   assert.equal(fw.hp, 35)

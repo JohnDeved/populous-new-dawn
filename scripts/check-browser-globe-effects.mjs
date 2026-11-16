@@ -1,7 +1,7 @@
 // npm run dev, then node scripts/check-browser-globe-effects.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame, settleView } from './browser-game.mjs'
+import { openGame, settleView, chooseSpell } from './browser-game.mjs'
 import { globeCircle } from '../app/globe.ts'
 import { lineQuad } from '../app/lightning.ts'
 const browser = await chromium.launch({ headless: true })
@@ -56,14 +56,14 @@ try {
   assert.equal(pulsed.phase,(initial.phase+512)|0)
   assert.notEqual(pulsed.fills[0].alpha,initial.fills[0].alpha)
   assert.equal(pulsed.groundAngle,initial.groundAngle,'Overview must not advance the ground sprite halo')
-  await page.keyboard.press('1')
+  await chooseSpell(page,'Blast')
   await page.getByRole('button',{name:/^Lightning, \d+ shots$/}).hover()
   await frame();assert.equal((await range()).model,2,'Selected spell overrides hovered preview')
   await page.keyboard.press('Escape');await frame();assert.equal((await range()).model,3)
   await page.evaluate(()=>{window.testScene.world.inputMask=4})
   await frame();assert.equal((await range()).range,null)
   await page.evaluate(()=>{window.testScene.world.inputMask=0;window.testScene.world.paused=false})
-  await page.mouse.move(820,600);await page.keyboard.press('1');await frame()
+  await page.mouse.move(820,600);await chooseSpell(page,'Blast');await frame()
   await page.screenshot({path:'/private/tmp/populous-globe-range-v106.png'})
   // Cast through the live globe picker and advance real simulation turns.
   const target=await page.evaluate(()=>{const s=window.testScene,q=s.screen({x:19,z:33}),r=s.container.getBoundingClientRect();s.world.speed=1;return {x:r.left+(q.x+1)*r.width/2,y:r.top+(1-q.y)*r.height/2}})
@@ -101,7 +101,7 @@ try {
   assert.deepEqual(gates,{visible:1,hidden:0,owned:1,enemy:0})
   for(let i=0;i<30;i++)await frame(80)
   assert.equal(await page.evaluate(()=>window.testScene.world.effects.some(f=>f.sprite)),false,'Expired projectile art must leave the overview')
-  await page.keyboard.press('=');await settleView(page);await page.keyboard.press('1');await frame()
+  await page.keyboard.press('=');await settleView(page);await chooseSpell(page,'Blast');await frame()
   assert.equal(await page.evaluate(()=>window.testScene.range.visible&&window.testScene.range.children.length===85),true)
   assert.deepEqual(errors,[])
   console.log(`PASS: native 32-strip overview range (${rangePixels} GPU pixels), paused pulse, hover/selection/input gates; real Blast trails (${effectPixels} GPU pixels), AL tint, tribe/fog/hidden gates, expiry and ground-halo return`)

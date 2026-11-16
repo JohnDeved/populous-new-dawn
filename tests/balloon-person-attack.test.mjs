@@ -163,13 +163,13 @@ test('supplied-focus current Mission22 queued person target moves its transport 
     if (target.hp <= 0 && !targetDeath) targetDeath = world.turn
   }
   assert.equal(departures, 1)
-  assert.equal(departure, 3840)
-  assert.equal(firstFight, 3845)
+  // Preacher17 now cycles with the Green marker patrol (0x4366b0) instead of idling,
+  // so the transport follows a moving target before the grounded departure.
+  assert.equal(departure, 4040)
+  assert.equal(firstFight, 4042)
   assert.deepEqual(encounters, [
-    [3845, 17],
-    [3863, 12],
-    [3867, 10],
-    [3875, 12],
+    [4042, 17],
+    [4077, 10],
   ])
   assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
@@ -178,7 +178,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   // The existing mode1 grounded attack adapter remains;
   // observed death retires command 28 while the selected Preacher 17 survives.
   // This is a browser outcome, not a native damage/landing parity claim.
-  assert.equal(death, 3877)
+  assert.equal(death, 4089)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)

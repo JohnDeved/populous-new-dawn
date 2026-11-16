@@ -15,6 +15,15 @@ native, rendered-browser or hardware-performance acceptance.
    typecheck, every discovered top-level test across four shards, parity and
    orchestration checks, and a production build of the exact synthetic candidate. Do not launch a duplicate local full gate while this
    one is pending; continue independent work in another branch or review/research.
+   Immediately after a push or a main move, GitHub may still serve the previous
+   synthetic merge. The run then fails before any test with `Synthetic merge parents
+   differ from event`. The gate compares against the event's base and head SHAs.
+   Before the transition:
+   - query `gh pr view <N> --json mergeable,baseRefOid,headRefOid` so GitHub
+     recomputes the merge, repeating while `mergeable` is `UNKNOWN`;
+   - force-fetch `+refs/pull/<N>/merge`;
+   - confirm its parents equal that `baseRefOid` and `headRefOid`, and that those
+     are the current main and the pushed head.
 3. Repair failures with focused feedback and push. After review of the exact new
    head, return an already-ready PR to draft and mark it ready once. A synchronize
    event does not start this workflow. Never weaken assertions, omit test files or
@@ -371,7 +380,10 @@ original source hashes and caps; they are not acceptance for this new policy.
 
 Passive integration-reader support recognizes a separately approved
 `spell-visuals-nine-v2` policy only with an explicit `browserCheckpointVersion: 4`.
-The existing eight-job workflow and v3 checkpoint writer remain unchanged.
+The existing eight-job workflow remains unchanged. Note (#1010, PR #1047): the app
+checkpoint writer is now v4 (Guard Posts). These integration-queue readers still pin
+v3 for older policies and reserve v4 for `spell-visuals-nine-v2`; reconciling those
+pins is a separate parent decision and is not changed by that PR.
 Older policies still demand exact old job inventories and v3 checkpoints; v4 is
 never inferred from candidate data. No ninth job, runner, credentials, protection
 change, persistent controller or external trusted-pin update is included.

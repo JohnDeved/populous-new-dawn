@@ -33,13 +33,14 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
     result.retention.durationMs = performance.now() - result.retention.startedMs
     return result
   }
-  const visit = () => {
+  const visit = rafTimestampMs => {
     if (stopped) return
     try {
       if (++result.visits > 75 * 240) throw Error('Corpse observation exceeded bounded visit storage')
       if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
         throw Error('Corpse observer lost its bound Scene/world')
       if (!canvas.isConnected || document.visibilityState !== 'visible') throw Error('Corpse canvas disconnected or hidden')
+      result.lastVisit = { rafTimestampMs, stamp: scene.renderer.info.render.frame }
       const actor = world.units.find(unit => unit.id === actorId)
       if (actor) previous = { id: actor.id, kind: actor.kind, team: actor.team, hp: actor.hp,
         x: actor.x, z: actor.z, heading: actor.heading, turn: world.turn,

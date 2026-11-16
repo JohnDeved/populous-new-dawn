@@ -3,7 +3,7 @@ import test from 'node:test'
 import { createGameStore } from '../app/game-store.ts'
 import assert from 'node:assert/strict'
 import { stepMovementOrder } from '../app/person-orders.ts'
-import { browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
+import { addUnit, browserPosition, cast, command, tick, selectUnit } from '../app/model.ts'
 test('grounded staged boarding retains and visits the preceding waypoint', async () => {
   const stepUntil = (w, done, limit) => {
       for (let i = 0; i < limit; i++) {
@@ -34,22 +34,46 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   assert.ok(cast(world, 'swarm', { x: 27, z: -29 }))
   stepUntil(world, () => world.effects.some(effect => effect.swarm?.applied), 100)
 
-  // Keep the old western detour as an ordinary lethal contrast: source-backed
+  // Keep the old western detour as an ordinary hostile contrast: source-backed
   // Swarm pursuit changes enemy/RNG outcomes, not the queue's ownership contract.
+  // The Red marker patrol now cycles between its markers (0x4366b0) instead of
+  // idling beside this route, so no melee intercepts it; Tower 96 volleys still hit.
+  const western = structuredClone(world),
+    westernShaman = western.units.find(u => u.id === shaman.id),
+    westernBoat = western.vehicles.find(v => v.id === boat.id)
+  selectUnit(western, westernShaman.id, false)
+  assert.ok(command(western, { x: 0, z: -45 }, { ctrlKey: true }))
+  const westernFirst = westernShaman.native.commands[0]
+  assert.ok(
+    command(western, { ...browserPosition(westernBoat), id: westernBoat.id }, { ctrlKey: true })
+  )
+  const westernSecond = westernShaman.native.commands[1]
+  // Supplied lethal contrast: the authored Red patrol no longer idles on this
+  // detour, so two supplied Red Warriors hold the western waypoint instead. The
+  // Shaman dies while holding both queued records, which must both retire.
   const lethal = structuredClone(world),
     lethalShaman = lethal.units.find(u => u.id === shaman.id),
-    lethalBoat = lethal.vehicles.find(v => v.id === boat.id)
+    lethalBoat = lethal.vehicles.find(v => v.id === boat.id),
+    guards = [
+      addUnit(lethal, 'red', 'warrior', { x: 0, z: -45 }),
+      addUnit(lethal, 'red', 'warrior', { x: 0.5, z: -45 }),
+    ]
   selectUnit(lethal, lethalShaman.id, false)
   assert.ok(command(lethal, { x: 0, z: -45 }, { ctrlKey: true }))
-  const lethalFirst = lethalShaman.native.commands[0]
+  const [lethalFirst] = lethalShaman.native.commands
   assert.ok(
     command(lethal, { ...browserPosition(lethalBoat), id: lethalBoat.id }, { ctrlKey: true })
   )
-  const lethalSecond = lethalShaman.native.commands[1]
+  const lethalSecond = lethalShaman.native.commands.at(1)
   let lethalFight = 0,
     lethalOpponent = 0,
     lethalDeath = 0,
-    lethalClosest = Infinity
+    lethalHeld = null
+  let westernFight = 0,
+    westernOpponent = 0,
+    westernDeath = 0,
+    westernBoarded = 0,
+    westernClosest = Infinity
 
   const p = shaman.native
   assert.equal(p.vehicle, 0)
@@ -89,8 +113,17 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     boarded = null
   for (let n = 0; n < 300; n++) {
     tick(world, 1 / 12)
+    tick(western, 1 / 12)
+    westernClosest = Math.min(westernClosest, Math.hypot(westernShaman.x, westernShaman.z + 45))
+    if (westernShaman.fight && !westernFight) {
+      westernFight = western.turn
+      westernOpponent = westernShaman.fight.opponent
+    }
+    if (westernShaman.hp <= 0 && !westernDeath) westernDeath = western.turn
+    if (westernBoat.passengerCount && !westernBoarded) westernBoarded = western.turn
+    const lethalRefs = [lethalFirst, lethalSecond].map(id => lethal.buildingOrders.records[id].references)
     tick(lethal, 1 / 12)
-    lethalClosest = Math.min(lethalClosest, Math.hypot(lethalShaman.x, lethalShaman.z + 45))
+    if (lethalShaman.hp <= 0 && !lethalDeath) lethalHeld = lethalRefs
     if (lethalShaman.fight && !lethalFight) {
       lethalFight = lethal.turn
       lethalOpponent = lethalShaman.fight.opponent
@@ -130,20 +163,29 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     closest = Math.min(closest, Math.hypot(shaman.x - 22, shaman.z + 39))
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
-  assert.ok(lethalClosest < 1)
-  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1460, 97, 1476])
+  assert.deepEqual(lethalHeld, [1, 1], 'both queued records are held until death')
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1376, guards[0].id, 1424])
   assert.equal(lethalShaman.hp, 0)
   assert.equal(lethal.units.includes(lethalShaman), false)
   assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
   assert.equal(lethal.buildingOrders.records[lethalFirst].references, 0)
   assert.equal(lethal.buildingOrders.records[lethalSecond].references, 0)
   assert.deepEqual(lethalBoat.passengers, [])
+  assert.ok(westernClosest < 1)
+  assert.deepEqual([westernFight, westernOpponent, westernDeath, westernBoarded], [0, 0, 0, 1525])
+  assert.equal(westernShaman.hp, 58.6)
+  assert.equal(western.units.includes(westernShaman), true)
+  assert.equal(western.objectCells.objects.get(westernShaman.id), westernShaman.native)
+  assert.equal(westernShaman.native.vehicle, westernBoat.id)
+  assert.equal(western.buildingOrders.records[westernFirst].references, 0)
+  assert.equal(western.buildingOrders.records[westernSecond].references, 0)
+  assert.deepEqual(westernBoat.passengers, [westernShaman.id])
   // Command3 completes against its prepared native point and square arrival
   // extent, on every fourth person visit. The clicked-point Euclidean distance
   // is not that contract; both predecessor and one actual retirement are checked.
   assert.equal(controlRetirements,1)
   assert.ok(closest < 1)
-  assert.equal(boarded, 1376)
+  assert.equal(boarded, 1380)
   assert.equal(shaman.hp, 100.6)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)

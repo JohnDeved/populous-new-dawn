@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { waitForShamanReadiness } from '../browser-game.mjs'
+import { waitForShamanReadiness, chooseSpell } from '../browser-game.mjs'
 
 export default async function hutSmokeIgnition({ page, openMission, output, signal, receipt }) {
   const report = { status: 'running', actions: [], screenshots: [] }
@@ -398,7 +398,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     report.shoreArrival = await read(); save()
     // One ordinary camera offset keeps the fixed Bridge target outside the central Pause badge.
     await view({ x: 0, z: 12 }) // Actual cast target remains (0,4); ownership checks stay strict.
-    await action('select-earned-Land-Bridge', () => page.keyboard.press('2'))
+    await action('select-earned-Land-Bridge', () => chooseSpell(page,'Land Bridge'))
     assert.equal((await read()).mode, 'bridge')
     const bridgePoint = await fixedGround({ x: 0, z: 4 }, 'bridge')
     report.bridgeInput = bridgePoint; save(); assert.equal(bridgePoint.rejection, null)
@@ -493,7 +493,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       return state.before || state.errors.length
     }, shamanId)
     assert.deepEqual(await page.evaluate(() => window.hutIgnitionFrames.status().errors), [])
-    await action('select-earned-Lightning', () => page.keyboard.press('3'))
+    await action('select-earned-Lightning', () => chooseSpell(page,'Lightning'))
     assert.equal((await read()).mode, 'lightning')
     await resume()
     await clickEntity('buildings', hut.id, null, true)

@@ -353,3 +353,22 @@ for (const lifetime of [15, 17]) test(`Hypnotise actual ${lifetime}-turn expiry 
   assert.throws(() => validateHypnotiseObservation(result, suppliedAtlas), assert.AssertionError)
   f.restored()
 })
+
+test('target diagnostics retain four distinct read-only boundaries without changing conversion checks', t => {
+  const f = fixture(t), calls = []
+  f.win.__pndHypnotiseFixture = { hypnotiseTargetWitness(world, point) {
+    calls.push({ turn: world.turn, remaining: point?.turnsRemaining })
+    return { turn: world.turn, selected: world.units.map(u => u.id) }
+  } }
+  f.start(); f.frame(); f.advance(4)
+  f.clock.beforeTurn(); f.clock.beforeTurn() // Repeated non-advancing boundary is deduplicated.
+  f.advance(1)
+  const states = f.observation().result.targetStates
+  assert.deepEqual(states.map(s => s.boundary),
+    ['installed-before-cast', 'birth', 'before-fifth-visit', 'after-fifth-visit'])
+  assert.deepEqual(states.map(s => s.state.turn), [20, 20, 24, 25])
+  assert.deepEqual(states.at(-1).state.selected, [90, 91])
+  assert.equal(calls.length, 4)
+  assert.deepEqual(f.observation().result.turnSamples.at(-1),
+    { turn: 25, id: 7, remaining: 11, converted: [90, 91] })
+})

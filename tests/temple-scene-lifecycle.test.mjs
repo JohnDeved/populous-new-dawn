@@ -8,6 +8,7 @@ import ts from 'typescript'
 import * as THREE from 'three'
 import { loadSceneFixture } from './support/bloodlust-scene.mjs'
 import { makeHutSmokeScene } from './support/hut-smoke-scene.mjs'
+import { messageBoxRequested } from '../app/campaign-message-modal.ts'
 
 const nop = () => {}
 const disposable = () => ({ dispose: nop, remove: nop })
@@ -178,7 +179,8 @@ test('actual Scene preload/start/animate/dispose and Page retry respect the curr
       { world, presentationBinding },
       scene
     )
-    scene.gameClock = execute(`return ${field('gameClock')}`, {}, scene)
+    // Lightning draw visits are effect presentation, stubbed like updateEffectsFrame.
+    scene.gameClock = execute(`return ${field('gameClock')}`, { lightningDrawVisit: nop, messageBoxRequested }, scene)
     scene.animate = execute(
       `return ${field('animate')}`,
       {

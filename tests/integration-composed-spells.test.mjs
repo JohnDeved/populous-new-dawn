@@ -103,10 +103,11 @@ test('composed source inventory covers every tracked application file exactly on
     /Duplicate composed source input/)
 })
 
-test('composed evidence binds rendering and audio dependencies in both artifact kinds', () => {
+test('composed evidence binds rendering, audio and discovery dependencies in both artifact kinds', () => {
   for (const path of ['app/angel-presentation.ts', 'app/original-angel-presentation.json',
     'app/original-angel-strike.json', 'app/building-icon.tsx', 'app/original-building-icons.json',
-    'app/original-tower-acquisition.json', 'app/spell-audio-cues.ts']) {
+    'app/original-tower-acquisition.json', 'app/spell-audio-cues.ts',
+    'app/live-spy-discovery.ts', 'app/person-visibility.ts']) {
     assert.equal(COMPOSED_SOURCE_INPUTS.filter(input => input === path).length, 1)
     const mismatch = error => error.code === 'ERR_ASSERTION' &&
       error.message.split('\n')[0] === `Composed immutable source differs: ${path}`

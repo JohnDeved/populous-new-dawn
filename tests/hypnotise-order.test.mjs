@@ -14,6 +14,7 @@ import {
 } from '../app/model.ts'
 import { hypnotiseTargets } from '../app/spell-effects-runtime.ts'
 import { spellTargetError } from '../app/live-command.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
 import { createLivePerson, syncLivePersonCells } from '../app/live-people.ts'
 import { objectsInCell, removeObjectFromCell } from '../app/object-cells.ts'
 import { syncLandscapeObjects } from '../app/world-terrain-runtime.ts'
@@ -149,7 +150,17 @@ test('earned M22 Hypnotise binds replacement allocation to actual cell callback 
   selectUnit(w, s.id)
   assert.ok(command(w, { x: 20, z: -41 }))
   for (let n = 0; n < 100 && spellTargetError(w, 'hypnotise', target); n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 6172)
+  assert.equal(w.turn, 6174)
+  assert.equal(spellTargetError(w, 'hypnotise', target), null)
+  // The authored Red marker patrol (97/98) cycles between its two markers
+  // (0x4366b0) instead of idling at the first one, so wait for its next pass
+  // through the target cells.
+  const patrol = [97, 98].map(id => w.units.find(u => u.id === id))
+  while (w.turn < 6240) tick(w, 1 / 12)
+  for (const u of patrol) {
+    assert.equal(currentPersonOrder(w.buildingOrders, u.native).model, 25)
+    assert.equal(u.native.commandCursor, 0)
+  }
   assert.equal(spellTargetError(w, 'hypnotise', target), null)
   assert.ok(cast(w, 'hypnotise', target))
   assert.equal(w.shots.hypnotise, 0)
@@ -162,7 +173,7 @@ test('earned M22 Hypnotise binds replacement allocation to actual cell callback 
   const effect = w.effects.find(f => f.kind === 'hypnotise'),
     center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [5888, 5888])
-  assert.equal(w.turn, 6185)
+  assert.equal(w.turn, 6253)
   assert.equal(effect.sprite.sequence, 'hypnotise')
   assert.equal(effect.animation.draw, 44)
   assert.equal(effect.animation.object, 1264)
@@ -176,7 +187,7 @@ test('earned M22 Hypnotise binds replacement allocation to actual cell callback 
       ))
         if (p.class === 1 && p.tribe !== 0 && ![1, 7, 8].includes(p.model) && !(p.flags4 & 0x1000))
           discovered.push(p)
-  assert.deepEqual(ids(discovered), [97, 98])
+  assert.deepEqual(ids(discovered), [98, 97])
   const old = [...discovered].reverse().map(p => {
       const u = w.units.find(u => u.id === p.id)
       assert.equal(u.native, p)

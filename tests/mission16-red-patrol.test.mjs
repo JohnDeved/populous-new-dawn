@@ -178,36 +178,40 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
       assert.equal(w.objectCells.objects.get(uid), owner(u))
     }
   }
+  // Command-25 marker patrols cycle (0x4366b0) for every tribe, so patrollers
+  // stay in state 10 on their original shared records and the type-24 marker
+  // task never re-issues them: no model-25 record is retired and re-allocated.
+  const patrolRecords = []
+  for (let id = 1; id < w.buildingOrders.records.length; id++)
+    if (w.buildingOrders.records[id].model === 25) patrolRecords.push(id)
+  assert.deepEqual(patrolRecords, [33, 34, 35, 36, 38, 39, 42, 43, 48, 49, 50, 51])
   for (const [id, expected] of [
-    [67, [276]],
-    [68, [276]],
-    [72, [274]],
-    [73, [274]],
-    [90, [265, 273]],
-    [91, [265, 273]],
-    [99, [261, 262, 264, 266, 267, 268, 277, referenceId(358)]],
-    [100, [261, 262, 264, 266, 267, 268, 277, referenceId(358)]],
-    [102, [263, 269, 272]],
-    [103, [263, 269, 272]],
-    [104, [270, 275]],
-    [105, [270, 275]],
+    [33, first],
+    [34, first],
+    [35, [264, 271, 272]],
+    [36, [264, 271, 272]],
+    [38, [275, 276, 278, 279]],
+    [39, [275, 276, 278, 279]],
+    [42, [273, 274]],
+    [43, [273, 274]],
+    [48, [277]],
+    [49, [277]],
+    [50, [referenceId(424)]],
+    [51, [referenceId(424)]],
   ])
     assert.deepEqual(owners(id), expected)
-  for (const id of [
-    33, 34, 36, 37, 40, 41, 45, 46, 49, 50, 54, 55, 63, 64, 65, 66, 80, 81, 83, 84, 85, 86, 7, 18,
-    19, 25, 26, 27, 28, 29, 30, 31, 32, 38,
-  ]) {
+  for (const id of [7, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 37, 40, 41, 47]) {
     assert.equal(w.buildingOrders.records[id].references, 0)
     assert.deepEqual(owners(id), [])
   }
-  const trained = w.units.find(u => u.id === referenceId(358))
+  const trained = w.units.find(u => u.id === referenceId(424))
   assert.equal(trained.kind, 'warrior')
-  assert.equal(w.objectCells.objects.get(referenceId(358)), owner(trained))
+  assert.equal(w.objectCells.objects.get(referenceId(424)), owner(trained))
   assert.equal(
     w.units.filter(
       u =>
         u.team === 'red' && owner(u) && currentPersonOrder(w.buildingOrders, owner(u))?.model === 25
     ).length,
-    17
+    20
   )
 })

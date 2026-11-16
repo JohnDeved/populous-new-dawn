@@ -1,10 +1,21 @@
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
+import { collapseCampaignMessages, openGame } from './browser-game.mjs'
 
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 try {
   const { page, errors } = await openGame(browser)
+  // #1046: an auto-opened campaign message box pauses the game (and the flyby)
+  // like the original. While waiting on live play, close each box as a player would.
+  const waitClosingBoxes = async (predicate, arg) => {
+    for (const deadline = Date.now() + 90_000; ; ) {
+      if (await page.evaluate(predicate, arg)) return
+      if (await page.evaluate(() => !!globalThis.testSceneRef?.current?.messageModal))
+        await collapseCampaignMessages(page)
+      if (Date.now() > deadline) throw new Error('Timed out waiting on live play')
+      await page.waitForTimeout(100)
+    }
+  }
   const activate = async locator => {
     await locator.focus()
     await page.keyboard.press('Enter')
@@ -38,8 +49,9 @@ try {
   await page.evaluate(() => (globalThis.testScene = globalThis.testSceneRef.current))
   const initialCamera = await page.evaluate(() => ({ ...globalThis.testScene.viewPoint })),
     skip = page.getByRole('button', { name: 'Skip introduction', exact: false })
+  await waitClosingBoxes(() => !!document.querySelector('.skip-introduction'))
   await skip.waitFor()
-  await page.waitForFunction(
+  await waitClosingBoxes(
     initial => Math.hypot(
       globalThis.testScene.viewPoint.x - initial.x,
       globalThis.testScene.viewPoint.z - initial.z
@@ -47,7 +59,7 @@ try {
     initialCamera
   )
   await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
-  await page.waitForFunction(() => {
+  await waitClosingBoxes(() => {
     const world = globalThis.testStore.getWorld()
     return !(world.flyby.flags & 1) && !(world.inputMask & 64)
   })

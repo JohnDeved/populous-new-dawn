@@ -84,14 +84,15 @@ test('production source identity and actual PNGs use existing retained output', 
 test('capture manifest binds new runner without changing other trusted input checks', () => {
   const pins = JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
   assert.equal(pins['scripts/tutorial-browser/run.mjs'], createHash('sha256').update(runner).digest('hex'))
-  assert.match(runner, /if \(captureProtocolEnabled\) assert.equal\(selectedScenario, 'tutorial'/)
+  assert.match(runner, /if \(captureProtocolEnabled\) assert.equal\(selectedScenario, 'building-panel-edges'/)
 })
 
 // The legacy dev scenario used a removed button. Verify the current shipped
 // entry path, without replacing gameplay input with a scene method invocation.
 test('both overview setup entries use the shipped gameplay Enter shortcut', () => {
   const page = read('app/page.tsx')
-  assert.ok(page.includes("if (e.key === 'Enter' && !e.repeat && !(e.target as HTMLElement).closest('button'))\n        engine.current?.overview()"))
+  assert.ok(page.includes('const overviewKey = overviewShortcut(e)'))
+  assert.ok(page.includes("if (overviewKey && !(e.target as HTMLElement).closest('button')) camera?.overview(overviewKey)"))
   assert.equal((route.match(/await page\.locator\('\.world-viewport canvas\.battlefield'\)\.focus\(\)\n {2}await page\.keyboard\.press\('Enter'\)/g) ?? []).length, 2)
   assert.doesNotMatch(route, /name: ?'Planet overview'|testScene\.overview\(/)
 })

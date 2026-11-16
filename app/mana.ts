@@ -29,6 +29,9 @@ export type ManaTribe = {
   spellProgress: number[]
   shamanGuards: number
   shamanGuardChanged: number
+  // Native tribe +0x9e9/+0xc25: spell-panel focus memory (app/spell-charging.ts).
+  chargeFocusMask: number
+  chargeFocusModel: number
 }
 export type SpellStock = { available: number; disabled: number; stocks: number[] }
 export type ManaWorld = {

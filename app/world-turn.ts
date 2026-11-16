@@ -1,4 +1,5 @@
 import { requestAngelStrikePresentation } from './angel-presentation.ts'
+import { processSpyDiscovery } from './live-spy-discovery.ts'
 import { grantLinkedBoatReward } from './vehicle-reward.ts'
 import {
   assignVehicleAllocationCounter,
@@ -105,6 +106,7 @@ import { clearRetiredPersonOrders, release, releaseTasks } from './world-tasks.t
 import {
   sound,
   effect,
+  animateEffectSprite,
   createGift,
   createAngel,
   shotVisual,
@@ -475,6 +477,7 @@ export function tick(w: World, dt: number, observer?: TurnObserver, metrics?: { 
   }
 }
 function stepTurn(w: World, metrics?: { steps: number }) {
+  processSpyDiscovery(w)
   // 0x4a5590: tribe work observes the previous completed object turn.
   // First-mission initialization supplies two active tribes. Object phases below remain partial.
   if (w.land.landFlags & 2) return
@@ -665,7 +668,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       }
       if (event.expired) {
         sound(w, 0xb2, fx)
-        effect(w, 'death', fx)
+        // Non-unit death smoke: HFX1224 is set only by effect 66 (0x509c10 case 65), draw 44.
+        animateEffectSprite(effect(w, 'death', fx), 44, 1224)
         fx.duration = fx.age
       }
     }
@@ -700,8 +704,13 @@ function stepTurn(w: World, metrics?: { steps: number }) {
           return orbit.id
         },
         sparkle: position => {
-          const sparkle = effect(w, 'trail', browserPosition(position))
-          sparkle.sprite = { sequence: 'sparkle', frame: 6 }
+          // 0x512700 allocates effect 61: draw 46/HFX1294, as the level-start wave.
+          const sparkle = animateEffectSprite(
+            effect(w, 'trail', browserPosition(position)),
+            46,
+            1294
+          )
+          sparkle.sprite = { sequence: 'hit', frame: 0 }
           sparkle.height = position.h / 45
           sparkle.duration = 6 / TURNS_PER_SECOND
         },
@@ -1378,7 +1387,12 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         continue
       }
       u.cooldown = Math.max(0, u.cooldown - dt)
-      if (u.native?.state === 41 || u.native?.state === 26 || u.native?.state === 31) {
+      if (
+        u.native?.state === 41 ||
+        u.native?.state === 26 ||
+        u.native?.state === 31 ||
+        u.native?.state === 43
+      ) {
         if (personPass) personPass.step(u)
         else stepLivePerson(w, u)
         continue
@@ -1637,6 +1651,10 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         u.native &&
         (u.native.guardInputPending ||
           [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+          // Command 25 (a route of 2+ area-guard points) shares the command-3
+          // movement body and repeats (0x4366b0) for every tribe, including
+          // computer marker patrols normalized by 0x43b010.
+          activeOrder?.model === 25 ||
           (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
           (activeOrder?.model === 28 &&
             nativePersonTribe(u) === w.manaWorld.playerTribe &&
@@ -1846,7 +1864,8 @@ function stepTurn(w: World, metrics?: { steps: number }) {
       w.campaignAIs[tribeForTeam(b.team)]?.defenceRadius ?? 11,
       true
     )
-    if (!b.terrainState?.reason && !b.dismantled) effect(w, 'death', b)
+    if (!b.terrainState?.reason && !b.dismantled)
+      animateEffectSprite(effect(w, 'death', b), 44, 1224)
   }
   // Native person epilogue decrements the arrival-voice cooldown after its state body.
   for (const u of w.units) {

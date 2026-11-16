@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "profiles": {
+    "openpoptb-software": {
+      "project": "iagodemacedo/OpenPopTB-MacOS",
+      "revision": "1b1c58ef33e0e45b502ec8f09301617e1098d51f",
+      "source": "https://github.com/iagodemacedo/OpenPopTB-MacOS/blob/1b1c58ef33e0e45b502ec8f09301617e1098d51f/README.md",
+      "license": "https://github.com/iagodemacedo/OpenPopTB-MacOS/blob/1b1c58ef33e0e45b502ec8f09301617e1098d51f/LICENSE",
+      "renderer": "Original software renderer (upstream description), 640x480 or 800x600",
+      "upstreamPlatform": "Apple Silicon macOS; no Linux/browser runtime support established here",
+      "version": "GOG v1.01 as identified by upstream",
+      "requiredFiles": {
+        "popTB.exe": "a46e7c6fa04e13f6cd5accebe32bb5f543f1cd0808bb96b0040f59763251109e",
+        "QMixer.dll": "460292fe61a75996e8035f8a65a765733738293d0d391336be292aa74c128698",
+        "WEANETR.dll": "44f5ea804323b607c68739d90df3e9516390f4045c2779350372566c2a806418"
+      }
+    },
+    "populous-recomp-web": {
+      "project": "veritr1x/populous-recomp",
+      "revision": "866704fb89f5f19124fa2825281eb065a5cf3c79",
+      "source": "https://github.com/veritr1x/populous-recomp/blob/866704fb89f5f19124fa2825281eb065a5cf3c79/game.toml",
+      "license": "https://github.com/veritr1x/populous-recomp/blob/866704fb89f5f19124fa2825281eb065a5cf3c79/LICENSE",
+      "renderer": "Direct3D guest through upstream WebGPU renderer; not the software-renderer oracle",
+      "upstreamPlatform": "Browser, Emscripten 6.0.11 as documented by the pinned upstream",
+      "version": "GOG executable pinned by upstream game.toml",
+      "dependency": {
+        "project": "veritr1x/recomp-kit",
+        "revision": "d7b33b12b2ab1ea30c831758f3af424566206959",
+        "license": "https://github.com/veritr1x/recomp-kit/blob/d7b33b12b2ab1ea30c831758f3af424566206959/LICENSE"
+      },
+      "requiredFiles": {
+        "D3DPopTB.exe": "815ba8a550f571c38b602cf3386f65aab942667a4a2d9c7096b3660deac2eacd"
+      }
+    }
+  }
+}

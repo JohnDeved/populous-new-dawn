@@ -13,6 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OLD_HEIGHT = 6656
 OLD_METADATA = '8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb'
 OLD_PIXELS = '123d0f355757e31cd51fd3ed081d1b05d6165702b38224e26863218c2e18282b'
+# Later append-only rows, each verified by its own importer's --check.
+LATER_APPENDS = ('armageddonSparkle',)
 
 
 def sha(data):
@@ -37,9 +39,12 @@ def main():
     baseline = json.loads(json.dumps(metadata))
     baseline['height'] = OLD_HEIGHT
     baseline['animations'].pop('hypnotise', None)
+    later = [baseline['animations'].pop(name) for name in LATER_APPENDS if name in baseline['animations']]
+    assert all(f['index'] >= (OLD_HEIGHT + 512) // 256 * 8 for frames in later for f in frames)
+    later_height = 256 * ((sum(map(len, later)) + 7) // 8)
     assert sha(json.dumps(baseline, separators=(',', ':')).encode()) == OLD_METADATA, 'Existing metadata changed'
     assert ('hypnotise' in metadata['animations']) == args.check, 'Use --check after importing'
-    assert height == OLD_HEIGHT + (512 if args.check else 0)
+    assert height == OLD_HEIGHT + (512 if args.check else 0) + later_height
     provenance = json.loads((ROOT / 'public/original/provenance.json').read_text())['sha256']
     inputs = {}
     for name in ['hfx0-0.dat', 'al0-c.dat', 'pal0-c.dat']:
@@ -63,7 +68,7 @@ def main():
         frames.append({'index': index, 'w': w, 'h': h, 'source': source})
     if args.check:
         assert metadata['animations']['hypnotise'] == frames
-        assert pixels == expected, 'New atlas rectangles or padding differ'
+        assert pixels[:len(expected)] == expected, 'New atlas rectangles or padding differ'
     else:
         metadata['height'] = OLD_HEIGHT + 512
         metadata['animations']['hypnotise'] = frames
