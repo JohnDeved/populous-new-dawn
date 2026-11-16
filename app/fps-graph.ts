@@ -438,7 +438,10 @@ export class FpsGraph {
         ? `${width} × ${height}`
         : 'Unknown'
     )
-    this.text('pixel-ratio', Number.isFinite(ratio) && ratio > 0 ? `${ratio.toFixed(2)}×` : 'Unknown')
+    this.text(
+      'pixel-ratio',
+      Number.isFinite(ratio) && ratio > 0 ? `${ratio.toFixed(2)}×` : 'Unknown'
+    )
     this.text('pointer', `${samples.pointerMs.toFixed(2)} ms`)
     this.text(
       'pointer-tail',
