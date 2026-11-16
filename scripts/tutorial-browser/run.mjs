@@ -10,6 +10,7 @@ import { readFileSync, writeFileSync, readdirSync, lstatSync, statSync, existsSy
 import assert from 'node:assert/strict'
 import { parseGameplayResourceArguments, gameplayOwnershipSelection } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
+import { fileSha256 } from '../browser-performance/browser-runtime.mjs'
 import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
@@ -121,7 +122,7 @@ const port = 5198
 if (existsSync(out)) throw Error('Output must be fresh')
 mkdirSync(out, { recursive: true })
 const dist = resolve(out, 'dist')
-const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex')
+const hash = fileSha256
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', env: descendantEnv }).trim()
 const commit = git('rev-parse', 'HEAD')
 if (process.env.GITHUB_SHA) assert.equal(commit, process.env.GITHUB_SHA, 'Exact proposed merge required')
@@ -181,6 +182,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
   worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
+  worshipAcquisitionAudioSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-acquisition-audio.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),

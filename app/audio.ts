@@ -66,6 +66,7 @@ export const AUDIO_CUES = [
   0x58,
   0x66,
   0x70,
+  0x71, // Ordinary worship spell acquisition.
   0xcc, // M1 building acquisition start, then its gathering layer.
   0xcb,
   0x76,

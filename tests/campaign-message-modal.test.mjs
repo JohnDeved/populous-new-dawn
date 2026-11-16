@@ -90,6 +90,38 @@ test('the live Scene clock owns the request hold', () => {
   assert.match(scene, /messageBoxRequested: \(\) => messageBoxRequested\(this\.world\.messages\)/)
 })
 
+test('N cannot release patrols between a message request and its rendered box', () => {
+  const { w: world, message } = pendingWorld()
+  message.flags |= 2
+  const events = [], details = box()
+  let listener
+  const cleanup = pageEffect('releasePlayerPatrols(world)', {
+    world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
+    store: { getWorld: () => world }, messageDetails: { current: new Map([[1, details]]) },
+    messageBoxRequested,
+    releasePlayerPatrols: value => events.push(value === world ? 'release' : 'wrong-world'),
+    update: () => events.push('update'),
+    globalThis: {
+      addEventListener: (type, callback) => { assert.equal(type, 'keydown'); listener = callback },
+      removeEventListener: (type, callback) => { assert.equal(type, 'keydown'); assert.equal(callback, listener) },
+    },
+  })()
+  world.inputMask = 0
+  const press = () => listener(key({ key: 'n' }))
+  const snapshot = JSON.stringify(world)
+  press()
+  assert.deepEqual(events, [], 'the requested but not yet rendered box already owns input')
+  assert.equal(JSON.stringify(world), snapshot)
+  message.flags &= ~2
+  details.open = true
+  press()
+  assert.deepEqual(events, [], 'the rendered box keeps ownership after consuming the request')
+  details.open = false
+  press()
+  assert.deepEqual(events, ['release', 'update'], 'ordinary N resumes after dismissal')
+  cleanup()
+})
+
 // Execute the actual scene-input-runtime callers with supplied leaves.
 const inputSource = ts.createSourceFile(
   'scene-input-runtime.ts',
