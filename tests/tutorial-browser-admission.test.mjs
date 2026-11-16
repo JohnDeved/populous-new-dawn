@@ -107,7 +107,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
   )
   assertBrowserDispatch(workflow)
   assert.match(workflow, /timeout-minutes: \$\{\{ matrix\.timeoutMinutes \}\}/)
-  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 10)
+  assert.equal((workflow.match(/timeoutMinutes: 15/g) ?? []).length, 11)
   assert.match(workflow, /fail-fast: false/)
   assert.match(workflow, /scripts\/local-render\/original-pause-checkpoint-recovery\.mjs/)
   const runner = readFileSync(
@@ -146,7 +146,7 @@ test('pause recovery has an isolated bounded hosted episode without replacing Tu
 test('candidate snapshot smoke is one read-only bounded functional case, never a trusted comparison', () => {
   const workflow = read('tutorial-browser.yml')
   assert.match(workflow, /scenario: snapshot-protocol\n +timeoutMinutes: 6\n +name: Controlled snapshot functional smoke\n +artifact: candidate-snapshot-functional-smoke/)
-  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 11)
+  assert.equal((workflow.match(/- scenario:/g) ?? []).length, 12)
   assert.match(workflow, /scripts\/browser-performance\/\*\*/)
   assert.match(workflow, /outputs\/tutorial-browser\/snapshot-\*\/\*\.json/)
   assert.doesNotMatch(workflow, /: write|secrets\.|pull_request_target|workflow_dispatch|continue-on-error/)
@@ -173,7 +173,7 @@ test('parsed hosted matrix grants only Tutorial aggregate headroom and preserves
   assert.deepEqual(Object.fromEntries(browserScenarios.map(name => [name, browserCapMs(name)])), {
     tutorial: 240000, 'm2-pointer-f8': 180000, 'pause-checkpoint-recovery': 180000, 'pause-checkpoint-style': 180000,
     'profile-recovery': 180000, 'mission10-profile': 180000, 'gameplay-frames': 180000, 'gameplay-resources': 180000,
-    'snapshot-protocol': 90000, 'ordinary-pointer-smoke': 90000, 'ordinary-pointer-calibration': 1200000, 'ordinary-pointer-trace': 180000, 'query-art-evidence': 180000, 'building-icon-evidence': 180000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000, 'building-panel-edges': 90000, 'globe-held-enter': 180000,
+    'snapshot-protocol': 90000, 'ordinary-pointer-smoke': 90000, 'ordinary-pointer-calibration': 1200000, 'ordinary-pointer-trace': 180000, 'query-art-evidence': 180000, 'building-icon-evidence': 180000, 'compact-message-layout': 180000, 'frontend-held-escape': 180000, 'building-panel-edges': 90000, 'globe-held-enter': 180000, 'held-ctrl-placement': 90000,
   })
   const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   assert.equal((runner.match(/browserDeadlineAt = Date\.now\(\) \+ receipt\.browserCapMs/g) ?? []).length, 1)
@@ -240,4 +240,20 @@ test('resource-only dispatch rejects widened selection, changed defaults, labels
   const duplicate = structuredClone(original)
   duplicate.jobs['tutorial-browser'].steps.push(duplicate.jobs['tutorial-browser'].steps[selected])
   assert.throws(() => assertBrowserDispatch(yaml.dump(duplicate)), assert.AssertionError)
+})
+
+test('held-Ctrl has a required hosted lane without lengthening existing episodes', async () => {
+  const workflow = yaml.load(read('tutorial-browser.yml'))
+  const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
+  assert.deepEqual(items.filter(item => item.scenario === 'held-ctrl-placement'), [{
+    scenario: 'held-ctrl-placement', timeoutMinutes: 15,
+    name: 'Held-Ctrl placement browser', artifact: 'held-ctrl-placement-browser',
+    buildStep: 'Validate real held-Ctrl repeat placement and plain-click finalization',
+  }])
+  assert.equal(browserCapMs('held-ctrl-placement'), 90000)
+  const { heldCtrlPlacementLimitMs } = await import('../scripts/tutorial-browser/held-ctrl-placement.mjs')
+  assert.equal(heldCtrlPlacementLimitMs, 60000)
+  const runner = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
+  assert.match(runner, /else if \(selectedScenario === 'held-ctrl-placement'\)/)
+  assert.match(runner, /receipt\.heldCtrlPlacement = await/)
 })

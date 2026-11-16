@@ -65,15 +65,16 @@ function entry() {
     review: { reviewer: 'independent', decision: 'ACCEPT', head: oid(2), base: oid(3), sha256: h, file: '/review' },
     workflowHashes: Object.fromEntries(GATES.map(g => [g.workflow, h])), deployment: { kind: 'unverified', reason: 'fixture' } }
 }
-test('current hosted matrix preserves resource-nine plus building edges and pause style', () => {
+test('current hosted matrix preserves resource-nine plus building edges, pause style and held-Ctrl', () => {
   const workflow = yaml.load(readFileSync(new URL('../.github/workflows/tutorial-browser.yml', import.meta.url), 'utf8'))
   const items = workflow.jobs['tutorial-browser'].strategy.matrix.include
   const pauseIndex = GAMEPLAY_RESOURCE_BROWSER_JOBS.findIndex(([scenario]) => scenario === 'pause-checkpoint-recovery')
   assert.ok(pauseIndex >= 1)
-  // Historical queue policy stays nine jobs; retain both independently added rows.
+  // Historical queue policy stays nine jobs; retain all three independently added rows.
   assert.equal(GAMEPLAY_RESOURCE_BROWSER_JOBS.length, 9)
   assert.deepEqual(items.map(x => [x.scenario, x.name, x.artifact, x.buildStep, x.timeoutMinutes]), [
     GAMEPLAY_RESOURCE_BROWSER_JOBS[0],
+    ['held-ctrl-placement', 'Held-Ctrl placement browser', 'held-ctrl-placement-browser', 'Validate real held-Ctrl repeat placement and plain-click finalization', 15],
     ['building-panel-edges', 'Building panel edge browser', 'building-panel-edge-browser', 'Validate actual building panel fractional-edge containment and controls', 15],
     ...GAMEPLAY_RESOURCE_BROWSER_JOBS.slice(1, pauseIndex + 1),
     ['pause-checkpoint-style', 'Pause checkpoint style browser', 'pause-checkpoint-style-browser', 'Validate native and fallback checkpoint scrolling and layout', 15],
@@ -82,7 +83,7 @@ test('current hosted matrix preserves resource-nine plus building edges and paus
   assert.deepEqual(workflow.on.pull_request.types, ['ready_for_review'])
   assert.deepEqual(workflow.permissions, { contents: 'read' })
   assert.equal(workflow.jobs['tutorial-browser']['runs-on'], 'ubuntu-24.04')
-  assert.equal(new Set(items.map(x => x.artifact)).size, 11)
+  assert.equal(new Set(items.map(x => x.artifact)).size, 12)
   assert.deepEqual(profileSplitBudget, { version: 1, recoveryMs: 180000, mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
   assert.equal(browserCapMs('profile-recovery'), profileSplitBudget.recoveryMs)
   assert.equal(browserCapMs('mission10-profile'), profileSplitBudget.mission10Ms)

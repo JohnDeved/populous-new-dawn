@@ -54,6 +54,7 @@ const root = resolve(dirname(import.meta.filename), '../..')
 const fixture = resolve(dirname(import.meta.filename), 'fixture')
 const scenario = resolve(root, 'scripts/local-render/tutorial-recommendation.mjs')
 const selectorScenario = resolve(root, 'scripts/tutorial-browser/selector-inspection.mjs')
+const heldCtrlScenario = resolve(root, 'scripts/tutorial-browser/held-ctrl-placement.mjs')
 const sceneryScenario = resolve(root, 'scripts/tutorial-browser/scenery-placement.mjs')
 const spellProjectionScenario = resolve(root, 'scripts/tutorial-browser/spell-projection.mjs')
 const hypnotiseScenario = resolve(root, 'scripts/tutorial-browser/spell-hypnotise.mjs')
@@ -174,7 +175,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   runnerSha256: hash(import.meta.filename), builderSha256: hash(resolve(dirname(import.meta.filename), 'build-home.mjs')),
   browserConfigSha256: hash(resolve(dirname(import.meta.filename), 'browser-config.mjs')),
   scenarioSha256: hash(scenario), fixtureSha256: hash(resolve(fixture, 'main.tsx')),
-  selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
+  heldCtrlScenarioSha256: hash(heldCtrlScenario), selectorScenarioSha256: hash(selectorScenario), sceneryScenarioSha256: hash(sceneryScenario),
   spellIconScenarioSha256: hash(spellIconScenario),
   spellProjectionScenarioSha256: hash(spellProjectionScenario), spellProjectionCoverageSha256: hash(resolve(root, 'scripts/tutorial-browser/spell-projection-coverage.mjs')),
   spellTestScenarioSha256: hash(spellTestScenario),
@@ -251,7 +252,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-trace') receipt.browserBudget = { routeMs: 180000, interpretationEligible: false }
   else
   timer = setTimeout(() => { receipt.browserTimedOut = true; abort.abort(new Error('Browser deadline exceeded')); void browser.close() }, receipt.browserCapMs)
-  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)) {
+  if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges', 'held-ctrl-placement'].includes(selectedScenario)) {
   context = await browser.newContext({ viewport: ['profile-recovery', 'mission10-profile'].includes(selectedScenario) ? { width: 1440, height: 1000 } : { width: 640, height: 480 }, deviceScaleFactor: 1 })
   page = await context.newPage(); page.setDefaultTimeout(25000)
   page.on('pageerror', e => receipt.errors.push(String(e)))
@@ -299,6 +300,8 @@ try {
     await runBuildingIcon({ browser, url, output: out, source,
       expectedRevision: receipt.buildRevision, receipt: receipt.buildingIcon })
     assert.equal(receipt.buildingIcon.status, 'passed', 'Building icon evidence incomplete or failed')
+  } else if (selectedScenario === 'held-ctrl-placement') {
+    receipt.heldCtrlPlacement = await (await import(pathToFileURL(heldCtrlScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'building-panel-edges') {
     receipt.buildingPanelEdges = await (await import(pathToFileURL(buildingEdgesScenario).href)).default({ browser, url, output: out })
   } else if (selectedScenario === 'frontend-held-escape') {
@@ -418,6 +421,7 @@ try {
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.failureEvidence = 'ordinary-pointer-smoke.json'
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.failureEvidence = 'ordinary-pointer-calibration/aggregate.json'
   else if (selectedScenario === 'query-art-evidence') receipt.failureEvidence = 'query-art-evidence.json'
+  else if (selectedScenario === 'held-ctrl-placement') receipt.failureEvidence = 'held-ctrl-placement.json'
   else if (selectedScenario === 'building-icon-evidence') receipt.failureEvidence = 'building-icon-evidence.json'
   else if (selectedScenario === 'building-panel-edges') receipt.failureEvidence = receipt.buildingPanelEdges?.status === 'passed'
     ? 'building-panel-identity.json' : 'building-panel-edges.json'

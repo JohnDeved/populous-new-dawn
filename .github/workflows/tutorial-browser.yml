@@ -48,6 +48,11 @@ jobs:
             name: Tutorial browser
             artifact: tutorial-browser
             buildStep: Build plain production Home and validate Tutorial interactions
+          - scenario: held-ctrl-placement
+            timeoutMinutes: 15
+            name: Held-Ctrl placement browser
+            artifact: held-ctrl-placement-browser
+            buildStep: Validate real held-Ctrl repeat placement and plain-click finalization
           - scenario: building-panel-edges
             timeoutMinutes: 15
             name: Building panel edge browser
