@@ -447,7 +447,7 @@ export function guardShaman(w: World) {
 // Ordinary owners whose retained queue/task can resume after state 43. Other
 // live adapters and states are skipped rather than approximated; the complete
 // list is in decomp/research/player-scatter.md (Port-only admission limits).
-const scatterResumableOrders = [3, 7, 16, 18, 22, 27, 28, 30]
+const scatterResumableOrders = [3, 7, 16, 18, 22, 25, 27, 28, 30]
 function scatterOwner(w: World, u: Unit) {
   const p = u.native,
     registeredRoute = w.pathfinding.people.get(u.id)

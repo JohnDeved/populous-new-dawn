@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 import { assertWorshipFocusObservation, installWorshipFocusObserver } from './worship-focus-observer.mjs'
+import { assertWorshipAudio, installWorshipAudioProbe } from './worship-acquisition-audio.mjs'
 
 export const worshipPanelLifecycleLimitMs = 35000
 export default async function worshipPanelLifecycle({ browser, url, output }) {
@@ -14,6 +15,7 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
     'Retained stale DOM callbacks use synthetic event dispatch after supplied identity/overview/disposal boundaries and actual store replacement; not trusted stale user input',
     'Focus/sound/change observers delegate actual consumers and are restored; no production hooks, native pixel parity, deployment or performance claim',
     'Passive one-shot observation checks inspection synchronously after the production target handler; delayed inspection is diagnostic, while delayed person-panel retention remains required',
+    'A trusted test-host button enables actual Soundscape, decodes original sound-169 and submits supplied cue 0x71; not natural worship or physical speaker output',
   ] }
   let page, failure
   const screenshot = async name => {
@@ -114,6 +116,14 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
       } finally { h.scene.focus = h.focusOriginal; h.scene.onSound = h.soundOriginal; h.scene.onChange = h.changeOriginal }
     })
     assert.equal(report.stale.length, 5); assert.ok(report.stale.every(x => x.unchanged))
+    await page.evaluate(installWorshipAudioProbe)
+    await page.locator('[data-worship-audio-probe]').click()
+    await page.waitForFunction(() => window.__pndWorshipAudioProbe?.result.done && window.__pndWorshipAudioProbe.sound.context?.state === 'closed')
+    report.acquisitionAudio = await page.evaluate(() => ({
+      ...window.__pndWorshipAudioProbe.result,
+      contextClosed: window.__pndWorshipAudioProbe.sound.context.state === 'closed',
+    }))
+    assertWorshipAudio(report.acquisitionAudio)
   } catch (error) {
     failure = error
     try {
@@ -129,6 +139,8 @@ export default async function worshipPanelLifecycle({ browser, url, output }) {
         if (h?.focusOriginal) h.scene.focus = h.focusOriginal
         if (h?.soundOriginal) h.scene.onSound = h.soundOriginal
         if (h?.changeOriginal) h.scene.onChange = h.changeOriginal
+        window.__pndWorshipAudioProbe?.sound.dispose()
+        document.querySelector('[data-worship-audio-probe]')?.remove()
       })
     } catch (e) { report.observerCleanupError = String(e) }
     try { await context.close(); report.contextClosed = true } catch (e) { report.errors.push(String(e)) }

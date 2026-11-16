@@ -122,6 +122,89 @@ export function recoverVisibleIntroduction(page) {
   }
 }
 
+// Actual public keys on the shipped Home. Only the initial camera position is
+// supplied so an accepted focus cannot be mistaken for an already centred view.
+export function assertPauseCameraKeys(result) {
+  assert.equal(result.paused, true)
+  assert.equal(result.hWorldUnchanged, true, 'Paused H must preserve the World')
+  assert.equal(result.hCameraUnchanged, true, 'Paused H must not request camera motion')
+  assert.equal(result.periodPaused, true)
+  assert.equal(result.periodActive, 1, 'Period remains admitted while paused')
+  assert.equal(result.resumed, true)
+  assert.equal(result.resumedHActive, 1, 'H is admitted after public resume')
+}
+
+export function assertPauseCameraSample(sample, key) {
+  assert.equal(sample.key, key)
+  assert.equal(sample.trusted, true)
+  assert.equal(sample.type, 'keydown')
+  assert.equal(sample.handled, true, 'Home must handle this key before observation')
+}
+
+export async function checkPauseCameraKeys(page, output) {
+  const result = {}
+  const snap = () => page.evaluate(() => {
+    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+    return { paused: world.paused, world: JSON.stringify(world),
+      camera: JSON.stringify({ position: scene.cameraPosition, motion: scene.cameraMotion }),
+      active: scene.cameraMotion.active }
+  })
+  // Observe the same keydown dispatch after Home's registered handler. H/Period
+  // are not Scene camera keys; only Home's quick-camera branch cancels them.
+  // Requiring defaultPrevented rejects an observer installed before that owner,
+  // rather than reporting pre-dispatch state as a successful camera observation.
+  await page.evaluate(() => {
+    window.pauseCameraKeyObserver = event => {
+      if (!['h', '.', ' '].includes(event.key)) return
+      const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+      window.pauseCameraKeySample = { trusted: event.isTrusted, key: event.key,
+        type: event.type, handled: event.defaultPrevented,
+        paused: world.paused, world: JSON.stringify(world),
+        camera: JSON.stringify({ position: scene.cameraPosition, motion: scene.cameraMotion }),
+        active: scene.cameraMotion.active }
+    }
+    window.addEventListener('keydown', window.pauseCameraKeyObserver)
+  })
+  const keySample = async key => {
+    const sample = await page.evaluate(() => window.pauseCameraKeySample)
+    assertPauseCameraSample(sample, key)
+    return sample
+  }
+  try {
+    await page.locator('.world-viewport canvas.battlefield').focus()
+    await page.keyboard.press('Space')
+    await page.waitForFunction(() => window.testStore.getWorld().paused)
+    await page.evaluate(() => window.testSceneRef.current.focus({ x: 2, z: 30 }))
+    const before = await snap()
+    result.paused = before.paused
+    await page.keyboard.press('h')
+    const after = await keySample('h')
+    result.hWorldUnchanged = before.world === after.world
+    result.hCameraUnchanged = before.camera === after.camera
+    await page.screenshot({ path: resolve(output, 'paused-h-camera.png') })
+    await page.keyboard.press('Period')
+    const period = await keySample('.')
+    result.periodPaused = period.paused
+    result.periodActive = period.active
+    await page.evaluate(() => window.testSceneRef.current.focus({ x: 2, z: 30 }))
+    await page.keyboard.press('Space')
+    await page.waitForFunction(() => !window.testStore.getWorld().paused)
+    await page.keyboard.press('h')
+    const resumed = await keySample('h')
+    result.resumed = !resumed.paused
+    result.resumedHActive = resumed.active
+    writeFileSync(resolve(output, 'pause-camera-keys.json'), JSON.stringify(result, null, 2))
+    assertPauseCameraKeys(result)
+    return result
+  } finally {
+    await page.evaluate(() => {
+      window.removeEventListener('keydown', window.pauseCameraKeyObserver)
+      delete window.pauseCameraKeyObserver
+      delete window.pauseCameraKeySample
+    })
+  }
+}
+
 export default async function ({ browser, page, url, root, output, receipt, signal }) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const checks = [], screenshots = [], renderers = [], frontendKeyboard = []
@@ -288,6 +371,8 @@ export default async function ({ browser, page, url, root, output, receipt, sign
 
   await page.setViewportSize({ width: 800, height: 600 })
   await enterMission(page)
+  const pauseCameraKeys = await checkPauseCameraKeys(page, output)
+  passed('public pause blocks H but preserves Period; resume restores H')
   await button(page, 'Game settings').click()
   await button(page, 'Save Game').click()
   await button(page, 'Save checkpoint').click()
@@ -395,10 +480,11 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await closePauseRecoveryContext(emptyContext, contextFailed, receipt)
   }
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, pauseCameraKeys,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',
+      'Camera-key witness supplies an initial away camera only; public Space/H/Period use shipped handlers. It is not original-game execution or trajectory parity.',
       'Browser evidence does not establish native save-slot compatibility, exact native pixels or hardware performance.',
     ],
   }

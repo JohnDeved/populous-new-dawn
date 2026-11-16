@@ -554,6 +554,7 @@ test('mission-one ordinary marker guard patrols and answers nearby enemies',asyn
  const w=createWorld();until(w,()=>!w.ai.tasks.some(t=>t.flags&1&&t.type===24),2);
  for(const u of w.units)if(u.kind!=='shaman')u.hp=0;
  tick(w,1/12);const chosen=addUnit(w,'red','warrior',{x:10,z:-37});
+ const initial={x:chosen.x,z:chosen.z},markerPoint=nativeCellPoint(level.markers[0]);
  w.turn=39;tick(w,1/12);
  const task=w.ai.tasks.find(t=>t.flags&1&&t.type===24);
  assert.deepEqual(task&&{extra:task.extra,route:task.route[0]},{extra:0,route:{marker:0,secondary:-1,quotas:[0,1,0,0]}});
@@ -561,6 +562,8 @@ test('mission-one ordinary marker guard patrols and answers nearby enemies',asyn
  const p=chosen.native,orders=()=>p.commands.filter(Boolean).map(id=>w.buildingOrders.records[id]);
  assert.deepEqual(orders().map(o=>[o.model,o.a,o.b]),[[3,2176,4736],[11,level.markers[0],0x606]]);
  until(w,()=>currentPersonOrder(w.buildingOrders,p)?.model===11&&p.commandAux===1,10);
+ assert.notDeepEqual({x:chosen.x,z:chosen.z},initial,'the selected guard must actually walk before reaching the guard phase');
+ assert.ok(Math.hypot(chosen.x-markerPoint.x,chosen.z-markerPoint.z)<Math.hypot(initial.x-markerPoint.x,initial.z-markerPoint.z),'the ordinary single-marker task must move the guard closer to its marker');
  const marker=nativeCellPoint(level.markers[0]),building=addBuilding(w,'blue','hut',{x:marker.x+4,z:marker.z+4},true);
  const outside=addUnit(w,'blue','warrior',{x:marker.x+8,z:marker.z});p.counter=1;tick(w,1/12);
  assert.deepEqual([p.commandAux,p.substate,p.workTarget],[1,0,0],'buildings and the outer cell do not wake the guard');
