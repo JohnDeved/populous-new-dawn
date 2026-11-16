@@ -573,3 +573,19 @@ test('public compact feedback setup accepts Shaman selection and rejects followe
     assert.deepEqual(world.selected, selected)
   }
 })
+
+test('compact public controls close modal ownership and restore authored text before geometry witnesses', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
+  assert.match(source, /async function selectHudPreference\(page, preference\) \{\s+await closeCampaignForInput\(page\)/)
+  assert.match(source, /await closeCampaignForInput\(page\)\s+await page.keyboard.press\('F8'\)\s+await graph.waitFor\(\{ state: 'visible' \}\)\s+await openM2AuthoredMessage\(page\)/)
+  assert.match(source, /await closeCampaignForInput\(page\)\s+await page.keyboard.press\('F8'\)\s+await graph.waitFor\(\{ state: 'hidden' \}\)\s+await openM2AuthoredMessage\(page\)/)
+  assert.match(source, /!window.testSceneRef.current.messageModal && window.testStore.getWorld\(\).paused/)
+})
+
+test('compact modal closure uses public Enter helper without reducing coverage or its deadline', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
+  assert.match(source, /async function closeCampaignForInput\(page\) \{\s+await closeM2AuthoredMessage\(page\)/)
+  assert.doesNotMatch(source, /await collapseCampaignMessages\(page\)/)
+  assert.equal(compactMessageCases.flatMap(item => item.sizes).length, 4)
+  assert.equal(m2FunctionalLimitMs, 45000)
+})

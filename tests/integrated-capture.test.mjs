@@ -48,10 +48,11 @@ test('actual extracted entry+supervisor and actual observer redact streams with 
  const f=fixture(),r=await f.run(f.options)
  assert.equal(f.qualified,1);assert.equal(r.runnerSucceeded,true);assert.equal(r.usableObservation,true)
  assert.equal(f.log.filter(x=>x[0]==='spawn').length,1);assert.equal(f.log[0][1].env.DEBUG_FILE,undefined)
+ assert.equal(f.log[0][1].env.POPULOUS_BROWSER_SCENARIO,'building-panel-edges')
  assert.deepEqual(f.log[0][1].stdio,['ignore','pipe','pipe']);assert.equal(r.observation.collection.events.length,2)
  assert.doesNotMatch(JSON.stringify(r),/DO_NOT_RETAIN|\/raw/);assert.equal(f.rows.length,0);assert.equal(f.proc.listenerCount('SIGTERM'),0)
 })
-test('failed Tutorial retains bounded observer metadata but cannot become runner success',async()=>{
+test('failed building identity retains bounded observer metadata but cannot become runner success',async()=>{
  const f=fixture({code:1}),r=await f.run(f.options)
  assert.equal(r.runnerSucceeded,false);assert.equal(r.supervisorFailed,true);assert.equal(r.observation.code,1)
  assert.equal(r.usableObservation,true,'complete non-lossy diagnostic may remain useful on failed checker')

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
   readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
@@ -929,4 +930,15 @@ test('recoil observer waits for the first processed entry without accepting an u
     assert.equal(observation.result.entry.started, world.turn)
     assert.equal(observation.result.samples.length, 1)
   }, { mode: 'recoil', mapping: meleeAttackMapping(true) })
+})
+
+// Source contract complements the source-bound rendered replay, not browser proof.
+test('melee admission settles opening before unchanged natural-turn and attack gates', () => {
+  const source = readFileSync(new URL('../scripts/tutorial-browser/melee-attack.mjs', import.meta.url), 'utf8')
+  assert.match(source, /await action\('Settle opening messages and introduction', \(\) => settleOpeningMessages\(page\)\)/)
+  const start = source.indexOf("await action('Settle opening messages and introduction'")
+  const pause = source.indexOf("await button('Pause game')", start)
+  assert.ok(start >= 0 && pause > start)
+  assert.match(source.slice(start, pause), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
+  assert.match(source, /export const meleeAttackLimitMs = 75000/)
 })

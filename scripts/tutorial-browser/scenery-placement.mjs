@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { bindGame } from '../browser-game.mjs'
+import { bindGame, settleOpeningMessages } from '../browser-game.mjs'
 
 export const sceneryPlacementLimitMs = 60000
 
@@ -79,8 +79,7 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await button('No').click()
     await button('Start Mission 1').click()
     await bindGame(page)
-    await page.getByRole('button', { name: /^Skip introduction/ }).click()
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+    await settleOpeningMessages(page)
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await button('Select brave').click()

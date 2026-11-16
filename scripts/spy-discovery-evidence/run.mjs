@@ -9,7 +9,9 @@ import { dirname, resolve } from 'node:path'
 import { preview } from 'vite'
 import { chromium } from '@playwright/test'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
-import spyDiscoveryEpisode from "./scenario.mjs"
+import spyDiscoveryEpisode, { spyGuardEpisode } from "./scenario.mjs"
+import { spyEvidenceMode } from "./guards.mjs"
+const mode = spyEvidenceMode(process.env.SPY_DISCOVERY_MODE)
 
 const browserCapMs = 180000, buildCapMs = 120000
 const root = resolve(dirname(import.meta.filename), '../..')
@@ -29,9 +31,9 @@ const browserConfig = browserConfiguration(process.env.POPULOUS_BROWSER)
 assert.ok(existsSync(browserConfig.browserPath), 'Configured official browser is required')
 accessSync(browserConfig.browserPath, constants.X_OK)
 const receipt = {
-  status: 'running', startedAt: new Date().toISOString(), commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'),
+  mode, status: 'running', startedAt: new Date().toISOString(), commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'),
   trackedDiff: git('status', '--short', '--untracked-files=no'), port, browserCapMs,
-  sources: Object.fromEntries(["spy-discovery-evidence/run", "spy-discovery-evidence/scenario", "spy-discovery-evidence/deadline", "tutorial-browser/spy-discovery-fixture"].map(n => [n, hash(resolve(root, `scripts/${n}.mjs`))])),
+  sources: Object.fromEntries(["spy-discovery-evidence/run", "spy-discovery-evidence/scenario", "spy-discovery-evidence/deadline", "spy-discovery-evidence/guards", "spy-discovery-evidence/startup", "tutorial-browser/spy-discovery-fixture"].map(n => [n, hash(resolve(root, `scripts/${n}.mjs`))])),
   fixtureMainSha256: hash(resolve(fixture, 'main.tsx')), builderSha256: hash(resolve(root, 'scripts/tutorial-browser/build-home.mjs')),
   browserPath: browserConfig.browserPath, browserPathSource: browserConfig.browserPathSource, launch: browserConfig.launch,
   browserBinaryVersion: execFileSync(browserConfig.browserPath, ['--version'], { encoding: 'utf8' }).trim(),
@@ -60,7 +62,7 @@ try {
   receipt.browserVersion = browser.version(); save()
   const deadlineAt = Date.now() + browserCapMs
   timer = setTimeout(() => { receipt.browserTimedOut = true; void browser.close() }, browserCapMs)
-  receipt.episode = await spyDiscoveryEpisode({ browser, url: `http://127.0.0.1:${port}`, output: out, deadlineAt })
+  receipt.episode = await (mode === 'guards' ? spyGuardEpisode : spyDiscoveryEpisode)({ browser, url: `http://127.0.0.1:${port}`, output: out, deadlineAt })
   assert.equal(receipt.browserTimedOut, undefined)
   receipt.status = 'passed'
 } catch (error) {
