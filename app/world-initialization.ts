@@ -509,7 +509,7 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
               ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
               ...(missionNumber === 21 ? [1085, 1138] : []),
-              ...([4, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22].includes(missionNumber)
+              ...([4, 7, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22].includes(missionNumber)
                 ? [1174, 1187]
                 : []),
             ].includes(c.opcode)
