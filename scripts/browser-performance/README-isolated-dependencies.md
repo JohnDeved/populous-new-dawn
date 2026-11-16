@@ -21,3 +21,20 @@ preempt a blocked synchronous filesystem syscall, so it is not a hard wall-time
 sandbox. Supplied-I/O negatives exercise final HEAD/status changes, actual file
 growth during reading and descriptor closure, plus cumulative deadline expiry.
 Sequential verification remains non-atomic and assumes a trusted local checkout.
+
+## Passive patch declaration closure
+
+`reviewedPatchClosure` accepts bounded supplied bytes already bound to an exact
+reviewed-source manifest. It recognizes only canonical top-level scalar
+`patchedDependencies` blocks: exact package-version selectors map to reviewed
+patch paths in workspace YAML and opaque 64-hex semantic hashes in lock YAML.
+Unsupported syntax, aliases, tags, escaping, duplicate selectors/paths, omitted
+files, extra reviewed files and stale bytes fail closed. This is deliberately
+not a general YAML parser. Package JSON patch ownership is unsupported.
+
+This closes that canonical declaration list against reviewed byte hashes, not
+all pnpm importer/snapshot references or alternative configuration sources.
+The semantic pnpm hash is retained separately and never asserted equal to raw
+patch SHA256. It neither recomputes pnpm patch normalization nor proves frozen
+installation, actual module resolution, runtime correctness or gate eligibility.
+No workflow calls this helper; the existing common-install guard is unchanged.
