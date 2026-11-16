@@ -22,7 +22,7 @@ function fixture() {
     fields: Object.fromEntries(['state', 'fps', 'frame', 'peak', 'callback', 'simulation',
       'render', 'calls', 'heap', 'export-status', 'renderer', 'cores', 'memory', 'scale', 'pointer', 'pointer-tail', 'other', 'window', 'raf-tail', 'cpu-tail', 'cpu-peak',
       'picking-window', 'pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation',
-      'pick-route', 'pick-pointer-change', 'pick-view-change'].map(name => [name, sink(name)])),
+      'pick-route', 'pick-pointer-change', 'pick-view-change', 'viewport', 'pixel-ratio'].map(name => [name, sink(name)])),
     line: sink('line'), budget: sink('budget'),
   })
   const update = now => graph.update(now, 1, 2, 3, 'Live', 4)
@@ -357,4 +357,69 @@ test('live context remains optional and explicitly covered by the existing rende
   assert.match(shared, /for \(const name of pickingPathCounterIds\)/, 'all prior numeric assertions remain')
   assert.match(shared, /pickingContextMetricIds\.map\(name =>/, 'all context rows participate in existing reachability checks')
   assert.deepEqual(pickingPathViewports, [[640, 480], [1280, 799], [1280, 800], [1280, 801], [1280, 820]])
+})
+
+test('browser dimensions publish at the existing cadence, reset, and do not read on stopped frames', t => {
+  let values = { innerWidth: 1280, innerHeight: 720, devicePixelRatio: 1.25 }
+  const reads = []
+  for (const name of Object.keys(values)) {
+    const original = Object.getOwnPropertyDescriptor(globalThis, name)
+    Object.defineProperty(globalThis, name, { configurable: true, get() { reads.push(name); return values[name] } })
+    t.after(() => original ? Object.defineProperty(globalThis, name, original) : delete globalThis[name])
+  }
+  const { graph, update, writes } = fixture()
+  const shown = () => ['viewport', 'pixel-ratio'].map(name => graph.fields[name].textContent)
+  graph.reset()
+  update(0); update(240)
+  assert.deepEqual(shown(), ['--', '--'])
+  assert.deepEqual(reads, [], 'warmup and unpublished samples must not read browser dimensions')
+  update(250)
+  assert.deepEqual(shown(), ['1280 × 720', '1.25×'])
+  assert.deepEqual(reads, Object.keys(values), 'one read per field at publication')
+  reads.length = 0; writes.length = 0
+  values = { innerWidth: 640, innerHeight: 480, devicePixelRatio: 2 }
+  update(260)
+  assert.deepEqual(shown(), ['1280 × 720', '1.25×'], 'resize waits for next publication')
+  assert.deepEqual(reads, [])
+  assert.deepEqual(writes, [])
+  update(500)
+  assert.deepEqual(shown(), ['640 × 480', '2.00×'])
+  reads.length = 0
+  graph.update(750, NaN, 2, 3, 'Live', 4)
+  assert.deepEqual(reads, [], 'rejected timing samples cannot publish browser context')
+  graph.reset('Hidden tab · sampling stopped')
+  reads.length = 0
+  assert.deepEqual(shown(), ['--', '--'])
+  graph.reset('Hidden tab · sampling stopped'); update(10000)
+  assert.deepEqual(shown(), ['--', '--'], 'warmup cannot revive dimensions from an old capture')
+  assert.deepEqual(reads, [])
+  update(10250)
+  assert.deepEqual(shown(), ['640 × 480', '2.00×'])
+  reads.length = 0
+  graph.disposed = true
+  update(10500)
+  assert.deepEqual(reads, [], 'retired graphs cannot read or publish browser context')
+})
+
+test('browser context distinguishes unavailable and invalid values from a real size or ratio', t => {
+  const { graph, update } = fixture()
+  for (const name of ['innerWidth', 'innerHeight', 'devicePixelRatio']) {
+    const original = Object.getOwnPropertyDescriptor(globalThis, name)
+    Object.defineProperty(globalThis, name, { configurable: true, writable: true, value: undefined })
+    t.after(() => original ? Object.defineProperty(globalThis, name, original) : delete globalThis[name])
+  }
+  update(0)
+  let now = 0
+  for (const [width, height, ratio, expected] of [
+    [undefined, undefined, undefined, ['Unknown', 'Unknown']],
+    [0, 720, 0, ['Unknown', 'Unknown']],
+    [1280, -1, -1, ['Unknown', 'Unknown']],
+    [1280.5, 720, NaN, ['Unknown', 'Unknown']],
+    [Infinity, 720, Infinity, ['Unknown', 'Unknown']],
+    [1280, 720, 1.333333, ['1280 × 720', '1.33×']],
+  ]) {
+    Object.assign(globalThis, { innerWidth: width, innerHeight: height, devicePixelRatio: ratio })
+    update(now += 250)
+    assert.deepEqual(['viewport', 'pixel-ratio'].map(name => graph.fields[name].textContent), expected)
+  }
 })

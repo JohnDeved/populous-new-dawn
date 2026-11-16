@@ -135,7 +135,7 @@ test('serialized diagnostic layout excludes only explicitly collapsed picking ro
   resume.disabled = true
   assert.equal(layout().pauseActionable, false, 'Resume actionability belongs to the distinct public button')
   resume.disabled = false
-  assert.equal(optional.length, 7)
+  assert.equal(optional.length, 9)
   assertCompactMessageWitness(layout(), good.witness, 900, 360)
   for (const damaged of [zero, box(427, 140, 654, 157), box(435, 140, 893, 157),
     box(435, 7, 654, 157), box(435, 140, 654, 318)]) {
