@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   title,
   description,
   icons: { icon: '/favicon.ico' },
-  openGraph: { title, description, type: 'website' },
-  twitter: { card: 'summary', title, description },
+  openGraph: { title, description, type: 'website', images: [] },
+  twitter: { card: 'summary', title, description, images: [] },
 }
 
 const game = {

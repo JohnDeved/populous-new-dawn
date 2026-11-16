@@ -24,8 +24,8 @@ test('document and social metadata consistently describe the unfinished desktop 
   assert.equal(metadata.twitter.title, metadata.title)
   assert.equal(metadata.twitter.description, metadata.description)
   assert.equal(metadata.twitter.card, 'summary')
-  assert.equal(metadata.openGraph.images, undefined)
-  assert.equal(metadata.twitter.images, undefined)
+  assert.deepEqual(metadata.openGraph.images, [])
+  assert.deepEqual(metadata.twitter.images, [])
   assert.equal(metadata.robots, undefined)
   assert.equal(metadata.alternates, undefined)
 })
@@ -46,4 +46,15 @@ test('actual root layout emits matching restrained VideoGame JSON-LD and preserv
   for (const absent of ['url', 'image', 'datePublished', 'offers', 'aggregateRating', 'publisher']) {
     assert.equal(data[absent], undefined, `no unsupported ${absent}`)
   }
+})
+
+test('framework file metadata cannot replace the explicitly image-free social cards', async () => {
+  const { applyFileBasedMetadata } = await import(new URL('./server/file-based-metadata.js', import.meta.resolve('vinext')))
+  const routes = ['openGraph', 'twitter'].map(kind => ({
+    routePrefix: '', routeSegments: [],
+    headData: { kind, href: '/unrelated-game-asset.png', type: 'image/png' },
+  }))
+  const applied = await applyFileBasedMetadata(metadata, '/', {}, routes)
+  assert.deepEqual(applied.openGraph.images, [])
+  assert.deepEqual(applied.twitter.images, [])
 })
