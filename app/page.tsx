@@ -53,6 +53,7 @@ import {
   ROUTE_FAILURE_TEXT,
 } from './model'
 import { createGameStore } from './game-store'
+import { callToArms } from './live-building-combat'
 import { overviewShortcut, quickCameraAction, quickCameraTarget } from './quick-camera-shortcuts'
 import { WorldSelector } from './world-selector'
 import { OriginalMainMenu } from './original-main-menu'
@@ -758,11 +759,17 @@ export default function Home() {
         const u = world.units.find(u => world.selected.includes(u.id))
         camera?.focus(u ?? HOME, { animate: true })
       }
-      if (e.key.toLowerCase() === 'b') {
-        setTab('buildings')
-        store.change(w => {
-          w.mode = null
-        })
+      // Default B (005d61d8): call the player's tower defenders, not the palette.
+      if (
+        e.key.toLowerCase() === 'b' &&
+        !e.repeat &&
+        !e.shiftKey &&
+        !selectorOpen &&
+        store.getWorld() === world &&
+        engine.current?.world === world
+      ) {
+        e.preventDefault()
+        callToArms(world)
       }
       if (e.code === 'Space' && !(e.target as HTMLElement).closest('button')) {
         e.preventDefault()
