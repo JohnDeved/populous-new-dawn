@@ -43,8 +43,11 @@ for (const startup of [false, true])
       startup,
       trusted: true,
       errors: [],
-      before: { resource: startup ? null : { bank: 'p', epoch: 1 } },
-      after: { snapshot, resource: { bank: 'p', epoch: startup ? 1 : 2, counter: 0, tile: 92 } },
+      before: {
+        snapshot: { level: 1 },
+        resource: startup ? { bank: 'c', epoch: 1, counter: 0, tile: 92 } : { bank: 'p', epoch: 1 },
+      },
+      after: { snapshot, resource: { bank: 'p', epoch: 2, counter: 0, tile: 92 } },
       start: { calls: 1, attached: true, restored: true, errors: [] },
     }
     const evidence = {
@@ -227,6 +230,7 @@ test('actual continuation route skips startup/acquisition and enters its guarded
     'resolve',
     'createMission1VaultInput',
     'assertTempleRouteHealth',
+    'focusTempleHome',
     `return (${route.toString()})`
   )(
     assert,
@@ -254,7 +258,11 @@ test('actual continuation route skips startup/acquisition and enters its guarded
         pause: async () => {},
       }
     },
-    assertTempleRouteHealth
+    assertTempleRouteHealth,
+    async ({ shamanId }) => {
+      assert.equal(shamanId, 46)
+      events.push('home focus')
+    }
   )
   await assert.rejects(
     run(
@@ -275,6 +283,8 @@ test('actual continuation route skips startup/acquisition and enters its guarded
     /existing construction tail reached/
   )
   assert.ok(events.indexOf('genuine restore') < events.indexOf('Select shaman'))
+  assert.ok(events.indexOf('home focus') > events.indexOf('Select shaman'))
+  assert.ok(events.indexOf('home focus') < events.indexOf('home-perimeter view'))
   assert.ok(events.indexOf('home-perimeter view') < events.indexOf('home-perimeter move'))
   assert.ok(events.includes('route closed'))
   assert.ok(!events.includes('Save checkpoint'))
@@ -363,8 +373,11 @@ test('lifecycle carry requires actual active Restart and retains its inactive co
       startup,
       trusted: true,
       errors: [],
-      before: { resource: startup ? null : { bank: 'p', epoch: 1 } },
-      after: { snapshot, resource: { bank: 'p', epoch: startup ? 1 : 2, counter: 0, tile: 92 } },
+      before: {
+        snapshot: { level: 1 },
+        resource: startup ? { bank: 'c', epoch: 1, counter: 0, tile: 92 } : { bank: 'p', epoch: 1 },
+      },
+      after: { snapshot, resource: { bank: 'p', epoch: 2, counter: 0, tile: 92 } },
       start: { calls: 1, attached: true, restored: true, errors: [] },
     },
   })

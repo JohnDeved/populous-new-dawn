@@ -392,14 +392,21 @@ test('foreign Scene.start cleanup keeps that owner and returns captured boundary
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })
 
-test('startup Load discovers the actual store without a Scene and restores M3 from a null session bank', async t => {
+test('startup Load discovers the actual store without a Scene and restores M3 from the initialized startup landscape bank', async t => {
   const f = fixture(t)
   f.store.saveCheckpoint()
   const saved = { boundary: { snapshot: window.m3CheckpointState(f.world) } }
   globalThis.testCheckpoint = { version: 1, world: structuredClone(f.world) }
   saved.digest = { checkpoint: await checkpointObservation({ observationName: 'testCheckpoint' }) }
   f.store.startMission(1)
-  assert.equal(f.store.getPresentationSnapshot(), null)
+  const startupResource = structuredClone(f.store.getPresentationSnapshot())
+  assert.deepEqual(startupResource, {
+    bank: 'c',
+    modelAtlas: 'atlas',
+    epoch: 3,
+    counter: 0,
+    tile: 92,
+  })
   delete window.testStore
   delete window.m3BuildingScreen
   const load = f.buttons.find(button => button.textContent === 'Load checkpoint')
@@ -451,11 +458,26 @@ test('startup Load discovers the actual store without a Scene and restores M3 fr
     await checkpointObservation({ observationName: 'testCheckpoint' })
   )
   assert.equal(transition.before.snapshot.level, 1)
-  assert.equal(transition.before.resource, null)
+  assert.deepEqual(transition.before.resource, startupResource)
   assert.equal(window.testStore, f.store)
   assert.equal(attached[0], f.store.getWorld())
   assert.notEqual(attached[0], f.world)
-  const invalid = structuredClone(transition)
-  invalid.before.resource = { bank: 'p', epoch: 55 }
-  assert.throws(() => requireLoadBoundary(invalid, saved, saved.digest.checkpoint))
+  for (const mutate of [
+    value => {
+      value.before.resource = null
+    },
+    value => {
+      value.before.resource.bank = 'p'
+    },
+    value => {
+      value.after.resource.epoch = value.before.resource.epoch
+    },
+    value => {
+      value.after.resource.counter = 1
+    },
+  ]) {
+    const invalid = structuredClone(transition)
+    mutate(invalid)
+    assert.throws(() => requireLoadBoundary(invalid, saved, saved.digest.checkpoint))
+  }
 })

@@ -28,8 +28,15 @@ export function requireLoadBoundary(transition, saved, digest) {
   assert.equal(transition.after.resource.counter, 0)
   assert.equal(transition.after.resource.tile, 92)
   if (transition.startup) {
-    assert.equal(transition.before.resource, null, 'Startup has no prior session bank')
-    assert.ok(transition.after.resource.epoch > 0)
+    assert.equal(transition.before.snapshot.level, 1)
+    assert.equal(
+      transition.before.resource.bank,
+      'c',
+      'Startup store owns the initial landscape bank'
+    )
+    assert.equal(transition.before.resource.counter, 0)
+    assert.equal(transition.before.resource.tile, 92)
+    assert.ok(transition.after.resource.epoch > transition.before.resource.epoch)
   } else assert.ok(transition.after.resource.epoch > transition.before.resource.epoch)
   assert.equal(transition.start.calls, 1)
   assert.equal(transition.start.attached, true)
