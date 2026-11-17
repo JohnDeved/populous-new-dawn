@@ -796,6 +796,7 @@ export default function Home() {
         selectorOpen ||
         store.getWorld() !== world ||
         world.inputMask ||
+        messageBoxRequested(world.messages) ||
         [...messageDetails.current.values()].some(details => details.open) ||
         (e.target as HTMLElement).closest('input,dialog')
       )

@@ -125,3 +125,64 @@ test('actual playSample stop handles survive a delayed ended event from a replac
   assert.deepEqual(f.flags(), [false, false, 32, 32])
   assert.equal(sound.active.size, 0)
 })
+
+function transferOwner(f, destination) {
+  const unit = f.scene.world.units[0], person = unit.native
+  unit.native = null
+  if (destination === 'resident') {
+    delete unit.flight
+    for (const key of ['model', 'state', 'life', 'flags2', 'flags3', 'x', 'y', 'h',
+      'assignment', 'renderFlags', 'angle', 'heading', 'turnAngle', 'anchorX', 'anchorY',
+      'anchorFlags', 'commandCursor']) person[key] = 0
+    Object.assign(person, { id: f.owner, class: 1, building: 31,
+      commands: Array(8).fill(0), immediateCommand: 0, displacement: { x: 0, y: 0, h: 0 } })
+    unit.inside = 31
+    unit.resident = { building: 31, slot: 0, person }
+    f.scene.world.buildings.push({ id: 31, admission: { id: 31, occupants: [f.owner, 0, 0, 0, 0, 0] } })
+  } else if (destination === 'fight') unit.fight = { motion: person }
+  else unit[destination] = { person }
+  return person
+}
+
+for (const destination of ['entry', 'builder', 'fight', 'resident']) {
+  test(`voice completion releases the same person after ownership moves to ${destination}`, () => {
+    const f = fixture()
+    f.emit()
+    const person = transferOwner(f, destination)
+    f.voices[0].finished()
+    assert.equal(person.flags4, 32, 'only the sound-playing bit must clear on the transferred owner')
+    assert.equal(f.scene.ownedSounds.size, 0)
+  })
+
+  test(`late predecessor completion preserves a successor voice after transfer to ${destination}`, () => {
+    const f = fixture()
+    f.emit()
+    const person = transferOwner(f, destination)
+    f.emit()
+    f.voices[0].finished()
+    assert.equal(person.flags4, 48)
+    assert.equal(f.scene.ownedSounds.get(f.owner), f.voices[1].stop)
+    f.voices[1].finished()
+    assert.equal(person.flags4, 32)
+  })
+}
+
+test('completion does not mutate an invalid detached resident record', () => {
+  const f = fixture()
+  f.emit()
+  const person = transferOwner(f, 'resident')
+  f.scene.world.buildings.at(-1).admission.occupants[0] = 0
+  f.voices[0].finished()
+  assert.equal(person.flags4, 48)
+  assert.equal(f.scene.ownedSounds.size, 0)
+})
+
+test('completion after person retirement does not mutate the detached record', () => {
+  const f = fixture()
+  f.emit()
+  const person = transferOwner(f, 'entry')
+  f.scene.world.units = []
+  f.voices[0].finished()
+  assert.equal(person.flags4, 48)
+  assert.equal(f.scene.ownedSounds.size, 0)
+})
