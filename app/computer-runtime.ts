@@ -806,10 +806,12 @@ function produceMissionTraining(w: World, tribe: number) {
   if (!(w.ai.states & (1 << 6))) return false
   const population = campaignPersonCount(w, tribe),
     eligible = [
-      ...([6, 7].includes(w.outcome.level) && tribe === 2
+      ...([6, 7, 16].includes(w.outcome.level) && tribe === 2
         ? [{ model: 4, building: 5, preference: 6 }]
         : []),
+      ...(w.outcome.level === 16 && tribe === 2 ? [{ model: 5, building: 6, preference: 5 }] : []),
       { model: 3, building: 7, preference: 7 },
+      ...(w.outcome.level === 16 && tribe === 2 ? [{ model: 6, building: 8, preference: 8 }] : []),
     ]
       .map(candidate => ({
         ...candidate,
@@ -2104,7 +2106,8 @@ export function stepComputerTasks(w: World, tribe: number) {
     let selection: ReturnType<typeof computerSelectionWorld> | undefined
     const actions = stepTrainingTask(w.ai, index, target, {
       tribe,
-      preference: w.ai.attributes[trainedModel === 4 ? 6 : 7],
+      // Native 0x4c8490 uses the target school, not a Warrior fallback.
+      preference: w.ai.attributes[target ? ([6, 5, 7, 8][target.model - 5] ?? 7) : 7],
       population: campaignPersonCount(w, tribe),
       trained: campaignPersonCount(w, tribe, trainedModel),
       committed: target ? committedTraining(w, index, target.model, tribe) : 0,

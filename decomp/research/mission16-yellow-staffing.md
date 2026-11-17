@@ -9,8 +9,9 @@ three, it additionally requests (158,218) and (208,180). The internal population
 operand is1150; requested model1205 resolves6. For Yellow tribe2 the first script
 input is127, visible after the world advances to128.
 
-This projection closes the EVERY after those two complete conditions. Later
-patrol, guard and expansion siblings remain omitted. They do not guard the five
+This projection closes the EVERY after those two complete conditions. The subsequent
+[training and patrol restoration](mission16-yellow-patrol.md) extends this prefix
+through638; later guard and expansion siblings remain omitted. They do not guard the five
 preceding requests, but can affect subsequent task scheduling and population;
 this does not establish whole-mission or native completion-time parity. Existing
 1097 admission, type7 selection, physical entry, task-pool and occupancy consumers
