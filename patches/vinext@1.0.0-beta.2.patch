@@ -1,0 +1,11 @@
+--- a/dist/server/metadata-routes.js
++++ b/dist/server/metadata-routes.js
+@@ -353,7 +353,7 @@
+ 	if (baseName === metaType) return baseName;
+ 	if (metaType === "icon" || metaType === "apple-icon" || metaType === "opengraph-image" || metaType === "twitter-image") {
+ 		const suffix = baseName.slice(metaType.length);
+-		if (/^\d$/.test(suffix)) return baseName;
++		if (baseName.startsWith(metaType) && /^\d$/.test(suffix)) return baseName;
+ 	}
+ 	return null;
+ }
