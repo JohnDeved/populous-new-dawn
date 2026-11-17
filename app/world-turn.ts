@@ -1646,7 +1646,10 @@ function stepTurn(w: World, metrics?: { steps: number }) {
         const shaman = w.units.find(a => a.team === u.team && isShaman(a))
         if (shaman && distance(u, shaman) > 3) route(w, u, entrance(w, shaman, 2))
       }
-      if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
+      if (builderActivity(u) && work && 'hp' in work) {
+        processBuilderWork(w, u, work)
+        continue
+      }
       if (
         u.native &&
         (u.native.guardInputPending ||
