@@ -30,7 +30,7 @@ try{
     w.selected=[window.builder.id];s.focus({x:-2,z:32});s.onChange()
   })
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
-  await page.getByRole('button',{name:'buildings B',exact:true}).click()
+  await page.getByRole('button',{name:'buildings',exact:true}).click()
   await page.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
   const point=await page.evaluate(()=>{
     const s=window.testScene,p={x:-1.7,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()
@@ -132,7 +132,7 @@ try{
     s.focus({x:-2,z:32});s.onChange()
   })
   await crewPage.waitForFunction(()=>!window.testScene.cameraMotion.active)
-  await crewPage.getByRole('button',{name:'buildings B',exact:true}).click()
+  await crewPage.getByRole('button',{name:'buildings',exact:true}).click()
   await crewPage.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
   const site=await crewPage.evaluate(()=>{
     const s=window.testScene,p={x:-1.7,z:32.3},q=s.screen(p,Math.max(0,s.y(p))),r=s.container.getBoundingClientRect()

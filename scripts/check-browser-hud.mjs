@@ -38,7 +38,7 @@ try{
  await blast.click({button:'right'});assert.equal(await page.evaluate(()=>window.testScene.world.charging),false);
  await blast.click({button:'right'});assert.equal(await page.evaluate(()=>window.testScene.world.charging),true);
  await page.keyboard.press('Escape');assert.equal(await page.evaluate(()=>window.testScene.world.mode),null);
- await page.getByRole('button',{name:'buildings B',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true}).isDisabled(),true);
+ await page.getByRole('button',{name:'buildings',exact:true}).click();assert.equal(await page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true}).isDisabled(),true);
  await page.getByRole('button',{name:'Hut, 3 wood',exact:true}).click();assert.equal(await page.evaluate(()=>window.testScene.world.mode),'hut');await page.keyboard.press('Escape');
  await page.getByRole('button',{name:'spells',exact:true}).click();
  // The removed label is replaced by a real mesh hit, for hover and orders.

@@ -25,7 +25,7 @@ try {
   })
   await page.waitForFunction(()=>!window.testScene.cameraMotion.active)
   if(!direction)await page.screenshot({path:'/private/tmp/populous-foundations-after.png'})
-  await page.getByRole('button',{name:'buildings B',exact:true}).click()
+  await page.getByRole('button',{name:'buildings',exact:true}).click()
   await page.getByRole('button',{name:'Hut, 3 wood',exact:true}).click()
   for(let i=0;i<direction;i++)await page.keyboard.press('Space')
   const point=await page.evaluate(()=>{

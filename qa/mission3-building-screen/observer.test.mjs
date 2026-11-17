@@ -72,7 +72,7 @@ function fixture(
     clientHeight: 480,
     getBoundingClientRect: () => ({ x: 0, y: 0 }),
     querySelector(selector) {
-      if (selector.includes('buildings B')) return { getAttribute: () => String(buildingsSelected) }
+      if (selector.includes('buildings')) return { getAttribute: () => String(buildingsSelected) }
       if (selector.includes('Temple')) return buildingsSelected ? card : null
       if (selector === '.native-hud')
         return { offsetWidth: 200, getBoundingClientRect: () => ({ width: 200 }) }

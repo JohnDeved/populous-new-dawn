@@ -83,7 +83,7 @@ export default async function sceneryPlacement({ browser, url, output }) {
     await button('Pause game').click()
     await page.waitForFunction(() => window.testStore.getWorld().paused)
     await button('Select brave').click()
-    await button('buildings B').click()
+    await button('buildings').click()
     await button('Hut, 3 wood').click()
     await page.waitForFunction(() => window.testStore.getWorld().mode === 'hut')
 

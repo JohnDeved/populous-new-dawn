@@ -69,7 +69,7 @@ try {
   })
 
   await page.getByLabel('Select brave').click({ modifiers: ['Shift'] })
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   const firewarriorBuilding = page.getByRole('button', { name: /Firewarrior Training Hut/ })
   if (!(await firewarriorBuilding.count()))
     throw new Error(
@@ -316,7 +316,7 @@ try {
   assert.equal(automatic.cooldown, 25 / 12)
 
   await page.getByLabel('Select brave').click({ modifiers: ['Shift'] })
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   const towerButton = page.getByRole('button', { name: /Guard Tower/ })
   await towerButton.waitFor()
   const towerSite = await page.evaluate(async () => {

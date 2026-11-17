@@ -1475,7 +1475,7 @@ export default function Home() {
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
             <button
               key={t}
-              aria-label={t === 'buildings' ? 'buildings B' : t}
+              aria-label={t}
               title={t}
               aria-pressed={tab === t}
               className={tab === t ? 'active' : ''}

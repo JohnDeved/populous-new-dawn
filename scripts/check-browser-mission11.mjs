@@ -826,7 +826,7 @@ try {
   })
 
   await page.getByLabel('Select brave', { exact: true }).click()
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   const spyBuilding = page.getByRole('button', { name: /Spy Training Hut/ })
   assert.equal(await spyBuilding.isEnabled(), true)
   const site = await page.evaluate(async braveId => {
@@ -1523,7 +1523,7 @@ try {
   })
 
   await page.getByLabel('Select brave').click()
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   const balloonHutButton = page.getByRole('button', {
     name: 'Balloon Hut, 11 wood',
     exact: true,

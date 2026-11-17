@@ -937,7 +937,7 @@ try {
   await selectRenderedPeople(page, builderIds)
 
   const beforeBuildings = await page.evaluate(() => window.testScene.world.buildings.map(b => b.id))
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
   let buildTarget = await resolveBuildSite(page)
   await resumeGame(page)

@@ -484,7 +484,7 @@ async function buildGuardTower(page) {
   const before = new Set((await snapshot(page)).buildings.map(building => building.id)),
     ground = await groundPoint(page, await validTowerPoint(page, { x: 36, z: -26 }), 'tower')
   await selectBraves(page, 'all')
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   const towerButton = page.getByRole('button', { name: 'Guard Tower, 5 wood', exact: true })
   assert.equal(await towerButton.isDisabled(), false, 'Guard Tower control must be unlocked')
   await towerButton.click()

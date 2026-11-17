@@ -1428,7 +1428,7 @@ try {
   let school
   await stage('ordinary-Spy-school-construction', async () => {
     await selectPerson(brave)
-    await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+    await page.getByRole('button', { name: 'buildings', exact: true }).click()
     const site = await schoolSite(brave),
       before = await lifecycleState(brave)
     await page.getByRole('button', { name: /Spy Training Hut/ }).click()
