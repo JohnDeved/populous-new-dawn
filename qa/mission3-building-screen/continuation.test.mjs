@@ -69,6 +69,8 @@ for (const startup of [false, true])
         if (name === 'Pause game') {
           assert.equal(clicked, true)
           paused = true
+        } else if (!startup && name === 'Load Game') {
+          assert.equal(clicked, false)
         } else {
           assert.equal(name, startup ? 'Load Game' : 'Load checkpoint')
           clicked = true
@@ -118,6 +120,10 @@ for (const startup of [false, true])
       assert,
     })
     await replace('load', startup ? null : input, 'loaded', { startup, pauseImmediately: true })
+    if (!startup) {
+      assert.ok(events.indexOf('Load Game') < events.indexOf('arm'))
+      assert.ok(events.indexOf('arm') < events.indexOf('Load checkpoint'))
+    }
     const at = events.indexOf(startup ? 'Load Game' : 'Load checkpoint')
     assert.deepEqual(events.slice(at, at + 2), [
       startup ? 'Load Game' : 'Load checkpoint',
@@ -279,10 +285,13 @@ test('continuation controls retain the literal startup and in-game public labels
   const page = readFileSync(new URL('../../app/page.tsx', import.meta.url), 'utf8')
   assert.match(selector, />\s*Load Game\s*</)
   assert.match(page, /aria-label="Start game"/)
-  assert.match(page, />\s*Load checkpoint\s*</)
+  const menu = readFileSync(new URL('../../app/original-pause-menu.tsx', import.meta.url), 'utf8')
+  assert.match(menu, /label="Load checkpoint"/)
+  assert.match(page, /onLoad=\{loadCheckpoint\}/)
   assert.match(page, /world\.paused \? 'Resume game' : 'Pause game'/)
   assert.match(page, /aria-label="Game settings"/)
-  assert.match(page, />\s*Restart world\s*</)
+  assert.match(menu, /restart: \{ question: 'Restart Level\?', action: props\.onRestart \}/)
+  assert.match(page, /onRestart=\{restart\}/)
 })
 
 test('completion-only restoration performs one genuine startup Load without replaying accepted lifecycle', async () => {
