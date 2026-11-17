@@ -37,8 +37,9 @@ Mission 19's Mission 18→19 continuation, authored bank-d sky and
 Firestorm/Volcano/Teleport rewards, delayed Shaman Teleport with checkpoint
 continuity, last-chance Chumara warning, Chumara-loss defeat, and Dakini-loss
 victory finished in the current feature commit. Native evidence requires self-only
-combat masks, not a generic Blue-Chumara alliance. Warning messages 127/128 and
-later Mission 19 AI remain separate until their producers are recovered.
+combat masks, not a generic Blue-Chumara alliance. Warning messages 127/128 now bind the existing kill-credit producer and original
+script conditions, with focused/native tests; full/render acceptance and later
+Mission 19 AI remain separate.
 
 Mission 20's Mission 19→20 continuation, authored create-land-for-war opening,
 and four-stage linked worship chain finished in this feature commit. Ordinary
