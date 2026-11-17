@@ -957,8 +957,8 @@ export function campaignRules(w: World) {
                                       ? [
                                           12,
                                           1003,
-                                          // First authored fault: terrain seal check, warning, deadline, and eruption.
-                                          ...script.codes.slice(797, 957),
+                                          // First two authored faults: seal checks, warnings, deadlines, and eruptions.
+                                          ...script.codes.slice(797, 1051),
                                           1004,
                                           1004,
                                           1019,

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { cast, command, createWorld, tick } from '../app/model.ts'
 import { markerHeight } from '../app/campaign-runtime.ts'
+import { campaignRules } from '../app/campaign-command-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { messageText } from '../app/messages.ts'
 import { missionData, missionScript } from '../app/mission-data.ts'
@@ -45,7 +46,7 @@ test('Mission 21 loads its authored opening and first fault state', () => {
       blue: ['shaman'],
       flatten: [33, 117, 29, 119],
       eruption: [29, -133, 29, -133],
-      eruptionControllers: 1,
+      eruptionControllers: 2,
     }
   )
 })
@@ -146,3 +147,50 @@ test('Mission 21 checkpoints one unsealed first-fault eruption without replay', 
     1
   )
 })
+
+
+test('Mission 21 second fault warns, erupts, and stays resolved across a checkpoint', () => {
+  let world = createWorld(21)
+  advanceTo(world, 2271)
+  assert.equal(world.campaignAIs[1].variables[20], 0)
+  advanceTo(world, 2272)
+  assert.equal(world.campaignAIs[1].variables[20], 1)
+  assert.equal(world.campaignAIs[1].variables[23], 0)
+  world = migrateCheckpoint(structuredClone(world))
+  advanceTo(world, 3711)
+  assert.equal(world.campaignAIs[1].variables[23], 0)
+  advanceTo(world, 3712)
+  assert.equal(world.campaignAIs[1].variables[23], 1)
+  const message = world.messages.slots.find(message => message?.view?.payload === 16668)
+  assert.deepEqual(message.view, { cell: 49210, payload: 16668 })
+  assert.equal(message.lifetime, 256)
+  assert.ok(world.effects.some(effect => effect.volcano && effect.x === 51 && effect.z === 57))
+  world = migrateCheckpoint(structuredClone(world))
+  advanceTo(world, 3744)
+  assert.equal(world.campaignAIs[1].variables[23], 2)
+  advanceTo(world, 3776)
+  assert.equal(world.messages.slots.filter(message => message?.view?.payload === 16668).length, 1)
+})
+
+
+for (const delta of [-1, 1])
+  test(`Mission 21 second fault seals on signed height difference ${delta}`, () => {
+    const world = createWorld(21),
+      packed = missionData(21).level.markers[45],
+      cell = ((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1),
+      baseline = world.campaignAIs[1].variables[15]
+    assert.equal(world.land.heights[cell], baseline)
+    world.land.heights[cell] += delta
+    // Isolate the sampled terrain predicate, not a claim about player acquisition.
+    world.turn = 2239
+    campaignRules(world)
+    assert.equal(world.campaignAIs[1].variables[23], 0)
+    world.turn = 2271
+    campaignRules(world)
+    assert.equal(world.campaignAIs[1].variables[23], 2)
+    world.land.heights[cell] = baseline
+    world.turn = 3711
+    campaignRules(world)
+    assert.equal(world.campaignAIs[1].variables[23], 2)
+    assert.equal(world.messages.slots.some(message => message?.view?.payload === 16668), false)
+  })

@@ -55,3 +55,28 @@ Initial component triggers are forced once in marker order 91, 92, 93 and clone
 their linked records in authored slot order: nine model-79 records, five model-75
 records, and ten model-85 records. Exact model-39 and component presentation,
 later faults, Mission 21 AI, and mission outcome remain open.
+
+## Second fault extension
+
+The same hash-locked probe now executes original words `957..<1051` inside the
+original 31-mask wrapper. It runs the native VM and opcode-1085 height reader;
+other commands are observed at their dispatch boundary rather than claiming
+full effect execution. Marker 45 is sampled against startup variable 15. Both
+one-unit height differences resolve variable 23 to 2; restoring the original
+height afterward does not reopen the fault. Unlike the first fault, there is no
+additional shrine/sentinel predicate.
+
+The strict `turn > 2250` opening first runs at 2271. Unchanged height forces
+warning scenery markers 46, 47, 48 once, guarded by variable 20. The strict
+`turn > 3700` deadline first runs at 3711: marker 45 forces trigger 43, whose
+single link is Volcano source 44. Native linked completion is also executed for
+this trigger. The warning message is 126 at coarse `(58,192)`, payload 16668,
+lifetime 256. The next sample at 3743 advances state 1 to 2 and requests visual
+cleanup `(58,190,5)`. No later sample repeats the eruption or cleanup.
+
+The browser projection includes these words and binds trigger 43. A fresh-world
+unsealed regression runs ordinary turns through both fault deadlines and saves
+before and after the second eruption. Separate height-boundary tests isolate
+the seal predicate. They do not establish natural player spell acquisition or
+full terrain/disaster visual parity. The third fault, remaining AI, and complete
+mission-playthrough acceptance are still open.
