@@ -584,16 +584,23 @@ test('proposed controls and Load/Restart resource owners match the current produ
   const read = path => readFileSync(new URL('../../' + path, import.meta.url), 'utf8')
   const page = read('app/page.tsx'),
     store = read('app/game-store.ts'),
-    scene = read('app/scene.ts')
-  for (const label of [
-    'Game settings',
-    'Save checkpoint',
-    'Load checkpoint',
-    'Restart world',
-    'Pause game',
-    'Resume game',
-  ])
+    scene = read('app/scene.ts'),
+    menu = read('app/original-pause-menu.tsx')
+  for (const label of ['Game settings', 'Pause game', 'Resume game'])
     assert.ok(page.includes(label), label)
+  for (const label of [
+    'Save Game',
+    'Save checkpoint',
+    'Load Game',
+    'Load checkpoint',
+    'Restart Level',
+  ])
+    assert.ok(menu.includes(label), label)
+  assert.match(
+    page,
+    /<OriginalPauseMenu[\s\S]*?onSave=\{saveCheckpoint\}[\s\S]*?onLoad=\{loadCheckpoint\}[\s\S]*?onRestart=\{restart\}/
+  )
+  assert.match(menu, /restart: \{ question: 'Restart Level\?', action: props\.onRestart \}/)
   assert.ok(page.includes('Temple'))
   assert.ok(store.includes('getPresentationSnapshot: presentation.snapshot'))
   assert.ok(store.includes('replaceWorld(migrateCheckpoint(structuredClone(checkpoint)))'))
