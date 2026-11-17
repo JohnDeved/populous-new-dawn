@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Non-recording native probe for Mission 21's first two authored faults."""
+"""Non-recording native probe for Mission 21's three authored faults."""
 
 import argparse
 import hashlib
@@ -297,6 +297,64 @@ for delta in (0, -1, 1):
 assert trigger_at(45) == 43
 assert [(source["index"], source["model"]) for _, _, source in links(43)] == [(44, 15)]
 
+# Third fault: execute the bounded original VM branch and real height query.
+# Other commands are traced at dispatch; linked completion is exercised below.
+third_visits = []
+for delta in (0, -1, 1, "preopening-restored"):
+    transient = delta == "preopening-restored"
+    cpu, _, write, read, invoke, ret = machine()
+    tribe, program, stack, stop = 0x2000000, 0x2010000, 0x20FD000, 0x20FE000
+    cpu.mem_write(tribe, bytes(0xC65))
+    write(tribe + 0xC22, "B", 1)
+    cpu.mem_write(0x89B7A5, header[100:612])
+    packed = markers[94]
+    cell = ((packed & 0xFE00) >> 9) * 128 + ((packed & 0xFE) >> 1)
+    base = struct.unpack_from("<h", level, cell * 2)[0]
+    write(0x8A03E8 + cell * 16, "h", base + (-1 if transient else delta))
+    blob = bytearray(script)
+    blob[:8192] = bytes(8192)
+    fragment = [12, 1003, *codes[797:800], *codes[1051:1139], 1004, 1004, 1019]
+    struct.pack_into("<" + "H" * len(fragment), blob, 0, *fragment)
+    struct.pack_into("<i", blob, 0x3000 + 17 * 4, base)
+    cpu.mem_write(program, bytes(blob))
+    trace = []
+    arities = {1151: 1, 1177: 4, 1180: 0, 1179: 1, 1199: 3}
+
+    def intercept_third(_cpu, _address, _size, _user):
+        pointer = read(program + 0x3104)
+        opcode = read(pointer + 2, "H")
+        if opcode == 1085:
+            return  # Execute the real native height command.
+        arity = arities[opcode]
+        tokens = [read(pointer + 4 + i * 2, "H") for i in range(arity)]
+        assert all(fields[token][0] == 0 for token in tokens)
+        trace.append([opcode, *[fields[token][1] for token in tokens]])
+        write(program + 0x3104, "I", pointer + 4 + arity * 2)
+        ret(1)
+
+    cpu.hook_add(UC_HOOK_CODE, intercept_third, begin=0x48CC60, end=0x48CC60)
+    visits = []
+    for turn in (7487, 7500, 7519, 7551, 8095, 8100, 8127, 8159, 8191):
+        trace.clear()
+        if (transient and turn >= 7500) or (delta and not transient and turn > 7519):
+            write(0x8A03E8 + cell * 16, "h", base)
+        write(0x89D188, "I", turn)
+        invoke(stack, stop, 0x48C6B0, tribe, program)
+        visits.append({"turn": turn, "state": read(program + 0x3000 + 24 * 4, "i"), "commands": trace.copy()})
+    if delta == 0 or transient:
+        assert visits[2]["commands"] == [[1151, 95]]
+        assert visits[6]["commands"] == [[1151, 94], [1177, 126, 90, 194, 16668], [1180], [1179, 256]]
+        assert visits[7]["commands"] == [[1199, 92, 194, 5]]
+        assert all(not visits[i]["commands"] for i in (0, 1, 3, 4, 5, 8))
+        assert [v["state"] for v in visits] == [0, 0, 0, 0, 0, 0, 1, 2, 2]
+    else:
+        assert visits[2]["commands"] == [[1199, 92, 194, 5]]
+        assert all(not visit["commands"] for visit in visits[3:])
+        assert visits[2]["state"] == 2
+    third_visits.append({"heightDelta": delta, "baseline": base, "visits": visits})
+assert trigger_at(94) == 370
+assert [(source["index"], source["model"]) for _, _, source in links(370)] == [(371, 15)]
+
 # Execute opcode 1199 through the original dispatcher and its native square scan.
 cpu, identity, write, read, invoke, ret = machine()
 program, command, units, stack, stop = 0x2000000, 0x2010000, 0x2020000, 0x20FD000, 0x20FE000
@@ -416,7 +474,7 @@ def install(source, pointer, unit_id):
 
 
 activation = {}
-for trigger in (362, 363, 364, 68, 43):
+for trigger in (362, 363, 364, 68, 43, 370):
     next_clone = 0
     allocations.clear()
     clone_sources.clear()
@@ -446,6 +504,7 @@ for trigger in (362, 363, 364, 68, 43):
 messages = json.loads((ROOT / "app/original-messages.json").read_text())["messages"]
 result = {
     "secondFault": second_visits,
+    "thirdFault": third_visits,
     "provenance": {
         "hashes": hashes,
         "nativeIdentity": identity,
@@ -498,4 +557,4 @@ result = {
 }
 if args.output:
     args.output.write_text(json.dumps(result, indent=2) + "\n")
-print("PASS: Mission 21 first/second faults, native height boundaries, schedules, linked order and cleanup")
+print("PASS: Mission 21 first/second/third faults, native height boundaries, schedules, linked order and cleanup")

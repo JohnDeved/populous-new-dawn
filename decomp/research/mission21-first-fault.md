@@ -78,5 +78,31 @@ The browser projection includes these words and binds trigger 43. A fresh-world
 unsealed regression runs ordinary turns through both fault deadlines and saves
 before and after the second eruption. Separate height-boundary tests isolate
 the seal predicate. They do not establish natural player spell acquisition or
-full terrain/disaster visual parity. The third fault, remaining AI, and complete
+full terrain/disaster visual parity. The third fault is covered below; remaining AI and complete
 mission-playthrough acceptance are still open.
+
+## Third fault extension
+
+Original words `1051..<1139` complete the same EVERY31 wrapper. Startup stores
+marker 94 height 238 in variable 17; the recurring block reads variable 18.
+The strict opening `turn > 7500` first executes at 7519. Equal height forces
+marker 95 once (latch 21); unequal height resolves state 24 immediately to 2.
+A pre-opening height change restored before the first sample does not seal it.
+Both signed one-unit differences seal it, and restoring the original height
+after sealing cannot reopen it.
+
+The strict deadline `turn > 8100` first executes at 8127. Marker 94 forces
+trigger 370 and its single model-15 link 371 at browser `(85,53)`. Message 126
+uses coarse `(90,194)`, payload 16668, head flag 0x200 and lifetime 256. The
+next visit 8159 resolves state 1 to 2 and requests cleanup `(92,194,5)`. The
+payload is shared with the second fault; its different view cell 49754 identifies
+this third warning.
+
+The native probe executes the original VM and real height reader for equal,
++1, -1 and pre-opening-restored supplied terrain cases, then executes trigger
+370's native initialization and linked completion with the existing intercepted
+allocation/presentation leaves. The browser projection binds the exact block and
+trigger. Model tests cover ordinary unsealed turns through 8192, current-format
+checkpoints, and controlled seal/restoration predicates. These do not establish
+natural player acquisition of the sealing spell, original GUI timing, rendered
+disaster parity, later AI or complete mission victory.
