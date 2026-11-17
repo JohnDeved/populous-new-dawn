@@ -32,11 +32,24 @@ export function observeBuildingPanelPointerTarget() {
       left, top, width, height, x, y, viewportWidth, viewportHeight }
   }
   const expected = readTarget(), keys = Object.keys(expected)
+  const receipts = expected.identity.pointerTargetReceipts ??= []
+  if (receipts.length >= 2) throw Error('Pointer receipt episode arm bound exceeded')
+  const receipt = { schema: 'building-pointer-delivery-v1', ordinal: receipts.length + 1,
+    buildingId: expected.buildingId,
+    requested: Object.fromEntries(['x', 'y', 'left', 'top', 'width', 'height', 'viewportWidth', 'viewportHeight'].map(key => [key, expected[key]])),
+    event: null, status: 'awaiting-event', error: null }
+  receipts.push(receipt)
+  expected.receipt = receipt
   const moved = event => {
     // A wrong first event remains fatal. Later hover or another move cannot
     // repair it, including a panel moving away at input and returning afterward.
     expected.received = false
     try {
+      receipt.event = { clientX: Number.isFinite(event.clientX) ? event.clientX : null,
+        clientY: Number.isFinite(event.clientY) ? event.clientY : null,
+        finiteCoordinates: Number.isFinite(event.clientX) && Number.isFinite(event.clientY),
+        isTrusted: event.isTrusted === true, pointerType: typeof event.pointerType === 'string' ? event.pointerType : null,
+        targetWithinPanel: event.target === expected.panel || expected.panel.contains(event.target) }
       const current = readTarget()
       if (event.isTrusted !== true || event.pointerType !== 'mouse')
         throw Error('Pointer target received an untrusted or non-mouse event')
@@ -47,8 +60,10 @@ export function observeBuildingPanelPointerTarget() {
       if (!keys.every(key => current[key] === expected[key]))
         throw Error('Pointer target changed at input delivery')
       expected.received = true
+      receipt.status = 'accepted'
     } catch (error) {
       expected.eventError = String(error)
+      receipt.status = 'rejected'; receipt.error = expected.eventError
     }
   }
   expected.stop = () => {

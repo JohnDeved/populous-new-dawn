@@ -385,3 +385,79 @@ test('overlapping arm cannot replace an awaiting witness or hide its first-event
     }
   }
 })
+
+test('detached receipt preserves exact fractional supplied first-event coordinates', () => {
+  const f = fixture(); f.rect.left = 100.25; f.rect.width = 20.5
+  const point = observe(f); f.dispatch({clientX: point.x, clientY: point.y})
+  const receipt = plain(f.h.pointerTargetReceipts[0])
+  assert.equal(receipt.requested.x, 110.5)
+  assert.equal(receipt.event.clientX, 110.5)
+  assert.equal(receipt.status, 'accepted')
+  const before = JSON.stringify(receipt)
+  f.rect.left = 999; f.h.pointerTargetBefore.stop()
+  assert.equal(JSON.stringify(f.h.pointerTargetReceipts[0]), before)
+  assert.equal(Object.hasOwn(receipt, 'panel'), false)
+})
+test('integer success remains integer; cleanup preserves receipt and permits only two arms', () => {
+  const f = fixture(); observe(f); f.dispatch(); f.h.pointerTargetBefore.stop()
+  observe(f); f.dispatch(); f.h.pointerTargetBefore.stop()
+  assert.equal(f.h.pointerTargetReceipts.length, 2)
+  assert.equal(f.h.pointerTargetReceipts[0].event.clientX, 110)
+  assert.throws(() => observe(f), /arm bound/)
+  assert.equal(f.h.pointerTargetReceipts.length, 2)
+})
+test('actual first pointermove consumes invalid trust/type/coordinates without replacement', () => {
+  for (const patch of [{isTrusted:false}, {pointerType:'pen'}, {clientX:110.6}, {clientX:NaN}, {target:{}}]) {
+    const f = fixture(); observe(f); f.dispatch(patch)
+    const first = JSON.stringify(f.h.pointerTargetReceipts[0]); f.dispatch()
+    assert.equal(JSON.stringify(f.h.pointerTargetReceipts[0]), first)
+    assert.equal(f.h.pointerTargetReceipts[0].status, 'rejected')
+    assert.equal(f.h.pointerTargetBefore.received, false)
+  }
+})
+test('missing event and overlap retain one awaiting receipt and original rejection', () => {
+  const f = fixture(); observe(f)
+  assert.throws(() => observe(f), /already armed/)
+  assert.equal(f.h.pointerTargetReceipts.length, 1)
+  assert.equal(f.h.pointerTargetReceipts[0].event, null)
+  assert.throws(() => actualCallback('before', f), /did not receive/)
+  assert.equal(f.h.pointerTargetReceipts[0].status, 'awaiting-event')
+})
+test('held snapshot includes JSON-safe receipt while focus case has no pointer claim', () => {
+  const f = fixture(); observe(f); f.dispatch(); f.p.hovered = true
+  const snapshot = plain(actualCallback('before', f))
+  assert.deepEqual(snapshot.pointerReceipt, plain(f.h.pointerTargetReceipts[0]))
+  const g = fixture(); g.context.document.activeElement = g.focused
+  assert.equal(actualCallback('before', g, 'focus').pointerReceipt, null)
+})
+const receiptTailStart = source.indexOf('    if (page) {\n      let receiptTimer')
+assert.ok(receiptTailStart > 0)
+const retainReceipts = new AsyncFunction('page', 'report', 'outcome', source.slice(receiptTailStart, source.indexOf('\n    clearTimeout(timer)', receiptTailStart)))
+test('actual final retention preserves rejected receipt and primary failure on read error', async () => {
+  const f = fixture(); observe(f); f.dispatch({clientX:111}); f.h.pointerTargetBefore.stop()
+  const report = {}, original = Error('original episode failed'), outcome = {failure:original}
+  await retainReceipts({evaluate: async fn => runInNewContext(`(${fn})()`, f.context)}, report, outcome)
+  assert.equal(report.pointerDeliveryReceipts[0].status, 'rejected')
+  const readError = Error('context gone')
+  await retainReceipts({evaluate: async () => {throw readError}}, report, outcome)
+  assert.equal(outcome.failure, original)
+  for (const failure of [null, undefined, false, 0]) {
+    const state = {failure}
+    await retainReceipts({evaluate: async () => {throw readError}}, {}, state)
+    assert.equal(state.failure, failure)
+  }
+  assert.match(report.pointerDeliveryReceiptError, /context gone/)
+  const cleanOutcome = {}
+  await retainReceipts({evaluate: async () => {throw readError}}, {}, cleanOutcome)
+  assert.equal(cleanOutcome.failure, readError)
+})
+
+test('unresponsive diagnostic evaluation is bounded and returns control to final cleanup', async () => {
+  const report = {}, primary = Error('original failure'), outcome = {failure:primary}
+  let cleanupReached = false
+  await retainReceipts({evaluate: () => new Promise(() => {})}, report, outcome)
+  cleanupReached = true
+  assert.equal(cleanupReached, true)
+  assert.equal(outcome.failure, primary)
+  assert.match(report.pointerDeliveryReceiptError, /exceeded 200ms/)
+})

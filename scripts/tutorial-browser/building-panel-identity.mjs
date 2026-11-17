@@ -290,6 +290,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
           if (hold === 'pointer' && document.activeElement instanceof HTMLElement)
             document.activeElement.blur()
           const h = window.buildingIdentity, p = h.panel
+          let pointerReceipt = null
           if (hold === 'pointer') {
             const expected = h.pointerTargetBefore
             delete h.pointerTargetBefore
@@ -305,6 +306,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
             const hit = document.elementFromPoint(expected.x, expected.y)
             if (!hit || (hit !== p && !p.contains(hit)))
               throw Error('Observed pointer target became occluded before hold')
+            pointerReceipt = JSON.parse(JSON.stringify(expected.receipt))
           }
           const held = hold === 'pointer' ? p.matches(':hover') : p.contains(document.activeElement)
           const otherHold = hold === 'pointer' ? p.contains(document.activeElement) : p.matches(':hover')
@@ -312,7 +314,7 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
             throw Error('Expected held, owned and visible positive control')
           h.heldVisibilityBefore = { frame: h.scene.renderer.info.render.frame, viewPoint: { ...h.scene.viewPoint },
             panel: p, building: h.building, scene: h.scene }
-          return { hold, boundary, held, frame: h.heldVisibilityBefore.frame }
+          return { hold, boundary, held, frame: h.heldVisibilityBefore.frame, pointerReceipt }
         }, { hold, boundary })
         timing.mark(`${hold}/${boundary}/held-snapshot:complete`)
         timing.mark(`${hold}/${boundary}/positive-frames:start`)
@@ -407,6 +409,20 @@ export default async function buildingPanelIdentity({ browser, url, output }) {
       }
   } finally {
     timing.mark('episode:finally')
+    if (page) {
+      let receiptTimer
+      try {
+        // Diagnostic-only budget; keep the original episode timer armed too.
+        report.pointerDeliveryReceipts = await Promise.race([
+          page.evaluate(() => JSON.parse(JSON.stringify(window.buildingIdentity?.pointerTargetReceipts ?? []))),
+          new Promise((_, reject) => { receiptTimer = setTimeout(() => reject(Error('Pointer receipt collection exceeded 200ms')), 200) }),
+        ])
+      } catch (diagnostic) {
+        report.pointerDeliveryReceiptError = String(diagnostic)
+        // Never substitute a diagnostic failure for the original episode error.
+        if (!Object.hasOwn(outcome, 'failure')) outcome.failure = diagnostic
+      } finally { clearTimeout(receiptTimer) }
+    }
     clearTimeout(timer)
   }
   return finishBuildingPanelIdentity(outcome)

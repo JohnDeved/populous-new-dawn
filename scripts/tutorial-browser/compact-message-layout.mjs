@@ -55,16 +55,22 @@ export const diagnosticMetricIds = Object.freeze([
 // Read real text fragments, including wrapping, rather than only an outer box.
 // This function is serialized into the page and never changes DOM or game state.
 export function compactMessageWitness() {
+  // A witness is synchronous and read-only. Never retain styles across captures.
+  const styles = new Map()
+  const styleOf = node => {
+    if (!styles.has(node)) styles.set(node, getComputedStyle(node))
+    return styles.get(node)
+  }
   const rect = node => {
     const r = node.getBoundingClientRect()
     return { left: r.left, top: r.top, right: r.right, bottom: r.bottom }
   }
   const visible = node =>
-    node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden'
+    node.getClientRects().length && styleOf(node).visibility !== 'hidden'
   const clips = node => {
     const result = []
     for (let parent = node; parent; parent = parent.parentElement) {
-      const style = getComputedStyle(parent)
+      const style = styleOf(parent)
       const paint = /\b(paint|content|strict)\b/.test(style.contain)
       const clipX = paint || /^(hidden|clip|scroll|auto)$/.test(style.overflowX)
       const clipY = paint || /^(hidden|clip|scroll|auto)$/.test(style.overflowY)
@@ -106,7 +112,7 @@ export function compactMessageWitness() {
   }
   const text = node => {
     const bounds = rect(node),
-      style = getComputedStyle(node),
+      style = styleOf(node),
       fragments = textRuns(node).flatMap(run => run.fragments)
     return {
       ...bounds,
@@ -122,7 +128,7 @@ export function compactMessageWitness() {
   }
   return {
     preference: localStorage.getItem('hud-size'),
-    scale: getComputedStyle(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
+    scale: styleOf(document.querySelector('.game-shell')).getPropertyValue('--hud-scale'),
     viewport: [innerWidth, innerHeight],
     worldMessages: [...document.querySelectorAll('.world-message')].filter(visible).map(text),
     campaignText: [...document.querySelectorAll('.campaign-messages details[open]>div p')]
@@ -138,7 +144,7 @@ export function compactMessageWitness() {
     overflow:
       document.documentElement.scrollWidth > innerWidth ||
       document.documentElement.scrollHeight > innerHeight,
-    statusLayout: getComputedStyle(document.querySelector('.game-status')).display,
+    statusLayout: styleOf(document.querySelector('.game-status')).display,
   }
 }
 
