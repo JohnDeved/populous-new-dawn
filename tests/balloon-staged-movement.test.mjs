@@ -73,6 +73,8 @@ const historicalPins = {
 // Cycling computer marker patrols (0x4366b0) advance the shared RNG, so fresh
 // acquisition reaches this flight point 6 turns later; the idle Ctrl28 target,
 // Preacher17, now patrols with the Green group, so the transport follows it longer.
+// Native pre-dispatch construction motion shifts later shared-RNG chronology.
+// Revised exact idle/successor pins retain every queue, landing and cleanup check.
 const freshPins = {
   input: [3561, 233],
   waypointCounters: [36, 112],
@@ -81,12 +83,12 @@ const freshPins = {
     acquisitionOnly: false,
     turn: 3646,
     settledPose: [16640, 32512, 36],
-    firstX: 16609,
-    events: [4014, 4017, 12, 4047],
-    retainedLife: 307, // Qualified browser-owned lethal damage retains last positive native life.
+    firstX: 16608,
+    events: [3990, 3993, 17, 4033],
+    retainedLife: 260, // Qualified browser-owned lethal damage retains last positive native life.
   },
   successor: {
-    references: [[3620, [1, 2]], [3621, [0, 2]], [3675, [0, 1]], [3866, [0, 0]]],
+    references: [[3620, [1, 2]], [3621, [0, 2]], [3675, [0, 1]], [3870, [0, 0]]],
     firstRetirementTurn: 3620,
     firstRetirementCounters: [36, 107],
     firstRetirementModels: [27, 3],

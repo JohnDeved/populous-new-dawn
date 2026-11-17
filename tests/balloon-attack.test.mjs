@@ -225,6 +225,8 @@ async function assertTowerContinuation({ store, world, shaman, balloon }, expect
 // Fresh physical Boat acquisition retains its actual failed direct-attack chronology.
 // Computer marker patrols cycle and advance the shared RNG, so the Shaman's walks
 // draw other speeds (+6 turns) and patrol Warrior12 is the first interceptor.
+// Pre-dispatch construction motion also shifts later melee RNG; the same
+// interception, zero Tower damage and ownership cleanup remain required.
 test('fresh supplied-focus Balloon tower attack is intercepted before Tower damage and cleans up through Save/Load', async () => {
   await assertTowerContinuation(prepareEarnedFlight(), {
     inputPhase: [3541, 213],
@@ -235,8 +237,8 @@ test('fresh supplied-focus Balloon tower attack is intercepted before Tower dama
     opponent: 12,
     targetHp: 260,
     targetDeath: 0,
-    retired: 3927,
-    death: 3927,
+    retired: 3934,
+    death: 3934,
   })
 })
 
@@ -269,10 +271,11 @@ test('historical c44 Balloon checkpoint without the Green patrol guard destroys 
     fight: 3538,
     opponent: 17,
     opponentKind: 'preacher',
-    targetDeath: 4905,
-    retired: 4906,
+    targetDeath: 4923,
+    retired: 4924,
     death: 0,
-    survivor: { hp: 101.5, x: 29, z: 120.75, state: 19, anchorX: 9472, anchorY: 32576 },
+    // Exact surviving HP follows the revised combat/health timeline; pose and rest stay fixed.
+    survivor: { hp: 101.15, x: 29, z: 120.75, state: 19, anchorX: 9472, anchorY: 32576 },
   })
 })
 
@@ -286,8 +289,8 @@ test('historical c44 supplied-focus Balloon checkpoint retains Warrior11 interce
     opponent: 11,
     targetHp: 260,
     targetDeath: 0,
-    retired: 3557,
-    death: 3557,
+    retired: 3559,
+    death: 3559,
   })
 })
 

@@ -165,11 +165,13 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   assert.equal(departures, 1)
   // Preacher17 now cycles with the Green marker patrol (0x4366b0) instead of idling,
   // so the transport follows a moving target before the grounded departure.
-  assert.equal(departure, 4040)
-  assert.equal(firstFight, 4042)
+  // Native pre-dispatch construction motion changes later shared-RNG draws;
+  // preserve the exact revised chronology plus the original cleanup below.
+  assert.equal(departure, 4004)
+  assert.equal(firstFight, 4007)
   assert.deepEqual(encounters, [
-    [4042, 17],
-    [4077, 10],
+    [4007, 17],
+    [4044, 11],
   ])
   assert.equal(firstOpponent, 17)
   assert.equal(firstOpponentTeam, 'green')
@@ -178,7 +180,7 @@ test('supplied-focus current Mission22 queued person target moves its transport 
   // The existing mode1 grounded attack adapter remains;
   // observed death retires command 28 while the selected Preacher 17 survives.
   // This is a browser outcome, not a native damage/landing parity claim.
-  assert.equal(death, 4089)
+  assert.equal(death, 4052)
   assert.equal(targetDeath, 0)
   assert.equal(shaman.hp, 0)
   assert.equal(world.units.includes(shaman), false)
