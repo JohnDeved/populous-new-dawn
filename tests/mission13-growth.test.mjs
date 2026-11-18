@@ -75,14 +75,20 @@ for (const gate of ['disabled', 'limit', 'zeroTarget'])
     produce(w)
     assert.equal(tasks(w).length, 0)
   })
-test('M13 Green producer remains unbound', () => {
+test('M13 Green first Tower uses its own immutable loaded origin', () => {
   const w = createWorld(13)
+  const shaman = w.units.find(u => u.team === 'green' && u.kind === 'shaman')
+  shaman.x += 30
+  shaman.z += 30
   w.turn = 60
   withCampaignTribe(w, 3, () => stepComputerTasks(w, 3))
-  assert.equal(w.campaignAIs[3].tasks.filter(t => t.flags & 1).length, 0)
+  const task = w.campaignAIs[3].tasks.find(t => t.flags & 1 && t.type === 0)
+  assert.equal(task?.requested, 4)
+  assert.equal(task?.origin, 0xb8be)
+  assert.notEqual(task?.origin, 0xb47a, 'not Yellow origin or live Shaman position')
 })
 
-test('M13 ordinary Yellow settlement grows and resumes the complete saved world', async () => {
+test('M13 both ordinary settlements grow and resume the complete saved world', async () => {
   const { createGameStore } = await import('../app/game-store.ts')
   const { advanceGame } = await import('../app/game-clock.ts')
   const store = createGameStore()
@@ -105,8 +111,10 @@ test('M13 ordinary Yellow settlement grows and resumes the complete saved world'
     if (w.turn === 512) {
       assert.ok(
         w.buildings.some(b => b.team === 'yellow' && b.progress > 0 && b.progress < 1),
-        'save actual construction in flight'
+        'save actual Yellow construction in flight'
       )
+      assert.ok(w.buildings.some(b => b.team === 'green' && b.progress > 0 && b.progress < 1),
+        'save actual Green construction in flight')
       assert.equal(await store.saveCheckpoint(false), false, 'Node session Save without IndexedDB')
       assert.ok(store.loadCheckpoint())
       replay = store.getWorld()
@@ -122,17 +130,21 @@ test('M13 ordinary Yellow settlement grows and resumes the complete saved world'
   assert.equal(
     w.buildings.filter(b => b.team === 'yellow' && b.kind === 'hut' && b.progress === 1 && b.hp > 0)
       .length,
-    6
+    7 // Seventh request admitted below target while earlier construction was unfinished.
   )
   assert.ok(
     w.units.filter(u => u.team === 'yellow' && u.hp > 0).length > 7,
     'ordinary housing births, not injected followers'
   )
-  assert.equal(
-    w.buildings.filter(b => b.team === 'green').length,
-    0,
-    'Green remains outside this binding'
-  )
-  assert.equal(w.units.filter(u => u.team === 'green' && u.hp > 0).length, 7)
+  const green = w.buildings.filter(b => b.team === 'green' && b.hp > 0)
+  assert.equal(green.filter(b => b.kind === 'tower' && b.progress === 1).length, 1)
+  assert.equal(green.filter(b => b.kind === 'hut' && b.progress === 1).length, 6)
+  assert.equal(green.filter(b => b.kind === 'hut' && b.progress === 0).length, 1)
+  assert.equal(green.length, 8, 'six completed Huts plus one pending Hut and the Tower')
+  assert.deepEqual(w.campaignAIs[3].tasks.filter(t => t.flags & 1 && t.type === 0)
+    .map(t => [t.requested, t.phase]), [[1, 8]])
+  assert.equal(w.campaignAIs[2].tasks.filter(t => t.flags & 1 && t.type === 0).length, 0)
+  assert.ok(w.units.filter(u => u.team === 'green' && u.hp > 0).length > 7)
+  assert.ok(w.campaignAIs[3].constructionBase !== undefined)
   assert.ok(w.campaignAIs[2].constructionBase !== undefined)
 })
