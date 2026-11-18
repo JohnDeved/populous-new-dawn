@@ -28,8 +28,15 @@ export function requireLoadBoundary(transition, saved, digest) {
   assert.equal(transition.after.resource.counter, 0)
   assert.equal(transition.after.resource.tile, 92)
   if (transition.startup) {
-    assert.equal(transition.before.resource, null, 'Startup has no prior session bank')
-    assert.ok(transition.after.resource.epoch > 0)
+    assert.equal(transition.before.snapshot.level, 1)
+    assert.equal(
+      transition.before.resource.bank,
+      'c',
+      'Startup store owns the initial landscape bank'
+    )
+    assert.equal(transition.before.resource.counter, 0)
+    assert.equal(transition.before.resource.tile, 92)
+    assert.ok(transition.after.resource.epoch > transition.before.resource.epoch)
   } else assert.ok(transition.after.resource.epoch > transition.before.resource.epoch)
   assert.equal(transition.start.calls, 1)
   assert.equal(transition.start.attached, true)
@@ -189,6 +196,14 @@ export default async function mission3BuildingScreen(context, continuation = nul
       failed = false,
       failure
     try {
+      if (!startup)
+        await page
+          .getByRole('dialog', { name: 'Game menu', exact: true })
+          .getByRole('button', {
+            name: kind === 'load' ? 'Load Game' : 'Restart Level',
+            exact: true,
+          })
+          .click()
       await page.evaluate(
         async options => {
           const { prepareM3Replacement } =
@@ -198,14 +213,18 @@ export default async function mission3BuildingScreen(context, continuation = nul
         { kind, shamanId, birth, startup }
       )
       armed = true
-      const name = kind === 'load' ? 'Load checkpoint' : 'Restart world'
+      const name = kind === 'load' ? 'Load checkpoint' : 'Yes'
       const click = async () => {
         if (startup)
           await page
             .getByRole('dialog', { name: 'Main menu', exact: true })
             .getByRole('button', { name: 'Load Game', exact: true })
             .click()
-        else await page.getByRole('button', { name, exact: true }).click()
+        else
+          await page
+            .getByRole('dialog', { name: 'Game menu', exact: true })
+            .getByRole('button', { name, exact: true })
+            .click()
         // PR274's proven continuation ordering: the next public input is Pause.
         // No health read, report write, bind, PNG serialization or digest in between.
         if (pauseImmediately)
@@ -287,6 +306,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
       birth = await page.evaluate(() => window.m3BuildingScreen.read().birth)
       await input.pause()
       await input.button('Game settings')
+      await input.button('Save Game')
       evidence.activeSave = { boundary: null, committed: null, digest: null }
       const saved = evidence.activeSave
       let armed = false,
@@ -336,6 +356,7 @@ export default async function mission3BuildingScreen(context, continuation = nul
       persist()
       assert.equal(saved.digest.checkpoint.turn, saved.boundary.snapshot.turn)
       assert.equal(saved.digest.checkpoint.time, saved.boundary.snapshot.time)
+      await input.button('Back')
       await replacement('load', input, 'fresh', { pauseImmediately: true })
       await input.button('Game settings')
       await replacement('restart', input, 'beforeRestart')

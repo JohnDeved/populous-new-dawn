@@ -45,7 +45,7 @@ test('Mission 21 loads its authored opening and first fault state', () => {
       blue: ['shaman'],
       flatten: [33, 117, 29, 119],
       eruption: [29, -133, 29, -133],
-      eruptionControllers: 1,
+      eruptionControllers: 2,
     }
   )
 })

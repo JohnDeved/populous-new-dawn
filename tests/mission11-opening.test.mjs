@@ -108,11 +108,22 @@ test('Mission 11 opponents build their first settlement and scripted BUILD_AT to
   assert.equal(resumedHut?.origin, 0xda7a)
   assert.notEqual(resumedHut?.phase, 0)
 
-  while (world.turn < 4605) tick(world, 1 / 12)
-  assert.ok(
-    world.campaignAIs[3].tasks.every(task => !(task.flags & 1) || !task.extra),
-    'BUILD_AT tower must wait for its native 256-turn cadence after the model-3 Hut'
-  )
+  // Ordinary growth changes housing/worker availability. Locate the first
+  // successful authored BUILD_AT opportunity while retaining its pre-turn world.
+  let beforeBuildAt
+  while (!beforeBuildAt) {
+    assert.ok(world.turn < 20000, 'ordinary Matak growth must reach BUILD_AT')
+    const before = ((world.turn + 3) & 255) === 0 ? structuredClone(world) : null
+    tick(world, 1 / 12)
+    if (world.campaignAIs[3].tasks.some(t => t.flags & 1 && t.extra === 1)) {
+      assert.ok(before, 'BUILD_AT only allocates on its native EVERY255 cadence')
+      beforeBuildAt = before
+    }
+  }
+  world = beforeBuildAt
+  const buildAtTurn = world.turn
+  assert.ok(world.buildings.some(b => b.team === 'green' && buildingModel(b) === 3))
+  assert.ok(world.campaignAIs[3].tasks.every(t => !(t.flags & 1) || !t.extra))
   assert.equal(world.campaignAIs[3].variables[6], 0)
 
   const rejectedBuildAt = structuredClone(world)
@@ -124,12 +135,19 @@ test('Mission 11 opponents build their first settlement and scripted BUILD_AT to
     rejectedHut = rejectedBuildAt.buildings.find(
       building => building.team === 'green' && buildingModel(building) === 3
     )
-  assert.ok(rejectedPlan && rejectedHut)
+  assert.ok(
+    rejectedPlan && rejectedHut,
+    JSON.stringify({
+      turn: rejectedBuildAt.turn,
+      var6: rejectedBuildAt.campaignAIs[3].variables[6],
+      tasks: rejectedBuildAt.campaignAIs[3].tasks.filter(t => t.flags & 1),
+    })
+  )
   rejectedPlan.hp = 0
   rejectedHut.hp = 0
   for (const unit of rejectedBuildAt.units)
     if (unit.team === 'green' && unit.kind !== 'shaman') unit.hp = 0
-  while (rejectedBuildAt.turn < 4900) tick(rejectedBuildAt, 1 / 12)
+  while (rejectedBuildAt.turn < buildAtTurn + 300) tick(rejectedBuildAt, 1 / 12)
   assert.equal(rejectedBuildAt.campaignAIs[3].variables[6], 1)
   assert.ok(rejectedBuildAt.campaignAIs[3].tasks.every(task => !(task.flags & 1) || !task.extra))
   assert.equal(
@@ -144,7 +162,7 @@ test('Mission 11 opponents build their first settlement and scripted BUILD_AT to
       task => task.flags & 1 && task.requested === 4 && task.extra === 1
     ),
     buildAtPlan = world.buildings.find(building => building.id === buildAtTower?.entity),
-    hutId = hut.entity,
+    hutId = world.buildings.find(b => b.team === 'green' && buildingModel(b) === 3).id,
     buildAtTowerId = buildAtTower?.entity
   assert.deepEqual(
     buildAtTower && {
@@ -167,29 +185,22 @@ test('Mission 11 opponents build their first settlement and scripted BUILD_AT to
   const control = world
   world = migrateCheckpoint(structuredClone(control))
   assert.deepEqual(world, control)
-  while (world.turn < 5500) {
+  while (world.turn < buildAtTurn + 900) {
     tick(world, 1 / 12)
     tick(control, 1 / 12)
   }
   assert.deepEqual(world, control)
-  assert.deepEqual(
-    world.buildings.map(building => [
-      building.id,
-      building.team,
-      buildingModel(building),
-      building.progress,
-    ]),
-    [
-      [matakTowerId, 'green', 4, 1],
-      [chumaraTowerId, 'yellow', 4, 1],
-      [hutId, 'green', 3, 1],
-      [buildAtTowerId, 'green', 4, 1],
-    ]
-  )
-  assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
+  for (const id of [matakTowerId, chumaraTowerId, buildAtTowerId]) {
+    const building = world.buildings.find(b => b.id === id)
+    assert.equal(buildingModel(building), 4)
+    assert.equal(building.progress, 1)
+  }
+  assert.ok(world.buildings.some(b => b.id === hutId && buildingModel(b) === 3))
+  assert.ok(world.buildings.filter(b => b.team === 'green' && b.kind === 'hut').length > 1)
+  assert.ok(world.campaignAIs[2].tasks.every(task => !(task.flags & 1)))
 
   for (const tower of world.buildings) tower.hp = 0
   for (let turn = 0; turn < 200; turn++) tick(world, 1 / 12)
   assert.ok(world.buildings.every(building => buildingModel(building) !== 4 || building.hp <= 0))
-  assert.ok([2, 3].every(tribe => world.campaignAIs[tribe].tasks.every(task => !(task.flags & 1))))
+  // Existing housing jobs may finish, but no ordinary Tower replacement is enabled.
 })

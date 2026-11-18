@@ -2,6 +2,7 @@ import { short } from './native-math.ts'
 import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
 import { DEFAULT_AUDIO_PREFERENCES } from './audio-preferences.ts'
+import { residentPerson } from './building-resident.ts'
 import { SELECTION_CUES } from './person-selection.ts'
 import { SPELL_CAST_CUES } from './spell-audio-cues.ts'
 import {
@@ -201,8 +202,18 @@ export function playWorldSounds(scene: GameScene) {
               const burn = scene.world.buildings.find(b => b.id === event.owner)?.burn
               if (burn) burn.soundPlaying = false
               const person = scene.world.units.find(u => u.id === event.owner)
-              if (person?.native) person.native.flags4 &= ~16
-              if (person?.flight) person.flight.flags4 &= ~16
+              // The live person can move to work, combat or resident storage
+              // while this voice is playing. Only clear its still-retained owners.
+              if (person)
+                for (const p of new Set([
+                  person.native,
+                  person.flight,
+                  person.entry?.person,
+                  person.builder?.person,
+                  person.fight?.motion,
+                  residentPerson(scene.world, person),
+                ]))
+                  if (p) p.flags4 &= ~16
               scene.ownedSounds.delete(event.owner!)
             }
       )

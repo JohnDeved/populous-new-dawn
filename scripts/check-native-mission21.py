@@ -359,7 +359,7 @@ def install(source, pointer, unit_id):
 
 
 activation = {}
-for trigger in (362, 363, 364, 68):
+for trigger in (362, 363, 364, 68, 43):
     next_clone = 0
     allocations.clear()
     clone_sources.clear()
@@ -417,10 +417,11 @@ result = {
         "eruptionMarker": 17,
         "eruptionTrigger": 68,
         "sentinelTrigger": {"index": 46, "cell": [40, 130]},
-        "activation": activation,
+        "activation": {key: value for key, value in activation.items() if key != "43"},
         "warning": {"message": 126, "text": messages["126"]["text"], "cell": [34, 126], "payload": 16018, "lifetime": 256, "headFlag": "0x200"},
         "sealedMessage": {"message": 10, "text": messages["10"]["text"]},
     },
+    "secondFaultActivation": activation["43"],
     "opcode1199": {
         "operands": [36, 126, 5],
         "inclusiveCellBounds": {"x": [26, 46], "y": [116, 136], "step": 2},
