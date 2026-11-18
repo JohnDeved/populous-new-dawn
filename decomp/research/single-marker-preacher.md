@@ -21,7 +21,10 @@ selection ownership, not equality of that scheduling detail.
 
 The portable tests cover the corresponding queue boundaries, an actual supplied
 task-24 phase-5 consumer, flat-land arrival/holding, and checkpoint continuation.
-Two-marker patrol coverage remains unchanged. Natural campaign recruitment and
-rendered single-marker Preacher movement still require separate acceptance.
+The ordinary Mission 5 startup test additionally follows actual authored recruitment,
+move dispatch, return to preaching and checkpoint continuation without supplied
+entities. Two-marker patrol coverage remains unchanged. The maintained local-render
+scenario covers ordinary Mission 5 UI startup and real-clock Save/Load continuation;
+its execution result must be reported separately from portable/native evidence.
 The older issue #1059 zero-coordinate claim was not reproduced with the actual
 state initializer and must not be marked fixed by this evidence.

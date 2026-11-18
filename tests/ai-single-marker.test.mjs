@@ -92,3 +92,21 @@ test('selected non-state-14 Preacher participates in the second native guard com
   assert.ok(preacher.native.selectionFlags & 128)
   assert.deepEqual(models(w, preacher), [11])
 })
+
+test('ordinary Mission 5 single-marker Preacher moves, resumes preaching and continues a checkpoint', () => {
+  const w = createStartedWorld(5, 'scalable')
+  turn(w, 49)
+  const preacher = w.units.find(u => u.team === 'red' && u.kind === 'preacher' && u.native && models(w, u).includes(3))
+  assert.ok(preacher, 'authored startup task recruits a real Preacher without supplied entities')
+  assert.deepEqual(models(w, preacher), [3])
+  const initial = { x: preacher.x, z: preacher.z }
+  const replay = migrateCheckpoint(structuredClone(w))
+  while (w.turn < 132) {
+    tick(w, 1 / 12)
+    tick(replay, 1 / 12)
+    assert.ok(!models(w, preacher).includes(11), 'single-marker Preacher never inherits guard')
+  }
+  assert.deepEqual(replay, w)
+  assert.ok(Math.hypot(preacher.x - initial.x, preacher.z - initial.z) > 10, 'real movement after task dispatch')
+  assert.deepEqual(models(w, preacher), [17], 'finished move returns to ordinary preaching')
+})
