@@ -26,6 +26,10 @@ async function focusPreacher(page, id) {
   assert.ok(target.distance < 2048, 'Public minimap projection must reach the observed person')
   const box = await page.getByLabel('Minimap. Click to move the camera.', { exact: true }).boundingBox()
   await page.mouse.click(box.x + box.width * target.x, box.y + box.height * target.y)
+  // The minimap can place the pointer on a screen edge. Move it away through
+  // ordinary input so cameraEdgeButtons does not cancel the requested focus.
+  const viewport = await page.locator('.world-viewport').boundingBox()
+  await page.mouse.move(viewport.x + viewport.width / 2, viewport.y + viewport.height / 2)
   await page.waitForFunction(({ id }) => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.id === id)
     const wrap = n => ((n + 384) % 256) - 128
@@ -129,6 +133,7 @@ export default async function ({ page, root, output, receipt, observeCheckpoint,
   }), 'Loaded natural move must travel and return to preaching, without guard')
   const retained = (await observeCheckpoint('After ordinary Load continuation')).checkpoint
   assert.equal(retained.checkpointSha256, saved.checkpointSha256)
+  receipt.continuationProof = { trace, saved, loaded }
   receipt.continuationCamera = await focusPreacher(page, Number(Object.keys(trace.first).find(id => trace.last[id].orders.includes(17))))
   await page.screenshot({ path: resolve(output, 'single-marker-resumed-preaching.png') })
   return { phase: 'loaded-and-resumed-preaching', trace, saved, loaded, method: 'Shipped Load and real RAF; no state/tick/storage injection.' }
