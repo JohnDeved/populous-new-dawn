@@ -112,3 +112,33 @@ A paired no-scatter control passes the same fixture. Earlier proposed short-rout
 800-turn oracles failed with and without scatter and are not gameplay regression
 evidence. No browser input, original executable timing, arbitrary busy-owner
 resumption or full scatter parity is established by this supplied-world test.
+
+### Gathering restart prerequisite (16 November 2026)
+
+Gathering remains excluded from player scatter. The bounded
+`scripts/probe-native-gather-restart.py EXE` executes original `00432260` →
+`00432df0` → `004d58c0` on the verified executable and shipped constants.
+It supplies route release/destination, allocation and sound consumers. Across 24
+cases (assignment bit `0x8000` clear/set, cargo 0/50/100/250, allocation capacity
+0/1/3), command-7 startup drops carried timber unless the assignment bit is set.
+Failed allocation preserves the remainder; each successful allocation requests
+one loose log and cue 11. Startup consumes exactly one speed RNG draw, retains
+the order record/queue slot, clears the assignment bit and resets substate and
+work target (`+0x89`). Direct startup leaves timer and target (`+0x72`) unchanged;
+the enclosing state initializer is a different boundary.
+
+The allocator returns the same supplied nonzero pointer for each successful
+request. This establishes conditional calls, cargo and cue counts, not distinct
+world objects, registration, route effects or a complete scatter/person turn.
+No original Windows game, browser comparison or new parity credit is claimed.
+The source and raw 24-case receipt received independent review. The earlier
+native-person-state startup matrix excludes command 7; existing harvesting-phase
+comparisons do not establish this restart boundary.
+
+The browser's `live-movement.ts` command initializer currently no-ops command 7.
+Queued harvesting retains `u.tree`/`u.harvest` separately from native substate;
+legacy harvesting also runs before the state-43 dispatch. Do not merely relax
+`scatterOwner` or assume partial harvest/cargo should resume unchanged. Remaining
+work includes actual state-43-to-10 composition, resource reacquisition and
+reservations, depleted targets, browser owner synchronization, current checkpoint
+continuation and ordinary rendered input. Preserve legacy admission separately.
