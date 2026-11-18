@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages, waitForShamanReadiness } from '../browser-game.mjs'
 import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
@@ -460,6 +460,9 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   if (scenario.key === 'm3') {
     report.method = report.method.replace('M2', 'M3').replaceAll('Shaman54', 'Shaman46').replaceAll('Green Shaman20', 'Yellow Brave48').replaceAll('actor54', 'actor46')
+    for (const path of ['scripts/browser-game.mjs', 'scripts/campaign-start-readiness.mjs'])
+      report.source[path] = sha256(readFileSync(resolve(root, path)))
+    report.limits.push('Read-only semantic Shaman readiness precedes Pause: playing, unpaused, inputMask0, canOrder and not reserved. No fixed turn, retry selection or World mutation.')
     report.limits.push('Fixed Mission 3 replacement episode, not Mission 2 combat acceptance. Public input targets authored outside Brave48; the first natural opponent may differ. No timing retries, health/RNG changes or favorable-entry selection.')
   }
   const save = () => captureDiagnostic ? captureDiagnostic.saveJson(`${label}.json`, report) :
@@ -588,6 +591,11 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       const w = window.testStore.getWorld()
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
+    if (scenario.key === 'm3') {
+      report.readiness = await waitForShamanReadiness(page)
+      assert.equal(report.readiness.after.shaman.id, scenario.actorId)
+      save()
+    }
     await button('Pause game')
     await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' }))
     const settle = () => page.waitForFunction(() => {
