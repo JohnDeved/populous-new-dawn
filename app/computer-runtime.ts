@@ -844,7 +844,8 @@ function produceMissionTraining(w: World, tribe: number) {
 
 // The ordinary 0x4e5580 producer reaches training buildings before housing.
 function produceMissionBuilding(w: World, tribe: number) {
-  const missionFourTower = w.outcome.level === 4 && tribe === 3,
+  const missionThreeOrigin = w.outcome.level === 3 && tribe === 2,
+    missionFourTower = w.outcome.level === 4 && tribe === 3,
     missionEightHousing = w.outcome.level === 8 && tribe === 1,
     missionElevenHousing = w.outcome.level === 11 && tribe === 3,
     missionTwelveHousing = w.outcome.level === 12 && tribe === 3,
@@ -895,21 +896,30 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      (((w.outcome.level === 2 || missionFourTower) && tribe === 3) ||
+      (missionThreeOrigin ||
+        ((w.outcome.level === 2 || missionFourTower) && tribe === 3) ||
         missionEightHousing ||
         missionTwelveHousing) &&
       w.ai.constructionBase === undefined
-        ? nativePosition(w, campaignPosition(w, missionEightHousing ? 'red' : 'green'))
+        ? nativePosition(
+            w,
+            campaignPosition(
+              w,
+              missionThreeOrigin ? 'yellow' : missionEightHousing ? 'red' : 'green'
+            )
+          )
         : shaman && nativePosition(w, shaman),
     origin =
-      (w.outcome.level === 2 ||
+      (missionThreeOrigin ||
+        w.outcome.level === 2 ||
         missionFourTower ||
         missionEightHousing ||
         missionElevenHousing ||
         missionTwelveHousing) &&
       w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
-        : (w.outcome.level === 2 ||
+        : (missionThreeOrigin ||
+              w.outcome.level === 2 ||
               missionFourTower ||
               missionEightHousing ||
               w.outcome.level === 12) &&
@@ -943,6 +953,7 @@ function produceMissionBuilding(w: World, tribe: number) {
   }
   if (
     !origin &&
+    !missionThreeOrigin &&
     !((missionElevenHousing || missionTwelveHousing) && w.ai.constructionBase !== undefined)
   )
     return false
