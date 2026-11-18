@@ -850,6 +850,8 @@ function produceMissionBuilding(w: World, tribe: number) {
     missionElevenHousing = w.outcome.level === 11 && tribe === 3,
     missionTwelveHousing = w.outcome.level === 12 && tribe === 3,
     missionThirteenHousing = w.outcome.level === 13 && (tribe === 2 || tribe === 3),
+    missionFourteenHousing = w.outcome.level === 14 && tribe === 3,
+    missionTowerHousing = missionThirteenHousing || missionFourteenHousing,
     team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
@@ -866,11 +868,7 @@ function produceMissionBuilding(w: World, tribe: number) {
       .reduce((sum, building) => {
         const model = buildingModel(building)
         const counts =
-          !(
-            [2, 8, 11].includes(w.outcome.level) ||
-            missionTwelveHousing ||
-            missionThirteenHousing
-          ) ||
+          !([2, 8, 11].includes(w.outcome.level) || missionTwelveHousing || missionTowerHousing) ||
           building.preparation ||
           building.progress === 1
         return (
@@ -881,7 +879,7 @@ function produceMissionBuilding(w: World, tribe: number) {
     (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) &&
       !missionFourTower &&
       !missionEightHousing &&
-      !missionThirteenHousing &&
+      !missionTowerHousing &&
       !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
@@ -890,7 +888,7 @@ function produceMissionBuilding(w: World, tribe: number) {
   const selection = computerSelectionWorld(
     w,
     tribe,
-    missionElevenHousing || missionTwelveHousing || missionThirteenHousing
+    missionElevenHousing || missionTwelveHousing || missionTowerHousing
   )
   const available =
     w.outcome.level === 2 ||
@@ -898,7 +896,7 @@ function produceMissionBuilding(w: World, tribe: number) {
     missionEightHousing ||
     missionElevenHousing ||
     missionTwelveHousing ||
-    missionThirteenHousing
+    missionTowerHousing
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -911,7 +909,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         ((w.outcome.level === 2 || missionFourTower) && tribe === 3) ||
         missionEightHousing ||
         missionTwelveHousing ||
-        missionThirteenHousing) &&
+        missionTowerHousing) &&
       w.ai.constructionBase === undefined
         ? nativePosition(
             w,
@@ -936,7 +934,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         missionEightHousing ||
         missionElevenHousing ||
         missionTwelveHousing ||
-        missionThirteenHousing) &&
+        missionTowerHousing) &&
       w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
         : (missionThreeOrigin ||
@@ -944,7 +942,7 @@ function produceMissionBuilding(w: World, tribe: number) {
               missionFourTower ||
               missionEightHousing ||
               w.outcome.level === 12 ||
-              missionThirteenHousing) &&
+              missionTowerHousing) &&
             position
           ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
           : base
@@ -977,14 +975,14 @@ function produceMissionBuilding(w: World, tribe: number) {
     !origin &&
     !missionThreeOrigin &&
     !(
-      (missionElevenHousing || missionTwelveHousing || missionThirteenHousing) &&
+      (missionElevenHousing || missionTwelveHousing || missionTowerHousing) &&
       w.ai.constructionBase !== undefined
     )
   )
     return false
-  if (missionThirteenHousing) {
-    // Both authored M13 scripts start with zero school targets. Bind the Tower
-    // prefix and housing tail only; schools, vehicles and attacks stay separate.
+  if (missionTowerHousing) {
+    // These authored tribes have zero school targets. Bind the Tower prefix
+    // and housing tail only; other tribes and later scripted attacks stay separate.
     const pendingTower = w.ai.tasks.some(
       task => task.flags & 1 && task.type === 0 && task.requested === 4
     )
@@ -1171,7 +1169,8 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.retries = 0
       task.phase =
         ([2, 3, 4].includes(w.outcome.level) ||
-          (w.outcome.level === 13 && (tribe === 2 || tribe === 3))) &&
+          (w.outcome.level === 13 && (tribe === 2 || tribe === 3)) ||
+          (w.outcome.level === 14 && tribe === 3)) &&
         task.requested === 4
           ? 3
           : 4
@@ -1183,7 +1182,8 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
   if (
     task.phase === 3 &&
     ([2, 3, 4].includes(w.outcome.level) ||
-      (w.outcome.level === 13 && (tribe === 2 || tribe === 3)))
+      (w.outcome.level === 13 && (tribe === 2 || tribe === 3)) ||
+      (w.outcome.level === 14 && tribe === 3))
   ) {
     const building = w.buildings.find(b => b.id === task.entity && b.hp > 0)
     if (!task.extra && w.ai.constructionBase === undefined && building) {
