@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, meleeScenario, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { validateRecoilObservation } from '../scripts/tutorial-browser/melee-recoil-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
@@ -280,12 +280,13 @@ test('ordinary M2 command observes descriptor-derived first-entry expiry without
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
 function withObserverFixture(run, observerInput = mapping) {
+  const actorId = observerInput?.scenarioKey === 'm3' ? 46 : 54
   const world = structuredClone({ turn: 40, paused: false, randomState: 12345,
-    terrain: new Uint8Array([1, 2, 3]), selected: [54],
-    units: [{ id: 54, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
+    terrain: new Uint8Array([1, 2, 3]), selected: [actorId], outcome: { level: actorId === 46 ? 3 : 2 },
+    units: [{ id: actorId, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
       fight: { action: 'strike', animation: 'strike', started: 40, nativeAttackAnimation: true,
         group: 1252, opponent: 13, remaining: 3,
-        motion: { id: 54, state: 25, speed: 0, class: 1, model: 7, workFlags: 1252,
+        motion: { id: actorId, state: 25, speed: 0, class: 1, model: 7, workFlags: 1252,
           flags2: 0x1080, flags4: 0, object: 456, draw: 14, f1: 0, f2: 0, stamp: 40 } } }] })
   const layers = [
     { visible: true, userData: { piece: 90 } },
@@ -300,11 +301,11 @@ function withObserverFixture(run, observerInput = mapping) {
   const group = { visible: true, userData: { layers, frame: 998, frameFlip: false } }
   const noGameMethod = () => assert.fail('observer must not call a game update/render/pick method')
   const scene = { world, renderer: { domElement: canvas, info: { render: { frame: 100 } }, render: noGameMethod },
-    gameClock: { animationFrame: 80 }, cameraBearing: 0, unitMeshes: new Map([[54, group]]),
+    gameClock: { animationFrame: 80 }, cameraBearing: 0, unitMeshes: new Map([[actorId, group]]),
     render: noGameMethod, animate: noGameMethod, updateUnitsFrame: noGameMethod,
     view: { painter: { source(layer) { sourceCalls.push(layer); return submitted.has(layer) ? { layer } : null } } },
     picking: { pick: noGameMethod, personBounds(id, actualRect) {
-      assert.equal(id, 54); assert.equal(actualRect, rect)
+      assert.equal(id, actorId); assert.equal(actualRect, rect)
       return { x: 100, y: 80, width: 30, height: 45 }
     } } }
   const pending = new Map(), window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
@@ -566,7 +567,7 @@ test('all-visit storage fails explicitly at its independent bound and never chan
 
 function retainSpecialFrames({ world, scene, group, next }, turns) {
   const unit = world.units[0], person = unit.fight.motion, m = mapping['shaman:special']
-  world.fights = [{ id: 1252, members: [54, 13] }]
+  world.fights = [{ id: 1252, members: [unit.id, 13] }]
   for (const turn of turns) {
     world.turn = turn
     Object.assign(unit.fight, { action: 'special', animation: 'special', started: 40,
@@ -941,4 +942,21 @@ test('melee admission settles opening before unchanged natural-turn and attack g
   assert.ok(start >= 0 && pause > start)
   assert.match(source.slice(start, pause), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
   assert.match(source, /export const meleeAttackLimitMs = 75000/)
+})
+
+test('serialized M3 observer binds Shaman46 and retains exact first entry and native expiry', () => {
+  withObserverFixture(fixture => {
+    retainCompleteSpecialFrames(fixture)
+    completeObserverEntry(fixture)
+    const result = fixture.observation.retain()
+    assert.equal(result.error, null)
+    assert.equal(result.entry.id, 46)
+    assert.doesNotThrow(() => validateMeleeRunningObservation(result, mapping, 'm3'))
+    assert.throws(() => validateMeleeRunningObservation(result, mapping, 'm2'))
+  }, { mapping, scenarioKey: 'm3' })
+})
+test('authored scenario catalog rejects arbitrary actor and target bindings', () => {
+  assert.deepEqual(meleeScenario('m3'), { key: 'm3', level: 3, actorId: 46, targetId: 48, targetKind: 'brave', targetTeam: 'yellow' })
+  assert.throws(() => meleeScenario('unknown'))
+  assert.throws(() => assertMeleeRouteReady({}, true, { ...meleeScenario('m3'), actorId: 54 }))
 })
