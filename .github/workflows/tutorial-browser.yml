@@ -14,6 +14,7 @@ on:
       - 'scripts/local-render/original-pause-checkpoint-style.mjs'
       - 'scripts/local-render/pause-capture-controls.mjs'
       - 'scripts/local-render/campaign-profile-recovery.mjs'
+      - 'scripts/local-render/mission10-boat-checkpoint.mjs'
       - 'scripts/checkpoint-readback.mjs'
       - 'scripts/local-render/checkpoint-observer.mjs'
       - 'scripts/tutorial-browser/**'
