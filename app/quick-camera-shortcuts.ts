@@ -52,7 +52,13 @@ export function overviewShortcut(event: {
 export function quickCameraTarget(w: World, action: QuickCameraAction): Point | null {
   if (action === SHAMAN_CAMERA_ACTION) {
     const shaman = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
-    return shaman ? { x: shaman.x, z: shaman.z } : null
+    if (!shaman) return null
+    // Action 0x5d packs the cell; chunk 0x16's consumer (0043e041) centers it.
+    // Match focus's native-coordinate rounding without synchronizing terrain.
+    return browserPosition({
+      x: (Math.round((shaman.x + 8) * 256) & 0xfe00) | 0x100,
+      y: (Math.round((-shaman.z - 8) * 256) & 0xfe00) | 0x100,
+    })
   }
   const site = w.reincarnationSites?.[tribeForTeam('blue')]
   return site ? browserPosition(site) : null

@@ -57,10 +57,11 @@ test('native records map period and H to the two camera actions with no modifier
 test('period focuses the live Shaman without changing selection or commands', () => {
   const k = keyboard(), shaman = blueShaman(k.world)
   assert.ok(shaman)
+  Object.assign(shaman, browserPosition({ x: 12345, y: 54321 }))
   k.world.selected = []
   const before = structuredClone({ selected: k.world.selected, orders: k.world.orders, units: k.world.units.length })
   assert.equal(k.key(), true)
-  assert.deepEqual(k.focuses, [{ target: { x: shaman.x, z: shaman.z }, options: { animate: true } }])
+  assert.deepEqual(k.focuses, [{ target: { x: 41, z: 35 }, options: { animate: true } }])
   assert.deepEqual({ selected: k.world.selected, orders: k.world.orders, units: k.world.units.length }, before)
   k.key({ repeat: true })
   assert.equal(k.focuses.length, 1, 'held period does not refocus')
