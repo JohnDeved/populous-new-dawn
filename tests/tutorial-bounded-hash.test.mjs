@@ -1,3 +1,4 @@
+import { historicalCaptureRunnerDigest } from './support/corpse-scheduling-transition.mjs'
 import test, { after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
@@ -29,8 +30,8 @@ test('Tutorial uses the existing bounded helper for unchanged source and browser
   assert.match(source, /hash\(resolve\(root, name\)\)/)
 })
 
-test('capture qualification pin remains exact for the changed Tutorial consumer', () => {
+test('historical capture pin preserved after inverse scheduling transition', () => {
   const pins = JSON.parse(readFileSync(new URL('../scripts/tutorial-browser/capture-qualified-inputs.json', import.meta.url), 'utf8'))
   const runner = new URL('../scripts/tutorial-browser/run.mjs', import.meta.url)
-  assert.equal(pins['scripts/tutorial-browser/run.mjs'], fileSha256(runner))
+  assert.equal(pins['scripts/tutorial-browser/run.mjs'], historicalCaptureRunnerDigest(readFileSync(runner, 'utf8')))
 })

@@ -1,19 +1,21 @@
 // Browser-serialized camera-only fixture. It follows one declared actor, never
 // searches for a more favorable episode, renders, or advances the simulation. Supported focus updates camera lighting metadata.
-export function installRecoilCameraFollow({ order, protocol = 'running-native-recoil-entry-v1' }) {
+export function installRecoilCameraFollow({ order, protocol = 'running-native-recoil-entry-v1', scenarioKey = 'm2' }) {
+  if (!['m2', 'm3'].includes(scenarioKey)) throw Error('Unknown authored melee scenario')
+  const actorId = scenarioKey === 'm3' ? 46 : 54, targetId = scenarioKey === 'm3' ? 48 : 20
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
   const observer = window.__pndMeleeObservation
-  const actor = world.units.find(unit => unit.id === 54)
+  const actor = world.units.find(unit => unit.id === actorId)
   const require = (condition, message) => { if (!condition) throw Error(message) }
   require(['running-native-recoil-entry-v1', 'running-original-entry-v2'].includes(protocol), 'Known melee observer protocol required')
   require(observer?.result.protocol === protocol, 'Matching melee observer required')
   require(observer.result.firstAttackTurn === null && !observer.result.done, 'Follow must arm before the first observed entry')
-  require(order?.target === 20 && order.selected.length === 1 && order.selected[0] === 54 &&
-    order.lastOrderTurn === world.lastOrderTurn && order.paused === false, 'Recorded public54-to20 order required')
-  require(actor && actor.kind === 'shaman' && actor.team === 'blue' && actor.hp > 0, 'Authored actor54 required')
+  require(order?.target === targetId && order.selected.length === 1 && order.selected[0] === actorId &&
+    order.lastOrderTurn === world.lastOrderTurn && order.paused === false, 'Recorded declared-actor public order required')
+  require(actor && actor.kind === 'shaman' && actor.team === 'blue' && actor.hp > 0, 'Declared authored actor required')
   require(!window.__pndRecoilCameraFollow, 'Camera follower is single-use')
-  const result = { actorId: 54, orderTarget: 20, armedTurn: world.turn, armedStamp: scene.renderer.info.render.frame,
-    method: 'GameScene.focus fixed actor54 after each observed render; no forced render or World advance',
+  const result = { actorId, orderTarget: targetId, armedTurn: world.turn, armedStamp: scene.renderer.info.render.frame,
+    method: `GameScene.focus fixed actor${actorId} after each observed render; no forced render or World advance`,
     sideEffect: 'Supported focus clears an already-null world.mode, resets scene tooltip.draw, and updates world.lightView for camera-relative terrain lighting',
     visits: [], error: null, terminal: null }
   let raf, stopped = false
@@ -24,7 +26,7 @@ export function installRecoilCameraFollow({ order, protocol = 'running-native-re
   const guard = () => {
     require(window.testSceneRef.current === scene && window.testStore.getWorld() === world && scene.world === world,
       'Camera follower lost its original Scene/World')
-    require(world.units.find(unit => unit.id === 54) === actor && actor.hp > 0, 'Camera follower lost actor54')
+    require(world.units.find(unit => unit.id === actorId) === actor && actor.hp > 0, 'Camera follower lost declared actor')
     require(world.mode === null && !world.inputMask && !world.paused && !scene.overviewActive && !scene.overviewStage &&
       !scene.resultCamera.active && !scene.viewTransition, 'Camera focus requires inactive targeting/overview and running input')
     require(world.landVersion === world.terrainVersion, 'Camera focus must not synchronize dirty terrain')

@@ -1,6 +1,6 @@
 // Fixed read-only browser episode policy. No environment-selected cap overrides.
 export const browserScenarios = Object.freeze(['tutorial', 'm2-pointer-f8', 'pause-checkpoint-recovery', 'pause-checkpoint-style',
-  'profile-recovery', 'mission10-profile', 'gameplay-frames', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'compact-message-layout', 'frontend-held-escape', 'building-panel-edges', 'globe-held-enter'])
+  'profile-recovery', 'mission10-profile', 'gameplay-frames', 'follower-corpse', 'gameplay-resources', 'snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'compact-message-layout', 'frontend-held-escape', 'building-panel-edges', 'globe-held-enter'])
 // This expands smoke from one shared 90s allowance to at most two 90s
 // episodes (180s combined), still inside the unchanged six-minute hosted job.
 export const snapshotSmokeBudget = Object.freeze({ version: 1, maxEpisodes: 2,
@@ -15,11 +15,18 @@ export function browserCapMs(scenario) {
   return ['snapshot-protocol', 'ordinary-pointer-smoke'].includes(scenario) ? 90000 : 180000
 }
 
-// Independent jobs, explicitly 360s combined instead of the former shared180s.
+// Independent jobs, explicitly 360s combined instead of the former shared 180s.
 export const profileSplitBudget = Object.freeze({ version: 1, recoveryMs: 180000,
   mission10Ms: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
 
 // Additional independent job/build: explicit 360s combined, not a speed improvement.
-// Original gameplay→melee→corpse remains within its unchanged 180s allowance.
+// Frames/melee retain 180s; independent corpse coverage is declared separately below.
 export const gameplayResourceSplitBudget = Object.freeze({ version: 1, gameplayMs: 180000,
   resourcesMs: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
+
+// Explicit additional mandatory job/build, not a faster or equivalent shared 180s run.
+// Corpse still enforces its original 75s death/save and 25s Load/rise phase caps.
+export const followerCorpseSplitBudget = Object.freeze({ version: 1,
+  framesAndMeleeMs: 180000, corpseBrowserMs: 180000, totalBrowserMs: 360000,
+  corpseDeathAndSaveMs: 75000, corpseLoadAndVerifyMs: 25000,
+  buildMsPerJob: 120000, hostedJobMs: 900000 })

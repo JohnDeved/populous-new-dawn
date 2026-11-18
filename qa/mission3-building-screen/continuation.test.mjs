@@ -43,8 +43,11 @@ for (const startup of [false, true])
       startup,
       trusted: true,
       errors: [],
-      before: { resource: startup ? null : { bank: 'p', epoch: 1 } },
-      after: { snapshot, resource: { bank: 'p', epoch: startup ? 1 : 2, counter: 0, tile: 92 } },
+      before: {
+        snapshot: { level: 1 },
+        resource: startup ? { bank: 'c', epoch: 1, counter: 0, tile: 92 } : { bank: 'p', epoch: 1 },
+      },
+      after: { snapshot, resource: { bank: 'p', epoch: 2, counter: 0, tile: 92 } },
       start: { calls: 1, attached: true, restored: true, errors: [] },
     }
     const evidence = {
@@ -69,6 +72,8 @@ for (const startup of [false, true])
         if (name === 'Pause game') {
           assert.equal(clicked, true)
           paused = true
+        } else if (!startup && name === 'Load Game') {
+          assert.equal(clicked, false)
         } else {
           assert.equal(name, startup ? 'Load Game' : 'Load checkpoint')
           clicked = true
@@ -118,6 +123,10 @@ for (const startup of [false, true])
       assert,
     })
     await replace('load', startup ? null : input, 'loaded', { startup, pauseImmediately: true })
+    if (!startup) {
+      assert.ok(events.indexOf('Load Game') < events.indexOf('arm'))
+      assert.ok(events.indexOf('arm') < events.indexOf('Load checkpoint'))
+    }
     const at = events.indexOf(startup ? 'Load Game' : 'Load checkpoint')
     assert.deepEqual(events.slice(at, at + 2), [
       startup ? 'Load Game' : 'Load checkpoint',
@@ -221,6 +230,7 @@ test('actual continuation route skips startup/acquisition and enters its guarded
     'resolve',
     'createMission1VaultInput',
     'assertTempleRouteHealth',
+    'focusTempleHome',
     `return (${route.toString()})`
   )(
     assert,
@@ -248,7 +258,11 @@ test('actual continuation route skips startup/acquisition and enters its guarded
         pause: async () => {},
       }
     },
-    assertTempleRouteHealth
+    assertTempleRouteHealth,
+    async ({ shamanId }) => {
+      assert.equal(shamanId, 46)
+      events.push('home focus')
+    }
   )
   await assert.rejects(
     run(
@@ -269,6 +283,8 @@ test('actual continuation route skips startup/acquisition and enters its guarded
     /existing construction tail reached/
   )
   assert.ok(events.indexOf('genuine restore') < events.indexOf('Select shaman'))
+  assert.ok(events.indexOf('home focus') > events.indexOf('Select shaman'))
+  assert.ok(events.indexOf('home focus') < events.indexOf('home-perimeter view'))
   assert.ok(events.indexOf('home-perimeter view') < events.indexOf('home-perimeter move'))
   assert.ok(events.includes('route closed'))
   assert.ok(!events.includes('Save checkpoint'))
@@ -279,10 +295,13 @@ test('continuation controls retain the literal startup and in-game public labels
   const page = readFileSync(new URL('../../app/page.tsx', import.meta.url), 'utf8')
   assert.match(selector, />\s*Load Game\s*</)
   assert.match(page, /aria-label="Start game"/)
-  assert.match(page, />\s*Load checkpoint\s*</)
+  const menu = readFileSync(new URL('../../app/original-pause-menu.tsx', import.meta.url), 'utf8')
+  assert.match(menu, /label="Load checkpoint"/)
+  assert.match(page, /onLoad=\{loadCheckpoint\}/)
   assert.match(page, /world\.paused \? 'Resume game' : 'Pause game'/)
   assert.match(page, /aria-label="Game settings"/)
-  assert.match(page, />\s*Restart world\s*</)
+  assert.match(menu, /restart: \{ question: 'Restart Level\?', action: props\.onRestart \}/)
+  assert.match(page, /onRestart=\{restart\}/)
 })
 
 test('completion-only restoration performs one genuine startup Load without replaying accepted lifecycle', async () => {
@@ -354,8 +373,11 @@ test('lifecycle carry requires actual active Restart and retains its inactive co
       startup,
       trusted: true,
       errors: [],
-      before: { resource: startup ? null : { bank: 'p', epoch: 1 } },
-      after: { snapshot, resource: { bank: 'p', epoch: startup ? 1 : 2, counter: 0, tile: 92 } },
+      before: {
+        snapshot: { level: 1 },
+        resource: startup ? { bank: 'c', epoch: 1, counter: 0, tile: 92 } : { bank: 'p', epoch: 1 },
+      },
+      after: { snapshot, resource: { bank: 'p', epoch: 2, counter: 0, tile: 92 } },
       start: { calls: 1, attached: true, restored: true, errors: [] },
     },
   })

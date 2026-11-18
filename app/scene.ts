@@ -20,6 +20,7 @@ import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
 import { orderSound, playWorldSounds, soundEnvironment } from './audio'
+import { residentPerson } from './building-resident.ts'
 import { renderBuildingPanels } from './building-panels.ts'
 import { createCameraMotion, createResultCamera } from './camera-motion.ts'
 import { type FlybyCamera } from './flyby.ts'
@@ -469,10 +470,18 @@ export class GameScene {
     this.soundSerial = world.soundSerial
     for (const effect of world.effects) if (effect.fire) effect.fire.soundPlaying = false
     for (const building of world.buildings) if (building.burn) building.burn.soundPlaying = false
-    for (const unit of world.units) {
-      if (unit.native) unit.native.flags4 &= ~16
-      if (unit.flight) unit.flight.flags4 &= ~16
-    }
+    // A checkpoint can retain a playing person in any controller, but a new
+    // scene has no corresponding voice or completion callback for that owner.
+    for (const unit of world.units)
+      for (const person of new Set([
+        unit.native,
+        unit.flight,
+        unit.entry?.person,
+        unit.builder?.person,
+        unit.fight?.motion,
+        residentPerson(world, unit),
+      ]))
+        if (person) person.flags4 &= ~16
     this.onChange = onChange
     this.onSound = onSound
     this.renderer = new THREE.WebGLRenderer({
