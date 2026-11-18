@@ -918,7 +918,9 @@ function produceMissionBuilding(w: World, tribe: number) {
             campaignPosition(
               w,
               missionThirteenHousing
-                ? team
+                ? tribe === 2
+                  ? 'yellow'
+                  : 'green'
                 : missionThreeOrigin
                   ? 'yellow'
                   : missionEightHousing
