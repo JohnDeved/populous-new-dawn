@@ -1,6 +1,35 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { runInNewContext } from 'node:vm'
+import { readFileSync } from 'node:fs'
 import * as browserGame from '../scripts/browser-game.mjs'
+
+test('production fixture bundles the canonical observer without a development module request', async () => {
+  const host = readFileSync(new URL('../scripts/tutorial-browser/fixture/main.tsx', import.meta.url), 'utf8')
+  assert.match(host, /import \{ campaignShamanReadiness \} from '\.\.\/\.\.\/campaign-start-readiness\.mjs'/)
+  assert.match(host, /Object\.freeze\(\{ observe: campaignShamanReadiness \}\)/)
+  const world = { outcome: { level: 3 } }, reads = []
+  const scene = { world, renderer: { domElement: { isConnected: true } } }
+  const sandbox = {
+    window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
+    document: { querySelector: () => null },
+    __pndCampaignReadiness: Object.freeze({ observe: value => {
+      assert.equal(value, world)
+      reads.push(value)
+      return { ready: true, turn: 52 }
+    } }),
+  }
+  const page = { async waitForSelector() {}, async waitForFunction() {},
+    evaluate: fn => runInNewContext(`(${fn.toString()})()`, sandbox) }
+  const result = await browserGame.readShamanReadiness(page)
+  assert.equal(result.ready, true)
+  assert.equal(result.level, 3)
+  assert.equal(reads.length, 1)
+  sandbox.__pndCampaignReadiness = Object.freeze({})
+  await assert.rejects(browserGame.readShamanReadiness(page), /observer unavailable/)
+  sandbox.__pndCampaignReadiness = Object.freeze({ observe: () => { throw Error('observer failed') } })
+  await assert.rejects(browserGame.readShamanReadiness(page), /observer failed/)
+})
 
 function fixture(samples = [{ ready: true, turn: 70, level: 3 }]) {
   let generation = 0, boundGeneration = -1, reads = 0, pending = false
