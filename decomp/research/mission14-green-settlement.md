@@ -68,3 +68,34 @@ provides neither a Save result nor a cleanup claim. The passing attempt used a
 separate profile and a fresh current-main build. These are bounded local
 production-fixture proofs, not hardware performance, full campaign victory,
 whole-native-world parity, full repository checking or hosted gate acceptance.
+
+## Swamp fixture timing after settlement activation
+
+The first hosted Full check failed three Tower-resident Swamp cases at the
+historical global completion turn: actual 418 versus expected 414. A paired
+baseline/current diagnostic retained every resident identity, six-victim kill,
+physical ownership, immunity, cancellation and complete-world checkpoint/replay
+assertion; all three functional cases passed in each composition. Baseline
+checkpoint setup initially lacked its private TypeScript dependency; that setup
+failure was retained and only the two unexecuted cases were run after supplying
+the unchanged dependency.
+
+A separate normal-tick 0–420 trace observed the first shared RNG divergence at
+turn 62, alongside Green Tower allocation; Blue workers were still identical.
+Blue worker 51's position first diverged at 67, and Blue Tower progress at 274.
+This matches the source: Green construction consumes the same world RNG used by
+builder movement speeds, work durations and destinations. Blue Tower identity
+1023 and resident 50 were unchanged. The baseline lifecycle was
+414/416/3108/3117/3118 (build/entry/charge/pre-scan/scan), versus
+418/420/3104/3114/3115 with Green active.
+
+The regression therefore binds the owned lifecycle rather than repinning global
+turns: original bounded completion and charging loops, entry exactly two ticks
+after completion, an explicit pre-scan counter boundary and kills on its next
+tick. All physical ownership, victim counts, exclusion cases and exact replay
+checks remain. This does not alter the simulation or suppress the new tribe's
+construction activity.
+
+The maintained repaired tests subsequently passed all three cases on both the
+unchanged main baseline and the M14 candidate in one bounded serial run. This is
+paired regression coverage, not a substitute for fresh exact-head hosted Full.
