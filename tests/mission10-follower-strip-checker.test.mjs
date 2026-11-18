@@ -31,6 +31,7 @@ function fixture(occupied, fault) {
   let capturedPause, keyHandler
   const menu = { open: false, isConnected: false,
     getAttribute: name => name === 'data-panel' ? (fault === 'wrong-panel' ? 'save' : 'root') : null }
+  if (fault === 'hidden-menu' || fault === 'duplicate-hidden-menu') menu.isConnected = true
   const showMenu = () => {
     if (fault === 'missing-menu') return
     capturedPause = live.paused; live.paused = true; menu.open = true; menu.isConnected = true
@@ -49,6 +50,7 @@ function fixture(occupied, fault) {
   const document = { activeElement: null,
     querySelector: selector => { assert.equal(selector, 'dialog[data-original-pause-menu]'); return menu.isConnected ? menu : null },
     querySelectorAll: selector => {
+    if (selector === 'dialog[aria-label="Game menu"]') return menu.isConnected ? (fault === 'duplicate-hidden-menu' ? [menu, { ...menu }] : [menu]) : []
     assert.equal(selector, '.campaign-messages details[open]'); return []
   } }
   const evaluate = (callback, value) => {
@@ -60,8 +62,9 @@ function fixture(occupied, fault) {
     page: {
       evaluateHandle: async callback => {
         assert.equal(evaluate(callback), live); ownership.push('retain-world')
+        const ownerNumber = ownership.filter(x => x === 'retain-world').length
         return { evaluate: async callback => evaluate(callback, live),
-          dispose: async () => ownership.push('dispose-world') }
+          dispose: async () => { ownership.push('dispose-world'); if (fault === 'dispose-world' && ownerNumber > 1) throw Error('World disposal failed') } }
       },
       evaluate: async callback => evaluate(callback),
       locator: selector => {
@@ -88,10 +91,11 @@ function fixture(occupied, fault) {
               return { evaluate: async callback => evaluate(callback, menu),
                 dispose: async () => ownership.push('dispose-menu'),
                 $: async selector => {
-                  assert.equal(selector, 'button[aria-label="Continue Game"]'); ownership.push('retain-continue')
+                  assert.equal(selector, 'button[aria-label="Continue Game"]'); if (fault === 'missing-continue') return null; ownership.push('retain-continue')
                   return { click: async ({ timeout }) => {
                     assert.ok(timeout > 0 && timeout <= 15000); calls.push(['continue'])
-                    if (fault === 'continue-failure') throw Error('Continue failed')
+                    // Supplied transport rejection for a detached ElementHandle, not a browser DOM-detachment proof.
+                    if (fault === 'continue-failure' || fault === 'detached-continue-click-rejection') throw Error('Continue failed')
                     menu.open = false; menu.isConnected = false; live.paused = capturedPause
                     if (fault === 'replacement-world') window.testSceneRef.current.world = { ...live }
                   }, dispose: async () => ownership.push('dispose-continue') }
@@ -107,6 +111,8 @@ function fixture(occupied, fault) {
           if (fault === 'extra') live.selected.push(999)
           if (fault === 'missing-extra' && options.name === 'Select follower' && modifiers[0] === 'Control') live.selected.pop()
           if (fault === 'orders') live.orders.next++
+          if (fault === 'scene-between-cases') window.testSceneRef.current.world = { ...live }
+          if (fault === 'store-between-cases') window.testStore = { getWorld: () => ({ ...live }) }
         } }
       },
     },
@@ -124,6 +130,8 @@ test('M10 witness Escape-clears before every mounted class/Total modifier case a
     const occupied = phase !== 'unloaded', f = fixture(occupied)
     await checkMission10FollowerStrip({ ...f, phase, occupied })
     assert.equal(f.live.paused, false)
+    assert.equal(f.ownership.filter(x => x === 'retain-world').length, 2, 'Public message setup and the entire strip each own exactly one World handle')
+    assert.equal(f.ownership.filter(x => x === 'dispose-world').length, 2)
     assert.deepEqual(f.calls, [
       ['pause'],
       ...['Select warrior', 'Select follower'].flatMap(name => [[], ['Control'], ['Shift']]
@@ -155,8 +163,8 @@ test('M10 strip executes the real owner precondition with a supplied empty messa
   await checkMission10FollowerStrip({ ...f, phase: 'loaded', occupied: true,
     deadlineAt: Date.now() + 25000, observeKeyboard: value => observations.push(value) })
   assert.deepEqual(f.ownership.slice(0, 3), ['retain-world', 'observe-no-open', 'dispose-world'])
-  assert.equal(f.ownership.filter(event => event === 'retain-world').length, 7)
-  assert.equal(f.ownership.filter(event => event === 'dispose-world').length, 7)
+  assert.equal(f.ownership.filter(event => event === 'retain-world').length, 2, 'One setup owner and one retained strip owner')
+  assert.equal(f.ownership.filter(event => event === 'dispose-world').length, 2)
   assert.deepEqual(observations.map(value => value.phase), ['before-public-collapse', 'after-public-collapse'])
   assert.ok(observations.every(value => value.stripPhase === 'loaded'))
   assert.ok(observations.every(value => value.paused && value.openMessageSerials.length === 0))
@@ -192,5 +200,35 @@ for (const [fault, neutral, expected] of [
   for (const kind of ['world', 'menu', 'continue'])
     assert.equal(f.ownership.filter(event => event === `retain-${kind}`).length,
       f.ownership.filter(event => event === `dispose-${kind}`).length)
+  f.cleanupKeyboard()
+})
+
+for (const fault of ['hidden-menu', 'duplicate-hidden-menu']) test(`M10 rejects ${fault} even though invisible`, async () => {
+  const f = fixture(false, fault)
+  await assert.rejects(checkMission10FollowerStrip({ ...f, phase: 'unloaded', occupied: false }), /No menu may already own/)
+  assert.equal(f.calls.filter(call => call[0] === 'key' || call[0] === 'click').length, 0)
+  assert.equal(f.ownership.filter(x => x === 'retain-world').length, f.ownership.filter(x => x === 'dispose-world').length)
+  f.cleanupKeyboard()
+})
+for (const fault of ['scene-between-cases', 'store-between-cases']) test(`M10 strip retains identity across ${fault}`, async () => {
+  const f = fixture(false, fault)
+  await assert.rejects(checkMission10FollowerStrip({ ...f, phase: 'unloaded', occupied: false }), /Follower input must retain the exact paused/)
+  assert.equal(f.calls.filter(call => call[0] === 'click').length, 1)
+  assert.equal(f.calls.filter(call => call[0] === 'key').length, 1)
+  assert.equal(f.ownership.filter(x => x === 'retain-world').length, f.ownership.filter(x => x === 'dispose-world').length)
+  f.cleanupKeyboard()
+})
+for (const fault of ['missing-continue', 'detached-continue-click-rejection']) test(`M10 neutral owner rejects ${fault}`, async () => {
+  const f = fixture(false, fault); f.live.selected = []
+  await assert.rejects(checkMission10FollowerStrip({ ...f, phase: 'unloaded', occupied: false }), /Continue/)
+  assert.equal(f.calls.filter(call => call[0] === 'click').length, 0)
+  for (const kind of ['world', 'menu', 'continue']) assert.equal(f.ownership.filter(x => x === `retain-${kind}`).length, f.ownership.filter(x => x === `dispose-${kind}`).length)
+  f.cleanupKeyboard()
+})
+test('M10 ownership disposal failure is not converted into a successful strip', async () => {
+  const f = fixture(false, 'dispose-world')
+  await assert.rejects(checkMission10FollowerStrip({ ...f, phase: 'unloaded', occupied: false }), /World disposal failed/)
+  assert.equal(f.calls.some(call => call[0] === 'resume'), false)
+  assert.equal(f.calls.filter(call => call[0] === 'click').length, 6, 'Failure must come from final strip-owner disposal, not setup')
   f.cleanupKeyboard()
 })
