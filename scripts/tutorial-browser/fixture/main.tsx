@@ -1,3 +1,13 @@
+import { campaignShamanReadiness } from '../../campaign-start-readiness.mjs'
+
+// Bundle the shared pure observer in this test host. Production preview cannot
+// resolve development-only /scripts imports; the shipped Home entry is unchanged.
+Object.defineProperty(globalThis, '__pndCampaignReadiness', {
+  value: Object.freeze({ observe: campaignShamanReadiness }),
+  writable: false,
+  configurable: false,
+})
+
 // Query-gated evidence references belong only to this test-host entry.
 if (new URLSearchParams(location.search).get('owned-swamp-evidence') === '1') {
   const evidence = import('../../owned-swamp-evidence/fixture.mjs')
