@@ -82,3 +82,13 @@ test('unreleased locked Preacher remains selected for the second native guard co
   assert.ok(preacher.native.selectionFlags & 128)
   assert.deepEqual(models(w, preacher), [11])
 })
+
+test('selected non-state-14 Preacher participates in the second native guard commit', () => {
+  const w = setup()
+  const preacher = w.units.find(u => u.kind === 'preacher')
+  changeLivePersonState(w, preacher, 10)
+  appendLiveGuardOrders(w, w.units, point(w, { x: -10, z: 8 }))
+  assert.equal(preacher.native.state, 10)
+  assert.ok(preacher.native.selectionFlags & 128)
+  assert.deepEqual(models(w, preacher), [11])
+})
