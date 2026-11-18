@@ -845,7 +845,8 @@ function produceMissionTraining(w: World, tribe: number) {
 
 // The ordinary 0x4e5580 producer reaches training buildings before housing.
 function produceMissionBuilding(w: World, tribe: number) {
-  const missionFourTower = w.outcome.level === 4 && tribe === 3,
+  const missionThreeOrigin = w.outcome.level === 3 && tribe === 2,
+    missionFourTower = w.outcome.level === 4 && tribe === 3,
     missionEightHousing = w.outcome.level === 8 && tribe === 1,
     team = campaignTeam(w, tribe),
     has = (model: number) =>
@@ -888,15 +889,24 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      (((w.outcome.level === 2 || missionFourTower) && tribe === 3) || missionEightHousing) &&
+      (missionThreeOrigin ||
+        ((w.outcome.level === 2 || missionFourTower) && tribe === 3) ||
+        missionEightHousing) &&
       w.ai.constructionBase === undefined
-        ? nativePosition(w, campaignPosition(w, missionEightHousing ? 'red' : 'green'))
+        ? nativePosition(
+            w,
+            campaignPosition(
+              w,
+              missionThreeOrigin ? 'yellow' : missionEightHousing ? 'red' : 'green'
+            )
+          )
         : shaman && nativePosition(w, shaman),
     origin =
-      (w.outcome.level === 2 || missionFourTower || missionEightHousing) &&
+      (missionThreeOrigin || w.outcome.level === 2 || missionFourTower || missionEightHousing) &&
       w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
-        : (w.outcome.level === 2 ||
+        : (missionThreeOrigin ||
+              w.outcome.level === 2 ||
               missionFourTower ||
               missionEightHousing ||
               w.outcome.level === 12) &&
@@ -928,7 +938,7 @@ function produceMissionBuilding(w: World, tribe: number) {
       requestConstruction(w.ai, 4, origin)
     )
   }
-  if (!origin) return false
+  if (!origin && !missionThreeOrigin) return false
   if (w.outcome.level === 2) {
     // The authored outpost is not the construction base. Native 0x461d70 starts
     // without a base; the first ordinary Tower plan establishes it in phase 3.
