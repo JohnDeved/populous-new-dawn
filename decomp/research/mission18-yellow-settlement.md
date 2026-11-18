@@ -50,9 +50,10 @@ The ordinary 3000-turn candidate has a completed Tower and Boat House, three
 completed Huts plus three unfinished/pending Huts, and 13 Yellow people; the
 unchanged baseline has seven and no buildings. Green remains seven without
 buildings. These are CPU gameplay results, not rendered acceptance or timing
-equivalence with a complete original game. Production browser/persistent Save/Load,
-standard full check/build, broader integration and original GUI parity remain
-unverified. Do not infer a playable settlement solely from the native probe.
+equivalence with a complete original game. The production browser qualification
+below adds rendered and persistent-checkpoint evidence. Standard full check/build,
+broader integration and original GUI parity remain required separately. Do not
+infer a playable settlement solely from the native probe.
 
 ## Existing Red sermon regression
 
@@ -86,3 +87,38 @@ The final fixture therefore verifies actual native close coordinates, zero
 arrival speed, timer7 and exact seven-tick transition, alongside deterministic
 candidate onset1784. This is an explained changed world trajectory, not unchanged
 behavior or an animation defect. The prior1824 mismatch remains retained.
+
+
+## Production browser and persistent checkpoint
+
+The executed checker `scripts/local-render/m18-yellow-housing-checkpoint.mjs`
+(SHA-256 `6fbcf9c2bfa230353a7cef5c831c652599d50ad254a989e6c938bbe066ee76a6`)
+used ordinary campaign controls, real RAF, normal production assets and public
+Save/Load. Application commit `bf4327e9c768173864be2283bdceb1406fe51d98`
+(tree `e351a699ab02386929c3d55b84c5f7ca9f4b0d0c`) is unchanged by this
+evidence-only packaging. The production fixture build passed in 13.41 seconds;
+Save passed in 316.97 seconds and a new-process Load in 20.29 seconds under
+unchanged 120/480/180-second bounds. This is software-WebGL functional evidence,
+not a hardware performance claim or the standard full application build gate.
+
+The first Save attempt failed an incorrect QA assumption at turn16: input-ready
+does not imply that Yellow has already dispatched construction. Its receipt and
+image are retained. The reviewed correction waits at most90 seconds for an actual
+living Yellow Tower before the unchanged assertions and opening photograph. It
+does not alter the world, clock or total deadline. A fresh second profile reused
+the verified identical production application assets.
+
+At natural turn3000, Yellow has 13 living people, completed Tower/Boat House/three
+Huts and three further unfinished or pending Huts. Green remains seven with no
+buildings. The actual 1440x1000 images show the temporal opening, developed Yellow
+shoreline settlement and restored overhead view. The opening is not an old-code
+baseline comparison; no boat production or mission victory is asserted.
+
+Public Save committed turn3008. Public Load in a separate browser process
+replaced the world with exactly the same checkpoint version, level, turn, time,
+actors, terrain, stock and full checkpoint hash
+`cba59a4285bc5cf3e8a245fafc70995048b63158e7a4860af879050fa459818e`.
+Normal unpaused continuation was observed at3035. Both receipts have no browser
+errors and verified profile cleanup/continuation. Raw source-bound receipts are
+`work/qualification/attempt-01/{save-02,load-02}/receipt.json`; failed Save01 is
+retained alongside them. Required exact composed hosted gates remain pending.
