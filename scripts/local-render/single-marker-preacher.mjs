@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 
 // Pure map projection finds a public minimap click; the camera changes only via UI.
-async function focusPreacher(page, id, receipt) {
+async function focusPreacher(page, id, receipt, stage = 0) {
   const target = await page.evaluate(async id => {
     const nativePoint = p => ({ x: Math.round((p.x + 8) * 256) & 65535, y: Math.round((-p.z - 8) * 256) & 65535 })
     const { minimapPick } = await import('/app/minimap.ts')
@@ -22,7 +22,7 @@ async function focusPreacher(page, id, receipt) {
     for (let y = 1; y < height; y += 2) for (let x = 1; x < width; x += 2) {
       const p = minimapPick(width, height, center, heading, { x, y })
       const distance = Math.hypot(delta(p.x, goal.x), delta(p.y, goal.y))
-      const point = { distance, x: x / width, y: y / height }
+      const point = { distance, x: x / width, y: y / height, native: p }
       if (distance < unrestricted.distance) unrestricted = point
       // The dock tabs overlap the minimap's bottom rows. A raw coordinate
       // click there goes to a tab, not the canvas. Use only actual hit targets.
@@ -40,7 +40,13 @@ async function focusPreacher(page, id, receipt) {
   receipt.cameraAttempts.push(target)
   assert.equal(target.before.inputMask, 0, 'Camera input must be unmasked')
   assert.equal(target.before.messageModal, false, 'Camera input must not be blocked by a message')
-  assert.ok(target.distance < 2048, 'Public minimap projection must reach the observed person')
+  const intermediate = target.distance >= 2048
+  // A dock tab can cover the only direct destination from the current map
+  // center. Permit one bounded public pan, then recompute on the new map.
+  // This never substitutes a nearby scene for the final person-radius proof.
+  assert.ok(!intermediate || (stage === 0 && target.distance < 8192), 'At most one nearby exposed intermediate pan is permitted')
+  target.stage = stage
+  target.intermediate = intermediate
   const box = await page.getByLabel('Minimap. Click to move the camera.', { exact: true }).boundingBox()
   const click = { x: box.x + box.width * target.x, y: box.y + box.height * target.y }
   assert.equal(await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.getAttribute('aria-label') === 'Minimap. Click to move the camera.', click), true, 'Projected click must actually hit the minimap')
@@ -49,6 +55,15 @@ async function focusPreacher(page, id, receipt) {
   // ordinary input so cameraEdgeButtons does not cancel the requested focus.
   const viewport = await page.locator('.world-viewport').boundingBox()
   await page.mouse.move(viewport.x + viewport.width / 2, viewport.y + viewport.height / 2)
+  if (intermediate) {
+    await page.waitForFunction(({ native }) => {
+      const s = window.testSceneRef.current
+      const short = n => ((n + 32768) & 65535) - 32768
+      return !s.cameraMotion.active && Math.hypot(short(s.cameraPosition.x - native.x), short(s.cameraPosition.y - native.y)) < 512
+    }, target, { timeout: 10000 })
+    return focusPreacher(page, id, receipt, stage + 1)
+  }
+  assert.ok(target.distance < 2048, 'Final public minimap projection must reach the observed person')
   await page.waitForFunction(({ id }) => {
     const s = window.testSceneRef.current, u = s.world.units.find(u => u.id === id)
     const wrap = n => ((n + 384) % 256) - 128
