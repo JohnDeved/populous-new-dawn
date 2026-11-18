@@ -122,7 +122,6 @@ import {
 } from './computer-defense.ts'
 
 const mission11TowerRequested = 0x80000000,
-  mission11HousingRequested = 0x40000000,
   mission12TowerRequested = 0x20000000
 
 export function computerSelectionWorld(w: World, tribe: number, rawNative = false) {
@@ -847,6 +846,7 @@ function produceMissionTraining(w: World, tribe: number) {
 function produceMissionBuilding(w: World, tribe: number) {
   const missionFourTower = w.outcome.level === 4 && tribe === 3,
     missionEightHousing = w.outcome.level === 8 && tribe === 1,
+    missionElevenHousing = w.outcome.level === 11 && tribe === 3,
     team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
@@ -863,7 +863,7 @@ function produceMissionBuilding(w: World, tribe: number) {
       .reduce((sum, building) => {
         const model = buildingModel(building)
         const counts =
-          ![2, 8].includes(w.outcome.level) || building.preparation || building.progress === 1
+          ![2, 8, 11].includes(w.outcome.level) || building.preparation || building.progress === 1
         return (
           sum + (counts && rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
         )
@@ -877,9 +877,9 @@ function produceMissionBuilding(w: World, tribe: number) {
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
-  const selection = computerSelectionWorld(w, tribe)
+  const selection = computerSelectionWorld(w, tribe, missionElevenHousing)
   const available =
-    w.outcome.level === 2 || missionFourTower || missionEightHousing
+    w.outcome.level === 2 || missionFourTower || missionEightHousing || missionElevenHousing
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -893,7 +893,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         ? nativePosition(w, campaignPosition(w, missionEightHousing ? 'red' : 'green'))
         : shaman && nativePosition(w, shaman),
     origin =
-      (w.outcome.level === 2 || missionFourTower || missionEightHousing) &&
+      (w.outcome.level === 2 || missionFourTower || missionEightHousing || missionElevenHousing) &&
       w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
         : (w.outcome.level === 2 ||
@@ -928,7 +928,7 @@ function produceMissionBuilding(w: World, tribe: number) {
       requestConstruction(w.ai, 4, origin)
     )
   }
-  if (!origin) return false
+  if (!origin && !(missionElevenHousing && w.ai.constructionBase !== undefined)) return false
   if (w.outcome.level === 2) {
     // The authored outpost is not the construction base. Native 0x461d70 starts
     // without a base; the first ordinary Tower plan establishes it in phase 3.
@@ -944,8 +944,7 @@ function produceMissionBuilding(w: World, tribe: number) {
   if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) return false
   if (
     w.outcome.level === 11 &&
-    ((!base && !!(w.ai.flags & mission11TowerRequested)) ||
-      (base && (tribe !== 3 || !!(w.ai.flags & mission11HousingRequested))))
+    ((!base && !!(w.ai.flags & mission11TowerRequested)) || (base && tribe !== 3))
   )
     return false
   // ponytail: one school of each kind is enough for the currently integrated specialist paths;
@@ -963,7 +962,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         : w.outcome.level === 11
           ? housing < w.ai.attributes[10]
             ? 1
-            : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
+            : 0 // Matak housing follows the native target; school production remains separate.
           : !has(7) && w.ai.attributes[3]
             ? 7
             : tribe === 2 && !has(5) && w.ai.attributes[2]
@@ -972,10 +971,9 @@ function produceMissionBuilding(w: World, tribe: number) {
                 ? 1
                 : 0
   if (!model || !requestConstruction(w.ai, model, origin)) return false
-  // ponytail: keep each proved Mission 11 request one-shot until its next native slice.
-  if (w.outcome.level === 11)
-    w.ai.flags =
-      (w.ai.flags | (model === 4 ? mission11TowerRequested : mission11HousingRequested)) >>> 0
+  // Mission 11's ordinary Tower replacement remains outside the housing slice.
+  if (w.outcome.level === 11 && model === 4)
+    w.ai.flags = (w.ai.flags | mission11TowerRequested) >>> 0
   else if (w.outcome.level === 12) w.ai.flags = (w.ai.flags | mission12TowerRequested) >>> 0
   return true
 }
