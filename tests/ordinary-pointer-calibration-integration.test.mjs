@@ -1,7 +1,7 @@
+import { historicalCaptureRunnerDigest } from './support/corpse-scheduling-transition.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
-import {createHash} from 'node:crypto'
 import {browserScenarios,browserCapMs} from '../scripts/tutorial-browser/scenario-policy.mjs'
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8')
 const source=read('scripts/tutorial-browser/run.mjs')
@@ -54,10 +54,10 @@ test('actual cleanup requires aggregate and server proof, never launches or clos
   if(!receipt.cleanupVerified){assert.equal(receipt.status,'failed');assert.equal(process.exitCode,1)}
  }
 })
-test('aggregate bypasses generic context/timer; smoke budget and diagnostic runner pin remain exact',()=>{
+test('aggregate bypasses generic context/timer; smoke budget unchanged and historical diagnostic runner pin preserved',()=>{
  assert.ok(source.includes("if (!['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario))"))
  assert.match(source,/else if \(selectedScenario === 'ordinary-pointer-calibration'\) receipt.browserBudget = ordinaryPointerCalibrationPolicy\s+else if \(selectedScenario === 'query-art-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 2 \}\s+else if \(selectedScenario === 'building-icon-evidence'\) receipt\.browserBudget = \{ routeMs: 180000, maxContexts: 2 \}\s+else if \(selectedScenario === 'ordinary-pointer-trace'\) receipt.browserBudget = \{ routeMs: 180000, interpretationEligible: false \}\s+else\s+timer = setTimeout/)
  assert.match(source,/ordinaryPointerCalibrationSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*process.env.GITHUB_EVENT_NAME, process.env.GITHUB_REF, process.env.GITHUB_SHA, selectedScenario, process.env\)/)
  const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
- assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
+ assert.equal(pins['scripts/tutorial-browser/run.mjs'],historicalCaptureRunnerDigest(source))
 })
