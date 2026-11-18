@@ -6,12 +6,12 @@ import { checkpointObservation } from './checkpoint-observer.mjs'
 // Pure map projection finds a public minimap click; the camera changes only via UI.
 async function focusPreacher(page, id) {
   const target = await page.evaluate(async id => {
-    const { nativePosition } = await import('/app/model.ts')
+    const nativePoint = p => ({ x: Math.round((p.x + 8) * 256) & 65535, y: Math.round((-p.z - 8) * 256) & 65535 })
     const { minimapPick } = await import('/app/minimap.ts')
     const scene = window.testSceneRef.current, w = scene.world
     const u = w.units.find(u => u.id === id)
     if (!u) throw Error('Observed Preacher disappeared before camera focus')
-    const goal = nativePosition(w, u), center = nativePosition(w, scene.viewPoint)
+    const goal = nativePoint(u), center = nativePoint(scene.viewPoint)
     const width = scene.mini.width, height = scene.mini.height
     const heading = Math.round(scene.cameraBearing * 1024 / Math.PI)
     const delta = (a, b) => ((a - b + 32768) & 65535) - 32768
