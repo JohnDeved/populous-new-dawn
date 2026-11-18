@@ -4,7 +4,7 @@ import { pathToFileURL } from 'node:url'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 
 // Pure map projection finds a public minimap click; the camera changes only via UI.
-async function focusPreacher(page, id) {
+async function focusPreacher(page, id, receipt) {
   const target = await page.evaluate(async id => {
     const nativePoint = p => ({ x: Math.round((p.x + 8) * 256) & 65535, y: Math.round((-p.z - 8) * 256) & 65535 })
     const { minimapPick } = await import('/app/minimap.ts')
@@ -15,17 +15,36 @@ async function focusPreacher(page, id) {
     const width = scene.mini.width, height = scene.mini.height
     const heading = Math.round(scene.cameraBearing * 1024 / Math.PI)
     const delta = (a, b) => ((a - b + 32768) & 65535) - 32768
-    let best = { distance: Infinity }
+    const canvas = document.querySelector('[aria-label="Minimap. Click to move the camera."]')
+    const rect = canvas.getBoundingClientRect()
+    let best = { distance: Infinity }, unrestricted = { distance: Infinity }
+    let blocked = 0
     for (let y = 1; y < height; y += 2) for (let x = 1; x < width; x += 2) {
       const p = minimapPick(width, height, center, heading, { x, y })
       const distance = Math.hypot(delta(p.x, goal.x), delta(p.y, goal.y))
-      if (distance < best.distance) best = { distance, x: x / width, y: y / height }
+      const point = { distance, x: x / width, y: y / height }
+      if (distance < unrestricted.distance) unrestricted = point
+      // The dock tabs overlap the minimap's bottom rows. A raw coordinate
+      // click there goes to a tab, not the canvas. Use only actual hit targets.
+      if (document.elementFromPoint(rect.left + rect.width * point.x, rect.top + rect.height * point.y) !== canvas) {
+        blocked++
+        continue
+      }
+      if (distance < best.distance) best = point
     }
-    return { ...best, id, goal }
+    const hit = document.elementFromPoint(rect.left + rect.width * unrestricted.x, rect.top + rect.height * unrestricted.y)
+    return { ...best, id, goal, unrestricted: { ...unrestricted, hitTag: hit?.tagName, hitLabel: hit?.getAttribute('aria-label') }, blocked,
+      before: { viewPoint: { ...scene.viewPoint }, inputMask: w.inputMask, messageModal: !!scene.messageModal } }
   }, id)
+  receipt.cameraAttempts ??= []
+  receipt.cameraAttempts.push(target)
+  assert.equal(target.before.inputMask, 0, 'Camera input must be unmasked')
+  assert.equal(target.before.messageModal, false, 'Camera input must not be blocked by a message')
   assert.ok(target.distance < 2048, 'Public minimap projection must reach the observed person')
   const box = await page.getByLabel('Minimap. Click to move the camera.', { exact: true }).boundingBox()
-  await page.mouse.click(box.x + box.width * target.x, box.y + box.height * target.y)
+  const click = { x: box.x + box.width * target.x, y: box.y + box.height * target.y }
+  assert.equal(await page.evaluate(({ x, y }) => document.elementFromPoint(x, y)?.getAttribute('aria-label') === 'Minimap. Click to move the camera.', click), true, 'Projected click must actually hit the minimap')
+  await page.mouse.click(click.x, click.y)
   // The minimap can place the pointer on a screen edge. Move it away through
   // ordinary input so cameraEdgeButtons does not cancel the requested focus.
   const viewport = await page.locator('.world-viewport').boundingBox()
@@ -105,7 +124,7 @@ export default async function ({ page, root, output, receipt, observeCheckpoint,
     assert.deepEqual(dispatch.errors, [])
     assert.deepEqual(dispatch.guardViolations, [])
     assert.ok(Object.values(dispatch.last).some(row => row.orders.includes(3)), 'Save must capture a still-active natural single-marker move')
-    receipt.movementCamera = await focusPreacher(page, Object.values(dispatch.last).find(row => row.orders.includes(3)).id)
+    receipt.movementCamera = await focusPreacher(page, Object.values(dispatch.last).find(row => row.orders.includes(3)).id, receipt)
     await page.screenshot({ path: resolve(output, 'single-marker-moving.png') })
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
     const menu = page.locator('dialog[data-original-pause-menu]')
@@ -134,7 +153,7 @@ export default async function ({ page, root, output, receipt, observeCheckpoint,
   const retained = (await observeCheckpoint('After ordinary Load continuation')).checkpoint
   assert.equal(retained.checkpointSha256, saved.checkpointSha256)
   receipt.continuationProof = { trace, saved, loaded }
-  receipt.continuationCamera = await focusPreacher(page, Number(Object.keys(trace.first).find(id => trace.last[id].orders.includes(17))))
+  receipt.continuationCamera = await focusPreacher(page, Number(Object.keys(trace.first).find(id => trace.last[id].orders.includes(17))), receipt)
   await page.screenshot({ path: resolve(output, 'single-marker-resumed-preaching.png') })
   return { phase: 'loaded-and-resumed-preaching', trace, saved, loaded, method: 'Shipped Load and real RAF; no state/tick/storage injection.' }
 }
