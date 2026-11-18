@@ -23,6 +23,20 @@ export function meleeScenario(key = 'm2') {
     : { key, level: 2, actorId: 54, targetId: 20, targetKind: 'shaman', targetTeam: 'green' }
 }
 
+// M3's authored recurring script starts its opening flyby after initial input-free
+// frames. Observe its one-shot latch before accepting public Skip or completion.
+export function m3StartupReady() {
+  const world = window.testStore.getWorld()
+  if (world.outcome.level !== 3 || world.ai.variables[24] !== 1) return false
+  const button = document.querySelector('button.skip-introduction')
+  const skipVisible = !!button && button.getClientRects().length > 0 &&
+    getComputedStyle(button).visibility !== 'hidden' && !button.disabled
+  if (world.inputMask && !skipVisible) return false
+  return { action: world.inputMask ? 'skip' : 'ready', inputMask: world.inputMask,
+    flybyFlags: world.flyby.flags, level: world.outcome.level, skipVisible,
+    openingFlybyRequested: world.ai.variables[24] }
+}
+
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
@@ -583,7 +597,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button(`Mission ${scenario.level}`)
     await bindGame(page)
-    const startup = await page.waitForFunction(m2StartupReady)
+    const startup = await page.waitForFunction(scenario.key === 'm3' ? m3StartupReady : m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, scenario.level)
     await action('Settle opening messages and introduction', () => settleOpeningMessages(page))

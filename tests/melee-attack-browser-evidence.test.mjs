@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeScenario, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, m3StartupReady, meleeScenario, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { validateRecoilObservation } from '../scripts/tutorial-browser/melee-recoil-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
@@ -959,4 +959,27 @@ test('authored scenario catalog rejects arbitrary actor and target bindings', ()
   assert.deepEqual(meleeScenario('m3'), { key: 'm3', level: 3, actorId: 46, targetId: 48, targetKind: 'brave', targetTeam: 'yellow' })
   assert.throws(() => meleeScenario('unknown'))
   assert.throws(() => assertMeleeRouteReady({}, true, { ...meleeScenario('m3'), actorId: 54 }))
+})
+
+
+test('M3 opening waits for the authored flyby request, then public Skip or completion', () => {
+  const prior = { window: globalThis.window, document: globalThis.document, getComputedStyle: globalThis.getComputedStyle }
+  const world = { outcome: { level: 3 }, ai: { variables: Array(25).fill(0) }, inputMask: 0, flyby: { flags: 16 } }
+  let button = null
+  globalThis.window = { testStore: { getWorld: () => world } }
+  globalThis.document = { querySelector: () => button }
+  globalThis.getComputedStyle = () => ({ visibility: 'visible' })
+  try {
+    assert.equal(m3StartupReady(), false, 'Initial input-free frames precede the authored flyby')
+    world.ai.variables[24] = 1; world.inputMask = 64; world.flyby.flags = 1
+    assert.equal(m3StartupReady(), false, 'Active flyby without public Skip is not ready')
+    button = { getClientRects: () => [{}], disabled: false }
+    assert.deepEqual(m3StartupReady(), { action: 'skip', inputMask: 64, flybyFlags: 1, level: 3, skipVisible: true, openingFlybyRequested: 1 })
+    button.disabled = true
+    assert.equal(m3StartupReady(), false)
+    button = null; world.inputMask = 0; world.flyby.flags = 16
+    assert.equal(m3StartupReady().action, 'ready', 'Naturally completed flyby remains admitted')
+    world.outcome.level = 2
+    assert.equal(m3StartupReady(), false, 'M3 predicate cannot admit another mission')
+  } finally { Object.assign(globalThis, prior) }
 })
