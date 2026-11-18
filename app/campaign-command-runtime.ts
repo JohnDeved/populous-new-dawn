@@ -985,6 +985,11 @@ export function campaignRules(w: World) {
     // The later conditional emergency sibling remains unbound.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(227, 241), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 16 && tribe >= 1 && tribe <= 3) {
+    // Original EVERY63 last stand precedes the existing Red/Yellow tower blocks.
+    const start = tribe === 1 ? 371 : tribe === 2 ? 348 : 334
+    boundCampaignScript.codes.splice(2, 0, ...script.codes.slice(start, start + 36))
+  }
   // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
