@@ -3,6 +3,37 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { checkpointObservation } from './checkpoint-observer.mjs'
 
+// Pure map projection finds a public minimap click; the camera changes only via UI.
+async function focusPreacher(page, id) {
+  const target = await page.evaluate(async id => {
+    const { nativePosition } = await import('/app/model.ts')
+    const { minimapPick } = await import('/app/minimap.ts')
+    const scene = window.testSceneRef.current, w = scene.world
+    const u = w.units.find(u => u.id === id)
+    if (!u) throw Error('Observed Preacher disappeared before camera focus')
+    const goal = nativePosition(w, u), center = nativePosition(w, scene.viewPoint)
+    const width = scene.mini.width, height = scene.mini.height
+    const heading = Math.round(scene.cameraBearing * 1024 / Math.PI)
+    const delta = (a, b) => ((a - b + 32768) & 65535) - 32768
+    let best = { distance: Infinity }
+    for (let y = 1; y < height; y += 2) for (let x = 1; x < width; x += 2) {
+      const p = minimapPick(width, height, center, heading, { x, y })
+      const distance = Math.hypot(delta(p.x, goal.x), delta(p.y, goal.y))
+      if (distance < best.distance) best = { distance, x: x / width, y: y / height }
+    }
+    return { ...best, id, goal }
+  }, id)
+  assert.ok(target.distance < 2048, 'Public minimap projection must reach the observed person')
+  const box = await page.getByLabel('Minimap. Click to move the camera.', { exact: true }).boundingBox()
+  await page.mouse.click(box.x + box.width * target.x, box.y + box.height * target.y)
+  await page.waitForFunction(({ id }) => {
+    const s = window.testSceneRef.current, u = s.world.units.find(u => u.id === id)
+    const wrap = n => ((n + 384) % 256) - 128
+    return Math.hypot(wrap(s.viewPoint.x - u.x), wrap(s.viewPoint.z - u.z)) < 10
+  }, target, { timeout: 10000 })
+  return target
+}
+
 // Real-clock Mission 5 startup. Observers never mutate World, clock or storage.
 export default async function ({ page, root, output, receipt, observeCheckpoint, signal }) {
   assert.ok(receipt.profile, 'Requires a task-owned persistent profile')
@@ -70,6 +101,7 @@ export default async function ({ page, root, output, receipt, observeCheckpoint,
     assert.deepEqual(dispatch.errors, [])
     assert.deepEqual(dispatch.guardViolations, [])
     assert.ok(Object.values(dispatch.last).some(row => row.orders.includes(3)), 'Save must capture a still-active natural single-marker move')
+    receipt.movementCamera = await focusPreacher(page, Object.values(dispatch.last).find(row => row.orders.includes(3)).id)
     await page.screenshot({ path: resolve(output, 'single-marker-moving.png') })
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
     const menu = page.locator('dialog[data-original-pause-menu]')
@@ -97,6 +129,7 @@ export default async function ({ page, root, output, receipt, observeCheckpoint,
   }), 'Loaded natural move must travel and return to preaching, without guard')
   const retained = (await observeCheckpoint('After ordinary Load continuation')).checkpoint
   assert.equal(retained.checkpointSha256, saved.checkpointSha256)
+  receipt.continuationCamera = await focusPreacher(page, Number(Object.keys(trace.first).find(id => trace.last[id].orders.includes(17))))
   await page.screenshot({ path: resolve(output, 'single-marker-resumed-preaching.png') })
   return { phase: 'loaded-and-resumed-preaching', trace, saved, loaded, method: 'Shipped Load and real RAF; no state/tick/storage injection.' }
 }
