@@ -846,6 +846,7 @@ function produceMissionTraining(w: World, tribe: number) {
 // The ordinary 0x4e5580 producer reaches training buildings before housing.
 function produceMissionBuilding(w: World, tribe: number) {
   const missionFourTower = w.outcome.level === 4 && tribe === 3,
+    missionEightHousing = w.outcome.level === 8 && tribe === 1,
     team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
@@ -861,7 +862,8 @@ function produceMissionBuilding(w: World, tribe: number) {
       .filter(building => building.team === team && building.hp > 0)
       .reduce((sum, building) => {
         const model = buildingModel(building)
-        const counts = w.outcome.level !== 2 || building.preparation || building.progress === 1
+        const counts =
+          ![2, 8].includes(w.outcome.level) || building.preparation || building.progress === 1
         return (
           sum + (counts && rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
         )
@@ -869,6 +871,7 @@ function produceMissionBuilding(w: World, tribe: number) {
   if (
     (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) &&
       !missionFourTower &&
+      !missionEightHousing &&
       !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
@@ -876,7 +879,7 @@ function produceMissionBuilding(w: World, tribe: number) {
     return false
   const selection = computerSelectionWorld(w, tribe)
   const available =
-    w.outcome.level === 2 || missionFourTower
+    w.outcome.level === 2 || missionFourTower || missionEightHousing
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -885,21 +888,34 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      (w.outcome.level === 2 || missionFourTower) &&
-      tribe === 3 &&
+      (((w.outcome.level === 2 || missionFourTower) && tribe === 3) || missionEightHousing) &&
       w.ai.constructionBase === undefined
-        ? nativePosition(w, campaignPosition(w, 'green'))
+        ? nativePosition(w, campaignPosition(w, missionEightHousing ? 'red' : 'green'))
         : shaman && nativePosition(w, shaman),
     origin =
-      (w.outcome.level === 2 || missionFourTower) && w.ai.constructionBase !== undefined
+      (w.outcome.level === 2 || missionFourTower || missionEightHousing) &&
+      w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
-        : (w.outcome.level === 2 || missionFourTower || w.outcome.level === 12) && position
+        : (w.outcome.level === 2 ||
+              missionFourTower ||
+              missionEightHousing ||
+              w.outcome.level === 12) &&
+            position
           ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
           : base
             ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
             : position
               ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
               : 0
+  if (missionEightHousing) {
+    // cpscr016 starts with Towers disabled and every school target zero.
+    // Bind only 0x4e5580's housing tail; later school/Tower production stays separate.
+    return (
+      !!(w.ai.flags & 0x400) &&
+      housing < w.ai.attributes[10] &&
+      requestConstruction(w.ai, 1, origin)
+    )
+  }
   if (missionFourTower) {
     // 0x4e5580's Tower prefix only. Its later school/housing branches remain
     // unbound here; this is not a native one-shot latch or a ban on rebuilding.
