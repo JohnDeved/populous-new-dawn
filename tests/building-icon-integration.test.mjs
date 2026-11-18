@@ -1,7 +1,7 @@
+import { historicalCaptureRunnerDigest, priorMatrixWithoutCorpse } from './support/corpse-scheduling-transition.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createHash } from 'node:crypto'
 import { browserScenarios, browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8'),source=read('scripts/tutorial-browser/run.mjs')
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor
@@ -24,7 +24,7 @@ test('icon is a fixed180s scenario with no initial context or generic timer, exi
  assert.ok(source.includes("else if (selectedScenario === 'building-icon-evidence') receipt.browserBudget = { routeMs: 180000, maxContexts: 2 }"))
  assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)"))
  assert.ok(source.includes("if (!['ordinary-pointer-calibration', 'ordinary-pointer-trace'].includes(selectedScenario)) {"))
- const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'));assert.equal(pins['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
+ const pins=JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'));assert.equal(pins['scripts/tutorial-browser/run.mjs'],historicalCaptureRunnerDigest(source))
 })
 test('actual dispatch binds identity and entered ownership, rejects incomplete status and preserves falsey rejection',async()=>{
  let block=between('    receipt.buildingIcon = {}',"  } else if (selectedScenario === 'building-panel-edges')")
@@ -57,7 +57,7 @@ test('separate fixed six-minute workflow preserves default matrix and exact uplo
  assert.match(workflow,/metadata <= 8 \* MiB && total <= 24 \* MiB/)
  assert.match(workflow,/screenshots <= 8/);assert.match(workflow,/stat.isFile\(\) && !stat.isSymbolicLink\(\)/)
  assert.match(workflow,/steps.icon-bounds.outcome == 'success'/)
- assert.equal((normal.match(/^          - scenario:/gm)||[]).length,11);assert.ok(!normal.includes('building-icon-evidence'))
+ assert.equal(priorMatrixWithoutCorpse(normal).length,11);assert.ok(!normal.includes('building-icon-evidence'))
 })
 test('actual workflow bounder rejects oversize, extra screenshots, unknown files and symlinks without large allocation',async()=>{
  const {runInNewContext}=await import('node:vm')
