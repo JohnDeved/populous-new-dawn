@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { checkpointObservation } from './checkpoint-observer.mjs'
 
 // Real-clock Mission 5 startup. Observers never mutate World, clock or storage.
-export default async function ({ page, root, output, receipt, openMission, observeCheckpoint, signal }) {
+export default async function ({ page, root, output, receipt, observeCheckpoint, signal }) {
   assert.ok(receipt.profile, 'Requires a task-owned persistent profile')
-  const { bindGame, collapseCampaignMessages } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+  const { bindGame, collapseCampaignMessages, showAllMissions } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
   await page.evaluate(() => {
     const main = document.querySelector('main')
@@ -14,11 +15,15 @@ export default async function ({ page, root, output, receipt, openMission, obser
       for (let hook = fiber.memoizedState; hook; hook = hook.next)
         if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) { store = hook.memoizedState; break }
     if (!store) throw Error('Store unavailable before mission start')
+    const before = store.getWorld()
+    window.singleMarkerBoundary = null
     window.singleMarkerTrace = { first: {}, last: {}, guardViolations: [], errors: [] }
     window.singleMarkerUnsubscribe = store.subscribe(() => {
       try {
         const w = store.getWorld(), trace = window.singleMarkerTrace
         if (w.outcome.level !== 5) return
+        if (w !== before && !window.singleMarkerBoundary)
+          window.singleMarkerBoundary = { version: 4, world: structuredClone(w) }
         for (const u of w.units) {
           if (u.team !== 'red' || u.kind !== 'preacher') continue
           const p = u.native ?? u.entry?.person
@@ -34,15 +39,25 @@ export default async function ({ page, root, output, receipt, openMission, obser
       } catch (error) { window.singleMarkerTrace.errors.push(String(error)) }
     })
   })
-  let saved
+  let saved, loaded
   if (receipt.profile.mode === 'created') {
-    await openMission(5)
+    // Avoid the generic optional-introduction 45s wait: it would miss this
+    // authored early move. These are the same shipped selector controls.
+    await showAllMissions(page)
+    await page.getByRole('button', { name: 'Mission 5', exact: true }).click()
+    await bindGame(page)
+    const skip = page.locator('.skip-introduction')
+    if (await skip.isVisible()) await skip.click()
+    await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
     await collapseCampaignMessages(page)
   } else {
     saved = receipt.profile.checkpointAtStart
     assert.equal(saved.level, 5)
     assert.ok(receipt.profile.previousRun.cleanupVerified)
     await page.getByRole('dialog', { name: 'Main menu', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
+    loaded = await page.evaluate(checkpointObservation, { observationName: 'singleMarkerBoundary' })
+    for (const key of ['version', 'level', 'turn', 'time', 'checkpointSha256', 'actorsSha256', 'terrainSha256', 'stockSha256'])
+      assert.deepEqual(loaded[key], saved[key], `Load boundary ${key} matches committed save`)
     await bindGame(page)
     await collapseCampaignMessages(page)
   }
@@ -52,7 +67,9 @@ export default async function ({ page, root, output, receipt, openMission, obser
     await page.waitForFunction(() => window.testStore.getWorld().turn >= 65, null, { timeout: 90000 })
     await page.getByRole('button', { name: 'Pause game', exact: true }).click()
     const dispatch = await page.evaluate(() => structuredClone(window.singleMarkerTrace))
-    assert.ok(Object.keys(dispatch.first).length > 0, 'Natural single-marker move must be observed')
+    assert.deepEqual(dispatch.errors, [])
+    assert.deepEqual(dispatch.guardViolations, [])
+    assert.ok(Object.values(dispatch.last).some(row => row.orders.includes(3)), 'Save must capture a still-active natural single-marker move')
     await page.screenshot({ path: resolve(output, 'single-marker-moving.png') })
     await page.getByRole('button', { name: 'Game settings', exact: true }).click()
     const menu = page.locator('dialog[data-original-pause-menu]')
@@ -81,5 +98,5 @@ export default async function ({ page, root, output, receipt, openMission, obser
   const retained = (await observeCheckpoint('After ordinary Load continuation')).checkpoint
   assert.equal(retained.checkpointSha256, saved.checkpointSha256)
   await page.screenshot({ path: resolve(output, 'single-marker-resumed-preaching.png') })
-  return { phase: 'loaded-and-resumed-preaching', trace, saved, method: 'Shipped Load and real RAF; no state/tick/storage injection.' }
+  return { phase: 'loaded-and-resumed-preaching', trace, saved, loaded, method: 'Shipped Load and real RAF; no state/tick/storage injection.' }
 }
