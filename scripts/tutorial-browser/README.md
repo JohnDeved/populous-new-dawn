@@ -646,3 +646,35 @@ visit count are retained. Failure retains the initial state and includes final
 state in its error. CPU regressions include 0, 1, 20 and 60 ordinary startup
 visits. The unchanged 25s preparation, 75s episode and remaining 180s outer
 wall deadlines still reject overruns regardless of visit budget.
+
+
+### Independent mandatory follower-corpse job
+
+`follower-corpse` runs the unchanged ordinary M2 follower death, four rendered
+corpse phases, public pause, committed checkpoint and genuine Load continuation.
+It is a separate mandatory matrix job, not an optional replacement for
+`gameplay-frames`. The latter retains every frame export and the complete M3
+melee episode. Both jobs must pass on the same candidate attempt.
+
+Scheduling explicitly changes from one shared 180-second allowance for
+frames/melee/corpse to two independent 180-second browser allowances (360 seconds
+combined), with one additional production build and 15-minute hosted job. The
+corpse episode still enforces 75 seconds through committed Save and 25 seconds
+for Load/rise verification. The independent resource job remains another 180
+seconds, so these three jobs reserve 540 seconds combined. No phase assertion,
+public input, natural combat history, gameplay speed, or timeout within an
+episode is removed or increased. This is isolation of independent acceptance
+stories, not a claim of performance improvement or preserved aggregate budget.
+
+The retained failed combined run showed different legal Brave selection and
+combat interception: death turn 338 versus 617. Extra combat turns accounted for
+almost the entire 21-second increase; selecting favorable timings or hidden
+Warrior 13 would not be valid acceptance. Separate scheduling keeps those natural
+histories and the complete corpse proof rather than weakening the scenario.
+
+Admission requires the whole current Ready workflow to succeed, including the
+new matrix row; a successful Tutorial check alone cannot substitute. The older
+versioned eight/nine-job integration-queue inventories remain unchanged and
+fail closed on this expanded workflow. They do not automatically admit it.
+Using automated queue admission requires a separately reviewed inventory version
+and explicit workflow-hash transition, not recycling a historical allowlist.

@@ -298,11 +298,15 @@ test('observer rejects an unseen combat producer and refuses a stale Scene/world
   })
 })
 
-test('invoked gameplay chain keeps prior caps and exposes the committed-save phase boundary', async () => {
+test('independent corpse scenario keeps prior phase caps and committed-save boundary', async () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   const episode = readFileSync(new URL('../scripts/tutorial-browser/follower-corpse.mjs', import.meta.url), 'utf8')
   assert.ok(run.indexOf('receipt.gameplayFrames = await') < run.indexOf('receipt.meleeAttack = await'))
-  assert.ok(run.indexOf('receipt.meleeAttack = await') < run.indexOf('receipt.followerCorpse = await'))
+  const corpseBranch = run.split("} else if (selectedScenario === 'follower-corpse') {")[1].split("} else if (['profile-recovery'")[0]
+  assert.match(corpseBranch, /await context.close\(\); context = undefined; page = undefined/)
+  assert.match(corpseBranch, /receipt.followerCorpse = await/)
+  assert.doesNotMatch(corpseBranch, /meleeAttack|gameplayFrames/)
+  assert.equal(browserCapMs('follower-corpse'), 180000)
   assert.deepEqual(followerCorpseBudgetMs, { deathAndSave: 75000, loadAndVerify: 25000 }); assert.equal(meleeAttackLimitMs, 75000)
   assert.equal(browserCapMs('gameplay-frames'), 180000)
   assert.equal(episode.includes('activateFollowerCorpseButton'), false)
