@@ -848,6 +848,7 @@ function produceMissionBuilding(w: World, tribe: number) {
     missionFourTower = w.outcome.level === 4 && tribe === 3,
     missionEightHousing = w.outcome.level === 8 && tribe === 1,
     missionElevenHousing = w.outcome.level === 11 && tribe === 3,
+    missionTwelveHousing = w.outcome.level === 12 && tribe === 3,
     team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
@@ -864,7 +865,9 @@ function produceMissionBuilding(w: World, tribe: number) {
       .reduce((sum, building) => {
         const model = buildingModel(building)
         const counts =
-          ![2, 8, 11].includes(w.outcome.level) || building.preparation || building.progress === 1
+          !([2, 8, 11].includes(w.outcome.level) || missionTwelveHousing) ||
+          building.preparation ||
+          building.progress === 1
         return (
           sum + (counts && rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
         )
@@ -878,9 +881,13 @@ function produceMissionBuilding(w: World, tribe: number) {
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
-  const selection = computerSelectionWorld(w, tribe, missionElevenHousing)
+  const selection = computerSelectionWorld(w, tribe, missionElevenHousing || missionTwelveHousing)
   const available =
-    w.outcome.level === 2 || missionFourTower || missionEightHousing || missionElevenHousing
+    w.outcome.level === 2 ||
+    missionFourTower ||
+    missionEightHousing ||
+    missionElevenHousing ||
+    missionTwelveHousing
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -891,7 +898,8 @@ function produceMissionBuilding(w: World, tribe: number) {
     position =
       (missionThreeOrigin ||
         ((w.outcome.level === 2 || missionFourTower) && tribe === 3) ||
-        missionEightHousing) &&
+        missionEightHousing ||
+        missionTwelveHousing) &&
       w.ai.constructionBase === undefined
         ? nativePosition(
             w,
@@ -906,7 +914,8 @@ function produceMissionBuilding(w: World, tribe: number) {
         w.outcome.level === 2 ||
         missionFourTower ||
         missionEightHousing ||
-        missionElevenHousing) &&
+        missionElevenHousing ||
+        missionTwelveHousing) &&
       w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
         : (missionThreeOrigin ||
@@ -945,7 +954,7 @@ function produceMissionBuilding(w: World, tribe: number) {
   if (
     !origin &&
     !missionThreeOrigin &&
-    !(missionElevenHousing && w.ai.constructionBase !== undefined)
+    !((missionElevenHousing || missionTwelveHousing) && w.ai.constructionBase !== undefined)
   )
     return false
   if (w.outcome.level === 2) {
@@ -959,8 +968,18 @@ function produceMissionBuilding(w: World, tribe: number) {
           : 0
     return !!model && requestConstruction(w.ai, model, origin)
   }
-  // ponytail: only the first proved Mission 12 producer request belongs to this opening slice.
-  if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) return false
+  // Mission 12 retains its bounded first-Tower path outside Matak housing.
+  if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) {
+    // Matak's authored Temple already satisfies its only school target. Bind
+    // the recurrent housing tail, not replacement schools or the other tribes.
+    return (
+      missionTwelveHousing &&
+      has(5) &&
+      w.ai.attributes[2] <= 1 &&
+      housing < w.ai.attributes[10] &&
+      requestConstruction(w.ai, 1, origin)
+    )
+  }
   if (
     w.outcome.level === 11 &&
     ((!base && !!(w.ai.flags & mission11TowerRequested)) || (base && tribe !== 3))

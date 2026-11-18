@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-game.mjs'
+import { bindGame, showAllMissions, settleOpeningMessages, waitForShamanReadiness } from '../browser-game.mjs'
 import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
@@ -16,6 +16,27 @@ export const meleeAttackLimitMs = 75000
 // A fixed functional artwork workload, separate from performance frame recording.
 // Keep normal game time and the source-bounded entry; reduce only raster area.
 const meleeArtworkViewport = { width: 960, height: 720 }
+export function meleeScenario(key = 'm2') {
+  assert.ok(['m2', 'm3'].includes(key), 'Unknown authored melee scenario')
+  return key === 'm3'
+    ? { key, level: 3, actorId: 46, targetId: 48, targetKind: 'brave', targetTeam: 'yellow' }
+    : { key, level: 2, actorId: 54, targetId: 20, targetKind: 'shaman', targetTeam: 'green' }
+}
+
+// M3's authored recurring script starts its opening flyby after initial input-free
+// frames. Observe its one-shot latch before accepting public Skip or completion.
+export function m3StartupReady() {
+  const world = window.testStore.getWorld()
+  if (world.outcome.level !== 3 || world.ai.variables[24] !== 1) return false
+  const button = document.querySelector('button.skip-introduction')
+  const skipVisible = !!button && button.getClientRects().length > 0 &&
+    getComputedStyle(button).visibility !== 'hidden' && !button.disabled
+  if (world.inputMask && !skipVisible) return false
+  return { action: world.inputMask ? 'skip' : 'ready', inputMask: world.inputMask,
+    flybyFlags: world.flyby.flags, level: world.outcome.level, skipVisible,
+    openingFlybyRequested: world.ai.variables[24] }
+}
+
 const root = resolve(import.meta.dirname, '../..')
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
@@ -42,7 +63,7 @@ export function meleeCameraInput(minimap, recoil = false) {
 }
 
 // Read the eligibility published by updateUnitsFrame, not a private hit query.
-export function readMeleeRouteState() {
+export function readMeleeRouteState(scenario = { actorId: 54, targetId: 20 }) {
   const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
   if (!scene || !world) return { sceneAvailable: false }
   const person = id => {
@@ -54,18 +75,19 @@ export function readMeleeRouteState() {
   }
   return { sceneAvailable: true, sceneStoreMatch: scene.world === world, turn: world.turn,
     selected: [...world.selected], paused: world.paused, speed: world.speed, drawMode: world.drawMode,
-    inputMask: world.inputMask, actor: person(54), target: person(20), hiddenPriorTarget: person(13),
+    inputMask: world.inputMask, actor: person(scenario.actorId), target: person(scenario.targetId), hiddenPriorTarget: person(13),
     camera: { position: { ...scene.cameraPosition }, target: { ...scene.cameraMotion.target },
       active: scene.cameraMotion.active, preset: scene.viewPreset, overview: scene.overviewActive,
       transitioning: !!scene.viewTransition, resultActive: scene.resultCamera.active },
     rendererStamp: scene.renderer.info.render.frame, canvasConnected: scene.renderer.domElement.isConnected }
 }
 
-export function assertMeleeRouteReady(state, paused = true) {
+export function assertMeleeRouteReady(state, paused = true, scenario = meleeScenario()) {
+  assert.deepEqual(scenario, meleeScenario(scenario.key))
   assert.equal(state.sceneAvailable, true); assert.equal(state.sceneStoreMatch, true)
-  assert.deepEqual(state.selected, [54]); assert.equal(state.paused, paused); assert.equal(state.speed, 1)
-  assert.equal(state.target?.id, 20); assert.equal(state.target?.kind, 'shaman')
-  assert.equal(state.target?.team, 'green'); assert.ok(state.target.hp > 0)
+  assert.deepEqual(state.selected, [scenario.actorId]); assert.equal(state.paused, paused); assert.equal(state.speed, 1)
+  assert.equal(state.target?.id, scenario.targetId); assert.equal(state.target?.kind, scenario.targetKind)
+  assert.equal(state.target?.team, scenario.targetTeam); assert.ok(state.target.hp > 0)
   assert.equal(state.target.inside, null, 'Public melee target must be outside a building')
   assert.equal(state.target.visible, true, 'Public melee target must be visible')
   assert.equal(state.target.pickable, true, 'Public melee target must be eligible for ordinary picking')
@@ -108,7 +130,7 @@ export function readMeleePointerState(point) {
       rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } } }
 }
 
-export async function meleeTargetPoint(page, bounds, attempts, save) {
+export async function meleeTargetPoint(page, bounds, attempts, save, targetId = 20) {
   // Preserve this fixed body-interior set and order. Only real pointer events
   // and the ordinary rendered hover winner may establish the attack target.
   for (const [fx, fy] of [[.5, .5], [.5, .65], [.35, .5], [.65, .5], [.5, .35]]) {
@@ -124,9 +146,9 @@ export async function meleeTargetPoint(page, bounds, attempts, save) {
     }, { point, before: before.stamp })
     attempt.after = await page.evaluate(readMeleePointerState, point)
     attempt.status = 'observed'; save()
-    if (attempt.after.id === 20 && attempt.after.canvasOwnsPoint) return point
+    if (attempt.after.id === targetId && attempt.after.canvasOwnsPoint) return point
   }
-  assert.fail('Public pointer route must identify eligible Green Shaman20')
+  assert.fail('Public pointer route must identify the declared eligible target')
 }
 
 // Expected artwork comes from retained tables, never from the observed pose.
@@ -149,11 +171,16 @@ export function meleeAttackMapping(recoil = false) {
 export function installMeleeFrameObserver(input) {
   if (input?.mode !== undefined && !['recoil', 'same-frame-ab-v1'].includes(input.mode)) throw Error('Unknown observer mode')
   const captureDiagnostic = input?.mode === 'same-frame-ab-v1'
-  const recoil = input?.mode === 'recoil', originalMapping = recoil || captureDiagnostic ? input.mapping : input
+  const recoil = input?.mode === 'recoil', originalMapping = input?.mapping ?? input
+  const scenarioKey = input?.scenarioKey ?? 'm2'
+  if (!['m2', 'm3'].includes(scenarioKey)) throw Error('Unknown authored melee scenario')
+  if ((recoil || captureDiagnostic) && scenarioKey !== 'm2') throw Error('Legacy diagnostic/recoil scenario required')
+  const actorId = scenarioKey === 'm3' ? 46 : 54
   const captureOwner = captureDiagnostic ? globalThis.__pndMeleeCaptureDiagnostic : null
   if (captureDiagnostic && !captureOwner) throw Error('Explicit diagnostic requires owned probe')
   const admitted = action => recoil ? action === 'recoil' : ['attack', 'strike', 'special'].includes(action)
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+  if (scenarioKey === 'm3' && world.outcome.level !== 3) throw Error('Mission 3 observer requires authored Mission 3 World')
   const canvas = scene.renderer.domElement, visitLimit = 75 * 240
   // These independent original tables arrive from Node, not the observed pose,
   // countdown or a game getter. Keep a private copy for the entire episode.
@@ -221,13 +248,13 @@ export function installMeleeFrameObserver(input) {
       if (!canvas.isConnected || document.visibilityState !== 'visible')
         throw Error('Melee canvas disconnected or document hidden')
       if (result.firstAttackTurn !== null && world.paused) throw Error('Running melee observation unexpectedly paused')
-      const unit = world.units.find(unit => unit.id === 54), fight = unit?.fight
+      const unit = world.units.find(unit => unit.id === actorId), fight = unit?.fight
       Object.assign(diagnostic, { stage: 'observed', actorInspected: true,
         alive: !!unit && unit.hp > 0, hp: unit?.hp ?? null,
         action: fight?.action ?? null, started: fight?.started ?? null,
-        f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(54)?.userData.frame ?? null })
+        f2: fight?.motion?.f2 ?? null, frame: scene.unitMeshes.get(actorId)?.userData.frame ?? null })
       if (!unit || unit.kind !== 'shaman' || unit.team !== 'blue' || unit.hp <= 0)
-        throw Error('Authored Shaman54 disappeared or died')
+        throw Error(`Authored Shaman${actorId} disappeared or died`)
       // A recoil action can be assigned after this actor's controller visit.
       // Wait only for its first processed entry, never skip a processed episode.
       const pendingRecoil = recoil && fight?.action === 'recoil' && fight.remaining === undefined
@@ -280,13 +307,13 @@ export function installMeleeFrameObserver(input) {
       }
       if (fight && admitted(fight.action) && !pendingRecoil) {
         diagnostic.stage = recoil ? 'recoil' : 'attack'
-        const person = fight.motion, group = scene.unitMeshes.get(54)
+        const person = fight.motion, group = scene.unitMeshes.get(actorId)
         if (!person || !group) throw Error('Attack lacks physical person or rendered group')
         const layers = (group.userData.layers ?? []).filter(layer => layer.visible)
         const submittedLayers = layers.filter(layer => scene.view.painter.source(layer)).length
         const sample = { timestampMs: performance.now(), turn: world.turn,
           animationFrame: scene.gameClock.animationFrame, stamp: scene.renderer.info.render.frame,
-          id: 54, kind: unit.kind, action: fight.action, started: fight.started,
+          id: actorId, kind: unit.kind, action: fight.action, started: fight.started,
           opponent: fight.opponent, participants: [...(world.fights?.find(group => group.id === fight.group)?.members ?? [])],
           object: person.object, draw: person.draw, f1: person.f1, f2: person.f2,
           logicalStamp: person.stamp, nativeAttackAnimation: fight.nativeAttackAnimation === true,
@@ -336,7 +363,7 @@ export function installMeleeFrameObserver(input) {
           }
         } else if (sample.cropPlanned) {
           cropKeys.add(key)
-          const rect = canvas.getBoundingClientRect(), bounds = scene.picking.personBounds(54, rect)
+          const rect = canvas.getBoundingClientRect(), bounds = scene.picking.personBounds(actorId, rect)
           if (bounds && bounds.width > 1 && bounds.height > 1) {
             const scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height
             const x = Math.max(0, Math.floor((bounds.x - 12) * scaleX))
@@ -408,13 +435,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     assert.equal(recoil, false, 'Capture diagnostic cannot run recoil')
     captureDiagnostic.budget.check()
   }
+  const scenario = meleeScenario(recoil || captureDiagnostic ? 'm2' : 'm3')
   const followActor = !captureDiagnostic
   const label = recoil ? 'melee-recoil' : 'melee-attack'
   const context = captureDiagnostic ? captureDiagnostic.context : await browser.newContext({ viewport: meleeArtworkViewport, deviceScaleFactor: 1 })
   const page = captureDiagnostic ? captureDiagnostic.page : await context.newPage()
   page.setDefaultTimeout(10000)
   const report = { schema: recoil ? 'populous-new-dawn/ordinary-recoil-artwork' : 'populous-new-dawn/ordinary-melee-artwork', schemaVersion: recoil ? 1 : 2,
-    status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
+    scenario, status: 'running', expectedRevision, capMs: meleeAttackLimitMs, actions: [], errors: [],
     protocol: recoil ? recoilRunningProtocol : meleeRunningProtocol,
     method: 'Public authored M2 startup, Shaman54 selection, one public bird’s-eye zoom-out, nearest-target minimap input plus one fixed (0,+12) backing-pixel corridor offset, public Resume and real Shift+left attack on eligible Green Shaman20; uninterrupted normal RAF through the first observed attack entry and its independently mapped exact native expiry, with same-frame canvas observation.',
     limits: ['Direct mission access, not earned campaign unlock.', 'No original-game FPS calibration, hardware smoothness or Firewarrior browser claim.',
@@ -443,6 +471,13 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     report.limits.push('The first observed recoil is accepted only from its exact entry, using original four-turn knockback or seven-turn Shaman duration; no later favorable episode or native-executable comparison is substituted.')
     for (const path of ['scripts/tutorial-browser/melee-recoil-evidence.mjs', 'scripts/tutorial-browser/melee-recoil.mjs', 'app/live-people.ts', 'app/world-types.ts', 'scripts/tutorial-browser/melee-recoil-camera.mjs'])
       report.source[path] = sha256(readFileSync(resolve(root, path)))
+  }
+  if (scenario.key === 'm3') {
+    report.method = report.method.replace('M2', 'M3').replaceAll('Shaman54', 'Shaman46').replaceAll('Green Shaman20', 'Yellow Brave48').replaceAll('actor54', 'actor46')
+    for (const path of ['scripts/browser-game.mjs', 'scripts/campaign-start-readiness.mjs'])
+      report.source[path] = sha256(readFileSync(resolve(root, path)))
+    report.limits.push('Read-only semantic Shaman readiness precedes Pause: playing, unpaused, inputMask0, canOrder and not reserved. No fixed turn, retry selection or World mutation.')
+    report.limits.push('Fixed Mission 3 replacement episode, not Mission 2 combat acceptance. Public input targets authored outside Brave48; the first natural opponent may differ. No timing retries, health/RNG changes or favorable-entry selection.')
   }
   const save = () => captureDiagnostic ? captureDiagnostic.saveJson(`${label}.json`, report) :
     writeFileSync(resolve(output, `${label}.json`), JSON.stringify(report, null, 2) + '\n')
@@ -560,16 +595,21 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
-    await button('Mission 2')
+    await button(`Mission ${scenario.level}`)
     await bindGame(page)
-    const startup = await page.waitForFunction(m2StartupReady)
+    const startup = await page.waitForFunction(scenario.key === 'm3' ? m3StartupReady : m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
-    assert.equal(report.startup.level, 2)
+    assert.equal(report.startup.level, scenario.level)
     await action('Settle opening messages and introduction', () => settleOpeningMessages(page))
     await page.waitForFunction(() => {
       const w = window.testStore.getWorld()
       return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
     })
+    if (scenario.key === 'm3') {
+      report.readiness = await waitForShamanReadiness(page)
+      assert.equal(report.readiness.after.shaman.id, scenario.actorId)
+      save()
+    }
     await button('Pause game')
     await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' }))
     const settle = () => page.waitForFunction(() => {
@@ -581,12 +621,12 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await action('One public - zoom-out to ordinary bird’s-eye', () => page.keyboard.press('-'))
     await settle()
     if (recoil) {
-      const before = await page.evaluate(readMeleeRouteState)
-      assertMeleeRouteReady(before)
+      const before = await page.evaluate(readMeleeRouteState, scenario)
+      assertMeleeRouteReady(before, true, scenario)
       await action('Two public 512px right drags: fixed half-turn before framing and attack', () => rotateRecoilCamera(page))
       await settle()
-      const after = await page.evaluate(readMeleeRouteState)
-      assertMeleeRouteReady(after)
+      const after = await page.evaluate(readMeleeRouteState, scenario)
+      assertMeleeRouteReady(after, true, scenario)
       assert.equal(after.camera.position.angle, (before.camera.position.angle + 1024) & 2047)
       assert.equal(after.camera.position.x, before.camera.position.x)
       assert.equal(after.camera.position.y, before.camera.position.y)
@@ -599,11 +639,11 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
         nativeAngleDelta: 1024, before, after, gameplayUnchanged: true }
       save()
     }
-    report.eligibility = await page.evaluate(readMeleeRouteState); save()
-    assertMeleeRouteReady(report.eligibility)
-    const setup = await page.evaluate(() => {
-      const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === 20)
-      if (!target || target.kind !== 'shaman' || target.team !== 'green' || target.hp <= 0) throw Error('Authored Green Shaman20 unavailable')
+    report.eligibility = await page.evaluate(readMeleeRouteState, scenario); save()
+    assertMeleeRouteReady(report.eligibility, true, scenario)
+    const setup = await page.evaluate(scenario => {
+      const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === scenario.targetId)
+      if (!target || target.kind !== scenario.targetKind || target.team !== scenario.targetTeam || target.hp <= 0) throw Error('Declared authored melee target unavailable')
       const rect = scene.mini.getBoundingClientRect()
       const gl = scene.renderer.getContext()
       return { turn: w.turn, selected: [...w.selected], paused: w.paused, speed: w.speed,
@@ -619,18 +659,18 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
           center: { x: Math.round((scene.viewPoint.x + 8) * 256), y: Math.round((-scene.viewPoint.z - 8) * 256) },
           heading: Math.round(scene.cameraBearing * 1024 / Math.PI),
           target: { x: Math.round((target.x + 8) * 256), y: Math.round((-target.z - 8) * 256) } } }
-    })
+    }, scenario)
     report.setup = setup
-    assert.deepEqual(setup.selected, [54]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
+    assert.deepEqual(setup.selected, [scenario.actorId]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
     assert.deepEqual(setup.environment.viewport, meleeArtworkViewport)
     assert.equal(setup.environment.dpr, 1)
     const camera = report.cameraInput = meleeCameraInput(setup.minimap, recoil)
     save()
     assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)
-    await action(recoil ? 'Minimap camera at nearest Green Shaman20 center, zero offset' : 'Minimap camera toward Green Shaman20 plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
+    await action(recoil ? 'Minimap camera at nearest declared target center, zero offset' : 'Minimap camera toward declared target plus fixed (0,+12) backing-pixel corridor offset', () => page.mouse.click(camera.x, camera.y))
     await settle()
-    report.afterFocus = await page.evaluate(readMeleeRouteState); save()
-    assertMeleeRouteReady(report.afterFocus)
+    report.afterFocus = await page.evaluate(readMeleeRouteState, scenario); save()
+    assertMeleeRouteReady(report.afterFocus, true, scenario)
     report.mapping = meleeAttackMapping(recoil); save()
     if (captureDiagnostic) {
       const origins = await captureDiagnostic.budget.pageOrigins(page)
@@ -640,40 +680,40 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
       captureDiagnostic.budget.check()
     }
     await page.evaluate(installMeleeFrameObserver, captureDiagnostic ? { mode: 'same-frame-ab-v1', mapping: report.mapping } :
-      recoil ? { mode: 'recoil', mapping: report.mapping } : report.mapping)
+      recoil ? { mode: 'recoil', mapping: report.mapping } : { mapping: report.mapping, scenarioKey: scenario.key })
     await button('Resume game')
     await page.waitForFunction(() => !window.testStore.getWorld().paused)
-    report.afterResume = await page.evaluate(readMeleeRouteState); save()
-    assertMeleeRouteReady(report.afterResume, false)
-    const targetBounds = report.targetBounds = await page.evaluate(() => {
+    report.afterResume = await page.evaluate(readMeleeRouteState, scenario); save()
+    assertMeleeRouteReady(report.afterResume, false, scenario)
+    const targetBounds = report.targetBounds = await page.evaluate(scenario => {
       const s = window.testSceneRef.current, canvas = s.renderer.domElement, rect = canvas.getBoundingClientRect()
-      const g = s.unitMeshes.get(20), bounds = s.picking.personBounds(20, rect)
+      const g = s.unitMeshes.get(scenario.targetId), bounds = s.picking.personBounds(scenario.targetId, rect)
       if (!g?.visible || !bounds) return null
       return { x: rect.left + bounds.x, y: rect.top + bounds.y, width: bounds.width, height: bounds.height }
-    })
+    }, scenario)
     save()
-    assert.ok(targetBounds, 'Eligible Green Shaman20 must have rendered canvas bounds')
+    assert.ok(targetBounds, 'Declared authored target must have rendered canvas bounds')
     report.targetHoverAttempts = []
-    const targetPoint = await meleeTargetPoint(page, targetBounds, report.targetHoverAttempts, save)
+    const targetPoint = await meleeTargetPoint(page, targetBounds, report.targetHoverAttempts, save, scenario.targetId)
     report.targetInput = targetPoint
-    report.beforeAttack = await page.evaluate(readMeleeRouteState); save()
-    assertMeleeRouteReady(report.beforeAttack, false)
+    report.beforeAttack = await page.evaluate(readMeleeRouteState, scenario); save()
+    assertMeleeRouteReady(report.beforeAttack, false, scenario)
     assert.equal(report.beforeAttack.actor.target, null)
     assert.equal(report.beforeAttack.actor.fight, null, 'Authored attacker must not already be fighting before the public order')
-    await action('Public Shift+left attack click on Green Shaman20 while running', () => shiftClickMeleeTarget(page, targetPoint))
-    report.order = await page.evaluate(() => {
-      const s = window.testSceneRef.current, w = window.testStore.getWorld(), u = w.units.find(unit => unit.id === 54)
+    await action('Public Shift+left attack click on declared target while running', () => shiftClickMeleeTarget(page, targetPoint))
+    report.order = await page.evaluate(scenario => {
+      const s = window.testSceneRef.current, w = window.testStore.getWorld(), u = w.units.find(unit => unit.id === scenario.actorId)
       return { turn: w.turn, lastOrderTurn: w.lastOrderTurn, stamp: s.renderer.info.render.frame,
         selected: [...w.selected], target: u.target, path: structuredClone(u.path),
         nativeCommands: u.native && { commands: [...u.native.commands], commandCursor: u.native.commandCursor,
           commandStatus: u.native.commandStatus, workTarget: u.native.workTarget }, paused: w.paused }
-    })
+    }, scenario)
     save()
-    assert.deepEqual(report.order.selected, [54]); assert.equal(report.order.target, 20)
+    assert.deepEqual(report.order.selected, [scenario.actorId]); assert.equal(report.order.target, scenario.targetId)
     assert.equal(report.order.paused, false)
     assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
       'Public attack must record an issued command on the live logical timeline')
-    if (followActor) await page.evaluate(installRecoilCameraFollow, { order: report.order, protocol: report.protocol })
+    if (followActor) await page.evaluate(installRecoilCameraFollow, { order: report.order, protocol: report.protocol, scenarioKey: scenario.key })
     await page.waitForFunction(() => window.__pndMeleeObservation.result.done || window.__pndRecoilCameraFollow?.result.error, null, { timeout: meleeAttackLimitMs })
     if (followActor) {
       report.cameraFollow = await page.evaluate(() => window.__pndRecoilCameraFollow.stop('observer-terminal'))
@@ -687,7 +727,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     for (const crop of report.observation.crops)
       assert.ok(crop.opaqueColors > 1, 'Same-frame canvas crop must not be blank')
     assert.equal(report.observation.done, true)
-    report.acceptance = (recoil ? validateRecoilObservation : validateMeleeRunningObservation)(report.observation, report.mapping)
+    report.acceptance = (recoil ? validateRecoilObservation : validateMeleeRunningObservation)(report.observation, report.mapping, scenario.key)
     if (captureDiagnostic) report.canonicalStatus = 'passed'
     await button('Pause game')
     if (captureDiagnostic) {
@@ -698,7 +738,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()
     if (!page.isClosed()) {
-      try { report.failureState = await page.evaluate(readMeleeRouteState); save() }
+      try { report.failureState = await page.evaluate(readMeleeRouteState, scenario); save() }
       catch (diagnostic) { report.failureStateError = String(diagnostic) }
       try {
         const filename = `${label}-failure.png`
