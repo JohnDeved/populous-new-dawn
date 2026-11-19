@@ -90,6 +90,7 @@ export interface TrainingEffects {
   directDestination: (p: TrainingPerson, x: number, y: number) => void
   dropCargo: (p: TrainingPerson) => void
   enterBuilding: (p: TrainingPerson, b: TrainingBuilding) => void
+  clearPreviousSelection?: (p: TrainingPerson) => void
   workInside: (p: TrainingPerson) => number
 }
 const short = (n: number) => (n << 16) >> 16
@@ -371,6 +372,7 @@ export function stepTrainingPerson(w: TrainingWorld, p: TrainingPerson, effects:
             effects.enterBuilding(p, b)
             if (!(flags & 65)) {
               p.selectionFlags &= ~1
+              effects.clearPreviousSelection?.(p)
               return 1
             }
             p.substate = flags & 64 ? 10 : 12

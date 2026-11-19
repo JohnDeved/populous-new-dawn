@@ -291,7 +291,7 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
             ? links.find(object => object.type === 7 && object.model === 31)
             : undefined,
         volcano =
-          missionNumber === 21 && [43, 68].includes(o.index)
+          missionNumber === 21 && [43, 68, 370].includes(o.index)
             ? links.find(object => object.type === 7 && object.model === 15)
             : undefined,
         earthquakes = links.filter(object => object.type === 7 && object.model === 26),

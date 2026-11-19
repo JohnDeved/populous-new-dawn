@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, m3StartupReady, meleeScenario, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, m3StartupReady, meleeScenario, meleeTargetPoint, meleeCameraInput, meleeCameraPreparation, assertPausedCameraWorld, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { validateRecoilObservation } from '../scripts/tutorial-browser/melee-recoil-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
@@ -982,4 +982,61 @@ test('M3 opening waits for the authored flyby request, then public Skip or compl
     world.outcome.level = 2
     assert.equal(m3StartupReady(), false, 'M3 predicate cannot admit another mission')
   } finally { Object.assign(globalThis, prior) }
+})
+
+
+test('hosted M3 bottom-edge geometry admits one preparatory pan without relaxing final corridor bounds', () => {
+  const minimap = { width: 144, height: 138, rect: { x: 0, y: 0, width: 144, height: 138.24000549316406 },
+    center: { x: 11008, y: -22784 }, heading: 256, target: { x: -9984, y: 24832 } }
+  const original = structuredClone(minimap)
+  assert.throws(() => meleeCameraInput(minimap), /offset must remain inside/)
+  const plan = meleeCameraPreparation(minimap)
+  assert.equal(plan.final, null)
+  assert.deepEqual(plan.intermediate.native, { x: 56111, y: 25624 })
+  assert.ok(plan.beforeDistance - plan.intermediate.distance > 512)
+  const arrived = { ...minimap, center: plan.intermediate.native }
+  const final = meleeCameraInput(arrived)
+  assert.deepEqual(final.offsetBacking, { x: 0, y: 12 })
+  assert.ok(final.nearest.distance <= 2048)
+  assert.ok(final.backing.y >= 2 && final.backing.y < 136)
+  assert.equal(meleeCameraPreparation(arrived).intermediate, null)
+  assert.equal(meleeCameraPreparation(minimap, true).intermediate, null)
+  assert.throws(() => meleeCameraPreparation({ ...minimap, width: 0 }))
+  assert.deepEqual(minimap, original)
+})
+
+
+test('paused camera invariant permits only source-consistent presentation clock progression', () => {
+  const before = { paused: true, turn: 60, random: 123, lightView: { x: 1 },
+    worshipAcquisition: { requests: [], controllers: { spell: null },
+      clock: { elapsed: 6399.722, nextVisit: 6400, lastVisit: 6375, limiter: 0, normalRate: 40 } } }
+  const after = structuredClone(before)
+  after.lightView.x = 2
+  Object.assign(after.worshipAcquisition.clock, { elapsed: 7249.722, nextVisit: 7250, lastVisit: 7225 })
+  const check = candidate => assertPausedCameraWorld(JSON.stringify(before), JSON.stringify(candidate))
+  assert.equal(check(after).period, 25)
+  for (const mutate of [w => w.turn++, w => w.random++, w => w.paused = false,
+    w => w.worshipAcquisition.requests.push(1), w => w.worshipAcquisition.controllers.spell = {},
+    w => w.worshipAcquisition.clock.limiter = 4, w => w.worshipAcquisition.clock.normalRate = 24,
+    w => w.worshipAcquisition.clock.elapsed = 6300, w => w.worshipAcquisition.clock.elapsed = 7300,
+    w => w.worshipAcquisition.clock.lastVisit++, w => w.worshipAcquisition.clock.nextVisit++,
+    w => { w.worshipAcquisition.clock.lastVisit++; w.worshipAcquisition.clock.nextVisit++ },
+    w => w.worshipAcquisition.clock.elapsed = null]) {
+    const invalid = structuredClone(after); mutate(invalid); assert.throws(() => check(invalid))
+  }
+})
+
+
+test('preparatory pan rejects HUD-covered pixels and retains strict final framing', () => {
+  const m = { width: 144, height: 138, rect: { x: 0, y: 0, width: 144, height: 138 },
+    center: { x: 11008, y: -22784 }, heading: 256, target: { x: -9984, y: 24832 } }
+  const p = meleeCameraPreparation(m, false, point => point.y < 124)
+  assert.ok(p.intermediate.y < 124)
+  assert.ok(p.intermediate.distance > 2048 && p.intermediate.distance <= 8192)
+  assert.ok(p.beforeDistance - p.intermediate.distance > 512)
+  const final = meleeCameraInput({ ...m, center: p.intermediate.native })
+  assert.ok(final.nearest.distance <= 2048)
+  assert.deepEqual(final.offsetBacking, { x: 0, y: 12 })
+  assert.throws(() => meleeCameraPreparation(m, false, () => false), /Exposed bounded/)
+  assert.throws(() => meleeCameraInput(m), /offset must remain inside/)
 })
