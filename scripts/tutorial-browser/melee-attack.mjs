@@ -62,6 +62,48 @@ export function meleeCameraInput(minimap, recoil = false) {
     native: minimapPick(width, height, center, heading, backing) }
 }
 
+// Only the declared corridor overflow admits one preparatory public pan. The
+// strict final helper above remains the authority; other invalid geometry fails.
+export function meleeCameraPreparation(minimap, recoil = false, ownsPoint = () => true) {
+  try { return { final: meleeCameraInput(minimap, recoil), intermediate: null } }
+  catch (error) {
+    if (recoil || error.message !== 'Declared melee camera offset must remain inside the minimap') throw error
+    // An intermediate is not final framing. Search only publicly exposed pixels
+    // within 32 world cells; final framing still uses the original 2048 bound.
+    const intermediate = minimapInput({ ...minimap, maxDistance: 8192 }, minimapPick, ownsPoint)
+    assert.ok(intermediate && intermediate.distance <= 8192, 'Exposed bounded intermediate point required')
+    const wrap = value => ((value + 32768) % 65536 + 65536) % 65536 - 32768
+    const beforeDistance = Math.hypot(wrap(minimap.center.x - minimap.target.x), wrap(minimap.center.y - minimap.target.y))
+    assert.ok(beforeDistance - intermediate.distance > 512, 'Preparatory pan must measurably approach the target')
+    return { final: null, intermediate, beforeDistance }
+  }
+}
+
+// The rendered paused loop still visits worship presentation (game-clock.ts).
+// Compare all serialized state except camera lighting and these three scheduler
+// counters; validate their stable-rate progression rather than freezing wall time.
+export function assertPausedCameraWorld(beforeJson, afterJson) {
+  const before = JSON.parse(beforeJson), after = JSON.parse(afterJson)
+  assert.equal(before.paused, true); assert.equal(after.paused, true)
+  const a = before.worshipAcquisition.clock, b = after.worshipAcquisition.clock
+  assert.equal(b.limiter, a.limiter); assert.equal(b.normalRate, a.normalRate)
+  const helperRate = a.limiter & 2 ? 14 : a.limiter & 4 ? 20 : a.limiter & 1 ? 24 : 60
+  const period = Math.trunc(1000 / (a.limiter ? helperRate : Math.max(12, Math.min(60, Math.trunc(a.normalRate)))))
+  assert.ok(Number.isFinite(period) && period > 0)
+  for (const clock of [a, b]) {
+    for (const key of ['elapsed', 'nextVisit', 'lastVisit']) assert.ok(Number.isFinite(clock[key]) && clock[key] >= 0)
+    assert.equal(clock.nextVisit - clock.lastVisit, period, 'Presentation deadline follows the source-derived period')
+    assert.ok(clock.elapsed + 1e-7 >= clock.lastVisit && clock.elapsed < clock.nextVisit + 1e-7)
+  }
+  assert.ok(b.elapsed >= a.elapsed && b.lastVisit >= a.lastVisit && b.nextVisit >= a.nextVisit)
+  assert.equal((b.nextVisit - a.nextVisit) % period, 0, 'Presentation visits remain on the same scheduler lattice')
+  const clocks = { before: { ...a }, after: { ...b }, period }
+  before.lightView = null; after.lightView = null
+  for (const key of ['elapsed', 'nextVisit', 'lastVisit']) b[key] = a[key]
+  assert.deepEqual(after, before, 'Paused camera input preserves every other serialized World field')
+  return clocks
+}
+
 // Read the eligibility published by updateUnitsFrame, not a private hit query.
 export function readMeleeRouteState(scenario = { actorId: 54, targetId: 20 }) {
   const scene = window.testSceneRef?.current, world = window.testStore?.getWorld()
@@ -641,7 +683,7 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     }
     report.eligibility = await page.evaluate(readMeleeRouteState, scenario); save()
     assertMeleeRouteReady(report.eligibility, true, scenario)
-    const setup = await page.evaluate(scenario => {
+    const readSetup = () => page.evaluate(scenario => {
       const scene = window.testSceneRef.current, w = scene.world, target = w.units.find(unit => unit.id === scenario.targetId)
       if (!target || target.kind !== scenario.targetKind || target.team !== scenario.targetTeam || target.hp <= 0) throw Error('Declared authored melee target unavailable')
       const rect = scene.mini.getBoundingClientRect()
@@ -660,10 +702,50 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
           heading: Math.round(scene.cameraBearing * 1024 / Math.PI),
           target: { x: Math.round((target.x + 8) * 256), y: Math.round((-target.z - 8) * 256) } } }
     }, scenario)
-    report.setup = setup
+    let setup = await readSetup()
+    report.setup = setup; save()
     assert.deepEqual(setup.selected, [scenario.actorId]); assert.equal(setup.paused, true); assert.equal(setup.speed, 1)
     assert.deepEqual(setup.environment.viewport, meleeArtworkViewport)
     assert.equal(setup.environment.dpr, 1)
+    const needsPreparation = meleeCameraPreparation(setup.minimap, recoil).intermediate !== null
+    const exposure = needsPreparation ? await page.evaluate(() => {
+      const mini = window.testSceneRef.current.mini, rect = mini.getBoundingClientRect(), points = []
+      for (let y = 2; y < mini.height - 2; y++) for (let x = 2; x < mini.width - 2; x++)
+        if (document.elementFromPoint(rect.x + x / mini.width * rect.width, rect.y + y / mini.height * rect.height) === mini) points.push(y * mini.width + x)
+      return points
+    }) : []
+    const exposed = new Set(exposure), m = setup.minimap
+    const preparation = meleeCameraPreparation(m, recoil, point => exposed.has(
+      Math.round((point.y - m.rect.y) / m.rect.height * m.height) * m.width +
+      Math.round((point.x - m.rect.x) / m.rect.width * m.width)))
+    if (preparation.intermediate) {
+      const point = preparation.intermediate
+      const pausedWorld = () => page.evaluate(() => {
+        const world = window.testStore.getWorld()
+        // Camera input updates only the documented lighting viewpoint.
+        return JSON.stringify({ ...world, lightView: null })
+      })
+      const beforeWorld = await pausedWorld()
+      report.cameraPreparation = { ...preparation, before: setup }; save()
+      assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, point), true)
+      await action('One bounded public minimap pan to admit the unchanged corridor offset', () => page.mouse.click(point.x, point.y))
+      await page.mouse.move(400, 300)
+      await page.waitForFunction(native => {
+        const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+        const wrap = value => ((value + 32768) % 65536 + 65536) % 65536 - 32768
+        return world.paused && !scene.cameraMotion.active &&
+          Math.hypot(wrap(scene.cameraPosition.x - native.x), wrap(scene.cameraPosition.y - native.y)) < 512
+      }, point.native, { timeout: 10000 })
+      await settle()
+      report.cameraPreparation.presentationClock = assertPausedCameraWorld(beforeWorld, await pausedWorld())
+      const state = await page.evaluate(readMeleeRouteState, scenario)
+      assertMeleeRouteReady(state, true, scenario)
+      setup = await readSetup()
+      const wrap = value => ((value + 32768) % 65536 + 65536) % 65536 - 32768
+      const afterDistance = Math.hypot(wrap(setup.minimap.center.x - setup.minimap.target.x), wrap(setup.minimap.center.y - setup.minimap.target.y))
+      assert.ok(preparation.beforeDistance - afterDistance > 512, 'Actual preparatory camera arrival must measurably approach target')
+      Object.assign(report.cameraPreparation, { after: setup, afterDistance, serializedWorldInvariantPassed: true }); save()
+    }
     const camera = report.cameraInput = meleeCameraInput(setup.minimap, recoil)
     save()
     assert.equal(await page.evaluate(point => document.elementFromPoint(point.x, point.y) === window.testSceneRef.current.mini, camera), true)

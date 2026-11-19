@@ -678,3 +678,36 @@ versioned eight/nine-job integration-queue inventories remain unchanged and
 fail closed on this expanded workflow. They do not automatically admit it.
 Using automated queue admission requires a separately reviewed inventory version
 and explicit workflow-hash transition, not recycling a historical allowlist.
+
+### Melee minimap corridor admission
+
+The fixed `(0,+12)` backing-pixel corridor offset can overflow even when the
+unshifted target is reachable. Hosted M3 setup at turn 60, heading 256 and minimap
+144×138 placed the nearest target at `(64,135)` (969 native units from target),
+so the shifted point was outside the map. Restricting the search to offset-safe
+points would instead miss the existing 2048-native reach bound (nearest 5597).
+
+The checker may now make exactly one ordinary preparatory minimap click, only
+for that specific overflow. It searches actual DOM-exposed intermediate pixels within 8192 native units
+(32 world cells), not final framing, and requires more than
+512 native units of progress, observes real camera arrival within 512, and checks
+equality of all serialized World fields except the documented camera lighting
+viewpoint and three presentation-clock counters. The rendered paused loop
+intentionally advances `worshipAcquisition.clock.elapsed/nextVisit/lastVisit`;
+these must be finite, monotonic, bracket elapsed time and retain the unchanged
+source-derived period/lattice. Limiter, rate, controllers, gifts, RNG and every
+other serialized field remain equal. Map entries are not covered by JSON serialization.
+It then recomputes the unchanged final offset, projection, map bounds and DOM
+ownership checks. There is no clamping, favorable startup-turn selection, second
+preparatory retry, new clock budget, or world/camera injection. A supplied geometry
+regression is not rendered acceptance; production browser qualification remains
+required for the new source.
+
+
+The same overflow recurred in PR #1160 at paused turn 59 with identical target
+and minimap geometry, before attack input. The prior edge-04 probe reached
+ordinary combat after this camera correction but correctly failed the unchanged
+artwork-advancement gate: rendered observations skipped from the first attack
+pose to its exact expiry. That sampling failure is retained, not resolved or
+waived by the camera fix. Fresh normal production qualification must still pass
+all existing first-entry, same-frame crop and expiry assertions.
