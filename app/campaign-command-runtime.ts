@@ -957,7 +957,7 @@ export function campaignRules(w: World) {
                                       ? [
                                           12,
                                           1003,
-                                          // All three authored faults: seal checks, warnings, deadlines, and eruptions.
+                                          // All three authored faults: terrain seal checks, warnings, deadlines, and eruptions.
                                           ...script.codes.slice(797, 1139),
                                           1004,
                                           1004,

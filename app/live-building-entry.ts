@@ -660,6 +660,9 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
             enterBuilding: () => {
               admitted = !!enterBuilding(ctx, p, state, occupancyEffects(w, ctx.people))
             },
+            clearPreviousSelection: () => {
+              u.groups = (u.groups ?? 0) & ~1
+            },
             workInside: () => (state.model === 13 || state.model === 15 ? 0 : unsupported()),
           })
       }

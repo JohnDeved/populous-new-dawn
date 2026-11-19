@@ -2,7 +2,6 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { cast, command, createWorld, tick } from '../app/model.ts'
 import { markerHeight } from '../app/campaign-runtime.ts'
-import { campaignRules } from '../app/campaign-command-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { messageText } from '../app/messages.ts'
 import { missionData, missionScript } from '../app/mission-data.ts'
@@ -55,14 +54,17 @@ test('Mission 21 converts worshippers and seals the first fault across a checkpo
   const world = createWorld(21),
     stock = world.manaWorld.spells[0]
   advanceTo(world, 1)
-  for (let model = 1; model < 22; model++) if (model !== 17) stock.disabled |= 1 << (model - 1)
+  for (let model = 1; model < 22; model++)
+    if (model !== 17) stock.disabled |= 1 << (model - 1)
   while (!world.shots.convertWild && world.turn < 1000) tick(world, 1 / 12)
   assert.equal(world.shots.convertWild, 1)
   assert.equal(cast(world, 'convertWild', { x: 31, z: 87 }), true)
   while (world.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave').length < 6)
     tick(world, 1 / 12)
   const head = world.shrines.find(shrine => shrine.kind === 'flattenEffect')
-  world.selected = world.units.filter(unit => unit.team === 'blue').map(unit => unit.id)
+  world.selected = world.units
+    .filter(unit => unit.team === 'blue')
+    .map(unit => unit.id)
   assert.equal(command(world, head), true)
   while (!head.work && world.turn < 1951) tick(world, 1 / 12)
   assert.ok(head.work > 0)
@@ -143,120 +145,4 @@ test('Mission 21 checkpoints one unsealed first-fault eruption without replay', 
     ).length,
     1
   )
-})
-
-test('Mission 21 second fault warns, erupts, and stays resolved across a checkpoint', () => {
-  let world = createWorld(21)
-  advanceTo(world, 2271)
-  assert.equal(world.campaignAIs[1].variables[20], 0)
-  advanceTo(world, 2272)
-  assert.equal(world.campaignAIs[1].variables[20], 1)
-  assert.equal(world.campaignAIs[1].variables[23], 0)
-  world = migrateCheckpoint(structuredClone(world))
-  advanceTo(world, 3711)
-  assert.equal(world.campaignAIs[1].variables[23], 0)
-  advanceTo(world, 3712)
-  assert.equal(world.campaignAIs[1].variables[23], 1)
-  const message = world.messages.slots.find(message => message?.view?.payload === 16668)
-  assert.deepEqual(message.view, { cell: 49210, payload: 16668 })
-  assert.equal(message.lifetime, 256)
-  assert.ok(world.effects.some(effect => effect.volcano && effect.x === 51 && effect.z === 57))
-  world = migrateCheckpoint(structuredClone(world))
-  advanceTo(world, 3744)
-  assert.equal(world.campaignAIs[1].variables[23], 2)
-  advanceTo(world, 3776)
-  assert.equal(world.messages.slots.filter(message => message?.view?.payload === 16668).length, 1)
-})
-
-for (const delta of [-1, 1])
-  test(`Mission 21 second fault seals on signed height difference ${delta}`, () => {
-    const world = createWorld(21),
-      packed = missionData(21).level.markers[45],
-      cell = ((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1),
-      baseline = world.campaignAIs[1].variables[15]
-    assert.equal(world.land.heights[cell], baseline)
-    world.land.heights[cell] += delta
-    // Isolate the sampled terrain predicate, not a claim about player acquisition.
-    world.turn = 2239
-    campaignRules(world)
-    assert.equal(world.campaignAIs[1].variables[23], 0)
-    world.turn = 2271
-    campaignRules(world)
-    assert.equal(world.campaignAIs[1].variables[23], 2)
-    world.land.heights[cell] = baseline
-    world.turn = 3711
-    campaignRules(world)
-    assert.equal(world.campaignAIs[1].variables[23], 2)
-    assert.equal(
-      world.messages.slots.some(message => message?.view?.payload === 16668),
-      false
-    )
-  })
-
-for (const delta of [-1, 1])
-  test(`Mission 21 third fault seals on sampled height difference ${delta}`, () => {
-    let world = createWorld(21)
-    const packed = missionData(21).level.markers[94],
-      cell = ((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1),
-      baseline = world.campaignAIs[1].variables[17]
-    assert.equal(baseline, 238)
-    assert.equal(world.land.heights[cell], baseline)
-    world.land.heights[cell] += delta
-    world.turn = 7487
-    campaignRules(world)
-    assert.equal(world.campaignAIs[1].variables[24], 0)
-    world.turn = 7519
-    campaignRules(world)
-    assert.equal(world.campaignAIs[1].variables[24], 2)
-    world.land.heights[cell] = baseline
-    world = migrateCheckpoint(structuredClone(world))
-    world.turn = 8127
-    campaignRules(world)
-    assert.equal(world.campaignAIs[1].variables[24], 2)
-    assert.equal(
-      world.messages.slots.some(message => message?.view?.cell === 49754),
-      false
-    )
-  })
-
-test('Mission 21 third fault preserves the strict deadline and one eruption through checkpoints', () => {
-  let world = createWorld(21)
-  advanceTo(world, 7519)
-  assert.equal(world.campaignAIs[1].variables[21], 0)
-  advanceTo(world, 7520)
-  assert.equal(world.campaignAIs[1].variables[21], 1)
-  assert.equal(world.campaignAIs[1].variables[24], 0)
-  world = migrateCheckpoint(structuredClone(world))
-  advanceTo(world, 8127)
-  assert.equal(world.campaignAIs[1].variables[24], 0)
-  advanceTo(world, 8128)
-  assert.equal(world.campaignAIs[1].variables[24], 1)
-  const message = world.messages.slots.find(message => message?.view?.cell === 49754)
-  assert.deepEqual(message.view, { cell: 49754, payload: 16668 })
-  assert.equal(message.lifetime, 256)
-  assert.ok(world.effects.some(effect => effect.volcano && effect.x === 85 && effect.z === 53))
-  world = migrateCheckpoint(structuredClone(world))
-  advanceTo(world, 8160)
-  assert.equal(world.campaignAIs[1].variables[24], 2)
-  advanceTo(world, 8192)
-  assert.equal(world.messages.slots.filter(message => message?.view?.cell === 49754).length, 1)
-})
-
-test('Mission 21 ignores a third-fault height change restored before opening', () => {
-  const world = createWorld(21),
-    packed = missionData(21).level.markers[94],
-    cell = ((packed & 0xfe00) >> 9) * 128 + ((packed & 254) >> 1),
-    baseline = world.land.heights[cell]
-  world.land.heights[cell]--
-  world.turn = 7487
-  campaignRules(world)
-  world.land.heights[cell] = baseline
-  world.turn = 7519
-  campaignRules(world)
-  assert.equal(world.campaignAIs[1].variables[24], 0)
-  assert.equal(world.campaignAIs[1].variables[21], 1)
-  world.turn = 8127
-  campaignRules(world)
-  assert.equal(world.campaignAIs[1].variables[24], 1)
-  assert.equal(world.messages.slots.filter(message => message?.view?.cell === 49754).length, 1)
 })

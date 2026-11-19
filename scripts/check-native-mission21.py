@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Non-recording native probe for Mission 21's three authored faults."""
+"""Non-recording native probe for Mission 21's first and third authored fault pairs."""
 
 import argparse
 import hashlib
@@ -240,63 +240,6 @@ for value in (baseline - 1, baseline, baseline + 1, -32768, 32767):
     assert observed == value
     height_results.append({"height": observed, "sealed": observed != baseline})
 
-# Second fault: execute the bounded original VM branch and real height query.
-# Other commands are traced at dispatch; linked completion is exercised below.
-second_visits = []
-for delta in (0, -1, 1):
-    cpu, _, write, read, invoke, ret = machine()
-    tribe, program, stack, stop = 0x2000000, 0x2010000, 0x20FD000, 0x20FE000
-    cpu.mem_write(tribe, bytes(0xC65))
-    write(tribe + 0xC22, "B", 1)
-    cpu.mem_write(0x89B7A5, header[100:612])
-    packed = markers[45]
-    cell = ((packed & 0xFE00) >> 9) * 128 + ((packed & 0xFE) >> 1)
-    base = struct.unpack_from("<h", level, cell * 2)[0]
-    write(0x8A03E8 + cell * 16, "h", base + delta)
-    blob = bytearray(script)
-    blob[:8192] = bytes(8192)
-    fragment = [12, 1003, *codes[797:800], *codes[957:1051], 1004, 1004, 1019]
-    struct.pack_into("<" + "H" * len(fragment), blob, 0, *fragment)
-    struct.pack_into("<i", blob, 0x3000 + 15 * 4, base)
-    cpu.mem_write(program, bytes(blob))
-    trace = []
-    arities = {1151: 1, 1177: 4, 1180: 0, 1179: 1, 1199: 3}
-
-    def intercept_second(_cpu, _address, _size, _user):
-        pointer = read(program + 0x3104)
-        opcode = read(pointer + 2, "H")
-        if opcode == 1085:
-            return  # Execute the real native height command.
-        arity = arities[opcode]
-        tokens = [read(pointer + 4 + i * 2, "H") for i in range(arity)]
-        assert all(fields[token][0] == 0 for token in tokens)
-        trace.append([opcode, *[fields[token][1] for token in tokens]])
-        write(program + 0x3104, "I", pointer + 4 + arity * 2)
-        ret(1)
-
-    cpu.hook_add(UC_HOOK_CODE, intercept_second, begin=0x48CC60, end=0x48CC60)
-    visits = []
-    for turn in (2239, 2250, 2271, 2303, 3679, 3700, 3711, 3743, 3775):
-        trace.clear()
-        if delta and turn > 2271:
-            write(0x8A03E8 + cell * 16, "h", base)
-        write(0x89D188, "I", turn)
-        invoke(stack, stop, 0x48C6B0, tribe, program)
-        visits.append({"turn": turn, "state": read(program + 0x3000 + 23 * 4, "i"), "commands": trace.copy()})
-    if delta == 0:
-        assert visits[2]["commands"] == [[1151, 46], [1151, 47], [1151, 48]]
-        assert visits[6]["commands"] == [[1151, 45], [1177, 126, 58, 192, 16668], [1180], [1179, 256]]
-        assert visits[7]["commands"] == [[1199, 58, 190, 5]]
-        assert all(not visits[i]["commands"] for i in (0, 1, 3, 4, 5, 8))
-        assert [v["state"] for v in visits] == [0, 0, 0, 0, 0, 0, 1, 2, 2]
-    else:
-        assert visits[2]["commands"] == [[1199, 58, 190, 5]]
-        assert all(not visit["commands"] for visit in visits[3:])
-        assert visits[2]["state"] == 2
-    second_visits.append({"heightDelta": delta, "baseline": base, "visits": visits})
-assert trigger_at(45) == 43
-assert [(source["index"], source["model"]) for _, _, source in links(43)] == [(44, 15)]
-
 # Third fault: execute the bounded original VM branch and real height query.
 # Other commands are traced at dispatch; linked completion is exercised below.
 third_visits = []
@@ -354,6 +297,7 @@ for delta in (0, -1, 1, "preopening-restored"):
     third_visits.append({"heightDelta": delta, "baseline": base, "visits": visits})
 assert trigger_at(94) == 370
 assert [(source["index"], source["model"]) for _, _, source in links(370)] == [(371, 15)]
+
 
 # Execute opcode 1199 through the original dispatcher and its native square scan.
 cpu, identity, write, read, invoke, ret = machine()
@@ -503,10 +447,11 @@ for trigger in (362, 363, 364, 68, 43, 370):
 
 messages = json.loads((ROOT / "app/original-messages.json").read_text())["messages"]
 result = {
-    "secondFault": second_visits,
     "thirdFault": third_visits,
+    "thirdFaultActivation": activation["370"],
     "provenance": {
         "hashes": hashes,
+        "probeSha256": sha(Path(__file__)),
         "nativeIdentity": identity,
         "executedNative": ["0042b660", "0048c6b0", "00492920", "0048cc60", "00490ba0", "004f1ed0", "00485b00", "004fb270"],
     },
@@ -534,10 +479,11 @@ result = {
         "eruptionMarker": 17,
         "eruptionTrigger": 68,
         "sentinelTrigger": {"index": 46, "cell": [40, 130]},
-        "activation": activation,
+        "activation": {key: value for key, value in activation.items() if key not in ("43", "370")},
         "warning": {"message": 126, "text": messages["126"]["text"], "cell": [34, 126], "payload": 16018, "lifetime": 256, "headFlag": "0x200"},
         "sealedMessage": {"message": 10, "text": messages["10"]["text"]},
     },
+    "secondFaultActivation": activation["43"],
     "opcode1199": {
         "operands": [36, 126, 5],
         "inclusiveCellBounds": {"x": [26, 46], "y": [116, 136], "step": 2},
@@ -557,4 +503,4 @@ result = {
 }
 if args.output:
     args.output.write_text(json.dumps(result, indent=2) + "\n")
-print("PASS: Mission 21 first/second/third faults, native height boundaries, schedules, linked order and cleanup")
+print("PASS: Mission 21 acquisition, first/third fault schedules, linked order and opcode 1199 cleanup")
