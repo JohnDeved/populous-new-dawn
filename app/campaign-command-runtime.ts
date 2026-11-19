@@ -864,7 +864,7 @@ export function campaignRules(w: World) {
                       ? [
                           12,
                           1003,
-                          ...script.codes.slice(254, 259),
+                          // Turn-zero message commands run in world initialization, not each turn.
                           // Chumara's original EVERY255 settlement and training targets.
                           // Later tower, patrol, raid and message branches remain unbound.
                           ...script.codes.slice(447, 595),
