@@ -975,6 +975,11 @@ export function campaignRules(w: World) {
     // Later patrol, guard and expansion siblings remain outside this projection.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 613), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 20 && tribe === 1) {
+    // Native EVERY255/offset132: choose both authored spell-cooldown profiles.
+    // The later offensive script siblings remain outside this projection.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(314, 463), 1004, 1019]
+  }
   if (w.outcome.level === 18 && tribe === 1) {
     // Complete first patrol/Preacher block and the following original kill-count
     // guard transition. Later attack phases never reopen its zero-valued gate.
