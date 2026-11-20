@@ -768,6 +768,8 @@ export default function Home() {
         e.preventDefault()
         if (!e.repeat) {
           store.change(w => {
+            // Native placement rotation (005d64cc) requires unmodified Space.
+            if (e.shiftKey && w.mode && Object.hasOwn(w.buildingDirections, w.mode)) return
             if (rotateBuildingPlan(w)) audio.current?.cue(0x26)
             else w.paused = !w.paused
           })
@@ -796,6 +798,7 @@ export default function Home() {
         selectorOpen ||
         store.getWorld() !== world ||
         world.inputMask ||
+        messageBoxRequested(world.messages) ||
         [...messageDetails.current.values()].some(details => details.open) ||
         (e.target as HTMLElement).closest('input,dialog')
       )

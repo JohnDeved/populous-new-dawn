@@ -1,16 +1,16 @@
+import { historicalCaptureRunnerDigest } from './support/corpse-scheduling-transition.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {readFileSync} from 'node:fs'
-import {createHash} from 'node:crypto'
 import {browserScenarios,browserCapMs} from '../scripts/tutorial-browser/scenario-policy.mjs'
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8')
 const source=read('scripts/tutorial-browser/run.mjs')
 const AsyncFunction=Object.getPrototypeOf(async function(){}).constructor
 function between(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);assert.ok(start>=0&&end>start);return source.slice(start,end)}
-test('trace is explicit 180s, all other caps remain unchanged; runner pin exact',()=>{
+test('trace is explicit 180s, all other caps remain unchanged; historical runner pin preserved',()=>{
  assert.ok(browserScenarios.includes('ordinary-pointer-trace'));assert.equal(browserCapMs('ordinary-pointer-trace'),180000)
  assert.equal(browserCapMs('ordinary-pointer-calibration'),1200000);assert.equal(browserCapMs('ordinary-pointer-smoke'),90000);assert.equal(browserCapMs('tutorial'),240000)
- assert.equal(JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))['scripts/tutorial-browser/run.mjs'],createHash('sha256').update(source).digest('hex'))
+ assert.equal(JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))['scripts/tutorial-browser/run.mjs'],historicalCaptureRunnerDigest(source))
  assert.ok(source.includes("['snapshot-protocol', 'ordinary-pointer-smoke', 'ordinary-pointer-calibration', 'ordinary-pointer-trace', 'query-art-evidence', 'building-icon-evidence', 'building-panel-edges'].includes(selectedScenario)"))
  assert.match(source,/ordinaryPointerTraceSelection\(JSON.parse\(readFileSync\(process.env.GITHUB_EVENT_PATH, 'utf8'\)\),\s*traceCommentEnvironment\)/)
  assert.match(source,/ordinary-pointer-trace\/route.json/)

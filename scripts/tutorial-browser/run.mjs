@@ -11,7 +11,7 @@ import assert from 'node:assert/strict'
 import { parseGameplayResourceArguments, gameplayOwnershipSelection } from './gameplay-resource-profile.mjs'
 import { browserConfiguration } from './browser-config.mjs'
 import { fileSha256 } from '../browser-performance/browser-runtime.mjs'
-import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget } from './scenario-policy.mjs'
+import { browserScenarios, browserCapMs, snapshotSmokeBudget, gameplayResourceSplitBudget, followerCorpseSplitBudget } from './scenario-policy.mjs'
 import { recoveryReceipt, recoveryReceiptLog } from './recovery-receipt.mjs'
 import { profileCasesReceipt, profileCasesReceiptLog } from './profile-recovery-receipt.mjs'
 import { mission10CrewReceipt, mission10CrewReceiptLog } from './mission10-crew-receipt.mjs'
@@ -182,6 +182,7 @@ const receipt = { snapshotScenarioSha256: hash(snapshotScenario), buildRevision:
   hypnotiseSources: Object.fromEntries(['spell-hypnotise', 'hypnotise-fixture', 'hypnotise-observer', 'hypnotise-budget', 'hypnotise-checkpoint'].map(name => [name, hash(resolve(root, `scripts/tutorial-browser/${name}.mjs`))])),
   buildingEdgesScenarioSha256: hash(buildingEdgesScenario), buildingEdgesWitnessSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-edge-witness.mjs')),
   worshipLifecycleScenarioSha256: hash(worshipLifecycleScenario), worshipLifecycleFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-panel-fixture.mjs')),
+  worshipAcquisitionAudioSha256: hash(resolve(root, 'scripts/tutorial-browser/worship-acquisition-audio.mjs')),
   buildingIdentityScenarioSha256: hash(buildingIdentityScenario), buildingIdentityFixtureSha256: hash(resolve(root, 'scripts/tutorial-browser/building-panel-fixture.mjs')),
   fixtureHtmlSha256: hash(resolve(fixture, 'index.html')),
   buildPackageVersions: Object.fromEntries(['vite', '@vitejs/plugin-react', '@tailwindcss/postcss', '@playwright/test', 'playwright-core'].map(name => [name, JSON.parse(readFileSync(resolve(dependencies, name, 'package.json'))).version])),
@@ -243,6 +244,7 @@ try {
   browserDeadlineAt = Date.now() + receipt.browserCapMs
   producerBudget = { startedMs: browserStartedMs, deadlineMs: browserStartedMs + receipt.browserCapMs, deadlineUnixMs: browserDeadlineAt }
   if (['gameplay-frames', 'gameplay-resources'].includes(selectedScenario)) receipt.gameplayResourceSplitBudget = gameplayResourceSplitBudget
+  if (['gameplay-frames', 'follower-corpse'].includes(selectedScenario)) receipt.followerCorpseSplitBudget = followerCorpseSplitBudget
   if (selectedScenario === 'snapshot-protocol') receipt.browserBudget = snapshotSmokeBudget
   else if (selectedScenario === 'ordinary-pointer-smoke') receipt.browserBudget = ordinaryPointerSmokePolicy
   else if (selectedScenario === 'ordinary-pointer-calibration') receipt.browserBudget = ordinaryPointerCalibrationPolicy
@@ -330,8 +332,10 @@ try {
     // the independent ordinary-combat artwork episode. One browser, same cap.
     await context.close(); context = undefined; page = undefined
     receipt.meleeAttack = await (await import(pathToFileURL(meleeScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
-    // Separate ordinary follower combat and actual checkpoint continuation. No
-    // performance window or existing 75-second, first-observed-entry melee assertions change.
+  } else if (selectedScenario === 'follower-corpse') {
+    // Independent mandatory job: unchanged ordinary combat, crops and Save/Load.
+    // Release the unused probe before the original episode owns its fresh context.
+    await context.close(); context = undefined; page = undefined
     receipt.followerCorpse = await (await import(pathToFileURL(followerCorpseScenario).href)).default({ browser, url, output: out, expectedRevision: receipt.buildRevision })
   } else if (['profile-recovery', 'mission10-profile'].includes(selectedScenario)) {
     // Independent jobs. Both persistent M10 phases finish before the separate

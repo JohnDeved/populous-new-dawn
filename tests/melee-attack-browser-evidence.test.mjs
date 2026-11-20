@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import meleeAttack, { installMeleeFrameObserver, meleeAttackMapping, assertMeleeRouteReady,
-  readMeleeRouteState, meleeTargetPoint, meleeCameraInput, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
+  readMeleeRouteState, m3StartupReady, meleeScenario, meleeTargetPoint, meleeCameraInput, meleeCameraPreparation, assertPausedCameraWorld, shiftClickMeleeTarget } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { meleeRunningProtocol, validateMeleeRunningObservation } from '../scripts/tutorial-browser/melee-attack-running-evidence.mjs'
 import { validateRecoilObservation } from '../scripts/tutorial-browser/melee-recoil-evidence.mjs'
 import { spriteDirection } from '../app/projection.ts'
@@ -280,12 +280,13 @@ test('ordinary M2 command observes descriptor-derived first-entry expiry without
 // Explicit supplied World/canvas/RAF diagnostic. No browser, actual game method,
 // rendering, screenshot pixels, original-game timing or live campaign claim.
 function withObserverFixture(run, observerInput = mapping) {
+  const actorId = observerInput?.scenarioKey === 'm3' ? 46 : 54
   const world = structuredClone({ turn: 40, paused: false, randomState: 12345,
-    terrain: new Uint8Array([1, 2, 3]), selected: [54],
-    units: [{ id: 54, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
+    terrain: new Uint8Array([1, 2, 3]), selected: [actorId], outcome: { level: actorId === 46 ? 3 : 2 },
+    units: [{ id: actorId, kind: 'shaman', team: 'blue', hp: 120, heading: Math.PI,
       fight: { action: 'strike', animation: 'strike', started: 40, nativeAttackAnimation: true,
         group: 1252, opponent: 13, remaining: 3,
-        motion: { id: 54, state: 25, speed: 0, class: 1, model: 7, workFlags: 1252,
+        motion: { id: actorId, state: 25, speed: 0, class: 1, model: 7, workFlags: 1252,
           flags2: 0x1080, flags4: 0, object: 456, draw: 14, f1: 0, f2: 0, stamp: 40 } } }] })
   const layers = [
     { visible: true, userData: { piece: 90 } },
@@ -300,11 +301,11 @@ function withObserverFixture(run, observerInput = mapping) {
   const group = { visible: true, userData: { layers, frame: 998, frameFlip: false } }
   const noGameMethod = () => assert.fail('observer must not call a game update/render/pick method')
   const scene = { world, renderer: { domElement: canvas, info: { render: { frame: 100 } }, render: noGameMethod },
-    gameClock: { animationFrame: 80 }, cameraBearing: 0, unitMeshes: new Map([[54, group]]),
+    gameClock: { animationFrame: 80 }, cameraBearing: 0, unitMeshes: new Map([[actorId, group]]),
     render: noGameMethod, animate: noGameMethod, updateUnitsFrame: noGameMethod,
     view: { painter: { source(layer) { sourceCalls.push(layer); return submitted.has(layer) ? { layer } : null } } },
     picking: { pick: noGameMethod, personBounds(id, actualRect) {
-      assert.equal(id, 54); assert.equal(actualRect, rect)
+      assert.equal(id, actorId); assert.equal(actualRect, rect)
       return { x: 100, y: 80, width: 30, height: 45 }
     } } }
   const pending = new Map(), window = { testSceneRef: { current: scene }, testStore: { getWorld: () => world } }
@@ -566,7 +567,7 @@ test('all-visit storage fails explicitly at its independent bound and never chan
 
 function retainSpecialFrames({ world, scene, group, next }, turns) {
   const unit = world.units[0], person = unit.fight.motion, m = mapping['shaman:special']
-  world.fights = [{ id: 1252, members: [54, 13] }]
+  world.fights = [{ id: 1252, members: [unit.id, 13] }]
   for (const turn of turns) {
     world.turn = turn
     Object.assign(unit.fight, { action: 'special', animation: 'special', started: 40,
@@ -941,4 +942,101 @@ test('melee admission settles opening before unchanged natural-turn and attack g
   assert.ok(start >= 0 && pause > start)
   assert.match(source.slice(start, pause), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
   assert.match(source, /export const meleeAttackLimitMs = 75000/)
+})
+
+test('serialized M3 observer binds Shaman46 and retains exact first entry and native expiry', () => {
+  withObserverFixture(fixture => {
+    retainCompleteSpecialFrames(fixture)
+    completeObserverEntry(fixture)
+    const result = fixture.observation.retain()
+    assert.equal(result.error, null)
+    assert.equal(result.entry.id, 46)
+    assert.doesNotThrow(() => validateMeleeRunningObservation(result, mapping, 'm3'))
+    assert.throws(() => validateMeleeRunningObservation(result, mapping, 'm2'))
+  }, { mapping, scenarioKey: 'm3' })
+})
+test('authored scenario catalog rejects arbitrary actor and target bindings', () => {
+  assert.deepEqual(meleeScenario('m3'), { key: 'm3', level: 3, actorId: 46, targetId: 48, targetKind: 'brave', targetTeam: 'yellow' })
+  assert.throws(() => meleeScenario('unknown'))
+  assert.throws(() => assertMeleeRouteReady({}, true, { ...meleeScenario('m3'), actorId: 54 }))
+})
+
+
+test('M3 opening waits for the authored flyby request, then public Skip or completion', () => {
+  const prior = { window: globalThis.window, document: globalThis.document, getComputedStyle: globalThis.getComputedStyle }
+  const world = { outcome: { level: 3 }, ai: { variables: Array(25).fill(0) }, inputMask: 0, flyby: { flags: 16 } }
+  let button = null
+  globalThis.window = { testStore: { getWorld: () => world } }
+  globalThis.document = { querySelector: () => button }
+  globalThis.getComputedStyle = () => ({ visibility: 'visible' })
+  try {
+    assert.equal(m3StartupReady(), false, 'Initial input-free frames precede the authored flyby')
+    world.ai.variables[24] = 1; world.inputMask = 64; world.flyby.flags = 1
+    assert.equal(m3StartupReady(), false, 'Active flyby without public Skip is not ready')
+    button = { getClientRects: () => [{}], disabled: false }
+    assert.deepEqual(m3StartupReady(), { action: 'skip', inputMask: 64, flybyFlags: 1, level: 3, skipVisible: true, openingFlybyRequested: 1 })
+    button.disabled = true
+    assert.equal(m3StartupReady(), false)
+    button = null; world.inputMask = 0; world.flyby.flags = 16
+    assert.equal(m3StartupReady().action, 'ready', 'Naturally completed flyby remains admitted')
+    world.outcome.level = 2
+    assert.equal(m3StartupReady(), false, 'M3 predicate cannot admit another mission')
+  } finally { Object.assign(globalThis, prior) }
+})
+
+
+test('hosted M3 bottom-edge geometry admits one preparatory pan without relaxing final corridor bounds', () => {
+  const minimap = { width: 144, height: 138, rect: { x: 0, y: 0, width: 144, height: 138.24000549316406 },
+    center: { x: 11008, y: -22784 }, heading: 256, target: { x: -9984, y: 24832 } }
+  const original = structuredClone(minimap)
+  assert.throws(() => meleeCameraInput(minimap), /offset must remain inside/)
+  const plan = meleeCameraPreparation(minimap)
+  assert.equal(plan.final, null)
+  assert.deepEqual(plan.intermediate.native, { x: 56111, y: 25624 })
+  assert.ok(plan.beforeDistance - plan.intermediate.distance > 512)
+  const arrived = { ...minimap, center: plan.intermediate.native }
+  const final = meleeCameraInput(arrived)
+  assert.deepEqual(final.offsetBacking, { x: 0, y: 12 })
+  assert.ok(final.nearest.distance <= 2048)
+  assert.ok(final.backing.y >= 2 && final.backing.y < 136)
+  assert.equal(meleeCameraPreparation(arrived).intermediate, null)
+  assert.equal(meleeCameraPreparation(minimap, true).intermediate, null)
+  assert.throws(() => meleeCameraPreparation({ ...minimap, width: 0 }))
+  assert.deepEqual(minimap, original)
+})
+
+
+test('paused camera invariant permits only source-consistent presentation clock progression', () => {
+  const before = { paused: true, turn: 60, random: 123, lightView: { x: 1 },
+    worshipAcquisition: { requests: [], controllers: { spell: null },
+      clock: { elapsed: 6399.722, nextVisit: 6400, lastVisit: 6375, limiter: 0, normalRate: 40 } } }
+  const after = structuredClone(before)
+  after.lightView.x = 2
+  Object.assign(after.worshipAcquisition.clock, { elapsed: 7249.722, nextVisit: 7250, lastVisit: 7225 })
+  const check = candidate => assertPausedCameraWorld(JSON.stringify(before), JSON.stringify(candidate))
+  assert.equal(check(after).period, 25)
+  for (const mutate of [w => w.turn++, w => w.random++, w => w.paused = false,
+    w => w.worshipAcquisition.requests.push(1), w => w.worshipAcquisition.controllers.spell = {},
+    w => w.worshipAcquisition.clock.limiter = 4, w => w.worshipAcquisition.clock.normalRate = 24,
+    w => w.worshipAcquisition.clock.elapsed = 6300, w => w.worshipAcquisition.clock.elapsed = 7300,
+    w => w.worshipAcquisition.clock.lastVisit++, w => w.worshipAcquisition.clock.nextVisit++,
+    w => { w.worshipAcquisition.clock.lastVisit++; w.worshipAcquisition.clock.nextVisit++ },
+    w => w.worshipAcquisition.clock.elapsed = null]) {
+    const invalid = structuredClone(after); mutate(invalid); assert.throws(() => check(invalid))
+  }
+})
+
+
+test('preparatory pan rejects HUD-covered pixels and retains strict final framing', () => {
+  const m = { width: 144, height: 138, rect: { x: 0, y: 0, width: 144, height: 138 },
+    center: { x: 11008, y: -22784 }, heading: 256, target: { x: -9984, y: 24832 } }
+  const p = meleeCameraPreparation(m, false, point => point.y < 124)
+  assert.ok(p.intermediate.y < 124)
+  assert.ok(p.intermediate.distance > 2048 && p.intermediate.distance <= 8192)
+  assert.ok(p.beforeDistance - p.intermediate.distance > 512)
+  const final = meleeCameraInput({ ...m, center: p.intermediate.native })
+  assert.ok(final.nearest.distance <= 2048)
+  assert.deepEqual(final.offsetBacking, { x: 0, y: 12 })
+  assert.throws(() => meleeCameraPreparation(m, false, () => false), /Exposed bounded/)
+  assert.throws(() => meleeCameraInput(m), /offset must remain inside/)
 })
