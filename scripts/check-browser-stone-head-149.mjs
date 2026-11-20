@@ -168,7 +168,7 @@ async function presentationInvariant(label) {
       w = scene.world,
       serialize = window.__totemSerialize,
       { updateShrinesFrame } = await import('/app/scene-entities.ts'),
-      { stoneHead149Model } = await import('/app/stone-head-149.ts'),
+      { stoneHead149Model } = await import('/app/stone-head-149-model.ts'),
       before = serialize(w),
       beforeClock = serialize(scene.gameClock),
       geometry = [...scene.shrineMeshes].map(([id, entry]) => [
@@ -300,7 +300,7 @@ async function until(kind, limit, label) {
       async ({ kind, count, boatId, partyIds }) => {
         const w = window.testScene.world,
           { tick } = await import('/app/model.ts'),
-          { stoneHead149Model } = await import('/app/stone-head-149.ts'),
+          { stoneHead149Model } = await import('/app/stone-head-149-model.ts'),
           serialize = window.__totemSerialize,
           control = structuredClone(w),
           root = w.shrines.find(s => s.id === 71),

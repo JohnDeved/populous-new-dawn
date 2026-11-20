@@ -345,7 +345,7 @@ test('shrine membership observes migrated NaN IDs, in-place IDs, loaded/empty wo
 
 test('authored45 and149 geometry and saved frames remain unchanged while legacy initialization stays owned', async () => {
   const api = await loadSceneFixture(),
-    { stoneHead149Model } = await import('../app/stone-head-149.ts'),
+    { stoneHead149Model } = await import('../app/stone-head-149-model.ts'),
     { initializeStoneHead, stoneHeadFrame, stoneHeadPositions, stepStoneHeadAnimation } =
       await import('../app/stone-head-animation.ts')
   for (const mission of [1, 3]) {
