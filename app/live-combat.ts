@@ -160,7 +160,15 @@ export function combatWorld(w: World, source: CombatPerson, range: number) {
       }
       if (!ordered.length) return row
       const included = new Set(ordered)
-      return [...ordered, ...row.filter(o => !included.has(o))]
+      // Append to the fresh native-order result without a filtered array and copy.
+      // The fallback row can have been returned by an earlier native-empty query.
+      const length = row.length
+      for (let i = 0; i < length; i++) {
+        if (!(i in row)) continue
+        const object = row[i]
+        if (!included.has(object)) ordered.push(object)
+      }
+      return ordered
     },
     buildingAt: cell => {
       const id = w.land.buildingIds[cell] & 1023
