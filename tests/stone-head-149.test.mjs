@@ -12,7 +12,7 @@ import {
   findStoneHead149Source,
   originalStoneHead149Source,
   stoneHead149Model,
-} from '../app/stone-head-149.ts'
+} from '../app/stone-head-149-model.ts'
 
 const models = JSON.parse(readFileSync(new URL('../app/original-models.json', import.meta.url))),
   provenance = JSON.parse(
