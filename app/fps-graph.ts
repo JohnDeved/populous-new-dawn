@@ -76,6 +76,11 @@ export class FpsGraph {
           <div title="Position changed since the prior recorded pointer sample. Unknown means no comparable pointer baseline."><dt>Pointer changed</dt><dd data-metric="pick-pointer-change">--</dd></div>
           <div title="View invalidation inputs changed since the prior recorded pointer sample, including camera and viewport inputs; not camera motion alone. Unknown means a new recording baseline."><dt>View inputs changed</dt><dd data-metric="pick-view-change">--</dd></div>
         </dl>
+        <div class="fps-caption" title="Browser dimensions when these readouts publish, not a historical frame sample or drawing-buffer resolution.">Browser at publication</div>
+        <dl>
+          <div><dt>Viewport · CSS px</dt><dd data-metric="viewport">--</dd></div>
+          <div title="Browser-reported device pixel ratio, rounded to two decimal places. Not the renderer's selected resolution scale."><dt>Device pixel ratio</dt><dd data-metric="pixel-ratio">--</dd></div>
+        </dl>
       </section>
       </div><div class="fps-secondary">
       <div class="fps-caption"><span>Rolling window</span><span data-metric="window">0 samples</span></div>
@@ -324,6 +329,8 @@ export class FpsGraph {
       'pick-route',
       'pick-pointer-change',
       'pick-view-change',
+      'viewport',
+      'pixel-ratio',
     ])
       this.text(name, '--')
     this.text('state', state)
@@ -423,6 +430,18 @@ export class FpsGraph {
       ['pick-view-change', interaction?.viewChanged],
     ] as const)
       this.text(name, value === true ? 'Yes' : value === false ? 'No' : 'Unknown')
+    // Read only at the existing publication cadence, with no resize listener.
+    const { innerWidth: width, innerHeight: height, devicePixelRatio: ratio } = globalThis
+    this.text(
+      'viewport',
+      Number.isInteger(width) && width > 0 && Number.isInteger(height) && height > 0
+        ? `${width} × ${height}`
+        : 'Unknown'
+    )
+    this.text(
+      'pixel-ratio',
+      Number.isFinite(ratio) && ratio > 0 ? `${ratio.toFixed(2)}×` : 'Unknown'
+    )
     this.text('pointer', `${samples.pointerMs.toFixed(2)} ms`)
     this.text(
       'pointer-tail',
