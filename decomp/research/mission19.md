@@ -60,3 +60,60 @@ No full native Mission 19 playthrough, renderer/audio comparison, late AI behavi
 After parent review, promote `00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, and `00516eb0` to `decomp/generated/` plus `decomp/exports.json`; consolidate this note as `decomp/research/mission19.md`; combine the two scratch probes into `scripts/check-native-mission19.py`. No further Ghidra exports are needed.
 
 Smallest native-supported implementation: add Mission 19 objective state at the campaign/script adapter (message 129's one-shot warning latch; Chumara-empty forced loss; Dakini-empty forced win with loss priority) **without** changing generic alliance masks. Defer normal reachability for messages 127/128, or exercise them only with explicitly supplied internal-1178 test state, until the producer is recovered. Then add model-21 at the existing spell target/effect boundary using generic validation/payment and the recovered relocation timer/container/state/RNG behavior. Reuse ordinary worship and structured-clone owners for all three gifts.
+
+## Distress counter recovered (2026-11-19)
+
+The producer uncertainty above describes the initial investigation. A subsequent
+bounded disassembly of original `004a3960` resolves it: the WORD increment at
+`004a399a` addresses `0x89dbe7 + creditedTribe * 0xc65 + victimOwner * 2`.
+The existing exported death caller `004d5cf0` supplies the object's `+0xb0`
+attribution and its `+0x2f` victim owner. Yellow owner 2 therefore selects
+tribe-relative `+0xa23`. The original internal reader `0048f350` cases 1176–1179
+returns these unsigned self-to-victim counters; 1180–1183 reads the reverse
+relation. Internal 1178 is self-attributed Yellow deaths, not an unknown
+Mission-19-specific event.
+
+The controlled probe `check-native-mission19-distress.py` executes both original
+leaves without hooks. It supplies four credited tribes, four victim owners and
+initial values 0, 2, 25 and 65535, verifies the entire 4×4 matrix, forward/reverse
+reads and 16-bit wrap, and checks that a wild victim is ignored. The research
+copy passed all 64 combinations plus the wild case. This does not execute the
+original death caller or establish a whole native mission/combat timeline.
+
+The browser already maintains this matrix as `world.killCredits`, including
+ordinary death attribution, Hypnotise-owner restoration and checkpoint storage.
+The proposed adapter change binds only internal 1178 to `killCredits[self][2]`
+and restores original Red script words 344–400 inside its existing EVERY-63
+wrapper. It leaves warning 129, forced outcomes and generic combat alliances
+unchanged. Warning 127 requires more than two credited Yellow deaths; warning
+128 requires more than 25, Red population above 30, and no Yellow model-8
+**Firewarrior Training Hut**, including unfinished buildings after command 1136.
+The latter is not a Temple (model 5).
+
+Functional evidence is deliberately separated: supplied counter/roster controls
+exercise thresholds, attribution, script latches and checkpoint continuation;
+a supplied Lightning strike exercises existing damage and actual ordinary death
+cleanup before warning delivery. Neither is an unmodified natural playthrough.
+The initial new fixture mistakenly removed a Temple rather than model 8 and
+failed its positive warning-128 assertion; that failure is retained, and the
+fixture is corrected to the exact original model rather than weakening the gate.
+
+A second supplied-boundary attempt also failed for a useful reason: trimming Red
+to 30 people and advancing 64 ordinary ticks allowed real housing births to raise
+the population to 40 at script visit 191. Warning 128 then correctly fired. The
+final boundary controls evaluate the original owned script at visit 63 with
+explicitly asserted 30/31 populations; positive checkpoint continuation still
+advances ordinary ticks. The first-warning Lightning case separately observes
+actual death cleanup and exact recurring delivery cadence. Neither failure is
+attributed to the runtime or hidden by increasing thresholds/deadlines.
+
+Final bounded qualification: seven focused tests passed (four new controls and
+all three existing Mission-19 reward/Teleport/objective tests), and both changed
+application files passed formatting. The tracked native probe passed 64 cases
+plus wild exclusion. An unmodified `createWorld(19)` with 3000 ordinary model
+ticks did **not** reach either new warning: Red-to-Yellow credits remained zero,
+Red/Yellow populations reached 74/48, and only the opening message remained.
+This negative result is retained. It establishes neither natural warning
+reachability nor browser message presentation. No full native mission, rendered
+witness, production build, full typecheck or repository-wide Full pass is claimed
+at this stage; those are distinct admission requirements.
