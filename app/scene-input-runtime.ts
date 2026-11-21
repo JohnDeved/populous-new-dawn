@@ -587,6 +587,8 @@ export function keyDown(scene: GameScene, event: KeyboardEvent) {
   if (event.ctrlKey) scene.keys.add('control')
   if (event.shiftKey) scene.keys.add('shift')
   if (bookmark >= 0) {
+    // Buffered native bookmark bindings consume press edges, not held repeats.
+    if (event.repeat) return
     cameraBookmark(scene, bookmark, event.shiftKey)
     event.preventDefault()
     return
