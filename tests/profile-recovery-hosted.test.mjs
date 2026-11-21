@@ -7,6 +7,25 @@ import { browserConfiguration } from '../scripts/tutorial-browser/browser-config
 import { runProfileEpisode } from '../scripts/tutorial-browser/profile-episodes.mjs'
 const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')
 
+test('M10 checker changes admit the existing Ready browser workflow without new triggers', () => {
+  const workflow = yaml.load(read('.github/workflows/tutorial-browser.yml'))
+  const assertAdmission = candidate => {
+    assert.deepEqual(Object.keys(candidate.on), ['pull_request'])
+    assert.deepEqual(candidate.on.pull_request.branches, ['main'])
+    assert.deepEqual(candidate.on.pull_request.types, ['ready_for_review'])
+    assert.equal(candidate.on.pull_request.paths.filter(path =>
+      path === 'scripts/local-render/mission10-boat-checkpoint.mjs').length, 1)
+  }
+  assertAdmission(workflow)
+  const missing = structuredClone(workflow)
+  missing.on.pull_request.paths = missing.on.pull_request.paths.filter(path =>
+    path !== 'scripts/local-render/mission10-boat-checkpoint.mjs')
+  assert.throws(() => assertAdmission(missing))
+  const expanded = structuredClone(workflow)
+  expanded.on.workflow_dispatch = {}
+  assert.throws(() => assertAdmission(expanded))
+})
+
 test('IndexedDB acceptance has an independent hosted job without extending Tutorial', () => {
   const workflow = read('.github/workflows/tutorial-browser.yml')
   const job = yaml.load(workflow).jobs['tutorial-browser']
