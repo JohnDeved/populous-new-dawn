@@ -292,16 +292,16 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     // The old-source victory is retained in the paired historical evidence.
     // Correct native seat coordinates change the existing grounded attack exit.
     // The c44 Red marker patrol now cycles (0x4366b0) and advances the shared RNG,
-    // so this duel drifts away from the Green guards: the Shaman kills Preacher17,
-    // then the cycling Green patrol (11/10/12) intercepts and kills her.
+    // so this duel drifts away from the Green guards. Native pre-dispatch builder
+    // motion reaches its work wait earlier (first RNG divergence at3525), shifting
+    // later combat draws: the Shaman kills Preacher17, then Warrior11 intercepts
+    // and kills her. Queue, passenger and death cleanup below remain unchanged.
     assert.deepEqual(encounters, [
       [3545, 17],
-      [4053, 11],
-      [4074, 10],
-      [4089, 12],
+      [4217, 11],
     ])
-    assert.equal(death, 4089)
-    assert.equal(targetDeath, 3919)
+    assert.equal(death, 4299)
+    assert.equal(targetDeath, 3967)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)
     assert.equal(world.units.includes(shaman), false)
@@ -312,23 +312,27 @@ async function assertPlainPersonAttack({ store, world, shaman, balloon }, histor
     // First contact retains selected Preacher17; guard reinforcement and actual
     // melee opponent writes yield this exact existing grounded-adapter outcome.
     // Preacher17 now cycles with the Green marker patrol (0x4366b0), so the
-    // transport follows a moving target before the grounded departure.
-    assert.equal(departure, 4000)
-    assert.equal(firstFight, 4003)
+    // transport follows a moving target before the grounded departure. Correct
+    // pre-dispatch construction motion advances shared RNG and subsequent combat
+    // chronology; the selected target still survives and all ownership retires.
+    assert.equal(departure, 3944)
+    assert.equal(firstFight, 3945)
     assert.equal(firstOpponent, 17)
     assert.equal(firstOpponentTeam, 'green')
     assert.deepEqual(encounters, [
-      [4003, 17],
-      [4031, 11],
+      [3945, 17],
+      [3987, 10],
+      [3999, 12],
     ])
-    assert.equal(death, 4040)
+    assert.equal(death, 3999)
     assert.equal(targetDeath, 0)
     assert.equal(shaman.hp, 0)
     assert.equal(world.objectCells.objects.has(shaman.id), false)
     assert.equal(world.units.includes(shaman), false)
     assert.equal(world.units.includes(target), true)
     assert.equal(world.objectCells.objects.has(target.id), true)
-    assert.equal(target.hp, 55.1)
+    // One native life unit differs on the revised combat/health timeline.
+    assert.equal(target.hp, 55.05)
   }
   assert.equal(world.buildingOrders.records[orderId].references, 0)
   assert.equal(balloon.active, true)
