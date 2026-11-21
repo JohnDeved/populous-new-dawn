@@ -936,9 +936,9 @@ export function campaignRules(w: World) {
                                   ? [
                                       12,
                                       1003,
-                                      // Native 64-turn last-chance warning and 16-turn Chumara-loss latch.
+                                      // Native 64-turn kill-count/distress warnings and 16-turn Chumara-loss latch.
                                       ...script.codes.slice(316, 319),
-                                      ...script.codes.slice(401, 434),
+                                      ...script.codes.slice(344, 434),
                                       1004,
                                       ...script.codes.slice(584, 604),
                                       1004,
