@@ -20,7 +20,7 @@ try{
  await page.goto('http://localhost:3000/',{waitUntil:'networkidle'});await page.locator('.loading-world').waitFor({state:'hidden'});await page.screenshot({path:'qa/desktop.png'});
  await page.getByRole('button',{name:'Enable sound',exact:true}).click();await page.getByRole('button',{name:'Mute sound',exact:true}).waitFor({timeout:30000});assert.ok(await page.evaluate(()=>window.__audioStarts>=1&&window.__samples[0].peak>0));
  await page.getByRole('button',{name:/Skip introduction/}).waitFor();await page.getByRole('button',{name:/Skip introduction/}).click();await page.getByRole('button',{name:/Skip introduction/}).waitFor({state:'hidden'});
- await page.getByRole('button',{name:'buildings B',exact:false}).click();assert.ok(await page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true}).isDisabled());
+ await page.getByRole('button',{name:'buildings',exact:false}).click();assert.ok(await page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true}).isDisabled());
  await page.getByRole('button',{name:'spells 1–3',exact:false}).click();
  await page.getByRole('button',{name:'1× GAME SPEED',exact:false}).click();
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();await page.getByRole('button',{name:'Worship Land Bridge stone head',exact:true}).click();
@@ -34,7 +34,7 @@ try{
  await page.getByRole('button',{name:'Worship Vault of Knowledge',exact:true}).click();await page.waitForFunction(()=>document.querySelectorAll('.objective-panel li.complete').length===2,{},{timeout:18000});console.log('bridge and vault verified');
  const knowledge=page.locator('.campaign-messages details').filter({hasText:"Shaman, you've stolen the Warrior Training Hut Plan!"});await knowledge.locator('summary').click();assert.ok(await knowledge.locator('p').isVisible());await page.screenshot({path:'qa/campaign-knowledge.png'});await knowledge.getByRole('button',{name:'Dismiss campaign message',exact:true}).click();
  await focus(4,32);await page.getByRole('button',{name:'Select all braves',exact:true}).click();await click(4,32,'right');
- await page.getByRole('button',{name:'buildings B',exact:false}).click();const camp=page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true});assert.ok(await camp.isEnabled());await camp.click();await click(4,32);
+ await page.getByRole('button',{name:'buildings',exact:false}).click();const camp=page.getByRole('button',{name:'Warrior Training Hut, 8 wood',exact:true});assert.ok(await camp.isEnabled());await camp.click();await click(4,32);
  await page.getByText('Warrior Training Hut planned. Braves will fetch 8 logs from nearby trees.').waitFor();await page.screenshot({path:'qa/construction.png'});
  await page.getByRole('button',{name:'Warrior Training Hut: ready',exact:true}).waitFor({timeout:45000});console.log('timber delivery and grounded construction verified');
  await page.getByRole('button',{name:'Select all braves',exact:true}).click();await click(4,32,'right');await page.waitForFunction(()=>Number(document.querySelectorAll('.tribe-classes strong')[1]?.textContent)>0,{},{timeout:20000});await page.screenshot({path:'qa/training.png'});

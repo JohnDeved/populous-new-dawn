@@ -451,7 +451,7 @@ export default async function mission3TempleCheckpoint(
     report.site = hit
     save()
     assert.equal(hit.rejection, undefined, 'Legal ordinary Temple site required')
-    await input.button('buildings B')
+    await input.button('buildings')
     await input.button('Temple, 8 wood')
     let armed = false,
       placementFailed = false,

@@ -353,6 +353,15 @@ function buildingCounterattackCells(w: World, b: Building, radius: number) {
   return cells
 }
 
+// Plain B -> process_cmd 0xbf -> tribe command 0x7c. Like the existing player
+// scatter adapter, apply the command before the next simulation turn. Exact
+// native one-slot queue competition and transient Call To Arms feedback remain
+// separate from this bounded input adapter; see decomp/research/call-to-arms.md.
+export function callToArms(w: World) {
+  if (w.paused || w.status !== 'playing' || w.inputMask || w.land.landFlags & 0x802) return
+  buildingCounterattack(w, teamForTribe(w.manaWorld.playerTribe))
+}
+
 // 0x40bce0/0x40bd20: occupied guard towers order nearby tribe defenders
 // to counterattack only after their area scan detects a hostile person.
 export function buildingCounterattack(w: World, team: Team) {

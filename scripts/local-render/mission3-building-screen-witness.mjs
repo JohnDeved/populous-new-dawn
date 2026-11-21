@@ -131,7 +131,7 @@ export function installMission3BuildingScreenWitness({
     )
   const hud = () => {
     const root = scene.container.parentElement,
-      tab = root.querySelector('[aria-label="buildings B"]'),
+      tab = root.querySelector('[aria-label="buildings"]'),
       card = root.querySelector('[aria-label="Temple, 8 wood"]'),
       panel = root.querySelector('.native-hud'),
       shell = root.getBoundingClientRect(),

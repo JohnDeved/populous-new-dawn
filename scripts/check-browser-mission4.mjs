@@ -66,7 +66,7 @@ try {
   await page.getByRole('button', { name: 'Convert Wild, 0 shots' }).waitFor()
   await page.getByLabel('Focus Matak tribe').waitFor()
   await page.getByText('We face a great threat.', { exact: false }).waitFor()
-  await page.getByRole('button', { name: 'buildings B' }).click()
+  await page.getByRole('button', { name: 'buildings' }).click()
   assert.equal(await page.getByRole('button', { name: 'Guard Tower, 5 wood' }).isDisabled(), true)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByText('Objectives · 0 / 3', { exact: true }).click()

@@ -80,7 +80,7 @@ only; no original input).
 | Alt+1…6 (Ctrl ignored, predicate `004fee90`) | `0x90`–`0x95`: `FUN_0047c350(slot, 1, 1, ctrlUp)` | none (Alt rejected) | #1005 |
 | Shift+Backspace | `0x98`: `FUN_0047c350(0, 1, 0, 0)` | none | #1005 |
 | G | `0xc1`: `set_tribe_command(tribe, 0x82, FUN_004999d0(0))` | guard Shaman | #1010 (meaning of command `0x82` not established) |
-| B | `0xbf`: `set_tribe_command(tribe, 0x7c, 0, 0)` + message | open buildings tab | — |
+| B | `0xbf`: `set_tribe_command(tribe, 0x7c, 0, 0)` + message | bounded Call To Arms adapter; native feedback, alert reset and exact queue competition remain separate ([scope](../call-to-arms.md)) | #457 |
 | Ctrl+left release | `0x7f` (Spy/queued order family) | see #1007/#1008 | #1007/#1008 |
 | Shift+right release | `0x79`, `0x7a` (predicates `004ff2d0`/`004ff360`), `0xb3` | see #1011 | #1003/#1011 |
 | F, W, A, S, Q, E camera aliases | no default original binding for F/W/Q/E; original A → `0xa0`/`0xa1`/`0xa2` flags, S → `0x63` | browser camera/focus | port additions |

@@ -22,7 +22,7 @@ try {
     s.onChange()
   })
   await page.waitForFunction(() => !window.testScene.cameraMotion.active)
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   await page.getByRole('button', { name: 'Hut, 3 wood', exact: true }).click()
   async function move(p) {
     const q = await page.evaluate(p => {
