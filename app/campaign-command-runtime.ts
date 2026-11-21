@@ -965,6 +965,11 @@ export function campaignRules(w: World) {
                                         ]
                                       : [12, 1003, 1004, 1019],
   }
+  if (w.outcome.level === 8 && tribe === 1) {
+    // cpscr016 EVERY 63 offset 54: Blue kills > 5, population < 8,
+    // and no completed Huts (models 1–3) enable the original last stand.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(1832, 1867), 1004, 1019]
+  }
   if (w.outcome.level === 16 && tribe === 1) {
     // Original Red EVERY255/offset127: six Tower requests precede both patrol groups.
     // Separate expansion, nearby-count, training and guard siblings remain unbound.
