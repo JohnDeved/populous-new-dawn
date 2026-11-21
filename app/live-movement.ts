@@ -1,6 +1,7 @@
 import { guardPostCell, guardPostCellObjects } from './guard-posts.ts'
 import { departVehiclePerson } from './vehicle-unload.ts'
 import { populationCeiling } from './capacity-policy.ts'
+import { dropCarriedTimber } from './timber.ts'
 import { buildingPose } from './building-shapes.ts'
 import { liveBuildingShape } from './live-building-shapes.ts'
 import { clearTaskBindings, releaseTasks } from './world-tasks.ts'
@@ -199,7 +200,32 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     },
     allowVehicleOrder: () => true,
     initializeCommand: () => {
-      if (order!.model === 6 || order!.model === 7) return
+      if (order!.model === 6) return
+      if (order!.model === 7) {
+        // 0x432fda checks assignment before configurePersonOrder clears 0x8000.
+        if (!(p.assignment & 0x8000)) {
+          const unit = w.units.find(u => u.id === p.id)!
+          dropCarriedTimber(
+            p,
+            () => {
+              // Existing live scenery pool; native allocation limits are separate.
+              w.trees.push({
+                ...(w.scenerySource
+                  ? { authoredSlot: null, sceneryBirth: 'loose-log' as const }
+                  : {}),
+                id: w.nextId++,
+                ...browserPosition(p),
+                logs: 1,
+                model: 11,
+              })
+              return true
+            },
+            () => sound(w, 11, unit)
+          )
+          unit.cargo = p.cargo / 100
+        }
+        return
+      }
       if (order!.model === 30) {
         const tribe = w.manaTribes[p.tribe]
         tribe.shamanGuards = short(tribe.shamanGuards + 1)
