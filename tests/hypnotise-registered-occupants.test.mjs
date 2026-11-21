@@ -35,10 +35,10 @@ async function prepare() {
   selectUnit(w, shaman.id, false)
   assert.ok(command(w, { x: 13, z: -31 }))
   until(() => spellTargetError(w, 'hypnotise', target) === null, 300)
-  assert.equal(w.turn, 6242)
+  assert.equal(w.turn, 6232)
   assert.ok(cast(w, 'hypnotise', target))
   until(() => w.effects.some(f => f.kind === 'hypnotise' && f.turnsRemaining === 12), 60)
-  assert.equal(w.turn, 6256)
+  assert.equal(w.turn, 6246)
   const effect = w.effects.find(f => f.kind === 'hypnotise')
   const center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [4352, 3840])
@@ -142,17 +142,19 @@ async function assertRegisteredConversion({ store, w, target, tower, effect }, e
   assert.equal(tower.admission.inside, 0)
   assert.ok(!tower.admission.occupants.includes(target.id))
   const convertedOwner = converted.native
-  while (w.turn < 6312) step()
+  while (w.turn < expected.checkpoint) step()
   assert.equal(converted.hp, expected.checkpointHp)
   assert.equal(converted.hypnotise.remaining, expected.checkpointRemaining)
   // Preserve the original6323 casualty in the explicit historical case. The
   // fresh route has a separately measured melee ledger: Red Braves, then the
   // authored Red marker patrol (97/98) passing on its cycle, engage the
-  // converted Firewarrior; check it mid-ledger while still converted.
-  if (expected.death === 6322) {
-    while (w.turn < 6317) step()
-    assert.equal(converted.hp, 13.4)
-    assert.equal(converted.hypnotise.remaining, 48)
+  // converted Firewarrior; check it mid-ledger while still converted. Since the
+  // native single-marker guards (#1059) shifted the Mission 22 timeline, the
+  // fresh route dies at 6295, so it uses its own earlier checkpoint.
+  if (expected.death === 6295) {
+    while (w.turn < 6290) step()
+    assert.equal(converted.hp, 13.95)
+    assert.equal(converted.hypnotise.remaining, 49)
     assert.equal(converted.team, 'blue')
     assert.equal(w.objectCells.objects.get(converted.id), convertedOwner)
   }
@@ -183,12 +185,12 @@ async function assertRegisteredConversion({ store, w, target, tower, effect }, e
 
 test('fresh earned Hypnotise retains registered occupant conversion, measured damage and real death through Save/Load', async () => {
   await assertRegisteredConversion(await prepare(), {
-    checkpointHp: 16.05, checkpointRemaining: 49, beforeDeathHp: 13.7, death: 6322,
+    checkpoint: 6280, checkpointHp: 24.4, checkpointRemaining: 51, beforeDeathHp: 11.2, death: 6295,
   })
 })
 
 test('historical pre-newborn registered occupant retains HP6.15, remaining47 and real death6323 through Save/Load', async () => {
   await assertRegisteredConversion(await loadHistoricalMission22Occupant(), {
-    checkpointHp: 6.15, checkpointRemaining: 47, beforeDeathHp: 1.45, death: 6323,
+    checkpoint: 6312, checkpointHp: 6.15, checkpointRemaining: 47, beforeDeathHp: 1.45, death: 6323,
   })
 })

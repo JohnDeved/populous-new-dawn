@@ -178,10 +178,21 @@ for (const targetHp of [25, 50]) test(`a tower Firewarrior owns one impact per v
   assert.equal(hidden.hp, 50)
   assert.deepEqual(shots.map(shot => shot.firewarriorShot.impact), [false, true])
   if (targetHp === 25) {
-    // The original damage consumer belongs to one marked 25 HP tower shot.
-    // Preserve the existing lethal ownership witness and its32-turn bound.
-    until(w, () => !w.units.some(unit => unit.id === target.id), 32)
-    assert.equal(w.killCredits[0][1], 1)
+    // The original damage consumer belongs to one marked 25 HP tower shot. The
+    // regeneration turn (0x4d43a0, turn & 7 == 0) before the impact leaves 0.2.
+    // Since #1059 shifted the opening RNG, the target rests (state 19) instead of
+    // walking into the ally's fight; later volleys reveal and kill the hidden
+    // enemy, then the target. Both removals are pinned and credited to Blue.
+    const firstIds = new Set(shots.map(shot => shot.id)), start = w.turn, removed = {}
+    until(w, () => !w.effects.some(effect => firstIds.has(effect.id)), 16)
+    assert.equal(target.hp, 0.2, 'exactly one marked 25 HP impact')
+    until(w, () => {
+      for (const [name, unit] of [['hidden', hidden], ['target', target]])
+        if (removed[name] === undefined && !w.units.includes(unit)) removed[name] = w.turn - start
+      return removed.target !== undefined
+    }, 120)
+    assert.deepEqual(removed, { hidden: 74, target: 113 })
+    assert.equal(w.killCredits[0][1], 2)
   } else {
     const firstLaunchTurn = w.turn, firstIds = new Set(shots.map(shot => shot.id))
     until(w, () => !w.effects.some(effect => firstIds.has(effect.id)), 16)

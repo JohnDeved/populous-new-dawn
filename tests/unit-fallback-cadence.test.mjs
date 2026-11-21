@@ -1,6 +1,6 @@
 // Legacy elapsed-time unit artwork cadence (#214). Mission 10 people that render
 // through the shipped fallback branch (no native frame owner; the step-1 Firewarrior
-// is a supplied area-guard witness, see legacyWalkers) are advanced
+// and step-0 Brave are supplied area-guard witnesses, see legacyWalkers) are advanced
 // by the actual game clock and drawn by the actual Scene unit loop in Node.
 // The original advances person draw descriptors in mode 2 once per (step + 1)
 // logical visits; the Firewarrior's descriptor 18 has step 1, Braves' 14 step 0.
@@ -25,12 +25,21 @@ async function legacyWalkers() {
   selectUnit(world, supplied.id, false)
   assert.ok(command(world, { x: supplied.x - 14, z: supplied.z }, { ctrlKey: true, altKey: true }))
   cancelInteraction(world)
+  // Step-0 control, supplied the same way. The authored control was Green
+  // Preacher 5 walking a command-11 guard; natively (0x4cedd0, #1059) a
+  // single-marker Preacher only takes the command-3 move, which the native
+  // movement body owns, so no authored Brave/Warrior/Preacher uses the fallback.
+  const control = addUnit(world, 'blue', 'brave', { x: shaman.x + 2, z: shaman.z + 2 })
+  selectUnit(world, control.id, false)
+  assert.ok(command(world, { x: control.x - 14, z: control.z }, { ctrlKey: true, altKey: true }))
+  cancelInteraction(world)
   api.tick(world, 1 / 12)
   assert.equal(world.objectCells.objects.get(supplied.id), supplied.native)
+  assert.equal(world.objectCells.objects.get(control.id), control.native)
   const firewarrior = world.units.find(u => u.kind === 'firewarrior' && legacy(u))
   const brave = world.units.find(u => ['brave', 'warrior', 'preacher'].includes(u.kind) && u.team !== 'wild' && legacy(u))
   assert.equal(firewarrior, supplied, 'supplied legacy-walking Firewarrior')
-  assert.ok(brave, 'authored legacy-walking step-0 control (Brave/Warrior/Preacher)')
+  assert.equal(brave, control, 'supplied legacy-walking step-0 control (Brave)')
   return { api, world, ids: [firewarrior.id, brave.id], legacy }
 }
 

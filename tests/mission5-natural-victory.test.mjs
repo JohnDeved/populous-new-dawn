@@ -43,7 +43,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     assert.ok(command(world, { ...convertHead, id: convertHead.id }))
     assert.equal(currentPersonOrder(world.buildingOrders, warrior.native)?.model, 27)
     while (!world.shots.convertWild && world.turn < 1500) tick(world, 1 / 12)
-    assert.equal(world.turn, 326)
+    assert.equal(world.turn, 334)
     assert.ok(world.shots.convertWild > 0)
 
     const shaman = world.units.find(u => u.id === 111),
@@ -51,7 +51,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     selectUnit(world, shaman.id, false)
     assert.ok(command(world, { ...tower, id: tower.id }))
     while (shaman.inside !== tower.id && world.turn < 2000) tick(world, 1 / 12)
-    assert.deepEqual([world.turn, shaman.inside], [590, tower.id])
+    assert.deepEqual([world.turn, shaman.inside], [598, tower.id])
     const wild = world.units.find(u => u.id === 107 && u.team === 'wild')
     assert.ok(wild)
     assert.ok(spellRange(world, shaman, 17) > 48)
@@ -65,14 +65,14 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       .sort(
         (a, b) => Math.hypot(a.x - head.x, a.z - head.z) - Math.hypot(b.x - head.x, b.z - head.z)
       )[0]
-    assert.deepEqual([world.turn, actor.id], [610, referenceId(491)])
+    assert.deepEqual([world.turn, actor.id], [618, referenceId(430)])
     selectUnit(world, actor.id, false)
     assert.ok(command(world, { ...head, id: head.id }))
     const worship = currentPersonOrder(world.buildingOrders, actor.native)
     assert.equal(worship.model, 27)
     const worshipId =
       actor.native.immediateCommand || actor.native.commands[actor.native.commandCursor]
-    while (world.turn < 719) tick(world, 1 / 12)
+    while (world.turn < 727) tick(world, 1 / 12)
     assert.deepEqual(
       [
         head.uses,
@@ -103,7 +103,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     assert.ok(boat)
     assert.deepEqual(
       [boat.id, boat.x, boat.y, boat.counter, boat.life, boat.speed, world.vehicleAllocationSeed],
-      [referenceId(665), 58340, 12314, 1, 4999, 0, 2]
+      [referenceId(593), 58340, 12314, 1, 4999, 0, 2]
     )
     assert.deepEqual(boat.rewardInitialization, {
       state: 1,
@@ -143,7 +143,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       boarding = currentPersonOrder(world.buildingOrders, person)
     assert.equal(boarding.model, 22)
     while (!boat.passengers.includes(actor.id) && world.turn < 1700) step()
-    assert.equal(world.turn, 756)
+    assert.equal(world.turn, 763)
     assert.equal(actor.native, person)
     assert.equal(world.objectCells.objects.get(actor.id), person)
     assert.deepEqual([boat.passengerCount, person.vehicle], [1, boat.id])
@@ -159,7 +159,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       const owner = world.units.find(unit => unit.id === id)?.native
       return owner && currentPersonOrder(world.buildingOrders, owner)
     }
-    const group = [111, 112, 113, 114, 115, referenceId(491)],
+    const group = [111, 112, 113, 114, 115, referenceId(430)],
       first = world.shrines.find(s => s.id === 109)
     for (const state of [world, restored]) {
       for (const [i, id] of group.entries()) selectUnit(state, id, i > 0)
@@ -179,24 +179,61 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       world.effects.some(e => e.bridge),
       false
     )
-    // These actual additive clicks toggle the existing group, leaving [491,111].
+    // These actual additive clicks toggle the existing group, leaving [430,111].
     // Only Shaman111 admits the second head; this is not a five-person second order.
     const five = [111, 112, 113, 114, 115],
       second = world.shrines.find(s => s.id === 94)
     for (const state of [world, restored]) {
       for (const [i, id] of five.entries()) selectUnit(state, id, i > 0)
-      assert.deepEqual(state.selected, [referenceId(491), 111])
+      assert.deepEqual(state.selected, [referenceId(430), 111])
       assert.ok(command(state, { ...second, id: second.id }))
     }
     assert.deepEqual(restored, world)
     assert.equal(orderFor(111)?.a, second.id)
     while (second.active && world.turn < 4600) step()
     assert.equal(second.uses, 1)
-    assert.equal(world.turn, 3028)
+    assert.equal(world.turn, 3036)
     for (let i = 0; i < 120; i++) step()
     assert.equal(
       world.effects.some(e => e.bridge),
       false
+    )
+    // Native single-marker tasks (0x4cedd0 phase 5, #1059) leave Red Preacher78
+    // preaching (command 17) at marker 1 beside Warrior64's command-11 post, and
+    // Preacher57 preaching 12 cells from Angel head 95. The old direct walk lost
+    // the Shaman to 78/64 and later idle Warrior67, and 57 converted the
+    // Warriors. The same five first clear 78, 64 and 67 with ordinary attack
+    // clicks, then take the Angel head as before; no member becomes a victim of 57.
+    assert.deepEqual(
+      [78, 64, 57].map(id => orderFor(id)?.model),
+      [17, 11, 17]
+    )
+    const clearings = []
+    for (const id of [78, 64, 67]) {
+      const target = world.units.find(u => u.id === id)
+      assert.equal(target.team, 'red')
+      for (const state of [world, restored]) {
+        cancelInteraction(state)
+        for (const [i, member] of five.entries()) selectUnit(state, member, i > 0)
+        assert.deepEqual(
+          [...state.selected].sort((a, b) => a - b),
+          five
+        )
+        const enemy = state.units.find(u => u.id === id)
+        assert.ok(command(state, { ...enemy, id: enemy.id }))
+      }
+      assert.deepEqual(restored, world)
+      while (target.hp > 0 && world.units.includes(target) && world.turn < 4000) step()
+      clearings.push([id, world.turn])
+    }
+    assert.deepEqual(clearings, [
+      [78, 3401],
+      [64, 3435],
+      [67, 3626],
+    ])
+    assert.deepEqual(
+      five.filter(id => world.units.some(u => u.id === id && u.team === 'blue' && u.hp > 0)),
+      five
     )
     const angelHead = world.shrines.find(s => s.id === 95)
     for (const state of [world, restored]) {
@@ -214,7 +251,7 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
     while (!world.effects.some(e => e.angel) && world.turn < 5700) step()
     const angel = world.effects.find(e => e.angel)
     assert.ok(angel)
-    assert.deepEqual([world.turn, angel.id, angel.team], [3856, referenceId(6034), 'blue'])
+    assert.deepEqual([world.turn, angel.id, angel.team], [3912, referenceId(5702), 'blue'])
     let conditionTurn
     const latch = []
     while (world.status === 'playing' && world.effects.includes(angel) && world.turn < 6500) {
@@ -236,15 +273,15 @@ test('fresh Mission5 victory persists across stores and the source-bound Continu
       }
     }
     assert.equal(world.status, 'won')
-    assert.equal(world.turn, 4448)
+    assert.equal(world.turn, 4320)
     assert.equal(world.outcome.completedLevel, 4)
     assert.deepEqual(
       latch.map(e => e.var13),
       [1, 2, 3, 4, 9]
     )
     assert.deepEqual(store.getCompletedMissions(), [5])
-    assert.equal(conditionTurn, 4311)
-    assert.equal(world.units.filter(unit => unit.team === 'red' && unit.hp > 0).length, 26)
+    assert.equal(conditionTurn, 4187)
+    assert.equal(world.units.filter(unit => unit.team === 'red' && unit.hp > 0).length, 25)
     assert.ok(
       world.effects.includes(angel),
       'the live Blue Angel and absent Red Shaman trigger the authored override'

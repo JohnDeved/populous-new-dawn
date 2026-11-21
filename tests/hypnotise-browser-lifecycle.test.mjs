@@ -200,7 +200,7 @@ test('25s preparation cannot return success after the last consumer crosses its 
   )
   assert.equal(scene.world.paused, true)
   assert.equal(scene.world.shots.hypnotise, 1)
-  assert.equal(scene.world.turn, 6174)
+  assert.equal(scene.world.turn, 6166)
 })
 
 test('successful and failed operations both close their owned context exactly once', async () => {

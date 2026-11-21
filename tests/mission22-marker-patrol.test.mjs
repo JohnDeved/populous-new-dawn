@@ -108,10 +108,16 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
   selectUnit(w, s.id)
   assert.ok(command(w, { x: 20, z: -41 }))
   for (let n = 0; n < 100 && spellTargetError(w, 'hypnotise', target); n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 6174)
+  assert.equal(w.turn, 6166)
   assert.equal(spellTargetError(w, 'hypnotise', target), null)
   // The authored Red marker patrol cycles (0x4366b0) between its two markers
   // instead of idling at the first. Cast when it next approaches the target.
+  // Since the native single-marker guards (#1059) shifted the M22 timeline, the
+  // passes at 6172, 6290 and 6402 convert a single Warrior that dies before its
+  // Hypnotise expires, and the 6519 pass's restored Warrior is re-tasked by the AI
+  // onto a single-marker command-11 guard and never resumes the route, so wait for
+  // the 6629 pass, which converts both patrollers.
+  while (w.turn < 6600) tick(w, 1 / 12)
   const patroller = u => {
     const person = u.native ?? u.flight ?? u.fight?.motion
     return (
@@ -123,7 +129,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
     )
   }
   for (let n = 0; n < 200 && !w.units.some(patroller); n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 6243)
+  assert.equal(w.turn, 6629)
   assert.equal(spellTargetError(w, 'hypnotise', target), null)
   assert.ok(cast(w, 'hypnotise', target))
   assert.equal(w.shots.hypnotise, 0)
@@ -136,7 +142,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
   const effect = w.effects.find(f => f.kind === 'hypnotise'),
     center = nativePosition(w, effect)
   assert.deepEqual([center.x, center.y], [5888, 5888])
-  assert.equal(w.turn, 6256)
+  assert.equal(w.turn, 6642)
   tick(w, 1 / 12)
   const converted = w.units
     .filter(u => u.hypnotise?.originalTeam === 'red' && u.kind === 'warrior')
@@ -166,7 +172,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
         u => u.team === 'red' && u.kind === 'warrior' && !initialRed.has(u.id)
       )
       if (restored) {
-        assert.equal(w.turn, 6697)
+        assert.equal(w.turn, 7081)
         assert.equal(restored.hp, 79.7)
         assert.ok(!w.units.includes(converted))
         assert.ok(!w.objectCells.objects.has(converted.id))
@@ -178,7 +184,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
       const person = restored.native ?? restored.flight ?? restored.fight?.motion
       const order = person && currentPersonOrder(w.buildingOrders, person)
       if (order?.model === 25 && !resumed) {
-        assert.equal(w.turn, 6916)
+        assert.equal(w.turn, 7428)
         assert.equal(person, restoredOwner)
         assert.equal(w.objectCells.objects.get(restored.id), person)
         assert.deepEqual([order.a, order.b], [5632, 5632])
@@ -187,17 +193,18 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
         resumed = true
       }
     }
-    if (w.turn === 7168) {
+    if (w.turn === 7680) {
       assert.ok(restored && restored.hp > 0)
       // Still cycling on its resumed route rather than idling at the first marker.
-      assert.deepEqual([restored.x, restored.z], [5.66796875, -26.27734375])
+      assert.deepEqual([restored.x, restored.z], [5.30078125, -26.1484375])
     }
   }
   assert.ok(restored && restored.hp > 0)
   assert.ok(resumed)
   // Warrior 99 replaced the converted patrol (81/82); the restored Warrior keeps its
-  // resumed route (84/85) while cycling, so neither pair is retired and re-issued.
-  for (const id of [81, 82, 84, 85]) {
+  // resumed route (86/87 after the later #1059 cast) while cycling, so neither pair
+  // is retired and re-issued.
+  for (const id of [81, 82, 86, 87]) {
     const owners = w.units
       .filter(u =>
         [u.native, u.flight, u.entry?.person, u.fight?.motion].some(
@@ -207,7 +214,7 @@ test('ordinary returned Warrior resumes the authored patrol after real conversio
       .map(u => u.id)
       .sort((a, b) => a - b)
     assert.equal(w.buildingOrders.records[id].references, owners.length)
-    assert.deepEqual(owners, id < 84 ? [99] : [restored.id])
+    assert.deepEqual(owners, id < 86 ? [99] : [restored.id])
   }
   assert.equal(w.objectCells.objects.get(restored.id), restored.native)
 })
