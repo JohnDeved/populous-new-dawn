@@ -123,21 +123,21 @@ test('ordinary M16 Red recurring requests physically garrison all six Towers and
     if (w.turn >= 1200)
       assert.equal(staffing(w).length, 0, 'already staffed Towers do not need replacement tasks')
   }
-  // The restored training task precedes staffing and changes shared scheduling.
+  // Yellow training adds its first producer RNG draw at61 and shifts shared scheduling.
   assert.deepEqual(
     [...entries].sort((a, b) => a[0] - b[0]),
     [
-      [255, [249, 276]],
+      [255, [249, 278]],
       [256, [250, 258]],
-      [257, [251, 240]],
-      [258, [252, 224]],
+      [257, [251, 242]],
+      [258, [252, 226]],
       [259, [253, 192]],
-      [260, [254, 164]],
+      [260, [254, 162]],
     ]
   )
   assert.deepEqual(
     [...orders].sort((a, b) => a - b),
-    [18, 27, 29, 30, 31, 32]
+    [19, 26, 29, 32, 33, 35]
   )
   for (const id of orders) assert.equal(w.buildingOrders.records[id].references, 0)
   for (const id of entries.keys()) {

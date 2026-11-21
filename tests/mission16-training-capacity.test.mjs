@@ -81,10 +81,10 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
         assert.equal(w.objectCells.objects.get(id), p)
         assert.equal(order.model, 8)
         assert.equal(order.a, 235)
-        assert.equal(p.commands[p.commandCursor], 37)
+        assert.equal(p.commands[p.commandCursor], 42)
       }
     }
-    if (w.turn === 384) assert.equal(w.buildingOrders.records[37].references, 3)
+    if (w.turn === 384) assert.equal(w.buildingOrders.records[42].references, 3)
     for (const u of w.units.filter(
       u => u.team === 'red' && u.kind === 'warrior' && !initialIds.has(u.id)
     ))
@@ -97,13 +97,13 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
         )
         assert.equal(w.objectCells.objects.has(id), false)
       }
-      for (const id of [424, 425, 426].map(referenceId)) {
+      for (const id of [432, 433, 434].map(referenceId)) {
         const u = w.units.find(u => u.id === id)
         assert.equal(u.kind, 'warrior')
         assert.equal(u.hp, 90)
         assert.equal(w.objectCells.objects.get(id), person(u))
       }
-      assert.equal(w.buildingOrders.records[37].references, 0)
+      assert.equal(w.buildingOrders.records[42].references, 0)
       assert.equal(school.admission.inside, 0)
       assert.ok(school.admission.occupants.every(id => !id))
     }
@@ -111,20 +111,20 @@ test('ordinary M16 capacity admission trains actual followers with complete chec
   assert.deepEqual(
     [...arrivals],
     [
-      [111, 380],
+      [111, 374],
       [110, 380],
-      [106, 382],
+      [106, 390],
     ]
   )
   assert.deepEqual(
     [...conversions],
     [
-      [referenceId(424), 588],
-      [referenceId(425), 588],
-      [referenceId(426), 588],
-      [referenceId(767), 1540],
-      [referenceId(768), 1540],
-      [referenceId(848), 1808],
+      [referenceId(432), 584],
+      [referenceId(433), 584],
+      [referenceId(434), 584],
+      [referenceId(831), 1540],
+      [referenceId(832), 1540],
+      [referenceId(941), 1812],
     ]
   )
 })

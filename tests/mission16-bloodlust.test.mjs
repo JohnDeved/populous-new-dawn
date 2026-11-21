@@ -55,6 +55,9 @@ test('Mission 16 worship grants Bloodlust and live combat consumes its status', 
     ]
   )
 
+  // Supplied spell-isolation fixture parks opponents without admission records.
+  // Do not run autonomous training against those deliberately synthetic occupants.
+  for (const ai of Object.values(world.campaignAIs)) if (ai) ai.states &= ~(1 << 6)
   for (const unit of world.units) if (unit.team !== 'blue') unit.inside = 1
   finishWorship(world, heads[0])
   assert.deepEqual(
