@@ -985,6 +985,11 @@ export function campaignRules(w: World) {
     // The later conditional emergency sibling remains unbound.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(227, 241), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 18 && tribe >= 1 && tribe <= 3) {
+    // Preserve each original EVERY63 last stand and Red's existing patrol block.
+    const start = tribe === 1 ? 313 : tribe === 2 ? 343 : 332
+    boundCampaignScript.codes.splice(2, 0, ...script.codes.slice(start, start + 36))
+  }
   // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
