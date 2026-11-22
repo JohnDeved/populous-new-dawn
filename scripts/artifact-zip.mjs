@@ -1,8 +1,18 @@
 // Bounded data-only ZIP reader. No filesystem extraction, URLs or execution.
 import assert from 'node:assert/strict'
 import { inflateRawSync } from 'node:zlib'
-export function readArtifactZip(input, { maxArchiveBytes, maxFileBytes, maxTotalBytes, maxEntries, allowName }) {
-  const zip = Buffer.from(input), entries = new Map()
+export function readArtifactZip(input, options) {
+  return parseArtifactZip(Buffer.from(input), options)
+}
+
+// Internal fast path: the caller exclusively owns this ordinary Buffer for
+// synchronous validation and consumption. Stored entry views alias its bytes.
+export function readOwnedArtifactZip(input, options) {
+  assert.ok(Buffer.isBuffer(input) && input.buffer instanceof ArrayBuffer, 'Expected an owned, non-shared ZIP Buffer')
+  return parseArtifactZip(input, options)
+}
+function parseArtifactZip(zip, { maxArchiveBytes, maxFileBytes, maxTotalBytes, maxEntries, allowName }) {
+  const entries = new Map()
   assert.ok(zip.length >= 22 && zip.length <= maxArchiveBytes, 'Invalid artifact archive size')
   const end = zip.length - 22
   assert.equal(zip.readUInt32LE(end), 0x06054b50, 'Unexpected archive footer')
