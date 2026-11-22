@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync, spawn } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, symlinkSync, lstatSync, mkdtempSync, rmSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { cpus, arch, platform, release, tmpdir } from 'node:os'
@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test'
 import { readerDependencyPolicy, commonDependencyInputsEqual } from './reader-build.mjs'
 import capture from '../tutorial-browser/gameplay-frames.mjs'
 import { gameplayFramePlan } from '../tutorial-browser/gameplay-frame-evidence.mjs'
-import { benchmarkBrowser, createFileSha256, fileSha256 } from './browser-runtime.mjs'
+import { benchmarkBrowser, captureBuild, createFileSha256, fileSha256 } from './browser-runtime.mjs'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 import { repository, shards, order, workMetrics, sha256, protocolHash, summarizeMetrics, summarizeTimings, validateReport } from './protocol.mjs'
 
@@ -45,15 +45,9 @@ export async function runLiveBenchmark({ pinned = false } = {}) {
   const sources = { base, head }, fingerprints = {}
   async function build(side) {
     const output = resolve(out, `build-${side}`); mkdirSync(output)
-    const result = await new Promise((done, reject) => {
-      const child = spawn(process.execPath, [resolve(import.meta.dirname, 'build.mjs'), sources[side], output, identity[`${side}Sha`]], { stdio: ['ignore', 'pipe', 'pipe'] })
-      let bytes = 0, chunks = [], timedOut = false, force
-      const record = data => { bytes += data.length; if (bytes <= 8 * 1024 * 1024) chunks.push(data) }
-      child.stdout.on('data', record); child.stderr.on('data', record)
-      const timer = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); force = setTimeout(() => child.kill('SIGKILL'), 5000) }, 120000)
-      child.on('error', reject)
-      child.on('close', (code, signal) => { clearTimeout(timer); clearTimeout(force); writeFileSync(resolve(out, `build-${side}.log`), Buffer.concat(chunks)); done({ side, code, signal, timedOut, cappedLog: bytes > 8 * 1024 * 1024 }) })
-    })
+    const result = { side, ...await captureBuild(process.execPath,
+      [resolve(import.meta.dirname, 'build.mjs'), sources[side], output, identity[`${side}Sha`]],
+      resolve(out, `build-${side}.log`)) }
     receipt.builds.push(result); saveReceipt(); assert.equal(result.code, 0); assert.equal(result.timedOut, false)
     const dist = resolve(output, 'dist')
     for (const entry of readdirSync(resolve(sources[side], 'public'))) {
