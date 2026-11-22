@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto'
 import { readArtifactZip } from '../artifact-zip.mjs'
 import { account, worker, repository, buildPath, publishPath, marker, maxArchiveBytes,
   positive, sha, branchAlias, publisherSource, validateRun, currentPreview,
-  materializeBuild, uploadedVersion, renderComment } from './protocol.mjs'
+  materializeBuild, materializeOwnedBuild, uploadedVersion, renderComment } from './protocol.mjs'
 
 const prefix = `/repos/${repository}`
 const gatePath = '.github/workflows/ready-pr-check.yml'
@@ -159,7 +159,7 @@ export async function productionGate(api, download, run) {
   assert.equal(receipt.identity.treeSha, commit.tree.sha, 'Production tree differs from the tested proposed merge')
   return { pr: pr.number, gate: gate.id, tree: commit.tree.sha }
 }
-export async function prepare({ api, download, runId, mode, destination }) {
+export async function prepare({ api, download, runId, mode, destination, ownsDownloadedArchive = false }) {
   const run = await verifiedRun(api, runId, buildPath)
   assert.equal(run.status, 'completed'); assert.equal(run.conclusion, 'success')
   const pr = await runPr(api, run)
@@ -169,7 +169,8 @@ export async function prepare({ api, download, runId, mode, destination }) {
   await exactFile(api, buildPath, run.head_sha)
   const gate = pr ? null : await productionGate(api, download, run)
   const zip = await oneArtifact(api, download, run, `cloudflare-dist-${run.id}-${run.run_attempt}`, maxArchiveBytes, false, { exactSize: true })
-  materializeBuild(zip, destination, run.head_sha)
+  const materialize = ownsDownloadedArchive ? materializeOwnedBuild : materializeBuild
+  materialize(zip, destination, run.head_sha)
   return { version: 1, source: run.id, sourceAttempt: run.run_attempt, sha: run.head_sha,
     pr: pr?.number ?? null, alias: pr ? branchAlias(pr.head.ref) : null, gate, status: 'prepared' }
 }
@@ -344,7 +345,9 @@ export async function main() {
         appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${status}\n\n${logs('Build logs', run)}\n\n${publication ? logs('Publish logs', publication) : 'No publisher run was observed.'}\n`)
       } }))
   } else if (command === 'prepare') {
-    const state = await prepare({ api, download, runId: event.workflow_run.id, mode, destination: '.cloudflare-publisher' })
+    // githubClient allocated this distribution Buffer and does not retain it.
+    const state = await prepare({ api, download, runId: event.workflow_run.id, mode,
+      destination: '.cloudflare-publisher', ownsDownloadedArchive: true })
     output('publish', Boolean(state))
     if (state) {
       writeFileSync(resultFile, JSON.stringify(state)); output('sha', state.sha)

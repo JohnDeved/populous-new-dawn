@@ -573,3 +573,28 @@ test('artifact body uses exact metadata size across chunks and rejects excess or
   assert.deepEqual(await bodyBytes(response([1], [2, 3]), 3), Buffer.from([1, 2, 3]))
   await assert.rejects(bodyBytes(response([1], [2, 3]), 2), /Response exceeds bounded size/)
 })
+
+test('prepare requires explicit ownership before enforcing the owned Buffer contract', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-prepare-owned-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const zip = archive([['server/index.js', 'worker'], ['client/index.html', 'client']])
+  const sharedZip = Buffer.from(new SharedArrayBuffer(zip.length))
+  zip.copy(sharedZip)
+  for (const [ownsDownloadedArchive, archiveInput, expectOwnedRejection] of [
+    [false, sharedZip, false], [true, sharedZip, true], [true, zip, false]
+  ]) {
+    const f = fixture(), original = f.api, destination = mkdtempSync(join(directory, 'app-'))
+    f.api = async path => path === `${prefix}/actions/runs/100/artifacts?per_page=100`
+      ? { total_count: 1, artifacts: [{ id: 401, name: 'cloudflare-dist-100-1', expired: false,
+        size_in_bytes: zip.length, workflow_run: { id: 100 }, digest: `sha256:${hash(zip)}` }] }
+      : original(path)
+    f.download = async () => archiveInput
+    const result = prepare({ ...f, runId: 100, destination, ownsDownloadedArchive })
+    if (expectOwnedRejection) {
+      await assert.rejects(result, /Expected an owned, non-shared ZIP Buffer/)
+      assert.deepEqual(readdirSync(destination), [])
+    } else {
+      assert.equal((await result).sha, f.state.run.head_sha)
+      assert.equal(readFileSync(join(destination, 'client', 'index.html'), 'utf8'), 'client')
+    }
+  }
+})
