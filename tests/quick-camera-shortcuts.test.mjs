@@ -135,3 +135,45 @@ test('after scene replacement only the listener of the current world moves its c
   assert.equal(scenes.get(old).focuses.length, 1)
   next.cleanup()
 })
+
+
+// Actual Page key handler with supplied Scene focus sink, not rendered input.
+for (const [paused, nativePaused] of [[false, true], [true, false], [true, true]]) {
+  test(`H pause admission preserves Period: browser=${paused}, native=${nativePaused}`, () => {
+    const k = keyboard()
+    k.world.paused = paused
+    if (nativePaused) k.world.land.landFlags |= 2
+    const before = structuredClone(k.world)
+    k.key({ key: 'h', code: 'KeyH' })
+    assert.deepEqual(k.focuses, [])
+    assert.deepEqual(k.world, before, 'rejected H must not alter selection, plan or commands')
+    k.key()
+    assert.equal(k.focuses.length, 1, 'Period is not subject to the stage-two gate')
+    assert.deepEqual(k.world, before)
+    k.world.paused = false
+    k.world.land.landFlags &= ~2
+    k.key({ key: 'h', code: 'KeyH' })
+    assert.equal(k.focuses.length, 2, 'H works after both pause representations clear')
+    k.cleanup()
+  })
+}
+
+test('public Space pause suppresses H without changing native flags; resume restores it', () => {
+  const k = keyboard(), beforeFlags = k.world.land.landFlags
+  assert.equal(k.world.paused, false)
+  assert.equal(k.key({ key: ' ', code: 'Space' }), true)
+  assert.equal(k.world.paused, true)
+  assert.equal(k.world.land.landFlags, beforeFlags)
+  const paused = structuredClone(k.world)
+  k.key({ key: 'h', code: 'KeyH' })
+  assert.deepEqual(k.focuses, [])
+  assert.deepEqual(k.world, paused)
+  k.key()
+  assert.equal(k.focuses.length, 1)
+  k.key({ key: ' ', code: 'Space' })
+  assert.equal(k.world.paused, false)
+  k.key({ key: 'h', code: 'KeyH' })
+  assert.equal(k.focuses.length, 2)
+  assert.equal(k.world.land.landFlags, beforeFlags)
+  k.cleanup()
+})

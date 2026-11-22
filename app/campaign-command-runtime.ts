@@ -864,7 +864,7 @@ export function campaignRules(w: World) {
                       ? [
                           12,
                           1003,
-                          ...script.codes.slice(254, 259),
+                          // Turn-zero message commands run in world initialization, not each turn.
                           // Chumara's original EVERY255 settlement and training targets.
                           // Later tower, patrol, raid and message branches remain unbound.
                           ...script.codes.slice(447, 595),
@@ -957,8 +957,8 @@ export function campaignRules(w: World) {
                                       ? [
                                           12,
                                           1003,
-                                          // First authored fault: terrain seal check, warning, deadline, and eruption.
-                                          ...script.codes.slice(797, 957),
+                                          // All three authored faults: terrain seal checks, warnings, deadlines, and eruptions.
+                                          ...script.codes.slice(797, 1139),
                                           1004,
                                           1004,
                                           1019,

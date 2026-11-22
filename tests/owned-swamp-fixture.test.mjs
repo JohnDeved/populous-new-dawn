@@ -5,10 +5,16 @@ import { createHash } from 'node:crypto'
 
 // Supplied-loader contract only. No Vite, browser, or production TS graph runs.
 const host = readFileSync(new URL('../scripts/tutorial-browser/fixture/main.tsx', import.meta.url), 'utf8')
+const startBoundary = '// Query-gated evidence references belong only to this test-host entry.\n'
 const boundary = '// Supplied worship-slot boundary in the test host only.\n'
+const start = host.indexOf(startBoundary)
 const end = host.indexOf(boundary)
-assert.ok(end > 0, 'Reviewed loader/suffix boundary must remain explicit')
-const loader = host.slice(0, end)
+assert.equal(host.split(startBoundary).length, 2, 'Reviewed loader start must remain unique')
+assert.equal(host.split(boundary).length, 2, 'Reviewed loader end must remain unique')
+assert.ok(start >= 0 && end > start, 'Reviewed loader boundaries must remain explicit and ordered')
+// The separately tested canonical observer is an ES-module prefix, not part of
+// this supplied-loader contract. Keep the original loader and suffix unchanged.
+const loader = host.slice(start, end)
 const specifier = "import('../../owned-swamp-evidence/fixture.mjs')"
 assert.equal(loader.split(specifier).length, 2, 'Exactly one controlled import boundary')
 const execute = new Function('location', 'load', 'globalThis', loader.replace(specifier, 'load()'))
