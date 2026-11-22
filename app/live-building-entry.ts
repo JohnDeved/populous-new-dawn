@@ -578,7 +578,7 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
         })
         return true
       },
-      () => sound(w, 10, u)
+      () => sound(w, 11, u)
     )
   let admitted = false
   const next = stepLiveOrderQueue(w, u, p, {
@@ -659,6 +659,9 @@ export function stepBuildingEntry(w: World, u: Unit, b?: Building) {
             dropCargo,
             enterBuilding: () => {
               admitted = !!enterBuilding(ctx, p, state, occupancyEffects(w, ctx.people))
+            },
+            clearPreviousSelection: () => {
+              u.groups = (u.groups ?? 0) & ~1
             },
             workInside: () => (state.model === 13 || state.model === 15 ? 0 : unsupported()),
           })

@@ -62,9 +62,32 @@ Not recovered:
   armed spell or building plan. The browser keeps its current-angle animated focus
   to the exact Shaman position, not her cell. That focus owner's existing
   `mode = null` reset also cancels an armed spell or building placement.
-- The gates are not modelled. H's gate flag `1` (per-player mask while
-  `0089c661 & 8`) and its stage-2 gate (`0089c661 & 2` clear) have unestablished
-  meanings, so the browser applies only its own Page keyboard gates.
+- H's stage-2 pause admission is now mapped to `world.paused` or retained
+  `world.land.landFlags & 2`. The original `00479f00` pause branch toggles/sets
+  bit 2 and switches sound/time behavior; `004ee770` suppresses unit animation
+  under that flag. Browser public Space and Pause/Resume toggle `world.paused`
+  without changing the land bit, and `world-turn.ts` honors both representations.
+  Period remains stage 1 and is not suppressed by this H-only gate.
+- Retained `native-tribe-controls/00489470-00489520.asm`, `4894b9..4894e8`,
+  refines the matcher interpretation: record gate bit 0 **exempts** the combined
+  land-bit-8/player-bit-4 rejection; record bit 1 separately requires land bit
+  `0x8000`. H's default gate flags 1 therefore pass these matcher-gate checks.
+  Period's flags 0 can be rejected when land bit 8 and player bit 4 are both set.
+  Those state meanings and the complete active-binding winner are not established;
+  no additional browser gate is inferred for them.
 - When the native Shaman pointer clears (death or vehicle occupancy) is not proven.
   The browser treats a dead or ghost Shaman as absent.
 - Shift+Return instant overview is documented in [instant-overview.md](instant-overview.md).
+
+
+## Bounded pause regression (15 November 2026)
+
+The retained pre-fix actual Page-effect probe reproduced H requesting focus after
+public Space set `world.paused`, and separately with supplied native land bit 2.
+Period remained eligible. This is a handler-level counterexample with supplied
+Scene focus/window/store boundaries, not a rendered observation or fresh original
+execution. The maintained regression checks all three paused combinations,
+unchanged World state after rejected H, Period controls and resumed H, plus the
+public Space transition without land-bit mutation. Existing modifier, unavailable
+Shaman/site and scene-replacement tests remain unchanged. No chunk-0x16 motion,
+angle, armed-mode or complete native-parity acceptance is claimed by this fix.

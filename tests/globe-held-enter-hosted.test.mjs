@@ -1,7 +1,7 @@
+import { historicalCaptureRunnerDigest } from './support/corpse-scheduling-transition.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createHash } from 'node:crypto'
 import { browserCapMs, browserScenarios } from '../scripts/tutorial-browser/scenario-policy.mjs'
 const read = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8')
 const runner = read('scripts/tutorial-browser/run.mjs')
@@ -81,9 +81,9 @@ test('production source identity and actual PNGs use existing retained output', 
   assert.doesNotMatch(route, /\/private\/tmp/)
 })
 
-test('capture manifest binds new runner without changing other trusted input checks', () => {
+test('historical capture manifest preserved without qualifying new scheduling bytes', () => {
   const pins = JSON.parse(read('scripts/tutorial-browser/capture-qualified-inputs.json'))
-  assert.equal(pins['scripts/tutorial-browser/run.mjs'], createHash('sha256').update(runner).digest('hex'))
+  assert.equal(pins['scripts/tutorial-browser/run.mjs'], historicalCaptureRunnerDigest(runner))
   assert.match(runner, /if \(captureProtocolEnabled\) assert.equal\(selectedScenario, 'building-panel-edges'/)
 })
 

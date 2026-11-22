@@ -106,7 +106,7 @@ test('split declares two unchanged 180s browser caps and an extra build/job', ()
   assert.throws(() => browserCapMs('gameplay-resource-typo'))
 })
 
-test('existing runner owns mandatory dedicated scenario and preserves complete old gameplay sequence', () => {
+test('existing runner owns mandatory resource scenario and retains frames/melee plus separate corpse coverage', () => {
   const read = name => readFileSync(new URL(`../${name}`, import.meta.url), 'utf8')
   const runner = read('scripts/tutorial-browser/run.mjs'), frames = read('scripts/tutorial-browser/gameplay-frames.mjs')
   const dedicated = runner.split("} else if (selectedScenario === 'gameplay-resources') {")[1].split("} else if (selectedScenario === 'gameplay-frames') {")[0]
@@ -117,7 +117,8 @@ test('existing runner owns mandatory dedicated scenario and preserves complete o
   assert.doesNotMatch(original, /resourceLifecycle|measuredPhases/)
   assert(original.indexOf('receipt.gameplayFrames') < original.indexOf('await context.close()'))
   assert(original.indexOf('await context.close()') < original.indexOf('receipt.meleeAttack'))
-  assert(original.indexOf('receipt.meleeAttack') < original.indexOf('receipt.followerCorpse'))
+  assert(original.indexOf('receipt.meleeAttack') < original.indexOf("selectedScenario === 'follower-corpse'"))
+  assert(original.indexOf("selectedScenario === 'follower-corpse'") < original.indexOf('receipt.followerCorpse'))
   assert.match(frames, /resourceLifecycle = false/)
   assert.match(frames, /assertResourceScenario\(resourceLifecycle, measuredPhases, plan\.phases\.map/)
   assert.match(frames, /report\.resources = \{ beforeWarmup: await page\.evaluate\(observeGameplayResources\)/)

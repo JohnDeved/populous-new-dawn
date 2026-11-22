@@ -237,3 +237,21 @@ test('independent mapping corruption and backwards renderer/logical clocks fail 
     const s = evidence(); Object.assign(s[1], change); assert.throws(() => validate(s))
   }
 })
+
+// The replacement is explicitly bound, never inferred from supplied samples.
+test('M3 entry preserves all strict evidence checks and rejects mismatched scenario identity', () => {
+  const result = completedObservation()
+  for (const sample of result.samples) {
+    sample.id = sample.personId = 46
+    sample.participants = sample.participants.map(id => id === 54 ? 46 : id)
+  }
+  result.entry.id = result.endpoint.id = result.endpoint.personId = 46
+  assert.doesNotThrow(() => validateMeleeRunningObservation(result, mapping, 'm3'))
+  assert.throws(() => validateMeleeRunningObservation(result, mapping))
+  assert.throws(() => validateMeleeRunningObservation(result, mapping, 'arbitrary'))
+  const invalid = structuredClone(result)
+  invalid.endpoint.turn++
+  assert.throws(() => validateMeleeRunningObservation(invalid, mapping, 'm3'))
+  invalid.endpoint.turn--; invalid.samples[0].remaining++
+  assert.throws(() => validateMeleeRunningObservation(invalid, mapping, 'm3'))
+})

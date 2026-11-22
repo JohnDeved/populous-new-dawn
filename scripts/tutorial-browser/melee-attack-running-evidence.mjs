@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict'
 
 export const meleeRunningProtocol = 'running-original-entry-v2'
+function scenarioActor(key) {
+  assert.ok(['m2', 'm3'].includes(key), 'Known authored melee scenario required')
+  return key === 'm3' ? 46 : 54
+}
 const attacks = new Set(['attack', 'strike', 'special'])
 const integer = value => Number.isSafeInteger(value) && value >= 0
 const sequenceKey = sample => JSON.stringify([sample.id, sample.action, sample.started, sample.fightGroup, sample.opponent])
@@ -70,7 +74,8 @@ function validateAttack(sample, mapping, label) {
 // snapshot, favorable replacement entry or merely an advancing pair. The v1
 // ten-turn survival window is a different contract, not accepted by this one.
 // PNG/public-command checks remain separate.
-export function validateMeleeRunningObservation(result, originalMapping) {
+export function validateMeleeRunningObservation(result, originalMapping, scenarioKey = 'm2') {
+  scenarioActor(scenarioKey)
   assert.ok(result && typeof result === 'object', 'Running melee observation required')
   assert.equal(result.protocol, meleeRunningProtocol, 'First-entry melee protocol required')
   assert.equal(result.done, true, 'Running melee observation must finish')
@@ -82,7 +87,7 @@ export function validateMeleeRunningObservation(result, originalMapping) {
   assert.ok(terminal && typeof terminal === 'object', 'Exact melee terminal record required')
   assert.equal(terminal.reason, 'entry-complete', 'Melee observation must reach its native entry completion')
   assert.ok(integer(terminal.stamp), 'Exact melee terminal renderer stamp required')
-  const acceptance = validateMeleeRunningFrames(result.samples, originalMapping)
+  const acceptance = validateMeleeRunningFrames(result.samples, originalMapping, scenarioKey)
   const first = result.samples[0], mapping = originalMapping[`${first.kind}:${first.action}`]
   assert.equal(firstAttackTurn, first.turn, 'Episode must start with the first retained attack sample')
   assert.deepEqual(entry, { id: first.id, kind: first.kind, action: first.action, started: first.started,
@@ -131,7 +136,8 @@ export function validateMeleeRunningObservation(result, originalMapping) {
 // Pure supplied-observation validation, not a browser receipt. The caller owns
 // actual public command receipts, fixed-window observation and PNG file checks.
 // Source ownership is a reviewed-source inference, never a private getter result.
-export function validateMeleeRunningFrames(samples, originalMapping) {
+export function validateMeleeRunningFrames(samples, originalMapping, scenarioKey = 'm2') {
+  const actorId = scenarioActor(scenarioKey)
   assert.ok(Array.isArray(samples) && samples.length > 0, 'Observed running melee samples required')
   assert.ok(originalMapping && typeof originalMapping === 'object' && !Array.isArray(originalMapping),
     'Original melee mapping required')
@@ -140,7 +146,7 @@ export function validateMeleeRunningFrames(samples, originalMapping) {
   for (const sample of samples) {
     assert.ok(sample && typeof sample === 'object', 'Running melee sample must be an object')
     const label = `${sample.kind}${sample.id}/${sample.action}`
-    assert.ok(sample.id === 54 && sample.kind === 'shaman', `${label}: authored M2 Shaman54 required`)
+    assert.ok(sample.id === actorId && sample.kind === 'shaman', `${label}: declared authored Shaman${actorId} required`)
     assert.equal(sample.phase, 'running', `${label}: explicit running phase required`)
     assert.equal(sample.paused, false, `${label}: unpaused running observation required`)
     for (const key of ['turn', 'animationFrame', 'started', 'stamp', 'f1', 'f2', 'frame', 'direction',
@@ -149,7 +155,7 @@ export function validateMeleeRunningFrames(samples, originalMapping) {
     assert.equal(sample.logicalStamp, sample.turn, `${label}: physical animation stamp must match the observed logical turn`)
     assert.ok(sample.started <= sample.turn, `${label}: action cannot start after observed turn`)
     assert.ok(sample.fightGroup > 0, `${label}: nonzero fight group required`)
-    assert.equal(sample.personId, 54, `${label}: original physical person54 required`)
+    assert.equal(sample.personId, actorId, `${label}: original physical person${actorId} required`)
     assert.equal(sample.personState, 25, `${label}: physical person must remain in fight state25`)
     assert.equal(sample.personModel, 7, `${label}: original Shaman model7 required`)
     assert.equal(sample.personClass, 1, `${label}: original person class1 required`)
@@ -165,7 +171,7 @@ export function validateMeleeRunningFrames(samples, originalMapping) {
       `${label}: fight-motion source-contract inference required`)
     assert.ok(Array.isArray(sample.participants) && sample.participants.every(integer) &&
       new Set(sample.participants).size === sample.participants.length &&
-      sample.participants.includes(54) && sample.participants.includes(sample.opponent) && sample.opponent !== 54,
+      sample.participants.includes(actorId) && sample.participants.includes(sample.opponent) && sample.opponent !== actorId,
     `${label}: actor and retained opponent must be present in the fight roster`)
     for (const [key, error] of [['canvasConnected', 'connected game canvas'],
       ['sceneStoreMatch', 'live scene/store identity'], ['visible', 'visible body']])
