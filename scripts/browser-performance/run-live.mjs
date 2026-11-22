@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test'
 import { readerDependencyPolicy, commonDependencyInputsEqual } from './reader-build.mjs'
 import capture from '../tutorial-browser/gameplay-frames.mjs'
 import { gameplayFramePlan } from '../tutorial-browser/gameplay-frame-evidence.mjs'
-import { benchmarkBrowser } from './browser-runtime.mjs'
+import { benchmarkBrowser, createFileSha256, fileSha256 } from './browser-runtime.mjs'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 import { repository, shards, order, workMetrics, sha256, protocolHash, summarizeMetrics, summarizeTimings, validateReport } from './protocol.mjs'
 
@@ -27,8 +27,11 @@ export async function runLiveBenchmark({ pinned = false } = {}) {
   const report = { version: 1, identity, protocolSha256: protocolHash(gameplayFramePlan), runtimeSha256: null, shard, status: 'incomplete', runs: [] }
   const save = () => { validateReport(report); writeFileSync(resolve(out, 'report.json'), JSON.stringify(report) + '\n') }
   const git = (cwd, ...args) => execFileSync('git', args, { cwd, encoding: 'utf8' }).trim()
-  const fingerprint = source => sha256(execFileSync('git', ['ls-files', '-z'], { cwd: source }).toString().split('\0').filter(Boolean)
-    .map(name => `${name}\0${sha256(readFileSync(resolve(source, name)))}`).join('\n'))
+  const fingerprint = source => {
+    const hashFile = createFileSha256()
+    return sha256(execFileSync('git', ['ls-files', '-z'], { cwd: source }).toString().split('\0').filter(Boolean)
+      .map(name => `${name}\0${hashFile(resolve(source, name))}`).join('\n'))
+  }
   const dependencyPolicy = readerDependencyPolicy(root)
   const environment = { ...(dependencyPolicy ? { dependencyPolicy } : {}), node: process.version, arch: arch(), platform: platform(), release: release(),
     runnerImage: process.env.ImageOS ?? null, runnerVersion: process.env.ImageVersion ?? null,
@@ -81,7 +84,7 @@ export async function runLiveBenchmark({ pinned = false } = {}) {
       saveReceipt()
     } else {
       environment.browserVersion = execFileSync(config.browserPath, ['--version'], { encoding: 'utf8' }).trim()
-      environment.browserSha256 = sha256(readFileSync(config.browserPath))
+      environment.browserSha256 = fileSha256(config.browserPath)
     }
     report.runtimeSha256 = sha256(JSON.stringify(environment))
     const dist = { base: await build('base'), head: await build('head') }
