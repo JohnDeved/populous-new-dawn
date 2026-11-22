@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
   currentPreview, buildIdentityPath, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
-import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent } from '../scripts/cloudflare/control.mjs'
+import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent, bodyBytes } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const root = new URL('../', import.meta.url), prefix = `/repos/${repository}`
@@ -174,17 +174,23 @@ test('publisher identity never overwrites an existing destination marker', t => 
 test('prepare attests API-validated source only after artifact digest validation', async t => {
   const directory = mkdtempSync(join(tmpdir(), 'cloudflare-identity-prepare-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
   const zip = archive([['server/index.js', 'x'], ['client/index.html', 'x']])
-  for (const badDigest of [true, false]) {
-    const f = fixture(), original = f.api, target = join(directory, String(badDigest))
+  for (const problem of ['digest', 'truncated', 'fractional', 'none']) {
+    const f = fixture(), original = f.api, target = join(directory, problem)
     mkdirSync(target)
     f.api = async path => path === `${prefix}/actions/runs/100/artifacts?per_page=100`
       ? { total_count: 1, artifacts: [{ id: 401, name: 'cloudflare-dist-100-1', expired: false,
-        size_in_bytes: zip.length, workflow_run: { id: 100 }, digest: `sha256:${badDigest ? '0'.repeat(64) : hash(zip)}` }] }
+        size_in_bytes: zip.length + (problem === 'fractional' ? 0.5 : 0), workflow_run: { id: 100 }, digest: `sha256:${problem === 'digest' ? '0'.repeat(64) : hash(zip)}` }] }
       : original(path)
-    f.download = async id => { assert.equal(id, 401); return zip }
+    let downloads = 0
+    f.download = async (id, maximum, expected) => {
+      downloads++; assert.equal(id, 401); assert.equal(maximum, 512 * 1024 * 1024); assert.equal(expected, zip.length)
+      return problem === 'truncated' ? zip.subarray(1) : zip
+    }
     const prepared = prepare({ ...f, runId: 100, destination: target })
-    if (badDigest) {
-      await assert.rejects(prepared, /SHA-256 mismatch/); assert.deepEqual(readdirSync(target), [])
+    if (problem !== 'none') {
+      const error = { digest: /SHA-256 mismatch/, truncated: /Artifact size mismatch/, fractional: /Invalid artifact size/ }[problem]
+      await assert.rejects(prepared, error); assert.deepEqual(readdirSync(target), [])
+      assert.equal(downloads, problem === 'fractional' ? 0 : 1)
     } else {
       assert.equal((await prepared).sha, f.state.run.head_sha)
       assert.equal(readFileSync(join(target, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${f.state.run.head_sha}\n`)
@@ -435,6 +441,12 @@ test('production current-main and source-attempt rechecks still reject stale pub
 })
 test('artifact download verifies SHA-256 before reading even valid ZIP bytes', async () => {
   const f = fixture()
+  const zip = resultZip(f.state.result)
+  // Legacy receipts retain digest binding but don't require metadata size equality.
+  assert.notEqual(zip.length, 1000)
+  assert.deepEqual(await oneArtifact(f.api, async (...args) => {
+    assert.deepEqual(args, [400, 65536]); return zip
+  }, f.state.publication, 'cloudflare-result-200-1', 65536), zip)
   await assert.rejects(oneArtifact(f.api, async () => resultZip({ ...result(), sha: main }), f.state.publication, 'cloudflare-result-200-1', 65536), /SHA-256 mismatch/)
   const original = f.api
   f.api = async path => { const response = await original(path); if (response.artifacts) delete response.artifacts[0].digest; return response }
@@ -548,4 +560,16 @@ test('same-minute publisher identity and exact timestamp changes are not hidden 
     f.reportRun = { id: 901, run_attempt: 1 }
     assert.equal(await report(f), 'updated'); assert.match(f.state.comments[0].body, /runs\/901\/attempts\/1/)
   }
+})
+
+test('artifact body uses exact metadata size across chunks and rejects excess or missing bytes', async () => {
+  const response = (...chunks) => ({ ok: true, status: 200, body: (async function* () {
+    for (const chunk of chunks) yield Uint8Array.from(chunk)
+  })() })
+  assert.deepEqual(await bodyBytes(response([1], [], [2, 3]), 8, 3), Buffer.from([1, 2, 3]))
+  await assert.rejects(bodyBytes(response([1], [2, 3]), 8, 2), /Artifact size mismatch/)
+  await assert.rejects(bodyBytes(response([1], [2, 3]), 8, 4), /Artifact size mismatch/)
+  await assert.rejects(bodyBytes(response(), 8, 9), /Invalid artifact size/)
+  assert.deepEqual(await bodyBytes(response([1], [2, 3]), 3), Buffer.from([1, 2, 3]))
+  await assert.rejects(bodyBytes(response([1], [2, 3]), 2), /Response exceeds bounded size/)
 })
