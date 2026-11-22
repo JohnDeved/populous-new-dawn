@@ -108,3 +108,54 @@ test('supplied Red Lightning uses ordinary damage/death cleanup before M19 distr
   assert.deepEqual(restored, w)
   assert.deepEqual(w.killCredits, credits, 'retired victims never award duplicate credit')
 })
+
+test('M19 issues the second warning once after a pending Lightning cast survives checkpoint reload', () => {
+  const world = createWorld(19)
+  // Supply the warning prerequisites; let normal damage, casualty credit, and script cadence run.
+  world.killCredits[1][2] = 25
+  world.campaignAIs[1].variables[16] = 1
+  const schools = world.buildings.filter(b => b.team === 'yellow' && b.kind === 'firewarriorHut')
+  assert.ok(schools.length)
+  world.buildings = world.buildings.filter(b => !schools.includes(b))
+  assert.ok(world.units.filter(u => u.team === 'red' && u.hp > 0 && !u.ghost).length > 30)
+
+  const victim = addUnit(world, 'yellow', 'brave', { x: 0, z: 0 })
+  syncLivePersonCells(world)
+  const noCast = migrateCheckpoint(structuredClone(world))
+  strikeLiveLightning(world, nativePosition(world, victim), 1)
+  assert.equal(world.killCredits[1][2], 25, 'an issued cast has not awarded a casualty yet')
+  const restored = migrateCheckpoint(structuredClone(world))
+  let deathTurn
+  let warningTurn
+
+  for (let turn = 1; turn <= 128; turn++) {
+    const before = world.killCredits[1][2]
+    observedTick(world)
+    observedTick(restored)
+    observedTick(noCast)
+    assert.equal(world.turn, turn)
+    assert.equal(restored.turn, turn)
+    assert.equal(noCast.turn, turn)
+    assert.equal(noCast.killCredits[1][2], 25)
+    assert.deepEqual(warnings(noCast), [])
+    assert.equal(restored.killCredits[1][2], world.killCredits[1][2])
+    assert.deepEqual(warnings(restored), warnings(world))
+    assert.equal(latch(restored, 15), latch(world, 15))
+
+    if (before === 25 && world.killCredits[1][2] === 26) {
+      assert.equal(deathTurn, undefined)
+      assert.ok(!world.units.includes(victim))
+      deathTurn = turn
+    }
+    if (warnings(world).some(m => m.stringId === 704) && warningTurn === undefined) {
+      warningTurn = turn
+      assert.ok(deathTurn !== undefined && deathTurn <= warningTurn)
+      assert.equal(latch(world, 15), 1)
+    }
+  }
+  assert.equal(world.killCredits[1][2], 26)
+  assert.equal(deathTurn, 18)
+  assert.equal(warningTurn, 64)
+  assert.deepEqual(warnings(world).map(m => m.stringId), [704])
+  assert.deepEqual(restored, world)
+})
