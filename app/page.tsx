@@ -806,6 +806,8 @@ export default function Home() {
         e.preventDefault()
         if (!e.repeat) {
           store.change(w => {
+            // Native placement rotation (005d64cc) requires unmodified Space.
+            if (e.shiftKey && w.mode && Object.hasOwn(w.buildingDirections, w.mode)) return
             if (rotateBuildingPlan(w)) audio.current?.cue(0x26)
             else w.paused = !w.paused
           })

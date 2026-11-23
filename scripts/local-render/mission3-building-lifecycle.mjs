@@ -143,8 +143,8 @@ export function installM3CheckpointState() {
 }
 
 export function armM3Save() {
-  const button = [...document.querySelectorAll('button')].find(
-    button => button.textContent.trim() === 'Save checkpoint'
+  const button = [...document.querySelectorAll('dialog[aria-label="Game menu"] button')].find(
+    button => button.getAttribute('aria-label') === 'Save checkpoint'
   )
   if (!button?.isConnected || button.disabled || window.finishM3Save)
     throw new Error('Public Save unavailable or already observed')
@@ -204,9 +204,18 @@ export async function prepareM3Replacement({ kind, shamanId, birth, startup = fa
     throw new Error('One declared replacement at a time')
   const { GameScene } = kind === 'load' ? await import('/app/scene.ts') : {}
   if (startup && kind !== 'load') throw new Error('Startup supports only public Load Game')
-  const name = startup ? 'Load Game' : kind === 'load' ? 'Load checkpoint' : 'Restart world'
-  const button = [...document.querySelectorAll('button')].find(
-    button => button.textContent.trim() === name
+  if (
+    kind === 'restart' &&
+    !document.querySelector('dialog[aria-label="Game menu"] h2[aria-label="Restart Level?"]')
+  )
+    throw new Error('Public Restart confirmation unavailable')
+  const name = startup ? 'Load Game' : kind === 'load' ? 'Load checkpoint' : 'Yes'
+  const selector = startup
+    ? 'dialog[aria-label="Main menu"] button'
+    : 'dialog[aria-label="Game menu"] button'
+  const button = [...document.querySelectorAll(selector)].find(
+    button =>
+      button.getAttribute('aria-label') === name || (startup && button.textContent.trim() === name)
   )
   if (!button?.isConnected || button.disabled) throw new Error(`Public ${name} unavailable`)
   // Same actual React-store discovery as PR274's startup Load witness.
