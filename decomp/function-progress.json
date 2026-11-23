@@ -46,6 +46,20 @@
       "limits": "Live effect-owned lights update wrapped footprints; desktop caller forces enable true and adapts original person owners to browser effects, not complete native ownership and gating."
     },
     {
+      "address": "004015f0",
+      "status": "partial",
+      "scope": "Accumulate per-light native-style local terrain contributions",
+      "sources": [
+        "app/terrain-light.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004015f0.c",
+        "scripts/check-native-terrain-light.py"
+      ],
+      "limits": "Live owner-based 7×7 contribution path retains original input calculations; effect pool and desktop enable flag adapt original person ownership."
+    },
+    {
       "address": "00401790",
       "status": "partial",
       "scope": "Compute the first 1,024-entry sunlight lookup table",
@@ -205,6 +219,22 @@
       "limits": "Live spawn, sockets, redirect, flash and human cue; world turn retains browser route adapter for newborn home/state ownership, so not full native lifecycle."
     },
     {
+      "address": "00405090",
+      "status": "partial",
+      "scope": "Snap a live hut-birth exit point or computer idle anchor to a native cell center",
+      "sources": [
+        "app/hut-birth.ts",
+        "app/world-turn.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00405090.c",
+        "decomp/research/player-scatter.md",
+        "scripts/check-native-hut-birth.py"
+      ],
+      "limits": "Both live uses directly implement (coord & 0xfe00)+0x100 for each axis. Native leaf does not choose a socket, target, movement order or birth event."
+    },
+    {
       "address": "004050c0",
       "status": "partial",
       "scope": "Drive occupied-hut maturity and upgrade admission",
@@ -217,6 +247,34 @@
         "scripts/check-native-hut-upgrade.py"
       ],
       "limits": "Direct oracle covers signed clocks and wood query decisions; live fetch work, state changes, and upgrade scheduling still go through browser actor adapters."
+    },
+    {
+      "address": "00405b80",
+      "status": "partial",
+      "scope": "Convert building trainees and preserve relevant orders or roll back failed replacement",
+      "sources": [
+        "app/training-conversion.ts",
+        "app/live-building-entry.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00405b80.c",
+        "scripts/check-native-training-conversion.py"
+      ],
+      "limits": "Instrumented native entry compares randomized occupant and queue state, commit, rollback, mana and shared-order effects. Original allocation/deletion and panel integration are supplied boundaries, and live uses browser object and panel ownership."
+    },
+    {
+      "address": "00406f40",
+      "status": "partial",
+      "scope": "Visit timer phases of live terrain-induced building collapse",
+      "sources": [
+        "app/building-terrain.ts",
+        "app/building-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00406f40.c",
+        "decomp/research/result-statistics/README.md"
+      ],
+      "limits": "Supported collapse phase timer and ejection/emission adapters only. The original entry's allocation/owner transitions are not all mapped."
     },
     {
       "address": "00407150",
@@ -393,6 +451,21 @@
       "limits": "Live training and actor changes call this pruning routine. Native comparisons preserve successor links, including dangling tails. Malformed cyclic lists are outside the supported domain."
     },
     {
+      "address": "00409710",
+      "status": "implemented",
+      "scope": "Compute the original wrapped point around a live building queue",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/training.ts",
+        "app/live-building-entry.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00409710.c",
+        "scripts/check-native-building-shapes.py"
+      ],
+      "limits": "Direct shape oracle and current training arrival paths consume the rotating mask/128-unit queue calculation for supported shapes."
+    },
+    {
       "address": "00409b10",
       "status": "implemented",
       "scope": "Append an eligible person to a live training queue",
@@ -463,6 +536,50 @@
       "limits": "Live ordinary six-slot buildings receive native-style command rewrites; source deliberately does not scan original adjacent storage beyond the six physical slots."
     },
     {
+      "address": "0040a3f0",
+      "status": "partial",
+      "scope": "Resolve an adjacent vault/building target for live person control",
+      "sources": [
+        "app/vault-geometry.ts",
+        "app/vault.ts",
+        "app/person-casting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040a3f0.c",
+        "scripts/check-native-vault.py"
+      ],
+      "limits": "Live source maps the vault/cell lookup case and native composed approach witnesses; generic original adjacent-object resolution not covered by this scoped port."
+    },
+    {
+      "address": "0040a460",
+      "status": "partial",
+      "scope": "Select a native-style building entrance approach point",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040a460.c",
+        "scripts/check-native-person-motion.py"
+      ],
+      "limits": "Live computes approach along an entrance axis, but original decomp traversal has unresolved branches and original world/cell object effects are not established."
+    },
+    {
+      "address": "0040a980",
+      "status": "partial",
+      "scope": "Face the original building interior and release the active approach route",
+      "sources": [
+        "app/live-building-combat.ts",
+        "app/building-shapes.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040a980.c",
+        "tests/spy-animation-entry.test.mjs",
+        "scripts/check-native-mission12-spy-sabotage.py"
+      ],
+      "limits": "Live facing and route transition are present. Mission 12 native probe observes this address as a hooked boundary rather than qualifying its body, and target shape is a browser pose."
+    },
+    {
       "address": "0040afd0",
       "status": "partial",
       "scope": "Shorten positive-lived repair smoke in the native footprint mask",
@@ -520,6 +637,20 @@
       "limits": "Native probe directly tests repricing as its separate helper; live training callers use it after applicable occupancy changes. Full training admission distinct."
     },
     {
+      "address": "0040bce0",
+      "status": "partial",
+      "scope": "Visit live tribe buildings to issue supported counterattack responses",
+      "sources": [
+        "app/live-building-combat.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040bce0.c",
+        "scripts/check-native-building-counterattack.py"
+      ],
+      "limits": "Current campaign command iterates live owned buildings and performs the tower/eligible defender action. Original entry only walks the linked tribe roster and delegates to 0040bd20; browser filters its reconstructed roster before applying that supported delegate."
+    },
+    {
       "address": "0040c4e0",
       "status": "partial",
       "scope": "Reconcile timed hut-occupancy smoke root in the live scene",
@@ -532,6 +663,32 @@
         "scripts/check-native-hut-smoke-first-visit.py"
       ],
       "limits": "Normal Mission 2 admission matches 16 native root visits including first allocation; ownership, presentation/effect children and wider timing paths are not all established."
+    },
+    {
+      "address": "0040c670",
+      "status": "partial",
+      "scope": "Choose the imported original object model bank",
+      "sources": [
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040c670.c",
+        "scripts/check-native-models.py"
+      ],
+      "limits": "All 256 native bank selections are compared to the importer; shipped browser reads extracted assets rather than executing original dynamic bank-loading control."
+    },
+    {
+      "address": "0040c880",
+      "status": "partial",
+      "scope": "Consume the imported original building shape record table",
+      "sources": [
+        "app/building-shapes.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040c880.c",
+        "scripts/check-native-building-shapes.py"
+      ],
+      "limits": "Tracked native loader relocates all 64 shape records and importer/raw asset bytes match; browser consumes tables without executing the original file/memory loader."
     },
     {
       "address": "0040cc60",
@@ -562,6 +719,20 @@
         "scripts/check-native-model-lighting.py"
       ],
       "limits": "Direct oracle covers 4,096 inputs including degenerate triangles; live renderer uses the quantized native 32-by-32 normal table. Not a whole-renderer parity claim."
+    },
+    {
+      "address": "00415f70",
+      "status": "partial",
+      "scope": "Use original opaque palette-index color conversion for supported UI",
+      "sources": [
+        "app/tooltips.ts",
+        "app/scene-tooltip-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00415f70.c",
+        "scripts/check-native-tooltips.py"
+      ],
+      "limits": "Original directly converts all 256 indexed colors; browser imports actual tooltip subset and renders Canvas CSS colors, not native color-structure writes to every caller."
     },
     {
       "address": "00416e50",
@@ -663,6 +834,37 @@
       "limits": "Live updates native integer motion state and browser view. The browser supplies no-op rotation and globe callbacks; original render-state invalidation and the terminal globe/water side effects are not reproduced by those callbacks."
     },
     {
+      "address": "00418890",
+      "status": "partial",
+      "scope": "Enter or leave native-style live overview with the camera shortcut",
+      "sources": [
+        "app/quick-camera-shortcuts.ts",
+        "app/scene-input-runtime.ts",
+        "app/scene-camera-runtime.ts",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/00418890.c",
+        "decomp/research/instant-overview.md",
+        "scripts/check-native-camera-view.py"
+      ],
+      "limits": "Original parameter/anchor and transition family compared; browser DOM input, camera gating and view-plane handoff remain separately routed."
+    },
+    {
+      "address": "00418de0",
+      "status": "partial",
+      "scope": "Enable native tribe texture choices for Boat and Balloon vehicles",
+      "sources": [
+        "app/vehicle-appearance.ts",
+        "app/scene-entities.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00418de0.c",
+        "scripts/check-native-vehicle-materials.py"
+      ],
+      "limits": "Independent original harness runs loader flag setter unhooked and ten full vehicle draws with all owners; body also sets flags on nonvehicle models 30, 62 and 69. Shipping UV path ports only the subsequent Boat/Balloon texture choice, not that broad loader mutation."
+    },
+    {
       "address": "00418e30",
       "status": "partial",
       "scope": "Advance tribe victory and defeat outcomes in the live turn",
@@ -689,6 +891,20 @@
         "scripts/check-native-level-start.py"
       ],
       "limits": "Native probes compare toroidal XY and angle retention. Live fresh-level scene invokes the position seed, but omits the prior angle argument when flag 32 is set, and does not expose the same native dirty global or no-Shaman path."
+    },
+    {
+      "address": "00419880",
+      "status": "partial",
+      "scope": "Install startup command 18 on supported live authored shamans",
+      "sources": [
+        "app/level-start-runtime.ts",
+        "app/world-initialization.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00419880.c",
+        "decomp/research/level-start-sequence.md"
+      ],
+      "limits": "In live world creation the retained Missions 1–3 branch allocates and attaches command 18 then initializes the shaman. Other native adjacent-object, protected actor and pool/tribe outcomes are outside this scope."
     },
     {
       "address": "0041a590",
@@ -806,6 +1022,34 @@
       "limits": "Live render configuration uses directly compared integer interpolation and endpoints; native rendering/game flags, surface-memory offsets and zero-zoom transform-matrix work remain browser-owned rather than original behavior."
     },
     {
+      "address": "0041d1e0",
+      "status": "partial",
+      "scope": "Project original flat globe points with 20-unit scale during transition",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041d1e0.c",
+        "scripts/check-native-globe-transition.py"
+      ],
+      "limits": "Exact native alternate-flat-path projection tests; live 20-unit branch uses browser view context and no native function-pointer or viewport ownership."
+    },
+    {
+      "address": "0041d260",
+      "status": "partial",
+      "scope": "Project original flat globe points with 18-unit scale during transition",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041d260.c",
+        "scripts/check-native-globe-transition.py"
+      ],
+      "limits": "Both original flat projectors are exercised in native transition cases; live 18-unit branch uses browser projection context, not full native texture-coordinate state."
+    },
+    {
       "address": "0041d410",
       "status": "implemented",
       "scope": "Begin the live ground-to-globe morph-camera phase",
@@ -832,6 +1076,22 @@
         "scripts/check-native-globe-transition.py"
       ],
       "limits": "Native return morph fields and active-state refusal are directly compared. Browser stores the overview-return preset and scene stage before calling the inner guard; original stores requested return mode only on admission."
+    },
+    {
+      "address": "0041d4b0",
+      "status": "partial",
+      "scope": "Apply native instant overview state to the live camera",
+      "sources": [
+        "app/instant-overview.ts",
+        "app/scene-camera-runtime.ts",
+        "app/scene.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041d4b0.c",
+        "decomp/research/instant-overview.md",
+        "tests/overview-key-repeat.test.mjs"
+      ],
+      "limits": "Source maps instant transition and real focused browser input tests; the original viewport/renderer and global animation path are separate."
     },
     {
       "address": "0041d680",
@@ -862,6 +1122,20 @@
       "limits": "Live shapes, owner-specific hut counts and tower occupants present; browser reconstructs object state and deliberately extends a tall-viewport overflow case."
     },
     {
+      "address": "0041deb0",
+      "status": "partial",
+      "scope": "Queue scoped visible world effects in the globe's coarse map cell",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041deb0.c",
+        "scripts/check-native-globe-effects.py"
+      ],
+      "limits": "Native effect-cell tests check final 512 queue/painter cases. Live adapts owner lists, imported flags and Canvas overlay rather than complete native object dispatch."
+    },
+    {
       "address": "0041e5b0",
       "status": "partial",
       "scope": "Present native-style overview effect-cell queues and HFX frames",
@@ -874,6 +1148,21 @@
         "scripts/check-native-globe-effects.py"
       ],
       "limits": "Tracked proof covers native cell list and painter input, browser explicitly chooses supported effect objects and uses Canvas rasterization rather than the native painter."
+    },
+    {
+      "address": "0041ebf0",
+      "status": "partial",
+      "scope": "Derive native overview animation phase from sky ticks",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041ebf0.c",
+        "scripts/check-native-globe-effects.py"
+      ],
+      "limits": "Live view sets globe phase using the original sky-tick increment, and the native harness isolates the viewport backend. The native also resets polygon queues, minimap offsets and multiple viewport fields outside this mapping."
     },
     {
       "address": "0041edb0",
@@ -1207,6 +1496,20 @@
       "limits": "Direct oracle compares original perimeter splits and wrapped seams. Actual live overlay consumes the crossings through selection mesh; border shaders remain separate."
     },
     {
+      "address": "00424900",
+      "status": "partial",
+      "scope": "Triangulate the clipped drag-selection polygon before overlay submission",
+      "sources": [
+        "app/selection-mesh.ts",
+        "app/drag-overlay.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00424900.c",
+        "scripts/check-native-selection-mesh.py"
+      ],
+      "limits": "Composed native drag-selection witness and live clipping; browser intentionally repairs the overwritten final triangle for seven vertices rather than matching original mutation."
+    },
+    {
       "address": "00429f90",
       "status": "partial",
       "scope": "Present native-style ground-view sky and viewport flash",
@@ -1235,6 +1538,20 @@
       "limits": "Live sky profile maps admitted successful original assets; original OS palette open failures, filename fallback and unsupported banks are not reproduced."
     },
     {
+      "address": "0042b590",
+      "status": "partial",
+      "scope": "Initialize original path-node limits and zero request counters at world setup",
+      "sources": [
+        "app/world-state.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042b590.c",
+        "decomp/research/tutorial-entry.md",
+        "decomp/research/demo131-entry.md"
+      ],
+      "limits": "Original level loader performs broad palette, terrain and command setup. Only the live path-budget defaults are mapped for this address."
+    },
+    {
       "address": "0042c210",
       "status": "implemented",
       "scope": "Initialize original default resting-slot geometry",
@@ -1247,6 +1564,49 @@
         "scripts/check-native-resting-slots.py"
       ],
       "limits": "Live resting runtime uses imported 44 startup positions plus default alias policy; original native startup harness checks those geometry outputs."
+    },
+    {
+      "address": "0042d060",
+      "status": "partial",
+      "scope": "Update native globe star parallax from signed viewport displacement",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042d060.c",
+        "scripts/check-native-globe.py"
+      ],
+      "limits": "Tracked 512 exact sixteen-layer parallax updates; live passes clamped/observed delta. Wider original texture/context coordinate writes stay with the browser view."
+    },
+    {
+      "address": "0042d140",
+      "status": "partial",
+      "scope": "Select the flat-projection mode and blend weight for globe transition",
+      "sources": [
+        "app/globe.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042d140.c",
+        "scripts/check-native-globe-transition.py"
+      ],
+      "limits": "Direct original stores a function pointer and blend value; browser carries equivalent supported flat-scale/profile inputs without a native function-pointer or complete context identity."
+    },
+    {
+      "address": "0042d180",
+      "status": "partial",
+      "scope": "Construct the original overview's supported projection dimensions and radius",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042d180.c",
+        "scripts/check-native-globe-effects.py",
+        "scripts/check-native-globe-footprints.py"
+      ],
+      "limits": "Composed native fixtures verify geometry with supported original viewport width, height and radius; browser uses display-scaled dimensions and different context storage."
     },
     {
       "address": "0042d1f0",
@@ -1275,6 +1635,20 @@
         "scripts/check-native-globe.py"
       ],
       "limits": "Direct native press/drag/release snapshots cover persistent glide, stationary reset, and capped velocity. Render loop event source separate."
+    },
+    {
+      "address": "0042d380",
+      "status": "implemented",
+      "scope": "Release original globe drag while preserving its glide velocity",
+      "sources": [
+        "app/globe.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042d380.c",
+        "scripts/check-native-globe.py"
+      ],
+      "limits": "Native release clears drag state only and composed motion fixtures verify retained velocity. The browser matches ordinary pointer-up with overview buttons released; cancellation or teardown deliberately resets more state."
     },
     {
       "address": "0042daa0",
@@ -1351,6 +1725,22 @@
       "limits": "Direct 2,048 native inverse picks and related transition cases, leaving the outside disc unselectable. Pointer event source separate."
     },
     {
+      "address": "0042ea10",
+      "status": "partial",
+      "scope": "Generate adaptive globe mesh vertices, shades and original triangle order",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts",
+        "app/world-globe-mesh.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042ea10.c",
+        "scripts/check-native-globe.py",
+        "scripts/check-native-globe-transition.py"
+      ],
+      "limits": "Both native tracked adaptive-mesh and blended-transition outputs are compared; browser materials, dirty tracking, auxiliary world selector and device submission are distinct."
+    },
+    {
       "address": "0042edb0",
       "status": "partial",
       "scope": "Produce fixed-seed parallax star draw entries for overview",
@@ -1363,6 +1753,34 @@
         "scripts/check-native-globe.py"
       ],
       "limits": "Native harness compares submitted draw streams and palette; browser batches its own geometry/material consumers and does not establish complete original effects dispatch."
+    },
+    {
+      "address": "00430bd0",
+      "status": "partial",
+      "scope": "Allocate supported live campaign message slots with eviction",
+      "sources": [
+        "app/messages.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00430bd0.c",
+        "scripts/check-native-messages.py"
+      ],
+      "limits": "Original composed allocation compares eviction, RNG and serial; supported browser type-1/3 profiles, never all message descriptors and pool state."
+    },
+    {
+      "address": "00430e40",
+      "status": "implemented",
+      "scope": "Mark player-bound message payload present on a live slot",
+      "sources": [
+        "app/messages.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00430e40.c",
+        "scripts/check-native-messages.py"
+      ],
+      "limits": "Exact original two writes set flag 0x10 and store the 16-bit string payload; browser combines them during live slot creation. Original descriptor and emitter scheduling separate."
     },
     {
       "address": "00430fe0",
@@ -1542,6 +1960,21 @@
       "limits": "Native group commit and overflow/exhaustion behavior compared in bounded cases; live selection/effects adapters and scalable browser pooling are separate."
     },
     {
+      "address": "00435c10",
+      "status": "partial",
+      "scope": "Record previous selection on live person objects",
+      "sources": [
+        "app/person-orders.ts",
+        "app/selection-runtime.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00435c10.c",
+        "decomp/research/follower-groups.md"
+      ],
+      "limits": "Native traverses a tribe-linked order and copies high selected bit to low previous bit. Browser performs the same per-object transformation for its constructed roster, not the original linked-list population."
+    },
+    {
       "address": "00435cb0",
       "status": "partial",
       "scope": "Append a shared player command to applicable live actors",
@@ -1601,6 +2034,36 @@
         "scripts/check-native-order-focus.py"
       ],
       "limits": "Ordinary and immediate order icons are displayed from native-shaped records. Focused oracle includes class-4 target overrides, but the live panel receives the people-only cell object registry rather than native vehicles."
+    },
+    {
+      "address": "00436b90",
+      "status": "implemented",
+      "scope": "Test live actor eligibility against a native order descriptor",
+      "sources": [
+        "app/person-orders.ts",
+        "app/live-command.ts",
+        "app/construction-order.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00436b90.c",
+        "scripts/check-native-hut-upgrade.py"
+      ],
+      "limits": "Retained source's class-mask shift and ghost command flag match live helper for valid descriptors. Order dispatch/assignment is separate."
+    },
+    {
+      "address": "00436be0",
+      "status": "implemented",
+      "scope": "Find the next free slot in a live eight-slot order queue",
+      "sources": [
+        "app/person-orders.ts",
+        "app/live-movement.ts",
+        "app/construction-order.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00436be0.c",
+        "scripts/check-native-orders.py"
+      ],
+      "limits": "Exact direct source matches eight-slot cyclic scan from current valid cursor; browser translates native 0xff to -1. Composed append/commit checked."
     },
     {
       "address": "00436d00",
@@ -1691,6 +2154,20 @@
       "limits": "Focus helper applies original command mask, ID, class and liveness checks; the live adapter reconstructs only selected classes from browser lists and always passes flags2 zero instead of reading the native pool object."
     },
     {
+      "address": "00438db0",
+      "status": "partial",
+      "scope": "Approach an attackable building plan with the original plan collision mask",
+      "sources": [
+        "app/combat-pursuit.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00438db0.c",
+        "scripts/check-native-plan-attack.py"
+      ],
+      "limits": "Native plan-approach gates have a focused harness. Exact live collision world and complete plan state owner remain adapted."
+    },
+    {
       "address": "00438f20",
       "status": "implemented",
       "scope": "Attack approach outside the building entrance",
@@ -1704,6 +2181,20 @@
         "scripts/check-native-building-attack.py"
       ],
       "limits": "Covers native entry assignment, exterior destination dispatch, facing, movement recovery and even-turn signed coordinate readiness for supported buildings. Destination/animation effect boundaries are separately supplied in the native comparison."
+    },
+    {
+      "address": "00439030",
+      "status": "partial",
+      "scope": "Approach a completed attackable building using its structure collision gate",
+      "sources": [
+        "app/combat-pursuit.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00439030.c",
+        "scripts/check-native-building-attack.py"
+      ],
+      "limits": "The shared approach phase and native branch are scoped; original occupant, encounter and audio consumers are supplied, and live building collision is adapted."
     },
     {
       "address": "00439480",
@@ -1722,6 +2213,78 @@
       "limits": "Assignment consumption, movement recovery and even-turn signed arrival check at 112 units only; later strike and structure damage are separate. Native harness compares owned state with supplied effects."
     },
     {
+      "address": "004394e0",
+      "status": "partial",
+      "scope": "Check alternating fetch arrival and decrement the native signed timer",
+      "sources": [
+        "app/building-fetch.ts",
+        "app/combat-pursuit.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004394e0.c",
+        "tests/building-fetch.test.mjs",
+        "scripts/check-native-building-fetch.py"
+      ],
+      "limits": "Live task performs the signed decrement even on successful arrival via the common approach helper. Evidence is composed task coverage, not a direct exact original call for this leaf."
+    },
+    {
+      "address": "00439d30",
+      "status": "partial",
+      "scope": "Enter original discovery check during spy-sabotage building aftermath",
+      "sources": [
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00439d30.c",
+        "scripts/check-native-mission12-spy-sabotage.py"
+      ],
+      "limits": "Retained phase-four no-replay and next aftermath entry scope; not a claim about full generic building ignition or collapse."
+    },
+    {
+      "address": "0043b010",
+      "status": "implemented",
+      "scope": "Coalesce the first native run of route commands including intervening empty slots",
+      "sources": [
+        "app/person-orders.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043b010.c",
+        "scripts/check-native-orders.py"
+      ],
+      "limits": "Scoped to native-compatible command records and owned queue; compared conversion and reference effects, not all order dispatch."
+    },
+    {
+      "address": "0043b120",
+      "status": "implemented",
+      "scope": "Find an uncanceled queued person order strictly after the current cursor",
+      "sources": [
+        "app/person-orders.ts",
+        "app/training-conversion.ts",
+        "app/live-building-entry.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043b120.c",
+        "scripts/check-native-training-conversion.py"
+      ],
+      "limits": "Native 00405b80 invokes the unhooked predicate when copying follow-up orders. Compared training conversion uses random empty/canceled slots and cursors and compares command/actor outputs with the same live helper; this narrow predicate does not wrap or alter the queue. No standalone native run performed here."
+    },
+    {
+      "address": "0043b2a0",
+      "status": "partial",
+      "scope": "Return a live AI-controlled person to ordinary routing",
+      "sources": [
+        "app/live-movement.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043b2a0.c",
+        "scripts/check-native-mission3-person-task.py"
+      ],
+      "limits": "Authored recurrence and linked task behavior are compared, but current caller adapts queue ownership, destination and person lifetime."
+    },
+    {
       "address": "0043bcc0",
       "status": "implemented",
       "scope": "Command-27 worship person controller",
@@ -1738,6 +2301,20 @@
       "limits": "4,096 direct comparisons cover approach, slot selection ordering, arrival, prayer animation dispatch, pose RNG, retry and flags; ordinary shared route, audio, and animation effects remain separately owned and supplied in the harness."
     },
     {
+      "address": "0043c340",
+      "status": "partial",
+      "scope": "Find native worship slot by ordered occupancy and viable-path queries",
+      "sources": [
+        "app/worship.ts",
+        "app/live-worship.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043c340.c",
+        "scripts/check-native-worship-place.py"
+      ],
+      "limits": "Native owned slot search/output compared across 1,024 cases. Live occupancy and path planning use current browser world adapters, not completely matched native caller inputs."
+    },
+    {
       "address": "0043c600",
       "status": "partial",
       "scope": "Stone Head exact standing-slot roster lookup",
@@ -1751,6 +2328,20 @@
         "scripts/check-native-worship-panel.py"
       ],
       "limits": "The browser uses live cell-chain order and compares exact positions, tribe, class and stationary speed, but exposes a player-tribe list from slot zero rather than the original arbitrary-tribe lookup from a caller-owned mutable slot cursor; native comparison checks isolated slot geometry and speed."
+    },
+    {
+      "address": "0043d6e0",
+      "status": "partial",
+      "scope": "Stop live selected follower patrol routes",
+      "sources": [
+        "app/live-movement.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043d6e0.c",
+        "decomp/research/player-patrol.md"
+      ],
+      "limits": "Original command and native pointer semantics are tracked; browser cancels model-specific commands through a separately owned queue/selection adapter."
     },
     {
       "address": "004424b0",
@@ -1900,6 +2491,20 @@
       "limits": "The tracked 128 original group transactions compare actual selection and voice outputs; live filters browser units first, retains a separate legacy occupant path, and does not traverse native original cell order for all targets."
     },
     {
+      "address": "00444f60",
+      "status": "partial",
+      "scope": "Prepare player order packet modifiers, cursor and selection effects",
+      "sources": [
+        "app/live-command.ts",
+        "app/person-orders.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00444f60.c",
+        "scripts/check-native-orders.py"
+      ],
+      "limits": "Native packet/cursor oracle supplies downstream actions; browser implements scoped packet adapters, not every original packet kind or world dispatch effect."
+    },
+    {
       "address": "004458d0",
       "status": "partial",
       "scope": "Set or clear local person selection bits",
@@ -1913,6 +2518,48 @@
       "limits": "The live person helper matches selection bit and flags3 changes; the native entry separately mutates player-global last-selected ID and two UI tracking bytes, not performed by that browser helper."
     },
     {
+      "address": "00449080",
+      "status": "partial",
+      "scope": "Interrupt the authored opening flyby and blend to its endpoint",
+      "sources": [
+        "app/flyby.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00449080.c",
+        "scripts/check-native-flyby.py"
+      ],
+      "limits": "Native opening interruption frames and camera tracks are compared, but the warmup exit’s native viewport and UI operations (00479f00 and 004af1c0) are stubbed in the oracle. Live changes its flyby camera and then uses browser view/pointer cleanup, not those complete original effects."
+    },
+    {
+      "address": "00449240",
+      "status": "implemented",
+      "scope": "Insert authored nonzero-kind flyby records in native stable start order",
+      "sources": [
+        "app/flyby.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00449240.c",
+        "scripts/check-native-flyby.py"
+      ],
+      "limits": "Live resolves script values then inserts supported kinds into a 32-item array. Oracle compares 1,600 inserts of kinds 1–6 with byte/short fields, signed start order and stable ties. Zero-kind/sparse native records and operand resolution are outside this scope."
+    },
+    {
+      "address": "00449320",
+      "status": "partial",
+      "scope": "Advance scripted flyby tracks, warmup frames and authored events",
+      "sources": [
+        "app/flyby.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00449320.c",
+        "scripts/check-native-flyby.py"
+      ],
+      "limits": "Tracked opening sequence and interruptions are compared; live presentation runs its own 24 Hz pacing, and not every original event/sound/UI actor is established."
+    },
+    {
       "address": "0044d7f0",
       "status": "partial",
       "scope": "Object tooltip presentation",
@@ -1924,6 +2571,20 @@
         "scripts/check-native-tooltips.py"
       ],
       "limits": "Forced object modes 1 and 2 are covered; first-mission lookup is approximate and modes 3–10 are unported."
+    },
+    {
+      "address": "0044db60",
+      "status": "implemented",
+      "scope": "Update native tooltip lifetime and request a held draw while valid",
+      "sources": [
+        "app/tooltips.ts",
+        "app/scene-tooltip-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044db60.c",
+        "scripts/check-native-tooltips.py"
+      ],
+      "limits": "Native trace compares signed countdown, expiry, supported target-validity cases and draw/hold/scroll outputs. Live supplies its own object-validity adapter and presentation rate; renderer consumes draw separately."
     },
     {
       "address": "0044ddf0",
@@ -1954,6 +2615,50 @@
         "scripts/check-native-terrain.py"
       ],
       "limits": "66 native terrain states compare signed height/shore/category/cliff/shadow updates, queue cleanup and order of the two final texture consumers; those consumers are supplied in the comparison and shader/pixel parity is separate."
+    },
+    {
+      "address": "0044e940",
+      "status": "implemented",
+      "scope": "Interpolate signed terrain height using the stored tile diagonal",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/live-people.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044e940.c",
+        "scripts/check-native-person-physics.py"
+      ],
+      "limits": "Native and live coordinate wrapping is compared for original-width height/cell inputs; not every terrain mutation producer."
+    },
+    {
+      "address": "0044eb40",
+      "status": "partial",
+      "scope": "Average signed start-wave terrain height across original wrapped cells",
+      "sources": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044eb40.c",
+        "scripts/check-native-level-start.py"
+      ],
+      "limits": "Live start-wave rectangle covers authored 10x10 case; generic arbitrary rectangle sizes and original caller mutation ordering are outside current evidence."
+    },
+    {
+      "address": "0044ebe0",
+      "status": "implemented",
+      "scope": "Test for any non-land category in a wrapped native tile square",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/building-validity.ts",
+        "app/person-physics.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044ebe0.c",
+        "scripts/check-native-building-validity.py"
+      ],
+      "limits": "Same category flag and wrapped two-byte grid stepping for live radii one or two. Original source comparison and native composed validation, not a claimed standalone oracle."
     },
     {
       "address": "0044ee50",
@@ -2015,6 +2720,49 @@
       "limits": "4,096 direct native cases compare the exact nonzero support bit for the original category/coast table and coordinate domain. Does not claim broader collision or route policy."
     },
     {
+      "address": "0044fcb0",
+      "status": "partial",
+      "scope": "Derive the wrapped level-start terrain rectangle from coarse native coordinates",
+      "sources": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044fcb0.c",
+        "scripts/check-native-level-start.py"
+      ],
+      "limits": "Native evidence exercises the level-start consumer; original generic rectangular normalization is broader than the browser's authored footprint construction."
+    },
+    {
+      "address": "0044fd80",
+      "status": "implemented",
+      "scope": "Average signed native terrain heights over a nonempty grade vertex list",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044fd80.c",
+        "scripts/check-native-building-ground.py"
+      ],
+      "limits": "The inline live grade-vertex reducer reproduces its nonempty signed raw average using the current shape list. The enclosing buildingPlanHeight independently rounds/clamps and applies other plan branches; no equivalence claimed for the whole enclosing helper."
+    },
+    {
+      "address": "0044fde0",
+      "status": "partial",
+      "scope": "Move a live terrain vertex toward a signed target height",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/building-terrain.ts",
+        "app/building-preparation.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044fde0.c",
+        "scripts/check-native-building-level.py"
+      ],
+      "limits": "Retained source distance check and signed step appear in live grade/terrain helpers; notification and secondary adjacent-terrain side effects are browser-owned or not established."
+    },
+    {
       "address": "004503f0",
       "status": "implemented",
       "scope": "Toroidal integer distance between native points",
@@ -2044,6 +2792,94 @@
       "limits": "Original shade routine compared in 4,096 direct calls; supported imported rule data, not a building lifecycle claim."
     },
     {
+      "address": "00450e60",
+      "status": "partial",
+      "scope": "Draw directional Shaman portrait layers at the original HUD anchor",
+      "sources": [
+        "app/hud-portrait.ts",
+        "app/scene-hud-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00450e60.c",
+        "scripts/check-native-hud-portrait.py"
+      ],
+      "limits": "Fixed anchor, native frame selection and original layer submissions are compared for tracked Shaman cases; presentational composition uses Canvas, with non-Shaman native variants not established."
+    },
+    {
+      "address": "004513e0",
+      "status": "partial",
+      "scope": "Classify follower task HUD category using original controller states",
+      "sources": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004513e0.c",
+        "scripts/check-native-follower-task-adapters.py",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "limits": "Some live states require active-owner adapters; missing/dormant users are deliberately not treated as proven original idle/busy classification."
+    },
+    {
+      "address": "00451720",
+      "status": "partial",
+      "scope": "Pick the next eligible HUD follower from nearby priority bands or globally",
+      "sources": [
+        "app/hud-selection.ts",
+        "app/selection-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00451720.c",
+        "scripts/check-native-hud-selection.py"
+      ],
+      "limits": "The native HUD command reaches this priority query, and the browser uses the nearby bands with a global fallback. The browser helper does not expose the original immediate-global branch selected by a nonzero third argument, and the live roster is supplied by an adapter. The 1,024 authored HUD calls compare composed decisions, not all native entry modes."
+    },
+    {
+      "address": "0045efd0",
+      "status": "partial",
+      "scope": "Choose and position unowned native-style live sprite layers",
+      "sources": [
+        "app/sprite-layers.ts",
+        "app/scene-entities.ts",
+        "app/hud-portrait.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0045efd0.c",
+        "scripts/check-native-sprite-layers.py"
+      ],
+      "limits": "Direct native layer snapshots compare geometry and retained art; browser GPU/bucket sink and an explicitly retained shadow-flag difference remain."
+    },
+    {
+      "address": "0045f4a0",
+      "status": "partial",
+      "scope": "Choose and position tribe-colored native-style live sprite layers",
+      "sources": [
+        "app/sprite-layers.ts",
+        "app/scene-entities.ts",
+        "app/hud-portrait.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0045f4a0.c",
+        "scripts/check-native-sprite-layers.py"
+      ],
+      "limits": "Native layer geometry and tribe art compared; transformed live world/upper-body ordering, output flags and painter ownership differ."
+    },
+    {
+      "address": "0045f9d0",
+      "status": "partial",
+      "scope": "Choose native-style live sprite layers using person and variant",
+      "sources": [
+        "app/sprite-layers.ts",
+        "app/scene-entities.ts",
+        "app/hud-portrait.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0045f9d0.c",
+        "scripts/check-native-sprite-layers.py"
+      ],
+      "limits": "Tracked original selection/mirroring tests and live render call; view/sprite admission and retained shadow differences prevent full original routine claim."
+    },
+    {
       "address": "00461510",
       "status": "partial",
       "scope": "Per-turn tribe cast cooldown and work dispatch",
@@ -2059,6 +2895,77 @@
       "limits": "512 direct native timer-pass cases cover land/load gates and four cooldowns; the full live CPU/territory callbacks are browser adapters, outside the timer oracle."
     },
     {
+      "address": "004615f0",
+      "status": "partial",
+      "scope": "Choose scheduled computer maintenance versus task dispatch after script processing",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004615f0.c",
+        "scripts/check-native-training.py"
+      ],
+      "limits": "Native oracle executes scheduler phases and preserves script-before-task order; exact world/script/maintenance consumers and the original post-prefix dispatcher stages are not all covered."
+    },
+    {
+      "address": "00461d70",
+      "status": "partial",
+      "scope": "Initialize scoped authored computer-player defaults before turn-zero script",
+      "sources": [
+        "app/campaign-runtime.ts",
+        "app/computer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00461d70.c",
+        "scripts/check-native-mission12-opening.py",
+        "scripts/check-native-mission13-opening.py"
+      ],
+      "limits": "Matched particular startup attributes and mission witnesses; native initializer clears/fills additional global and tribe state not established as complete."
+    },
+    {
+      "address": "00461f90",
+      "status": "partial",
+      "scope": "Invalidate expired response-task target ownership before computer scheduling",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00461f90.c",
+        "decomp/research/early-mission-response-task.md",
+        "scripts/check-native-ai-response-task.py"
+      ],
+      "limits": "Finite early-campaign response matching is mapped; original procedure handles broader task types and uses native registry/owner data."
+    },
+    {
+      "address": "004623e0",
+      "status": "implemented",
+      "scope": "Select one occupied native task slot and advance the ten-slot round-robin cursor",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004623e0.c",
+        "scripts/check-native-training.py"
+      ],
+      "limits": "Native oracle tests all occupancy masks, including empty advance, and live calls the same owned queue scheduler. Task-kind dispatch and callback effects are separate."
+    },
+    {
+      "address": "004625e0",
+      "status": "partial",
+      "scope": "Dispatch the supported live early CPU producer schedule",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004625e0.c",
+        "scripts/check-native-ai-producer-schedule.py"
+      ],
+      "limits": "Original producer scheduling and authored work gates are compared, but live actor ownership and broader historic task producers remain separately mapped."
+    },
+    {
       "address": "00462790",
       "status": "partial",
       "scope": "Commit a construction task into the computer queue",
@@ -2071,6 +2978,49 @@
         "decomp/research/mission3-person-task.md"
       ],
       "limits": "The live construction producer finds a free browser task and writes active/phase/model/origin. Native general task-slot commit accepts signed raw payload fields and invokes 00462ca0; not an equivalent general write or full allocator sequence."
+    },
+    {
+      "address": "004627f0",
+      "status": "partial",
+      "scope": "Allocate supported live AI task slots with native request types",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-convert.ts",
+        "app/computer-defense.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004627f0.c",
+        "scripts/check-native-mission3-raid-allocation.py"
+      ],
+      "limits": "Direct authored task allocation/owner probes and live queue use; original record allocation and producer side effects are not fully equivalent."
+    },
+    {
+      "address": "00463cb0",
+      "status": "partial",
+      "scope": "Age nonzero native vehicle life and refresh occupied positive vehicle life",
+      "sources": [
+        "app/live-vehicles.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00463cb0.c",
+        "scripts/check-native-mission22-gifts.py"
+      ],
+      "limits": "Authored vehicle expiry, exact zero and occupied refresh are witnessed; the native routine also manages additional movement/state/flag branches."
+    },
+    {
+      "address": "00464ce0",
+      "status": "partial",
+      "scope": "Find a native-style boat approach or landing position using bounded indexed search",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-vehicles.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00464ce0.c",
+        "scripts/check-native-vehicle-routing.py"
+      ],
+      "limits": "Complete boat search helper has native fixtures; live cell membership and balloon landing differ or have explicit adapters."
     },
     {
       "address": "00464f90",
@@ -2133,6 +3083,20 @@
       "limits": "Supported registered vehicle and physics models, using native coordinate units and rule tables; 1,024 direct native predicate comparisons. Does not claim transport movement, landing or board-order parity."
     },
     {
+      "address": "00466190",
+      "status": "partial",
+      "scope": "Find the shared vehicle ejection point with coastal and seven-direction fallback",
+      "sources": [
+        "app/live-vehicles.ts",
+        "app/live-worship.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00466190.c",
+        "scripts/check-native-vehicle-exit.py"
+      ],
+      "limits": "320 native-composed exits match point/gates under supplied map context. Browser actor/vehicle ownership and forced-unseat producer are separate."
+    },
+    {
       "address": "004663c0",
       "status": "partial",
       "scope": "First eligible vehicle boarding query",
@@ -2165,6 +3129,296 @@
       "limits": "The 2,048 original lookup cases cover model and class ordering, wrapped cells and the boat gate; live supplies active browser vehicles and derives availability, not the original ordered object-cell chain and global state."
     },
     {
+      "address": "00467130",
+      "status": "partial",
+      "scope": "Filter the original projected land traversal to visible coarse cells",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00467130.c",
+        "scripts/check-native-visible-cells.py"
+      ],
+      "limits": "Native traversal membership across 1,048,576 decisions is checked, but the original rendering dispatcher and browser culling/additional viewport margin are not identical."
+    },
+    {
+      "address": "0046cfc0",
+      "status": "partial",
+      "scope": "Evaluate a live water vertex’s native shore-category predicate",
+      "sources": [
+        "app/water.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046cfc0.c",
+        "scripts/check-native-water.py"
+      ],
+      "limits": "Exact native flags 1/0x3c and category mask 0x80 select the live dry branch. Browser normalizes native 1 vs 0x80 to boolean; wave sampling is 0x46cb90 caller, not this function."
+    },
+    {
+      "address": "0046dbe0",
+      "status": "implemented",
+      "scope": "Project signed native camera-relative coordinates with clip flags",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts",
+        "app/painter.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046dbe0.c",
+        "scripts/check-native-projection.py"
+      ],
+      "limits": "Native integer curvature and float32 output for configured viewport are compared; no Three.js/device behavior outside this projection."
+    },
+    {
+      "address": "0046de00",
+      "status": "implemented",
+      "scope": "Project native camera-relative coordinates without producing clip flags",
+      "sources": [
+        "app/projection.ts",
+        "app/painter.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046de00.c",
+        "scripts/check-native-projection.py"
+      ],
+      "limits": "Live terrain painter explicitly calls clip=false. Native raster and final renderer remain separate."
+    },
+    {
+      "address": "0046e450",
+      "status": "implemented",
+      "scope": "Create half-open circular native landscape traversal bounds",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046e450.c",
+        "scripts/check-native-projection.py",
+        "scripts/check-native-visible-cells.py"
+      ],
+      "limits": "Scoped to native-configured diameters and 222-row bound; browser may merge with other visibility coverage for its wider view."
+    },
+    {
+      "address": "0046e510",
+      "status": "implemented",
+      "scope": "Rotate and rasterize native configured quadrilateral landscape bounds",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts",
+        "app/viewport-bounds.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046e510.c",
+        "scripts/check-native-projection.py",
+        "scripts/check-native-visible-cells.py"
+      ],
+      "limits": "Native cases use configured 16-bit quadrilaterals; live uses the unmodified input at native-width views, and separately widens it in viewport-bounds.ts for wider presentation. This does not verify widened input or renderer submission."
+    },
+    {
+      "address": "0046f080",
+      "status": "partial",
+      "scope": "Interpolate preceding native render position with retained unit displacement",
+      "sources": [
+        "app/unit-motion.ts",
+        "app/scene-entities.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046f080.c",
+        "scripts/check-native-unit-interpolation.py"
+      ],
+      "limits": "Native body interpolation for integer cases is exact and saved fractional cases within one native unit; original native primitive queue is not the browser renderer."
+    },
+    {
+      "address": "0046f850",
+      "status": "partial",
+      "scope": "Interpolate ground-shadow anchor and carry original depth/screen offsets",
+      "sources": [
+        "app/projection.ts",
+        "app/unit-motion.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046f850.c",
+        "scripts/check-native-unit-interpolation.py"
+      ],
+      "limits": "Native body/shadow numerical anchors are compared, but browser adapts queue, surface and viewport submission."
+    },
+    {
+      "address": "00471490",
+      "status": "partial",
+      "scope": "Build native object face rotation basis and camera-relative projection",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts",
+        "app/painter.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00471490.c",
+        "scripts/check-native-projection.py"
+      ],
+      "limits": "Native comparison captures the called projection boundary; actor face material, native texture and device submission are separate browser owners."
+    },
+    {
+      "address": "00475860",
+      "status": "partial",
+      "scope": "Generate native corner-bracket geometry, pulse opacity and click acknowledgement",
+      "sources": [
+        "app/world-picking.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00475860.c",
+        "scripts/check-native-pointer-brackets.py"
+      ],
+      "limits": "Geometry and opacity in 1,024 complete native draws are checked. Browser overlay uses Canvas/provider click state instead of original GPU palette/device ownership."
+    },
+    {
+      "address": "00476090",
+      "status": "partial",
+      "scope": "Scale native signed sprite layer offsets by projection-depth bucket",
+      "sources": [
+        "app/projection.ts",
+        "app/scene-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00476090.c",
+        "scripts/check-native-projection.py"
+      ],
+      "limits": "Native arithmetic is compared under configured level/view flags and consumed by supported effect layers; all original sprite-bank caller modes are not established."
+    },
+    {
+      "address": "004783a0",
+      "status": "partial",
+      "scope": "Place special-battle ranks from tribe-relative native formation geometry",
+      "sources": [
+        "app/special-battle.ts",
+        "app/armageddon.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004783a0.c",
+        "scripts/check-native-person-recovery.py"
+      ],
+      "limits": "Independent native cases compare the returned point and RNG state for signed ranks; rank zero is used by live Shaman staging and the person initialization path supplies linked ranks. That latter path passes a copied randomState object and does not write back the negative-rank RNG advance, unlike the native entry."
+    },
+    {
+      "address": "00478820",
+      "status": "implemented",
+      "scope": "Enforce native squared wrap-distance boundary for an active special battle",
+      "sources": [
+        "app/special-battle.ts",
+        "app/armageddon.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00478820.c",
+        "scripts/check-native-person-recovery.py"
+      ],
+      "limits": "Scoped to active substate and native position/life inputs; no claim about allocation or participant selection."
+    },
+    {
+      "address": "00479dd0",
+      "status": "partial",
+      "scope": "Merge native type-2 pan bits and set fast pan on repeated direction",
+      "sources": [
+        "app/camera-input.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00479dd0.c",
+        "scripts/check-native-navigation.py"
+      ],
+      "limits": "Native comparison initializes packet type 2 and compares its repeated-direction byte; live has the scoped merge but not the type-0-to-2 packet insertion or the other native packet arbitration and payload cases."
+    },
+    {
+      "address": "00479f00",
+      "status": "partial",
+      "scope": "Choose native close/normal/bird/world preset on zoom command",
+      "sources": [
+        "app/camera-view.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00479f00.c",
+        "scripts/check-native-camera-view.py"
+      ],
+      "limits": "Preset command 15 and endpoint no-op are routed live; original command dispatcher also owns wider configuration and transitions."
+    },
+    {
+      "address": "0047a550",
+      "status": "partial",
+      "scope": "Leave armed spell or building mode when entering follower-group mode",
+      "sources": [
+        "app/follower-groups.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047a550.c",
+        "scripts/check-native-person-selection.py"
+      ],
+      "limits": "Scoped to the group-mode transition. Native selection harness hooks the surrounding controller, and its general UI opcode switch is larger."
+    },
+    {
+      "address": "0047c350",
+      "status": "partial",
+      "scope": "Map native-style live follower group actions from keyboard",
+      "sources": [
+        "app/follower-groups.ts",
+        "app/follower-group-display.ts",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/0047c350.c",
+        "decomp/research/follower-groups.md"
+      ],
+      "limits": "Original key and command bindings researched; live rebinding/overlay group ownership differ from native list and input device dispatch."
+    },
+    {
+      "address": "0047ce50",
+      "status": "partial",
+      "scope": "Submit ordered opaque and translucent help-preview geometry",
+      "sources": [
+        "app/help-preview-vehicle-canvas.ts",
+        "app/help-preview-vehicle.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047ce50.c",
+        "tests/help-preview-vehicle-source.json",
+        "scripts/check-native-texture-filter.py"
+      ],
+      "limits": "Preview uses fixed WebGL depth/blend settings for a restricted mode; original Direct3D full world/material-state queue is not reproduced."
+    },
+    {
+      "address": "0047f480",
+      "status": "implemented",
+      "scope": "Build fixed-point native yaw then pitch camera basis",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts",
+        "app/viewport-bounds.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047f480.c",
+        "scripts/check-native-projection.py"
+      ],
+      "limits": "Configured native camera angles and handedness; broader render globals not compared."
+    },
+    {
+      "address": "0047fab0",
+      "status": "implemented",
+      "scope": "Rotate and renormalize a native fixed-point matrix about its current basis row",
+      "sources": [
+        "app/projection.ts",
+        "app/render-view.ts",
+        "app/building-acquisition.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047fab0.c",
+        "scripts/check-native-projection.py"
+      ],
+      "limits": "Three logical axes are checked over supplied original-width matrices; shape drawing and higher-level camera timing are excluded."
+    },
+    {
       "address": "004851e0",
       "status": "partial",
       "scope": "Resolve authored Stone Head scenery linkage and presentation",
@@ -2179,6 +3433,33 @@
         "decomp/research/stone-head-orientation.md"
       ],
       "limits": "Native post-load walker links triggers/gifts/scenery and initializes effects; the browser indexes first authored model-9 scenery by wrapped cell for heading and does not traverse the original runtime trigger links. The native animation harness reaches the loader on a supplied authored case."
+    },
+    {
+      "address": "004902e0",
+      "status": "implemented",
+      "scope": "Write a native-width AI spell-entry record from authored script operands",
+      "sources": [
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004902e0.c",
+        "scripts/check-native-computer.py"
+      ],
+      "limits": "Actual native opcode 1108 interpreter comparisons alternate variable/constant fields and confirm byte, word and dword writes. Scope is valid slot indices and five fields, not spell dispatch."
+    },
+    {
+      "address": "00492680",
+      "status": "partial",
+      "scope": "Count live campaign people within a native marker region",
+      "sources": [
+        "app/campaign-runtime.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00492680.c",
+        "decomp/README.md"
+      ],
+      "limits": "Retained original spatial query and live script call are visible; browser object membership and tribal flags are adapter inputs, without standalone comparison."
     },
     {
       "address": "004935c0",
@@ -2334,6 +3615,20 @@
         "scripts/check-native-timber-search.py"
       ],
       "limits": "The native lifecycle oracle supplies route costs and compares cursor, budget, result flags and node reorder; the browser computes those costs through a builder-only adapter with its own collision gate."
+    },
+    {
+      "address": "00494d10",
+      "status": "partial",
+      "scope": "Estimate supported live route cost for a timber cache candidate",
+      "sources": [
+        "app/live-pathfinding.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00494d10.c",
+        "scripts/check-native-timber-search.py"
+      ],
+      "limits": "Original timber scheduling compares supplied route cost and visit order. Actual live routing/obstacle actor inputs are independently adapted."
     },
     {
       "address": "00495390",
@@ -2495,6 +3790,20 @@
       "limits": "Valid allocated slot IDs only. Implemented for established live resting and idle approaches."
     },
     {
+      "address": "0049bb20",
+      "status": "implemented",
+      "scope": "Convert native 32-segment polar samples into live range-ring coordinate deltas",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049bb20.c",
+        "scripts/check-native-globe-effects.py"
+      ],
+      "limits": "Live globeCircle produces i*64 signed fixed-point sine/cosine samples for the native 32-segment caller; signed wrapping and projection are the consumer. Variable divisor/non-ring call domains are outside this static scope."
+    },
+    {
       "address": "0049c720",
       "status": "implemented",
       "scope": "Compute native wrapped squared coarse-cell distance",
@@ -2522,6 +3831,22 @@
         "scripts/check-native-spell-targets.py"
       ],
       "limits": "4,096 direct oracle cases cover the live 16-bit index domain, ring boundaries, coordinate wrapping and rotation behavior; not a spell-targeting parity claim."
+    },
+    {
+      "address": "0049daf0",
+      "status": "partial",
+      "scope": "Render original spell button states and charge/resource badges",
+      "sources": [
+        "app/spell-button.ts",
+        "app/spell-visibility.ts",
+        "app/hud-charge.ts",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/0049daf0.c",
+        "scripts/check-native-spell-button.py"
+      ],
+      "limits": "Direct native surface command stream and layer order at logical 31×43; React presentation and browser scaling are not the original renderer."
     },
     {
       "address": "0049e8b0",
@@ -2567,6 +3892,22 @@
       "limits": "The live component renders the measured palette and fill arithmetic. Native hidden-control and per-resolution renderer branches are not implemented by the same DOM visibility and sizing mechanism."
     },
     {
+      "address": "004a0510",
+      "status": "partial",
+      "scope": "Format original active follower counts and frames",
+      "sources": [
+        "app/hud-population.ts",
+        "app/hud.tsx",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/004a0510.c",
+        "scripts/check-native-hud-population.py",
+        "scripts/check-native-follower-frame-alpha.py"
+      ],
+      "limits": "Direct native ordinary follower counts and frame checks; browser renders imported English glyphs and derives live counters, not full device mapping or all fonts."
+    },
+    {
       "address": "004a0800",
       "status": "partial",
       "scope": "Population meter fill and at-capacity flash",
@@ -2582,6 +3923,50 @@
         "scripts/check-browser-hud-population.mjs"
       ],
       "limits": "Live fill and capacity flash use the original frame mask through a scene-updated CSS value. This bounded port does not establish the original alternate tribe statistics pointer branch, native control visibility or resolution-dependent UI sizing."
+    },
+    {
+      "address": "004a1170",
+      "status": "partial",
+      "scope": "Select empty-class HUD frame and visibility",
+      "sources": [
+        "app/hud-population.ts",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/004a1170.c",
+        "scripts/check-native-follower-frame-alpha.py"
+      ],
+      "limits": "Exact native empty-class frame calls and current live follower panel layout; DOM visibility/scaling and application roster adapter differ from original."
+    },
+    {
+      "address": "004a5590",
+      "status": "partial",
+      "scope": "Advance live fixed-tick turn gates and tribe processing",
+      "sources": [
+        "app/world-turn.ts",
+        "app/game-clock.ts",
+        "app/campaign-message-modal.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a5590.c",
+        "scripts/check-native-tribe-turns.py"
+      ],
+      "limits": "Live native-order pre-turn gates and pause predicates are retained; original global active object list/time/interruption ownership is not fully reproduced."
+    },
+    {
+      "address": "004a6480",
+      "status": "partial",
+      "scope": "Visit supported scenery timber reservation and stone behavior",
+      "sources": [
+        "app/timber.ts",
+        "app/reincarnation.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a6480.c",
+        "decomp/research/mission23-gifts.md"
+      ],
+      "limits": "Native broad class5 dispatcher extends beyond the two identified branches; live owns only these scoped scenery moves and cadence."
     },
     {
       "address": "004a6b20",
@@ -2624,6 +4009,21 @@
         "scripts/check-native-scenery-fire.py"
       ],
       "limits": "Tracked native fire snapshots and owner motion; live sprite visibility, facing, recipient and allocator callbacks remain browser adapters."
+    },
+    {
+      "address": "004a74e0",
+      "status": "partial",
+      "scope": "Search and assign a native-style live resource route",
+      "sources": [
+        "app/live-pathfinding.ts",
+        "app/queued-resource-search.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a74e0.c",
+        "tests/queued-resource-search-contract.test.mjs"
+      ],
+      "limits": "Actual timber commands use supported route candidate search; browser collision and membership providers and complete original scratch ownership not established."
     },
     {
       "address": "004a77d0",
@@ -2684,6 +4084,34 @@
       "limits": "Direct native depletion branches compare original tree models and snapshots. Live tagged object, removal and replanting remain separate browser-owned effects."
     },
     {
+      "address": "004a7d80",
+      "status": "partial",
+      "scope": "Create native-style reincarnation-site oriented stones",
+      "sources": [
+        "app/reincarnation.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a7d80.c",
+        "scripts/check-native-reincarnation.py"
+      ],
+      "limits": "Original orientation and allocation order are directly probed with supplied memory consumers; live asset/ownership and linked site state are separate adapters."
+    },
+    {
+      "address": "004a7eb0",
+      "status": "partial",
+      "scope": "Advance reincarnation-stone rise and initial dust timing",
+      "sources": [
+        "app/reincarnation.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a7eb0.c",
+        "scripts/check-native-level-start.py"
+      ],
+      "limits": "Direct original eight visits check lifetime/dust/sound; live animation and effects are modeled but no complete owner or rendering parity."
+    },
+    {
       "address": "004a8370",
       "status": "partial",
       "scope": "Retry or consume a delayed live scenery replant request",
@@ -2737,6 +4165,154 @@
         "scripts/check-native-scenery-fire.py"
       ],
       "limits": "Direct native setter cases include short and full-size starts and original init/lifetime; actual captured live fire creation uses the narrow setter."
+    },
+    {
+      "address": "004a8e20",
+      "status": "implemented",
+      "scope": "Reserve a live timber share and refresh the native reservation timer",
+      "sources": [
+        "app/timber.ts",
+        "app/building-fetch.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a8e20.c",
+        "scripts/check-native-building-fetch.py"
+      ],
+      "limits": "Exact retained timer 64, wrapped count, signed wood division and cap flag line up in actual fetch. No original allocator/linked-list equivalence claim."
+    },
+    {
+      "address": "004a8e70",
+      "status": "implemented",
+      "scope": "Compute a live Stone Head approach point one tile ahead",
+      "sources": [
+        "app/worship.ts",
+        "app/live-movement.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a8e70.c",
+        "scripts/check-native-worship-place.py"
+      ],
+      "limits": "Snapped unsigned cell centers, opposite-facing quarter and 512-unit native step match retained source; ordinary live worship command consumes it. Native composed place query verifies endpoint handling; no fresh native execution."
+    },
+    {
+      "address": "004a9d90",
+      "status": "partial",
+      "scope": "Handle supported message-dialog keyboard admission before live campaign input",
+      "sources": [
+        "app/campaign-message-modal.ts",
+        "app/page.tsx",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a9d90.c",
+        "decomp/research/campaign-message-keyboard.md"
+      ],
+      "limits": "Live page handles modal keys before ordinary input. Original general keyboard dispatcher owns DirectInput keys/modifier state and other modal paths; credit is limited to the message-dialog key branch."
+    },
+    {
+      "address": "004aa4e0",
+      "status": "partial",
+      "scope": "Advance live follower-group display and tooltip as presentation effects",
+      "sources": [
+        "app/follower-group-display.ts",
+        "app/tooltips.ts",
+        "app/scene.ts",
+        "app/scene-tooltip-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004aa4e0.c",
+        "decomp/research/follower-groups.md",
+        "decomp/research/campaign-message-keyboard.md"
+      ],
+      "limits": "Live scene frame invokes group display and tooltip consumers. Original per-frame outer dispatcher also calls other presentation/game routines. Browser display uses wall time and its own tooltip scheduler."
+    },
+    {
+      "address": "004aa8b0",
+      "status": "partial",
+      "scope": "Dispatch native-style player click commands with selection and modifiers",
+      "sources": [
+        "app/command-context.ts",
+        "app/person-orders.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004aa8b0.c",
+        "scripts/check-native-command-target.py",
+        "scripts/check-native-move-eligibility.py"
+      ],
+      "limits": "Native target/mode gates have focused evidence and live use; browser pointer packet and selected group ownership do not match all native device states."
+    },
+    {
+      "address": "004adbb0",
+      "status": "partial",
+      "scope": "Interpret live camera edge and mouse-drag input",
+      "sources": [
+        "app/camera-input.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004adbb0.c",
+        "scripts/check-native-navigation.py",
+        "scripts/check-native-drag-selection.py"
+      ],
+      "limits": "Exact original pointer trials include physical outer pixels and device gates, while browser uses DOM dimensions, own gesture admission and configured camera policy."
+    },
+    {
+      "address": "004ae200",
+      "status": "implemented",
+      "scope": "Map live held navigation commands to native camera movement bytes",
+      "sources": [
+        "app/camera-input.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ae200.c",
+        "scripts/check-native-navigation.py"
+      ],
+      "limits": "The exact original navigation oracle covers built-in aliases, modifiers and byte directions. The ledger credits the live mapping helper, not native input-device dispatch, browser focus, or callback admission."
+    },
+    {
+      "address": "004afff0",
+      "status": "partial",
+      "scope": "Initialize the visible live order-focus marker",
+      "sources": [
+        "app/world-effects.ts",
+        "app/scene-tooltip-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004afff0.c",
+        "scripts/check-native-order-marker.py"
+      ],
+      "limits": "Native direct marker init and follow-on scenes compared; browser effect and animation ownership remain separate from native object pool."
+    },
+    {
+      "address": "004b0080",
+      "status": "partial",
+      "scope": "Apply timed pointer bracket expiry to live HUD state",
+      "sources": [
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004b0080.c",
+        "scripts/check-native-pointer-brackets.py"
+      ],
+      "limits": "Native expiry step compared at exact routine; pointer events and frame schedule are browser-owned instead of original client timer dispatch."
+    },
+    {
+      "address": "004b7de0",
+      "status": "partial",
+      "scope": "Initialize native-style live lightning texture inputs",
+      "sources": [
+        "app/lightning.ts",
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004b7de0.c",
+        "scripts/check-native-lightning.py"
+      ],
+      "limits": "Actual browser style uses native-derived small texture. Full original resource lifetime, device allocation and generation path not preserved."
     },
     {
       "address": "004b8220",
@@ -2796,6 +4372,22 @@
       "limits": "Tracked direct original preview traversal supplies successful validity; live reserves its own plan state and does not map all native placement/mode transitions."
     },
     {
+      "address": "004b98f0",
+      "status": "partial",
+      "scope": "Check the admission of a live guard post and retain separate placement",
+      "sources": [
+        "app/command-context.ts",
+        "app/live-command.ts",
+        "app/guard-posts.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004b98f0.c",
+        "decomp/research/guard-posts.md",
+        "tests/guard-posts.test.mjs"
+      ],
+      "limits": "Native land, building and occupant gates visible in retained entry; browser uses live reconstructed occupancy and separately mapped generator rather than native object-pool dispatch."
+    },
+    {
       "address": "004b9cc0",
       "status": "implemented",
       "scope": "Builder slot admission",
@@ -2824,6 +4416,21 @@
         "scripts/check-native-unbuilt-plan.py"
       ],
       "limits": "Direct native grade query and actual terrain leveling consume mask bit 2 using supported original shape descriptors and wrapped map positions; terrain writes separate."
+    },
+    {
+      "address": "004b9ef0",
+      "status": "partial",
+      "scope": "Collect nonzero native shape cells for a live building repair footprint",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004b9ef0.c",
+        "scripts/check-native-boat-house.py",
+        "scripts/check-native-mission15-prison.py"
+      ],
+      "limits": "Live construction consumes the footprint returned by buildingRepairArea. Original emits ordered per-cell native storage pointers, packed coordinates and raw shape bytes; the live area is not that complete record buffer."
     },
     {
       "address": "004ba1b0",
@@ -2871,6 +4478,38 @@
       "limits": "Direct native startup height output covers wrapped sample-derived values; live height helper rounds to 64 with lower ties and clamps 64–1024. Not whole wave parity."
     },
     {
+      "address": "004ba640",
+      "status": "partial",
+      "scope": "Detect a live guard post in a rejected placement cell",
+      "sources": [
+        "app/guard-posts.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ba640.c",
+        "decomp/generated/004aab80.c",
+        "decomp/research/guard-posts.md",
+        "tests/guard-posts.test.mjs"
+      ],
+      "limits": "004aab80 uses the original result to decide whether the placement click takes deletion branch; 004ba640 itself tests the cell chain for class 10/model 16 excluding the current pointer. Browser matches the existence gate using its own guard-post list and folds it into actual removal count, with no equivalent pointer exclusion."
+    },
+    {
+      "address": "004ba9b0",
+      "status": "partial",
+      "scope": "Append the native command-11 chain slot to selected live guard followers",
+      "sources": [
+        "app/live-movement.ts",
+        "app/live-command.ts",
+        "app/guard-posts.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ba9b0.c",
+        "decomp/research/guard-posts.md",
+        "tests/guard-posts.test.mjs"
+      ],
+      "limits": "Live assignGuardPostFollowers uses chain lengths below 8, clears on slot zero, emits command 11 with 0x0606 and appends its chosen shared slot. Object-based command-6 branch and model/selection roster parity excluded."
+    },
+    {
       "address": "004baf00",
       "status": "implemented",
       "scope": "Step supported live reincarnation-site stone carrier and jitter trail",
@@ -2883,6 +4522,162 @@
         "scripts/check-native-level-start.py"
       ],
       "limits": "Direct 15 native carrier lifetimes compare movement, gameplay RNG and terminal jitter emission; browser trail allocation/graphics owned separately."
+    },
+    {
+      "address": "004bb440",
+      "status": "partial",
+      "scope": "Advance the Firestorm child projectile and Blast-style trail",
+      "sources": [
+        "app/spell-effects-runtime.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bb440.c",
+        "scripts/check-native-firestorm.py"
+      ],
+      "limits": "Direct native child visit and effect setup exercise selected timing and trail branch; live spell children adapt allocation, event and graphics ownership independently."
+    },
+    {
+      "address": "004bbcf0",
+      "status": "partial",
+      "scope": "Initialize supported live Firewarrior point-shot effects with native launch geometry",
+      "sources": [
+        "app/firewarrior-point.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bbcf0.c",
+        "decomp/research/firewarrior.md"
+      ],
+      "limits": "Live person point-shot action uses retained lateral offsets, support height and cue, while native also initializes actor/building target modes on separate record ownership. Full effect allocator, flags and movement omitted."
+    },
+    {
+      "address": "004bdcb0",
+      "status": "partial",
+      "scope": "Generate native indexed water pixels for the live texture",
+      "sources": [
+        "app/water.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bdcb0.c",
+        "scripts/check-native-water.py"
+      ],
+      "limits": "32 native indexed textures checked across native turns; browser uses native-compatible initial turn-zero pixels while later GPU motion does not call this generator per original turn."
+    },
+    {
+      "address": "004bdd40",
+      "status": "partial",
+      "scope": "Compute native cell lighting for the live terrain atlas",
+      "sources": [
+        "app/terrain-texture.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bdd40.c",
+        "scripts/check-native-terrain-texture.py"
+      ],
+      "limits": "Tracked native harness intentionally stops after the lighting block; browser consumes the result in atlas updates, not the original entire texture setup path."
+    },
+    {
+      "address": "004bee20",
+      "status": "partial",
+      "scope": "Apply native detail sampling and amplitude to texture tiles",
+      "sources": [
+        "app/terrain-texture.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bee20.c",
+        "scripts/check-native-terrain-texture.py"
+      ],
+      "limits": "Direct original detail comparisons support native tile sampler; browser folds the result into its indexed atlas and does not reproduce complete texture-device work."
+    },
+    {
+      "address": "004bf630",
+      "status": "implemented",
+      "scope": "Stamp the eligible live native-shaped footprint stain entries",
+      "sources": [
+        "app/footprints.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bf630.c",
+        "scripts/check-native-footprints.py"
+      ],
+      "limits": "Direct original probe checks four stains, wrapped coordinates, saturation and ring replacement. Native-backed person animation passes the live cursor position; ordinary browser fallback emission and atlas uploads are separate."
+    },
+    {
+      "address": "004bf860",
+      "status": "implemented",
+      "scope": "Generate the original indexed ground surface tile for live atlas",
+      "sources": [
+        "app/terrain-texture.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bf860.c",
+        "scripts/check-native-terrain-texture.py"
+      ],
+      "limits": "Native same-EXE oracle checks complete 32×32 indexed output, including supplied cliff/fog/stain inputs. Live footprint refresh explicitly uses size 32; 8-pixel atlas fallback and GPU details are outside scope."
+    },
+    {
+      "address": "004c14c0",
+      "status": "partial",
+      "scope": "Record native-shaped live spell spending and cooldown initialization",
+      "sources": [
+        "app/spell-casting.ts",
+        "app/spell-effects-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c14c0.c",
+        "scripts/check-native-cast-cooldowns.py",
+        "scripts/check-native-spell-casting.py"
+      ],
+      "limits": "Direct original probes cover selected payment, usage, cooldown and failed allocator delay branches; browser separates allocation and actual spell-effect ownership."
+    },
+    {
+      "address": "004c1b80",
+      "status": "partial",
+      "scope": "Initialize live person spell cast state and face the target",
+      "sources": [
+        "app/person-casting.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c1b80.c",
+        "scripts/check-native-spell-casting.py"
+      ],
+      "limits": "Native supported admission and facing are represented in ordinary state22 and special entry. Protected actors/effect allocation and current person ownership separate."
+    },
+    {
+      "address": "004c24f0",
+      "status": "partial",
+      "scope": "Validate live spell target range and placement",
+      "sources": [
+        "app/spell-casting.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c24f0.c",
+        "scripts/check-native-spell-casting.py"
+      ],
+      "limits": "Direct native target validation covers legal and disallowed paths; live range/visibility adapter constructs actor and occupancy inputs independently."
+    },
+    {
+      "address": "004c28a0",
+      "status": "partial",
+      "scope": "Render native-style live spell cursor indicators",
+      "sources": [
+        "app/spell-casting.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c28a0.c",
+        "scripts/check-native-spell-cursor.py"
+      ],
+      "limits": "2,048 exact original draw decisions compared; live consumes browser readiness/actor/window state and renders through web adapter."
     },
     {
       "address": "004c29a0",
@@ -2900,6 +4695,21 @@
       "limits": "Tracked 1,024 direct native mapping/payment tests; used by ordinary begin-cast payment and AI checks. Spending, allocation and failure routing separate."
     },
     {
+      "address": "004c2ca0",
+      "status": "implemented",
+      "scope": "Gate live charge-only descriptor mode on the native game flag",
+      "sources": [
+        "app/spell-visibility.ts",
+        "app/spell-charging.ts",
+        "app/mana.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2ca0.c",
+        "decomp/research/spell-hud-visibility.md"
+      ],
+      "limits": "app/mana.ts live turn and charging dispatch have the original mode-2 and gameFlags&256 predicate; UI adapter also inhibits when bit 32 is set. Scope excludes that surrounding browser gate."
+    },
+    {
       "address": "004c2d80",
       "status": "partial",
       "scope": "Check native Shaman casting eligibility for supported live actors",
@@ -2915,6 +4725,20 @@
       "limits": "Native eligibility predicate is directly compared. Live ordinary-player spellTargetError currently supplies zero flags2/flags4 and projects current state to 0 or 22, so not every native actor eligibility bit is wired."
     },
     {
+      "address": "004c2e00",
+      "status": "partial",
+      "scope": "Compute live AI spell readiness range in native 512-unit cells",
+      "sources": [
+        "app/spell-casting.ts",
+        "app/computer-spells.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2e00.c",
+        "scripts/check-native-mission3-convert-task.py"
+      ],
+      "limits": "Live spellEntryRanges divides nativeSpellRange by 512 with signed truncation for admitted entries and stores a byte; the original leaf returns an int and invokes the underlying range directly. Scoped to admitted AI descriptors."
+    },
+    {
       "address": "004c2e30",
       "status": "partial",
       "scope": "Native spell range",
@@ -2926,6 +4750,112 @@
         "scripts/check-native-spell-casting.py"
       ],
       "limits": "2,048 oracle cases cover range with native inputs supplied. Live building lookup and person flags derive from browser occupancy, not the original cell object and person flags."
+    },
+    {
+      "address": "004c2fe0",
+      "status": "implemented",
+      "scope": "Order supported live spell-descriptor slots by mana cost",
+      "sources": [
+        "app/spell-button.ts",
+        "app/spell-visibility.ts",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/004c2fe0.c",
+        "scripts/check-native-spell-button.py"
+      ],
+      "limits": "Native exact level-button probe exercises all 21 slots; live HUD keeps stable cost and omission rules for supported descriptor profiles. Availability caller separate."
+    },
+    {
+      "address": "004c5cf0",
+      "status": "partial",
+      "scope": "Request and advance supported early live AI defense responses",
+      "sources": [
+        "app/computer-defense.ts",
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c5cf0.c",
+        "scripts/check-native-ai-response-task.py",
+        "scripts/check-native-mission3-defense-task.py"
+      ],
+      "limits": "Authored early task and routing match in selected original witnesses; live task state, territory and broader queues remain independent."
+    },
+    {
+      "address": "004c6a20",
+      "status": "partial",
+      "scope": "Select and submit native-style AI shoreline Blast attempts",
+      "sources": [
+        "app/computer-spells.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c6a20.c",
+        "scripts/check-native-spell-targets.py"
+      ],
+      "limits": "1,024 direct full native calls compare allocation requests and overrides; live AI admits enemies and allocates actual effects through browser adapters."
+    },
+    {
+      "address": "004c8490",
+      "status": "partial",
+      "scope": "Mark eligible live trainee in AI selection reservation",
+      "sources": [
+        "app/person-state.ts",
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c8490.c",
+        "scripts/check-native-person-state.py",
+        "scripts/check-native-selection.py",
+        "scripts/check-native-training.py"
+      ],
+      "limits": "Direct phase helper and evidence of reservation bit; browser uses its own live trainee/cache scheduling and omits complete original task lifecycle."
+    },
+    {
+      "address": "004cedd0",
+      "status": "partial",
+      "scope": "Advance supported live authored AI marker patrol task",
+      "sources": [
+        "app/computer.ts",
+        "app/live-movement.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004cedd0.c",
+        "decomp/research/mission2-startup-commands.md",
+        "tests/ai-marker-patrol.test.mjs"
+      ],
+      "limits": "Source preserves relevant authored markers and actual live order dispatch; native duplicate, queue and other task mode ownership not all mapped."
+    },
+    {
+      "address": "004d0860",
+      "status": "partial",
+      "scope": "Run the live AI general spell target scan and dispatch",
+      "sources": [
+        "app/computer-spells.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d0860.c",
+        "scripts/check-native-spell-targets.py"
+      ],
+      "limits": "Tracked 1,024 composed native scan/dispatch cases; live feeds reconstructed objects, terrain and casting ownership, not all native campaign state."
+    },
+    {
+      "address": "004d11b0",
+      "status": "partial",
+      "scope": "Consume live AI spell-target shortlist and request casts",
+      "sources": [
+        "app/computer-spells.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d11b0.c",
+        "scripts/check-native-spell-targets.py"
+      ],
+      "limits": "Native composed ownership and retained candidate counts tested; browser supplies order/range/effects and surrounding queue ownership."
     },
     {
       "address": "004d1340",
@@ -2956,6 +4886,22 @@
       "limits": "Direct native readiness writes have tracked comparisons. Actual range source reconstructs native caster occupancy and the attack reservation input is adapted, so full live readiness cannot be credited."
     },
     {
+      "address": "004d2740",
+      "status": "partial",
+      "scope": "Initialize live native-shaped person state and speed/person effects",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-people.ts",
+        "app/person-casting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d2740.c",
+        "scripts/check-native-person-recovery.py",
+        "scripts/check-native-person-state.py"
+      ],
+      "limits": "Native direct state cases compare owned fields and RNG; live routes only supported owners with actor-specific animation and lifecycle adapters."
+    },
+    {
       "address": "004d3250",
       "status": "implemented",
       "scope": "Play then hold a supported live building occupant animation",
@@ -2968,6 +4914,23 @@
         "scripts/check-native-animation.py"
       ],
       "limits": "Direct original occupant and upper-body harness; scoped to original object/pose timing and actual entry use, not occupancy routing."
+    },
+    {
+      "address": "004d32b0",
+      "status": "partial",
+      "scope": "Dispatch selected native person visit states in the live world",
+      "sources": [
+        "app/person-state.ts",
+        "app/person-panic.ts",
+        "app/live-movement.ts",
+        "app/person-casting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d32b0.c",
+        "scripts/check-native-lightning-strike.py",
+        "scripts/check-native-transport-ownership.py"
+      ],
+      "limits": "Tracked native probes cover selected transport and electrocution slices; browser does not provide full original person dispatch/object ownership."
     },
     {
       "address": "004d3ea0",
@@ -3014,6 +4977,21 @@
       "limits": "Native direct setter cases compare pose writes/overrides; browser owns actor registration, visibility and presentation application and retains adapted cases."
     },
     {
+      "address": "004d42a0",
+      "status": "implemented",
+      "scope": "Prepare supported live actor fields before physics and reaction timers",
+      "sources": [
+        "app/person-update.ts",
+        "app/live-people.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d42a0.c",
+        "scripts/check-native-person-update.py"
+      ],
+      "limits": "4,096 direct tracked native comparisons and actual live ground/physics preparation dispatch. The comparison supplies animation, initialization and destination consumers; only preparation-owned writes and ordered requests are credited."
+    },
+    {
       "address": "004d44e0",
       "status": "partial",
       "scope": "Gate live automatic melee participation",
@@ -3040,6 +5018,36 @@
         "scripts/check-native-melee-engagement.py"
       ],
       "limits": "Native comparison covers person-only and supplied ritual/tower conditions. Mixed object types, original caller ordering and total target priority not verified."
+    },
+    {
+      "address": "004d4ee0",
+      "status": "implemented",
+      "scope": "Stop native-shaped live person movement and choose the proper pose",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-movement.ts",
+        "app/combat-pursuit.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d4ee0.c",
+        "scripts/check-native-order-update.py"
+      ],
+      "limits": "Retained native source and live helper both zero speed and dispatch cargo/airborne rows through the original animation table. The composed order comparison intercepts the animation effect; scope does not claim renderer parity."
+    },
+    {
+      "address": "004d4f40",
+      "status": "implemented",
+      "scope": "Recover live native person movement with speed/RNG and animation row",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-movement.ts",
+        "app/combat-pursuit.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d4f40.c",
+        "scripts/check-native-person-state.py"
+      ],
+      "limits": "Direct original recovery and live movement dispatch use supported model/flags/cargo and same RNG step. Setter/render body outside scope."
     },
     {
       "address": "004d5120",
@@ -3113,6 +5121,21 @@
       "limits": "Bounded to registered people and valid native six-slot inputs; does not establish parity for arbitrary cell object lists or all resting-state behavior."
     },
     {
+      "address": "004d58c0",
+      "status": "implemented",
+      "scope": "Drop live carried timber one loose log per hundred cargo units",
+      "sources": [
+        "app/timber.ts",
+        "app/live-construction-runtime.ts",
+        "app/building-work.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d58c0.c",
+        "scripts/check-native-building-clearing.py"
+      ],
+      "limits": "Live construction and building-entry adapters allocate/register a loose log and cue on success; helper preserves cargo on allocation failure and clamps overdraw. Implemented scope is original registration-enabled branch; optional unregistered allocation and native pool ownership excluded."
+    },
+    {
       "address": "004d5c70",
       "status": "missing",
       "scope": "Original state-3 death initializer",
@@ -3156,6 +5179,20 @@
       "limits": "Direct native initializer checks original fields and query order with stand-in consumers; live actor search, transport and route placement supplied by adapters."
     },
     {
+      "address": "004d72d0",
+      "status": "partial",
+      "scope": "Resolve a wrapped native cell center and query its terrain height",
+      "sources": [
+        "app/person-idle.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d72d0.c",
+        "decomp/research/boat-initialization-evidence/cold-prefix-capacity.json"
+      ],
+      "limits": "Live resting input performs native XY centering and invokes height, but caller discards the height result rather than reproducing the output record contract."
+    },
+    {
       "address": "004d7330",
       "status": "implemented",
       "scope": "Initialize bounded live person state-19 rest fields",
@@ -3184,6 +5221,77 @@
       "limits": "Native direct rest cases compare state and ordered effects; live ownership/admission, allocation and world placement have independent adapters."
     },
     {
+      "address": "004d7fd0",
+      "status": "partial",
+      "scope": "Allocate native-style replacement brave and original conversion cues",
+      "sources": [
+        "app/level-start-runtime.ts",
+        "app/spell-effects-runtime.ts",
+        "app/audio.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d7fd0.c",
+        "scripts/check-native-level-start.py"
+      ],
+      "limits": "Direct native four-tribe allocation and flash/cue sequencing; live creates browser actors and links effects outside original pool ownership."
+    },
+    {
+      "address": "004d80e0",
+      "status": "partial",
+      "scope": "Apply native-shaped occupancy flags and pose to a live person",
+      "sources": [
+        "app/building-occupants.ts",
+        "app/live-building-entry.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d80e0.c",
+        "scripts/check-native-occupants.py"
+      ],
+      "limits": "Exact original tests cover supported occupancy mode fields; browser owns location, pose callbacks, object registration and selection integration."
+    },
+    {
+      "address": "004d83b0",
+      "status": "partial",
+      "scope": "Advance an eligible live preaching conversion victim",
+      "sources": [
+        "app/preacher-conversion.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d83b0.c",
+        "decomp/research/preacher-ghost-conversion.md"
+      ],
+      "limits": "Retained native timer/retry/sermon ordering seen in live command. Actual owner replacement and ghost filtering use browser state and exact natural cases only."
+    },
+    {
+      "address": "004d8e40",
+      "status": "partial",
+      "scope": "Advance native-style live Whirlwind carry and throw",
+      "sources": [
+        "app/tornado.ts",
+        "app/tornado-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d8e40.c",
+        "decomp/research/tornado-throw-flag.md"
+      ],
+      "limits": "Original state-24 branch retained for supported carry/throw flags; live target IDs, physics and release belong to browser adapters."
+    },
+    {
+      "address": "004d9200",
+      "status": "partial",
+      "scope": "Emit live person burn trails during the native countdown",
+      "sources": [
+        "app/person-panic.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d9200.c",
+        "scripts/check-native-person-panic.py"
+      ],
+      "limits": "Native 512 direct emissions include timer, sound, copied motion and allocation failure. Live effect allocation/rendering and unsupported actor owners separate."
+    },
+    {
       "address": "004d9580",
       "status": "partial",
       "scope": "Set up route recovery without discarding the current order",
@@ -3210,6 +5318,300 @@
         "scripts/check-native-route-recovery.py"
       ],
       "limits": "Tracked native own-state and ordered consumers; live path construction, actor availability and collision callbacks are separate browser input boundaries."
+    },
+    {
+      "address": "004da080",
+      "status": "implemented",
+      "scope": "Apply native person damage gates for live spell and combat owners",
+      "sources": [
+        "app/person-update.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004da080.c",
+        "scripts/check-native-blast-wave.py",
+        "scripts/check-native-mission16-bloodlust.py"
+      ],
+      "limits": "Mission 16 directly enters the native routine for actual Shield/Bloodlust branches; Blast wave also observes it executing unhooked in composed damage cases. Live damage guards, signed narrowing and attribution are scoped, not death lifecycle."
+    },
+    {
+      "address": "004da0d0",
+      "status": "partial",
+      "scope": "Record a valid attacker tribe for live Lightning victims",
+      "sources": [
+        "app/lightning.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004da0d0.c",
+        "decomp/research/lightning-cell-order.md",
+        "scripts/check-native-swamp.py"
+      ],
+      "limits": "Original leaf writes the attacker byte if neither victim tribe nor attacker is -1; live strikeLightning reproduces this write for the Lightning caller. Kill caps, linked-cell traversal, admission and unrelated call sites are separate."
+    },
+    {
+      "address": "004de610",
+      "status": "partial",
+      "scope": "Gate live drag selection of completed tower occupants",
+      "sources": [
+        "app/person-selection.ts",
+        "app/selection-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004de610.c",
+        "scripts/check-native-drag-occupants.py"
+      ],
+      "limits": "Exact original indoor flag and tower model/state predicate; live supplies a reconstructed cell building and only supported ownership paths rather than native direct list."
+    },
+    {
+      "address": "004de680",
+      "status": "partial",
+      "scope": "Gate live drag selection during a building-entry phase",
+      "sources": [
+        "app/person-selection.ts",
+        "app/selection-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004de680.c",
+        "scripts/check-native-drag-occupants.py"
+      ],
+      "limits": "Native state 10/substate 13/model 8/valid command/adjacent eligible building compare, but actual browser object/order adapters do not preserve every original owner."
+    },
+    {
+      "address": "004de7b0",
+      "status": "implemented",
+      "scope": "Test a live Spy's disguise relation to a specified tribe",
+      "sources": [
+        "app/computer-selection.ts",
+        "app/live-spy-discovery.ts",
+        "app/combat-targets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004de7b0.c",
+        "scripts/check-native-building-counterattack.py"
+      ],
+      "limits": "Original predicate reads model 5, low six disguise bits and either signed tribe or top disguise bits; browser matches on supported byte inputs. Caller and visibility pools separate."
+    },
+    {
+      "address": "004de810",
+      "status": "partial",
+      "scope": "Cycle native-style live HUD follower focus",
+      "sources": [
+        "app/hud-selection.ts",
+        "app/hud-tasks.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004de810.c",
+        "scripts/check-native-hud-selection.py",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "limits": "Direct native focus calls and wrapped ranking tested; live selection lists and camera/panel adapters differ from original object chains and positioning effects."
+    },
+    {
+      "address": "004deb40",
+      "status": "partial",
+      "scope": "Cycle native-style live transport focus",
+      "sources": [
+        "app/hud-transports.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004deb40.c",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "limits": "Native probe directly covers occupied/memory/alternate-model cases; live gathers vehicle/panel state through browser object arrays rather than all original owners."
+    },
+    {
+      "address": "004df0e0",
+      "status": "partial",
+      "scope": "Test whether a live person executes an eligible preacher command",
+      "sources": [
+        "app/mana.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004df0e0.c",
+        "scripts/check-native-mana-generation.py"
+      ],
+      "limits": "Native exact query includes cancelled immediate and queued priority; live mana inputs still include some reconstructed adapters rather than original class records."
+    },
+    {
+      "address": "004dfac0",
+      "status": "partial",
+      "scope": "Initialize live native-shaped special-battle person branch",
+      "sources": [
+        "app/special-battle.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004dfac0.c",
+        "scripts/check-native-person-recovery.py"
+      ],
+      "limits": "Native direct state cases isolate pose and movement result; browser supplies independent vehicle exit and object allocator effects."
+    },
+    {
+      "address": "004e0af0",
+      "status": "partial",
+      "scope": "Advance live native-style person celebration phases",
+      "sources": [
+        "app/celebration.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e0af0.c",
+        "scripts/check-native-celebration.py"
+      ],
+      "limits": "Native sequential comparison covers timings/state/ordered consumers; browser retains own actor list, routes, allocation and audio boundaries."
+    },
+    {
+      "address": "004e2610",
+      "status": "implemented",
+      "scope": "Set live celebration-chain action for supported owner state",
+      "sources": [
+        "app/celebration.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e2610.c",
+        "scripts/check-native-celebration.py"
+      ],
+      "limits": "Direct 256 native chain-action comparisons and live leader/follower caller. Terrain and effect-callback execution outside narrow selection/update scope."
+    },
+    {
+      "address": "004e2fe0",
+      "status": "partial",
+      "scope": "Advance native-style live Scatter order visit",
+      "sources": [
+        "app/person-scatter.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e2fe0.c",
+        "decomp/research/player-scatter.md",
+        "tests/player-scatter.test.mjs"
+      ],
+      "limits": "Live route and native random/phase state compared by retained source evidence; legacy fallback when no owned order remains."
+    },
+    {
+      "address": "004e31f0",
+      "status": "partial",
+      "scope": "Select eligible live passengers for the transport HUD category",
+      "sources": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e31f0.c",
+        "decomp/research/follower-strip-passenger-selection.md",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "limits": "Original composed selection checks and actual live panel caller; browser uses separate active transport list, task/selection and pending passenger ownership."
+    },
+    {
+      "address": "004e32a0",
+      "status": "implemented",
+      "scope": "Choose native idle state after the live person order list ends",
+      "sources": [
+        "app/person-order-update.ts",
+        "app/live-building-entry.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e32a0.c",
+        "scripts/check-native-order-update.py"
+      ],
+      "limits": "Tracked 4,096 native idle-mode cases cover model default and outcome/celebration gates. Caller owns surviving-tribe count and subsequent state initializer."
+    },
+    {
+      "address": "004e3430",
+      "status": "partial",
+      "scope": "Reject native unselectable actors in live follower-group recall and drag",
+      "sources": [
+        "app/person-selection.ts",
+        "app/follower-groups.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e3430.c",
+        "decomp/research/follower-groups.md"
+      ],
+      "limits": "Live recall and drag reject flags4&128. Native also rejects flags4&0x800 unless its caller permits ghosts; browser does not map that branch in these helpers."
+    },
+    {
+      "address": "004e5900",
+      "status": "partial",
+      "scope": "Request live CPU Convert task under original population gate",
+      "sources": [
+        "app/computer-convert.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e5900.c",
+        "scripts/check-native-mission3-population-state.py"
+      ],
+      "limits": "Direct original authored population gate supported, output through reconstructed live AI task queue and bounded mission-owned inputs."
+    },
+    {
+      "address": "004e6550",
+      "status": "partial",
+      "scope": "Queue native-style live marker command from a campaign script",
+      "sources": [
+        "app/computer.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e6550.c",
+        "tests/ai-marker-patrol.test.mjs"
+      ],
+      "limits": "Live handles bounded game-command marker payloads and task requests. Original dispatch and arbitrary marker-mode state not completely established."
+    },
+    {
+      "address": "004e67b0",
+      "status": "partial",
+      "scope": "Queue native-style live tower staffing request",
+      "sources": [
+        "app/computer.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e67b0.c",
+        "decomp/research/mission2-startup-commands.md"
+      ],
+      "limits": "Authored tower and staffing task synthesis supported; original AI task ownership, repeated request and all invalid owners outside proof."
+    },
+    {
+      "address": "004e6a70",
+      "status": "implemented",
+      "scope": "Advance a live point by native planar fixed-point angle and signed distance",
+      "sources": [
+        "app/native-math.ts",
+        "app/marching-formations.ts",
+        "app/melee-placement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e6a70.c",
+        "scripts/check-native-melee-placement.py",
+        "scripts/check-native-marching.py",
+        "scripts/check-native-scenery-visibility.py"
+      ],
+      "limits": "Native original uses signed distance, sine products and wrapped words; actual live point transform callers use native coordinates. Browser display adapters separate."
+    },
+    {
+      "address": "004e6ac0",
+      "status": "implemented",
+      "scope": "Step a live projectile in native fixed-point three dimensions",
+      "sources": [
+        "app/world-coordinates.ts",
+        "app/spell-effects-runtime.ts",
+        "app/firewarrior.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e6ac0.c",
+        "scripts/check-native-math.py"
+      ],
+      "limits": "Direct original full entry comparison includes wrapped and signed coordinate edges; ordinary spell projectiles call the same exact narrowed step."
     },
     {
       "address": "004e6d00",
@@ -3286,6 +5688,21 @@
       "limits": "Exact routine tested with original square proximity and 65,535 seam fold; live movement uses it before distance/speed or waypoint transitions."
     },
     {
+      "address": "004e7a80",
+      "status": "partial",
+      "scope": "Advance the directed-motion branch of live spell trails and detached faces",
+      "sources": [
+        "app/effect-motion.ts",
+        "app/spell-trails.ts",
+        "app/building-debris.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e7a80.c",
+        "tests/fixtures/startup-burst-native.json"
+      ],
+      "limits": "Source explicitly rejects unported free-motion/impulse flags. Verified mapped fixed-point direction and live call chains do not establish full original effect motion."
+    },
+    {
       "address": "004e9050",
       "status": "implemented",
       "scope": "Mark owned live actors airborne when supported native flags require it",
@@ -3357,6 +5774,21 @@
         "scripts/check-native-person-motion.py"
       ],
       "limits": "Direct original compares bounded controller writes; browser supplies payload/collision effects and different ownership for some native actor classes."
+    },
+    {
+      "address": "004e9b40",
+      "status": "implemented",
+      "scope": "Reset live person movement mode and timer with native flags",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-movement.ts",
+        "app/person-order-start.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e9b40.c",
+        "scripts/check-native-building-clearing.py"
+      ],
+      "limits": "Exact retained original bit masks and field resets match; reached by live command setup and movement. Composed consumers and original state scheduling remain separate."
     },
     {
       "address": "004e9be0",
@@ -3517,6 +5949,21 @@
       "limits": "Endpoint-write and callback order compared, but actual live outside-point, vehicle availability and building permission producers are browser adapters."
     },
     {
+      "address": "004ea920",
+      "status": "partial",
+      "scope": "Rebuild a supported live follower recovery route",
+      "sources": [
+        "app/live-pathfinding.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ea920.c",
+        "scripts/check-native-route-recovery.py",
+        "scripts/check-native-mission3-convert-target.py"
+      ],
+      "limits": "Native route recovery call and valid authored actor cases observed; live route adapter owns endpoint correction, movement and legacy actors."
+    },
+    {
       "address": "004ea970",
       "status": "partial",
       "scope": "Build a native-format route record from shared path-search scratch",
@@ -3618,6 +6065,21 @@
         "scripts/check-native-vehicle-routing.py"
       ],
       "limits": "Native record and shared-search effects compared; outer live scheduler owns reservation setup and release, not established as equivalent for all original callers."
+    },
+    {
+      "address": "004ec630",
+      "status": "partial",
+      "scope": "Offset the prepared vehicle point by native terrain heading",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ec630.c",
+        "decomp/generated/00438730.c",
+        "decomp/research/mission10-boat-prepared-state.md"
+      ],
+      "limits": "Live supported landing branch uses native wrapped terrain direction and fixed 162 distance. Other call sites, distance arguments and exact ready-state owner are not established."
     },
     {
       "address": "004ec680",
@@ -3752,6 +6214,21 @@
       "limits": "Per-object helper is tested with loaded native tables and a hooked footprint consumer. Live callers use only scoped descriptor families, supply empty model/morph table arrays and split visit ownership; not end-to-end original dispatch."
     },
     {
+      "address": "004eec80",
+      "status": "partial",
+      "scope": "Face supported live followers toward the tribe interest point",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-people.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004eec80.c",
+        "scripts/check-native-building-work.py"
+      ],
+      "limits": "Retained native facing and wrapped coordinates, with composed work probes. Browser owns interest point and omits original display/opened-files branches."
+    },
+    {
       "address": "004eefd0",
       "status": "implemented",
       "scope": "Reset steering recovery when native interruption bits are set",
@@ -3836,6 +6313,48 @@
       "limits": "2,048 tracked exact native entry comparisons and ordinary AI cast callers. Imported normal and alternate limits and live usage/AI flags; excludes general cast eligibility, stock, payment, and timer ownership."
     },
     {
+      "address": "004f2160",
+      "status": "partial",
+      "scope": "Remove the first supported live campaign head in a packed cell",
+      "sources": [
+        "app/campaign-runtime.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f2160.c",
+        "scripts/check-native-script.py"
+      ],
+      "limits": "Original linked class6/model6 scan and removal are owned by game adapter; browser routes through its head roster and updates separate effect state."
+    },
+    {
+      "address": "004f2900",
+      "status": "partial",
+      "scope": "Read a live campaign head value by packed map cell",
+      "sources": [
+        "app/campaign-runtime.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f2900.c",
+        "scripts/check-native-script.py"
+      ],
+      "limits": "Live command uses same coarse wrapped location and remaining field; original restricts class6/type6 and visits linked cells, while browser searches its own shrine list."
+    },
+    {
+      "address": "004f2e30",
+      "status": "implemented",
+      "scope": "Set AI mode flag 0x400 without changing any other mode bit",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/original-script.json"
+      ],
+      "evidence": [
+        "decomp/generated/004f2e30.c",
+        "decomp/generated/0048cc60.c"
+      ],
+      "limits": "Original interpreter case 0x51 reaches this one-write body for authored opcode 1109; the browser performs the same unsigned OR. Other opcodes and broader script state are outside scope."
+    },
+    {
       "address": "004f2f50",
       "status": "partial",
       "scope": "Reserve mana for the three indexed spells of a type-20 task",
@@ -3876,6 +6395,105 @@
         "scripts/check-native-spell-casting.py"
       ],
       "limits": "Range arithmetic and live dispatch are present, but the native spell-range adapter still reconstructs occupancy or flags for some live caster inputs; no complete native range-input ownership claim."
+    },
+    {
+      "address": "004f3f20",
+      "status": "implemented",
+      "scope": "Detect an existing live nearby active defense response",
+      "sources": [
+        "app/computer-defense.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f3f20.c",
+        "decomp/research/early-mission-response-task.md"
+      ],
+      "limits": "Retained routine requires active type8 and squared packed-cell distance less than26; actual live AI uses same threshold. Broader task scheduling separate."
+    },
+    {
+      "address": "004f4520",
+      "status": "partial",
+      "scope": "Request and allocate a supported live CPU preacher task",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f4520.c",
+        "scripts/check-native-mission3-person-task.py"
+      ],
+      "limits": "Authored task witnesses and actual live allocation call; live requests and eligibility/cooldown are a bounded implementation around reconstructed task lists."
+    },
+    {
+      "address": "004f4d40",
+      "status": "partial",
+      "scope": "Gate live AI shoreline Blast on strict mana budget with low-population premium",
+      "sources": [
+        "app/computer-spells.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f4d40.c",
+        "scripts/check-native-spell-targets.py"
+      ],
+      "limits": "Original leaf is a strict affordability check, not an aim search. Live castShoreBlast checks cost plus 50000 below population 10; app/computer-runtime.ts currently passes reserve=0, so native type-20 task spell reserves are excluded."
+    },
+    {
+      "address": "004f5950",
+      "status": "partial",
+      "scope": "Collect live CPU defense targets in native spiral order",
+      "sources": [
+        "app/computer-defense.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f5950.c",
+        "scripts/check-native-mission3-defense-task.py"
+      ],
+      "limits": "Original search shape and separate capped people/building portions inform live scans; browser objects/alliances and list order remain independent."
+    },
+    {
+      "address": "004f5c80",
+      "status": "partial",
+      "scope": "Coordinate live CPU task selection ownership",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f5c80.c",
+        "decomp/research/mixed-raid-target-exhaustion/README.md"
+      ],
+      "limits": "Original selection-lock span and type-20 phase behavior inform the live queue, but task scheduling and record ownership are reconstructed."
+    },
+    {
+      "address": "004f5d30",
+      "status": "partial",
+      "scope": "Choose a standable tile for a live CPU Convert target",
+      "sources": [
+        "app/computer-convert.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f5d30.c",
+        "scripts/check-native-mission3-convert-target.py"
+      ],
+      "limits": "Original initial point then first 24 spiral candidates and native collision predicate represented; live terrain/actor admission adapters and no full original area ownership parity."
+    },
+    {
+      "address": "004f6020",
+      "status": "partial",
+      "scope": "Choose retained authored shaman origin when construction base is absent",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/campaign-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f6020.c",
+        "decomp/research/mission3-defense-task.md",
+        "scripts/check-native-computer-attack.py"
+      ],
+      "limits": "Application covers the supported Mission 3 context and falls back to a reconstructed live Shaman position elsewhere. Native callers may hook the address; complete base-or-origin choice is not identical."
     },
     {
       "address": "004f6730",
@@ -3952,6 +6570,20 @@
       "limits": "The live single-selector and its shared eligibility leaves are present, but the tracked oracle enters the multi-selector and this branch is not directly qualified against original native list/order ownership."
     },
     {
+      "address": "004f8390",
+      "status": "partial",
+      "scope": "Rank live AI selection candidates by native proximity",
+      "sources": [
+        "app/computer-selection.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f8390.c",
+        "scripts/check-native-mission3-raid-recruitment.py"
+      ],
+      "limits": "Original insertion used signed wrapped cell distance and insertion limits; live ranked prefix is checked for authored recruitment. Shared object lists and complete class/task eligibility not mapped here."
+    },
+    {
       "address": "004f8490",
       "status": "partial",
       "scope": "Select prefix of eligible people in native band and distance order",
@@ -3964,6 +6596,62 @@
         "scripts/check-native-selection.py"
       ],
       "limits": "Direct native fixtures cover eligibility, selected flags and prefix ordering; live selection world may synthesize rank/command/pose inputs and does not use original linked allocation order."
+    },
+    {
+      "address": "004f87f0",
+      "status": "partial",
+      "scope": "Find a supported live AI Convert target from macroregion density",
+      "sources": [
+        "app/computer-convert.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f87f0.c",
+        "scripts/check-native-mission3-convert-target.py"
+      ],
+      "limits": "Native direct original query and exact authored mission criteria; browser supplies counted wild objects/terrain and adjacent follow-up independently."
+    },
+    {
+      "address": "004f8e10",
+      "status": "partial",
+      "scope": "Advance a live early CPU defense response task",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f8e10.c",
+        "scripts/check-native-ai-response-task.py"
+      ],
+      "limits": "Direct/composed tracked task comparison for authored early cases; live dispatch and route/fight owner adapters are not original wider behavior."
+    },
+    {
+      "address": "004fbf40",
+      "status": "partial",
+      "scope": "Force a supported live campaign worship head action",
+      "sources": [
+        "app/campaign-runtime.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004fbf40.c",
+        "scripts/check-native-vault.py"
+      ],
+      "limits": "Current script force path invokes live head/payload; original linked shrine and ownership/effect state not fully reproduced."
+    },
+    {
+      "address": "00500a30",
+      "status": "partial",
+      "scope": "Initialize supported live model-16 guard post state",
+      "sources": [
+        "app/guard-posts.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00500a30.c",
+        "decomp/research/guard-posts.md"
+      ],
+      "limits": "Live guard post creation retains native cell-center and initial age for this branch. Does not represent the general class-10 object initializer."
     },
     {
       "address": "00501000",
@@ -4011,6 +6699,20 @@
       "limits": "Native search, list and tested allocation outcomes have a live counterpart; actual group creation is a browser-ID/object adapter, not original native pool ownership."
     },
     {
+      "address": "00502460",
+      "status": "partial",
+      "scope": "Seed building-collapse fragment travel and spin",
+      "sources": [
+        "app/building-debris.ts",
+        "app/building-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00502460.c",
+        "scripts/check-native-building-debris.py"
+      ],
+      "limits": "Native emission hook enters the real initializer with a supplied fragment, then observes emitted travel/spin after original collapse overrides. Live preserves its six RNG draws and bounded fields; class allocation, cell/object registration and native effects are not kept identical."
+    },
+    {
       "address": "00502660",
       "status": "partial",
       "scope": "Move and spin unattached building-collapse fragments and handle bounce",
@@ -4041,6 +6743,36 @@
       "limits": "Live Guard Post visit matches ground height, pulse/RNG, optional sound and retirement in scope. The original also calls 004f0f60 and uses the true secondary allocator; browser deliberately omits that unported state update and adapts effect ownership."
     },
     {
+      "address": "00503080",
+      "status": "partial",
+      "scope": "Release a live secondary guard post record",
+      "sources": [
+        "app/guard-posts.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00503080.c",
+        "decomp/research/guard-posts.md",
+        "tests/guard-posts.test.mjs"
+      ],
+      "limits": "Browser frees its live marker record. Native also decrements a separate byte counter, calls cap maintenance, and can emit conditional sound; these are not claimed by the live release."
+    },
+    {
+      "address": "005030c0",
+      "status": "partial",
+      "scope": "Apply supported age-driven eviction in live guard post placement",
+      "sources": [
+        "app/guard-posts.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/005030c0.c",
+        "decomp/research/guard-posts.md",
+        "tests/guard-posts.test.mjs"
+      ],
+      "limits": "Live placement at the guard cap uses highest age, then native-shaped farthest in zero-age cases. Native approximate distance can change ordering, and original list/counter maintenance is not a browser identity match."
+    },
+    {
       "address": "00503550",
       "status": "implemented",
       "scope": "Advance water-side tipping, drifting and sinking of a destroyed building",
@@ -4054,6 +6786,35 @@
         "tests/building-terrain.test.mjs"
       ],
       "limits": "160 tracked 80-turn cases vary imported building shape, orientation, wrap and coast; match controller state in the live sinking effect. The original position-commit and final-free consumers are supplied; browser visual projection and object lifetime are separate."
+    },
+    {
+      "address": "00503e60",
+      "status": "partial",
+      "scope": "Adjust live sinking tilt components by the native shoreline angular octant",
+      "sources": [
+        "app/building-sinking.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00503e60.c",
+        "scripts/check-native-building-sinking.py"
+      ],
+      "limits": "The inlined sinking step adjusts the two angle components by the retained octant vectors and angle constraints; this leaf does not itself seek water, advance drift, or compute terrain geometry."
+    },
+    {
+      "address": "00504060",
+      "status": "partial",
+      "scope": "Retire eligible earlier building inspection records before admitting a new record",
+      "sources": [
+        "app/object-panels.ts",
+        "app/scene-tooltip-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00504060.c",
+        "decomp/research/temple-automatic-panel-contract.md",
+        "decomp/research/workshop-menu.md"
+      ],
+      "limits": "Only the selected same-class retirement/admission behavior is mapped. Browser owns maps, record IDs and capacity rather than the native secondary-object dispatcher."
     },
     {
       "address": "00504920",
@@ -4099,6 +6860,51 @@
       "limits": "Scoped to owned building-smoke records and tested lifetimes, including negative fixtures. Browser effect expiry and visual-object update are explicit consumers."
     },
     {
+      "address": "0050c780",
+      "status": "partial",
+      "scope": "Guard against creating a second terrain-wave effect for the same tribe",
+      "sources": [
+        "app/level-start-runtime.ts",
+        "app/reincarnation-wave-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050c780.c",
+        "scripts/check-native-reincarnation-wave.py",
+        "decomp/research/reincarnation-site-wave.md"
+      ],
+      "limits": "Native first-use latch, snapped height and cue are known, while live worlds adapt owner record creation and duplicate deletion."
+    },
+    {
+      "address": "0050ecc0",
+      "status": "partial",
+      "scope": "Advance native-style live Land Bridge terrain raising",
+      "sources": [
+        "app/land-bridge.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050ecc0.c",
+        "scripts/check-native-land-bridge.py"
+      ],
+      "limits": "Direct composed lifetimes verify geometry and terrain; browser combines axis/phase bodies, allocation, trail and notification adapters, not native entry-by-entry ownership."
+    },
+    {
+      "address": "0050f010",
+      "status": "partial",
+      "scope": "Apply a live Land Bridge cross-section at supported heights",
+      "sources": [
+        "app/land-bridge.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050f010.c",
+        "scripts/check-native-land-bridge.py"
+      ],
+      "limits": "Original complete Land Bridge comparisons cover ordered terrain/trails; app maps supported signed geometry while keeping whole effect owner/producers separate."
+    },
+    {
       "address": "005119d0",
       "status": "partial",
       "scope": "Initialize smoke descriptor, scales and randomized lifetime",
@@ -4128,6 +6934,20 @@
         "scripts/check-native-lightning-strike.py"
       ],
       "limits": "Geometry/RNG traces and native first-turn shockwave setup are compared. Browser has separate fire/damage/geometry owners; native allocation/render sequence not fully mapped."
+    },
+    {
+      "address": "00511ef0",
+      "status": "partial",
+      "scope": "Raise the displaced lightning projectile endpoint above terrain",
+      "sources": [
+        "app/spell-effects-runtime.ts",
+        "app/lightning.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00511ef0.c",
+        "decomp/research/hypnotise-artwork.md"
+      ],
+      "limits": "Source only a scoped Lightning endpoint and later bolt producer; original general landing/effect initialization and object cleanup not established."
     },
     {
       "address": "00511f70",
@@ -4234,6 +7054,50 @@
       "limits": "8,192 tracked native cases compare whole-cell result and callback order; the height child executes, but the adjacent-building lookup is supplied. Live route adaptation substitutes browser inside ownership for that lookup."
     },
     {
+      "address": "0051d0b0",
+      "status": "partial",
+      "scope": "Prioritize and reserve Firewarrior combat targets",
+      "sources": [
+        "app/combat-targets.ts",
+        "app/live-combat.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051d0b0.c",
+        "scripts/probe-native-firewarrior-auto.py"
+      ],
+      "limits": "Unhooked original probe runs the disputed entry and observes model-6 priority, repeat reservation and saturated fallback against hostile Firewarrior/Preacher cases. Live consumes adapted person/building candidates and mapped readiness; native other models, mixed-cell iteration and all branches are outside scope."
+    },
+    {
+      "address": "0051dcc0",
+      "status": "partial",
+      "scope": "Find an available bounded live fight slot",
+      "sources": [
+        "app/combat-targets.ts",
+        "app/melee-groups.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051dcc0.c",
+        "scripts/check-native-fight-approach.py"
+      ],
+      "limits": "Real fight bodies consume native-shaped member/tribe admission; live membership and linked actor state outside original group allocation are reconstructed."
+    },
+    {
+      "address": "0051de60",
+      "status": "partial",
+      "scope": "Seed a new encounter with defender first and original center ordering",
+      "sources": [
+        "app/combat-runtime.ts",
+        "app/live-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051de60.c",
+        "scripts/check-native-melee-encounter.py"
+      ],
+      "limits": "Tracked oracle consumes this as a hooked boundary. Live defender/attacker slots are present; native allocated class, counter and relocation/cleanup callbacks remain separate."
+    },
+    {
       "address": "0051fed0",
       "status": "implemented",
       "scope": "Advance original alternate-turn reaction timer and per-turn duration",
@@ -4246,6 +7110,20 @@
         "scripts/check-native-person-update.py"
       ],
       "limits": "4,096 direct native cases compare byte timers, alternate parity, class-10 exclusion and bit clears; live person preparation calls it. No full melee/physics scheduling claim."
+    },
+    {
+      "address": "00520480",
+      "status": "partial",
+      "scope": "Share a pending native-style combat order across live actors",
+      "sources": [
+        "app/combat-orders.ts",
+        "app/live-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00520480.c",
+        "scripts/probe-native-firewarrior-tower.py"
+      ],
+      "limits": "Live player and CPU responses use the shared order write. Original recipient task and allocation owner observed in selected tower/encounter conditions, not blanket matching."
     },
     {
       "address": "00523720",
@@ -4305,6 +7183,21 @@
         "tests/unit-health.test.mjs"
       ],
       "limits": "For eligible browser followers, the fixed 6x26 bar geometry and bounded fill are compared with native draw submissions and implemented through a precomputed atlas. Pose-scaled anchor setup, dynamic palette state and native D3D device ownership are not claimed."
+    },
+    {
+      "address": "00586074",
+      "status": "partial",
+      "scope": "Compute a native-shaped angle from live planar deltas",
+      "sources": [
+        "app/native-math.ts",
+        "app/melee-placement.ts",
+        "app/world-coordinates.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00586074.c",
+        "decomp/research/firewarrior.md"
+      ],
+      "limits": "Retained atan quadrant and axes feed actual movement; live accepted input domain and numeric overflow cases of the complete original routine not established."
     }
   ]
 }
