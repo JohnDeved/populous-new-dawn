@@ -12,9 +12,12 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from native_function_inventory import parse_receipt, read_bounded
+
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = json.loads((ROOT / 'decomp/tools.json').read_text())
 TOOLS = ROOT / '.tools/decomp'
+INVENTORY_ANALYSIS_TIMEOUT_SECONDS = 180
 
 
 def run(*args, **kwargs):
@@ -169,6 +172,57 @@ def export(args):
     print(f'Exported {len(addresses)} functions to {args.output}')
 
 
+def publish_inventory(output, data):
+    """Publish a complete same-directory file without replacing an existing path."""
+    temp = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=output.parent,
+                                         prefix='.pnd-inventory-', delete=False) as handle:
+            temp = Path(handle.name)
+            json.dump(data, handle, ensure_ascii=True, indent=2)
+            handle.write('\n')
+        os.link(temp, output)
+    finally:
+        if temp is not None:
+            temp.unlink(missing_ok=True)
+
+
+def inventory(args):
+    """Import exact bytes into an isolated, fresh, metadata-free analysis project."""
+    exe = args.executable.resolve()
+    output = args.output.absolute()
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(f'Refusing to replace inventory: {output}')
+    original_sha256 = LOCK['executableSha256']
+    verify(exe, original_sha256)
+    version = LOCK['ghidra']['version']
+    sections = (ROOT / 'decomp/sections.tsv').read_bytes()
+    with tempfile.TemporaryDirectory(prefix='populous-function-inventory-') as tmp:
+        scratch = Path(tmp)
+        # Copy and re-verify the exact input so the hashed bytes are the bytes Ghidra imports.
+        # This project is never reused by exports that may create extra functions.
+        source = scratch / 'original.exe'
+        shutil.copyfile(exe, source)
+        # Recheck the private copy against the lock directly, never a mutable result
+        # from a previous read of the user-supplied source.
+        inspect(source)
+        project = argparse.Namespace(project_dir=scratch / 'project', project_name='populous-function-inventory')
+        report = scratch / 'result'
+        report.mkdir()
+        headless(project, '-import', source, '-max-cpu', '1',
+                 '-analysisTimeoutPerFile', INVENTORY_ANALYSIS_TIMEOUT_SECONDS,
+                 '-postScript', 'ExportFunctionInventory.java', report, version)
+        if not (report / 'complete.txt').is_file():
+            raise RuntimeError('Original function inventory failed: no fresh completion receipt')
+        data = parse_receipt(read_bounded(report / 'inventory.tsv', 16 * 1024 * 1024),
+                             read_bounded(report / 'complete.txt', 65),
+                             sections, original_sha256, version)
+    data['analysis']['ghidraArchiveSha256Pin'] = LOCK['ghidra']['sha256']
+    data['analysis']['analysisTimeoutPerFileSeconds'] = INVENTORY_ANALYSIS_TIMEOUT_SECONDS
+    publish_inventory(output, data)
+    print(f"Inventoried {data['counts']['discoveredLocalExecutable']} discovered executable entries in {output}")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
@@ -185,6 +239,9 @@ def main():
         # Ghidra rejects hidden directory components in project paths.
         p.add_argument('--project-dir', type=Path, default=ROOT / 'work/decomp/projects')
         p.add_argument('--project-name', default='populous')
+    inventory_parser = sub.add_parser('inventory', help='Export a fresh metadata-free original function inventory')
+    inventory_parser.add_argument('executable', type=Path)
+    inventory_parser.add_argument('--output', type=Path, required=True)
     check_parser = sub.add_parser('check', help='Verify executable identity and recorded exports')
     check_parser.add_argument('executable', type=Path)
     args = parser.parse_args()
@@ -204,6 +261,8 @@ def main():
                 raise RuntimeError('Metadata import failed; inspect Ghidra output')
     elif args.command == 'export':
         export(args)
+    elif args.command == 'inventory':
+        inventory(args)
     else:
         print(json.dumps(inspect(args.executable), indent=2))
         manifest = json.loads((ROOT / 'decomp/exports.json').read_text())
