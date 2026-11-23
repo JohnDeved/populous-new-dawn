@@ -570,7 +570,7 @@ function harvestResolvedTree(
   destination?: Point,
   queued = false
 ) {
-  if (u.tree === null || u.cargo || u.fight || u.native?.immediateCommand) return false
+  if (u.tree === null || (!queued && u.cargo) || u.fight || u.native?.immediateCommand) return false
   if (!tree) {
     u.tree = null
     u.harvest = undefined
@@ -620,7 +620,6 @@ export function stepQueuedTreeOrder(
   u: Unit,
   order: { a: number; b: number; flags: number }
 ) {
-  if (u.cargo) return 1
   let owned = u.tree === null ? undefined : w.trees.find(tree => tree.id === u.tree)
   if (u.tree !== null && (!owned || !(owned.logs > 0))) {
     // Native phases 2/3 schedule reacquisition for the next visit. Ordinary
