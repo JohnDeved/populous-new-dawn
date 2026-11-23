@@ -15,6 +15,7 @@ import signal
 import stat
 import struct
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 import warnings
@@ -78,6 +79,37 @@ class EvidenceArchiveTests(unittest.TestCase):
         self.assertEqual(self.events()[0]['ownershipReceipt'], result['ownershipReceipt'])
         self.assertEqual(self.events()[-1]['event'], 'released-owned-cache')
         self.assertEqual(ea.record(self.archive.stat()), before)
+
+    def test_cache_capacity_rejection_is_before_mkdir(self):
+        original = ea.record(self.archive.stat())
+        manifest = self.index()
+        names = ['scene/a.png', 'scene/b.png']
+        expected_parent = (self.caches.stat().st_dev, self.caches.stat().st_ino)
+        observed = []
+        for blocks, inodes, reason in ((5, 6, 'blocks'), (6, 5, 'inodes')):
+            def capacity(fd):
+                entry = os.fstat(fd)
+                observed.append((entry.st_dev, entry.st_ino))
+                return SimpleNamespace(f_frsize=4096, f_bavail=blocks, f_favail=inodes)
+            with self.subTest(reason=reason), patch.object(ea.os, 'fstatvfs', capacity):
+                with self.assertRaisesRegex(ValueError, 'free '+reason):
+                    self.make(names, manifest)
+            self.assertEqual(list(self.caches.iterdir()), [])
+            self.assertEqual(ea.record(self.archive.stat()), original)
+        self.assertEqual(observed, [expected_parent, expected_parent])
+
+    def test_cache_capacity_exact_threshold_counts_common_parent_once(self):
+        self.payloads = {'a/shared/x.png': b'x'*4097, 'a/shared/y.png': b'y'}
+        self.write_zip()
+        # Root + two nested directories + two simultaneous controls + two files.
+        # The 4097-byte payload needs two fragments; the second needs one.
+        view = SimpleNamespace(f_frsize=4096, f_bavail=8, f_favail=7)
+        with patch.object(ea.os, 'fstatvfs', return_value=view) as mock:
+            result = self.make(list(self.payloads))
+        self.assertEqual(mock.call_count, 1)
+        self.assertEqual(result['bytes'], 4098)
+        self.assertEqual(self.release(result)['status'], 'released-owned-cache')
+        self.assertFalse(self.cache.exists())
 
     def test_three_cycles_do_not_accumulate_payload_copies(self):
         before = ea.record(self.archive.stat())
