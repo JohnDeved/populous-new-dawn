@@ -1,0 +1,63 @@
+name: One-off Mission 18 opening evidence
+
+on:
+  push:
+    branches: [evidence/mission18-opening-once]
+    paths: [.github/workflows/mission18-opening-once.yml]
+
+permissions:
+  contents: read
+
+jobs:
+  opening:
+    if: ${{ github.event.repository.full_name == 'JohnDeved/populous-new-dawn' && github.run_attempt == 1 }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+    steps:
+      - name: Check out one-off evidence driver
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: evidence-driver
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: /scripts/mission18-one-off/
+          sparse-checkout-cone-mode: false
+      - name: Check out exact Mission 18 candidate separately
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          path: candidate
+          ref: 7deb7805c48932bd7a8e226e158a944e94ad2972
+          persist-credentials: false
+      - name: Set up project Node version
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Install locked dependencies without lifecycle scripts
+        working-directory: candidate
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = 7deb7805c48932bd7a8e226e158a944e94ad2972
+          test "$(node -p 'require("./package.json").packageManager')" = pnpm@11.25.0
+          npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+          pnpm install --frozen-lockfile --ignore-scripts
+          /opt/google/chrome/chrome --version
+      - name: Observe the untouched Mission 18 opening with sandboxed Chrome
+        run: |
+          timeout -k 15s 5m node --max-old-space-size=1024 "$GITHUB_WORKSPACE/evidence-driver/scripts/mission18-one-off/run.mjs" "$GITHUB_WORKSPACE/candidate" "$RUNNER_TEMP/mission18-opening"
+      - name: Retain bounded gameplay evidence and diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: mission18-opening-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/mission18-opening/evidence/
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 1
