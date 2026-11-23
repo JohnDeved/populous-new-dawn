@@ -3,6 +3,63 @@
   "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
   "entries": [
     {
+      "address": "00401040",
+      "status": "partial",
+      "scope": "Default model sunlight initialization",
+      "sources": [
+        "app/model-lighting.ts",
+        "app/terrain-texture.ts",
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00401040.c",
+        "scripts/check-native-model-lighting.py"
+      ],
+      "limits": "Live renderer builds and uses the exact default first table; browser cache is static and does not establish the full native initializer's global state and companion table."
+    },
+    {
+      "address": "004010b0",
+      "status": "partial",
+      "scope": "Allocate an effect into the first free terrain-light slot and refresh its footprint",
+      "sources": [
+        "app/terrain-light.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004010b0.c",
+        "scripts/check-native-terrain-light.py"
+      ],
+      "limits": "Browser effects use a fixed 50-slot pool, derive its count and refresh on successful registration. The original additionally sets owner-object flag 0x04000000, which the live browser effect adapter does not maintain."
+    },
+    {
+      "address": "00401350",
+      "status": "partial",
+      "scope": "Refresh dynamic terrain-light contributions",
+      "sources": [
+        "app/terrain-light.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00401350.c",
+        "scripts/check-native-terrain-light.py"
+      ],
+      "limits": "Live effect-owned lights update wrapped footprints; desktop caller forces enable true and adapts original person owners to browser effects, not complete native ownership and gating."
+    },
+    {
+      "address": "00401790",
+      "status": "partial",
+      "scope": "Compute the first 1,024-entry sunlight lookup table",
+      "sources": [
+        "app/model-lighting.ts",
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00401790.c",
+        "scripts/check-native-model-lighting.py"
+      ],
+      "limits": "Live renderer consumes cached first table and oracle compares 33 inputs; original second table and rotating live sunlight state are not in this mapping."
+    },
+    {
       "address": "00402e30",
       "status": "implemented",
       "scope": "Default next state for a person model",
@@ -14,6 +71,106 @@
         "scripts/check-native-person-state.py"
       ],
       "limits": "Model-table lookup and the level-flag/model-7 override only; other initialization is separate."
+    },
+    {
+      "address": "00403a00",
+      "status": "partial",
+      "scope": "Apply occupied-cell building footprint map writes",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/world-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00403a00.c",
+        "scripts/check-native-building-footprints.py"
+      ],
+      "limits": "Live non-plan footprint updates owner, flags, low slot bits and shade; production supplies a no-op refresh callback, so original texture refresh dispatch is not established."
+    },
+    {
+      "address": "00403c10",
+      "status": "partial",
+      "scope": "Update scenery shadow on the occupied shape cells",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/world-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00403c10.c",
+        "scripts/check-native-scenery-shadow.py"
+      ],
+      "limits": "Live scenery bookkeeping supplies a no-op texture request callback; this maps shape/shade updates but not the original texture request side effect."
+    },
+    {
+      "address": "00403d50",
+      "status": "partial",
+      "scope": "Transform building map anchor to its rotated model origin",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00403d50.c",
+        "scripts/check-native-building-ground.py"
+      ],
+      "limits": "Browser computes and consumes wrapped XY and samples resulting foundation height through callers; native function also writes cell-list membership and clears a native object flag."
+    },
+    {
+      "address": "00403f00",
+      "status": "implemented",
+      "scope": "Grade supported building-footprint terrain including dock edges",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00403f00.c",
+        "scripts/check-native-building-ground.py"
+      ],
+      "limits": "Live committed site grading writes the four vertices of occupied tiles, follows native minimum/average gates and dock edge lowering, and requests an affected-cell refresh; native imported models/rules within tested shape domain."
+    },
+    {
+      "address": "00404540",
+      "status": "implemented",
+      "scope": "Compute six supported building socket positions and offsets",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/hut-smoke-runtime.ts",
+        "app/vault-appearance.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00404540.c",
+        "scripts/check-native-building-sockets.py"
+      ],
+      "limits": "Native original objects and four orientations in direct probe; browser returns terrain-independent height offset and live effects/props apply terrain separately. No claim about actor entry state."
+    },
+    {
+      "address": "00404c80",
+      "status": "partial",
+      "scope": "Drive hut birth clocks, birth placement, and cues",
+      "sources": [
+        "app/hut-birth.ts",
+        "app/world-turn.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00404c80.c",
+        "scripts/check-native-hut-birth.py"
+      ],
+      "limits": "Live spawn, sockets, redirect, flash and human cue; world turn retains browser route adapter for newborn home/state ownership, so not full native lifecycle."
+    },
+    {
+      "address": "004050c0",
+      "status": "partial",
+      "scope": "Drive occupied-hut maturity and upgrade admission",
+      "sources": [
+        "app/hut-upgrade.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004050c0.c",
+        "scripts/check-native-hut-upgrade.py"
+      ],
+      "limits": "Direct oracle covers signed clocks and wood query decisions; live fetch work, state changes, and upgrade scheduling still go through browser actor adapters."
     },
     {
       "address": "0040cc60",
@@ -31,6 +188,372 @@
       "limits": "Native coordinate arithmetic is compared; does not establish the complete original model and scheduler behavior."
     },
     {
+      "address": "0040cd00",
+      "status": "implemented",
+      "scope": "Quantize a model triangle cross product to its native face normal",
+      "sources": [
+        "app/model-lighting.ts",
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040cd00.c",
+        "scripts/check-native-building-faces.py",
+        "scripts/check-native-model-lighting.py"
+      ],
+      "limits": "Direct oracle covers 4,096 inputs including degenerate triangles; live renderer uses the quantized native 32-by-32 normal table. Not a whole-renderer parity claim."
+    },
+    {
+      "address": "004174b0",
+      "status": "partial",
+      "scope": "Compute even, signed-byte-bounded view-transition timing",
+      "sources": [
+        "app/camera-view.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004174b0.c",
+        "scripts/check-native-camera-view.py"
+      ],
+      "limits": "Direct oracle covers 60 original frame-rate/scale combinations; live browser uses its fixed 24 Hz transition scheduler and not all original frame-rate inputs."
+    },
+    {
+      "address": "00417510",
+      "status": "implemented",
+      "scope": "Step the browser's native integer view field transition",
+      "sources": [
+        "app/camera-view.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00417510.c",
+        "scripts/check-native-camera-view.py"
+      ],
+      "limits": "Oracle compares 13 rendered fields across the ten preset resolutions; bound to discrete browser steps, not interpolated presentation or renderer frame scheduling."
+    },
+    {
+      "address": "00420840",
+      "status": "partial",
+      "scope": "Search a person route using the original candidate and compacted path model",
+      "sources": [
+        "app/path-search.ts",
+        "app/live-pathfinding.ts",
+        "app/path-geometry.ts",
+        "app/path-solver.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00420840.c",
+        "scripts/check-native-path-search.py",
+        "scripts/check-native-path-solver.py"
+      ],
+      "limits": "Real gameplay planner composes route geometry, smoothing and output; object admission and vehicle/cell consumers are browser adapters, not native-wide identity."
+    },
+    {
+      "address": "00420dd0",
+      "status": "implemented",
+      "scope": "Prepare the original overlapping path-candidate buffers",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00420dd0.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Live planner prepare callback; native harness compares defined buffers and shared state including retry-four alias. Bounds exclude outer route ownership."
+    },
+    {
+      "address": "00420f80",
+      "status": "implemented",
+      "scope": "Choose and write a native path-retry candidate",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00420f80.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Direct comparison includes all tested candidate coordinate writes and overlapping neighborhood layout; live planner chooses with its existing path state."
+    },
+    {
+      "address": "00421130",
+      "status": "partial",
+      "scope": "Solve a live person's path with both native obstacle walkers",
+      "sources": [
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00421130.c",
+        "scripts/check-native-path-solver.py"
+      ],
+      "limits": "Tracked oracle exercises full route buffers, but browser supplies its own building access, boat admission and disembark effects; cross-model search identity is not fully established."
+    },
+    {
+      "address": "00421960",
+      "status": "implemented",
+      "scope": "Collect native path route bytes and truncation result",
+      "sources": [
+        "app/path-search.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00421960.c",
+        "scripts/check-native-path-search.py"
+      ],
+      "limits": "Live planner collects its requested first result slot into the native-shaped route buffer; native collector proof is scoped to supported current queue slots and not the wider planner."
+    },
+    {
+      "address": "00421b70",
+      "status": "implemented",
+      "scope": "Smooth a live native-shaped route through repeated four-node probes",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00421b70.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Direct oracle compares defined route writes and probe effects; live planner calls it with start slot zero and solver also uses it for local obstacle paths. Outer collision parity separate."
+    },
+    {
+      "address": "00421cb0",
+      "status": "implemented",
+      "scope": "Probe whether a staged native path segment is clear",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00421cb0.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Live smoothing uses the line and quarter-cell probe path; bounded to supplied walk-mask/collision responses and not the ownership of original path actors."
+    },
+    {
+      "address": "00421f30",
+      "status": "implemented",
+      "scope": "Initialize native fixed-point straight-path line state",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00421f30.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Direct 1,024-case geometry mode and live solver plus smoothing consumers; input is native route coordinates and not browser UI coordinate projection."
+    },
+    {
+      "address": "00422020",
+      "status": "partial",
+      "scope": "Probe the next route step against native caches and occupancy",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00422020.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Native-order quarter-cell probing and cache behavior live; building and boat callbacks use browser actor/ownership adapters, not complete original native input identities."
+    },
+    {
+      "address": "004222d0",
+      "status": "implemented",
+      "scope": "Step one native-style path obstacle walker",
+      "sources": [
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004222d0.c",
+        "scripts/check-native-path-solver.py"
+      ],
+      "limits": "Live solver steps both sides; native oracle validates route buffers and supplied consumers in 1,024 cases for this mode. Bounded to the staged geometry and consumer responses."
+    },
+    {
+      "address": "004229a0",
+      "status": "implemented",
+      "scope": "Merge an obstacle detour into the main native-shaped route buffer",
+      "sources": [
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004229a0.c",
+        "scripts/check-native-path-solver.py"
+      ],
+      "limits": "Live solver merges a selected detour with the native signed limit; direct 1,024 mode cases compare complete result buffers and bound state."
+    },
+    {
+      "address": "00422a60",
+      "status": "implemented",
+      "scope": "Update both wrapped quarter-cell walk bitmaps",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/world-terrain-runtime.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00422a60.c",
+        "scripts/check-native-person-collision.py"
+      ],
+      "limits": "Live setup and terrain edits invoke both masks using original threshold rules; harness checks mask contents and preserves active map pointer in native execution. Excludes unsupported negative radius."
+    },
+    {
+      "address": "00422bd0",
+      "status": "implemented",
+      "scope": "Test native quarter-cell terrain height range against its limit",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/world-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00422bd0.c",
+        "scripts/check-native-person-collision.py"
+      ],
+      "limits": "The standalone test wrapper and live updateWalkMasks share quarterHeightRange; direct original compares signed heights, diagonal and limits. Extra live block flags belong to the outer bitmap routine."
+    },
+    {
+      "address": "00422df0",
+      "status": "implemented",
+      "scope": "Measure a native-shaped route and flag crossed tribe regions",
+      "sources": [
+        "app/path-geometry.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00422df0.c",
+        "scripts/check-native-path-geometry.py"
+      ],
+      "limits": "Live measure callback updates distance and tribe mask from original-shaped regions and active/recently-defeated tribe predicate. Bound to supplied region/tribe state."
+    },
+    {
+      "address": "00422fc0",
+      "status": "partial",
+      "scope": "Build the live drag-selection mesh of map-cell triangles",
+      "sources": [
+        "app/selection-mesh.ts",
+        "app/drag-overlay.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00422fc0.c",
+        "scripts/check-native-selection-mesh.py"
+      ],
+      "limits": "Live overlay composes native-style mesh; harness explicitly permits a browser repair for the original overwritten last triangle on seven-vertex clips."
+    },
+    {
+      "address": "00423900",
+      "status": "partial",
+      "scope": "Build the native-style drag selection draw queue",
+      "sources": [
+        "app/selection-raster.ts",
+        "app/drag-overlay.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00423900.c",
+        "scripts/check-native-selection-raster.py"
+      ],
+      "limits": "Direct oracle covers shared vertices, bucket depth and border commands; browser uses its own overlay adapter and admission, not all original rendering submissions."
+    },
+    {
+      "address": "00424320",
+      "status": "implemented",
+      "scope": "Split live selection perimeter on cell sides and native diagonals",
+      "sources": [
+        "app/drag-border.ts",
+        "app/selection-mesh.ts",
+        "app/drag-overlay.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00424320.c",
+        "scripts/check-native-drag-border.py"
+      ],
+      "limits": "Direct oracle compares original perimeter splits and wrapped seams. Actual live overlay consumes the crossings through selection mesh; border shaders remain separate."
+    },
+    {
+      "address": "00438950",
+      "status": "partial",
+      "scope": "Order-focus live object resolution",
+      "sources": [
+        "app/person-panel.ts",
+        "app/object-panels.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00438950.c",
+        "scripts/check-native-order-focus.py"
+      ],
+      "limits": "Focus helper applies original command mask, ID, class and liveness checks; the live adapter reconstructs only selected classes from browser lists and always passes flags2 zero instead of reading the native pool object."
+    },
+    {
+      "address": "00438f20",
+      "status": "implemented",
+      "scope": "Attack approach outside the building entrance",
+      "sources": [
+        "app/combat-pursuit.ts",
+        "app/combat-building.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00438f20.c",
+        "scripts/check-native-building-attack.py"
+      ],
+      "limits": "Covers native entry assignment, exterior destination dispatch, facing, movement recovery and even-turn signed coordinate readiness for supported buildings. Destination/animation effect boundaries are separately supplied in the native comparison."
+    },
+    {
+      "address": "00439480",
+      "status": "implemented",
+      "scope": "Combat approach to an already assigned strike point",
+      "sources": [
+        "app/combat-pursuit.ts",
+        "app/combat-building.ts",
+        "app/building-fetch.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00439480.c",
+        "scripts/check-native-building-attack.py"
+      ],
+      "limits": "Assignment consumption, movement recovery and even-turn signed arrival check at 112 units only; later strike and structure damage are separate. Native harness compares owned state with supplied effects."
+    },
+    {
+      "address": "0043bcc0",
+      "status": "implemented",
+      "scope": "Command-27 worship person controller",
+      "sources": [
+        "app/person-worship.ts",
+        "app/live-worship.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043bcc0.c",
+        "scripts/check-native-person-worship.py",
+        "tests/person-worship.test.mjs"
+      ],
+      "limits": "4,096 direct comparisons cover approach, slot selection ordering, arrival, prayer animation dispatch, pose RNG, retry and flags; ordinary shared route, audio, and animation effects remain separately owned and supplied in the harness."
+    },
+    {
+      "address": "0043c600",
+      "status": "partial",
+      "scope": "Stone Head exact standing-slot roster lookup",
+      "sources": [
+        "app/live-worship.ts",
+        "app/worship.ts",
+        "app/object-panels.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043c600.c",
+        "scripts/check-native-worship-panel.py"
+      ],
+      "limits": "The browser uses live cell-chain order and compares exact positions, tribe, class and stationary speed, but exposes a player-tribe list from slot zero rather than the original arbitrary-tribe lookup from a caller-owned mutable slot cursor; native comparison checks isolated slot geometry and speed."
+    },
+    {
       "address": "0044d7f0",
       "status": "partial",
       "scope": "Object tooltip presentation",
@@ -42,6 +565,21 @@
         "scripts/check-native-tooltips.py"
       ],
       "limits": "Forced object modes 1 and 2 are covered; first-mission lookup is approximate and modes 3–10 are unported."
+    },
+    {
+      "address": "0044df40",
+      "status": "implemented",
+      "scope": "Queued native terrain simulation passes",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/world-terrain-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044df40.c",
+        "scripts/check-native-terrain.py"
+      ],
+      "limits": "66 native terrain states compare signed height/shore/category/cliff/shadow updates, queue cleanup and order of the two final texture consumers; those consumers are supplied in the comparison and shader/pixel parity is separate."
     },
     {
       "address": "0044ee50",
@@ -73,6 +611,158 @@
       "limits": "Original shade routine compared in 4,096 direct calls; supported imported rule data, not a building lifecycle claim."
     },
     {
+      "address": "00461510",
+      "status": "partial",
+      "scope": "Per-turn tribe cast cooldown and work dispatch",
+      "sources": [
+        "app/tribe-turns.ts",
+        "app/spell-casting.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00461510.c",
+        "scripts/check-native-cast-cooldowns.py"
+      ],
+      "limits": "512 direct native timer-pass cases cover land/load gates and four cooldowns; the full live CPU/territory callbacks are browser adapters, outside the timer oracle."
+    },
+    {
+      "address": "00464f90",
+      "status": "partial",
+      "scope": "Vehicle disembark cell admissibility",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00464f90.c",
+        "scripts/check-native-vehicle-routing.py"
+      ],
+      "limits": "Native terrain category and flag predicates are reconstructed and compared at this exact entry in 1,024 cases; live cell input scans active entries in the browser vehicle list, not the original object-cell chain."
+    },
+    {
+      "address": "004650d0",
+      "status": "partial",
+      "scope": "Vehicle approach cell admissibility",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004650d0.c",
+        "scripts/check-native-vehicle-routing.py"
+      ],
+      "limits": "Native shore and open-water checks are available on the live route path and compared at the exact entry in 1,024 cases, but live occupancy is an active-only browser vehicle scan."
+    },
+    {
+      "address": "00465510",
+      "status": "partial",
+      "scope": "Excluding yourself from vehicle cell occupancy",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00465510.c",
+        "scripts/check-native-vehicle-routing.py"
+      ],
+      "limits": "The native class-4 predicate matches the exact 1,024-case comparison, but production scans active vehicle objects from the browser list and does not traverse the original occupancy chain."
+    },
+    {
+      "address": "00465650",
+      "status": "implemented",
+      "scope": "Vehicle readiness terrain and signed speed predicate",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00465650.c",
+        "scripts/check-native-vehicle-routing.py"
+      ],
+      "limits": "Supported registered vehicle and physics models, using native coordinate units and rule tables; 1,024 direct native predicate comparisons. Does not claim transport movement, landing or board-order parity."
+    },
+    {
+      "address": "004663c0",
+      "status": "partial",
+      "scope": "First eligible vehicle boarding query",
+      "sources": [
+        "app/vehicle-routing.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts",
+        "app/path-search.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004663c0.c",
+        "scripts/check-native-vehicle-routing.py"
+      ],
+      "limits": "The 1,024 direct comparison cases cover cell order, signed passenger count, readiness, first passenger tribe and reservation checks; live uses active vehicle list order and derives or supplies boat availability rather than the original global."
+    },
+    {
+      "address": "004665c0",
+      "status": "partial",
+      "scope": "First non-airborne vehicle in a path-search cell",
+      "sources": [
+        "app/path-search.ts",
+        "app/path-solver.ts",
+        "app/live-pathfinding.ts",
+        "app/live-vehicles.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004665c0.c",
+        "scripts/check-native-path-search.py"
+      ],
+      "limits": "The 2,048 original lookup cases cover model and class ordering, wrapped cells and the boat gate; live supplies active browser vehicles and derives availability, not the original ordered object-cell chain and global state."
+    },
+    {
+      "address": "0049a2f0",
+      "status": "implemented",
+      "scope": "Allocate and initialize a shared indexed XY search slot",
+      "sources": [
+        "app/indexed-search.ts",
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049a2f0.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "Types 1 and 2 and valid native byte/word inputs; not the original callers or scheduler. Oracle compares each intermediate pool state."
+    },
+    {
+      "address": "0049a3f0",
+      "status": "implemented",
+      "scope": "Advance a valid indexed XY search and return the next coordinate",
+      "sources": [
+        "app/indexed-search.ts",
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049a3f0.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "Valid allocated search IDs; compares coordinate/termination and pool state. Does not establish parity of unrelated callers."
+    },
+    {
+      "address": "0049a5d0",
+      "status": "implemented",
+      "scope": "Clear a valid shared indexed XY search slot",
+      "sources": [
+        "app/indexed-search.ts",
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049a5d0.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "Valid allocated slot IDs only. Implemented for established live resting and idle approaches."
+    },
+    {
       "address": "0049c890",
       "status": "implemented",
       "scope": "Wrapped square-ring cell lookup",
@@ -85,6 +775,66 @@
         "scripts/check-native-spell-targets.py"
       ],
       "limits": "4,096 direct oracle cases cover the live 16-bit index domain, ring boundaries, coordinate wrapping and rotation behavior; not a spell-targeting parity claim."
+    },
+    {
+      "address": "0049e8b0",
+      "status": "partial",
+      "scope": "Mana production meter based on sampled versus estimated demand",
+      "sources": [
+        "app/hud-mana.ts",
+        "app/hud.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/0049e8b0.c",
+        "scripts/check-native-hud-mana.py"
+      ],
+      "limits": "Native stripe palette and level-flag variants are exercised in focused comparisons. Live logical 640×480 geometry is separate from original resolution parameterization, and component does not supply the optional native override."
+    },
+    {
+      "address": "0049fe70",
+      "status": "partial",
+      "scope": "Shaman HUD portrait background and pose composition",
+      "sources": [
+        "app/hud-portrait.ts",
+        "app/scene-hud-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049fe70.c",
+        "scripts/check-native-hud-portrait.py"
+      ],
+      "limits": "Live canvas consumes original sprite layers and background choices. Focused original comparisons cover supplied renderer leaves and sample poses; no claim of every original HUD sprite/control state or display sizing."
+    },
+    {
+      "address": "004a0050",
+      "status": "partial",
+      "scope": "Shaman HUD health meter fill and static frame",
+      "sources": [
+        "app/hud-health.ts",
+        "app/hud.tsx",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/004a0050.c",
+        "scripts/check-native-hud-health.py"
+      ],
+      "limits": "The live component renders the measured palette and fill arithmetic. Native hidden-control and per-resolution renderer branches are not implemented by the same DOM visibility and sizing mechanism."
+    },
+    {
+      "address": "004a0800",
+      "status": "partial",
+      "scope": "Population meter fill and at-capacity flash",
+      "sources": [
+        "app/hud-population.ts",
+        "app/hud.tsx",
+        "app/scene-hud-runtime.ts",
+        "app/page.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/004a0800.c",
+        "scripts/check-native-hud-population.py",
+        "scripts/check-browser-hud-population.mjs"
+      ],
+      "limits": "Live fill and capacity flash use the original frame mask through a scene-updated CSS value. This bounded port does not establish the original alternate tribe statistics pointer branch, native control visibility or resolution-dependent UI sizing."
     },
     {
       "address": "004b9cc0",
@@ -130,6 +880,62 @@
       "limits": "2,048 oracle cases cover range with native inputs supplied. Live building lookup and person flags derive from browser occupancy, not the original cell object and person flags."
     },
     {
+      "address": "004d5120",
+      "status": "partial",
+      "scope": "Find and claim an available six-position resting slot",
+      "sources": [
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d5120.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "Mixed-object behavior is compared with a supplied building-outside leaf, but the live registry contains people only, so native vehicle-rest vetoes cannot participate."
+    },
+    {
+      "address": "004d5420",
+      "status": "partial",
+      "scope": "Test availability of a resting slot",
+      "sources": [
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d5420.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "The helper uses terrain, occupancy and the cell-eligibility predicate. The live cell registry contains people only and cannot apply the original vehicle-rest veto."
+    },
+    {
+      "address": "004d55a0",
+      "status": "partial",
+      "scope": "Test whether a native cell permits resting",
+      "sources": [
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d55a0.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "The helper implements land, active-order and vehicle flags, but the live adapter supplies people only, not native vehicles."
+    },
+    {
+      "address": "004d56f0",
+      "status": "implemented",
+      "scope": "Rebuild and compact registered follower resting slots",
+      "sources": [
+        "app/resting-slots.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d56f0.c",
+        "scripts/check-native-resting-slots.py"
+      ],
+      "limits": "Bounded to registered people and valid native six-slot inputs; does not establish parity for arbitrary cell object lists or all resting-state behavior."
+    },
+    {
       "address": "004d5c70",
       "status": "missing",
       "scope": "Original state-3 death initializer",
@@ -143,6 +949,155 @@
       "limits": "Live initializer does not dispatch state 3; the later death visit and other death logic are separate."
     },
     {
+      "address": "004eadc0",
+      "status": "partial",
+      "scope": "Advance the owned movement route and coordinate vehicle boarding/landing callbacks",
+      "sources": [
+        "app/route-advance.ts",
+        "app/live-pathfinding.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004eadc0.c",
+        "scripts/check-native-route-advance.py",
+        "tests/game.test.mjs"
+      ],
+      "limits": "Controller and ordered callback state are tested with several supplied consumers. Browser adapters own actual landing preparation, vehicle launch and task/velocity arrival, so this does not close the full native route lifecycle."
+    },
+    {
+      "address": "004ebab0",
+      "status": "partial",
+      "scope": "Check availability of the next flagged vehicle leg or final route target",
+      "sources": [
+        "app/person-routes.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ebab0.c",
+        "scripts/check-native-route-advance.py",
+        "tests/game.test.mjs"
+      ],
+      "limits": "2,048 exact native route-record and next-cell callback comparisons with the boarding consumer supplied. Live uses the browser active-vehicle list and derived availability rather than the original cell-chain admission provider; supported route-record selection is reconstructed."
+    },
+    {
+      "address": "004ebc20",
+      "status": "implemented",
+      "scope": "Native wrapped terrain drift including trough filtering",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/person-physics.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ebc20.c",
+        "scripts/check-native-person-physics.py"
+      ],
+      "limits": "Models using the native falling/person-motion adapter; compared signed terrain and wrapped 16-bit coordinates, not all trajectory or scheduler behavior."
+    },
+    {
+      "address": "004ebd10",
+      "status": "implemented",
+      "scope": "Native triangle slope velocity",
+      "sources": [
+        "app/native-terrain.ts",
+        "app/person-physics.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ebd10.c",
+        "scripts/check-native-person-physics.py"
+      ],
+      "limits": "Signed triangle-height inputs in the native-compatible person-motion caller; does not prove the encompassing physics visit."
+    },
+    {
+      "address": "004ee470",
+      "status": "implemented",
+      "scope": "Insert an unlinked native object at the head of its target cell",
+      "sources": [
+        "app/object-cells.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee470.c",
+        "scripts/check-native-object-cells.py"
+      ],
+      "limits": "Valid linked-cell inputs only. Native oracle uses bounded 16-bit object table indices; browser-only handles are not a native index representation claim."
+    },
+    {
+      "address": "004ee4f0",
+      "status": "implemented",
+      "scope": "Detach a linked native object without rewriting its stale own links",
+      "sources": [
+        "app/object-cells.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee4f0.c",
+        "scripts/check-native-object-cells.py"
+      ],
+      "limits": "Valid linked lists only. Native oracle uses bounded 16-bit indices; browser-only handles are outside the comparison."
+    },
+    {
+      "address": "004ee580",
+      "status": "implemented",
+      "scope": "Move an existing native object, with wrapped displacement and cell-list splices",
+      "sources": [
+        "app/object-cells.ts",
+        "app/live-people.ts",
+        "app/live-pathfinding.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee580.c",
+        "scripts/check-native-object-cells.py"
+      ],
+      "limits": "Bounded native object table indices and signed 16-bit position/displacement. Does not cover every producer of a position or browser-only identity layout."
+    },
+    {
+      "address": "004ee700",
+      "status": "implemented",
+      "scope": "Reset native object, draw, palette and hold-clock fields using imported animation descriptors",
+      "sources": [
+        "app/animation.ts",
+        "app/live-people.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee700.c",
+        "scripts/check-native-animation.py"
+      ],
+      "limits": "Compared on imported descriptor indices and 16-bit object identifiers; not the per-frame consumer or a whole animation scheduler."
+    },
+    {
+      "address": "004ee770",
+      "status": "partial",
+      "scope": "Pause-sensitive native two-list animation traversal",
+      "sources": [
+        "app/animation.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee770.c",
+        "scripts/check-native-animation.py",
+        "decomp/research/animation-cadence.md"
+      ],
+      "limits": "The two-list helper is compared using supplied morph and footprint boundaries. The live browser dispatch instead visits shrine, unit and effect arrays with split clocks; main runtime routing is not established as native allocation-list order."
+    },
+    {
+      "address": "004ee7b0",
+      "status": "partial",
+      "scope": "Per-object descriptor animation clocks, pose/frame advancement and footprint trigger",
+      "sources": [
+        "app/animation.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee7b0.c",
+        "scripts/check-native-animation.py",
+        "decomp/research/sprite-logical-visits.md"
+      ],
+      "limits": "Per-object helper is tested with loaded native tables and a hooked footprint consumer. Live callers use only scoped descriptor families, supply empty model/morph table arrays and split visit ownership; not end-to-end original dispatch."
+    },
+    {
       "address": "004eeff0",
       "status": "implemented",
       "scope": "Original drowning predicate",
@@ -154,6 +1109,112 @@
         "scripts/check-native-person-update.py"
       ],
       "limits": "The predicate is implemented; this does not cover the drowning controller, death entry, or corpse update."
+    },
+    {
+      "address": "004f6c20",
+      "status": "partial",
+      "scope": "Stagger tribe territory refresh and advance the shared native search tag",
+      "sources": [
+        "app/territory.ts",
+        "app/computer-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f6c20.c",
+        "scripts/check-native-territory.py",
+        "tests/game.test.mjs"
+      ],
+      "limits": "Exact native no-hook comparison covers the stagger, wrapped tag and linked-list territory update. Live acquisition instead supplies a healthy team-filtered browser building list and a fallback defense radius outside the current campaign-tribe context."
+    },
+    {
+      "address": "004f6cc0",
+      "status": "implemented",
+      "scope": "Apply or clear native territory footprint bits on ground cells",
+      "sources": [
+        "app/territory.ts",
+        "app/computer-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f6cc0.c",
+        "scripts/check-native-territory.py",
+        "tests/game.test.mjs"
+      ],
+      "limits": "Compared all footprint choices and overlapping removal against full 128x128 maps; live healthy-building refresh marks, and dead-building processing clears. Coverage is the footprint-bit operation, not parity of all original damage/remove producers."
+    },
+    {
+      "address": "00517290",
+      "status": "partial",
+      "scope": "Generate native-style sky screen-grid geometry",
+      "sources": [
+        "app/sky.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00517290.c",
+        "scripts/check-native-clouds.py",
+        "tests/sky-horizon.test.mjs"
+      ],
+      "limits": "Scoped sky grid and viewport geometry; browser uses its own battlefield render surface, HUD layout and Three.js ownership, not complete native setup/state."
+    },
+    {
+      "address": "00517420",
+      "status": "partial",
+      "scope": "Generate sky-lens cloud vertices, fades and triangle indices",
+      "sources": [
+        "app/sky.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00517420.c",
+        "scripts/check-native-clouds.py",
+        "tests/sky-horizon.test.mjs"
+      ],
+      "limits": "Sky-lens geometry is compared; browser uses Three.js meshes and shader state rather than the original D3D commands or complete blend-call sequence."
+    },
+    {
+      "address": "00523830",
+      "status": "partial",
+      "scope": "Update wrapped sky-camera offsets and half-angle rotation",
+      "sources": [
+        "app/sky.ts",
+        "app/sky-motion.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00523830.c",
+        "scripts/check-native-clouds.py"
+      ],
+      "limits": "Discrete helper is compared and used to initialize the sky, then continuous browser motion owns live presentation; not original per-visit timing."
+    },
+    {
+      "address": "00524a30",
+      "status": "partial",
+      "scope": "Draw the native defeat sky quad as a browser overlay",
+      "sources": [
+        "app/sky.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00524a30.c",
+        "scripts/check-native-sky.py"
+      ],
+      "limits": "Defeat branch is explicitly ported. Other sky branches use separate browser environment handling; not complete original dispatcher or D3D draw state."
+    },
+    {
+      "address": "00525450",
+      "status": "implemented",
+      "scope": "Calculate the fixed follower-health bar border and fill",
+      "sources": [
+        "app/unit-health.ts",
+        "app/scene-entities.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00525450.c",
+        "scripts/check-native-unit-health.py",
+        "tests/unit-health.test.mjs"
+      ],
+      "limits": "For eligible browser followers, the fixed 6x26 bar geometry and bounded fill are compared with native draw submissions and implemented through a precomputed atlas. Pose-scaled anchor setup, dynamic palette state and native D3D device ownership are not claimed."
     }
   ]
 }
