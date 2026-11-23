@@ -88,6 +88,7 @@ import {
   spellCaster,
   spellPaymentType,
   nativeSpellRange,
+  reservedSpellMana,
 } from './spell-casting.ts'
 import { clearLivePath, planLivePath } from './live-pathfinding.ts'
 import { nativeCellPoint, browserPosition } from './world-coordinates.ts'
@@ -2333,6 +2334,11 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const allocate = (model: number, cell: number) => allocateComputerSpell(w, u!, model, cell)
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
+  // 0x4f4d40: reserve the shaman's assigned raid's three spell costs before
+  // speculative shoreline Blast, not the budgets of other raids in the tribe.
+  const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
+    task = assignment ? w.ai.tasks[assignment - 1] : undefined,
+    reserve = task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0
   const shore = castShoreBlast(
     world,
     caster,
@@ -2340,7 +2346,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
       turn: w.turn,
       population: w.units.filter(p => p.team === team && !p.ghost && p.hp > 0).length,
       mana: w.manaTribes[tribe].mana,
-      reserve: 0,
+      reserve,
       gameFlags: w.manaWorld.gameFlags,
       aiFlags: w.ai.flags,
     },
