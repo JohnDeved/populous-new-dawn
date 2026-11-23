@@ -10,6 +10,7 @@ const ledgerPath = 'decomp/function-progress.json'
 const reportPath = 'FUNCTION-PROGRESS.md'
 const sha = /^[a-f0-9]{64}$/
 const address = /^[a-f0-9]{8}$/
+const gitCommit = /^[a-f0-9]{40}$/
 const classified = ['implemented', 'partial', 'missing']
 const categories = [...classified, 'unassessed']
 
@@ -49,6 +50,10 @@ export function makeSnapshot(exportsText, ledgerText, { revision = null, pathExi
       || !row.evidence.every(value => safePath(value) && /^(tests|decomp|engineering|scripts)\//.test(value))) {
       fail(`Invalid status, bounded scope, limits or evidence for ${row.address}`)
     }
+    if (Object.hasOwn(row, 'implementationRevision') && (row.status !== 'implemented'
+      || typeof row.implementationRevision !== 'string' || !gitCommit.test(row.implementationRevision))) {
+      fail(`Invalid implementation revision for ${row.address}: provide a full commit ID only for implemented rows`)
+    }
     if (pathExists) for (const file of [...row.sources, ...row.evidence]) {
       if (!pathExists(file)) fail(`Missing ledger reference for ${row.address}: ${file}`)
     }
@@ -63,7 +68,7 @@ export function makeSnapshot(exportsText, ledgerText, { revision = null, pathExi
     knownAddresses, entries: Object.values(entries).sort((a, b) => a.address.localeCompare(b.address)) }
 }
 
-export function compareSnapshots(before, after) {
+export function compareSnapshots(before, after, implementationAttribution = null) {
   if (before.executableSha256 !== after.executableSha256) fail('Cannot compare different original executables')
   const was = new Set(before.knownAddresses)
   const now = new Set(after.knownAddresses)
@@ -77,13 +82,22 @@ export function compareSnapshots(before, after) {
     const to = newStatuses.get(entry) ?? 'unassessed'
     if (from !== to) transitions.push({ address: entry, from, to })
   }
+  const credits = after.entries.filter(row => row.status === 'implemented' && oldStatuses.get(row.address) !== 'implemented')
+    .map(row => ({ address: row.address, newInventoryEntry: !was.has(row.address),
+      implementationRevision: row.implementationRevision ?? null,
+      attribution: row.implementationRevision && implementationAttribution
+        ? implementationAttribution(row) : 'unverified' }))
+  const completed = Object.fromEntries(['declared-in-interval', 'declared-pre-existing', 'unverified'].map(status =>
+    [status, credits.filter(row => row.attribution === status).length]))
   return { beforeRevision: before.revision, afterRevision: after.revision,
     executableSha256: after.executableSha256, beforeInventorySha256: before.inventorySha256,
     afterInventorySha256: after.inventorySha256, beforeLedgerSha256: before.ledgerSha256,
     afterLedgerSha256: after.ledgerSha256, inventory,
     counts: Object.fromEntries(categories.map(status => [status, {
       before: before.counts[status], after: after.counts[status], delta: after.counts[status] - before.counts[status],
-    }])), transitions }
+    }])), transitions, implementationCredits: {
+      basis: 'ledger-declaration-with-git-path-corroboration', counts: completed, entries: credits,
+    } }
 }
 
 function render(snapshot) {
@@ -127,15 +141,56 @@ node scripts/function-progress.mjs --check
 \`\`\`
 
 For a machine-readable count at a Git revision, run \`node scripts/function-progress.mjs --json --revision HEAD\`. After the tracker lands, compare two Git revisions that contain it with \`node scripts/function-progress.mjs --compare OLDER NEWER\`. The comparison records both exact commit IDs, counts, common-address transitions, and inventory entries added/removed. Status changes can come from auditing older code, not just from new implementation. Additions and removals to the inventory are tracked separately. The first snapshot sets a baseline; it cannot establish a rate.
+
+For a trend across several ordered Git commits, run \`node scripts/function-progress.mjs --history OLDEST MIDDLE NEWEST\`. Each adjacent interval reports new ledger credits with declared implementation timing, backfilled assessments, and unverified attribution. To support this, an implemented ledger row can include \`implementationRevision\`: the full Git commit ID that actually delivered the routine, not the commit that first recorded the assessment. The revision must be reachable at the newer endpoint and change at least one of the row's listed app source paths relative to its first parent. A revision already reachable at the older endpoint is \`declared-pre-existing\`; a revision first reachable during the interval is \`declared-in-interval\`. Unavailable or unsupported claims are \`unverified\`. A Git path change can corroborate a date, but does not prove implementation of that address: even a comment-only edit can satisfy the path check. These are provisional ledger credits, not verified new implementations or a development rate. Re-credit after a status regression can also produce a new ledger credit, not necessarily new code.
 `
 }
 
+const git = args => execFileSync('git', ['-C', repo, ...args], {
+  encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
+})
 function trackedReader(ref) {
   if (!ref || ref.startsWith('-')) fail('Invalid Git revision')
-  const git = args => execFileSync('git', ['-C', repo, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
   const revision = git(['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`]).trim()
   const read = path => git(['show', `${revision}:${path}`])
   return { revision, read }
+}
+
+function ancestor(older, newer) {
+  try { git(['merge-base', '--is-ancestor', older, newer]); return true } catch (error) {
+    if (error.status === 1) return false
+    throw error
+  }
+}
+
+function compareRevisions(before, after, commits = new Map()) {
+  if (before.revision === after.revision || !ancestor(before.revision, after.revision)) {
+    fail('History endpoints must be distinct Git revisions in ancestor order')
+  }
+  return compareSnapshots(before, after, row => {
+    const revision = row.implementationRevision
+    try {
+      if (!commits.has(revision)) {
+        // Never infer a first parent across a shallow repository's history boundary.
+        if (git(['rev-parse', '--is-shallow-repository']).trim() === 'true'
+          || git(['cat-file', '-t', revision]).trim() !== 'commit') return 'unverified'
+        const parents = git(['rev-list', '--parents', '-n', '1', revision]).trim().split(' ')
+        const paths = parents[1]
+          ? git(['diff', '--no-renames', '--diff-filter=AM', '--name-only', '-z', parents[1], revision, '--', 'app/'])
+          : git(['diff-tree', '--root', '--no-commit-id', '--no-renames', '--diff-filter=AM', '--name-only', '-r', '-z', revision, '--', 'app/'])
+        commits.set(revision, new Set(paths.split('\0')))
+      }
+      if (!ancestor(revision, after.revision)) return 'unverified'
+      const supportsClaim = row.sources.some(path => {
+        if (!commits.get(revision).has(path)) return false
+        try { return git(['cat-file', '-t', `${after.revision}:${path}`]).trim() === 'blob' } catch { return false }
+      })
+      if (!supportsClaim) return 'unverified'
+      return ancestor(revision, before.revision) ? 'declared-pre-existing' : 'declared-in-interval'
+    } catch {
+      return 'unverified'
+    }
+  })
 }
 
 function snapshot(ref, verifyPaths = false) {
@@ -146,7 +201,14 @@ function snapshot(ref, verifyPaths = false) {
 
 function main(args) {
   if (args[0] === '--compare' && args.length === 3) {
-    process.stdout.write(JSON.stringify(compareSnapshots(snapshot(args[1]), snapshot(args[2])), null, 2) + '\n')
+    process.stdout.write(JSON.stringify(compareRevisions(snapshot(args[1]), snapshot(args[2])), null, 2) + '\n')
+    return
+  }
+  if (args[0] === '--history' && args.length >= 3 && args.length <= 17) {
+    const snapshots = args.slice(1).map(ref => snapshot(ref))
+    const cache = new Map()
+    const intervals = snapshots.slice(1).map((next, index) => compareRevisions(snapshots[index], next, cache))
+    process.stdout.write(JSON.stringify({ schema: 1, intervals }, null, 2) + '\n')
     return
   }
   if (args.length === 1 && args[0] === '--check') {
@@ -159,7 +221,7 @@ function main(args) {
     process.stdout.write(JSON.stringify(snapshot(args[2]), null, 2) + '\n')
     return
   }
-  if (args.length) fail('Usage: function-progress.mjs [--check | --json [--revision REF] | --compare OLD NEW]')
+  if (args.length) fail('Usage: function-progress.mjs [--check | --json [--revision REF] | --compare OLD NEW | --history OLDEST ... NEWEST]')
   process.stdout.write(render(snapshot()))
 }
 
