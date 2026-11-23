@@ -1961,7 +1961,11 @@ export function stepComputerTasks(w: World, tribe: number) {
           if (!u || u.inside !== null || u.entry || u.work !== null)
             throw new Error('Unsupported computer marker selection')
           u.native ??= createLivePerson(w, u)
-          if (task.extra) u.native.computerAssignment = 99
+          if (task.extra) {
+            // 0x4f2440 clears only the low bit of the represented +0x7f byte.
+            if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+            u.native.computerAssignment = 99
+          }
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)
         } else if (action.kind === 'order' || action.kind === 'guard') {

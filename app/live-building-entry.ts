@@ -743,6 +743,9 @@ export function stepLiveTraining(w: World, b: Building) {
   for (const u of created) {
     if (u.hp <= 0) continue
     const p = u.entry!.person
+    // Conversion marks ghost replacements on the native person record. Publish
+    // that identity before browser census, orders, and rendering consume it.
+    if (p.flags4 & 0x800) u.ghost = true
     adoptLiveOrders(w, u, p)
     registerLivePerson(w, p)
     // Conversion sets flag 16: the first person visit initializes the inherited
