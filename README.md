@@ -32,6 +32,10 @@ See [the current feature scope and remaining work](GOAL.md) for mission-by-missi
 limits and [verified parity coverage](PARITY.md) for evidence-backed progress.
 Neither passing unit tests nor the number of imported levels is a full-game claim.
 
+See [original function progress](FUNCTION-PROGRESS.md) for the known native
+function count, port status, and changes between Git revisions. Function counts
+are separate from gameplay parity.
+
 ## Run
 
 ```sh

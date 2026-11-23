@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "entries": [
+    {
+      "address": "00402e30",
+      "status": "implemented",
+      "scope": "Default next state for a person model",
+      "sources": [
+        "app/person-state.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00402e30.c",
+        "scripts/check-native-person-state.py"
+      ],
+      "limits": "Model-table lookup and the level-flag/model-7 override only; other initialization is separate."
+    },
+    {
+      "address": "0040cc60",
+      "status": "partial",
+      "scope": "Morph point interpolation",
+      "sources": [
+        "app/morph.ts",
+        "app/scene-entities.ts",
+        "app/stone-head-animation.ts"
+      ],
+      "evidence": [
+        "decomp/README.md",
+        "scripts/check-native-models.py"
+      ],
+      "limits": "Native coordinate arithmetic is compared; does not establish the complete original model and scheduler behavior."
+    },
+    {
+      "address": "0044d7f0",
+      "status": "partial",
+      "scope": "Object tooltip presentation",
+      "sources": [
+        "app/tooltips.ts"
+      ],
+      "evidence": [
+        "decomp/README.md",
+        "scripts/check-native-tooltips.py"
+      ],
+      "limits": "Forced object modes 1 and 2 are covered; first-mission lookup is approximate and modes 3–10 are unported."
+    },
+    {
+      "address": "00450d50",
+      "status": "implemented",
+      "scope": "Native per-cell building shade",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/world-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00450d50.c",
+        "scripts/check-native-building-footprints.py"
+      ],
+      "limits": "Original shade routine compared in 4,096 direct calls; supported imported rule data, not a building lifecycle claim."
+    },
+    {
+      "address": "004d5c70",
+      "status": "missing",
+      "scope": "Original state-3 death initializer",
+      "sources": [
+        "app/person-state.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d5c70.c",
+        "decomp/generated/004d5cf0.c"
+      ],
+      "limits": "Live initializer does not dispatch state 3; the later death visit and other death logic are separate."
+    },
+    {
+      "address": "004eeff0",
+      "status": "implemented",
+      "scope": "Original drowning predicate",
+      "sources": [
+        "app/person-update.ts"
+      ],
+      "evidence": [
+        "decomp/research/shaman-death-support.md",
+        "scripts/check-native-person-update.py"
+      ],
+      "limits": "The predicate is implemented; this does not cover the drowning controller, death entry, or corpse update."
+    }
+  ]
+}
