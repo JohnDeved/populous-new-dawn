@@ -65,8 +65,11 @@ class SharedRuntimeTests(unittest.TestCase):
         finally:
             reader.close()
         assets = [e for e in records if e['path'].startswith(storage.ASSETS + '/')]
+        reused = storage.asset_reuse(self.pool, assets)
+        missing = any(e['sha256'] not in reused for e in assets)
+        snapshots = storage.check_allocation_filesystems(self.pool, self.runtime, state['assetTree'], missing)
         return storage.allocation_budget(state, self.pool, self.runtime, 'build', records,
-                                         storage.asset_reuse(self.pool, assets), 1024 * 1024)
+                                         reused, 1024 * 1024, snapshots)
 
     def legacy_view(self):
         """Construct the retired v1 layout only inside an isolated test fixture."""
@@ -361,6 +364,57 @@ globalThis.sharedAssetResult = { runtime, provenance };
             storage.prepare(self.source, self.revision, self.pool, self.runtime, 10**20)
         self.assertFalse(self.pool.exists())
 
+    def test_destination_pool_pressure_refuses_before_asset_or_runtime_creation(self):
+        for field in ('f_bavail', 'f_favail'):
+            with self.subTest(field=field):
+                self.pool = self.root / f'pressure-pool-{field}'
+                self.runtime = self.root / f'pressure-runtime-{field}'
+                self.pool.mkdir()
+
+                def snapshot(path):
+                    values = dict(f_frsize=4096, f_bavail=10**9, f_favail=500,
+                                  f_files=1000, f_flag=0)
+                    if path == self.pool:
+                        values[field] = 1
+                    return SimpleNamespace(**values)
+
+                with mock.patch.object(storage.os, 'statvfs', side_effect=snapshot):
+                    with self.assertRaisesRegex(ValueError, 'Insufficient destination (capacity|inodes)'):
+                        self.prepare()
+                self.assertFalse(self.runtime.exists())
+                self.assertEqual(list(self.pool.iterdir()), [])
+                self.assertEqual(self.git('status', '--porcelain'), '')
+
+    def test_locked_inode_drop_and_fragment_drift_refuse_before_copy(self):
+        for loss, message in (('f_favail', 'inodes after publication lock'),
+                              ('f_frsize', 'geometry changed')):
+            with self.subTest(loss=loss):
+                self.pool = self.root / f'locked-pool-{loss}'
+                self.runtime = self.root / f'locked-runtime-{loss}'
+                self.pool.mkdir()
+
+                def snapshot(path):
+                    values = dict(f_frsize=4096, f_bavail=10**9, f_favail=500,
+                                  f_files=1000, f_flag=0)
+                    if (self.pool / '.writer-lock').exists():
+                        values[loss] = 0 if loss == 'f_favail' else 8192
+                    return SimpleNamespace(**values)
+
+                with mock.patch.object(storage.os, 'statvfs', side_effect=snapshot):
+                    with self.assertRaisesRegex(ValueError, message):
+                        self.prepare()
+                self.assertFalse(self.runtime.exists())
+                self.assertEqual(list(self.pool.iterdir()), [])
+
+    def test_reports_fresh_common_device_capacity_without_changing_method(self):
+        budget = self.prepare()['budget']
+        self.assertEqual(budget['method'], 'verified-cas-new-allocation-v1')
+        self.assertEqual(budget.get('capacityAccounting'), 'same-device-minimum-blocks-and-inodes-v1')
+        devices = budget['allocationDevices']
+        self.assertEqual({x['device'] for x in devices}, {self.runtime.stat().st_dev})
+        self.assertEqual(min(x['availableBytes'] for x in devices), budget['availableBytes'])
+        self.assertGreaterEqual(budget['availableInodes'], budget['newInodeEstimate'])
+
     def test_readonly_allocation_parents_refuse_before_any_publication(self):
         original = os.statvfs
         for name in ('runtime-parent', 'pool-parent'):
@@ -374,6 +428,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
                 def readonly(path):
                     value = original(path)
                     return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                            f_flag=os.ST_RDONLY if path == target else 0)
                 with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
                     with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -397,6 +452,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
                 def readonly(path):
                     value = original(path)
                     return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                            f_flag=os.ST_RDONLY if path == target else 0)
                 with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
                     with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -440,6 +496,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
         def readonly(path):
             value = original(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if path == self.pool / 'blobs' else 0)
         with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
             with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -465,6 +522,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
             queried.append(path)
             value = original(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if path in readonly else 0)
         with mock.patch.object(storage.os, 'statvfs', side_effect=writable):
             self.assertEqual(self.prepare()['status'], 'verified')
@@ -477,6 +535,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
         def readonly_after_lock(path):
             value = original(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if (self.pool / '.writer-lock').exists() else 0)
         with mock.patch.object(storage.os, 'statvfs', side_effect=readonly_after_lock):
             with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -494,6 +553,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
         def readonly(path):
             value = original_statvfs(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if path == self.pool / 'blobs' else 0)
         with mock.patch.object(Path, 'mkdir', mkdir), \
              mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
@@ -542,7 +602,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_missing_cas_cannot_receive_a_reuse_discount(self):
         plan = self.allocation_plan()
         available = plan['newAllocationEstimateBytes'] + plan['reserveBytes'] - plan['allocations']['missingCasBytes']
-        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096, f_flag=0)
+        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096, f_flag=0, f_favail=500, f_files=1000)
         with mock.patch.object(storage.os, 'statvfs', return_value=fs):
             with self.assertRaisesRegex(ValueError, 'capacity'):
                 self.prepare()
@@ -552,8 +612,8 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_capacity_boundary_and_locked_recheck_preserve_reserve(self):
         plan = self.allocation_plan()
         required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
-        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0)
-        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1, f_flag=0)
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0, f_favail=500, f_files=1000)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1, f_flag=0, f_favail=500, f_files=1000)
         with mock.patch.object(storage.os, 'statvfs', return_value=short):
             with self.assertRaisesRegex(ValueError, 'capacity'):
                 self.prepare()
@@ -574,8 +634,8 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_post_prepare_reserve_shortfall_is_not_a_pass(self):
         plan = self.allocation_plan()
         required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
-        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0)
-        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1, f_flag=0)
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0, f_favail=500, f_files=1000)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1, f_flag=0, f_favail=500, f_files=1000)
         def capacity_after_creation(path):
             return short if self.runtime.exists() else enough
         with mock.patch.object(storage.os, 'statvfs', side_effect=capacity_after_creation):
