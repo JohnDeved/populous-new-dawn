@@ -44,6 +44,21 @@
       "limits": "Forced object modes 1 and 2 are covered; first-mission lookup is approximate and modes 3–10 are unported."
     },
     {
+      "address": "0044ee50",
+      "status": "partial",
+      "scope": "Native per-cell building placement validity",
+      "sources": [
+        "app/building-validity.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044ee50.c",
+        "scripts/check-native-building-validity.py",
+        "tests/building-validity.test.mjs"
+      ],
+      "limits": "Oracle covers the predicate and exact feedback flags. The live adapter reconstructs scenery and does not supply native fog flags."
+    },
+    {
       "address": "00450d50",
       "status": "implemented",
       "scope": "Native per-cell building shade",
@@ -56,6 +71,63 @@
         "scripts/check-native-building-footprints.py"
       ],
       "limits": "Original shade routine compared in 4,096 direct calls; supported imported rule data, not a building lifecycle claim."
+    },
+    {
+      "address": "0049c890",
+      "status": "implemented",
+      "scope": "Wrapped square-ring cell lookup",
+      "sources": [
+        "app/native-math.ts",
+        "app/computer-spells.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049c890.c",
+        "scripts/check-native-spell-targets.py"
+      ],
+      "limits": "4,096 direct oracle cases cover the live 16-bit index domain, ring boundaries, coordinate wrapping and rotation behavior; not a spell-targeting parity claim."
+    },
+    {
+      "address": "004b9cc0",
+      "status": "implemented",
+      "scope": "Builder slot admission",
+      "sources": [
+        "app/building-workers.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004b9cc0.c",
+        "scripts/check-native-building-workers.py",
+        "tests/building-workers.test.mjs"
+      ],
+      "limits": "Representable nonzero 16-bit person IDs and descriptor-sized slots; comparison assumes the native starting count equals occupied slots, which the browser derives. Admission alone does not establish worker eligibility or construction scheduling."
+    },
+    {
+      "address": "004ba1b0",
+      "status": "partial",
+      "scope": "Stale builder-slot pruning",
+      "sources": [
+        "app/building-workers.ts",
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ba1b0.c",
+        "scripts/check-native-building-workers.py",
+        "tests/building-workers.test.mjs"
+      ],
+      "limits": "Slot pruning matches 512 oracle calls with a supplied native eligibility predicate. Live construction uses browser work-order eligibility instead."
+    },
+    {
+      "address": "004c2e30",
+      "status": "partial",
+      "scope": "Native spell range",
+      "sources": [
+        "app/spell-casting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2e30.c",
+        "scripts/check-native-spell-casting.py"
+      ],
+      "limits": "2,048 oracle cases cover range with native inputs supplied. Live building lookup and person flags derive from browser occupancy, not the original cell object and person flags."
     },
     {
       "address": "004d5c70",
