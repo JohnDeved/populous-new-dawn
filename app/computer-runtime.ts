@@ -1962,7 +1962,11 @@ export function stepComputerTasks(w: World, tribe: number) {
           if (!u || u.inside !== null || u.entry || u.work !== null)
             throw new Error('Unsupported computer marker selection')
           u.native ??= createLivePerson(w, u)
-          if (task.extra) u.native.computerAssignment = 99
+          if (task.extra) {
+            // 0x4f2440 clears only the low bit of the represented +0x7f byte.
+            if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+            u.native.computerAssignment = 99
+          }
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)
         } else if (action.kind === 'order' || action.kind === 'guard') {
@@ -2334,8 +2338,8 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const allocate = (model: number, cell: number) => allocateComputerSpell(w, u!, model, cell)
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
-  // 0x4f4d40: reserve the shaman's assigned raid's three spell costs before
-  // speculative shoreline Blast, not the budgets of other raids in the tribe.
+  // 0x4f4d40 and 0x4d1450 share the acting shaman's owned raid budget;
+  // shoreline Blast and ordinary spell readiness apply their own thresholds.
   const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
     task = assignment ? w.ai.tasks[assignment - 1] : undefined,
     reserve = task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0
@@ -2359,7 +2363,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const context = {
     turn: w.turn,
     mana: w.manaTribes[tribe].mana,
-    reserve: 0,
+    reserve,
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,
