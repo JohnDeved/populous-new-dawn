@@ -18,6 +18,7 @@ export function readConversionStartup() {
     flybyWarmup: world?.flyby.warmup, casts: world?.spellCasts[2][17],
     stock: world?.manaWorld.spells[2].stocks[17], sameWorld: !!scene && scene.world === world,
     canvasConnected: !!scene?.renderer.domElement.isConnected,
+    messageModal: !!scene?.messageModal,
     loading: !!document.querySelector('.loading-world'), visibility: document.visibilityState,
     skipMounted: !!skip, skipVisible: !!skip && skip.getClientRects().length > 0 &&
       getComputedStyle(skip).visibility !== 'hidden' }
@@ -39,9 +40,74 @@ export async function waitForConversionIntroduction(page, report) {
   report.startup.afterSkip = await page.evaluate(readConversionStartup)
 }
 
+const openingMessageText = 'I have had a disturbing vision. The Chumara Tribe turned my own Followers against me when I attacked! I must find a way to reach their Vault of Knowledge and learn how to use this power against them.'
+const openingMessageLimitMs = 5000
+
+export function readConversionOpening() {
+  const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+  const details = document.querySelectorAll('.campaign-messages details[open]')
+  const messages = world.messages.slots.filter(Boolean)
+  return { level: world.outcome.level, turn: world.turn, paused: world.paused,
+    sameWorld: scene.world === world, modal: scene.messageModal, flybyActive: !!(world.flyby.flags & 1),
+    inputMask: world.inputMask, openSerials: [...details].map(box => box.dataset.messageSerial),
+    nextSerial: world.messages.nextSerial, messages: messages.map(({ serial, stringId, flags }) =>
+      ({ serial, stringId, pending: !!(flags & 0x20002) })),
+    rendererFrame: scene.renderer.info.render.frame }
+}
+
+export async function dismissConversionOpening(page, report, output) {
+  const deadline = performance.now() + openingMessageLimitMs
+  const remaining = () => {
+    const left = Math.floor(deadline - performance.now())
+    assert.ok(left > 0, 'Mission 3 opening exceeded its fixed allowance')
+    return left
+  }
+  report.phase = 'authored-opening-message'
+  const box = page.locator('.campaign-messages details[data-message-serial="0"][open]')
+  await box.getByText(openingMessageText, { exact: true }).waitFor({ state: 'visible', timeout: remaining() })
+  const before = await page.evaluate(readConversionOpening)
+  report.opening = { before }
+  assert.equal(before.level, 3)
+  assert.ok(before.turn > 0 && before.turn < 16, 'Opening must precede Mission 3 flyby')
+  assert.equal(before.sameWorld && before.paused && before.modal, true)
+  assert.equal(before.flybyActive, false)
+  assert.equal(before.inputMask, 0)
+  assert.deepEqual(before.openSerials, ['0'])
+  assert.equal(before.nextSerial, 1)
+  assert.deepEqual(before.messages, [{ serial: 0, stringId: 648, pending: false }])
+  const image = 'mission3-authored-opening.png'
+  const frame = await page.waitForFunction(previous =>
+    window.testSceneRef.current.renderer.info.render.frame > previous,
+  before.rendererFrame, { timeout: remaining() })
+  await frame.dispose()
+  const png = await page.screenshot({ path: resolve(output, image), timeout: remaining() })
+  const captured = await page.evaluate(readConversionOpening)
+  assert.deepEqual({ ...captured, rendererFrame: before.rendererFrame }, before,
+    'Opening presentation must freeze the same turn and message until dismissal')
+  assert.ok(captured.rendererFrame > before.rendererFrame, 'Opening screenshot must bracket live renderer progress')
+  report.opening.image = { name: image, sha256: createHash('sha256').update(png).digest('hex') }
+  await box.getByRole('button', { name: 'Dismiss campaign message', exact: true }).click({ timeout: remaining() })
+  await page.waitForFunction(() => {
+    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+    return scene.world === world && !scene.messageModal && !world.paused &&
+      world.messages.slots.every(message => !message) &&
+      !document.querySelector('.campaign-messages details[open]')
+  }, null, { timeout: remaining() })
+  const after = await page.evaluate(readConversionOpening)
+  assert.equal(after.level, 3)
+  assert.equal(after.sameWorld, true)
+  assert.equal(after.paused || after.modal, false)
+  assert.equal(after.nextSerial, 1)
+  assert.deepEqual(after.openSerials, [])
+  assert.deepEqual(after.messages, [])
+  assert.ok(after.turn >= before.turn)
+  remaining()
+  report.opening.after = after
+}
+
 // Observe advisory behavior instead of assuming whether dismissal resumes.
 // This helper is called only after the turn-zero observer has been armed.
-export async function resumeArmedConversion(page, report) {
+export async function resumeArmedConversion(page, report, { authoredOpening = false } = {}) {
   report.phase = 'public-resume'
   const advisory = page.locator('.desktop-recommendation')
   report.resume = { before: await page.evaluate(readConversionStartup), actions: [] }
@@ -50,11 +116,19 @@ export async function resumeArmedConversion(page, report) {
     report.resume.actions.push('dismiss-visible-advisory')
   }
   report.resume.afterAdvisory = await page.evaluate(readConversionStartup)
-  if (report.resume.afterAdvisory.paused) {
+  if (report.resume.afterAdvisory.paused && !report.resume.afterAdvisory.messageModal) {
     await page.getByRole('button', { name: 'Resume game', exact: true }).click()
     report.resume.actions.push('visible-resume-game')
   }
-  await page.waitForFunction(() => !window.testStore.getWorld().paused)
+  await page.waitForFunction(expectOpening => {
+    const world = window.testStore.getWorld()
+    // The public resume may already have yielded to the legitimate authored
+    // pause before Playwright receives the action result. Never click Resume on it.
+    return !world.paused || !!expectOpening && world.outcome.level === 3 &&
+      world.turn > 0 && world.turn < 16 && world.messages.nextSerial === 1 &&
+      world.messages.slots.some(message => message?.serial === 0 && message.stringId === 648) &&
+      window.testSceneRef.current.messageModal
+  }, authoredOpening)
   report.resume.after = await page.evaluate(readConversionStartup)
 }
 
@@ -85,7 +159,7 @@ export function setupConversionCamera(codec) {
 
 // Logical records use the existing fixed-turn boundary; RAF owns only artwork
 // and rendered cleanup. The original callback is chained without driving time.
-export function installConversionObserver({ observationMs, armed = false }) {
+export function installConversionObserver({ observationMs, armed = false, authoredOpening = false }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld(),
     clock = scene.gameClock, originalTurn = clock.afterTurn,
     turnDescriptor = Object.getOwnPropertyDescriptor(clock, 'afterTurn'),
@@ -94,7 +168,7 @@ export function installConversionObserver({ observationMs, armed = false }) {
       bornTurn: null, removal: null, terminal: null, restored: false,
       phase: armed ? 'armed' : 'observing', armedAt: armed ? { turn: world.turn, paused: world.paused } : null,
       firstRunningTurn: null, lastObservedTurn: world.turn, observedTurns: 0 }
-  let raf, flash, target, stopped = false, lastKey
+  let raf, flash, target, stopped = false, lastKey, openingStart, openingDetail, dismissalListenerInstalled
   const restore = () => {
     if (clock.afterTurn === turnWrapper) {
       if (turnDescriptor) Object.defineProperty(clock, 'afterTurn', turnDescriptor)
@@ -107,6 +181,7 @@ export function installConversionObserver({ observationMs, armed = false }) {
     if (stopped) return
     stopped = true
     cancelAnimationFrame(raf)
+    if (dismissalListenerInstalled) window.removeEventListener('click', observeDismissal, true)
     restore()
     result.done = true
     result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame,
@@ -126,8 +201,63 @@ export function installConversionObserver({ observationMs, armed = false }) {
       if (world.turn !== 0 && !(logical && world.turn === 1))
         throw Error('Conversion armed phase missed an ordinary turn')
       if (logical && world.paused) throw Error('Conversion fixed turn occurred while paused')
-    } else if (world.paused) throw Error('Conversion observation must remain running')
+    } else if (world.paused) {
+      // Only passive renderer visits may observe the new authored opening.
+      // The fixed-turn callback still rejects every paused logical turn.
+      if (!authoredOpening || logical)
+        throw Error('Conversion observation must remain running outside the authored opening')
+      const messages = world.messages.slots.filter(Boolean)
+      const boxes = document.querySelectorAll('.campaign-messages details[open]')
+      if (world.outcome.level !== 3 || world.turn <= 0 ||
+        world.turn >= 16 || (world.flyby.flags & 1) || world.inputMask || !scene.messageModal ||
+        world.messages.nextSerial !== 1 || result.authoredOpeningPause?.resumedTurn !== undefined)
+        throw Error('Conversion observation must remain running outside the authored opening')
+      const now = performance.now()
+      const dismissClick = result.authoredOpeningPause?.dismissClick
+      if (messages.length === 0 && dismissClick) {
+        // The public handler removes the World slot synchronously. React may
+        // restore the existing pause owner in a later effect, after this RAF.
+        if (boxes.length > 1 || (boxes.length === 1 && boxes[0] !== openingDetail))
+          throw Error('Conversion acquired another modal during its authored dismissal')
+        result.authoredOpeningPause.effectPending = true
+      } else {
+        if (messages.length !== 1 || messages[0].serial !== 0 ||
+          messages[0].stringId !== 648 || (messages[0].flags & 0x20002) ||
+          boxes.length !== 1 || boxes[0].dataset.messageSerial !== '0' ||
+          (openingDetail && boxes[0] !== openingDetail) || result.authoredOpeningPause?.effectPending)
+          throw Error('Conversion observation must remain running outside the authored opening')
+        if (!result.authoredOpeningPause) {
+          openingStart = now
+          openingDetail = boxes[0]
+          result.authoredOpeningPause = { turn: world.turn, serial: 0, stringId: 648 }
+        }
+      }
+      if (world.turn !== result.authoredOpeningPause.turn || now - openingStart >= 5000)
+        throw Error('Conversion authored pause did not remain stationary and bounded')
+    } else if (result.authoredOpeningPause && result.authoredOpeningPause.resumedTurn === undefined) {
+      if (!result.authoredOpeningPause.dismissClick || scene.messageModal ||
+        world.messages.nextSerial !== 1 || world.messages.slots.some(Boolean) ||
+        document.querySelector('.campaign-messages details[open]') ||
+        performance.now() - openingStart >= 5000)
+        throw Error('Conversion did not cleanly dismiss its authored opening')
+      result.authoredOpeningPause.resumedTurn = world.turn
+    }
     if (scene.renderer.getContext().isContextLost()) throw Error('Conversion WebGL context lost')
+  }
+  const observeDismissal = event => {
+    const button = event.target?.closest?.('button[aria-label="Dismiss campaign message"]')
+    if (!button) return
+    try {
+      if (!event.isTrusted || result.authoredOpeningPause?.dismissClick ||
+        !world.paused || !openingDetail ||
+        button.closest('.campaign-messages details[open]') !== openingDetail)
+        throw Error('Conversion requires one trusted click on its exact authored Dismiss button')
+      check()
+      const opening = result.authoredOpeningPause
+      if (!opening || world.turn !== opening.turn || !world.messages.slots.some(Boolean))
+        throw Error('Conversion Dismiss must target the live opening at its recorded paused turn')
+      opening.dismissClick = { trusted: true, turn: world.turn }
+    } catch (error) { result.error ??= String(error); stop('error') }
   }
   const logicalVisit = () => {
     check(true)
@@ -253,6 +383,10 @@ export function installConversionObserver({ observationMs, armed = false }) {
     if (world.spellCasts[2][17] !== 0 || world.effects.some(f => f.startConversionLink !== undefined))
       throw Error('Conversion observer must precede the first conversion')
     clock.afterTurn = turnWrapper
+    if (authoredOpening) {
+      window.addEventListener('click', observeDismissal, true)
+      dismissalListenerInstalled = true
+    }
     check()
     raf = requestAnimationFrame(visit)
   } catch (error) { result.error ??= String(error); stop('installation-error'); throw error }
@@ -369,8 +503,9 @@ export default async function spellConversion({ browser, url, output }) {
     assert.equal(report.narrowStart.stock, 1)
     await page.setViewportSize({ width: 960, height: 720 })
     report.phase = 'arm-observer'
-    await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs, armed: true })
-    await resumeArmedConversion(page, report)
+    await page.evaluate(installConversionObserver, { observationMs: conversionObservationMs, armed: true, authoredOpening: true })
+    await resumeArmedConversion(page, report, { authoredOpening: true })
+    await dismissConversionOpening(page, report, output)
     await waitForConversionIntroduction(page, report)
     report.phase = 'camera-setup'
     // Synchronous camera-only focus after public flyby/input completion. The
@@ -387,6 +522,14 @@ export default async function spellConversion({ browser, url, output }) {
     report.phase = 'validate-observation'
     const atlas = JSON.parse(readFileSync(resolve(root, 'app/original-effects.json'), 'utf8'))
     validateConversionObservation(report.observation, atlas)
+    const openingPause = report.observation.authoredOpeningPause
+    assert.ok(openingPause, 'Conversion must observe the authored pause without losing fixed turns')
+    assert.deepEqual({ turn: openingPause.turn, serial: openingPause.serial, stringId: openingPause.stringId },
+      { turn: report.opening.before.turn, serial: 0, stringId: 648 })
+    assert.deepEqual(openingPause.dismissClick, { trusted: true, turn: openingPause.turn })
+    assert.ok(openingPause.resumedTurn === openingPause.turn ||
+      openingPause.resumedTurn === openingPause.turn + 1)
+
     assert.deepEqual(report.errors, [])
   } catch (error) {
     failure = error; report.status = 'failed'; report.error = String(error)

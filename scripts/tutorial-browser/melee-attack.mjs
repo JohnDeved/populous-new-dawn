@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame, showAllMissions, settleOpeningMessages, waitForShamanReadiness } from '../browser-game.mjs'
 import { m2StartupReady } from './m2-pointer-f8.mjs'
+import { dismissConversionOpening } from './spell-conversion.mjs'
 import { minimapInput } from '../../qa/erosion-ordinary/minimap-input.mjs'
 import { minimapPick } from '../../app/minimap.ts'
 import { spriteDirection } from '../../app/projection.ts'
@@ -516,7 +517,8 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
   }
   if (scenario.key === 'm3') {
     report.method = report.method.replace('M2', 'M3').replaceAll('Shaman54', 'Shaman46').replaceAll('Green Shaman20', 'Yellow Brave48').replaceAll('actor54', 'actor46')
-    for (const path of ['scripts/browser-game.mjs', 'scripts/campaign-start-readiness.mjs'])
+    for (const path of ['scripts/browser-game.mjs', 'scripts/campaign-start-readiness.mjs',
+      'scripts/tutorial-browser/spell-conversion.mjs'])
       report.source[path] = sha256(readFileSync(resolve(root, path)))
     report.limits.push('Read-only semantic Shaman readiness precedes Pause: playing, unpaused, inputMask0, canOrder and not reserved. No fixed turn, retry selection or World mutation.')
     report.limits.push('Fixed Mission 3 replacement episode, not Mission 2 combat acceptance. Public input targets authored outside Brave48; the first natural opponent may differ. No timing retries, health/RNG changes or favorable-entry selection.')
@@ -639,6 +641,14 @@ export default async function meleeAttack({ browser, url, output, expectedRevisi
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button(`Mission ${scenario.level}`)
     await bindGame(page)
+    if (scenario.key === 'm3') {
+      // The authored campaign popup owns the pause before the old flyby latch.
+      // Only its real Dismiss control can release the World to turn 16.
+      const opening = {}
+      report.authoredOpening = opening
+      await action('Dismiss the authored Mission 3 opening before the flyby', () =>
+        dismissConversionOpening(page, opening, output))
+    }
     const startup = await page.waitForFunction(scenario.key === 'm3' ? m3StartupReady : m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, scenario.level)
