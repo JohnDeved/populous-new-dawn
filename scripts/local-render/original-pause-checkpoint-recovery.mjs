@@ -7,6 +7,7 @@ import { openCampaignFromMainMenu, waitForStartupMenu } from '../browser-new-gam
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
 import { checkHudTabShortcuts } from './hud-tab-shortcuts-browser.mjs'
+import { checkCameraBookmarks } from './camera-bookmark-browser.mjs'
 import { observeStablePauseControls } from './pause-capture-controls.mjs'
 
 // A secondary browser-close rejection must not replace the scenario's failure.
@@ -463,6 +464,8 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   passed('only explicit Load checkpoint replaces the world with the persisted checkpoint')
   const hudTabShortcuts = await checkHudTabShortcuts(page, output)
   passed('HUD tab keys work after public checkpoint replacement and respect modal ownership')
+  const cameraBookmarks = await checkCameraBookmarks(page, output)
+  passed('trusted held X preserves independent X and Z camera bookmarks after public Load')
   // Release this scene before opening the independent high-DPI empty-store case.
   await page.close()
 
@@ -509,7 +512,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     await closePauseRecoveryContext(emptyContext, contextFailed, receipt)
   }
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, hudTabShortcuts, pauseCameraKeys,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, hudTabShortcuts, pauseCameraKeys, cameraBookmarks,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',
