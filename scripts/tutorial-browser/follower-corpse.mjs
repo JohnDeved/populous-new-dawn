@@ -1,4 +1,5 @@
 import { installCorpseCameraFollow } from './follower-corpse-camera.mjs'
+import { followerCorpseAttackTurn, followerCorpseClock } from './follower-corpse-clock.mjs'
 import assert from 'node:assert/strict'
 import { collapseObservedCampaignMessages } from '../public-keyboard-owner.mjs'
 import { createHash } from 'node:crypto'
@@ -9,7 +10,7 @@ import { bindGame, showAllMissions, settleOpeningMessages } from '../browser-gam
 import { readCommittedCheckpoint } from '../local-render/checkpoint-observer.mjs'
 import { m2StartupReady } from './m2-pointer-f8.mjs'
 import { meleeCameraInput, meleeTargetPoint, readMeleeRouteState, assertMeleeRouteReady,
-  shiftClickMeleeTarget } from './melee-attack.mjs'
+  readMeleePointerState, shiftClickMeleeTarget } from './melee-attack.mjs'
 import { installFollowerCorpseObserver, readFollowerCorpseHold,
   readFollowerCorpseReady, readCommittedFollowerCorpse } from './follower-corpse-observer.mjs'
 import { validateFollowerCorpseObservation } from './follower-corpse-evidence.mjs'
@@ -108,17 +109,20 @@ export async function pauseLoadedFollowerCorpse(page, effectId, button) {
 export default async function followerCorpse({ browser, url, output, expectedRevision }) {
   const context = await browser.newContext({ viewport, deviceScaleFactor: 1 }), page = await context.newPage()
   page.setDefaultTimeout(10000)
+  const pacing = followerCorpseClock(page)
   const report = { schema: 'populous-new-dawn/ordinary-follower-corpse', schemaVersion: 2,
     status: 'running', expectedRevision, budgetCapsMs: followerCorpseBudgetMs, actions: [], errors: [],
     actorId: null, effectId: null, death: null, segments: [], error: null, phases: [],
     method: 'Fresh authored M2 through public startup. Existing public bird’s-eye/minimap target route, Escape, one plain Select brave, Resume, actual rendered hover and Shift+left attack on eligible Green Shaman20. Natural combat/death and same-frame corpse observation; public pause, committed current Save checkpoint, actual Load checkpoint, public camera reframing and Resume.',
-    limits: ['Direct mission access, not campaign unlock. No native/synthetic scene, health, source, phase, clock, victim or target assignment.',
+    limits: ['Direct mission access, not campaign unlock. No native/synthetic scene, health, source, phase, World clock, victim or target assignment.',
+      'Public Playwright Clock paces ordinary browser RAF and timers only during startup/input, holds the real attack at logical turn 114, and resumes normal wall-clock pacing before combat evidence.',
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
       'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.',
       'Death through verified committed save has 75 seconds; only successful committed-save proof starts the separate 25-second load/reframe/continuation/verification budget. Both remain inside the runner’s unchanged shared 180-second browser cap.',
       'Browser sampling establishes observed source/frame/heading/visibility and continuation, not exact animation cadence. Cadence remains the separate native follower-corpse-animation unit-test claim.'],
-    source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs',
+    source: Object.fromEntries(['scripts/tutorial-browser/follower-corpse.mjs', 'scripts/tutorial-browser/follower-corpse-clock.mjs',
+      'scripts/tutorial-browser/melee-attack.mjs',
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-camera.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
       'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
@@ -141,19 +145,19 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     finishPhase(true)
     report.phases.push({ name, startedElapsedMs: elapsed() }); save()
   }
-  const action = async (name, perform) => {
+  const action = async (name, perform, pace = true) => {
     const record = { name, startedAt: new Date().toISOString(), startedElapsedMs: elapsed() }
     report.actions.push(record); save()
-    const input = await perform()
+    const input = await (pace ? pacing.drive(perform) : perform())
     if (input) record.input = input
     record.finishedAt = new Date().toISOString(); record.finishedElapsedMs = elapsed()
     record.durationMs = record.finishedElapsedMs - record.startedElapsedMs; save()
   }
   const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())
-  const settle = () => page.waitForFunction(() => {
+  const settle = () => pacing.drive(() => page.waitForFunction(() => {
     const s = window.testSceneRef.current
     return !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition
-  })
+  }))
   const focus = async effectId => {
     const geometry = await page.evaluate(readCorpseMinimap, effectId), input = meleeCameraInput(geometry)
     await action('Public minimap target framing with fixed (0,+12) backing-pixel offset', async () => {
@@ -190,16 +194,17 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   save()
   try {
     phase('startup')
+    await pacing.install()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
-    await button('Mission 2'); await bindGame(page)
-    const startup = await page.waitForFunction(m2StartupReady)
+    await button('Mission 2'); await pacing.drive(() => bindGame(page))
+    const startup = await pacing.drive(() => page.waitForFunction(m2StartupReady))
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
     await action('Settle opening messages and introduction', () => settleOpeningMessages(page))
-    await page.waitForFunction(() => {
+    await pacing.drive(() => page.waitForFunction(() => {
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
-    })
+    }))
     phase('public-combat-setup')
     await button('Pause game'); await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' })); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
@@ -226,7 +231,9 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(actor.fight, null); assert.equal(actor.target, null); report.actorId = actor.id; save()
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId })
     await button('Resume game')
-    const route = report.targetEligibility = await page.evaluate(readMeleeRouteState)
+    await pacing.advanceToAttack()
+    const route = report.targetEligibility = await page.evaluate(readMeleeRouteState, { actorId: report.actorId, targetId: 20 })
+    assert.equal(route.turn, followerCorpseAttackTurn)
     assert.equal(route.paused, false); assert.equal(route.speed, 1); assert.equal(route.target.id, 20)
     assert.equal(route.target.inside, null); assert.equal(route.target.visible, true); assert.equal(route.target.pickable, true)
     const bounds = await page.evaluate(() => {
@@ -234,18 +241,27 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       return b && { x: r.left + b.x, y: r.top + b.y, width: b.width, height: b.height }
     })
     assert.ok(bounds); report.targetHoverAttempts = []
-    const point = await meleeTargetPoint(page, bounds, report.targetHoverAttempts, save)
+    // Target eligibility and projected bounds were both observed at the exact
+    // held turn. Check a fresh real rendered pointer at that same turn.
+    const point = await meleeTargetPoint(page, bounds, report.targetHoverAttempts, save, 20, pacing.waitForAttackHover)
+    const attackHover = report.attackHover = await page.evaluate(readMeleePointerState, point)
+    assert.equal(attackHover.id, 20)
+    assert.equal(attackHover.canvasOwnsPoint, true)
+    assert.deepEqual(attackHover.pointerScreen, { clientX: point.x, clientY: point.y })
+    assert.equal(attackHover.stamp, report.targetHoverAttempts.at(-1).after.stamp)
+    assert.ok(attackHover.stamp > report.targetHoverAttempts.at(-1).before.stamp)
     report.beforeAttack = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn, stamp: window.testSceneRef.current.renderer.info.render.frame }))
-    await action('Public Shift+left attack click on eligible Green Shaman20', () => shiftClickMeleeTarget(page, point))
+    await action('Public Shift+left attack click on eligible Green Shaman20', () => shiftClickMeleeTarget(page, point), false)
     report.order = await page.evaluate(actorId => {
       const w = window.testStore.getWorld(), u = w.units.find(u => u.id === actorId)
       return { turn: w.turn, lastOrderTurn: w.lastOrderTurn, selected: [...w.selected], paused: w.paused,
         actorId, target: u?.target, path: structuredClone(u?.path), nativeCommands: u?.native && [...u.native.commands] }
     }, report.actorId)
     assert.deepEqual(report.order.selected, [report.actorId]); assert.equal(report.order.target, 20); assert.equal(report.order.paused, false)
-    assert.ok(report.order.lastOrderTurn >= report.beforeAttack.turn && report.order.lastOrderTurn <= report.order.turn,
-      'The actual public attack must issue an order on this observed logical timeline'); save()
+    assert.deepEqual([report.beforeAttack.turn, report.order.lastOrderTurn, report.order.turn],
+      Array(3).fill(followerCorpseAttackTurn), 'The real public attack must issue on the exact logical turn'); save()
     await page.evaluate(installCorpseCameraFollow, { order: report.order })
+    await pacing.release()
     phase('ordinary-combat')
     await page.waitForFunction(() => {
       const r = window.__pndCorpseObservation.result
