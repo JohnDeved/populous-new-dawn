@@ -6195,16 +6195,16 @@
     },
     {
       "address": "004d5c70",
-      "status": "missing",
-      "scope": "Original state-3 death initializer",
+      "status": "partial",
+      "scope": "Queue the original player-Shaman state-3 death cue on the authored Mission 15 captive-Lightning path",
       "sources": [
-        "app/person-state.ts"
+        "app/live-people.ts"
       ],
       "evidence": [
         "decomp/generated/004d5c70.c",
-        "decomp/generated/004d5cf0.c"
+        "tests/mission15-captive-death-cue.test.mjs"
       ],
-      "limits": "Live initializer does not dispatch state 3; the later death visit and other death logic are separate."
+      "limits": "At the captive adapter handoff, the authored turn queues exactly one owner-positioned cue 0x0f. Supplied records distinguish the flags4 exclusions from flags3. The general state-3 initializer, owner restore/delete and field writes, other death routes and actual audio playback are not established."
     },
     {
       "address": "004d5cf0",
@@ -8005,6 +8005,34 @@
         "decomp/research/guard-posts.md"
       ],
       "limits": "Live guard post creation retains native cell-center and initial age for this branch. Does not represent the general class-10 object initializer."
+    },
+    {
+      "address": "00500e20",
+      "status": "partial",
+      "scope": "Initialize the landed pose through the model-12 corpse dispatch arm",
+      "sources": [
+        "app/world-turn.ts",
+        "app/follower-corpse-animation.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00500e20.c",
+        "tests/live-authored-follower-corpse-phases.test.mjs"
+      ],
+      "limits": "A controlled input replay of ordinary Mission 2 creates one landed Brave corpse with the original initial pose and countdown. This maps one dispatcher arm, not other models, native allocation or rendered output."
+    },
+    {
+      "address": "00500ec0",
+      "status": "partial",
+      "scope": "Visit the active model-12 corpse dispatch arm on a landed follower death",
+      "sources": [
+        "app/world-turn.ts",
+        "app/follower-corpse-animation.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00500ec0.c",
+        "tests/live-authored-follower-corpse-phases.test.mjs"
+      ],
+      "limits": "A controlled input replay of ordinary Mission 2 follows one Brave corpse through pose changes, a frozen rise frame, wait suppression and removal. Only this dispatcher arm is mapped; the separate native leaf, pool bookkeeping and renderer are not assessed."
     },
     {
       "address": "00501000",
