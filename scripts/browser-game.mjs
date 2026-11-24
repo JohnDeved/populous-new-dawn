@@ -54,14 +54,18 @@ export async function bindGame(page) {
 export async function readShamanReadiness(page) {
   await bindGame(page)
   return page.evaluate(async () => {
-    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+    const bundled = globalThis.__pndCampaignReadiness
+    const observe = bundled === undefined
+      ? (await import('/scripts/campaign-start-readiness.mjs')).campaignShamanReadiness
+      : bundled.observe
+    if (typeof observe !== 'function') throw new Error('Shared campaign readiness observer unavailable')
     const scene = window.testSceneRef?.current, store = window.testStore
     if (
       !scene?.renderer?.domElement?.isConnected ||
       scene.world !== store?.getWorld() ||
       document.querySelector('.loading-world')
     ) return { ready: false, reason: 'Scene/store changed during readiness observation' }
-    return { ...campaignShamanReadiness(scene.world), level: scene.world.outcome.level }
+    return { ...observe(scene.world), level: scene.world.outcome.level }
   })
 }
 

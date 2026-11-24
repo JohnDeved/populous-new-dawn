@@ -95,8 +95,18 @@ The only writers of `+0x7a` bit 0 are (full scan of byte writes to `[reg+0x7a]`)
 - `004d2b59`, the person state-14 initializer (the computer-player selection lock;
   browser `person-state.ts` sets the same `0x81`), sets bits 0 and 7 together. Computer
   tasks use it, so it does not feed the local player's snapshot.
-- `00434d50` clears bit 0 in one per-person order-processing branch of `00434610`. Its
-  trigger was not decoded.
+- `00434d50` clears bit 0 in `00434610` entry phases 4/5: on an even person
+  counter, with both coordinate deltas below 112, after `00407150`, when the
+  building descriptor flags have neither bit 0 nor bit 6 (`flags & 65 == 0`).
+  The admission return value is not tested. Original EXE SHA-256
+  `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`:
+  `00434d34` calls admission; `00434d41`/`00434d46` test the descriptor;
+  `00434d50` executes `and byte [edi+0x7a], 0xfe`. This is static-byte evidence,
+  not a native execution witness. The existing training primitive clears its
+  person byte; its precise branch callback also clears only `Unit.groups` bit 0,
+  the live previous-selection owner. Numbered groups remain unchanged.
+  An authored M1 model-command/tick test covers Hut admission and recall;
+  public-key rendered acceptance remains separate.
 
 ## Group-number display
 
@@ -218,8 +228,6 @@ compatibility choice, not recovered behavior.
 - Tribe commands `0x26`/`0x27` also snapshot natively; their producers are not mirrored.
 - The overlay is not gated on input masks, the globe overview or open dialogs (unlike the
   browser health gauge); native behaviour there was not established.
-- `00434d50`'s bit-0 clear in one order-processing branch is not mirrored. Its trigger
-  was not decoded.
 - Display timing uses the browser's 24 Hz presentation tick. The native draw_main rate is
   not throttled to a fixed rate here, so "6 iterations" is a frame count, not a duration.
 - The DBCS/Asian-language text path (`00451ba0`) and other tribes' colours are not

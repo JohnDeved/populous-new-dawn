@@ -88,6 +88,7 @@ import {
   spellCaster,
   spellPaymentType,
   nativeSpellRange,
+  reservedSpellMana,
 } from './spell-casting.ts'
 import { clearLivePath, planLivePath } from './live-pathfinding.ts'
 import { nativeCellPoint, browserPosition } from './world-coordinates.ts'
@@ -122,7 +123,6 @@ import {
 } from './computer-defense.ts'
 
 const mission11TowerRequested = 0x80000000,
-  mission11HousingRequested = 0x40000000,
   mission12TowerRequested = 0x20000000
 
 export function computerSelectionWorld(w: World, tribe: number, rawNative = false) {
@@ -845,7 +845,16 @@ function produceMissionTraining(w: World, tribe: number) {
 
 // The ordinary 0x4e5580 producer reaches training buildings before housing.
 function produceMissionBuilding(w: World, tribe: number) {
-  const missionFourTower = w.outcome.level === 4 && tribe === 3,
+  const missionThreeOrigin = w.outcome.level === 3 && tribe === 2,
+    missionFourTower = w.outcome.level === 4 && tribe === 3,
+    missionEightHousing = w.outcome.level === 8 && tribe === 1,
+    missionElevenHousing = w.outcome.level === 11 && tribe === 3,
+    missionTwelveHousing = w.outcome.level === 12 && tribe === 3,
+    missionThirteenHousing = w.outcome.level === 13 && (tribe === 2 || tribe === 3),
+    missionFourteenHousing = w.outcome.level === 14 && tribe === 3,
+    missionEighteenHousing = w.outcome.level === 18 && tribe === 2,
+    missionTowerHousing =
+      missionThirteenHousing || missionFourteenHousing || missionEighteenHousing,
     team = campaignTeam(w, tribe),
     has = (model: number) =>
       w.buildings.some(
@@ -861,7 +870,10 @@ function produceMissionBuilding(w: World, tribe: number) {
       .filter(building => building.team === team && building.hp > 0)
       .reduce((sum, building) => {
         const model = buildingModel(building)
-        const counts = w.outcome.level !== 2 || building.preparation || building.progress === 1
+        const counts =
+          !([2, 8, 11].includes(w.outcome.level) || missionTwelveHousing || missionTowerHousing) ||
+          building.preparation ||
+          building.progress === 1
         return (
           sum + (counts && rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
         )
@@ -869,14 +881,25 @@ function produceMissionBuilding(w: World, tribe: number) {
   if (
     (![2, 3, 6, 11, 12, 23].includes(w.outcome.level) &&
       !missionFourTower &&
+      !missionEightHousing &&
+      !missionTowerHousing &&
       !(w.outcome.level === 7 && tribe === 2)) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
-  const selection = computerSelectionWorld(w, tribe)
+  const selection = computerSelectionWorld(
+    w,
+    tribe,
+    missionElevenHousing || missionTwelveHousing || missionTowerHousing
+  )
   const available =
-    w.outcome.level === 2 || missionFourTower
+    w.outcome.level === 2 ||
+    missionFourTower ||
+    missionEightHousing ||
+    missionElevenHousing ||
+    missionTwelveHousing ||
+    missionTowerHousing
       ? selection.world.people.filter(
           person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
         ).length
@@ -885,21 +908,60 @@ function produceMissionBuilding(w: World, tribe: number) {
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     // 0x4e5580 captures the loaded origin before an ordinary base is established.
     position =
-      (w.outcome.level === 2 || missionFourTower) &&
-      tribe === 3 &&
+      (missionThreeOrigin ||
+        ((w.outcome.level === 2 || missionFourTower) && tribe === 3) ||
+        missionEightHousing ||
+        missionTwelveHousing ||
+        missionTowerHousing) &&
       w.ai.constructionBase === undefined
-        ? nativePosition(w, campaignPosition(w, 'green'))
+        ? nativePosition(
+            w,
+            campaignPosition(
+              w,
+              missionThirteenHousing || missionEighteenHousing
+                ? tribe === 2
+                  ? 'yellow'
+                  : 'green'
+                : missionThreeOrigin
+                  ? 'yellow'
+                  : missionEightHousing
+                    ? 'red'
+                    : 'green'
+            )
+          )
         : shaman && nativePosition(w, shaman),
     origin =
-      (w.outcome.level === 2 || missionFourTower) && w.ai.constructionBase !== undefined
+      (missionThreeOrigin ||
+        w.outcome.level === 2 ||
+        missionFourTower ||
+        missionEightHousing ||
+        missionElevenHousing ||
+        missionTwelveHousing ||
+        missionTowerHousing) &&
+      w.ai.constructionBase !== undefined
         ? w.ai.constructionBase
-        : (w.outcome.level === 2 || missionFourTower || w.outcome.level === 12) && position
+        : (missionThreeOrigin ||
+              w.outcome.level === 2 ||
+              missionFourTower ||
+              missionEightHousing ||
+              w.outcome.level === 12 ||
+              missionTowerHousing) &&
+            position
           ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
           : base
             ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
             : position
               ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
               : 0
+  if (missionEightHousing) {
+    // cpscr016 starts with Towers disabled and every school target zero.
+    // Bind only 0x4e5580's housing tail; later school/Tower production stays separate.
+    return (
+      !!(w.ai.flags & 0x400) &&
+      housing < w.ai.attributes[10] &&
+      requestConstruction(w.ai, 1, origin)
+    )
+  }
   if (missionFourTower) {
     // 0x4e5580's Tower prefix only. Its later school/housing branches remain
     // unbound here; this is not a native one-shot latch or a ban on rebuilding.
@@ -912,7 +974,31 @@ function produceMissionBuilding(w: World, tribe: number) {
       requestConstruction(w.ai, 4, origin)
     )
   }
-  if (!origin) return false
+  if (
+    !origin &&
+    !missionThreeOrigin &&
+    !(
+      (missionElevenHousing || missionTwelveHousing || missionTowerHousing) &&
+      w.ai.constructionBase !== undefined
+    )
+  )
+    return false
+  if (missionTowerHousing) {
+    // These authored tribes have zero school targets. M18 Yellow requests its
+    // Boat House before housing; vehicle production and later attacks stay separate.
+    const pendingTower = w.ai.tasks.some(
+      task => task.flags & 1 && task.type === 0 && task.requested === 4
+    )
+    const model =
+      !(w.ai.flags & 0x400) && (!has(4) || (w.ai.constructionBase === undefined && !pendingTower))
+        ? 4
+        : missionEighteenHousing && !has(13) && w.ai.attributes[35]
+          ? 13
+          : housing < w.ai.attributes[10]
+            ? 1
+            : 0
+    return !!model && requestConstruction(w.ai, model, origin)
+  }
   if (w.outcome.level === 2) {
     // The authored outpost is not the construction base. Native 0x461d70 starts
     // without a base; the first ordinary Tower plan establishes it in phase 3.
@@ -924,12 +1010,21 @@ function produceMissionBuilding(w: World, tribe: number) {
           : 0
     return !!model && requestConstruction(w.ai, model, origin)
   }
-  // ponytail: only the first proved Mission 12 producer request belongs to this opening slice.
-  if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) return false
+  // Mission 12 retains its bounded first-Tower path outside Matak housing.
+  if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) {
+    // Matak's authored Temple already satisfies its only school target. Bind
+    // the recurrent housing tail, not replacement schools or the other tribes.
+    return (
+      missionTwelveHousing &&
+      has(5) &&
+      w.ai.attributes[2] <= 1 &&
+      housing < w.ai.attributes[10] &&
+      requestConstruction(w.ai, 1, origin)
+    )
+  }
   if (
     w.outcome.level === 11 &&
-    ((!base && !!(w.ai.flags & mission11TowerRequested)) ||
-      (base && (tribe !== 3 || !!(w.ai.flags & mission11HousingRequested))))
+    ((!base && !!(w.ai.flags & mission11TowerRequested)) || (base && tribe !== 3))
   )
     return false
   // ponytail: one school of each kind is enough for the currently integrated specialist paths;
@@ -947,7 +1042,7 @@ function produceMissionBuilding(w: World, tribe: number) {
         : w.outcome.level === 11
           ? housing < w.ai.attributes[10]
             ? 1
-            : 0 // ponytail: one Matak Hut only; later housing and schools await their own slices.
+            : 0 // Matak housing follows the native target; school production remains separate.
           : !has(7) && w.ai.attributes[3]
             ? 7
             : tribe === 2 && !has(5) && w.ai.attributes[2]
@@ -956,10 +1051,9 @@ function produceMissionBuilding(w: World, tribe: number) {
                 ? 1
                 : 0
   if (!model || !requestConstruction(w.ai, model, origin)) return false
-  // ponytail: keep each proved Mission 11 request one-shot until its next native slice.
-  if (w.outcome.level === 11)
-    w.ai.flags =
-      (w.ai.flags | (model === 4 ? mission11TowerRequested : mission11HousingRequested)) >>> 0
+  // Mission 11's ordinary Tower replacement remains outside the housing slice.
+  if (w.outcome.level === 11 && model === 4)
+    w.ai.flags = (w.ai.flags | mission11TowerRequested) >>> 0
   else if (w.outcome.level === 12) w.ai.flags = (w.ai.flags | mission12TowerRequested) >>> 0
   return true
 }
@@ -1078,13 +1172,26 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.target = cell
       task.entity = building.id
       task.retries = 0
-      task.phase = [2, 3, 4].includes(w.outcome.level) && task.requested === 4 ? 3 : 4
+      task.phase =
+        ([2, 3, 4].includes(w.outcome.level) ||
+          (w.outcome.level === 13 && (tribe === 2 || tribe === 3)) ||
+          (w.outcome.level === 14 && tribe === 3) ||
+          (w.outcome.level === 18 && tribe === 2)) &&
+        task.requested === 4
+          ? 3
+          : 4
       return
     }
     if (task.elapsed >= task.remaining) cleanup()
     return
   }
-  if (task.phase === 3 && [2, 3, 4].includes(w.outcome.level)) {
+  if (
+    task.phase === 3 &&
+    ([2, 3, 4].includes(w.outcome.level) ||
+      (w.outcome.level === 13 && (tribe === 2 || tribe === 3)) ||
+      (w.outcome.level === 14 && tribe === 3) ||
+      (w.outcome.level === 18 && tribe === 2))
+  ) {
     const building = w.buildings.find(b => b.id === task.entity && b.hp > 0)
     if (!task.extra && w.ai.constructionBase === undefined && building) {
       const outside = buildingOutsidePoint(buildingPose(building))
@@ -1855,7 +1962,11 @@ export function stepComputerTasks(w: World, tribe: number) {
           if (!u || u.inside !== null || u.entry || u.work !== null)
             throw new Error('Unsupported computer marker selection')
           u.native ??= createLivePerson(w, u)
-          if (task.extra) u.native.computerAssignment = 99
+          if (task.extra) {
+            // 0x4f2440 clears only the low bit of the represented +0x7f byte.
+            if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+            u.native.computerAssignment = 99
+          }
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)
         } else if (action.kind === 'order' || action.kind === 'guard') {
@@ -2165,18 +2276,23 @@ function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
   syncNativeTerrain(w)
   const x = short(Math.round((u.x + 8) * 256)),
     y = short(Math.round((-u.z - 8) * 256)),
-    live = unitAnimationSource(u)
+    live = unitAnimationSource(u),
+    tribe = tribeForTeam(u.team),
+    model = nativePersonModel(u)
+  const spy = model === 5 ? (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person) : null
   return {
     class: 1,
-    model: nativePersonModel(u),
+    model,
     state: live?.state ?? 0,
-    tribe: tribeForTeam(u.team),
+    tribe,
     x,
     y,
     flags2: u.inside === null ? 0 : 0x800000,
     flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
     assignment: live?.assignment ?? 0,
-    disguise: 0,
+    // Model 5 reads the current +0xb2 byte, including the disguise countdown.
+    // Without a live person, use the undisguised own tribe; zero would appear Blue.
+    disguise: model === 5 ? (spy?.disguise ?? (tribe << 6)) & 255 : 0,
   }
 }
 function computerSpellWorld(w: World, tribe: number): SpellTargetWorld {
@@ -2227,6 +2343,11 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const allocate = (model: number, cell: number) => allocateComputerSpell(w, u!, model, cell)
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
+  // 0x4f4d40 and 0x4d1450 share the acting shaman's owned raid budget;
+  // shoreline Blast and ordinary spell readiness apply their own thresholds.
+  const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
+    task = assignment ? w.ai.tasks[assignment - 1] : undefined,
+    reserve = task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0
   const shore = castShoreBlast(
     world,
     caster,
@@ -2234,7 +2355,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
       turn: w.turn,
       population: w.units.filter(p => p.team === team && !p.ghost && p.hp > 0).length,
       mana: w.manaTribes[tribe].mana,
-      reserve: 0,
+      reserve,
       gameFlags: w.manaWorld.gameFlags,
       aiFlags: w.ai.flags,
     },
@@ -2247,7 +2368,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const context = {
     turn: w.turn,
     mana: w.manaTribes[tribe].mana,
-    reserve: 0,
+    reserve,
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,
