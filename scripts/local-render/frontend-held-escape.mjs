@@ -10,24 +10,46 @@ export const frontendHeldEscapeLimitMs = 60000
 async function openingLogoReverseTab(page, output, url) {
   assert(url, 'opening-logo test requires the existing fresh Home navigation')
   const asset = '**/original/startup/blogo.webm'
-  let sawMedia = false, release, pending
+  let sawMedia = false, release
   const hold = new Promise(resolve => { release = resolve })
-  // Keep the real logo dialog live while recording focus. Delay only its media
-  // transfer; this is a keyboard test, not an autoplay or decode test.
+  const transfers = []
+  // Keep the real dialog live while recording focus. After capture, complete
+  // the intercepted request with a successful empty response, while its media
+  // element is still connected. A media decode failure leaves public Skip
+  // available; the zero-byte fixture cannot finish the logo naturally.
   const routeMedia = route => {
     sawMedia = true
-    pending = hold.then(() => route.continue()).then(
-      () => null,
-      error => page.isClosed() || /interception|cancelled|canceled/i.test(String(error)) ? null : error,
-    )
+    const pending = hold.then(() => {
+      if (!page.isClosed()) return route.fulfill({ status: 204 })
+    }).then(() => null, error => error)
+    transfers.push(pending)
     return pending
   }
   await page.route(asset, routeMedia)
+  let settled
+  function settleMedia() {
+    return settled ??= (async () => {
+      release()
+      if (page.isClosed()) return
+      // Let the first response finish while the logo is still mounted. Remove
+      // the interception, then drain any handlers that began during removal.
+      const started = transfers.length
+      const first = await Promise.all(transfers.slice(0, started))
+      let unrouteError
+      if (!page.isClosed()) {
+        try { await page.unroute(asset, routeMedia) } catch (error) { unrouteError = error }
+      }
+      const later = await Promise.all(transfers.slice(started))
+      const errors = [...first, unrouteError, ...later].filter(Boolean)
+      if (errors.length === 1) throw errors[0]
+      if (errors.length > 1) throw new AggregateError(errors, 'Opening-logo media settlement failed')
+    })()
+  }
   const logo = page.getByRole('dialog', { name: 'Opening logo', exact: true })
   const skip = logo.getByRole('button', { name: 'Skip logo', exact: true })
   const playback = logo.getByRole('button', { name: /^(Enable logo sound|Mute logo|Play logo)$/ })
   const active = locator => locator.evaluate(element => document.activeElement === element)
-  let observer
+  let observer, primaryError
   try {
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await logo.waitFor()
@@ -67,21 +89,30 @@ async function openingLogoReverseTab(page, output, url) {
     ])
     assert.equal(sawMedia, true, 'expected the actual logo media request')
     await page.screenshot({ path: resolve(output, 'opening-logo-reverse-tab.png') })
+    // Complete the fixture request before Skip unmounts the media element.
+    await settleMedia()
     // Keep the ordinary public Skip click and prove that it still reaches Home.
     await skip.click()
     await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
     return evidence
+  } catch (error) {
+    primaryError = error
+    throw error
   } finally {
-    release()
+    const errors = []
+    try { await settleMedia() } catch (error) {
+      if (error !== primaryError) errors.push(error)
+    }
     if (!page.isClosed()) {
-      await page.unroute(asset, routeMedia)
-      // Main unmounts media and may cancel its deferred request.
-      const routeError = await pending
-      if (routeError) throw routeError
       if (observer) {
-        await observer.evaluate(({ close }) => close())
-        await observer.dispose()
+        try { await observer.evaluate(({ close }) => close()) } catch (error) { errors.push(error) }
+        try { await observer.dispose() } catch (error) { errors.push(error) }
       }
+    }
+    if (errors.length) {
+      if (primaryError) throw new AggregateError([primaryError, ...errors],
+        `${primaryError.message}; opening-logo fixture cleanup also failed`, { cause: primaryError })
+      throw new AggregateError(errors, 'Opening-logo fixture cleanup failed')
     }
   }
 }
