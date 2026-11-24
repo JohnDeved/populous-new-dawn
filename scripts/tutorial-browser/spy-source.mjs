@@ -186,7 +186,7 @@ export default async function spySource(options) {
         await action('Public Spy focus', () => button('Select spy').click({ button: 'right' }))
         await page.waitForFunction(() => !window.testSceneRef.current.cameraMotion.active && !window.testSceneRef.current.viewTransition)
         assert.deepEqual(await page.evaluate(() => window.testStore.getWorld().selected), [fixture.spyId])
-        await action('Open followers', () => page.getByTitle('followers', { exact: true }).click())
+        await action('Open followers', () => page.locator('.dock-tabs').getByRole('button', { name: 'followers', exact: true }).click())
         await resumeSpySourceInput(page, action, 'Disguise as Dakini', () => button('Disguise selected spies as Dakini').click())
         await page.waitForFunction(id => window.testStore.getWorld().units.find(unit => unit.id === id)?.native?.disguise === 0x40, fixture.spyId)
         await action('Pause before sabotage', () => button('Pause game').click())

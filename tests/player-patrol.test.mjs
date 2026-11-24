@@ -424,3 +424,42 @@ test('save/load mid-cycle continues identically', () => {
   )
   assert.equal(resumed.randomState, w.randomState)
 })
+
+test('one N release switches both simultaneously eligible owners of shared orders', () => {
+  const w = world(2)
+  assert.equal(command(w, A, route), true)
+  assert.equal(command(w, C, { ctrlKey: true }), true)
+  cancelInteraction(w)
+  turn(w, 30)
+  const people = w.units.map(u => u.native)
+  const [patrolId, nextId] = people[0].commands
+  assert.ok(patrolId && nextId)
+  assert.equal(w.buildingOrders.active, 2)
+  assert.equal(w.buildingOrders.records[patrolId].references, 2)
+  assert.equal(w.buildingOrders.records[nextId].references, 2)
+  for (const p of people) {
+    assert.deepEqual(p.commands.slice(0, 2), [patrolId, nextId])
+    assert.equal(p.state, 10)
+    assert.equal(p.commandCursor, 0)
+    assert.equal(p.assignment & 32, 32, 'the queued area guard owns a fight assignment')
+    assert.equal(currentPersonOrder(w.buildingOrders, p).model, 11)
+  }
+  assert.deepEqual(w.selected, [], 'both eligible patrollers are unselected')
+  const expected = { randomState: w.randomState }
+  for (const _ of people) {
+    random(expected) // removed guard releases the assigned fight speed
+    random(expected) // resumed Move restarts movement speed
+  }
+  assert.equal(releasePlayerPatrols(w), 2, 'one release reaches both owners')
+  assert.equal(w.randomState, expected.randomState, 'four total draws, not a per-owner order claim')
+  assert.equal(w.buildingOrders.active, 1, 'last reference frees the shared old guard')
+  const next = w.buildingOrders.records[nextId]
+  assert.equal(next.model, 3)
+  assert.equal(next.references, 2)
+  for (const p of people) {
+    assert.deepEqual(p.commands.slice(0, 2), [0, nextId])
+    assert.equal(p.commandCursor, 1)
+    assert.equal(p.assignment & 32, 0, 'removed guard released its fight assignment')
+    assert.equal(currentPersonOrder(w.buildingOrders, p), next)
+  }
+})

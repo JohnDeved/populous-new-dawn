@@ -5,9 +5,9 @@ import { tribeForTeam, type Point, type World } from './world-types.ts'
 // Native default key records (table 0x5d5de8, loaded by 004f1820): DIK 0x34
 // (period) issues process_cmd action 0x5d, and character 'h' issues 0x96. Both
 // records are press-only with an exact empty modifier mask and no predicate.
-// Not modelled: H's record gate flag 1 and its stage-2 dispatch gate
-// (0089c661 & 2 clear). Their meanings are unestablished, so only the Page
-// keyboard gates apply. See decomp/research/quick-camera-shortcuts.md.
+// H's gate flag 1 exempts it from the matcher's conditional player-mask
+// rejection. Its separate stage-2 pause gate is applied below; Page gates
+// still own modal/current-world admission. See decomp/research/quick-camera-shortcuts.md.
 export const SHAMAN_CAMERA_ACTION = 0x5d
 export const REINCARNATION_CAMERA_ACTION = 0x96
 
@@ -54,6 +54,10 @@ export function quickCameraTarget(w: World, action: QuickCameraAction): Point | 
     const shaman = w.units.find(u => u.team === 'blue' && isShaman(u) && u.hp > 0)
     return shaman ? { x: shaman.x, z: shaman.z } : null
   }
+  // Native action 0x96 is stage 2 and exits while land_flags_1 & 2 is set.
+  // The browser public Pause control uses w.paused; retained native state can
+  // independently carry the land bit. Period is stage 1 and remains eligible.
+  if (w.paused || w.land.landFlags & 2) return null
   const site = w.reincarnationSites?.[tribeForTeam('blue')]
   return site ? browserPosition(site) : null
 }
