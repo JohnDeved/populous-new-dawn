@@ -72,6 +72,13 @@ function requireCurrentCheckpoint(world: World) {
   if (world.capacityPolicy?.version !== 1 || world.capacityPolicy.mode !== 'scalable')
     throw new RangeError('Checkpoint is incompatible with this development version')
   restoreCapacityPolicy(world)
+  // Persisted checkpoints cannot disagree between first-match building lookup
+  // and footprint reconciliation. Internal normalization still supports first-match rosters.
+  const buildingIds = new Set<number>()
+  for (const { id } of world.buildings) {
+    if (buildingIds.has(id)) throw new RangeError('Duplicate scalable checkpoint building ID')
+    buildingIds.add(id)
+  }
   if (
     !validSceneryProvenance(world) ||
     !(world.objectCells.heads instanceof Float64Array) ||
