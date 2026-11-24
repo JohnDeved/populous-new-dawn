@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
   currentPreview, buildIdentityPath, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
-import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent, bodyBytes, prepareHandoff } from '../scripts/cloudflare/control.mjs'
+import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent, bodyBytes, prepareHandoff, githubClient } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const root = new URL('../', import.meta.url), prefix = `/repos/${repository}`
@@ -352,6 +352,100 @@ test('production admits only the exact successful tested merge tree', async () =
   const f = productionFixture()
   assert.deepEqual(await productionGate(f.api, f.download, f.state.source), { pr: 7, gate: 500, tree: 'c'.repeat(40) })
 })
+test('only the exact production gate artifact storage 503 gets one fresh locator', async t => {
+  for (const [label, status, second, failure, expectedCalls] of [
+    ['valid retry', 503, 'valid', null, 4],
+    ['wrong retried digest', 503, 'invalid', /Artifact SHA-256 mismatch/, 4],
+    ['second 503 is terminal', 503, 503, /Request failed \(503\)/, 4],
+    ['403 is terminal', 403, 'valid', /Request failed \(403\)/, 2],
+    ['transport failure is terminal', 'transport', 'valid', /transport control/, 2]
+  ]) await t.test(label, async t => {
+    const fixture = productionFixture(), quality = await fixture.download(600)
+    const hops = []
+    let cancels = 0, deadline
+    const body = () => new ReadableStream({ cancel() { cancels++ } })
+    t.mock.method(globalThis, 'fetch', async (url, options) => {
+      const i = hops.length
+      hops.push(String(url))
+      assert.ok(options.signal instanceof AbortSignal)
+      if (i === 0) deadline = options.signal
+      assert.equal(options.signal, deadline)
+      if (i === 0 || i === 2) {
+        assert.equal(String(url), `https://api.github.com${prefix}/actions/artifacts/600/zip`)
+        assert.equal(options.redirect, 'manual')
+        assert.equal(options.headers.Authorization, 'Bearer fixture-token')
+        if (i === 2) assert.equal(cancels, 1, 'release first storage body before fresh locator')
+        return new Response(null, { status: 302, headers: { location: `https://storage.invalid/fresh-${i}` } })
+      }
+      assert.equal(String(url), `https://storage.invalid/fresh-${i-1}`)
+      assert.equal(options.redirect, 'error')
+      assert.equal(options.headers, undefined, 'token or any GitHub headers sent to storage')
+      const reply = i === 1 ? status : second
+      if (reply === 'transport') throw new Error('transport control')
+      if (typeof reply === 'number') return new Response(body(), { status: reply })
+      return new Response(reply === 'valid' ? quality : Buffer.from('wrong stable response'))
+    })
+    const { download } = githubClient('fixture-token')
+    const run = productionGate(fixture.api, download, fixture.state.source)
+    if (failure) await assert.rejects(run, failure)
+    else assert.deepEqual(await run, { pr: 7, gate: 500, tree: 'c'.repeat(40) })
+    assert.equal(hops.length, expectedCalls)
+    assert.equal(cancels, status === 503 ? 1 : 0)
+  })
+})
+
+test('gate 503 cancellation shares a bounded deadline; locator and ordinary artifacts do not retry', async t => {
+  await t.test('the first body cancellation cannot outwait deadline', async t => {
+    const gate = productionFixture(), timer = new AbortController()
+    let calls = 0, cancels = 0, timers = 0
+    t.mock.method(AbortSignal, 'timeout', ms => {
+      assert.equal(ms, 15000); timers++
+      return timer.signal
+    })
+    t.mock.method(globalThis, 'fetch', async (url, options) => {
+      assert.equal(options.signal, timer.signal)
+      if (++calls === 1) {
+        assert.equal(options.headers.Authorization, 'Bearer fixture-token')
+        return new Response(null, { status: 302, headers: { location: 'https://storage.invalid/mock' } })
+      }
+      assert.equal(calls, 2)
+      const body = new ReadableStream({ cancel() {
+        cancels++
+        queueMicrotask(() => timer.abort(new Error('bounded deadline control')))
+        return new Promise(() => {})
+      } })
+      return new Response(body, { status: 503 })
+    })
+    const { download } = githubClient('fixture-token')
+    await assert.rejects(productionGate(gate.api, download, gate.state.source), /bounded deadline control/)
+    assert.equal(calls, 2); assert.equal(cancels, 1); assert.equal(timers, 1)
+  })
+  await t.test('authenticated locator 503 is not eligible', async t => {
+    const gate = productionFixture()
+    let calls = 0
+    t.mock.method(globalThis, 'fetch', async () => { calls++; return new Response(null, { status: 503 }) })
+    const { download } = githubClient('fixture-token')
+    await assert.rejects(productionGate(gate.api, download, gate.state.source), /Expected GitHub artifact redirect/)
+    assert.equal(calls, 1)
+  })
+  await t.test('ordinary artifact storage 503 is not eligible', async t => {
+    let calls = 0
+    t.mock.method(globalThis, 'fetch', async (url, options) => {
+      assert.equal(options.signal, undefined)
+      if (++calls === 1) return new Response(null, { status: 302, headers: { location: 'https://storage.invalid/mock' } })
+      return new Response(null, { status: 503 })
+    })
+    const { download } = githubClient('fixture-token')
+    for (const [name, id, exactSize] of [['cloudflare-dist-500-1', 601, true], ['cloudflare-result-500-1', 602, false]]) {
+      calls = 0
+      const api = async () => ({ total_count: 1, artifacts: [{ id, name, expired: false,
+        workflow_run: { id: 500 }, size_in_bytes: 1, digest: `sha256:${'0'.repeat(64)}` }] })
+      await assert.rejects(oneArtifact(api, download, { id: 500 }, name, 1000, false, { exactSize }), /Request failed \(503\)/)
+      assert.equal(calls, 2)
+    }
+  })
+})
+
 test('production rejects mismatched merged PR, workflow, gate and receipt provenance', async () => {
   const mutations = [
     s => { s.associated = [] }, s => { s.associated.push({ ...s.pr, number: 8 }) },
