@@ -2811,6 +2811,23 @@
       "limits": "66 native terrain states compare signed height/shore/category/cliff/shadow updates, queue cleanup and order of the two final texture consumers; those consumers are supplied in the comparison and shader/pixel parity is separate."
     },
     {
+      "address": "0044e850",
+      "status": "partial",
+      "scope": "Dispatch the full-radius two-traversal terrain simulation at authored mission startup",
+      "sources": [
+        "app/world-state.ts",
+        "app/world-terrain-runtime.ts",
+        "app/native-terrain.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044e850.c",
+        "decomp/generated/0044ddf0.c",
+        "scripts/check-native-terrain.py",
+        "tests/live-authored-mission-terrain-init.test.mjs"
+      ],
+      "limits": "The original wrapper passes center 0, radius 64 and texture flag 1; the native checker calls that callee tuple on supplied data and the unseeded M3 World executes both startup traversals. Original texture consumers are not reproduced by these startup callbacks."
+    },
+    {
       "address": "0044e940",
       "status": "implemented",
       "scope": "Interpolate signed terrain height using the stored tile diagonal",
@@ -2868,6 +2885,40 @@
         "tests/building-validity.test.mjs"
       ],
       "limits": "Oracle covers the predicate and exact feedback flags. The live adapter reconstructs scenery and does not supply native fog flags."
+    },
+    {
+      "address": "0044f220",
+      "status": "partial",
+      "scope": "Reject an otherwise valid Hut footprint adjacent to a separate friendly Hut plan",
+      "sources": [
+        "app/building-validity.ts",
+        "app/construction-runtime.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044f220.c",
+        "decomp/generated/0044ee50.c",
+        "scripts/check-native-building-validity.py",
+        "tests/live-building-neighbor-only.test.mjs"
+      ],
+      "limits": "Original composed cell-validity comparison traverses the unhooked adjacency helper. Ordinary Mission 3 placement rejects an untouched footprint after a separate friendly Hut plan is placed; a farther Hut is admitted. No live wrap, same-plan, foreign-tower or completed-occupancy branch claim."
+    },
+    {
+      "address": "0044f2f0",
+      "status": "partial",
+      "scope": "Mark a retained in-range Wildman's native person for a height change during ordinary Mission 3 Erosion activation",
+      "sources": [
+        "app/terrain-notifications.ts",
+        "app/world-terrain-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044f2f0.c",
+        "scripts/check-native-terrain-notifications.py",
+        "tests/terrain-notifications.test.mjs",
+        "tests/live-erosion-height-notify.test.mjs"
+      ],
+      "limits": "Mode 1 native comparison supplies downstream callbacks. The authored head's first Erosion visit marks one real retained in-range Wildman and not a measured outside-radius control. No general native cell-chain, building, global-state, damage mode or rendering claim."
     },
     {
       "address": "0044f600",
