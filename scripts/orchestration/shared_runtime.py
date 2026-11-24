@@ -194,6 +194,10 @@ def check_tree(pool, asset_tree, assets, version=2):
     require(version in (1, 2), 'Unknown asset tree version')
     physical(pool / 'blobs')
     tree = physical(pool / ('trees' if version == 1 else ASSET_TREES) / asset_tree)
+    return _check_asset_tree_path(pool, tree, assets, version)
+
+
+def _check_asset_tree_path(pool, tree, assets, version):
     expected = {entry['path'][len(ASSETS) + 1:]: entry for entry in assets}
     actual = file_inventory(tree)
     require(set(actual) == set(expected) | parent_names(expected), 'Asset tree has undeclared or missing paths')
@@ -403,6 +407,19 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
         (pool / 'blobs').mkdir(exist_ok=True)
         (pool / ASSET_TREES).mkdir(exist_ok=True)
         physical(pool / 'blobs'); physical(pool / ASSET_TREES)
+        tree = pool / ASSET_TREES / state['assetTree']
+        staging = None
+        if not tree.exists() and not tree.is_symlink():
+            # Preserve failed stages for diagnosis, but allow only one automatic
+            # retry per tree so repeated failures cannot keep consuming space.
+            for slot in (1, 2):
+                candidate = tree.with_name(f'.{tree.name}.staging-{slot}')
+                if not candidate.exists() and not candidate.is_symlink():
+                    staging = candidate
+                    break
+            require(staging is not None,
+                    f'Asset tree staging limit reached for {tree.name}; '
+                    'two prior staging paths retained for diagnosis')
         runtime.mkdir()
         blobs = Blobs(source)
         materialized = []
@@ -428,15 +445,20 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 if entry['mode'] == '100755':
                     target.chmod(0o755)
         blobs.close(); blobs = None
-        tree = pool / ASSET_TREES / state['assetTree']
-        if not tree.exists() and not tree.is_symlink():
-            tree.mkdir()
+        if staging is not None:
+            # Publish only a complete tree while holding the writer lock.
+            staging.mkdir()
             for entry in prepared_assets:
-                target = tree / entry['path'][len(ASSETS) + 1:]
+                target = staging / entry['path'][len(ASSETS) + 1:]
                 target.parent.mkdir(parents=True, exist_ok=True)
                 # Never chmod/copy shared content or change an existing v1 tree.
                 os.link(pool / 'blobs' / entry['sha256'], target, follow_symlinks=False)
-        check_tree(pool, state['assetTree'], prepared_assets)
+            _check_asset_tree_path(pool, physical(staging), prepared_assets, 2)
+            require(not tree.exists() and not tree.is_symlink(),
+                    'Asset tree appeared during publication')
+            staging.rename(tree)
+        else:
+            check_tree(pool, state['assetTree'], prepared_assets)
         link = runtime / ASSETS
         link.parent.mkdir(parents=True, exist_ok=True)
         link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)
