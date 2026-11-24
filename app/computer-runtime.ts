@@ -88,6 +88,7 @@ import {
   spellCaster,
   spellPaymentType,
   nativeSpellRange,
+  reservedSpellMana,
 } from './spell-casting.ts'
 import { clearLivePath, planLivePath } from './live-pathfinding.ts'
 import { nativeCellPoint, browserPosition } from './world-coordinates.ts'
@@ -2354,10 +2355,13 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   if (shore) return
   const enemyTeam = campaignTeam(w, w.ai.enemyTribe)
   const enemy = w.units.find(p => p.team === enemyTeam && isShaman(p) && p.hp > 0)
+  // 0x4d1450 takes the acting shaman's owned type-20 task reserve from 0x4f2f50.
+  const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
+    task = assignment ? w.ai.tasks[assignment - 1] : undefined
   const context = {
     turn: w.turn,
     mana: w.manaTribes[tribe].mana,
-    reserve: 0,
+    reserve: task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0,
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,
