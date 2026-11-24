@@ -165,6 +165,15 @@ class Blobs:
         require(code == 0, 'Git object reader failed')
 
 
+def regular_bytes(path, entry):
+    info = path.lstat()
+    require(stat.S_ISREG(info.st_mode), f'Expected regular file: {path}')
+    require(info.st_size == entry['bytes'], f'File size changed: {path}')
+    data = path.read_bytes()
+    require(blob_oid(data) == entry['oid'], f'File content changed: {path}')
+    return data
+
+
 REGULAR_FILE_HASH_CHUNK_BYTES = 64 * 1024
 
 
