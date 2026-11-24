@@ -776,7 +776,8 @@ export default function Home() {
         store.change(cancelInteraction)
         return
       }
-      if (e.key.toLowerCase() === 'g') guardShaman(world)
+      // Default G (005d6220) is a fresh press with no modifiers.
+      if (e.key.toLowerCase() === 'g' && !e.repeat && !e.shiftKey) guardShaman(world)
       const quickCamera = quickCameraAction(e)
       if (quickCamera !== null) {
         e.preventDefault()
