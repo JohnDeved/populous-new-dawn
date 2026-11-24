@@ -8,6 +8,7 @@ import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { checkPauseHeldEscape } from './pause-held-escape.mjs'
 import { checkHudTabShortcuts } from './hud-tab-shortcuts-browser.mjs'
 import { checkCameraBookmarks } from './camera-bookmark-browser.mjs'
+import { checkSelectionTexture } from './selection-texture-browser.mjs'
 import { observeStablePauseControls } from './pause-capture-controls.mjs'
 
 // A secondary browser-close rejection must not replace the scenario's failure.
@@ -255,7 +256,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
       quaternion: scene.camera.quaternion.toArray(),
     })
   })
-  async function enterMission(page) {
+  async function enterMission(page, reportRenderer = true) {
     await openCampaignFromMainMenu(page)
     await button(page, 'Start Mission 1').click()
     await bindGame(page)
@@ -265,7 +266,7 @@ export default async function ({ browser, page, url, root, output, receipt, sign
     if (action === 'skip') await skipPauseIntroduction(page)
     await settleOpeningMessages(page)
     await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    renderers.push(await page.evaluate(() => {
+    if (reportRenderer) renderers.push(await page.evaluate(() => {
       const gl = window.testSceneRef.current.renderer.getContext()
       const debug = gl.getExtension('WEBGL_debug_renderer_info')
       return {
@@ -511,8 +512,10 @@ export default async function ({ browser, page, url, root, output, receipt, sign
   } finally {
     await closePauseRecoveryContext(emptyContext, contextFailed, receipt)
   }
+  const selectionTexture = await checkSelectionTexture({ browser, url, output, signal,
+    enterMission: selectionPage => enterMission(selectionPage, false), closeContext: closePauseRecoveryContext, outerReceipt: receipt })
   return {
-    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, hudTabShortcuts, pauseCameraKeys, cameraBookmarks,
+    checks, screenshots, saved, renderers, frontendKeyboard, heldEscape, hudTabShortcuts, pauseCameraKeys, cameraBookmarks, selectionTexture,
     limits: [
       'Controlled cold IndexedDB open failure and delayed success delivery; all checkpoint contents, storage transactions, world transitions and UI handlers are real.',
       'Repeated disabled-button clicks are synthetic activation probes; mission entry, saving, retry, Back and loading use rendered controls.',

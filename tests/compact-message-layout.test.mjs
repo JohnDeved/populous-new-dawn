@@ -584,12 +584,16 @@ test('compact public controls close modal ownership and restore authored text be
   assert.match(source, /async function selectHudPreference\(page, preference\) \{\s+await closeCampaignForInput\(page\)/)
   assert.match(source, /await closeCampaignForInput\(page\)\s+await page.keyboard.press\('F8'\)\s+await graph.waitFor\(\{ state: 'visible' \}\)\s+await openM2AuthoredMessage\(page\)/)
   assert.match(source, /await closeCampaignForInput\(page\)\s+await page.keyboard.press\('F8'\)\s+await graph.waitFor\(\{ state: 'hidden' \}\)\s+await openM2AuthoredMessage\(page\)/)
-  assert.match(source, /!window.testSceneRef.current.messageModal && window.testStore.getWorld\(\).paused/)
+  assert.match(source, /scene === window.testScene && scene\.world === world && world.paused/)
+  assert.match(source, /!scene.messageModal && !document.querySelector\('\.campaign-messages details\[open\]'\)/)
+  assert.match(source, /await openM2AuthoredMessage\(page\)\s+const \{ restored, turn \} = await readRestoredCompactFrame\(page\)/)
 })
 
 test('compact modal closure uses public Enter helper without reducing coverage or its deadline', () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/compact-message-layout.mjs', import.meta.url), 'utf8')
-  assert.match(source, /async function closeCampaignForInput\(page\) \{\s+await closeM2AuthoredMessage\(page\)/)
+  const close = source.slice(source.indexOf('export async function closeCampaignForInput'), source.indexOf('// Same two paint opportunities'))
+  assert.match(close, /await page.keyboard.press\('Enter'\)/)
+  assert.equal(close.split('page.waitForFunction(').length, 2, 'One complete close predicate')
   assert.doesNotMatch(source, /await collapseCampaignMessages\(page\)/)
   assert.equal(compactMessageCases.flatMap(item => item.sizes).length, 4)
   assert.equal(m2FunctionalLimitMs, 45000)
