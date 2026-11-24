@@ -6,11 +6,11 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { messageStringId } from '../app/messages.ts'
 
-for (const [mission, number, stringId] of [
-  [3, 105, 648],
-  [5, 74, 661],
-  [8, 52, 672],
-  [9, 54, 675],
+for (const [mission, number, stringId, primaryAfterInitialization] of [
+  [3, 105, 648, 2517695575],
+  [5, 74, 661, 1125611668],
+  [8, 52, 672, 1],
+  [9, 54, 675, 1],
 ]) {
   const opening = w => w.messages.slots.filter(m => m?.stringId === stringId)
   test(`M${mission} imports the native opening message ${number}`, () => {
@@ -22,6 +22,11 @@ for (const [mission, number, stringId] of [
     assert.ok(opening(w)[0].flags & 0x20000)
     assert.equal(w.messages.nextSerial, 1)
     assert.ok(!w.ai.pendingCommands.some(c => c.opcode === 1174 || c.opcode === 1187))
+  })
+  test(`M${mission} opening advances the native presentation RNG, not the primary simulation RNG`, () => {
+    const w = createWorld(mission)
+    assert.equal(w.randomState, primaryAfterInitialization)
+    assert.equal(w.cosmeticRandom.randomState, 1275068418, 'One presentation draw from seed 1')
   })
   test(`M${mission} recurring rules do not replay its opening`, () => {
     const w = createWorld(mission)
@@ -45,3 +50,19 @@ for (const [mission, number, stringId] of [
     assert.equal(opening(restored)[0].serial, message.serial)
   })
 }
+
+test('existing startup message callers retain their current compatibility stream', () => {
+  for (const [mission, stringId, primary, speed] of [
+    [4, 654, 2517695575, 1123],
+    [7, 668, 1275068418, 1170],
+    [15, 1228, 521602106, 1208],
+  ]) {
+    const w = createWorld(mission)
+    assert.equal(w.randomState, primary)
+    assert.equal(w.cosmeticRandom.randomState, 1)
+    assert.deepEqual(
+      w.messages.slots.filter(Boolean).map(message => [message.stringId, message.speed]),
+      [[stringId, speed]]
+    )
+  }
+})

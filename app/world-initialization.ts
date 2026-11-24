@@ -484,6 +484,7 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
     if (!prison || !captive) throw new Error('Missing authored Mission 15 Prison objective')
     captive.inside = prison.id
   }
+  const restoredOpening = [3, 5, 8, 9].includes(missionNumber)
   for (let tribe = 1; tribe < w.campaignAIs.length; tribe++)
     if (w.campaignAIs[tribe])
       withCampaignTribe(w, tribe, ai => {
@@ -509,13 +510,16 @@ export function createWorld(missionNumber = 1, capacityMode: CapacityMode = 'cla
               ...(missionNumber === 15 ? [1174, 1187, 1200] : []),
               ...(missionNumber === 12 ? [1085, 1138, 1190] : []),
               ...(missionNumber === 21 ? [1085, 1138] : []),
-              ...([3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22].includes(missionNumber)
+              ...(restoredOpening ? [1174, 1187] : []),
+              ...([4, 7, 10, 11, 12, 13, 17, 18, 19, 20, 21, 22].includes(missionNumber)
                 ? [1174, 1187]
                 : []),
             ].includes(c.opcode)
           )
             return true
-          campaignCommand(w, c.opcode, c.args)
+          if (restoredOpening && c.opcode === 1174)
+            campaignCommand(w, c.opcode, c.args, undefined, w.cosmeticRandom)
+          else campaignCommand(w, c.opcode, c.args)
           return false
         })
       })
