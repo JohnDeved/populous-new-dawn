@@ -2276,18 +2276,21 @@ function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
   syncNativeTerrain(w)
   const x = short(Math.round((u.x + 8) * 256)),
     y = short(Math.round((-u.z - 8) * 256)),
-    live = unitAnimationSource(u)
+    live = unitAnimationSource(u),
+    tribe = tribeForTeam(u.team),
+    spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
   return {
     class: 1,
     model: nativePersonModel(u),
     state: live?.state ?? 0,
-    tribe: tribeForTeam(u.team),
+    tribe,
     x,
     y,
     flags2: u.inside === null ? 0 : 0x800000,
     flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
     assignment: live?.assignment ?? 0,
-    disguise: 0,
+    // Model 5 reads the current +0xb2 byte, including the disguise countdown.
+    disguise: (spy?.disguise ?? (tribe << 6)) & 255,
   }
 }
 function computerSpellWorld(w: World, tribe: number): SpellTargetWorld {
