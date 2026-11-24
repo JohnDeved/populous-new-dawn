@@ -2000,9 +2000,10 @@
       ],
       "evidence": [
         "decomp/generated/004364d0.c",
-        "scripts/check-native-orders.py"
+        "scripts/check-native-orders.py",
+        "tests/player-patrol.test.mjs"
       ],
-      "limits": "Native order/reference/cleanup dispatch compared using supplied leaves; not every actual live model effect has original ownership parity."
+      "limits": "Native order/reference/cleanup dispatch compared using supplied leaves; not every actual live model effect has original ownership parity. A controlled live area-guard removal releases two owners’ fight assignments and frees the shared order on the last reference; the next Move keeps both references. Not a complete comparison of actual model-specific cleanup effects."
     },
     {
       "address": "004366b0",
@@ -2333,16 +2334,17 @@
     {
       "address": "0043d6e0",
       "status": "partial",
-      "scope": "Stop live selected follower patrol routes",
+      "scope": "Release live follower patrols for a tribe",
       "sources": [
         "app/live-movement.ts",
         "app/live-command.ts"
       ],
       "evidence": [
         "decomp/generated/0043d6e0.c",
-        "decomp/research/player-patrol.md"
+        "decomp/research/player-patrol.md",
+        "tests/player-patrol.test.mjs"
       ],
-      "limits": "Original command and native pointer semantics are tracked; browser cancels model-specific commands through a separately owned queue/selection adapter."
+      "limits": "Original command and native pointer semantics are tracked; browser cancels model-specific commands through a separately owned queue/selection adapter. A controlled live command-adapter test releases two simultaneously eligible unselected owners of one shared area guard into their queued Move in one call, retaining both next-order references. It does not establish original traversal order or physical keyboard delivery."
     },
     {
       "address": "004424b0",
@@ -5749,9 +5751,11 @@
       "evidence": [
         "decomp/generated/004d0860.c",
         "scripts/check-native-spell-targets.py",
-        "tests/ai-general-raid-reserve.test.mjs"
+        "tests/ai-general-raid-reserve.test.mjs",
+        "tests/ai-spy-spell-targeting.test.mjs",
+        "tests/computer-spell-projection.test.mjs"
       ],
-      "limits": "Tracked 1,024 composed native scan/dispatch cases; live feeds reconstructed objects, terrain and casting ownership, not all native campaign state. A controlled live Swarm witness now reserves the acting Shaman's raid budget."
+      "limits": "Tracked 1,024 composed native scan/dispatch cases; live feeds reconstructed objects, terrain and casting ownership, not all native campaign state. A controlled live Swarm witness now reserves the acting Shaman's raid budget. Controlled stock Mission 1 Swarm dispatch distinguishes a finalized friendly disguise from a pending disguise, an undisguised opposing Spy and separate Invisibility; projection controls preserve ordinary units. This is not a natural authored encounter or a direct shoreline Spy witness."
     },
     {
       "address": "004d11b0",
