@@ -107,7 +107,7 @@ def source_state(source, revision, scope='full'):
         if path.exists() or path.is_symlink():
             physical(path.parent)
             entry['bytes'] = path.lstat().st_size
-            regular_bytes(path, entry)
+            regular_digest(path, entry, sha256=False)
             require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'),
                     f'Source executable mode changed: {entry["path"]}')
         else:
@@ -165,13 +165,45 @@ class Blobs:
         require(code == 0, 'Git object reader failed')
 
 
-def regular_bytes(path, entry):
+REGULAR_FILE_HASH_CHUNK_BYTES = 64 * 1024
+
+
+def regular_digest(path, entry, *, sha256=True):
+    def fingerprint(info):
+        # A cooperating publisher can add another CAS hardlink (ctime/nlink)
+        # without changing any bytes or the identity authenticated here.
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_size, info.st_mtime_ns)
+
     info = path.lstat()
     require(stat.S_ISREG(info.st_mode), f'Expected regular file: {path}')
     require(info.st_size == entry['bytes'], f'File size changed: {path}')
-    data = path.read_bytes()
-    require(blob_oid(data) == entry['oid'], f'File content changed: {path}')
-    return data
+    identity = fingerprint(info)
+    blob = hashlib.sha1(b'blob ' + str(info.st_size).encode() + b'\0')
+    content = hashlib.sha256() if sha256 else None
+    nofollow = getattr(os, 'O_NOFOLLOW', 0)
+    nonblock = getattr(os, 'O_NONBLOCK', 0)
+    require(type(nofollow) is int and nofollow > 0 and type(nonblock) is int and nonblock > 0,
+            'Physical file hashing requires O_NOFOLLOW and O_NONBLOCK')
+
+    def opener(name, flags):
+        return os.open(name, flags | nofollow | nonblock)
+
+    with open(path, 'rb', buffering=0, opener=opener) as source:
+        require(fingerprint(os.fstat(source.fileno())) == identity, f'File changed while opening: {path}')
+        chunk = memoryview(bytearray(min(info.st_size, REGULAR_FILE_HASH_CHUNK_BYTES)))
+        left = info.st_size
+        while left:
+            count = source.readinto(chunk[:left])
+            require(count, f'File size changed: {path}')
+            blob.update(chunk[:count])
+            if content is not None:
+                content.update(chunk[:count])
+            left -= count
+        require(not source.read(1), f'File size changed: {path}')
+        require(fingerprint(os.fstat(source.fileno())) == identity, f'File changed while reading: {path}')
+    require(fingerprint(path.lstat()) == identity, f'File changed while reading: {path}')
+    require(blob.hexdigest() == entry['oid'], f'File content changed: {path}')
+    return content.hexdigest() if content is not None else None
 
 
 def file_inventory(root):
@@ -206,8 +238,7 @@ def _check_asset_tree_path(pool, tree, assets, version):
     for rel, entry in expected.items():
         target = tree / rel
         blob = pool / 'blobs' / entry['sha256']
-        data = regular_bytes(blob, entry)
-        require(digest(data) == entry['sha256'], f'Asset digest changed: {rel}')
+        require(regular_digest(blob, entry) == entry['sha256'], f'Asset digest changed: {rel}')
         if version == 1:
             require(target.is_symlink(), f'Asset tree entry must be a declared symlink: {rel}')
             require(os.readlink(target) == os.path.relpath(blob, target.parent), f'Asset symlink target changed: {rel}')
@@ -236,8 +267,7 @@ def asset_reuse(pool, assets):
         if not path.exists() and not path.is_symlink():
             continue
         before = path.lstat()
-        data = regular_bytes(path, entry)
-        require(digest(data) == sha, 'Existing CAS blob changed')
+        require(regular_digest(path, entry) == sha, 'Existing CAS blob changed')
         after = path.lstat()
         identity = lambda info: (info.st_dev, info.st_ino, info.st_mode, info.st_size,
                                  info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
@@ -432,7 +462,7 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 prepared_assets.append(record)
                 blob = pool / 'blobs' / record['sha256']
                 if blob.exists() or blob.is_symlink():
-                    require(digest(regular_bytes(blob, record)) == record['sha256'], 'Existing CAS blob changed')
+                    require(regular_digest(blob, record) == record['sha256'], 'Existing CAS blob changed')
                 else:
                     with blob.open('xb') as out:
                         out.write(data)
@@ -511,8 +541,7 @@ def verify(source, revision, pool, runtime):
     for entry in ordinary:
         path = runtime / entry['path']
         physical(path.parent)
-        data = regular_bytes(path, entry)
-        require(digest(data) == entry['sha256'], 'Runtime digest changed')
+        require(regular_digest(path, entry) == entry['sha256'], 'Runtime digest changed')
         require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'), 'Runtime executable mode changed')
     expected_paths = {e['path'] for e in ordinary} | {ASSETS}
     parents = parent_names(expected_paths)
