@@ -2338,6 +2338,11 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const allocate = (model: number, cell: number) => allocateComputerSpell(w, u!, model, cell)
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
+  // 0x4f4d40 and 0x4d1450 share the acting shaman's owned raid budget;
+  // shoreline Blast and ordinary spell readiness apply their own thresholds.
+  const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
+    task = assignment ? w.ai.tasks[assignment - 1] : undefined,
+    reserve = task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0
   const shore = castShoreBlast(
     world,
     caster,
@@ -2345,7 +2350,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
       turn: w.turn,
       population: w.units.filter(p => p.team === team && !p.ghost && p.hp > 0).length,
       mana: w.manaTribes[tribe].mana,
-      reserve: 0,
+      reserve,
       gameFlags: w.manaWorld.gameFlags,
       aiFlags: w.ai.flags,
     },
@@ -2355,13 +2360,10 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   if (shore) return
   const enemyTeam = campaignTeam(w, w.ai.enemyTribe)
   const enemy = w.units.find(p => p.team === enemyTeam && isShaman(p) && p.hp > 0)
-  // 0x4d1450 takes the acting shaman's owned type-20 task reserve from 0x4f2f50.
-  const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
-    task = assignment ? w.ai.tasks[assignment - 1] : undefined
   const context = {
     turn: w.turn,
     mana: w.manaTribes[tribe].mana,
-    reserve: task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0,
+    reserve,
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,
