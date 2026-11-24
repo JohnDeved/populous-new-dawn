@@ -26,8 +26,8 @@ function load(react = require('react')) {
   return component.exports.OriginalLoadingScreen
 }
 const Component = load()
-const render = phase => renderToStaticMarkup(createElement(Component, {
-  phase, error: '<failed terrain request>', onRetry() {},
+const render = (phase, error = '<failed terrain request>') => renderToStaticMarkup(createElement(Component, {
+  phase, error, onRetry() {},
 }))
 const tree = element => [element, ...[element?.props?.children].flat(Infinity).filter(child => typeof child === 'object' && child).flatMap(tree)]
 
@@ -139,6 +139,26 @@ test('failure keeps original identity but explicitly labels the browser recovery
   assert.match(html, /&lt;failed terrain request&gt;/)
   assert.match(html, /Try again/)
   assert.ok(!html.includes(art.label.src) && !html.includes('loading-rune'))
+})
+
+test('only the renderer context startup failure gets WebGL 2 guidance', () => {
+  const rendererError = 'THREE.WebGLRenderer: Error creating WebGL context.'
+  const output = render('failed', rendererError)
+  const generic = 'The battlefield did not finish loading. Try again to retry the same request.'
+  assert.match(output, /This browser could not start WebGL 2\. Check that hardware acceleration is enabled, or try another browser or device that supports WebGL 2\./)
+  assert.ok(!output.includes(generic))
+  assert.ok(output.includes(`<summary>Technical details</summary><p>${rendererError}</p>`))
+  assert.match(output, />Try again<\/button>/)
+
+  for (const message of ['Unable to finish loading the 3D world.', `Asset failed: <${rendererError}>`]) {
+    const unrelated = render('failed', message)
+    assert.ok(unrelated.includes(generic))
+    assert.ok(!unrelated.includes('hardware acceleration'))
+    assert.match(unrelated, />Try again<\/button>/)
+  }
+  assert.match(render('failed', `Asset failed: <${rendererError}>`), /&lt;THREE\.WebGLRenderer: Error creating WebGL context\.&gt;/)
+  for (const phase of ['restore', 'loading'])
+    assert.ok(!render(phase, rendererError).includes('hardware acceleration'))
 })
 
 test('one failed presentation dispatches only one retry; a new keyed presentation may retry again', () => {
