@@ -44,9 +44,9 @@ test('full person projection matches original across cell seams, half rounding a
 test('full world projection preserves filtering, insertion order, fresh adapters and live fields', () => {
   const w = fixture()
   for (const [i, kind] of ['brave', 'warrior', 'preacher', 'firewarrior', 'spy', 'shaman'].entries()) {
-    const u = addUnit(w, ['blue', 'red', 'yellow', 'green'][i % 4], kind, { x: i % 2, z: 0 })
+    const u = addUnit(w, ['blue', 'red', 'yellow', 'green', 'red', 'red'][i], kind, { x: i % 2, z: 0 })
     u.invisibility = i % 2 ? 20 : 0
-    if (i % 2) Object.assign(u.native = createLivePerson(w, u), { state: 23, flags4: 0x1040, assignment: 64 })
+    if (i % 2) Object.assign(u.native = createLivePerson(w, u), { state: 23, flags4: 0x1040, assignment: 64, disguise: 127 })
     else u.native = null
   }
   const dead = addUnit(w, 'red', 'brave', { x: 10, z: 10 })
@@ -57,6 +57,10 @@ test('full world projection preserves filtering, insertion order, fresh adapters
   for (let tribe = 0; tribe < 4; tribe++) {
     const expected = original.computerSpellWorld(w, tribe)
     const actual = candidate.computerSpellWorld(w, tribe)
+    // The reference predates Spy disguise projection. This Red Spy has no live person.
+    const expectedSpy = [...expected.cells.values()].flat().find(person => person.model === 5)
+    assert.equal(expectedSpy.tribe, 1)
+    expectedSpy.disguise = 64
     assert.deepEqual(projection(actual), projection(expected))
     assert.equal([...actual.cells.values()].flat().length, 6)
     const again = candidate.computerSpellWorld(w, tribe)
@@ -81,6 +85,17 @@ test('every live source retains complete projection and priority', () => {
   ]) {
     Object.assign(u, { native: null, flight: null, fight: null, entry: undefined, invisibility: 0 }, fields)
     assert.deepEqual(candidate.computerSpellPerson(w, u), original.computerSpellPerson(w, u))
+  }
+})
+
+test('live Red Spy projection preserves pending and finalized disguise bytes', () => {
+  const w = fixture(), u = addUnit(w, 'red', 'spy', { x: 0, z: 0 })
+  u.native = createLivePerson(w, u)
+  for (const disguise of [64, 127, 128]) {
+    u.native.disguise = disguise
+    assert.deepEqual(candidate.computerSpellPerson(w, u), {
+      ...original.computerSpellPerson(w, u), disguise,
+    })
   }
 })
 

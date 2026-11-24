@@ -1,12 +1,12 @@
 // Trusted default-branch controller. Artifacts are data, never imported/executed.
 import assert from 'node:assert/strict'
-import { appendFileSync, readFileSync, writeFileSync } from 'node:fs'
+import { appendFileSync, closeSync, constants, fstatSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { readArtifactZip } from '../artifact-zip.mjs'
 import { account, worker, repository, buildPath, publishPath, marker, maxArchiveBytes,
   positive, sha, branchAlias, publisherSource, validateRun, currentPreview,
-  materializeBuild, uploadedVersion, renderComment } from './protocol.mjs'
+  materializeBuild, materializeOwnedBuild, uploadedVersion, renderComment } from './protocol.mjs'
 
 const prefix = `/repos/${repository}`
 const gatePath = '.github/workflows/ready-pr-check.yml'
@@ -159,7 +159,7 @@ export async function productionGate(api, download, run) {
   assert.equal(receipt.identity.treeSha, commit.tree.sha, 'Production tree differs from the tested proposed merge')
   return { pr: pr.number, gate: gate.id, tree: commit.tree.sha }
 }
-export async function prepare({ api, download, runId, mode, destination }) {
+export async function prepare({ api, download, runId, mode, destination, ownsDownloadedArchive = false }) {
   const run = await verifiedRun(api, runId, buildPath)
   assert.equal(run.status, 'completed'); assert.equal(run.conclusion, 'success')
   const pr = await runPr(api, run)
@@ -169,7 +169,8 @@ export async function prepare({ api, download, runId, mode, destination }) {
   await exactFile(api, buildPath, run.head_sha)
   const gate = pr ? null : await productionGate(api, download, run)
   const zip = await oneArtifact(api, download, run, `cloudflare-dist-${run.id}-${run.run_attempt}`, maxArchiveBytes, false, { exactSize: true })
-  materializeBuild(zip, destination, run.head_sha)
+  const materialize = ownsDownloadedArchive ? materializeOwnedBuild : materializeBuild
+  materialize(zip, destination, run.head_sha)
   return { version: 1, source: run.id, sourceAttempt: run.run_attempt, sha: run.head_sha,
     pr: pr?.number ?? null, alias: pr ? branchAlias(pr.head.ref) : null, gate, status: 'prepared' }
 }
@@ -323,6 +324,40 @@ export async function report({ api, download, sourceId, expectedPr, mode, report
     { method: owned.length ? 'PATCH' : 'POST', body: { body } })
   return owned.length ? 'updated' : 'created'
 }
+// The runner creates an empty output file for each step. Keep the receipt at
+// the workflow's fixed path, and do not release the upload signal until both
+// the receipt and the command arguments have been written successfully.
+export async function prepareHandoff({ prepareSource, outputFile, receiptFile }) {
+  const fd = openSync(outputFile, constants.O_WRONLY | constants.O_APPEND |
+    constants.O_NOFOLLOW | constants.O_NONBLOCK)
+  let failed = false
+  try {
+    const out = fstatSync(fd)
+    assert.ok(out.isFile() && out.uid === process.getuid() && out.nlink === 1 && out.size === 0,
+      'Expected a fresh runner-owned output file')
+    const state = await prepareSource()
+    if (state === null) {
+      writeFileSync(fd, 'publish=false\n')
+      return
+    }
+    assert.equal(state.status, 'prepared')
+    assert.ok(sha(state.sha) && state.sha.length === 40, 'Invalid prepared source SHA')
+    assert.ok(state.alias === null || (typeof state.alias === 'string' && !/[\r\n]/.test(state.alias) &&
+      /^b-[a-z0-9-]{1,25}-[a-f0-9]{8}$/.test(state.alias)),
+      'Invalid prepared preview alias')
+    writeFileSync(receiptFile, JSON.stringify(state), { flag: 'wx', mode: 0o600 })
+    writeFileSync(fd, `sha=${state.sha}\naliasArgument=${state.alias ? `--preview-alias ${state.alias}` : ''}\n`)
+    // Upload and complete also require this step to succeed, even if a failed
+    // write or close leaves a parseable final line. Preserve the primary
+    // failure if descriptor cleanup also fails; a close-only failure is fatal.
+    writeFileSync(fd, 'publish=true\n')
+  } catch (error) {
+    failed = true
+    throw error
+  } finally {
+    try { closeSync(fd) } catch (error) { if (!failed) throw error }
+  }
+}
 export async function main() {
   assert.equal(process.env.GITHUB_REPOSITORY, repository)
   assert.equal(process.env.GITHUB_EVENT_NAME, 'workflow_run')
@@ -344,12 +379,10 @@ export async function main() {
         appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${status}\n\n${logs('Build logs', run)}\n\n${publication ? logs('Publish logs', publication) : 'No publisher run was observed.'}\n`)
       } }))
   } else if (command === 'prepare') {
-    const state = await prepare({ api, download, runId: event.workflow_run.id, mode, destination: '.cloudflare-publisher' })
-    output('publish', Boolean(state))
-    if (state) {
-      writeFileSync(resultFile, JSON.stringify(state)); output('sha', state.sha)
-      output('aliasArgument', state.alias ? `--preview-alias ${state.alias}` : '')
-    }
+    // githubClient allocated this distribution Buffer and does not retain it.
+    await prepareHandoff({ outputFile: process.env.GITHUB_OUTPUT, receiptFile: resultFile,
+      prepareSource: () => prepare({ api, download, runId: event.workflow_run.id, mode,
+        destination: '.cloudflare-publisher', ownsDownloadedArchive: true }) })
   } else if (command === 'preflight') {
     const state = JSON.parse(readFileSync(resultFile, 'utf8'))
     await ensureCurrent(api, state)

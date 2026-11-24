@@ -68,7 +68,7 @@ async function prepareHeldCast(page) {
     const scene = window.testSceneRef.current
     return !scene.cameraMotion.active && !scene.viewTransition && !scene.resultCamera.active
   })
-  await page.getByTitle('spells', { exact: true }).click()
+  await page.locator('.dock-tabs').getByRole('button', { name: 'spells', exact: true }).click()
   await page.getByRole('button', { name: /^Blast, [1-9][0-9]* shots$/ }).click()
   await page.evaluate(installModalInvalidationObserver)
   await button('Resume game').click()

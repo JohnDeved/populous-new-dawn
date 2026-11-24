@@ -1,13 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync, readFileSync, readdirSync, rmSync, mkdirSync, writeFileSync } from 'node:fs'
+import fs, { existsSync, linkSync, mkdtempSync, readFileSync, readdirSync,
+  rmSync, mkdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs'
+import { syncBuiltinESMExports } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { deflateRawSync } from 'node:zlib'
 import { repository, buildPath, publishPath, marker, branchAlias, publisherSource,
   currentPreview, buildIdentityPath, fixedConfig, materializeBuild, uploadedVersion, renderComment, commentTimestamp } from '../scripts/cloudflare/protocol.mjs'
-import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent, bodyBytes } from '../scripts/cloudflare/control.mjs'
+import { report, prepare, route, currentSource, productionGate, oneArtifact, ensureCurrent, bodyBytes, prepareHandoff } from '../scripts/cloudflare/control.mjs'
 
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const root = new URL('../', import.meta.url), prefix = `/repos/${repository}`
@@ -303,6 +305,14 @@ test('workflow trust boundary stays separate and action dependencies stay pinned
   assert.match(publish, /environment: cloudflare-worker/); assert.match(publish, /ref: \$\{\{ github.sha \}\}/)
   assert.match(publish, /workingDirectory: .cloudflare-publisher/); assert.match(publish, /--no-bundle/)
   assert.match(publish, /wranglerVersion: '4\.136\.1'/)
+  // Upload and promotion rely on GitHub's implicit success() condition. Only
+  // preserving the already-ordered receipt may use always().
+  const steps = publish.split(/\n      - name: /)
+  const publishGate = "        if: ${{ steps.prepare.outputs.publish == 'true' }}"
+  for (const name of ['Upload version without changing production traffic', 'Validate returned version URLs and promote only eligible main']) {
+    const step = steps.find(value => value.startsWith(name + '\n'))
+    assert.ok(step?.split('\n').includes(publishGate), name)
+  }
   assert.doesNotMatch(publish, /continue-on-error|WRANGLER_API_BASE_URL|CLOUDFLARE_API_BASE_URL/)
   assert.doesNotMatch(publish, /pull_request_target|pnpm run|npm ci|pull-requests: write/)
   assert.match(reporter, /workflows: \[Cloudflare build, Cloudflare publish\]/)
@@ -572,4 +582,188 @@ test('artifact body uses exact metadata size across chunks and rejects excess or
   await assert.rejects(bodyBytes(response(), 8, 9), /Invalid artifact size/)
   assert.deepEqual(await bodyBytes(response([1], [2, 3]), 3), Buffer.from([1, 2, 3]))
   await assert.rejects(bodyBytes(response([1], [2, 3]), 2), /Response exceeds bounded size/)
+})
+
+test('prepare requires explicit ownership before enforcing the owned Buffer contract', async t => {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-prepare-owned-')); t.after(() => rmSync(directory, { recursive: true, force: true }))
+  const zip = archive([['server/index.js', 'worker'], ['client/index.html', 'client']])
+  const sharedZip = Buffer.from(new SharedArrayBuffer(zip.length))
+  zip.copy(sharedZip)
+  for (const [ownsDownloadedArchive, archiveInput, expectOwnedRejection] of [
+    [false, sharedZip, false], [true, sharedZip, true], [true, zip, false]
+  ]) {
+    const f = fixture(), original = f.api, destination = mkdtempSync(join(directory, 'app-'))
+    f.api = async path => path === `${prefix}/actions/runs/100/artifacts?per_page=100`
+      ? { total_count: 1, artifacts: [{ id: 401, name: 'cloudflare-dist-100-1', expired: false,
+        size_in_bytes: zip.length, workflow_run: { id: 100 }, digest: `sha256:${hash(zip)}` }] }
+      : original(path)
+    f.download = async () => archiveInput
+    const result = prepare({ ...f, runId: 100, destination, ownsDownloadedArchive })
+    if (expectOwnedRejection) {
+      await assert.rejects(result, /Expected an owned, non-shared ZIP Buffer/)
+      assert.deepEqual(readdirSync(destination), [])
+    } else {
+      assert.equal((await result).sha, f.state.run.head_sha)
+      assert.equal(readFileSync(join(destination, 'client', 'index.html'), 'utf8'), 'client')
+    }
+  }
+})
+
+function handoffPaths(t) {
+  const directory = mkdtempSync(join(tmpdir(), 'cloudflare-prepare-handoff-'))
+  t.after(() => rmSync(directory, { recursive: true, force: true }))
+  return { outputFile: join(directory, 'set_output_test'),
+    receiptFile: join(directory, 'cloudflare-result.json'), destination: join(directory, '.cloudflare-publisher') }
+}
+
+test('publisher handoff preserves fixed artifact and receipt paths and emits publish last', async t => {
+  const paths = handoffPaths(t)
+  writeFileSync(paths.outputFile, '')
+  const f = fixture(), original = f.api
+  const zip = archive([['server/index.js', 'worker'], ['client/index.html', 'client']])
+  f.api = async path => path === `${prefix}/actions/runs/100/artifacts?per_page=100`
+    ? { total_count: 1, artifacts: [{ id: 401, name: 'cloudflare-dist-100-1', expired: false,
+      size_in_bytes: zip.length, workflow_run: { id: 100 }, digest: `sha256:${hash(zip)}` }] }
+    : original(path)
+  f.download = async () => zip
+  await prepareHandoff({ ...paths, prepareSource: async () => {
+    const state = await prepare({ ...f, runId: 100, destination: paths.destination, ownsDownloadedArchive: true })
+    assert.equal(readFileSync(paths.outputFile, 'utf8'), '')
+    assert.equal(existsSync(paths.receiptFile), false)
+    return state
+  } })
+  assert.equal(readFileSync(join(paths.destination, 'client', 'index.html'), 'utf8'), 'client')
+  assert.equal(readFileSync(join(paths.destination, 'client', buildIdentityPath), 'utf8'), `schema=1\nsource_sha=${digest}\n`)
+  assert.equal(statSync(paths.receiptFile).mode & 0o777, 0o600)
+  assert.deepEqual(JSON.parse(readFileSync(paths.receiptFile, 'utf8')),
+    { version: 1, source: 100, sourceAttempt: 1, sha: digest, pr: 7, alias, gate: null, status: 'prepared' })
+  assert.equal(readFileSync(paths.outputFile, 'utf8'), `sha=${digest}\naliasArgument=--preview-alias ${alias}\npublish=true\n`)
+})
+
+test('publisher handoff preserves disabled and production output contracts', async t => {
+  const disabled = handoffPaths(t), production = handoffPaths(t)
+  writeFileSync(disabled.outputFile, '')
+  await prepareHandoff({ ...disabled, prepareSource: async () => null })
+  assert.equal(readFileSync(disabled.outputFile, 'utf8'), 'publish=false\n')
+  assert.equal(existsSync(disabled.receiptFile), false)
+  writeFileSync(production.outputFile, '')
+  await prepareHandoff({ ...production, prepareSource: async () => ({ status: 'prepared', alias: null, sha: digest }) })
+  assert.equal(readFileSync(production.outputFile, 'utf8'), `sha=${digest}\naliasArgument=\npublish=true\n`)
+})
+
+test('publisher handoff rejects missing, nonempty and linked output before preparing', async t => {
+  const paths = handoffPaths(t)
+  let prepares = 0
+  const call = () => prepareHandoff({ ...paths, prepareSource: async () => { prepares++; return null } })
+  await assert.rejects(call(), { code: 'ENOENT' })
+  writeFileSync(paths.outputFile, 'reserved\n')
+  await assert.rejects(call(), /fresh runner-owned output/)
+  assert.equal(readFileSync(paths.outputFile, 'utf8'), 'reserved\n')
+  rmSync(paths.outputFile)
+  writeFileSync(paths.receiptFile, '')
+  symlinkSync(paths.receiptFile, paths.outputFile)
+  await assert.rejects(call(), { code: 'ELOOP' })
+  rmSync(paths.outputFile)
+  linkSync(paths.receiptFile, paths.outputFile)
+  await assert.rejects(call(), /fresh runner-owned output/)
+  assert.equal(prepares, 0)
+  assert.equal(readFileSync(paths.receiptFile, 'utf8'), '')
+})
+
+test('publisher handoff never emits publish for failing stage, malformed output or existing receipt', async t => {
+  const paths = handoffPaths(t)
+  writeFileSync(paths.outputFile, '')
+  const prepared = { status: 'prepared', alias, sha: digest }
+  const call = prepareSource => prepareHandoff({ ...paths, prepareSource })
+  await assert.rejects(call(async () => { throw Error('test-stage failure') }), /test-stage failure/)
+  for (const [bad, message] of [
+    [{ ...prepared, sha: `${digest}\n` }, /source SHA/],
+    [{ ...prepared, alias: `${alias}\n` }, /preview alias/],
+  ]) await assert.rejects(call(async () => bad), message)
+  assert.equal(existsSync(paths.receiptFile), false)
+  writeFileSync(paths.receiptFile, 'keep-existing-receipt')
+  await assert.rejects(call(async () => prepared), { code: 'EEXIST' })
+  assert.equal(readFileSync(paths.receiptFile, 'utf8'), 'keep-existing-receipt')
+  assert.equal(readFileSync(paths.outputFile, 'utf8'), '')
+})
+
+test('publisher handoff propagates auxiliary and final output write or close failures without rollback', async t => {
+  const originalWrite = fs.writeFileSync, originalClose = fs.closeSync
+  for (const failure of ['receipt', 'auxiliary', 'final', 'close']) {
+    const paths = handoffPaths(t)
+    writeFileSync(paths.outputFile, '')
+    const prepared = { status: 'prepared', alias, sha: digest }
+    let liveOutputFd
+    fs.writeFileSync = (file, data, options) => {
+      if (typeof file === 'number') liveOutputFd = file
+      const matched = (failure === 'receipt' && file === paths.receiptFile) ||
+        (failure === 'auxiliary' && typeof file === 'number' && data.startsWith('sha=')) ||
+        (failure === 'final' && typeof file === 'number' && data === 'publish=true\n')
+      if (!matched) return originalWrite(file, data, options)
+      // Write through the real descriptor before surfacing failure: an
+      // incomplete terminal write can already leave a parseable output line.
+      originalWrite(file, data.slice(0, -1), options)
+      throw Error('injected handoff failure: ' + failure)
+    }
+    fs.closeSync = file => {
+      originalClose(file)
+      if (failure === 'close' && file === liveOutputFd) throw Error('injected handoff failure: close')
+    }
+    syncBuiltinESMExports()
+    try {
+      await assert.rejects(prepareHandoff({ ...paths, prepareSource: async () => prepared }),
+        new RegExp('injected handoff failure: ' + failure))
+    } finally {
+      fs.writeFileSync = originalWrite; fs.closeSync = originalClose
+      syncBuiltinESMExports()
+    }
+    const output = readFileSync(paths.outputFile, 'utf8')
+    const retained = readFileSync(paths.receiptFile, 'utf8')
+    if (failure === 'receipt') {
+      assert.equal(output, '')
+      assert.throws(() => JSON.parse(retained))
+    } else {
+      assert.deepEqual(JSON.parse(retained), prepared)
+      assert.equal(output.split('\n').includes('publish=true'), ['final', 'close'].includes(failure))
+    }
+  }
+})
+
+test('publisher handoff preserves the exact primary failure when output close also fails', async t => {
+  const originalWrite = fs.writeFileSync, originalClose = fs.closeSync, originalOpen = fs.openSync
+  for (const failure of ['stage', 'receipt', 'auxiliary', 'final']) {
+    const paths = handoffPaths(t)
+    writeFileSync(paths.outputFile, '')
+    const prepared = { status: 'prepared', alias, sha: digest }
+    const primary = new Error('primary ' + failure), closing = new Error('secondary close')
+    let closed = 0, outputFd
+    fs.openSync = (path, ...args) => {
+      const fd = originalOpen(path, ...args)
+      if (path === paths.outputFile) outputFd = fd
+      return fd
+    }
+    fs.writeFileSync = (file, data, options) => {
+      const matched = (failure === 'receipt' && file === paths.receiptFile) ||
+        (failure === 'auxiliary' && typeof file === 'number' && data.startsWith('sha=')) ||
+        (failure === 'final' && typeof file === 'number' && data === 'publish=true\n')
+      if (matched) throw primary
+      return originalWrite(file, data, options)
+    }
+    fs.closeSync = file => {
+      originalClose(file)
+      if (file === outputFd) { closed++; throw closing }
+    }
+    syncBuiltinESMExports()
+    try {
+      await assert.rejects(prepareHandoff({ ...paths, prepareSource: async () => {
+        if (failure === 'stage') throw primary
+        return prepared
+      } }), error => error === primary, failure)
+    } finally {
+      fs.writeFileSync = originalWrite; fs.closeSync = originalClose; fs.openSync = originalOpen
+      syncBuiltinESMExports()
+    }
+    assert.equal(closed, 1)
+    assert.doesNotMatch(readFileSync(paths.outputFile, 'utf8'), /publish=true/)
+  }
 })

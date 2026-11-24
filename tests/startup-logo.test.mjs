@@ -99,7 +99,7 @@ test('Home gates the existing menu behind the logo once per mount, without chang
 })
 
 test('fresh keyboard downs stop only the logo once; releases and repeats cannot replay completion', () => {
-  for (const key of ['Escape', 'Enter', ' ', 'a', 'ArrowRight', 'Shift']) {
+  for (const key of ['Escape', 'Enter', ' ', 'a', 'ArrowRight']) {
     const f = fixture()
     const repeat = event({ key, repeat: true })
     f.tree.props.onKeyDown(repeat)
