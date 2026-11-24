@@ -2287,6 +2287,21 @@
       "limits": "Authored recurrence and linked task behavior are compared, but current caller adapts queue ownership, destination and person lifetime."
     },
     {
+      "address": "0043bb60",
+      "status": "partial",
+      "scope": "Check live on-foot arrival for an ordinary raw-point order",
+      "sources": [
+        "app/person-orders.ts",
+        "app/person-motion.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043bb60.c",
+        "tests/live-on-foot-order-arrival.test.mjs"
+      ],
+      "limits": "An authored Mission 2 Brave keeps its model-3 order outside the arrival square and between visits, then completes it on an eligible in-range visit. Packed cells, vehicle arrivals, seam thresholds and native return high bits are not established by this proof."
+    },
+    {
       "address": "0043bcc0",
       "status": "implemented",
       "scope": "Command-27 worship person controller",
@@ -8419,6 +8434,20 @@
         "scripts/check-native-person-collision.py"
       ],
       "limits": "8,192 tracked native cases compare whole-cell result and callback order; the height child executes, but the adjacent-building lookup is supplied. Live route adaptation substitutes browser inside ownership for that lookup."
+    },
+    {
+      "address": "00518560",
+      "status": "partial",
+      "scope": "Resume a retained live ground order after a fight group retires",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00518560.c",
+        "tests/mixed-combat-orders.test.mjs"
+      ],
+      "limits": "A controlled live encounter retains the same ordered person and resumes both ground waypoints after opponent retirement. The browser derives group availability from its fight registry; native dead or free record handling, the level-flag override and high return bits are not established by this proof."
     },
     {
       "address": "005199f0",
