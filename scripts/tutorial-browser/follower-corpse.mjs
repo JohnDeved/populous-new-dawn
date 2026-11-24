@@ -273,6 +273,9 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(await page.evaluate(() => window.__pndCorpseObservation.result.error), null)
     report.cameraFollow = await page.evaluate(() => window.__pndCorpseCameraFollow.stop('combat-complete'))
     assert.equal(report.cameraFollow.error, null)
+    assert.ok(report.cameraFollow.visits[0]?.afterStamp > report.cameraFollow.armedStamp,
+      'Camera follow must observe at least one new ordinary render before death')
+    assert.equal(report.cameraFollow.terminal?.reason, 'original-death-observed')
     report.effectId = await page.evaluate(() => window.__pndCorpseObservation.result.effectId)
     phase('pause-and-save')
     await button('Pause game')

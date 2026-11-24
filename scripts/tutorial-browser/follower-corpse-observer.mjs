@@ -7,9 +7,18 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
     error: null, done: false, visits: 0, terminal: null, retention: null }
   const copies = [], cropPhases = new Set()
   let raf, stopped = false, previous = null, lastKey = null
+  let listener = null, registered = false
+  const afterObservedRender = hook => {
+    if (segment !== 'original' || stopped || registered || typeof hook !== 'function')
+      throw Error('Original corpse observer accepts one live post-capture hook')
+    registered = true
+    listener = hook
+    return () => { if (listener === hook) listener = null }
+  }
+  const publish = () => listener?.(Object.freeze({ ...result.lastVisit }))
   const stop = (reason = 'stopped') => {
     if (!stopped) {
-      stopped = true; cancelAnimationFrame(raf)
+      stopped = true; listener = null; cancelAnimationFrame(raf)
       result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame }
     }
     return result
@@ -58,7 +67,7 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
           throw Error('Corpse lacks observed living combat participant and native death entry')
       }
       const f = world.effects.find(f => f.id === result.effectId)
-      if (!f) { raf = requestAnimationFrame(visit); return }
+      if (!f) { publish(); if (!stopped) raf = requestAnimationFrame(visit); return }
       const g = scene.fxMeshes.get(f.id), animation = f.animation
       if (!g || !animation || !f.corpse) throw Error('Follower corpse lacks its ordinary effect renderer')
       if (f.corpse.phase > 3) throw Error('Corpse observer missed the complete native rise window')
@@ -118,12 +127,14 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
         }
         result.samples.push(sample)
         if (result.samples.length > 1200) throw Error('Corpse observation exceeded bounded sample storage')
-        if (!world.paused && sample.phase === 3) { result.done = true; stop('rise-observed'); return }
+        if (!world.paused && sample.phase === 3) result.done = true
       }
+      publish()
+      if (result.done) { stop('rise-observed'); return }
     } catch (error) { result.error = String(error); stop('error'); return }
-    raf = requestAnimationFrame(visit)
+    if (!stopped) raf = requestAnimationFrame(visit)
   }
-  window.__pndCorpseObservation = { result, stop, retain }
+  window.__pndCorpseObservation = { result, stop, retain, afterObservedRender }
   raf = requestAnimationFrame(visit)
 }
 
