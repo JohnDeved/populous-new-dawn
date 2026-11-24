@@ -258,9 +258,10 @@
       ],
       "evidence": [
         "decomp/generated/00405b80.c",
-        "scripts/check-native-training-conversion.py"
+        "scripts/check-native-training-conversion.py",
+        "tests/ai-census-ghost-training.test.mjs"
       ],
-      "limits": "Instrumented native entry compares randomized occupant and queue state, commit, rollback, mana and shared-order effects. Original allocation/deletion and panel integration are supplied boundaries, and live uses browser object and panel ownership."
+      "limits": "Instrumented native entry compares randomized occupant and queue state, commit, rollback, mana and shared-order effects. Original allocation/deletion and panel integration are supplied boundaries, and live uses browser object and panel ownership. A controlled live camp conversion also verifies that the replacement publishes the ghost mark to the World without marking an ordinary trainee."
     },
     {
       "address": "00406f40",
@@ -5698,9 +5699,10 @@
       ],
       "evidence": [
         "decomp/generated/004c6a20.c",
-        "scripts/check-native-spell-targets.py"
+        "scripts/check-native-spell-targets.py",
+        "tests/ai-shore-reserve.test.mjs"
       ],
-      "limits": "1,024 direct full native calls compare allocation requests and overrides; live AI admits enemies and allocates actual effects through browser adapters."
+      "limits": "1,024 direct full native calls compare allocation requests and overrides; live AI admits enemies and allocates actual effects through browser adapters. In a controlled live shoreline fixture, the owned raid reserve rejects equality and allows a real Blast one mana above it; this is not new aim-search or authored mission evidence."
     },
     {
       "address": "004c8490",
@@ -5731,9 +5733,10 @@
       "evidence": [
         "decomp/generated/004cedd0.c",
         "decomp/research/mission2-startup-commands.md",
-        "tests/ai-marker-patrol.test.mjs"
+        "tests/ai-marker-patrol.test.mjs",
+        "tests/ai-marker-assignment.test.mjs"
       ],
-      "limits": "Source preserves relevant authored markers and actual live order dispatch; native duplicate, queue and other task mode ownership not all mapped."
+      "limits": "Source preserves relevant authored markers and actual live order dispatch; native duplicate, queue and other task mode ownership not all mapped. A controlled type-24 marker selection stamps owner 99 and clears represented assignment bit 0 while preserving flags3 bit 0x2000, leaving an absent byte absent, and preserving ordinary selection."
     },
     {
       "address": "004d0860",
@@ -5745,9 +5748,10 @@
       ],
       "evidence": [
         "decomp/generated/004d0860.c",
-        "scripts/check-native-spell-targets.py"
+        "scripts/check-native-spell-targets.py",
+        "tests/ai-general-raid-reserve.test.mjs"
       ],
-      "limits": "Tracked 1,024 composed native scan/dispatch cases; live feeds reconstructed objects, terrain and casting ownership, not all native campaign state."
+      "limits": "Tracked 1,024 composed native scan/dispatch cases; live feeds reconstructed objects, terrain and casting ownership, not all native campaign state. A controlled live Swarm witness now reserves the acting Shaman's raid budget."
     },
     {
       "address": "004d11b0",
@@ -5783,13 +5787,15 @@
       "scope": "Refresh the eight native-shaped AI spell readiness ranges",
       "sources": [
         "app/spell-casting.ts",
-        "app/computer-spells.ts"
+        "app/computer-spells.ts",
+        "app/computer-runtime.ts"
       ],
       "evidence": [
         "decomp/generated/004d1450.c",
-        "scripts/check-native-spell-casting.py"
+        "scripts/check-native-spell-casting.py",
+        "tests/ai-general-raid-reserve.test.mjs"
       ],
-      "limits": "Direct native readiness writes have tracked comparisons. Actual range source reconstructs native caster occupancy and the attack reservation input is adapted, so full live readiness cannot be credited."
+      "limits": "Direct native readiness writes have tracked comparisons. The live caller now supplies the acting Shaman's own type-20 reservation; the controlled Swarm case rejects a one-mana deficit and admits equality. Native caster occupancy is reconstructed; full live readiness parity is not established."
     },
     {
       "address": "004d2740",
@@ -7457,13 +7463,16 @@
       "status": "partial",
       "scope": "Reserve mana for the three indexed spells of a type-20 task",
       "sources": [
-        "app/spell-casting.ts"
+        "app/spell-casting.ts",
+        "app/computer-runtime.ts"
       ],
       "evidence": [
         "decomp/generated/004f2f50.c",
-        "scripts/check-native-spell-casting.py"
+        "scripts/check-native-spell-casting.py",
+        "tests/ai-general-raid-reserve.test.mjs",
+        "tests/ai-shore-reserve.test.mjs"
       ],
-      "limits": "Native reserved-mana output is compared against the helper with supplied task data. A separate production caller that delivers the active original attack-group ownership was not established."
+      "limits": "Native reserved-mana output is compared against the helper with supplied task data. Live ordinary readiness and shoreline Blast now use the acting Shaman's represented 1-based task ownership. Controlled cases cover zero and duplicate spell slots and the three-slot limit for type-20 tasks. Native attack-group ownership and task lifetime are not fully established."
     },
     {
       "address": "004f2fc0",
@@ -7546,9 +7555,11 @@
       ],
       "evidence": [
         "decomp/generated/004f4d40.c",
-        "scripts/check-native-spell-targets.py"
+        "scripts/check-native-spell-targets.py",
+        "tests/ai-census-ghost-training.test.mjs",
+        "tests/ai-shore-reserve.test.mjs"
       ],
-      "limits": "Original leaf is a strict affordability check, not an aim search. Live castShoreBlast checks cost plus 50000 below population 10; app/computer-runtime.ts currently passes reserve=0, so native type-20 task spell reserves are excluded."
+      "limits": "Original leaf is strict affordability, not aim search. The controlled live shoreline case rejects the exact owned type-20 budget and admits one more mana, while unassigned and non-raid cases still cast without that reserve. Controlled ghost-training cases verify the premium boundary below population ten. Native census and full task ownership remain adapted."
     },
     {
       "address": "004f5950",
