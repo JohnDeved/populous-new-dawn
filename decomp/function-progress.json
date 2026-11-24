@@ -7106,6 +7106,21 @@
       "limits": "2,048 tracked direct native cases compare the copied supplied XY, position fields, flags and released route ownership. Live resting and celebration consumers use it; it does not round the target to the center of a cell."
     },
     {
+      "address": "004e9e50",
+      "status": "partial",
+      "scope": "Set live marching slot and restored order destinations before follower physics",
+      "sources": [
+        "app/live-movement.ts",
+        "app/marching-formations.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e9e50.c",
+        "decomp/generated/00501000.c",
+        "tests/live-authored-formation-destination.test.mjs"
+      ],
+      "limits": "An authored M1 group updates six live targets when it moves and restores two released members to their order destination. The separate alternate-bit clearing control supplies that old bit. Other native callers and packed memory layout are not established."
+    },
+    {
       "address": "004e9e80",
       "status": "partial",
       "scope": "Plan person destination with original route reuse and failure gates",
@@ -8170,6 +8185,21 @@
       "limits": "Native search, list and tested allocation outcomes have a live counterpart; actual group creation is a browser-ID/object adapter, not original native pool ownership."
     },
     {
+      "address": "00501ab0",
+      "status": "partial",
+      "scope": "Find one compatible existing marching formation for an authored late mover",
+      "sources": [
+        "app/marching-formations.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00501ab0.c",
+        "decomp/generated/005018c0.c",
+        "tests/live-authored-formation-recruitment.test.mjs"
+      ],
+      "limits": "Two public M1 orders produce a real late member who joins the same registered group in its next free slot. This does not cover list ties, incompatible headings, capacity boundaries, or native pointer ownership."
+    },
+    {
       "address": "00501be0",
       "status": "implemented",
       "scope": "Release a live formation-owned movement bit and restore normal movement",
@@ -8183,6 +8213,36 @@
         "decomp/generated/00501000.c"
       ],
       "limits": "The actually visited formation restore callback tests and clears assignment bit 0x20, then applies native movement recovery with one speed RNG draw and pose update. Surrounding formation delay and destination belong to the enclosing caller."
+    },
+    {
+      "address": "00501c00",
+      "status": "partial",
+      "scope": "Mark six compatible live movers and choose the nearest to the waypoint",
+      "sources": [
+        "app/marching-formations.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00501c00.c",
+        "decomp/generated/005018c0.c",
+        "tests/live-authored-formation-recruitment.test.mjs"
+      ],
+      "limits": "One authored M1 search visits six registered Braves, temporarily marks them, and chooses the closest as leader. No proof of other models, failed allocation, one-person or equal-distance cases, or all native indexed-cell contents."
+    },
+    {
+      "address": "00501e90",
+      "status": "partial",
+      "scope": "Clear live mover marks and attach five followers after a successful leader allocation",
+      "sources": [
+        "app/marching-formations.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00501e90.c",
+        "decomp/generated/005018c0.c",
+        "tests/live-authored-formation-recruitment.test.mjs"
+      ],
+      "limits": "In one authored M1 recruitment the leader mark is cleared after its attachment and five retained actor marks are cleared in observed search order before attachment. No full or failed allocation, native handle layout, or unrelated cell owners are verified."
     },
     {
       "address": "00501ff0",
