@@ -126,4 +126,11 @@ export function restoreCapacityPolicy(world: World) {
     if (unitIds.has(unit.id)) throw new RangeError('Duplicate scalable checkpoint unit ID')
     unitIds.add(unit.id)
   }
+  // Buildings also have one authoritative footprint per ID. A later duplicate
+  // would overwrite that footprint while array lookups still find the first.
+  const buildingIds = new Set<number>()
+  for (const building of world.buildings) {
+    if (buildingIds.has(building.id)) throw new RangeError('Duplicate scalable checkpoint building ID')
+    buildingIds.add(building.id)
+  }
 }
