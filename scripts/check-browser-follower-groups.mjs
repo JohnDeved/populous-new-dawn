@@ -40,7 +40,7 @@ export default async function followerGroups({ page, output, openMission, receip
   await openMission(1)
   await page.evaluate(() => window.testStore.change(world => { world.speed = 0 }))
   await collapseMessages(page)
-  await page.getByTitle('followers', { exact: true }).click()
+  await page.locator('.dock-tabs').getByRole('button', { name: 'followers', exact: true }).click()
   await page.mouse.move(900, 400)
   // Mission 1 starts with the Shaman selected; Escape clears it through the shipped path.
   await page.keyboard.press('Escape')

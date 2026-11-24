@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { readArtifactZip } from '../artifact-zip.mjs'
+import { readArtifactZip, readOwnedArtifactZip } from '../artifact-zip.mjs'
 
 export const repository = 'JohnDeved/populous-new-dawn'
 export const account = '19321bcee0ed17a93b709cb602dd070c'
@@ -49,8 +49,16 @@ export function fixedConfig() {
     unsafe: { metadata: { keep_bindings: [] } }, send_metrics: false }
 }
 export function materializeBuild(zip, destination, sourceSha) {
+  return materializeZip(zip, destination, sourceSha, readArtifactZip)
+}
+// The publisher owns the downloaded Buffer and does not expose or mutate it
+// until the synchronous parser and writes have consumed all entry views.
+export function materializeOwnedBuild(zip, destination, sourceSha) {
+  return materializeZip(zip, destination, sourceSha, readOwnedArtifactZip)
+}
+function materializeZip(zip, destination, sourceSha, readZip) {
   assert.ok(sha(sourceSha) && sourceSha.length === 40, 'Invalid build identity source SHA')
-  const files = readArtifactZip(zip, { maxArchiveBytes, maxFileBytes: 32 * 1024 * 1024,
+  const files = readZip(zip, { maxArchiveBytes, maxFileBytes: 32 * 1024 * 1024,
     maxTotalBytes: 1024 * 1024 * 1024, maxEntries: 30000,
     allowName: name => /^(client|server)\//.test(name) })
   assert.ok(files.has('server/index.js') && [...files.keys()].some(name => name.startsWith('client/')), 'Missing build output')

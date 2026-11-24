@@ -117,8 +117,8 @@ const rosterLabels = [
 ]
 
 async function openFollowers(page) {
-  await page.getByTitle('followers', { exact: true }).click()
-  const tab = page.getByTitle('followers', { exact: true })
+  await page.locator('.dock-tabs').getByRole('button', { name: 'followers', exact: true }).click()
+  const tab = page.locator('.dock-tabs').getByRole('button', { name: 'followers', exact: true })
   assert.equal(await tab.getAttribute('aria-pressed'), 'true')
   const sprite = tab.locator('.hud-sprite')
   assert.equal(await sprite.evaluate(node => node.style.backgroundPosition), '-914px -26px')

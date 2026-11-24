@@ -64,10 +64,11 @@ function fixture(t) {
   })
   world.paused = true
   const events = [],
-    buttons = ['Save checkpoint', 'Load checkpoint', 'Restart world'].map(name => {
+    buttons = ['Save checkpoint', 'Load checkpoint', 'Yes'].map(name => {
       const listeners = new Set()
       return {
         textContent: name,
+        getAttribute: attribute => (attribute === 'aria-label' ? name : null),
         isConnected: true,
         disabled: false,
         contains: () => false,
@@ -83,7 +84,18 @@ function fixture(t) {
       }
     })
   globalThis.window = { testStore: store }
-  globalThis.document = { querySelectorAll: () => buttons, querySelector: () => null }
+  globalThis.document = {
+    querySelectorAll: selector => {
+      assert.ok(
+        ['dialog[aria-label="Game menu"] button', 'dialog[aria-label="Main menu"] button'].includes(
+          selector
+        )
+      )
+      return buttons
+    },
+    querySelector: selector =>
+      selector === 'dialog[aria-label="Game menu"] h2[aria-label="Restart Level?"]' ? {} : null,
+  }
   installM3CheckpointState()
   const click = async (name, action, trusted = true) => {
     const button = buttons.find(button => button.textContent === name)
@@ -236,7 +248,7 @@ test('trusted Save → synchronous Load reset → early attachment → active Re
   const currentBinding = f.store.bindPresentation(f.store.getWorld())
   currentBinding.advance()
   await prepareM3Replacement({ kind: 'restart', shamanId: 46 })
-  await f.click('Restart world', () => f.store.restart())
+  await f.click('Yes', () => f.store.restart())
   const restarted = window.m3Replacement.close()
   requireRestartBoundary(restarted)
   assert.equal(
@@ -290,8 +302,8 @@ test('trusted Save → synchronous Load reset → early attachment → active Re
   assert.equal(f.store.loadCheckpoint(), true, 'Read back the actual final in-session save')
   assert.equal(f.store.getWorld().buildings.find(building => building.id === temple.id).progress, 1)
   assert.deepEqual(
-    f.events.filter(name => name.endsWith('checkpoint') || name === 'Restart world'),
-    ['Save checkpoint', 'Load checkpoint', 'Restart world', 'Load checkpoint', 'Save checkpoint']
+    f.events.filter(name => name.endsWith('checkpoint') || name === 'Yes'),
+    ['Save checkpoint', 'Load checkpoint', 'Yes', 'Load checkpoint', 'Save checkpoint']
   )
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })
@@ -309,9 +321,29 @@ test('untrusted Save cannot establish a boundary and its listener is removed', a
 
 test('missing public replacement control installs no Scene hook or subscription', async t => {
   const f = fixture(t)
-  f.buttons.find(button => button.textContent === 'Restart world').disabled = true
+  f.buttons.find(button => button.textContent === 'Yes').disabled = true
   await assert.rejects(prepareM3Replacement({ kind: 'restart', shamanId: 46 }), /unavailable/)
   assert.equal(window.m3Replacement, undefined)
+  assert.ok(f.buttons.every(button => button.listeners.size === 0))
+})
+
+test('a Yes button in another confirmation cannot establish a restart boundary', async t => {
+  const f = fixture(t)
+  document.querySelector = () => null
+  await assert.rejects(
+    prepareM3Replacement({ kind: 'restart', shamanId: 46 }),
+    /Restart confirmation unavailable/
+  )
+  assert.equal(window.m3Replacement, undefined)
+  assert.ok(f.buttons.every(button => button.listeners.size === 0))
+})
+
+test('Save observes its accessible name even when rendered glyph text differs', async t => {
+  const f = fixture(t)
+  f.buttons.find(button => button.textContent === 'Save checkpoint').textContent = 'SAVE CHECKPOINT'
+  armM3Save()
+  const evidence = window.finishM3Save()
+  assert.equal(evidence.trusted, false)
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })
 
@@ -360,18 +392,26 @@ test('foreign Scene.start cleanup keeps that owner and returns captured boundary
   assert.ok(f.buttons.every(button => button.listeners.size === 0))
 })
 
-test('startup Load discovers the actual store without a Scene and restores M3 from a null session bank', async t => {
+test('startup Load discovers the actual store without a Scene and restores M3 from the initialized startup landscape bank', async t => {
   const f = fixture(t)
   f.store.saveCheckpoint()
   const saved = { boundary: { snapshot: window.m3CheckpointState(f.world) } }
   globalThis.testCheckpoint = { version: 1, world: structuredClone(f.world) }
   saved.digest = { checkpoint: await checkpointObservation({ observationName: 'testCheckpoint' }) }
   f.store.startMission(1)
-  assert.equal(f.store.getPresentationSnapshot(), null)
+  const startupResource = structuredClone(f.store.getPresentationSnapshot())
+  assert.deepEqual(startupResource, {
+    bank: 'c',
+    modelAtlas: 'atlas',
+    epoch: 3,
+    counter: 0,
+    tile: 92,
+  })
   delete window.testStore
   delete window.m3BuildingScreen
   const load = f.buttons.find(button => button.textContent === 'Load checkpoint')
   load.textContent = 'Load Game'
+  load.getAttribute = attribute => (attribute === 'aria-label' ? 'Load Game' : null)
   document.querySelector = selector =>
     selector === 'main'
       ? { __reactFiber_fixture: { memoizedState: { memoizedState: f.store } } }
@@ -418,11 +458,26 @@ test('startup Load discovers the actual store without a Scene and restores M3 fr
     await checkpointObservation({ observationName: 'testCheckpoint' })
   )
   assert.equal(transition.before.snapshot.level, 1)
-  assert.equal(transition.before.resource, null)
+  assert.deepEqual(transition.before.resource, startupResource)
   assert.equal(window.testStore, f.store)
   assert.equal(attached[0], f.store.getWorld())
   assert.notEqual(attached[0], f.world)
-  const invalid = structuredClone(transition)
-  invalid.before.resource = { bank: 'p', epoch: 55 }
-  assert.throws(() => requireLoadBoundary(invalid, saved, saved.digest.checkpoint))
+  for (const mutate of [
+    value => {
+      value.before.resource = null
+    },
+    value => {
+      value.before.resource.bank = 'p'
+    },
+    value => {
+      value.after.resource.epoch = value.before.resource.epoch
+    },
+    value => {
+      value.after.resource.counter = 1
+    },
+  ]) {
+    const invalid = structuredClone(transition)
+    mutate(invalid)
+    assert.throws(() => requireLoadBoundary(invalid, saved, saved.digest.checkpoint))
+  }
 })

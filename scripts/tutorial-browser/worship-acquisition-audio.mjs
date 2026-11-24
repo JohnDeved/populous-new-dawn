@@ -7,6 +7,8 @@ export function installWorshipAudioProbe() {
   button.textContent = 'Test worship acquisition audio'
   document.body.append(button)
   button.addEventListener('click', async event => {
+    // Do not leave the test control in panel screenshots while loading continues.
+    button.remove()
     const sound = new window.__pndWorshipPanelFixture.Soundscape()
     const result = { trusted: event.isTrusted }
     window.__pndWorshipAudioProbe = { sound, result }
@@ -42,4 +44,20 @@ export function assertWorshipAudio(result) {
   assert.equal(result.matchingSources, 1, 'Cue 0x71 must start the actual decoded sound-169 buffer')
   assert.equal(result.released, true)
   assert.equal(result.contextClosed, true)
+}
+
+// Read-only bounded scalar snapshot; no method calls on audio owners.
+export function snapshotWorshipAudio() {
+  const probe = window.__pndWorshipAudioProbe
+  if (!probe) return { present: false }
+  const { sound, result } = probe
+  return {
+    present: true, done: result.done === true, trusted: result.trusted,
+    enabled: sound.enabled, contextState: sound.context?.state ?? null,
+    decodedSamples: sound.buffers.size, acquisitionDecoded: sound.buffers.has('sound-169'),
+    activeSources: sound.active.size, musicReadyState: sound.music?.element?.readyState ?? null,
+    musicPaused: sound.music?.element?.paused ?? null,
+    musicErrorCode: sound.music?.element?.error?.code ?? null,
+    disposed: sound.disposed, error: result.error?.slice(0, 512) ?? null,
+  }
 }

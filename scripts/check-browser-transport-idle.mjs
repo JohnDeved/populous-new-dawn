@@ -51,7 +51,7 @@ export default async function transportIdle({ page, openMission, output, receipt
   assert.equal(boarding.authoredRetained, true)
   assert.equal(boarding.airborne, model === 3)
   assert.deepEqual(boarding.selected, [ids.spy])
-  await page.getByTitle('followers', { exact: true }).click()
+  await page.locator('.dock-tabs').getByRole('button', { name: 'followers', exact: true }).click()
   const buttons = page.locator('.command-dock button[aria-label^="Disguise selected spies as "]')
   assert.ok(await buttons.count())
   const label = await buttons.first().getAttribute('aria-label')

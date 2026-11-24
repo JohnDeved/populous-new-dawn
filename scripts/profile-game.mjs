@@ -1,5 +1,9 @@
 // Repeatable render-loop baseline. Headless timings are diagnostic, not hardware fps certification.
 import assert from 'node:assert/strict'
+import { createProfileEvidence } from './profile-evidence.mjs'
+import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { fileURLToPath } from 'node:url'
 import { writeFileSync } from 'node:fs'
 import { cpus, platform, arch } from 'node:os'
 import { chromium } from '@playwright/test'
@@ -16,6 +20,14 @@ import {
   terrainCopiesBaseline,
 } from './terrain-copies-baseline.mjs'
 
+const sourceRoot = fileURLToPath(new URL('..', import.meta.url))
+const git = (...args) => execFileSync('git', args, { cwd: sourceRoot })
+const source = {
+  head: git('rev-parse', 'HEAD').toString().trim(),
+  status: git('status', '--porcelain=v1').toString(),
+  trackedDiffSha256: createHash('sha256').update(git('diff', '--binary', 'HEAD')).digest('hex'),
+  scope: 'HEAD plus tracked working-tree diff; untracked files are listed, not content-bound',
+}
 const headed = process.argv.includes('--headed')
 const compareTerrainCopies = process.argv.includes('--compare-terrain-copies')
 const compareViewportBounds = process.argv.includes('--compare-viewport-bounds')
@@ -155,6 +167,15 @@ try {
       renderer: info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
     }
   }, fullTerrain)
+  const path =
+    process.argv.slice(2).find(a => !a.startsWith('--')) ?? '/private/tmp/populous-performance.json'
+  const evidence = createProfileEvidence(path, {
+    date: new Date().toISOString(),
+    arguments: process.argv.slice(2),
+    source,
+    runtime: process.version,
+    environment,
+  })
   const runs = []
   let crowdAdded = false
   const scenarios = movingProfile
@@ -285,6 +306,13 @@ try {
           viewport: [innerWidth, innerHeight],
         },
       }))
+    const rawEvidence = evidence.writeRun(index, {
+      scenario, startPose, smoothCamera, coveredSky, optimizedPainter,
+      compactTerrain, expandedViewport, smoothUnits,
+      observations: { ...data, frames: undefined },
+    }, data.frames, profile)
+    // Publish the location before validation: a failed sample still has evidence.
+    console.error(`Raw profile evidence: ${rawEvidence.path}`)
     assert.ok(data.frames.length > 5, 'Render loop stopped')
     const landTriangles = [...new Set(data.frames.map(f => f.landTriangles))]
     if (
@@ -312,6 +340,7 @@ try {
       samples.set(key, (samples.get(key) ?? 0) + profile.timeDeltas[i])
     })
     runs.push({
+      rawEvidence,
       scenario,
       startPose,
       landTriangles,
@@ -353,6 +382,7 @@ try {
   if (compareSky) await page.evaluate(() => window.skyMaterials[0].dispose())
   assert.deepEqual(errors, [])
   const report = {
+    source,
     date: new Date().toISOString(),
     headed,
     fullTerrain,
@@ -378,8 +408,6 @@ try {
     ...environment,
     runs,
   }
-  const path =
-    process.argv.slice(2).find(a => !a.startsWith('--')) ?? '/private/tmp/populous-performance.json'
   writeFileSync(path, JSON.stringify(report, null, 2) + '\n')
   console.log(JSON.stringify(report, null, 2))
 } finally {

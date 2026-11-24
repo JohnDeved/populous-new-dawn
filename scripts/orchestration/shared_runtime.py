@@ -107,7 +107,7 @@ def source_state(source, revision, scope='full'):
         if path.exists() or path.is_symlink():
             physical(path.parent)
             entry['bytes'] = path.lstat().st_size
-            regular_bytes(path, entry)
+            regular_digest(path, entry, sha256=False)
             require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'),
                     f'Source executable mode changed: {entry["path"]}')
         else:
@@ -138,7 +138,9 @@ def selected(entry, scope):
 
 
 def blob_oid(data):
-    return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+    oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0')
+    oid.update(data)
+    return oid.hexdigest()
 
 
 class Blobs:
@@ -157,7 +159,51 @@ class Blobs:
         require(blob_oid(data) == entry['oid'], 'Git object content mismatch')
         return data
 
+    def planning_digest(self, entry):
+        # Planning authenticates the Git object but has no consumer for its bytes.
+        try:
+            self.proc.stdin.write((entry['oid'] + '\n').encode())
+            self.proc.stdin.flush()
+            size = entry['bytes']
+            expected = f"{entry['oid']} blob {size}\n".encode()
+            header = self.proc.stdout.readline(len(expected) + 1)
+            require(header == expected, 'Git object identity changed or truncated header')
+            left = size
+            blob = hashlib.sha1(b'blob ' + str(size).encode() + b'\0')
+            content = hashlib.sha256()
+            chunk = memoryview(bytearray(min(size, 64 * 1024)))
+            while left:
+                count = self.proc.stdout.readinto(chunk[:left])
+                require(count, 'Truncated Git object')
+                blob.update(chunk[:count])
+                content.update(chunk[:count])
+                left -= count
+            require(self.proc.stdout.read(1) == b'\n', 'Truncated Git object')
+            require(blob.hexdigest() == entry['oid'], 'Git object content mismatch')
+            return content.hexdigest()
+        except BaseException as issue:
+            # Rejected output may leave an owned child blocked on a full pipe.
+            self._planning_aborted = True
+            try:
+                self.proc.terminate()
+                try:
+                    self.proc.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    self.proc.kill()
+                    self.proc.wait(timeout=1)
+            except Exception as cleanup:
+                issue.add_note(f'Could not reap rejected Git object reader: {cleanup}')
+            finally:
+                for pipe in (self.proc.stdin, self.proc.stdout, self.proc.stderr):
+                    try:
+                        pipe.close()
+                    except Exception as cleanup:
+                        issue.add_note(f'Could not close rejected Git reader pipe: {cleanup}')
+            raise
+
     def close(self):
+        if getattr(self, '_planning_aborted', False):
+            return
         self.proc.stdin.close()
         code = self.proc.wait()
         self.proc.stdout.close()
@@ -172,6 +218,47 @@ def regular_bytes(path, entry):
     data = path.read_bytes()
     require(blob_oid(data) == entry['oid'], f'File content changed: {path}')
     return data
+
+
+REGULAR_FILE_HASH_CHUNK_BYTES = 64 * 1024
+
+
+def regular_digest(path, entry, *, sha256=True):
+    def fingerprint(info):
+        # A cooperating publisher can add another CAS hardlink (ctime/nlink)
+        # without changing any bytes or the identity authenticated here.
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_size, info.st_mtime_ns)
+
+    info = path.lstat()
+    require(stat.S_ISREG(info.st_mode), f'Expected regular file: {path}')
+    require(info.st_size == entry['bytes'], f'File size changed: {path}')
+    identity = fingerprint(info)
+    blob = hashlib.sha1(b'blob ' + str(info.st_size).encode() + b'\0')
+    content = hashlib.sha256() if sha256 else None
+    nofollow = getattr(os, 'O_NOFOLLOW', 0)
+    nonblock = getattr(os, 'O_NONBLOCK', 0)
+    require(type(nofollow) is int and nofollow > 0 and type(nonblock) is int and nonblock > 0,
+            'Physical file hashing requires O_NOFOLLOW and O_NONBLOCK')
+
+    def opener(name, flags):
+        return os.open(name, flags | nofollow | nonblock)
+
+    with open(path, 'rb', buffering=0, opener=opener) as source:
+        require(fingerprint(os.fstat(source.fileno())) == identity, f'File changed while opening: {path}')
+        chunk = memoryview(bytearray(min(info.st_size, REGULAR_FILE_HASH_CHUNK_BYTES)))
+        left = info.st_size
+        while left:
+            count = source.readinto(chunk[:left])
+            require(count, f'File size changed: {path}')
+            blob.update(chunk[:count])
+            if content is not None:
+                content.update(chunk[:count])
+            left -= count
+        require(not source.read(1), f'File size changed: {path}')
+        require(fingerprint(os.fstat(source.fileno())) == identity, f'File changed while reading: {path}')
+    require(fingerprint(path.lstat()) == identity, f'File changed while reading: {path}')
+    require(blob.hexdigest() == entry['oid'], f'File content changed: {path}')
+    return content.hexdigest() if content is not None else None
 
 
 def file_inventory(root):
@@ -194,6 +281,10 @@ def check_tree(pool, asset_tree, assets, version=2):
     require(version in (1, 2), 'Unknown asset tree version')
     physical(pool / 'blobs')
     tree = physical(pool / ('trees' if version == 1 else ASSET_TREES) / asset_tree)
+    return _check_asset_tree_path(pool, tree, assets, version)
+
+
+def _check_asset_tree_path(pool, tree, assets, version):
     expected = {entry['path'][len(ASSETS) + 1:]: entry for entry in assets}
     actual = file_inventory(tree)
     require(set(actual) == set(expected) | parent_names(expected), 'Asset tree has undeclared or missing paths')
@@ -202,8 +293,7 @@ def check_tree(pool, asset_tree, assets, version=2):
     for rel, entry in expected.items():
         target = tree / rel
         blob = pool / 'blobs' / entry['sha256']
-        data = regular_bytes(blob, entry)
-        require(digest(data) == entry['sha256'], f'Asset digest changed: {rel}')
+        require(regular_digest(blob, entry) == entry['sha256'], f'Asset digest changed: {rel}')
         if version == 1:
             require(target.is_symlink(), f'Asset tree entry must be a declared symlink: {rel}')
             require(os.readlink(target) == os.path.relpath(blob, target.parent), f'Asset symlink target changed: {rel}')
@@ -232,8 +322,7 @@ def asset_reuse(pool, assets):
         if not path.exists() and not path.is_symlink():
             continue
         before = path.lstat()
-        data = regular_bytes(path, entry)
-        require(digest(data) == sha, 'Existing CAS blob changed')
+        require(regular_digest(path, entry) == sha, 'Existing CAS blob changed')
         after = path.lstat()
         identity = lambda info: (info.st_dev, info.st_ino, info.st_mode, info.st_size,
                                  info.st_mtime_ns, info.st_ctime_ns, info.st_nlink)
@@ -252,10 +341,9 @@ def runtime_manifest(state, pool, runtime, scope, records, budget):
     return manifest
 
 
-def allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes):
+def allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes, filesystems):
     """Conservative new allocations; reserves are separate and never discounted."""
-    fs = os.statvfs(runtime.parent)
-    block = max(4096, fs.f_frsize)
+    block = max(4096, *(fs['fragmentBytes'] for fs in filesystems))
     rounded = lambda size: ((size + block - 1) // block) * block
     ordinary = [e for e in records if not e['path'].startswith(ASSETS + '/')]
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
@@ -277,7 +365,13 @@ def allocation_budget(state, pool, runtime, scope, records, reused, reserve_byte
         'manifestBytes': rounded(manifest_bound) + block,
     }
     return {'version': 2, 'method': 'verified-cas-new-allocation-v1',
-            'availableBytes': fs.f_bavail * fs.f_frsize,
+            'capacityAccounting': 'same-device-minimum-blocks-and-inodes-v1',
+            'availableBytes': min(fs['availableBytes'] for fs in filesystems),
+            'availableInodes': min(fs['availableInodes'] for fs in filesystems),
+            # Hardlinks reuse an inode. Include every projected directory,
+            # ordinary copy, missing CAS leaf, manifest, and runtime symlink.
+            'newInodeEstimate': directories + len(ordinary) + len(missing) + 2,
+            'allocationDevices': filesystems,
             'fullCopyEstimateBytes': sum(((e['bytes'] + 4095) // 4096 + 1) * 4096 for e in records),
             'newAllocationEstimateBytes': sum(allocations.values()), 'allocations': allocations,
             'verifiedReusedBlobCount': len(reused),
@@ -286,8 +380,17 @@ def allocation_budget(state, pool, runtime, scope, records, reused, reserve_byte
             'reserveBytes': reserve_bytes, 'measuredAt': time.time()}
 
 
+def require_allocation_capacity(budget, reserve_bytes, *, locked):
+    require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
+            'Insufficient destination capacity after publication lock' if locked else
+            'Insufficient destination capacity for new allocations and unchanged reserve')
+    require(budget['availableInodes'] >= budget['newInodeEstimate'],
+            'Insufficient destination inodes after publication lock' if locked else
+            'Insufficient destination inodes for projected runtime')
+
+
 def check_allocation_filesystems(pool, runtime, asset_tree, missing_blobs):
-    """Reject read-only destinations without writing a probe or changing mounts."""
+    """Measure every allocation destination without probing writes or changing mounts."""
     readonly_flag = getattr(os, 'ST_RDONLY', None)
     require(type(readonly_flag) is int and readonly_flag > 0,
             'Read-only filesystem flag is unavailable for allocation admission')
@@ -300,18 +403,31 @@ def check_allocation_filesystems(pool, runtime, asset_tree, missing_blobs):
         roots.append(pool / 'blobs')
     if new_tree:
         roots.append(pool / ASSET_TREES)
-    checked = set()
+    expected_device = runtime.parent.stat().st_dev
+    checked = []
     for root in roots:
         path = physical(root, absent=True)
         while not path.exists():
             path = path.parent
-        if path in checked:
-            continue
-        checked.add(path)
-        flags = getattr(os.statvfs(path), 'f_flag', None)
+        device = path.stat().st_dev
+        require(device == expected_device, f'Allocation filesystem changed: {path}')
+        fs = os.statvfs(path)
+        flags = getattr(fs, 'f_flag', None)
         require(type(flags) is int and flags >= 0,
                 f'Filesystem flags are unavailable for allocation path: {path}')
         require(not flags & readonly_flag, f'Read-only allocation filesystem: {path}')
+        fragment, blocks, inodes, inode_total = (
+            getattr(fs, field, None) for field in ('f_frsize', 'f_bavail', 'f_favail', 'f_files'))
+        require(type(fragment) is int and fragment > 0 and
+                type(blocks) is int and blocks >= 0 and
+                type(inode_total) is int and inode_total > 0 and
+                type(inodes) is int and 0 <= inodes <= inode_total,
+                f'Allocation counters are unavailable for path: {path}')
+        checked.append({'root': str(root), 'device': device,
+                        'fragmentBytes': fragment,
+                        'availableBytes': blocks * fragment,
+                        'availableInodes': inodes})
+    return checked
 
 
 def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
@@ -344,16 +460,15 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     reader = Blobs(source)
     try:
         for entry in entries:
-            records.append({**entry, 'sha256': digest(reader.read(entry))})
+            records.append({**entry, 'sha256': reader.planning_digest(entry)})
     finally:
         reader.close()
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
     reused = asset_reuse(pool, assets)
     missing_blobs = any(entry['sha256'] not in reused for entry in assets)
-    check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
-    budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
-    require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
-            'Insufficient destination capacity for new allocations and unchanged reserve')
+    filesystems = check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
+    budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes, filesystems)
+    require_allocation_capacity(budget, reserve_bytes, locked=False)
     pool.mkdir(exist_ok=True)
     physical(pool)
     require(pool.stat().st_dev == target_parent.stat().st_dev, 'Allocation pool filesystem changed')
@@ -369,17 +484,27 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
             physical(path)
             require((path.stat().st_dev, path.stat().st_ino) == identity, 'Allocation filesystem root changed')
         require(asset_reuse(pool, assets) == reused, 'CAS inventory changed during allocation planning')
-        check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
-        locked_budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
-        require(locked_budget['allocations'] == budget['allocations'] and
-                locked_budget['allocationBlockBytes'] == budget['allocationBlockBytes'],
-                'Allocation geometry changed during planning')
-        budget = locked_budget
-        require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
-                'Insufficient destination capacity after publication lock')
+        refreshed = check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
+        geometry = lambda snapshots: [(r['root'], r['device'], r['fragmentBytes']) for r in snapshots]
+        require(geometry(filesystems) == geometry(refreshed), 'Allocation geometry changed during planning')
+        budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes, refreshed)
+        require_allocation_capacity(budget, reserve_bytes, locked=True)
         (pool / 'blobs').mkdir(exist_ok=True)
         (pool / ASSET_TREES).mkdir(exist_ok=True)
         physical(pool / 'blobs'); physical(pool / ASSET_TREES)
+        tree = pool / ASSET_TREES / state['assetTree']
+        staging = None
+        if not tree.exists() and not tree.is_symlink():
+            # Preserve failed stages for diagnosis, but allow only one automatic
+            # retry per tree so repeated failures cannot keep consuming space.
+            for slot in (1, 2):
+                candidate = tree.with_name(f'.{tree.name}.staging-{slot}')
+                if not candidate.exists() and not candidate.is_symlink():
+                    staging = candidate
+                    break
+            require(staging is not None,
+                    f'Asset tree staging limit reached for {tree.name}; '
+                    'two prior staging paths retained for diagnosis')
         runtime.mkdir()
         blobs = Blobs(source)
         materialized = []
@@ -392,7 +517,7 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 prepared_assets.append(record)
                 blob = pool / 'blobs' / record['sha256']
                 if blob.exists() or blob.is_symlink():
-                    require(digest(regular_bytes(blob, record)) == record['sha256'], 'Existing CAS blob changed')
+                    require(regular_digest(blob, record) == record['sha256'], 'Existing CAS blob changed')
                 else:
                     with blob.open('xb') as out:
                         out.write(data)
@@ -404,16 +529,22 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 # Preserve executable source mode, never alter an existing file or security setting.
                 if entry['mode'] == '100755':
                     target.chmod(0o755)
+            del data  # Do not overlap adjacent payloads or keep one through verification.
         blobs.close(); blobs = None
-        tree = pool / ASSET_TREES / state['assetTree']
-        if not tree.exists() and not tree.is_symlink():
-            tree.mkdir()
+        if staging is not None:
+            # Publish only a complete tree while holding the writer lock.
+            staging.mkdir()
             for entry in prepared_assets:
-                target = tree / entry['path'][len(ASSETS) + 1:]
+                target = staging / entry['path'][len(ASSETS) + 1:]
                 target.parent.mkdir(parents=True, exist_ok=True)
                 # Never chmod/copy shared content or change an existing v1 tree.
                 os.link(pool / 'blobs' / entry['sha256'], target, follow_symlinks=False)
-        check_tree(pool, state['assetTree'], prepared_assets)
+            _check_asset_tree_path(pool, physical(staging), prepared_assets, 2)
+            require(not tree.exists() and not tree.is_symlink(),
+                    'Asset tree appeared during publication')
+            staging.rename(tree)
+        else:
+            check_tree(pool, state['assetTree'], prepared_assets)
         link = runtime / ASSETS
         link.parent.mkdir(parents=True, exist_ok=True)
         link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)
@@ -466,8 +597,7 @@ def verify(source, revision, pool, runtime):
     for entry in ordinary:
         path = runtime / entry['path']
         physical(path.parent)
-        data = regular_bytes(path, entry)
-        require(digest(data) == entry['sha256'], 'Runtime digest changed')
+        require(regular_digest(path, entry) == entry['sha256'], 'Runtime digest changed')
         require(bool(path.stat().st_mode & 0o111) == (entry['mode'] == '100755'), 'Runtime executable mode changed')
     expected_paths = {e['path'] for e in ordinary} | {ASSETS}
     parents = parent_names(expected_paths)

@@ -1,4 +1,6 @@
+import errno
 import importlib.util
+import io
 import json
 import os
 import signal
@@ -65,8 +67,11 @@ class SharedRuntimeTests(unittest.TestCase):
         finally:
             reader.close()
         assets = [e for e in records if e['path'].startswith(storage.ASSETS + '/')]
+        reused = storage.asset_reuse(self.pool, assets)
+        missing = any(e['sha256'] not in reused for e in assets)
+        snapshots = storage.check_allocation_filesystems(self.pool, self.runtime, state['assetTree'], missing)
         return storage.allocation_budget(state, self.pool, self.runtime, 'build', records,
-                                         storage.asset_reuse(self.pool, assets), 1024 * 1024)
+                                         reused, 1024 * 1024, snapshots)
 
     def legacy_view(self):
         """Construct the retired v1 layout only inside an isolated test fixture."""
@@ -300,6 +305,252 @@ globalThis.sharedAssetResult = { runtime, provenance };
         self.assertEqual(before, storage.verify(self.source, self.revision, self.pool, candidate))
         self.assertEqual(self.verify()['status'], 'verified')
 
+    def test_asset_validation_does_not_read_a_whole_asset_into_memory(self):
+        target = self.source / 'public/original/sub/game.bin'
+        data = bytes(range(256)) * 300
+        target.write_bytes(data)
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        asset_sha = storage.digest(data)
+        self.prepare()
+        old_read = Path.read_bytes
+
+        def forbid_whole_asset(path):
+            if path.name in (target.name, asset_sha):
+                self.fail('validation buffered an entire asset')
+            return old_read(path)
+
+        with mock.patch.object(Path, 'read_bytes', forbid_whole_asset):
+            result = self.verify()
+        self.assertEqual(result['status'], 'verified')
+        self.assertTrue((self.runtime / 'public/original/sub/game.bin')
+                        .samefile(self.pool / 'blobs' / asset_sha))
+
+    def test_asset_hash_refuses_file_growing_after_descriptor_check(self):
+        self.prepare()
+        blob = self.asset_blob()
+        info = blob.stat()
+        fstat = os.fstat
+        changed = False
+
+        def grow_after_observing(fd):
+            nonlocal changed
+            current = fstat(fd)
+            if (not changed and current.st_dev == info.st_dev
+                    and current.st_ino == info.st_ino):
+                changed = True
+                with blob.open('ab') as out:
+                    out.write(b'x')
+            return current
+
+        with mock.patch.object(os, 'fstat', grow_after_observing):
+            with self.assertRaisesRegex(ValueError, 'File size changed'):
+                self.verify()
+        self.assertTrue(changed)
+
+    def test_asset_hash_tolerates_new_hardlink_to_same_immutable_blob(self):
+        self.prepare()
+        blob = self.asset_blob()
+        info = blob.stat()
+        new_link = self.root / 'parallel-view-hardlink'
+        fstat = os.fstat
+
+        def link_after_observing(fd):
+            current = fstat(fd)
+            if (not new_link.exists() and current.st_dev == info.st_dev
+                    and current.st_ino == info.st_ino):
+                os.link(blob, new_link)
+            return current
+
+        with mock.patch.object(os, 'fstat', link_after_observing):
+            self.assertEqual(self.verify()['status'], 'verified')
+        self.assertTrue(new_link.samefile(blob))
+
+    def test_asset_hash_refuses_same_inode_content_change_after_streaming(self):
+        self.prepare()
+        blob = self.asset_blob()
+        info = blob.stat()
+        fstat = os.fstat
+        seen = 0
+
+        def mutate_before_final_observation(fd):
+            nonlocal seen
+            current = fstat(fd)
+            if current.st_dev == info.st_dev and current.st_ino == info.st_ino:
+                seen += 1
+                if seen == 2:
+                    with blob.open('r+b') as out:
+                        out.write(b'x')
+                    os.utime(blob, ns=(info.st_atime_ns, info.st_mtime_ns + 2_000_000_000))
+                    self.assertEqual(blob.stat().st_ino, info.st_ino)
+                    return fstat(fd)
+            return current
+
+        with mock.patch.object(os, 'fstat', mutate_before_final_observation):
+            with self.assertRaisesRegex(ValueError, 'File changed while reading'):
+                self.verify()
+        self.assertEqual(seen, 2)
+
+    def test_asset_hash_requires_nofollow_and_nonblocking_open_support(self):
+        self.prepare()
+        for flag in ('O_NOFOLLOW', 'O_NONBLOCK'):
+            with self.subTest(flag=flag), mock.patch.object(os, flag, 0):
+                with self.assertRaisesRegex(ValueError, 'requires O_NOFOLLOW and O_NONBLOCK'):
+                    self.verify()
+
+    def test_planning_digest_requires_canonical_framing_and_verified_status(self):
+        data = b'known object'
+        oid = storage.blob_oid(data)
+        expected = {'oid': oid, 'bytes': len(data)}
+        header = f'{oid} blob {len(data)}\n'.encode()
+
+        def run(response, *, status=0, entry=expected):
+            request = io.BytesIO()
+            reader = storage.Blobs.__new__(storage.Blobs)
+            reader.proc = SimpleNamespace(
+                stdin=request, stdout=io.BytesIO(response), stderr=io.BytesIO(),
+                wait=mock.Mock(return_value=status), terminate=mock.Mock(), kill=mock.Mock())
+            try:
+                digest = reader.planning_digest(entry)
+                self.assertEqual(request.getvalue(), (entry['oid'] + '\n').encode())
+                return digest
+            finally:
+                reader.close()
+                self.assertTrue(all(getattr(reader.proc, name).closed
+                                    for name in ('stdin', 'stdout', 'stderr')))
+
+        self.assertEqual(run(header + data + b'\n'), storage.digest(data))
+        empty = {'oid': storage.blob_oid(b''), 'bytes': 0}
+        self.assertEqual(run(f"{empty['oid']} blob 0\n\n".encode(), entry=empty), storage.digest(b''))
+        for bad_header in (
+            b'0' * 40 + header[40:],
+            header.replace(b' blob ', b' tree '),
+            header.replace(b' blob ', b'  blob '),
+            header.replace(b' blob ', b' blob +'),
+            header.replace(b' blob ', b' blob 0'),
+            header.replace(b' blob ', b' blob 1'),
+            b'x' * 256 + b'\n',
+        ):
+            with self.subTest(header=bad_header), self.assertRaisesRegex(ValueError, 'Git object identity'):
+                run(bad_header + data + b'\n')
+        for payload in (data[:-1], data + b'x'):
+            with self.subTest(payload=payload), self.assertRaisesRegex(ValueError, 'Truncated Git object'):
+                run(header + payload)
+        with self.assertRaisesRegex(ValueError, 'Git object content mismatch'):
+            run(header + b'x' + data[1:] + b'\n')
+        with self.assertRaisesRegex(ValueError, 'Git object reader failed'):
+            run(header + data + b'\n', status=7)
+
+    @unittest.skipUnless(os.name == 'posix' and hasattr(os, 'killpg'),
+                         'requires an isolated POSIX process group for the watchdog')
+    def test_planning_digest_reaps_an_owned_overproducer(self):
+        # The watchdog can clean up only this test-owned group, even if a
+        # regression leaves the inner reader waiting for a pipe-blocked child.
+        fixture = r'''
+import importlib.util
+import signal
+import subprocess
+import sys
+spec = importlib.util.spec_from_file_location('runtime', sys.argv[1])
+storage = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(storage)
+data = b'expected object'
+oid = storage.blob_oid(data)
+producer = r"""
+import signal, sys
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+assert sys.stdin.buffer.readline() == sys.argv[1].encode() + b'\n'
+sys.stdout.buffer.write(b'0' * 40 + b' blob 67108864\n')
+sys.stdout.buffer.flush()
+for _ in range(1024):
+    sys.stdout.buffer.write(bytes(65536))
+    sys.stdout.buffer.flush()
+"""
+reader = storage.Blobs.__new__(storage.Blobs)
+reader.proc = subprocess.Popen([sys.executable, '-c', producer, oid],
+                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+try:
+    try:
+        reader.planning_digest({'oid': oid, 'bytes': len(data)})
+    finally:
+        reader.close()
+except ValueError as issue:
+    assert 'Git object identity changed' in str(issue), issue
+    assert not getattr(issue, '__notes__', ()), issue.__notes__
+else:
+    raise AssertionError('noncanonical header accepted')
+assert reader.proc.returncode == -signal.SIGKILL, reader.proc.returncode
+assert all(pipe.closed for pipe in (reader.proc.stdin, reader.proc.stdout, reader.proc.stderr))
+'''
+        p = subprocess.Popen([sys.executable, '-B', '-c', fixture, str(HELPER)],
+                             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, start_new_session=True)
+        try:
+            out, err = p.communicate(timeout=20)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(p.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            p.communicate(timeout=5)
+            self.fail('planning reader did not reap the owned child before the watchdog')
+        self.assertEqual(p.returncode, 0, (out + err).decode(errors='replace'))
+
+    def test_blob_oid_matches_canonical_git_header_and_bytes(self):
+        for data in (b'', b'\x00\xff', bytes(range(256)) * 300):
+            with self.subTest(size=len(data)):
+                expected = self.git_hash_bytes(data)
+                self.assertEqual(storage.blob_oid(data), expected)
+
+    def git_hash_bytes(self, data):
+        return subprocess.check_output(['git', '-C', str(self.source), 'hash-object', '--stdin'],
+                                       input=data).decode().strip()
+
+    def test_corrupt_materialization_read_never_publishes_that_asset(self):
+        second = self.source / 'public/original/sub/second.bin'
+        second.write_bytes(b'a second verified asset')
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        tree_id = self.git('rev-parse', self.revision + ':' + storage.ASSETS).strip()
+        expected = second.read_bytes()
+        original = storage.Blobs.read
+        corrupt_payload = bytes([expected[0] ^ 1]) + expected[1:]
+
+        class CorruptedRead:
+            def __init__(self, stream):
+                self.stream = stream
+
+            def __getattr__(self, name):
+                return getattr(self.stream, name)
+
+            def read(self, count):
+                value = self.stream.read(count)
+                return corrupt_payload if count == len(expected) and value == expected else value
+
+        def intercept(reader, entry):
+            self.assertTrue((self.pool / '.writer-lock').exists())
+            if entry['path'] != 'public/original/sub/second.bin':
+                return original(reader, entry)
+            stream = reader.proc.stdout
+            reader.proc.stdout = CorruptedRead(stream)
+            try:
+                return original(reader, entry)
+            finally:
+                reader.proc.stdout = stream
+
+        with mock.patch.object(storage.Blobs, 'read', intercept), self.assertRaisesRegex(
+                ValueError, 'Git object content mismatch'):
+            self.prepare()
+        self.assertEqual(second.read_bytes(), expected)
+        self.assertTrue(self.asset_blob().exists())
+        self.assertFalse((self.pool / 'blobs' / storage.digest(expected)).exists())
+        self.assertFalse((self.pool / 'blobs' / storage.digest(corrupt_payload)).exists())
+        self.assertFalse((self.pool / storage.ASSET_TREES / tree_id).exists())
+        self.assertFalse((self.runtime / storage.ASSETS).is_symlink())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+
     def test_asset_undeclared_file_refused(self):
         result = self.prepare()
         (self.pool / storage.ASSET_TREES / result['assetTree'] / 'extra').write_text('not declared')
@@ -361,6 +612,57 @@ globalThis.sharedAssetResult = { runtime, provenance };
             storage.prepare(self.source, self.revision, self.pool, self.runtime, 10**20)
         self.assertFalse(self.pool.exists())
 
+    def test_destination_pool_pressure_refuses_before_asset_or_runtime_creation(self):
+        for field in ('f_bavail', 'f_favail'):
+            with self.subTest(field=field):
+                self.pool = self.root / f'pressure-pool-{field}'
+                self.runtime = self.root / f'pressure-runtime-{field}'
+                self.pool.mkdir()
+
+                def snapshot(path):
+                    values = dict(f_frsize=4096, f_bavail=10**9, f_favail=500,
+                                  f_files=1000, f_flag=0)
+                    if path == self.pool:
+                        values[field] = 1
+                    return SimpleNamespace(**values)
+
+                with mock.patch.object(storage.os, 'statvfs', side_effect=snapshot):
+                    with self.assertRaisesRegex(ValueError, 'Insufficient destination (capacity|inodes)'):
+                        self.prepare()
+                self.assertFalse(self.runtime.exists())
+                self.assertEqual(list(self.pool.iterdir()), [])
+                self.assertEqual(self.git('status', '--porcelain'), '')
+
+    def test_locked_inode_drop_and_fragment_drift_refuse_before_copy(self):
+        for loss, message in (('f_favail', 'inodes after publication lock'),
+                              ('f_frsize', 'geometry changed')):
+            with self.subTest(loss=loss):
+                self.pool = self.root / f'locked-pool-{loss}'
+                self.runtime = self.root / f'locked-runtime-{loss}'
+                self.pool.mkdir()
+
+                def snapshot(path):
+                    values = dict(f_frsize=4096, f_bavail=10**9, f_favail=500,
+                                  f_files=1000, f_flag=0)
+                    if (self.pool / '.writer-lock').exists():
+                        values[loss] = 0 if loss == 'f_favail' else 8192
+                    return SimpleNamespace(**values)
+
+                with mock.patch.object(storage.os, 'statvfs', side_effect=snapshot):
+                    with self.assertRaisesRegex(ValueError, message):
+                        self.prepare()
+                self.assertFalse(self.runtime.exists())
+                self.assertEqual(list(self.pool.iterdir()), [])
+
+    def test_reports_fresh_common_device_capacity_without_changing_method(self):
+        budget = self.prepare()['budget']
+        self.assertEqual(budget['method'], 'verified-cas-new-allocation-v1')
+        self.assertEqual(budget.get('capacityAccounting'), 'same-device-minimum-blocks-and-inodes-v1')
+        devices = budget['allocationDevices']
+        self.assertEqual({x['device'] for x in devices}, {self.runtime.stat().st_dev})
+        self.assertEqual(min(x['availableBytes'] for x in devices), budget['availableBytes'])
+        self.assertGreaterEqual(budget['availableInodes'], budget['newInodeEstimate'])
+
     def test_readonly_allocation_parents_refuse_before_any_publication(self):
         original = os.statvfs
         for name in ('runtime-parent', 'pool-parent'):
@@ -374,6 +676,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
                 def readonly(path):
                     value = original(path)
                     return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                            f_flag=os.ST_RDONLY if path == target else 0)
                 with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
                     with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -397,6 +700,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
                 def readonly(path):
                     value = original(path)
                     return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                            f_flag=os.ST_RDONLY if path == target else 0)
                 with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
                     with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -440,6 +744,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
         def readonly(path):
             value = original(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if path == self.pool / 'blobs' else 0)
         with mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
             with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -465,6 +770,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
             queried.append(path)
             value = original(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if path in readonly else 0)
         with mock.patch.object(storage.os, 'statvfs', side_effect=writable):
             self.assertEqual(self.prepare()['status'], 'verified')
@@ -477,6 +783,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
         def readonly_after_lock(path):
             value = original(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if (self.pool / '.writer-lock').exists() else 0)
         with mock.patch.object(storage.os, 'statvfs', side_effect=readonly_after_lock):
             with self.assertRaisesRegex(ValueError, 'Read-only allocation filesystem'):
@@ -494,6 +801,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
         def readonly(path):
             value = original_statvfs(path)
             return SimpleNamespace(f_frsize=value.f_frsize, f_bavail=value.f_bavail,
+                                       f_favail=value.f_favail, f_files=value.f_files,
                                    f_flag=os.ST_RDONLY if path == self.pool / 'blobs' else 0)
         with mock.patch.object(Path, 'mkdir', mkdir), \
              mock.patch.object(storage.os, 'statvfs', side_effect=readonly):
@@ -542,7 +850,7 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_missing_cas_cannot_receive_a_reuse_discount(self):
         plan = self.allocation_plan()
         available = plan['newAllocationEstimateBytes'] + plan['reserveBytes'] - plan['allocations']['missingCasBytes']
-        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096, f_flag=0)
+        fs = SimpleNamespace(f_frsize=4096, f_bavail=available // 4096, f_flag=0, f_favail=500, f_files=1000)
         with mock.patch.object(storage.os, 'statvfs', return_value=fs):
             with self.assertRaisesRegex(ValueError, 'capacity'):
                 self.prepare()
@@ -552,8 +860,8 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_capacity_boundary_and_locked_recheck_preserve_reserve(self):
         plan = self.allocation_plan()
         required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
-        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0)
-        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1, f_flag=0)
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0, f_favail=500, f_files=1000)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096 - 1, f_flag=0, f_favail=500, f_files=1000)
         with mock.patch.object(storage.os, 'statvfs', return_value=short):
             with self.assertRaisesRegex(ValueError, 'capacity'):
                 self.prepare()
@@ -574,8 +882,8 @@ globalThis.sharedAssetResult = { runtime, provenance };
     def test_post_prepare_reserve_shortfall_is_not_a_pass(self):
         plan = self.allocation_plan()
         required = plan['newAllocationEstimateBytes'] + plan['reserveBytes']
-        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0)
-        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1, f_flag=0)
+        enough = SimpleNamespace(f_frsize=4096, f_bavail=required // 4096, f_flag=0, f_favail=500, f_files=1000)
+        short = SimpleNamespace(f_frsize=4096, f_bavail=plan['reserveBytes'] // 4096 - 1, f_flag=0, f_favail=500, f_files=1000)
         def capacity_after_creation(path):
             return short if self.runtime.exists() else enough
         with mock.patch.object(storage.os, 'statvfs', side_effect=capacity_after_creation):
@@ -583,6 +891,88 @@ globalThis.sharedAssetResult = { runtime, provenance };
                 self.prepare()
         self.assertTrue(self.runtime.exists())  # Preserve partial output, never erase it.
         self.assertFalse((self.pool / '.writer-lock').exists())
+
+    def test_failed_hardlink_publication_leaves_final_tree_retryable(self):
+        (self.source / 'public/original/sub/second.bin').write_bytes(b'more asset')
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        tree_id = self.git('rev-parse', self.revision + ':' + storage.ASSETS).strip()
+        final = self.pool / storage.ASSET_TREES / tree_id
+        real_link = storage.os.link
+
+        def interrupted(src, dst, *args, **kwargs):
+            if dst.name == 'second.bin':
+                raise OSError(errno.ENOSPC, 'injected hardlink failure')
+            # A competing publisher cannot reach the tree while the lock is held.
+            with self.assertRaises(FileExistsError):
+                self.prepare(self.root / 'concurrent')
+            self.assertFalse((self.root / 'concurrent').exists())
+            return real_link(src, dst, *args, **kwargs)
+
+        with mock.patch.object(storage.os, 'link', side_effect=interrupted):
+            with self.assertRaises(OSError) as failure:
+                self.prepare()
+        self.assertEqual(failure.exception.errno, errno.ENOSPC)
+        self.assertFalse(final.exists())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+        staging, = final.parent.glob(f'.{tree_id}.staging-*')
+        self.assertEqual(sorted(p.name for p in (staging / 'sub').iterdir()), ['game.bin'])
+        self.assertEqual(len(list((self.pool / 'blobs').iterdir())), 2)
+
+        retry = self.root / 'retry'
+        self.prepare(retry)
+        self.assertEqual((retry / storage.ASSETS).resolve(), final)
+        storage.verify(self.source, self.revision, self.pool, retry)
+        self.assertEqual(sorted(p.name for p in (staging / 'sub').iterdir()), ['game.bin'])
+
+    def test_repeated_asset_stage_failures_stop_before_runtime_allocation(self):
+        (self.source / 'public/original/sub/second.bin').write_bytes(b'more asset')
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        tree_id = self.git('rev-parse', self.revision + ':' + storage.ASSETS).strip()
+        final = self.pool / storage.ASSET_TREES / tree_id
+        real_link = storage.os.link
+
+        def interrupted(src, dst, *args, **kwargs):
+            if dst.name == 'second.bin':
+                raise OSError(errno.ENOSPC, 'injected hardlink failure')
+            return real_link(src, dst, *args, **kwargs)
+
+        for slot in (1, 2):
+            with mock.patch.object(storage.os, 'link', side_effect=interrupted):
+                with self.assertRaises(OSError) as failure:
+                    self.prepare(self.root / f'failed-{slot}')
+                self.assertEqual(failure.exception.errno, errno.ENOSPC)
+        stages = sorted(final.parent.glob(f'.{tree_id}.staging-*'))
+        self.assertEqual(len(stages), 2)
+        held = [((stage / 'sub/game.bin').stat().st_ino,
+                 (stage / 'sub/game.bin').read_bytes()) for stage in stages]
+        refused = self.root / 'third-attempt'
+        with self.assertRaisesRegex(ValueError, 'Asset tree staging limit reached'):
+            self.prepare(refused)
+        self.assertFalse(final.exists())
+        self.assertFalse(refused.exists())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+        self.assertEqual(sorted(final.parent.glob(f'.{tree_id}.staging-*')), stages)
+        self.assertEqual([((stage / 'sub/game.bin').stat().st_ino,
+                           (stage / 'sub/game.bin').read_bytes()) for stage in stages], held)
+
+    def test_existing_incomplete_or_corrupt_canonical_tree_is_not_replaced(self):
+        self.prepare()
+        final = (self.runtime / storage.ASSETS).resolve()
+        leaf = final / 'sub/game.bin'
+        held = self.root / 'held.bin'
+        leaf.rename(held)
+        with self.assertRaisesRegex(ValueError, 'undeclared or missing'):
+            self.prepare(self.root / 'retry-missing')
+        self.assertFalse(leaf.exists())
+        leaf.write_bytes(b'corrupt')
+        before = (leaf.stat().st_ino, leaf.read_bytes(), held.stat().st_ino, held.read_bytes())
+        with self.assertRaisesRegex(ValueError, 'declared CAS hardlink'):
+            self.prepare(self.root / 'retry-corrupt')
+        self.assertEqual((leaf.stat().st_ino, leaf.read_bytes(), held.stat().st_ino, held.read_bytes()), before)
 
     def test_invalid_cas_is_rejected_before_creation_not_discounted_or_repaired(self):
         original = self.source / 'public/original/sub/game.bin'

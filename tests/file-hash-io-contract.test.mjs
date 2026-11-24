@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { syncBuiltinESMExports } from 'node:module'
 import { createHash } from 'node:crypto'
-import { fileSha256 } from '../scripts/browser-performance/browser-runtime.mjs'
+import { createFileSha256, fileSha256 } from '../scripts/browser-performance/browser-runtime.mjs'
 
 // Test runner file isolation keeps these synchronous builtin hooks local.
 // Never touch disk, user saves, retained artifacts or the browser process.
@@ -65,6 +65,34 @@ test('read error after partial input propagates unchanged and closes descriptor'
   }, calls => {
     assert.throws(() => fileSha256('synthetic-input'), error => error === failure)
     assert.equal(calls.reads.length, 2)
+    assert.deepEqual(calls.closes, [731])
+  })
+})
+
+test('sequential file digests reuse one scratch buffer but not prior bytes or hash state', () => {
+  const hashFile = createFileSha256()
+  const buffers = new Set()
+  const segments = [Buffer.from('first, longer file'), null, Buffer.from([255]), null, null]
+  withReads(buffer => {
+    buffers.add(buffer)
+    const bytes = segments.shift()
+    if (!bytes) return 0
+    bytes.copy(buffer)
+    return bytes.length
+  }, calls => {
+    assert.deepEqual(Array(3).fill('synthetic-input').map(hashFile), [
+      digest('first, longer file'), digest(Buffer.from([255])), digest(''),
+    ])
+    assert.equal(buffers.size, 1)
+    assert.equal(calls.opens, 3)
+    assert.deepEqual(calls.closes, [731, 731, 731])
+    assert.equal(segments.length, 0)
+  })
+})
+
+test('one-shot file hashing remains compatible with callback arguments', () => {
+  withReads(() => 0, calls => {
+    assert.deepEqual(['synthetic-input'].map(fileSha256), [digest('')])
     assert.deepEqual(calls.closes, [731])
   })
 })

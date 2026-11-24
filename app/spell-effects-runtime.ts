@@ -1297,8 +1297,9 @@ export function stepTeleport(w: World, fx: Effect) {
     visual.duration = 12 / TURNS_PER_SECOND
   }
   if (visit !== relocationVisit) return true
+  // The original takes its tribe Shaman from the non-ghost census (0x4ecac0).
   const shaman = w.units.find(
-    unit => unit.team === fx.team && unit.kind === 'shaman' && unit.hp > 0
+    unit => unit.team === fx.team && unit.kind === 'shaman' && unit.hp > 0 && !unit.ghost
   )
   if (!shaman) return false
   const origin = nativePosition(w, shaman),

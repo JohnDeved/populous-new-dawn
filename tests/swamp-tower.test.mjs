@@ -18,19 +18,26 @@ test('earned Swamp kills an ordinary built Tower resident and releases its physi
   const prior = new Set(w.buildings.map(b => b.id))
   assert.ok(placeBuilding(w, 'tower', { x: 85, z: -37 }))
   const tower = w.buildings.find(b => !prior.has(b.id))
+  const constructionStartedAt = w.turn
   for (let n = 0; n < 2200 && tower.progress < 1; n++) tick(w, 1 / 12)
   assert.equal(tower.progress, 1)
-  assert.equal(w.turn, 414)
+  // Other tribes consume shared movement/work RNG; pin the owned lifecycle,
+  // not a global turn that assumes the Green settlement stays inactive.
+  const builtAt = w.turn
+  assert.ok(builtAt > constructionStartedAt && builtAt <= constructionStartedAt + 2200)
   const victim = workers.find(u => u.hp > 0)
   assert.equal(victim.id, 50)
   selectUnit(w, victim.id)
   assert.ok(command(w, tower))
   for (let n = 0; n < 800 && victim.inside !== tower.id; n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 416)
+  assert.equal(w.turn, builtAt + 2)
   assert.equal(victim.inside, tower.id)
+  const chargingStartedAt = w.turn
+  assert.equal(w.shots.swamp, 0)
   for (let n = 0; n < 6500 && !w.shots.swamp; n++) tick(w, 1 / 12)
-  assert.equal(w.turn, 3108)
+  assert.ok(w.turn > chargingStartedAt && w.turn <= chargingStartedAt + 6500)
   assert.equal(w.shots.swamp, 1)
+  const castAt = w.turn
   assert.ok(cast(w, 'swamp', victim))
   assert.equal(w.shots.swamp, 0)
   let swamp
@@ -39,7 +46,10 @@ test('earned Swamp kills an ordinary built Tower resident and releases its physi
     if (swamp && !((swamp.counter + 1) & 3)) break
     tick(w, 1 / 12)
   }
-  assert.equal(w.turn, 3117)
+  const preScanTurn = w.turn
+  assert.ok(preScanTurn >= castAt && preScanTurn <= castAt + 60)
+  assert.ok(swamp)
+  assert.equal((swamp.counter + 1) & 3, 0)
   const p = victim.entry.person,
     packed = (p.y & 0xfe00) | ((p.x >>> 8) & 254)
   assert.equal(w.objectCells.objects.get(victim.id), p)
@@ -115,7 +125,7 @@ test('earned Swamp kills an ordinary built Tower resident and releases its physi
   tick(w, 1 / 12)
   tick(restored, 1 / 12)
   assert.deepEqual(restored, w)
-  assert.equal(w.turn, 3118)
+  assert.equal(w.turn, preScanTurn + 1)
   assert.equal(swamp.kills, 6)
   assert.equal(victim.hp, 0)
   assert.equal(victim.inside, null)

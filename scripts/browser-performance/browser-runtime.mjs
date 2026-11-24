@@ -13,7 +13,17 @@ export const metadataUrl = 'https://dl.google.com/linux/chrome/deb/dists/stable/
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
 export function fileSha256(path) {
-  const hash = createHash('sha256'), buffer = Buffer.alloc(1024 * 1024), fd = openSync(path, 'r')
+  return hashFileWithBuffer(path, Buffer.alloc(1024 * 1024))
+}
+
+// Each synchronous call owns its descriptor and digest; only scratch bytes persist.
+export function createFileSha256() {
+  const buffer = Buffer.alloc(1024 * 1024)
+  return path => hashFileWithBuffer(path, buffer)
+}
+
+function hashFileWithBuffer(path, buffer) {
+  const hash = createHash('sha256'), fd = openSync(path, 'r')
   try { let bytes; while ((bytes = readSync(fd, buffer, 0, buffer.length, null))) hash.update(buffer.subarray(0, bytes)) }
   finally { closeSync(fd) }
   return hash.digest('hex')

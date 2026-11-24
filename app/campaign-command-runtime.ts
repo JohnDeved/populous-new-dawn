@@ -95,7 +95,8 @@ export function campaignCommand(
   w: World,
   opcode: number,
   args: number[],
-  script: PopScript = missionScript(w.outcome.level, campaignTribe(w))
+  script: PopScript = missionScript(w.outcome.level, campaignTribe(w)),
+  openingMessageRng?: { randomState: number }
 ) {
   const level = missionData(w.outcome.level).level
   const arity = (
@@ -658,7 +659,15 @@ export function campaignCommand(
   if (opcode === 1174) {
     const message = read(args[0])
     if (!(w.manaWorld.levelFlags & 0x1000000)) {
-      w.lastMessage = addMessage(w.messages, messageStringId(message), () => random(w), 480, 1)
+      // The newly restored startup callers can select the native presentation
+      // stream (0x89bc72). Leave prior callers on their existing compatibility path.
+      w.lastMessage = addMessage(
+        w.messages,
+        messageStringId(message),
+        () => random(openingMessageRng ?? w),
+        480,
+        1
+      )
       if (w.lastMessage >= 0) sound(w, 0xe3, campaignPosition(w, 'blue'))
     }
     return
@@ -864,7 +873,7 @@ export function campaignRules(w: World) {
                       ? [
                           12,
                           1003,
-                          ...script.codes.slice(254, 259),
+                          // Turn-zero message commands run in world initialization, not each turn.
                           // Chumara's original EVERY255 settlement and training targets.
                           // Later tower, patrol, raid and message branches remain unbound.
                           ...script.codes.slice(447, 595),
@@ -957,8 +966,8 @@ export function campaignRules(w: World) {
                                       ? [
                                           12,
                                           1003,
-                                          // First authored fault: terrain seal check, warning, deadline, and eruption.
-                                          ...script.codes.slice(797, 957),
+                                          // All three authored faults: terrain seal checks, warnings, deadlines, and eruptions.
+                                          ...script.codes.slice(797, 1139),
                                           1004,
                                           1004,
                                           1019,

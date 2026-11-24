@@ -98,8 +98,8 @@ export function StartupLogo({ onComplete }: { onComplete: () => void }) {
         complete()
       }}
       onKeyDown={event => {
-        // Keep the two browser compatibility controls keyboard-accessible.
-        if (event.key === 'Tab') return
+        // Reserve Shift too: reverse Tab begins with its own keydown.
+        if (event.key === 'Tab' || event.key === 'Shift') return
         event.preventDefault()
         event.stopPropagation()
         // DirectInput reports state changes, not browser character repeats.
