@@ -1008,7 +1008,7 @@ try {
       name = ['', 'Dakini', 'Chumara', 'Matak'][tribe]
     return { id: target.building.id, tribe, name, clearance: target.clearance }
   }, spy)
-  await page.getByTitle('followers', { exact: true }).click()
+  await page.locator('.dock-tabs').getByRole('button', { name: 'followers', exact: true }).click()
   await page.getByLabel(`Disguise selected spies as ${sabotage.name}`).click()
   const disguised = await page.evaluate(async ({ id, tribe }) => {
     const scene = globalThis.testScene,
