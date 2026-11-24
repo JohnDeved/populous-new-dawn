@@ -138,7 +138,9 @@ def selected(entry, scope):
 
 
 def blob_oid(data):
-    return hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+    oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0')
+    oid.update(data)
+    return oid.hexdigest()
 
 
 class Blobs:
@@ -527,6 +529,7 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 # Preserve executable source mode, never alter an existing file or security setting.
                 if entry['mode'] == '100755':
                     target.chmod(0o755)
+            del data  # Do not overlap adjacent payloads or keep one through verification.
         blobs.close(); blobs = None
         if staging is not None:
             # Publish only a complete tree while holding the writer lock.

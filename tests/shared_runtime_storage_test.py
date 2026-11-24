@@ -497,6 +497,60 @@ assert all(pipe.closed for pipe in (reader.proc.stdin, reader.proc.stdout, reade
             self.fail('planning reader did not reap the owned child before the watchdog')
         self.assertEqual(p.returncode, 0, (out + err).decode(errors='replace'))
 
+    def test_blob_oid_matches_canonical_git_header_and_bytes(self):
+        for data in (b'', b'\x00\xff', bytes(range(256)) * 300):
+            with self.subTest(size=len(data)):
+                expected = self.git_hash_bytes(data)
+                self.assertEqual(storage.blob_oid(data), expected)
+
+    def git_hash_bytes(self, data):
+        return subprocess.check_output(['git', '-C', str(self.source), 'hash-object', '--stdin'],
+                                       input=data).decode().strip()
+
+    def test_corrupt_materialization_read_never_publishes_that_asset(self):
+        second = self.source / 'public/original/sub/second.bin'
+        second.write_bytes(b'a second verified asset')
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        tree_id = self.git('rev-parse', self.revision + ':' + storage.ASSETS).strip()
+        expected = second.read_bytes()
+        original = storage.Blobs.read
+        corrupt_payload = bytes([expected[0] ^ 1]) + expected[1:]
+
+        class CorruptedRead:
+            def __init__(self, stream):
+                self.stream = stream
+
+            def __getattr__(self, name):
+                return getattr(self.stream, name)
+
+            def read(self, count):
+                value = self.stream.read(count)
+                return corrupt_payload if count == len(expected) and value == expected else value
+
+        def intercept(reader, entry):
+            self.assertTrue((self.pool / '.writer-lock').exists())
+            if entry['path'] != 'public/original/sub/second.bin':
+                return original(reader, entry)
+            stream = reader.proc.stdout
+            reader.proc.stdout = CorruptedRead(stream)
+            try:
+                return original(reader, entry)
+            finally:
+                reader.proc.stdout = stream
+
+        with mock.patch.object(storage.Blobs, 'read', intercept), self.assertRaisesRegex(
+                ValueError, 'Git object content mismatch'):
+            self.prepare()
+        self.assertEqual(second.read_bytes(), expected)
+        self.assertTrue(self.asset_blob().exists())
+        self.assertFalse((self.pool / 'blobs' / storage.digest(expected)).exists())
+        self.assertFalse((self.pool / 'blobs' / storage.digest(corrupt_payload)).exists())
+        self.assertFalse((self.pool / storage.ASSET_TREES / tree_id).exists())
+        self.assertFalse((self.runtime / storage.ASSETS).is_symlink())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+
     def test_asset_undeclared_file_refused(self):
         result = self.prepare()
         (self.pool / storage.ASSET_TREES / result['assetTree'] / 'extra').write_text('not declared')
