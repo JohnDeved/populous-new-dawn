@@ -1,12 +1,121 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { waitForStartupMenu } from '../browser-new-game.mjs'
 
-// Opt-in bounded scenario: one Home load, one 1280x960 viewport, two Help/Options
-// episodes and one Quit control, one screenshot. No campaign, storage setup,
-// navigation reload, or additions to the existing broad Options/pause scenarios.
+// Ordinary bounded scenario: one Home load, one 1280x960 viewport, one logo
+// focus check, two Help/Options episodes and one Quit control. No campaign,
+// storage setup, or navigation reload.
 export const frontendHeldEscapeLimitMs = 60000
+
+async function openingLogoReverseTab(page, output, url) {
+  assert(url, 'opening-logo test requires the existing fresh Home navigation')
+  const asset = '**/original/startup/blogo.webm'
+  let sawMedia = false, release
+  const hold = new Promise(resolve => { release = resolve })
+  const transfers = []
+  // Keep the real dialog live while recording focus. After capture, complete
+  // the intercepted request with a successful empty response, while its media
+  // element is still connected. A media decode failure leaves public Skip
+  // available; the zero-byte fixture cannot finish the logo naturally.
+  const routeMedia = route => {
+    sawMedia = true
+    const pending = hold.then(() => {
+      if (!page.isClosed()) return route.fulfill({ status: 204 })
+    }).then(() => null, error => error)
+    transfers.push(pending)
+    return pending
+  }
+  await page.route(asset, routeMedia)
+  let settled
+  function settleMedia() {
+    return settled ??= (async () => {
+      release()
+      if (page.isClosed()) return
+      // Let the first response finish while the logo is still mounted. Remove
+      // the interception, then drain any handlers that began during removal.
+      const started = transfers.length
+      const first = await Promise.all(transfers.slice(0, started))
+      let unrouteError
+      if (!page.isClosed()) {
+        try { await page.unroute(asset, routeMedia) } catch (error) { unrouteError = error }
+      }
+      const later = await Promise.all(transfers.slice(started))
+      const errors = [...first, unrouteError, ...later].filter(Boolean)
+      if (errors.length === 1) throw errors[0]
+      if (errors.length > 1) throw new AggregateError(errors, 'Opening-logo media settlement failed')
+    })()
+  }
+  const logo = page.getByRole('dialog', { name: 'Opening logo', exact: true })
+  const skip = logo.getByRole('button', { name: 'Skip logo', exact: true })
+  const playback = logo.getByRole('button', { name: /^(Enable logo sound|Mute logo|Play logo)$/ })
+  const active = locator => locator.evaluate(element => document.activeElement === element)
+  let observer, primaryError
+  try {
+    await page.goto(url, { waitUntil: 'domcontentloaded' })
+    await logo.waitFor()
+    await playback.waitFor()
+    observer = await page.evaluateHandle(() => {
+      const events = []
+      const observe = event => {
+        if (event.key === 'Tab' || event.key === 'Shift') events.push(event)
+      }
+      document.addEventListener('keydown', observe, true)
+      return {
+        events, close: () => document.removeEventListener('keydown', observe, true),
+      }
+    })
+    assert.equal(await active(logo), true, 'startup dialog owns initial focus')
+    await page.keyboard.press('Tab')
+    assert.equal(await active(playback), true, 'forward Tab reaches playback without skipping')
+    await page.keyboard.press('Tab')
+    assert.equal(await active(skip), true, 'forward Tab travels from playback to Skip')
+    await page.keyboard.press('Shift+Tab')
+    const events = await observer.evaluate(({ events }) => events.map(event => ({
+      key: event.key, shift: event.shiftKey, trusted: event.isTrusted,
+      repeat: event.repeat, prevented: event.defaultPrevented,
+    })))
+    // Read the visibility before dereferencing a control already removed on baseline.
+    const retained = await logo.isVisible()
+    const playbackFocused = retained && await active(playback)
+    const evidence = { events, retained, playbackFocused, mediaRequestDeferred: sawMedia }
+    writeFileSync(resolve(output, 'opening-logo-reverse-tab.json'), JSON.stringify(evidence, null, 2))
+    assert.equal(retained, true, 'reverse Tab must not skip the logo')
+    assert.equal(playbackFocused, true, 'reverse Tab must move focus to playback')
+    assert.deepEqual(events, [
+      { key: 'Tab', shift: false, trusted: true, repeat: false, prevented: false },
+      { key: 'Tab', shift: false, trusted: true, repeat: false, prevented: false },
+      { key: 'Shift', shift: true, trusted: true, repeat: false, prevented: false },
+      { key: 'Tab', shift: true, trusted: true, repeat: false, prevented: false },
+    ])
+    assert.equal(sawMedia, true, 'expected the actual logo media request')
+    await page.screenshot({ path: resolve(output, 'opening-logo-reverse-tab.png') })
+    // Complete the fixture request before Skip unmounts the media element.
+    await settleMedia()
+    // Keep the ordinary public Skip click and prove that it still reaches Home.
+    await skip.click()
+    await page.getByRole('dialog', { name: 'Main menu', exact: true }).waitFor()
+    return evidence
+  } catch (error) {
+    primaryError = error
+    throw error
+  } finally {
+    const errors = []
+    try { await settleMedia() } catch (error) {
+      if (error !== primaryError) errors.push(error)
+    }
+    if (!page.isClosed()) {
+      if (observer) {
+        try { await observer.evaluate(({ close }) => close()) } catch (error) { errors.push(error) }
+        try { await observer.dispose() } catch (error) { errors.push(error) }
+      }
+    }
+    if (errors.length) {
+      if (primaryError) throw new AggregateError([primaryError, ...errors],
+        `${primaryError.message}; opening-logo fixture cleanup also failed`, { cause: primaryError })
+      throw new AggregateError(errors, 'Opening-logo fixture cleanup failed')
+    }
+  }
+}
 
 async function episode({ page, output, url }) {
   const main = page.getByRole('dialog', { name: 'Main menu', exact: true })
@@ -22,8 +131,7 @@ async function episode({ page, output, url }) {
     scenes: document.querySelectorAll('.world-viewport canvas').length,
   }))
   await page.setViewportSize({ width: 1280, height: 960 })
-  if (url) await page.goto(url, { waitUntil: 'domcontentloaded' })
-  await waitForStartupMenu(page)
+  const logoReverseTab = await openingLogoReverseTab(page, output, url)
   const initial = await state()
   await page.evaluate(() => {
     window.frontendEscapeEvents = []
@@ -84,10 +192,10 @@ async function episode({ page, output, url }) {
     assert.equal(events.filter(event => event.type === 'cancel').length, 0,
       'frontend key handlers own Escape and must prevent native dialog dismissal')
     writeFileSync(resolve(output, 'frontend-held-escape.json'), JSON.stringify({ records, events, initial }, null, 2))
-    return { checks: records, limits: [
+    return { checks: records, logoReverseTab, limits: [
       'Actual Home through local React/Vite; no deployed hydration or native-game input parity claim',
       'Frontend-only keyboard regression; unchanged in-game pause behavior has separate retained coverage',
-      'One viewport and screenshot; not comprehensive display or performance acceptance',
+      'One viewport; logo media was deferred, so focus/screenshot do not qualify playback',
     ] }
   } finally {
     if (!page.isClosed()) {

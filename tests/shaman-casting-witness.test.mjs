@@ -902,9 +902,13 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
       assert.equal(role, 'button')
       return { click: async options => actions.push(['button', String(name), ...(options ? [options] : [])]) }
     },
-    getByTitle(title, options) {
-      assert.deepEqual(options, { exact: true })
-      return { click: async () => actions.push(['title', title]) }
+    locator(selector) {
+      assert.equal(selector, '.dock-tabs')
+      return { getByRole(role, options) {
+        assert.equal(role, 'button')
+        assert.deepEqual(options, { name: 'spells', exact: true })
+        return { click: async () => actions.push(['dock-tab', options.name]) }
+      } }
     },
     async evaluate(fn) {
       const source = fn.toString()
@@ -924,7 +928,7 @@ test('ordinary cast driver uses only public controls/pointer and stops after its
   assert.deepEqual(actions.filter(([kind]) => kind !== 'wait'), [
     ['button', 'Resume game'], ['button', 'Pause game'], ['button', 'Select shaman'],
     ['button', 'Select shaman', { button: 'right' }],
-    ['install'], ['arm'], ['title', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
+    ['install'], ['arm'], ['dock-tab', 'spells'], ['button', '/^Blast, [1-9][0-9]* shots$/'],
     ['button', 'Resume game'], ['move', 500, 300], ['pointer', 500, 300], ['button', 'Pause game'],
   ])
   const waits = actions.filter(([kind]) => kind === 'wait')

@@ -54,14 +54,18 @@ export async function bindGame(page) {
 export async function readShamanReadiness(page) {
   await bindGame(page)
   return page.evaluate(async () => {
-    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+    const bundled = globalThis.__pndCampaignReadiness
+    const observe = bundled === undefined
+      ? (await import('/scripts/campaign-start-readiness.mjs')).campaignShamanReadiness
+      : bundled.observe
+    if (typeof observe !== 'function') throw new Error('Shared campaign readiness observer unavailable')
     const scene = window.testSceneRef?.current, store = window.testStore
     if (
       !scene?.renderer?.domElement?.isConnected ||
       scene.world !== store?.getWorld() ||
       document.querySelector('.loading-world')
     ) return { ready: false, reason: 'Scene/store changed during readiness observation' }
-    return { ...campaignShamanReadiness(scene.world), level: scene.world.outcome.level }
+    return { ...observe(scene.world), level: scene.world.outcome.level }
   })
 }
 
@@ -175,11 +179,11 @@ export async function settleOpeningMessages(page) {
 // Returns false when the mission roster has no card for that spell.
 export async function chooseSpell(page, name) {
   await page.evaluate(() => {
-    const tab = document.querySelector('button[title="spells"]')
+    const tab = document.querySelector('.dock-tabs button[aria-label="spells"]')
     if (tab?.getAttribute('aria-pressed') !== 'true') tab?.click()
   })
   await page.waitForFunction(
-    () => document.querySelector('button[title="spells"]')?.getAttribute('aria-pressed') === 'true'
+    () => document.querySelector('.dock-tabs button[aria-label="spells"]')?.getAttribute('aria-pressed') === 'true'
   )
   return page.evaluate(name => {
     const card = [...document.querySelectorAll('.spell-card')].find(card =>

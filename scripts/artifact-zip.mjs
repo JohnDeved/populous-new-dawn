@@ -1,8 +1,18 @@
 // Bounded data-only ZIP reader. No filesystem extraction, URLs or execution.
 import assert from 'node:assert/strict'
-import { inflateRawSync } from 'node:zlib'
-export function readArtifactZip(input, { maxArchiveBytes, maxFileBytes, maxTotalBytes, maxEntries, allowName }) {
-  const zip = Buffer.from(input), entries = new Map()
+import { crc32, inflateRawSync } from 'node:zlib'
+export function readArtifactZip(input, options) {
+  return parseArtifactZip(Buffer.from(input), options)
+}
+
+// Internal fast path: the caller exclusively owns this ordinary Buffer for
+// synchronous validation and consumption. Stored entry views alias its bytes.
+export function readOwnedArtifactZip(input, options) {
+  assert.ok(Buffer.isBuffer(input) && input.buffer instanceof ArrayBuffer, 'Expected an owned, non-shared ZIP Buffer')
+  return parseArtifactZip(input, options)
+}
+function parseArtifactZip(zip, { maxArchiveBytes, maxFileBytes, maxTotalBytes, maxEntries, allowName }) {
+  const entries = new Map()
   assert.ok(zip.length >= 22 && zip.length <= maxArchiveBytes, 'Invalid artifact archive size')
   const end = zip.length - 22
   assert.equal(zip.readUInt32LE(end), 0x06054b50, 'Unexpected archive footer')
@@ -70,12 +80,7 @@ export function readArtifactZip(input, { maxArchiveBytes, maxFileBytes, maxTotal
     if (inflated) assert.equal(inflated.engine.bytesWritten, compressed, 'Trailing compressed data')
     const bytes = inflated ? inflated.buffer : compressedBytes
     assert.equal(bytes.length, size)
-    let checksum = 0xffffffff
-    for (const byte of bytes) {
-      checksum ^= byte
-      for (let bit = 0; bit < 8; bit++) checksum = (checksum >>> 1) ^ ((checksum & 1) ? 0xedb88320 : 0)
-    }
-    assert.equal((checksum ^ 0xffffffff) >>> 0, crc, 'Artifact checksum mismatch')
+    assert.equal(crc32(bytes), crc, 'Artifact checksum mismatch')
     entries.set(name, bytes); at = next
   }
   assert.equal(at, end); assert.equal(localEnd, central)

@@ -384,7 +384,8 @@ export default async function runM2Functional({ browser, url, output, fixture, c
         }
       })
     if (compactMessages) {
-      await prepareCompactFeedback(page, observe)
+      report.guardKeyFeedback = {}
+      await prepareCompactFeedback(page, observe, report.guardKeyFeedback)
       stage('public-feedback-ready')
     }
     report.before = await observe()
@@ -600,7 +601,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
 // them through public summaries, issue G with only the default Shaman selected
 // (or no selection) and no existing guards, then
 // restore the same authored panels before establishing the scenario baseline.
-export async function prepareCompactFeedback(page, observe) {
+export async function prepareCompactFeedback(page, observe, guardKeyFeedback) {
   const panels = []
   for (const panel of await page.locator('.campaign-messages details[open]').all()) {
     const serial = await panel.getAttribute('data-message-serial')
@@ -626,6 +627,7 @@ export async function prepareCompactFeedback(page, observe) {
     unit => unit.team === 'blue' && unit.native?.state === 10 && unit.native.commandStatus === 30
   )), false, 'Feedback setup must not release existing guard orders')
   assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), true)
+  if (guardKeyFeedback) await checkIgnoredGuardKeys(page, guardKeyFeedback)
   await page.keyboard.press('g')
   await page.waitForFunction(() => {
     const world = window.testStore.getWorld()
@@ -634,12 +636,74 @@ export async function prepareCompactFeedback(page, observe) {
         .some(node => node.textContent.includes(world.message))
   })
   assert.deepEqual(await observe(), beforeFeedback, 'Public feedback setup preserves world orders and the paused scene')
+  if (guardKeyFeedback) guardKeyFeedback.freshFeedback = 'Your followers stop guarding your shaman.'
   for (const [index, panel] of panels.entries()) {
     await panel.locator('summary').click()
     assert.notEqual(await panel.getAttribute('open'), null)
     assert.equal(await panel.locator('div > p').textContent(), texts[index])
   }
   assert.equal(await page.locator('.campaign-messages details[open]').count(), panels.length)
+}
+
+// The same paused authored M2 and public feedback path already used by the
+// compact job distinguish accepted G from denied Shift/held events. No guard
+// recipient/order is supplied here; the dedicated producer tests cover those.
+async function checkIgnoredGuardKeys(page, report) {
+  const feedback = 'Your followers stop guarding your shaman.'
+  const observer = await page.evaluateHandle(() => {
+    const events = []
+    const read = () => {
+      const w = window.testStore.getWorld(), scene = window.testSceneRef.current
+      return {
+        current: scene?.world === w, paused: w.paused, level: w.outcome.level,
+        message: w.message, messageUntil: w.messageUntil, selected: [...w.selected],
+        guardOrders: w.units.filter(unit => unit.team === 'blue').map(unit => {
+          const p = unit.native
+          return [unit.id, p?.immediateCommand ?? 0, [...(p?.commands ?? [])], p?.commandStatus ?? 0]
+        }),
+      }
+    }
+    const observe = e => {
+      if (e.code === 'KeyG') events.push({
+        type: e.type, code: e.code, key: e.key, trusted: e.isTrusted, shift: e.shiftKey, repeat: e.repeat,
+      })
+    }
+    window.addEventListener('keydown', observe, true)
+    window.addEventListener('keyup', observe, true)
+    return { read, events, close() {
+      window.removeEventListener('keydown', observe, true)
+      window.removeEventListener('keyup', observe, true)
+    } }
+  })
+  const read = () => observer.evaluate(({ read }) => read())
+  try {
+    const before = await read()
+    assert.equal(before.current && before.paused && before.level === 2, true)
+    assert.notEqual(before.message, feedback, 'Fresh authored feedback must not be pre-existing')
+    await page.keyboard.down('Shift')
+    try {
+      try { await page.keyboard.down('g') }
+      finally { await page.keyboard.up('Shift') }
+      const afterShift = await read()
+      // G is still down: second down is browser autorepeat, not a second press.
+      await page.keyboard.down('g')
+      const afterRepeat = await read()
+      Object.assign(report, { before, afterShift, afterRepeat })
+    } finally {
+      await page.keyboard.up('g')
+    }
+    report.events = await observer.evaluate(({ events }) => events)
+    assert.deepEqual(report.events.map(e => [e.type, e.code, e.key.toLowerCase(), e.trusted, e.shift, e.repeat]), [
+      ['keydown', 'KeyG', 'g', true, true, false],
+      ['keydown', 'KeyG', 'g', true, false, true],
+      ['keyup', 'KeyG', 'g', true, false, false],
+    ])
+    assert.deepEqual(report.afterShift, before, 'Shift+G must not dispatch guard or feedback')
+    assert.deepEqual(report.afterRepeat, before, 'Held unmodified G must not dispatch guard or feedback')
+  } finally {
+    try { await observer.evaluate(({ close }) => close()) }
+    finally { await observer.dispose() }
+  }
 }
 
 // Shared read-only DOM witness for pointer and compact-preference episodes.

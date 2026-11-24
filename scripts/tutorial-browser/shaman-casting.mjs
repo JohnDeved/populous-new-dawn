@@ -32,7 +32,7 @@ export async function beginOrdinaryCastingWitness(page) {
   await page.evaluate(installShamanCastingObserver)
   const before = await page.evaluate(() => window.shamanCastingObserver.arm('ordinary'))
   assert.ok(before.stock > 0); assert.equal(before.cheatsUsed, false)
-  await page.getByTitle('spells', { exact: true }).click()
+  await page.locator('.dock-tabs').getByRole('button', { name: 'spells', exact: true }).click()
   await page.getByRole('button', { name: /^Blast, [1-9][0-9]* shots$/ }).click()
   assert.equal(await page.evaluate(() => window.testStore.getWorld().mode), 'blast')
   await button('Resume game').click()
