@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { assertPausedCameraWorld } from '../tutorial-browser/melee-attack.mjs'
 
 export const periodCellLimitMs = 12000
 const target = { x: 1, z: 37 }
@@ -71,11 +72,9 @@ export function observePeriodCell(tile) {
       camera: { ...owner.cameraPosition }, moving: !!owner.cameraMotion.active,
       motionTarget: { ...owner.cameraMotion.target } }
   }
-  const worldText = (withoutLightView = false) => {
+  const worldText = () => {
     current()
-    if (!withoutLightView) return JSON.stringify(world)
-    const { lightView, ...gameplay } = world
-    return JSON.stringify(gameplay)
+    return JSON.stringify(world)
   }
   const pointer = event => {
     if (events.length >= 10 || event.target !== canvas) return
@@ -107,9 +106,30 @@ export function observePeriodCell(tile) {
   } }
 }
 
+// Only for a failed invariant: report actual differing paths without multi-MB
+// World strings truncating the real cause. Authorization comes from the same
+// paused-camera oracle the ordinary Melee scenario uses, not from this report.
+export function describePeriodWorldDelta(beforeJson, afterJson) {
+  const paths = []
+  let total = 0
+  const visit = (before, after, path) => {
+    if (Object.is(before, after)) return
+    if (before !== null && after !== null && typeof before === 'object' && typeof after === 'object' &&
+      Array.isArray(before) === Array.isArray(after))
+      for (const key of new Set([...Object.keys(before), ...Object.keys(after)]))
+        visit(before[key], after[key], `${path}/${String(key).replaceAll('~', '~0').replaceAll('/', '~1')}`)
+    else {
+      total++
+      if (paths.length < 24) paths.push(path || '/')
+    }
+  }
+  visit(JSON.parse(beforeJson), JSON.parse(afterJson), '')
+  return { paths, total, truncated: total > paths.length }
+}
+
 export async function checkPeriodCell(page, output, signal) {
   const report = { status: 'running', limitMs: periodCellLimitMs, target,
-    scope: 'Ordinary checkpoint-loaded M1, genuine input; same-event complete World equality, settled equality excludes only camera-derived lightView.' }
+    scope: 'Ordinary checkpoint-loaded M1, genuine input; same-event complete World equality, settled equality uses the existing paused-camera oracle for camera lighting and bounded presentation scheduler counters.' }
   const file = resolve(output, 'period-native-cell.json')
   const started = performance.now(), deadline = started + periodCellLimitMs
   let observer, timer, timedOut = false
@@ -185,7 +205,7 @@ export async function checkPeriodCell(page, output, signal) {
     assert.equal(before.paused && before.canvasFocus, true)
     assert.deepEqual(before.actor, frozen.actor)
     assert.ok(distance(before.camera, expected) >= 1536)
-    const gameplay = await observer.evaluate(h => h.worldText(true))
+    const gameplay = await observer.evaluate(h => h.worldText())
     remaining(12000)
     await page.keyboard.press('Period')
     report.events = await observer.evaluate(h => h.events)
@@ -215,8 +235,13 @@ export async function checkPeriodCell(page, output, signal) {
     assert.deepEqual(after.actor, frozen.actor)
     assert.equal(after.actorOnCanvas, true)
     assert.equal(after.turn, frozen.turn)
-    assert.equal(await observer.evaluate(h => h.worldText(true)), gameplay)
     report.screenshot = { name: 'period-native-cell.png', sha256: createHash('sha256').update(png).digest('hex') }
+    const settledWorld = await observer.evaluate(h => h.worldText())
+    try { report.pausedWorld = assertPausedCameraWorld(gameplay, settledWorld) }
+    catch (error) {
+      report.worldDelta = describePeriodWorldDelta(gameplay, settledWorld)
+      throw Error(`Paused camera World invariant failed: ${error.message.split('\n')[0]}`)
+    }
     await closeObserver()
     remaining(12000)
     report.status = 'passed'
