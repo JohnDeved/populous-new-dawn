@@ -7,14 +7,17 @@ import {
 } from '../scripts/tutorial-browser/follower-corpse-clock.mjs'
 
 function testPage(initialTurn) {
-  let turn = initialTurn, elapsed = 0, frozen = false
-  const calls = []
-  const waiters = []
+  let turn = initialTurn, elapsed = 0, frozen = false, worldPaused = true
+  const pageTimeMs = 9_000
+  const calls = [], waiters = []
   return {
     calls,
     read: () => ({ turn, elapsed, frozen }),
     onNextAdvance: () => new Promise(resolve => waiters.push(resolve)),
-    evaluate: async (predicate, input) => input === undefined ? turn : predicate(input),
+    evaluate: async (predicate, input) => predicate?.name === 'readPacingBoundary' ?
+      { pageTimeMs, turn, paused: worldPaused, readyScene: turn !== null, pendingTime: .015, inputMask: 0, selected: [1235] } :
+      input === undefined ? turn : predicate(input),
+    publicResume: () => { worldPaused = false },
     crossNextTurn: () => waiters.push(() => { turn++ }),
     clock: {
       install: async ({ time }) => { calls.push(['install', time]) },
@@ -23,7 +26,7 @@ function testPage(initialTurn) {
         assert.equal(frozen, true)
         calls.push(['runFor', delta])
         elapsed += delta
-        if (turn !== null) turn = initialTurn + Math.floor(elapsed * 12 / 1000)
+        if (turn !== null && !worldPaused) turn = initialTurn + Math.floor(elapsed * 12 / 1000)
         for (const ready of waiters.splice(0)) ready()
       },
       resume: async () => { frozen = false; calls.push(['resume']) },
@@ -31,11 +34,21 @@ function testPage(initialTurn) {
   }
 }
 
+async function hold(page, pacing) {
+  return pacing.holdPaused({ turn: page.read().turn, actorId: 1235 })
+}
+
 test('controlled setup delivers frame callbacks and freezes at exact turn through test round trips', async () => {
   const page = testPage(110), pacing = followerCorpseClock(page)
   await pacing.install()
-  assert.deepEqual(page.calls.map(([op]) => op), ['install', 'pauseAt'])
-  assert.equal(page.calls[1][1] - page.calls[0][1], 10_000)
+  assert.deepEqual(page.calls.map(([op]) => op), ['install'])
+  assert.equal(await pacing.drive(async () => 'real opening and selection'), 'real opening and selection')
+  assert.deepEqual(page.calls.map(([op]) => op), ['install'], 'never drive or hold the opening')
+  const boundary = await hold(page, pacing)
+  assert.equal(boundary.slackTurns, 4)
+  assert.equal(boundary.before.turn, boundary.after.turn)
+  assert.deepEqual(page.calls[1], ['pauseAt', 11_000])
+  page.publicResume()
   assert.equal(await pacing.drive(() => page.onNextAdvance().then(() => 'real action complete')), 'real action complete')
   assert.ok(page.read().turn < followerCorpseAttackTurn)
   await pacing.advanceToAttack()
@@ -54,23 +67,38 @@ test('controlled setup delivers frame callbacks and freezes at exact turn throug
 test('setup may not pass the combat turn or hang if the public action stalls', async () => {
   const page = testPage(113), pacing = followerCorpseClock(page)
   await pacing.install()
+  assert.equal((await hold(page, pacing)).slackTurns, 1)
+  page.publicResume()
   await assert.rejects(pacing.drive(() => new Promise(() => {})), /reached the exact attack turn/)
   assert.equal(page.read().turn, 114)
   await assert.rejects(pacing.advanceToAttack(), /finish before the attack turn/)
 })
 
-test('unbound setup usages are bounded; operation errors remain visible', async () => {
-  const page = testPage(null), pacing = followerCorpseClock(page)
+test('held resume is bounded; errors and missing or late public pause fail closed', async () => {
+  for (const turn of [null, 114, 115]) {
+    const page = testPage(turn), pacing = followerCorpseClock(page)
+    await pacing.install()
+    await assert.rejects(hold(page, pacing), /ready paused World|no slack/)
+    assert.deepEqual(page.calls.map(([op]) => op), ['install'])
+  }
+  const running = testPage(104), runningPacing = followerCorpseClock(running)
+  await runningPacing.install()
+  running.publicResume()
+  await assert.rejects(hold(running, runningPacing), /ready paused World/)
+  const page = testPage(104), pacing = followerCorpseClock(page)
   await pacing.install()
+  await hold(page, pacing)
   const error = new Error('public UI failed')
   await assert.rejects(pacing.drive(() => { throw error }), error)
   await assert.rejects(pacing.drive(() => new Promise(() => {})), /virtual-time bound/)
-  assert.ok(page.calls.slice(2).every(([op, duration]) => op === 'runFor' && duration === 48))
+  assert.ok(page.calls.slice(2).every(([op, duration]) => op === 'runFor' && duration === 16))
 })
 
 test('fresh hover sampling drives an ordinary frame after arrival and holds the exact same turn', async () => {
   const page = testPage(113), pacing = followerCorpseClock(page)
   await pacing.install()
+  await hold(page, pacing)
+  page.publicResume()
   await pacing.advanceToAttack()
   const arrived = page.read()
   let observed = 0
@@ -89,6 +117,8 @@ test('fresh hover sampling drives an ordinary frame after arrival and holds the 
 test('hover fails on an overrun or an exhausted four-frame budget', async () => {
   const page = testPage(113), pacing = followerCorpseClock(page)
   await pacing.install()
+  await hold(page, pacing)
+  page.publicResume()
   await pacing.advanceToAttack()
   const arrived = page.read().elapsed
   await assert.rejects(pacing.waitForAttackHover(() => false, {}), /exact-turn hover budget/)
@@ -96,6 +126,8 @@ test('hover fails on an overrun or an exhausted four-frame budget', async () => 
   assert.equal(page.read().turn, 114)
   const otherPage = testPage(113), other = followerCorpseClock(otherPage)
   await other.install()
+  await hold(otherPage, other)
+  otherPage.publicResume()
   await other.advanceToAttack()
   otherPage.crossNextTurn()
   await assert.rejects(other.waitForAttackHover(() => assert.fail('Cannot validate stale t114 pointer'), {}),
@@ -107,7 +139,16 @@ test('scenario binds both pointer and pacing source hashes, after exact-turn ren
   const manifest = source.slice(source.indexOf('source: Object.fromEntries'), source.indexOf('  const save ='))
   assert.match(manifest, /'scripts\/tutorial-browser\/follower-corpse-clock\.mjs'/)
   assert.match(manifest, /'scripts\/tutorial-browser\/melee-attack\.mjs'/)
-  const route = source.slice(source.indexOf("    await button('Resume game')"), source.indexOf("    phase('ordinary-combat')"))
+  const setup = source.slice(source.indexOf("    phase('startup')"), source.indexOf("    phase('ordinary-combat')"))
+  let boundary = -1
+  for (const step of ['await pacing.install()', "await page.goto", 'await page.waitForFunction(m2StartupReady)',
+    "await button('Pause game')", "await button('Select brave')", 'await page.evaluate(installFollowerCorpseObserver',
+    'await pacing.holdPaused', "await button('Resume game')"]) {
+    const found = setup.indexOf(step)
+    assert.ok(found > boundary, step)
+    boundary = found
+  }
+  const route = setup.slice(boundary)
   const oneOf = ['await pacing.advanceToAttack()', 'await page.evaluate(readMeleeRouteState,',
     's.picking.personBounds(20, r)', 'await meleeTargetPoint(page, bounds,',
     'const attackHover', 'await page.evaluate(readMeleePointerState, point)', '() => shiftClickMeleeTarget(page, point), false)',

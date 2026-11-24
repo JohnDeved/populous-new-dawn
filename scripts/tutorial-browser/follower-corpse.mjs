@@ -115,7 +115,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     actorId: null, effectId: null, death: null, segments: [], error: null, phases: [],
     method: 'Fresh authored M2 through public startup. Existing public bird’s-eye/minimap target route, Escape, one plain Select brave, Resume, actual rendered hover and Shift+left attack on eligible Green Shaman20. Natural combat/death and same-frame corpse observation; public pause, committed current Save checkpoint, actual Load checkpoint, public camera reframing and Resume.',
     limits: ['Direct mission access, not campaign unlock. No native/synthetic scene, health, source, phase, World clock, victim or target assignment.',
-      'Public Playwright Clock paces ordinary browser RAF and timers only during startup/input, holds the real attack at logical turn 114, and resumes normal wall-clock pacing before combat evidence.',
+      'Public Playwright Clock stays wall-synchronized through the real opening, camera and selection. Only after the World is publicly paused does it pace RAF/timers for the exact t114 attack, then it resumes wall-clock pacing before combat evidence.',
       'Independent original VSTART/VFRA fixture validates displayed native source and heading; packed frame identity comes from imported atlas metadata independently audited outside this browser check.',
       'Canvas copies and read-only observations perturb rendering; no performance or hardware smoothness claim. Crops require visual review and are not pixel-perfect composition evidence.',
       'The saved in-session current checkpoint is actually loaded and rendered. This is not a fresh browser/process persistence test.',
@@ -197,14 +197,14 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     await pacing.install()
     await page.goto(url, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
-    await button('Mission 2'); await pacing.drive(() => bindGame(page))
-    const startup = await pacing.drive(() => page.waitForFunction(m2StartupReady))
+    await button('Mission 2'); await bindGame(page)
+    const startup = await page.waitForFunction(m2StartupReady)
     report.startup = await startup.jsonValue(); await startup.dispose()
     assert.equal(report.startup.level, 2)
     await action('Settle opening messages and introduction', () => settleOpeningMessages(page))
-    await pacing.drive(() => page.waitForFunction(() => {
+    await page.waitForFunction(() => {
       const w = window.testStore.getWorld(); return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn
-    }))
+    })
     phase('public-combat-setup')
     await button('Pause game'); await action('Focus shaman (right-click)', () => page.getByRole('button', { name: 'Select shaman', exact: true }).click({ button: 'right' })); await settle()
     assert.equal(await page.evaluate(() => window.testSceneRef.current.viewPreset), 0)
@@ -230,6 +230,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.equal(actor.team, 'blue'); assert.equal(actor.kind, 'brave'); assert.ok(actor.hp > 0)
     assert.equal(actor.fight, null); assert.equal(actor.target, null); report.actorId = actor.id; save()
     await page.evaluate(installFollowerCorpseObserver, { actorId: report.actorId })
+    report.pacing = { hold: await pacing.holdPaused({ turn: report.selection.turn, actorId: report.actorId }) }
+    save()
     await button('Resume game')
     await pacing.advanceToAttack()
     const route = report.targetEligibility = await page.evaluate(readMeleeRouteState, { actorId: report.actorId, targetId: 20 })
@@ -261,6 +263,7 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     assert.deepEqual([report.beforeAttack.turn, report.order.lastOrderTurn, report.order.turn],
       Array(3).fill(followerCorpseAttackTurn), 'The real public attack must issue on the exact logical turn'); save()
     await page.evaluate(installCorpseCameraFollow, { order: report.order })
+    report.pacing.atAttack = await pacing.observe()
     await pacing.release()
     phase('ordinary-combat')
     await page.waitForFunction(() => {
@@ -337,6 +340,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
     budget.complete()
   } catch (error) {
     failure = error; report.failure = { message: String(error), stack: error.stack }; save()
+    if (!page.isClosed()) try { report.pacingFailure = await pacing.observe(); save() }
+    catch (sampleError) { report.pacingFailure = { unavailable: String(sampleError) } }
     if (!page.isClosed()) try { await page.screenshot({ path: resolve(output, 'follower-corpse-failure.png'), timeout: 2000 }) }
     catch (error) { report.failureScreenshotError = String(error) }
   } finally {

@@ -4,18 +4,57 @@ export const followerCorpseAttackTurn = 114
 const frameStepMs = 16
 const setupAdvanceLimit = 24_000
 const maxAttackHoverFrames = 4
+// A future wall-clock value absorbs transport latency; Playwright fast-forwards
+// to it while the already-publicly-paused World is not simulating.
+const holdLeadMs = 2_000
 const readTurn = () => window.testStore?.getWorld()?.turn ?? null
+const readPacingBoundary = () => {
+  const world = window.testStore?.getWorld(), scene = window.testSceneRef?.current
+  const skip = document.querySelector('button.skip-introduction')
+  return { pageTimeMs: Date.now(), turn: world?.turn ?? null, paused: world?.paused ?? null,
+    pendingTime: world?.pendingTime ?? null, inputMask: world?.inputMask ?? null,
+    flybyFlags: world?.flyby?.flags ?? null,
+    skipExists: !!skip, skipVisible: !!skip && skip.getClientRects().length > 0 &&
+      getComputedStyle(skip).visibility !== 'hidden' && !skip.disabled,
+    readyScene: !!scene && !!world && scene.world === world && scene.renderer?.domElement?.isConnected,
+    stamp: scene?.renderer?.info?.render?.frame ?? null, selected: world ? [...world.selected] : [] }
+}
 
 // External test pacing via Playwright 1.63's public Clock. RunFor delivers
 // ordinary RAFs/timers; never change scene/world time fields or inject an input.
 export function followerCorpseClock(page) {
-  let controlled = false, driving = false, setupElapsed = 0, attackHoverFrames = 0
+  let installed = false, controlled = false, driving = false, setupElapsed = 0, attackAdvanceFrames = 0, attackHoverFrames = 0
   return {
     async install() {
-      const epoch = Date.now()
-      await page.clock.install({ time: epoch })
-      await page.clock.pauseAt(epoch + 10_000)
+      assert.equal(installed, false)
+      await page.clock.install({ time: Date.now() })
+      installed = true
+      // Leave Playwright's real-time synchronization running through startup
+      // and the public camera/selection setup; do not pump the opening flyby.
+    },
+    async observe() {
+      return { installed, controlled, setupElapsed, attackAdvanceFrames, attackHoverFrames,
+        boundary: await page.evaluate(readPacingBoundary) }
+    },
+    async holdPaused({ turn, actorId }) {
+      assert.ok(installed && !controlled && !driving)
+      const before = await page.evaluate(readPacingBoundary)
+      const check = observed => {
+        assert.ok(observed.readyScene && observed.paused, 'Clock hold requires the real ready paused World')
+        assert.equal(observed.turn, turn, 'Clock hold may not move the public paused turn')
+        assert.deepEqual(observed.selected, [actorId], 'Clock hold may not change the public selection')
+        assert.equal(observed.inputMask, 0, 'Clock hold may not inherit a startup input lock')
+      }
+      check(before)
+      const slackTurns = followerCorpseAttackTurn - before.turn
+      assert.ok(Number.isInteger(slackTurns) && slackTurns > 0,
+        `Public pause at turn ${before.turn} left no slack before attack turn ${followerCorpseAttackTurn}`)
+      await page.clock.pauseAt(before.pageTimeMs + holdLeadMs)
       controlled = true
+      const after = await page.evaluate(readPacingBoundary)
+      check(after)
+      assert.equal(after.pendingTime, before.pendingTime, 'Paused presentation cannot change pending World time')
+      return { before, after, slackTurns }
     },
     async drive(action) {
       if (!controlled || driving) return action()
@@ -27,13 +66,11 @@ export function followerCorpseClock(page) {
         while (!settled) {
           const turn = await page.evaluate(readTurn)
           if (settled) break
-          if (turn !== null && turn >= followerCorpseAttackTurn)
+          if (!Number.isInteger(turn) || turn >= followerCorpseAttackTurn)
             throw new Error('Combat setup reached the exact attack turn before finishing')
-          // Larger batches before the scene binds; once bound, at most one RAF.
-          const span = turn === null ? 48 : frameStepMs
-          setupElapsed += span
+          setupElapsed += frameStepMs
           assert.ok(setupElapsed <= setupAdvanceLimit, 'Controlled public combat setup exceeded its virtual-time bound')
-          await page.clock.runFor(span)
+          await page.clock.runFor(frameStepMs)
         }
         await signal
         return result
@@ -46,6 +83,7 @@ export function followerCorpseClock(page) {
       let turn = await page.evaluate(readTurn)
       assert.ok(Number.isInteger(turn) && turn < followerCorpseAttackTurn, 'Public setup must finish before the attack turn')
       for (let frame = 0; frame < 640 && turn < followerCorpseAttackTurn; frame++) {
+        attackAdvanceFrames++
         await page.clock.runFor(frameStepMs)
         turn = await page.evaluate(readTurn)
       }
