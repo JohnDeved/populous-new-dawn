@@ -55,13 +55,13 @@ holds the same cell-centred value in `world.reincarnationSites[tribe]`.
 player reincarnation site. It uses the existing animated camera focus owner, and
 both keys stay behind the Page keyboard gates. H no longer selects the Shaman.
 
-Not recovered:
+Scope and remaining gaps:
 
-- The chunk `0x16` consumer is not in the exported function set. Its exact motion
-  is unproven, as are whether it adopts the tribe angle and whether it clears an
-  armed spell or building plan. The browser keeps its current-angle animated focus
-  to the exact Shaman position, not her cell. That focus owner's existing
-  `mode = null` reset also cancels an armed spell or building placement.
+- The recovered chunk `0x16` consumer is described below. The browser centers
+  the Shaman target cell while retaining its current-angle animated focus.
+  Shared native tribe-angle ownership and the meaning of the consumer's cleanup
+  remain separate. The existing focus owner's `mode = null` reset cancels an
+  armed spell or building placement; this patch does not alter that behavior.
 - H's stage-2 pause admission is now mapped to `world.paused` or retained
   `world.land.landFlags & 2`. The original `00479f00` pause branch toggles/sets
   bit 2 and switches sound/time behavior; `004ee770` suppresses unit animation
@@ -91,3 +91,29 @@ unchanged World state after rejected H, Period controls and resumed H, plus the
 public Space transition without land-bit mutation. Existing modifier, unavailable
 Shaman/site and scene-replacement tests remain unchanged. No chunk-0x16 motion,
 angle, armed-mode or complete native-parity acceptance is claimed by this fix.
+
+## Chunk 0x16 cell target (16 November 2026)
+
+Read-only original-byte inspection reverified executable SHA256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+GNU objdump disassembly and independent PE mapping resolve the consumer's
+byte-indexed dispatch: byte `0043e2b4 + (0x16 - 5)` is 9, and jump-table entry
+`0043e268 + 9 * 4` is `0043e041`. This is static evidence, not native execution.
+
+At `0043e041..0043e079`, each packed coordinate byte is masked with `0xfe`,
+incremented, then shifted left eight bits. Thus an original coordinate becomes
+`(coordinate & 0xfe00) | 0x100`. The consumer emits cue 222 and passes the chunk's
+angle to `00417ca0`; its immediate argument is false for command `0x16` (true
+only for `0x4d`). With a changed target/angle, that path invokes the existing
+smooth planner `00417d80`. An already-active identical target/angle skips
+replanning, but still reaches cleanup. Independent byte review confirmed these
+boundaries; the historical camera-motion harness remains separate execution
+evidence and was not rerun for this change.
+
+The bounded browser correction changes only Period's resolved target from the
+exact live Shaman position to this native cell center. It does not introduce a
+new camera owner or alter H, input gates, selection, commands, cue playback,
+angle ownership or camera timing. Failure-first fixed-coordinate tests cover
+cell edges and signed/wrapped seams; the actual Page-handler test uses an
+off-center Shaman and retains the animated-focus call. These are source/handler
+tests, not rendered-key evidence, native trajectory parity, or full #1006 closure.
