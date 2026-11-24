@@ -1990,6 +1990,20 @@
       "limits": "Native traverses a tribe-linked order and copies high selected bit to low previous bit. Browser performs the same per-object transformation for its constructed roster, not the original linked-list population."
     },
     {
+      "address": "00435c40",
+      "status": "partial",
+      "scope": "Clear one selected live Brave's existing patrol queue on ground-order replacement",
+      "sources": [
+        "app/live-command.ts",
+        "app/person-orders.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00435c40.c",
+        "tests/live-authored-ground-route.test.mjs"
+      ],
+      "limits": "One selected Brave on authored Mission 2 replaces three live model-25 patrol records with a single ordinary point order. Their references drop to zero while Guard Post markers stay in place. Immediate orders, all selection owners and native flag or allocator parity are not established."
+    },
+    {
       "address": "00435cb0",
       "status": "partial",
       "scope": "Append a shared player command to applicable live actors",
@@ -2168,6 +2182,20 @@
         "scripts/check-native-order-focus.py"
       ],
       "limits": "Focus helper applies original command mask, ID, class and liveness checks; the live adapter reconstructs only selected classes from browser lists and always passes flags2 zero instead of reading the native pool object."
+    },
+    {
+      "address": "004389c0",
+      "status": "partial",
+      "scope": "Resolve an ordinary raw ground-order position when the live route completes",
+      "sources": [
+        "app/live-movement.ts",
+        "app/person-order-update.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004389c0.c",
+        "tests/live-authored-ground-route.test.mjs"
+      ],
+      "limits": "At completion the raw target feeds the remake's separate cell-centering anchor step, not the actor's stop point. This checks the raw payload branch only, not the native centering helper or packed, object and vehicle branches."
     },
     {
       "address": "00438db0",
@@ -8590,6 +8618,21 @@
         "scripts/check-native-person-collision.py"
       ],
       "limits": "8,192 tracked native cases compare whole-cell result and callback order; the height child executes, but the adjacent-building lookup is supplied. Live route adaptation substitutes browser inside ownership for that lookup."
+    },
+    {
+      "address": "00518200",
+      "status": "partial",
+      "scope": "Admit ordinary ground orders using the resting-cell quarter walk mask",
+      "sources": [
+        "app/person-collision.ts",
+        "app/command-context.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00518200.c",
+        "tests/live-authored-ground-route.test.mjs"
+      ],
+      "limits": "Two authored Mission 2 land points separate the ordinary low-result walk-mask branch: missing quarters deny the command, and a complete mask admits it. Coastal and building flags, other native return codes and high result bits are outside scope."
     },
     {
       "address": "00518560",
