@@ -304,6 +304,100 @@ globalThis.sharedAssetResult = { runtime, provenance };
         self.assertEqual(before, storage.verify(self.source, self.revision, self.pool, candidate))
         self.assertEqual(self.verify()['status'], 'verified')
 
+    def test_asset_validation_does_not_read_a_whole_asset_into_memory(self):
+        target = self.source / 'public/original/sub/game.bin'
+        data = bytes(range(256)) * 300
+        target.write_bytes(data)
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        asset_sha = storage.digest(data)
+        self.prepare()
+        old_read = Path.read_bytes
+
+        def forbid_whole_asset(path):
+            if path.name in (target.name, asset_sha):
+                self.fail('validation buffered an entire asset')
+            return old_read(path)
+
+        with mock.patch.object(Path, 'read_bytes', forbid_whole_asset):
+            result = self.verify()
+        self.assertEqual(result['status'], 'verified')
+        self.assertTrue((self.runtime / 'public/original/sub/game.bin')
+                        .samefile(self.pool / 'blobs' / asset_sha))
+
+    def test_asset_hash_refuses_file_growing_after_descriptor_check(self):
+        self.prepare()
+        blob = self.asset_blob()
+        info = blob.stat()
+        fstat = os.fstat
+        changed = False
+
+        def grow_after_observing(fd):
+            nonlocal changed
+            current = fstat(fd)
+            if (not changed and current.st_dev == info.st_dev
+                    and current.st_ino == info.st_ino):
+                changed = True
+                with blob.open('ab') as out:
+                    out.write(b'x')
+            return current
+
+        with mock.patch.object(os, 'fstat', grow_after_observing):
+            with self.assertRaisesRegex(ValueError, 'File size changed'):
+                self.verify()
+        self.assertTrue(changed)
+
+    def test_asset_hash_tolerates_new_hardlink_to_same_immutable_blob(self):
+        self.prepare()
+        blob = self.asset_blob()
+        info = blob.stat()
+        new_link = self.root / 'parallel-view-hardlink'
+        fstat = os.fstat
+
+        def link_after_observing(fd):
+            current = fstat(fd)
+            if (not new_link.exists() and current.st_dev == info.st_dev
+                    and current.st_ino == info.st_ino):
+                os.link(blob, new_link)
+            return current
+
+        with mock.patch.object(os, 'fstat', link_after_observing):
+            self.assertEqual(self.verify()['status'], 'verified')
+        self.assertTrue(new_link.samefile(blob))
+
+    def test_asset_hash_refuses_same_inode_content_change_after_streaming(self):
+        self.prepare()
+        blob = self.asset_blob()
+        info = blob.stat()
+        fstat = os.fstat
+        seen = 0
+
+        def mutate_before_final_observation(fd):
+            nonlocal seen
+            current = fstat(fd)
+            if current.st_dev == info.st_dev and current.st_ino == info.st_ino:
+                seen += 1
+                if seen == 2:
+                    with blob.open('r+b') as out:
+                        out.write(b'x')
+                    os.utime(blob, ns=(info.st_atime_ns, info.st_mtime_ns + 2_000_000_000))
+                    self.assertEqual(blob.stat().st_ino, info.st_ino)
+                    return fstat(fd)
+            return current
+
+        with mock.patch.object(os, 'fstat', mutate_before_final_observation):
+            with self.assertRaisesRegex(ValueError, 'File changed while reading'):
+                self.verify()
+        self.assertEqual(seen, 2)
+
+    def test_asset_hash_requires_nofollow_and_nonblocking_open_support(self):
+        self.prepare()
+        for flag in ('O_NOFOLLOW', 'O_NONBLOCK'):
+            with self.subTest(flag=flag), mock.patch.object(os, flag, 0):
+                with self.assertRaisesRegex(ValueError, 'requires O_NOFOLLOW and O_NONBLOCK'):
+                    self.verify()
+
     def test_asset_undeclared_file_refused(self):
         result = self.prepare()
         (self.pool / storage.ASSET_TREES / result['assetTree'] / 'extra').write_text('not declared')
