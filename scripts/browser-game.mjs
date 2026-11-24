@@ -179,11 +179,11 @@ export async function settleOpeningMessages(page) {
 // Returns false when the mission roster has no card for that spell.
 export async function chooseSpell(page, name) {
   await page.evaluate(() => {
-    const tab = document.querySelector('button[title="spells"]')
+    const tab = document.querySelector('.dock-tabs button[aria-label="spells"]')
     if (tab?.getAttribute('aria-pressed') !== 'true') tab?.click()
   })
   await page.waitForFunction(
-    () => document.querySelector('button[title="spells"]')?.getAttribute('aria-pressed') === 'true'
+    () => document.querySelector('.dock-tabs button[aria-label="spells"]')?.getAttribute('aria-pressed') === 'true'
   )
   return page.evaluate(name => {
     const card = [...document.querySelectorAll('.spell-card')].find(card =>

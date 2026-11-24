@@ -14,7 +14,7 @@ const boatId = 62
 
 // Escape cancels a selection, but the shipped Page intentionally opens its menu
 // from neutral input. Exercise that owner, then return to the same paused World.
-export async function clearMission10Selection(page, previous, deadlineAt = null) {
+export async function clearMission10Selection(page, previous, deadlineAt = null, retainedWorld = null) {
   const neutral = previous.selected.length === 0 && previous.selectionState.mode === null
   const limit = Math.min(Date.now() + 15000, deadlineAt ?? Infinity)
   const remaining = () => {
@@ -23,24 +23,32 @@ export async function clearMission10Selection(page, previous, deadlineAt = null)
     return left
   }
   remaining()
-  const world = await page.evaluateHandle(() => window.testStore.getWorld())
-  const handles = [world]
+  const world = retainedWorld ?? await page.evaluateHandle(() => window.testStore.getWorld())
+  const handles = retainedWorld ? [] : [world]
   let failed = false, failure
   const fail = error => { if (!failed) { failed = true; failure = error } }
-  const assertOwner = async () => assert.equal(await world.evaluate(owner =>
-    window.testStore.getWorld() === owner && window.testSceneRef.current.world === owner &&
-    owner.paused && owner.status === 'playing'), true,
-  'Escape must retain the exact paused Mission 10 World')
+  // The shipped page conditionally mounts its named native dialog. Absence is
+  // deliberately stronger than invisibility: hidden retained/duplicate menus
+  // fail closed. These reads never cross an actual input boundary.
+  const readOwner = () => world.evaluate(owner => ({
+    owned: window.testStore.getWorld() === owner && window.testSceneRef.current.world === owner &&
+      owner.paused && owner.status === 'playing',
+    selection: { selected: [...owner.selected], mode: owner.mode },
+    menuAbsent: document.querySelectorAll('dialog[aria-label="Game menu"]').length === 0,
+  }))
+  const assertOwner = observation => assert.equal(observation.owned, true,
+    'Escape must retain the exact paused Mission 10 World')
   try {
-    await assertOwner()
-    const prior = await world.evaluate(owner => ({ selected: [...owner.selected], mode: owner.mode }))
-    assert.deepEqual(prior, { selected: previous.selected, mode: previous.selectionState.mode },
+    const prior = await readOwner()
+    assertOwner(prior)
+    assert.deepEqual(prior.selection, { selected: previous.selected, mode: previous.selectionState.mode },
       'Escape must act on the immediately observed selection and mode')
     const menu = page.getByRole('dialog', { name: 'Game menu', exact: true })
-    assert.equal(await menu.isVisible(), false, 'No menu may already own the clearing input')
+    assert.equal(prior.menuAbsent, true, 'No menu may already own the clearing input')
     remaining()
     await page.keyboard.press('Escape')
-    await assertOwner()
+    let after = await readOwner()
+    assertOwner(after)
     if (neutral) {
       await menu.waitFor({ state: 'visible', timeout: remaining() })
       const owner = await menu.elementHandle({ timeout: remaining() })
@@ -53,16 +61,19 @@ export async function clearMission10Selection(page, previous, deadlineAt = null)
       const resume = await owner.$('button[aria-label="Continue Game"]')
       assert.ok(resume, 'Exact root menu must retain its Continue Game control')
       handles.push(resume)
-      await assertOwner()
+      assertOwner(await readOwner())
       await resume.click({ timeout: remaining() })
       await menu.waitFor({ state: 'hidden', timeout: remaining() })
       assert.equal(await owner.evaluate(element => !element.open && !element.isConnected), true,
         'Continue Game must close and release the exact menu owner')
+      after = await readOwner()
     } else {
-      assert.equal(await menu.isVisible(), false, 'Selection Escape must not open a Game menu')
+      assert.equal(after.menuAbsent, true, 'Selection Escape must not open a Game menu')
     }
-    await assertOwner()
-    assert.equal(await menu.isVisible(), false, 'Follower controls require the menu owner to be released')
+    // Non-neutral Escape has no further input; both final assertions can use
+    // its same atomic post-input observation. Continue receives a fresh one.
+    assertOwner(after)
+    assert.equal(after.menuAbsent, true, 'Follower controls require the menu owner to be released')
   } catch (error) { fail(error) }
   finally {
     for (const handle of handles.reverse()) {
@@ -86,36 +97,47 @@ export async function checkMission10FollowerStrip({ page, input, state, phase, o
   assert.ok(before.party.every(person => person && person.hp > 0))
   assert.ok(before.party.every(person => occupied ? person.vehicle === boatId : !person.vehicle))
   const result = { phase, occupied, occupants: before.party.map(({ id, hp, vehicle }) => ({ id, hp, vehicle })), checks: [] }
-  let previous = before
-  for (const name of ['Select warrior', 'Select follower']) {
-    for (const modifiers of [[], ['Control'], ['Shift']]) {
-      const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
-      await input.action(`${label} Escape-clear`, () => clearMission10Selection(page, previous, deadlineAt))
-      const cleared = await state(`${label} cleared`)
-      assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
-      const query = mission10SelectionQuery(cleared.selectionState)
-      if (!result.query) result.query = query
-      else assert.deepEqual(query, result.query, 'Paused pre-action selection query changed')
-      mission10EscapePreserved(previous.selectionState, cleared.selectionState)
-      for (const key of ['turn', 'orders', 'randomState', 'boat', 'party'])
-        assert.deepEqual(cleared[key], before[key], `Escape preserves ${key}`)
-      const expected = mission10ExpectedSelection(query, name, modifiers[0] ?? 'single')
-      await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
-      const after = await state(`${label} selected`)
-      const selected = [...after.selected].sort((a, b) => a - b)
-      assert.deepEqual(selected, expected.selected, 'Exact original-contract class/Total selection differs')
-      if (occupied) assert.ok(party.every(id => selected.includes(id)), 'Class/Total must acquire all five occupants, including Shaman')
-      mission10SelectionPreserved(cleared.selectionState, after.selectionState)
-      assert.equal(after.paused, true)
-      assert.equal(after.turn, before.turn)
-      assert.deepEqual(after.orders, before.orders, 'HUD selection preserves commands')
-      assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
-      assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
-      assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
-      previous = after
-      result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, primary: expected.primary, preserved: true })
+  const world = await page.evaluateHandle(() => window.testStore.getWorld())
+  let failed = false, failure
+  try {
+    let previous = before
+    for (const name of ['Select warrior', 'Select follower']) {
+      for (const modifiers of [[], ['Control'], ['Shift']]) {
+        const label = `${phase}: ${name} ${modifiers[0] ?? 'single'}`
+        await input.action(`${label} Escape-clear`, () => clearMission10Selection(page, previous, deadlineAt, world))
+        const cleared = await state(`${label} cleared`)
+        assert.deepEqual(cleared.selected, [], 'Escape must clear the existing crew first')
+        const query = mission10SelectionQuery(cleared.selectionState)
+        if (!result.query) result.query = query
+        else assert.deepEqual(query, result.query, 'Paused pre-action selection query changed')
+        mission10EscapePreserved(previous.selectionState, cleared.selectionState)
+        for (const key of ['turn', 'orders', 'randomState', 'boat', 'party'])
+          assert.deepEqual(cleared[key], before[key], `Escape preserves ${key}`)
+        const expected = mission10ExpectedSelection(query, name, modifiers[0] ?? 'single')
+        await input.action(label, () => page.getByRole('button', { name, exact: true }).click({ modifiers }))
+        const after = await state(`${label} selected`)
+        assert.equal(await world.evaluate(owner => window.testStore.getWorld() === owner &&
+          window.testSceneRef.current.world === owner && owner.paused && owner.status === 'playing'), true,
+        'Follower input must retain the exact paused Mission 10 World')
+        const selected = [...after.selected].sort((a, b) => a - b)
+        assert.deepEqual(selected, expected.selected, 'Exact original-contract class/Total selection differs')
+        if (occupied) assert.ok(party.every(id => selected.includes(id)), 'Class/Total must acquire all five occupants, including Shaman')
+        mission10SelectionPreserved(cleared.selectionState, after.selectionState)
+        assert.equal(after.paused, true)
+        assert.equal(after.turn, before.turn)
+        assert.deepEqual(after.orders, before.orders, 'HUD selection preserves commands')
+        assert.deepEqual(after.randomState, before.randomState, 'HUD selection preserves RNG')
+        assert.deepEqual(after.boat, before.boat, 'HUD selection preserves craft and passenger slots')
+        assert.deepEqual(after.party, before.party, 'HUD selection preserves live passenger activity')
+        previous = after
+        result.checks.push({ name, modifier: modifiers[0] ?? 'single', cleared: cleared.selected, selected, primary: expected.primary, preserved: true })
+      }
     }
+  } catch (error) { failed = true; failure = error }
+  finally {
+    try { await world.dispose() } catch (error) { if (!failed) { failed = true; failure = error } }
   }
+  if (failed) throw failure
   if (!entering.paused) await input.resume()
   return result
 }
