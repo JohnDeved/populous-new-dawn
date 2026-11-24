@@ -110,7 +110,9 @@ function historyPage(w) {
   const menu = { open: false, isConnected: false, getAttribute: name => name === 'data-panel' ? 'root' : null }
   const window = { testStore: store, testSceneRef: { current: scene } }
   const document = { activeElement: null,
-    querySelectorAll: selector => { assert.equal(selector, '.campaign-messages details[open]'); return [] },
+    querySelectorAll: selector => {
+      if (selector === 'dialog[aria-label="Game menu"]') return menu.isConnected ? [menu] : []
+      assert.equal(selector, '.campaign-messages details[open]'); return [] },
     querySelector: selector => { assert.equal(selector, 'dialog[data-original-pause-menu]'); return menu.isConnected ? menu : null } }
   const evaluate = (callback, value) => {
     const result = runInNewContext(`(${callback.toString()})(value)`, { window, document, value })
