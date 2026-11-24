@@ -88,6 +88,7 @@ import {
   spellCaster,
   spellPaymentType,
   nativeSpellRange,
+  reservedSpellMana,
 } from './spell-casting.ts'
 import { clearLivePath, planLivePath } from './live-pathfinding.ts'
 import { nativeCellPoint, browserPosition } from './world-coordinates.ts'
@@ -1961,7 +1962,11 @@ export function stepComputerTasks(w: World, tribe: number) {
           if (!u || u.inside !== null || u.entry || u.work !== null)
             throw new Error('Unsupported computer marker selection')
           u.native ??= createLivePerson(w, u)
-          if (task.extra) u.native.computerAssignment = 99
+          if (task.extra) {
+            // 0x4f2440 clears only the low bit of the represented +0x7f byte.
+            if (Object.hasOwn(u, 'nativeFlags7f')) u.nativeFlags7f! &= 254
+            u.native.computerAssignment = 99
+          }
           registerLivePerson(w, u.native)
           changeLivePersonState(w, u, 14)
         } else if (action.kind === 'order' || action.kind === 'guard') {
@@ -2271,18 +2276,23 @@ function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
   syncNativeTerrain(w)
   const x = short(Math.round((u.x + 8) * 256)),
     y = short(Math.round((-u.z - 8) * 256)),
-    live = unitAnimationSource(u)
+    live = unitAnimationSource(u),
+    tribe = tribeForTeam(u.team),
+    model = nativePersonModel(u)
+  const spy = model === 5 ? (u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person) : null
   return {
     class: 1,
-    model: nativePersonModel(u),
+    model,
     state: live?.state ?? 0,
-    tribe: tribeForTeam(u.team),
+    tribe,
     x,
     y,
     flags2: u.inside === null ? 0 : 0x800000,
     flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
     assignment: live?.assignment ?? 0,
-    disguise: 0,
+    // Model 5 reads the current +0xb2 byte, including the disguise countdown.
+    // Without a live person, use the undisguised own tribe; zero would appear Blue.
+    disguise: model === 5 ? (spy?.disguise ?? (tribe << 6)) & 255 : 0,
   }
 }
 function computerSpellWorld(w: World, tribe: number): SpellTargetWorld {
@@ -2333,6 +2343,11 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const allocate = (model: number, cell: number) => allocateComputerSpell(w, u!, model, cell)
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
+  // 0x4f4d40 and 0x4d1450 share the acting shaman's owned raid budget;
+  // shoreline Blast and ordinary spell readiness apply their own thresholds.
+  const assignment = u ? (unitAnimationSource(u) ?? u.native)?.computerAssignment : 0,
+    task = assignment ? w.ai.tasks[assignment - 1] : undefined,
+    reserve = task?.type === 20 ? reservedSpellMana({ type: task.type, spells: task.spells ?? [] }) : 0
   const shore = castShoreBlast(
     world,
     caster,
@@ -2340,7 +2355,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
       turn: w.turn,
       population: w.units.filter(p => p.team === team && !p.ghost && p.hp > 0).length,
       mana: w.manaTribes[tribe].mana,
-      reserve: 0,
+      reserve,
       gameFlags: w.manaWorld.gameFlags,
       aiFlags: w.ai.flags,
     },
@@ -2353,7 +2368,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const context = {
     turn: w.turn,
     mana: w.manaTribes[tribe].mana,
-    reserve: 0,
+    reserve,
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,

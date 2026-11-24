@@ -76,7 +76,8 @@ Explicit compatibility choices:
   not change saved game sound preferences. Refused autoplay offers a real resume
   action. Decode failure offers a truthful message and working Skip.
 - Fresh keydown skips, while browser repeat events are consumed without skipping.
-  Tab is reserved for reaching the browser controls; Enter/Space on the sound
+  Tab and Shift are reserved for forward/backward browser-control navigation,
+  including from initial dialog focus; Enter/Space on the sound
   control operates it. These exceptions are not native key-filter claims.
 - Pointer down pauses immediately. The modal absorbs that pointer's release or
   cancellation before revealing the menu, preventing browser click-through.

@@ -194,6 +194,10 @@ def check_tree(pool, asset_tree, assets, version=2):
     require(version in (1, 2), 'Unknown asset tree version')
     physical(pool / 'blobs')
     tree = physical(pool / ('trees' if version == 1 else ASSET_TREES) / asset_tree)
+    return _check_asset_tree_path(pool, tree, assets, version)
+
+
+def _check_asset_tree_path(pool, tree, assets, version):
     expected = {entry['path'][len(ASSETS) + 1:]: entry for entry in assets}
     actual = file_inventory(tree)
     require(set(actual) == set(expected) | parent_names(expected), 'Asset tree has undeclared or missing paths')
@@ -252,10 +256,9 @@ def runtime_manifest(state, pool, runtime, scope, records, budget):
     return manifest
 
 
-def allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes):
+def allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes, filesystems):
     """Conservative new allocations; reserves are separate and never discounted."""
-    fs = os.statvfs(runtime.parent)
-    block = max(4096, fs.f_frsize)
+    block = max(4096, *(fs['fragmentBytes'] for fs in filesystems))
     rounded = lambda size: ((size + block - 1) // block) * block
     ordinary = [e for e in records if not e['path'].startswith(ASSETS + '/')]
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
@@ -277,7 +280,13 @@ def allocation_budget(state, pool, runtime, scope, records, reused, reserve_byte
         'manifestBytes': rounded(manifest_bound) + block,
     }
     return {'version': 2, 'method': 'verified-cas-new-allocation-v1',
-            'availableBytes': fs.f_bavail * fs.f_frsize,
+            'capacityAccounting': 'same-device-minimum-blocks-and-inodes-v1',
+            'availableBytes': min(fs['availableBytes'] for fs in filesystems),
+            'availableInodes': min(fs['availableInodes'] for fs in filesystems),
+            # Hardlinks reuse an inode. Include every projected directory,
+            # ordinary copy, missing CAS leaf, manifest, and runtime symlink.
+            'newInodeEstimate': directories + len(ordinary) + len(missing) + 2,
+            'allocationDevices': filesystems,
             'fullCopyEstimateBytes': sum(((e['bytes'] + 4095) // 4096 + 1) * 4096 for e in records),
             'newAllocationEstimateBytes': sum(allocations.values()), 'allocations': allocations,
             'verifiedReusedBlobCount': len(reused),
@@ -286,8 +295,17 @@ def allocation_budget(state, pool, runtime, scope, records, reused, reserve_byte
             'reserveBytes': reserve_bytes, 'measuredAt': time.time()}
 
 
+def require_allocation_capacity(budget, reserve_bytes, *, locked):
+    require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
+            'Insufficient destination capacity after publication lock' if locked else
+            'Insufficient destination capacity for new allocations and unchanged reserve')
+    require(budget['availableInodes'] >= budget['newInodeEstimate'],
+            'Insufficient destination inodes after publication lock' if locked else
+            'Insufficient destination inodes for projected runtime')
+
+
 def check_allocation_filesystems(pool, runtime, asset_tree, missing_blobs):
-    """Reject read-only destinations without writing a probe or changing mounts."""
+    """Measure every allocation destination without probing writes or changing mounts."""
     readonly_flag = getattr(os, 'ST_RDONLY', None)
     require(type(readonly_flag) is int and readonly_flag > 0,
             'Read-only filesystem flag is unavailable for allocation admission')
@@ -300,18 +318,31 @@ def check_allocation_filesystems(pool, runtime, asset_tree, missing_blobs):
         roots.append(pool / 'blobs')
     if new_tree:
         roots.append(pool / ASSET_TREES)
-    checked = set()
+    expected_device = runtime.parent.stat().st_dev
+    checked = []
     for root in roots:
         path = physical(root, absent=True)
         while not path.exists():
             path = path.parent
-        if path in checked:
-            continue
-        checked.add(path)
-        flags = getattr(os.statvfs(path), 'f_flag', None)
+        device = path.stat().st_dev
+        require(device == expected_device, f'Allocation filesystem changed: {path}')
+        fs = os.statvfs(path)
+        flags = getattr(fs, 'f_flag', None)
         require(type(flags) is int and flags >= 0,
                 f'Filesystem flags are unavailable for allocation path: {path}')
         require(not flags & readonly_flag, f'Read-only allocation filesystem: {path}')
+        fragment, blocks, inodes, inode_total = (
+            getattr(fs, field, None) for field in ('f_frsize', 'f_bavail', 'f_favail', 'f_files'))
+        require(type(fragment) is int and fragment > 0 and
+                type(blocks) is int and blocks >= 0 and
+                type(inode_total) is int and inode_total > 0 and
+                type(inodes) is int and 0 <= inodes <= inode_total,
+                f'Allocation counters are unavailable for path: {path}')
+        checked.append({'root': str(root), 'device': device,
+                        'fragmentBytes': fragment,
+                        'availableBytes': blocks * fragment,
+                        'availableInodes': inodes})
+    return checked
 
 
 def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
@@ -350,10 +381,9 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]
     reused = asset_reuse(pool, assets)
     missing_blobs = any(entry['sha256'] not in reused for entry in assets)
-    check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
-    budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
-    require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
-            'Insufficient destination capacity for new allocations and unchanged reserve')
+    filesystems = check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
+    budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes, filesystems)
+    require_allocation_capacity(budget, reserve_bytes, locked=False)
     pool.mkdir(exist_ok=True)
     physical(pool)
     require(pool.stat().st_dev == target_parent.stat().st_dev, 'Allocation pool filesystem changed')
@@ -369,17 +399,27 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
             physical(path)
             require((path.stat().st_dev, path.stat().st_ino) == identity, 'Allocation filesystem root changed')
         require(asset_reuse(pool, assets) == reused, 'CAS inventory changed during allocation planning')
-        check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
-        locked_budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes)
-        require(locked_budget['allocations'] == budget['allocations'] and
-                locked_budget['allocationBlockBytes'] == budget['allocationBlockBytes'],
-                'Allocation geometry changed during planning')
-        budget = locked_budget
-        require(budget['availableBytes'] >= budget['newAllocationEstimateBytes'] + reserve_bytes,
-                'Insufficient destination capacity after publication lock')
+        refreshed = check_allocation_filesystems(pool, runtime, state['assetTree'], missing_blobs)
+        geometry = lambda snapshots: [(r['root'], r['device'], r['fragmentBytes']) for r in snapshots]
+        require(geometry(filesystems) == geometry(refreshed), 'Allocation geometry changed during planning')
+        budget = allocation_budget(state, pool, runtime, scope, records, reused, reserve_bytes, refreshed)
+        require_allocation_capacity(budget, reserve_bytes, locked=True)
         (pool / 'blobs').mkdir(exist_ok=True)
         (pool / ASSET_TREES).mkdir(exist_ok=True)
         physical(pool / 'blobs'); physical(pool / ASSET_TREES)
+        tree = pool / ASSET_TREES / state['assetTree']
+        staging = None
+        if not tree.exists() and not tree.is_symlink():
+            # Preserve failed stages for diagnosis, but allow only one automatic
+            # retry per tree so repeated failures cannot keep consuming space.
+            for slot in (1, 2):
+                candidate = tree.with_name(f'.{tree.name}.staging-{slot}')
+                if not candidate.exists() and not candidate.is_symlink():
+                    staging = candidate
+                    break
+            require(staging is not None,
+                    f'Asset tree staging limit reached for {tree.name}; '
+                    'two prior staging paths retained for diagnosis')
         runtime.mkdir()
         blobs = Blobs(source)
         materialized = []
@@ -405,15 +445,20 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
                 if entry['mode'] == '100755':
                     target.chmod(0o755)
         blobs.close(); blobs = None
-        tree = pool / ASSET_TREES / state['assetTree']
-        if not tree.exists() and not tree.is_symlink():
-            tree.mkdir()
+        if staging is not None:
+            # Publish only a complete tree while holding the writer lock.
+            staging.mkdir()
             for entry in prepared_assets:
-                target = tree / entry['path'][len(ASSETS) + 1:]
+                target = staging / entry['path'][len(ASSETS) + 1:]
                 target.parent.mkdir(parents=True, exist_ok=True)
                 # Never chmod/copy shared content or change an existing v1 tree.
                 os.link(pool / 'blobs' / entry['sha256'], target, follow_symlinks=False)
-        check_tree(pool, state['assetTree'], prepared_assets)
+            _check_asset_tree_path(pool, physical(staging), prepared_assets, 2)
+            require(not tree.exists() and not tree.is_symlink(),
+                    'Asset tree appeared during publication')
+            staging.rename(tree)
+        else:
+            check_tree(pool, state['assetTree'], prepared_assets)
         link = runtime / ASSETS
         link.parent.mkdir(parents=True, exist_ok=True)
         link.symlink_to(os.path.relpath(tree, link.parent), target_is_directory=True)

@@ -13,22 +13,37 @@ export async function checkHudTabShortcuts(page, output) {
   const button = name => page.getByRole('button', { name, exact: true })
   const settle = () => page.evaluate(() => new Promise(done => requestAnimationFrame(() => requestAnimationFrame(done))))
   const observe = () => page.evaluate(() => {
-    const world = window.testStore.getWorld()
+    const world = window.testStore.getWorld(), scene = window.testSceneRef.current
     return { paused: world.paused, mode: world.mode, selected: [...world.selected],
-      sceneCurrent: window.testSceneRef.current.world === world, scroll: [scrollX, scrollY],
+      sceneCurrent: scene?.world === world, loading: !!document.querySelector('.loading-world'),
+      scroll: [scrollX, scrollY],
       tabs: [...document.querySelectorAll('.dock-tabs button')].map(node => ({
         label: node.getAttribute('aria-label'), key: node.getAttribute('aria-keyshortcuts'),
         title: node.title, pressed: node.getAttribute('aria-pressed'),
       })) }
   })
-  const expectTab = async (key, label) => {
+  const setPaused = async paused => {
     const before = await observe()
+    assert.equal(before.sceneCurrent, true)
+    if (before.paused !== paused) await button(before.paused ? 'Resume game' : 'Pause game').click()
+    await page.waitForFunction(expected => {
+      const world = window.testStore.getWorld()
+      return window.testSceneRef.current?.world === world && world.paused === expected
+    }, paused)
+  }
+  const expectTab = async (key, label, paused = true) => {
+    const before = await observe()
+    assert.equal(before.sceneCurrent, true, 'HUD shortcut requires the current scene before dispatch')
+    assert.equal(before.loading, false)
+    assert.equal(before.paused, paused)
     await page.keyboard.press(key)
     await settle()
     const after = await observe()
     assert.deepEqual(after.tabs.filter(tab => tab.pressed === 'true').map(tab => tab.label), [label])
+    assert.equal(after.paused, paused, 'HUD shortcut does not toggle simulation pause')
     assert.equal(after.mode, null)
     assert.equal(after.sceneCurrent, true)
+    assert.equal(after.loading, false)
     assert.deepEqual(after.selected, before.selected)
     assert.deepEqual(after.scroll, before.scroll)
     report.cases.push({ key, before, after }); save()
@@ -37,11 +52,23 @@ export async function checkHudTabShortcuts(page, output) {
   const timer = setTimeout(() => { timedOut = true; void page.close().catch(() => {}) }, hudTabEpisodeLimitMs)
   save()
   try {
-    await page.waitForFunction(() => !window.testStore.getWorld().inputMask &&
-      window.testSceneRef.current.world === window.testStore.getWorld())
-    await button('Pause game').click()
-    await page.waitForFunction(() => window.testStore.getWorld().paused)
+    await settle()
+    await page.waitForFunction(() => {
+      const world = window.testStore.getWorld()
+      return !world.inputMask && window.testSceneRef.current?.world === world &&
+        !document.querySelector('.loading-world')
+    })
+    const loaded = await observe()
+    assert.equal(loaded.sceneCurrent, true)
+    assert.equal(loaded.loading, false)
+    report.loadedPaused = loaded.paused
+    // A compact replacement scene may already pause during its attachment,
+    // after the recovery job captured the loaded World before activation.
+    await setPaused(false)
     // A real HUD control owns focus; no artificial DOM focus target is inserted.
+    await button('followers').click()
+    await expectTab('Insert', 'buildings B', false)
+    await setPaused(true)
     await button('followers').click()
     for (const [key, label, title] of [['Insert', 'buildings B', 'buildings · Insert'],
       ['Home', 'spells', 'spells · Home'], ['PageUp', 'followers', 'followers · Page Up']]) {
@@ -85,6 +112,11 @@ export async function checkHudTabShortcuts(page, output) {
     await menu.waitFor({ state: 'hidden' })
     assert.equal((await observe()).paused, true)
     await expectTab('Home', 'spells')
+    await setPaused(loaded.paused)
+    const final = await observe()
+    assert.equal(final.sceneCurrent, true)
+    report.finalPaused = final.paused
+    assert.equal(report.finalPaused, report.loadedPaused)
     assert.equal(timedOut, false)
     report.status = 'passed'
     return report

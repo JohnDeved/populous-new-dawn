@@ -1,6 +1,6 @@
 // Bounded data-only ZIP reader. No filesystem extraction, URLs or execution.
 import assert from 'node:assert/strict'
-import { inflateRawSync } from 'node:zlib'
+import { crc32, inflateRawSync } from 'node:zlib'
 export function readArtifactZip(input, options) {
   return parseArtifactZip(Buffer.from(input), options)
 }
@@ -80,12 +80,7 @@ function parseArtifactZip(zip, { maxArchiveBytes, maxFileBytes, maxTotalBytes, m
     if (inflated) assert.equal(inflated.engine.bytesWritten, compressed, 'Trailing compressed data')
     const bytes = inflated ? inflated.buffer : compressedBytes
     assert.equal(bytes.length, size)
-    let checksum = 0xffffffff
-    for (const byte of bytes) {
-      checksum ^= byte
-      for (let bit = 0; bit < 8; bit++) checksum = (checksum >>> 1) ^ ((checksum & 1) ? 0xedb88320 : 0)
-    }
-    assert.equal((checksum ^ 0xffffffff) >>> 0, crc, 'Artifact checksum mismatch')
+    assert.equal(crc32(bytes), crc, 'Artifact checksum mismatch')
     entries.set(name, bytes); at = next
   }
   assert.equal(at, end); assert.equal(localEnd, central)

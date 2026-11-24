@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import ts from 'typescript'
 import { dragSourceProfiles } from './snapshot-drag-contract.mjs'
 import { createHash } from 'node:crypto'
-import { readdirSync, lstatSync, readlinkSync, realpathSync, openSync, readSync, closeSync, readFileSync } from 'node:fs'
+import { readdirSync, lstatSync, readlinkSync, realpathSync, openSync, readSync, closeSync, fstatSync, constants, readFileSync } from 'node:fs'
 import { resolve, relative } from 'node:path'
 import { sha256 } from './protocol.mjs'
 export const readerFixtureBinding = `import { Matrix4 as PndReaderMatrix4 } from 'three'\nObject.defineProperty(globalThis, '__pndReaderTypes', { value: Object.freeze({ Matrix4: PndReaderMatrix4 }), writable: false, configurable: false })\n`
@@ -110,15 +110,43 @@ export function readerDependencyManifest(root) {
   return { version: 1, sha256: sha256(JSON.stringify(entries)), files: entries.length, bytes,
     threeSha256: sha256(JSON.stringify(required.map(path => byPath.get(path)))), entries }
 }
+// Read the exact emitted descriptor once, retaining only a bounded scratch buffer.
+function bundleFileSha256(path, expected, buffer) {
+  const sameFile = stat => stat.isFile() && ['dev', 'ino', 'mode', 'size', 'mtimeNs', 'ctimeNs']
+    .every(field => stat[field] === expected[field])
+  const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK)
+  let failed = false
+  try {
+    assert.ok(sameFile(fstatSync(fd, { bigint: true })), 'Bundle file changed before read')
+    const hash = createHash('sha256'), size = Number(expected.size)
+    let bytes = 0
+    for (;;) {
+      const length = readSync(fd, buffer, 0, Math.min(buffer.length, size - bytes + 1), null)
+      if (!length) break
+      bytes += length
+      assert.ok(bytes <= size, 'Bundle file grew during read')
+      hash.update(buffer.subarray(0, length))
+    }
+    assert.equal(bytes, size, 'Bundle file shrank during read')
+    assert.ok(sameFile(fstatSync(fd, { bigint: true })), 'Bundle file changed during read')
+    return hash.digest('hex')
+  } catch (error) {
+    failed = true
+    throw error
+  } finally {
+    try { closeSync(fd) } catch (error) { if (!failed) throw error }
+  }
+}
+
 export function readerBundleManifest(dist) {
-  const entries = []
+  const entries = [], buffer = Buffer.alloc(64 * 1024)
   const visit = folder => {
     for (const name of readdirSync(folder).sort()) {
-      const path = resolve(folder, name), stat = lstatSync(path), rel = relative(dist, path).replaceAll('\\', '/')
+      const path = resolve(folder, name), stat = lstatSync(path, { bigint: true }), rel = relative(dist, path).replaceAll('\\', '/')
       if (stat.isSymbolicLink()) continue // Public asset links bind through exact source, not emitted JS.
       if (stat.isDirectory()) { visit(path); continue }
-      assert.ok(stat.isFile() && entries.length < 1000 && stat.size <= 32 * 1024 ** 2)
-      if (!name.endsWith('.map')) entries.push([rel, stat.size, sha256(readFileSync(path))])
+      assert.ok(stat.isFile() && entries.length < 1000 && stat.size <= 32n * 1024n ** 2n)
+      if (!name.endsWith('.map')) entries.push([rel, Number(stat.size), bundleFileSha256(path, stat, buffer)])
     }
   }
   visit(dist); assert.ok(entries.some(([path]) => path.endsWith('.js')))
