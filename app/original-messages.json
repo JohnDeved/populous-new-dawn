@@ -359,6 +359,22 @@
     "107": {
       "stringId": 650,
       "text": "One of your Followers is being charmed by the false words of the Enemy Preacher. Be quick Shaman and use the Swarm spell to stop him!"
+    },
+    "105": {
+      "stringId": 648,
+      "text": "I have had a disturbing vision. The Chumara Tribe turned my own Followers against me when I attacked! I must find a way to reach their Vault of Knowledge and learn how to use this power against them."
+    },
+    "74": {
+      "stringId": 661,
+      "text": "In my vision I beheld the ultimate horror: the Angel Of Death. It is an unstoppable force that will destroy everything in its path! If my Enemies, the Dakini, reach it before me, our fate is sealed."
+    },
+    "52": {
+      "stringId": 672,
+      "text": "I sense a Dakini settlement nearby and they have a powerful defence against us; mighty Followers known as Firewarriors! I will need the spells of Tornado and Magical Shield contained in the Stone Heads to defeat them. Then I too will have the knowledge to train my own Firewarriors."
+    },
+    "54": {
+      "stringId": 675,
+      "text": "I am troubled... my visions are strangely clouded. I feel a powerful spell nearby that will aid me in our battle against the Chumara, yet it lies across the water. I sense our Enemy have Boats and will use them to attack us. I must seize their Boats, find this spell and destroy them."
     }
   }
 }

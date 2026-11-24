@@ -52,7 +52,7 @@ function bindTooltipPaint(scene, bindings) {
   ).call(scene)
 }
 
-export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capacityMode = 'classic' } = {}) {
+export async function tooltipCallerFixture(t, { level = 1, prepareTarget, openingFrame, capacityMode = 'classic' } = {}) {
   const api = await loadSceneFixture(),
     { GameScene } = await import('../../app/scene.ts'),
     { ScenePicking } = await import('../../app/scene-picking.ts'),
@@ -182,6 +182,7 @@ export async function tooltipCallerFixture(t, { level = 1, prepareTarget, capaci
   for (let frames = 0; frames < 24 * 60; frames++) {
     now += 1000 / 24
     scene.animate(now)
+    openingFrame?.({ world, scene })
     sawInputLock ||= world.inputMask !== 0
     sawFlyby ||= !!(world.flyby.flags & 1)
     if (

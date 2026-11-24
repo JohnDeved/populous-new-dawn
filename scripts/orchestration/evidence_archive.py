@@ -299,12 +299,30 @@ def read_member(path, manifest, name):
     return b''.join(chunks)
 
 
+def check_cache_capacity(parent, chosen):
+    """Conservative block/inode preflight, not a lease or quota guarantee."""
+    space = os.fstatvfs(parent)
+    block = space.f_frsize
+    require(block > 0 and space.f_bavail >= 0 and space.f_favail >= 0, 'Invalid cache capacity observation')
+    directories = {'.'}
+    for row in chosen:
+        directories.update(str(p) for p in PurePosixPath(row['name']).parents)
+    # Archive members are streamed to one inode each; a temporary link/rename
+    # does not duplicate them. Peak metadata holds a prepared and complete receipt.
+    control_and_dirs = 2 + len(directories)
+    blocks = control_and_dirs + sum((row['bytes'] + block - 1)//block for row in chosen)
+    inodes = control_and_dirs + len(chosen)
+    require(space.f_bavail >= blocks, 'Insufficient free blocks for evidence cache preflight')
+    require(space.f_favail >= inodes, 'Insufficient free inodes for evidence cache preflight')
+
+
 def materialize(path, manifest, names, cache):
     """Fresh bounded cache only. Partial failures remain for explicit diagnosis."""
     chosen = selection(manifest, names); cache = Path(cache); path = Path(path)
     require(cache.is_absolute() and path.is_absolute() and cache != path and cache not in path.parents and cache != path.parent and path.parent not in cache.parents, 'Unsafe cache/archive relationship')
     with Archive(path, manifest['archiveSha256']) as archive, parent_chain(cache.parent) as (parent, verify_parent):
         archive.bind_manifest(manifest)
+        verify_parent(); check_cache_capacity(parent, chosen); verify_parent()
         os.mkdir(cache.name, 0o700, dir_fd=parent)  # Never reuse/overwrite an existing path.
         with ExitStack() as stack:
             root = os.open(cache.name, DIRECTORY, dir_fd=parent); stack.callback(os.close, root)
