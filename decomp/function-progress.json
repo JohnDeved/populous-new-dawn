@@ -965,6 +965,36 @@
       "limits": "Direct native fixture compares arithmetic output, not the original affordability return. Browser calculates the signed cost and live conversion checks its stored, capped cost in a separate caller rather than returning original affordability from this routine."
     },
     {
+      "address": "0041b240",
+      "status": "partial",
+      "scope": "Deny a live hut birth when the ordinary housing limit is reached",
+      "sources": [
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/hut-birth.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041b240.c",
+        "tests/live-authored-hut-breeding.test.mjs"
+      ],
+      "limits": "Authored Mission 3 Blue is above its ordinary housing limit at the sampled hut visit; the clock clears and no birth occurs. The original weighted tribe census, alternate allowance, global flags and hard cap are not established."
+    },
+    {
+      "address": "0041b3f0",
+      "status": "partial",
+      "scope": "Use the active breeding-band cost on a live mature-hut birth",
+      "sources": [
+        "app/world-state.ts",
+        "app/world-turn.ts",
+        "app/hut-birth.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041b3f0.c",
+        "tests/live-authored-hut-breeding.test.mjs"
+      ],
+      "limits": "One naturally occupied mature hut in Mission 2 reaches cost 695 using the active band and publishes one newborn. This does not establish native weighted census inputs, all bands or other building models."
+    },
+    {
       "address": "0041b610",
       "status": "partial",
       "scope": "Start a result-camera request and capture the previous view once",
@@ -8268,6 +8298,20 @@
         "scripts/check-native-construction-panel.py"
       ],
       "limits": "Only native panel kinds 1 and 2 are mapped here. Native draw submissions and sizes are compared; not the complete original multi-kind panel dispatcher."
+    },
+    {
+      "address": "00509c10",
+      "status": "partial",
+      "scope": "Sample the ground height of one type-60 hut birth flash",
+      "sources": [
+        "app/world-turn.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00509c10.c",
+        "tests/live-authored-hut-breeding.test.mjs"
+      ],
+      "limits": "One authored Mission 2 hut birth grounds its outside flash at the local terrain height. Only the ground-height sample in the type-60 arm is assessed; duration, sprite/draw override, state, retirement and other class-7 arms are not credited."
     },
     {
       "address": "0050a750",
