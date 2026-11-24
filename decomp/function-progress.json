@@ -4176,6 +4176,21 @@
       "limits": "Exact native query compared for statuses, availability and pruning, but live objects come from a reconstructed browser scenery scan instead of the native cell chain."
     },
     {
+      "address": "00493a40",
+      "status": "partial",
+      "scope": "Initialize the cold timber search pool and its ordinary cadence",
+      "sources": [
+        "app/world-state.ts",
+        "app/timber-search.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00493a40.c",
+        "tests/live-authored-builder-timber-cache.test.mjs"
+      ],
+      "limits": "A controlled placement on authored Mission 1 starts with empty stage-five search records and ordinary cadence, then a real builder uses the first search. Native memory layout, nonzero-pressure cadence and the complete scheduler are not assessed."
+    },
+    {
       "address": "00493af0",
       "status": "partial",
       "scope": "Per-turn timber expansion, route budget and idle expiry",
@@ -4303,6 +4318,20 @@
       "limits": "Original timber scheduling compares supplied route cost and visit order. Actual live routing/obstacle actor inputs are independently adapted."
     },
     {
+      "address": "004951b0",
+      "status": "partial",
+      "scope": "Invalidate one nearby timber route cache after live construction grading",
+      "sources": [
+        "app/construction-runtime.ts",
+        "app/timber-search.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004951b0.c",
+        "tests/live-authored-builder-timber-cache.test.mjs"
+      ],
+      "limits": "One authored Mission 1 construction grading event keeps the same eight candidates while clearing their checked flags and incrementing both unchecked counts. Other radii, pivot branches and far records are not assessed."
+    },
+    {
       "address": "00495390",
       "status": "partial",
       "scope": "Update timber availability at the entrance and elsewhere",
@@ -4315,6 +4344,19 @@
         "scripts/check-native-timber-search.py"
       ],
       "limits": "Direct native comparison covers availability flags and off-entrance candidate stock. Live stock comes from the reconstructed active browser scenery provider."
+    },
+    {
+      "address": "00495520",
+      "status": "partial",
+      "scope": "Return construction preparation tasks five and six to work",
+      "sources": [
+        "app/construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00495520.c",
+        "tests/live-authored-builder-timber-cache.test.mjs"
+      ],
+      "limits": "The two subtask codes are supplied separately to an already registered builder in an authored Mission 1 placement. The same assignment returns to work. Natural reachability, other tasks, registration and fallback order ownership are not established."
     },
     {
       "address": "004958f0",
