@@ -3245,6 +3245,21 @@
       "limits": "Supported registered vehicle and physics models, using native coordinate units and rule tables; 1,024 direct native predicate comparisons. Does not claim transport movement, landing or board-order parity."
     },
     {
+      "address": "004659d0",
+      "status": "partial",
+      "scope": "Launch a seated Boat or Balloon passenger on verified voluntary exit",
+      "sources": [
+        "app/vehicle-unload.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/object-panels.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004659d0.c",
+        "tests/vehicle-panel-runtime.test.mjs"
+      ],
+      "limits": "Prepared live exits preserve seat position at launch, produce the upward impulse and expected flags, and clear passenger ownership while surviving checkpoint continuation. Native animation, raw position scheduling, arbitrary seat models and naturally authored browser exits are unverified."
+    },
+    {
       "address": "00465ea0",
       "status": "partial",
       "scope": "Synchronize the settled live Boat and Balloon passenger poses",
@@ -3317,6 +3332,20 @@
         "decomp/generated/00466920.c"
       ],
       "limits": "Live planner passes min/max and a current vehicle roster to nearestLiveBoat. Native linked list, exact reservation and CPU ownership providers are separately implemented, not equivalent by this evidence."
+    },
+    {
+      "address": "00466d90",
+      "status": "partial",
+      "scope": "Center and turn the detached Boat reward at its periodic rest visit",
+      "sources": [
+        "app/vehicle-reward.ts",
+        "app/vehicle-routing.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00466d90.c",
+        "tests/boat-reward-lifecycle.test.mjs"
+      ],
+      "limits": "A supplied detached Boat reward at phase 32 clears nonzero speed before any centering, or moves and corrects the heading in bounded steps when stopped. Native bobbing and refresh, occupied craft and arbitrary steady-state motion are not established."
     },
     {
       "address": "00466f00",
@@ -5392,6 +5421,20 @@
       "limits": "Live assignGuardPostFollowers uses chain lengths below 8, clears on slot zero, emits command 11 with 0x0606 and appends its chosen shared slot. Object-based command-6 branch and model/selection roster parity excluded."
     },
     {
+      "address": "004bae30",
+      "status": "partial",
+      "scope": "Track or clear the in-flight direct Blast shot target independently",
+      "sources": [
+        "app/spell-effects-runtime.ts",
+        "app/blast-targeting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bae30.c",
+        "tests/blast-targeting.test.mjs"
+      ],
+      "limits": "Live Blast projectile retains its last point when the tracked person is invalidated and continues tracking independently of its parent. This is one branch, not arbitrary native class-8 shot models or allocation and identity reuse."
+    },
+    {
       "address": "004baf00",
       "status": "implemented",
       "scope": "Step supported live reincarnation-site stone carrier and jitter trail",
@@ -5546,6 +5589,20 @@
         "scripts/check-native-spell-casting.py"
       ],
       "limits": "Native supported admission and facing are represented in ordinary state22 and special entry. Protected actors/effect allocation and current person ownership separate."
+    },
+    {
+      "address": "004c1d10",
+      "status": "partial",
+      "scope": "Refresh the parent direct Blast target point through impact",
+      "sources": [
+        "app/spell-effects-runtime.ts",
+        "app/blast-targeting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c1d10.c",
+        "tests/blast-targeting.test.mjs"
+      ],
+      "limits": "A controlled live direct cast preserves parent identity through windup and uses the later parent destination for the actual wave. Not the full native spell-model dispatcher, ownership gate, allocation, or all phase and target variants."
     },
     {
       "address": "004c24f0",
@@ -7151,6 +7208,20 @@
       "limits": "Live owners allocate from the free-list tail, prepend to active order and honor capacity/reserve. General native class allocation, object identifier layout and dispatcher lifetime remain unproved."
     },
     {
+      "address": "004ede10",
+      "status": "partial",
+      "scope": "Copy represented linked Boat reward template fields without replacing fresh identity",
+      "sources": [
+        "app/vehicle-reward.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ede10.c",
+        "tests/boat-reward-lifecycle.test.mjs"
+      ],
+      "limits": "Controlled Mission 5 grant preserves the new Boat position, allocation phase and fresh identity. A supplied copy verifies disjoint passenger lists; not the complete native record, selective raw flag preservation, or occupied reward lifecycle."
+    },
+    {
       "address": "004ee190",
       "status": "partial",
       "scope": "Remove a deleted live effect owner's terrain-light contribution",
@@ -8143,6 +8214,21 @@
         "scripts/check-native-land-bridge.py"
       ],
       "limits": "Original complete Land Bridge comparisons cover ordered terrain/trails; app maps supported signed geometry while keeping whole effect owner/producers separate."
+    },
+    {
+      "address": "00511800",
+      "status": "partial",
+      "scope": "Compose dry-ground Firestorm impact fire, panic wave and building ignition",
+      "sources": [
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00511800.c",
+        "tests/firestorm.test.mjs",
+        "scripts/check-native-firestorm.py"
+      ],
+      "limits": "A controlled live cast reaches ground impact and ignites an indexed building with the casting tribe. The fixture forces a shot schedule; it does not establish the water branch, allocation rejection, or all native occupant and callback details."
     },
     {
       "address": "005119d0",
