@@ -1511,6 +1511,20 @@
       "limits": "Composed native drag-selection witness and live clipping; browser intentionally repairs the overwritten final triangle for seven vertices rather than matching original mutation."
     },
     {
+      "address": "00429ad0",
+      "status": "partial",
+      "scope": "Generate the first live standing slot for the authored Mission 1 bridge head",
+      "sources": [
+        "app/worship.ts",
+        "app/live-worship.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00429ad0.c",
+        "tests/live-authored-worship.test.mjs"
+      ],
+      "limits": "A Brave given an ordinary model-27 order reaches the first exact stationary slot on foot. This checks one authored head and slot, not all offsets, rotations, occupancy fallback or rendered panel behavior."
+    },
+    {
       "address": "00429f90",
       "status": "partial",
       "scope": "Present native-style ground-view sky and viewport flash",
@@ -7879,6 +7893,20 @@
         "decomp/generated/004facf0.c"
       ],
       "limits": "Actual completion path dispatches supported reward/gift payloads and presentation from live shrines and vaults. Native request sequence, object identity and unsupported families remain separate."
+    },
+    {
+      "address": "004fb270",
+      "status": "partial",
+      "scope": "Advance the authored Mission 1 bridge head to its first timed gift",
+      "sources": [
+        "app/worship.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004fb270.c",
+        "tests/live-authored-worship.test.mjs"
+      ],
+      "limits": "Ordinary turns sample the local Brave, complete one work threshold and allocate a Blue bridge gift; departure clears the sampled count without a second gift. Other trigger families, native object ownership and rendered panel behavior are not established."
     },
     {
       "address": "004fbf40",
