@@ -157,7 +157,51 @@ class Blobs:
         require(blob_oid(data) == entry['oid'], 'Git object content mismatch')
         return data
 
+    def planning_digest(self, entry):
+        # Planning authenticates the Git object but has no consumer for its bytes.
+        try:
+            self.proc.stdin.write((entry['oid'] + '\n').encode())
+            self.proc.stdin.flush()
+            size = entry['bytes']
+            expected = f"{entry['oid']} blob {size}\n".encode()
+            header = self.proc.stdout.readline(len(expected) + 1)
+            require(header == expected, 'Git object identity changed or truncated header')
+            left = size
+            blob = hashlib.sha1(b'blob ' + str(size).encode() + b'\0')
+            content = hashlib.sha256()
+            chunk = memoryview(bytearray(min(size, 64 * 1024)))
+            while left:
+                count = self.proc.stdout.readinto(chunk[:left])
+                require(count, 'Truncated Git object')
+                blob.update(chunk[:count])
+                content.update(chunk[:count])
+                left -= count
+            require(self.proc.stdout.read(1) == b'\n', 'Truncated Git object')
+            require(blob.hexdigest() == entry['oid'], 'Git object content mismatch')
+            return content.hexdigest()
+        except BaseException as issue:
+            # Rejected output may leave an owned child blocked on a full pipe.
+            self._planning_aborted = True
+            try:
+                self.proc.terminate()
+                try:
+                    self.proc.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    self.proc.kill()
+                    self.proc.wait(timeout=1)
+            except Exception as cleanup:
+                issue.add_note(f'Could not reap rejected Git object reader: {cleanup}')
+            finally:
+                for pipe in (self.proc.stdin, self.proc.stdout, self.proc.stderr):
+                    try:
+                        pipe.close()
+                    except Exception as cleanup:
+                        issue.add_note(f'Could not close rejected Git reader pipe: {cleanup}')
+            raise
+
     def close(self):
+        if getattr(self, '_planning_aborted', False):
+            return
         self.proc.stdin.close()
         code = self.proc.wait()
         self.proc.stdout.close()
@@ -414,7 +458,7 @@ def prepare(source, revision, pool, runtime, reserve_bytes, scope='build'):
     reader = Blobs(source)
     try:
         for entry in entries:
-            records.append({**entry, 'sha256': digest(reader.read(entry))})
+            records.append({**entry, 'sha256': reader.planning_digest(entry)})
     finally:
         reader.close()
     assets = [e for e in records if e['path'].startswith(ASSETS + '/')]

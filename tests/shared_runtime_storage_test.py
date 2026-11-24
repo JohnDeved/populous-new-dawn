@@ -1,5 +1,6 @@
 import errno
 import importlib.util
+import io
 import json
 import os
 import signal
@@ -397,6 +398,104 @@ globalThis.sharedAssetResult = { runtime, provenance };
             with self.subTest(flag=flag), mock.patch.object(os, flag, 0):
                 with self.assertRaisesRegex(ValueError, 'requires O_NOFOLLOW and O_NONBLOCK'):
                     self.verify()
+
+    def test_planning_digest_requires_canonical_framing_and_verified_status(self):
+        data = b'known object'
+        oid = storage.blob_oid(data)
+        expected = {'oid': oid, 'bytes': len(data)}
+        header = f'{oid} blob {len(data)}\n'.encode()
+
+        def run(response, *, status=0, entry=expected):
+            request = io.BytesIO()
+            reader = storage.Blobs.__new__(storage.Blobs)
+            reader.proc = SimpleNamespace(
+                stdin=request, stdout=io.BytesIO(response), stderr=io.BytesIO(),
+                wait=mock.Mock(return_value=status), terminate=mock.Mock(), kill=mock.Mock())
+            try:
+                digest = reader.planning_digest(entry)
+                self.assertEqual(request.getvalue(), (entry['oid'] + '\n').encode())
+                return digest
+            finally:
+                reader.close()
+                self.assertTrue(all(getattr(reader.proc, name).closed
+                                    for name in ('stdin', 'stdout', 'stderr')))
+
+        self.assertEqual(run(header + data + b'\n'), storage.digest(data))
+        empty = {'oid': storage.blob_oid(b''), 'bytes': 0}
+        self.assertEqual(run(f"{empty['oid']} blob 0\n\n".encode(), entry=empty), storage.digest(b''))
+        for bad_header in (
+            b'0' * 40 + header[40:],
+            header.replace(b' blob ', b' tree '),
+            header.replace(b' blob ', b'  blob '),
+            header.replace(b' blob ', b' blob +'),
+            header.replace(b' blob ', b' blob 0'),
+            header.replace(b' blob ', b' blob 1'),
+            b'x' * 256 + b'\n',
+        ):
+            with self.subTest(header=bad_header), self.assertRaisesRegex(ValueError, 'Git object identity'):
+                run(bad_header + data + b'\n')
+        for payload in (data[:-1], data + b'x'):
+            with self.subTest(payload=payload), self.assertRaisesRegex(ValueError, 'Truncated Git object'):
+                run(header + payload)
+        with self.assertRaisesRegex(ValueError, 'Git object content mismatch'):
+            run(header + b'x' + data[1:] + b'\n')
+        with self.assertRaisesRegex(ValueError, 'Git object reader failed'):
+            run(header + data + b'\n', status=7)
+
+    @unittest.skipUnless(os.name == 'posix' and hasattr(os, 'killpg'),
+                         'requires an isolated POSIX process group for the watchdog')
+    def test_planning_digest_reaps_an_owned_overproducer(self):
+        # The watchdog can clean up only this test-owned group, even if a
+        # regression leaves the inner reader waiting for a pipe-blocked child.
+        fixture = r'''
+import importlib.util
+import signal
+import subprocess
+import sys
+spec = importlib.util.spec_from_file_location('runtime', sys.argv[1])
+storage = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(storage)
+data = b'expected object'
+oid = storage.blob_oid(data)
+producer = r"""
+import signal, sys
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+assert sys.stdin.buffer.readline() == sys.argv[1].encode() + b'\n'
+sys.stdout.buffer.write(b'0' * 40 + b' blob 67108864\n')
+sys.stdout.buffer.flush()
+for _ in range(1024):
+    sys.stdout.buffer.write(bytes(65536))
+    sys.stdout.buffer.flush()
+"""
+reader = storage.Blobs.__new__(storage.Blobs)
+reader.proc = subprocess.Popen([sys.executable, '-c', producer, oid],
+                               stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+try:
+    try:
+        reader.planning_digest({'oid': oid, 'bytes': len(data)})
+    finally:
+        reader.close()
+except ValueError as issue:
+    assert 'Git object identity changed' in str(issue), issue
+    assert not getattr(issue, '__notes__', ()), issue.__notes__
+else:
+    raise AssertionError('noncanonical header accepted')
+assert reader.proc.returncode == -signal.SIGKILL, reader.proc.returncode
+assert all(pipe.closed for pipe in (reader.proc.stdin, reader.proc.stdout, reader.proc.stderr))
+'''
+        p = subprocess.Popen([sys.executable, '-B', '-c', fixture, str(HELPER)],
+                             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, start_new_session=True)
+        try:
+            out, err = p.communicate(timeout=20)
+        except subprocess.TimeoutExpired:
+            try:
+                os.killpg(p.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            p.communicate(timeout=5)
+            self.fail('planning reader did not reap the owned child before the watchdog')
+        self.assertEqual(p.returncode, 0, (out + err).decode(errors='replace'))
 
     def test_asset_undeclared_file_refused(self):
         result = self.prepare()
