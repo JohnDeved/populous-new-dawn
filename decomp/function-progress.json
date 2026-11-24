@@ -8201,6 +8201,34 @@
       "limits": "Native mode-selection entry executes original code in the composed reincarnation fixture (its entry hook only observes); browser sets mode 2 on the new supported wave. Original OR preserves existing packed mode bits while the browser assigns an enum on a fresh effect; no general setter parity claim."
     },
     {
+      "address": "0050c840",
+      "status": "partial",
+      "scope": "Advance the authored Mission 2 opening wave through terrain grading and Wildman conversion",
+      "sources": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050c840.c",
+        "tests/live-opening-wave-burst.test.mjs"
+      ],
+      "limits": "Real Mission 2 turns prove orbit creation and retirement, radius growth and caps, changed terrain grades and new Blue Brave counts. The original occupant chain, exact actor identity, native effect pool and other opening variants are not established."
+    },
+    {
+      "address": "0050ccd0",
+      "status": "partial",
+      "scope": "Emit the default particle burst at the first authored Mission 2 stone arrival",
+      "sources": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050ccd0.c",
+        "tests/live-opening-wave-burst.test.mjs"
+      ],
+      "limits": "The first ordinary Mission 2 stone arrival creates 32 new common-origin particles with bounded initial lifetime words, speed, angles and flags. Native allocation and failure behavior, full RNG equivalence, alternate burst descriptors and rendered output are not established."
+    },
+    {
       "address": "0050ecc0",
       "status": "partial",
       "scope": "Advance native-style live Land Bridge terrain raising",
