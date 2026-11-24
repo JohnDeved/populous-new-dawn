@@ -21,19 +21,65 @@ const end = source.indexOf('\n  return {\n    checks, screenshots, saved, render
 assert.ok(boundary > body && end > boundary)
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 const execute = new AsyncFunction('browser', 'receipt', 'run', 'closePauseRecoveryContext',
+  'checkSelectionTexture', 'url', 'output', 'signal', 'enterMission',
   source.slice(start, body + '  try {'.length) + '\n    await run()\n' + source.slice(boundary, end))
 
-function fixture(close, receipt = { errors: [] }) {
-  const events = []
+function fixture(close, receipt = { errors: [] }, selection) {
+  const events = [], renderers = ['legacy'],
+    url = 'http://local.invalid/', output = '/tmp/controlled-recovery', signal = new AbortController().signal,
+    selectionPage = {}, selectionViewport = { viewport: { width: 800, height: 600 }, deviceScaleFactor: 1 }
+  let oldContextClosed = false
+  const browser = {
+    newContext: async options => {
+      if (selection && options.viewport.height === 600) {
+        assert.equal(oldContextClosed, true, 'Selection opens only after legacy teardown')
+        events.push('selection context')
+        assert.deepEqual(options, selectionViewport)
+        return { close: async () => events.push('selection close') }
+      }
+      events.push('context')
+      assert.deepEqual(options, { viewport: { width: 800, height: 450 }, deviceScaleFactor: 2 })
+      return { close: async () => {
+        events.push('close')
+        const result = await close()
+        oldContextClosed = true
+        return result
+      } }
+    },
+  }
+  // The actual containing source passes these through the new helper boundary.
+  // Supply only the work of the independent Selection episode, no browser.
+  const checkSelectionTexture = async options => {
+    assert.equal(oldContextClosed, true)
+    assert.equal(options.browser, browser)
+    assert.equal(options.url, url)
+    assert.equal(options.output, output)
+    assert.equal(options.signal, signal, 'Do not replace the outer owning budget signal')
+    assert.equal(options.outerReceipt, receipt)
+    assert.equal(options.closeContext, closePauseRecoveryContext)
+    if (!selection) return
+    const context = await options.browser.newContext(selectionViewport)
+    let failed = false
+    try {
+      await options.enterMission(selectionPage)
+      return await selection()
+    } catch (error) {
+      failed = true
+      throw error
+    } finally {
+      await options.closeContext(context, failed, options.outerReceipt)
+    }
+  }
+  const enterMission = async (page, reportRenderer = true) => {
+    assert.equal(page, selectionPage)
+    assert.equal(reportRenderer, false, 'Independent Selection does not change the old renderer inventory')
+    if (reportRenderer) renderers.push('selection')
+    events.push('selection entry')
+  }
   return {
-    receipt, events,
-    run: action => execute({
-      newContext: async options => {
-        events.push('context')
-        assert.deepEqual(options, { viewport: { width: 800, height: 450 }, deviceScaleFactor: 2 })
-        return { close: async () => { events.push('close'); return close() } }
-      },
-    }, receipt, action, closePauseRecoveryContext),
+    receipt, events, renderers,
+    run: action => execute(browser, receipt, action, closePauseRecoveryContext,
+      checkSelectionTexture, url, output, signal, enterMission),
   }
 }
 async function rejection(work, expected) {
@@ -91,3 +137,21 @@ test('primary rejection still propagates when cleanup succeeds', async () => {
   assert.deepEqual(f.receipt.errors, [])
 })
 
+
+test('actual caller runs independent Selection only after DPR2 closes, with same budget and old renderer inventory', async () => {
+  const receipt = { errors: [] }
+  const f = fixture(async () => {}, receipt, async () => f.events.push('selection work'))
+  await f.run(async () => f.events.push('work'))
+  assert.deepEqual(f.events, ['context', 'work', 'close', 'selection context', 'selection entry', 'selection work', 'selection close'])
+  assert.deepEqual(f.renderers, ['legacy'])
+  assert.deepEqual(receipt.errors, [])
+})
+
+test('independent Selection primary failure still closes only the owning separate context', async () => {
+  const receipt = { errors: [] }, primary = Error('selection witness')
+  const f = fixture(async () => {}, receipt, async () => { throw primary })
+  await rejection(f.run(async () => {}), primary)
+  assert.deepEqual(f.events, ['context', 'close', 'selection context', 'selection entry', 'selection close'])
+  assert.deepEqual(f.renderers, ['legacy'])
+  assert.deepEqual(receipt.errors, [])
+})

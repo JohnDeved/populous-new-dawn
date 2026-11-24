@@ -523,7 +523,7 @@ export function animatePerson(
       },
       scene.view.config
     )
-    arrow.visible = !!r && r.width > 0 && r.height > 0
+    arrow.visible = !!arrow.material.map?.image && !!r && r.width > 0 && r.height > 0
     if (r && arrow.visible) {
       arrow.scale.set(r.width, r.height, 1)
       arrow.center.set(-r.x / r.width, 1 + r.y / r.height)
