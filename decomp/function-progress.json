@@ -6136,6 +6136,24 @@
       "limits": "Native comparison covers person-only and supplied ritual/tower conditions. Mixed object types, original caller ordering and total target priority not verified."
     },
     {
+      "address": "004d47d0",
+      "status": "partial",
+      "scope": "Release one live resting assignment and compact its registered ring on panic entry",
+      "sources": [
+        "app/person-state.ts",
+        "app/live-people.ts",
+        "app/live-resting.ts",
+        "app/resting-slots.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d47d0.c",
+        "decomp/generated/004d2740.c",
+        "decomp/generated/004d56f0.c",
+        "tests/live-authored-resting-panic.test.mjs"
+      ],
+      "limits": "The M1 World creates both original Brave owners and their two-slot ring through an ordinary movement command. Panic entry is supplied; no natural panic trigger, state-10 queued-command gate, exempt model, raw layout, or browser rendering is established."
+    },
+    {
       "address": "004d4ee0",
       "status": "implemented",
       "scope": "Stop native-shaped live person movement and choose the proper pose",
