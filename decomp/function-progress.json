@@ -6613,6 +6613,19 @@
       "limits": "Live recall and drag reject flags4&128. Native also rejects flags4&0x800 unless its caller permits ghosts; browser does not map that branch in these helpers."
     },
     {
+      "address": "004e5580",
+      "status": "partial",
+      "scope": "Produce the first authored Mission 12 Red Tower construction request",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e5580.c",
+        "tests/live-mission12-ai-production.test.mjs"
+      ],
+      "limits": "Ordinary Mission 12 turns first create a model-4 construction task, then resolve its target. The later scheduler, other building branches and complete native placement policy are separate."
+    },
+    {
       "address": "004e5900",
       "status": "partial",
       "scope": "Request live CPU Convert task under original population gate",
@@ -6627,6 +6640,21 @@
       "limits": "Direct original authored population gate supported, output through reconstructed live AI task queue and bounded mission-owned inputs."
     },
     {
+      "address": "004e59a0",
+      "status": "partial",
+      "scope": "Admit the first live Mission 12 Red camp training request above capacity threshold",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer-selection.ts",
+        "app/computer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e59a0.c",
+        "tests/live-mission12-ai-production.test.mjs"
+      ],
+      "limits": "The authored Red camp passes the ordinary live training gate. Blocking the observed in-turn comparison of 7 available people against capacity 5 prevents its packet. Equality, all eligibility filters, RNG ordering and other models are not established."
+    },
+    {
       "address": "004e6550",
       "status": "partial",
       "scope": "Queue native-style live marker command from a campaign script",
@@ -6639,6 +6667,20 @@
         "tests/ai-marker-patrol.test.mjs"
       ],
       "limits": "Live handles bounded game-command marker payloads and task requests. Original dispatch and arbitrary marker-mode state not completely established."
+    },
+    {
+      "address": "004e6640",
+      "status": "partial",
+      "scope": "Build the live Mission 12 Red camp type-6 training packet",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e6640.c",
+        "tests/live-mission12-ai-production.test.mjs"
+      ],
+      "limits": "The shared request builder targets the completed authored camp; the model test observes that packet producing two Warriors and retiring. This does not establish the original scheduler, other model mappings or native allocation behavior."
     },
     {
       "address": "004e67b0",
