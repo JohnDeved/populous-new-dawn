@@ -85,7 +85,7 @@ try {
   })
 
   await page.getByLabel('Select brave').click({ modifiers: ['Shift'] })
-  await page.getByRole('button', { name: 'buildings B', exact: true }).click()
+  await page.getByRole('button', { name: 'buildings', exact: true }).click()
   const boatHouseButton = page.getByRole('button', { name: 'Boat House, 5 wood', exact: true })
   await boatHouseButton.waitFor()
   assert.equal(await boatHouseButton.isEnabled(), true)

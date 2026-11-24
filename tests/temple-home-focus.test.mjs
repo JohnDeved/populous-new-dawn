@@ -240,7 +240,7 @@ test('maintained minimap view retains an exact rejected geometry and never click
     getAttribute: () => null,
     getBoundingClientRect: () => ({ x: 0, y: 0, width: 200, height: 192 }),
   }
-  const button = { tagName: 'BUTTON', getAttribute: () => 'buildings B' }
+  const button = { tagName: 'BUTTON', getAttribute: () => 'buildings' }
   const scene = {
     mini,
     world: { inputMask: 0, turn: 1 },

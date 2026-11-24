@@ -54,7 +54,7 @@ export function readBuildingIconPanel(kinds) {
 }
 
 export async function tabToFirstBuilding(page,step) {
-  await step(()=>page.getByRole('button',{name:'buildings B',exact:true}).focus())
+  await step(()=>page.getByRole('button',{name:'buildings',exact:true}).focus())
   const visits=[]
   // The intervening public HUD controls are dynamic. Retain every actual focus;
   // never assume that the command cards immediately follow the category nav.
@@ -105,7 +105,7 @@ export async function runBuildingIconCases({browser,url,check,write,receipt,ownC
     finally {if(startup)await startup.dispose()}
     await wait(page,()=>!window.testStore.getWorld().inputMask)
     await step(()=>page.getByRole('button',{name:'Pause game',exact:true}).click());await wait(page,()=>window.testStore.getWorld().paused)
-    await step(()=>page.getByRole('button',{name:'buildings B',exact:true}).click())
+    await step(()=>page.getByRole('button',{name:'buildings',exact:true}).click())
     await step(()=>page.evaluate(async()=>{const image=new Image();image.src='/original/building-icons.png';await image.decode();if(image.naturalWidth!==300||image.naturalHeight!==47)throw Error('Atlas dimensions') }))
     for(const scale of [1,1.5,2]) {
       await step(()=>page.getByRole('button',{name:'Game settings',exact:true}).click())
@@ -128,7 +128,7 @@ export async function runBuildingIconCases({browser,url,check,write,receipt,ownC
       await capture(page,'building-icon-keyboard-focus-balloon.png',16,2)
       await step(()=>page.keyboard.press('Enter'));assert.equal((await observe(page)).mode,'balloonHut')
       await step(()=>page.getByRole('button',{name:'spells',exact:true}).click())
-      await step(()=>page.getByRole('button',{name:'buildings B',exact:true}).click())
+      await step(()=>page.getByRole('button',{name:'buildings',exact:true}).click())
       const returned=await observe(page);assert.equal(returned.mode,null);acceptBuildingIconPanel(returned,atlas,16,2);receipt.tabReturn=returned
     }
     await releaseContext(context)

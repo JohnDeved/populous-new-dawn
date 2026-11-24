@@ -507,7 +507,7 @@ async function build(page, kind, label, point) {
   const before = new Set((await state(page)).buildings.map(building => building.id)),
     target = await groundPoint(page, await validBuildPoint(page, kind, point), kind)
   await selectClass(page, 'brave')
-  await page.getByLabel('buildings B', { exact: true }).click()
+  await page.getByLabel('buildings', { exact: true }).click()
   await page.getByRole('button', { name: label, exact: true }).click()
   await page.mouse.click(target.x, target.y)
   const building = (await state(page)).buildings.find(candidate => !before.has(candidate.id))

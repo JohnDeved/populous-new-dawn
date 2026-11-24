@@ -208,7 +208,7 @@ async function ordinaryMissionTwoTrainingHut(page) {
   const before = new Set(await page.evaluate(() => window.testScene.world.buildings.map(b => b.id))),
     target = await groundBuildPoint(page, 'camp', { x: -99, z: -105 })
   await page.getByLabel('Select brave').click({ modifiers: ['Shift'] })
-  await page.getByLabel('buildings B', { exact: true }).click()
+  await page.getByLabel('buildings', { exact: true }).click()
   await page.getByRole('button', { name: 'Warrior Training Hut, 8 wood', exact: true }).click()
   await page.mouse.click(target.x, target.y)
   const camp = await page.evaluate(before => {

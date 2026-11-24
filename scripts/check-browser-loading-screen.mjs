@@ -110,7 +110,7 @@ async function assertPendingFrozen(page, expectedLevel, holdMs = 1200) {
   // Real scene camera input is not installed yet.
   await page.keyboard.press('ArrowRight')
   // The full-screen loading surface owns physical pointer hits over the hidden HUD.
-  const buildings = page.getByRole('button', { name: 'buildings B', exact: true })
+  const buildings = page.getByRole('button', { name: 'buildings', exact: true })
   const box = await buildings.boundingBox()
   assert.ok(box)
   const point = { x: box.x + box.width / 2, y: box.y + box.height / 2 }

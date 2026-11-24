@@ -304,7 +304,7 @@ export async function runTowerCollectionEpisode({ browser, url, output, signal, 
     for (let batch = 0; batch < 5; batch++) completed = await frame(24)
     report.completed = completed
     assertTowerContinuation(report.saved, report.loaded, completed, report.observedGiftIds)
-    await page.getByRole('button', { name: /^buildings B/ }).click()
+    await page.getByRole('button', { name: /^buildings/ }).click()
     assert.equal(await button('Guard Tower, 5 wood').isEnabled(), true)
     await capture('tower-unlocked.png')
     report.inputEvents = await page.evaluate(() => window.__towerInputs)
