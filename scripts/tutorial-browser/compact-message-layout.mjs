@@ -6,7 +6,6 @@ import {
   m2DiagnosticLayout,
   m2RectanglesOverlap,
   openM2AuthoredMessage,
-  closeM2AuthoredMessage,
 } from './m2-pointer-f8.mjs'
 
 export const compactMessageCases = Object.freeze([
@@ -239,9 +238,27 @@ export function assertCompactMessageWitness(layout, witness, width, height) {
 
 // Input controls must run outside modal ownership. Reopen the same authored
 // message for layout witnesses; never mutate message/pause state in the page.
-async function closeCampaignForInput(page) {
-  await closeM2AuthoredMessage(page)
-  await page.waitForFunction(() => !window.testSceneRef.current.messageModal && window.testStore.getWorld().paused)
+export async function closeCampaignForInput(page) {
+  if (await page.locator('.campaign-messages details[open]').count())
+    await page.keyboard.press('Enter')
+  await page.waitForFunction(() => {
+    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+    return !!scene && scene === window.testScene && scene.world === world && world.paused &&
+      !scene.messageModal && !document.querySelector('.campaign-messages details[open]')
+  })
+}
+
+// Same two paint opportunities as before, but collect both restored observations
+// in the second frame instead of three separate Playwright round trips.
+export function readRestoredCompactFrame(page) {
+  return page.evaluate(`new Promise((resolve, reject) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      try {
+        const restored = (${compactMessageWitness.toString()})()
+        resolve({ restored, turn: window.testStore.getWorld().turn })
+      } catch (error) { reject(error) }
+    }))
+  })`)
 }
 
 async function selectHudPreference(page, preference) {
@@ -319,8 +336,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
       await page.keyboard.press('F8')
       await graph.waitFor({ state: 'hidden' })
       await openM2AuthoredMessage(page)
-      await settle()
-      const restored = await page.evaluate(compactMessageWitness)
+      const { restored, turn } = await readRestoredCompactFrame(page)
       sample.restored = restored
       assert.deepEqual(
         restored,
@@ -328,7 +344,7 @@ export async function checkCompactMessages({ page, output, stage, report }) {
         'F8 off must restore ordinary text, geometry and typography'
       )
       assert.equal(
-        await page.evaluate(() => window.testStore.getWorld().turn),
+        turn,
         baseline.world,
         'Public settings and diagnostics preserve the paused world'
       )
