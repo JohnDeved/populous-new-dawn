@@ -8214,6 +8214,20 @@
       "limits": "Only native panel kinds 1 and 2 are mapped here. Native draw submissions and sizes are compared; not the complete original multi-kind panel dispatcher."
     },
     {
+      "address": "0050a750",
+      "status": "partial",
+      "scope": "Retire authored Mission 2 carrier trails at the end of their second phase",
+      "sources": [
+        "app/spell-trails.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050a750.c",
+        "tests/live-authored-spell-trail-phases.test.mjs"
+      ],
+      "limits": "Ordinary turns retain the same live trail with one visit remaining and remove it at zero. This covers the state-4 expiry arm only, not other class-7 dispatcher branches or native pool ownership."
+    },
+    {
       "address": "0050be00",
       "status": "implemented",
       "scope": "Advance the original smoke ramp/hold/shrink and terrain re-grounding",
@@ -8226,6 +8240,50 @@
         "scripts/check-native-building-smoke.py"
       ],
       "limits": "Scoped to owned building-smoke records and tested lifetimes, including negative fixtures. Browser effect expiry and visual-object update are explicit consumers."
+    },
+    {
+      "address": "0050beb0",
+      "status": "partial",
+      "scope": "Hand the authored Mission 2 carrier trail to its second phase in place",
+      "sources": [
+        "app/spell-trails.ts",
+        "app/world-turn.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050beb0.c",
+        "tests/live-authored-spell-trail-phases.test.mjs"
+      ],
+      "limits": "The ordinary carrier keeps its effect and animation owners while selecting object 326, draw 1, state 4 and three remaining visits. Other palette and flag branches, and native callback and allocation behavior are not established."
+    },
+    {
+      "address": "0050bf60",
+      "status": "partial",
+      "scope": "Initialize model-3 animation on an authored Mission 2 stone burst child",
+      "sources": [
+        "app/spell-trails.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050bf60.c",
+        "tests/live-authored-spell-trail-phases.test.mjs"
+      ],
+      "limits": "The real burst child preserves object 314, draw 1, state 3 and model-3 flags through the caller override. The caller replaces initial speed and lifetime; RNG, model-55 behavior and pool allocation are not established."
+    },
+    {
+      "address": "0050c380",
+      "status": "partial",
+      "scope": "Initialize model-4 animation from the live Mission 2 carrier allocation counter",
+      "sources": [
+        "app/spell-trails.ts",
+        "app/world-effects.ts",
+        "app/level-start-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050c380.c",
+        "tests/live-authored-spell-trail-phases.test.mjs"
+      ],
+      "limits": "The real carrier trail allocations select object 322, draw 1, state 5 and the expected allocation-counter frame cycle. The carrier overwrites the default wait; native allocator and terrain clamp parity are not established."
     },
     {
       "address": "0050c510",
