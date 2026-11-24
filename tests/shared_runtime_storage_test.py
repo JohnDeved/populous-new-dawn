@@ -1,3 +1,4 @@
+import errno
 import importlib.util
 import json
 import os
@@ -643,6 +644,88 @@ globalThis.sharedAssetResult = { runtime, provenance };
                 self.prepare()
         self.assertTrue(self.runtime.exists())  # Preserve partial output, never erase it.
         self.assertFalse((self.pool / '.writer-lock').exists())
+
+    def test_failed_hardlink_publication_leaves_final_tree_retryable(self):
+        (self.source / 'public/original/sub/second.bin').write_bytes(b'more asset')
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        tree_id = self.git('rev-parse', self.revision + ':' + storage.ASSETS).strip()
+        final = self.pool / storage.ASSET_TREES / tree_id
+        real_link = storage.os.link
+
+        def interrupted(src, dst, *args, **kwargs):
+            if dst.name == 'second.bin':
+                raise OSError(errno.ENOSPC, 'injected hardlink failure')
+            # A competing publisher cannot reach the tree while the lock is held.
+            with self.assertRaises(FileExistsError):
+                self.prepare(self.root / 'concurrent')
+            self.assertFalse((self.root / 'concurrent').exists())
+            return real_link(src, dst, *args, **kwargs)
+
+        with mock.patch.object(storage.os, 'link', side_effect=interrupted):
+            with self.assertRaises(OSError) as failure:
+                self.prepare()
+        self.assertEqual(failure.exception.errno, errno.ENOSPC)
+        self.assertFalse(final.exists())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+        staging, = final.parent.glob(f'.{tree_id}.staging-*')
+        self.assertEqual(sorted(p.name for p in (staging / 'sub').iterdir()), ['game.bin'])
+        self.assertEqual(len(list((self.pool / 'blobs').iterdir())), 2)
+
+        retry = self.root / 'retry'
+        self.prepare(retry)
+        self.assertEqual((retry / storage.ASSETS).resolve(), final)
+        storage.verify(self.source, self.revision, self.pool, retry)
+        self.assertEqual(sorted(p.name for p in (staging / 'sub').iterdir()), ['game.bin'])
+
+    def test_repeated_asset_stage_failures_stop_before_runtime_allocation(self):
+        (self.source / 'public/original/sub/second.bin').write_bytes(b'more asset')
+        self.git('add', '.')
+        self.commit()
+        self.revision = self.git('rev-parse', 'HEAD').strip()
+        tree_id = self.git('rev-parse', self.revision + ':' + storage.ASSETS).strip()
+        final = self.pool / storage.ASSET_TREES / tree_id
+        real_link = storage.os.link
+
+        def interrupted(src, dst, *args, **kwargs):
+            if dst.name == 'second.bin':
+                raise OSError(errno.ENOSPC, 'injected hardlink failure')
+            return real_link(src, dst, *args, **kwargs)
+
+        for slot in (1, 2):
+            with mock.patch.object(storage.os, 'link', side_effect=interrupted):
+                with self.assertRaises(OSError) as failure:
+                    self.prepare(self.root / f'failed-{slot}')
+                self.assertEqual(failure.exception.errno, errno.ENOSPC)
+        stages = sorted(final.parent.glob(f'.{tree_id}.staging-*'))
+        self.assertEqual(len(stages), 2)
+        held = [((stage / 'sub/game.bin').stat().st_ino,
+                 (stage / 'sub/game.bin').read_bytes()) for stage in stages]
+        refused = self.root / 'third-attempt'
+        with self.assertRaisesRegex(ValueError, 'Asset tree staging limit reached'):
+            self.prepare(refused)
+        self.assertFalse(final.exists())
+        self.assertFalse(refused.exists())
+        self.assertFalse((self.pool / '.writer-lock').exists())
+        self.assertEqual(sorted(final.parent.glob(f'.{tree_id}.staging-*')), stages)
+        self.assertEqual([((stage / 'sub/game.bin').stat().st_ino,
+                           (stage / 'sub/game.bin').read_bytes()) for stage in stages], held)
+
+    def test_existing_incomplete_or_corrupt_canonical_tree_is_not_replaced(self):
+        self.prepare()
+        final = (self.runtime / storage.ASSETS).resolve()
+        leaf = final / 'sub/game.bin'
+        held = self.root / 'held.bin'
+        leaf.rename(held)
+        with self.assertRaisesRegex(ValueError, 'undeclared or missing'):
+            self.prepare(self.root / 'retry-missing')
+        self.assertFalse(leaf.exists())
+        leaf.write_bytes(b'corrupt')
+        before = (leaf.stat().st_ino, leaf.read_bytes(), held.stat().st_ino, held.read_bytes())
+        with self.assertRaisesRegex(ValueError, 'declared CAS hardlink'):
+            self.prepare(self.root / 'retry-corrupt')
+        self.assertEqual((leaf.stat().st_ino, leaf.read_bytes(), held.stat().st_ino, held.read_bytes()), before)
 
     def test_invalid_cas_is_rejected_before_creation_not_discounted_or_repaired(self):
         original = self.source / 'public/original/sub/game.bin'
