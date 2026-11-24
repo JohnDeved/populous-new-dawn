@@ -685,6 +685,7 @@ export function campaignCommand(
     return
   }
   if (opcode === 1180 || opcode === 1187) {
+    if (w.manaWorld.levelFlags & 0x1000000) return
     const message = w.messages.slots[w.lastMessage]
     if (message) message.flags |= opcode === 1180 ? 0x200 : 0x20000
     return
