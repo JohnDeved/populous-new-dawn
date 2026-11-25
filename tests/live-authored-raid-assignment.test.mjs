@@ -10,7 +10,11 @@ const order = u => person(u)?.computerAssignment ?? 0
 
 test('authored Mission 6 raid stamps its own recruits, then dispatch releases only the owning slot', () => {
   const w = createWorld(6, 'scalable')
-  while (w.turn < 6776 && w.status === 'playing') tick(w, 1/12)
+  for (let i = 0; i < 6776 && w.turn < 6776 && w.status === 'playing'; i++) {
+    const before = w.turn
+    tick(w, 1/12)
+    assert.equal(w.turn, before + 1, 'natural raid setup must advance each visit')
+  }
   assert.equal(w.turn, 6776)
   const ai = w.campaignAIs[3]
   const task = ai.tasks[1]
@@ -41,7 +45,11 @@ test('authored Mission 6 raid stamps its own recruits, then dispatch releases on
     person(u).flags3 |= 0x2000
   }
   task.phase = 23
-  while ((task.flags & 1) && w.turn < 6790) tick(w, 1/12)
+  for (let i = 0; i < 13 && (task.flags & 1) && w.turn < 6790; i++) {
+    const before = w.turn
+    tick(w, 1/12)
+    assert.equal(w.turn, before + 1, 'controlled retirement must advance each visit')
+  }
   assert.equal(task.flags & 3,0)
   assert.equal(task.phase, 23)
   assert.deepEqual(task.members, [])
