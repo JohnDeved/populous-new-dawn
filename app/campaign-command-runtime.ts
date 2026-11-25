@@ -990,6 +990,9 @@ export function campaignRules(w: World) {
     // guard transition. Later attack phases never reopen its zero-valued gate.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(624, 663), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 20 && tribe === 1) {
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(314, 463), ...script.codes.slice(1970, 2005), 1004, 1019]
+  }
   if (w.outcome.level === 22 && tribe === 1) {
     // Authored EVERY255 Tower staffing followed by marker-route staffing.
     // The later conditional emergency sibling remains unbound.
