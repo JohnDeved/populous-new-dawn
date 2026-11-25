@@ -751,6 +751,20 @@
       "limits": "Original directly converts all 256 indexed colors; browser imports actual tooltip subset and renders Canvas CSS colors, not native color-structure writes to every caller."
     },
     {
+      "address": "00416d70",
+      "status": "partial",
+      "scope": "Treat wild followers as friendly for Blast damage",
+      "sources": [
+        "app/blast-wave.ts",
+        "app/spell-effects-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00416d70.c",
+        "tests/live-authored-blast-wave.test.mjs"
+      ],
+      "limits": "An actual Mission 6 cast leaves the authored wild follower at full health while pushing it on the last pulse. Removing neutral-owner handling causes damage on the first pulse. Tests cover the unowned-target arm, not unowned caster, same owner, directional alliance masks or other callers."
+    },
+    {
       "address": "00416e50",
       "status": "partial",
       "scope": "Select supported resolution-specific landscape mesh bounds",
@@ -3357,6 +3371,35 @@
         "scripts/check-native-mission3-raid-allocation.py"
       ],
       "limits": "Direct authored task allocation/owner probes and live queue use; original record allocation and producer side effects are not fully equivalent."
+    },
+    {
+      "address": "00463370",
+      "status": "partial",
+      "scope": "Apply the Boat stop-state speed, navigation bit and height subset",
+      "sources": [
+        "app/live-vehicles.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00463370.c",
+        "tests/live-authored-boat-rest-height.test.mjs"
+      ],
+      "limits": "A real Mission 5 tick at a supplied centered water rest boundary stops the Boat, clears the navigation stop bit and visits the height clamp. This is a projected subset, not native state initialization, masks, helper ordering or other states."
+    },
+    {
+      "address": "00463750",
+      "status": "partial",
+      "scope": "Raise a live stopped Boat to the terrain floor without lowering it",
+      "sources": [
+        "app/live-vehicles.ts",
+        "app/native-terrain.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00463750.c",
+        "tests/live-authored-boat-rest-height.test.mjs"
+      ],
+      "limits": "A real Mission 5 vehicle visit clamps below, equal and above-floor heights at a supplied water rest boundary; this tests initial heights at one zero-height cell, not other native callers, coordinates or signed edges."
     },
     {
       "address": "00463780",
@@ -5977,6 +6020,36 @@
       "limits": "Current charging and scripted award writes bound stock before preserving high bits and updating the low nibble. Original takes an arbitrary raw requested value and upper-clamps at 15; credited only for valid bounded values at these live paths."
     },
     {
+      "address": "004c2ba0",
+      "status": "partial",
+      "scope": "Read whether a spell card is enabled for charging",
+      "sources": [
+        "app/page.tsx",
+        "app/spell-charging.ts",
+        "app/mana.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2ba0.c",
+        "tests/live-authored-spell-charging.test.mjs"
+      ],
+      "limits": "Authored Mission 10 plain Lightning toggles and Ctrl focus retain the original paused-bit sense and unrelated mask bits; the live mana consumer uses its own predicate. Mounted DOM pointer or keyboard dispatch, other callers, owners and model domains are not covered."
+    },
+    {
+      "address": "004c2be0",
+      "status": "partial",
+      "scope": "Clear a spell paused bit to resume charging",
+      "sources": [
+        "app/page.tsx",
+        "app/spell-charging.ts",
+        "app/mana.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2be0.c",
+        "tests/live-authored-spell-charging.test.mjs"
+      ],
+      "limits": "The live Mission 10 spell-card command clears Lightning without disturbing other slots, then real simulation earns Lightning progress again. Focus restores the earlier unrelated Swarm pause. Mounted DOM pointer or keyboard dispatch and other native callers and owners are not covered."
+    },
+    {
       "address": "004c2ca0",
       "status": "implemented",
       "scope": "Gate live charge-only descriptor mode on the native game flag",
@@ -7884,6 +7957,35 @@
       "limits": "Original linked class6/model6 scan and removal are owned by game adapter; browser routes through its head roster and updates separate effect state."
     },
     {
+      "address": "004f2440",
+      "status": "partial",
+      "scope": "Assign live recruited raid people to their owning task slot",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer-selection.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f2440.c",
+        "tests/live-authored-raid-assignment.test.mjs"
+      ],
+      "limits": "Authored scalable Mission 6 phase 3 to 4 stamps five registered state-14 Matak recruits with slot plus one. That witness covers the routed live assignment byte, not other original callers or the native +0x7f byte where browser actors do not carry it."
+    },
+    {
+      "address": "004f2520",
+      "status": "partial",
+      "scope": "Release live raid ownership matching a retiring task slot",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f2520.c",
+        "tests/live-authored-raid-assignment.test.mjs",
+        "tests/mission6.test.mjs"
+      ],
+      "limits": "A controlled retirement of the natural Mission 6 recruits clears ownership, the low synthetic +0x7f bit and flags3 0x2000 for the owning cohort while preserving same-tribe other-slot and different-tribe same-slot controls. The original traverses its native tribe-linked list; this does not establish native traversal or naturally reaching retirement in this scalable scenario."
+    },
+    {
       "address": "004f25a0",
       "status": "partial",
       "scope": "Resolve the active shaman for supported live CPU spell and task flows",
@@ -8633,6 +8735,35 @@
         "tests/live-authored-spell-trail-phases.test.mjs"
       ],
       "limits": "Ordinary turns retain the same live trail with one visit remaining and remove it at zero. This covers the state-4 expiry arm only, not other class-7 dispatcher branches or native pool ownership."
+    },
+    {
+      "address": "0050b630",
+      "status": "partial",
+      "scope": "Initialize the grounded Blast force wave and request impact cue",
+      "sources": [
+        "app/blast-wave.ts",
+        "app/spell-effects-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050b630.c",
+        "tests/live-authored-blast-wave.test.mjs"
+      ],
+      "limits": "A Mission 6 cast allocates a grounded default wave and requests one impact-local cue 0xa1; supplying the original load bit exercises the shorter force tuple. No native object-class allocation, state/flag update, failure path, browser audio or physical playback is tested."
+    },
+    {
+      "address": "0050b740",
+      "status": "partial",
+      "scope": "Advance and retire a live Blast wave with a capped radius",
+      "sources": [
+        "app/blast-wave.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0050b740.c",
+        "tests/live-authored-blast-wave.test.mjs"
+      ],
+      "limits": "Three real Mission 6 world visits yield radius 2 to 4 to 5 and retire the wave on turn 111; a supplied mode keeps radius 2. The witness does not establish complete native mixed-class visit order, damage, panic or all target interactions."
     },
     {
       "address": "0050be00",
