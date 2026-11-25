@@ -150,37 +150,48 @@ export function createBuildLogSpool(path, { limit = maxBuildLogBytes, io = build
 }
 
 // Collect both streams in their observation order; synchronous disk writes can
-// change later pipe chunk coalescing versus in-memory capture. On failure drain
-// until close, retaining the first error and the existing timeout/kill policy.
-export function captureBuild(command, args, path, { limit, io, timeout = 120000, killGrace = 5000 } = {}) {
+// change later pipe chunk coalescing versus in-memory capture. Bound the final
+// drain even if an unrelated process retains a pipe; only the direct child is signalled.
+export function captureBuild(command, args, path, { limit, io, timeout = 120000, killGrace = 5000, drainGrace = 1000 } = {}) {
   return new Promise((resolve, reject) => {
     const spool = createBuildLogSpool(path, { limit, io })
-    let child, firstError, force, timedOut = false
-    const fail = error => { firstError ??= error }
+    let child, firstError, force, drain, settled = false, timedOut = false
+    const fail = error => { if (!settled) firstError ??= error }
     try { child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] }) }
     catch (error) {
       try { spool.abort(error) } catch (failure) { reject(failure) }
       return
     }
     const record = chunk => {
-      if (!firstError) { try { spool.record(chunk) } catch (error) { fail(error) } }
+      if (!settled && !firstError) { try { spool.record(chunk) } catch (error) { fail(error) } }
     }
     child.stdout.on('data', record)
     child.stderr.on('data', record)
     child.stdout.on('error', fail)
     child.stderr.on('error', fail)
     child.on('error', fail)
-    const timer = setTimeout(() => {
-      timedOut = true
-      child.kill('SIGTERM')
-      force = setTimeout(() => child.kill('SIGKILL'), killGrace)
-    }, timeout)
-    child.on('close', (code, signal) => {
-      clearTimeout(timer); clearTimeout(force)
+    const finish = (code, signal, incompleteLog = false) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer); clearTimeout(force); clearTimeout(drain)
+      if (incompleteLog) {
+        // We relinquish our read endpoints, not ownership of another process.
+        child.stdout.destroy()
+        child.stderr.destroy()
+      }
       try {
         if (firstError) spool.abort(firstError)
-        resolve({ code, signal, timedOut, ...spool.finish() })
+        resolve({ code, signal, timedOut, ...spool.finish(), ...(incompleteLog ? { incompleteLog: true } : {}) })
       } catch (error) { reject(error) }
-    })
+    }
+    const timer = setTimeout(() => {
+      timedOut = true
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGTERM')
+      force = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+        drain = setTimeout(() => finish(child.exitCode, child.signalCode, true), drainGrace)
+      }, killGrace)
+    }, timeout)
+    child.on('close', (code, signal) => finish(code, signal))
   })
 }

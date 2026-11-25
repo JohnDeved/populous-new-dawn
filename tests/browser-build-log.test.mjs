@@ -126,3 +126,121 @@ test('child catches TERM, then authentic KILL closes and publishes both diagnost
   assert.equal(fs.readFileSync(target, 'utf8'), 'ready:term ignored')
   assert.deepEqual(fs.readdirSync(dir), ['build.log'])
 })
+
+test('partial write followed by ENOSPC still drains 4 MiB from a real child and preserves prior publication', async t => {
+  const { dir, target } = temp(t), marker = join(dir, 'producer-finished')
+  fs.writeFileSync(target, 'prior')
+  const primary = Object.assign(new Error('simulated disk full'), { code: 'ENOSPC' })
+  let writes = 0
+  const io = { ...fs, writeSync(fd, bytes, at, length) {
+    if (++writes === 1) return fs.writeSync(fd, bytes, at, Math.min(length, 7))
+    throw primary
+  } }
+  const program = `
+    const fs = require('node:fs');
+    const chunk = Buffer.alloc(64 * 1024, 97);
+    async function main() {
+      let total = 0;
+      for (let pass = 0; pass < 32; pass++) for (const stream of [process.stdout, process.stderr]) {
+        await new Promise((resolve, reject) => stream.write(chunk, error => error ? reject(error) : resolve()));
+        total += chunk.length;
+      }
+      fs.writeFileSync(process.argv[1], String(total), { flag: 'wx' });
+    }
+    main().catch(error => { console.error(error); process.exitCode = 1; });
+  `
+  await assert.rejects(captureBuild(process.execPath, ['-e', program, marker], target,
+    { io, timeout: 4000, killGrace: 250 }), error => error === primary)
+  assert.equal(fs.readFileSync(marker, 'utf8'), String(4 * 1024 * 1024))
+  assert.equal(writes, 2)
+  assert.equal(fs.readFileSync(target, 'utf8'), 'prior')
+  assert.deepEqual(fs.readdirSync(dir).sort(), ['build.log', 'producer-finished'])
+})
+
+test('zero progress is reported rather than looping, without publication', async t => {
+  const { dir, target } = temp(t)
+  fs.writeFileSync(target, 'prior')
+  let writes = 0
+  const io = { ...fs, writeSync() { writes++; return 0 } }
+  await assert.rejects(captureBuild(process.execPath, ['-e', "process.stdout.write('block')"], target,
+    { io, timeout: 4000, killGrace: 250 }), /Build log write made no progress/)
+  assert.equal(writes, 1)
+  assert.equal(fs.readFileSync(target, 'utf8'), 'prior')
+  assert.deepEqual(fs.readdirSync(dir), ['build.log'])
+})
+
+test('128 seeded varying fragmented event schedules preserve original byte-prefix and capped flag', t => {
+  const { dir, target } = temp(t)
+  let seed = 0xaa0b7453
+  const next = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed }
+  for (let i = 0; i < 128; i++) {
+    const limit = next() % 8192
+    const spool = createBuildLogSpool(target, { limit })
+    let bytes = 0
+    const chunks = []
+    for (let j = 0, events = next() % 130; j < events; j++) {
+      const data = Buffer.alloc(next() % 227, next() % 256)
+      bytes += data.length
+      if (bytes <= limit) chunks.push(data)
+      spool.record(data)
+    }
+    assert.deepEqual(spool.finish(), { cappedLog: bytes > limit })
+    assert.deepEqual(fs.readFileSync(target), Buffer.concat(chunks))
+  }
+  assert.deepEqual(fs.readdirSync(dir), ['build.log'])
+})
+
+function inheritedOutputCommand(marker) {
+  const program = `const { spawn } = require('node:child_process');
+    const descendant = spawn(process.execPath, ['-e',
+      "setTimeout(() => require('node:fs').writeFileSync(process.argv[1], 'finished'), 1400)",
+      process.argv[1]], { stdio: ['ignore', 'inherit', 'inherit'] });
+    descendant.unref();
+    process.stdout.write('leader finished');
+  `
+  return ['-e', program, marker]
+}
+
+test('inherited pipes cannot postpone timeout settlement or trigger duplicate publication', async t => {
+  const { dir, target } = temp(t), marker = join(dir, 'descendant')
+  let publications = 0, closes = 0
+  const io = { ...fs,
+    renameSync(...args) { publications++; return fs.renameSync(...args) },
+    closeSync(...args) { closes++; return fs.closeSync(...args) },
+  }
+  assert.deepEqual(await captureBuild(process.execPath, inheritedOutputCommand(marker), target,
+    { io, timeout: 400, killGrace: 100, drainGrace: 100 }),
+  { code: 0, signal: null, timedOut: true, cappedLog: false, incompleteLog: true })
+  assert.equal(fs.existsSync(marker), false)
+  assert.equal(fs.readFileSync(target, 'utf8'), 'leader finished')
+  assert.deepEqual(fs.readdirSync(dir), ['build.log'])
+  await waitForFiniteDescendant(marker)
+  assert.equal(fs.readFileSync(target, 'utf8'), 'leader finished')
+  assert.equal(publications, 1)
+  assert.equal(closes, 1)
+})
+
+async function waitForFiniteDescendant(marker) {
+  for (let attempt = 0; attempt < 200 && !fs.existsSync(marker); attempt++)
+    await new Promise(resolve => setTimeout(resolve, 20))
+  assert.equal(fs.readFileSync(marker, 'utf8'), 'finished')
+}
+
+test('an earlier write failure wins over forced pipe cutoff and preserves the prior file', async t => {
+  const { dir, target } = temp(t), marker = join(dir, 'descendant')
+  fs.writeFileSync(target, 'prior')
+  const primary = new Error('first write failure')
+  let closes = 0, unlinks = 0
+  const io = { ...fs, writeSync() { throw primary },
+    closeSync(...args) { closes++; return fs.closeSync(...args) },
+    unlinkSync(...args) { unlinks++; return fs.unlinkSync(...args) },
+  }
+  await assert.rejects(captureBuild(process.execPath, inheritedOutputCommand(marker), target,
+    { io, timeout: 400, killGrace: 100, drainGrace: 100 }), error => error === primary)
+  assert.equal(fs.existsSync(marker), false)
+  assert.deepEqual(fs.readdirSync(dir), ['build.log'])
+  await waitForFiniteDescendant(marker)
+  assert.equal(fs.readFileSync(target, 'utf8'), 'prior')
+  assert.equal(closes, 1)
+  assert.equal(unlinks, 1)
+})

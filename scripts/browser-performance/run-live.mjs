@@ -48,7 +48,9 @@ export async function runLiveBenchmark({ pinned = false } = {}) {
     const result = { side, ...await captureBuild(process.execPath,
       [resolve(import.meta.dirname, 'build.mjs'), sources[side], output, identity[`${side}Sha`]],
       resolve(out, `build-${side}.log`)) }
-    receipt.builds.push(result); saveReceipt(); assert.equal(result.code, 0); assert.equal(result.timedOut, false)
+    receipt.builds.push(result); saveReceipt()
+    if (result.incompleteLog) throw Error(`Build ${side} timed out; build log incomplete after pipe drain cutoff (build-${side}.log)`)
+    assert.equal(result.code, 0); assert.equal(result.timedOut, false)
     const dist = resolve(output, 'dist')
     for (const entry of readdirSync(resolve(sources[side], 'public'))) {
       const source = resolve(sources[side], 'public', entry), target = resolve(dist, entry)
