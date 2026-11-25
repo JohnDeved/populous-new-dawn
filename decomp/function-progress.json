@@ -925,6 +925,20 @@
       "limits": "Native probes compare toroidal XY and angle retention. Live fresh-level scene invokes the position seed, but omits the prior angle argument when flag 32 is set, and does not expose the same native dirty global or no-Shaman path."
     },
     {
+      "address": "00419810",
+      "status": "partial",
+      "scope": "Center the authored camera site at the middle of its map cell",
+      "sources": [
+        "app/level-start-runtime.ts",
+        "app/quick-camera-shortcuts.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00419810.c",
+        "tests/live-authored-camera-site-center.test.mjs"
+      ],
+      "limits": "M6 stores the centered camera site and still resolves it after real Shaman movement. A centering-only cut shifts the target without moving the Shaman differently. Covers the saved horizontal target, not native site ownership, missing-site, height, scroll, or browser-key dispatch."
+    },
+    {
       "address": "00419880",
       "status": "partial",
       "scope": "Install startup command 18 on supported live authored shamans",
@@ -2671,6 +2685,21 @@
       "limits": "The live person helper matches selection bit and flags3 changes; the native entry separately mutates player-global last-selected ID and two UI tracking bytes, not performed by that browser helper."
     },
     {
+      "address": "00448ee0",
+      "status": "partial",
+      "scope": "Hold the authored starting camera through six flyby warmup samples",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/flyby.ts",
+        "app/level-start.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00448ee0.c",
+        "tests/live-authored-flyby-start.test.mjs"
+      ],
+      "limits": "The ordinary M3 authored start sets the input mask; the flight controller holds the starting pose for six samples. Removing only warmup preserves the mask but makes the camera move early. Does not establish other guards, modal/reset behavior or rendered frames."
+    },
+    {
       "address": "00449080",
       "status": "partial",
       "scope": "Interrupt the authored opening flyby and blend to its endpoint",
@@ -2729,6 +2758,20 @@
         "scripts/check-native-flyby.py"
       ],
       "limits": "Tracked opening sequence and interruptions are compared; live presentation runs its own 24 Hz pacing, and not every original event/sound/UI actor is established."
+    },
+    {
+      "address": "00449670",
+      "status": "partial",
+      "scope": "Dispatch the later authored flyby position on the shorter wrapped map route",
+      "sources": [
+        "app/flyby.ts",
+        "app/level-start.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00449670.c",
+        "tests/live-authored-flyby-wrapped-position.test.mjs"
+      ],
+      "limits": "The M2 logical flyby routes across the signed seam after an unwrapped leg. A single wrap cut preserves the event but sends the Y axis the wrong way. Does not establish full planner numeric parity, renderer ownership, camera input behavior or native execution."
     },
     {
       "address": "00449760",
