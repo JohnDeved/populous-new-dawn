@@ -714,13 +714,12 @@ export class ObjectPanels {
       }
     )
     if (!point) return
+    if (!point.target) scene.onSound(0x6a) // Native coordinate focus cues once before the marker.
     scene.focus(browserPosition(point), { animate: true })
-    scene.onSound(0x6a)
-    if (point.target) this.open(point.target, true)
-    else {
-      effect(world, 'orderMarker', browserPosition(point))
+    if (point.target) {
       scene.onSound(0x6a)
-    }
+      this.open(point.target, true)
+    } else effect(world, 'orderMarker', browserPosition(point))
   }
   dispose() {
     for (const panel of this.panels.values()) panel.element.remove()

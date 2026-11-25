@@ -81,9 +81,8 @@ for (const removal of ['destroyed', 'deleted']) {
     const fallback = personOrderFocus(order)
     const effects = world.effects.length
     assert.deepEqual(focus(fixture), [
+      ['sound', 0x6a],
       ['focus', api.browserPosition(fallback), { animate: true }],
-      ['sound', 0x6a],
-      ['sound', 0x6a],
     ])
     assert.equal(world.effects.length, effects + 1)
     assert.equal(world.effects.at(-1).kind, 'orderMarker')
@@ -120,9 +119,8 @@ test('ordinary building attack orders retain their packed-cell focus', () => {
   // Model19 stores a cell, unlike boarding's live object plus fallback cell.
   const point = personOrderFocus(world.buildingOrders.records[icon.id])
   assert.deepEqual(focus({ world, shaman, icon }), [
+    ['sound', 0x6a],
     ['focus', api.browserPosition(point), { animate: true }],
-    ['sound', 0x6a],
-    ['sound', 0x6a],
   ])
 })
 
@@ -148,3 +146,26 @@ for (const kind of ['person', 'building']) {
     assert.deepEqual(world, before)
   })
 }
+
+
+test('an authored move-order icon submits exactly one cue and one destination marker', () => {
+  const world = api.createWorld(6)
+  const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
+  while (world.turn < 430) api.tick(world, 1 / 12)
+  api.select(world, 'shaman')
+  assert.deepEqual(world.selected, [95])
+  assert.ok(api.command(world, { x: 73, z: -58 }))
+  const [icon] = personOrderIcons(world.buildingOrders, shaman.native, world.objectCells.objects)
+  assert.equal(icon.model, 3)
+  const order = structuredClone(world.buildingOrders.records[icon.id])
+  const effects = world.effects.length
+  const events = focus({ world, shaman, icon })
+  assert.equal(world.effects.length, effects + 1)
+  const { kind, x, z } = world.effects.at(-1)
+  assert.deepEqual({ kind, x, z }, { kind: 'orderMarker', x: 73, z: -58 })
+  assert.deepEqual(world.buildingOrders.records[icon.id], order)
+  assert.deepEqual(events, [
+    ['sound', 0x6a],
+    ['focus', { x: 73, z: -58 }, { animate: true }],
+  ])
+})
