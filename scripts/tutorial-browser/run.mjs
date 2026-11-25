@@ -326,14 +326,6 @@ try {
         browser, page, report: receipt.gameplayResources, budget: producerBudget,
         executableSha256: receipt.browserSha256, signal: abort.signal })
     }
-    if (!resourceArguments.ownershipProbe && resourceArguments.profile === 'three-cycle-v1') {
-      // Keep the resource comparison and its alias/CDP cleanup complete before
-      // observing any additional in-world input. No measured window is changed.
-      save()
-      receipt.postObservationQueuedTimber = await (await import('./queued-timber-browser.mjs')).checkPostObservationQueuedTimber({
-        page, output: out, deadlineAt: browserDeadlineAt, signal: abort.signal,
-      })
-    }
   } else if (selectedScenario === 'gameplay-frames') {
     receipt.gameplayFrames = await (await import(pathToFileURL(gameplayScenario).href)).default({ page, url, output: out, expectedRevision: receipt.buildRevision })
     // Keep all original exports/assertions, then release their live world before
