@@ -1598,6 +1598,23 @@
       "limits": "Live sky profile maps admitted successful original assets; original OS palette open failures, filename fallback and unsupported banks are not reproduced."
     },
     {
+      "address": "0042b230",
+      "status": "partial",
+      "scope": "Run fresh level opening-order setup without restarting it on checkpoint Load",
+      "sources": [
+        "app/world-initialization.ts",
+        "app/level-start-runtime.ts",
+        "app/game-store.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042b230.c",
+        "decomp/generated/00419880.c",
+        "decomp/research/level-start-sequence.md",
+        "tests/live-authored-start-load-gate.test.mjs"
+      ],
+      "limits": "The original level loader gates tribe setup and command production, not start-position calculation. Modern authored M3 starts two command-18 orders and in-session Load preserves their saved progress. This is an analogous gate only, not native checkpoint format, persistent storage or whole-loader parity."
+    },
+    {
       "address": "0042b590",
       "status": "partial",
       "scope": "Initialize original path-node limits and zero request counters at world setup",
@@ -2139,6 +2156,21 @@
         "scripts/check-native-orders.py"
       ],
       "limits": "Exact direct source matches eight-slot cyclic scan from current valid cursor; browser translates native 0xff to -1. Composed append/commit checked."
+    },
+    {
+      "address": "00436ca0",
+      "status": "partial",
+      "scope": "Release the active building-entry order and a queued follow-up on ordinary Hut admission",
+      "sources": [
+        "app/building-occupants.ts",
+        "app/person-orders.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00436ca0.c",
+        "decomp/generated/004d80e0.c",
+        "tests/live-authored-hut-clears-queued-orders.test.mjs"
+      ],
+      "limits": "Ordinary M2 non-training Hut entry retires its two remaining queued references and resets the cursor; shortening only the clearing loop keeps the same occupancy but leaves the tail referenced. No immediate-slot, mode-4 entry, all-call-site or rendering parity."
     },
     {
       "address": "00436d00",
