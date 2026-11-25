@@ -867,6 +867,22 @@
       "limits": "Original parameter/anchor and transition family compared; browser DOM input, camera gating and view-plane handoff remain separately routed."
     },
     {
+      "address": "00418d70",
+      "status": "partial",
+      "scope": "Count an already-selected follower outside an extended drag for the group voice",
+      "sources": [
+        "app/selection-runtime.ts",
+        "app/drag-selection.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00418d70.c",
+        "decomp/generated/00489c40.c",
+        "decomp/generated/004449d0.c",
+        "tests/live-authored-selection-cues.test.mjs"
+      ],
+      "limits": "Authored M2 selects two Braves in the drag and adds a previously selected Brave outside it. Selection IDs stay fixed under the negative control while the group cue changes. This verifies an observable full-selection count, not original tribe-list traversal, raw bit-vector ownership or all callers."
+    },
+    {
       "address": "00418de0",
       "status": "partial",
       "scope": "Enable native tribe texture choices for Boat and Balloon vehicles",
@@ -3932,6 +3948,21 @@
       "limits": "Native post-load walker links triggers/gifts/scenery and initializes effects; the browser indexes first authored model-9 scenery by wrapped cell for heading and does not traverse the original runtime trigger links. The native animation harness reaches the loader on a supplied authored case."
     },
     {
+      "address": "00489c40",
+      "status": "partial",
+      "scope": "Queue the Shaman cue before the ordinary group voice in an authored mixed selection",
+      "sources": [
+        "app/selection-runtime.ts",
+        "app/drag-selection.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00489c40.c",
+        "decomp/generated/004449d0.c",
+        "tests/live-authored-selection-cues.test.mjs"
+      ],
+      "limits": "Authored M2 distinguishes a single Shaman from a Brave and queues the Shaman cue before the ordinary group cue for one Shaman and five Braves. This tests queued cue IDs and order, not Spy or Preacher branches, exact speaker ownership or audible output."
+    },
+    {
       "address": "0048a050",
       "status": "partial",
       "scope": "Publish native-cue IDs and position in the live audio event path",
@@ -5317,6 +5348,21 @@
         "scripts/check-native-move-eligibility.py"
       ],
       "limits": "Native target/mode gates have focused evidence and live use; browser pointer packet and selected group ownership do not match all native device states."
+    },
+    {
+      "address": "004aab80",
+      "status": "partial",
+      "scope": "Rotate the active building plan direction and change its real Hut approach",
+      "sources": [
+        "app/construction-runtime.ts",
+        "app/building-shapes.ts",
+        "app/model.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004aab80.c",
+        "tests/live-authored-hut-plan-direction.test.mjs"
+      ],
+      "limits": "Native opcode 0x7b wraps the active icon through four values. M6 rotated Hut placement preserves site and worker IDs while changing the entrance and worker routes. Covers only this direction branch, not the original cue, browser keyboard dispatch or rendered placement."
     },
     {
       "address": "004adbb0",
