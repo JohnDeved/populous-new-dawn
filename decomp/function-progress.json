@@ -8729,9 +8729,10 @@
       "evidence": [
         "decomp/generated/00511ae0.c",
         "scripts/check-native-lightning.py",
-        "scripts/check-native-lightning-strike.py"
+        "scripts/check-native-lightning-strike.py",
+        "tests/live-lightning-first-ground-dispatch.test.mjs"
       ],
-      "limits": "Geometry/RNG traces and native first-turn shockwave setup are compared. Browser has separate fire/damage/geometry owners; native allocation/render sequence not fully mapped."
+      "limits": "Geometry and RNG traces and native first-turn shockwave setup are compared. An ordinary earned M6 bolt also verifies the fallback target-ground fire and wave on the first bolt step. Alternate ignition, damage ownership, native allocation and rendering are not established by this witness."
     },
     {
       "address": "00511ef0",
@@ -8803,6 +8804,20 @@
         "scripts/check-native-mission16-bloodlust.py"
       ],
       "limits": "Original direct setter writes flag 0x80000 and compact B1 byte 180, preserving prior Shield. Live mirrors that flag to the active person representations and tracks 1440 turns per Unit, not B1 storage or the full target selector."
+    },
+    {
+      "address": "005156b0",
+      "status": "partial",
+      "scope": "Reject the same-tribe Shaman from an ordinary Shield blast that admits nearby Braves",
+      "sources": [
+        "app/spell-effects-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/005156b0.c",
+        "tests/live-authored-shield-eligibility.test.mjs"
+      ],
+      "limits": "A real charged M16 Shield projectile in classic capacity mode protects six allied Braves and excludes the co-centered class-1 model-7 Shaman. Removing only the model-7 exclusion admits that Shaman without changing the spell path. No foreign, nonperson, pre-shielded, linked-target or general filter-order parity is established."
     },
     {
       "address": "005156f0",
@@ -8951,6 +8966,21 @@
         "tests/mixed-combat-orders.test.mjs"
       ],
       "limits": "A controlled live three-person group changes its center to the last correct tribe member while retaining original membership slots for a later split. This does not establish all native roster-hole, tribe, and encounter-phase cases."
+    },
+    {
+      "address": "0051c110",
+      "status": "partial",
+      "scope": "Classify an occupied area attack as a building approach when the pending search runs",
+      "sources": [
+        "app/combat-order-search.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051c110.c",
+        "decomp/generated/0051a2a0.c",
+        "tests/live-authored-area-attack-entrance.test.mjs"
+      ],
+      "limits": "An ordinary M2 tower attack's occupied radius-zero area returns the building approach classification, consumed as the native flag; an open ground order does not. The observed entrance coordinates are not attributed to this classifier; the entrance leaf, ring scan and other target routes are outside this scope."
     },
     {
       "address": "0051d0b0",
