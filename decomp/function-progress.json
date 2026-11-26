@@ -467,6 +467,20 @@
       "limits": "Ordinary strike consumes the original model damage and immunity rules. Live combat copies the helper’s attack-alert and attack-cell changes back to world state; does not establish whole fight scheduling."
     },
     {
+      "address": "00409200",
+      "status": "partial",
+      "scope": "Accumulate building-hit damage and preserve first owned-build alert",
+      "sources": [
+        "app/building-damage.ts",
+        "app/combat-building.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00409200.c",
+        "tests/live-damage-marker-idle-gesture.test.mjs"
+      ],
+      "limits": "The real person-strike damage entry verifies signed-word overflow, the attacker sentinel, both protection flags, the first player-owned alert cell/flag and no enemy alert. Combat callsites were inspected; no native object flags/record execution, full building state machine, or browser claim."
+    },
+    {
       "address": "004092a0",
       "status": "partial",
       "scope": "Process native-style building damage and repair stage transitions",
@@ -2446,6 +2460,35 @@
       "limits": "The shared approach phase and native branch are scoped; original occupant, encounter and audio consumers are supplied, and live building collision is adapted."
     },
     {
+      "address": "004391a0",
+      "status": "partial",
+      "scope": "Count down the native phased person wait and choose a facing draw only on phase zero",
+      "sources": [
+        "app/person-state.ts",
+        "app/combat-approach.ts",
+        "app/building-fetch.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004391a0.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The real wait helper consumes entry latch, clears movement, draws facing once on the 32-turn phase and decrements signed timer, including wrap and exact zero. Inspected practical callers, did not execute original motion-release or native ABI."
+    },
+    {
+      "address": "00439240",
+      "status": "partial",
+      "scope": "Count down the explicit combat wait without consuming a facing RNG draw",
+      "sources": [
+        "app/person-state.ts",
+        "app/combat-explicit-target.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00439240.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The actual explicit wait route performs entry and ordinary visits with no random facing on phase zero, retaining eligibility until exact zero. Native struct and other callers are not established."
+    },
+    {
       "address": "004392a0",
       "status": "partial",
       "scope": "Retain the published timber approach goal and enter harvest on an even near visit",
@@ -2505,6 +2548,20 @@
         "tests/live-builder-approach-and-queue.test.mjs"
       ],
       "limits": "Ordinary Mission 7 ticks advance the supplied live fetcher. Supplied clear/occupied cell poses show that re-entering the occupied footprint resets the countdown after progress; the third consecutive clear visit starts timber search. The fixture does not establish autonomous footpath, randomized steering, loose-wood preemption or all footprint encodings."
+    },
+    {
+      "address": "00439850",
+      "evidence": [
+        "decomp/generated/00439850.c",
+        "tests/live-combat-address-branches.test.mjs"
+      ],
+      "limits": "Run the production pursuit function with a supplied actor and target. Does not cover first-visit facing, skittish targets, or full live ownership.",
+      "scope": "Let the one-shot blocked bit override close pursuit, then expire the timer normally",
+      "sources": [
+        "app/combat-pursuit.ts",
+        "app/person-routes.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "00439d30",
@@ -4235,6 +4292,52 @@
       "limits": "Native post-load walker links triggers/gifts/scenery and initializes effects; the browser indexes first authored model-9 scenery by wrapped cell for heading and does not traverse the original runtime trigger links. The native animation harness reaches the loader on a supplied authored case."
     },
     {
+      "address": "004895c0",
+      "evidence": [
+        "decomp/generated/004895c0.c",
+        "tests/live-native-ambient-audio.test.mjs"
+      ],
+      "limits": "The real Soundscape mix update writes the truncated ordinary land-cue gain; cue 33 existing-globe volume update is skipped. Witness uses a recording gain node, not a native driver; weather cue groups, original master scale, device output, and other sound record fields remain unverified.",
+      "scope": "Write integer-scaled ambient gain to an existing ordinary-world voice",
+      "sources": [
+        "app/ambient-sound.ts",
+        "app/audio.ts",
+        "app/original-sound.json"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "00489770",
+      "evidence": [
+        "decomp/generated/00489770.c",
+        "tests/live-native-ambient-audio.test.mjs"
+      ],
+      "limits": "Real Soundscape update ranks five ordinary weights and admits only top three into the live owner map, retaining existing voices across a weight change. Recording sample sink only; original DirectSound sample pool, all tie/accent/weather cases, and special cue C3 lifecycle remain unverified.",
+      "scope": "Admit top-three rendered ambience layers without resubmitting established voices",
+      "sources": [
+        "app/audio.ts",
+        "app/ambient-sound.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "00489a30",
+      "evidence": [
+        "decomp/generated/00489a30.c",
+        "tests/live-native-ambient-audio.test.mjs"
+      ],
+      "limits": "Real soundEnvironment handoff installs the next-render snapshot; its weight consumer exercises truncation, twice-min crossing, overview cue and empty counts with a controlled terrain snapshot. Camera selector and original weather cue/palette changes remain unverified; no renderer, WebAudio driver, or original execution was performed.",
+      "scope": "Map live terrain ambience handoff to ordinary and overview layer weights",
+      "sources": [
+        "app/audio.ts",
+        "app/ambient-sound.ts",
+        "app/terrain-ambience.ts",
+        "app/painter.ts",
+        "app/scene.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "00489c40",
       "status": "partial",
       "scope": "Queue the Shaman cue before the ordinary group voice in an authored mixed selection",
@@ -4263,6 +4366,37 @@
         "scripts/check-native-background-audio.py"
       ],
       "limits": "Live sound emits cue and position (optional owner), and audio runtime consumes browser events. Native suppression gates, cue selection, handles and backend queue are not equivalent."
+    },
+    {
+      "address": "0048b100",
+      "evidence": [
+        "decomp/generated/0048b100.c",
+        "tests/live-native-ambient-audio.test.mjs"
+      ],
+      "limits": "Real playWorldSounds consumes five positional records through scene.onSound: center, just-inside/cutoff/outside, and signed wrap. Current scene-relative transform/pan and downstream WebAudio playback differ from the original listener-based owner route; native stereo, pitch/range, shaman-owner fallback and stop behavior are not claimed.",
+      "scope": "Consume quantized squared-distance attenuation through live positional event dispatch",
+      "sources": [
+        "app/audio.ts",
+        "app/native-math.ts",
+        "app/scene.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0048b2c0",
+      "evidence": [
+        "decomp/generated/0048b2c0.c",
+        "tests/live-native-ambient-audio.test.mjs"
+      ],
+      "limits": "Real listener helper exercises three cardinal native offsets and toroidal wrap, with the exact range endpoint through the painter-used tree distance predicate; that predicate also takes the caller low-two-bit rejection. Actual painter traversal, other native callers, integer distance return or out-of-range minus-one sentinel are not established by this boolean witness.",
+      "scope": "Compute listener displacement and wrapped distance at the tree ambience range gate",
+      "sources": [
+        "app/ambient-sound.ts",
+        "app/native-math.ts",
+        "app/painter.ts",
+        "app/original-rules.json"
+      ],
+      "status": "partial"
     },
     {
       "address": "0048c6b0",
@@ -4630,6 +4764,22 @@
         "tests/game.test.mjs"
       ],
       "limits": "Live authored operation reads only the low nibble for mapped blue spell stocks and rejects other tribes or unmapped spells; native table lookup is not similarly restricted."
+    },
+    {
+      "address": "00492920",
+      "status": "partial",
+      "scope": "Read signed coarse native marker height through campaign query opcode 1085",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/world-coordinates.ts",
+        "app/mission-data.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00492920.c",
+        "tests/live-damage-marker-idle-gesture.test.mjs"
+      ],
+      "limits": "The actual command writes one script variable using authored Mission 16 marker 1 and synthetic signed off-viewport native heights; coordinate helper separately masks odd bits. In-viewport conversion/interpolation and native script pointer/height storage are not established by this witness. No native execution or browser claim."
     },
     {
       "address": "004935c0",
@@ -5396,6 +5546,19 @@
       "limits": "Original selects one row/class count and calls its draw helper, not whole panel composition. Live renders row.counts[model] via FollowerNumber with nearby alternate styling; exact native draw metrics, preset positioning and renderer variant are outside the claim."
     },
     {
+      "address": "004a3920",
+      "status": "partial",
+      "scope": "Clear the active melee assignment and set recovery without discarding orders",
+      "sources": [
+        "app/melee-groups.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a3920.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The real live group split allocation-failure path clears work fields on the last member of each tribe and sets recovery, with stable command arrays; only that caller and selected fields are tested. No native structure ABI or full recovery sequence."
+    },
+    {
       "address": "004a5590",
       "status": "partial",
       "scope": "Advance live fixed-tick turn gates and tribe processing",
@@ -6063,6 +6226,19 @@
       "limits": "Live assignGuardPostFollowers uses chain lengths below 8, clears on slot zero, emits command 11 with 0x0606 and appends its chosen shared slot. Object-based command-6 branch and model/selection roster parity excluded."
     },
     {
+      "address": "004baaf0",
+      "status": "partial",
+      "scope": "Allow a foreign unbuilt tower plan in the live placement candidate predicate",
+      "sources": [
+        "app/building-validity.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004baaf0.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The real cell-validity entry admits a foreign model-4 plan, rejects same-tribe or other model and rejects the completed foreign case through neighbor rules. No full settlement, native record, or build lifecycle equivalence."
+    },
+    {
       "address": "004bae30",
       "status": "partial",
       "scope": "Track or clear the in-flight direct Blast shot target independently",
@@ -6316,6 +6492,19 @@
         "tests/live-reward-counters-and-idle-cell.test.mjs"
       ],
       "limits": "After a constructed ordinary Bridge gift is added through the live producer, turn 82 increments counters 13 and 14 and saturates 15; already-capped shot stock is preserved. Remake uses a separate per-spell field, not the original packed byte or tribe-record ABI. No native execution or browser claim."
+    },
+    {
+      "address": "004c2b40",
+      "status": "partial",
+      "scope": "Read low four bits of one-off spell stock through the campaign query",
+      "sources": [
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2b40.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The real opcode 1077 stores only Bridge low-nibble stock and writes one script variable. Browser host binds the player tribe only; native record stride, arbitrary tribe and other outside callers are not established."
     },
     {
       "address": "004c2b60",
@@ -6795,6 +6984,22 @@
       "limits": "The M1 World creates both original Brave owners and their two-slot ring through an ordinary movement command. Panic entry is supplied; no natural panic trigger, state-10 queued-command gate, exempt model, raw layout, or browser rendering is established."
     },
     {
+      "address": "004d4da0",
+      "status": "partial",
+      "scope": "Apply the standing idle-gesture RNG and signed animation countdown",
+      "sources": [
+        "app/person-state.ts",
+        "app/native-math.ts",
+        "app/combat-approach.ts",
+        "app/melee-encounter.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d4da0.c",
+        "tests/live-damage-marker-idle-gesture.test.mjs"
+      ],
+      "limits": "The core helper exercises standing successful/missed draws, no draw on a nonstanding cargo branch, three-row selection arithmetic and signed-byte duration after animation dispatch to a recording host. Call sites inspected; no all-flags/object-table parity, native execution, or visual playback claim."
+    },
+    {
       "address": "004d4ee0",
       "status": "implemented",
       "scope": "Stop native-shaped live person movement and choose the proper pose",
@@ -7181,6 +7386,19 @@
         "scripts/check-native-swamp.py"
       ],
       "limits": "Original leaf writes the attacker byte if neither victim tribe nor attacker is -1; live strikeLightning reproduces this write for the Lightning caller. Kill caps, linked-cell traversal, admission and unrelated call sites are separate."
+    },
+    {
+      "address": "004da170",
+      "evidence": [
+        "decomp/generated/004da170.c",
+        "tests/live-combat-address-branches.test.mjs"
+      ],
+      "limits": "Runs the production entry phase with recorded sound and supplied actors/viewer flags. Native rendering, device playback, and other caller paths are not exercised.",
+      "scope": "On attacked-building entry, clear invisibility, apply the viewer mask, and request cue 53 once",
+      "sources": [
+        "app/combat-building.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "004de610",
@@ -7645,6 +7863,34 @@
         "scripts/check-native-person-motion.py"
       ],
       "limits": "Native direct 0x4e93f0 with supplied terrain height reads; actual ordinary motion, physics and wave consumers invoke it with live ground coordinates. Does not verify their effect ownership."
+    },
+    {
+      "address": "004e96d0",
+      "status": "partial",
+      "scope": "Clear downward signed vertical velocity during direct cast admission",
+      "sources": [
+        "app/person-casting.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e96d0.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The real cast initializer clamps signed negative and wrapped-negative vertical words; upward velocity survives. Standalone original layout/generic callers not tested; no native execution or browser claim."
+    },
+    {
+      "address": "004e96f0",
+      "status": "partial",
+      "scope": "Clear horizontal velocity words during direct cast admission",
+      "sources": [
+        "app/person-casting.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e96f0.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "Actively dispatching cast admission zeros the two horizontal components with both upward and downward inputs. The original standalone primitive is folded into this browser helper; other original callers are not established."
     },
     {
       "address": "004e9720",
@@ -10036,6 +10282,33 @@
       "limits": "Controlled ordinary opposing reinforcements move the last occupied slots into one fresh fight while retaining the initial group and ordered people. Native bounded allocation failure and all roster layouts, callbacks and scheduler timing are not established."
     },
     {
+      "address": "0051e150",
+      "evidence": [
+        "decomp/generated/0051e150.c",
+        "tests/live-combat-address-branches.test.mjs"
+      ],
+      "limits": "Uses the live join path with supplied actors. Native allocator failure, every encounter mode, later capture and allegiance bookkeeping are not verified.",
+      "scope": "Allocate the two-person encounter once and reject a second admission on its active defender",
+      "sources": [
+        "app/combat-runtime.ts",
+        "app/live-people.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0051e300",
+      "evidence": [
+        "decomp/generated/0051e300.c",
+        "tests/live-combat-address-branches.test.mjs"
+      ],
+      "limits": "Exercises production footprint/registry traversal with supplied objects, not observed damage or alliance behavior. Other structure states/resident count and the prison exception are unverified.",
+      "scope": "Recognize a class-1 person of a different non-neutral tribe on the state-one footprint",
+      "sources": [
+        "app/live-building-combat.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "0051e4b0",
       "status": "partial",
       "scope": "Reject an otherwise valid active fight center carrying exclusion flag 2",
@@ -10048,6 +10321,20 @@
         "tests/live-melee-encounter-and-site.test.mjs"
       ],
       "limits": "Direct site predicate called with real Mission 10 collision terrain and a battle produced by actual admission; supplied inactive occupancy callback and one exclusion bit. Stock accepts pristine site and rejects bit 2; one-bit mask control fails. Does not cover alternate occupied sites, all collision edges, or native execution."
+    },
+    {
+      "address": "0051e5e0",
+      "evidence": [
+        "decomp/generated/0051e5e0.c",
+        "tests/live-combat-address-branches.test.mjs"
+      ],
+      "limits": "World is real with supplied rivals and a deliberately saturated stock fixed pool. This does not claim native pool exhaustion in normally scalable play or verify all scanner modes, order flags, or sharing.",
+      "scope": "Return a live hostile threat without registering an order or consulting peers when the fixed pool is exhausted",
+      "sources": [
+        "app/combat-orders.ts",
+        "app/live-combat.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "0051eab0",
@@ -10108,6 +10395,20 @@
       "limits": "4,096 direct native cases compare byte timers, alternate parity, class-10 exclusion and bit clears; live person preparation calls it. No full melee/physics scheduling claim."
     },
     {
+      "address": "0051ff40",
+      "status": "partial",
+      "scope": "Release an active combat reservation and decrement only its nonzero byte count",
+      "sources": [
+        "app/combat-targets.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051ff40.c",
+        "tests/live-native-control-primitives.test.mjs"
+      ],
+      "limits": "The real live reservation owner dispatches by fight ID and clears only its reservation flag, decrements nonzero count without underflow, and leaves duration unchanged. Native layout and other release callers are not established."
+    },
+    {
       "address": "00520250",
       "status": "partial",
       "scope": "Emit march arrival cue below distance 1536 and defer a row shifted during removal",
@@ -10120,6 +10421,19 @@
         "tests/live-explicit-combat-and-march.test.mjs"
       ],
       "limits": "Real Mission 6 world tick and live sound events (owners and cues 45, 46, 48). Only summaries are supplied; no natural summary production or actual sound playback. Distance 1536 retained across three consecutive ticks."
+    },
+    {
+      "address": "00520300",
+      "evidence": [
+        "decomp/generated/00520300.c",
+        "tests/live-combat-address-branches.test.mjs"
+      ],
+      "limits": "The ordinary actor is unmounted. Calls the production pursuit entry with recording destination/fire effects; no vehicle movement, mounted ranged retention or end-to-end pathfinding is verified.",
+      "scope": "Witness the ordinary actor’s command-position handoff via the vehicleDestination callback, contrasted with Firewarrior stop-to-fire",
+      "sources": [
+        "app/combat-pursuit.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "00520480",
