@@ -923,6 +923,19 @@
       "limits": "Original parameter/anchor and transition family compared; browser DOM input, camera gating and view-plane handoff remain separately routed."
     },
     {
+      "address": "00418ce0",
+      "evidence": [
+        "decomp/generated/00418ce0.c",
+        "tests/plan-motion-primitives.test.mjs"
+      ],
+      "limits": "Exercises matching and nonmatching supplied reserved actors. Actual selected linked list, state initializers and unreserved models not exercised.",
+      "scope": "Reset motion for a matching reserved follower before the transition suppression gate",
+      "sources": [
+        "app/person-state.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "00418d70",
       "status": "partial",
       "scope": "Count an already-selected follower outside an extended drag for the group voice",
@@ -3560,6 +3573,19 @@
       "limits": "Original producer scheduling and authored work gates are compared, but live actor ownership and broader historic task producers remain separately mapped."
     },
     {
+      "address": "00462730",
+      "evidence": [
+        "decomp/generated/00462730.c",
+        "tests/computer-branch-funnel.test.mjs"
+      ],
+      "limits": "Supplied task queue and target lookup; no direct ROM/native runtime or alternative allocator callers executed.",
+      "scope": "Training admission uses the lowest vacant slot in a ten-slot queue and fails when full",
+      "sources": [
+        "app/computer.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "00462770",
       "status": "partial",
       "scope": "Clear active and secondary flags of supported browser AI tasks",
@@ -3600,6 +3626,19 @@
         "scripts/check-native-mission3-raid-allocation.py"
       ],
       "limits": "Direct authored task allocation/owner probes and live queue use; original record allocation and producer side effects are not fully equivalent."
+    },
+    {
+      "address": "00462ca0",
+      "evidence": [
+        "decomp/generated/00462ca0.c",
+        "tests/computer-branch-funnel.test.mjs"
+      ],
+      "limits": "Only the absent type-6 switch case and adapted scratch preservation are witnessed; native reset masks, exact byte mapping, and other task types remain unverified.",
+      "scope": "Training type 6 preserves selected scratch despite reinitializing request phase",
+      "sources": [
+        "app/computer.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "00463370",
@@ -6149,6 +6188,32 @@
       "limits": "Live construction consumes the footprint returned by buildingRepairArea. Original emits ordered per-cell native storage pointers, packed coordinates and raw shape bytes; the live area is not that complete record buffer."
     },
     {
+      "address": "004b9fc0",
+      "evidence": [
+        "decomp/generated/004b9fc0.c",
+        "tests/plan-motion-primitives.test.mjs"
+      ],
+      "limits": "Supplied collision cells and walk bits; does not verify actual terrain ownership. Ordinary plan single-offset control retained.",
+      "scope": "Try kind-10 outside rotations, skipping occupied and blocked cells and falling back to base when all blocked",
+      "sources": [
+        "app/building-shapes.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "004ba130",
+      "evidence": [
+        "decomp/generated/004ba130.c",
+        "tests/plan-motion-primitives.test.mjs"
+      ],
+      "limits": "Supplied corner/odd packed coordinates and authentic shape table; no plan initializer, broad geometry or game run.",
+      "scope": "Align packed coarse axes and add quarter-cell signed inside offsets",
+      "sources": [
+        "app/building-shapes.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "004ba1b0",
       "status": "partial",
       "scope": "Stale builder-slot pruning",
@@ -6664,6 +6729,19 @@
         "scripts/check-native-mission3-defense-task.py"
       ],
       "limits": "Authored early task and routing match in selected original witnesses; live task state, territory and broader queues remain independent."
+    },
+    {
+      "address": "004c5f70",
+      "evidence": [
+        "decomp/generated/004c5f70.c",
+        "tests/computer-branch-funnel.test.mjs"
+      ],
+      "limits": "Uses the raw task quota state and a recording selection callback. No claim about other phases, native pack layout or gameplay-level defense placement.",
+      "scope": "Defense phase 3 adds selected Firewarrior count but subtracts ordinary warrior count",
+      "sources": [
+        "app/computer-defense.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "004c6a20",
@@ -7500,6 +7578,19 @@
         "scripts/check-native-mana-generation.py"
       ],
       "limits": "Native exact query includes cancelled immediate and queued priority; live mana inputs still include some reconstructed adapters rather than original class records."
+    },
+    {
+      "address": "004df220",
+      "evidence": [
+        "decomp/generated/004df220.c",
+        "tests/plan-motion-primitives.test.mjs"
+      ],
+      "limits": "Supplied role/model-2 actor and valid registry target. Port callback and movement timing only, not native combat or animation rendering.",
+      "scope": "Halve mounted recovery speed, issue one fight callback and return the default only at countdown expiration",
+      "sources": [
+        "app/person-state.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "004dfac0",
@@ -8627,6 +8718,19 @@
       "limits": "Original linked class6/model6 scan and removal are owned by game adapter; browser routes through its head roster and updates separate effect state."
     },
     {
+      "address": "004f2290",
+      "evidence": [
+        "decomp/generated/004f2290.c",
+        "tests/computer-branch-funnel.test.mjs"
+      ],
+      "limits": "Tests the embedded veto with a supplied queue, not native lock lifetime or task scheduling.",
+      "scope": "Selection acquisition consults type-20 sibling phase restrictions for both modes",
+      "sources": [
+        "app/computer.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "004f2440",
       "status": "partial",
       "scope": "Assign live recruited raid people to their owning task slot",
@@ -9043,6 +9147,19 @@
         "tests/game.test.mjs"
       ],
       "limits": "Compared all footprint choices and overlapping removal against full 128x128 maps; live healthy-building refresh marks, and dead-building processing clears. Coverage is the footprint-bit operation, not parity of all original damage/remove producers."
+    },
+    {
+      "address": "004f7720",
+      "evidence": [
+        "decomp/generated/004f7720.c",
+        "tests/computer-branch-funnel.test.mjs"
+      ],
+      "limits": "Supplied actor/vehicle records; removed vehicle control included. Native land validation, vehicle ownership and terrain runtime were not executed.",
+      "scope": "Selection excludes vehicle duty for the model-2 driver and passenger of a non-idle live driver",
+      "sources": [
+        "app/computer-selection.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "004f7dc0",
@@ -10135,6 +10252,19 @@
       "limits": "A controlled live three-person group changes its center to the last correct tribe member while retaining original membership slots for a later split. This does not establish all native roster-hole, tribe, and encounter-phase cases."
     },
     {
+      "address": "00519a70",
+      "evidence": [
+        "decomp/generated/00519a70.c",
+        "tests/engagement-geometry-branches.test.mjs"
+      ],
+      "limits": "Supplied valid live roster records; first cleanup pass only, not the native distance compaction or membership production.",
+      "scope": "Clear invalid member slot and stale owner and reduce saturation timer before selecting remaining winner",
+      "sources": [
+        "app/melee-groups.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "00519d10",
       "status": "partial",
       "scope": "Relocate an active fight off a blocked cell at its periodic search visit",
@@ -10353,6 +10483,45 @@
       "limits": "The ordinary Mission 10 turn scan emits command 21 at turn 104 for a supplied rival, while the same supplied friendly people do not trigger it. This tests one routed person threat and the friendly control, not water, disguise, reserved fights, structures, all tribes or the full native search."
     },
     {
+      "address": "0051f750",
+      "evidence": [
+        "decomp/generated/0051f750.c",
+        "tests/engagement-geometry-branches.test.mjs"
+      ],
+      "limits": "Supplied collision and occupancy ports; covers two-pass boundary and random-number draw admission, not exact slot geometry or native traversal.",
+      "scope": "Waiting position requires an unoccupied point on the first ring pass but not the randomized fallback",
+      "sources": [
+        "app/melee-placement.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0051f990",
+      "evidence": [
+        "decomp/generated/0051f990.c",
+        "tests/engagement-geometry-branches.test.mjs"
+      ],
+      "limits": "Isolated terrain branch only; ignores preceding native range/target admission and does not fire.",
+      "scope": "Reject terrain only when a stored-height ray sample plus 140 is strictly below it",
+      "sources": [
+        "app/firewarrior-clearance.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0051fbf0",
+      "evidence": [
+        "decomp/generated/0051fbf0.c",
+        "tests/engagement-geometry-branches.test.mjs"
+      ],
+      "limits": "Both callbacks supply success in the explicit-point route only. Does not establish allocator or failure behavior, actor-target shots, native lifetime, sound or cooldown parity.",
+      "scope": "With two supplied-success explicit-point allocations, request both and return the last handle",
+      "sources": [
+        "app/firewarrior-point.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "0051fce0",
       "status": "partial",
       "scope": "Finish a direct attack order when its target owner is no longer alive",
@@ -10407,6 +10576,19 @@
         "tests/live-native-control-primitives.test.mjs"
       ],
       "limits": "The real live reservation owner dispatches by fight ID and clears only its reservation flag, decrements nonzero count without underflow, and leaves duration unchanged. Native layout and other release callers are not established."
+    },
+    {
+      "address": "0051ff60",
+      "evidence": [
+        "decomp/generated/0051ff60.c",
+        "tests/engagement-geometry-branches.test.mjs"
+      ],
+      "limits": "Tower presence and actor inputs supplied; not live occupant/caster path or other person models.",
+      "scope": "Firewarrior dispatched order uses clamped altitude band, odd result and four-unit tower bonus",
+      "sources": [
+        "app/melee-engagement.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "00520250",
