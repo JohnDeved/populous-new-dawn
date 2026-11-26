@@ -236,6 +236,8 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 export function pointerDown(scene: GameScene, event: PointerEvent) {
   // 004aa1c0: an open message box only takes a left release on the box itself.
   if (scene.modalSuspended || scene.messageModal) return
+  // A second physical pointer cannot take over an already captured gesture.
+  if (scene.pointerGesture && scene.pointerGesture.pointerId !== event.pointerId) return
   scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
@@ -315,6 +317,7 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
 
 export function pointerMove(scene: GameScene, event: PointerEvent) {
   if (scene.modalSuspended) return
+  if (scene.pointerGesture && scene.pointerGesture.pointerId !== event.pointerId) return
   scene.pointerButtons = event.buttons
   scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
   if (
