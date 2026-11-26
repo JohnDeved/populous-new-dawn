@@ -401,11 +401,13 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   queueBuildingInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons
   if (!(event.buttons & 6)) scene.globeMotion.dragging = false
-  if (scene.world.inputMask || scene.overviewStage) return
-  if (event.button === 0) scene.updateDrag(event)
+  const blocked = scene.world.inputMask || scene.overviewStage
+  if (!blocked && event.button === 0) scene.updateDrag(event)
   const drag = scene.drag
   scene.drag = null
   scene.dragActive.value = false
+  if (drag) scene.selectionOverlay.visible = false
+  if (blocked || (event.button === 0 && drag && scene.overviewActive)) return
   if (event.button === 0 && drag?.active && !scene.world.mode) {
     selectArea(
       scene.world,
