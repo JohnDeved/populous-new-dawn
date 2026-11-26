@@ -925,6 +925,8 @@ export function campaignRules(w: World) {
                               ? [
                                   12,
                                   1003,
+                                  // Chumara's EVERY255/offset132 mana aid and spell intervals.
+                                  ...script.codes.slice(331, 495),
                                   // Native turn-6 one-shot flyby, including its EVERY and variable-11 latch.
                                   ...script.codes.slice(1655, 1808),
                                   1004,
@@ -989,6 +991,10 @@ export function campaignRules(w: World) {
     // Complete first patrol/Preacher block and the following original kill-count
     // guard transition. Later attack phases never reopen its zero-valued gate.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(624, 663), 1004, 1004, 1019]
+  }
+  if (w.outcome.level === 13 && tribe === 3) {
+    // Matak's separate original EVERY255/offset132 mana aid and spell intervals.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(323, 487), 1004, 1019]
   }
   if (w.outcome.level === 22 && tribe === 1) {
     // Authored EVERY255 Tower staffing followed by marker-route staffing.
