@@ -8,6 +8,57 @@ import { checkpointCodec } from './checkpoint-codec.mjs'
 import originalMessages from '../../app/original-messages.json' with { type: 'json' }
 
 export const m2FunctionalLimitMs = 45000
+
+// Compact startup includes real checkpoint admission, modal ownership and guard
+// feedback. On successful hosted runs it took 20–24 s; a slower attempt took
+// 31 s, leaving only 14 s for four complete viewport capture/restore witnesses.
+export const compactBudgetMs = Object.freeze({ startup: 40000, exercise: 25000 })
+
+export function startCompactBudget({
+  report, stage, close, started, now = () => performance.now(),
+  set = setTimeout, clear = clearTimeout,
+}) {
+  let phase = 'startup', phaseStart = started, timer, expired = false
+  let deadline = started + compactBudgetMs.startup
+  const budget = report.phaseBudget = { phases: [{ phase, enteredMs: 0, deadlineMs: compactBudgetMs.startup }] }
+  const expire = () => {
+    if (expired) return
+    expired = true
+    const lastCompletedStage = report.stages.at(-1)?.name ?? null
+    budget.expired = { phase, lastCompletedStage, elapsedMs: now() - started, phaseElapsedMs: now() - phaseStart }
+    report.timedOut = true
+    stage('deadline')
+    void close().catch(() => {})
+  }
+  const assertOnTime = at => {
+    if (expired || at >= deadline) {
+      expire()
+      throw Error(`Compact ${phase} deadline exceeded after ${budget.expired.lastCompletedStage}`)
+    }
+  }
+  timer = set(expire, compactBudgetMs.startup)
+  return {
+    enterExercise() {
+      const at = now()
+      assertOnTime(at)
+      assert.equal(phase, 'startup', 'Compact budget transitions once, at the verified paused baseline')
+      clear(timer)
+      phase = 'exercise'
+      phaseStart = at
+      deadline = phaseStart + compactBudgetMs.exercise
+      budget.phases.push({ phase, enteredMs: phaseStart - started, deadlineMs: deadline - started })
+      timer = set(expire, compactBudgetMs.exercise)
+    },
+    finish() {
+      assertOnTime(now())
+      assert.equal(phase, 'exercise')
+    },
+    recordFailure() {
+      budget.failure ??= { phase, lastCompletedStage: budget.expired?.lastCompletedStage ?? report.stages.at(-1)?.name ?? null }
+    },
+    stop() { clear(timer) },
+  }
+}
 export function assertM2Input(before, after) {
   assert.equal(after.level, 2)
   assert.equal(after.sameScene, true)
@@ -158,8 +209,8 @@ export async function closeM2AuthoredMessage(page) {
   await page.waitForFunction(() => !window.testScene.messageModal && !document.querySelector('.campaign-messages details[open]'))
 }
 
-// Keep the legacy compact episode within its original deadline. The expanded
-// readout has its own fresh context and deadline inside the existing job cap.
+// Compact and expanded each use a fresh context. Only the compact episode
+// separates startup from exercise; the shared browser cap is unchanged.
 export async function runCompactDiagnosticEpisodes({ report, ...options }, runEpisode = runM2Functional) {
   report.compactMessageLayout = await runEpisode({ ...options, compactMessages: true })
   report.pickingPathReadout = await runEpisode({ ...options, pickingPaths: true })
@@ -204,11 +255,16 @@ export default async function runM2Functional({ browser, url, output, fixture, c
   const started = performance.now()
   const stage = name => report.stages.push({ name, elapsedMs: performance.now() - started })
   stage('start')
-  timer = setTimeout(() => {
-    stage('deadline')
-    report.timedOut = true
-    void context.close().catch(() => {})
-  }, m2FunctionalLimitMs)
+  const compactBudget = compactMessages
+    ? startCompactBudget({ report, stage, close: () => context.close(), started })
+    : null
+  if (!compactBudget) {
+    timer = setTimeout(() => {
+      stage('deadline')
+      report.timedOut = true
+      void context.close().catch(() => {})
+    }, m2FunctionalLimitMs)
+  }
   try {
     // Only test setup writes storage. This context is new, has no user data/profile,
     // and closes at termination. The identical codec preserves structured values.
@@ -392,6 +448,10 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     stage('paused-baseline')
     assert.equal(report.before.level, 2)
     assert.match(report.before.webgl, /WebGL 2/)
+    if (compactBudget) {
+      assert.equal(report.before.paused, true, 'Compact layout exercise must begin from a real paused baseline')
+      compactBudget.enterExercise()
+    }
     if (campaignCallbacks) {
       const { checkCampaignMessageOwnership } = await import('./campaign-message-ownership.mjs')
       report.campaignMessageOwnership = {}
@@ -404,6 +464,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       const { checkCompactMessages } = await import('./compact-message-layout.mjs')
       report.compactMessages = { cases: [] }
       await checkCompactMessages({ page, output, stage, report: report.compactMessages })
+      compactBudget.finish()
     } else {
       const graph = page.locator('.fps-graph')
       await graph.waitFor({ state: 'hidden' })
@@ -549,6 +610,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
     }
   } catch (error) {
     failure = error
+    compactBudget?.recordFailure()
     try {
       report.failureState = await page.evaluate(() => {
         const w = window.testStore?.getWorld(),
@@ -586,6 +648,7 @@ export default async function runM2Functional({ browser, url, output, fixture, c
       // A closed deadline context may prevent capture; preserve the original failure.
     }
   } finally {
+    compactBudget?.stop()
     clearTimeout(timer)
   }
   return finishM2Functional({

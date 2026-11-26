@@ -3,6 +3,8 @@ import native from '../../tests/fixtures/follower-corpse-native.json' with { typ
 import units from '../../app/original-units.json' with { type: 'json' }
 import { CHECKPOINT_VERSION } from '../../app/checkpoint-format.ts'
 
+export const authoredFollowerCorpseActorId = 1235
+
 const draws = { brave: 14, warrior: 15, preacher: 16, spy: 17, firewarrior: 18 }
 const directionFor = ({ cameraBearing, heading }) => {
   const camera = Math.round(cameraBearing * 1024 / Math.PI)
@@ -41,6 +43,7 @@ export function validateFollowerCorpseObservation(report) {
   assert.equal(report.error, null)
   assert.ok(report.death, 'An observed ordinary combat death is required')
   const { death, segments } = report
+  assert.equal(report.actorId, authoredFollowerCorpseActorId, 'Mission 2 requires the authored Blue Brave 1235')
   assert.equal(death.before.id, report.actorId)
   assert.equal(death.before.team, 'blue')
   assert.equal(death.before.kind, 'brave')
@@ -70,18 +73,28 @@ export function validateFollowerCorpseObservation(report) {
       prior = sample
     }
   }
-  const samples = segments.flatMap(segment => segment.samples)
-  for (const phase of [0, 1, 2, 3]) {
-    const sample = samples.find(sample => sample.phase === phase && sample.cropFile)
-    assert.ok(sample, `Same-frame visible canvas crop required for corpse phase ${phase}`)
-    assert.equal(sample.bodyInCanvas, true)
-    assert.equal(sample.bodyCanvasOwned, true)
-    assert.equal(sample.cropOverlayClear, true)
-    const crop = segments.flatMap(segment => segment.crops).find(crop => crop.filename === sample.cropFile)
-    assert.ok(crop && !crop.error && crop.opaqueColors > 1 && crop.sha256)
-    for (const field of ['turn', 'stamp', 'frame', 'effectId', 'phase'])
-      assert.equal(crop[field], sample[field], `Corpse crop ${field} must belong to its exact rendered sample`)
+  const requiredCrops = [['original', [0, 1]], ['loaded', [1, 2, 3]]]
+  for (const [index, [label, phases]] of requiredCrops.entries()) {
+    const { segment, samples, crops } = segments[index]
+    assert.equal(segment, label, 'Pre-save and loaded render evidence must be separate, in order')
+    for (const phase of phases) {
+      const sample = samples.find(sample => sample.phase === phase && !sample.paused)
+      const filename = `follower-corpse-${label}-${phase}.png`
+      assert.equal(sample?.cropFile, filename,
+        `Same-frame visible canvas crop required for first running ${label} corpse phase ${phase}`)
+      assert.equal(sample.bodyInCanvas, true)
+      assert.equal(sample.bodyCanvasOwned, true)
+      assert.equal(sample.cropOverlayClear, true)
+      const matches = crops.filter(crop => crop.filename === filename)
+      assert.equal(matches.length, 1, `Exactly one ${label} corpse phase ${phase} crop required`)
+      const [crop] = matches
+      assert.ok(!crop.error && crop.opaqueColors > 1 && crop.sha256,
+        `Nonblank ${label} corpse phase ${phase} crop required`)
+      for (const field of ['turn', 'stamp', 'frame', 'effectId', 'phase'])
+        assert.equal(crop[field], sample[field], `Corpse crop ${field} must belong to its exact rendered sample`)
+    }
   }
+  const sampleCount = segments.reduce((count, segment) => count + segment.samples.length, 0)
   assert.ok(segments[1].samples.some(sample => !sample.paused && sample.phase >= 2),
     'Current loaded checkpoint must resume through the natural transition/rise controller')
   const checkpoint = report.checkpoint
@@ -110,5 +123,5 @@ export function validateFollowerCorpseObservation(report) {
   assert.equal(segments[1].done, true)
   return { effectId: report.effectId, victimId: report.actorId,
     originalSources: [304, 312, 320], phases: [0, 1, 2, 3],
-    sampleCount: samples.length, cadence: 'Not established by browser sampling; separate native unit evidence only', currentCheckpoint: checkpoint.committed.checkpointSha256 }
+    sampleCount, cadence: 'Not established by browser sampling; separate native unit evidence only', currentCheckpoint: checkpoint.committed.checkpointSha256 }
 }

@@ -15,9 +15,9 @@ export function installCorpseCameraFollow({ order }) {
     method: 'GameScene.focus fixed declared brave after each observed render; no forced render or World advance',
     sideEffect: 'Supported focus clears an already-null world.mode, resets scene tooltip.draw, and updates world.lightView for camera-relative terrain lighting',
     visits: [], error: null, terminal: null }
-  let raf, stopped = false
+  let detach, stopped = false, lastStamp = result.armedStamp
   const stop = (reason = 'cleanup') => {
-    if (!stopped) { stopped = true; cancelAnimationFrame(raf); result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame } }
+    if (!stopped) { stopped = true; detach?.(); result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame } }
     return result
   }
   const guard = () => {
@@ -30,16 +30,19 @@ export function installCorpseCameraFollow({ order }) {
     require(world.lastOrderTurn === order.lastOrderTurn, 'Camera follow cannot replace the public order')
   }
   guard()
-  const visit = rafTimestampMs => {
+  const visit = ({ renderTimestampMs, stamp }) => {
     if (stopped) return
     try {
       if (observer.result.error) throw Error(observer.result.error)
-      if (observer.result.done) { stop('observer-terminal'); return }
-      if (observer.result.death) { stop('original-death-observed'); return }
-      guard()
-      const rendered = observer.result.lastVisit, stamp = scene.renderer.info.render.frame
-      require(rendered?.rafTimestampMs === rafTimestampMs && rendered.stamp === stamp,
+      const rendered = observer.result.lastVisit
+      require(Number.isSafeInteger(stamp) && stamp >= lastStamp && Number.isFinite(renderTimestampMs) &&
+        stamp === scene.renderer.info.render.frame && rendered?.stamp === stamp &&
+        rendered.renderTimestampMs === renderTimestampMs,
         'Camera focus must follow this frame\'s observer, never precede its pixels/bounds')
+      if (observer.result.death) { stop('original-death-observed'); return }
+      if (observer.result.done) { stop('observer-terminal'); return }
+      if (stamp === lastStamp) return // Observer callback without a new ordinary render.
+      guard()
       require(result.visits.length < 75 * 240, 'Camera follow exceeded bounded visit storage')
       const invariant = () => JSON.stringify({ turn: world.turn, time: world.time, randomState: world.randomState,
         lastOrderTurn: world.lastOrderTurn, selected: world.selected, mode: world.mode, inputMask: world.inputMask, actor })
@@ -50,11 +53,11 @@ export function installCorpseCameraFollow({ order }) {
         'Camera focus must not render or rotate the sampled view')
       require(world.lightView.x === (scene.cameraPosition.x << 16 >> 16) &&
         world.lightView.y === (scene.cameraPosition.y << 16 >> 16), 'Camera lighting view must match focused position')
-      result.visits.push({ turn: world.turn, afterStamp: stamp, rafTimestampMs,
+      lastStamp = stamp
+      result.visits.push({ turn: world.turn, afterStamp: stamp, renderTimestampMs,
         actor: { x: actor.x, z: actor.z }, camera: { ...scene.cameraPosition }, lightingBefore, lightingAfter: { ...world.lightView }, gameplayUnchanged: true })
     } catch (error) { result.error = String(error); stop('error'); return }
-    raf = requestAnimationFrame(visit)
   }
+  detach = observer.afterObservedRender(visit)
   window.__pndCorpseCameraFollow = { result, stop }
-  raf = requestAnimationFrame(visit)
 }
