@@ -901,15 +901,11 @@ export function campaignRules(w: World) {
                           ? [
                               12,
                               1003,
-                              // Native EVERY-255 wrapper plus only its first BUILD_AT branch.
+                              // Native EVERY-255 wrapper around the four authored BUILD_AT phases.
                               1005,
                               70,
                               1003,
-                              ...script.codes.slice(599, 625),
-                              // Close the two IFs, EVERY block, and bounded top-level block.
-                              1002,
-                              1004,
-                              1002,
+                              ...script.codes.slice(599, 705),
                               1004,
                               1004,
                               1019,
