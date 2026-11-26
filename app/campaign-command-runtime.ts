@@ -875,6 +875,8 @@ export function campaignRules(w: World) {
                           12,
                           1003,
                           // Turn-zero message commands run in world initialization, not each turn.
+                          // Chumara's EVERY255/offset132 spell cadence precedes settlement.
+                          ...script.codes.slice(298, 447),
                           // Chumara's original EVERY255 settlement and training targets.
                           // Later tower, patrol, raid and message branches remain unbound.
                           ...script.codes.slice(447, 595),
@@ -899,15 +901,11 @@ export function campaignRules(w: World) {
                           ? [
                               12,
                               1003,
-                              // Native EVERY-255 wrapper plus only its first BUILD_AT branch.
+                              // Native EVERY-255 wrapper around the four authored BUILD_AT phases.
                               1005,
                               70,
                               1003,
-                              ...script.codes.slice(599, 625),
-                              // Close the two IFs, EVERY block, and bounded top-level block.
-                              1002,
-                              1004,
-                              1002,
+                              ...script.codes.slice(599, 705),
                               1004,
                               1004,
                               1019,
@@ -925,6 +923,8 @@ export function campaignRules(w: World) {
                               ? [
                                   12,
                                   1003,
+                                  // Chumara's EVERY255/offset132 mana aid and spell intervals.
+                                  ...script.codes.slice(331, 495),
                                   // Native turn-6 one-shot flyby, including its EVERY and variable-11 latch.
                                   ...script.codes.slice(1655, 1808),
                                   1004,
@@ -985,15 +985,42 @@ export function campaignRules(w: World) {
     // Later patrol, guard and expansion siblings remain outside this projection.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 613), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 16 && tribe === 3) {
+    boundCampaignScript.codes = [
+      12,
+      1003,
+      // Matak's ordered six Tower sites; close EVERY before unrelated training.
+      ...script.codes.slice(557, 722),
+      1004,
+      // Authored Firewarrior staffing and both marker routes, excluding expansion.
+      ...script.codes.slice(756, 830),
+      1004,
+      1004,
+      1019,
+    ]
+  }
   if (w.outcome.level === 18 && tribe === 1) {
     // Complete first patrol/Preacher block and the following original kill-count
     // guard transition. Later attack phases never reopen its zero-valued gate.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(624, 663), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 13 && tribe === 3) {
+    // Matak's separate original EVERY255/offset132 mana aid and spell intervals.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(323, 487), 1004, 1019]
+  }
   if (w.outcome.level === 22 && tribe === 1) {
     // Authored EVERY255 Tower staffing followed by marker-route staffing.
     // The later conditional emergency sibling remains unbound.
-    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(227, 241), 1004, 1004, 1019]
+    boundCampaignScript.codes = [
+      12,
+      1003,
+      ...script.codes.slice(227, 241),
+      1004,
+      // Original EVERY255/offset132 refreshes Red spell intervals by Red population.
+      ...script.codes.slice(256, 405),
+      1004,
+      1019,
+    ]
   }
   // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {

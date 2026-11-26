@@ -173,7 +173,8 @@ export function readMeleePointerState(point) {
       rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } } }
 }
 
-export async function meleeTargetPoint(page, bounds, attempts, save, targetId = 20) {
+export async function meleeTargetPoint(page, bounds, attempts, save, targetId = 20,
+  waitForPointer = (predicate, input) => page.waitForFunction(predicate, input)) {
   // Preserve this fixed body-interior set and order. Only real pointer events
   // and the ordinary rendered hover winner may establish the attack target.
   for (const [fx, fy] of [[.5, .5], [.5, .65], [.35, .5], [.65, .5], [.5, .35]]) {
@@ -183,7 +184,7 @@ export async function meleeTargetPoint(page, bounds, attempts, save, targetId = 
     attempts.push(attempt); save()
     if (!before.canvasOwnsPoint) continue
     await page.mouse.move(point.x, point.y)
-    await page.waitForFunction(({ point, before }) => {
+    await waitForPointer(({ point, before }) => {
       const s = window.testSceneRef.current
       return s.renderer.info.render.frame > before && s.pointerScreen?.clientX === point.x && s.pointerScreen?.clientY === point.y
     }, { point, before: before.stamp })

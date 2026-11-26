@@ -236,6 +236,8 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
 export function pointerDown(scene: GameScene, event: PointerEvent) {
   // 004aa1c0: an open message box only takes a left release on the box itself.
   if (scene.modalSuspended || scene.messageModal) return
+  // A second physical pointer cannot take over an already captured gesture.
+  if (scene.pointerGesture && scene.pointerGesture.pointerId !== event.pointerId) return
   scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
   scene.pointerButtons = event.buttons
   if (
@@ -315,6 +317,7 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
 
 export function pointerMove(scene: GameScene, event: PointerEvent) {
   if (scene.modalSuspended) return
+  if (scene.pointerGesture && scene.pointerGesture.pointerId !== event.pointerId) return
   scene.pointerButtons = event.buttons
   scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
   if (
@@ -401,11 +404,13 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   queueBuildingInspection(scene, event, 'up')
   scene.pointerButtons = event.buttons
   if (!(event.buttons & 6)) scene.globeMotion.dragging = false
-  if (scene.world.inputMask || scene.overviewStage) return
-  if (event.button === 0) scene.updateDrag(event)
+  const blocked = scene.world.inputMask || scene.overviewStage
+  if (!blocked && event.button === 0) scene.updateDrag(event)
   const drag = scene.drag
   scene.drag = null
   scene.dragActive.value = false
+  if (drag) scene.selectionOverlay.visible = false
+  if (blocked || (event.button === 0 && drag && scene.overviewActive)) return
   if (event.button === 0 && drag?.active && !scene.world.mode) {
     selectArea(
       scene.world,

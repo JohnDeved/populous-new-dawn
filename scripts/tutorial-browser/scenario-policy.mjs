@@ -25,8 +25,8 @@ export const gameplayResourceSplitBudget = Object.freeze({ version: 1, gameplayM
   resourcesMs: 180000, totalBrowserMs: 360000, buildMsPerJob: 120000, hostedJobMs: 900000 })
 
 // Explicit additional mandatory job/build, not a faster or equivalent shared 180s run.
-// Corpse still enforces its original 75s death/save and 25s Load/rise phase caps.
+// The independent corpse episode budgets held opening/order, real combat/save, and proven Load separately.
 export const followerCorpseSplitBudget = Object.freeze({ version: 1,
   framesAndMeleeMs: 180000, corpseBrowserMs: 180000, totalBrowserMs: 360000,
-  corpseDeathAndSaveMs: 75000, corpseLoadAndVerifyMs: 25000,
+  corpseOpeningAndOrderMs: 80000, corpseDeathAndSaveMs: 65000, corpseLoadAndVerifyMs: 25000,
   buildMsPerJob: 120000, hostedJobMs: 900000 })
