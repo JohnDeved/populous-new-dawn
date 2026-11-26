@@ -113,15 +113,20 @@ function realObserverFixture(segment = 'original') {
   const f = fixture(), { world, scene } = f, events = []
   const canvas = { width: 100, height: 100, isConnected: true, getBoundingClientRect: () => ({ left: 0, top: 0, width: 100, height: 100 }) }
   scene.renderer.domElement = canvas
+  scene.renderer.getRenderTarget = () => null
   scene.gameClock = { animationFrame: 100 }; scene.camera = {}; scene.fxMeshes = new Map()
   scene.view = { screen: () => ({ x: 0, y: 0, z: 0 }), painter: { source: () => true } }
   world.effects = []; f.actor.fight = { group: 38, opponent: 20, action: 'ready' }
   const focus = scene.focus
   scene.focus = (...args) => { events.push('focus'); focus(...args) }
-  let rafCalls = 0, stampTime = 10
+  let scheduled = null, stampTime = 10
+  f.window.__pndBindFollowerCorpseRender = (boundScene, boundWorld, visit, stop) => {
+    assert.equal(boundScene, scene); assert.equal(boundWorld, world); assert.equal(scheduled, null)
+    const binding = { visit, stop }
+    scheduled = binding
+    return () => { if (scheduled === binding) scheduled = null }
+  }
   const context = vm.createContext({ window: f.window, performance: { now: () => stampTime + .4 },
-    requestAnimationFrame: cb => { f.pending.set(++rafCalls, cb); return rafCalls },
-    cancelAnimationFrame: id => f.pending.delete(id),
     document: { visibilityState: 'visible', elementFromPoint: () => canvas, querySelectorAll: () => [],
       createElement: () => ({ getContext: () => ({ drawImage: () => events.push('crop-copy') }) }) } })
   const install = fn => vm.runInContext(`(${fn.toString()})`, context)
@@ -129,8 +134,7 @@ function realObserverFixture(segment = 'original') {
   const attach = () => install(installCorpseCameraFollow)({ order: f.order })
   const frame = (elapsed = 16) => {
     stampTime += elapsed; scene.renderer.info.render.frame++
-    const pending = [...f.pending.values()]; f.pending.clear()
-    for (const cb of pending) cb(stampTime)
+    scheduled?.visit(stampTime, scene.renderer.info.render.frame)
   }
   const die = () => {
     world.units = []; world.turn++
@@ -139,12 +143,14 @@ function realObserverFixture(segment = 'original') {
     scene.fxMeshes.set(2215, { visible: true, position: {}, userData: {
       bounds: { left: -3, right: 3, top: -4, bottom: 4 }, layers: [] } })
   }
-  return { ...f, events, frame, die, attach, renderedRafs: () => rafCalls, observation: f.window.__pndCorpseObservation }
+  return { ...f, events, frame, die, attach, hasBinding: () => scheduled !== null,
+    invalidate: () => scheduled?.visit(stampTime, scene.renderer.info.render.frame),
+    dispose: () => scheduled?.stop('scene-disposed'), observation: f.window.__pndCorpseObservation }
 }
 
-test('real serialized observer captures phase-zero death/crop before follower detaches, with only one RAF', () => {
+test('real serialized observer captures phase-zero death/crop before follower detaches, without a test RAF', () => {
   const f = realObserverFixture()
-  f.attach(); assert.equal(f.pending.size, 1); assert.equal(f.renderedRafs(), 1)
+  f.attach(); assert.equal(f.pending.size, 0); assert.equal(f.hasBinding(), true)
   f.frame(19); assert.deepEqual(f.events, ['focus'])
   f.die(); f.frame(13)
   const follow = f.window.__pndCorpseCameraFollow.result, observation = f.observation.result
@@ -154,7 +160,7 @@ test('real serialized observer captures phase-zero death/crop before follower de
   assert.equal(observation.death.before.fight.opponent, 20)
   assert.equal(observation.samples[0].stamp, follow.terminal.stamp)
   assert.equal(observation.crops[0].stamp, follow.terminal.stamp)
-  assert.equal(f.pending.size, 1, 'only ongoing crop observation survives')
+  assert.equal(f.hasBinding(), true, 'only ongoing crop observation survives')
 })
 
 test('real hook receives already-copied bytes and is single-use, disabled for loaded segments', () => {
@@ -172,11 +178,27 @@ test('real hook receives already-copied bytes and is single-use, disabled for lo
   assert.throws(() => loaded.observation.afterObservedRender(() => {}), /one live post-capture hook/)
 })
 
-test('hook throw is terminal; cleanup leaves no further observer RAF', () => {
+test('hook throw is terminal; cleanup leaves no further render binding', () => {
   const f = realObserverFixture()
   f.observation.afterObservedRender(() => { throw new Error('after-capture hook fault') })
   f.frame()
   assert.match(f.observation.result.error, /after-capture hook fault/)
   assert.equal(f.observation.result.terminal.reason, 'error')
-  assert.equal(f.pending.size, 0)
+  assert.equal(f.hasBinding(), false)
+})
+
+test('stale stamps, offscreen targets and scene disposal terminate the exact bound observer', () => {
+  const stale = realObserverFixture()
+  stale.frame(); stale.invalidate()
+  assert.match(stale.observation.result.error, /new ordinary default-target render/)
+  assert.equal(stale.hasBinding(), false)
+  const offscreen = realObserverFixture()
+  offscreen.scene.renderer.getRenderTarget = () => ({})
+  offscreen.frame()
+  assert.match(offscreen.observation.result.error, /new ordinary default-target render/)
+  assert.equal(offscreen.hasBinding(), false)
+  const disposed = realObserverFixture()
+  disposed.dispose()
+  assert.equal(disposed.observation.result.terminal.reason, 'scene-disposed')
+  assert.equal(disposed.hasBinding(), false)
 })

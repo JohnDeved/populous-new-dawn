@@ -126,7 +126,8 @@ export default async function followerCorpse({ browser, url, output, expectedRev
       'scripts/tutorial-browser/follower-corpse-observer.mjs', 'scripts/tutorial-browser/follower-corpse-camera.mjs', 'scripts/tutorial-browser/follower-corpse-evidence.mjs',
       'tests/fixtures/follower-corpse-native.json', 'app/original-units.json', 'app/follower-corpse-animation.ts',
       'app/scene-effects.ts', 'app/world-turn.ts', 'app/game-store.ts', 'app/checkpoint-format.ts',
-      'app/page.tsx', 'app/original-pause-menu.tsx', 'scripts/public-keyboard-owner.mjs']
+      'app/page.tsx', 'app/scene.ts', 'scripts/tutorial-browser/fixture/main.tsx',
+      'app/original-pause-menu.tsx', 'scripts/public-keyboard-owner.mjs']
       .map(path => [path, sha(readFileSync(resolve(root, path)))])) }
   const save = () => writeFileSync(resolve(output, 'follower-corpse.json'), JSON.stringify(report, null, 2) + '\n')
   const started = performance.now()
@@ -195,7 +196,9 @@ export default async function followerCorpse({ browser, url, output, expectedRev
   try {
     phase('startup')
     await pacing.install()
-    await page.goto(url, { waitUntil: 'domcontentloaded' })
+    const fixture = new URL(url)
+    fixture.searchParams.set('follower-corpse-render', '1')
+    await page.goto(fixture.href, { waitUntil: 'domcontentloaded' })
     await action('New Game / No / Browser controls / All missions', () => showAllMissions(page))
     await button('Mission 2'); await bindGame(page)
     const startup = await page.waitForFunction(m2StartupReady)

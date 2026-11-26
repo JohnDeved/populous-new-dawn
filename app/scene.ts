@@ -164,6 +164,11 @@ import {
   updateWater,
 } from './scene-terrain-runtime.ts'
 
+export type OrdinaryRenderObserver = {
+  afterFrame: (scene: GameScene, world: World, frameTime: number) => void
+  onDispose: (scene: GameScene) => void
+}
+
 export class GameScene {
   world: World
   gamePreferences: GamePreferences = { ...DEFAULT_GAME_PREFERENCES }
@@ -452,7 +457,8 @@ export class GameScene {
     ) => (() => void) | void,
     worshipHud?: WorshipHudBridge,
     presentationBinding?: PresentationBinding,
-    tooltipSession?: TooltipSession
+    tooltipSession?: TooltipSession,
+    private readonly ordinaryRenderObserver?: OrdinaryRenderObserver
   ) {
     this.presentationBinding = presentationBinding
     this.templeResourceSnapshot = presentationBinding?.snapshot() ?? null
@@ -1071,6 +1077,7 @@ export class GameScene {
     const renderStart = diagnostic ? performance.now() : 0
     if (diagnostic) diagnostic.renderGpu(() => this.renderSceneFrame(hovered, hoveredBuilding))
     else this.renderSceneFrame(hovered, hoveredBuilding)
+    this.ordinaryRenderObserver?.afterFrame(this, this.world, now)
     const renderMs = diagnostic ? performance.now() - renderStart : 0
     const hudStart = sceneUpdates ? performance.now() : 0
     this.updateHudFrame(now, dt)
@@ -1150,6 +1157,7 @@ export class GameScene {
   dispose() {
     if (this.disposed) return
     this.disposed = true
+    this.ordinaryRenderObserver?.onDispose(this)
     this.neutralCursor?.dispose()
     this.neutralCursor = null
     this.cancelNearbyFollowers()

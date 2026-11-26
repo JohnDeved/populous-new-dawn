@@ -1,4 +1,4 @@
-// Page-serializable read-only RAF observer. No model/clock/renderer method is
+// Page-serializable, synchronous ordinary-render observer. No model/clock/renderer method is
 // replaced, no phase is assigned, and the observer never issues input or pauses.
 export function installFollowerCorpseObserver({ actorId, effectId = null, segment = 'original' }) {
   const scene = window.testSceneRef.current, world = window.testStore.getWorld()
@@ -6,7 +6,8 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
   const result = { actorId, effectId, segment, death: null, samples: [], crops: [],
     error: null, done: false, visits: 0, terminal: null, retention: null }
   const copies = [], cropPhases = new Set()
-  let raf, stopped = false, previous = null, lastKey = null
+  let detach, stopped = false, previous = null, lastKey = null
+  let lastStamp = scene.renderer.info.render.frame
   let listener = null, registered = false
   const afterObservedRender = hook => {
     if (segment !== 'original' || stopped || registered || typeof hook !== 'function')
@@ -18,7 +19,8 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
   const publish = () => listener?.(Object.freeze({ ...result.lastVisit }))
   const stop = (reason = 'stopped') => {
     if (!stopped) {
-      stopped = true; listener = null; cancelAnimationFrame(raf)
+      stopped = true; listener = null; detach?.()
+      if (reason === 'scene-disposed') result.error ??= 'Corpse observer lost its bound Scene'
       result.terminal = { reason, turn: world.turn, stamp: scene.renderer.info.render.frame }
     }
     return result
@@ -42,14 +44,18 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
     result.retention.durationMs = performance.now() - result.retention.startedMs
     return result
   }
-  const visit = rafTimestampMs => {
+  const visit = (rafTimestampMs, stamp) => {
     if (stopped) return
     try {
       if (++result.visits > 75 * 240) throw Error('Corpse observation exceeded bounded visit storage')
       if (window.testSceneRef.current !== scene || window.testStore.getWorld() !== world || scene.world !== world)
         throw Error('Corpse observer lost its bound Scene/world')
       if (!canvas.isConnected || document.visibilityState !== 'visible') throw Error('Corpse canvas disconnected or hidden')
-      result.lastVisit = { rafTimestampMs, stamp: scene.renderer.info.render.frame }
+      if (!Number.isFinite(rafTimestampMs) || !Number.isSafeInteger(stamp) || stamp <= lastStamp ||
+          stamp !== scene.renderer.info.render.frame || scene.renderer.getRenderTarget() !== null)
+        throw Error('Corpse observation requires a new ordinary default-target render')
+      lastStamp = stamp
+      result.lastVisit = { rafTimestampMs, stamp }
       const actor = world.units.find(unit => unit.id === actorId)
       if (actor) previous = { id: actor.id, kind: actor.kind, team: actor.team, hp: actor.hp,
         x: actor.x, z: actor.z, heading: actor.heading, turn: world.turn,
@@ -67,7 +73,7 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
           throw Error('Corpse lacks observed living combat participant and native death entry')
       }
       const f = world.effects.find(f => f.id === result.effectId)
-      if (!f) { publish(); if (!stopped) raf = requestAnimationFrame(visit); return }
+      if (!f) { publish(); return }
       const g = scene.fxMeshes.get(f.id), animation = f.animation
       if (!g || !animation || !f.corpse) throw Error('Follower corpse lacks its ordinary effect renderer')
       if (f.corpse.phase > 3) throw Error('Corpse observer missed the complete native rise window')
@@ -132,10 +138,11 @@ export function installFollowerCorpseObserver({ actorId, effectId = null, segmen
       publish()
       if (result.done) { stop('rise-observed'); return }
     } catch (error) { result.error = String(error); stop('error'); return }
-    if (!stopped) raf = requestAnimationFrame(visit)
   }
+  if (typeof window.__pndBindFollowerCorpseRender !== 'function')
+    throw Error('Corpse observation requires the opt-in Tutorial fixture')
+  detach = window.__pndBindFollowerCorpseRender(scene, world, visit, stop)
   window.__pndCorpseObservation = { result, stop, retain, afterObservedRender }
-  raf = requestAnimationFrame(visit)
 }
 
 export function readFollowerCorpseHold(effectId) {
