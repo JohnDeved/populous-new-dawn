@@ -15,7 +15,7 @@ const fn=Object.fromEntries(['pointerDown','pointerUp','updateDrag'].map(name=>{
  assert.ok(snippet,name)
  return [name,new Function(...Object.keys(imports),stripTypeScriptTypes(snippet.replace(/^export /,''))+'\nreturn '+name)(...Object.values(imports))]
 }))
-function setup() {
+function setup(startDrag = true) {
  const world=createWorld(1,'scalable')
  const brave=world.units.find(u=>u.team==='blue'&&u.hp>0)
  const p=nativePosition(world,brave)
@@ -26,6 +26,7 @@ function setup() {
  const scene={world,renderer:{domElement:canvas},dragActive:{value:false},selectionOverlay:{visible:false,updates:0,update(){this.updates++}},globeMotion:{dragging:false},view:{angle:0},inspection:[],changes:0,onChange(){this.changes++},pickUnit(){},pick(event){return event.clientX>100?end:start},updateDrag(event){return fn.updateDrag(this,event)}}
  const down={clientX:100,clientY:100,pointerId:3,button:0,buttons:1}
  const up={...down,clientX:150,buttons:0}
+ if (!startDrag) return {scene,brave,up}
  fn.pointerDown(scene,down)
  scene.updateDrag(up)
  assert.deepEqual(canvas.captures,[3])
@@ -96,7 +97,9 @@ test('real Shift+Return overview entry during held box must not commit a stale o
 })
 
 test('new globe left press has no ground drag and follows ordinary release dispatch', () => {
-  const {scene, up}=setup()
+  const {scene, up}=setup(false)
+  assert.equal(scene.pointerGesture,undefined)
+  assert.equal(scene.selectionOverlay.visible,false)
   scene.overviewActive=true
   scene.overviewStage=null
   scene.world.drawMode=2
