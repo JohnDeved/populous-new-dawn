@@ -17,6 +17,8 @@ interface OriginalOptionsProps {
   onVolume: (value: number) => void
   onMusicVolume: (value: number) => void
   storageNotice: string
+  staySelected: boolean
+  onToggleStaySelected: () => void
   gamePreferences: GamePreferences
   onGamePreferences: (preferences: GamePreferences) => void
   gameStorageNotice: string
@@ -98,6 +100,8 @@ export function OriginalOptions({
   onMusicVolume,
   storageNotice,
   gamePreferences,
+  staySelected,
+  onToggleStaySelected,
   onGamePreferences,
   gameStorageNotice,
   compatibility,
@@ -136,11 +140,11 @@ export function OriginalOptions({
         x: 320,
         y: 199,
       },
-      { id: 'staySelected', text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
+      { id: 'staySelected', text: `Stay Selected : <${staySelected ? 'Yes' : 'No'}>`, x: 320, y: 229 },
       { id: 'autocastSpell', text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
       { id: 'compatibility', text: 'Browser compatibility and help', x: 320, y: 289 },
     ],
-    [gamePreferences.rotation, gamePreferences.flipRotation]
+    [gamePreferences.rotation, gamePreferences.flipRotation, staySelected]
   )
   const rows = useMemo<FrontendTextRow[]>(
     () =>
@@ -318,6 +322,13 @@ export function OriginalOptions({
                   return choice(row.text, row.x, row.y, () => setBrowser(true), false, {
                     id: row.id,
                     wide: true,
+                  })
+                }
+                if (row.id === 'staySelected') {
+                  return choice(row.text, row.x, row.y, onToggleStaySelected, false, {
+                    id: row.id,
+                    wide: true,
+                    help: 'Keep selected after ground Move (Shift+L).',
                   })
                 }
                 if (row.id === 'rotation' || row.id === 'flipRotation') {

@@ -55,6 +55,7 @@ import {
   selectionPeople,
 } from './selection-runtime.ts'
 import { release } from './world-tasks.ts'
+import { isStaySelectedDryTarget } from './stay-selected-dry-target.ts'
 import { releasePersonRoute } from './person-routes.ts'
 import {
   addBuilding,
@@ -829,11 +830,38 @@ export function entrance(w: World, b: Point, radius = 4) {
   )
 }
 
+type CommandPoint = Point & { id?: number }
+type CommandModifiers = { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean }
+
 // Input acceptance is separate from later route/allocation success.
-export function command(
+export function command(w: World, p: CommandPoint, modifiers: CommandModifiers = {}) {
+  return dispatchCommand(w, p, modifiers)
+}
+
+type OrdinaryMoveRelease =
+  | { kind: 'cancelled' }
+  | { kind: 'owned-unmodified-release'; point: CommandPoint }
+
+// Private opt-in seam. Its caller must establish current-world/pointer
+// ownership, an unmodified canvas release and actual cancellation.
+export function commandWithOrdinaryMoveSelection(
+  w: World, release: OrdinaryMoveRelease, keepSelected: boolean
+) {
+  if (release.kind === 'cancelled' || w.mode || w.inputMask || !w.selected.length)
+    return { accepted: false, finalized: false }
+  let finalized = false
+  const accepted = dispatchCommand(w, release.point, {}, () => {
+    finalized = true
+    if (!keepSelected) cancelInteraction(w)
+  })
+  return { accepted, finalized }
+}
+
+function dispatchCommand(
   w: World,
-  p: Point & { id?: number },
-  modifiers: { ctrlKey?: boolean; shiftKey?: boolean; altKey?: boolean } = {}
+  p: CommandPoint,
+  modifiers: CommandModifiers,
+  finalizeOrdinaryMove?: () => void
 ) {
   if (w.paused || w.status !== 'playing') return false
   syncNativeTerrain(w)
@@ -1034,6 +1062,16 @@ export function command(
     )
     return true
   }
+  // Staged and vehicle Move paths were handled earlier. Limit this to
+  // ordinary clean ground and do not alter their existing behavior.
+  const to = finalizeOrdinaryMove && model === 3 && !w.orderCursor
+    ? nativePosition(w, p)
+    : undefined
+  const index = to ? ((to.y & 65535) >> 9) * 128 + ((to.x & 65535) >> 9) : -1
+  const ownsOrdinaryMove = to && isStaySelectedDryTarget(
+    p.id, context, { flags: w.land.flags[index], category: w.land.categories[index] },
+    w.land.walkMasks[0], to
+  )
   // Non-ground commands retain their existing controller until mixed queues are live.
   w.orderCursor = 0
   const shrine = model === 27 || model === 33 ? context.shrine : undefined
@@ -1145,6 +1183,9 @@ export function command(
         u.native.selectionFlags = (u.native.selectionFlags & ~1) | (u.native.selectionFlags >>> 7)
     if (input.deselect) cancelInteraction(w)
   }
+  // A sent packet finalizes outside the recipient loop. A packet that
+  // never allocated (early return above) has no proven browser-side send.
+  if (ownsOrdinaryMove && moveOrder) finalizeOrdinaryMove?.()
   let message = 'No land route. Bring your shaman to the shore and make a Land Bridge.'
   if (count) {
     message = 'Your followers are on the move.'

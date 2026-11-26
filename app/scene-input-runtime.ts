@@ -31,6 +31,12 @@ import {
   type Point,
 } from './model'
 import { command, guardPostClick, removeHoveredGuardPost } from './live-command.ts'
+import {
+  leaveOrdinaryMoveOwner,
+  observeOrdinaryMoveOwner,
+  startOrdinaryMoveOwner,
+} from './stay-selected-move-owner.ts'
+import { dispatchOrdinarySceneRelease } from './stay-selected-scene-command.ts'
 import { removeOwnedSwamp } from './swamp-removal.ts'
 import { requestSpyDiscovery } from './live-spy-discovery.ts'
 import { focusHudPerson } from './hud-selection.ts'
@@ -233,12 +239,29 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
   )
 }
 
+function ordinaryMoveContext(scene: GameScene) {
+  const world = scene.world
+  return {
+    scene,
+    world,
+    canvas: scene.renderer.domElement,
+    readCanvasBounds: () => scene.renderer.domElement.getBoundingClientRect(),
+    selected: world.selected,
+    ordinary: scene.isCurrent() && !scene.modalSuspended && !scene.messageModal &&
+      !scene.overviewActive && !scene.overviewStage && !world.mode &&
+      !world.inputMask && !world.paused && world.status === 'playing',
+  }
+}
+
 export function pointerDown(scene: GameScene, event: PointerEvent) {
   // 004aa1c0: an open message box only takes a left release on the box itself.
   if (scene.modalSuspended || scene.messageModal) return
   // A second physical pointer cannot take over an already captured gesture.
   if (scene.pointerGesture && scene.pointerGesture.pointerId !== event.pointerId) return
-  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
+  const owner = scene.staySelectedOrdinaryMove
+    ? startOrdinaryMoveOwner(ordinaryMoveContext(scene), event)
+    : undefined
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false, owner }
   scene.pointerButtons = event.buttons
   if (
     event.button === 2 &&
@@ -319,6 +342,7 @@ export function pointerMove(scene: GameScene, event: PointerEvent) {
   if (scene.modalSuspended) return
   if (scene.pointerGesture && scene.pointerGesture.pointerId !== event.pointerId) return
   scene.pointerButtons = event.buttons
+  if (scene.pointerGesture?.owner) observeOrdinaryMoveOwner(scene.pointerGesture.owner, event)
   scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
   if (
     !scene.world.inputMask &&
@@ -533,7 +557,18 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
       selectUnit(scene.world, clickedUnit.id, scene.down.extend)
     } else if (scene.world.selected.length) {
       const selected = scene.world.selected.slice()
-      if (command(scene.world, p, event)) {
+      const accepted = gesture.owner
+        ? dispatchOrdinarySceneRelease(
+            gesture.owner,
+            () => ordinaryMoveContext(scene),
+            event,
+            p,
+            !picked && !pickedId && modelId == null && !clickedUnit && !('id' in p),
+            scene.staySelectedOrdinaryMove,
+            () => scene.world
+          )
+        : command(scene.world, p, event)
+      if (accepted) {
         const marker = commandMarkerPoint(nativePosition(scene.world, p), picked?.id ?? 0)
         if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
         scene.acknowledgePointer(picked?.id ?? 0)
@@ -630,12 +665,16 @@ export function cancelPointerGesture(scene: GameScene, pointerId?: number) {
 export function installInputListeners(scene: GameScene, minimap: HTMLCanvasElement) {
   scene.listen(scene.renderer.domElement, 'pointerdown', scene.pointerDown)
   scene.listen(scene.renderer.domElement, 'pointermove', scene.pointerMove)
-  scene.listen(scene.renderer.domElement, 'pointerleave', () => {
+  scene.listen(scene.renderer.domElement, 'pointerleave', e => {
+    scene.pointerGesture?.owner && leaveOrdinaryMoveOwner(scene.pointerGesture.owner, e as PointerEvent)
     scene.hoveredObject = null
     scene.pointerScreen = null
     scene.pointer = null
     scene.pointerState = ''
   })
+  scene.listen(scene.renderer.domElement, 'lostpointercapture', e =>
+    scene.pointerGesture?.owner && leaveOrdinaryMoveOwner(scene.pointerGesture.owner, e as PointerEvent)
+  )
   scene.listen(scene.renderer.domElement, 'pointerup', scene.pointerUp)
   scene.listen(scene.renderer.domElement, 'pointercancel', e =>
     cancelPointerGesture(scene, (e as PointerEvent).pointerId)

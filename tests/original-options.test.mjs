@@ -34,13 +34,13 @@ const declaration = name => optionsSource.statements.find(
     item => item.name.getText(optionsSource) === name
   )
 ).getText(optionsSource)
-const readRows = new Function('useMemo', 'gamePreferences', 'category', 'browser', 'masterText', 'musicText', 'categories',
+const readRows = new Function('useMemo', 'gamePreferences', 'staySelected', 'category', 'browser', 'masterText', 'musicText', 'categories',
   ts.transpileModule(`${declaration('unavailableRows')}\n${rowDeclarations}\nreturn rows;`, {
     compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None }
   }).outputText
 )
-const optionRows = (preferences, category = 'Game', browser = false) =>
-  readRows(make => make(), preferences, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'])
+const optionRows = (preferences, category = 'Game', browser = false, staySelected = true) =>
+  readRows(make => make(), preferences, staySelected, category, browser, 'Master volume : <35%>', 'Music volume : <65%>', ['Game', 'Sound', 'Graphics'])
 test('Options uses separate source-hashed original slider banks with unclipped thumb dimensions',()=>{
  assert.equal(artwork.inputs['data/fenew/feslider.spr'],'99dd18f3d07b7e8b36977b60f1543fe089972523c5f364db7fe19d85dc5667c8')
  assert.equal(artwork.inputs['data/fenew/igmslidr.spr'],'ab91567305e23bdbe9923cd8b9ea49956a562fd06dcf549513f27db1220d63da')
@@ -85,7 +85,7 @@ test('Game publishes five native positions and the browser-only sixth row and on
       { text: 'Tooltips : <Unavailable>', x: 320, y: 139 },
       { text: `Rotation : <${rotation === 'cursor' ? 'Cursor' : 'Control Cursor'}>`, x: 320, y: 169 },
       { text: `Flip Rotation : <${flipRotation ? 'Yes' : 'No'}>`, x: 320, y: 199 },
-      { text: 'Stay Selected : <Unavailable>', x: 320, y: 229 },
+      { text: 'Stay Selected : <Yes>', x: 320, y: 229 },
       { text: 'Autocast Spell : <Unavailable>', x: 320, y: 259 },
       { text: 'Browser compatibility and help', x: 320, y: 289 },
     ]
@@ -95,6 +95,7 @@ test('Game publishes five native positions and the browser-only sixth row and on
     assert.notDeepEqual(actualPixels, frontendBackground(source, { x: 320, y: 240 }, false, null, base))
   }
   const preferences = { rotation: 'control-cursor', flipRotation: true }
+  assert.equal(optionRows(preferences, 'Game', false, false).find(row => row.id === 'staySelected').text, 'Stay Selected : <No>')
   assert.deepEqual(optionRows(preferences, 'Game', true), [])
   assert.equal(optionRows(preferences, 'Graphics').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
   assert.equal(optionRows(preferences, 'Sound').some(row => /Rotation|Tooltips|Selected|Autocast/.test(row.text)), false)
@@ -147,7 +148,7 @@ const render = new Function('requestAnimationFrame', 'MenuTooltip', 'React', 'us
     'const useLayoutEffect = useEffect; return OriginalOptions(props);',
   ].join('\n'), {compilerOptions: {target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.React}}).outputText
 )
-function renderOptions(skin, category, highlight = null, browser = false) {
+function renderOptions(skin, category, highlight = null, browser = false, staySelected = true, onToggleStaySelected = () => {}) {
   const state = [category, browser, highlight, skin, skin], nodes = [], effects = [], focus = [], changes = []
   const refs = [], frames = []
   let hook = 0, refHook = 0
@@ -166,7 +167,7 @@ function renderOptions(skin, category, highlight = null, browser = false) {
     initial => refs[refHook++] ??= {current: initial === null ? {querySelector: selector => ({focus: () => focus.push(selector)})} : initial},
     () => { const index = hook++; return [state[index], value => { state[index] = value; changes.push({index, value}) }] }, frontend, ingame, new Proxy({}, {get: (_, key) => key}), {
       skin, volume: .35, musicVolume: .65, storageNotice: '', gameStorageNotice: '',
-      gamePreferences: {rotation: 'cursor', flipRotation: false},
+      gamePreferences: {rotation: 'cursor', flipRotation: false}, staySelected, onToggleStaySelected,
       onBack() {}, onVolume() {}, onMusicVolume() {}, onGamePreferences() {},
     })
   }
@@ -340,5 +341,18 @@ test('browser-only sixth Game row and hit target fit native frame uniformly at d
   }
   for (const category of ['Sound','Graphics','Direct3D']) {
     assert.equal(optionRows({rotation:'cursor',flipRotation:false}, category).some(row => row.text === text), false)
+  }
+})
+
+
+test('Stay Selected is a real option in both skins with the shared toggle callback', () => {
+  for (const skin of ['frontend', 'ingame']) for (const staySelected of [true, false]) {
+    let toggles = 0
+    const { nodes } = renderOptions(skin, 'Game', null, false, staySelected, () => toggles++)
+    const row = nodes.find(node => node.props['data-option-key'] === 'staySelected')
+    assert.equal(row.type, 'button')
+    assert.equal(row.props['aria-label'], `Stay Selected : <${staySelected ? 'Yes' : 'No'}>`)
+    row.props.onClick()
+    assert.equal(toggles, 1)
   }
 })
