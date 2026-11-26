@@ -1,0 +1,97 @@
+# Private specimen. Do not publish or dispatch by copying without ordinary independent review.
+name: Exact two-checkout pnpm warm reuse
+on:
+  push:
+    branches: [diagnostics/pnpm-warm-reuse-20261126]
+    paths:
+      - .github/workflows/pnpm-warm-reuse-proof.yml
+      - scripts/pnpm-warm-reuse-proof/**
+permissions:
+  contents: read
+concurrency:
+  group: isolated-pnpm-warm-reuse
+  cancel-in-progress: false
+jobs:
+  witness:
+    if: >-
+      github.repository == 'JohnDeved/populous-new-dawn' &&
+      github.event.repository.visibility == 'public' &&
+      github.ref == 'refs/heads/diagnostics/pnpm-warm-reuse-20261126'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Initialize one private receipt directory
+        id: receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          receipt="$(mktemp -d "$RUNNER_TEMP/pnpm-warm-receipt.XXXXXXXX")"
+          printf 'directory=%s\n' "$receipt" >> "$GITHUB_OUTPUT"
+      - name: Check out reviewed harness only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: trusted
+          persist-credentials: false
+          sparse-checkout: /scripts/pnpm-warm-reuse-proof/
+          sparse-checkout-cone-mode: false
+      - name: Check out exact seed metadata
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 3032e0d6ae52b597187dfb434596eada4c702b82
+          path: seed
+          persist-credentials: false
+          sparse-checkout: |
+            /package.json
+            /package-lock.json
+            /pnpm-lock.yaml
+            /pnpm-workspace.yaml
+          sparse-checkout-cone-mode: false
+      - name: Check out exact offline consumer metadata
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 3032e0d6ae52b597187dfb434596eada4c702b82
+          path: warm
+          persist-credentials: false
+          sparse-checkout: |
+            /package.json
+            /package-lock.json
+            /pnpm-lock.yaml
+            /pnpm-workspace.yaml
+          sparse-checkout-cone-mode: false
+      - name: Use project-pinned Node without dependency cache
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Run one isolated reuse witness
+        shell: bash
+        env:
+          RECEIPT_DIR: ${{ steps.receipt.outputs.directory }}
+          RECEIPT_REPOSITORY_VISIBILITY: ${{ github.event.repository.visibility }}
+        run: |
+          set -euo pipefail
+          umask 077
+          export PYTHONDONTWRITEBYTECODE=1
+          cd "$GITHUB_WORKSPACE"
+          cat > "$RECEIPT_DIR/harness.sha256" <<'SHA'
+          2319ceb1a978d797647445ac046e728da424c7078a36717076e39e131a87110d  proof.py
+          1f81932eebfc8545002acd308be893c56cee6f2be5ed2f7575562e19ae5b0a72  receipt.py
+          b8e989c3a0c7db9f332dfe494aec6a932575745b42536831586ccf11c42e1244  measure.py
+          c0254649d463ebf1b4ab96aebb222a9e6f931cf54860d75b9408d025a2aeeb6e  offline_report.py
+          a86016bfdd89f79c4c5bb1a10ad69ad5e542ef6db3c61c259644b348c2e994e8  smoke.cjs
+          SHA
+          proof="$(mktemp -d "$GITHUB_WORKSPACE/pnpm-witness.XXXXXXXX")"
+          python3 trusted/scripts/pnpm-warm-reuse-proof/proof.py \
+            --seed "$GITHUB_WORKSPACE/seed" --warm "$GITHUB_WORKSPACE/warm" --experiment "$proof" \
+            --receipt-dir "$RECEIPT_DIR" --pinfile "$RECEIPT_DIR/harness.sha256"
+      - name: Retain exactly one bounded receipt
+        if: ${{ !cancelled() && always() && steps.receipt.outcome == 'success' }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: pnpm-warm-reuse-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.receipt.outputs.directory }}/receipt.json
+          retention-days: 7
+          if-no-files-found: error
