@@ -987,6 +987,20 @@ export function campaignRules(w: World) {
     // Later patrol, guard and expansion siblings remain outside this projection.
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 613), 1004, 1004, 1019]
   }
+  if (w.outcome.level === 16 && tribe === 3) {
+    boundCampaignScript.codes = [
+      12,
+      1003,
+      // Matak's ordered six Tower sites; close EVERY before unrelated training.
+      ...script.codes.slice(557, 722),
+      1004,
+      // Authored Firewarrior staffing and both marker routes, excluding expansion.
+      ...script.codes.slice(756, 830),
+      1004,
+      1004,
+      1019,
+    ]
+  }
   if (w.outcome.level === 18 && tribe === 1) {
     // Complete first patrol/Preacher block and the following original kill-count
     // guard transition. Later attack phases never reopen its zero-valued gate.
