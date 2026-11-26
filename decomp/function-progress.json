@@ -32,6 +32,34 @@
       "limits": "Browser effects use a fixed 50-slot pool, derive its count and refresh on successful registration. The original additionally sets owner-object flag 0x04000000, which the live browser effect adapter does not maintain."
     },
     {
+      "address": "00401140",
+      "evidence": [
+        "decomp/generated/00401140.c",
+        "tests/live-terrain-light-cleanup.test.mjs"
+      ],
+      "limits": "Two Blast effects register through the real world adapter. With survivor refresh held by land flag 2, removing one owner clears its 49 contributions and active slot and preserves every packed cell against the survivor map. Retired native record flags/count bookkeeping not proved. Constructed terrain, not native x86 or browser execution.",
+      "scope": "Clear a retired terrain light’s wrapped 7×7 contribution without disturbing surviving brightness or occupancy",
+      "sources": [
+        "app/terrain-light.ts",
+        "app/world-effects.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "00401230",
+      "evidence": [
+        "decomp/generated/00401230.c",
+        "tests/live-terrain-light-cleanup.test.mjs"
+      ],
+      "limits": "Two registered Blast owners move from seam to new cells and the actual refresh restores the old packed words, reproduces an independently constructed fresh target state, and does not advance gameplay RNG. Native active-count early-out and pointer-array traversal not proved. Constructed terrain; no native x86/browser.",
+      "scope": "Clear all live terrain-light deltas before reapplying moved contributions",
+      "sources": [
+        "app/terrain-light.ts",
+        "app/world-effects.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "00401350",
       "status": "partial",
       "scope": "Refresh dynamic terrain-light contributions",
@@ -2610,6 +2638,21 @@
       "limits": "Original command and native pointer semantics are tracked; browser cancels model-specific commands through a separately owned queue/selection adapter. A controlled live command-adapter test releases two simultaneously eligible unselected owners of one shared area guard into their queued Move in one call, retaining both next-order references. It does not establish original traversal order or physical keyboard delivery."
     },
     {
+      "address": "0043e8e0",
+      "status": "partial",
+      "scope": "Dispatch the selected ordinary follower scatter command and reject the native protection flag",
+      "sources": [
+        "app/live-command.ts",
+        "app/person-scatter.ts",
+        "app/selection-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043e8e0.c",
+        "tests/live-follower-command-and-worship-visibility.test.mjs"
+      ],
+      "limits": "Only original dispatcher case 0x7e. At authored Mission 10 turn 130 the ordinary scatter entry acts on one of two selected registered player Warriors while the supplied flags2 protection bit keeps the other out, and an unselected Warrior retains state. The browser also has additional owner guards. No native state layouts, other dispatcher cases, keyboard DOM, or scatter continuation parity."
+    },
+    {
       "address": "004424b0",
       "status": "partial",
       "scope": "Camera keyboard movement and decay",
@@ -3542,6 +3585,20 @@
       "limits": "Authored vehicle expiry, exact zero and occupied refresh are witnessed; the native routine also manages additional movement/state/flag branches."
     },
     {
+      "address": "004641d0",
+      "status": "partial",
+      "scope": "Stop a centered Balloon moving below speed two with an idle driver",
+      "sources": [
+        "app/live-vehicles.ts",
+        "app/vehicle-routing.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004641d0.c",
+        "tests/live-balloon-rest-and-boat-reservation.test.mjs"
+      ],
+      "limits": "The real vehicle pass on Mission 22 begins with the authored Balloon at a valid cell center, a supplied registered and seated follower, and supplied speed one. It stops without drifting, clears the moving flag and publishes browser-specific terrain-relative rest height. This is one settled branch, not approach steering, off-center movement, timer, native height, sound or full controller parity."
+    },
+    {
       "address": "00464ce0",
       "status": "partial",
       "scope": "Find a native-style boat approach or landing position using bounded indexed search",
@@ -4193,6 +4250,36 @@
       "limits": "Live sound emits cue and position (optional owner), and audio runtime consumes browser events. Native suppression gates, cue selection, handles and backend queue are not equivalent."
     },
     {
+      "address": "0048c6b0",
+      "evidence": [
+        "decomp/generated/0048c6b0.c",
+        "tests/campaign-popscript-control-flow.test.mjs"
+      ],
+      "limits": "Constructed two upper blocks reach both command calls and return the terminal index. Authored M22 red script field 57 masks 255; the recurring game entry queues a six-person Tower-staffing request for marker cell 90 and route markers 1 and 3 at t255, but not t254/t256. This is a limited reviewed script projection and queue entry, not task completion, native malformed zeros, native x86, or browser execution.",
+      "scope": "Interpret consecutive upper blocks through SCRIPT_END and honor recurring EVERY gating for a live campaign projection",
+      "sources": [
+        "app/popscript.ts",
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/mission-data.ts",
+        "app/model.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0048c980",
+      "evidence": [
+        "decomp/generated/0048c980.c",
+        "tests/campaign-popscript-control-flow.test.mjs"
+      ],
+      "limits": "Constructed nested bytecode drives the real interpreter. No read from the skipped descendant; selected Else and parent continuation commands both dispatch. Does not cover other recursive opcodes, original malformed-zero recovery, x86 or browser execution.",
+      "scope": "Execute a false nested IF’s ELSE without interpreting its skipped descendant, then resume parent and outer statements",
+      "sources": [
+        "app/popscript.ts"
+      ],
+      "status": "partial"
+    },
+    {
       "address": "0048ea80",
       "status": "partial",
       "scope": "Create the supported live type-1 campaign message with payload",
@@ -4247,6 +4334,58 @@
         "decomp/generated/0048cc60.c"
       ],
       "limits": "The live opcode sets the bit in the current message slot. Native helper also clears it on zero and native dispatch checks level flag 0x1000000; browser path does not replicate those branches."
+    },
+    {
+      "address": "0048ed90",
+      "evidence": [
+        "decomp/generated/0048ed90.c",
+        "tests/campaign-popscript-control-flow.test.mjs"
+      ],
+      "limits": "Constructed bytecode witnesses multiply wrap, truncation toward zero, zero divisor, and signed quotient stored as its low byte. Does not independently cover every destination class or native signed division exception delivery. No x86 or browser execution.",
+      "scope": "Multiply and divide script fields into signed dword variables or wrapped byte attributes",
+      "sources": [
+        "app/popscript.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0048ef00",
+      "evidence": [
+        "decomp/generated/0048ef00.c",
+        "tests/campaign-popscript-control-flow.test.mjs"
+      ],
+      "limits": "Constructed bytecode witnesses 32-bit wrap, byte arithmetic and ignored literal or out-of-attribute destination. Does not establish all malformed destination handling or source binary behavior. No x86 or browser execution.",
+      "scope": "Execute SET, INCREMENT and DECREMENT with separate variable and attribute widths",
+      "sources": [
+        "app/popscript.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0048f130",
+      "evidence": [
+        "decomp/generated/0048f130.c",
+        "tests/campaign-popscript-control-flow.test.mjs"
+      ],
+      "limits": "Constructed bytecode exercises each comparison with equal versus unequal signed inputs. No direct original binary invocation, invalid-operator coverage, or browser execution.",
+      "scope": "Compare signed script operands through all six relational operations",
+      "sources": [
+        "app/popscript.ts"
+      ],
+      "status": "partial"
+    },
+    {
+      "address": "0048f230",
+      "evidence": [
+        "decomp/generated/0048f230.c",
+        "tests/campaign-popscript-control-flow.test.mjs"
+      ],
+      "limits": "Constructed upper-block boolean expressions include disjoint outcomes and observed ordered host reads even when a prior value decides the result. Host reads are supplied, not original native or fully bound campaign reads. No browser execution.",
+      "scope": "Evaluate upper prefix AND/OR recursively and consume both sides before choosing branch",
+      "sources": [
+        "app/popscript.ts"
+      ],
+      "status": "partial"
     },
     {
       "address": "0048ff60",
@@ -6389,6 +6528,20 @@
       "limits": "Native filter is directly entered for 2,048 cases with supplied defense/area context. Live derives defending from the browser territory flags and counts from its selected AI roster, not verified as exact producer data."
     },
     {
+      "address": "004d1420",
+      "status": "partial",
+      "scope": "Clear the four active AI spell targets, cursor and pause byte without rewriting the cached limit when the caster is absent",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer-spells.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d1420.c",
+        "tests/live-ai-spell-target-boundaries.test.mjs"
+      ],
+      "limits": "An authored Mission 10 world advances 100 ordinary turns. The test makes its one living Blue Shaman ineligible by setting HP to zero, supplies a populated scan, and invokes the actual runtime spell entry for Blue. The same target array is zeroed, and its cursor and pause clear without changing its limit. This does not attest natural combat death, other callers, native pointer return or allocator behavior."
+    },
+    {
       "address": "004d1450",
       "status": "partial",
       "scope": "Refresh the eight native-shaped AI spell readiness ranges",
@@ -7800,6 +7953,20 @@
       "limits": "2,048 tracked direct native cases cover zero route ID and simultaneous endpoint matches, clearing only matching timer words. Live person recovery invokes it; no claim about every native failure-cache producer."
     },
     {
+      "address": "004ecac0",
+      "status": "partial",
+      "scope": "Sum registered non-ghost follower mana on the ordinary world generation pulse",
+      "sources": [
+        "app/mana.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ecac0.c",
+        "tests/live-mana-and-training-request.test.mjs"
+      ],
+      "limits": "Mission 17 world ticks with its authored Blue Shaman and supplied living Brave or ghost Brave. The real world registers each supplied Brave; rate stays zero through turn 3, then commits 37 for the Shaman or registered ghost arm, 42 for the living addition, and holds through turn 7. This does not establish all census lists, human and computer scaling variants, alternate-game gating, overflow or original binary execution."
+    },
+    {
       "address": "004edae0",
       "status": "partial",
       "scope": "Check secondary pool admission and reserve capacity",
@@ -8128,6 +8295,19 @@
       "limits": "Authored scalable Mission 6 phase 3 to 4 stamps five registered state-14 Matak recruits with slot plus one. That witness covers the routed live assignment byte, not other original callers or the native +0x7f byte where browser actors do not carry it."
     },
     {
+      "address": "004f2490",
+      "status": "partial",
+      "scope": "Read the vehicle reservation byte for computer boarding admission",
+      "sources": [
+        "app/vehicle-routing.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f2490.c",
+        "tests/live-balloon-rest-and-boat-reservation.test.mjs"
+      ],
+      "limits": "The real boarding admission adapter receives the ready authored Mission 22 Boat via a supplied routing-cell projection. Human admission remains open for reservation bytes 0, 1 and 255; computer admission opens only for zero. Does not establish other getter callers, reservation production, or full pathfinding and boarding."
+    },
+    {
       "address": "004f2520",
       "status": "partial",
       "scope": "Release live raid ownership matching a retiring task slot",
@@ -8154,6 +8334,20 @@
         "decomp/generated/004f25a0.c"
       ],
       "limits": "Live CPU resolves its current shaman from the author-team roster, but native returns the bound tribe pointer and does not filter or reconstruct its owner."
+    },
+    {
+      "address": "004f25b0",
+      "status": "partial",
+      "scope": "Count a warrior as available for AI training only for a qualifying state and zero busy value",
+      "sources": [
+        "app/computer-selection.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f25b0.c",
+        "tests/live-ai-selection-boundaries.test.mjs"
+      ],
+      "limits": "An authored Mission 10 registered Warrior is projected by the real computer selection adapter after 100 ordinary turns, then tested with supplied idle state, busy flag and nonidle state. The training availability count includes only the idle nonbusy case. No natural task selection, exhaustive state table, housing-addition branch or original allocator compatibility is asserted."
     },
     {
       "address": "004f2900",
@@ -8257,6 +8451,21 @@
       "limits": "Retained routine requires active type8 and squared packed-cell distance less than26; actual live AI uses same threshold. Broader task scheduling separate."
     },
     {
+      "address": "004f4030",
+      "status": "partial",
+      "scope": "Accumulate hostile Warrior count and threat at a wrapped square edge, ignoring allied and concealed projections",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer-spells.ts",
+        "app/original-rules.json"
+      ],
+      "evidence": [
+        "decomp/generated/004f4030.c",
+        "tests/live-ai-spell-target-boundaries.test.mjs"
+      ],
+      "limits": "The real selection adapter projects the registered Mission 10 Warrior after 100 ordinary turns. The test supplies controlled spell-world cell arrays, including center, wrapped diagonal edge and outside locations, and exercises the real summary function. It checks a Warrior's contribution and alliance/concealment exclusion, not native chain order, natural spell dispatch, every person type, or automatic training."
+    },
+    {
       "address": "004f4520",
       "status": "partial",
       "scope": "Request and allocate a supported live CPU preacher task",
@@ -8285,6 +8494,21 @@
       "limits": "Live ordinary shoreline spell uses scoreCell's exact +1/-1 class/model/state/disguise/alliance gates and positive threshold. Original follows the cell unit chain; current runtime supplies its reconstructed roster."
     },
     {
+      "address": "004f4680",
+      "status": "partial",
+      "scope": "Preserve Blast target on equal net score, move for a strictly better wrapped cell and reject nonpositive scores",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/computer-spells.ts",
+        "app/native-math.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f4680.c",
+        "tests/live-ai-spell-target-boundaries.test.mjs"
+      ],
+      "limits": "The real Blast target chooser receives controlled cell arrays based on the registered Mission 10 Warrior's adapter projection. It checks a wrapped neighboring cell, score ties, subtraction for allied or protected people, and rejection when scores are nonpositive. No natural target encounter, actual blast allocation, other spell models, or exhaustive native search parity is asserted."
+    },
+    {
       "address": "004f4d40",
       "status": "partial",
       "scope": "Gate live AI shoreline Blast on strict mana budget with low-population premium",
@@ -8299,6 +8523,36 @@
         "tests/ai-shore-reserve.test.mjs"
       ],
       "limits": "Original leaf is strict affordability, not aim search. The controlled live shoreline case rejects the exact owned type-20 budget and admits one more mana, while unassigned and non-raid cases still cast without that reserve. Controlled ghost-training cases verify the premium boundary below population ten. Native census and full task ownership remain adapted."
+    },
+    {
+      "address": "004f4de0",
+      "status": "partial",
+      "scope": "Spend one stock charge and issue an ordinary ground Blast into the snapped native cell",
+      "sources": [
+        "app/live-command.ts",
+        "app/spell-casting.ts",
+        "app/world-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f4de0.c",
+        "tests/live-player-spell-feedback-payment.test.mjs"
+      ],
+      "limits": "The authored Mission 6 Shaman is registered after 100 ordinary turns, with Blast stock deliberately supplied. A rejected out-of-range click spends no charge and creates no projectile; an accepted ground command spends one charge without mana debit and starts one projectile at the centered target. No native allocation failure, native parameter/memory layouts, subsequent hit behavior, or DOM dispatch is asserted."
+    },
+    {
+      "address": "004f55d0",
+      "status": "partial",
+      "scope": "Admit a defending candidate at the wrapped radius boundary only for eligible busy and command state",
+      "sources": [
+        "app/computer-selection.ts",
+        "app/computer-runtime.ts",
+        "app/native-math.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f55d0.c",
+        "tests/live-ai-selection-boundaries.test.mjs"
+      ],
+      "limits": "Real AI selection receives the authored Mission 10 Warrior projection with supplied command, position, radius and base/fallback controls. It admits the wrapped radius-two boundary but not one cell farther or a busy or unrelated-command owner. With no base, Shaman fallback determines admission. No naturally issued defensive command, complete original active-command set, or native search timing is asserted."
     },
     {
       "address": "004f5680",
@@ -8891,6 +9145,36 @@
         "scripts/check-native-construction-panel.py"
       ],
       "limits": "Only native panel kinds 1 and 2 are mapped here. Native draw submissions and sizes are compared; not the complete original multi-kind panel dispatcher."
+    },
+    {
+      "address": "00509290",
+      "status": "partial",
+      "scope": "Latch an automatic training panel only after admission by the active owner",
+      "sources": [
+        "app/training-conversion.ts",
+        "app/live-building-entry.ts",
+        "app/training-panel-requests.ts",
+        "app/object-panels.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00509290.c",
+        "tests/live-mana-and-training-request.test.mjs"
+      ],
+      "limits": "Ordinary Mission 17 Convert Wild and camp order produce training activity. The real panel owner on a supplied scene/DOM boundary rejects while all 32 owner slots are occupied and leaves the latch clear. The next live turn after freeing a slot binds one record and reservation, retained on later visits. This does not establish the original effect-object allocator, actual browser interaction, DOM drawing or visual parity."
+    },
+    {
+      "address": "005092e0",
+      "status": "partial",
+      "scope": "Expose ordinary shrine activity from the cached local-player worship count's low byte",
+      "sources": [
+        "app/worship-panel-activity.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/005092e0.c",
+        "tests/live-follower-command-and-worship-visibility.test.mjs"
+      ],
+      "limits": "The authored Mission 1 bridge shrine first hides while its local cache is empty, then uses the genuine positive sample after ordering one follower to worship. A deliberate copy isolates byte wrap and inactive controls. This covers only the ordinary shrine visibility predicate, not native object/chaining, training activity, UI rendering, or exact parity."
     },
     {
       "address": "00509c10",
@@ -9680,6 +9964,22 @@
         "scripts/check-native-sky.py"
       ],
       "limits": "Defeat branch is explicitly ported. Other sky branches use separate browser environment handling; not complete original dispatcher or D3D draw state."
+    },
+    {
+      "address": "00524cf0",
+      "status": "partial",
+      "scope": "Compose the standard spell-mode Blast cursor, blocked overlay, and advancing out-of-range indicator",
+      "sources": [
+        "app/live-command.ts",
+        "app/spell-casting.ts",
+        "app/original-rules.json",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00524cf0.c",
+        "tests/live-player-spell-feedback-payment.test.mjs"
+      ],
+      "limits": "Actual target validation for reachable and unreachable points at authored Mission 6 turn 100 feeds the cursor composer. The test checks one advancing frame and supplied controls for no terrain hit and not-ready status. The scene adapter is pinned but not invoked; no DOM, atlas/pixel rendering, other cursor modes or complete original renderer is claimed."
     },
     {
       "address": "00525450",
