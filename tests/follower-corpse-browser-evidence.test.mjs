@@ -5,7 +5,7 @@ import native from './fixtures/follower-corpse-native.json' with { type: 'json' 
 import units from '../app/original-units.json' with { type: 'json' }
 import { validateFollowerCorpseSample, validateFollowerCorpseObservation } from '../scripts/tutorial-browser/follower-corpse-evidence.mjs'
 import { installFollowerCorpseObserver, readCommittedFollowerCorpse, readFollowerCorpseReady } from '../scripts/tutorial-browser/follower-corpse-observer.mjs'
-import followerCorpse, { followerCorpseBudgetMs, followerCorpseDeadline, pauseLoadedFollowerCorpse } from '../scripts/tutorial-browser/follower-corpse.mjs'
+import followerCorpse, { assertFollowerCorpseActorSelection, followerCorpseBudgetMs, followerCorpseDeadline, pauseLoadedFollowerCorpse, readFollowerCorpseFailureState, sampleFollowerCorpseFailure } from '../scripts/tutorial-browser/follower-corpse.mjs'
 import { meleeAttackLimitMs } from '../scripts/tutorial-browser/melee-attack.mjs'
 import { CHECKPOINT_VERSION } from '../app/checkpoint-format.ts'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
@@ -47,17 +47,17 @@ test('wrong original chain, heading, draw, displayed frame or hidden/unsubmitted
 })
 
 function observation() {
-  const before = { id: 1, team: 'blue', kind: 'brave', hp: 1.3, turn: 99, fight: { group: 4, opponent: 20 } }
-  const segment = phases => {
-    const samples = phases.map(phase => ({ ...sample(phase), cropFile: `phase-${phase}.png` }))
-    return { error: null, done: phases.includes(3), samples, crops: samples.map(s => ({
+  const before = { id: 1235, team: 'blue', kind: 'brave', hp: 1.3, turn: 99, fight: { group: 4, opponent: 20 } }
+  const segment = (segment, phases) => {
+    const samples = phases.map(phase => ({ ...sample(phase), cropFile: `follower-corpse-${segment}-${phase}.png` }))
+    return { segment, error: null, done: phases.includes(3), samples, crops: samples.map(s => ({
       filename: s.cropFile, effectId: s.effectId, turn: s.turn, stamp: s.stamp, frame: s.frame,
       phase: s.phase, opaqueColors: 2, sha256: 'a'.repeat(64) })) }
   }
   const effect = { id: 2, corpse: { phase: 1, displayedFrame: 0 }, animation: { object: 312, draw: 14 } }
-  return { actorId: 1, effectId: 2, error: null, order: { actorId: 1, target: 20, lastOrderTurn: 80 },
+  return { actorId: 1235, effectId: 2, error: null, order: { actorId: 1235, target: 20, lastOrderTurn: 80 },
     death: { before, absent: true, newEffect: true, phase: 0, effectId: 2 },
-    segments: [segment([0, 1]), segment([1, 2, 3])],
+    segments: [segment('original', [0, 1]), segment('loaded', [1, 2, 3])],
     checkpoint: { committed: { checkpointSha256: 'b'.repeat(64), version: CHECKPOINT_VERSION, level: 2, turn: 111 },
       committedCorpse: { version: CHECKPOINT_VERSION, level: 2, turn: 111, effect: structuredClone(effect) },
       saved: { turn: 111, effect }, restoredSnapshot: { worldReplaced: true, turn: 111, effect: structuredClone(effect), paused: true },
@@ -65,6 +65,26 @@ function observation() {
         [key, { turn: 112, paused, sceneReplaced: true, worldReplaced: true, sceneStoreMatch: true, canvasConnected: true, effect: structuredClone(effect) }])),
       holdBefore: { turn: 111, animationFrame: 222, effect }, holdAfter: { turn: 111, animationFrame: 222, effect: structuredClone(effect) } } }
 }
+
+test('public selection rejects an otherwise eligible substitute Blue Brave before observer install', () => {
+  const other = { id: 1236, team: 'blue', kind: 'brave', hp: 1.3, fight: null, target: null }
+  assert.throws(() => assertFollowerCorpseActorSelection({ paused: true, selected: [1236], people: [other] }), /authored Blue Brave 1235/)
+  assert.throws(() => assertFollowerCorpseActorSelection({ paused: true, selected: [1235], people: [other] }), /authored Blue Brave 1235/)
+  assert.equal(assertFollowerCorpseActorSelection({
+    paused: true, selected: [1235], people: [{ ...other, id: 1235 }],
+  }), 1235)
+  const episode = readFileSync(new URL('../scripts/tutorial-browser/follower-corpse.mjs', import.meta.url), 'utf8')
+  const guard = episode.indexOf('report.actorId = assertFollowerCorpseActorSelection(report.selection)')
+  assert.ok(guard > episode.indexOf("await button('Select brave')"))
+  assert.ok(guard < episode.indexOf('await page.evaluate(installFollowerCorpseObserver'))
+})
+
+test('receipt rejects a consistently relabeled substitute brave even with all matching evidence', () => {
+  const supplied = observation()
+  assert.equal(validateFollowerCorpseObservation(supplied).victimId, 1235)
+  supplied.actorId = supplied.order.actorId = supplied.death.before.id = 1236
+  assert.throws(() => validateFollowerCorpseObservation(supplied), /authored Blue Brave 1235/)
+})
 
 function suppliedBudget() {
   let time = 0, next = 0
@@ -77,21 +97,42 @@ function suppliedBudget() {
   return { budget, checkpoint, timers, expired, advance: value => { time = value } }
 }
 
-test('corpse budgets separately bound death/save and actual load/terminal verification', () => {
+const orderProof = () => ({ clockReleased: true, beforeAttack: { turn: 114 },
+  order: { turn: 114, lastOrderTurn: 114, selected: [1235], actorId: 1235, target: 20, paused: false } })
+
+test('corpse budgets separately bound opening, released combat/save, and actual load verification', () => {
   const { budget, checkpoint, timers, advance } = suppliedBudget()
-  assert.equal(budget.remaining(), 75000); assert.equal(timers.get(1).delay, 75000)
-  assert.throws(() => budget.complete(), /Both corpse phases must complete/)
-  advance(66000); budget.beginLoad(checkpoint)
-  assert.deepEqual(budget.records[0], { name: 'death-through-committed-save', capMs: 75000,
-    startedElapsedMs: 0, deadlineElapsedMs: 75000, completedElapsedMs: 66000, durationMs: 66000,
+  assert.equal(budget.remaining(), 65000); assert.equal(timers.get(1).delay, 65000)
+  assert.throws(() => budget.complete(), /All three corpse phases must complete/)
+  assert.throws(() => budget.beginLoad(checkpoint), /after exact-order release/)
+  advance(52183); budget.beginCombat(orderProof())
+  assert.deepEqual(budget.records[0], { name: 'opening-through-exact-order-and-release', capMs: 65000,
+    startedElapsedMs: 0, deadlineElapsedMs: 65000, completedElapsedMs: 52183, durationMs: 52183,
+    releasedOrder: { turn: 114, actorId: 1235, target: 20 } })
+  assert.equal(timers.has(1), false); assert.equal(timers.get(2).delay, 65000)
+  advance(95900); budget.beginLoad(checkpoint)
+  assert.deepEqual(budget.records[1], { name: 'released-exact-order-through-committed-save', capMs: 65000,
+    startedElapsedMs: 52183, deadlineElapsedMs: 117183, completedElapsedMs: 95900, durationMs: 43717,
     committedSave: { checkpointSha256: 'b'.repeat(64), turn: 111, effectId: 2 } })
-  assert.deepEqual(budget.records[1], { name: 'load-reframe-resume-and-terminal-verification',
-    capMs: 25000, startedElapsedMs: 66000, deadlineElapsedMs: 91000 })
-  assert.equal(budget.remaining(), 25000)
-  assert.equal(timers.has(1), false); assert.equal(timers.get(2).delay, 25000)
-  advance(90000); budget.complete()
-  assert.equal(budget.records[1].durationMs, 24000); assert.equal(timers.size, 0)
+  assert.deepEqual(budget.records[2], { name: 'load-reframe-resume-and-terminal-verification',
+    capMs: 25000, startedElapsedMs: 95900, deadlineElapsedMs: 120900 })
+  assert.equal(timers.has(2), false); assert.equal(timers.get(3).delay, 25000)
+  advance(119900); budget.complete()
+  assert.equal(budget.records[2].durationMs, 24000); assert.equal(timers.size, 0)
   assert.throws(() => budget.remaining(), /already closed/)
+})
+
+test('unreleased clock, incorrect turn or wrong order cannot start the combat budget', () => {
+  for (const mutate of [p => { p.clockReleased = false }, p => { p.beforeAttack.turn-- },
+    p => { p.order.lastOrderTurn-- }, p => { p.order.turn++ }, p => { p.order.actorId++ },
+    p => { p.order.selected = [1236] }, p => { p.order.target++ }, p => { p.order.paused = true }]) {
+    const { budget, timers, advance } = suppliedBudget(), proof = orderProof()
+    mutate(proof); advance(1000)
+    assert.throws(() => budget.beginCombat(proof))
+    assert.equal(budget.records.length, 1); assert.equal(budget.remaining(), 64000)
+    assert.equal(timers.size, 1); assert.equal(timers.has(1), true)
+    budget.dispose()
+  }
 })
 
 test('missing or wrong committed save cannot start or refresh the load budget', () => {
@@ -100,35 +141,69 @@ test('missing or wrong committed save cannot start or refresh the load budget', 
     c => { c.committedCorpse.turn++ }, c => { c.committedCorpse.effect.corpse.displayedFrame++ },
     c => { c.saved.paused = false }, c => { c.saved.effect.corpse.phase = 2 }]) {
     const { budget, checkpoint, timers, advance } = suppliedBudget()
-    mutate(checkpoint); advance(66000)
+    advance(52183); budget.beginCombat(orderProof())
+    mutate(checkpoint); advance(95900)
     assert.throws(() => budget.beginLoad(checkpoint))
-    assert.equal(budget.records.length, 1); assert.equal(budget.remaining(), 9000)
-    assert.equal(timers.size, 1); assert.equal(timers.has(1), true)
+    assert.equal(budget.records.length, 2); assert.equal(budget.remaining(), 21283)
+    assert.equal(timers.size, 1); assert.equal(timers.has(2), true)
     budget.dispose(); assert.equal(timers.size, 0)
   }
 })
 
 test('expired or repeated budget transitions fail even if the timer callback was delayed', () => {
   const first = suppliedBudget()
-  first.advance(75000)
-  assert.throws(() => first.budget.beginLoad(first.checkpoint), /deadline exceeded/)
+  first.advance(65000)
+  assert.throws(() => first.budget.beginCombat(orderProof()), /deadline exceeded/)
   assert.equal(first.budget.records.length, 1)
   first.timers.get(1).fn()
-  assert.deepEqual(first.expired, ['death-through-committed-save'])
+  assert.deepEqual(first.expired, ['opening-through-exact-order-and-release'])
   first.budget.dispose()
   const second = suppliedBudget(), oldCallback = second.timers.get(1).fn
-  second.advance(66000); second.budget.beginLoad(second.checkpoint)
-  second.advance(70000)
-  assert.throws(() => second.budget.beginLoad(second.checkpoint), /Only one/)
-  assert.equal(second.budget.records[1].deadlineElapsedMs, 91000)
+  second.advance(52000); second.budget.beginCombat(orderProof())
+  assert.throws(() => second.budget.beginCombat(orderProof()), /Only one/)
+  assert.equal(second.budget.records[1].deadlineElapsedMs, 117000)
   oldCallback(); assert.deepEqual(second.expired, [])
-  second.advance(91000); second.timers.get(2).fn()
-  assert.throws(() => second.budget.complete(), /deadline exceeded/)
-  assert.deepEqual(second.expired, ['load-reframe-resume-and-terminal-verification'])
+  second.advance(117000)
+  assert.throws(() => second.budget.beginLoad(second.checkpoint), /deadline exceeded/)
+  assert.deepEqual(second.expired, ['released-exact-order-through-committed-save'])
   second.budget.dispose()
+  const third = suppliedBudget()
+  third.advance(52000); third.budget.beginCombat(orderProof())
+  third.advance(96000); third.budget.beginLoad(third.checkpoint)
+  assert.throws(() => third.budget.beginLoad(third.checkpoint), /Only one/)
+  third.advance(121000); third.timers.get(3).fn()
+  assert.throws(() => third.budget.complete(), /deadline exceeded/)
+  assert.deepEqual(third.expired, ['load-reframe-resume-and-terminal-verification'])
+  third.budget.dispose()
 })
 
-test('complete synthetic evidence requires combat death, four visible phase crops and actual current load/resume', () => {
+test('last failure read is bounded, records snapshot results, and tolerates a lost page', async () => {
+  assert.deepEqual(await sampleFollowerCorpseFailure({ isClosed: () => false,
+    evaluate: async (_, id) => ({ turn: 444, renderStamp: 721, actor: { id }, observer: { phase: 0 } }) }, 1235),
+  { turn: 444, renderStamp: 721, actor: { id: 1235 }, observer: { phase: 0 } })
+  assert.deepEqual(await sampleFollowerCorpseFailure({ isClosed: () => false, evaluate: () => new Promise(() => {}) }, 1235, 5),
+    { unavailable: 'Failure read deadline' })
+  assert.deepEqual(await sampleFollowerCorpseFailure({ isClosed: () => true }, 1235),
+    { unavailable: 'Page already closed' })
+})
+
+test('pre-close snapshot only reads bounded gameplay and observer scalars', () => {
+  const actor = Object.freeze({ id: 1235, hp: 11, target: 20, secret: 'not recorded' })
+  const world = Object.freeze({ turn: 442, paused: false, units: Object.freeze([actor]) })
+  const oldWindow = globalThis.window
+  globalThis.window = {
+    testStore: { getWorld: () => world }, testSceneRef: { current: { renderer: { info: { render: { frame: 712 } } } } },
+    __pndCorpseObservation: { result: { samples: [{ phase: 0, turn: 441, png: 'not copied' }], death: {},
+      effectId: 22, error: 'x'.repeat(400) } },
+  }
+  try {
+    assert.deepEqual(readFollowerCorpseFailureState(1235), { turn: 442, paused: false, renderStamp: 712,
+      actor: { id: 1235, hp: 11, target: 20 }, observer: { phase: 0, sampleTurn: 441,
+        effectId: 22, sampleCount: 1, hasDeath: true, error: 'x'.repeat(256) } })
+  } finally { if (oldWindow === undefined) delete globalThis.window; else globalThis.window = oldWindow }
+})
+
+test('complete synthetic evidence requires combat death, five visible phase crops and actual current load/resume', () => {
   assert.deepEqual(validateFollowerCorpseObservation(observation()).originalSources, [304, 312, 320])
   for (const mutate of [r => { r.death.before.fight = null }, r => { r.death.phase = 1 },
     r => { r.order.lastOrderTurn = 100 }, r => { r.order.target = 13 }, r => { r.death.absent = false }, r => { r.death.newEffect = false },
@@ -138,6 +213,21 @@ test('complete synthetic evidence requires combat death, four visible phase crop
     r => { r.checkpoint.holdAfter.animationFrame++ }, r => { r.segments[1].samples.forEach(s => { s.paused = true }) },
     r => { r.segments[1].done = false }]) {
     const r = observation(); mutate(r); assert.throws(() => validateFollowerCorpseObservation(r))
+  }
+})
+
+test('good original phase 1 cannot mask a missing or blank first running loaded phase 1', () => {
+  const cases = [
+    [loaded => { loaded.crops.shift() }, /Exactly one loaded corpse phase 1 crop required/],
+    [loaded => { loaded.crops[0].opaqueColors = 0 }, /Nonblank loaded corpse phase 1 crop required/],
+    [loaded => { loaded.samples[0].cropFile = null }, /first running loaded corpse phase 1/],
+    [loaded => { loaded.samples.unshift({ ...loaded.samples[0], cropFile: null }) }, /first running loaded corpse phase 1/],
+  ]
+  for (const [breakLoaded, expected] of cases) {
+    const report = observation()
+    assert.equal(report.segments[0].crops.find(crop => crop.phase === 1).opaqueColors, 2)
+    breakLoaded(report.segments[1])
+    assert.throws(() => validateFollowerCorpseObservation(report), expected)
   }
 })
 
@@ -225,17 +315,20 @@ test('committed corpse observer reads only actual IDB bytes and retains an indep
 })
 
 function withObserver(run) {
-  let callback, copies = 0, encodes = 0, readbacks = 0, pixels = 1
+  let copies = 0, encodes = 0, readbacks = 0, pixels = 1
   const world = { turn: 98, paused: false, speed: 1, effects: [],
     units: [{ id: 1, kind: 'brave', team: 'blue', hp: 1.3, x: 20, z: 20, heading: Math.PI, fight: { group: 4, opponent: 20, action: 'ready' } }] }
   const rect = { left: 200, top: 0, width: 760, height: 720 }
   const canvas = { width: 760, height: 720, isConnected: true, getBoundingClientRect: () => rect }
   const group = { visible: true, position: {}, userData: { layers: [{ visible: true, userData: { piece: 22 } }], bounds: { left: -8, top: -24, right: 8, bottom: 0 } } }
-  const scene = { world, renderer: { domElement: canvas, info: { render: { frame: 200 } } },
+  const prototype = {
+    renderSceneFrame() { this.renderer.info.render.frame++; return 'stock-render' },
+    dispose() { this.disposedByStock = true },
+  }
+  const scene = Object.assign(Object.create(prototype), { world, renderer: { domElement: canvas, getRenderTarget: () => null, info: { render: { frame: 200 } } },
     gameClock: { animationFrame: 100, animationTime: 1 }, camera: {}, cameraBearing: 0x380 * Math.PI / 1024,
-    fxMeshes: new Map([[2, group]]), view: { screen: () => ({ x: 0, y: 0, z: 0 }), painter: { source: () => ({ object: 2 }) } } }
+    fxMeshes: new Map([[2, group]]), view: { screen: () => ({ x: 0, y: 0, z: 0 }), painter: { source: () => ({ object: 2 }) } } })
   const replacements = { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
-    requestAnimationFrame: fn => { callback = fn; return 1 }, cancelAnimationFrame: () => { callback = null },
     document: { visibilityState: 'visible', elementFromPoint: () => canvas, querySelectorAll: () => [],
       createElement: () => {
         let captured
@@ -256,8 +349,7 @@ function withObserver(run) {
         frameFlip: s.flip, directions: Array.from({ length: 8 }, (_, d) => ({ source: native.sources[s.object][d].vstart })) })
     }
     const before = structuredClone(world)
-    scene.renderer.info.render.frame++
-    callback()
+    assert.equal(scene.renderSceneFrame(), 'stock-render')
     assert.deepEqual(world, before, 'The observer must not mutate World or effect state')
   }
   try {
@@ -287,6 +379,20 @@ test('read-only observer follows living combat to native corpse and retains only
   })
 })
 
+test('scene adapter detaches after stock disposal and does not wrap the prototype', () => {
+  withObserver(({ scene, observation }) => {
+    const original = Object.getPrototypeOf(scene).renderSceneFrame
+    installFollowerCorpseObserver({ actorId: 1 })
+    assert.notEqual(scene.renderSceneFrame, original)
+    assert.throws(() => installFollowerCorpseObserver({ actorId: 1 }), /unwrapped/)
+    scene.dispose()
+    assert.equal(scene.disposedByStock, true)
+    assert.equal(scene.renderSceneFrame, original)
+    assert.equal(Object.hasOwn(scene, 'dispose'), false)
+    assert.match(observation().result.error, /lost its bound Scene/)
+  })
+})
+
 test('observer rejects an unseen combat producer and refuses a stale Scene/world', () => {
   withObserver(({ world, visit, observation }) => {
     world.units[0].fight = null; installFollowerCorpseObserver({ actorId: 1 }); visit(); visit(0)
@@ -298,7 +404,7 @@ test('observer rejects an unseen combat producer and refuses a stale Scene/world
   })
 })
 
-test('independent corpse scenario keeps prior phase caps and committed-save boundary', async () => {
+test('independent corpse scenario keeps the measured phase caps and committed-save boundary', async () => {
   const run = readFileSync(new URL('../scripts/tutorial-browser/run.mjs', import.meta.url), 'utf8')
   const episode = readFileSync(new URL('../scripts/tutorial-browser/follower-corpse.mjs', import.meta.url), 'utf8')
   assert.ok(run.indexOf('receipt.gameplayFrames = await') < run.indexOf('receipt.meleeAttack = await'))
@@ -307,10 +413,13 @@ test('independent corpse scenario keeps prior phase caps and committed-save boun
   assert.match(corpseBranch, /receipt.followerCorpse = await/)
   assert.doesNotMatch(corpseBranch, /meleeAttack|gameplayFrames/)
   assert.equal(browserCapMs('follower-corpse'), 180000)
-  assert.deepEqual(followerCorpseBudgetMs, { deathAndSave: 75000, loadAndVerify: 25000 }); assert.equal(meleeAttackLimitMs, 75000)
+  assert.deepEqual(followerCorpseBudgetMs, { openingAndOrder: 65000, combatAndSave: 65000, loadAndVerify: 25000 }); assert.equal(meleeAttackLimitMs, 75000)
   assert.equal(browserCapMs('gameplay-frames'), 180000)
   assert.equal(episode.includes('activateFollowerCorpseButton'), false)
   assert.ok(episode.includes("const button = name => action(name, () => page.getByRole('button', { name, exact: true }).click())"))
+  assert.ok(episode.indexOf('budget.beginCombat({ beforeAttack:') > episode.indexOf('await pacing.release()'))
+  assert.ok(episode.indexOf('budget.beginCombat({ beforeAttack:') < episode.indexOf("phase('ordinary-combat')"))
+  assert.match(episode, /watchdogClose = sampleFailure\(\)\.finally\(\(\) => context\.close/)
   assert.ok(episode.indexOf('budget.beginLoad(report.checkpoint)') > episode.indexOf('assert.deepEqual(report.checkpoint.committedCorpse.effect'))
   assert.ok(episode.indexOf('budget.beginLoad(report.checkpoint)') < episode.indexOf("await button('Back'); await button('Load Game')"))
   assert.ok(episode.indexOf('budget.complete()') > episode.indexOf("path: resolve(output, 'follower-corpse-context.png')"))
@@ -322,8 +431,10 @@ test('independent corpse scenario keeps prior phase caps and committed-save boun
 
 test('corpse startup settles modal opening before unchanged natural-turn readiness', () => {
   const source = readFileSync(new URL('../scripts/tutorial-browser/follower-corpse.mjs', import.meta.url), 'utf8')
-  const start = source.indexOf("await action('Settle opening messages and introduction', () => settleOpeningMessages(page))")
+  const start = source.indexOf("await action('Settle opening messages and introduction', async () =>")
   const next = source.indexOf("phase('public-combat-setup')", start)
   assert.ok(start >= 0 && next > start)
-  assert.match(source.slice(start, next), /return !w.inputMask && !w.paused && w.turn > w.lastOrderTurn/)
+  assert.match(source.slice(start, next), /settleFollowerCorpseOpening/)
+  assert.match(source.slice(start, next), /advance: pacing.advanceOpeningFrame/)
+  assert.doesNotMatch(source.slice(start, next), /waitForFunction/)
 })
