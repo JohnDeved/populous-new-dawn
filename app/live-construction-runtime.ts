@@ -74,7 +74,11 @@ import { personStepCollision } from './person-collision.ts'
 // until the complete native person/plan command ownership is connected.
 
 export function completeBuildingConstruction(w: World, b: Building) {
-  if (!b.upgrading && !b.damageState) w.stats.built++
+  if (!b.upgrading && !b.damageState) {
+    w.stats.built++
+    // 0x4049d0 requests the positional bell when model 13 enters completed state.
+    if (b.kind === 'boatHouse') sound(w, 0xd7, b)
+  }
   b.upgrading = false
   if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
 }

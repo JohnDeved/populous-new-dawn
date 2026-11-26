@@ -37,11 +37,15 @@ test('both independent browser stories are mandatory in the same Ready workflow'
     assert.throws(() => assertCoverage(changed))
   }
 })
-test('scheduling explicitly reserves another browser/build without relaxing episode caps', () => {
+test('scheduling reserves independent browser/build with bounded opening, combat and verified Load phases', () => {
   assert.deepEqual(followerCorpseSplitBudget, { version: 1,
     framesAndMeleeMs: 180000, corpseBrowserMs: 180000, totalBrowserMs: 360000,
-    corpseDeathAndSaveMs: 75000, corpseLoadAndVerifyMs: 25000,
+    corpseOpeningAndOrderMs: 80000, corpseDeathAndSaveMs: 65000, corpseLoadAndVerifyMs: 25000,
     buildMsPerJob: 120000, hostedJobMs: 900000 })
+  const { corpseOpeningAndOrderMs, corpseDeathAndSaveMs, corpseLoadAndVerifyMs } = followerCorpseSplitBudget
+  const localBudgetMs = corpseOpeningAndOrderMs + corpseDeathAndSaveMs + corpseLoadAndVerifyMs
+  assert.equal(localBudgetMs, 170000)
+  assert.equal(browserCapMs('follower-corpse') - localBudgetMs, 10000)
   assert.equal(browserCapMs('follower-corpse'), 180000)
   assert.equal(browserCapMs('gameplay-frames'), 180000)
   const runner = read('scripts/tutorial-browser/run.mjs')

@@ -9,6 +9,14 @@ Refs #
 <!-- Record exact base/head, commands, statuses, evidence links, and remaining limits.
      Use passed / failed / blocked / not-run / not-applicable; focused checks are not a full pass. -->
 
+## Behavior replay (when behavior changes or parity is claimed)
+
+<!-- In 4 lines: Oracle + pinned revision/input; Shipped entry + case(s);
+     Baseline vs candidate + first difference (or none); Limits + next missing case.
+     For a fix, identify the intended delta and one neighboring behavior that must not
+     change. Link existing receipts, don't paste logs. For other changes, omit this
+     section. See https://github.com/JohnDeved/populous-new-dawn/blob/main/engineering/behavior-replay.md -->
+
 ## Visual evidence
 
 <!-- For any UI or game visual change, attach/embed actual rendered screenshots here

@@ -108,6 +108,7 @@ export const AUDIO_CUES = [
   222,
   225,
   226,
+  0xd7, // 0x4049d0: Boat House completion bell.
   217,
   219,
   220,

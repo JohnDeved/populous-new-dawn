@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { appendFileSync, closeSync, constants, fstatSync, openSync, readFileSync, writeFileSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
+import { setTimeout as delay } from 'node:timers/promises'
 import { readArtifactZip } from '../artifact-zip.mjs'
 import { account, worker, repository, buildPath, publishPath, marker, maxArchiveBytes,
   positive, sha, branchAlias, publisherSource, validateRun, currentPreview,
@@ -35,6 +36,20 @@ export async function bodyBytes(response, limit, expectedBytes) {
   }
   return Buffer.concat(chunks)
 }
+async function cancelRetryBody(body, signal) {
+  signal.throwIfAborted()
+  if (!body) return
+  let abort
+  try {
+    const expired = new Promise((_, reject) => {
+      abort = () => reject(signal.reason)
+      signal.addEventListener('abort', abort, { once: true })
+    })
+    await Promise.race([expired, body.cancel()])
+  } finally {
+    signal.removeEventListener('abort', abort)
+  }
+}
 export function githubClient(token) {
   assert.ok(token, 'GitHub token missing')
   const headers = { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
@@ -44,13 +59,25 @@ export function githubClient(token) {
       headers: { ...headers, 'Content-Type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) })
     return JSON.parse(await bodyBytes(response, 4 * 1024 * 1024))
   }
-  const download = async (id, maximum, expectedBytes) => {
+  const download = async (id, maximum, expectedBytes, { retryGateQuality503 = false } = {}) => {
     assert.ok(positive(id))
-    const response = await fetch(`https://api.github.com${prefix}/actions/artifacts/${id}/zip`, { redirect: 'manual', headers })
-    assert.equal(response.status, 302, 'Expected GitHub artifact redirect')
-    const url = new URL(response.headers.get('location')); assert.equal(url.protocol, 'https:')
-    // Never forward the GitHub token to storage. Only GitHub's returned URL.
-    return bodyBytes(await fetch(url, { redirect: 'error' }), maximum, expectedBytes)
+    const signal = retryGateQuality503 ? AbortSignal.timeout(15_000) : undefined
+    const storage = async () => {
+      const response = await fetch(`https://api.github.com${prefix}/actions/artifacts/${id}/zip`, { redirect: 'manual', headers, signal })
+      assert.equal(response.status, 302, 'Expected GitHub artifact redirect')
+      const url = new URL(response.headers.get('location')); assert.equal(url.protocol, 'https:')
+      // Never forward the GitHub token to storage. Only GitHub's returned URL.
+      return fetch(url, { redirect: 'error', signal })
+    }
+    let response = await storage()
+    if (retryGateQuality503 && response.status === 503) {
+      // An immutable gate artifact GET is safe to repeat once; an accepted body,
+      // transport failure, metadata validation or state-changing request is not.
+      await cancelRetryBody(response.body, signal)
+      await delay(250, undefined, { signal })
+      response = await storage()
+    }
+    return bodyBytes(response, maximum, expectedBytes)
   }
   return { api, download }
 }
@@ -96,7 +123,7 @@ export async function artifacts(api, run) {
   assert.ok(list.total_count <= 100 && list.artifacts.length === list.total_count, 'Incomplete artifact inventory')
   return list.artifacts
 }
-export async function oneArtifact(api, download, run, name, maximum, optional = false, { exactSize = false } = {}) {
+export async function oneArtifact(api, download, run, name, maximum, optional = false, { exactSize = false, retryGateQuality503 = false } = {}) {
   const matches = (await artifacts(api, run)).filter(item => item.name === name)
   assert.ok(matches.length <= 1, 'Duplicate artifact')
   if (!matches.length && optional) return null
@@ -105,7 +132,9 @@ export async function oneArtifact(api, download, run, name, maximum, optional = 
   assert.equal(item.expired, false); assert.equal(item.workflow_run.id, run.id)
   assert.ok(positive(item.id) && (!exactSize || Number.isSafeInteger(item.size_in_bytes)) && item.size_in_bytes > 0 && item.size_in_bytes <= maximum, 'Invalid artifact size')
   assert.match(item.digest ?? '', /^sha256:[a-f0-9]{64}$/, 'Missing artifact SHA-256 digest')
-  const bytes = exactSize ? await download(item.id, maximum, item.size_in_bytes) : await download(item.id, maximum)
+  const bytes = retryGateQuality503
+    ? await download(item.id, maximum, exactSize ? item.size_in_bytes : undefined, { retryGateQuality503: true })
+    : exactSize ? await download(item.id, maximum, item.size_in_bytes) : await download(item.id, maximum)
   if (exactSize) assert.equal(bytes.length, item.size_in_bytes, 'Artifact size mismatch')
   assert.equal(`sha256:${hash(bytes)}`, item.digest, 'Artifact SHA-256 mismatch')
   return bytes
@@ -149,7 +178,7 @@ export async function productionGate(api, download, run) {
     const matching = jobs.jobs.filter(job => job.name === name)
     assert.equal(matching.length, 1); assert.equal(matching[0].conclusion, 'success', `Gate did not pass: ${name}`)
   }
-  const zip = await oneArtifact(api, download, gate, `full-check-${gate.id}-${gate.run_attempt}-quality`, 2 * 1024 * 1024)
+  const zip = await oneArtifact(api, download, gate, `full-check-${gate.id}-${gate.run_attempt}-quality`, 2 * 1024 * 1024, false, { retryGateQuality503: true })
   const receipt = jsonArtifact(zip, 'receipt.json', 2 * 1024 * 1024)
   assert.equal(receipt.kind, 'quality'); assert.equal(receipt.status, 'passed')
   assert.equal(receipt.identity.repository, repository); assert.equal(receipt.identity.headSha, pr.head.sha)

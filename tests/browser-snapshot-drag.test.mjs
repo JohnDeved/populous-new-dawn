@@ -21,8 +21,16 @@ const swampDragLatchDeltas = [
   ['app/scene.ts', `  pointerGesture: { pointerId: number; button: number; moved?: boolean } | null = null`,
     `  pointerGesture: { pointerId: number; button: number } | null = null`],
 ]
+const historicalInputPath = 'app/scene-input-runtime.ts'
+// Exact source from the accepted M11 base 38ab148fee076d53abea9d78229844cb242374a4.
+// Only the historical readers use this fixture. Current-live checks and production
+// admission continue to read the actual source and reject unreviewed owner changes.
+const historicalInput = readFileSync(resolve(root,
+  'tests/fixtures/snapshot-drag-pre-pointer-owner.ts.txt'), 'utf8')
+assert.equal(createHash('sha256').update(historicalInput).digest('hex'),
+  'a41ebebf99364537fdab6ba73c24f7dcd83e68f4e38b9f1f94d71f681c59b1c5')
 function liveRead(path) {
-  let source = readFileSync(resolve(root, path), 'utf8')
+  let source = path === historicalInputPath ? historicalInput : readFileSync(resolve(root, path), 'utf8')
   for (const [owner, current, previous] of swampDragLatchDeltas) if (path === owner) {
     assert.equal(source.split(current).length, 2, 'exact reviewed drag-latch inverse boundary')
     source = source.replace(current, previous)
@@ -49,7 +57,7 @@ function modalRead(path) {
 }
 // Historical modal owners plus exactly the forward PR1026 drag-latch delta.
 function swampDragLatchRead(path) {
-  if (path === 'app/scene-input-runtime.ts') return readFileSync(resolve(root, path), 'utf8')
+  if (path === historicalInputPath) return historicalInput
   let source = modalRead(path)
   for (const [owner, current, previous] of swampDragLatchDeltas) if (path === owner) {
     assert.equal(source.split(previous).length, 2, 'exact reviewed drag-latch forward boundary')
