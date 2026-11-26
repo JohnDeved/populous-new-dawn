@@ -1015,7 +1015,16 @@ export function campaignRules(w: World) {
   if (w.outcome.level === 22 && tribe === 1) {
     // Authored EVERY255 Tower staffing followed by marker-route staffing.
     // The later conditional emergency sibling remains unbound.
-    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(227, 241), 1004, 1004, 1019]
+    boundCampaignScript.codes = [
+      12,
+      1003,
+      ...script.codes.slice(227, 241),
+      1004,
+      // Original EVERY255/offset132 refreshes Red spell intervals by Red population.
+      ...script.codes.slice(256, 405),
+      1004,
+      1019,
+    ]
   }
   // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {
