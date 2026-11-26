@@ -2388,6 +2388,21 @@
       "limits": "At completion the raw target feeds the remake's separate cell-centering anchor step, not the actor's stop point. This checks the raw payload branch only, not the native centering helper or packed, object and vehicle branches."
     },
     {
+      "address": "00438af0",
+      "status": "partial",
+      "scope": "Check transport readiness before a close explicit person attack",
+      "sources": [
+        "app/combat-pursuit.ts",
+        "app/live-building-combat.ts",
+        "app/vehicle-routing.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00438af0.c",
+        "tests/live-explicit-combat-and-march.test.mjs"
+      ],
+      "limits": "Ready and nonready controls share the authored Mission 22 Balloon, nearby supplied living people and admitted explicit order. Nonready keeps the acting Warrior aboard; ready dispatches and dismounts. Does not cover Firewarrior, area radius, pack/unpack semantics or browser input."
+    },
+    {
       "address": "00438db0",
       "status": "partial",
       "scope": "Approach an attackable building plan with the original plan collision mask",
@@ -6754,6 +6769,20 @@
       "limits": "Direct original recovery and live movement dispatch use supported model/flags/cargo and same RNG step. Setter/render body outside scope."
     },
     {
+      "address": "004d5010",
+      "status": "partial",
+      "scope": "Draw running speed on first live ordinary melee encounter approach",
+      "sources": [
+        "app/melee-encounter.ts",
+        "app/combat-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d5010.c",
+        "tests/live-melee-encounter-and-site.test.mjs"
+      ],
+      "limits": "Authored Mission 10 Blue Warrior, supplied rival and admission. Observed running base 110 and randomized 125; constant-base control fails. Does not claim original binary execution, exact original seed or object table mapping, carrying or knockback animation paths."
+    },
+    {
       "address": "004d50d0",
       "status": "implemented",
       "scope": "Stop a live person and choose work pose with airborne overrides",
@@ -9745,6 +9774,20 @@
       "limits": "A controlled live encounter retains the same ordered person and resumes both ground waypoints after opponent retirement. The browser derives group availability from its fight registry; native dead or free record handling, the level-flag override and high return bits are not established by this proof."
     },
     {
+      "address": "00518630",
+      "status": "partial",
+      "scope": "Transfer encounter strike to the defender at timer two and emit recovery cue",
+      "sources": [
+        "app/melee-encounter.ts",
+        "app/combat-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00518630.c",
+        "tests/live-melee-encounter-and-site.test.mjs"
+      ],
+      "limits": "Actual Mission 10 encounter controller and both living people, supplied rival and admission. Three preceding strike timer visits keep defender waiting, timer two immediately enters knockback, and expiration emits cue 13 and reapproach. No native execution, browser, other encounter states, or damage claim."
+    },
+    {
       "address": "005199f0",
       "status": "partial",
       "scope": "Select the center member of a reinforced live melee group",
@@ -9760,6 +9803,34 @@
       "limits": "A controlled live three-person group changes its center to the last correct tribe member while retaining original membership slots for a later split. This does not establish all native roster-hole, tribe, and encounter-phase cases."
     },
     {
+      "address": "00519d10",
+      "status": "partial",
+      "scope": "Relocate an active fight off a blocked cell at its periodic search visit",
+      "sources": [
+        "app/melee-placement.ts",
+        "app/combat-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00519d10.c",
+        "tests/live-melee-encounter-and-site.test.mjs"
+      ],
+      "limits": "Actual Mission 10 battle formed with a supplied rival, admission and level flag. Supplied blocked site and turns 127/128; owned runtime retains roster and chooses a physical adjacent terrain cell only on its due visit. Does not cover building escape, exhausted search or original mixed-class schedule."
+    },
+    {
+      "address": "0051bf10",
+      "status": "partial",
+      "scope": "Track the explicit grounded target on the fourth combat visit",
+      "sources": [
+        "app/combat-explicit-target.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051bf10.c",
+        "tests/live-explicit-combat-and-march.test.mjs"
+      ],
+      "limits": "Actual occupied-M22-Balloon combat dispatcher, supplied nearby target/active order and nonready navigation state: no change at counter 3, direct goal changes at counter 4. No distant, housed, elevated, Firewarrior or native execution claim."
+    },
+    {
       "address": "0051c110",
       "status": "partial",
       "scope": "Classify an occupied area attack as a building approach when the pending search runs",
@@ -9773,6 +9844,21 @@
         "tests/live-authored-area-attack-entrance.test.mjs"
       ],
       "limits": "An ordinary M2 tower attack's occupied radius-zero area returns the building approach classification, consumed as the native flag; an open ground order does not. The observed entrance coordinates are not attributed to this classifier; the entrance leaf, ring scan and other target routes are outside this scope."
+    },
+    {
+      "address": "0051c3c0",
+      "status": "partial",
+      "scope": "Select an ungrouped live person for command 28 and enter person pursuit",
+      "sources": [
+        "app/combat-explicit-target.ts",
+        "app/live-building-combat.ts",
+        "app/combat-order-search.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051c3c0.c",
+        "tests/live-explicit-combat-and-march.test.mjs"
+      ],
+      "limits": "Actual authored M22 transport route input supplied past admission. Living ungrouped class-one target sets workTarget and substate two, with genuine Warrior departure and order retained. Excludes group, building, preacher and alternative scan branches."
     },
     {
       "address": "0051c4c0",
@@ -9864,6 +9950,20 @@
       "limits": "Controlled ordinary opposing reinforcements move the last occupied slots into one fresh fight while retaining the initial group and ordered people. Native bounded allocation failure and all roster layouts, callbacks and scheduler timing are not established."
     },
     {
+      "address": "0051e4b0",
+      "status": "partial",
+      "scope": "Reject an otherwise valid active fight center carrying exclusion flag 2",
+      "sources": [
+        "app/melee-placement.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051e4b0.c",
+        "tests/live-melee-encounter-and-site.test.mjs"
+      ],
+      "limits": "Direct site predicate called with real Mission 10 collision terrain and a battle produced by actual admission; supplied inactive occupancy callback and one exclusion bit. Stock accepts pristine site and rejects bit 2; one-bit mask control fails. Does not cover alternate occupied sites, all collision edges, or native execution."
+    },
+    {
       "address": "0051eab0",
       "status": "partial",
       "scope": "Detect an eligible hostile person before creating a live combat response order",
@@ -9878,6 +9978,20 @@
         "tests/live-authored-combat-reservation.test.mjs"
       ],
       "limits": "The ordinary Mission 10 turn scan emits command 21 at turn 104 for a supplied rival, while the same supplied friendly people do not trigger it. This tests one routed person threat and the friendly control, not water, disguise, reserved fights, structures, all tribes or the full native search."
+    },
+    {
+      "address": "0051fce0",
+      "status": "partial",
+      "scope": "Finish a direct attack order when its target owner is no longer alive",
+      "sources": [
+        "app/live-building-combat.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051fce0.c",
+        "tests/live-explicit-combat-and-march.test.mjs"
+      ],
+      "limits": "Supplied dead target at dispatcher entry on authored Mission 22; live acting passenger stays aboard and its explicit order/reference is released. Not a death flow, late completion, grounded dispatcher, or model-specific remainder witness."
     },
     {
       "address": "0051fe40",
@@ -9906,6 +10020,20 @@
         "scripts/check-native-person-update.py"
       ],
       "limits": "4,096 direct native cases compare byte timers, alternate parity, class-10 exclusion and bit clears; live person preparation calls it. No full melee/physics scheduling claim."
+    },
+    {
+      "address": "00520250",
+      "status": "partial",
+      "scope": "Emit march arrival cue below distance 1536 and defer a row shifted during removal",
+      "sources": [
+        "app/combat-order-search.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00520250.c",
+        "tests/live-explicit-combat-and-march.test.mjs"
+      ],
+      "limits": "Real Mission 6 world tick and live sound events (owners and cues 45, 46, 48). Only summaries are supplied; no natural summary production or actual sound playback. Distance 1536 retained across three consecutive ticks."
     },
     {
       "address": "00520480",
