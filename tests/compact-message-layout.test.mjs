@@ -9,7 +9,7 @@ import {
   compactMessageCases,
   diagnosticMetricIds,
 } from '../scripts/tutorial-browser/compact-message-layout.mjs'
-import runM2Functional, { m2DiagnosticLayout, m2FunctionalLimitMs, runCompactDiagnosticEpisodes, prepareCompactFeedback } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
+import runM2Functional, { m2DiagnosticLayout, m2FunctionalLimitMs, compactBudgetMs, startCompactBudget, runCompactDiagnosticEpisodes, prepareCompactFeedback } from '../scripts/tutorial-browser/m2-pointer-f8.mjs'
 import { browserCapMs } from '../scripts/tutorial-browser/scenario-policy.mjs'
 import { hudScale } from '../app/hud-layout.ts'
 import { pickingPathMetricIds, pickingPathViewports } from '../scripts/tutorial-browser/picking-path-readout.mjs'
@@ -382,7 +382,7 @@ test('compact coexistence changes placement and whitespace only within diagnosti
   )
 })
 
-test('separate compact hosted scenario retains old bounds and existing groups', () => {
+test('separate compact hosted scenario retains shared bounds and existing groups', () => {
   assert.equal(m2FunctionalLimitMs, 45000)
   assert.equal(browserCapMs('compact-message-layout'), 180000)
   const runner = readFileSync(
@@ -401,7 +401,10 @@ test('separate compact hosted scenario retains old bounds and existing groups', 
   )
   assert.match(scenario, /pickingPaths \? 'picking-path-readout' : compactMessages \? 'compact-message-layout' : 'm2-pointer-f8'/)
   assert.match(scenario, /fileName: `\$\{scenario\}\.json`/)
-  assert.ok(scenario.indexOf('timer = setTimeout') < scenario.indexOf('await page.goto'))
+  assert.ok(scenario.indexOf('startCompactBudget({ report, stage') < scenario.indexOf('await page.goto'))
+  assert.match(scenario, /assert\.equal\(report\.before\.paused, true,[^\n]+\n\s+compactBudget\.enterExercise\(\)/)
+  assert.match(scenario, /await checkCompactMessages\([^\n]+\)\n\s+compactBudget\.finish\(\)/)
+  assert.ok(compactBudgetMs.startup + compactBudgetMs.exercise < browserCapMs('compact-message-layout'))
   assert.ok(scenario.indexOf('await page.goto') < scenario.indexOf('if (compactMessages)'))
 })
 
@@ -432,7 +435,7 @@ test('actual compact routing awaits independent bounded episodes and preserves p
   }
 })
 
-test('real compact and expanded M2 episodes each close their fresh context at the unchanged 45-second deadline', async t => {
+test('real compact startup and expanded M2 episodes close their fresh contexts at their own deadlines', async t => {
   t.mock.timers.enable({ apis: ['setTimeout'] })
   const output = mkdtempSync(join(tmpdir(), 'compact-episode-deadline-'))
   t.after(() => rmSync(output, { recursive: true, force: true }))
@@ -456,8 +459,9 @@ test('real compact and expanded M2 episodes each close their fresh context at th
     const completed = assert.rejects(runM2Functional({ browser, url: 'http://fixture', output,
       fixture: { receipt: {} }, [flag]: true }), /M2 functional scenario failed/)
     await entered.promise
-    t.mock.timers.tick(m2FunctionalLimitMs - 1)
-    assert.equal(closed, 0, 'the episode retains its own full original allowance')
+    const limit = flag === 'compactMessages' ? compactBudgetMs.startup : m2FunctionalLimitMs
+    t.mock.timers.tick(limit - 1)
+    assert.equal(closed, 0, 'the episode retains its independent allowance')
     t.mock.timers.tick(1)
     await completed
     const receipt = JSON.parse(readFileSync(join(output, `${name}.json`), 'utf8'))
@@ -466,11 +470,61 @@ test('real compact and expanded M2 episodes each close their fresh context at th
     assert.equal(receipt.timedOut, true)
     assert.equal(receipt.contextClosed, true)
     assert.equal(receipt.stages.at(-1).name, 'deadline')
+    if (flag === 'compactMessages') {
+      assert.equal(receipt.phaseBudget.expired.phase, 'startup')
+      assert.equal(receipt.phaseBudget.expired.lastCompletedStage, 'start')
+    } else assert.equal(receipt.phaseBudget, undefined)
   }
   assert.equal(created, 2)
   assert.equal(m2FunctionalLimitMs, 45000)
   assert.equal(browserCapMs('compact-message-layout'), 180000)
   await assert.rejects(runM2Functional({ compactMessages: true, pickingPaths: true }), /independent contexts/)
+})
+
+test('compact budget opens one bounded exercise only after startup and identifies distinct failure phases', () => {
+  const fixture = () => {
+    let now = 0, closes = 0, id = 0
+    const timers = new Map(), report = { stages: [{ name: 'start' }] }
+    const stage = name => report.stages.push({ name })
+    const budget = startCompactBudget({ report, stage, started: 0, now: () => now,
+      close: async () => { closes++ },
+      set: (callback, delay) => (timers.set(++id, { callback, due: now + delay }), id),
+      clear: id => timers.delete(id) })
+    return { budget, report, stage, closes: () => closes, time: value => { now = value },
+      timers, expire() { [...timers.values()][0].callback() } }
+  }
+  const slow = fixture()
+  slow.time(31300)
+  slow.stage('paused-baseline')
+  slow.budget.enterExercise()
+  assert.deepEqual([...slow.timers.values()].map(timer => timer.due), [56300])
+  assert.throws(() => slow.budget.enterExercise(), /transitions once/)
+  slow.time(48000)
+  slow.stage('compact-4-640x480-captured-and-restored')
+  slow.budget.finish()
+  slow.budget.stop()
+  assert.equal(slow.closes(), 0)
+  assert.equal(slow.timers.size, 0)
+
+  const startup = fixture()
+  startup.stage('authored-message-ready')
+  startup.time(40000)
+  assert.throws(() => startup.budget.enterExercise(), /startup deadline.*authored-message-ready/)
+  assert.equal(startup.closes(), 1)
+  assert.equal(startup.report.phaseBudget.phases.length, 1)
+  assert.equal(startup.report.phaseBudget.expired.phase, 'startup')
+
+  const exercise = fixture()
+  exercise.time(39999)
+  exercise.budget.enterExercise()
+  exercise.stage('compact-4-640x480-geometry-verified')
+  exercise.time(64999)
+  exercise.expire()
+  assert.throws(() => exercise.budget.finish(), /exercise deadline.*geometry-verified/)
+  exercise.budget.recordFailure()
+  assert.deepEqual(exercise.report.phaseBudget.failure,
+    { phase: 'exercise', lastCompletedStage: 'compact-4-640x480-geometry-verified' })
+  assert.equal(exercise.closes(), 1)
 })
 
 test('collapsed and optional diagnostic inventories cover every shipped F8 metric without hiding missing fields', () => {

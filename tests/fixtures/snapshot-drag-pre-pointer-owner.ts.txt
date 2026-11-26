@@ -1,0 +1,1044 @@
+import { pickRuntimeTerrain } from './runtime-terrain-picking.ts'
+import { capturePointerInteraction } from './pointer-interaction-context.ts'
+import { measurePointerQuery, type PointerFrameMetrics } from './pointer-frame-metrics.ts'
+import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
+import { focusTransport, type TransportKind } from './hud-transports.ts'
+import { liveVehiclePassengers } from './vehicle-panel-runtime.ts'
+import { hudTaskPeople, selectFollowerTask } from './follower-tasks-runtime.ts'
+import { focusTaskFollower, type FollowerTask } from './hud-tasks.ts'
+import { syncSecondaryReservations } from './scene-secondary-effects.ts'
+import { retainedBuildingPanel } from './building-panels.ts'
+import type { GameScene } from './scene.ts'
+import * as THREE from 'three'
+import {
+  nativePosition,
+  browserPosition,
+  canOrder,
+  placementError,
+  buildingPlanPose,
+  SPELLS,
+  cast,
+  placeBuilding,
+  cancelInteraction,
+  selectArea,
+  selectUnit,
+  effect,
+  hudPeople,
+  isShaman,
+  selectFollowers,
+  spellTargetError,
+  type Building,
+  type Point,
+} from './model'
+import { command, guardPostClick, removeHoveredGuardPost } from './live-command.ts'
+import { removeOwnedSwamp } from './swamp-removal.ts'
+import { requestSpyDiscovery } from './live-spy-discovery.ts'
+import { focusHudPerson } from './hud-selection.ts'
+import { minimapPick } from './minimap.ts'
+import { pointerBrackets } from './world-picking.ts'
+import { commandMarkerPoint } from './command-context.ts'
+import { dragCamera, cameraCommand, cameraEdgeButtons, mergeCameraInput } from './camera-input.ts'
+import { beginGlobeDrag } from './globe.ts'
+import { cameraBookmark } from './scene-camera-runtime.ts'
+import {
+  followerGroupDisplayKey,
+  releaseFollowerGroupDisplayKeys,
+} from './follower-group-display.ts'
+import {
+  dragEndpoint,
+  dragCommand,
+  dragCorners,
+  unwrapDragCorners,
+  dragMoved,
+} from './drag-selection.ts'
+import { nativeAngle, positionDistance } from './native-math.ts'
+import { spellCursor } from './spell-casting.ts'
+import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
+import nativeHud from './original-hud.json'
+import rules from './original-rules.json' with { type: 'json' }
+import { buildingPlanCells, type BuildingShapePose } from './building-shapes.ts'
+import { groundOverlay, groundOverlayTriangles } from './ground-overlay.ts'
+import { texture } from './scene-assets.ts'
+import { drawTooltip } from './tooltip-layout.ts'
+import { worldTooltipObject } from './tooltips.ts'
+import {
+  cancelTooltipInspection,
+  publishTooltipInput,
+  queueBuildingInspection,
+} from './scene-tooltip-runtime.ts'
+
+// W/A/S/Q/E are port camera aliases: W/Q/E have no default original binding and the
+// original A/S actions (0xa0-0xa2, 0x63) are not implemented. Original D (record
+// 005d61fc) scatters through the page handler, so right pan stays on arrow/keypad.
+const cameraKeys: Record<string, number> = {
+  w: 1,
+  arrowup: 1,
+  s: 2,
+  arrowdown: 2,
+  a: 199,
+  arrowleft: 5,
+  arrowright: 6,
+  q: 201,
+  e: 202,
+  delete: 3,
+  pagedown: 4,
+  numpad8: 1,
+  numpad2: 2,
+  numpad4: 199,
+  numpad6: 200,
+  numpad7: 201,
+  numpad9: 202,
+}
+
+export function pickUnit(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
+  if (scene.overviewActive) return
+  const id = metrics
+    ? measurePointerQuery(metrics, 'object', () => scene.picking.pickPerson(event, metrics))
+    : scene.picking.pickPerson(event)
+  return scene.world.units.find(u => u.id === id && u.team === 'blue' && canOrder(u))
+}
+
+export function updatePlacement(scene: GameScene) {
+  const w = scene.world,
+    kind = w.mode as Building['kind'],
+    p = scene.pointer
+  // The Guard Post tool draws its own class-10/model-16 preview (scene-entities).
+  scene.cursor.visible =
+    !!p &&
+    !!kind &&
+    w.mode !== 'guardPost' &&
+    !SPELLS.some(s => s.id === w.mode) &&
+    !w.inputMask &&
+    w.status === 'playing'
+  syncSecondaryReservations(scene)
+  if (!p || !scene.cursor.visible) {
+    scene.placementState = ''
+    return
+  }
+  // ponytail: the browser placement validator supplies validity until the
+  // native plan preview/cell-marking controller owns these transient flags.
+  const invalid = !!placementError(w, kind, p)
+  const pose = buildingPlanPose(w, kind, p)
+  const key = [kind, pose.anchorX, pose.anchorY, pose.angle, invalid, w.landVersion].join(',')
+  if (key === scene.placementState) return
+  scene.placementState = key
+  scene.cursor.geometry.dispose()
+  const { geometry, cells, entrance } = scene.planGeometry(pose, invalid)
+  scene.cursor.geometry = geometry
+  scene.cursor.userData.cells = cells
+  scene.cursor.userData.entrance = entrance
+  scene.cursor.userData.invalid = invalid
+}
+
+export function planGeometry(
+  scene: GameScene,
+  pose: BuildingShapePose,
+  invalid = false,
+  placed = false
+) {
+  const { cells, entrance } = buildingPlanCells(pose)
+  const w = scene.world,
+    flags = new Uint32Array(w.land.flags)
+  // These are presentation marks, not persistent terrain ownership flags.
+  for (let i = 0; i < flags.length; i++) flags[i] &= ~0x1980
+  for (const i of cells) flags[i] |= placed ? 0x410 : invalid ? 0x190 : 0x90
+  if (!placed && entrance !== null) {
+    flags[entrance] |= 0x800
+    if (!cells.includes(entrance)) cells.push(entrance)
+  }
+  const positions: number[] = [],
+    uv: number[] = [],
+    colors: number[] = []
+  for (const i of cells) {
+    const overlay = groundOverlay(flags, i, placed ? 0x400 : flags[i] & 0x180, pose.angle / 512),
+      tint = new THREE.Color(overlay.color & 0xffffff)
+    const x = (i & 127) * 512,
+      y = (i >> 7) * 512,
+      origin = browserPosition({ x, y })
+    for (const triangle of groundOverlayTriangles(flags[i] & 1, overlay.rotation))
+      for (let v = 0; v < 3; v++) {
+        const dx = triangle.positions[v * 2],
+          dy = triangle.positions[v * 2 + 1],
+          j = ((((i >> 7) + dy) & 127) << 7) | (((i & 127) + dx) & 127)
+        positions.push(origin.x + dx * 2, w.land.heights[j] / 128, origin.z - dy * 2)
+        uv.push(
+          ((overlay.tile % 8) * 32 + 0.5 + triangle.uv[v * 2] * 31) / 256,
+          1 - (Math.floor(overlay.tile / 8) * 32 + 0.5 + triangle.uv[v * 2 + 1] * 31) / 1024
+        )
+        colors.push(tint.r, tint.g, tint.b)
+      }
+  }
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2))
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3))
+  return { geometry, cells, entrance }
+}
+
+export function pick(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
+  const rect = scene.renderer.domElement.getBoundingClientRect()
+  scene.mouse.set(
+    ((event.clientX - rect.left) / rect.width) * 2 - 1,
+    1 - ((event.clientY - rect.top) / rect.height) * 2
+  )
+  return pickRuntimeTerrain(scene, metrics)?.point ?? null
+}
+
+export function pickWorldObject(scene: GameScene, event: { clientX: number; clientY: number }) {
+  const rect = scene.renderer.domElement.getBoundingClientRect()
+  if (scene.overviewActive) {
+    return (
+      [
+        ...scene.world.buildings,
+        ...scene.world.shrines,
+        ...scene.world.vehicles.filter(v => v.active).map(v => ({ ...v, ...browserPosition(v) })),
+      ].find(object => {
+        const p = scene.screen(object)
+        return (
+          scene.visible(object) &&
+          Math.hypot(
+            ((p.x + 1) * rect.width) / 2 + rect.left - event.clientX,
+            ((1 - p.y) * rect.height) / 2 + rect.top - event.clientY
+          ) < 10
+        )
+      }) ?? null
+    )
+  }
+  const id = scene.picking.pick(event)
+  const nearbyVehicle = scene.world.vehicles.find(v => {
+      const g = scene.vehicleMeshes.get(v.id)
+      if (!v.active || !g?.visible) return false
+      const p = scene.view.screen(g.position, scene.camera)
+      return (
+        Math.hypot(
+          ((p.x + 1) * rect.width) / 2 + rect.left - event.clientX,
+          ((1 - p.y) * rect.height) / 2 + rect.top - event.clientY
+        ) < 18
+      )
+    }),
+    vehicle = scene.world.vehicles.find(v => v.id === id && v.active) ?? nearbyVehicle
+  return (
+    (vehicle ? { ...vehicle, ...browserPosition(vehicle) } : null) ??
+    scene.world.buildings.find(b => b.id === id) ??
+    scene.world.shrines.find(s => s.id === id) ??
+    null
+  )
+}
+
+export function pointerDown(scene: GameScene, event: PointerEvent) {
+  // 004aa1c0: an open message box only takes a left release on the box itself.
+  if (scene.modalSuspended || scene.messageModal) return
+  scene.pointerGesture = { pointerId: event.pointerId, button: event.button, moved: false }
+  scene.pointerButtons = event.buttons
+  if (
+    event.button === 2 &&
+    !(event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) &&
+    !scene.world.selected.length &&
+    !scene.world.mode &&
+    !scene.world.inputMask &&
+    !scene.overviewActive
+  ) {
+    if (event.currentTarget === scene.renderer.domElement)
+      requestSpyDiscovery(scene.world, scene.picking.pickPerson(event))
+    const object = scene.pickUnit(event) ?? scene.pickWorldObject(event)
+    const vehicle = scene.world.vehicles.find(v => v.id === object?.id && v.active)
+    if (
+      object &&
+      (!vehicle ||
+        !vehicle.passengerCount ||
+        liveVehiclePassengers(scene.world, vehicle).some(({ person }) => person.tribe === 0))
+    )
+      if (
+        scene.world.buildings.some(
+          b => b.id === object.id && retainedBuildingPanel(b, scene.world.manaWorld.playerTribe)
+        )
+      )
+        queueBuildingInspection(scene, event, 'down', object.id)
+      else scene.objectPanels.open(object.id)
+    else if (!object) queueBuildingInspection(scene, event, 'down')
+  }
+  const unit =
+    event.button === 0 &&
+    !scene.world.mode &&
+    !scene.world.inputMask &&
+    !scene.overviewActive &&
+    !(scene.world.selected.length && (event.shiftKey || (event.altKey && event.ctrlKey)))
+      ? scene.pickUnit(event)?.id
+      : undefined
+  scene.down = {
+    x: event.clientX,
+    y: event.clientY,
+    button: event.button,
+    unit,
+    extend: event.ctrlKey,
+  }
+  scene.drag = null
+  scene.dragActive.value = false
+  if (event.button === 0 && !scene.world.mode && !scene.world.inputMask && !scene.overviewActive) {
+    const origin = scene.world.units.find(u => u.id === unit) ?? scene.pick(event)
+    if (origin) {
+      const start = nativePosition(scene.world, origin)
+      scene.drag = {
+        start,
+        end: start,
+        active: unit === undefined && !scene.world.selected.length,
+      }
+    }
+  }
+  if (unit !== undefined) {
+    scene.acknowledgePointer(unit)
+    scene.onSound(0x6a)
+  }
+  scene.dragLast = { x: event.clientX, y: event.clientY }
+  if (
+    scene.overviewActive &&
+    !scene.world.inputMask &&
+    (event.buttons === 2 || event.buttons === 4)
+  ) {
+    const rect = scene.renderer.domElement.getBoundingClientRect()
+    scene.globePointer = {
+      x: Math.trunc(event.clientX - rect.left),
+      y: Math.trunc(event.clientY - rect.top),
+    }
+    beginGlobeDrag(scene.globeMotion, scene.view.globe, scene.globePointer)
+  }
+  scene.renderer.domElement.setPointerCapture(event.pointerId)
+}
+
+export function pointerMove(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended) return
+  scene.pointerButtons = event.buttons
+  scene.pointerScreen = { clientX: event.clientX, clientY: event.clientY }
+  if (
+    !scene.world.inputMask &&
+    scene.pointerGesture?.pointerId === event.pointerId &&
+    (event.buttons === 2 || event.buttons === 4)
+  ) {
+    // A camera drag remains a drag even if it returns to its press position.
+    scene.pointerGesture.moved ||=
+      Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y) > 7
+    const dx = event.clientX - scene.dragLast.x,
+      dy = event.clientY - scene.dragLast.y
+    scene.cameraMotion.active = 0
+    scene.captureCamera()
+    if (event.buttons === 4) {
+      scene.world.mode = null
+      scene.tooltip.draw = 0
+    }
+    if (scene.overviewActive) {
+      const rect = scene.renderer.domElement.getBoundingClientRect()
+      scene.globePointer = {
+        x: Math.trunc(event.clientX - rect.left),
+        y: Math.trunc(event.clientY - rect.top),
+      }
+    } else dragCamera(scene.cameraPosition, scene.cameraVelocity, event.buttons === 2, dx, dy)
+    scene.viewPoint = browserPosition(scene.cameraPosition)
+    scene.cameraBearing = (scene.cameraPosition.angle * Math.PI) / 1024
+    scene.dragLast = { x: event.clientX, y: event.clientY }
+    scene.updateView()
+  }
+}
+
+export function updateDrag(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  metrics?: PointerFrameMetrics
+) {
+  const drag = scene.drag
+  if (!drag || scene.world.mode || scene.world.inputMask || scene.overviewActive) {
+    scene.dragActive.value = false
+    return
+  }
+  const picked = metrics
+      ? measurePointerQuery(metrics, 'terrain', () => scene.pick(event, metrics))
+      : scene.pick(event),
+    end = picked && nativePosition(scene.world, picked)
+  if (!drag.active) {
+    if (scene.down.unit !== undefined)
+      drag.active = scene.pickUnit(event, metrics)?.id !== scene.down.unit
+    else if (end) drag.active = dragMoved(drag.start, end)
+  }
+  if (end) drag.end = dragEndpoint(drag.start, end, scene.view.angle)
+  scene.dragActive.value = drag.active && positionDistance(drag.start, drag.end) > 0
+  scene.selectionOverlay.visible = scene.dragActive.value
+  if (!scene.dragActive.value) return picked
+  const angle = nativeAngle(
+    ((drag.end.x - drag.start.x) << 16) >> 16,
+    -(((drag.end.y - drag.start.y) << 16) >> 16)
+  )
+  const corners = unwrapDragCorners(
+    dragCorners(drag.start, scene.view.angle, angle, positionDistance(drag.start, drag.end))
+  )
+  scene.selectionOverlay.update(
+    corners,
+    scene.view.angle,
+    ((angle - scene.view.angle) & 2047) >> 9,
+    scene.world.land,
+    scene.view
+  )
+  return picked
+}
+
+export function pointerUp(scene: GameScene, event: PointerEvent) {
+  if (scene.modalSuspended || scene.messageModal) return
+  const gesture = scene.pointerGesture
+  if (!gesture || gesture.pointerId !== event.pointerId) return
+  if (gesture.button !== event.button) {
+    // A chord emits one final pointerup; its last button may differ from the first.
+    // End ownership without interpreting it as another button's click.
+    if (event.buttons === 0) cancelPointerGesture(scene, event.pointerId)
+    return
+  }
+  scene.pointerGesture = null
+  queueBuildingInspection(scene, event, 'up')
+  scene.pointerButtons = event.buttons
+  if (!(event.buttons & 6)) scene.globeMotion.dragging = false
+  const blocked = scene.world.inputMask || scene.overviewStage
+  if (!blocked && event.button === 0) scene.updateDrag(event)
+  const drag = scene.drag
+  scene.drag = null
+  scene.dragActive.value = false
+  if (drag) scene.selectionOverlay.visible = false
+  if (blocked || (event.button === 0 && drag && scene.overviewActive)) return
+  if (event.button === 0 && drag?.active && !scene.world.mode) {
+    selectArea(
+      scene.world,
+      drag.start,
+      dragCommand(drag.start, drag.end, scene.view.angle),
+      scene.down.extend
+    )
+    scene.onChange()
+    return
+  }
+  const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
+  if (moved > 7 && event.button !== 0) return
+  if (event.button === 2) {
+    // Action 0x7a (Shift+right release, 005d64e4) precedes Swamp removal and
+    // right-click deselection: outside placement mode it deletes the hovered
+    // Guard Post locally. Placement mode is cancelled below (action 0x7c).
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode
+    ) {
+      const point = scene.pick(event)
+      if (point && removeHoveredGuardPost(scene.world, point)) {
+        scene.onChange()
+        return
+      }
+    }
+    if (
+      !gesture.moved &&
+      event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !scene.overviewActive &&
+      !scene.world.mode &&
+      !scene.world.selected.length
+    ) {
+      const point = scene.pick(event)
+      if (point) {
+        const position = nativePosition(scene.world, point)
+        if (removeOwnedSwamp(scene.world, position, scene.picking.pick(event))) {
+          const marker = commandMarkerPoint(position, 0)
+          if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+          scene.acknowledgePointer(0)
+          scene.onSound(0x6a)
+          scene.onChange()
+          return
+        }
+      }
+    }
+    cancelInteraction(scene.world)
+    scene.onChange()
+    return
+  }
+  if (event.button !== 0) return
+  const directBlast =
+    !scene.overviewActive && blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags)
+  const clickedUnit = !scene.world.mode
+    ? scene.world.units.find(u => u.id === scene.down.unit)
+    : undefined
+  const pickedId = (!scene.world.mode || directBlast) && scene.picking.pickPerson(event)
+  // Ordinary commands may target a model; direct Blast retains its person-only hit.
+  const modelId =
+    !pickedId && !scene.world.mode && !scene.overviewActive && scene.world.selected.length
+      ? scene.picking.pick(event)
+      : null
+  const picked =
+    scene.world.units.find(u => u.id === pickedId) ??
+    (!scene.world.mode && scene.world.selected.length ? scene.pickWorldObject(event) : undefined) ??
+    scene.world.buildings.find(b => b.id === pickedId) ??
+    scene.world.shrines.find(h => h.id === pickedId) ??
+    scene.world.trees.find(
+      t => t.id === modelId && t.logs > 0 && rules.sceneryResourceFlags[t.model] & 4
+    ) ??
+    undefined
+  const p = picked ?? scene.pick(event) ?? clickedUnit
+  if (!p) return
+  if (scene.world.mode) {
+    const mode = scene.world.mode
+    const spell = SPELLS.some(s => s.id === mode)
+    // Release modifiers select exact records: placement 0x77 / Ctrl or Alt 0x78
+    // retains; spell targeting 0x6a / Ctrl 0x6b retains. Other masks dispatch neither.
+    if (event.shiftKey || (event.ctrlKey && event.altKey) || (spell && event.altKey)) return
+    const retain = event.ctrlKey || event.altKey
+    if (mode === 'guardPost') {
+      // Model-17 placement (004acbe2): a plain click (0x77) that places also
+      // leaves the mode; Ctrl or Alt (0x78) stays. Removing posts keeps it.
+      const result = guardPostClick(scene.world, p)
+      if (result === 'placed') {
+        scene.onSound(0x24)
+        if (!event.ctrlKey && !event.altKey) scene.world.mode = null
+      } else if (result === 'rejected') scene.onSound(0x25)
+      scene.onChange()
+      return
+    }
+    const ok = spell
+      ? cast(
+          scene.world,
+          mode as Parameters<typeof cast>[1],
+          p,
+          directBlast ? picked?.id : undefined,
+          retain
+        )
+      : placeBuilding(scene.world, mode as Parameters<typeof placeBuilding>[1], p, retain)
+    if (!ok) scene.onSound(0x25)
+    else if (!spell) scene.onSound(0x24)
+    else if (directBlast) {
+      const id = picked?.id ?? 0,
+        marker = commandMarkerPoint(nativePosition(scene.world, p), id)
+      if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+      scene.acknowledgePointer(id)
+      scene.onSound(0x6a)
+    }
+  } else {
+    if (clickedUnit) {
+      selectUnit(scene.world, clickedUnit.id, scene.down.extend)
+    } else if (scene.world.selected.length) {
+      const selected = scene.world.selected.slice()
+      if (command(scene.world, p, event)) {
+        const marker = commandMarkerPoint(nativePosition(scene.world, p), picked?.id ?? 0)
+        if (marker) effect(scene.world, 'orderMarker', browserPosition(marker))
+        scene.acknowledgePointer(picked?.id ?? 0)
+        scene.onSound(0x6a)
+        scene.orderSound(selected)
+      }
+    }
+  }
+  scene.onChange()
+}
+
+export function keyDown(scene: GameScene, event: KeyboardEvent) {
+  if (event.key === 'F8') {
+    if (
+      !event.repeat &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey &&
+      !event.shiftKey &&
+      !(event.target as HTMLElement | null)?.closest?.(
+        'input,textarea,select,dialog,a,[contenteditable]'
+      )
+    ) {
+      event.preventDefault()
+      scene.togglePerformance()
+    }
+    return
+  }
+  // 004a9d90: an open message box drops every key but Enter (page owned), and
+  // 004aa532 skips the held camera list 00489520 (cursor keys).
+  if (scene.messageModal) return
+  if (
+    !scene.modalSuspended &&
+    !(event.target as HTMLElement | null)?.closest?.(
+      'input,textarea,select,dialog,[contenteditable]'
+    )
+  )
+    followerGroupDisplayKey(scene.groupDisplay, event, true)
+  const key = (
+    event.code === 'Quote' || event.code.startsWith('Numpad') ? event.code : event.key
+  ).toLowerCase()
+  const zoomIn = key === '=' || key === '+',
+    zoomOut = key === '-',
+    modifier = key === 'control' || key === 'shift',
+    bookmark = ['z', 'x', 'c', 'v'].indexOf(key)
+  if (
+    scene.world.inputMask ||
+    (!cameraKeys[key] && !zoomIn && !zoomOut && !modifier && key !== 'quote' && bookmark < 0) ||
+    (event.target as HTMLElement).closest('input,textarea,select,dialog,a,[contenteditable]') ||
+    (event.ctrlKey && key.length === 1) ||
+    event.metaKey ||
+    event.altKey ||
+    (key === 'quote' && (event.ctrlKey || event.shiftKey))
+  )
+    return
+  if (event.ctrlKey) scene.keys.add('control')
+  if (event.shiftKey) scene.keys.add('shift')
+  if (bookmark >= 0) {
+    // Buffered native bookmark bindings consume press edges, not held repeats.
+    if (event.repeat) return
+    cameraBookmark(scene, bookmark, event.shiftKey)
+    event.preventDefault()
+    return
+  }
+  if (zoomIn || zoomOut) {
+    if (!event.shiftKey) {
+      scene.zoom(zoomIn)
+      event.preventDefault()
+    }
+    return
+  }
+  scene.keys.add(key)
+  if (!modifier) event.preventDefault()
+}
+
+export function cancelPointerGesture(scene: GameScene, pointerId?: number) {
+  if (
+    pointerId !== undefined &&
+    scene.pointerGesture &&
+    scene.pointerGesture.pointerId !== pointerId
+  )
+    return
+  scene.pointerGesture = null
+  cancelTooltipInspection(scene)
+  scene.pointerButtons = 0
+  scene.drag = null
+  scene.dragActive.value = false
+  scene.selectionOverlay.visible = false
+  scene.globeMotion.dragging = false
+  scene.globeMotion.velocity = { x: 0, y: 0 }
+  scene.navigationPointer = null
+}
+
+export function installInputListeners(scene: GameScene, minimap: HTMLCanvasElement) {
+  scene.listen(scene.renderer.domElement, 'pointerdown', scene.pointerDown)
+  scene.listen(scene.renderer.domElement, 'pointermove', scene.pointerMove)
+  scene.listen(scene.renderer.domElement, 'pointerleave', () => {
+    scene.hoveredObject = null
+    scene.pointerScreen = null
+    scene.pointer = null
+    scene.pointerState = ''
+  })
+  scene.listen(scene.renderer.domElement, 'pointerup', scene.pointerUp)
+  scene.listen(scene.renderer.domElement, 'pointercancel', e =>
+    cancelPointerGesture(scene, (e as PointerEvent).pointerId)
+  )
+  scene.listen(scene.renderer.domElement, 'contextmenu', e => e.preventDefault())
+  scene.listen(scene.renderer.domElement, 'wheel', e => {
+    if (!scene.world.inputMask && !scene.messageModal) {
+      e.preventDefault()
+      if ((e as WheelEvent).deltaY) scene.zoom((e as WheelEvent).deltaY < 0)
+    }
+  })
+  scene.listen(window, 'keydown', scene.keyDown)
+  scene.listen(window, 'keyup', e => {
+    const event = e as KeyboardEvent
+    followerGroupDisplayKey(scene.groupDisplay, event, false)
+    scene.keys.delete(event.key.toLowerCase())
+    scene.keys.delete(event.code.toLowerCase())
+    if (event.ctrlKey) scene.keys.add('control')
+    else scene.keys.delete('control')
+    if (event.shiftKey) scene.keys.add('shift')
+    else scene.keys.delete('shift')
+  })
+  const trackNavigation = (event: Event) => {
+    const p = event as PointerEvent
+    scene.navigationPointer =
+      p.pointerType === 'mouse' ? { x: p.clientX, y: p.clientY, buttons: p.buttons } : null
+  }
+  for (const event of ['pointermove', 'pointerdown', 'pointerup'])
+    scene.listen(window, event, trackNavigation)
+  scene.listen(globalThis, 'pointerup', e => {
+    if (e.target !== scene.renderer.domElement)
+      queueBuildingInspection(scene, e as PointerEvent, 'up')
+  })
+  scene.listen(window, 'pointerout', e => {
+    if (!(e as PointerEvent).relatedTarget) scene.navigationPointer = null
+  })
+  scene.listen(window, 'pointercancel', e =>
+    cancelPointerGesture(scene, (e as PointerEvent).pointerId)
+  )
+  const pause = () => {
+    cancelPointerGesture(scene)
+    scene.previous = null
+    scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Paused · warming up')
+    scene.keys.clear()
+    releaseFollowerGroupDisplayKeys(scene.groupDisplay)
+    scene.world.paused = true
+    scene.onChange()
+  }
+  scene.listen(window, 'blur', pause)
+  scene.listen(document, 'visibilitychange', () => {
+    scene.previous = null
+    scene.fpsGraph?.reset(document.hidden ? 'Hidden tab · sampling stopped' : 'Warming up')
+    if (document.hidden) pause()
+  })
+  scene.listen(minimap, 'pointerdown', e => {
+    if ((e as PointerEvent).button !== 0 || scene.world.inputMask || scene.messageModal) return
+    const p = e as PointerEvent,
+      rect = minimap.getBoundingClientRect()
+    scene.focus(
+      browserPosition(
+        minimapPick(
+          scene.mini.width,
+          scene.mini.height,
+          nativePosition(scene.world, scene.viewPoint),
+          Math.round((scene.cameraBearing * 1024) / Math.PI),
+          {
+            x: ((p.clientX - rect.left) / rect.width) * scene.mini.width,
+            y: ((p.clientY - rect.top) / rect.height) * scene.mini.height,
+          }
+        )
+      ),
+      { animate: true }
+    )
+  })
+  scene.listen(minimap, 'contextmenu', e => e.preventDefault())
+}
+
+export function navigationButtons(scene: GameScene) {
+  // 004aa532 skips 00489520 (held keys) and 004adbb0 (screen edge) under an open box.
+  if (
+    scene.world.inputMask ||
+    scene.messageModal ||
+    scene.overviewStage ||
+    document.querySelector('dialog[open]')
+  )
+    return 0
+  let buttons = 0
+  for (const key of scene.keys)
+    buttons = mergeCameraInput(
+      buttons,
+      cameraCommand(cameraKeys[key] ?? 0, {
+        control: scene.keys.has('control'),
+        fast: scene.keys.has('shift'),
+        swap: scene.gamePreferences.rotation === 'control-cursor',
+        reverse: scene.gamePreferences.flipRotation,
+        overview: scene.overviewActive,
+      })
+    )
+  const pointer = scene.navigationPointer
+  if (pointer && !(pointer.buttons & 6))
+    buttons = mergeCameraInput(
+      buttons,
+      cameraEdgeButtons(
+        pointer.x,
+        pointer.y,
+        document.documentElement.clientWidth,
+        document.documentElement.clientHeight
+      )
+    )
+  return buttons
+}
+
+export function chooseFollowers(
+  scene: GameScene,
+  model: number,
+  modifiers: { shiftKey: boolean; ctrlKey: boolean },
+  focus = false,
+  category?: FollowerTask
+) {
+  const w = scene.world
+  if (w.inputMask || scene.overviewStage) return
+  if (!focus && (scene.overviewActive || w.manaWorld.gameFlags & 32)) return
+  if (category && !focus && (scene.drag || scene.pointerButtons)) return
+  if (model === 7 && w.units.some(u => u.team === 'blue' && isShaman(u) && u.hp > 0))
+    w.castingTribes[0].flags |= focus ? 0x1000 : 0x800
+  if (focus) {
+    const taskPeople = category ? hudTaskPeople(w) : [],
+      people = category ? taskPeople : hudPeople(w)
+    const id = category
+      ? focusTaskFollower(
+          taskPeople,
+          model,
+          category,
+          scene.cameraPosition,
+          scene.hudTaskFocus[model * 6 + category],
+          modifiers.shiftKey,
+          !!(w.castingTribes[0].flags & 128)
+        )
+      : focusHudPerson(
+          people,
+          model,
+          scene.cameraPosition,
+          scene.hudFocus[model],
+          modifiers.shiftKey,
+          !!(w.castingTribes[0].flags & 128)
+        )
+    if (category) scene.hudTaskFocus[model * 6 + category] = id
+    else scene.hudFocus[model] = id
+    const person = people.find(p => p.id === id)
+    if (person) {
+      scene.focus(browserPosition(person), { animate: true })
+      scene.objectPanels.open(id)
+    }
+  } else {
+    let mode: 'all' | 'five' | 'single' = 'single'
+    if (modifiers.shiftKey) mode = 'all'
+    else if (modifiers.ctrlKey && model !== 7) mode = 'five'
+    if (category) selectFollowerTask(w, model, category, scene.cameraPosition, mode)
+    else selectFollowers(w, model, scene.cameraPosition, mode)
+  }
+  scene.onChange()
+}
+
+export function chooseTransport(
+  scene: GameScene,
+  kind: TransportKind,
+  model: number,
+  modifiers: { shiftKey: boolean; ctrlKey: boolean },
+  focus = false
+) {
+  const w = scene.world
+  if (w.inputMask || scene.overviewStage) return
+  if (
+    !focus &&
+    (scene.overviewActive || w.manaWorld.gameFlags & 32 || scene.drag || scene.pointerButtons)
+  )
+    return
+  if (focus) {
+    const index = (kind === 1 ? 0 : 8) + model,
+      id = focusTransport(
+        hudTransports(w),
+        hudTaskPeople(w, false),
+        kind,
+        model,
+        scene.cameraPosition,
+        scene.hudTransportFocus[index],
+        !!(w.castingTribes[0].flags & 128)
+      )
+    scene.hudTransportFocus[index] = id
+    const vehicle = w.vehicles.find(v => v.id === id)
+    if (vehicle) {
+      scene.focus(browserPosition(vehicle), { animate: true })
+      scene.objectPanels.open(id)
+    }
+  } else {
+    let mode: 'all' | 'five' | 'single' = 'single'
+    if (modifiers.shiftKey) mode = 'all'
+    else if (modifiers.ctrlKey) mode = 'five'
+    selectFollowerTransport(w, kind, model, scene.cameraPosition, mode)
+  }
+  scene.onChange()
+}
+
+export function acknowledgePointer(scene: GameScene, target: number) {
+  // 0x4b0080 expires after five frontend visits. Use elapsed presentation
+  // time at the existing 24 Hz reference cadence, never rendered-frame count.
+  scene.pointerAck = { target, until: performance.now() + 5000 / 24 }
+}
+
+export function renderTooltip(scene: GameScene, metrics?: PointerFrameMetrics) {
+  const start = metrics ? performance.now() : 0
+  try {
+    const output = scene.tooltipController?.output,
+      state = output ?? scene.tooltip,
+      ordinary = output?.kind === 'object',
+      pointer = ordinary ? output.pointer : null,
+      object = ordinary ? null : worldTooltipObject(scene.world, state.target),
+      element = scene.tooltipElement
+    element.hidden =
+      !state.draw || !state.text || !(pointer || object) || !!document.querySelector('dialog[open]')
+    if (element.hidden) return
+    const p =
+      object &&
+      (object.type === 1
+        ? scene.unitScreen(object.id, 1)
+        : scene.screen(object, scene.y(object) + 512 / 45))
+    if (!pointer && (!p || (object && object.type !== 1 && !scene.visible(object)))) {
+      element.hidden = true
+      return
+    }
+    element.setAttribute(
+      'aria-label',
+      state.text.replaceAll('{}', 'Left-click ').replaceAll('|}', 'Right-click ')
+    )
+    const { left = 0, top = 0, width, height } = scene.container.getBoundingClientRect()
+    drawTooltip(
+      scene.tooltipCanvas,
+      texture('hud').image as HTMLImageElement,
+      state.text,
+      window.innerWidth,
+      Math.trunc(height)
+    )
+    const x = pointer ? pointer.clientX - left : ((p!.x + 1) * width) / 2,
+      y = pointer ? pointer.clientY - top : ((1 - p!.y) * height) / 2
+    element.style.left = `${Math.max(4, Math.min(width - element.offsetWidth - 4, x))}px`
+    element.style.top = `${Math.max(4, Math.min(height - element.offsetHeight - 4, y))}px`
+  } finally {
+    if (metrics) metrics.tooltipRenderMs += performance.now() - start
+  }
+}
+
+export function drawPointer(scene: GameScene, now: number) {
+  const bounds =
+    !scene.overviewActive &&
+    !scene.world.inputMask &&
+    (!scene.world.mode ||
+      blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags)) &&
+    scene.hoveredObject !== null
+      ? scene.picking.personBounds(scene.hoveredObject)
+      : null
+  scene.pointerOutline.style.display = bounds ? '' : 'none'
+  if (!bounds) return
+  const acknowledged =
+    now < scene.pointerAck.until && scene.pointerAck.target === scene.hoveredObject
+  const signature = [
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    bounds.height,
+    scene.gameClock.animationFrame % 12,
+    acknowledged,
+  ].join(',')
+  if (signature === scene.pointerSignature) return
+  scene.pointerSignature = signature
+  const { opacity, lines } = pointerBrackets(bounds, scene.gameClock.animationFrame, acknowledged)
+  scene.pointerPath.setAttribute('stroke-opacity', String(opacity))
+  scene.pointerPath.setAttribute(
+    'd',
+    lines.map(([x, y, u, v]) => `M${x + 0.5},${y + 0.5}L${u + 0.5},${v + 0.5}`).join('')
+  )
+}
+
+export function updatePointerFrame(scene: GameScene, now: number, metrics?: PointerFrameMetrics) {
+  // Original geometry advances per draw; its animation clock is still a
+  // browser 12 Hz presentation clock until native timer ownership is ported.
+  scene.updateSpellHalo(Math.floor((now * 12) / 1000))
+  // Picking projects the entire terrain; repeat when the pointer/view changes.
+  const pointerInputs = [
+    scene.world.mode,
+    scene.world.manaWorld.gameFlags,
+    scene.world.inputMask,
+    scene.world.turn,
+    scene.pointerButtons,
+    scene.pointerScreen?.clientX,
+    scene.pointerScreen?.clientY,
+    scene.world.landVersion,
+    scene.viewPoint.x,
+    scene.viewPoint.z,
+    scene.cameraBearing,
+    scene.viewZoom,
+    scene.viewPreset,
+    scene.viewTransition?.remaining,
+    scene.overviewActive,
+    ...scene.camera.position.toArray(),
+    scene.container.clientWidth,
+    scene.container.clientHeight,
+  ]
+  const pointerState = pointerInputs.join(',')
+  const pointerChanged = pointerState !== scene.pointerState
+  let ground: Point | null | undefined
+  if (pointerChanged) {
+    if (scene.pointerButtons === 1 && scene.pointerScreen) {
+      ground = scene.updateDrag(scene.pointerScreen, metrics)
+      if (metrics?.interaction) metrics.interaction.dragQuery = ground !== undefined
+    }
+    const directBlast =
+        !scene.overviewActive &&
+        blastPersonTargeting(scene.world.mode, scene.world.manaWorld.gameFlags),
+      personId =
+        directBlast && scene.pointerScreen
+          ? metrics
+            ? measurePointerQuery(metrics, 'object', () =>
+                scene.picking.pickPerson(scene.pointerScreen!, metrics)
+              )
+            : scene.picking.pickPerson(scene.pointerScreen)
+          : null,
+      person = personId === null ? null : blastPersonPosition(scene.world, personId, nativePosition)
+    scene.pointer = null
+    if (scene.pointerScreen && scene.world.mode) {
+      if (metrics?.interaction) metrics.interaction.placementQuery = !person
+      scene.pointer = person
+        ? browserPosition(person)
+        : (ground = metrics
+            ? measurePointerQuery(metrics, 'terrain', () =>
+                scene.pick(scene.pointerScreen!, metrics)
+              )
+            : scene.pick(scene.pointerScreen))
+    }
+    scene.hoveredObject = null
+    if (scene.pointerScreen && !scene.pointerButtons && !scene.world.inputMask) {
+      if (directBlast) {
+        if (person) scene.hoveredObject = personId
+      } else if (!scene.world.mode) {
+        scene.hoveredObject = metrics
+          ? measurePointerQuery(metrics, 'object', () =>
+              scene.overviewActive
+                ? (scene.pickWorldObject(scene.pointerScreen!)?.id ?? null)
+                : scene.picking.pick(scene.pointerScreen!, metrics)
+            )
+          : scene.overviewActive
+            ? (scene.pickWorldObject(scene.pointerScreen)?.id ?? null)
+            : scene.picking.pick(scene.pointerScreen)
+      }
+    }
+    scene.pointerState = pointerState
+  }
+  scene.selectionOverlay.visible = scene.dragActive.value
+  const tooltipStart = metrics ? performance.now() : 0
+  publishTooltipInput(scene, pointerChanged, metrics, ground)
+  if (metrics) metrics.tooltipInputMs += performance.now() - tooltipStart
+  if (metrics?.interaction)
+    capturePointerInteraction(
+      metrics.interaction,
+      scene.fpsGraph?.interactionRecording,
+      scene.tooltipInput?.pointer ?? null,
+      pointerInputs,
+      scene.tooltipInput?.route
+    )
+}
+
+export function updateSpellPointerFrame(
+  scene: GameScene,
+  spec: (typeof SPELLS)[number] | undefined
+) {
+  scene.spellPointer.hidden =
+    !spec || !scene.pointerScreen || !!scene.world.inputMask || scene.world.status !== 'playing'
+  if (spec && scene.pointerScreen && !scene.spellPointer.hidden) {
+    const rect = scene.container.getBoundingClientRect()
+    scene.spellPointer.style.left = `${scene.pointerScreen.clientX - rect.left}px`
+    scene.spellPointer.style.top = `${scene.pointerScreen.clientY - rect.top}px`
+    // Native outer-turn ownership and full player records remain adapters.
+    const draws = spellCursor(
+      spec.model,
+      scene.world.turn,
+      scene.pointer ? (spellTargetError(scene.world, spec.id, scene.pointer)?.code ?? 1) : -1,
+      scene.world.shots[spec.id] > 0 ? 3 : 0,
+      !!scene.pointer,
+      scene.world.manaWorld.gameFlags
+    )
+    ;[...scene.spellPointer.children].forEach((child, i) => {
+      const sprite = child as HTMLElement,
+        d = draws[i]
+      sprite.hidden = !d
+      if (d) {
+        const r = (
+          nativeHud.rects as Record<string, { x: number; y: number; w: number; h: number }>
+        )[d.id]
+        sprite.dataset.sprite = String(d.id)
+        Object.assign(sprite.style, {
+          left: `${d.x}px`,
+          top: `${d.y}px`,
+          width: `${r.w}px`,
+          height: `${r.h}px`,
+          backgroundPosition: `-${r.x}px -${r.y}px`,
+        })
+      }
+    })
+  }
+}

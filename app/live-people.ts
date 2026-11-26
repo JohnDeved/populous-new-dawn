@@ -945,6 +945,10 @@ export function strikeLiveLightning(w: World, point: { x: number; y: number }, t
       p.state = 3
       captive.native = p
       if (p.tribe !== -1 && tribe !== -1) p.damageAttacker = tribe
+      // 004d5c70 audio request for this authored normal-owner captive Shaman.
+      // The other state-3 branches retain their existing death adapters.
+      if (p.model === 7 && p.tribe === w.manaWorld.playerTribe && !(p.flags4 & 0x4800))
+        sound(w, 0x0f, browserPosition(p), p.id)
       // Hand state 3 to existing live death cleanup, as electrocution does.
       // This is an adapter handoff, not a life write by native 004da0d0.
       p.life = 0
