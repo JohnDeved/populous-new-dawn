@@ -779,6 +779,20 @@
       "limits": "Direct oracle covers 4,096 inputs including degenerate triangles; live renderer uses the quantized native 32-by-32 normal table. Not a whole-renderer parity claim."
     },
     {
+      "address": "0040cde0",
+      "status": "partial",
+      "scope": "Write the under-construction model cap texture coordinates",
+      "sources": [
+        "app/scene-assets.ts",
+        "app/model-faces.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0040cde0.c",
+        "tests/live-native-model-cap.test.mjs"
+      ],
+      "limits": "CPU nativeModel for model 79 proves the sampled cap UV endpoint subtracts two fixed-point units, with its completed-face UVs as a control. Native pointer handling, other materials and GPU upload are not assessed."
+    },
+    {
       "address": "00415f70",
       "status": "partial",
       "scope": "Use original opaque palette-index color conversion for supported UI",
@@ -3655,6 +3669,20 @@
       "status": "partial"
     },
     {
+      "address": "00462ea0",
+      "status": "partial",
+      "scope": "Close adaptive subdivisions over ancestor tiles in the CPU overview",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00462ea0.c",
+        "tests/live-native-globe-parent-closure.test.mjs"
+      ],
+      "limits": "The CPU globe mesh preserves a coarse tile and matches ordered vertices for two adaptively subdivided tiles, including a tile in a wrapped view. Native viewport seeds, scheduling, renderer update, GPU and pixels are not established."
+    },
+    {
       "address": "00463370",
       "status": "partial",
       "scope": "Apply the Boat stop-state speed, navigation bit and height subset",
@@ -4133,6 +4161,20 @@
       "limits": "The native vehicle materials harness runs ten full vehicle draws and compares the live texture-ID mapping for four tribes and neutral. Browser applies this via retained tile/UV mappings, not the original general polygon queue, projection or clipping."
     },
     {
+      "address": "00474ba0",
+      "status": "partial",
+      "scope": "Choose the connected ground-overlay atlas tile and rotation",
+      "sources": [
+        "app/scene-input-runtime.ts",
+        "app/ground-overlay.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00474ba0.c",
+        "tests/live-native-connected-plan-overlay.test.mjs"
+      ],
+      "limits": "A genuine Mission 1 Hut plan produces the sampled connected-center tile and rotation for valid, invalid and placed modes without persisting terrain flags. Browser pointer, draw ownership, tint and other adjacency patterns are not established."
+    },
+    {
       "address": "00475350",
       "status": "partial",
       "scope": "Visible lightning effect-group cosmetic stream and opacity admission",
@@ -4202,6 +4244,21 @@
         "scripts/check-native-projection.py"
       ],
       "limits": "Native arithmetic is compared under configured level/view flags and consumed by supported effect layers; all original sprite-bank caller modes are not established."
+    },
+    {
+      "address": "004762b0",
+      "status": "partial",
+      "scope": "Deform sampled model vertices away from a Blast wave",
+      "sources": [
+        "app/scene-entities.ts",
+        "app/scene-assets.ts",
+        "app/model-lighting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004762b0.c",
+        "tests/live-native-vault-blast-deformation.test.mjs"
+      ],
+      "limits": "A public Mission 6 Blast on the authored Vault produces three sampled nonzero CPU deformation phases then clears. A farther admitted hit and an uninvolved Vault retain zero offsets. Native dispatch and timing equivalence, GPU and browser are not established."
     },
     {
       "address": "00477060",
@@ -5336,6 +5393,20 @@
       "limits": "2,048 direct native comparisons with uint16 cell words; live selection and AI spell range consume the squared metric. Vehicle-boarding comments identify a different helper."
     },
     {
+      "address": "0049c7a0",
+      "status": "partial",
+      "scope": "Snap the sampled starting terrain within the opening-wave stencil",
+      "sources": [
+        "app/level-start-runtime.ts",
+        "app/level-start.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0049c7a0.c",
+        "tests/live-native-start-stencil.test.mjs"
+      ],
+      "limits": "Authored Mission 3 Green opening reaches two outer cells with the snapped height while two out-of-stencil controls stay unchanged. Natural wrap, native ownership and allocation order, and other tribes and missions are not established."
+    },
+    {
       "address": "0049c890",
       "status": "implemented",
       "scope": "Wrapped square-ring cell lookup",
@@ -6456,6 +6527,20 @@
         "decomp/generated/004bbf30.c"
       ],
       "limits": "Live point branch implements signed nonwrapping arrival window, native 0x200 travel step, terrain floor and trail/cue behavior. Full actor-target, impacts and native shot record lifecycle remain separate."
+    },
+    {
+      "address": "004bd700",
+      "status": "partial",
+      "scope": "Use the native terrain displacement amplitude ranges in atlas sampling",
+      "sources": [
+        "app/terrain-texture.ts",
+        "app/world-environment.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bd700.c",
+        "tests/live-native-terrain-amplitude.test.mjs"
+      ],
+      "limits": "Analytical translation matches the 1,152-entry clamp rule; the Mission 1 CPU terrain atlas verifies low, linear and upper samples using the tracked bank. Native allocation, free and resource flags, renderer dispatch, GPU and browser are not established."
     },
     {
       "address": "004bdcb0",
