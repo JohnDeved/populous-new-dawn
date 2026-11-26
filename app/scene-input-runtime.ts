@@ -420,6 +420,8 @@ export function pointerUp(scene: GameScene, event: PointerEvent) {
   }
   const moved = Math.hypot(event.clientX - scene.down.x, event.clientY - scene.down.y)
   if (moved > 7 && event.button !== 0) return
+  // A right camera drag can end near its press point; it is still not a click.
+  if (event.button === 2 && gesture.moved) return
   if (event.button === 2) {
     // Action 0x7a (Shift+right release, 005d64e4) precedes Swamp removal and
     // right-click deselection: outside placement mode it deletes the hovered
