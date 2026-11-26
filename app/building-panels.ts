@@ -21,8 +21,13 @@ import {
 // not whichever building later occupies that handle before the next paint.
 const panelBuildings = new WeakMap<HTMLDivElement, Building>()
 
+// The animated overview sets its stage before switching the active view.
+function buildingPanelsSuspended(scene: GameScene) {
+  return !!(scene.world.inputMask || scene.overviewActive || scene.overviewStage)
+}
+
 function currentPanelBuilding(scene: GameScene, panel: HTMLDivElement) {
-  if (panel.hidden || !scene.isCurrent() || scene.world.inputMask || scene.overviewActive) return
+  if (panel.hidden || !scene.isCurrent() || buildingPanelsSuspended(scene)) return
   const rendered = panelBuildings.get(panel)
   if (!rendered || scene.buildingPanels.get(rendered.id) !== panel) return
   return scene.world.buildings.find(
@@ -147,7 +152,8 @@ function createPanel(scene: GameScene, b: Building) {
 
 export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement | null) {
   const { world } = scene,
-    modal = !!document.querySelector('dialog[open]')
+    modal = !!document.querySelector('dialog[open]'),
+    suspended = buildingPanelsSuspended(scene)
   for (const [id, panel] of scene.buildingPanels) {
     const building = world.buildings.find(b => b.id === id && b.hp > 0),
       record = scene.objectPanels.buildingRecords.get(id),
@@ -168,13 +174,12 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
           (building.kind === 'temple' && record && record.phase < 0) ||
           (!scene.objectPanels.buildingRecords.has(id) &&
             !((building.kind === 'camp' || building.kind === 'temple') && controlsHeld)))) ||
-      world.inputMask ||
-      scene.overviewActive ||
+      suspended ||
       !controlsHeld
     )
       panel.hidden = true
   }
-  if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) {
+  if (suspended || !atlas?.complete || !atlas.naturalWidth) {
     syncSecondaryReservations(scene)
     return
   }
