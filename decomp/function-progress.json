@@ -6304,6 +6304,20 @@
       "limits": "Tracked 1,024 direct native mapping/payment tests; used by ordinary begin-cast payment and AI checks. Spending, allocation and failure routing separate."
     },
     {
+      "address": "004c2aa0",
+      "status": "partial",
+      "scope": "Saturate the separate live spell gift counter without consuming stock",
+      "sources": [
+        "app/world-effects.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2aa0.c",
+        "tests/live-reward-counters-and-idle-cell.test.mjs"
+      ],
+      "limits": "After a constructed ordinary Bridge gift is added through the live producer, turn 82 increments counters 13 and 14 and saturates 15; already-capped shot stock is preserved. Remake uses a separate per-spell field, not the original packed byte or tribe-record ABI. No native execution or browser claim."
+    },
+    {
       "address": "004c2b60",
       "status": "partial",
       "scope": "Write supported live spell stock low nibble without changing gift nibble",
@@ -6360,6 +6374,34 @@
         "decomp/research/spell-hud-visibility.md"
       ],
       "limits": "app/mana.ts live turn and charging dispatch have the original mode-2 and gameFlags&256 predicate; UI adapter also inhibits when bit 32 is set. Scope excludes that surrounding browser gate."
+    },
+    {
+      "address": "004c2cd0",
+      "status": "partial",
+      "scope": "Increment live ordinary spell stock only when below its normal cap",
+      "sources": [
+        "app/world-effects.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2cd0.c",
+        "tests/live-reward-counters-and-idle-cell.test.mjs"
+      ],
+      "limits": "Constructed Bridge gift delivered on real turn dispatch increments normal-mode stocks 2 and 3 but not cap 4 or above-cap 5. The original optional guard argument, alternate cap on this reward path and packed byte ABI are not established. No native execution or browser claim."
+    },
+    {
+      "address": "004c2d50",
+      "status": "partial",
+      "scope": "Choose the normal or alternate stock ceiling in live player mana distribution",
+      "sources": [
+        "app/mana.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c2d50.c",
+        "tests/live-reward-counters-and-idle-cell.test.mjs"
+      ],
+      "limits": "Bridge charging and the live player-turn mana estimate demonstrate cap 4 without flag 0x20 and cap 5 with it. A constructed availability/stock fixture covers one spell; not an ABI or exhaustive imported table comparison. No native execution or browser claim."
     },
     {
       "address": "004c2d80",
@@ -6632,6 +6674,20 @@
         "scripts/check-native-transport-ownership.py"
       ],
       "limits": "Tracked native probes cover selected transport and electrocution slices; browser does not provide full original person dispatch/object ownership."
+    },
+    {
+      "address": "004d3dd0",
+      "status": "partial",
+      "scope": "Compare both wrapped cell coordinates when a live resting person arrives",
+      "sources": [
+        "app/person-idle.ts",
+        "app/live-resting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d3dd0.c",
+        "tests/live-reward-counters-and-idle-cell.test.mjs"
+      ],
+      "limits": "State-17 live dispatcher returns resting state 19 for different offsets in the same cell, but stays in approach for an adjacent wrapped cell on either axis. Constructed approach state; does not establish every original caller or high return-register bits. No native execution or browser claim."
     },
     {
       "address": "004d3ea0",
@@ -8052,6 +8108,21 @@
       "limits": "Live light refresh finds missing effect owners and retracts remembered cell contributions. Native owner flag check, exact enabled-and-ID scan and immediate destructor ownership differ."
     },
     {
+      "address": "004ee1e0",
+      "status": "partial",
+      "scope": "Immediately unindex and reuse a middle guard-post secondary record without interrupting its follower orders",
+      "sources": [
+        "app/live-command.ts",
+        "app/guard-posts.ts",
+        "app/secondary-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ee1e0.c",
+        "tests/live-guard-secondary-lifecycle.test.mjs"
+      ],
+      "limits": "Live hovered post removal unindexes the cell, retains both neighboring active records, reuses the released pool slot on next placement, and leaves the owning follower order unchanged. Guard-post slice in a constructed Mission 1 world; native linked cell pointers, native sound/light cleanup and arbitrary other secondary classes not proved. No browser/native execution."
+    },
+    {
       "address": "004ee300",
       "status": "partial",
       "scope": "Reconstruct active/free secondary-pool lists in physical slot order",
@@ -9101,6 +9172,21 @@
         "tests/guard-posts.test.mjs"
       ],
       "limits": "Live placement at the guard cap uses highest age, then native-shaped farthest in zero-age cases. Native approximate distance can change ordering, and original list/counter maintenance is not a browser identity match."
+    },
+    {
+      "address": "00503230",
+      "status": "partial",
+      "scope": "Recover guard-post-only smoke cadence from checkpointed secondary records",
+      "sources": [
+        "app/game-store.ts",
+        "app/hut-smoke-runtime.ts",
+        "app/guard-posts.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00503230.c",
+        "tests/live-guard-secondary-lifecycle.test.mjs"
+      ],
+      "limits": "Runtime after in-session checkpoint restore applies the 12/13, 21/22 and 32/33 smoke boundaries despite non-post records. Remake derives the count per post visit rather than writing native cached globals, and its renderer preview is not a class-10/model-16 record. Constructed terrain; no browser/native execution or persisted IndexedDB verification."
     },
     {
       "address": "00503550",
