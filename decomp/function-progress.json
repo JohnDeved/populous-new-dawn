@@ -2693,6 +2693,20 @@
       "limits": "The browser uses live cell-chain order and compares exact positions, tribe, class and stationary speed, but exposes a player-tribe list from slot zero rather than the original arbitrary-tribe lookup from a caller-owned mutable slot cursor; native comparison checks isolated slot geometry and speed."
     },
     {
+      "address": "0043c7a0",
+      "status": "partial",
+      "scope": "Vault prayer phase 2 falls back to approach after losing arrival",
+      "sources": [
+        "app/world-turn.ts",
+        "app/vault.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043c7a0.c",
+        "tests/live-native-vault-arrival.test.mjs"
+      ],
+      "limits": "An ordinary authored Mission 3 order reaches active prayer; controlled same-cell x displacement at goal +11 retains phase 2 and +12 re-enters phase 1 with entering bit and same registered actor/order target. No natural displacement, other phases, inventory, panel, scheduling or full native quest parity."
+    },
+    {
       "address": "0043d510",
       "status": "partial",
       "scope": "Keep an inside follower on an entry command only for its matching footprint",
@@ -3946,6 +3960,20 @@
       "limits": "Native traversal membership across 1,048,576 decisions is checked, but the original rendering dispatcher and browser culling/additional viewport margin are not identical."
     },
     {
+      "address": "0046c340",
+      "status": "partial",
+      "scope": "Numeric terrain/water vertex-light channels: diffuse threshold and capped warm highlight",
+      "sources": [
+        "app/scene-terrain-runtime.ts",
+        "app/projection.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046c340.c",
+        "tests/live-native-terrain-light.test.mjs"
+      ],
+      "limits": "Ordinary updateWater writes RGB light/highlight attributes for supplied samples corresponding to numeric 16/32/33/84. The native C separate packed ARGB path is not exercised through this typed caller; no native XY copying, alpha packing or raster output claim."
+    },
+    {
       "address": "0046cfc0",
       "status": "partial",
       "scope": "Evaluate a live water vertex’s native shore-category predicate",
@@ -3958,6 +3986,20 @@
         "scripts/check-native-water.py"
       ],
       "limits": "Exact native flags 1/0x3c and category mask 0x80 select the live dry branch. Browser normalizes native 1 vs 0x80 to boolean; wave sampling is 0x46cb90 caller, not this function."
+    },
+    {
+      "address": "0046d970",
+      "status": "partial",
+      "scope": "Ground painter front-facing top admission and shared viewport outcode rejection",
+      "sources": [
+        "app/painter.ts",
+        "app/painter-order.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046d970.c",
+        "tests/live-native-painter-commands.test.mjs"
+      ],
+      "limits": "Supplied ground-command cases cover common bottom/left/right rejection and reversed winding. No native sentinel, near-Z or other model branches."
     },
     {
       "address": "0046dbe0",
@@ -4020,6 +4062,20 @@
       "limits": "Native cases use configured 16-bit quadrilaterals; live uses the unmodified input at native-width views, and separately widens it in viewport-bounds.ts for wider presentation. This does not verify widened input or renderer submission."
     },
     {
+      "address": "0046e930",
+      "status": "partial",
+      "scope": "Ground painter command depth cutoff, raised adjustment and bucket cap",
+      "sources": [
+        "app/painter.ts",
+        "app/painter-order.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046e930.c",
+        "tests/live-native-painter-commands.test.mjs"
+      ],
+      "limits": "Actual emitted commands cover depths 0/4, representative baseline/raised/excluded-flag buckets, and cap 3584. No fog, native polygon pool, polygon lifetime or full queue parity."
+    },
+    {
       "address": "0046f080",
       "status": "partial",
       "scope": "Interpolate preceding native render position with retained unit displacement",
@@ -4075,6 +4131,34 @@
         "scripts/check-native-vehicle-materials.py"
       ],
       "limits": "The native vehicle materials harness runs ten full vehicle draws and compares the live texture-ID mapping for four tribes and neutral. Browser applies this via retained tile/UV mappings, not the original general polygon queue, projection or clipping."
+    },
+    {
+      "address": "00475350",
+      "status": "partial",
+      "scope": "Visible lightning effect-group cosmetic stream and opacity admission",
+      "sources": [
+        "app/scene-effects.ts",
+        "app/lightning.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00475350.c",
+        "tests/live-native-lightning-draw.test.mjs"
+      ],
+      "limits": "Supplied visible and culled visits distinguish cosmetic draws and opacity sequence; observed geometry reread leaves stream unchanged. No whole native cull dispatcher, projection, draw loop or cadence parity."
+    },
+    {
+      "address": "00475550",
+      "status": "partial",
+      "scope": "Model pick bounds command: even-tie minimum and maximum depth bucket",
+      "sources": [
+        "app/scene-picking.ts",
+        "app/world-picking.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00475550.c",
+        "tests/live-native-model-bounds.test.mjs"
+      ],
+      "limits": "ScenePicking.model emits bounds after admitted faces for the supplied model. No allocator/pool, GPU outcome or final pick arbitration."
     },
     {
       "address": "00475860",
@@ -8563,6 +8647,20 @@
       "limits": "Per-object helper is tested with loaded native tables and a hooked footprint consumer. Live callers use only scoped descriptor families, supply empty model/morph table arrays and split visit ownership; not end-to-end original dispatch."
     },
     {
+      "address": "004eebc0",
+      "status": "partial",
+      "scope": "Fire effect camera-behind heading write, including wrap",
+      "sources": [
+        "app/scene-effects.ts",
+        "app/scenery-fire.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004eebc0.c",
+        "tests/live-native-fire-heading.test.mjs"
+      ],
+      "limits": "Actual animateFx writes sampled ordinary and wrapped headings 1024 and 0. No native class scheduling, startup, UV or GPU parity."
+    },
+    {
       "address": "004eec80",
       "status": "partial",
       "scope": "Face supported live followers toward the tribe interest point",
@@ -10102,6 +10200,20 @@
         "tests/live-authored-spell-dispatch.test.mjs"
       ],
       "limits": "A live Mission 6 cast with supplied stock and rivals replaces five admitted, registered units in reverse linked-cell discovery order and excludes two beyond the scanned square. Does not establish the native general-purpose helper, nearest-cap and tie behavior for this fixture, arbitrary callbacks, the legacy fallback, or native temporary-field cleanup."
+    },
+    {
+      "address": "00516500",
+      "status": "partial",
+      "scope": "Lightning segment quad corners: ceil rounding with reversed endpoints",
+      "sources": [
+        "app/scene-effects.ts",
+        "app/lightning.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00516500.c",
+        "tests/live-native-lightning-draw.test.mjs"
+      ],
+      "limits": "A supplied parent-only diagonal and reversed endpoints write the expected CPU position attributes (four corners represented by six triangle vertices). No RNG equivalence claim; the unchanged cosmetic seed isolates geometry. No native color/texture submission/material/pool or rendered-pixel parity."
     },
     {
       "address": "00517290",
