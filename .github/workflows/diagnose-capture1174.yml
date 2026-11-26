@@ -1,4 +1,4 @@
-name: Exact paired Vite capture diagnostics
+name: Exact paired Vite capture diagnostics with controlled pressure
 
 # Review this workflow and wrapper before placing them on this dedicated branch.
 # Never promote into a workflow that executes capture code from incoming PRs.
@@ -62,7 +62,7 @@ jobs:
           timeout 165s pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_TEMP/pnd1174-pnpm-store"
           test -d node_modules/.pnpm
           node --input-type=module -e 'import {version} from "vite"; if (version !== "8.0.13") process.exit(1)'
-      - name: Serial ABBA through the real capture parents and one Vite workload
+      - name: Serial ABBA through real Vite and a fixed post-build stdout suffix
         run: python3 diagnostic/scripts/diagnose-capture1174.py measure
       - name: Preserve bounded comparison observations
         if: always()

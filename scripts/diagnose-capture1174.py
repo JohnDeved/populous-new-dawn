@@ -38,6 +38,10 @@ RSS_BUDGET = 3072*MIB
 MIN_INODES = 100000
 SAMPLE_SECONDS = 0.05
 PROC = Path("/proc")
+PRESSURE_BLOCK = b"PND1174-OUTPUT!\n" * 4096
+PRESSURE_BLOCKS = 96
+PRESSURE_BYTES = PRESSURE_BLOCKS * 64 * 1024
+PRESSURE_STOCK_MAX = 64 * 1024
 PAGE = os.sysconf("SC_PAGE_SIZE")
 
 
@@ -179,6 +183,23 @@ console.log(JSON.stringify({sha256, files, bytes, sourcePolicy, version}))
     return json.loads(sp.check_output([node,"--input-type=module","-e",code],cwd=work,text=True,timeout=45))
 
 
+def verify_pressure(path):
+    size = path.stat().st_size
+    require(PRESSURE_BYTES < size <= PRESSURE_BYTES + PRESSURE_STOCK_MAX,
+            "Missing pressure suffix or unexpected stock log size")
+    prefix = size - PRESSURE_BYTES
+    h = hashlib.sha256()
+    with path.open("rb") as logs:
+        stock = logs.read(prefix)
+        require(b"vite v8.0.13" in stock.lower(), "Missing genuine Vite version banner")
+        for _ in range(PRESSURE_BLOCKS):
+            block = logs.read(len(PRESSURE_BLOCK))
+            require(block == PRESSURE_BLOCK, "Wrong pressure bytes or interleaved output")
+            h.update(block)
+        require(not logs.read(1), "Trailing pressure bytes")
+    return {"stockLogBytes":prefix, "suffixBytes":PRESSURE_BYTES, "suffixSha256":h.hexdigest()}
+
+
 def launch(root, node, prod, evidence, arm, number, temp):
     out = prod/f"out-{number}"
     out.mkdir()
@@ -222,7 +243,7 @@ def launch(root, node, prod, evidence, arm, number, temp):
         log_hash = hashlib.file_digest(f,"sha256").hexdigest()
     return {"arm":arm,"captureParentVmHwmKiB":hwm,"sampleCount":len(samples),
             "sampledChildSessionRssBytes":peak_child,"sampledCombinedRssBytes":peak_joint,
-            "logBytes":log.stat().st_size,"logSha256":log_hash,"dist":manifest(out/"dist")}
+            "logBytes":log.stat().st_size,"logSha256":log_hash,"controlledPressure":verify_pressure(log),"dist":manifest(out/"dist")}
 
 
 def main(phase, root):
@@ -266,7 +287,7 @@ def main(phase, root):
                          "arch":os.uname().machine,"kernel":os.uname().release,"logicalCpuCount":os.cpu_count()},
                "versions":{"node":"24.19.0","pnpm":"11.25.0","vite":closure["version"]},
                "source":source,"dependencies":closure,"order":ORDER,"mountAndMemoryAtStart":headroom,"observations":results,
-               "scope":"exact paired stock fixture Vite output; no Chrome; RSS not PSS or whole-host attributable memory"})
+               "scope":"exact paired stock fixture Vite builds with deliberate 6 MiB stdout-only suffix after successful child exit; not naturally verbose Vite, concurrent pressure, Chrome, PSS, or whole-host attributable memory"})
 
 
 if __name__=="__main__":

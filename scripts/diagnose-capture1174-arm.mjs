@@ -2,12 +2,13 @@ import assert from 'node:assert/strict'
 import {readFileSync, readlinkSync, writeFileSync} from 'node:fs'
 import {basename, dirname, resolve} from 'node:path'
 import {spawn} from 'node:child_process'
-import {pathToFileURL} from 'node:url'
+import {fileURLToPath, pathToFileURL} from 'node:url'
 
 const [arm, runtime, output, log, receipt, workloadRevision] = process.argv.slice(2)
 assert.equal(process.version, 'v24.19.0')
 assert.equal(process.arch, 'x64')
 assert.ok(['baseline', 'candidate'].includes(arm))
+const pressureEntry = fileURLToPath(new URL('./diagnose-capture1174-pressure.mjs', import.meta.url))
 // Baseline did not export captureBuild. Its exact inline Promise is executed
 // with the same closed-over values as the stock run.mjs; no duplicate body.
 const capture = arm === 'baseline' ? (() => {
@@ -22,14 +23,17 @@ const capture = arm === 'baseline' ? (() => {
   const browserHarness = resolve('scripts/browser-performance')
   const baselineExpression = expression.replaceAll('import.meta.dirname', 'browserHarness')
   assert.equal(baselineExpression.split('browserHarness').length, 2)
+  const stockEntry = "resolve(browserHarness, 'build.mjs')"
+  assert.equal(baselineExpression.split(stockEntry).length, 2)
+  const pressureExpression = baselineExpression.replace(stockEntry, 'pressureEntry')
   const side = basename(log).replace(/^build-/, '').replace(/\.log$/, '')
-  return () => new Function('spawn', 'process', 'resolve', 'writeFileSync', 'browserHarness', 'sources', 'identity', 'side', 'out', 'output',
-    'return ' + baselineExpression)(spawn, process, resolve, writeFileSync, browserHarness, {[side]:process.cwd()},
+  return () => new Function('spawn', 'process', 'resolve', 'writeFileSync', 'browserHarness', 'pressureEntry', 'sources', 'identity', 'side', 'out', 'output',
+    'return ' + pressureExpression)(spawn, process, resolve, writeFileSync, browserHarness, pressureEntry, {[side]:process.cwd()},
       {[side+'Sha']:workloadRevision}, side, dirname(log), resolve(output))
 })() : await (async () => {
   const {captureBuild} = await import(pathToFileURL(resolve(runtime)).href)
   return () => captureBuild(process.execPath,
-    [resolve('scripts/browser-performance/build.mjs'), process.cwd(), resolve(output), workloadRevision],
+    [pressureEntry, process.cwd(), resolve(output), workloadRevision],
     resolve(log), {timeout:120000, killGrace:5000, drainGrace:1000})
 })()
 function snapshot() {
