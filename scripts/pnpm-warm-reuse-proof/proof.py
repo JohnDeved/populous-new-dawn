@@ -11,7 +11,7 @@ import subprocess
 import time
 
 from measure import measure
-from offline_report import LIMIT, install_log
+from offline_report import LIMIT, install_log, installer_exit_evidence
 from receipt import EXPECTED_TOOLS, document, github_identity, payloads, seal
 
 HEAD = '3032e0d6ae52b597187dfb434596eada4c702b82'
@@ -90,6 +90,13 @@ def private_env(base, name):
     return root,env
 
 
+class InstallerExit(Exception):
+    def __init__(self, returncode, private_log):
+        super().__init__('installer exited unsuccessfully')
+        self.returncode = returncode
+        self.private_log = private_log
+
+
 def guarded(argv, cwd, env, log, reserve, seconds=120, poll=.25, cap=LIMIT):
     deadline=time.monotonic()+seconds
     reserve()
@@ -108,7 +115,8 @@ def guarded(argv, cwd, env, log, reserve, seconds=120, poll=.25, cap=LIMIT):
                     continue
                 reserve()
                 need(os.fstat(stream.fileno()).st_size <= cap, 'installer log cap exceeded')
-                need(code == 0, 'installer exited unsuccessfully')
+                if code != 0:
+                    raise InstallerExit(code,log)
                 # None of the fixed CLI commands should outlive its direct parent.
                 # If a lingering descendant exists, signal it rather than measuring changing state.
                 try:
@@ -200,7 +208,7 @@ def main(seed,warm,experiment):
         receipt['physical']=measure(vstore,seed/'node_modules',warm/'node_modules')
         receipt.update(status='passed',scope='two sparse same-revision checkouts; pnpm offline mode only; no build, network or RAM savings claim')
         return receipt
-    except (ValueError,OSError,subprocess.SubprocessError) as e:
+    except (InstallerExit,ValueError,OSError,subprocess.SubprocessError) as e:
         # Do not include subprocess output, environment values, or arbitrary exception strings.
         reason='timeout' if isinstance(e,subprocess.TimeoutExpired) else {
             'physical reserve/admission failed':'reserve',
@@ -209,6 +217,9 @@ def main(seed,warm,experiment):
             'unexpected surviving installer descendant':'surviving-process',
         }.get(str(e),'validation')
         receipt.update(status='failed',stage=stage,errorClass=type(e).__name__,failureReason=reason)
+        if isinstance(e, InstallerExit):
+            receipt['installerExit']=installer_exit_evidence(
+                e.private_log,e.returncode,stage in {'seed-install','warm-install'})
         return receipt
 
 

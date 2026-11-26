@@ -7,6 +7,8 @@ import re
 import stat
 import tempfile
 
+from offline_report import KNOWN_PNPM_ERRORS, SCAN_STATES
+
 REPOSITORY = 'JohnDeved/populous-new-dawn'
 REF = 'refs/heads/diagnostics/pnpm-warm-reuse-20261126'
 WORKFLOW_REF = f'{REPOSITORY}/.github/workflows/pnpm-warm-reuse-proof.yml@{REF}'
@@ -89,6 +91,22 @@ def document(github,payload_sha,head,tree,metadata,result):
                 re.fullmatch(r'[A-Za-z][A-Za-z0-9]{0,80}',result.get('errorClass','')) and
                 result.get('failureReason') in FAIL_REASONS and 'diagnostic' not in result,
                 'invalid failed result')
+    if status=='failed' and result.get('failureReason')=='installer-exit':
+        x=result.get('installerExit')
+        require(isinstance(x,dict) and set(x)=={'exitStatus','pnpmCodes','pnpmCodeObservation'},
+                'invalid installer exit shape')
+        code=x['exitStatus']
+        require(code is None or (type(code) is int and 1<=code<=255),'invalid installer exit status')
+        codes=x['pnpmCodes']; scan=x['pnpmCodeObservation']
+        require(type(codes) is list and len(codes)<=len(KNOWN_PNPM_ERRORS) and
+                all(type(c) is str and c in KNOWN_PNPM_ERRORS for c in codes) and codes==sorted(set(codes)),
+                'invalid installer codes')
+        require(type(scan) is str and scan in SCAN_STATES and
+                (scan=='matched')==bool(codes) and
+                (scan!='not-pnpm-stage')==(result['stage'] in {'seed-install','warm-install'}),
+                'invalid pnpm code observation')
+    else:
+        require('installerExit' not in result,'unexpected installer exit')
     d={'schema':1,'github':github,'verifiedHarnessSha256':payload_sha,
        'expectedSource':{'head':head,'tree':tree,'metadataSha256':metadata},
        'result':result,
