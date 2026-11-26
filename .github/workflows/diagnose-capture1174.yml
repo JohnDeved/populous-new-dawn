@@ -1,0 +1,76 @@
+name: Exact paired Vite capture diagnostics
+
+# Review this workflow and wrapper before placing them on this dedicated branch.
+# Never promote into a workflow that executes capture code from incoming PRs.
+on:
+  push:
+    branches: [diagnostics/capture1174-paired-20261126]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pnd-exact-paired-capture-1174
+  cancel-in-progress: false
+
+jobs:
+  measure:
+    if: github.repository == 'JohnDeved/populous-new-dawn' && github.event_name == 'push' && github.ref == 'refs/heads/diagnostics/capture1174-paired-20261126'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    env:
+      CI: 'true'
+      NODE_OPTIONS: ''
+      NODE_PATH: ''
+      NODE_COMPILE_CACHE: ''
+      NODE_V8_COVERAGE: ''
+      WRANGLER_SEND_METRICS: 'false'
+    steps:
+      - name: Review-pinned diagnostic source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          path: diagnostic
+          persist-credentials: false
+      - name: Common Vite workload and pre-spool capture
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 20cc16fdf2e9fa9f597def02c551d941af1d9d3c
+          path: workload
+          persist-credentials: false
+      - name: Exact capture candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 53d392a15b37b9e0b8dd99230c11d3b7720d478a
+          path: candidate
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24.19.0'
+          architecture: x64
+          package-manager-cache: false
+      - name: Match exact source and check resource headroom before install
+        run: python3 diagnostic/scripts/diagnose-capture1174.py preflight
+      - name: Install reviewed exact common dependency closure
+        working-directory: workload
+        run: |
+          set -eu
+          test "$(node -p 'process.version + "/" + process.arch')" = v24.19.0/x64
+          test "$(node -p 'require("./package.json").packageManager')" = pnpm@11.25.0
+          timeout 110s npm install --global --ignore-scripts --no-audit --no-fund pnpm@11.25.0
+          test "$(pnpm --version)" = 11.25.0
+          timeout 165s pnpm install --frozen-lockfile --ignore-scripts --store-dir "$RUNNER_TEMP/pnd1174-pnpm-store"
+          test -d node_modules/.pnpm
+          node --input-type=module -e 'import {version} from "vite"; if (version !== "8.0.13") process.exit(1)'
+      - name: Serial ABBA through the real capture parents and one Vite workload
+        run: python3 diagnostic/scripts/diagnose-capture1174.py measure
+      - name: Preserve bounded comparison observations
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
+        with:
+          name: capture1174-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            evidence/*.json
+            evidence/*.log
+          if-no-files-found: warn
+          retention-days: 7
