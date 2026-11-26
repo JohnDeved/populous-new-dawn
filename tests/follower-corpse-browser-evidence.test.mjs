@@ -48,16 +48,16 @@ test('wrong original chain, heading, draw, displayed frame or hidden/unsubmitted
 
 function observation() {
   const before = { id: 1, team: 'blue', kind: 'brave', hp: 1.3, turn: 99, fight: { group: 4, opponent: 20 } }
-  const segment = phases => {
-    const samples = phases.map(phase => ({ ...sample(phase), cropFile: `phase-${phase}.png` }))
-    return { error: null, done: phases.includes(3), samples, crops: samples.map(s => ({
+  const segment = (segment, phases) => {
+    const samples = phases.map(phase => ({ ...sample(phase), cropFile: `follower-corpse-${segment}-${phase}.png` }))
+    return { segment, error: null, done: phases.includes(3), samples, crops: samples.map(s => ({
       filename: s.cropFile, effectId: s.effectId, turn: s.turn, stamp: s.stamp, frame: s.frame,
       phase: s.phase, opaqueColors: 2, sha256: 'a'.repeat(64) })) }
   }
   const effect = { id: 2, corpse: { phase: 1, displayedFrame: 0 }, animation: { object: 312, draw: 14 } }
   return { actorId: 1, effectId: 2, error: null, order: { actorId: 1, target: 20, lastOrderTurn: 80 },
     death: { before, absent: true, newEffect: true, phase: 0, effectId: 2 },
-    segments: [segment([0, 1]), segment([1, 2, 3])],
+    segments: [segment('original', [0, 1]), segment('loaded', [1, 2, 3])],
     checkpoint: { committed: { checkpointSha256: 'b'.repeat(64), version: CHECKPOINT_VERSION, level: 2, turn: 111 },
       committedCorpse: { version: CHECKPOINT_VERSION, level: 2, turn: 111, effect: structuredClone(effect) },
       saved: { turn: 111, effect }, restoredSnapshot: { worldReplaced: true, turn: 111, effect: structuredClone(effect), paused: true },
@@ -128,7 +128,7 @@ test('expired or repeated budget transitions fail even if the timer callback was
   second.budget.dispose()
 })
 
-test('complete synthetic evidence requires combat death, four visible phase crops and actual current load/resume', () => {
+test('complete synthetic evidence requires combat death, five visible phase crops and actual current load/resume', () => {
   assert.deepEqual(validateFollowerCorpseObservation(observation()).originalSources, [304, 312, 320])
   for (const mutate of [r => { r.death.before.fight = null }, r => { r.death.phase = 1 },
     r => { r.order.lastOrderTurn = 100 }, r => { r.order.target = 13 }, r => { r.death.absent = false }, r => { r.death.newEffect = false },
@@ -138,6 +138,21 @@ test('complete synthetic evidence requires combat death, four visible phase crop
     r => { r.checkpoint.holdAfter.animationFrame++ }, r => { r.segments[1].samples.forEach(s => { s.paused = true }) },
     r => { r.segments[1].done = false }]) {
     const r = observation(); mutate(r); assert.throws(() => validateFollowerCorpseObservation(r))
+  }
+})
+
+test('good original phase 1 cannot mask a missing or blank first running loaded phase 1', () => {
+  const cases = [
+    [loaded => { loaded.crops.shift() }, /Exactly one loaded corpse phase 1 crop required/],
+    [loaded => { loaded.crops[0].opaqueColors = 0 }, /Nonblank loaded corpse phase 1 crop required/],
+    [loaded => { loaded.samples[0].cropFile = null }, /first running loaded corpse phase 1/],
+    [loaded => { loaded.samples.unshift({ ...loaded.samples[0], cropFile: null }) }, /first running loaded corpse phase 1/],
+  ]
+  for (const [breakLoaded, expected] of cases) {
+    const report = observation()
+    assert.equal(report.segments[0].crops.find(crop => crop.phase === 1).opaqueColors, 2)
+    breakLoaded(report.segments[1])
+    assert.throws(() => validateFollowerCorpseObservation(report), expected)
   }
 })
 
@@ -231,11 +246,14 @@ function withObserver(run) {
   const rect = { left: 200, top: 0, width: 760, height: 720 }
   const canvas = { width: 760, height: 720, isConnected: true, getBoundingClientRect: () => rect }
   const group = { visible: true, position: {}, userData: { layers: [{ visible: true, userData: { piece: 22 } }], bounds: { left: -8, top: -24, right: 8, bottom: 0 } } }
-  const scene = { world, renderer: { domElement: canvas, info: { render: { frame: 200 } } },
+  const scene = { world, renderer: { domElement: canvas, getRenderTarget: () => null, info: { render: { frame: 200 } } },
     gameClock: { animationFrame: 100, animationTime: 1 }, camera: {}, cameraBearing: 0x380 * Math.PI / 1024,
     fxMeshes: new Map([[2, group]]), view: { screen: () => ({ x: 0, y: 0, z: 0 }), painter: { source: () => ({ object: 2 }) } } }
-  const replacements = { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world } },
-    requestAnimationFrame: fn => { callback = fn; return 1 }, cancelAnimationFrame: () => { callback = null },
+  const replacements = { window: { testSceneRef: { current: scene }, testStore: { getWorld: () => world },
+    __pndBindFollowerCorpseRender: (boundScene, boundWorld, visit) => {
+      assert.equal(boundScene, scene); assert.equal(boundWorld, world); callback = visit
+      return () => { if (callback === visit) callback = null }
+    } },
     document: { visibilityState: 'visible', elementFromPoint: () => canvas, querySelectorAll: () => [],
       createElement: () => {
         let captured
@@ -257,7 +275,7 @@ function withObserver(run) {
     }
     const before = structuredClone(world)
     scene.renderer.info.render.frame++
-    callback()
+    callback(performance.now(), scene.renderer.info.render.frame)
     assert.deepEqual(world, before, 'The observer must not mutate World or effect state')
   }
   try {

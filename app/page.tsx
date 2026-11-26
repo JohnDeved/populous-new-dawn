@@ -63,7 +63,7 @@ import { SpellTestMenu } from './spell-test-menu'
 import { CHEAT_SAVE_NOTICE, spellTestShortcut } from './spell-test-cheats'
 import { followerGroupShortcut } from './follower-groups.ts'
 import worldSelectorStyles from './world-selector.module.css'
-import type { GameScene } from './scene'
+import type { GameScene, OrdinaryRenderObserver } from './scene'
 import { Soundscape } from './audio'
 import {
   DEFAULT_AUDIO_PREFERENCES,
@@ -180,7 +180,9 @@ const HUD_TAB_SHORTCUTS = {
   followers: { code: 'PageUp', label: 'Page Up' },
 } as const
 
-export default function Home() {
+export default function Home({
+  ordinaryRenderObserver,
+}: { ordinaryRenderObserver?: OrdinaryRenderObserver } = {}) {
   const [store] = useState(createGameStore)
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const world = store.getWorld(),
@@ -608,7 +610,8 @@ export default function Home() {
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished),
           { select: selectAcquisitionPanel, measure: measureWorshipHud },
           store.bindPresentation(world),
-          tooltipSession.current
+          tooltipSession.current,
+          ordinaryRenderObserver
         )
         // Import and terrain startup can outlive a setting change. Use the
         // latest page-owned choices without recreating the scene on each toggle.
@@ -640,7 +643,7 @@ export default function Home() {
       scene?.dispose()
       if (engine.current === scene) engine.current = null
     }
-  }, [world, update, store, startup, measureWorshipHud])
+  }, [world, update, store, startup, measureWorshipHud, ordinaryRenderObserver])
   useEffect(() => {
     const modal = startupDialog.current
     if (((startup === 'choice' && startupCampaign) || selectorOpen) && modal && !modal.open) {

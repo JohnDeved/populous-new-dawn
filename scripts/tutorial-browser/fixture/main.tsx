@@ -76,6 +76,39 @@ if (new URLSearchParams(location.search).get('modal-invalidation') === '1') {
 }
 import { createRoot } from 'react-dom/client'
 import Home from '../../../app/page'
+import type { GameScene, OrdinaryRenderObserver } from '../../../app/scene'
+
+function followerCorpseRenderObserver(): OrdinaryRenderObserver {
+  type World = GameScene['world']
+  type Binding = { world: World; visit: (frameTime: number, stamp: number) => void; stop: (reason: string) => unknown }
+  const bindings = new WeakMap<GameScene, Binding>()
+  function bind(scene: GameScene, world: World, visit: Binding['visit'], stop: Binding['stop']) {
+    if (scene.world !== world || bindings.has(scene)) throw Error('Corpse render binding is not unique')
+    const binding = { world, visit, stop }
+    bindings.set(scene, binding)
+    return () => { if (bindings.get(scene) === binding) bindings.delete(scene) }
+  }
+  // Only the serialized browser observer needs this registration entry point.
+  // It is not installed on the shipped page or for other test-host routes.
+  Object.defineProperty(globalThis, '__pndBindFollowerCorpseRender', { value: bind })
+  return {
+    afterFrame(scene, world, frameTime) {
+      const binding = bindings.get(scene)
+      if (!binding) return
+      if (binding.world !== world || scene.renderer.getRenderTarget() !== null) {
+        // The observer also checks exact store / canvas ownership and monotonicity.
+        binding.visit(frameTime, Number.NaN)
+        return
+      }
+      binding.visit(frameTime, scene.renderer.info.render.frame)
+    },
+    onDispose(scene) {
+      const binding = bindings.get(scene)
+      bindings.delete(scene)
+      binding?.stop('scene-disposed')
+    },
+  }
+}
 import '../../../app/globals.css'
 // Separate component-only scroll evidence. Home is imported but never mounted on this route.
 if (new URLSearchParams(location.search).get('pause-checkpoint-scroll-stress') === '1') {
@@ -83,5 +116,7 @@ if (new URLSearchParams(location.search).get('pause-checkpoint-scroll-stress') =
     createRoot(document.getElementById('root')!).render(<Stress />)
   })
 } else {
-  createRoot(document.getElementById('root')!).render(<Home />)
+  const ordinaryRenderObserver = new URLSearchParams(location.search).get('follower-corpse-render') === '1'
+    ? followerCorpseRenderObserver() : undefined
+  createRoot(document.getElementById('root')!).render(<Home ordinaryRenderObserver={ordinaryRenderObserver} />)
 }
