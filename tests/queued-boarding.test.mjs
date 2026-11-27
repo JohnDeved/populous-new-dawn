@@ -164,7 +164,10 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
     if (boat.passengerCount && boarded === null) boarded = world.turn
   }
   assert.deepEqual(lethalHeld, [1, 1], 'both queued records are held until death')
-  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1376, guards[0].id, 1424])
+  // The native single-marker guards (#1059) shift the shared RNG from turn 10, so
+  // walk speeds, contact turns and the western detour's damage are re-measured;
+  // the second supplied Warrior now makes the first contact.
+  assert.deepEqual([lethalFight, lethalOpponent, lethalDeath], [1379, guards[1].id, 1430])
   assert.equal(lethalShaman.hp, 0)
   assert.equal(lethal.units.includes(lethalShaman), false)
   assert.equal(lethal.objectCells.objects.has(lethalShaman.id), false)
@@ -173,7 +176,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   assert.deepEqual(lethalBoat.passengers, [])
   assert.ok(westernClosest < 1)
   assert.deepEqual([westernFight, westernOpponent, westernDeath, westernBoarded], [0, 0, 0, 1525])
-  assert.equal(westernShaman.hp, 58.6)
+  assert.equal(westernShaman.hp, 57)
   assert.equal(western.units.includes(westernShaman), true)
   assert.equal(western.objectCells.objects.get(westernShaman.id), westernShaman.native)
   assert.equal(westernShaman.native.vehicle, westernBoat.id)
@@ -185,7 +188,7 @@ test('grounded staged boarding retains and visits the preceding waypoint', async
   // is not that contract; both predecessor and one actual retirement are checked.
   assert.equal(controlRetirements,1)
   assert.ok(closest < 1)
-  assert.equal(boarded, 1380)
+  assert.equal(boarded, 1376)
   assert.equal(shaman.hp, 100.6)
   assert.equal(world.buildingOrders.records[first].references, 0)
   assert.equal(world.buildingOrders.records[second].references, 0)

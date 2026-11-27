@@ -244,12 +244,25 @@ test('N switches every tribe patroller with a later action with one RNG step eac
   b.state = 10
   // Unselected people are switched too, and the move actually executes.
   assert.equal(releasePlayerPatrols(w), 1)
-  const reached = new Set()
+  // Each released move completes by native arrival (0x43bb60: square overlap of
+  // the Brave radius 384 and 56 around the move record's point) as the cursor
+  // leaves slot 2. The old Euclidean 2-unit check was test-chosen; shared-RNG
+  // speed draws (#1059) moved the diagonal approach to 2.06.
+  const moves = [a, b].map(p => ({ ...w.buildingOrders.records[p.commands[2]] }))
+  assert.deepEqual(moves.map(o => o.model), [3, 3])
+  const reached = new Map()
   for (let i = 0; i < 400; i++) {
+    const before = [a, b].map(p => p.commandCursor)
     turn(w, 1)
-    for (const u of w.units.slice(0, 2)) if (near(u, C, 2)) reached.add(u.id)
+    ;[a, b].forEach((p, index) => {
+      if (before[index] !== 2 || p.commandCursor !== 3) return
+      const { a: x, b: y } = moves[index], wrap = d => Math.min(Math.abs(d), 65536 - Math.abs(d))
+      reached.set(p.id, [w.turn, Math.max(wrap((p.x & 65535) - x), wrap((p.y & 65535) - y))])
+    })
   }
   assert.equal(reached.size, 2, 'both released people walk to the queued move')
+  for (const [id, [, offset]] of reached) assert.ok(offset < 384 + 56, `${id} arrived at the move`)
+  assert.deepEqual([...reached.values()].map(([at]) => at), [157, 161])
   // The surviving later point (slot 3) is a single area guard and holds.
   for (const p of [a, b]) assert.equal(currentPersonOrder(w.buildingOrders, p).model, 11)
 })

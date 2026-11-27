@@ -85,6 +85,7 @@ Recent reusable topic notes: [Original Game options and bounded keyboard prefere
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
 [Player scatter (D) and person state 43](research/player-scatter.md),
 [Player Guard Posts, follower guard/patrol assignment and N release](research/guard-posts.md),
+[Computer single-marker guard order preparation](research/computer-marker-guards.md),
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Animation cadence audit across rendered families](research/animation-cadence.md),

@@ -72,7 +72,10 @@ test('losing an acquired building rescans the area, fights a new person and reta
   } = scenario(1, false)
   until(w, () => p.substate === 3)
   b.hp = 0
-  const enemy = addUnit(w, 'red', 'brave', { x: 1, z: -1 })
+  // Supplied enemy on the approach side of the hut cell, so the rescan meets it
+  // whenever its resting timer (shared RNG) ends; at (1,-1) it could stand up and
+  // walk out of the area before the Warrior arrived.
+  const enemy = addUnit(w, 'red', 'brave', { x: 1, z: 1 })
   tick(w, 1 / 12)
   assert.equal(currentPersonOrder(w.buildingOrders, p).model, 19)
   assert.equal(p.substate, 0, 'invalid target restarts search instead of completing the order')
