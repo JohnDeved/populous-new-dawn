@@ -106,6 +106,13 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
   const store = createGameStore()
   store.startMission(18)
   const w = store.getWorld()
+  const blueShaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+  assert.ok(blueShaman)
+  const freshBlueOpener = w.levelStart.some(
+    site => site.tribe === 0 && site.shaman === blueShaman.id && site.phase === 0 && site.entering
+  )
+  assert.equal(w.levelStart.length, freshBlueOpener ? 1 : 0)
+  const expectedArrival = freshBlueOpener ? 1817 : 1777
   while (w.turn < 1472) tick(w, 1 / 12)
   const ai = w.campaignAIs[1],
     u = w.units.find(u => u.id === 430),
@@ -123,8 +130,14 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
     false
   )
   assert.equal(w.objectCells.objects.get(430), p)
-  assert.equal(w.buildingOrders.records[3].references, 1)
-  assert.deepEqual(owners(3), [430])
+  // A fresh Blue opening can allocate earlier slots in the shared order pool.
+  // Bind the incumbent by this Preacher's real order, not by allocation order.
+  const previousOrder = currentPersonOrder(w.buildingOrders, p),
+    previousOrderId = p.commands.find(id => id > 0 && w.buildingOrders.records[id] === previousOrder) ?? 0
+  assert.ok(previousOrderId > 0)
+  assert.deepEqual([previousOrder.model, previousOrder.a, previousOrder.b], [17, 25856, 47360])
+  assert.equal(previousOrder.references, 1)
+  assert.deepEqual(owners(previousOrderId), [430])
   const origin = { x: u.x, z: u.z }
   tick(w, 1 / 12) // Original input1472 is visible in post-world1473.
   const taskIndex = ai.tasks.findIndex(t => t.flags & 1 && t.type === 11)
@@ -134,7 +147,6 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
   assert.ok(store.loadCheckpoint())
   const replay = store.getWorld()
   assert.deepEqual(replay, w)
-  const previousOrder = w.buildingOrders.records[3]
   let commit = 0,
     preaching = 0,
     replacementOrder = 0,
@@ -153,14 +165,14 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
       replacementOrder =
         person.commands.find(id => id > 0 && w.buildingOrders.records[id] === order) ?? 0
       assert.ok(replacementOrder > 0)
-      assert.notEqual(replacementOrder, 3)
+      assert.notEqual(replacementOrder, previousOrderId)
       assert.deepEqual([order.model, order.a, order.b], [17, 25728, 640])
       assert.deepEqual(person.commands.filter(Boolean), [replacementOrder])
       commit = w.turn
       assert.equal(person, p)
       assert.equal(ai.selectionOwner === taskIndex, false)
-      assert.equal(w.buildingOrders.records[3].references, 0)
-      assert.deepEqual(owners(3), [])
+      assert.equal(w.buildingOrders.records[previousOrderId].references, 0)
+      assert.deepEqual(owners(previousOrderId), [])
       assert.deepEqual(owners(replacementOrder), [430])
       assert.equal(order.references, 1)
     }
@@ -185,9 +197,10 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
   assert.equal(commit, 1478)
   assert.ok(arrival > commit, 'the live follower reaches the sermon goal before its animation')
   assert.equal(preaching, arrival + 7)
-  // Yellow construction advances the shared RNG: the same native speed draw
-  // is 68 rather than baseline60. Arrival moves1817→1777; animation stays7.
-  assert.equal(preaching, 1784)
+  // The fresh Blue opening advances the shared RNG and changes this route's
+  // movement speed draw (68 without it, 60 with it), not the seven animation ticks.
+  assert.equal(arrival, expectedArrival)
+  assert.equal(preaching, freshBlueOpener ? 1824 : 1784)
   assert.equal(u.native, p)
   assert.ok(
     u.x !== origin.x || u.z !== origin.z,
@@ -197,7 +210,7 @@ test('ordinary M18 recurring dispatch replaces the old sermon and preserves live
   assert.deepEqual([order.model, order.a, order.b], [17, 25728, 640])
   assert.equal(order.references, 1)
   assert.deepEqual(owners(replacementOrder), [430])
-  assert.equal(w.buildingOrders.records[3].references, 0)
+  assert.equal(w.buildingOrders.records[previousOrderId].references, 0)
   assert.equal(u.native.substate, 3)
   assert.ok(u.hp > 0)
   // Supplied kill credit closes future requests without canceling this real sermon.

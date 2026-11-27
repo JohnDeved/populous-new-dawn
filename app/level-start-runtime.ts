@@ -68,7 +68,7 @@ function stoneBurst(w: World, point: StartPoint, tribe: number) {
 }
 
 // Native load 0x42b230 -> 0x419810/0x419880 queues command18 on authored
-// shamans. Scope is deliberately limited to the three traced release missions.
+// shamans. Keep the three traced release missions and restore the separately traced Blue opening in M18.
 export function initializeLevelStart(w: World) {
   w.levelStart = []
   w.levelStartStoneSound = 0
@@ -82,10 +82,11 @@ export function initializeLevelStart(w: World) {
       h: position.h,
     }
   }
-  if (w.outcome.level < 1 || w.outcome.level > 3) return
+  const mission18 = w.outcome.level === 18
+  if (!mission18 && (w.outcome.level < 1 || w.outcome.level > 3)) return
   const people = missionData(w.outcome.level).level.objects.filter(o => o.type === 1)
   for (const u of w.units) {
-    if (u.kind !== 'shaman' || u.team === 'wild') continue
+    if (u.kind !== 'shaman' || u.team === 'wild' || (mission18 && u.team !== 'blue')) continue
     u.native ??= createLivePerson(w, u)
     const p = u.native,
       position = nativePosition(w, u)
