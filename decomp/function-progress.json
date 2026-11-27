@@ -3716,6 +3716,22 @@
       "limits": "Some live states require active-owner adapters; missing/dormant users are deliberately not treated as proven original idle/busy classification."
     },
     {
+      "address": "004514f0",
+      "status": "partial",
+      "scope": "Choose an occupied Boat by idle-driver preference and matching passenger distance",
+      "sources": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004514f0.c",
+        "decomp/research/follower-task-panel.md",
+        "scripts/check-native-followers-panel.py",
+        "tests/live-swamp-init-and-panel-context.test.mjs"
+      ],
+      "limits": "Retained original vehicle searches execute the active class and two-pass policy. Real current follower-transport selection in controlled Mission 22 selects the idle driver first, then ranks eligible Brave passenger position when both are busy. Not all variants, nearby lookup, pointer routing, linked-list ties or selection of other occupants."
+    },
+    {
       "address": "00451720",
       "status": "partial",
       "scope": "Pick the next eligible HUD follower from nearby priority bands or globally",
@@ -6415,6 +6431,21 @@
       "limits": "Retained actual original 5399 + 1 visits and current ordinary Mission 15 natural expiry. Not arbitrary decrement, native pause/configuration, exact post-expiry timing, timer setup, query or cancellation."
     },
     {
+      "address": "004a5ec0",
+      "status": "partial",
+      "scope": "Return expiry for the enabled authored Mission 15 countdown only at zero, not while positive or after cancellation.",
+      "sources": [
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a5ec0.c",
+        "scripts/check-native-mission15-prison.py",
+        "decomp/research/mission15-prison.md",
+        "tests/mission15-prison.test.mjs"
+      ],
+      "limits": "Original executes the actual query with positive, expired, and cancelled countdowns. The live ordinary authored opcode-1202 poll projects active zero/positive/null into script variable 9; this does not claim native flags storage, decrement, cadence parity, or independently credit mask-clearing routines."
+    },
+    {
       "address": "004a6480",
       "status": "partial",
       "scope": "Visit supported scenery timber reservation and stone behavior",
@@ -7605,6 +7636,21 @@
       "limits": "1,024 direct full native calls compare allocation requests and overrides; live AI admits enemies and allocates actual effects through browser adapters. In a controlled live shoreline fixture, the owned raid reserve rejects equality and allows a real Blast one mana above it; this is not new aim-search or authored mission evidence."
     },
     {
+      "address": "004c6da0",
+      "status": "partial",
+      "scope": "Return an incomplete authored Mission 6 construction task to phase 4 after sixteen deficient phase-8 builder visits.",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c6da0.c",
+        "scripts/check-native-mission6-economy.py",
+        "decomp/research/mission6-economy.md",
+        "tests/mission6.test.mjs"
+      ],
+      "limits": "Retained native runs the actual phase-8 retry with only unrelated progress helper intercepted; browser dispatch retains 16 retries and transitions 8→4 on the next visit after supplied worker loss. Not a claim for native retained builder byte, full construction state machine, or phase-8 behavior with all roster/plan combinations."
+    },
+    {
       "address": "004c7370",
       "status": "partial",
       "scope": "Advance supported phase-8 Convert Wild decisions and timeout in the Mission 3 type-2 task",
@@ -8602,6 +8648,22 @@
         "decomp/research/follower-groups.md"
       ],
       "limits": "Live recall and drag reject flags4&128. Native also rejects flags4&0x800 unless its caller permits ghosts; browser does not map that branch in these helpers."
+    },
+    {
+      "address": "004e5530",
+      "status": "partial",
+      "scope": "Allocate Matak’s first authored Mission 11 BUILD_AT Tower task with the packed origin and exact-coordinate selector.",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/computer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e5530.c",
+        "scripts/check-native-mission11-build-at.py",
+        "decomp/research/mission11-exact-tower.md",
+        "tests/mission11-matak-tower-sequence.test.mjs"
+      ],
+      "limits": "Retained native script/probe executes the first eligible and ineligible request with construction count supplied, maintaining exact first-slot payload and RNG. Live authored phase 0 proves packed 0xa678, model 4, extra 1 and queue phase 0. Not a claim for general task pool headroom, raw RNG representation, subsequent placement, or later towers."
     },
     {
       "address": "004e5580",
@@ -10291,6 +10353,21 @@
       "limits": "Current script force path invokes live head/payload; original linked shrine and ownership/effect state not fully reproduced."
     },
     {
+      "address": "004feed0",
+      "status": "partial",
+      "scope": "Allow ordinary right-button person inspection only from neutral interaction mode",
+      "sources": [
+        "app/scene-input-runtime.ts",
+        "app/object-panels.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004feed0.c",
+        "scripts/check-native-person-panel.py",
+        "tests/live-swamp-init-and-panel-context.test.mjs"
+      ],
+      "limits": "Original directly checks its picking flag and mode. With a controlled hit and ordinary-play context on authored Mission 1, current pointer admission opens a real person panel only in neutral mode, not with Blast armed. Not all mode or picker states, native flag ownership, modifier table, hit resolution or rendered output."
+    },
+    {
       "address": "00500a30",
       "status": "partial",
       "scope": "Initialize supported live model-16 guard post state",
@@ -10628,6 +10705,22 @@
       "limits": "Only native panel kinds 1 and 2 are mapped here. Native draw submissions and sizes are compared; not the complete original multi-kind panel dispatcher."
     },
     {
+      "address": "00509000",
+      "status": "partial",
+      "scope": "Use the original fixed Boat and Balloon mesh heights for live panel anchoring",
+      "sources": [
+        "app/object-panels.ts",
+        "app/original-models.json"
+      ],
+      "evidence": [
+        "decomp/generated/00509000.c",
+        "decomp/research/vehicle-panel.md",
+        "scripts/check-native-vehicle-panel.py",
+        "tests/live-swamp-init-and-panel-context.test.mjs"
+      ],
+      "limits": "Original directly derives offsets for original meshes 143 and 144 from supplied source records. Current actual Mission 22 panel creation stores 373 or 678 from the imported meshes. Not arbitrary meshes, other panel classes, variant height formulas, screen projection or pixels."
+    },
+    {
       "address": "00509290",
       "status": "partial",
       "scope": "Latch an automatic training panel only after admission by the active owner",
@@ -10916,6 +11009,22 @@
         "scripts/check-native-land-bridge.py"
       ],
       "limits": "Original complete Land Bridge comparisons cover ordered terrain/trails; app maps supported signed geometry while keeping whole effect owner/producers separate."
+    },
+    {
+      "address": "00511340",
+      "status": "partial",
+      "scope": "Initialize the live Swamp impact lifetime and one gameplay-random appearance variant",
+      "sources": [
+        "app/swamp.ts",
+        "app/spell-effects-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00511340.c",
+        "scripts/check-native-swamp.py",
+        "tests/swamp.test.mjs",
+        "tests/live-swamp-init-and-panel-context.test.mjs"
+      ],
+      "limits": "Retained original initialization cases execute the state and RNG logic with an effect owner supplied. Current Swamp command and real flying impact in an authored world initialize 32000 and the variant from one gameplay draw after two distinct projectile trail draws. Not natural flight reach, art, initial flags, eviction policy or complete original class allocation."
     },
     {
       "address": "00511800",
