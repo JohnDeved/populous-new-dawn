@@ -1155,6 +1155,22 @@
       "limits": "Direct native fixture compares arithmetic output, not the original affordability return. Browser calculates the signed cost and live conversion checks its stored, capped cost in a separate caller rather than returning original affordability from this routine."
     },
     {
+      "address": "0041b180",
+      "status": "partial",
+      "scope": "Restore the selected Preacher in the authored Mission 3 type-8 defense movement branch before the general area-order commit.",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0041b180.c",
+        "decomp/generated/004c5f70.c",
+        "scripts/check-native-mission3-defense-task.py",
+        "decomp/research/mission3-defense-task.md",
+        "tests/mission3-defense-task.test.mjs"
+      ],
+      "limits": "Original executes real phase-5 dispatcher with animation supplied; ordinary chosen Preacher exits state14 to state10 and retains model3 movement while Warrior receives area19. Ordinary current Temple acquisition and intruder prove selected state14 and movement/model3 phase6. Not the generic all-model restore, motion under protected flags, terrain acceptance, or queue allocation."
+    },
+    {
       "address": "0041b240",
       "status": "partial",
       "scope": "Deny a live hut birth when the ordinary housing limit is reached",
@@ -2152,6 +2168,23 @@
         "tests/game.test.mjs"
       ],
       "limits": "The ordinary Mission 2 message carries target 0x60cc and payload 308; the neighboring text-only message is distinct. No native camera origin or angle, all input descriptors, state layout, or rendered parity."
+    },
+    {
+      "address": "00430f30",
+      "status": "partial",
+      "scope": "Assign the low 16 bits of the lifetime to the eligible last message in the authored Mission 4 opcode-1179 contexts.",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/messages.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00430f30.c",
+        "decomp/generated/0048cc60.c",
+        "decomp/research/mission4.md",
+        "scripts/check-native-messages.py",
+        "tests/mission4-opening.test.mjs"
+      ],
+      "limits": "Original script execution reaches the unhooked descriptor-bit-conditioned leaf and establishes a 16-bit write. The current maintained authored Mission 4 test supplies turns 253, 509, and 765 and controlled player follower readiness, then observes lifetime 256 on the real script ticks. The browser interprets the value as signed and admits its supported type via a packed flag; no equivalent native signed consumer, general descriptor table/ABI, unrelated notification class, or natural progression is claimed."
     },
     {
       "address": "00430fe0",
@@ -3197,6 +3230,24 @@
         "tests/live-authored-flyby-start.test.mjs"
       ],
       "limits": "The ordinary M3 authored start sets the input mask; the flight controller holds the starting pose for six samples. Removing only warmup preserves the mask but makes the camera move early. Does not establish other guards, modal/reset behavior or rendered frames."
+    },
+    {
+      "address": "00449060",
+      "status": "partial",
+      "scope": "Set interruptible flyby flag 0x10 on the authored true opcode-1208 opening path.",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/flyby.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00449060.c",
+        "decomp/generated/0048cc60.c",
+        "scripts/check-native-flyby.py",
+        "decomp/research/mission13-opening.md",
+        "tests/mission13-opening.test.mjs",
+        "decomp/README.md"
+      ],
+      "limits": "Original first-mission opcode1208(true) reaches the unhooked bit setter in the retained independent flyby timeline; ordinary current Mission 13 Yellow tick reaches flags 0x15 including bit0x10. This credits only the true branch's bit, not the false opcode case, OS input mask/early release, camera rendering, notification side effects, or the full flyby lifecycle."
     },
     {
       "address": "00449080",
@@ -10226,6 +10277,21 @@
         "decomp/generated/004f8e10.c"
       ],
       "limits": "Live 0x4f5950-style scan excludes either -1 (native 0xff) wildcard, equal tribe or an asserted alliance bit. The original standalone predicate also returns the raw alliance mask for allied non-identical tribes; the live branch does not expose that result or reproduce other callers."
+    },
+    {
+      "address": "004f6840",
+      "status": "partial",
+      "scope": "Reset motion and idle anchor for a cancelled authored Mission 3 type-11 selection even when protection blocks the chosen person's state transition.",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f6840.c",
+        "scripts/check-native-mission3-preacher-task.py",
+        "decomp/research/mission3-person-task.md",
+        "tests/mission3-preacher-task.test.mjs"
+      ],
+      "limits": "Unhooked native cleanup with state14 and flag0x100000 leaves state and active route/goal unchanged, clears motion timer/mode and sets anchor to its cell-centered point with flags zero. Current maintained owned task cancellation matches exact before/after values. Does not credit general releaseSelection, unrelated task types, or borrowed routine address 00418ce0."
     },
     {
       "address": "004f6c20",
