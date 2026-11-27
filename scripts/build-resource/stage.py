@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 
 from launcher import PreLaunchFailure, restore_exec_signals, run_owned
+from observer import LATE_PROFILE, MAX_READ_NS, MAX_SLOTS
 
 SCOPE = {
     "root": "exact package-manager process spawned by launcher",
@@ -15,7 +16,10 @@ SCOPE = {
     "memory": "sampled process-tree sums, not cgroup or whole-job peak",
     "filesystem": "working-directory filesystem available bytes at stage boundaries; not attributable",
 }
-SECONDS, INTERVAL_MS, MAX_LOG_BYTES = 15, 250, 4096
+SECONDS, INTERVAL_MS = LATE_PROFILE
+MAX_LOG_BYTES = 4096
+WINDOW_NS = SECONDS * 1_000_000_000
+SCHEMA = "pnd-quality-build-telemetry-v3"
 
 def filesystem_available():
     try:
@@ -50,7 +54,7 @@ def measure(executable, *, spawn=run_owned, free=filesystem_available, clock=tim
         "missingTopologyCounts": issues,
     }
     report = {
-        "schema": "pnd-quality-build-telemetry-v1",
+        "schema": SCHEMA,
         "scope": SCOPE,
         "windowSeconds": SECONDS,
         "intervalMs": INTERVAL_MS,
@@ -60,6 +64,7 @@ def measure(executable, *, spawn=run_owned, free=filesystem_available, clock=tim
         "availableBytesBefore": available_before,
         "availableBytesAfter": available_after,
         "observation": observations,
+        "sampleSeriesStatus": samples.get("status", "bounded-series-unavailable"),
     }
     return raw, add_series(report, samples)
 
@@ -75,8 +80,8 @@ def add_series(report, samples):
     pair = lambda a: (isinstance(a, list) and len(a) == 2 and
                       all(numeric(x, 0, 9_999_999_999_999_999_999) for x in a) and
                       0 <= a[1] - a[0] <= 5_000_000)
-    if (len(rows) > 60 or not pair(anchor) or not pair(end) or
-            not numeric(delta, 0, 15_250_000_000) or end[0] < anchor[1] or
+    if (len(rows) > MAX_SLOTS or not pair(anchor) or not pair(end) or
+            not numeric(delta, 0, WINDOW_NS + MAX_READ_NS) or end[0] < anchor[1] or
             end[0] - anchor[1] < delta - 50_000_000 or
             end[1] - anchor[0] > delta + 50_000_000):
         return report
@@ -89,32 +94,33 @@ def add_series(report, samples):
         count, pss = row.get("members"), row.get("pssKiB")
         if pss is None:
             continue
-        if (not numeric(nominal, 0, 14_999) or not numeric(span, 0, 250_000_000) or
+        if (not numeric(nominal, 0, SECONDS * 1000 - 1) or nominal % INTERVAL_MS or
+                not numeric(span, 0, MAX_READ_NS) or
                 not numeric(count, 2, 32) or not numeric(pss, 0, 999_999_999) or
-                not numeric(began, nominal * 1_000_000, 14_999_999_999) or
-                not numeric(ended, began, min(delta, 15_000_000_000,
-                            (nominal + INTERVAL_MS + 1) * 1_000_000)) or
+                not numeric(began, nominal * 1_000_000, WINDOW_NS - 1) or
+                not numeric(ended, began, min(delta, WINDOW_NS,
+                            nominal * 1_000_000 + MAX_READ_NS)) or
                 ended - began != span or
                 (series and (series[-1][0] >= began or series[-1][1] > began))):
             return report
         series.append([began, ended, count, pss])
     if not series or max(r[3] for r in series) != report["observation"]["maximaKiB"]["pssKiB"]:
         return report
-    candidate = dict(report, schema="pnd-quality-build-telemetry-v2", sampleSeries={
+    candidate = dict(report, sampleSeriesStatus="sampled", sampleSeries={
         "columns": ["sampleStartOffsetNs", "sampleEndOffsetNs", "members", "pssKiB"],
         "anchorUtcNs": list(map(str, anchor)),
         "endAnchorUtcNs": list(map(str, end)),
         "anchorElapsedNs": delta,
         "rows": series,
     })
-    return candidate if len(encode(candidate)) <= MAX_LOG_BYTES else report
+    return (candidate if len(encode(candidate)) <= MAX_LOG_BYTES
+            else dict(report, sampleSeriesStatus="series-exceeds-log-budget"))
 
 def emit(report):
     raw = encode(report)
     if not 0 < len(raw) <= MAX_LOG_BYTES:
         raise ValueError("bounded telemetry exceeds log contract")
-    version = "V2" if report.get("schema") == "pnd-quality-build-telemetry-v2" else "V1"
-    print("\nPND_QUALITY_BUILD_TELEMETRY_" + version + " " + raw.decode(), flush=True)
+    print("\nPND_QUALITY_BUILD_TELEMETRY_V3 " + raw.decode(), flush=True)
 
 def main(argv=None):
     p = argparse.ArgumentParser()
