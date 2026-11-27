@@ -102,7 +102,14 @@ export function OriginalLoadingScreen({ phase, error, onRetry }: Props) {
       {phase === 'failed' && (
         <section className="loading-recovery">
           <h2>Loading failed</h2>
-          <p>The battlefield did not finish loading. Try again to retry the same request.</p>
+          {error === 'THREE.WebGLRenderer: Error creating WebGL context.' ? (
+            <p>
+              This browser could not start WebGL 2. Check that hardware acceleration is enabled, or
+              try another browser or device that supports WebGL 2.
+            </p>
+          ) : (
+            <p>The battlefield did not finish loading. Try again to retry the same request.</p>
+          )}
           <details>
             <summary>Technical details</summary>
             <p>{error}</p>
