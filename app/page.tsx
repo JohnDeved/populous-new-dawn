@@ -6,6 +6,7 @@ import { QueryControlArt } from './query-control.tsx'
 
 import { FullscreenControl } from './fullscreen-control'
 import { OriginalOptions } from './original-options'
+import { isStaySelectedShortcut } from './stay-selected-shortcut'
 import { BrowserHelpTips } from './browser-help-tips'
 import { prepareFrontendAssets, type FrontendAssets } from './frontend-assets'
 import { OriginalLoadingScreen } from './original-loading-screen'
@@ -197,6 +198,13 @@ export default function Home() {
   const { volume, musicVolume } = audioPreferences
   const [gamePreferences, setGamePreferences] = useState<GamePreferences>(DEFAULT_GAME_PREFERENCES)
   const gamePreferencesRef = useRef(gamePreferences)
+  // Keep the current default and use a page-session choice only; no saved format change.
+  const [staySelected, setStaySelected] = useState(true)
+  const staySelectedRef = useRef(true)
+  const toggleStaySelected = useCallback(() => {
+    staySelectedRef.current = !staySelectedRef.current
+    setStaySelected(staySelectedRef.current)
+  }, [])
   const [gameStorageNotice, setGameStorageNotice] = useState('')
   const [soundPending, setSoundPending] = useState(false)
   const [hudPreference] = useState(createHudPreferenceStore)
@@ -613,6 +621,7 @@ export default function Home() {
         // Import and terrain startup can outlive a setting change. Use the
         // latest page-owned choices without recreating the scene on each toggle.
         created.gamePreferences = gamePreferencesRef.current
+        created.staySelectedOrdinaryMove = () => staySelectedRef.current
         scene = created
         engine.current = created
         if (messageSession.current?.world === world) created.setMessageModal(true)
@@ -669,6 +678,13 @@ export default function Home() {
   }, [ready, startup, menu, selectorOpen, world, cheatsOpen, cancelNearbyInput])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      const stayShortcut = isStaySelectedShortcut(e)
+      if (
+        stayShortcut &&
+        (!(e.target instanceof Element) ||
+          e.target.closest('input,textarea,select,dialog,a,[contenteditable], [role="textbox"]'))
+      )
+        return
       if (
         !ready ||
         menu ||
@@ -711,6 +727,20 @@ export default function Home() {
         if ((e.code === 'Space' || e.key === 'Escape') && world.flyby.flags & 1) {
           e.preventDefault()
           engine.current?.skipIntroduction()
+        }
+        return
+      }
+      if (stayShortcut) {
+        if (
+          !selectorOpen &&
+          world.status === 'playing' &&
+          store.getWorld() === world &&
+          engine.current?.world === world &&
+          e.isTrusted &&
+          !e.defaultPrevented
+        ) {
+          e.preventDefault()
+          toggleStaySelected()
         }
         return
       }
@@ -818,7 +848,7 @@ export default function Home() {
     }
     window.addEventListener('keydown', key)
     return () => window.removeEventListener('keydown', key)
-  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen, syncMessageModal])
+  }, [world, update, store, ready, openMenu, menu, cheatsOpen, selectorOpen, syncMessageModal, toggleStaySelected])
   useEffect(() => {
     // N (default record 005d6208: plain press, exact modifier mask 0) issues
     // tribe command 0x68: patrols and area guards continue with their next
@@ -1843,6 +1873,8 @@ export default function Home() {
               storageNotice={audioStorageNotice}
               gamePreferences={gamePreferences}
               onGamePreferences={changeGamePreferences}
+              staySelected={staySelected}
+              onToggleStaySelected={toggleStaySelected}
               gameStorageNotice={gameStorageNotice}
               onVolume={nextVolume =>
                 changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
@@ -1950,6 +1982,8 @@ export default function Home() {
               storageNotice={audioStorageNotice}
               gamePreferences={gamePreferences}
               onGamePreferences={changeGamePreferences}
+              staySelected={staySelected}
+              onToggleStaySelected={toggleStaySelected}
               gameStorageNotice={gameStorageNotice}
               onVolume={nextVolume =>
                 changeAudioPreferences({ ...audioPreferences, volume: nextVolume })
