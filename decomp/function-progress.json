@@ -247,6 +247,23 @@
       "limits": "Native original objects and four orientations in direct probe; browser returns terrain-independent height offset and live effects/props apply terrain separately. No claim about actor entry state."
     },
     {
+      "address": "004047b0",
+      "status": "partial",
+      "scope": "Apply the nonzero model-orientation socket correction to live tower admission",
+      "sources": [
+        "app/building-shapes.ts",
+        "app/original-shapes.json",
+        "app/live-building-entry.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004047b0.c",
+        "decomp/generated/00404540.c",
+        "scripts/check-native-building-sockets.py",
+        "tests/tower-entry.test.mjs"
+      ],
+      "limits": "The original socket probe executes the native correction leaf with the original decoded smoke table supplied. A controlled Red tower reaches real state-21 admission at the corrected socket. Not original file-loader, all live socket contexts, actor input or rendered geometry."
+    },
+    {
       "address": "004049d0",
       "status": "partial",
       "scope": "Queue one positional cue on authored model-13 Boat House completion",
@@ -8441,6 +8458,23 @@
       "limits": "Native exact query includes cancelled immediate and queued priority; live mana inputs still include some reconstructed adapters rather than original class records."
     },
     {
+      "address": "004df1c0",
+      "status": "partial",
+      "scope": "Recognize a live standing person’s active guard or patrol order during building-site clearance",
+      "sources": [
+        "app/building-clearing.ts",
+        "app/live-construction-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004df1c0.c",
+        "decomp/generated/00496220.c",
+        "scripts/check-native-building-clearing.py",
+        "tests/fixtures/building-people.json",
+        "tests/building-clearing.test.mjs"
+      ],
+      "limits": "Retained original task-4 cases execute the guard predicate with downstream order effects supplied. Current clearance preserves active model-11/25 recognition and cancellation in the supported state-10 path. Not the whole predicate, state-33-specific classification or the native AI count caller."
+    },
+    {
       "address": "004df220",
       "evidence": [
         "decomp/generated/004df220.c",
@@ -11132,6 +11166,38 @@
       "limits": "Sky-lens geometry is compared; browser uses Three.js meshes and shader state rather than the original D3D commands or complete blend-call sequence."
     },
     {
+      "address": "00517630",
+      "status": "partial",
+      "scope": "Submit the ordinary type-2 sky backdrop horizon and two cloud layers",
+      "sources": [
+        "app/scene-camera-runtime.ts",
+        "app/sky.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00517630.c",
+        "scripts/check-native-clouds.py",
+        "tests/fixtures/sky-horizon.json",
+        "tests/live-sky-native-commands.test.mjs"
+      ],
+      "limits": "Retained actual native sky dispatcher captures type-2 backdrop and cloud commands. The authored Mission 1 CPU scene matches two layers of vertex XY/fade and the backdrop horizon in one captured view; zero horizon hides the collapsed clouds. Not type 0/1, native queue/flags, texture sampling and UVs, fill below horizon, full camera/view coverage or GPU pixels."
+    },
+    {
+      "address": "00517830",
+      "status": "partial",
+      "scope": "Submit the ordinary defeat sky quad's uniform color and visible extent",
+      "sources": [
+        "app/scene-camera-runtime.ts",
+        "app/sky.ts",
+        "app/original-sky.json"
+      ],
+      "evidence": [
+        "decomp/generated/00517830.c",
+        "scripts/check-native-sky.py",
+        "tests/live-sky-native-commands.test.mjs"
+      ],
+      "limits": "Retained native defeat branch executes the actual quad allocation. The authored Mission 1 CPU scene submits a tribe-2 flash at two supplied counter phases and viewport bounds; counter zero hides it. Not other callers, native render flags/offsets, live palette changes, defeat progression or GPU pixels."
+    },
+    {
       "address": "005178d0",
       "status": "partial",
       "scope": "Classify per-step person collision with original return codes",
@@ -11220,6 +11286,22 @@
       "limits": "Actual Mission 10 encounter controller and both living people, supplied rival and admission. Three preceding strike timer visits keep defender waiting, timer two immediately enters knockback, and expiration emits cue 13 and reapproach. No native execution, browser, other encounter states, or damage claim."
     },
     {
+      "address": "00518fb0",
+      "status": "partial",
+      "scope": "Retire an ordinary terminal fight group and count its surviving tribe's win",
+      "sources": [
+        "app/combat-runtime.ts",
+        "app/melee-groups.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00518fb0.c",
+        "scripts/check-native-fight-cleanup.py",
+        "tests/fixtures/fight-cleanup.json",
+        "tests/live-combat-terminal-and-retry.test.mjs"
+      ],
+      "limits": "Retained original terminal group dispatch runs with object release observed as a supplied sink. Controlled group on authored Mission 3 uses real current owned scheduler cleanup, clears the surviving Yellow fighter's reservation and increments the winner once. Not full melee action/recoil or death, native allocator cleanup, group creation, other winner cases or rendering."
+    },
+    {
       "address": "005199f0",
       "status": "partial",
       "scope": "Select the center member of a reinforced live melee group",
@@ -11260,6 +11342,23 @@
         "tests/live-melee-encounter-and-site.test.mjs"
       ],
       "limits": "Actual Mission 10 battle formed with a supplied rival, admission and level flag. Supplied blocked site and turns 127/128; owned runtime retains roster and chooses a physical adjacent terrain cell only on its due visit. Does not cover building escape, exhausted search or original mixed-class schedule."
+    },
+    {
+      "address": "0051a2a0",
+      "status": "partial",
+      "scope": "Expire the ordinary live command-19 retry from substate 7 back to target search",
+      "sources": [
+        "app/combat-approach.ts",
+        "app/combat-order-search.ts",
+        "app/live-building-combat.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051a2a0.c",
+        "scripts/check-native-fight-approach.py",
+        "tests/fixtures/fight-approach.json",
+        "tests/live-combat-terminal-and-retry.test.mjs"
+      ],
+      "limits": "Retained native retry visits run the actual parent through pursuit/idle helpers with terminal consumers supplied. A controlled retry state on an authored Mission 1 Brave uses the actual area-order owner, counting 2 to 1 then 1 to 0 and keeping the order. Not first-entry setup, routing, target selection, other phases, RNG/pose parity or browser input."
     },
     {
       "address": "0051bf10",
