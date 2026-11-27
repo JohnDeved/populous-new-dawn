@@ -247,6 +247,20 @@
       "limits": "Native original objects and four orientations in direct probe; browser returns terrain-independent height offset and live effects/props apply terrain separately. No claim about actor entry state."
     },
     {
+      "address": "004049d0",
+      "status": "partial",
+      "scope": "Queue one positional cue on authored model-13 Boat House completion",
+      "sources": [
+        "app/live-construction-runtime.ts",
+        "app/world-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004049d0.c",
+        "tests/live-boat-house-completion-cue.test.mjs"
+      ],
+      "limits": "Live Mission 20 completion queues cue 0xd7 once. An authored model-15 completion and already-complete Mission 10 loads do not queue it. Other original construction branches and model 14 are not assessed; mocked sound dispatch does not prove browser playback."
+    },
+    {
       "address": "00404c80",
       "status": "partial",
       "scope": "Drive hut birth clocks, birth placement, and cues",
@@ -994,6 +1008,21 @@
       "limits": "Live step triggers before this turn's object work; native rule and outcome cases are covered but browser alive/population/camera effects are supplied by adapters."
     },
     {
+      "address": "00419480",
+      "status": "partial",
+      "scope": "Gate the scheduled player-tribe territory refresh at a signed defeat timer of 97",
+      "sources": [
+        "app/tribe-turns.ts",
+        "app/world-turn.ts",
+        "app/territory.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00419480.c",
+        "tests/live-tribe-defeat-territory.test.mjs"
+      ],
+      "limits": "A Mission 1 fixture sets the scheduler to turn 111, then an ordinary tick refreshes the Blue territory at signed timers 0, -1 and 96, but not for an inactive tribe or at timer 97. Changing only the comparison alters the timer-97 search tag and sampled Blue region bit. Natural time to defeat, other flags, complete masks and native execution are not assessed."
+    },
+    {
       "address": "00419790",
       "status": "partial",
       "scope": "Seed the campaign camera from the Shaman's map cell",
@@ -1709,6 +1738,20 @@
         "scripts/check-native-early-mission-skies.py"
       ],
       "limits": "Live sky profile maps admitted successful original assets; original OS palette open failures, filename fallback and unsupported banks are not reproduced."
+    },
+    {
+      "address": "0042af10",
+      "status": "partial",
+      "scope": "Map normalized corner orientations for the CPU ground-overlay UV table",
+      "sources": [
+        "app/ground-overlay.ts",
+        "app/scene-input-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042af10.c",
+        "tests/live-native-connected-plan-overlay.test.mjs"
+      ],
+      "limits": "The four static orientation patterns match the retained native zero/positive endpoint topology. For an authored Mission 1 Hut, changing one orientation record moves one sampled UV scalar in valid, invalid, and placed modes without changing the connected tile. Original endpoint magnitudes, resource loading and GPU/browser output are not established."
     },
     {
       "address": "0042b230",
@@ -3669,6 +3712,19 @@
       "status": "partial"
     },
     {
+      "address": "00462e60",
+      "status": "partial",
+      "scope": "Use the native low-set-bit rank values in the CPU adaptive globe mesh",
+      "sources": [
+        "app/globe.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00462e60.c",
+        "tests/live-native-globe-parent-closure.test.mjs"
+      ],
+      "limits": "The browser computes the native lookup values on demand. A separate adverse that uses the highest set bit leaves the coarse control unchanged but removes both sampled tile subdivisions. The native lookup table storage, initialization dispatch, isolated zero sentinel behavior and GPU output are not established."
+    },
+    {
       "address": "00462ea0",
       "status": "partial",
       "scope": "Close adaptive subdivisions over ancestor tiles in the CPU overview",
@@ -4472,6 +4528,20 @@
       "limits": "Native post-load walker links triggers/gifts/scenery and initializes effects; the browser indexes first authored model-9 scenery by wrapped cell for heading and does not traverse the original runtime trigger links. The native animation harness reaches the loader on a supplied authored case."
     },
     {
+      "address": "00485b00",
+      "status": "partial",
+      "scope": "Retain the unique authored Shaman cell for the first Chumara raid",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/campaign-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00485b00.c",
+        "tests/mission6-raid-origin.test.mjs"
+      ],
+      "limits": "Ordinary Mission 6 dispatch stages the first Chumara raid at the unique authored Shaman cell 0xd094, not the different defence cell. The test verifies the packed model-3 orders for four living members. Other loader branches, duplicate Shaman writer order and native memory effects are not established."
+    },
+    {
       "address": "004895c0",
       "evidence": [
         "decomp/generated/004895c0.c",
@@ -4715,6 +4785,20 @@
         "app/popscript.ts"
       ],
       "status": "partial"
+    },
+    {
+      "address": "0048f350",
+      "status": "partial",
+      "scope": "Resolve the current script tribe’s population for an authored cooldown condition",
+      "sources": [
+        "app/campaign-runtime.ts",
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0048f350.c",
+        "tests/mission22-red-cooldowns.test.mjs"
+      ],
+      "limits": "Mission 22 uses the calling Red tribe for kind 2, ID 1. Ordinary ticks exercise the condition with explicit 72/73 Red fixture populations; only 73 selects the shorter sampled cooldowns. Other value-accessor arms, scheduler and natural arrival at that population are not assessed."
     },
     {
       "address": "0048ff60",
@@ -5751,6 +5835,20 @@
         "tests/live-native-control-primitives.test.mjs"
       ],
       "limits": "The real live group split allocation-failure path clears work fields on the last member of each tribe and sets recovery, with stable command arrays; only that caller and selected fields are tested. No native structure ABI or full recovery sequence."
+    },
+    {
+      "address": "004a39c0",
+      "status": "partial",
+      "scope": "Compute reciprocal melee damage from health before either hit",
+      "sources": [
+        "app/combat-runtime.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a39c0.c",
+        "tests/game.test.mjs"
+      ],
+      "limits": "A deliberately prepared ready duel through the live world tick samples ordinary simultaneous damage: actor/target health 90/50 becomes 87/32. Moving the counter calculation after the first hit gives actor health 88.1. Authored contact, native executable behavior and full damage, death or effect ordering are not established."
     },
     {
       "address": "004a5590",
