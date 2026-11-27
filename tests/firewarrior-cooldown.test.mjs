@@ -4,7 +4,7 @@ import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mj
 import { addBuilding, addUnit, command, createWorld, tick } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { startLiveCombatResponse } from '../app/live-building-combat.ts'
-import { launchFirewarrior, stepFirewarriorShots } from '../app/firewarrior.ts'
+import { launchFirewarrior, stepFirewarriorShots, stepTowerFirewarrior } from '../app/firewarrior.ts'
 import { launchFirewarriorPoint } from '../app/firewarrior-point.ts'
 import { effect, sound } from '../app/world-effects.ts'
 import { createGameStore } from '../app/game-store.ts'
@@ -135,3 +135,29 @@ for (const tower of [false, true]) for (const bloodlust of [false, true]) {
     assert.deepEqual(launches.map(turn => turn - launches[0]), expected)
   })
 }
+
+test('tower Firewarrior scan only launches at an eligible hostile world person', () => {
+  for (const gate of ['hostile', 'dead', 'flags2:0x10000', 'flags2:0x800000', 'hidden', 'state23', 'friendly']) {
+    const { w, source, target } = scenario(true, false)
+    target.native = createLivePerson(w, target)
+    const person = target.native
+    person.state = 10
+    if (gate === 'dead') target.hp = 0
+    if (gate === 'flags2:0x10000') person.flags2 |= 0x10000
+    if (gate === 'flags2:0x800000') person.flags2 |= 0x800000
+    if (gate === 'hidden') person.flags4 |= 0x1000
+    if (gate === 'state23') person.state = 23
+    if (gate === 'friendly') {
+      target.team = 'blue'
+      person.tribe = 0
+    }
+    source.entry.person.flags3 |= 0x800
+    source.cooldown = 0
+    stepTowerFirewarrior(w, source)
+    assert.equal(
+      w.effects.filter(effect => effect.firewarriorShot?.target === target.id).length,
+      gate === 'hostile' ? 2 : 0,
+      gate
+    )
+  }
+})
