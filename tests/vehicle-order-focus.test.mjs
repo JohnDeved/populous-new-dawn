@@ -25,13 +25,14 @@ function boarding(model = 1) {
   return { world, shaman, vehicle, icon }
 }
 
-function focus({ world, shaman, icon }) {
+function focus({ world, shaman, icon }, overviewStage = null) {
   const events = []
   // Production resolver; only camera and panel submissions are recorded.
   // This is caller coverage without a browser, projection or GPU.
   const panels = new ObjectPanels({
     world,
     overviewActive: false,
+    overviewStage,
     focus: (...args) => events.push(['focus', ...args]),
     onSound: sound => events.push(['sound', sound]),
   })
@@ -146,5 +147,14 @@ for (const kind of ['person', 'building']) {
       ['open', target.id, true],
     ])
     assert.deepEqual(world, before)
+  })
+}
+
+for (const stage of ['enter', 'exit']) {
+  test(`a stale order panel cannot focus during overview ${stage}`, () => {
+    const fixture = boarding()
+    const before = structuredClone(fixture.world)
+    assert.deepEqual(focus(fixture, stage), [])
+    assert.deepEqual(fixture.world, before)
   })
 }
