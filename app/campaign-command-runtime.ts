@@ -1022,6 +1022,11 @@ export function campaignRules(w: World) {
       1019,
     ]
   }
+  if (w.outcome.level === 23 && tribe >= 1 && tribe <= 3) {
+    // Each tribe's original EVERY63 last stand; preserve its per-tribe cadence.
+    const start = tribe === 1 ? 321 : tribe === 2 ? 296 : 325
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(start, start + 36), 1004, 1019]
+  }
   // ponytail: bind reviewed statements with their original enclosing conditions and real hosts.
   runScript(boundCampaignScript, w.ai, {
     turn: w.turn,
