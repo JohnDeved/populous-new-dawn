@@ -8,6 +8,7 @@ import { chromium } from '@playwright/test'
 import capture from './snapshot-capture.mjs'
 import { readerDependencyManifest, readerBundleManifest, readerBuildProvenance, readerSourceEvidence, readerDependencyPolicy, commonDependencyInputsEqual } from './reader-build.mjs'
 import { inspectDragSource } from './snapshot-drag-contract.mjs'
+import { observeCheckoutAllocation } from './checkout-allocation.mjs'
 import { createSnapshotFixture } from './snapshot-setup.mjs'
 import { benchmarkBrowser, createFileSha256, fileSha256 } from './browser-runtime.mjs'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
@@ -68,6 +69,9 @@ export async function runBenchmark({ pinned = false } = {}) {
     assert.equal(git(base, 'rev-parse', 'HEAD'), identity.baseSha)
     assert.equal(git(head, 'rev-parse', 'HEAD'), identity.headSha)
     for (const [side, source] of Object.entries(sources)) { assert.equal(git(source, 'status', '--porcelain', '--untracked-files=no'), ''); fingerprints[side] = fingerprint(source) }
+    // Optional provenance only: leave the qualification report and its hashes unchanged.
+    try { receipt.checkoutAllocation = observeCheckoutAllocation(resolve(root, '..')) }
+    catch { receipt.checkoutAllocation = { status: 'unavailable', reason: 'observer-failed' } }
     // Different dependency graphs cannot be represented by one common trusted install.
     if (!commonDependencyInputsEqual(base, head)) {
       report.status = 'incompatible-dependencies'; save(); throw Error('Dependency changes need a separately reviewed protocol')
