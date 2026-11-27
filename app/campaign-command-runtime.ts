@@ -371,6 +371,17 @@ export function campaignCommand(
         field(6, 2, 1186) &&
         field(7, 2, 1188) &&
         options.every((value, index) => value === [0, 7, -1, -1][index]),
+      missionSevenAttack =
+        w.outcome.level === 7 &&
+        campaignTribe(w) === 2 &&
+        targetMode === 1070 &&
+        field(1, 1, 18) &&
+        field(3, 0, 4) &&
+        marker === 4 &&
+        damage === 999 &&
+        field(5, 2, 1186) &&
+        [6, 7].every(none) &&
+        options.every((value, index) => value === [0, -1, -1, -1][index]),
       validTarget =
         (targetMode === 1070 && requested === 3 && marker === 3) ||
         (targetMode === 1071 &&
@@ -379,7 +390,8 @@ export function campaignCommand(
             missionThreeAttack)) ||
         missionFiveAttack ||
         missionSixAttack ||
-        missionSixChumaraAttack
+        missionSixChumaraAttack ||
+        missionSevenAttack
     if (
       args[0] !== 1118 ||
       args[8] !== 1078 ||
@@ -389,16 +401,17 @@ export function campaignCommand(
         !missionFiveAttack &&
         !missionSixAttack &&
         !missionSixChumaraAttack &&
+        !missionSevenAttack &&
         (![5, 6, 7].every(none) ||
           damage !== 999 ||
           options.some((value, index) => value !== [0, -1, -1, 0][index])))
     )
       throw new Error('Unsupported computer attack')
     const enabled = !!(w.ai.states & (1 << 20)),
-      maximum = missionThreeAttack ? w.ai.attributes[25] : campaignTribe(w)
-    // Mission3 allocation rejects before target selection can consume RNG.
+      maximum = missionThreeAttack || missionSevenAttack ? w.ai.attributes[25] : campaignTribe(w)
+    // Bound raid allocations reject before target selection can consume RNG.
     if (
-      missionThreeAttack &&
+      (missionThreeAttack || missionSevenAttack) &&
       (!enabled ||
         w.ai.tasks.filter(task => task.flags & 1 && task.type === 20).length >= maximum ||
         !w.ai.tasks.some(task => !(task.flags & 1)))
@@ -414,7 +427,11 @@ export function campaignCommand(
             )
           : campaignAttackTarget(w, 0, marker)
     if (target === null) return
-    const taskSpells = missionSixAttack ? [5, 6, 7].map(index => read(args[index])) : []
+    const taskSpells = missionSevenAttack
+      ? [read(args[5]), 0, 0]
+      : missionSixAttack
+        ? [5, 6, 7].map(index => read(args[index]))
+        : []
     requestAttack(
       w.ai,
       target.target,
@@ -878,8 +895,14 @@ export function campaignRules(w: World) {
                           // Chumara's EVERY255/offset132 spell cadence precedes settlement.
                           ...script.codes.slice(298, 447),
                           // Chumara's original EVERY255 settlement and training targets.
-                          // Later tower, patrol, raid and message branches remain unbound.
+                          // Other tower, patrol, raid and message branches remain unbound.
                           ...script.codes.slice(447, 595),
+                          1004,
+                          // Marker4 counterattack and its two original local-count producers.
+                          ...script.codes.slice(672, 676),
+                          ...script.codes.slice(682, 688),
+                          ...script.codes.slice(694, 700),
+                          ...script.codes.slice(863, 907),
                           1004,
                           ...script.codes.slice(1892, 1978),
                           1004,
