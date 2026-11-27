@@ -228,6 +228,8 @@ export function campaignInternal(w: World, id: number) {
     const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2
     return short(campaignPersonCount(w, tribe, model))
   }
+  // Native 0048f350: kills credited to this tribe, indexed by victim tribe.
+  if (id >= 1176 && id <= 1179) return w.killCredits[self][id - 1176] & 65535
   if (id === 1180) return w.killCredits[0][campaignTribe(w)] & 65535
   if (id === 1048) return w.manaTribes[self].mana | 0
   if (id >= 1050 && id <= 1065) return spellMana(id - 1048) // Loaded spell-cost table.

@@ -60,3 +60,31 @@ No full native Mission 19 playthrough, renderer/audio comparison, late AI behavi
 After parent review, promote `00515180`, `0049a1c0`, `0049a1f0`, `00516d70`, `00516e10`, and `00516eb0` to `decomp/generated/` plus `decomp/exports.json`; consolidate this note as `decomp/research/mission19.md`; combine the two scratch probes into `scripts/check-native-mission19.py`. No further Ghidra exports are needed.
 
 Smallest native-supported implementation: add Mission 19 objective state at the campaign/script adapter (message 129's one-shot warning latch; Chumara-empty forced loss; Dakini-empty forced win with loss priority) **without** changing generic alliance masks. Defer normal reachability for messages 127/128, or exercise them only with explicitly supplied internal-1178 test state, until the producer is recovered. Then add model-21 at the existing spell target/effect boundary using generic validation/payment and the recovered relocation timer/container/state/RNG behavior. Reuse ordinary worship and structured-clone owners for all three gifts.
+
+
+## Distress warning producer recovery (17 November 2026)
+
+The earlier unresolved `+0xa23` producer above is now identified from the same
+hash-verified executable, reusing the retained `native-tribe-controls/` writer
+and death-caller assembly. Raw instructions `004a3960..004a39bd` read the victim
+tribe from person+0x2f and increment the unsigned word at
+`0089dbe7 + attacker*0xc65 + victim*2`. The caller `004d5cf0` passes the recorded
+attacker at person+0xb0. Thus tribe+0xa23 counts kills against tribe2 (Chumara),
+not all kills, population decline, or damage. Neutral victim255 returns without a
+tribe counter write. Word overflow wraps.
+
+`check-native-mission19-kill-count.py` executes this real writer and the real
+`0048f350` reader without intercepted leaves. All16 attacker/victim combinations
+at initial0,2,25,65535, plus the neutral-victim control pass. Internal1176..1179
+reads this tribe's kills against victim0..3. The port already has the ordinary
+`world-turn` death producer and checkpointed `killCredits` matrix; the correction
+only binds the missing internal reads and original cpscr031 words344..<401.
+The existing 64-turn wrapper and last-chance block remain unchanged.
+
+Message127 opens at >2 Red kills of Yellow. Message128 opens at >25 only when
+Yellow building-model8 is absent (including incomplete buildings via1136) and
+Red population is >30. Their latches16/15 prevent repeats across checkpoints.
+Focused model tests retain existing Teleport/reward/outcome tests, strict boundary
+and additional-prerequisite controls, and a controlled lethal fixture through the
+ordinary death owner into message127. This is not a natural complete Mission19
+battle playthrough, native renderer proof, or full check/build acceptance.
