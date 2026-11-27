@@ -228,6 +228,8 @@ export function campaignInternal(w: World, id: number) {
     const model = (id < 1152 ? id - 1146 : (id - 1152) % 6) + 2
     return short(campaignPersonCount(w, tribe, model))
   }
+  // 0048f350: unsigned self-attributed kills of tribe 2 (Chumara).
+  if (id === 1178) return w.killCredits[self][2] & 65535
   if (id === 1180) return w.killCredits[0][campaignTribe(w)] & 65535
   if (id === 1048) return w.manaTribes[self].mana | 0
   if (id >= 1050 && id <= 1065) return spellMana(id - 1048) // Loaded spell-cost table.
