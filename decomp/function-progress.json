@@ -1884,6 +1884,34 @@
       "limits": "Native release clears drag state only and composed motion fixtures verify retained velocity. The browser matches ordinary pointer-up with overview buttons released; cancellation or teardown deliberately resets more state."
     },
     {
+      "address": "0042d390",
+      "status": "partial",
+      "scope": "Submit a signed-winding-tested translucent overview quad for a revealed Blue plan on an even turn",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042d390.c",
+        "tests/live-overview-cell-quads.test.mjs"
+      ],
+      "limits": "Centered, wrapped and collinear samples reach the Canvas sink at palette index 220 and alpha 48/255. Positive winding on either test and hidden or empty cells do not draw. This observes geometry and Canvas submission, not native Direct3D, dynamic palette memory, other plan classes or browser pixels."
+    },
+    {
+      "address": "0042d5b0",
+      "status": "partial",
+      "scope": "Submit a signed-winding-tested opaque overview quad for the same revealed Blue plan on an odd turn",
+      "sources": [
+        "app/globe.ts",
+        "app/globe-renderer.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042d5b0.c",
+        "tests/live-overview-cell-quads.test.mjs"
+      ],
+      "limits": "The same centered, wrapped and collinear controls enter the clear-palette branch at index 23 and alpha 1. Positive winding on either test and hidden or empty cells do not draw. This does not establish native Direct3D, palette reset, other draw branches or browser pixels."
+    },
+    {
       "address": "0042daa0",
       "status": "implemented",
       "scope": "Test point visibility in the wrapped globe projection",
@@ -4058,6 +4086,20 @@
       "limits": "Ordinary updateWater writes RGB light/highlight attributes for supplied samples corresponding to numeric 16/32/33/84. The native C separate packed ARGB path is not exercised through this typed caller; no native XY copying, alpha packing or raster output claim."
     },
     {
+      "address": "0046cb90",
+      "status": "partial",
+      "scope": "Update height and diffuse color of authored wet coastal vertices from two wrapped wave samples",
+      "sources": [
+        "app/water.ts",
+        "app/scene-terrain-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046cb90.c",
+        "tests/water-animation-callers.test.mjs"
+      ],
+      "limits": "Ordinary scene updates for Missions 1, 2 and 3 observe the phase 0-to-23 change and 256-phase wrap with shared coincident vertices and unchanged UVs. Other native row categories, descriptor traversal, Direct3D output and texture regeneration are not assessed."
+    },
+    {
       "address": "0046cfc0",
       "status": "partial",
       "scope": "Evaluate a live water vertex’s native shore-category predicate",
@@ -4649,6 +4691,19 @@
       "status": "partial"
     },
     {
+      "address": "0048c230",
+      "status": "partial",
+      "scope": "Choose steady-state percussion sections for quiet, combat and release in available sample banks",
+      "sources": [
+        "app/music.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0048c230.c",
+        "tests/background-audio.test.mjs"
+      ],
+      "limits": "Retained original section cases and the current scheduler observe the release sequence and fourth-bar variation only when a fourth section is available. Original driver startup or ownership, browser playback and audio timing parity are not assessed."
+    },
+    {
       "address": "0048c6b0",
       "evidence": [
         "decomp/generated/0048c6b0.c",
@@ -5044,6 +5099,21 @@
         "tests/live-damage-marker-idle-gesture.test.mjs"
       ],
       "limits": "The actual command writes one script variable using authored Mission 16 marker 1 and synthetic signed off-viewport native heights; coordinate helper separately masks odd bits. In-viewport conversion/interpolation and native script pointer/height storage are not established by this witness. No native execution or browser claim."
+    },
+    {
+      "address": "00492c30",
+      "status": "partial",
+      "scope": "Resolve and pack the authored Mission 6 opening defence position for active computer tribes",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/campaign-runtime.ts",
+        "app/world-initialization.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00492c30.c",
+        "tests/live-campaign-defence-position.test.mjs"
+      ],
+      "limits": "Chumara and Matak enable both sampled control bits and retain their packed positions through the first ordinary tick. The scripted but absent owner remains absent. The OFF branch, other operand modes, native layout or original execution are not assessed."
     },
     {
       "address": "004935c0",
@@ -6697,6 +6767,20 @@
       "limits": "Direct original probe checks four stains, wrapped coordinates, saturation and ring replacement. Native-backed person animation passes the live cursor position; ordinary browser fallback emission and atlas uploads are separate."
     },
     {
+      "address": "004bf740",
+      "status": "partial",
+      "scope": "Replace a full footprint cell ring entry and update affected cell counts",
+      "sources": [
+        "app/footprints.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004bf740.c",
+        "tests/footprints.test.mjs"
+      ],
+      "limits": "The CPU footprint test matches retained native checkpoints for wrap and replacement; ordinary walking on the fixture uses the ring, while pause and disabled trails do not stamp. Natural saturation during gameplay, native cache fields and GPU/browser parity are not established."
+    },
+    {
       "address": "004bf860",
       "status": "implemented",
       "scope": "Generate the original indexed ground surface tile for live atlas",
@@ -7872,6 +7956,20 @@
         "scripts/check-native-person-recovery.py"
       ],
       "limits": "Native direct state cases isolate pose and movement result; browser supplies independent vehicle exit and object allocator effects."
+    },
+    {
+      "address": "004e0a30",
+      "status": "partial",
+      "scope": "Apply life-relative Angel impact damage and conditional attacker attribution at the terminal strike",
+      "sources": [
+        "app/world-turn.ts",
+        "app/person-update.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e0a30.c",
+        "tests/angel-impact.test.mjs"
+      ],
+      "limits": "A supplied flat-field fixture exercises a real cast and tick, with ordinary and Shield deaths, reduced Bloodlust damage, global immunity and attribution-only supplied neutral controls. Native dispatcher layout, death flags, animation and browser visuals are not assessed."
     },
     {
       "address": "004e0af0",
