@@ -2,7 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import ts from 'typescript'
 import { createGameStore } from '../app/game-store.ts'
-import { pageNode, pageSource, evaluatePage } from './support/follower-nearby-page.mjs'
+import { tick } from '../app/model.ts'
+import { pageNode, pageSource, evaluatePage, pageEffect } from './support/follower-nearby-page.mjs'
 
 // Execute Home's actual JSX/handlers with the real store. This does not mount
 // React, render a scene, or establish naturally earned mission outcomes.
@@ -38,6 +39,32 @@ function fixture() {
     counts: () => ({ menuOpened, audioResets }) }
 }
 
+function openResultSelector(ui) {
+  ui.result().props.onSelectLevel()
+  assert.equal(ui.state.selectorOpen, true)
+  const modal = { open: false, showModal() { this.open = true }, close() { this.open = false } }
+  const cleanup = pageEffect('modal.showModal()', {
+    ...ui.bindings, ...ui.state, startupCampaign: false, startupDialog: { current: modal },
+  })()
+  assert.equal(modal.open, true)
+  assert.equal(ui.world.paused, true, 'the level picker temporarily pauses the world')
+  return () => {
+    cleanup()
+    assert.equal(modal.open, false)
+  }
+}
+
+function winningFixture() {
+  const ui = fixture()
+  ui.world.status = 'playing'
+  ui.world.paused = false
+  ui.world.land.landFlags |= 0x2000000
+  tick(ui.world, 1 / 12)
+  assert.equal(ui.world.status, 'won')
+  assert.equal(ui.world.outcome.cameraPlaying, false)
+  return ui
+}
+
 test('Home gates the lost result on camera completion and wires Restart rather than Continue', () => {
   const ui = fixture()
   ui.world.outcome.cameraPlaying = true
@@ -54,14 +81,14 @@ test('Home gates the lost result on camera completion and wires Restart rather t
 test('Home returns from result selection by Back and cancel without replacing the lost world or opening pause menu', () => {
   const ui = fixture()
   for (const route of ['back', 'cancel']) {
-    ui.result().props.onSelectLevel()
-    assert.equal(ui.state.selectorOpen, true)
+    const cleanup = openResultSelector(ui)
     if (route === 'back') ui.selector().props.onBack()
     else {
       let prevented = false
       ui.dialog().props.onCancel({ preventDefault() { prevented = true } })
       assert.equal(prevented, true)
     }
+    cleanup()
     assert.equal(ui.state.selectorOpen, false)
     assert.equal(ui.store.getWorld(), ui.world)
     assert.equal(ui.world.paused, true)
@@ -85,4 +112,34 @@ test('Home result Restart replaces the paused terminal world and clears stale me
   assert.deepEqual(ui.bindings.loadRequest.current, { kind: 'restart' })
   assert.deepEqual(ui.state, { cheatsOpen: false, menu: false, selectorOpen: false, ready: false, error: '', tab: 'spells', startup: 'playing' })
   assert.equal(ui.counts().audioResets, 1)
+})
+
+for (const route of ['back', 'cancel']) {
+  test(`returning via ${route} resumes the prior running victory result`, () => {
+    const ui = winningFixture()
+    const world = ui.world
+    const cleanup = openResultSelector(ui)
+    if (route === 'back') ui.selector().props.onBack()
+    else ui.dialog().props.onCancel({ preventDefault() {} })
+    cleanup()
+    assert.equal(ui.state.selectorOpen, false)
+    assert.equal(ui.store.getWorld(), world)
+    assert.equal(ui.result().props.status, 'won')
+    const turn = world.turn
+    tick(world, 1 / 12)
+    assert.equal(world.turn, turn + 1, 'returning to the result must not leave the battlefield frozen')
+    assert.equal(ui.counts().menuOpened, 0)
+  })
+}
+
+test('retired result selector cannot unpause the replacement world', () => {
+  const ui = winningFixture()
+  const cleanup = openResultSelector(ui)
+  ui.store.startMission(2)
+  const next = ui.store.getWorld()
+  assert.notEqual(next, ui.world)
+  ui.store.change(world => { world.paused = true })
+  cleanup()
+  assert.equal(next.paused, true)
+  assert.equal(ui.world.paused, true)
 })
