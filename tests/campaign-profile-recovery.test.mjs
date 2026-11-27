@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import { createWorld } from '../app/world-initialization.ts'
+import { tick } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { attachPersonRoute } from '../app/person-routes.ts'
 import { restoreCapacityPolicy } from '../app/capacity-policy.ts'
@@ -258,3 +259,43 @@ test('Save rejects detached invalid resident ownership before mutation; a live s
     assert.doesNotThrow(() => restoreCapacityPolicy(loaded))
   })
 })
+
+test('unrecognized current-format game status does not expose an unplayable checkpoint', async () => {
+  const checkpoint = createWorld(3, 'scalable')
+  checkpoint.status = 'invalid'
+  await withStorage({ latest: { version: 4, world: checkpoint }, profile }, async ({
+    createGameStore, records, writes,
+  }) => {
+    const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
+    assert.equal(await store.restoreCheckpoint(), false)
+    assert.equal(store.getCheckpointReadStatus(), 'incompatible')
+    assert.equal(store.hasCheckpoint(), false)
+    assert.equal(store.loadCheckpoint(), false)
+    assert.equal(store.getWorld(), active)
+    assert.deepEqual(store.getCompletedMissions(), [1, 2])
+    assert.deepEqual(records, before)
+    assert.deepEqual(writes, [])
+  })
+})
+
+
+for (const [status, flag] of [['won', 0x2000000], ['lost', 0x4000000]])
+  test(`known terminal status ${status} remains a compatible saved checkpoint`, async () => {
+    const checkpoint = createWorld(3, 'scalable')
+    // Supply the native result flag; the ordinary world tick publishes status.
+    checkpoint.land.landFlags |= flag
+    tick(checkpoint, 1 / 12)
+    assert.equal(checkpoint.status, status)
+    await withStorage({ latest: { version: 4, world: checkpoint }, profile }, async ({
+      createGameStore, records, writes,
+    }) => {
+      const store = createGameStore(), before = structuredClone(records)
+      assert.equal(await store.restoreCheckpoint(), true)
+      assert.equal(store.getCheckpointReadStatus(), 'read')
+      assert.equal(store.loadCheckpoint(), true)
+      assert.equal(store.getWorld().status, status)
+      assert.deepEqual(store.getCompletedMissions(), [1, 2])
+      assert.deepEqual(records, before)
+      assert.deepEqual(writes, [])
+    })
+  })
