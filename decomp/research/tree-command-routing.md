@@ -51,3 +51,39 @@ submission and empty terrain. Neither is a rendered/GPU witness. Browser
 acceptance must independently use shipped controls and actual scene hits, retain
 the pre-fix consequence and corrected result, and bind exact source/artwork.
 No parity percentage or full original-game timing claim follows from this repair.
+
+## Queued gathering startup and carried timber (17 November 2026)
+
+The original `00432df0` command initializer dispatch table at `00433470`
+selects entry 1 for command 7, resolving through `00433440` to `00432fda`.
+That branch checks assignment bit `0x8000`, then calls `004d58c0(person, 0)`
+only when the bit is clear. Command 6 resolves to a different building-payload
+branch and is not changed here. Original executable SHA256:
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+This byte interpretation is independently reviewed; retained bounded native
+restart probes use supplied route, allocation, sound and animation leaves,
+not a complete original gameplay encounter.
+
+The live adapter previously treated both 6 and 7 as no-op initializers.
+An authored Mission 10 model witness has brave 120 harvest one log from tree
+108 through ordinary commands and fixed turns, then Ctrl-queue reachable tree
+109. Command 7 flags 132 do not have cancellation bit 1; incoming assignment
+`0x119` does not protect cargo. Baseline retains 100 native cargo at startup,
+so the next queued-tree visit completes the order immediately on old cargo.
+The later idle drop does not satisfy the synchronous initializer contract.
+
+The correction only supplies command 7's missing conditional drop. It uses
+`dropCarriedTimber`, the existing unbounded live loose-log pool, provenance
+fields and cue 11, then synchronizes the owning Unit cargo projection. The
+assignment check occurs before common configuration clears `0x8000`. Queue,
+route and other command initialization remain with their existing owners.
+Native allocator capacity/identity and explicit native cell registration are
+not claimed by this browser pool adapter; command 6 and scatter admission
+remain untouched.
+
+Failure-first regression covers the authored earned-cargo continuation;
+supplied-state controls cover zero/fractional/multiple cargo, protected and
+cancelled command 7, and unchanged command 6/3. In-memory current-format
+checkpoint continuation checks queue, route, actor, trees and RNG through 16
+ordinary turns. This is model/source evidence, not trusted browser input,
+serialized UI Save/Load, audible playback, or full gathering/scatter parity.
