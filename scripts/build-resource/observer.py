@@ -3,6 +3,10 @@ from collections import Counter, deque
 from pathlib import Path
 import re, time
 
+LATE_PROFILE = (30, 500)
+MAX_SLOTS = 60
+MAX_READ_NS = 250_000_000
+
 class Unavailable(Exception):
     pass
 
@@ -110,7 +114,8 @@ def observe(pid,started,*,interval_ms=250,duration_seconds=15,minimum=2,proc=Pat
     Enforce an independent wall timeout on this observer, not on any workload."""
     if (type(pid) is not int or pid<1 or type(started) is not int or started<1
         or type(interval_ms) is not int or not 250<=interval_ms<=5000
-        or type(duration_seconds) is not int or not 1<=duration_seconds<=15
+        or type(duration_seconds) is not int
+        or not (1<=duration_seconds<=15 or (duration_seconds,interval_ms)==LATE_PROFILE)
         or type(minimum) is not int or not 2<=minimum<=32):
         raise ValueError('unsupported scope')
     # Bracket the monotonic origin in realtime without using realtime for cadence.
@@ -119,17 +124,27 @@ def observe(pid,started,*,interval_ms=250,duration_seconds=15,minimum=2,proc=Pat
     utc_after=time.time_ns()
     finish=t0+duration_seconds*1_000_000_000
     rows=[]
-    while not stopped() and len(rows)<60 and (now:=time.monotonic_ns())<finish:
-        row=sample(proc,pid,started,min(finish,now+interval_ms*1_000_000),minimum,stopped)
+    step=interval_ms*1_000_000
+    # Fixed monotonic targets. Do not slide or replay a missed sampling window.
+    for target in range(t0,finish,step):
+        if len(rows)>=MAX_SLOTS or stopped(): break
+        remaining=target-time.monotonic_ns()
+        while remaining>0:
+            time.sleep(min(remaining,25_000_000)/1_000_000_000)
+            if stopped(): break
+            remaining=target-time.monotonic_ns()
+        if remaining>0: break
+        deadline=min(finish,target+min(step,MAX_READ_NS))
+        if time.monotonic_ns()>=deadline:
+            rows.append({'elapsedMs':(target-t0)//1_000_000,
+                         'status':'missing','topology':'missed-sampling-window'})
+            continue
+        row=sample(proc,pid,started,deadline,minimum,stopped)
         if 'sampleStartMonoNs' in row and 'sampleEndMonoNs' in row:
             began=row.pop('sampleStartMonoNs')
             ended=row.pop('sampleEndMonoNs')
             row.update(sampleStartOffsetNs=began-t0,sampleEndOffsetNs=ended-t0)
-        rows.append({'elapsedMs':(now-t0)//1_000_000,**row})
-        left=min(finish,now+interval_ms*1_000_000)-time.monotonic_ns()
-        while left>0 and not stopped():
-            time.sleep(min(left, 25_000_000)/1_000_000_000)
-            left=min(finish,now+interval_ms*1_000_000)-time.monotonic_ns()
+        rows.append({'elapsedMs':(target-t0)//1_000_000,**row})
     end_utc_before=time.time_ns()
     observed_delta=time.monotonic_ns()-t0
     end_utc_after=time.time_ns()

@@ -19,10 +19,12 @@ class TelemetryTests(unittest.TestCase):
         marks = iter([0, 17_900_000_000])
         disk = iter([4096, 2048])
         raw, data = measure("/tmp/tool/bin/pnpm", spawn=spawn, free=lambda: next(disk), clock=lambda: next(marks))
-        self.assertEqual(args, [(["/tmp/tool/bin/pnpm", "run", "build"], {"duration": 15, "interval": 250})])
+        self.assertEqual(args, [(["/tmp/tool/bin/pnpm", "run", "build"], {"duration": 30, "interval": 500})])
         self.assertEqual(raw, 0)
         self.assertEqual(data["stageObservedElapsedMsIncludingMonitor"], 17900)
         self.assertEqual((data["availableBytesBefore"], data["availableBytesAfter"]), (4096, 2048))
+        self.assertEqual((data["windowSeconds"], data["intervalMs"]), (30, 500))
+        self.assertEqual(data["sampleSeriesStatus"], "bounded-series-unavailable")
         self.assertIsNone(data["observation"]["maximaKiB"]["pssKiB"])
 
     def test_failure_with_unavailable_measurement_is_saved(self):
@@ -44,6 +46,16 @@ class TelemetryTests(unittest.TestCase):
         for invalid in ["npm", "/usr/bin/sh", "/usr/bin/npx"]:
             with self.assertRaises(ValueError):
                 measure(invalid, spawn=self.fail)
+
+    def test_only_admitted_long_profile_and_no_extra_sampling(self):
+        for duration, interval in ((30,250),(31,500),(30,501),(16,500)):
+            with self.subTest(duration=duration, interval=interval):
+                with patch("launcher.os.fork") as fork:
+                    with self.assertRaises(ValueError):
+                        run_owned(["/bin/true"],duration=duration,interval=interval)
+                    fork.assert_not_called()
+                with self.assertRaises(ValueError):
+                    observe(20,10,duration_seconds=duration,interval_ms=interval)
 
     def test_missing_receipt_does_not_replace_build_status(self):
         with patch("stage.measure", return_value=(17 << 8, {})) as x, patch("stage.emit", side_effect=OSError), patch("sys.stderr"):

@@ -7,7 +7,7 @@ import tempfile
 import time
 from pathlib import Path
 
-from observer import observe, read, stat_id
+from observer import LATE_PROFILE, observe, read, stat_id
 
 _REPORT_LIMIT = 256 * 1024
 
@@ -39,7 +39,8 @@ def run_owned(argv, *, duration=15, interval=250, sampler=observe):
     """Return raw wait status and a bounded numeric-only observer diagnostic."""
     if not argv or not os.path.isabs(argv[0]):
         raise ValueError('workload requires an explicitly chosen absolute executable')
-    if not 1 <= duration <= 15 or not 250 <= interval <= 5000:
+    if (not 250 <= interval <= 5000 or
+            not (1 <= duration <= 15 or (duration, interval) == LATE_PROFILE)):
         raise ValueError('sampling out of bounds')
     try:
         gate_read, gate_write = os.pipe()
