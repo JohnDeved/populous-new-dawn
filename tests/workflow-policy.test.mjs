@@ -243,8 +243,21 @@ test('ready-PR sharded gate is exhaustive, fail-closed and least privilege', () 
   for (const [, action, sha] of actions) assert.equal(sha, pins.get(action))
   for (const value of ['ref: ${{ github.sha }}', 'persist-credentials: false', "node-version: '24.19.0'", "python-version: '3.12.14'", 'npm ci --no-audit --no-fund', 'pnpm install --frozen-lockfile --ignore-scripts', '--require-hashes -r engineering/ci-python-requirements.txt'])
     assert.equal(workflow.split(value).length - 1, 4, value)
-  for (const command of ['typecheck', 'parity:check', 'orchestration:check', 'build'])
+  for (const command of ['typecheck', 'parity:check', 'orchestration:check'])
     assert.equal(workflow.split(`run: $PND_PACKAGE_MANAGER run ${command}\n`).length - 1, 1, command)
+  const quality = workflow.match(/^ {2}quality:\n([\s\S]*?)(?=^ {2}test-shards:)/m)?.[1]
+  assert.ok(quality)
+  const build = [
+    '      - name: Production build',
+    '        run: |',
+    '          manager="$(command -v "$PND_PACKAGE_MANAGER")"',
+    '          test -x "$manager"',
+    '          python -E -s -B scripts/build-resource/stage.py --executable "$manager"',
+  ].join('\n')
+  assert.ok(quality.includes(`\n${build}\n\n      - name: Qualify generated-only CMS encryption\n`))
+  assert.equal(workflow.split('scripts/build-resource/stage.py').length - 1, 1)
+  assert.equal(workflow.split('      - name: Production build\n').length - 1, 1)
+  assert.doesNotMatch(workflow, /(?:npm|pnpm|\$PND_PACKAGE_MANAGER) run build\b/)
   assert.match(workflow, /shard --shard-index=\$\{\{ matrix.index \}\} --shard-count=4 --receipt=work\/ci\/shard.json/)
   assert.match(workflow, /pattern: full-check-\$\{\{ github.run_id \}\}-\$\{\{ github.run_attempt \}\}-\*/)
   assert.match(workflow, /merge-multiple: false/)
