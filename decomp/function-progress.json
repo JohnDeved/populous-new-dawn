@@ -2046,6 +2046,40 @@
       "limits": "Native harness compares submitted draw streams and palette; browser batches its own geometry/material consumers and does not establish complete original effects dispatch."
     },
     {
+      "address": "0042f980",
+      "status": "partial",
+      "scope": "Decode ordinary indexed texels in the shipped bank-C object atlas",
+      "sources": [
+        "app/world-environment.ts",
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042f980.c",
+        "scripts/check-native-scenery-fire.py",
+        "scripts/check-native-texture-edges.py",
+        "tests/live-model-atlas-filter-init.test.mjs",
+        "scripts/import-original.py"
+      ],
+      "limits": "Retained original callers compare whole atlas texels; scope is only the ordinary keyed-zero path across 198 tiles. No arbitrary keys, alternate formats, other banks, device/cache, filtering, edge preparation or frame parity."
+    },
+    {
+      "address": "0042fb30",
+      "status": "partial",
+      "scope": "Decode AL-selected texels in the shipped bank-C object atlas",
+      "sources": [
+        "app/world-environment.ts",
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042fb30.c",
+        "scripts/check-native-scenery-fire.py",
+        "scripts/check-native-texture-edges.py",
+        "tests/live-model-atlas-filter-init.test.mjs",
+        "scripts/import-original.py"
+      ],
+      "limits": "Retained original callers compare whole atlas texels; scope is low-nibble opacity and AL-selected palette color across the 58 keyed-zero tiles. No arbitrary keys, alternate formats, other banks, filtering, edge preparation or frame parity."
+    },
+    {
       "address": "00430bd0",
       "status": "partial",
       "scope": "Allocate supported live campaign message slots with eviction",
@@ -4708,6 +4742,22 @@
       "limits": "Scoped to the group-mode transition. Native selection harness hooks the surrounding controller, and its general UI opcode switch is larger."
     },
     {
+      "address": "0047b1d0",
+      "status": "partial",
+      "scope": "Queue manual discovery when ordinary right inspection admits an enemy Spy with a completed player-colour disguise",
+      "sources": [
+        "app/scene-input-runtime.ts",
+        "app/live-spy-discovery.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047b1d0.c",
+        "scripts/check-native-spy-discovery.py",
+        "decomp/research/spy-manual-discovery.md",
+        "tests/spy-discovery.test.mjs"
+      ],
+      "limits": "Retained original executes 576 supplied enemy-person admission probes. Actual pointer caller receives a supplied visible hit. Not other inspection branches, shared command ring, consumer, picking, occlusion or pixels."
+    },
+    {
       "address": "0047c350",
       "status": "partial",
       "scope": "Map native-style live follower group actions from keyboard",
@@ -5730,6 +5780,21 @@
       "limits": "Current damage code obtains the browser repair plan and moves unprotected state 2 to 1. Original additionally allocates class 9/model 1 when the linked plan is absent and binds reverse handles; live uses an inline plan and does not allocate that native record."
     },
     {
+      "address": "00499960",
+      "status": "partial",
+      "scope": "Query whether the authored Mission 15 Prison survives during the rescue objective",
+      "sources": [
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00499960.c",
+        "scripts/check-native-mission15-prison.py",
+        "decomp/research/mission15-prison.md",
+        "tests/live-mission15-prison-exists.test.mjs"
+      ],
+      "limits": "Retained original executes null/non-null global pointer probes. Actual mission query observes an intact Prison versus real destruction after supplied prior damage. Not native pointer lifetime, timer or cadence parity, or combat."
+    },
+    {
       "address": "00499d90",
       "status": "partial",
       "scope": "Request the supported transient route-recovery tooltip",
@@ -6255,6 +6320,36 @@
         "scripts/check-native-tribe-turns.py"
       ],
       "limits": "Live native-order pre-turn gates and pause predicates are retained; original global active object list/time/interruption ownership is not fully reproduced."
+    },
+    {
+      "address": "004a5d20",
+      "status": "partial",
+      "scope": "Arm the ordinary Mission 15 campaign countdown with its authored turn budget",
+      "sources": [
+        "app/campaign-command-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a5d20.c",
+        "scripts/check-native-mission15-prison.py",
+        "decomp/research/mission15-prison.md",
+        "tests/mission15-prison.test.mjs"
+      ],
+      "limits": "The retained native setter receives a preconverted 5,400-turn budget for 450 seconds at 12 Hz; the authored browser world starts and checkpoints at 5,400 turns. Not native flag storage, decrement configuration, cancellation, tick or expiry query."
+    },
+    {
+      "address": "004a5d40",
+      "status": "partial",
+      "scope": "Count down an armed positive Mission 15 timer by one per admitted simulation turn",
+      "sources": [
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a5d40.c",
+        "scripts/check-native-mission15-prison.py",
+        "scripts/check-native-mission10-opening.py",
+        "tests/mission15-captive-lightning.test.mjs"
+      ],
+      "limits": "Retained actual original 5399 + 1 visits and current ordinary Mission 15 natural expiry. Not arbitrary decrement, native pause/configuration, exact post-expiry timing, timer setup, query or cancellation."
     },
     {
       "address": "004a6480",
