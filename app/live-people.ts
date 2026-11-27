@@ -1024,7 +1024,8 @@ export function collisionWorld(w: World): CollisionWorld {
           state: b.progress === 1 ? 2 : 1,
           flags2: 0,
           tribe: tribeForTeam(b.team),
-          related: 0,
+          // Browser construction keeps the plan and allocated building on one ID.
+          related: b.progress < 1 ? b.id : 0,
         })
       for (const shrine of w.shrines)
         if (shrine.kind === 'vault' && shrine.model)
@@ -1219,12 +1220,19 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson, initializeOwne
   stepLivePhysicsImpl(w, u, p, false, initializeOwner)
 }
 
+// Construction shares the original pre-dispatch physics visit. Transient states
+// keep their native queue and skip the construction controller until state 10.
+export function stepLiveBuilderPhysics(w: World, u: Unit, p: LivePerson, dispatch: () => void) {
+  stepLivePhysicsImpl(w, u, p, false, undefined, dispatch)
+}
+
 function stepLivePhysicsImpl(
   w: World,
   u: Unit,
   p: LivePerson,
   ownedImpulse = false,
-  initializeOwner?: () => void
+  initializeOwner?: () => void,
+  builderDispatch?: () => void
 ) {
   const fighting = p.state === 25 || p.state === 29,
     recovering = p.state === 33
@@ -1298,7 +1306,9 @@ function stepLivePhysicsImpl(
       },
       // Reveal, path-group and fight-resumption ownership remain open.
       reveal: () => {},
-      path: () => {},
+      path: () => {
+        if (builderDispatch) stepLiveRoute(w, u)
+      },
       class3: () => {},
       canFight: () => false,
       readyToFight: () => false,
@@ -1310,57 +1320,66 @@ function stepLivePhysicsImpl(
   // Native dispatch selects the current state once after physics. A state
   // controller transition must not cause another controller visit this turn.
   const resting = p.state === 1 || p.state === 17 || p.state === 19
-  if (p.state === 25 || p.state === 29) {
-    const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
-    const next = stateAfterFight(
-      p,
-      w.manaWorld.gameFlags,
-      group ? { class: 10, flags2: 0 } : undefined
-    )
-    if (next && !(p.flags2 & 0x100000)) {
-      p.previousState = p.state
-      p.state = next
-      initialize()
-      // Resume the retained native queue; the owning work adapter is adopted below.
-      u.fight = null
-      if (currentPersonOrder(w.buildingOrders, p)) u.native = p
-      else releasePersonRoute(w.motionRoutes, p)
-    }
+  const builderVisited = !!builderDispatch && p.state === 10
+  if (builderVisited) {
+    if (ctx) w.randomState = ctx.state.randomState
+    Object.assign(u, browserPosition(p))
+    builderDispatch!()
+    if (ctx) ctx.state.randomState = w.randomState
   }
-  if (p.state === 33) {
-    const tribe = w.manaTribes[p.tribe]
-    stepRouteRecovery(
-      {
-        gameFlags: w.manaWorld.gameFlags,
-        loadFlags: w.manaWorld.loadFlags,
-        tribe: {
-          flags: w.castingTribes[p.tribe].flags,
-          flags2: tribe.flags2,
-          playerType: tribe.playerType,
-        },
-      },
-      p,
-      {
-        unsupportedGround: () => unsupportedGround(w.land, p, p.physics),
-        adjacentBuilding: () => {
-          const cell = (p.y >>> 9) * 128 + (p.x >>> 9)
-          return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
-        },
-        build: option => buildLiveRecoveryRoute(w, u, p, option),
-        release: () => releasePersonRoute(w.motionRoutes, p),
-        clearFailure: id => clearFailedRoute(w.motionRoutes, id),
-        attach: id => attachPersonRoute(w.motionRoutes, p, id, true),
-        initialize,
+  if (!builderVisited) {
+    if (p.state === 25 || p.state === 29) {
+      const group = p.workFlags && w.fights.some(b => b.id === p.workFlags)
+      const next = stateAfterFight(
+        p,
+        w.manaWorld.gameFlags,
+        group ? { class: 10, flags2: 0 } : undefined
+      )
+      if (next && !(p.flags2 & 0x100000)) {
+        p.previousState = p.state
+        p.state = next
+        initialize()
+        // Resume the retained native queue; the owning work adapter is adopted below.
+        u.fight = null
+        if (currentPersonOrder(w.buildingOrders, p)) u.native = p
+        else releasePersonRoute(w.motionRoutes, p)
       }
-    )
-  }
-  if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
-  else if (p.state === SCATTER_STATE) updateLiveScatter(w, u, stateContext(), p)
-  if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
-  if (ctx) w.randomState = ctx.state.randomState
-  if (resting) {
-    stepLiveRestingState(w, u, p)
-    u.cargo = p.cargo / 100
+    }
+    if (p.state === 33) {
+      const tribe = w.manaTribes[p.tribe]
+      stepRouteRecovery(
+        {
+          gameFlags: w.manaWorld.gameFlags,
+          loadFlags: w.manaWorld.loadFlags,
+          tribe: {
+            flags: w.castingTribes[p.tribe].flags,
+            flags2: tribe.flags2,
+            playerType: tribe.playerType,
+          },
+        },
+        p,
+        {
+          unsupportedGround: () => unsupportedGround(w.land, p, p.physics),
+          adjacentBuilding: () => {
+            const cell = (p.y >>> 9) * 128 + (p.x >>> 9)
+            return w.land.flags[cell] & 512 ? w.land.buildingIds[cell] & 1023 : 0
+          },
+          build: option => buildLiveRecoveryRoute(w, u, p, option),
+          release: () => releasePersonRoute(w.motionRoutes, p),
+          clearFailure: id => clearFailedRoute(w.motionRoutes, id),
+          attach: id => attachPersonRoute(w.motionRoutes, p, id, true),
+          initialize,
+        }
+      )
+    }
+    if (p.state === 26) updateLivePanic(w, u, stateContext(), p)
+    else if (p.state === SCATTER_STATE) updateLiveScatter(w, u, stateContext(), p)
+    if ((fighting || recovering) && p.state === 10) adoptLiveOrders(w, u, p)
+    if (ctx) w.randomState = ctx.state.randomState
+    if (resting) {
+      stepLiveRestingState(w, u, p)
+      u.cargo = p.cargo / 100
+    }
   }
   p.flags2 = (p.flags2 & ~0x2004) >>> 0
   Object.assign(u, browserPosition(p))

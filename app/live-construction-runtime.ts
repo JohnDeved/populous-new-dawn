@@ -22,10 +22,14 @@ import {
   buildingOutsidePoint,
   buildingPose,
 } from './building-shapes.ts'
-import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
+import {
+  collisionWorld,
+  createLivePerson,
+  setLivePersonAnimation,
+  stepLiveBuilderPhysics,
+} from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
-import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
-import { turnPerson } from './person-motion.ts'
+import { moveObjectInCells } from './object-cells.ts'
 import {
   clearLivePath,
   probeLivePathCost,
@@ -83,24 +87,52 @@ export function completeBuildingConstruction(w: World, b: Building) {
   if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
 }
 
-export function processBuilderWork(w: World, u: Unit, b: Building) {
-  const task = u.builder!,
-    p = (task.person ??= u.native ?? createLivePerson(w, u)),
-    pose = buildingPose(b)
-  if (u.native === p) {
-    if (p.flags2 & 0x20000) removeObjectFromCell(w.objectCells, p)
-    deleteCellObject(w.objectCells, p.id)
-    u.native = null
+export function adoptLiveBuilderMotion(w: World, u: Unit) {
+  const p = (u.builder!.person ??= u.native ?? createLivePerson(w, u))
+  // Older in-session/checkpoint builders kept browser motion and a separate
+  // route record. Transfer that ownership once without another path search.
+  if (u.native !== p) {
+    const to = nativePosition(w, u)
+    if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
+      moveObjectInCells(w.objectCells, p, to)
+    else Object.assign(p, { x: to.x & 65535, y: to.y & 65535, h: to.h })
   }
-  Object.assign(p, nativePosition(w, u))
-  p.x &= 65535
-  p.y &= 65535
-  p.counter = w.turn & 255
-  p.state = 10
+  const previous = w.pathfinding.people.get(u.id)
+  if (previous && previous !== p) {
+    releasePersonRoute(w.motionRoutes, p)
+    for (const field of [
+      'motionGroup',
+      'motionIndex',
+      'goalX',
+      'goalY',
+      'destinationX',
+      'destinationY',
+      'turnAngle',
+      'turnY',
+      'recoveryCounter',
+    ] as const)
+      p[field] = previous[field]
+    // Transfer ground-route steering/search bits, not person/order or seated ownership.
+    p.flags2 = ((p.flags2 & ~0x82001080) | (previous.flags2 & 0x82001080)) >>> 0
+    p.flags4 = ((p.flags4 & ~0x14000000) | (previous.flags4 & 0x14000000)) >>> 0
+    previous.motionGroup = previous.motionIndex = 0
+    w.pathfinding.people.set(u.id, p)
+  }
+  u.native = p
+  return p
+}
+
+export function processBuilderWork(w: World, u: Unit, b: Building) {
+  const p = adoptLiveBuilderMotion(w, u)
+  stepLiveBuilderPhysics(w, u, p, () => processBuilderState(w, u, b))
+}
+
+function processBuilderState(w: World, u: Unit, b: Building) {
+  const task = u.builder!,
+    p = task.person!,
+    pose = buildingPose(b),
+    leaving = task.task === BuilderTask.Leave
   p.cargo = Math.round(u.cargo * 100)
-  const leaving = task.task === BuilderTask.Leave
-  if (leaving || task.task === BuilderTask.ClearScenery || task.task === BuilderTask.ClearPeople)
-    turnPerson(p)
   // 0x495520 clears movement mode when a construction subtask restarts.
   if (task.restart) p.flags4 = (p.flags4 & 0xfffefff8) >>> 0
   if (leaving && task.restart) {
@@ -113,7 +145,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
     clearLivePath(w, u)
     setDirectPersonDestination(w.motionRoutes, p, to)
     if (direct) u.path = [browserPosition(to)]
-    else if (!route(w, u, browserPosition(to), true).length) {
+    else if (!route(w, u, browserPosition(to), true, p).length) {
       // ponytail: short construction fallback; remove when the person solver handles plan edges.
       u.path = [browserPosition(to)]
     }
@@ -350,7 +382,6 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       }
     )
   } else if (task.task === BuilderTask.Level && b.preparation) {
-    turnPerson(p)
     const result = stepBuildingLevel(
       w,
       p,

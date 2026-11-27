@@ -71,7 +71,12 @@ import { blastPersonPosition, blastPersonTargeting } from './blast-targeting.ts'
 import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
-import { changeLivePersonState, createLivePerson, registerLivePerson } from './live-people.ts'
+import {
+  changeLivePersonState,
+  createLivePerson,
+  registerLivePerson,
+  type LivePerson,
+} from './live-people.ts'
 import { nativeScatterEligible, SCATTER_STATE } from './person-scatter.ts'
 import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
 import { guardShamanOrders, replaceShamanGuardOrder } from './shaman-guard.ts'
@@ -242,10 +247,10 @@ export function walkable(terrain: number[], p: Point) {
   return Math.abs(p.x) < 47 && Math.abs(p.z) < 47 && height(terrain, p.x, p.z) > 0.45
 }
 
-function planRoute(w: World, u: Unit, end: Point) {
+function planRoute(w: World, u: Unit, end: Point, owner?: LivePerson) {
   syncNativeTerrain(w)
   syncLandscapeObjects(w)
-  return planLivePath(w, u, end)
+  return planLivePath(w, u, end, owner)
 }
 
 export function findPath(w: World, start: Unit, end: Point): Point[] {
@@ -254,13 +259,13 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
   return findLivePath(w, start, end)
 }
 
-export function route(w: World, u: Unit, end: Point, preserveOrders = false) {
+export function route(w: World, u: Unit, end: Point, preserveOrders = false, owner?: LivePerson) {
   const person = u.native ?? u.fight?.motion
   if (!preserveOrders && person?.guardInputPending) cancelLiveOrder(w, u)
   cancelLiveResting(w, u)
   if (!preserveOrders && (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28))
     cancelLiveOrder(w, u)
-  return acceptLivePath(w, u, planRoute(w, u, end))
+  return acceptLivePath(w, u, planRoute(w, u, end, owner))
 }
 
 export function tell(w: World, message: string) {
