@@ -144,7 +144,7 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
       for (const id of [261, 262, 263]) assert.ok(w.campaignAIs[1].tasks[7].members.includes(id))
     }
     if (w.turn === 290) {
-      for (const id of [33, 34]) {
+      for (const id of [36, 37]) {
         assert.equal(w.buildingOrders.records[id].references, 9)
         assert.deepEqual(owners(id), first)
       }
@@ -184,29 +184,33 @@ test('ordinary Red staffing and mixed patrols share selection and retire exact s
   const patrolRecords = []
   for (let id = 1; id < w.buildingOrders.records.length; id++)
     if (w.buildingOrders.records[id].model === 25) patrolRecords.push(id)
-  assert.deepEqual(patrolRecords, [33, 34, 35, 36, 38, 39, 42, 43, 48, 49, 50, 51])
+  assert.deepEqual(patrolRecords, [36, 37, 40, 41, 43, 44, 47, 48, 55, 56, 59, 60, 63, 64])
   for (const [id, expected] of [
-    [33, first],
-    [34, first],
-    [35, [264, 271, 272]],
-    [36, [264, 271, 272]],
-    [38, [275, 276, 278, 279]],
-    [39, [275, 276, 278, 279]],
-    [42, [273, 274]],
-    [43, [273, 274]],
-    [48, [277]],
-    [49, [277]],
-    [50, [referenceId(424)]],
-    [51, [referenceId(424)]],
+    [36, first],
+    [37, first],
+    [40, [264, 271, 272]],
+    [41, [264, 271, 272]],
+    [43, [275, 276, 278, 279]],
+    [44, [275, 276, 278, 279]],
+    [47, [273, 274]],
+    [48, [273, 274]],
+    [55, [referenceId(341)]],
+    [56, [referenceId(341)]],
+    [59, [277]],
+    [60, [277]],
+    [63, [referenceId(432)]],
+    [64, [referenceId(432)]],
   ])
     assert.deepEqual(owners(id), expected)
-  for (const id of [7, 18, 19, 25, 26, 27, 28, 29, 30, 31, 32, 37, 40, 41, 47]) {
+  for (const id of [
+    18, 19, 25, 26, 27, 28, 29, 30, 32, 33, 35, 38, 39, 42, 45, 46, 49, 50, 51, 52, 53, 54, 57, 61,
+  ]) {
     assert.equal(w.buildingOrders.records[id].references, 0)
     assert.deepEqual(owners(id), [])
   }
-  const trained = w.units.find(u => u.id === referenceId(424))
+  const trained = w.units.find(u => u.id === referenceId(432))
   assert.equal(trained.kind, 'warrior')
-  assert.equal(w.objectCells.objects.get(referenceId(424)), owner(trained))
+  assert.equal(w.objectCells.objects.get(referenceId(432)), owner(trained))
   assert.equal(
     w.units.filter(
       u =>

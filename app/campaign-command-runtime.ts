@@ -981,9 +981,9 @@ export function campaignRules(w: World) {
     boundCampaignScript.codes = [12, 1003, ...script.codes.slice(655, 729), 1004, 1004, 1019]
   }
   if (w.outcome.level === 16 && tribe === 2) {
-    // Original Yellow EVERY255/offset127 and both population-gated Tower groups.
-    // Later patrol, guard and expansion siblings remain outside this projection.
-    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 613), 1004, 1004, 1019]
+    // Original Yellow EVERY255/offset127: Tower staffing then population-gated patrols.
+    // Later nearby-count, guard and expansion siblings remain outside this projection.
+    boundCampaignScript.codes = [12, 1003, ...script.codes.slice(570, 639), 1004, 1004, 1019]
   }
   if (w.outcome.level === 16 && tribe === 3) {
     boundCampaignScript.codes = [

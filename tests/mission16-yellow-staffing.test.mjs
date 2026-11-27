@@ -121,21 +121,21 @@ test('ordinary M16 recurring requests physically garrison all five Towers and re
     if (w.turn >= 1200)
       assert.equal(staffing(w).length, 0, 'already staffed Towers do not need replacement tasks')
   }
-  // Restored Red staffing consumes shared movement RNG and entry-order slots.
+  // Restored Yellow training consumes shared movement RNG and entry-order slots.
   // These measured Yellow outcomes retain the same physical ownership contract.
   assert.deepEqual(
     ids.map(id => [id, ...entries.get(id)]),
     [
-      [294, 293, 154],
-      [295, 291, 168],
-      [296, 289, 180],
-      [297, 290, 192],
-      [298, 292, 200],
+      [294, 293, 216],
+      [295, 291, 226],
+      [296, 289, 158],
+      [297, 290, 182],
+      [298, 292, 198],
     ]
   )
   assert.deepEqual(
     [...orders].sort((a, b) => a - b),
-    [7, 19, 25, 26, 28]
+    [18, 25, 27, 28, 30]
   )
   for (const id of orders) assert.equal(w.buildingOrders.records[id].references, 0)
   for (const id of ids) {
