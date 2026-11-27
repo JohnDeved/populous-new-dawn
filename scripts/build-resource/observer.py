@@ -97,7 +97,9 @@ def sample(proc,pid,started,deadline,minimum=2,stopped=lambda:False):
         return {'status':'missing','topology':str(e),'metricIssues':dict(issues)}
     n=len(before)
     if n<minimum: return {'status':'missing','topology':'below-required-observed-members','members':n,'metricIssues':dict(issues)}
-    return {'status':'observed','members':n,'workersObserved':n-1,'readSpanNs':time.monotonic_ns()-began,
+    ended=time.monotonic_ns()
+    return {'status':'observed','members':n,'workersObserved':n-1,'readSpanNs':ended-began,
+            'sampleStartMonoNs':began,'sampleEndMonoNs':ended,
             'pssKiB':sum(pss) if len(pss)==n else None,
             'rssSummedKiB':sum(rss) if len(rss)==n else None,
             'vmRssApproxSummedKiB':sum(approx) if len(approx)==n else None,
@@ -111,16 +113,28 @@ def observe(pid,started,*,interval_ms=250,duration_seconds=15,minimum=2,proc=Pat
         or type(duration_seconds) is not int or not 1<=duration_seconds<=15
         or type(minimum) is not int or not 2<=minimum<=32):
         raise ValueError('unsupported scope')
-    t0=time.monotonic_ns(); finish=t0+duration_seconds*1_000_000_000
+    # Bracket the monotonic origin in realtime without using realtime for cadence.
+    utc_before=time.time_ns()
+    t0=time.monotonic_ns()
+    utc_after=time.time_ns()
+    finish=t0+duration_seconds*1_000_000_000
     rows=[]
     while not stopped() and len(rows)<60 and (now:=time.monotonic_ns())<finish:
         row=sample(proc,pid,started,min(finish,now+interval_ms*1_000_000),minimum,stopped)
+        if 'sampleStartMonoNs' in row and 'sampleEndMonoNs' in row:
+            began=row.pop('sampleStartMonoNs')
+            ended=row.pop('sampleEndMonoNs')
+            row.update(sampleStartOffsetNs=began-t0,sampleEndOffsetNs=ended-t0)
         rows.append({'elapsedMs':(now-t0)//1_000_000,**row})
         left=min(finish,now+interval_ms*1_000_000)-time.monotonic_ns()
         while left>0 and not stopped():
             time.sleep(min(left, 25_000_000)/1_000_000_000)
             left=min(finish,now+interval_ms*1_000_000)-time.monotonic_ns()
+    end_utc_before=time.time_ns()
+    observed_delta=time.monotonic_ns()-t0
+    end_utc_after=time.time_ns()
     names=('pssKiB','rssSummedKiB','vmRssApproxSummedKiB')
     maxima={m:max((r[m] for r in rows if r.get(m) is not None),default=None) for m in names}
     return {'scope':'observed live descendants; non-atomic lower-confidence sampled maxima, not workload peak',
-            'rows':rows,'maximaKiB':maxima}
+            'rows':rows,'maximaKiB':maxima,'anchorUtcNs':[utc_before,utc_after], 'endAnchorUtcNs':[end_utc_before,end_utc_after],
+            'anchorElapsedNs':observed_delta}

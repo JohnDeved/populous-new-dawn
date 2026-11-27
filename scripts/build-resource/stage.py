@@ -49,7 +49,7 @@ def measure(executable, *, spawn=run_owned, free=filesystem_available, clock=tim
         "maximaKiB": {k: maxima.get(k) for k in ("pssKiB", "rssSummedKiB", "vmRssApproxSummedKiB")},
         "missingTopologyCounts": issues,
     }
-    return raw, {
+    report = {
         "schema": "pnd-quality-build-telemetry-v1",
         "scope": SCOPE,
         "windowSeconds": SECONDS,
@@ -61,12 +61,60 @@ def measure(executable, *, spawn=run_owned, free=filesystem_available, clock=tim
         "availableBytesAfter": available_after,
         "observation": observations,
     }
+    return raw, add_series(report, samples)
+
+def encode(report):
+    return json.dumps(report, allow_nan=False, separators=(",", ":")).encode()
+
+def add_series(report, samples):
+    rows = samples.get("rows", [])
+    anchor = samples.get("anchorUtcNs")
+    end = samples.get("endAnchorUtcNs")
+    delta = samples.get("anchorElapsedNs")
+    numeric = lambda v, low, high: type(v) is int and low <= v <= high
+    pair = lambda a: (isinstance(a, list) and len(a) == 2 and
+                      all(numeric(x, 0, 9_999_999_999_999_999_999) for x in a) and
+                      0 <= a[1] - a[0] <= 5_000_000)
+    if (len(rows) > 60 or not pair(anchor) or not pair(end) or
+            not numeric(delta, 0, 15_250_000_000) or end[0] < anchor[1] or
+            end[0] - anchor[1] < delta - 50_000_000 or
+            end[1] - anchor[0] > delta + 50_000_000):
+        return report
+    series = []
+    for row in rows:
+        if row.get("status") != "observed":
+            continue
+        nominal, span = row.get("elapsedMs"), row.get("readSpanNs")
+        began, ended = row.get("sampleStartOffsetNs"), row.get("sampleEndOffsetNs")
+        count, pss = row.get("members"), row.get("pssKiB")
+        if pss is None:
+            continue
+        if (not numeric(nominal, 0, 14_999) or not numeric(span, 0, 250_000_000) or
+                not numeric(count, 2, 32) or not numeric(pss, 0, 999_999_999) or
+                not numeric(began, nominal * 1_000_000, 14_999_999_999) or
+                not numeric(ended, began, min(delta, 15_000_000_000,
+                            (nominal + INTERVAL_MS + 1) * 1_000_000)) or
+                ended - began != span or
+                (series and (series[-1][0] >= began or series[-1][1] > began))):
+            return report
+        series.append([began, ended, count, pss])
+    if not series or max(r[3] for r in series) != report["observation"]["maximaKiB"]["pssKiB"]:
+        return report
+    candidate = dict(report, schema="pnd-quality-build-telemetry-v2", sampleSeries={
+        "columns": ["sampleStartOffsetNs", "sampleEndOffsetNs", "members", "pssKiB"],
+        "anchorUtcNs": list(map(str, anchor)),
+        "endAnchorUtcNs": list(map(str, end)),
+        "anchorElapsedNs": delta,
+        "rows": series,
+    })
+    return candidate if len(encode(candidate)) <= MAX_LOG_BYTES else report
 
 def emit(report):
-    raw = json.dumps(report, allow_nan=False, separators=(",", ":"))
-    if not 0 < len(raw.encode()) <= MAX_LOG_BYTES:
+    raw = encode(report)
+    if not 0 < len(raw) <= MAX_LOG_BYTES:
         raise ValueError("bounded telemetry exceeds log contract")
-    print("\nPND_QUALITY_BUILD_TELEMETRY_V1 " + raw, flush=True)
+    version = "V2" if report.get("schema") == "pnd-quality-build-telemetry-v2" else "V1"
+    print("\nPND_QUALITY_BUILD_TELEMETRY_" + version + " " + raw.decode(), flush=True)
 
 def main(argv=None):
     p = argparse.ArgumentParser()
