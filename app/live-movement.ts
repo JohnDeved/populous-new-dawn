@@ -1,3 +1,5 @@
+import { animatedSiteEffect } from './site-wave-effects.ts'
+import { terrainPointHeight } from './native-terrain.ts'
 import { guardPostCell, guardPostCellObjects } from './guard-posts.ts'
 import { departVehiclePerson } from './vehicle-unload.ts'
 import { populationCeiling } from './capacity-policy.ts'
@@ -665,6 +667,18 @@ function replaceConvertedVictim(w: World, u: Unit, preacher: LivePerson) {
   replacement.native.flags4 = (replacement.native.flags4 | 0x40000) >>> 0
   replacement.native.flags3 = (replacement.native.flags3 | 0x1000000) >>> 0
   registerLivePerson(w, replacement.native)
+  // 004d83b0: only a created neutral effect58 requests the positional
+  // conversion cue on the retiring victim and links to the replacement.
+  const flash = animatedSiteEffect(
+    w,
+    { x: victim.x, y: victim.y, h: terrainPointHeight(w.land, victim) },
+    'startConversion',
+    1240,
+    45,
+    8
+  )
+  sound(w, 5, browserPosition(victim), oldId)
+  flash.startConversionLink = replacement.id
 }
 
 export function stepLiveConversionVictim(w: World, u: Unit) {
