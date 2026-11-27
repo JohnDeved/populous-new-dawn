@@ -3,7 +3,8 @@ import { resolve } from 'node:path'
 
 const pickingPathCounterIds = Object.freeze(['pick-numeric', 'pick-packed', 'pick-sparse', 'pick-representation'])
 const pickingContextMetricIds = Object.freeze(['pick-route', 'pick-pointer-change', 'pick-view-change'])
-export const pickingPathMetricIds = Object.freeze(['picking-window', ...pickingPathCounterIds, ...pickingContextMetricIds])
+const browserContextMetricIds = Object.freeze(['viewport', 'pixel-ratio'])
+export const pickingPathMetricIds = Object.freeze(['picking-window', ...pickingPathCounterIds, ...pickingContextMetricIds, ...browserContextMetricIds])
 export const pickingPathViewports = Object.freeze([[640, 480], [1280, 799], [1280, 800], [1280, 801], [1280, 820]])
 
 // Shared UI checks, not a browser/server launcher. Call after a real publication
@@ -35,6 +36,8 @@ export async function checkPickingPathReadout({ page, output }) {
       assert.match(await overlay.locator('[data-metric="pick-route"]').innerText(), /^(World|HUD|Outside|Unknown)$/)
       for (const name of pickingContextMetricIds.slice(1))
         assert.match(await overlay.locator(`[data-metric="${name}"]`).innerText(), /^(Yes|No|Unknown)$/)
+      assert.match(await overlay.locator('[data-metric="viewport"]').innerText(), /^\d+ × \d+$/)
+      assert.match(await overlay.locator('[data-metric="pixel-ratio"]').innerText(), /^\d+\.\d{2}×$/)
       const expanded = await overlay.boundingBox()
       assert.ok(expanded.y + expanded.height <= 480, 'expanded detail remains inside the compact viewport')
       if (output && !keyboard) await page.screenshot({ path: resolve(output, 'performance-picking-640x480.png') })
@@ -80,7 +83,7 @@ export async function checkPickingPathReadout({ page, output }) {
         await page.mouse.wheel(0, 10000)
         await page.waitForFunction(() => document.querySelector('.fps-graph').scrollTop > 0)
       }
-      for (const selector of ['.fps-picking-toggle', '[data-metric="pick-representation"]', ...pickingContextMetricIds.map(name => `[data-metric="${name}"]`), '[data-metric="renderer"]', '.fps-export', '[data-metric="export-status"]']) {
+      for (const selector of ['.fps-picking-toggle', '[data-metric="pick-representation"]', ...pickingContextMetricIds.map(name => `[data-metric="${name}"]`), ...browserContextMetricIds.map(name => `[data-metric="${name}"]`), '[data-metric="renderer"]', '.fps-export', '[data-metric="export-status"]']) {
         const target = overlay.locator(selector)
         await target.scrollIntoViewIfNeeded()
         const bounds = await target.boundingBox(), panel = await overlay.boundingBox()
