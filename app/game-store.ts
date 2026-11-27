@@ -106,6 +106,7 @@ function requireCurrentCheckpoint(world: World) {
     !Array.isArray(world.respawns) ||
     !Array.isArray(world.respawnPoints) ||
     !Number.isInteger(world.outcome.level) ||
+    (world.status !== 'playing' && world.status !== 'won' && world.status !== 'lost') ||
     world.effects.some(
       effect =>
         (effect.tornado && !effect.tornado.particles.every(validTornadoAppearance)) ||
