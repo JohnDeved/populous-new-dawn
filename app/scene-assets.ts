@@ -18,6 +18,7 @@ type TextureAsset = {
   status: 'loading' | 'ready' | 'failed'
 }
 const textures = new Map<string, TextureAsset>()
+let sharedTextureMembership: WeakSet<THREE.Texture> | undefined
 /** Cache-only borrow. Unlike texture/loadTexture this never loads or retries.
  * Keep this entry identity as well as its texture/image and recheck before use:
  * the scene's explicit preload retry can replace a failed cache entry. */
@@ -109,6 +110,7 @@ export function loadTexture(kind: string) {
     t.generateMipmaps = false
   }
   textures.set(kind, result)
+  sharedTextureMembership = undefined
   return result
 }
 
@@ -120,6 +122,7 @@ export function retryFailedTexture(kind: string) {
   // implicit network/disposal retry loops.
   cached.texture.dispose()
   textures.delete(kind)
+  sharedTextureMembership = undefined
   return loadTexture(kind)
 }
 export function effectFrame(sprite: THREE.Sprite, frame: { index: number; w: number; h: number }) {
@@ -311,7 +314,11 @@ export function part(
 }
 export function releaseGroup(g: THREE.Object3D) {
   const materials = new Set<THREE.Material>(),
-    sharedTextures = new Set([...textures.values()].map(asset => asset.texture))
+    // Reuse the same ownership snapshot until a cache entry changes. Keep the
+    // snapshot local so disposal listeners cannot change it during traversal.
+    sharedTextures = (sharedTextureMembership ??= new WeakSet(
+      [...textures.values()].map(asset => asset.texture)
+    ))
   g.traverse(o => {
     if (o instanceof THREE.Sprite) {
       // Atlas images belong to the shared texture cache, not individual particles.
