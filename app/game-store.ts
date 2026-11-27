@@ -85,7 +85,11 @@ function requireCurrentCheckpoint(world: World) {
     !world.secondaryEffects ||
     !Array.isArray(world.guardPostChain) ||
     world.guardPostChain.length !== 4 ||
-    !world.guardPostChain.every(n => Number.isInteger(n) && n >= 0 && n <= 255) ||
+    ![0, 1, 2, 3].every(index => {
+      if (!Object.hasOwn(world.guardPostChain, index)) return false
+      const n = world.guardPostChain[index]
+      return typeof n === 'number' && Number.isInteger(n) && n >= 0 && n <= 255
+    }) ||
     !world.worshipAcquisition ||
     !(
       world.spyDiscovery === null ||
