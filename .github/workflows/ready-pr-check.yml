@@ -241,6 +241,12 @@ jobs:
             exit 1
           fi
 
+      - name: Require successful dependencies
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          SHARDS_RESULT: ${{ needs.test-shards.result }}
+        run: test "$QUALITY_RESULT" = success && test "$SHARDS_RESULT" = success
+
       - name: Check out the exact proposed merge
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -284,12 +290,6 @@ jobs:
         run: |
           git cat-file -e 3b899125cc8cedef938823718ad5d44f49957b66:app/erosion.ts
           node scripts/orchestration/ci-gate.mjs snapshot work/ci/before.json
-
-      - name: Require successful dependencies
-        env:
-          QUALITY_RESULT: ${{ needs.quality.result }}
-          SHARDS_RESULT: ${{ needs.test-shards.result }}
-        run: test "$QUALITY_RESULT" = success && test "$SHARDS_RESULT" = success
 
       - name: Download current attempt receipts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
