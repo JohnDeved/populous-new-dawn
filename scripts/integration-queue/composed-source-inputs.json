@@ -398,7 +398,7 @@
   "app/sprite-layers.ts",
   "app/startup-logo.module.css",
   "app/startup-logo.tsx",
-  "app/stone-head-149.ts",
+  "app/stone-head-149-model.ts",
   "app/stone-head-animation.ts",
   "app/stone-head-orientation.ts",
   "app/swamp-presentation.ts",

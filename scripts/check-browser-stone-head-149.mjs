@@ -25,6 +25,7 @@ const report = {
     'Real mission, HUD selection, Boat/terrain/head pointer orders and checkpoint controls.',
     'Only camera focus, test-owned RAF and ordinary tick(world,1/12) acceleration are supplied.',
     'Read-only comparison clones never replace or inject live actors, terrain, work, RNG or rewards.',
+    'Checkpoint row readback and same-document Load; no fresh-document restore claim.',
     'Root-static evidence retained; no animation cadence or performance claim.',
     'First-fault stop; no static-only substitute for ordinary worship and linked-Totem acceptance.',
   ],
@@ -91,6 +92,45 @@ async function installSnapshots() {
           return { type: 'number', value: String(item) }
         return item === undefined ? { type: 'undefined' } : item
       })
+    window.__totemContinuity = w => {
+      // Menu pause and renderer lighting are not saved-game progress. Preserve every
+      // actor/order, head/work, reward, RNG and campaign field relevant to this route.
+      const keys = [
+        'turn',
+        'time',
+        'pendingTime',
+        'randomState',
+        'cosmeticRandom',
+        'nextId',
+        'effectCounter',
+        'selected',
+        'units',
+        'vehicles',
+        'buildings',
+        'shrines',
+        'gifts',
+        'giftCounts',
+        'shots',
+        'effects',
+        'projectiles',
+        'manaWorld',
+        'manaTribes',
+        'castingTribes',
+        'spellCasts',
+        'killCredits',
+        'campaignTimer',
+        'ai',
+        'campaignAIs',
+        'buildingOrders',
+        'motionRoutes',
+        'objectCells',
+        'indexedSearch',
+        'stats',
+        'respawns',
+        'respawnPoints',
+      ]
+      return window.__totemSerialize(Object.fromEntries(keys.map(key => [key, w[key]])))
+    }
   })
 }
 async function state() {
@@ -168,7 +208,7 @@ async function presentationInvariant(label) {
       w = scene.world,
       serialize = window.__totemSerialize,
       { updateShrinesFrame } = await import('/app/scene-entities.ts'),
-      { stoneHead149Model } = await import('/app/stone-head-149.ts'),
+      { stoneHead149Model } = await import('/app/stone-head-149-model.ts'),
       before = serialize(w),
       beforeClock = serialize(scene.gameClock),
       geometry = [...scene.shrineMeshes].map(([id, entry]) => [
@@ -217,57 +257,79 @@ async function presentationInvariant(label) {
 }
 
 async function continuity() {
-  const serialized = await page.evaluate(() => {
-    const w = window.testScene.world
-    // Menu pause and renderer lighting are not saved-game progress. Preserve every
-    // actor/order, head/work, reward, RNG and campaign field relevant to this route.
-    const keys = [
-      'turn',
-      'time',
-      'pendingTime',
-      'randomState',
-      'cosmeticRandom',
-      'nextId',
-      'effectCounter',
-      'selected',
-      'units',
-      'vehicles',
-      'buildings',
-      'shrines',
-      'gifts',
-      'giftCounts',
-      'shots',
-      'effects',
-      'projectiles',
-      'manaWorld',
-      'manaTribes',
-      'castingTribes',
-      'spellCasts',
-      'killCredits',
-      'campaignTimer',
-      'ai',
-      'campaignAIs',
-      'buildingOrders',
-      'motionRoutes',
-      'objectCells',
-      'indexedSearch',
-      'stats',
-      'respawns',
-      'respawnPoints',
-    ]
-    return window.__totemSerialize(Object.fromEntries(keys.map(key => [key, w[key]])))
+  return hash(await page.evaluate(() => window.__totemContinuity(window.testScene.world)))
+}
+
+// Load Game restores GameStore's session clone. Read the browser's committed row
+// separately so a storage acknowledgement cannot substitute for payload evidence.
+async function persistedCheckpoint() {
+  return page.evaluate(async () => {
+    const { CHECKPOINT_VERSION } = await import('/app/checkpoint-format.ts')
+    const database = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('populous-new-dawn')
+      request.onupgradeneeded = () => request.transaction.abort()
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => resolve(request.result)
+    })
+    try {
+      if (database.version !== 1) throw new Error('Unexpected checkpoint database version')
+      const row = await new Promise((resolve, reject) => {
+        const transaction = database.transaction('checkpoints', 'readonly'),
+          request = transaction.objectStore('checkpoints').get('latest')
+        transaction.onabort = () => reject(transaction.error ?? new Error('Checkpoint read aborted'))
+        transaction.oncomplete = () => resolve(request.result)
+      })
+      if (
+        row?.version !== CHECKPOINT_VERSION ||
+        row.world?.capacityPolicy?.version !== 1 ||
+        row.world.capacityPolicy.mode !== 'scalable'
+      )
+        throw new Error('Missing current persisted Mission10 checkpoint envelope')
+      return {
+        version: row.version,
+        sha256: await window.__totemDigest(window.__totemContinuity(row.world)),
+      }
+    } finally {
+      database.close()
+    }
   })
-  return hash(serialized)
 }
 async function checkpoint(name, heading, label) {
   await render()
   const before = await continuity(),
     beforeState = await state()
-  await page.getByRole('button', { name: 'Menu', exact: true }).click()
-  await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
-  await page.waitForFunction(() => window.testStore.hasCheckpoint())
-  await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
-  await bindGame(page)
+  const previousWorld = await page.evaluateHandle(() => window.testStore.getWorld())
+  let persisted
+  try {
+    const menu = page.getByRole('dialog', { name: 'Game menu', exact: true }),
+      savePanel = menu.getByRole('region', { name: 'Save Game', exact: true }),
+      saveCommitted = savePanel.getByRole('status').filter({
+        has: page.getByText('Checkpoint saved in this browser.', { exact: true }),
+      })
+    await page.getByRole('button', { name: 'Menu', exact: true }).click()
+    await menu.getByRole('button', { name: 'Save Game', exact: true }).click()
+    await savePanel.getByRole('button', { name: 'Save checkpoint', exact: true }).waitFor()
+    assert.equal(await saveCommitted.count(), 0, 'Save panel unexpectedly retained an old receipt')
+    await savePanel.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+    await saveCommitted.waitFor()
+    persisted = await persistedCheckpoint()
+    report.actions.push({ label: label + '-persisted-readback', beforeSha256: before, ...persisted })
+    save()
+    assert.equal(persisted.sha256, before, 'Persisted checkpoint differs from current route progress')
+    await menu.getByRole('button', { name: 'Back', exact: true }).click()
+    await menu.getByRole('button', { name: 'Load Game', exact: true }).click()
+    await menu.getByRole('region', { name: 'Load Game', exact: true })
+      .getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+    await page.waitForFunction(prior => window.testStore.getWorld() !== prior, previousWorld)
+    await bindGame(page)
+    await page.evaluate(prior => {
+      const world = window.testStore.getWorld()
+      if (world === prior || window.testScene.world !== world)
+        throw new Error('Load did not bind a distinct restored World')
+    }, previousWorld)
+  } finally {
+    await previousWorld.dispose()
+  }
   await hold()
   const resume = page.getByRole('button', { name: 'Continue Game', exact: false })
   if (await resume.isVisible()) await resume.click()
@@ -278,6 +340,9 @@ async function checkpoint(name, heading, label) {
     label,
     beforeSha256: before,
     afterSha256: after,
+    saveCommitted: true,
+    persisted,
+    distinctRestoredWorld: true,
     before: beforeState,
     after: afterState,
   })
@@ -300,7 +365,7 @@ async function until(kind, limit, label) {
       async ({ kind, count, boatId, partyIds }) => {
         const w = window.testScene.world,
           { tick } = await import('/app/model.ts'),
-          { stoneHead149Model } = await import('/app/stone-head-149.ts'),
+          { stoneHead149Model } = await import('/app/stone-head-149-model.ts'),
           serialize = window.__totemSerialize,
           control = structuredClone(w),
           root = w.shrines.find(s => s.id === 71),
@@ -756,15 +821,27 @@ try {
   })
   await stage('normal-root71-worship-dispatch', async () => {
     const root = await inspect('Totem Pole', 0, 'root-before-worship'),
-      before = await state()
+      before = await state(),
+      pointer = await pointerEvidence(root.pick),
+      rootOrder = u =>
+        partyIds.includes(u.id) &&
+        (u.work === 71 || (u.order?.model === 27 && u.order.a === 71))
     assert.ok(partyIds.every(id => before.selected.includes(id)))
+    assert.equal(pointer.canvas, true)
+    assert.equal(pointer.person, null)
+    assert.equal(pointer.object, 71)
+    assert.deepEqual(
+      [pointer.context?.enabled, pointer.context?.model, pointer.context?.shrine],
+      [true, 27, 71]
+    )
+    assert.equal(before.units.some(rootOrder), false, 'Root71 was already ordered before the click')
     await page.mouse.click(root.pick.x, root.pick.y)
     const after = await state()
-    report.actions.push({ label: 'actual-root71-click', point: root.pick, before, after })
+    report.actions.push({ label: 'actual-root71-click', point: root.pick, pointer, before, after })
     save()
     assert.equal(after.turn, before.turn)
     assert.ok(
-      after.units.filter(u => u.work === 71 || u.order?.model === 27).length >= 2,
+      after.units.filter(rootOrder).length >= 2,
       'NORMAL_ROOT_DISPATCH_REJECTED: ' + after.message
     )
     const working = await until('working', 2048, 'ordinary approach and at least two worshippers')

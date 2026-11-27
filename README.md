@@ -1,9 +1,10 @@
-# Populous New Dawn
+# Populous: New Dawn
 
-A work-in-progress recreation of **Populous: The Beginning** for modern desktop
-browsers, using original-game artwork and a spherical world. Terrain, objects and
-assets come from the user-supplied game; behavior is being reconstructed and
-compared against its executable. This is a browser remake, not an emulator.
+An in-development single-player remake of **Populous: The Beginning** for desktop
+browsers. Build a tribe, command followers and cast spells in a spherical world.
+Original-game artwork and terrain come from the user-supplied game. This is a
+browser remake, not an emulator; campaign content, fidelity and performance
+remain unfinished.
 
 ## Try the browser build
 
