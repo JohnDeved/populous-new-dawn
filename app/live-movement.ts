@@ -467,16 +467,14 @@ function issueLiveOrders(
   return { accepted, count }
 }
 
-// 0x4cedd0 commits movement and persistent guard as one native command group.
+// 0x4cedd0: single-marker Preachers move; remaining models guard the area.
+// Two-marker groups retain their shared normalized patrol route.
 export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, secondary = -1) {
   const group = {
     records: Array.from({ length: 8 }, emptyPersonOrder),
     count: 0,
     cursor: 0,
   }
-  if (secondary === -1) queuePersonOrder(group, 3, 0, marker)
-  queuePersonOrder(group, 11, 0x606, marker)
-  if (secondary !== -1) queuePersonOrder(group, 11, 0x606, secondary)
   const people = units.map(u => {
     const p = u.native ?? createLivePerson(w, u)
     u.native = p
@@ -484,7 +482,7 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
     registerLivePerson(w, p)
     return p
   })
-  return commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], {
+  const effects: OrderEffects = {
     ...orderEffects(w),
     prepare: (order, model, a, b, flags = 0) => {
       if (model === 3)
@@ -494,7 +492,21 @@ export function appendLiveGuardOrders(w: World, units: Unit[], marker: number, s
       else if (model === 11) prepareCellOrder(order, { a, b }, flags, w.land.categories, model)
       else unsupported()
     },
-  })
+  }
+  let moved = true
+  if (secondary === -1) {
+    queuePersonOrder(group, 3, 0, marker)
+    moved = commitPersonOrders(w.buildingOrders, group, people, [4, -1, -1], effects)
+    // 0041b180 releases selected state-14 model 4 before the second commit.
+    for (const u of units)
+      if (u.native?.model === 4 && u.native.state === 14) {
+        resetPersonMotion(u.native)
+        changeLivePersonState(w, u, 10)
+      }
+  }
+  queuePersonOrder(group, 11, 0x606, marker)
+  if (secondary !== -1) queuePersonOrder(group, 11, 0x606, secondary)
+  return commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], effects) && moved
 }
 
 export function movementOrder(w: World, to: { x: number; y: number }) {
