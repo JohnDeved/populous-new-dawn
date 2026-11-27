@@ -671,6 +671,7 @@ export default function Home() {
     const key = (e: KeyboardEvent) => {
       if (
         !ready ||
+        store.getWorld() !== world ||
         menu ||
         cheatsOpen ||
         (e.key === 'Escape' && e.repeat) ||
