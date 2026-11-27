@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import test from 'node:test'
-import { createWorld, tick } from '../app/model.ts'
+import { createWorld, nativePosition, tick } from '../app/model.ts'
 import { missionData } from '../app/mission-data.ts'
 import { createErosion, stepErosion } from '../app/erosion.ts'
 import { processTerrain, queueTerrain, terrainPointHeight, updateWalkMasks } from '../app/native-terrain.ts'
@@ -166,4 +166,32 @@ test('repeated rewards get one initial visit each and exhausted rewards never al
   assert.equal(head.uses, 2)
   assert.equal(world.effectCounter, count)
   assert.equal(liveErosion(world).length, 0)
+})
+
+test('Mission 3 keeps its linked Erosion template dormant until the head completes', () => {
+  const world = createWorld(3)
+  const head = world.shrines.find(shrine => shrine.kind === 'erosionEffect')
+  assert.ok(head)
+  assert.equal(head.effectTargets.length, 1)
+  const nativeXY = point => {
+    const { x, y } = nativePosition(world, point)
+    return [x & 65535, y & 65535]
+  }
+  const target = [63744, 35072]
+  assert.deepEqual(nativeXY(head.effectTargets[0]), target)
+  assert.equal(liveErosion(world).length, 0)
+
+  finishLevelStart(world)
+  for (let turn = 0; turn < 3; turn++) tick(world, 1 / 12)
+  assert.equal(head.uses, 0)
+  assert.deepEqual(nativeXY(head.effectTargets[0]), target)
+  assert.equal(liveErosion(world).length, 0)
+
+  head.forced = true
+  tick(world, 1 / 12)
+  assert.equal(head.uses, 1)
+  const effects = liveErosion(world)
+  assert.equal(effects.length, 1)
+  assert.deepEqual(nativeXY(effects[0]), target)
+  assert.equal(effects[0].erosion.remaining, 63)
 })

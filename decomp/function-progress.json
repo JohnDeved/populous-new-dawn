@@ -1818,6 +1818,20 @@
       "limits": "Original level loader performs broad palette, terrain and command setup. Only the live path-budget defaults are mapped for this address."
     },
     {
+      "address": "0042b660",
+      "status": "partial",
+      "scope": "Initialize the cast-ownership bit for human versus computer roles during ordinary world startup.",
+      "sources": [
+        "app/world-state.ts",
+        "app/spell-casting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0042b660.c",
+        "scripts/check-native-cast-cooldowns.py"
+      ],
+      "limits": "Exact retained original clears bit 0x20 for the local human and sets it for each of three computers when no special terrain mode is active; current ordinary startup yields [0,32,32,32]. No general tribe-clear, special flags, gameplay arrays, or duplicated 00461d70 defaults."
+    },
+    {
       "address": "0042bde0",
       "status": "partial",
       "scope": "Choose the F00T bank for the ordinary English Pause label by total screen area",
@@ -2314,6 +2328,24 @@
         "scripts/check-native-orders.py"
       ],
       "limits": "Native harness compares 1,120 encodings. Ordinary supported payloads use the writer; four browser object-reference models intentionally retain safe-integer identities rather than applying native 16-bit coercion. Does not claim command body parity."
+    },
+    {
+      "address": "004358f0",
+      "status": "partial",
+      "scope": "Advance the ground-patrol planning cursor by one for each accepted Ctrl+Alt staged point before the terminal slot.",
+      "sources": [
+        "app/person-orders.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004358f0.c",
+        "scripts/check-native-orders.py",
+        "decomp/research/player-patrol.md",
+        "tests/fixtures/ground-order-input.json",
+        "tests/player-orders.test.mjs",
+        "tests/player-patrol.test.mjs"
+      ],
+      "limits": "Retained original calls the unhooked frontend cursor routine before applying the checked packet; matching fixture filters staged points and current game state records three consecutive Ctrl+Alt points. Only cursor advance, not native reservation flags/graphics, packet-held consumers or final clearing credited to adjacent routines."
     },
     {
       "address": "004359b0",
@@ -9453,6 +9485,21 @@
       "limits": "Controlled Mission 5 grant preserves the new Boat position, allocation phase and fresh identity. A supplied copy verifies disjoint passenger lists; not the complete native record, selective raw flag preservation, or occupied reward lifecycle."
     },
     {
+      "address": "004edf50",
+      "status": "partial",
+      "scope": "Keep the authored Mission 3 linked Erosion template dormant on startup and before completing the shrine.",
+      "sources": [
+        "app/world-initialization.ts",
+        "app/world-turn.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004edf50.c",
+        "decomp/research/erosion-activation.md",
+        "tests/erosion-shrine-activation.test.mjs"
+      ],
+      "limits": "Accepted original startup trace retains authored model 23 at [63744,35072], state 0 and countdown 64 with unchanged terrain before activation. Live mission retains same linked authored location as recipe data, does not schedule an Erosion before completion and schedules one through the actual ordinary head path after controlled completion. Not native physical record, raw flags, chain unlinking, renderer or first activation timing credit."
+    },
+    {
       "address": "004ee190",
       "status": "partial",
       "scope": "Remove a deleted live effect owner's terrain-light contribution",
@@ -9680,6 +9727,20 @@
         "decomp/generated/004f1280.c"
       ],
       "limits": "Globe visibility invokes a building-specific equivalent of fog/concealment flags. The original native eligibility routine also checks enemy people linked as passengers and the model-5 passenger suppression; the live globe building adapter excludes that branch."
+    },
+    {
+      "address": "004f20b0",
+      "status": "partial",
+      "scope": "Read the selected AI spell's recovery byte and scale it by 64 on the ordinary successful charge accounting path.",
+      "sources": [
+        "app/spell-casting.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f20b0.c",
+        "scripts/check-native-cast-cooldowns.py",
+        "tests/mission7-yellow-cooldowns.test.mjs"
+      ],
+      "limits": "Retained direct original Mission 3 query returns 512 from slot 17 containing 8, and the maintained checker compares the current authored consumer. Ordinary current Mission 7 successful casts test 4096/2048 on authored intervals 64/32. No timer scheduler, counter ownership or allocation claim."
     },
     {
       "address": "004f20d0",
@@ -11630,6 +11691,21 @@
       "status": "partial"
     },
     {
+      "address": "0051e3d0",
+      "status": "partial",
+      "scope": "Position the outer participant of an ordinary two-person melee 180 native units from its center.",
+      "sources": [
+        "app/combat-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051e3d0.c",
+        "scripts/check-native-melee-approach.py",
+        "scripts/check-native-melee-decisions.py",
+        "tests/melee.test.mjs"
+      ],
+      "limits": "Retained original executes the actual slot routine and associated native approach/decision probes; exact maintained browser CPU tick arrives at the literal 180/256 endpoint from eight directions. Scope excludes three/four-way layout and quantization differences, allocators and combat outcomes."
+    },
+    {
       "address": "0051e4b0",
       "status": "partial",
       "scope": "Reject an otherwise valid active fight center carrying exclusion flag 2",
@@ -11672,6 +11748,23 @@
         "tests/live-authored-combat-reservation.test.mjs"
       ],
       "limits": "The ordinary Mission 10 turn scan emits command 21 at turn 104 for a supplied rival, while the same supplied friendly people do not trigger it. This tests one routed person threat and the friendly control, not water, disguise, reserved fights, structures, all tribes or the full native search."
+    },
+    {
+      "address": "0051f470",
+      "status": "partial",
+      "scope": "Admit ordinary hostile world-person targets to the state-21 tower Firewarrior scan and reject the tested ineligible single-target cases.",
+      "sources": [
+        "app/live-combat.ts",
+        "app/combat-targets.ts",
+        "app/firewarrior.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0051f470.c",
+        "scripts/probe-native-firewarrior-tower.py",
+        "decomp/research/firewarrior.md",
+        "tests/firewarrior-cooldown.test.mjs"
+      ],
+      "limits": "Direct retained original returns person selection 2 vs no target for dead, same-tribe, raw 0x10000/0x800000, hidden and state-23 cases. Controlled actual Tower scan issues a paired shot only for the eligible person. No competing-target rank, special filter, class-10/building/vehicle mix, native queued ownership, exact damage or natural acquisition credit."
     },
     {
       "address": "0051f750",
