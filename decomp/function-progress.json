@@ -2074,6 +2074,21 @@
       "limits": "Exact original two writes set flag 0x10 and store the 16-bit string payload; browser combines them during live slot creation. Original descriptor and emitter scheduling separate."
     },
     {
+      "address": "00430e60",
+      "status": "partial",
+      "scope": "Store the packed target cell and separate payload for an authored positioned message",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/messages.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00430e60.c",
+        "decomp/research/mission2-positioned-message.md",
+        "tests/game.test.mjs"
+      ],
+      "limits": "The ordinary Mission 2 message carries target 0x60cc and payload 308; the neighboring text-only message is distinct. No native camera origin or angle, all input descriptors, state layout, or rendered parity."
+    },
+    {
       "address": "00430fe0",
       "status": "partial",
       "scope": "Remove a visible campaign message slot",
@@ -3216,6 +3231,22 @@
       "limits": "Committed native timeline observes actual flags, packed value and signed duration at the downstream 0044d7f0 boundary but skips that UI operation. Live kind 5 resolves flags/value into an object and passes duration to scene tooltip ownership, not to original global storage."
     },
     {
+      "address": "0044a1f0",
+      "status": "partial",
+      "scope": "Convert positive viewport width for the ordinary campaign message strip",
+      "sources": [
+        "app/page.tsx",
+        "app/globals.css"
+      ],
+      "evidence": [
+        "decomp/generated/0044a1f0.c",
+        "decomp/research/campaign-message-presentation.md",
+        "tests/fixtures/hud-scale.json",
+        "tests/live-campaign-message-strip-width.test.mjs"
+      ],
+      "limits": "The native width leaf and strip caller support truncated scaling and odd-width correction. The CPU Home resize callback separates width from height and HUD preference; no other consumers, native height/overflow, browser layout or visual parity."
+    },
+    {
       "address": "0044a210",
       "status": "partial",
       "scope": "Scale the live campaign message height for its parity adjustment",
@@ -4158,6 +4189,20 @@
       "limits": "Exact native flags 1/0x3c and category mask 0x80 select the live dry branch. Browser normalizes native 1 vs 0x80 to boolean; wave sampling is 0x46cb90 caller, not this function."
     },
     {
+      "address": "0046d070",
+      "status": "partial",
+      "scope": "Enqueue admitted object commands before land faces in a common ordinary land cell",
+      "sources": [
+        "app/painter.ts",
+        "app/render-view.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046d070.c",
+        "tests/live-painter-cell-submissions.test.mjs"
+      ],
+      "limits": "Visible supplied model and two terrain faces preserve model-before-land insertion stamps despite opposite scene insertion; adjacent cell and hidden-model controls stay distinct. No final bucket or visual draw order, full mesh traversal, native pools or clipping equivalence."
+    },
+    {
       "address": "0046d970",
       "status": "partial",
       "scope": "Ground painter front-facing top admission and shared viewport outcode rejection",
@@ -4244,6 +4289,20 @@
         "tests/live-native-painter-commands.test.mjs"
       ],
       "limits": "Actual emitted commands cover depths 0/4, representative baseline/raised/excluded-flag buckets, and cap 3584. No fog, native polygon pool, polygon lifetime or full queue parity."
+    },
+    {
+      "address": "0046ec80",
+      "status": "partial",
+      "scope": "Enable ambient tree presence from admitted visible scaled tree models",
+      "sources": [
+        "app/painter.ts",
+        "app/ambient-sound.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0046ec80.c",
+        "tests/live-painter-cell-submissions.test.mjs"
+      ],
+      "limits": "The ordinary CPU painter submits supplied eligible models 1 and 6 and sets a boolean, excluding other model types, hidden or unscaled meshes, and excluded distances. No native count, object-list ownership, standalone distance-helper credit or audio playback parity."
     },
     {
       "address": "0046f080",
@@ -4807,6 +4866,20 @@
         "app/popscript.ts"
       ],
       "status": "partial"
+    },
+    {
+      "address": "0048cc60",
+      "status": "partial",
+      "scope": "Enable combat mode in the authored Mission 1 opening through opcode 1204",
+      "sources": [
+        "app/campaign-command-runtime.ts",
+        "app/original-script.json"
+      ],
+      "evidence": [
+        "decomp/generated/0048cc60.c",
+        "tests/game.test.mjs"
+      ],
+      "limits": "Native case 0xb0 with operand 1023 sets bit 0x40. Actual opening state and supplied ON/OFF command controls separate neighboring bits and the earlier 1109 opcode. No native script pointer, authored OFF case, later combat outcomes or whole interpreter parity."
     },
     {
       "address": "0048ea80",
@@ -6009,6 +6082,22 @@
         "tests/game.test.mjs"
       ],
       "limits": "A deliberately prepared ready duel through the live world tick samples ordinary simultaneous damage: actor/target health 90/50 becomes 87/32. Moving the counter calculation after the first hit gives actor health 88.1. Authored contact, native executable behavior and full damage, death or effect ordering are not established."
+    },
+    {
+      "address": "004a4450",
+      "status": "partial",
+      "scope": "Keep ordinary gameplay draw visits separate from the paused simulation clock",
+      "sources": [
+        "app/game-clock.ts",
+        "app/scene-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a4450.c",
+        "decomp/generated/004a4960.c",
+        "decomp/generated/004ee770.c",
+        "tests/live-clock-paused-draw-visit.test.mjs"
+      ],
+      "limits": "An authored Mission 1 world with a supplied visible bolt still dispatches the real CPU draw callback while paused; only cosmetic RNG changes. No original cadence or platform event loop, full draw dispatcher, sprite traversal or visual parity."
     },
     {
       "address": "004a5590",
