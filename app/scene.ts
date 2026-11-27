@@ -798,8 +798,8 @@ export class GameScene {
   pick(event: { clientX: number; clientY: number }, metrics?: PointerFrameMetrics): Point | null {
     return pick(this, event, metrics)
   }
-  pickWorldObject(event: { clientX: number; clientY: number }) {
-    return pickWorldObject(this, event)
+  pickWorldObject(event: { clientX: number; clientY: number }, purpose?: 'inspection') {
+    return pickWorldObject(this, event, purpose)
   }
   pointerDown = ((event: PointerEvent) => {
     pointerDown(this, event)
