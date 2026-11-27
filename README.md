@@ -81,9 +81,14 @@ The first mission opens with its original camera tour. Press Escape/Space or cli
 4. Place a Warrior Training Hut near your settlement. Free braves fetch eight logs and build it. Select braves and click the completed hut to train them.
 5. Bridge from the central island to the Dakini. Defeat their followers; Lightning is particularly useful against their shaman.
 
-Click to select/order; drag to select groups; Shift adds followers. Up/down arrows move forward/back; left/right arrows rotate, Ctrl+left/right pan sideways, and Shift speeds up panning. The outer screen edges scroll, including beside the sidebar. W/A/S pan (D is the original scatter key), Q/E or right drag rotates, middle drag pans, scroll or = / − switches view, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
+Click to select/order; drag to select groups. Ctrl-click toggles a follower, and Ctrl-drag adds to the selection. Up/down arrows move forward/back; left/right arrows rotate, Ctrl+left/right pan sideways, and Shift speeds up panning. The outer screen edges scroll, including beside the sidebar. W/A/S pan (D is the original scatter key), Q/E or right drag rotates, middle drag pans, scroll or = / − switches view, and the minimap moves smoothly to a place on its surface. Focus commands preserve rotation and zoom; panning or dragging takes over from an active journey. Enter or ◎ shows the planet overview.
 
-`1–3`: Blast / Land Bridge / Lightning. `B`: buildings. `H`: shaman. `F`: focus. `G`: guard shaman. `D`: scatter selected followers (selection and queued orders are kept). `Space`: pause. `F8`: toggle the optional performance overlay (also in battlefield menu); `?fps` enables it on load. `Esc`: cancel targeting. Hold the apostrophe/Quote key to show damaged friendly followers’ health. Right-click Blast's card to toggle charging and redirect mana to training.
+Open the **Spells** tab to choose Blast, Land Bridge or Lightning. The number row
+`1–6` recalls follower groups; hold Shift to assign the current selection. The browser
+adds `7` for Firestorm, `8` for Earthquake, `9` for Tornado and `0` for Magical Shield
+when those spells are available.
+
+`B`: buildings. `.`: focus the shaman. `H`: focus the reincarnation site. `F`: focus the selection. `G`: guard shaman. `D`: scatter selected followers (selection and queued orders are kept). `Space`: pause. `F8`: toggle the optional performance overlay (also in battlefield menu); `?fps` enables it on load. `Esc`: cancel targeting. Hold the apostrophe/Quote key to show damaged friendly followers’ health. Right-click Blast's card to toggle charging and redirect mana to training.
 
 Send braves inside huts to increase mana flow and breeding. Builders collect actual timber; there is no automatic global wood income. Buildings need a dry, level footprint near the settlement. Followers drown in water, and Blast can knock them off a shore. A shaman reincarnates while followers survive.
 
