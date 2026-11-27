@@ -11,7 +11,7 @@ import {
   noOp,
   messageBoxBindings,
 } from './support/follower-nearby-page.mjs'
-import { guardShaman, SPELLS, rotateBuildingPlan, resetGuardPostChain } from '../app/model.ts'
+import { guardShaman, SPELLS, rotateBuildingPlan, resetGuardPostChain, tick } from '../app/model.ts'
 import { interruptFlyby } from '../app/flyby.ts'
 import { spellHudVisibility } from '../app/spell-visibility.ts'
 import { followerGroupShortcut } from '../app/follower-groups.ts'
@@ -162,4 +162,40 @@ test('Shift+Space still reaches the existing introductory flyby skip before rota
   assert.deepEqual(k.world.buildingDirections, directions)
   assert.deepEqual(k.sounds, [])
   k.cleanup()
+})
+
+test('bare Space does not freeze the visible victory result background', () => {
+  const k = keyboard({ plan: false })
+  try {
+    // Supply the authored outcome condition; ordinary tick publishes victory.
+    k.world.land.landFlags |= 0x2000000
+    tick(k.world, 1 / 12)
+    assert.equal(k.world.status, 'won')
+    assert.equal(k.world.outcome.cameraPlaying, false)
+    let prevented = false
+    k.key({ preventDefault: () => { prevented = true } })
+    const turn = k.world.turn
+    tick(k.world, 1 / 12)
+    assert.equal(k.world.turn, turn + 1, 'bare Space must not freeze the result background')
+    assert.equal(k.world.paused, false)
+    assert.equal(prevented, false)
+  } finally {
+    k.cleanup()
+  }
+})
+
+test('Space still toggles Pause while victory camera keeps the result hidden', () => {
+  const k = keyboard({ plan: false })
+  try {
+    k.world.land.landFlags |= 0x2000000
+    tick(k.world, 1 / 12)
+    assert.equal(k.world.status, 'won')
+    k.world.outcome.cameraPlaying = true
+    k.key()
+    assert.equal(k.world.paused, true)
+    k.key()
+    assert.equal(k.world.paused, false)
+  } finally {
+    k.cleanup()
+  }
 })

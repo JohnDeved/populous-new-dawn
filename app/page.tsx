@@ -805,6 +805,8 @@ export default function Home() {
         })
       }
       if (e.code === 'Space' && !(e.target as HTMLElement).closest('button')) {
+        // The visible result owns the foreground; its battlefield keeps running.
+        if (world.status !== 'playing' && !world.outcome.cameraPlaying) return
         e.preventDefault()
         if (!e.repeat) {
           store.change(w => {
