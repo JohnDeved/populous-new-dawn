@@ -276,6 +276,22 @@
       "limits": "Live spawn, sockets, redirect, flash and human cue; world turn retains browser route adapter for newborn home/state ownership, so not full native lifecycle."
     },
     {
+      "address": "00405050",
+      "status": "partial",
+      "scope": "Read the packed land cell used by an authored hut newborn’s exit",
+      "sources": [
+        "app/world-turn.ts",
+        "app/hut-birth.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00405050.c",
+        "decomp/generated/00404c80.c",
+        "tests/fixtures/hut-birth.json",
+        "tests/live-hut-birth-neighbor-cell.test.mjs"
+      ],
+      "limits": "The actual Mission 2 birth resolves only the flagged exit cell, and low owner bits redirect through a supplied camp record; adjacent and unflagged controls leave the route unchanged. This is not native memory layout, the later center snap, other callers or browser rendering."
+    },
+    {
       "address": "00405090",
       "status": "partial",
       "scope": "Snap a live hut-birth exit point or computer idle anchor to a native cell center",
@@ -1783,6 +1799,20 @@
         "decomp/research/demo131-entry.md"
       ],
       "limits": "Original level loader performs broad palette, terrain and command setup. Only the live path-budget defaults are mapped for this address."
+    },
+    {
+      "address": "0042bde0",
+      "status": "partial",
+      "scope": "Choose the F00T bank for the ordinary English Pause label by total screen area",
+      "sources": [
+        "app/pause-status-layout.ts",
+        "app/original-pause-status.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/0042bde0.c",
+        "tests/native-pause-startup-status.test.mjs"
+      ],
+      "limits": "Uses F00T4 below 307,200 and F00T3 at or above it, including equal-area controls across different dimensions. This bounded bank choice does not establish original table-wide mutation, exact native pause slot ownership, localization or browser pixel parity."
     },
     {
       "address": "0042c210",
@@ -3940,6 +3970,20 @@
       "limits": "Supported registered vehicle and physics models, using native coordinate units and rule tables; 1,024 direct native predicate comparisons. Does not claim transport movement, landing or board-order parity."
     },
     {
+      "address": "004657d0",
+      "status": "partial",
+      "scope": "Claim the first vacant Boat seat for a registered passenger during ordinary nearby boarding",
+      "sources": [
+        "app/live-vehicles.ts",
+        "app/live-movement.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004657d0.c",
+        "tests/cross-vehicle-boarding.test.mjs"
+      ],
+      "limits": "Two authored Mission 15 Boats exercise open and occupied leading seats, active owner, backlink and count through transfer and restoration. No all-full rejection, raw count or route-owner layout, general vehicle dispatch, native animation or browser parity."
+    },
+    {
       "address": "004659d0",
       "status": "partial",
       "scope": "Launch a seated Boat or Balloon passenger on verified voluntary exit",
@@ -4243,6 +4287,21 @@
         "scripts/check-native-projection.py"
       ],
       "limits": "Native comparison captures the called projection boundary; actor face material, native texture and device submission are separate browser owners."
+    },
+    {
+      "address": "004718c0",
+      "status": "partial",
+      "scope": "Derive a three-vertex model paint bucket from projected depths and signed face bias",
+      "sources": [
+        "app/painter-order.ts",
+        "app/painter.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004718c0.c",
+        "tests/painter-order.test.mjs",
+        "tests/fixtures/painter-order.json"
+      ],
+      "limits": "Retained original model cases cover signed bias and both saturation bounds. This is CPU bucket selection only, not the native submission payload, pool, terrain bias, painter visibility or Direct3D/WebGL output."
     },
     {
       "address": "00471a80",
@@ -4582,6 +4641,22 @@
         "tests/mission6-raid-origin.test.mjs"
       ],
       "limits": "Ordinary Mission 6 dispatch stages the first Chumara raid at the unique authored Shaman cell 0xd094, not the different defence cell. The test verifies the packed model-3 orders for four living members. Other loader branches, duplicate Shaman writer order and native memory effects are not established."
+    },
+    {
+      "address": "00486160",
+      "status": "partial",
+      "scope": "Load authored initial player-zero building availability for represented Camp and Temple bits",
+      "sources": [
+        "app/world-state.ts",
+        "app/mission-data.ts",
+        "app/live-command.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00486160.c",
+        "decomp/research/help-building-discovery.md",
+        "tests/live-opening-building-mask.test.mjs"
+      ],
+      "limits": "Uses the little-endian legacy header building mask: the ordinary Mission 1 placement refuses Camp, while Mission 3 allows Camp and independently refuses Temple. This is not the full native record copy, other owners, spell or CPATR setup, runtime unlocks, or UI parity."
     },
     {
       "address": "004895c0",
@@ -5892,6 +5967,21 @@
         "decomp/research/follower-task-panel.md"
       ],
       "limits": "Original selects one row/class count and calls its draw helper, not whole panel composition. Live renders row.counts[model] via FollowerNumber with nearby alternate styling; exact native draw metrics, preset positioning and renderer variant are outside the claim."
+    },
+    {
+      "address": "004a1f50",
+      "status": "partial",
+      "scope": "Draw the selected minimap frame’s repeated and clipped HFX edge pieces before corners",
+      "sources": [
+        "app/minimap-frame.ts",
+        "app/minimap-frame-view.tsx"
+      ],
+      "evidence": [
+        "decomp/generated/004a1f50.c",
+        "scripts/check-native-minimap-frame.py",
+        "tests/minimap-frame.test.mjs"
+      ],
+      "limits": "The retained original and current Canvas cases cover positive gaps, partial tiles and no center draw for these exact edge sprites. Excludes upstream descriptor selection, generic UV and Direct3D behavior, native screen scaling and input or browser parity."
     },
     {
       "address": "004a3920",
