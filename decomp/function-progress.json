@@ -3215,6 +3215,21 @@
       "limits": "Live kind 3 left-shifts and stores the queued short and plans signed zoom delta from current view, as composed against the native authored opening. This scoped assessment does not establish equivalent host zoom ownership or duration handling outside the authored timeline."
     },
     {
+      "address": "00449b30",
+      "status": "partial",
+      "scope": "Accumulate biased signed zoom during an active authored flyby and hand it to the view",
+      "sources": [
+        "app/flyby.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00449b30.c",
+        "scripts/check-native-flyby.py",
+        "tests/live-authored-flyby-profile-and-zoom.test.mjs"
+      ],
+      "limits": "Retained original comparison directly executes zoom updates with the renderer setter supplied. Actual authored Mission 3 exercises biased zoom and stored velocity. No native setter, endpoints, early release, absolute cadence or pixels."
+    },
+    {
       "address": "0044a030",
       "status": "partial",
       "scope": "Route an authored flyby tooltip's flags, value and duration into live display",
@@ -3229,6 +3244,21 @@
         "decomp/generated/0044d7f0.c"
       ],
       "limits": "Committed native timeline observes actual flags, packed value and signed duration at the downstream 0044d7f0 boundary but skips that UI operation. Live kind 5 resolves flags/value into an object and passes duration to scene tooltip ownership, not to original global storage."
+    },
+    {
+      "address": "0044a070",
+      "status": "partial",
+      "scope": "Carry prior X velocity into the next active authored flyby profile",
+      "sources": [
+        "app/flyby.ts",
+        "app/scene-camera-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044a070.c",
+        "scripts/check-native-flyby.py",
+        "tests/live-authored-flyby-profile-and-zoom.test.mjs"
+      ],
+      "limits": "The original scalar planner is differentially exercised; actual authored Mission 3 checks the second X profile and resulting camera position. No alternate modes, fault inputs, complete flyby ownership, platform precision or visual claim."
     },
     {
       "address": "0044a1f0",
@@ -4333,6 +4363,23 @@
       "limits": "Native body/shadow numerical anchors are compared, but browser adapts queue, surface and viewport submission."
     },
     {
+      "address": "004708d0",
+      "status": "partial",
+      "scope": "Admit only front-wound completed object faces in the ordinary CPU painter",
+      "sources": [
+        "app/painter.ts",
+        "app/scene-assets.ts",
+        "app/scene-entities.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004708d0.c",
+        "scripts/check-native-model-facing.py",
+        "tests/fixtures/model-facing.json",
+        "tests/live-model-stage-face-submissions.test.mjs"
+      ],
+      "limits": "The actual nativeModel factory and CPU painter replay supplied original completed faces with both windings, not authored building creation. No terrain clipping, native pool or depth buckets, production model topology, lighting or GPU output."
+    },
+    {
       "address": "00471490",
       "status": "partial",
       "scope": "Build native object face rotation basis and camera-relative projection",
@@ -4375,6 +4422,23 @@
         "scripts/check-native-vehicle-materials.py"
       ],
       "limits": "The native vehicle materials harness runs ten full vehicle draws and compares the live texture-ID mapping for four tribes and neutral. Browser applies this via retained tile/UV mappings, not the original general polygon queue, projection or clipping."
+    },
+    {
+      "address": "00471c40",
+      "status": "partial",
+      "scope": "Admit both face windings for construction stages zero through three",
+      "sources": [
+        "app/painter.ts",
+        "app/scene-assets.ts",
+        "app/scene-entities.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00471c40.c",
+        "scripts/check-native-model-facing.py",
+        "tests/fixtures/model-facing.json",
+        "tests/live-model-stage-face-submissions.test.mjs"
+      ],
+      "limits": "Actual nativeModel stage material and CPU painter accept 32 supplied original staged probes with both directions, not authored building creation. No cap UV helper, native allocation, full stage transition, materials, lighting or GPU output."
     },
     {
       "address": "00474ba0",
@@ -6100,6 +6164,23 @@
       "limits": "An authored Mission 1 world with a supplied visible bolt still dispatches the real CPU draw callback while paused; only cosmetic RNG changes. No original cadence or platform event loop, full draw dispatcher, sprite traversal or visual parity."
     },
     {
+      "address": "004a4960",
+      "status": "partial",
+      "scope": "Preserve the pre-advance Shaman death pose for the ordinary presentation visit",
+      "sources": [
+        "app/game-clock.ts",
+        "app/live-people.ts",
+        "app/shaman-death-vfx.ts",
+        "app/scene-effects.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004a4960.c",
+        "decomp/research/shaman-death-vfx.md",
+        "tests/shaman-death-cadence.test.mjs"
+      ],
+      "limits": "The original draw-before-animation call order is source-derived, not executed here. Natural Mission 2 death displays the pre-step snapshot in phases 0 and 2. No equivalent literal renderer call order, pixels, full dispatcher, phase controller or absolute timing."
+    },
+    {
       "address": "004a5590",
       "status": "partial",
       "scope": "Advance live fixed-tick turn gates and tribe processing",
@@ -6539,6 +6620,22 @@
         "decomp/research/early-mission-skies.md"
       ],
       "limits": "Live camera code uses imported bank fixtures to choose the type-one fallback or supported layer textures. Native 004b60d0 reacts to success/failure of texture loads and capability flags, and initializes native device surfaces; bank filename selection itself belongs upstream."
+    },
+    {
+      "address": "004b6e60",
+      "status": "partial",
+      "scope": "Prepare transparent edge RGB inside each ordinary object-atlas tile without changing alpha",
+      "sources": [
+        "app/scene-assets.ts",
+        "app/world-environment.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004b6e60.c",
+        "scripts/import-original.py",
+        "scripts/check-native-texture-edges.py",
+        "tests/fixtures/texture-edges.json"
+      ],
+      "limits": "Retained native ARGB4444 comparison covers the 32-pixel horizontal and vertical passes for the ordinary atlas; exact current importer reproduces the hash-bound prepared RGB and alpha. No DirectDraw cache, allocation, pixel format selection, other banks, runtime upload or GPU claim."
     },
     {
       "address": "004b7de0",
