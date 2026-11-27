@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { ObjectPanels } from '../app/object-panels.ts'
-import { command, createWorld, select, tick } from '../app/model.ts'
-import { personOrderIcons } from '../app/person-panel.ts'
+import { loadSceneFixture } from './support/bloodlust-scene.mjs'
+
+const { command, createWorld, select, tick } = await loadSceneFixture()
+const { ObjectPanels } = await import('../app/object-panels.ts')
+const { personOrderIcons } = await import('../app/person-panel.ts')
 
 test('an authored move-order icon requests the camera destination and adds one destination marker', () => {
   const world = createWorld(6)
   const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
-  while (world.turn < 430) tick(world, 1 / 12)
+  assert.equal(world.turn, 0)
+  for (let turn = 0; turn < 430; turn++) tick(world, 1 / 12)
+  assert.equal(world.turn, 430, 'the authored simulation reaches its Move-order setup turn')
   select(world, 'shaman')
   assert.deepEqual(world.selected, [95])
   assert.ok(command(world, { x: 73, z: -58 }))
