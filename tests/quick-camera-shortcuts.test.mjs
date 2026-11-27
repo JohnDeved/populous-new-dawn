@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld } from '../app/world-initialization.ts'
+import { createGameStore } from '../app/game-store.ts'
+import { rotateBuildingPlan } from '../app/construction-runtime.ts'
 import { SPELLS } from '../app/world-rules.ts'
 import { spellHudVisibility } from '../app/spell-visibility.ts'
 import { browserPosition } from '../app/world-coordinates.ts'
@@ -18,8 +20,8 @@ import { pageEffect, noOp, messageBoxBindings } from './support/follower-nearby-
 // ('h' -> action 0x96): press only, exact empty modifier mask, no predicate.
 // Execute the shipped Page keyboard effect rather than a copied dispatcher.
 function keyboard(overrides = {}) {
-  const world = createWorld(1), listeners = new Map(), focuses = []
-  world.inputMask = 0
+  const world = overrides.world ?? createWorld(1), listeners = new Map(), focuses = []
+  if (!overrides.world) world.inputMask = 0
   const bindings = {
     world, ready: true, menu: false, cheatsOpen: false, selectorOpen: false,
     messageDetails: { current: new Map() }, ...messageBoxBindings, SPELLS, spellHudVisibility, followerGroupShortcut,
@@ -176,4 +178,35 @@ test('public Space pause suppresses H without changing native flags; resume rest
   assert.equal(k.focuses.length, 2)
   assert.equal(k.world.land.landFlags, beforeFlags)
   k.cleanup()
+})
+
+
+test('a Space press handled by the previous mission listener cannot pause the replacement', () => {
+  const store = createGameStore()
+  store.startMission(3)
+  const oldWorld = store.getWorld()
+  const old = keyboard({ world: oldWorld, store, rotateBuildingPlan })
+  const space = { key: ' ', code: 'Space' }
+  assert.equal(oldWorld.inputMask, 0)
+  assert.equal(oldWorld.paused, false)
+
+  // Model the existing Home effect handoff window with the real store and two
+  // unmodified authored worlds, but without claiming browser event timing.
+  store.startMission(10)
+  const replacement = store.getWorld()
+  assert.notEqual(replacement, oldWorld)
+  assert.equal(replacement.inputMask, 0)
+  assert.equal(replacement.paused, false)
+  const handled = old.key(space)
+  assert.equal(replacement.paused, false, 'the retired listener cannot change a fresh mission')
+  assert.equal(handled, false, 'the retired listener does not consume the key')
+  assert.equal(oldWorld.paused, false)
+  old.cleanup()
+
+  const current = keyboard({ world: replacement, store, rotateBuildingPlan })
+  assert.equal(current.key(space), true)
+  assert.equal(replacement.paused, true)
+  assert.equal(current.key(space), true)
+  assert.equal(replacement.paused, false)
+  current.cleanup()
 })
