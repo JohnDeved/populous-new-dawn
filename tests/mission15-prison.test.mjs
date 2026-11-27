@@ -99,6 +99,28 @@ test('Mission 15 timer expiry locks input and kills the captive with enemy Light
   assert.equal(shaman.native.damageAttacker, 2)
 })
 
+test('Mission 15 reports expiry only when its enabled countdown reaches zero', () => {
+  const atExpiryPoll = remaining => {
+    const world = createWorld(15)
+    assert.equal(world.campaignTimer, 5400)
+    assert.equal(world.campaignAIs[2].variables[10], 1)
+    world.campaignTimer = remaining
+    let justBeforePoll
+    while (world.turn < 13) {
+      tick(world, 1 / 12)
+      if (world.turn === 12)
+        justBeforePoll = [world.campaignTimer, world.campaignAIs[2].variables[9], world.inputMask & 128]
+    }
+    return [
+      justBeforePoll,
+      [world.campaignTimer, world.campaignAIs[2].variables[9], world.inputMask & 128],
+    ]
+  }
+  assert.deepEqual(atExpiryPoll(13), [[1, 0, 0], [0, 1, 128]])
+  assert.deepEqual(atExpiryPoll(14), [[2, 0, 0], [1, 0, 0]])
+  assert.deepEqual(atExpiryPoll(null), [[null, 0, 0], [null, 0, 0]])
+})
+
 test('Mission 15 expiry stays latched if the Prison falls before Lightning lands', () => {
   const world = createWorld(15),
     { prison, shaman } = objective(world)
