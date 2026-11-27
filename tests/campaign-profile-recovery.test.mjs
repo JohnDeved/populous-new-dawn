@@ -114,7 +114,7 @@ for (const [version, mode, missingPolicy] of [[1, 'classic', false], [1, 'classi
     })
   })
 
-for (const invalid of ['detached resident route owner', 'missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'missing guard post chain', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
+for (const invalid of ['detached resident route owner', 'missing policy', 'missing route sidecar', 'invalid route sidecar', 'missing current secondary state', 'missing guard post chain', 'sparse guard post chain', 'hidden stale shrine ID', 'unknown mode', 'stale reservation', 'negative references', 'undercounted owners', 'overcounted owners'])
   test(`v4 ${invalid} rejects without suppressing campaign progress or rewriting storage`, async () => {
     const world = createWorld(1, 'scalable')
     if (invalid === 'detached resident route owner') {
@@ -127,6 +127,7 @@ for (const invalid of ['detached resident route owner', 'missing policy', 'missi
     if (invalid === 'invalid route sidecar') world.motionRoutes.references[1] = 1
     if (invalid === 'missing current secondary state') delete world.secondaryEffects
     if (invalid === 'missing guard post chain') delete world.guardPostChain
+    if (invalid === 'sparse guard post chain') delete world.guardPostChain[0]
     if (invalid === 'hidden stale shrine ID') world.shrines[0].linkedShrine = { ...world.shrines[1], id: world.nextId }
     if (invalid === 'unknown mode') world.capacityPolicy.mode = 'unknown'
     if (invalid === 'stale reservation') world.nextId = 20
@@ -136,6 +137,11 @@ for (const invalid of ['detached resident route owner', 'missing policy', 'missi
     if (invalid === 'overcounted owners') world.buildingOrders.records[1].references = 2
     await withStorage({ latest: { version: 4, world }, profile }, async ({ createGameStore, records, writes }) => {
       const store = createGameStore(), active = store.getWorld(), before = structuredClone(records)
+      if (invalid === 'sparse guard post chain') {
+        const stored = records.get('latest').world.guardPostChain
+        assert.equal(stored.length, 4)
+        assert.equal(Object.hasOwn(stored, 0), false, 'IndexedDB structured-clone boundary preserves the hole')
+      }
       assert.equal(await store.restoreCheckpoint(), false)
       assert.equal(store.getCheckpointReadStatus(), 'incompatible')
       assert.equal(store.loadCheckpoint(), false)
@@ -159,6 +165,34 @@ test('new checkpoints write v4 while database/profile stay v1; invalid saves do 
     assert.deepEqual(records, before)
     assert.equal(writes.length, writeCount)
     assert.equal(store.loadCheckpoint(), true, 'previous good in-session checkpoint is still usable')
+  })
+})
+
+test('Save rejects a sparse guard post chain without replacing a valid checkpoint', async () => {
+  await withStorage({ profile }, async ({ createGameStore, records, writes }) => {
+    const store = createGameStore(), world = store.getWorld()
+    world.guardPostChain[0] = 3
+    assert.equal(await store.saveCheckpoint(), true)
+    const before = structuredClone(records), writeCount = writes.length
+
+    delete world.guardPostChain[0]
+    await assert.rejects(store.saveCheckpoint(), /incompatible with this development version/)
+    assert.equal(store.getWorld(), world)
+    assert.equal(0 in world.guardPostChain, false)
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
+    assert.equal(store.loadCheckpoint(), true)
+    assert.deepEqual(store.getWorld().guardPostChain, [3, 0, 0, 0])
+
+    const fresh = createGameStore()
+    assert.equal(fresh.hasCheckpoint(), false)
+    assert.equal(await fresh.restoreCheckpoint(), true)
+    assert.equal(fresh.getCheckpointReadStatus(), 'read')
+    assert.deepEqual(fresh.getCompletedMissions(), [1, 2])
+    assert.equal(fresh.loadCheckpoint(), true)
+    assert.deepEqual(fresh.getWorld().guardPostChain, [3, 0, 0, 0])
+    assert.deepEqual(records, before)
+    assert.equal(writes.length, writeCount)
   })
 })
 
