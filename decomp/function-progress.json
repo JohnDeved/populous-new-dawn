@@ -2938,6 +2938,22 @@
       "limits": "The live drag adapter calls the reconstructed native fixed-point axis transform; the tracked mixed-axis sequences compare the exact native entry, but the browser caller does not expose the original momentum/scale settings."
     },
     {
+      "address": "00443b40",
+      "status": "partial",
+      "scope": "Create and replace a default-retain Guard-to-Shaman order for an ordinary selected on-foot follower",
+      "sources": [
+        "app/live-command.ts",
+        "app/shaman-guard.ts"
+      ],
+      "evidence": [
+        "decomp/generated/00443b40.c",
+        "tests/fixtures/shaman-guard-native.json",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-keyboard.test.mjs"
+      ],
+      "limits": "Executable-bound order accounting and actual Mission 1 G-key order creation and replacement are covered. Not Stay Selected Off, vehicles, list ordering, complete native eligibility or keyboard parity, or the 004f3280 continuation."
+    },
+    {
       "address": "00443d30",
       "status": "partial",
       "scope": "Drag gesture endpoint clamp and command packing",
@@ -3289,6 +3305,22 @@
         "scripts/check-native-followers-panel.py"
       ],
       "limits": "Live admission calculates the original signed multiply/bias/truncate scalar but consumes only its parity, with shipping commands passing 480. The native followers-panel harness calls the original full-coordinate function in a different consumer, not the browser message decision. Desktop screen globals and general layout are not matched."
+    },
+    {
+      "address": "0044a2f0",
+      "status": "partial",
+      "scope": "Lay out the ordinary English object-tooltip bitmap glyphs",
+      "sources": [
+        "app/scene-input-runtime.ts",
+        "app/tooltip-layout.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0044a2f0.c",
+        "scripts/check-native-tooltip-layout.py",
+        "tests/fixtures/tooltip-layout.json",
+        "tests/hud.test.mjs"
+      ],
+      "limits": "Retained original glyph submissions with supplied sprite banks and captured sinks match the tested layout. Not scrolling, other languages, pixels, ownership, string generation or lifetime."
     },
     {
       "address": "0044d7f0",
@@ -4689,6 +4721,35 @@
         "decomp/research/follower-groups.md"
       ],
       "limits": "Original key and command bindings researched; live rebinding/overlay group ownership differ from native list and input device dispatch."
+    },
+    {
+      "address": "0047c7e0",
+      "status": "partial",
+      "scope": "Assign successively nearer depth by submission rank for ordinary opaque model faces",
+      "sources": [
+        "app/painter.ts",
+        "app/painter-order.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047c7e0.c",
+        "scripts/check-native-painter-order.py",
+        "tests/live-painter-rank-depth.test.mjs"
+      ],
+      "limits": "Retained original routine has supplied cache/receiver; current CPU Painter uses supplied opaque triangles. Not native linked-list order, triangle emission, deferred alpha, cache, capacity, authored scene or GPU output."
+    },
+    {
+      "address": "0047cc60",
+      "status": "partial",
+      "scope": "Initialize both sampler filters for a loaded ordinary model atlas",
+      "sources": [
+        "app/scene-assets.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047cc60.c",
+        "scripts/check-native-texture-filter.py",
+        "tests/live-model-atlas-filter-init.test.mjs"
+      ],
+      "limits": "Retained original initialization captures D3D state calls. Actual model atlas initializes linear min/mag with loader IO supplied. Not global/per-batch controls, complete setup, alternative configurations or GPU output."
     },
     {
       "address": "0047ce50",
@@ -7386,6 +7447,22 @@
       "limits": "1,024 direct full native calls compare allocation requests and overrides; live AI admits enemies and allocates actual effects through browser adapters. In a controlled live shoreline fixture, the owned raid reserve rejects equality and allows a real Blast one mana above it; this is not new aim-search or authored mission evidence."
     },
     {
+      "address": "004c7370",
+      "status": "partial",
+      "scope": "Advance supported phase-8 Convert Wild decisions and timeout in the Mission 3 type-2 task",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004c7370.c",
+        "scripts/check-native-mission3-convert-task.py",
+        "decomp/research/mission3-convert-task.md",
+        "tests/mission3-convert-task.test.mjs",
+        "tests/mission3-convert-wild.test.mjs"
+      ],
+      "limits": "Original bounded decision probes supply dependencies; original timeout probes execute unhooked with supplied initial state. Actual Mission 3 confirms activity, not exact timing. Not full task, other missions, native scheduling, route/transport or rendering."
+    },
+    {
       "address": "004c8490",
       "status": "partial",
       "scope": "Mark eligible live trainee in AI selection reservation",
@@ -7641,6 +7718,22 @@
         "scripts/check-native-person-update.py"
       ],
       "limits": "4,096 direct tracked native comparisons and actual live ground/physics preparation dispatch. The comparison supplies animation, initialization and destination consumers; only preparation-owned writes and ordered requests are credited."
+    },
+    {
+      "address": "004d43a0",
+      "status": "partial",
+      "scope": "Regenerate ordinary living Brave health on the eight-turn cadence and synchronize the low-life indicator",
+      "sources": [
+        "app/world-turn.ts",
+        "app/live-people.ts",
+        "app/person-update.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004d43a0.c",
+        "scripts/check-native-person-update.py",
+        "tests/live-brave-health-regeneration.test.mjs"
+      ],
+      "limits": "Retained original health comparator supplies state initialization and unrelated leaves. Actual Mission 1 Braves use supplied prior injury. Not drowning, death, health marker, other models, invulnerability or the complete dispatcher."
     },
     {
       "address": "004d44e0",
