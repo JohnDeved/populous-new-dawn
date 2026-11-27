@@ -643,15 +643,22 @@ export default function Home() {
   }, [world, update, store, startup, measureWorshipHud])
   useEffect(() => {
     const modal = startupDialog.current
+    let resumeResult: ReturnType<typeof store.getWorld> | undefined
     if (((startup === 'choice' && startupCampaign) || selectorOpen) && modal && !modal.open) {
       if (selectorOpen)
         store.change(w => {
+          // Playing worlds return to the pause menu; a running result resumes.
+          if (w.status !== 'playing' && !w.paused) resumeResult = w
           w.paused = true
         })
       modal.showModal()
     }
     return () => {
       if (modal?.open) modal.close()
+      if (resumeResult && store.getWorld() === resumeResult)
+        store.change(w => {
+          w.paused = false
+        })
     }
   }, [startup, startupCampaign, selectorOpen, store])
   useEffect(() => {
