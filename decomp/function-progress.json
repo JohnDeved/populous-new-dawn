@@ -2797,6 +2797,21 @@
       "limits": "Authored recurrence and linked task behavior are compared, but current caller adapts queue ownership, destination and person lifetime."
     },
     {
+      "address": "0043b540",
+      "status": "partial",
+      "scope": "Retarget a supported Mission 3 phase-6 defender with a fresh model-19 area order",
+      "sources": [
+        "app/computer-runtime.ts",
+        "app/person-orders.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0043b540.c",
+        "decomp/research/mission3-defense-task.md",
+        "scripts/check-native-mission3-defense-task.py"
+      ],
+      "limits": "The original lifecycle comparison executes the retarget with animation presentation supplied. Controlled live dispatcher cases send 0x0404, preserve current state and RNG, and leave the old order on fixed-pool exhaustion. Not native pool layout or all possible order owners."
+    },
+    {
       "address": "0043bb60",
       "status": "partial",
       "scope": "Check live on-foot arrival for an ordinary raw-point order",
@@ -4243,6 +4258,22 @@
       "limits": "Native traversal membership across 1,048,576 decisions is checked, but the original rendering dispatcher and browser culling/additional viewport margin are not identical."
     },
     {
+      "address": "004673b0",
+      "status": "partial",
+      "scope": "Emit the ordinary direction-zero selection edge as two tile-23 triangles",
+      "sources": [
+        "app/drag-border.ts",
+        "app/drag-overlay.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004673b0.c",
+        "scripts/check-native-drag-border.py",
+        "tests/fixtures/drag-border.json",
+        "tests/live-selection-native-edge.test.mjs"
+      ],
+      "limits": "The retained original polygon dispatcher emits type 0x1c edge vertices with a supplied cache. The actual browser overlay CPU adapter reproduces one compared lower-half tile-23 edge after normalized clip/atlas transforms, with the clipped triangle and camera supplied. Not raw drag input, mesh generation, corners, other renderer classes, ordering, GPU output or full raster dispatch."
+    },
+    {
       "address": "0046c340",
       "status": "partial",
       "scope": "Numeric terrain/water vertex-light channels: diffuse threshold and capped warm highlight",
@@ -4756,6 +4787,21 @@
         "tests/spy-discovery.test.mjs"
       ],
       "limits": "Retained original executes 576 supplied enemy-person admission probes. Actual pointer caller receives a supplied visible hit. Not other inspection branches, shared command ring, consumer, picking, occlusion or pixels."
+    },
+    {
+      "address": "0047b460",
+      "status": "partial",
+      "scope": "Focus an ordinary displayed Move order and submit its ground destination marker",
+      "sources": [
+        "app/object-panels.ts",
+        "app/person-panel.ts"
+      ],
+      "evidence": [
+        "decomp/generated/0047b460.c",
+        "scripts/check-native-order-focus.py",
+        "tests/live-person-panel-order-marker.test.mjs"
+      ],
+      "limits": "Original class-1 panel input ran with its terminal outputs captured. Authored Mission 6 creates a real Move record, then its displayed icon ID drives the actual panel action and marker. Not the original physical-slot bug, raw pointer admission, audio or camera timing, target-object focus, other panel classes, or rendering."
     },
     {
       "address": "0047c350",
@@ -8566,6 +8612,24 @@
       "limits": "The authored Red camp passes the ordinary live training gate. Blocking the observed in-turn comparison of 7 available people against capacity 5 prevents its packet. Equality, all eligibility filters, RNG ordering and other models are not established."
     },
     {
+      "address": "004e5b60",
+      "status": "partial",
+      "scope": "Allocate the pre-table phase-0 type-9 scan for supported authored early-mission AI",
+      "sources": [
+        "app/computer.ts",
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004e5b60.c",
+        "decomp/research/early-mission-producer-schedule.md",
+        "scripts/check-native-ai-producer-schedule.py",
+        "scripts/check-native-ai-response-task.py",
+        "tests/ai-response-task.test.mjs",
+        "tests/mission3-defense-task.test.mjs"
+      ],
+      "limits": "Original direct and scheduler probes execute the early allocator; ordinary Mission 1–3 worlds allocate an actual phase-0 type-9 task before the table. Native marker/base/radius payload is not carried and other probe/controller behaviors are separate."
+    },
+    {
       "address": "004e6550",
       "status": "partial",
       "scope": "Queue native-style live marker command from a campaign script",
@@ -9204,6 +9268,23 @@
       "limits": "2,048 tracked direct native cases cover zero route ID and simultaneous endpoint matches, clearing only matching timer words. Live person recovery invokes it; no claim about every native failure-cache producer."
     },
     {
+      "address": "004ec6f0",
+      "status": "partial",
+      "scope": "Visit tribe-grouped formations ahead of ordinary moving people and advance their visit byte once on admitted turns",
+      "sources": [
+        "app/world-turn.ts",
+        "app/live-movement.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ec6f0.c",
+        "scripts/check-native-formation-phase.py",
+        "tests/fixtures/formation-phase.json",
+        "tests/formation-phase.test.mjs"
+      ],
+      "limits": "Original traversal runs with supplied downstream processors. Live tests use inert formation records with real moving-person physics, plus genuine recruitment as a separate control. Not encounter/secondary lists, full object scheduling, native link ownership or browser rendering."
+    },
+    {
       "address": "004ecac0",
       "status": "partial",
       "scope": "Sum registered non-ghost follower mana on the ordinary world generation pulse",
@@ -9216,6 +9297,21 @@
         "tests/live-mana-and-training-request.test.mjs"
       ],
       "limits": "Mission 17 world ticks with its authored Blue Shaman and supplied living Brave or ghost Brave. The real world registers each supplied Brave; rate stays zero through turn 3, then commits 37 for the Shaman or registered ghost arm, 42 for the living addition, and holds through turn 7. This does not establish all census lists, human and computer scaling variants, alternate-game gating, overflow or original binary execution."
+    },
+    {
+      "address": "004ed700",
+      "status": "partial",
+      "scope": "Stamp an eligible ordinary person after its logical visit so its owned animation can advance",
+      "sources": [
+        "app/game-clock.ts",
+        "app/live-people.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004ed700.c",
+        "decomp/research/sprite-logical-visits.md",
+        "tests/logical-animation-clock.test.mjs"
+      ],
+      "limits": "Retained actual native class-1 dispatcher timelines supply the processor body to isolate its post-body stamp. Live elapsed-time adapter stamps the active person after the turn with its turn number, not the native draw counter. Not all dispatch classes, special visits, complete person processing or rendering."
     },
     {
       "address": "004edae0",
@@ -9730,6 +9826,21 @@
       "limits": "Three authored Mission 10 Warriors receive supplied orders and a supplied base; the live AI adapter replaces only the unflagged eligible guard order with movement, releases that reference, and preserves state. Flagged and wrong-state holders are unchanged. Does not cover naturally issued opcode 1103, shaman fallback selection, allocation failure or all original linked-list storage."
     },
     {
+      "address": "004f39f0",
+      "status": "partial",
+      "scope": "Admit the observed raid settlement release for a living state-33 substate-3 member",
+      "sources": [
+        "app/computer-runtime.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004f39f0.c",
+        "tests/fixtures/raid-state33-release-provenance.json",
+        "tests/fixtures/raid-state33-release.bin",
+        "tests/raid-state33-release.test.mjs"
+      ],
+      "limits": "One retained composed original phase-6 visit executed the predicate unhooked and returned both branches. Current replay uses the captured Mission 2 owner; substate-2 boundary is controlled portable/source evidence only. Not whole original raid play, all admission owners or all cleanup."
+    },
+    {
       "address": "004f3f20",
       "status": "implemented",
       "scope": "Detect an existing live nearby active defense response",
@@ -10087,6 +10198,21 @@
         "decomp/generated/004fa8f0.c"
       ],
       "limits": "Live shrine visitors advance worship and execute bounded linked Boat and knowledge/spell payload effects; native general class-6 visitors also manage registered object chains and additional models."
+    },
+    {
+      "address": "004faaf0",
+      "status": "partial",
+      "scope": "Place the authored Mission 7 Vault's reward marker at occupied socket 1",
+      "sources": [
+        "app/vault-appearance.ts",
+        "app/scene-entities.ts"
+      ],
+      "evidence": [
+        "decomp/generated/004faaf0.c",
+        "scripts/check-native-vault-appearance.py",
+        "tests/live-mission7-vault-socket.test.mjs"
+      ],
+      "limits": "Original occupied model-18 constructor and socket run at the authored Mission 7 coordinates, with terrain and bookkeeping consumers supplied. Actual current Mission 7 marker creation matches XY and the 1072 height offset. Not reward record ownership, native cell search, frame or palette, grant timing, alternate Vaults or rendered pixels."
     },
     {
       "address": "004facf0",
