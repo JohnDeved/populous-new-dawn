@@ -347,7 +347,7 @@ test('Scene cleanup keeps cached texture, image and geometry identities for late
   geometry.addEventListener('dispose', () => releases.push('geometry'))
   material.addEventListener('dispose', () => releases.push('sprite-material'))
   meshMaterial.addEventListener('dispose', () => releases.push('mesh-material'))
-  const releaseGroup = evaluate(`function () { let sharedGeometryMembership; return function ${release.name.text}(g) ${release.body.getText(assetSource)} }`, {
+  const releaseGroup = evaluate(`function () { let sharedGeometryMembership, sharedTextureMembership; return function ${release.name.text}(g) ${release.body.getText(assetSource)} }`, {
     THREE, textures, meshes: new Map([['shared', geometry]]),
   })()
   const f = fixture(), group = new THREE.Group()
