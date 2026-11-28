@@ -119,6 +119,35 @@ test('each query observes current chain order without retaining a membership cac
   equalReferences(view.world.cellObjects(dense(5, 7)), previousOrder(w, view, dense(5, 7), row))
 })
 
+test('native-first fallback skips holes in a previously returned roster row', () => {
+  const units = [unit(1), unit(2), unit(3)], w = fixture(units),
+    view = api.combatWorld(w, nativePoint(units[0]), 2), cell = dense(5, 7),
+    row = view.world.cellObjects(cell), first = row[0], last = row[2]
+  delete row[1]
+  link(w, [units[0]])
+  const result = view.world.cellObjects(cell)
+  assert.notEqual(result, row)
+  equalReferences(result, [first, last])
+  assert.equal(row.length, 3)
+  assert.equal(1 in row, false)
+})
+
+test('native-first fallback snapshots row length before reading entries', () => {
+  const units = [unit(1), unit(2), unit(3)], w = fixture(units),
+    view = api.combatWorld(w, nativePoint(units[0]), 2), cell = dense(5, 7),
+    row = view.world.cellObjects(cell), [first, second, last] = row
+  let reads = 0
+  Object.defineProperty(row, 1, { get: () => {
+    // The first read builds native membership; the second is the fallback.
+    if (++reads === 2) row.push(last)
+    return second
+  } })
+  link(w, [units[0]])
+  equalReferences(view.world.cellObjects(cell), [first, second, last])
+  assert.equal(row.length, 4)
+  assert.equal(reads, 2)
+})
+
 test('fight members outside the range are lookup-only and fight insertion order follows fallback people', () => {
   const a = unit(1), b = unit(2), remote = unit(3, 30000, 30000), dead = unit(4, 30000, 30000, { hp: 0 }),
     w = fixture([a, b, remote, dead])
