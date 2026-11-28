@@ -34,7 +34,14 @@ const skipIntroduction = evaluatePage(source.slice(start, end).replace('export '
 function keyboard({ plan = true, flyby = false } = {}) {
   const world = createStartedWorld(1),
     listeners = new Map()
-  const scene = { world, flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 }, onChange: noOp }
+  const cameraCalls = []
+  const scene = {
+    world,
+    flybyCamera: { x: 0, y: 0, angle: 0, zoom: 0 },
+    onChange: noOp,
+    focus: (...args) => cameraCalls.push(['focus', ...args]),
+    overview: options => cameraCalls.push(['overview', options]),
+  }
   scene.skipIntroduction = () => skipIntroduction(scene)
   if (!flyby) scene.skipIntroduction()
   const store = { getWorld: () => world, change: action => action(world) },
@@ -87,6 +94,7 @@ function keyboard({ plan = true, flyby = false } = {}) {
   return {
     world,
     sounds,
+    cameraCalls,
     cleanup,
     key(extra = {}) {
       listeners.get('keydown')({
@@ -195,6 +203,35 @@ test('Space still toggles Pause while victory camera keeps the result hidden', (
     assert.equal(k.world.paused, true)
     k.key()
     assert.equal(k.world.paused, false)
+  } finally {
+    k.cleanup()
+  }
+})
+
+
+test('visible victory owns the foreground before quick-camera and overview shortcuts', () => {
+  const k = keyboard({ plan: false })
+  try {
+    const press = () => {
+      k.key({ key: 'h', code: 'KeyH' })
+      k.key({ key: 'f', code: 'KeyF' })
+      k.key({ key: 'Enter', code: 'Enter', shiftKey: true })
+    }
+    press()
+    assert.deepEqual(k.cameraCalls.map(call => call[0]), ['focus', 'focus', 'overview'])
+    k.cameraCalls.length = 0
+
+    k.world.land.landFlags |= 0x2000000
+    tick(k.world, 1 / 12)
+    assert.equal(k.world.status, 'won')
+    assert.equal(k.world.outcome.cameraPlaying, false)
+    press()
+    assert.deepEqual(k.cameraCalls, [])
+
+    // A result that is still hidden for its camera sequence isn't the overlay.
+    k.world.outcome.cameraPlaying = true
+    press()
+    assert.deepEqual(k.cameraCalls.map(call => call[0]), ['focus', 'focus', 'overview'])
   } finally {
     k.cleanup()
   }
