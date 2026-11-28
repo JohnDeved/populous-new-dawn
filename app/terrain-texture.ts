@@ -103,12 +103,15 @@ export function terrainAtlas(
   t: TerrainTextures,
   previous?: TerrainAtlas,
   size: 8 | 32 = 32,
-  footprints?: ReadonlyMap<number, Uint16Array>
+  footprints?: ReadonlyMap<number, Uint16Array>,
+  initialPixels?: Uint8Array
 ): TerrainAtlas {
-  const width = size * 128,
-    brightness = new Uint8Array(16384),
+  const width = size * 128
+  if (initialPixels && (previous || initialPixels.length !== width * width * 4))
+    throw new RangeError('Invalid initial terrain atlas buffer')
+  const brightness = new Uint8Array(16384),
     cells = new Uint32Array(16384),
-    out = previous?.pixels ?? new Uint8Array(width * width * 4)
+    out = previous?.pixels ?? initialPixels ?? new Uint8Array(width * width * 4)
   for (let i = 0; i < brightness.length; i++) {
     brightness[i] = terrainBrightness(land, i, [147, 147, 147])
     cells[i] = (land.heights[i] & 65535) | (land.cliffs[i] << 16) | (brightness[i] << 24)

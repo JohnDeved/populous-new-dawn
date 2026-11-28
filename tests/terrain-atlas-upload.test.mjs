@@ -86,7 +86,7 @@ function sceneFixture(world) {
       uploads.push({ kind: 'region', bounds, bytes: (bounds[2] - bounds[0]) * (bounds[3] - bounds[1]) * 4 })
     },
   }
-  const terrainMap = new THREE.DataTexture(new Uint8Array(4), 1, 1)
+  const terrainMap = new THREE.DataTexture(new Uint8Array(4096 * 4096 * 4), 4096, 4096)
   terrainMap.addEventListener('dispose', () => { uploadedVersion = undefined; gpu.fill(0) })
   return {
     world, terrainTextures: textures, terrainMap, terrainUpload: new THREE.DataTexture(),
@@ -102,7 +102,9 @@ test('scene keeps first full upload and uses one bounded upload for local/dense 
   const { updateTerrainTexture } = await import('../app/scene-terrain-runtime.ts')
   const scene = sceneFixture(createWorld(2)), world = scene.world
   world.footprints = createFootprints()
+  const firstBacking = scene.terrainMap.image.data
   updateTerrainTexture(scene)
+  assert.ok(scene.terrainMap.image.data === firstBacking, 'first upload keeps the existing CPU image backing')
   assert.equal(scene.terrainMap.version, 1)
   assert.deepEqual(scene.uploads, [])
   scene.render()
