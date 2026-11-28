@@ -2,6 +2,8 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
+import { showMessageBox } from '../app/campaign-message-modal.ts'
+import { addMessage, createMessages, stepMessages } from '../app/messages.ts'
 
 // Execute the actual source callbacks with supplied store/DOM leaves, not React.
 const source = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
@@ -63,4 +65,54 @@ test('current unopened message focuses normally; closing and text-only messages 
   assert.deepEqual(f.events, [['focus', { x: 3, z: 4 }, { animate: true }]])
   f.events.length = 0; f.details.open = true; f.focus(f.event); assert.deepEqual(f.events, [])
   f.details.open = false; delete f.message.view; f.focus(f.event); assert.deepEqual(f.events, [])
+})
+
+const toggleCode = extract('onToggle={', '\n                }')
+function disclosureFixture() {
+  const world = { messages: createMessages() }
+  const slot = addMessage(world.messages, 641, () => 0)
+  const message = world.messages.slots[slot]
+  const shownSlot = addMessage(world.messages, 642, () => 0)
+  const shown = world.messages.slots[shownSlot]
+  const staleBox = { open: true }, currentBox = { open: true }
+  const owners = new Map([[message.serial, staleBox], [shown.serial, currentBox]])
+  let currentWorld = world
+  let synced = 0
+  const bindings = { message, world, slot, messageDetails: { current: owners },
+    store: { getWorld: () => currentWorld }, showMessageBox,
+    syncMessageModal: () => { synced++ } }
+  const callback = new Function(...Object.keys(bindings), `return ${toggleCode}`)(...Object.values(bindings))
+  return { world, message, slot, staleBox, currentBox, owners,
+    replaceWorld: value => { currentWorld = value },
+    run: () => { callback({ currentTarget: staleBox }); return synced } }
+}
+
+test('a queued disclosure from a just-expired message cannot close the live message', () => {
+  const f = disclosureFixture()
+  f.message.lifetime = 1
+  stepMessages(f.world.messages)
+  assert.equal(f.world.messages.slots[f.slot], null, 'real presentation step retired the message')
+  const synced = f.run()
+  assert.equal(f.currentBox.open, true, 'the real one-box operation must not retire the current one')
+  assert.equal(synced, 0, 'obsolete toggle must not synchronize the visible modal')
+})
+
+for (const changed of ['world', 'element']) {
+  test(`queued disclosure from a replaced ${changed} cannot own the modal`, () => {
+    const f = disclosureFixture()
+    if (changed === 'world') f.replaceWorld({ messages: f.world.messages })
+    else f.owners.set(f.message.serial, { open: false })
+    const synced = f.run()
+    assert.equal(f.currentBox.open, true, changed)
+    assert.equal(synced, 0, changed)
+  })
+}
+
+test('current disclosure replaces the previous box and still syncs on close', () => {
+  const f = disclosureFixture()
+  assert.equal(f.run(), 1)
+  assert.equal(f.currentBox.open, false)
+  assert.equal(f.staleBox.open, true)
+  f.staleBox.open = false
+  assert.equal(f.run(), 2)
 })

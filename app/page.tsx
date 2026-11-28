@@ -1395,9 +1395,16 @@ export default function Home() {
                   else messageDetails.current.delete(message!.serial)
                 }}
                 onToggle={event => {
+                  const details = event.currentTarget
+                  // A queued native toggle may arrive after this slot or element retired.
+                  if (
+                    store.getWorld() !== world ||
+                    world.messages.slots[slot] !== message ||
+                    messageDetails.current.get(message!.serial) !== details
+                  )
+                    return
                   // A user-opened box replaces the open one, like a new 004af440 call.
-                  if (event.currentTarget.open)
-                    showMessageBox(messageDetails.current.values(), event.currentTarget)
+                  if (details.open) showMessageBox(messageDetails.current.values(), details)
                   syncMessageModal()
                 }}
                 data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
