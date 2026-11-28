@@ -192,7 +192,11 @@ export function pick(
   return pickRuntimeTerrain(scene, metrics)?.point ?? null
 }
 
-export function pickWorldObject(scene: GameScene, event: { clientX: number; clientY: number }) {
+export function pickWorldObject(
+  scene: GameScene,
+  event: { clientX: number; clientY: number },
+  purpose?: 'inspection'
+) {
   const rect = scene.renderer.domElement.getBoundingClientRect()
   if (scene.overviewActive) {
     return (
@@ -213,6 +217,11 @@ export function pickWorldObject(scene: GameScene, event: { clientX: number; clie
     )
   }
   const id = scene.picking.pick(event)
+  // A direct shrine hit should not open a nearby transport's panel.
+  if (purpose === 'inspection') {
+    const shrine = scene.world.shrines.find(s => s.id === id)
+    if (shrine) return shrine
+  }
   const nearbyVehicle = scene.world.vehicles.find(v => {
       const g = scene.vehicleMeshes.get(v.id)
       if (!v.active || !g?.visible) return false
@@ -250,7 +259,7 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
   ) {
     if (event.currentTarget === scene.renderer.domElement)
       requestSpyDiscovery(scene.world, scene.picking.pickPerson(event))
-    const object = scene.pickUnit(event) ?? scene.pickWorldObject(event)
+    const object = scene.pickUnit(event) ?? scene.pickWorldObject(event, 'inspection')
     const vehicle = scene.world.vehicles.find(v => v.id === object?.id && v.active)
     if (
       object &&
