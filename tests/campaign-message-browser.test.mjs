@@ -3,7 +3,7 @@ import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { assertDelayedCampaignCallbacks } from '../scripts/tutorial-browser/campaign-message-ownership.mjs'
 
-const checks = { summaryRejected: true, summaryPreserved: true, dismissPreserved: true, oldSlotPreserved: true, currentSlotPreserved: true }
+const checks = { summaryRejected: true, summaryPreserved: true, dismissPreserved: true, togglePreserved: true, oldSlotPreserved: true, currentSlotPreserved: true }
 test('mounted callback receipt requires every ownership boundary, not truthy or absent evidence', () => {
   assertDelayedCampaignCallbacks(checks)
   for (const key of Object.keys(checks)) {
@@ -29,21 +29,25 @@ test('browser episode uses mounted props, public Load and trusted Dismiss withou
 })
 
 import { runInNewContext } from 'node:vm'
-import { captureMountedCampaignCallbacks, replayMountedCampaignCallbacks, assertCurrentCampaignDismiss } from '../scripts/tutorial-browser/campaign-message-ownership.mjs'
+import { captureMountedCampaignCallbacks, replayMountedCampaignCallbacks, replayMountedCampaignToggle, assertCurrentCampaignDismiss } from '../scripts/tutorial-browser/campaign-message-ownership.mjs'
 function mounted() {
   const message = { stringId: 641, serial: 0 }, world = { messages: { slots: [message] }, paused: true, turn: 121 }
   const summary = { isConnected: true, __reactPropsTest: { onClick() {} } }, dismiss = { isConnected: true, __reactPropsTest: { onClick() {} } }
-  const details = { open: false, querySelector: selector => selector === 'summary' ? summary : dismiss }
+  const details = { open: false, isConnected: true, __reactPropsTest: { onToggle() {} },
+    cloneNode: () => ({ open: false, isConnected: false }), querySelector: selector => selector === 'summary' ? summary : dismiss }
   const store = { getWorld: () => world }, scene = { world }
   const window = { testStore: store, testSceneRef: { current: scene } }
   const document = { querySelector: () => details, addEventListener() {} }
-  return { window, document, summary, dismiss, world, message, scene }
+  return { window, document, details, summary, dismiss, world, message, scene }
 }
 test('capture refuses absent/non-function mounted handlers and mismatched Scene', () => {
   for (const leaf of ['summary','dismiss']) for (const value of [undefined, 0, 'stub']) {
     const f = mounted(); f[leaf].__reactPropsTest.onClick = value
     assert.throws(() => runInNewContext(`(${captureMountedCampaignCallbacks.toString()})()`, f), /handlers unavailable/)
   }
+  const toggle = mounted()
+  delete toggle.details.__reactPropsTest.onToggle
+  assert.throws(() => runInNewContext(`(${captureMountedCampaignCallbacks.toString()})()`, toggle), /handlers unavailable/)
   const f = mounted(); f.scene.world = {}; assert.throws(() => runInNewContext(`(${captureMountedCampaignCallbacks.toString()})()`, f), /Expected one settled/)
 })
 test('replay refuses nonreplacement worlds, reused messages and disconnected Scene', () => {
@@ -101,4 +105,31 @@ test('callback episode uses public modal close but retains actual summary and di
   assert.match(source, /await detail.getByRole\('button', \{ name: 'Dismiss campaign message', exact: true \}\).click\(\)/)
   assert.match(source, /assertCurrentCampaignDismiss\(report.currentDismiss\)/)
   assert.match(source, /assertDelayedCampaignCallbacks\(report.delayedChecks\)/)
+})
+
+test('toggle replay uses the captured handler and witnesses a closed live modal even with node reuse', () => {
+  for (const mutate of [false, true]) {
+    const f = mounted()
+    let invoked = 0
+    f.details.__reactPropsTest.onToggle = ({ currentTarget }) => {
+      invoked++
+      assert.notEqual(currentTarget, f.details)
+      assert.equal(currentTarget.isConnected, false)
+      assert.equal(currentTarget.open, true)
+      if (mutate) f.details.open = false
+    }
+    runInNewContext(`(${captureMountedCampaignCallbacks.toString()})()`, f)
+    f.details.open = true
+    const world = { paused: true, turn: 121, messages: { slots: [{ serial: 0, stringId: 641 }] } }
+    f.window.testStore.getWorld = () => world
+    f.window.testSceneRef.current = { world, messageModal: true, renderer: { domElement: { isConnected: true } } }
+    const receipt = runInNewContext(`(${replayMountedCampaignToggle.toString()})()`, f)
+    assert.equal(invoked, 1)
+    assert.equal(receipt.suppliedDetached, true)
+    assert.equal(receipt.mountedNodeReused, true)
+    assert.equal(receipt.before.open, true)
+    assert.equal(receipt.after.open, !mutate)
+    assert.equal(receipt.preserved, !mutate)
+    if (mutate) assert.throws(() => assertDelayedCampaignCallbacks({ ...checks, togglePreserved: receipt.preserved }))
+  }
 })
