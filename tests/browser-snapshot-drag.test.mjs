@@ -29,8 +29,16 @@ const historicalInput = readFileSync(resolve(root,
   'tests/fixtures/snapshot-drag-pre-pointer-owner.ts.txt'), 'utf8')
 assert.equal(createHash('sha256').update(historicalInput).digest('hex'),
   'a41ebebf99364537fdab6ba73c24f7dcd83e68f4e38b9f1f94d71f681c59b1c5')
+// Exact pre-atlas-shape terrain producer from main 01c22b6. Pin it only
+// in historical readers so live source admission still hashes the real owner.
+const historicalTerrainPath = 'app/scene-terrain-runtime.ts'
+const historicalTerrain = readFileSync(resolve(root,
+  'tests/fixtures/snapshot-drag-pre-atlas-terrain-runtime.ts.txt'), 'utf8')
+assert.equal(createHash('sha256').update(historicalTerrain).digest('hex'),
+  '1deea6f19952acbc62e064a4b40c8ba21e85ef677b5e72062b8a3d310fdec012')
 function liveRead(path) {
-  let source = path === historicalInputPath ? historicalInput : readFileSync(resolve(root, path), 'utf8')
+  let source = path === historicalInputPath ? historicalInput
+    : path === historicalTerrainPath ? historicalTerrain : readFileSync(resolve(root, path), 'utf8')
   for (const [owner, current, previous] of swampDragLatchDeltas) if (path === owner) {
     assert.equal(source.split(current).length, 2, 'exact reviewed drag-latch inverse boundary')
     source = source.replace(current, previous)
