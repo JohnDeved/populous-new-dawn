@@ -513,3 +513,39 @@ test('actual pointer publication retains the existing world geometry cache and r
   frame(0)
   assert.ok(picks > count, 'HUD-to-world entry republishes geometry even with the same key')
 })
+
+test('ordinary Hut tooltip yields to a newly intercepting panel before the next visit', async t => {
+  const { scene, world, hut, frame } = await callerFixture(t)
+  for (let visits = 0; visits < 35 && scene.tooltipElement.hidden; visits++) frame()
+  assert.equal(scene.tooltipElement.hidden, false, 'real picker and dwell show the authored Hut')
+  const { session, dwell } = scene.tooltipController,
+    visits = session.visits,
+    previousHit = document.elementFromPoint
+  const panel = {
+    closest: selector => (selector === '.training-panel,.person-panel' ? panel : null),
+  }
+  document.elementFromPoint = () => panel
+  t.after(() => {
+    if (typeof document !== 'undefined') document.elementFromPoint = previousHit
+  })
+  frame(0)
+  assert.equal(scene.tooltipInput.route, 'unmapped-panel', 'same pointer is now over another surface')
+  assert.equal(session.visits, visits, 'a repaint may not add a controller visit')
+  assert.equal(scene.tooltipController.dwell, dwell, 'presentation does not consume retained dwell')
+  assert.equal(scene.tooltipElement.hidden, true, 'old world tooltip must not paint over the panel')
+  document.elementFromPoint = previousHit
+  frame(0)
+  assert.equal(scene.tooltipInput.picked, hut.id)
+  assert.equal(scene.tooltipElement.hidden, false, 'same object can paint again without a made-up dwell')
+  const other = world.buildings.find(building => building.id !== hut.id && building.hp > 0)
+  assert.ok(other)
+  const pick = scene.picking.pick.bind(scene.picking)
+  scene.picking.pick = () => other.id
+  scene.pointerState = '' // Refresh only the supplied hit; keep the controller untouched.
+  frame(0)
+  assert.equal(scene.tooltipInput.route, 'world')
+  assert.equal(scene.tooltipInput.picked, other.id)
+  assert.equal(session.visits, visits)
+  assert.equal(scene.tooltipElement.hidden, true, 'a different world target cannot draw the old name')
+  scene.picking.pick = pick
+})

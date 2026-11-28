@@ -1046,7 +1046,6 @@ export class GameScene {
     }
     this.updateUnitsFrame()
     updateVehiclesFrame(this)
-    this.renderTooltip(pointerMetrics)
     this.updateBuildingsFrame()
     this.updateEffectsFrame()
     this.updateShrinesFrame()
@@ -1055,6 +1054,7 @@ export class GameScene {
     this.updatePointerFrame(now, pointerMetrics)
     this.neutralCursor?.update()
     const pointerMs = diagnostic ? performance.now() - pointerStart : 0
+    this.renderTooltip(pointerMetrics)
     let hovered: Parameters<typeof renderSceneFrame>[1] =
       this.hoveredObject === null ? null : worldTooltipObject(this.world, this.hoveredObject)
     if (!hovered && this.hoveredObject !== null) {

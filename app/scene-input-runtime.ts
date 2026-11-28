@@ -848,10 +848,17 @@ export function acknowledgePointer(scene: GameScene, target: number) {
 export function renderTooltip(scene: GameScene, metrics?: PointerFrameMetrics) {
   const start = metrics ? performance.now() : 0
   try {
-    const output = scene.tooltipController?.output,
+    const owner = scene.tooltipController,
+      output = owner?.output,
       state = output ?? scene.tooltip,
       ordinary = output?.kind === 'object',
-      pointer = ordinary ? output.pointer : null,
+      sample = scene.tooltipInput,
+      // A repaint can change the picked surface before the next controller visit.
+      // Suppress stale drawing without consuming the original owner's dwell.
+      pointer =
+        ordinary && sample?.route === 'world' && sample.picked === owner?.key
+          ? output.pointer
+          : null,
       object = ordinary ? null : worldTooltipObject(scene.world, state.target),
       element = scene.tooltipElement
     element.hidden =
