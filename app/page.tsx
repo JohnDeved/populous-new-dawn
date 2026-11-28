@@ -763,9 +763,13 @@ export default function Home() {
         })
         setTab('spells')
       }
+      // The visible result owns the foreground just as it does for Pause.
+      const resultVisible = world.status !== 'playing' && !world.outcome.cameraPlaying
       // A listener left over from a replaced world must not drive the new scene.
       const camera =
-        store.getWorld() === world && engine.current?.world === world ? engine.current : null
+        !resultVisible && store.getWorld() === world && engine.current?.world === world
+          ? engine.current
+          : null
       if (overviewKey && !(e.target as HTMLElement).closest('button')) camera?.overview(overviewKey)
       if (e.key === 'Escape') {
         const current = store.getWorld()
@@ -787,7 +791,7 @@ export default function Home() {
       // Default G (005d6220) is a fresh press with no modifiers.
       if (e.key.toLowerCase() === 'g' && !e.repeat && !e.shiftKey) guardShaman(world)
       const quickCamera = quickCameraAction(e)
-      if (quickCamera !== null) {
+      if (quickCamera !== null && !resultVisible) {
         e.preventDefault()
         const target = quickCameraTarget(world, quickCamera)
         if (target) camera?.focus(target, { animate: true })
