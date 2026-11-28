@@ -133,7 +133,9 @@ export async function runBenchmark({ pinned = false } = {}) {
         await capture({ page, url: 'http://127.0.0.1:5199', output, expectedRevision: run.revision, fixture, shard, dragSource: dragSources[side], readerSource: readerSources[side], readerProvenance: readerProvenance[side], allowDragFailure: true, getErrorCount: () => session.errors.length })
         const recording = JSON.parse(readFileSync(resolve(output, 'snapshot-frames.json')))
         if (recording.readers) run.readers = recording.readers
-        if (recording.status !== 'passed-with-incomplete-drag') { assert.equal(session.timedOut, undefined); assert.deepEqual(session.errors, []) }
+        // An incomplete drag can tolerate its own browser diagnostics, not a timed-out arm.
+        assert.equal(session.timedOut, undefined, 'Snapshot arm exceeded its watchdog')
+        if (recording.status !== 'passed-with-incomplete-drag') assert.deepEqual(session.errors, [])
         for (const name of shards[shard]) {
           const admission = appendSnapshotPhase(report, run, name, () => {
             const phase = recording.phases.find(phase => phase.name === name)
