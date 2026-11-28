@@ -224,7 +224,8 @@ export function updateTerrainTexture(scene: GameScene) {
       scene.terrainTextures,
       scene.terrainAtlasState,
       32,
-      marks.pixels
+      marks.pixels,
+      previous ? undefined : (scene.terrainMap.image.data as Uint8Array)
     )
     bounds = scene.terrainAtlasState.updatedBounds
     fullUpload = !!bounds && !previous
