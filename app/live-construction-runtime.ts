@@ -24,6 +24,7 @@ import {
 } from './building-shapes.ts'
 import { collisionWorld, createLivePerson, setLivePersonAnimation } from './live-people.ts'
 import { nativePersonModel } from './live-combat.ts'
+import { currentPersonOrder } from './person-orders.ts'
 import { deleteCellObject, removeObjectFromCell } from './object-cells.ts'
 import { turnPerson } from './person-motion.ts'
 import {
@@ -300,19 +301,46 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
   } else if (task.task === BuilderTask.ClearPeople) {
     const people: ClearingPerson[] = w.units
       .filter(u => u.hp > 0 && u.inside === null)
-      .map(u => ({
-        ...nativePosition(w, u),
-        id: u.id,
-        class: 1,
-        model: nativePersonModel(u),
-        tribe: tribeForTeam(u.team),
-        state: u.native?.state ?? (u.work === null ? 1 : 10),
-        speed: u.native?.speed ?? (u.path.length ? unitSpeed(u) : 0),
-        flags2: u.native?.flags2 ?? 0,
-        commands: [],
-        commandCursor: 0,
-        immediateCommand: 0,
-      }))
+      .map(u => {
+        const person = u.native,
+          tribe = tribeForTeam(u.team)
+        // Task 4 needs only the canonical live owner's unfinished ordinary Guard Post
+        // order here. Other browser task and resting-slot adapters remain unchanged.
+        const handle = person?.immediateCommand || person?.commands[person.commandCursor] || 0
+        const order =
+          person?.id === u.id &&
+          u.team === b.team &&
+          person.class === 1 &&
+          person.tribe === tribe &&
+          person.state === 10 &&
+          !(person.flags2 & 1) &&
+          w.objectCells.objects.get(u.id) === person &&
+          Number.isSafeInteger(handle) &&
+          handle > 0 &&
+          handle < w.buildingOrders.records.length
+            ? currentPersonOrder(w.buildingOrders, person)
+            : undefined
+        const guard =
+          order?.model === 11 &&
+          Number.isSafeInteger(order.references) &&
+          order.references > 0 &&
+          !(order.flags & 1)
+            ? person
+            : null
+        return {
+          ...nativePosition(w, u),
+          id: u.id,
+          class: 1,
+          model: nativePersonModel(u),
+          tribe,
+          state: person?.state ?? (u.work === null ? 1 : 10),
+          speed: person?.speed ?? (u.path.length ? unitSpeed(u) : 0),
+          flags2: person?.flags2 ?? 0,
+          commands: guard?.commands ?? [],
+          commandCursor: guard?.commandCursor ?? 0,
+          immediateCommand: guard?.immediateCommand ?? 0,
+        }
+      })
     const cellPeople = (i: number) =>
       people.filter(o => ((o.y & 65535) >> 9) * 128 + ((o.x & 65535) >> 9) === i)
     const orders = { records: [], cursor: 0, active: 0 }
@@ -326,7 +354,7 @@ export function processBuilderWork(w: World, u: Unit, b: Building) {
       task,
       {
         tribe: p.tribe,
-        orders,
+        orders: w.buildingOrders,
         search: w.indexedSearch,
         flags: w.land.flags,
         occupants: () => buildingFootprintCells(pose).flatMap(cellPeople),
