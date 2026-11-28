@@ -1,9 +1,9 @@
 // The benchmark pins the normal official Chrome package at its existing
 // sandbox-supported installation path. Never select a runner-image fallback.
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
-import { execFileSync } from 'node:child_process'
-import { accessSync, closeSync, constants, lstatSync, openSync, readFileSync, readSync, realpathSync } from 'node:fs'
+import { createHash, randomUUID } from 'node:crypto'
+import { execFileSync, spawn } from 'node:child_process'
+import { accessSync, closeSync, constants, lstatSync, openSync, readFileSync, readSync, realpathSync, renameSync, unlinkSync, writeSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { browserConfiguration } from '../tutorial-browser/browser-config.mjs'
 
@@ -98,3 +98,100 @@ export function benchmarkBrowser(root) {
 }
 
 export const verifyLaunchedBrowser = (pin, version) => assert.equal(version, browserVersion(pin), 'Launched browser version mismatch')
+
+const maxBuildLogBytes = 8 * 1024 * 1024
+const buildLogFs = { openSync, writeSync, closeSync, renameSync, unlinkSync }
+
+// Spool only complete pipe events up to the historical cap. A sibling
+// exclusive file keeps the publication rename on the same filesystem.
+export function createBuildLogSpool(path, { limit = maxBuildLogBytes, io = buildLogFs, id = randomUUID } = {}) {
+  const file = path + '.spool-' + id()
+  // Ownership starts only when exclusive open succeeds. Never touch a file
+  // belonging to another capture or left by a failed open.
+  let fd = io.openSync(file, 'wx', 0o600), owned = true, size = 0, capped = false
+  const cleanup = primary => {
+    const attempt = fn => { try { fn() } catch (error) { primary ??= error } }
+    if (fd !== undefined) {
+      const f = fd
+      fd = undefined
+      attempt(() => io.closeSync(f))
+    }
+    if (owned) attempt(() => {
+      try { io.unlinkSync(file) } catch (error) { if (error.code !== 'ENOENT') throw error }
+      owned = false
+    })
+    if (primary) throw primary
+  }
+  return {
+    record(chunk) {
+      if (capped || chunk.length === 0) return
+      if (chunk.length > limit - size) { capped = true; return }
+      for (let at = 0; at < chunk.length;) {
+        const count = io.writeSync(fd, chunk, at, chunk.length - at)
+        if (count <= 0) throw new Error('Build log write made no progress')
+        at += count
+      }
+      size += chunk.length
+    },
+    finish() {
+      try {
+        const f = fd
+        fd = undefined
+        io.closeSync(f)
+        io.renameSync(file, path)
+      } catch (error) { cleanup(error) }
+      // Rename is the commit point and consumes the temporary file; there is
+      // intentionally no postcommit filesystem cleanup that could fail.
+      owned = false
+      return { cappedLog: capped }
+    },
+    abort: cleanup
+  }
+}
+
+// Collect both streams in their observation order; synchronous disk writes can
+// change later pipe chunk coalescing versus in-memory capture. Bound the final
+// drain even if an unrelated process retains a pipe; only the direct child is signalled.
+export function captureBuild(command, args, path, { limit, io, timeout = 120000, killGrace = 5000, drainGrace = 1000 } = {}) {
+  return new Promise((resolve, reject) => {
+    const spool = createBuildLogSpool(path, { limit, io })
+    let child, firstError, force, drain, settled = false, timedOut = false
+    const fail = error => { if (!settled) firstError ??= error }
+    try { child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] }) }
+    catch (error) {
+      try { spool.abort(error) } catch (failure) { reject(failure) }
+      return
+    }
+    const record = chunk => {
+      if (!settled && !firstError) { try { spool.record(chunk) } catch (error) { fail(error) } }
+    }
+    child.stdout.on('data', record)
+    child.stderr.on('data', record)
+    child.stdout.on('error', fail)
+    child.stderr.on('error', fail)
+    child.on('error', fail)
+    const finish = (code, signal, incompleteLog = false) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer); clearTimeout(force); clearTimeout(drain)
+      if (incompleteLog) {
+        // We relinquish our read endpoints, not ownership of another process.
+        child.stdout.destroy()
+        child.stderr.destroy()
+      }
+      try {
+        if (firstError) spool.abort(firstError)
+        resolve({ code, signal, timedOut, ...spool.finish(), ...(incompleteLog ? { incompleteLog: true } : {}) })
+      } catch (error) { reject(error) }
+    }
+    const timer = setTimeout(() => {
+      timedOut = true
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGTERM')
+      force = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+        drain = setTimeout(() => finish(child.exitCode, child.signalCode, true), drainGrace)
+      }, killGrace)
+    }, timeout)
+    child.on('close', (code, signal) => finish(code, signal))
+  })
+}
