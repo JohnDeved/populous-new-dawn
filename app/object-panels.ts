@@ -311,7 +311,12 @@ export class ObjectPanels {
               event.shiftKey
             )
           } else if (head) {
-            if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
+            if (
+              !scene.isCurrent() ||
+              scene.overviewActive ||
+              scene.overviewStage ||
+              !scene.world.shrines.includes(head)
+            )
               return
             this.focusWorshipper(id, Number(button.dataset.person))
           } else this.focusOrder(id, Number(button.dataset.order))
@@ -328,7 +333,12 @@ export class ObjectPanels {
               event.shiftKey
             )
           } else if (head) {
-            if (!scene.isCurrent() || scene.overviewActive || !scene.world.shrines.includes(head))
+            if (
+              !scene.isCurrent() ||
+              scene.overviewActive ||
+              scene.overviewStage ||
+              !scene.world.shrines.includes(head)
+            )
               return
             selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
             scene.onSound(0x6a)
@@ -648,7 +658,7 @@ export class ObjectPanels {
   vehicleAction(id: number, personId: number, unload: boolean, right: boolean, all: boolean) {
     const { scene } = this,
       { world } = scene
-    if (world.inputMask || scene.overviewActive) return
+    if (world.inputMask || scene.overviewActive || scene.overviewStage) return
     const vehicle = world.vehicles.find(v => v.id === id && v.active)
     if (!vehicle) return
     const passenger = liveVehiclePassengers(world, vehicle).find(
@@ -674,7 +684,7 @@ export class ObjectPanels {
   focusWorshipper(headId: number, personId: number) {
     const { scene } = this,
       { world } = scene
-    if (world.inputMask || scene.overviewActive) return
+    if (world.inputMask || scene.overviewActive || scene.overviewStage) return
     const head = world.shrines.find(s => s.id === headId)
     const person = head && liveWorshippers(world, head).find(p => p.id === personId)
     if (!person) return
@@ -685,7 +695,7 @@ export class ObjectPanels {
   focusOrder(person: number, id: number) {
     const { scene } = this,
       { world } = scene
-    if (world.inputMask || scene.overviewActive) return
+    if (world.inputMask || scene.overviewActive || scene.overviewStage) return
     const unit = world.units.find(u => u.id === person && u.hp > 0 && u.team === 'blue')
     if (!unit) return
     const p = unitAnimationSource(unit) ?? unit.native ?? unit.entry?.person ?? unit.builder?.person

@@ -56,7 +56,7 @@ for (const group of [false, true]) test(`current shrine ${group ? 'group' : 'sin
   assert.deepEqual(f.events, [['sound', 0x6a], ['change']])
 })
 
-for (const mode of ['disposed', 'store replacement', 'world membership', 'removed shrine', 'same-ID replacement', 'overview']) {
+for (const mode of ['disposed', 'store replacement', 'world membership', 'removed shrine', 'same-ID replacement', 'overview', 'overview enter', 'overview exit']) {
   test(`stale worship click after ${mode} has no selection or feedback`, t => {
     const f = setup(t)
     if (mode === 'disposed') f.scene.disposed = true
@@ -68,6 +68,8 @@ for (const mode of ['disposed', 'store replacement', 'world membership', 'remove
     if (mode === 'removed shrine') f.world.shrines = f.world.shrines.filter(h => h !== f.head)
     if (mode === 'same-ID replacement') f.world.shrines = f.world.shrines.map(h => h === f.head ? { ...h } : h)
     if (mode === 'overview') f.scene.overviewActive = true
+    if (mode === 'overview enter') f.scene.overviewStage = 'enter'
+    if (mode === 'overview exit') f.scene.overviewStage = 'exit'
     const before = [...f.scene.world.selected]
     f.click(false)
     assert.deepEqual(f.scene.world.selected, before)
@@ -92,7 +94,7 @@ test('current shrine right-click keeps focus and person inspection', t => {
   assert.deepEqual(f.events.slice(1), [['sound', 0x6a], ['open', f.people[0].id, true]])
 })
 
-for (const mode of ['disposed', 'store replacement', 'world membership', 'removed shrine', 'same-ID replacement', 'overview', 'input mask']) {
+for (const mode of ['disposed', 'store replacement', 'world membership', 'removed shrine', 'same-ID replacement', 'overview', 'overview enter', 'overview exit', 'input mask']) {
   test(`stale worship right-click after ${mode} has no focus or feedback`, t => {
     const f = setup(t)
     f.panels.open = (id, immediate) => f.events.push(['open', id, immediate])
@@ -105,6 +107,8 @@ for (const mode of ['disposed', 'store replacement', 'world membership', 'remove
     if (mode === 'removed shrine') f.world.shrines = f.world.shrines.filter(h => h !== f.head)
     if (mode === 'same-ID replacement') f.world.shrines = f.world.shrines.map(h => h === f.head ? { ...h } : h)
     if (mode === 'overview') f.scene.overviewActive = true
+    if (mode === 'overview enter') f.scene.overviewStage = 'enter'
+    if (mode === 'overview exit') f.scene.overviewStage = 'exit'
     if (mode === 'input mask') f.world.inputMask = 1
     f.focus()
     assert.deepEqual(f.events, [])

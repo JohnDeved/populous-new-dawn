@@ -39,7 +39,7 @@ test('current vehicle passenger click retains actual selection and feedback',t=>
 test('current vehicle passenger right-click retains inspection',t=>{
  const f=setup(t);f.focus();assert.deepEqual(f.events,[['open',f.unit.id,true]]);assert.deepEqual(f.world.selected,[])
 })
-for(const action of ['click','focus'])for(const mode of ['disposed','store replacement','same-ID replacement','removed vehicle','inactive vehicle','overview','input mask'])test(`stale vehicle ${action} after ${mode} has no selection or feedback`,t=>{
+for(const action of ['click','focus'])for(const mode of ['disposed','store replacement','same-ID replacement','removed vehicle','inactive vehicle','overview','overview enter','overview exit','input mask'])test(`stale vehicle ${action} after ${mode} has no selection or feedback`,t=>{
  const f=setup(t)
  if(mode==='disposed')f.scene.disposed=true
  if(mode==='store replacement')f.store.startMission(2)
@@ -47,6 +47,8 @@ for(const action of ['click','focus'])for(const mode of ['disposed','store repla
  if(mode==='removed vehicle')f.world.vehicles=f.world.vehicles.filter(v=>v!==f.vehicle)
  if(mode==='inactive vehicle')f.vehicle.active=false
  if(mode==='overview')f.scene.overviewActive=true
+ if(mode==='overview enter')f.scene.overviewStage='enter'
+ if(mode==='overview exit')f.scene.overviewStage='exit'
  if(mode==='input mask')f.world.inputMask=1
  const flags=f.unit.native.flags3
  f[action]()
